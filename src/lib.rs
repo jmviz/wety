@@ -7,9 +7,15 @@ use futures_util::StreamExt;
 use std::io::{BufReader, BufRead};
 use bytelines::ByteLines;
 use simd_json::{BorrowedValue, to_borrowed_value, ValueAccess};
+use std::fs::File;
+
+// const WIKTEXTRACT_URL: &str = "https://kaikki.org/dictionary/raw-wiktextract-data.json.gz";
+const WIKTEXTRACT_URL: &str = "http://0.0.0.0:8000/test/bank.json.gz";
+// const WIKTEXTRACT_PATH: &str = "data/raw-wiktextract-data.json.gz";
+const WIKTEXTRACT_PATH: &str = "data/test/bank.json.gz";
 
 #[derive(Hash, Eq, PartialEq, Debug)]
-struct Item {
+pub struct Item {
     term: String, // e.g. "bank"
     lang: String, // e.g "English"
     pos: String, // e.g. "noun"
@@ -17,56 +23,58 @@ struct Item {
     gloss: String // e.g. "An institution where one can place and borrow money...
 }
 
-type Items = HashSet<Item>;
-type Etys = HashMap<String, Items>;
-type Langs = HashMap<String, Etys>;
-type Terms = HashMap<String, Langs>;
+type ItemSet = HashSet<Item>;
+type EtyMap = HashMap<String, ItemSet>;
+type LangMap = HashMap<String, EtyMap>;
+type TermMap = HashMap<String, LangMap>;
 
-fn add_item(terms: &mut Terms, item: Item) {
+fn add_item(term_map: &mut TermMap, item: Item) {
+    let term = item.term.clone();
     let lang = item.lang.clone();
     let ety_text = item.ety_text.clone();
     // check if the item's term has been seen before
-    if !terms.contains_key(&item.term) {
-        let mut items: Items = HashSet::new();
-        let mut etys: Etys = HashMap::new();
-        let mut langs: Langs = HashMap::new();
-        items.insert(item);
-        etys.insert(ety_text, items);
-        langs.insert(lang, etys);
+    if !term_map.contains_key(&item.term) {
+        let mut item_set: ItemSet = HashSet::new();
+        let mut ety_map: EtyMap = HashMap::new();
+        let mut lang_map: LangMap = HashMap::new();
+        item_set.insert(item);
+        ety_map.insert(ety_text, item_set);
+        lang_map.insert(lang, ety_map);
+        term_map.insert(term, lang_map);
         return
     }
     // since term has been seen before, there must be at least one lang for it
     // check if item's lang has been seen before
-    let langs: &mut Langs = terms.get_mut(&item.term).unwrap();
-    if !langs.contains_key(&lang) {
-        let mut items: Items = HashSet::new();
-        let mut etys: Etys = HashMap::new();
-        items.insert(item);
-        etys.insert(ety_text, items);
-        langs.insert(lang, etys);
+    let lang_map: &mut LangMap = term_map.get_mut(&item.term).unwrap();
+    if !lang_map.contains_key(&lang) {
+        let mut item_set: ItemSet = HashSet::new();
+        let mut ety_map: EtyMap = HashMap::new();
+        item_set.insert(item);
+        ety_map.insert(ety_text, item_set);
+        lang_map.insert(lang, ety_map);
         return
     }
     // since lang has been seen before, there must be at least one ety
     // and for any ety, there must be at least one item
-    let etys: &mut Etys = langs.get_mut(&lang).unwrap();
-    if etys.contains_key(&ety_text) {
-        let items: &mut Items = etys.get_mut(&ety_text).unwrap();
-        items.insert(item);
+    let ety_map: &mut EtyMap = lang_map.get_mut(&lang).unwrap();
+    if ety_map.contains_key(&ety_text) {
+        let item_set: &mut ItemSet = ety_map.get_mut(&ety_text).unwrap();
+        item_set.insert(item);
     } else {
-        let mut items: Items = HashSet::new();
-        items.insert(item);
-        etys.insert(ety_text, items);
+        let mut item_set: ItemSet = HashSet::new();
+        item_set.insert(item);
+        ety_map.insert(ety_text, item_set);
     }
 }
 
-fn print_all_items(terms: &Terms) {
-    for (term, langs) in terms.iter() {
-        println!("{}", term);
-        for (lang, etys) in langs.iter() {
-            println!("  {}", lang);
-            for (ety_text, items) in etys.iter() {
-                println!("    {}", ety_text);
-                for item in items.iter() {
+pub fn print_all_items(term_map: &TermMap) {
+    for (term, lang_map) in term_map.iter() {
+        println!("{term}");
+        for (lang, ety_map) in lang_map.iter() {
+            println!("  {lang}");
+            for (ety_text, item_set) in ety_map.iter() {
+                println!("    {ety_text}");
+                for item in item_set.iter() {
                     println!("      ({}), {}", item.pos, item.gloss);
                 }
             }
@@ -74,12 +82,12 @@ fn print_all_items(terms: &Terms) {
     }
 }
 
-fn print_item(item: &Item) {
-    println!("{}", item.term);
-    println!("  {}", item.lang);
-    println!("    {}", item.ety_text);
-    println!("      ({}), {}", item.pos, item.gloss);
-}
+// fn print_item(item: &Item) {
+//     println!("{}", item.term);
+//     println!("  {}", item.lang);
+//     println!("    {}", item.ety_text);
+//     println!("      ({}), {}", item.pos, item.gloss);
+// }
 
 fn is_valid_json_item(json_item: &BorrowedValue) -> bool {
     // some wiktionary pages are redirects, which we don't want
@@ -90,7 +98,7 @@ fn is_valid_json_item(json_item: &BorrowedValue) -> bool {
     json_item["senses"].get_idx(0).is_some()
 }
 
-fn process_json_item(terms: &mut Terms, json_item: BorrowedValue) {
+fn process_json_item(term_map: &mut TermMap, json_item: BorrowedValue) {
     let term = json_item["word"].as_str().unwrap().to_string();
     let lang = json_item["lang"].as_str().unwrap().to_string();
     let pos = json_item["pos"].as_str().unwrap().to_string();
@@ -110,32 +118,48 @@ fn process_json_item(terms: &mut Terms, json_item: BorrowedValue) {
         ety_text: ety_text,
         gloss: gloss
     };
-    print_item(&item);
-    add_item(terms, item);
+    // print_item(&item);
+    add_item(term_map, item);
 }
 
-fn process_json_items<T: BufRead>(lines: ByteLines<T>) {
-    let mut terms: Terms = HashMap::new();
+fn process_json_items<T: BufRead>(lines: ByteLines<T>) -> TermMap {
+    let mut term_map: TermMap = HashMap::new();
     lines
         .into_iter()
         .filter_map(Result::ok)
         .for_each(|mut line| {
             let json_item: BorrowedValue = to_borrowed_value(&mut line).unwrap();
             if is_valid_json_item(&json_item) {
-                process_json_item(&mut terms, json_item);
+                process_json_item(&mut term_map, json_item);
             }
         });
-    print_all_items(&terms);
+    return term_map;
+}
+
+pub async fn process_wiktextract_data() -> io::Result<TermMap> {
+    match File::open(WIKTEXTRACT_PATH) {
+        Ok(file) => {
+            println!("processing data from local file {WIKTEXTRACT_PATH}");
+            let reader = BufReader::new(file);
+            let gz = GzDecoder::new(reader);
+            let gz_reader = BufReader::new(gz);
+            let lines = ByteLines::new(gz_reader);
+            Ok(process_json_items(lines))
+        }
+        Err(_) => { // file doesn't exist or error opening it; download instead
+            println!("processing data from {WIKTEXTRACT_URL}");
+            Ok(process_download(WIKTEXTRACT_URL).await.unwrap())
+        }
+    }
 }
 
 // based on https://stackoverflow.com/a/69967522
-pub async fn process_download() -> io::Result<()> {
+pub async fn process_download(url: &str) -> io::Result<TermMap> {
     let client = reqwest::Client::new();
 
-    let full_url = "http://0.0.0.0:8000/see.json.gz";
     let response: Response;
 
-    match client.get(full_url).send().await {
+    match client.get(url).send().await {
         Ok(res) => response = res,
         Err(error) => {
             return Err(io::Error::new(io::ErrorKind::InvalidData, error));
@@ -149,7 +173,8 @@ pub async fn process_download() -> io::Result<()> {
         let gz = GzDecoder::new(input);
         let reader = BufReader::new(gz);
         let lines = ByteLines::new(reader);
-        process_json_items(lines);
+        let term_map = process_json_items(lines);
+        return term_map;
     });
 
     if response.status() == reqwest::StatusCode::OK {
@@ -164,12 +189,12 @@ pub async fn process_download() -> io::Result<()> {
         drop(tx); // close the channel to signal EOF
     }
 
-    tokio::task::spawn_blocking(|| decoder_thread.join())
+    let term_map = tokio::task::spawn_blocking(|| decoder_thread.join())
         .await
         .unwrap()
         .unwrap();
 
-    Ok(())
+    Ok(term_map)
 }
 
 // Wrap a channel into something that impls `io::Read`
