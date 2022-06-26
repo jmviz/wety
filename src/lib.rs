@@ -1,5 +1,7 @@
 use std::io::{self, Read};
 use std::collections::{HashMap, HashSet};
+use std::cmp::min;
+use std::sync::Arc;
 
 use flate2::read::GzDecoder;
 use reqwest::Response;
@@ -8,30 +10,31 @@ use std::io::{BufReader, BufRead};
 use bytelines::ByteLines;
 use simd_json::{BorrowedValue, to_borrowed_value, ValueAccess};
 use std::fs::File;
+use indicatif::{ProgressBar, ProgressStyle};
 
-// const WIKTEXTRACT_URL: &str = "https://kaikki.org/dictionary/raw-wiktextract-data.json.gz";
-const WIKTEXTRACT_URL: &str = "http://0.0.0.0:8000/test/bank.json.gz";
-// const WIKTEXTRACT_PATH: &str = "data/raw-wiktextract-data.json.gz";
-const WIKTEXTRACT_PATH: &str = "data/test/bank.json.gz";
+const WIKTEXTRACT_URL: &str = "https://kaikki.org/dictionary/raw-wiktextract-data.json.gz";
+// const WIKTEXTRACT_URL: &str = "http://0.0.0.0:8000/test/bank.json.gz";
+const WIKTEXTRACT_PATH: &str = "data/raw-wiktextract-data.json.gz";
+// const WIKTEXTRACT_PATH: &str = "data/test/bank.json.gz";
 
 #[derive(Hash, Eq, PartialEq, Debug)]
 pub struct Item {
-    term: String, // e.g. "bank"
-    lang: String, // e.g "English"
-    pos: String, // e.g. "noun"
-    ety_text: String, // e.g. "From Middle English banke, from Middle French banque...
-    gloss: String // e.g. "An institution where one can place and borrow money...
+    term: Arc<Box<str>>, // e.g. "bank"
+    lang: Arc<Box<str>>, // e.g "English"
+    ety_text: Arc<Box<str>>, // e.g. "From Middle English banke, from Middle French banque...
+    pos: Box<str>, // e.g. "noun"
+    gloss: Box<str> // e.g. "An institution where one can place and borrow money...
 }
 
 type ItemSet = HashSet<Item>;
-type EtyMap = HashMap<String, ItemSet>;
-type LangMap = HashMap<String, EtyMap>;
-type TermMap = HashMap<String, LangMap>;
+type EtyMap = HashMap<Arc<Box<str>>, ItemSet>;
+type LangMap = HashMap<Arc<Box<str>>, EtyMap>;
+type TermMap = HashMap<Arc<Box<str>>, LangMap>;
 
 fn add_item(term_map: &mut TermMap, item: Item) {
-    let term = item.term.clone();
-    let lang = item.lang.clone();
-    let ety_text = item.ety_text.clone();
+    let term = Arc::clone(&item.term);
+    let lang = Arc::clone(&item.lang);
+    let ety_text = Arc::clone(&item.ety_text);
     // check if the item's term has been seen before
     if !term_map.contains_key(&item.term) {
         let mut item_set: ItemSet = HashSet::new();
@@ -75,19 +78,19 @@ pub fn print_all_items(term_map: &TermMap) {
             for (ety_text, item_set) in ety_map.iter() {
                 println!("    {ety_text}");
                 for item in item_set.iter() {
-                    println!("      ({}), {}", item.pos, item.gloss);
+                    println!("      ({}) {}", item.pos, item.gloss);
                 }
             }
         }
     }
 }
 
-// fn print_item(item: &Item) {
-//     println!("{}", item.term);
-//     println!("  {}", item.lang);
-//     println!("    {}", item.ety_text);
-//     println!("      ({}), {}", item.pos, item.gloss);
-// }
+pub fn print_item(item: &Item) {
+    println!("{}", item.term);
+    println!("  {}", item.lang);
+    println!("    {}", item.ety_text);
+    println!("      ({}), {}", item.pos, item.gloss);
+}
 
 fn is_valid_json_item(json_item: &BorrowedValue) -> bool {
     // some wiktionary pages are redirects, which we don't want
@@ -99,23 +102,25 @@ fn is_valid_json_item(json_item: &BorrowedValue) -> bool {
 }
 
 fn process_json_item(term_map: &mut TermMap, json_item: BorrowedValue) {
-    let term = json_item["word"].as_str().unwrap().to_string();
-    let lang = json_item["lang"].as_str().unwrap().to_string();
-    let pos = json_item["pos"].as_str().unwrap().to_string();
+    let term = Arc::new(json_item["word"].as_str().unwrap().to_string().into_boxed_str());
+    let lang = Arc::new(json_item["lang"].as_str().unwrap().to_string().into_boxed_str());
     let mut ety_text = "".to_string();
     if json_item.contains_key("etymology_text") {
         ety_text = json_item["etymology_text"].as_str().unwrap().to_string();
     }
+    let ety_text = Arc::new(ety_text.into_boxed_str());
+    let pos = json_item["pos"].as_str().unwrap().to_string().into_boxed_str();
     let mut gloss = "".to_string();
     if json_item["senses"][0].contains_key("glosses") &&
             json_item["senses"][0]["glosses"].get_idx(0).is_some() {
         gloss = json_item["senses"][0]["glosses"][0].as_str().unwrap().to_string();
     }
+    let gloss = gloss.into_boxed_str();
     let item = Item {
         term: term,
         lang: lang,
-        pos: pos,
         ety_text: ety_text,
+        pos: pos,
         gloss: gloss
     };
     // print_item(&item);
@@ -133,13 +138,14 @@ fn process_json_items<T: BufRead>(lines: ByteLines<T>) -> TermMap {
                 process_json_item(&mut term_map, json_item);
             }
         });
+    println!("Finished initial processing of wiktextract raw data");
     return term_map;
 }
 
 pub async fn process_wiktextract_data() -> io::Result<TermMap> {
     match File::open(WIKTEXTRACT_PATH) {
         Ok(file) => {
-            println!("processing data from local file {WIKTEXTRACT_PATH}");
+            println!("Processing data from local file {WIKTEXTRACT_PATH}");
             let reader = BufReader::new(file);
             let gz = GzDecoder::new(reader);
             let gz_reader = BufReader::new(gz);
@@ -147,7 +153,7 @@ pub async fn process_wiktextract_data() -> io::Result<TermMap> {
             Ok(process_json_items(lines))
         }
         Err(_) => { // file doesn't exist or error opening it; download instead
-            println!("processing data from {WIKTEXTRACT_URL}");
+            println!("Processing data from {WIKTEXTRACT_URL}");
             Ok(process_download(WIKTEXTRACT_URL).await.unwrap())
         }
     }
@@ -164,8 +170,19 @@ pub async fn process_download(url: &str) -> io::Result<TermMap> {
         Err(error) => {
             return Err(io::Error::new(io::ErrorKind::InvalidData, error));
         }
-    };
+    }
 
+    let total_size = response
+        .content_length()
+        .ok_or(format!("Failed to get content length from '{}'", &url))
+        .unwrap();
+
+    // https://gist.github.com/giuliano-oliveira/4d11d6b3bb003dba3a1b53f43d81b30d
+    let pb = ProgressBar::new(total_size);
+    pb.set_style(ProgressStyle::default_bar()
+        .template("{msg}\n{spinner:.green} [{elapsed_precise}] [{wide_bar:.cyan/blue}] {bytes}/{total_bytes} ({bytes_per_sec}, {eta})")
+        .progress_chars("#>-"));
+    pb.set_message("Downloading...");
     let (tx, rx) = flume::bounded(0);
 
     let decoder_thread = std::thread::spawn(move || {
@@ -179,14 +196,20 @@ pub async fn process_download(url: &str) -> io::Result<TermMap> {
 
     if response.status() == reqwest::StatusCode::OK {
         let mut stream = response.bytes_stream();
+        let mut downloaded: u64 = 0;
 
         while let Some(item) = stream.next().await {
             let chunk = item
                 .or(Err(format!("Error while downloading file")))
                 .unwrap();
             tx.send_async(chunk.to_vec()).await.unwrap();
+
+            let new = min(downloaded + (chunk.len() as u64), total_size);
+            downloaded = new;
+            pb.set_position(new);
         }
         drop(tx); // close the channel to signal EOF
+        pb.finish_with_message("Finished download.");
     }
 
     let term_map = tokio::task::spawn_blocking(|| decoder_thread.join())
