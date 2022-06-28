@@ -31,14 +31,14 @@ type LangMap = HashMap<Box<str>, EtyMap>;
 type TermMap = HashMap<Box<str>, LangMap>;
 
 fn add_item(term_map: &mut TermMap, item: Item) -> Result<(), Box<dyn Error>> {
-    let term = item.term.clone();
-    let lang = item.lang.clone();
-    let ety_text = item.ety_text.clone();
     // check if the item's term has been seen before
     if !term_map.contains_key(&item.term) {
         let mut item_set: ItemSet = HashSet::new();
         let mut ety_map: EtyMap = HashMap::new();
         let mut lang_map: LangMap = HashMap::new();
+        let term = item.term.clone();
+        let lang = item.lang.clone();
+        let ety_text = item.ety_text.clone();
         item_set.insert(item);
         ety_map.insert(ety_text, item_set);
         lang_map.insert(lang, ety_map);
@@ -47,10 +47,13 @@ fn add_item(term_map: &mut TermMap, item: Item) -> Result<(), Box<dyn Error>> {
     }
     // since term has been seen before, there must be at least one lang for it
     // check if item's lang has been seen before
-    let lang_map: &mut LangMap = term_map.get_mut(&item.term).unwrap();
-    if !lang_map.contains_key(&lang) {
+    let lang_map: &mut LangMap = term_map.get_mut(&item.term)
+        .ok_or_else(|| format!("no LangMap for term when adding:\n{:#?}", item))?;
+    if !lang_map.contains_key(&item.lang) {
         let mut item_set: ItemSet = HashSet::new();
         let mut ety_map: EtyMap = HashMap::new();
+        let ety_text = item.ety_text.clone();
+        let lang = item.lang.clone();
         item_set.insert(item);
         ety_map.insert(ety_text, item_set);
         lang_map.insert(lang, ety_map);
@@ -58,12 +61,15 @@ fn add_item(term_map: &mut TermMap, item: Item) -> Result<(), Box<dyn Error>> {
     }
     // since lang has been seen before, there must be at least one ety
     // and for any ety, there must be at least one item
-    let ety_map: &mut EtyMap = lang_map.get_mut(&lang).unwrap();
-    if ety_map.contains_key(&ety_text) {
-        let item_set: &mut ItemSet = ety_map.get_mut(&ety_text).unwrap();
+    let ety_map: &mut EtyMap = lang_map.get_mut(&item.lang)
+        .ok_or_else(|| format!("no EtyMap for lang when adding:\n{:#?}", item))?;
+    if ety_map.contains_key(&item.ety_text) {
+        let item_set: &mut ItemSet = ety_map.get_mut(&item.ety_text)
+            .ok_or_else(|| format!("no ItemSet for ety_text when adding:\n{:#?}", item))?;
         item_set.insert(item);
     } else {
         let mut item_set: ItemSet = HashSet::new();
+        let ety_text = item.ety_text.clone();
         item_set.insert(item);
         ety_map.insert(ety_text, item_set);
     }
@@ -101,7 +107,7 @@ fn is_valid_json_item(json_item: &BorrowedValue) -> bool {
     json_item
         .get("senses")
         .ok_or_else(|| format!("json item has no 'senses' field:\n{json_item}"))
-        .unwrap()
+        .expect("assume canonical fields in json") 
         .get_idx(0)
         .is_some()
 }
