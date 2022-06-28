@@ -1,40 +1,39 @@
-use std::io::{self, Read};
+use std::io::{BufReader, BufRead};
 use std::collections::{HashMap, HashSet};
+use std::error::Error;
 use std::cmp::min;
-use std::sync::Arc;
+use std::fs::File;
+use std::io::Write;
 
 use flate2::read::GzDecoder;
-use reqwest::Response;
 use futures_util::StreamExt;
-use std::io::{BufReader, BufRead};
 use bytelines::ByteLines;
 use simd_json::{BorrowedValue, to_borrowed_value, ValueAccess};
-use std::fs::File;
 use indicatif::{ProgressBar, ProgressStyle};
 
 const WIKTEXTRACT_URL: &str = "https://kaikki.org/dictionary/raw-wiktextract-data.json.gz";
-// const WIKTEXTRACT_URL: &str = "http://0.0.0.0:8000/test/bank.json.gz";
 const WIKTEXTRACT_PATH: &str = "data/raw-wiktextract-data.json.gz";
+// const WIKTEXTRACT_URL: &str = "http://0.0.0.0:8000/data/test/bank.json.gz";
 // const WIKTEXTRACT_PATH: &str = "data/test/bank.json.gz";
 
 #[derive(Hash, Eq, PartialEq, Debug)]
 pub struct Item {
-    term: Arc<Box<str>>, // e.g. "bank"
-    lang: Arc<Box<str>>, // e.g "English"
-    ety_text: Arc<Box<str>>, // e.g. "From Middle English banke, from Middle French banque...
+    term: Box<str>, // e.g. "bank"
+    lang: Box<str>, // e.g "English"
+    ety_text: Box<str>, // e.g. "From Middle English banke, from Middle French banque...
     pos: Box<str>, // e.g. "noun"
     gloss: Box<str> // e.g. "An institution where one can place and borrow money...
 }
 
 type ItemSet = HashSet<Item>;
-type EtyMap = HashMap<Arc<Box<str>>, ItemSet>;
-type LangMap = HashMap<Arc<Box<str>>, EtyMap>;
-type TermMap = HashMap<Arc<Box<str>>, LangMap>;
+type EtyMap = HashMap<Box<str>, ItemSet>;
+type LangMap = HashMap<Box<str>, EtyMap>;
+type TermMap = HashMap<Box<str>, LangMap>;
 
-fn add_item(term_map: &mut TermMap, item: Item) {
-    let term = Arc::clone(&item.term);
-    let lang = Arc::clone(&item.lang);
-    let ety_text = Arc::clone(&item.ety_text);
+fn add_item(term_map: &mut TermMap, item: Item) -> Result<(), Box<dyn Error>> {
+    let term = item.term.clone();
+    let lang = item.lang.clone();
+    let ety_text = item.ety_text.clone();
     // check if the item's term has been seen before
     if !term_map.contains_key(&item.term) {
         let mut item_set: ItemSet = HashSet::new();
@@ -44,7 +43,7 @@ fn add_item(term_map: &mut TermMap, item: Item) {
         ety_map.insert(ety_text, item_set);
         lang_map.insert(lang, ety_map);
         term_map.insert(term, lang_map);
-        return
+        return Ok(());
     }
     // since term has been seen before, there must be at least one lang for it
     // check if item's lang has been seen before
@@ -55,7 +54,7 @@ fn add_item(term_map: &mut TermMap, item: Item) {
         item_set.insert(item);
         ety_map.insert(ety_text, item_set);
         lang_map.insert(lang, ety_map);
-        return
+        return Ok(());
     }
     // since lang has been seen before, there must be at least one ety
     // and for any ety, there must be at least one item
@@ -68,6 +67,7 @@ fn add_item(term_map: &mut TermMap, item: Item) {
         item_set.insert(item);
         ety_map.insert(ety_text, item_set);
     }
+    Ok(())
 }
 
 pub fn print_all_items(term_map: &TermMap) {
@@ -98,24 +98,53 @@ fn is_valid_json_item(json_item: &BorrowedValue) -> bool {
     !json_item.contains_key("redirect") &&
     // as of 2022-06-20, there is exactly one json_item that has no senses
     // https://github.com/tatuylonen/wiktextract/issues/139
-    json_item["senses"].get_idx(0).is_some()
+    json_item
+        .get("senses")
+        .ok_or_else(|| format!("json item has no 'senses' field:\n{json_item}"))
+        .unwrap()
+        .get_idx(0)
+        .is_some()
 }
 
-fn process_json_item(term_map: &mut TermMap, json_item: BorrowedValue) {
-    let term = Arc::new(json_item["word"].as_str().unwrap().to_string().into_boxed_str());
-    let lang = Arc::new(json_item["lang"].as_str().unwrap().to_string().into_boxed_str());
-    let mut ety_text = "".to_string();
-    if json_item.contains_key("etymology_text") {
-        ety_text = json_item["etymology_text"].as_str().unwrap().to_string();
-    }
-    let ety_text = Arc::new(ety_text.into_boxed_str());
-    let pos = json_item["pos"].as_str().unwrap().to_string().into_boxed_str();
-    let mut gloss = "".to_string();
-    if json_item["senses"][0].contains_key("glosses") &&
-            json_item["senses"][0]["glosses"].get_idx(0).is_some() {
-        gloss = json_item["senses"][0]["glosses"][0].as_str().unwrap().to_string();
-    }
-    let gloss = gloss.into_boxed_str();
+fn process_json_item(term_map: &mut TermMap, json_item: BorrowedValue) -> Result<(), Box<dyn Error>> {
+    let term: Box<str> = Box::from(
+        json_item
+            .get("word")
+            .ok_or_else(|| format!("json item has no 'word' field:\n{json_item}"))?
+            .as_str()
+            .ok_or_else(|| format!("failed parsing str for 'word' in json item:\n{json_item}"))?
+);
+    let lang: Box<str> = Box::from(
+        json_item
+            .get("lang")
+            .ok_or_else(|| format!("json item has no 'lang' field:\n{json_item}"))?
+            .as_str()
+            .ok_or_else(|| format!("failed parsing str for 'lang' in json item:\n{json_item}"))?
+);
+    let ety_text: Box<str> = Box::from(
+        json_item
+            .get("etymology_text")
+            .map_or_else(|| Some(""), |v| v.as_str())
+            .ok_or_else(|| format!("failed parsing str for 'etymology_text' in json item:\n{json_item}"))?
+);
+    let pos: Box<str> = Box::from(
+        json_item
+            .get("pos")
+            .ok_or_else(|| format!("json item has no 'pos' field:\n{json_item}"))?
+            .as_str()
+            .ok_or_else(|| format!("failed parsing str for 'pos' in json item:\n{json_item}"))?
+);
+    let gloss: Box<str> = Box::from(
+        json_item["senses"][0] // we check this is safe in is_valid_json_item()
+            .get("glosses")
+            .map_or_else(|| Ok(""), |v| v
+                .get_idx(0)
+                .ok_or_else(|| format!("'senses[0].glosses' is empty in json item:\n{json_item}"))?
+                .as_str()
+                .ok_or_else(|| format!("failed parsing str for 'gloss' in json item:\n{json_item}"))
+            )?
+        );    
+
     let item = Item {
         term: term,
         lang: lang,
@@ -124,128 +153,85 @@ fn process_json_item(term_map: &mut TermMap, json_item: BorrowedValue) {
         gloss: gloss
     };
     // print_item(&item);
-    add_item(term_map, item);
+    add_item(term_map, item)?;
+    Ok(())
 }
 
-fn process_json_items<T: BufRead>(lines: ByteLines<T>) -> TermMap {
+fn process_json_items<T: BufRead>(lines: ByteLines<T>) -> Result<TermMap, Box<dyn Error>> {
     let mut term_map: TermMap = HashMap::new();
     lines
         .into_iter()
         .filter_map(Result::ok)
         .for_each(|mut line| {
-            let json_item: BorrowedValue = to_borrowed_value(&mut line).unwrap();
+            let json_item: BorrowedValue = to_borrowed_value(&mut line)
+                .expect("parse json line from file");
             if is_valid_json_item(&json_item) {
-                process_json_item(&mut term_map, json_item);
+                process_json_item(&mut term_map, json_item)
+                .expect("process json item");
             }
         });
     println!("Finished initial processing of wiktextract raw data");
-    return term_map;
+    // print_all_items(&term_map);
+    Ok(term_map)
 }
 
-pub async fn process_wiktextract_data() -> io::Result<TermMap> {
-    match File::open(WIKTEXTRACT_PATH) {
-        Ok(file) => {
-            println!("Processing data from local file {WIKTEXTRACT_PATH}");
-            let reader = BufReader::new(file);
-            let gz = GzDecoder::new(reader);
-            let gz_reader = BufReader::new(gz);
-            let lines = ByteLines::new(gz_reader);
-            Ok(process_json_items(lines))
-        }
-        Err(_) => { // file doesn't exist or error opening it; download instead
-            println!("Processing data from {WIKTEXTRACT_URL}");
-            Ok(process_download(WIKTEXTRACT_URL).await.unwrap())
-        }
-    }
+fn process_file(file: File) -> Result<TermMap, Box<dyn Error>> {
+    let reader = BufReader::new(file);
+    let gz = GzDecoder::new(reader);
+    let gz_reader = BufReader::new(gz);
+    let lines = ByteLines::new(gz_reader);
+    Ok(process_json_items(lines)?)
 }
 
-// based on https://stackoverflow.com/a/69967522
-pub async fn process_download(url: &str) -> io::Result<TermMap> {
+pub async fn download_file(url: &str, path: &str) -> Result<(), Box<dyn Error>> {
+    // https://gist.github.com/giuliano-oliveira/4d11d6b3bb003dba3a1b53f43d81b30d
     let client = reqwest::Client::new();
-
-    let response: Response;
-
-    match client.get(url).send().await {
-        Ok(res) => response = res,
-        Err(error) => {
-            return Err(io::Error::new(io::ErrorKind::InvalidData, error));
-        }
-    }
-
+    let response = client
+        .get(url)
+        .send()
+        .await
+        .or_else(|_| Err(format!("Failed to GET from '{url}'")))?;
     let total_size = response
         .content_length()
-        .ok_or(format!("Failed to get content length from '{}'", &url))
-        .unwrap();
+        .ok_or_else(|| format!("Failed to get content length from '{url}'"))?;
 
-    // https://gist.github.com/giuliano-oliveira/4d11d6b3bb003dba3a1b53f43d81b30d
     let pb = ProgressBar::new(total_size);
     pb.set_style(ProgressStyle::default_bar()
         .template("{msg}\n{spinner:.green} [{elapsed_precise}] [{wide_bar:.cyan/blue}] {bytes}/{total_bytes} ({bytes_per_sec}, {eta})")
         .progress_chars("#>-"));
     pb.set_message("Downloading...");
-    let (tx, rx) = flume::bounded(0);
-
-    let decoder_thread = std::thread::spawn(move || {
-        let input = ChannelRead::new(rx);
-        let gz = GzDecoder::new(input);
-        let reader = BufReader::new(gz);
-        let lines = ByteLines::new(reader);
-        let term_map = process_json_items(lines);
-        return term_map;
-    });
 
     if response.status() == reqwest::StatusCode::OK {
         let mut stream = response.bytes_stream();
         let mut downloaded: u64 = 0;
+        let mut file = File::create(path)
+            .or_else(|_| Err(format!("Failed to create file '{path}'")))?;
 
         while let Some(item) = stream.next().await {
-            let chunk = item
-                .or(Err(format!("Error while downloading file")))
-                .unwrap();
-            tx.send_async(chunk.to_vec()).await.unwrap();
-
+            let chunk = item.or_else(|_| Err(format!("Error while downloading file")))?;
+            file.write_all(&chunk).or_else(|_| Err(format!("Error while writing to file")))?;
             let new = min(downloaded + (chunk.len() as u64), total_size);
             downloaded = new;
             pb.set_position(new);
         }
-        drop(tx); // close the channel to signal EOF
         pb.finish_with_message("Finished download.");
     }
-
-    let term_map = tokio::task::spawn_blocking(|| decoder_thread.join())
-        .await
-        .unwrap()
-        .unwrap();
-
-    Ok(term_map)
+    Ok(())
 }
 
-// Wrap a channel into something that impls `io::Read`
-struct ChannelRead {
-    rx: flume::Receiver<Vec<u8>>,
-    current: io::Cursor<Vec<u8>>,
-}
-
-impl ChannelRead {
-    fn new(rx: flume::Receiver<Vec<u8>>) -> ChannelRead {
-        ChannelRead {
-            rx,
-            current: io::Cursor::new(vec![]),
+pub async fn process_wiktextract_data() -> Result<TermMap, Box<dyn Error>> {
+    match File::open(WIKTEXTRACT_PATH) {
+        Ok(file) => {
+            println!("Processing data from local file {WIKTEXTRACT_PATH}");
+            Ok(process_file(file)?)
         }
-    }
-}
-
-impl Read for ChannelRead {
-    fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
-        if self.current.position() == self.current.get_ref().len() as u64 {
-            // We've exhausted the previous chunk, get a new one.
-            if let Ok(vec) = self.rx.recv() {
-                self.current = io::Cursor::new(vec);
-            }
-            // If recv() "fails", it means the sender closed its part of
-            // the channel, which means EOF. Propagate EOF by allowing
-            // a read from the exhausted cursor.
+        Err(_) => { // file doesn't exist or error opening it; download it
+            println!("No local file found, downloading from {WIKTEXTRACT_URL}");
+            download_file(WIKTEXTRACT_URL, WIKTEXTRACT_PATH).await?;
+            let file = File::open(WIKTEXTRACT_PATH)
+                .or_else(|_| Err(format!("Failed to open file '{WIKTEXTRACT_PATH}'")))?;
+            println!("Processing data from downloaded file {WIKTEXTRACT_PATH}");
+            Ok(process_file(file)?)
         }
-        self.current.read(buf)
     }
 }

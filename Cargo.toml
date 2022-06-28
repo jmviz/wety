@@ -3,7 +3,8 @@ name = "wety"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[profile.release]
+debug = true
 
 [dependencies]
 simd-json = "0.5.0"
@@ -12,6 +13,5 @@ bytelines = "2.4"
 flate2 = "1.0.24"
 futures-util = "0.3.21"
 reqwest = {version = "0.11.11", features = ["stream"]}
-flume = "0.10.13"
 tokio = {version = "1.19.2", features = ["rt", "rt-multi-thread", "macros"]}
 indicatif = "0.16.2"

@@ -1,13 +1,15 @@
-use std::io;
+#[global_allocator]
+static ALLOC: snmalloc_rs::SnMalloc = snmalloc_rs::SnMalloc;
+
+use std::error::Error;
 use std::env;
 
-use wety::{process_wiktextract_data, print_all_items};
+use wety::process_wiktextract_data;
 
 #[tokio::main]
-async fn main() -> io::Result<()> {
+async fn main() -> Result<(), Box<dyn Error>> {
     env::set_var("RUST_BACKTRACE", "1");
-    let terms = process_wiktextract_data().await.unwrap();
-    print_all_items(&terms);
+    let _ = process_wiktextract_data().await?;
     Ok(())
 }
 
