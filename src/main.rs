@@ -1,8 +1,8 @@
 #[global_allocator]
 static ALLOC: snmalloc_rs::SnMalloc = snmalloc_rs::SnMalloc;
 
-use std::error::Error;
 use std::env;
+use std::error::Error;
 
 use wety::Processor;
 
@@ -13,4 +13,3 @@ async fn main() -> Result<(), Box<dyn Error>> {
     processor.process_wiktextract_data().await?;
     Ok(())
 }
-

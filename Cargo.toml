@@ -16,3 +16,4 @@ reqwest = {version = "0.11.11", features = ["stream"]}
 tokio = {version = "1.19.2", features = ["rt", "rt-multi-thread", "macros"]}
 indicatif = "0.16.2"
 string-interner = "0.14.0"
+phf = {version = "0.10", features = ["macros"]}
