@@ -194,8 +194,50 @@ impl Processor {
     // it that doesn't have an item entry, while a subsequent term in the chain does.
     fn process_item_ety_list() {}
 
-    fn process_json_ety_template(&self, template: &BorrowedValue) -> Option<RawEtyNode> {
-        
+    fn process_derived_type_json_template(
+        &self, 
+        template: &BorrowedValue,
+        mode: &str,) -> Option<RawEtyNode> {
+            
+    }
+
+    fn process_abbrev_type_json_template(
+        &self, 
+        template: &BorrowedValue,
+        mode: &str,) -> Option<RawEtyNode> {
+
+    }
+
+    fn process_compound_type_json_template(
+        &self, 
+        template: &BorrowedValue,
+        mode: &str,) -> Option<RawEtyNode> {
+
+    }
+
+    fn process_json_ety_template(
+        &self, 
+        template: &BorrowedValue
+    ) -> Option<RawEtyNode> {
+        match template.get_str("name") {
+            Some(name) => {
+                if DERIVED_TYPE_TEMPLATES.contains_key(name) {
+                    let mode = *DERIVED_TYPE_TEMPLATES.get(name).unwrap();
+                    return self.process_derived_type_json_template(template, mode);
+                } else if ABBREV_TYPE_TEMPLATES.contains_key(name) {
+                    let mode = *ABBREV_TYPE_TEMPLATES.get(name).unwrap();
+                    return self.process_abbrev_type_json_template(template, mode);
+                } else if COMPOUND_TYPE_TEMPLATES.contains_key(name) {
+                    let mode = *COMPOUND_TYPE_TEMPLATES.get(name).unwrap();
+                    return self.process_compound_type_json_template(template, mode);
+                } else {
+                    return None;
+                }
+            }
+            None => {
+                return None;
+            },
+        }
     }
 
     fn process_json_ety_templates(
