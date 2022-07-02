@@ -36,9 +36,9 @@ struct DerivedFrom {
 
 #[derive(Hash, Eq, PartialEq, Debug)]
 struct RawDerivedFrom { 
-    mode: SymbolU32,
-    source_lang: SymbolU32,
     source_term: SymbolU32,
+    source_lang: SymbolU32,
+    mode: SymbolU32,
 }
 
 // For etymological relationships given by COMPOUND_TYPE_TEMPLATES
@@ -52,9 +52,9 @@ struct Combines {
 
 #[derive(Hash, Eq, PartialEq, Debug)]
 struct RawCombines { 
-    mode: SymbolU32,
-    source_langs: Box<[SymbolU32]>,
     source_terms: Box<[SymbolU32]>,
+    source_langs: Box<[SymbolU32]>,
+    mode: SymbolU32,
 }
 
 #[derive(Hash, Eq, PartialEq, Debug)]
@@ -198,7 +198,16 @@ impl Processor {
         &self, 
         template: &BorrowedValue,
         mode: &str,) -> Option<RawEtyNode> {
-            
+            let args = template.get_object("args").expect("get json ety template args");
+            let source_lang = 
+                args
+                    .get("2").expect("get derived-type json ety template source lang")
+                    .as_str().expect("parse json ety template source lang as str");
+            let source_term_arg = 
+                args
+                    .get("3").or(Some(""))
+                    .as_str().expect("parse json ety template source term as str");
+
     }
 
     fn process_abbrev_type_json_template(
@@ -271,9 +280,9 @@ impl Processor {
             match alt_term {
                 Some(alt) => {
                     let raw_ety_node = RawEtyNode::RawDerivedFrom(RawDerivedFrom {
-                        mode: self.string_pool.get_or_intern("form of"),
-                        source_lang: lang.clone(),
                         source_term: self.string_pool.get_or_intern(alt),
+                        source_lang: lang.clone(),
+                        mode: self.string_pool.get_or_intern("form of"),
                     });
                     let raw_ety_nodes = vec![raw_ety_node];
                     return Some(raw_ety_nodes.into_boxed_slice());
@@ -318,6 +327,9 @@ impl Processor {
         // 'senses' field should always be present and non-empty, but glosses
         // may be missing or empty. We just return None if gloss not found 
         // for any reason.
+        // $$ For reconstructed terms, what should really be different entries
+        // $$ are muddled together as different senses in the same entry.
+        // $$ Need to implement adding different items for each sense for reconstructed terms.
         let gloss = 
             json_item
                 .get_array("senses")
@@ -354,10 +366,7 @@ impl Processor {
             .for_each(|mut line| {
                 let json_item: BorrowedValue =
                     to_borrowed_value(&mut line).expect("parse json line from file");
-                if is_valid_json_item(&json_item) {
-                    self.process_json_item(json_item)
-                        .expect("process json item");
-                }
+                self.process_json_item(json_item).expect("process json item");
             });
         println!("Finished initial processing of wiktextract raw data");
         self.print_all_items();
@@ -394,18 +403,17 @@ impl Processor {
     }
 }
 
-fn is_valid_json_item(json_item: &BorrowedValue) -> bool {
-    // some wiktionary pages are redirects, which we don't want
-    // https://github.com/tatuylonen/wiktextract#format-of-extracted-redirects
-    !json_item.contains_key("redirect") &&
-    // as of 2022-06-20, there is exactly one json_item that has no senses
-    // https://github.com/tatuylonen/wiktextract/issues/139
-    json_item
-        .get("senses")
-        .ok_or_else(|| format!("json item has no 'senses' field:\n{json_item}"))
-        .expect("assume canonical fields in json") 
-        .get_idx(0)
-        .is_some()
+fn clean_json_term(term: &str) -> &str {
+    // In wiktextract json, reconstructed terms (e.g. PIE) start with "*", 
+    // except for when they are values of a json item's 'word' field, where they
+    // seem to be cleaned already. Since we will be trying to match to terms
+    // taken from 'word' fields, we need to clean the terms when they do start
+    // with "*".
+    if !term.is_empty() && term.starts_with("*") {
+        &term[1..]
+    } else {
+        term
+    }
 }
 
 // https://gist.github.com/giuliano-oliveira/4d11d6b3bb003dba3a1b53f43d81b30d
