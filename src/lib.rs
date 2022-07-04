@@ -53,7 +53,7 @@ struct Combines {
 #[derive(Hash, Eq, PartialEq, Debug)]
 struct RawCombines { 
     source_terms: Box<[SymbolU32]>,
-    source_langs: Box<[SymbolU32]>,
+    source_langs: Option<Box<[SymbolU32]>>,
     mode: SymbolU32,
 }
 
@@ -195,50 +195,146 @@ impl Processor {
     fn process_item_ety_list() {}
 
     fn process_derived_type_json_template(
-        &self, 
+        &mut self, 
         template: &BorrowedValue,
-        mode: &str,) -> Option<RawEtyNode> {
-            let args = template.get_object("args").expect("get json ety template args");
-            let source_lang = 
-                args
-                    .get("2").expect("get derived-type json ety template source lang")
-                    .as_str().expect("parse json ety template source lang as str");
-            let source_term_arg = 
-                args
-                    .get("3").or(Some(""))
-                    .as_str().expect("parse json ety template source term as str");
-
+        mode: &str,
+        lang: &SymbolU32
+    ) -> Option<RawEtyNode> {
+        let args = template.get_object("args").expect("get json ety template args");
+        let term_lang = 
+            args
+                .get("1").expect("get derived-type json ety template term lang")
+                .as_str().expect("parse json ety template term lang as str");
+        if term_lang != self.string_pool.resolve(*lang).unwrap() {
+            return None;
+        }
+        let source_lang = 
+            args
+                .get("2").expect("get derived-type json ety template source lang")
+                .as_str().expect("parse json ety template source lang as str");
+        let source_term_opt = args.get("3");
+        match source_term_opt {
+            Some(source_term) => {
+                let source_term = source_term.as_str().expect("parse json ety template source term as str");
+                if source_term == "" || source_term == "-" {
+                    return None;
+                } else {
+                    return Some(RawEtyNode::RawDerivedFrom(RawDerivedFrom {
+                        source_term: self.string_pool.get_or_intern(clean_json_term(source_term)),
+                        source_lang: self.string_pool.get_or_intern(source_lang),
+                        mode: self.string_pool.get_or_intern(mode),
+                    }));
+                }
+            }
+            None => {
+                return None;
+            }
+        }
     }
 
     fn process_abbrev_type_json_template(
-        &self, 
+        &mut self, 
         template: &BorrowedValue,
-        mode: &str,) -> Option<RawEtyNode> {
-
+        mode: &str,
+        lang: &SymbolU32,
+    ) -> Option<RawEtyNode> {
+        let args = template.get_object("args").expect("get json ety template args");
+        let term_lang = 
+            args
+                .get("1").expect("get abbrev-type json ety template term lang")
+                .as_str().expect("parse json ety template term lang as str");
+        if term_lang != self.string_pool.resolve(*lang).unwrap() {
+            return None;
+        }
+        let source_term_opt = args.get("2");
+        match source_term_opt {
+            Some(source_term) => {
+                let source_term = source_term.as_str().expect("parse json ety template source term as str");
+                if source_term == "" || source_term == "-" {
+                    return None;
+                } else {
+                    return Some(RawEtyNode::RawDerivedFrom(RawDerivedFrom {
+                        source_term: self.string_pool.get_or_intern(clean_json_term(source_term)),
+                        source_lang: lang.clone(),
+                        mode: self.string_pool.get_or_intern(mode),
+                    }));
+                }
+            }
+            None => {
+                return None;
+            }
+        }
     }
 
     fn process_compound_type_json_template(
-        &self, 
+        &mut self, 
         template: &BorrowedValue,
-        mode: &str,) -> Option<RawEtyNode> {
-
+        mode: &str,
+        lang: &SymbolU32
+    ) -> Option<RawEtyNode> {
+        let args = template.get_object("args").expect("get json ety template args");
+        let term_lang = 
+            args
+                .get("1").expect("get compound-type json ety template term lang")
+                .as_str().expect("parse json ety template term lang as str");
+        if term_lang != self.string_pool.resolve(*lang).unwrap() {
+            return None;
+        }
+        
+        let mut n = 2;
+        let mut source_terms = Vec::new();
+        let mut source_langs = Vec::new();
+        let mut has_source_langs = false;
+        while let Some(source_term_opt) = args.get(n.to_string().as_str()) {
+            let source_term = source_term_opt.as_str().expect("parse json ety template source term as str");
+            if source_term == "" || source_term == "-" {
+                break;
+            }
+            source_terms.push(self.string_pool.get_or_intern(clean_json_term(source_term)));
+            if let Some(source_lang_opt) = args.get(format!("lang{n}").as_str()) {
+                let source_lang = source_lang_opt.as_str().expect("parse json ety template source lang as str");
+                if source_lang == "" || source_lang == "-" {
+                    break;
+                }
+                has_source_langs = true;
+                source_langs.push(self.string_pool.get_or_intern(source_lang));
+            } else {
+                source_langs.push(lang.clone());
+            }
+            n += 1;
+        }
+        if source_terms.is_empty() {
+            return None;
+        }
+        let source_langs_opt;
+        if has_source_langs {
+            source_langs_opt = Some(source_langs.into_boxed_slice());
+        } else {
+            source_langs_opt = None;
+        }
+        return Some(RawEtyNode::RawCombines(RawCombines {
+            source_terms: source_terms.into_boxed_slice(),
+            source_langs: source_langs_opt,
+            mode: self.string_pool.get_or_intern(mode),
+        }));
     }
 
     fn process_json_ety_template(
-        &self, 
-        template: &BorrowedValue
+        &mut self, 
+        template: &BorrowedValue,
+        lang: &SymbolU32,
     ) -> Option<RawEtyNode> {
         match template.get_str("name") {
             Some(name) => {
                 if DERIVED_TYPE_TEMPLATES.contains_key(name) {
                     let mode = *DERIVED_TYPE_TEMPLATES.get(name).unwrap();
-                    return self.process_derived_type_json_template(template, mode);
+                    return self.process_derived_type_json_template(template, mode, lang);
                 } else if ABBREV_TYPE_TEMPLATES.contains_key(name) {
                     let mode = *ABBREV_TYPE_TEMPLATES.get(name).unwrap();
-                    return self.process_abbrev_type_json_template(template, mode);
+                    return self.process_abbrev_type_json_template(template, mode, lang);
                 } else if COMPOUND_TYPE_TEMPLATES.contains_key(name) {
                     let mode = *COMPOUND_TYPE_TEMPLATES.get(name).unwrap();
-                    return self.process_compound_type_json_template(template, mode);
+                    return self.process_compound_type_json_template(template, mode, lang);
                 } else {
                     return None;
                 }
@@ -250,7 +346,7 @@ impl Processor {
     }
 
     fn process_json_ety_templates(
-        &self, 
+        &mut self, 
         json_item: BorrowedValue,
         lang: &SymbolU32
     ) -> Option<Box<[RawEtyNode]>> { 
@@ -260,15 +356,15 @@ impl Processor {
                 .and_then(|templates|
                     Some(templates
                         .iter()
-                        .map(|template| self.process_json_ety_template(template))
+                        .map(|template| self.process_json_ety_template(template, lang))
                         .flatten() // only take the Some elements from the map
                         .collect::<Vec<RawEtyNode>>().into_boxed_slice()));
         
-        // if ety section leads nowhere, as a fallback we see if term
+        // if no ety section or no templates, as a fallback we see if term
         // is listed as a "form_of" (item.senses[0].form_of[0].word)
         // or "alt_of" (item.senses[0].alt_of[0].word) another term.
         // e.g. "happenin'" is listed as an alt_of of "happening".
-        if raw_ety_nodes.is_none() || raw_ety_nodes.unwrap().is_empty() {
+        if raw_ety_nodes.is_none() || raw_ety_nodes.as_ref().unwrap().is_empty() {
             let alt_term = json_item
                 .get_array("senses")
                 .and_then(|senses| senses.get(0))
@@ -369,7 +465,7 @@ impl Processor {
                 self.process_json_item(json_item).expect("process json item");
             });
         println!("Finished initial processing of wiktextract raw data");
-        self.print_all_items();
+        // self.print_all_items();
         Ok(())
     }
 
@@ -409,7 +505,7 @@ fn clean_json_term(term: &str) -> &str {
     // seem to be cleaned already. Since we will be trying to match to terms
     // taken from 'word' fields, we need to clean the terms when they do start
     // with "*".
-    if !term.is_empty() && term.starts_with("*") {
+    if term.starts_with("*") {
         &term[1..]
     } else {
         term
