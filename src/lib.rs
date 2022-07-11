@@ -189,9 +189,7 @@ impl Processor {
             }
         }
     }
-
-    // deal with case where there is a valid chain of derivs but there is a term amid
-    // it that doesn't have an item entry, while a subsequent term in the chain does.
+    /// cf. notes.md
     fn process_item_ety_list() {}
 
     fn process_derived_type_json_template(
@@ -436,7 +434,6 @@ impl Processor {
                 .and_then(|str| Some(self.string_pool.get_or_intern(str)));
 
         let raw_ety_nodes = self.process_json_ety_templates(json_item, &lang);
-
 
         let item = Rc::from(Item {
             term: term,
