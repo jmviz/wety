@@ -3,6 +3,15 @@
 version = 3
 
 [[package]]
+name = "addr2line"
+version = "0.17.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b9ecd88a8c8378ca913a680cd98f0f13ac67383d35993f86c90a70e3f137816b"
+dependencies = [
+ "gimli",
+]
+
+[[package]]
 name = "adler"
 version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -20,10 +29,34 @@ dependencies = [
 ]
 
 [[package]]
+name = "anyhow"
+version = "1.0.58"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bb07d2053ccdbe10e2af2995a2f116c1330396493dc1269f6a91d0ae82e19704"
+dependencies = [
+ "backtrace",
+]
+
+[[package]]
 name = "autocfg"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d468802bab17cbc0cc575e9b053f41e72aa36bfa6b7f55e3529ffa43161b97fa"
+
+[[package]]
+name = "backtrace"
+version = "0.3.66"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cab84319d616cfb654d03394f38ab7e6f0919e181b1b57e1fd15e7fb4077d9a7"
+dependencies = [
+ "addr2line",
+ "cc",
+ "cfg-if",
+ "libc",
+ "miniz_oxide",
+ "object",
+ "rustc-demangle",
+]
 
 [[package]]
 name = "base64"
@@ -293,6 +326,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "gimli"
+version = "0.26.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "78cc372d058dcf6d5ecd98510e7fbc9e5aec4d21de70f65fea8fecebcd881bd4"
+
+[[package]]
 name = "h2"
 version = "0.3.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -317,7 +356,7 @@ version = "0.1.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ce69ed202df415a3d4a01e6f3341320ca88b9bd4f0bf37be6fa239cdea06d9bf"
 dependencies = [
- "hashbrown 0.12.1",
+ "hashbrown 0.12.2",
  "serde",
 ]
 
@@ -332,9 +371,9 @@ dependencies = [
 
 [[package]]
 name = "hashbrown"
-version = "0.12.1"
+version = "0.12.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "db0d4cf898abf0081f964436dc980e96670a0f36863e4b83aaacdb65c9d7ccc3"
+checksum = "607c8a29735385251a339424dd462993c0fed8fa09d378f259377df08c126022"
 dependencies = [
  "ahash",
 ]
@@ -437,7 +476,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "10a35a97730320ffe8e2d410b5d3b69279b98d2c14bdb8b70ea89ecf7888d41e"
 dependencies = [
  "autocfg",
- "hashbrown 0.12.1",
+ "hashbrown 0.12.2",
 ]
 
 [[package]]
@@ -590,6 +629,15 @@ name = "number_prefix"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "830b246a0e5f20af87141b25c173cd1b609bd7779a4617d6ec582abaf90870f3"
+
+[[package]]
+name = "object"
+version = "0.29.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "21158b2c33aa6d4561f1c0a6ea283ca92bc54802a93b263e910746d679a7eb53"
+dependencies = [
+ "memchr",
+]
 
 [[package]]
 name = "once_cell"
@@ -840,6 +888,12 @@ dependencies = [
  "web-sys",
  "winreg",
 ]
+
+[[package]]
+name = "rustc-demangle"
+version = "0.1.21"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7ef03e0a2b150c7a90d01faf6254c9c48a41e95fb2a8c2ac1c6f0d2b9aefc342"
 
 [[package]]
 name = "ryu"
@@ -1281,9 +1335,11 @@ dependencies = [
 name = "wety"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "bytelines",
  "flate2",
  "futures-util",
+ "hashbrown 0.12.2",
  "indicatif",
  "phf",
  "reqwest",

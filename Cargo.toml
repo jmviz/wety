@@ -17,3 +17,5 @@ tokio = {version = "1.19.2", features = ["rt", "rt-multi-thread", "macros"]}
 indicatif = "0.16.2"
 string-interner = "0.14.0"
 phf = {version = "0.10", features = ["macros"]}
+hashbrown = "0.12.2"
+anyhow = {version = "1.0.58", features = ["backtrace"]}
