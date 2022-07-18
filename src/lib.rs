@@ -14,9 +14,13 @@ use anyhow::{anyhow, bail, Result};
 use bytelines::ByteLines;
 use flate2::read::GzDecoder;
 use futures_util::StreamExt;
-use hashbrown::{hash_map::OccupiedError, HashMap, HashSet};
+use hashbrown::{HashMap, HashSet};
 use indicatif::{ProgressBar, ProgressStyle};
-use simd_json::{to_borrowed_value, BorrowedValue, ValueAccess};
+use simd_json::{
+    to_borrowed_value,
+    value::borrowed::{Object, Value},
+    ValueAccess,
+};
 use string_interner::{backend::StringBackend, symbol::SymbolU32, StringInterner};
 
 const WIKTEXTRACT_URL: &str = "https://kaikki.org/dictionary/raw-wiktextract-data.json.gz";
@@ -34,7 +38,7 @@ struct DerivedFrom {
     mode: SymbolU32,
 }
 
-#[derive(Hash, Eq, PartialEq, Debug, Clone)]
+#[derive(Hash, Eq, PartialEq, Debug)]
 struct RawDerivedFrom {
     source_term: SymbolU32,
     source_lang: SymbolU32,
@@ -50,7 +54,7 @@ struct Combines {
     mode: SymbolU32,
 }
 
-#[derive(Hash, Eq, PartialEq, Debug, Clone)]
+#[derive(Hash, Eq, PartialEq, Debug)]
 struct RawCombines {
     source_terms: Box<[SymbolU32]>,
     source_langs: Option<Box<[SymbolU32]>>,
@@ -63,13 +67,13 @@ enum EtyNode {
     Combines(Combines),
 }
 
-#[derive(Hash, Eq, PartialEq, Debug, Clone)]
+#[derive(Hash, Eq, PartialEq, Debug)]
 enum RawEtyNode {
     RawDerivedFrom(RawDerivedFrom),
     RawCombines(RawCombines),
 }
 
-#[derive(Hash, Eq, PartialEq, Debug, Clone)]
+#[derive(Hash, Eq, PartialEq, Debug)]
 struct Item {
     term: SymbolU32,             // e.g. "bank"
     lang: SymbolU32,             // e.g "en", i.e. the wiktextract lang_code
@@ -166,13 +170,10 @@ struct Sources {
 
 impl Sources {
     fn add(&mut self, item: &Rc<Item>, ety_node_opt: Option<EtyNode>) -> Result<()> {
-        match self.item_map.try_insert(Rc::clone(item), ety_node_opt) {
-            Ok(_) => {}
-            Err(OccupiedError { .. }) => {
-                Err(anyhow!("Tried inserting duplicate item:\n{:#?}", item))?
-            }
-        }
-        Ok(())
+        self.item_map
+            .try_insert(Rc::clone(item), ety_node_opt)
+            .and(Ok(()))
+            .or_else(|_| Err(anyhow!("Tried inserting duplicate item:\n{:#?}", item)))
     }
     // For now we'll just take the first node. But cf. notes.md.
     /// Only to be called once all json items have been processed into items.
@@ -277,6 +278,39 @@ impl Sense {
     }
 }
 
+// convenience extension trait methods for reading from json
+trait ValueExt {
+    fn get_expected_str(&self, key: &str) -> Result<&str>;
+    fn get_expected_object(&self, key: &str) -> Result<&Object>;
+}
+
+impl ValueExt for Value<'_> {
+    fn get_expected_str(&self, key: &str) -> Result<&str> {
+        self.get_str(key)
+            .ok_or_else(|| anyhow!("failed parsing '{key}' key in json:\n{self}"))
+    }
+    fn get_expected_object(&self, key: &str) -> Result<&Object> {
+        self.get_object(key)
+            .ok_or_else(|| anyhow!("failed parsing '{key}' key in json:\n{self}"))
+    }
+}
+
+trait ObjectExt {
+    fn get_expected_str(&self, key: &str) -> Result<&str>;
+    fn get_optional_str(&self, key: &str) -> Option<&str>;
+}
+
+impl ObjectExt for Object<'_> {
+    fn get_expected_str(&self, key: &str) -> Result<&str> {
+        self.get(key)
+            .and_then(|v| v.as_str())
+            .ok_or_else(|| anyhow!("failed parsing '{key}' key in json:\n{self:#?}"))
+    }
+    fn get_optional_str(&self, key: &str) -> Option<&str> {
+        self.get(key).and_then(|v| v.as_str())
+    }
+}
+
 #[derive(Default)]
 pub struct Processor {
     string_pool: StringPool,
@@ -312,146 +346,98 @@ impl Processor {
 
     fn process_derived_type_json_template(
         &mut self,
-        template: &BorrowedValue,
+        template: &Value,
         mode: &str,
         lang: SymbolU32,
-    ) -> Option<RawEtyNode> {
-        let args = template
-            .get_object("args")
-            .expect("get json ety template args");
-        let term_lang = args
-            .get("1")
-            .expect("get derived-type json ety template term lang")
-            .as_str()
-            .expect("parse json ety template term lang as str");
+    ) -> Result<Option<RawEtyNode>> {
+        let args = template.get_expected_object("args")?;
+        let term_lang = args.get_expected_str("1")?;
         if term_lang != self.string_pool.resolve(lang) {
-            return None;
+            return Ok(None);
         }
-        let source_lang = args
-            .get("2")
-            .expect("get derived-type json ety template source lang")
-            .as_str()
-            .expect("parse json ety template source lang as str");
-        let source_term_opt = args.get("3");
-        match source_term_opt {
-            Some(source_term) => {
-                let source_term = source_term
-                    .as_str()
-                    .expect("parse json ety template source term as str");
-                if source_term == "" || source_term == "-" {
-                    return None;
-                } else {
-                    return Some(RawEtyNode::RawDerivedFrom(RawDerivedFrom {
-                        source_term: self.string_pool.get_or_intern(clean_json_term(source_term)),
-                        source_lang: self.string_pool.get_or_intern(source_lang),
-                        mode: self.string_pool.get_or_intern(mode),
-                    }));
-                }
-            }
-            None => {
-                return None;
-            }
-        }
+        let source_lang = args.get_expected_str("2")?;
+        Ok(args
+            .get_optional_str("3")
+            .and_then(|source_term| match source_term {
+                "" | "-" => None,
+                _ => Some(RawEtyNode::RawDerivedFrom(RawDerivedFrom {
+                    source_term: self.string_pool.get_or_intern(clean_json_term(source_term)),
+                    source_lang: self.string_pool.get_or_intern(source_lang),
+                    mode: self.string_pool.get_or_intern(mode),
+                })),
+            }))
     }
 
     fn process_abbrev_type_json_template(
         &mut self,
-        template: &BorrowedValue,
+        template: &Value,
         mode: &str,
         lang: SymbolU32,
-    ) -> Option<RawEtyNode> {
-        let args = template
-            .get_object("args")
-            .expect("get json ety template args");
-        let term_lang = args
-            .get("1")
-            .expect("get abbrev-type json ety template term lang")
-            .as_str()
-            .expect("parse json ety template term lang as str");
+    ) -> Result<Option<RawEtyNode>> {
+        let args = template.get_expected_object("args")?;
+        let term_lang = args.get_expected_str("1")?;
         if term_lang != self.string_pool.resolve(lang) {
-            return None;
+            return Ok(None);
         }
-        let source_term_opt = args.get("2");
-        match source_term_opt {
-            Some(source_term) => {
-                let source_term = source_term
-                    .as_str()
-                    .expect("parse json ety template source term as str");
-                if source_term == "" || source_term == "-" {
-                    return None;
-                } else {
-                    return Some(RawEtyNode::RawDerivedFrom(RawDerivedFrom {
-                        source_term: self.string_pool.get_or_intern(clean_json_term(source_term)),
-                        source_lang: lang.clone(),
-                        mode: self.string_pool.get_or_intern(mode),
-                    }));
-                }
-            }
-            None => {
-                return None;
-            }
-        }
+        Ok(args
+            .get_optional_str("2")
+            .and_then(|source_term| match source_term {
+                "" | "-" => None,
+                _ => Some(RawEtyNode::RawDerivedFrom(RawDerivedFrom {
+                    source_term: self.string_pool.get_or_intern(clean_json_term(source_term)),
+                    source_lang: lang,
+                    mode: self.string_pool.get_or_intern(mode),
+                })),
+            }))
     }
 
     fn process_compound_type_json_template(
         &mut self,
-        template: &BorrowedValue,
+        template: &Value,
         mode: &str,
         lang: SymbolU32,
-    ) -> Option<RawEtyNode> {
-        let args = template
-            .get_object("args")
-            .expect("get json ety template args");
-        let term_lang = args
-            .get("1")
-            .expect("get compound-type json ety template term lang")
-            .as_str()
-            .expect("parse json ety template term lang as str");
+    ) -> Result<Option<RawEtyNode>> {
+        let args = template.get_expected_object("args")?;
+        let term_lang = args.get_expected_str("1")?;
         if term_lang != self.string_pool.resolve(lang) {
-            return None;
+            return Ok(None);
         }
 
         let mut n = 2;
-        let mut source_terms = Vec::new();
-        let mut source_langs = Vec::new();
+        let mut source_terms = vec![];
+        let mut source_langs = vec![];
         let mut has_source_langs = false;
-        while let Some(source_term_opt) = args.get(n.to_string().as_str()) {
-            let source_term = source_term_opt
-                .as_str()
-                .expect("parse json ety template source term as str");
+        while let Some(source_term) = args.get_optional_str(n.to_string().as_str()) {
             if source_term == "" || source_term == "-" {
                 break;
             }
             source_terms.push(self.string_pool.get_or_intern(clean_json_term(source_term)));
-            if let Some(source_lang_opt) = args.get(format!("lang{n}").as_str()) {
-                let source_lang = source_lang_opt
-                    .as_str()
-                    .expect("parse json ety template source lang as str");
+            if let Some(source_lang) = args.get_optional_str(format!("lang{n}").as_str()) {
                 if source_lang == "" || source_lang == "-" {
                     break;
                 }
                 has_source_langs = true;
                 source_langs.push(self.string_pool.get_or_intern(source_lang));
             } else {
-                source_langs.push(lang.clone());
+                source_langs.push(lang);
             }
             n += 1;
         }
-        return (!source_terms.is_empty()).then(|| {
+        Ok((!source_terms.is_empty()).then(|| {
             RawEtyNode::RawCombines(RawCombines {
                 source_terms: source_terms.into_boxed_slice(),
                 source_langs: has_source_langs.then(|| source_langs.into_boxed_slice()),
                 mode: self.string_pool.get_or_intern(mode),
             })
-        });
+        }))
     }
 
     fn process_json_ety_template(
         &mut self,
-        template: &BorrowedValue,
+        template: &Value,
         lang: SymbolU32,
-    ) -> Option<RawEtyNode> {
-        template.get_str("name").and_then(|name| {
+    ) -> Result<Option<RawEtyNode>> {
+        if let Some(name) = template.get_str("name") {
             if DERIVED_TYPE_TEMPLATES.contains_key(name) {
                 let mode = *DERIVED_TYPE_TEMPLATES.get(name).unwrap();
                 self.process_derived_type_json_template(template, mode, lang)
@@ -462,34 +448,33 @@ impl Processor {
                 let mode = *COMPOUND_TYPE_TEMPLATES.get(name).unwrap();
                 self.process_compound_type_json_template(template, mode, lang)
             } else {
-                None
+                Ok(None)
             }
-        })
+        } else {
+            Ok(None)
+        }
     }
 
     fn process_json_ety_templates(
         &mut self,
-        json_item: BorrowedValue,
+        json_item: Value,
         lang: SymbolU32,
-    ) -> Option<Box<[RawEtyNode]>> {
-        let raw_ety_nodes = json_item
-            .get_array("etymology_templates")
-            .and_then(|templates| {
-                Some(
-                    templates
-                        .iter()
-                        .map(|template| self.process_json_ety_template(template, lang))
-                        .flatten() // only take the Some elements from the map
-                        .collect::<Vec<RawEtyNode>>()
-                        .into_boxed_slice(),
-                )
-            });
+    ) -> Result<Option<Box<[RawEtyNode]>>> {
+        let mut raw_ety_nodes = vec![];
+        if let Some(templates) = json_item.get_array("etymology_templates") {
+            raw_ety_nodes.reserve(templates.len());
+            for template in templates {
+                if let Some(raw_ety_node) = self.process_json_ety_template(template, lang)? {
+                    raw_ety_nodes.push(raw_ety_node);
+                }
+            }
+        }
 
         // if no ety section or no templates, as a fallback we see if term
         // is listed as a "form_of" (item.senses[0].form_of[0].word)
         // or "alt_of" (item.senses[0].alt_of[0].word) another term.
         // e.g. "happenin'" is listed as an alt_of of "happening".
-        if raw_ety_nodes.is_none() || raw_ety_nodes.as_ref().unwrap().is_empty() {
+        if raw_ety_nodes.is_empty() {
             let alt_term = json_item
                 .get_array("senses")
                 .and_then(|senses| senses.get(0))
@@ -504,54 +489,48 @@ impl Processor {
                 Some(alt) => {
                     let raw_ety_node = RawEtyNode::RawDerivedFrom(RawDerivedFrom {
                         source_term: self.string_pool.get_or_intern(alt),
-                        source_lang: lang.clone(),
+                        source_lang: lang,
                         mode: self.string_pool.get_or_intern("form of"),
                     });
-                    let raw_ety_nodes = vec![raw_ety_node];
-                    return Some(raw_ety_nodes.into_boxed_slice());
+                    raw_ety_nodes.push(raw_ety_node);
+                    return Ok(Some(raw_ety_nodes.into_boxed_slice()));
                 }
                 None => {
-                    return None;
+                    return Ok(None);
                 }
             }
         }
-        raw_ety_nodes
+        Ok(Some(raw_ety_nodes.into_boxed_slice()))
     }
 
-    fn process_json_item(&mut self, json_item: BorrowedValue) -> Result<()> {
+    fn process_json_item(&mut self, json_item: Value) -> Result<()> {
         // some wiktionary pages are redirects, which we don't want
         // https://github.com/tatuylonen/wiktextract#format-of-extracted-redirects
         if json_item.contains_key("redirect") {
             return Ok(());
         }
-        // 'word' field must be present
-        let term =
-            self.string_pool
-                .get_or_intern(json_item.get_str("word").ok_or_else(|| {
-                    anyhow!("failed parsing 'word' field in json item:\n{json_item}")
-                })?);
-        // 'lang_code' field must be present
+        // 'word' key must be present
+        let term = self
+            .string_pool
+            .get_or_intern(json_item.get_expected_str("word")?);
+        // 'lang_code' key must be present
         let lang = self
             .string_pool
-            .get_or_intern(json_item.get_str("lang_code").ok_or_else(|| {
-                anyhow!("failed parsing 'lang_code' field in json item:\n{json_item}")
-            })?);
-        // 'lang' field may be missing, in which case we return None
+            .get_or_intern(json_item.get_expected_str("lang_code")?);
+        // 'lang' key may be missing, in which case we take None
         let language = json_item
             .get_str("lang")
             .and_then(|s| Some(self.string_pool.get_or_intern(s)));
-        // 'etymology_text' field may be missing, in which case we return None
+        // 'etymology_text' key may be missing, in which case we take None
         let ety_text = json_item
             .get_str("etymology_text")
             .and_then(|s| Some(self.string_pool.get_or_intern(s)));
-        // 'pos' field must be present
-        let pos = self.string_pool.get_or_intern(
-            json_item
-                .get_str("pos")
-                .ok_or_else(|| anyhow!("failed parsing 'pos' field in json item:\n{json_item}"))?,
-        );
-        // 'senses' field should always be present and non-empty, but glosses
-        // may be missing or empty. We just return None if gloss not found
+        // 'pos' key must be present
+        let pos = self
+            .string_pool
+            .get_or_intern(json_item.get_expected_str("pos")?);
+        // 'senses' key should always be present with non-empty value, but glosses
+        // may be missing or empty. We just take None if gloss not found
         // for any reason.
         // $$ For reconstructed terms, what should really be different entries
         // $$ are muddled together as different senses in the same entry.
@@ -564,7 +543,7 @@ impl Processor {
             .and_then(|gloss| gloss.as_str())
             .and_then(|s| Some(self.string_pool.get_or_intern(s)));
 
-        let raw_ety_nodes = self.process_json_ety_templates(json_item, lang);
+        let raw_ety_nodes = self.process_json_ety_templates(json_item, lang)?;
 
         let item = Rc::from(Item {
             term: term,
@@ -580,16 +559,10 @@ impl Processor {
     }
 
     fn process_json_items<T: BufRead>(&mut self, lines: ByteLines<T>) -> Result<()> {
-        lines
-            .into_iter()
-            .filter_map(Result::ok)
-            .for_each(|mut line| {
-                let json_item: BorrowedValue =
-                    to_borrowed_value(&mut line).expect("parse json line from file");
-                self.process_json_item(json_item)
-                    .expect("process json item");
-            });
-        // self.print_all_items();
+        for mut line in lines.into_iter().filter_map(Result::ok) {
+            let json_item = to_borrowed_value(&mut line)?;
+            self.process_json_item(json_item)?;
+        }
         Ok(())
     }
 
@@ -647,9 +620,9 @@ impl Processor {
 
 fn clean_json_term(term: &str) -> &str {
     // In wiktextract json, reconstructed terms (e.g. PIE) start with "*",
-    // except for when they are values of a json item's 'word' field, where they
+    // except for when they are values of a json item's 'word' key, where they
     // seem to be cleaned already. Since we will be trying to match to terms
-    // taken from 'word' fields, we need to clean the terms when they do start
+    // taken from 'word' keys, we need to clean the terms when they do start
     // with "*".
     if term.starts_with("*") {
         &term[1..]
