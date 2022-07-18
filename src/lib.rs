@@ -27,6 +27,8 @@ const WIKTEXTRACT_URL: &str = "https://kaikki.org/dictionary/raw-wiktextract-dat
 const WIKTEXTRACT_PATH: &str = "data/raw-wiktextract-data.json.gz";
 // const WIKTEXTRACT_URL: &str = "http://0.0.0.0:8000/data/test/bank.json.gz";
 // const WIKTEXTRACT_PATH: &str = "data/test/bank.json.gz";
+const DB_PATH: &str = "data/wety.db";
+const RDF_PATH: &str = "data/wety.rdf";
 
 // For etymological relationships given by DERIVED_TYPE_TEMPLATES
 // and ABBREV_TYPE_TEMPLATES in etymology_templates.rs.
@@ -232,7 +234,59 @@ impl Sources {
                     }
                 }
             }
-            RawEtyNode::RawCombines(raw_combines) => {}
+            RawEtyNode::RawCombines(raw_combines) => {
+                let source_terms = &raw_combines.source_terms;
+                let source_langs = raw_combines
+                    .source_langs
+                    .as_ref()
+                    .and_then(|s| Some(s.to_vec()))
+                    .unwrap_or_else(|| [item.lang].repeat(source_terms.len()));
+                let mut source_items = Vec::with_capacity(source_terms.len());
+                for (source_term, source_lang) in source_terms.iter().zip(source_langs.iter()) {
+                    let ety_map = items
+                        .term_map
+                        .get(source_term)
+                        .and_then(|lang_map| lang_map.get(source_lang));
+                    match ety_map {
+                        // if we found an ety_map, we're guaranteed to find at least
+                        // one item at the end of the following nested iteration. If
+                        // there are multiple items, we have to do a word sense disambiguation.
+                        Some(ety_map) => {
+                            if let Some(source_item) = ety_map
+                                .into_iter()
+                                .flat_map(|(_, pos_map)| {
+                                    pos_map.into_iter().flat_map(|(_, gloss_map)| {
+                                        gloss_map.into_iter().map(|(_, other_item)| other_item)
+                                    })
+                                })
+                                .max_by_key(|other_item| {
+                                    let other_item_sense = Sense::new(string_pool, &other_item);
+                                    sense.lesk_score(&other_item_sense)
+                                })
+                            {
+                                source_items.push(Rc::clone(&source_item));
+                            } else {
+                                // should never be reached
+                                bail!(
+                                    "ety_map was found but no ultimate item for:\n{}, {}",
+                                    string_pool.resolve(*source_lang),
+                                    string_pool.resolve(*source_term),
+                                );
+                            }
+                        }
+                        None => {}
+                    }
+                }
+                if source_items.len() == source_terms.len() {
+                    let node = EtyNode::Combines(Combines {
+                        items: source_items.into_boxed_slice(),
+                        mode: raw_combines.mode,
+                    });
+                    self.add(item, Some(node))?;
+                } else {
+                    self.add(item, None)?;
+                }
+            }
         }
         Ok(())
     }
@@ -611,9 +665,17 @@ impl Processor {
             }
         };
         self.process_file(file)?;
-        println!("Finished processing {WIKTEXTRACT_PATH}");
+        println!("Finished");
+        println!("Processing etymologies");
         self.process_items()?;
-
+        println!("Finished");
+        println!("Writing to database {DB_PATH}");
+        // write to oxigraph store
+        println!("Finished");
+        println!("Writing to RDF {RDF_PATH}");
+        // dump oxigraph store
+        println!("Finished");
+        println!("All done! Exiting");
         Ok(())
     }
 }
