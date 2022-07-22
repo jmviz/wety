@@ -1,2 +1,19 @@
+## Immediate TODOs
+
+* A number of affix templates (but not the `affix` template itself, notably) modify one or more of their term arguments when expanded, so that the raw text of the term argument is not exactly equivalent to the text of the relevant linked wiktionary entry. So if we were to naively follow the exact raw text in the template, we would end up in the wrong spot, if anywhere. We need to identify all templates that do any modification to any of their template term arguments, and replicate this modification in wety so that the correct term entries are linked. Here is a provisional list:
+    * [Prefix](https://en.wiktionary.org/wiki/Template:prefix): `{{prefix|en|un|do}}` -> `un-` + `do`
+    * [Suffix](https://en.wiktionary.org/wiki/Template:suffix): `{{suffix|en|do|ing}}` -> `do` + `-ing`
+    * [Circumfix](https://en.wiktionary.org/wiki/Template:circumfix): `{{circumfix|nl|ver|giftig|en}}` -> `ver-` + `giftig` + `-en`
+    * [Infix](https://en.wiktionary.org/wiki/Template:infix): `{{infix|en|house|iz}}` -> `house` + `-iz-` (for entry `hizouse`)
+    * [Confix](https://en.wiktionary.org/wiki/Template:confix): `{{confix|en|neuro|genic}}` -> `neuro-` + `-genic`; `{{confix|en|be|dew|ed}}` -> `be-` + `dew` + `-ed`. That is, the first positional term arg is treated as a prefix, and the last positional term arg is treated as a suffix.
+
+* Maintain separate HashSets of LangSet (each Lang a struct with (at least) fields for lang_code and lang) and PoSSet (each PoS just a symbol referring to a str) so that these can be created as entities in the RDF.  
+
+* Adding tracking of ety_nums and gloss_nums (so that informative unique item id can be generated) added about 1GB to RAM usage. If RAM becomes an issue, could try Vec implementation rather than the ugly tuples being used currently. Will be slower but should save RAM which is more of a concern.
+
+## If ever out of immediate TODOs in this document, remember to ctrl+f "$" in project to find notes pointing out problems/todos.
+
+## If in the future I attempt to process the entire etymology (i.e. all templates and text)
 * Need to handle when ety entries have multiple ety's for some reason, e.g. https://en.wiktionary.org/wiki/hap#Etymology_1. A simple approach might be to only process the first paragraph, as often the different ety's are listed in different paragraphs. Unfortunately, the templates given in wiktextract data are not separated out into paragraphs, so this would involve processing a combination of the wiktextract ety text (which does preserve the newlines) and the templates list. This can be done by using the expansions given for each template and looking for them in the ety text. In case a template expansion appears multiple times in the ety text in different paragraphs, can compare the order of the templates in the template list with the order of expansions in the ety text to try to infer which paragraph the template appeared in.
 * When processing the ety templates, deal with case where there is a valid chain of derivs but there is a term amid it that doesn't have an item entry, while a subsequent term in the chain does.
+* Some etymologies on Wiktionary (e.g. https://en.wiktionary.org/wiki/astrology) have {{der}}-type chains followed by a template in this category which recapitulates the etymology through surface analysis. Simply treating all templates the same and chugging through the chain will result in a lot of bad ety connections. A simple provisional solution might be to only take the first compound-type template (with "1" parameter being the language of the item term), if one is present, discarding everything else. This will lose the actual historical etymology information if there is any (i.e. the derived-type chain), but might lead to most reliably far-reaching derivation chains.

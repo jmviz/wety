@@ -98,18 +98,8 @@ pub static ABBREV_TYPE_TEMPLATES: Map<&'static str, &'static str> = phf_map! {
 // "tn": gloss/translation for source term given in arg n+1 (optional)
 // "trn": transliteration for source term given in arg n+1 (optional)
 // "posn": part of speech for source term given in arg n+1 (optional)
-// $$ some of these templates have optional "lang1", "lang2", etc. arguments,
-// $$ which are the lang codes of the source terms. we need to handle this
-// $$
-// $$ ALSO, some etymologies on Wiktionary (e.g. https://en.wiktionary.org/wiki/astrology)
-// $$ have {{der}}-type chains followed by a template in this category which recapitulates
-// $$ the etymology through surface analysis. Simply treating all templates the same
-// $$ and chugging through the chain will result in a lot of bad ety connections. A simple
-// $$ provisional solution might be to only take the first compound-type template
-// $$ (with "1" parameter being the language of the item term), if one
-// $$ is present, discarding everything else. This will lose the actual historical etymology
-// $$ information if there is any (i.e. the derived-type chain), but might lead to
-// $$ most reliably far-reaching derivation chains
+// Some of these templates have optional "lang1", "lang2", etc. arguments,
+// which are the lang codes of the source terms. We handle this.
 pub static COMPOUND_TYPE_TEMPLATES: Map<&'static str, &'static str> = phf_map! {
     "compound" => "compound", // https://en.wiktionary.org/wiki/Template:compound
     "com" => "compound", // shortcut for "compound"

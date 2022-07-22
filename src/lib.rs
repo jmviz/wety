@@ -16,11 +16,7 @@ use flate2::read::GzDecoder;
 use futures_util::StreamExt;
 use hashbrown::{HashMap, HashSet};
 use indicatif::{ProgressBar, ProgressStyle};
-use simd_json::{
-    to_borrowed_value,
-    value::borrowed::{Object, Value},
-    ValueAccess,
-};
+use simd_json::{to_borrowed_value, value::borrowed::Value, ValueAccess};
 use string_interner::{backend::StringBackend, symbol::SymbolU32, StringInterner};
 
 const WIKTEXTRACT_URL: &str = "https://kaikki.org/dictionary/raw-wiktextract-data.json.gz";
@@ -81,34 +77,56 @@ struct Item {
     lang: SymbolU32,             // e.g "en", i.e. the wiktextract lang_code
     language: Option<SymbolU32>, // e.g. "English" i.e. the wiktextract lang
     ety_text: Option<SymbolU32>, // e.g. "From Middle English banke, from Middle French banque...
-    pos: SymbolU32,              // e.g. "noun"
-    gloss: Option<SymbolU32>,    // e.g. "An institution where one can place and borrow money...
+    ety_num: u8, // the nth ety encountered for this term-lang combo, 0 means ety is missing or ""
+    pos: SymbolU32, // e.g. "noun"
+    gloss: Option<SymbolU32>, // e.g. "An institution where one can place and borrow money...
+    gloss_num: u8, // the nth gloss encountered for this term-lang-ety-pos combo, 0 means gloss is missing or ""
     raw_ety_nodes: Option<Box<[RawEtyNode]>>,
 }
 
-type GlossMap = HashMap<Option<SymbolU32>, Rc<Item>>;
+impl Item {
+    fn id(&self, string_pool: &StringPool) -> String {
+        // term__lang__eN__pos__sM
+        format!(
+            "{}__{}__e{}__{}__s{}",
+            string_pool.resolve(self.term),
+            string_pool.resolve(self.lang),
+            self.ety_num,
+            string_pool.resolve(self.pos),
+            self.gloss_num
+        )
+    }
+}
+
+type GlossMap = HashMap<Option<SymbolU32>, (u8, Rc<Item>)>;
 type PosMap = HashMap<SymbolU32, GlossMap>;
-type EtyMap = HashMap<Option<SymbolU32>, PosMap>;
+type EtyMap = HashMap<Option<SymbolU32>, (u8, PosMap)>;
 type LangMap = HashMap<SymbolU32, EtyMap>;
+type TermMap = HashMap<SymbolU32, LangMap>;
 
 #[derive(Default)]
 struct Items {
-    term_map: HashMap<SymbolU32, LangMap>,
+    term_map: TermMap,
 }
 
 impl Items {
-    fn add(&mut self, item: &Rc<Item>) -> Result<()> {
+    fn add(&mut self, mut item: Item) -> Result<()> {
         // check if the item's term has been seen before
         if !self.term_map.contains_key(&item.term) {
             let mut gloss_map = GlossMap::new();
             let mut pos_map = PosMap::new();
             let mut ety_map = EtyMap::new();
             let mut lang_map = LangMap::new();
-            gloss_map.insert(item.gloss, Rc::clone(&item));
-            pos_map.insert(item.pos, gloss_map);
-            ety_map.insert(item.ety_text, pos_map);
-            lang_map.insert(item.lang, ety_map);
-            self.term_map.insert(item.term, lang_map);
+            let (g, p, e, l, t) = (item.gloss, item.pos, item.ety_text, item.lang, item.term);
+            let gn = g.map_or(0, |_| 1) as u8;
+            item.gloss_num = gn;
+            let en = e.map_or(0, |_| 1) as u8;
+            item.ety_num = en;
+            gloss_map.insert(g, (gn, Rc::from(item)));
+            pos_map.insert(p, gloss_map);
+            ety_map.insert(e, (en, pos_map));
+            lang_map.insert(l, ety_map);
+            self.term_map.insert(t, lang_map);
             return Ok(());
         }
         // since term has been seen before, there must be at least one lang for it
@@ -121,13 +139,18 @@ impl Items {
             let mut gloss_map = GlossMap::new();
             let mut pos_map = PosMap::new();
             let mut ety_map = EtyMap::new();
-            gloss_map.insert(item.gloss, Rc::clone(&item));
-            pos_map.insert(item.pos, gloss_map);
-            ety_map.insert(item.ety_text, pos_map);
-            lang_map.insert(item.lang, ety_map);
+            let (g, p, e, l) = (item.gloss, item.pos, item.ety_text, item.lang);
+            let gloss_num = g.map_or(0, |_| 1) as u8;
+            item.gloss_num = gloss_num;
+            let ety_num = e.map_or(0, |_| 1) as u8;
+            item.ety_num = ety_num;
+            gloss_map.insert(g, (gloss_num, Rc::from(item)));
+            pos_map.insert(p, gloss_map);
+            ety_map.insert(e, (ety_num, pos_map));
+            lang_map.insert(l, ety_map);
             return Ok(());
         }
-        // since lang has been seen before, there must be at least one ety (possibly "")
+        // since lang has been seen before, there must be at least one ety (possibly None)
         // check if this ety has been seen in this lang before
         let ety_map: &mut EtyMap = lang_map
             .get_mut(&item.lang)
@@ -135,28 +158,41 @@ impl Items {
         if !ety_map.contains_key(&item.ety_text) {
             let mut gloss_map = GlossMap::new();
             let mut pos_map = PosMap::new();
-            gloss_map.insert(item.gloss, Rc::clone(&item));
-            pos_map.insert(item.pos, gloss_map);
-            ety_map.insert(item.ety_text, pos_map);
+            let (g, p, e) = (item.gloss, item.pos, item.ety_text);
+            let gloss_num = g.map_or(0, |_| 1) as u8;
+            item.gloss_num = gloss_num;
+            let ety_num = e.map_or(0, |_| 1 + ety_map.len()) as u8;
+            item.ety_num = ety_num;
+            gloss_map.insert(g, (gloss_num, Rc::from(item)));
+            pos_map.insert(p, gloss_map);
+            ety_map.insert(e, (ety_num, pos_map));
             return Ok(());
         }
         // since ety has been seen before, there must be at least one pos
         // check if this pos has been seen for this ety before
-        let pos_map: &mut PosMap = ety_map
+        let (ety_num, pos_map): &mut (u8, PosMap) = ety_map
             .get_mut(&item.ety_text)
             .ok_or_else(|| anyhow!("no PosMap for ety when adding:\n{:#?}", item))?;
         if !pos_map.contains_key(&item.pos) {
             let mut gloss_map = GlossMap::new();
-            gloss_map.insert(item.gloss, Rc::clone(&item));
-            pos_map.insert(item.pos, gloss_map);
+            let (g, p) = (item.gloss, item.pos);
+            let gloss_num = g.map_or(0, |_| 1) as u8;
+            item.gloss_num = gloss_num;
+            item.ety_num = *ety_num;
+            gloss_map.insert(g, (gloss_num, Rc::from(item)));
+            pos_map.insert(p, gloss_map);
             return Ok(());
         }
-        // since pos has been seen before, there must be at least one gloss (possibly "")
+        // since pos has been seen before, there must be at least one gloss (possibly None)
         let gloss_map: &mut GlossMap = pos_map
             .get_mut(&item.pos)
             .ok_or_else(|| anyhow!("no GlossMap for pos when adding:\n{:#?}", item))?;
         if !gloss_map.contains_key(&item.gloss) {
-            gloss_map.insert(item.gloss, Rc::clone(&item));
+            let g = item.gloss;
+            let gloss_num = g.map_or(0, |_| 1 + gloss_map.len()) as u8;
+            item.gloss_num = gloss_num;
+            item.ety_num = *ety_num;
+            gloss_map.insert(item.gloss, (gloss_num, Rc::from(item)));
             return Ok(());
         }
         Ok(())
@@ -204,10 +240,10 @@ impl Sources {
                     // there are multiple items, we have to do a word sense disambiguation.
                     Some(ety_map) => {
                         if let Some(source_item) = ety_map
-                            .into_iter()
+                            .values()
                             .flat_map(|(_, pos_map)| {
-                                pos_map.into_iter().flat_map(|(_, gloss_map)| {
-                                    gloss_map.into_iter().map(|(_, other_item)| other_item)
+                                pos_map.values().flat_map(|gloss_map| {
+                                    gloss_map.values().map(|(_, other_item)| other_item)
                                 })
                             })
                             .max_by_key(|other_item| {
@@ -253,10 +289,10 @@ impl Sources {
                         // there are multiple items, we have to do a word sense disambiguation.
                         Some(ety_map) => {
                             if let Some(source_item) = ety_map
-                                .into_iter()
+                                .values()
                                 .flat_map(|(_, pos_map)| {
-                                    pos_map.into_iter().flat_map(|(_, gloss_map)| {
-                                        gloss_map.into_iter().map(|(_, other_item)| other_item)
+                                    pos_map.values().flat_map(|gloss_map| {
+                                        gloss_map.values().map(|(_, other_item)| other_item)
                                     })
                                 })
                                 .max_by_key(|other_item| {
@@ -335,33 +371,26 @@ impl Sense {
 // convenience extension trait methods for reading from json
 trait ValueExt {
     fn get_expected_str(&self, key: &str) -> Result<&str>;
-    fn get_expected_object(&self, key: &str) -> Result<&Object>;
+    fn get_optional_str(&self, key: &str) -> Option<&str>;
+    fn get_expected_object(&self, key: &str) -> Result<&Value>;
 }
 
 impl ValueExt for Value<'_> {
     fn get_expected_str(&self, key: &str) -> Result<&str> {
         self.get_str(key)
             .ok_or_else(|| anyhow!("failed parsing '{key}' key in json:\n{self}"))
-    }
-    fn get_expected_object(&self, key: &str) -> Result<&Object> {
-        self.get_object(key)
-            .ok_or_else(|| anyhow!("failed parsing '{key}' key in json:\n{self}"))
-    }
-}
-
-trait ObjectExt {
-    fn get_expected_str(&self, key: &str) -> Result<&str>;
-    fn get_optional_str(&self, key: &str) -> Option<&str>;
-}
-
-impl ObjectExt for Object<'_> {
-    fn get_expected_str(&self, key: &str) -> Result<&str> {
-        self.get(key)
-            .and_then(|v| v.as_str())
-            .ok_or_else(|| anyhow!("failed parsing '{key}' key in json:\n{self:#?}"))
+            .and_then(|s| {
+                (!s.is_empty())
+                    .then(|| s)
+                    .ok_or_else(|| anyhow!("empty str value for '{key}' key in json:\n{self}"))
+            })
     }
     fn get_optional_str(&self, key: &str) -> Option<&str> {
-        self.get(key).and_then(|v| v.as_str())
+        self.get_str(key).and_then(|s| (!s.is_empty()).then(|| s))
+    }
+    fn get_expected_object(&self, key: &str) -> Result<&Value> {
+        self.get(key)
+            .ok_or_else(|| anyhow!("failed parsing '{key}' key in json:\n{self}"))
     }
 }
 
@@ -379,7 +408,7 @@ impl Processor {
             println!("{}", self.string_pool.resolve(*term));
             for (lang, ety_map) in lang_map.iter() {
                 println!("  {}", self.string_pool.resolve(*lang));
-                for (ety_text, pos_map) in ety_map.iter() {
+                for (ety_text, (_, pos_map)) in ety_map.iter() {
                     let et = ety_text
                         .and_then(|et| Some(self.string_pool.resolve(et)))
                         .unwrap_or_else(|| "");
@@ -400,11 +429,10 @@ impl Processor {
 
     fn process_derived_type_json_template(
         &mut self,
-        template: &Value,
+        args: &Value,
         mode: &str,
         lang: SymbolU32,
     ) -> Result<Option<RawEtyNode>> {
-        let args = template.get_expected_object("args")?;
         let term_lang = args.get_expected_str("1")?;
         if term_lang != self.string_pool.resolve(lang) {
             return Ok(None);
@@ -424,11 +452,10 @@ impl Processor {
 
     fn process_abbrev_type_json_template(
         &mut self,
-        template: &Value,
+        args: &Value,
         mode: &str,
         lang: SymbolU32,
     ) -> Result<Option<RawEtyNode>> {
-        let args = template.get_expected_object("args")?;
         let term_lang = args.get_expected_str("1")?;
         if term_lang != self.string_pool.resolve(lang) {
             return Ok(None);
@@ -447,11 +474,10 @@ impl Processor {
 
     fn process_compound_type_json_template(
         &mut self,
-        template: &Value,
+        args: &Value,
         mode: &str,
         lang: SymbolU32,
     ) -> Result<Option<RawEtyNode>> {
-        let args = template.get_expected_object("args")?;
         let term_lang = args.get_expected_str("1")?;
         if term_lang != self.string_pool.resolve(lang) {
             return Ok(None);
@@ -492,15 +518,16 @@ impl Processor {
         lang: SymbolU32,
     ) -> Result<Option<RawEtyNode>> {
         if let Some(name) = template.get_str("name") {
+            let args = template.get_expected_object("args")?;
             if DERIVED_TYPE_TEMPLATES.contains_key(name) {
                 let mode = *DERIVED_TYPE_TEMPLATES.get(name).unwrap();
-                self.process_derived_type_json_template(template, mode, lang)
+                self.process_derived_type_json_template(args, mode, lang)
             } else if ABBREV_TYPE_TEMPLATES.contains_key(name) {
                 let mode = *ABBREV_TYPE_TEMPLATES.get(name).unwrap();
-                self.process_abbrev_type_json_template(template, mode, lang)
+                self.process_abbrev_type_json_template(args, mode, lang)
             } else if COMPOUND_TYPE_TEMPLATES.contains_key(name) {
                 let mode = *COMPOUND_TYPE_TEMPLATES.get(name).unwrap();
-                self.process_compound_type_json_template(template, mode, lang)
+                self.process_compound_type_json_template(args, mode, lang)
             } else {
                 Ok(None)
             }
@@ -571,11 +598,11 @@ impl Processor {
         let lang = self
             .string_pool
             .get_or_intern(json_item.get_expected_str("lang_code")?);
-        // 'lang' key may be missing, in which case we take None
+        // 'lang' key may be missing or empty... $$ may it? $$
         let language = json_item
-            .get_str("lang")
+            .get_optional_str("lang")
             .and_then(|s| Some(self.string_pool.get_or_intern(s)));
-        // 'etymology_text' key may be missing, in which case we take None
+        // 'etymology_text' key may be missing or empty
         let ety_text = json_item
             .get_str("etymology_text")
             .and_then(|s| Some(self.string_pool.get_or_intern(s)));
@@ -584,8 +611,7 @@ impl Processor {
             .string_pool
             .get_or_intern(json_item.get_expected_str("pos")?);
         // 'senses' key should always be present with non-empty value, but glosses
-        // may be missing or empty. We just take None if gloss not found
-        // for any reason.
+        // may be missing or empty.
         // $$ For reconstructed terms, what should really be different entries
         // $$ are muddled together as different senses in the same entry.
         // $$ Need to implement adding different items for each sense for reconstructed terms.
@@ -595,20 +621,22 @@ impl Processor {
             .and_then(|sense| sense.get_array("glosses"))
             .and_then(|glosses| glosses.get(0))
             .and_then(|gloss| gloss.as_str())
-            .and_then(|s| Some(self.string_pool.get_or_intern(s)));
+            .and_then(|s| (!s.is_empty()).then(|| self.string_pool.get_or_intern(s)));
 
         let raw_ety_nodes = self.process_json_ety_templates(json_item, lang)?;
 
-        let item = Rc::from(Item {
+        let item = Item {
             term: term,
             lang: lang,
             language: language,
             ety_text: ety_text,
+            ety_num: 0, // temp value to be changed if need be in add()
             pos: pos,
             gloss: gloss,
+            gloss_num: 0, // temp value to be changed if need be in add()
             raw_ety_nodes: raw_ety_nodes,
-        });
-        self.items.add(&item)?;
+        };
+        self.items.add(item)?;
         Ok(())
     }
 
@@ -632,9 +660,9 @@ impl Processor {
     fn process_items(&mut self) -> Result<()> {
         for lang_map in self.items.term_map.values() {
             for ety_map in lang_map.values() {
-                for pos_map in ety_map.values() {
+                for (_, pos_map) in ety_map.values() {
                     for gloss_map in pos_map.values() {
-                        for item in gloss_map.values() {
+                        for (_, item) in gloss_map.values() {
                             self.sources.process_item_raw_ety_nodes(
                                 &self.string_pool,
                                 &self.items,
