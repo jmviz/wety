@@ -23,6 +23,10 @@ const WIKTEXTRACT_URL: &str = "https://kaikki.org/dictionary/raw-wiktextract-dat
 const WIKTEXTRACT_PATH: &str = "data/raw-wiktextract-data.json.gz";
 // const WIKTEXTRACT_URL: &str = "http://0.0.0.0:8000/data/test/bank.json.gz";
 // const WIKTEXTRACT_PATH: &str = "data/test/bank.json.gz";
+const LANG_PATH: &str = "data/lang.txt";
+const POS_PATH: &str = "data/pos.txt";
+const ID_PATH: &str = "data/id.txt";
+const SOURCE_PATH: &str = "data/source.txt";
 const DB_PATH: &str = "data/wety.db";
 const RDF_PATH: &str = "data/wety.rdf";
 
@@ -75,7 +79,7 @@ enum RawEtyNode {
 struct Item {
     term: SymbolU32,             // e.g. "bank"
     lang: SymbolU32,             // e.g "en", i.e. the wiktextract lang_code
-    language: Option<SymbolU32>, // e.g. "English" i.e. the wiktextract lang
+    language: SymbolU32,         // e.g. "English" i.e. the wiktextract lang
     ety_text: Option<SymbolU32>, // e.g. "From Middle English banke, from Middle French banque...
     ety_num: u8, // the nth ety encountered for this term-lang combo, 0 means ety is missing or ""
     pos: SymbolU32, // e.g. "noun"
@@ -399,32 +403,78 @@ pub struct Processor {
     string_pool: StringPool,
     items: Items,
     sources: Sources,
+    langs: HashMap<SymbolU32, SymbolU32>,
+    poss: HashSet<SymbolU32>,
 }
 
 impl Processor {
-    // just for debugging
-    pub fn print_all_items(&self) {
-        for (term, lang_map) in self.items.term_map.iter() {
-            println!("{}", self.string_pool.resolve(*term));
-            for (lang, ety_map) in lang_map.iter() {
-                println!("  {}", self.string_pool.resolve(*lang));
-                for (ety_text, (_, pos_map)) in ety_map.iter() {
-                    let et = ety_text
-                        .and_then(|et| Some(self.string_pool.resolve(et)))
-                        .unwrap_or_else(|| "");
-                    println!("    {}", et);
-                    for (pos, gloss_map) in pos_map.iter() {
-                        println!("      {}", self.string_pool.resolve(*pos));
-                        for (gloss, _) in gloss_map.iter() {
-                            let g = gloss
-                                .and_then(|g| Some(self.string_pool.resolve(g)))
-                                .unwrap_or_else(|| "");
-                            println!("        {}", g);
+    fn write_sources(&self) -> Result<()> {
+        let mut file = File::create(SOURCE_PATH)?;
+        for (item, ety) in self.sources.item_map.iter() {
+            file.write_all(format!("{}, ", item.id(&self.string_pool)).as_bytes())?;
+            match ety {
+                Some(ety) => match ety {
+                    EtyNode::DerivedFrom(d) => file.write_all(
+                        format!(
+                            "{}, {}",
+                            self.string_pool.resolve(d.mode),
+                            d.item.id(&self.string_pool)
+                        )
+                        .as_bytes(),
+                    )?,
+                    EtyNode::Combines(c) => {
+                        file.write_all(
+                            format!("{}, ", self.string_pool.resolve(c.mode)).as_bytes(),
+                        )?;
+                        for i in c.items.iter() {
+                            file.write_all(format!("{}, ", i.id(&self.string_pool)).as_bytes())?;
+                        }
+                    }
+                },
+                None => file.write_all(b"NONE")?,
+            }
+            file.write_all(b"\n")?;
+        }
+        Ok(())
+    }
+
+    fn write_ids(&self) -> Result<()> {
+        let mut file = File::create(ID_PATH)?;
+        for lang_map in self.items.term_map.values() {
+            for ety_map in lang_map.values() {
+                for (_, pos_map) in ety_map.values() {
+                    for gloss_map in pos_map.values() {
+                        for (_, item) in gloss_map.values() {
+                            file.write_all(format!("{}\n", item.id(&self.string_pool)).as_bytes())?;
                         }
                     }
                 }
             }
         }
+        Ok(())
+    }
+
+    fn write_poss(&self) -> Result<()> {
+        let mut file = File::create(POS_PATH)?;
+        for pos in self.poss.iter() {
+            file.write_all(format!("{}\n", self.string_pool.resolve(*pos)).as_bytes())?;
+        }
+        Ok(())
+    }
+
+    fn write_langs(&self) -> Result<()> {
+        let mut file = File::create(LANG_PATH)?;
+        for (lang, language) in self.langs.iter() {
+            file.write_all(
+                format!(
+                    "{}, {}\n",
+                    self.string_pool.resolve(*lang),
+                    self.string_pool.resolve(*language),
+                )
+                .as_bytes(),
+            )?;
+        }
+        Ok(())
     }
 
     fn process_derived_type_json_template(
@@ -598,10 +648,10 @@ impl Processor {
         let lang = self
             .string_pool
             .get_or_intern(json_item.get_expected_str("lang_code")?);
-        // 'lang' key may be missing or empty... $$ may it? $$
-        let language = json_item
-            .get_optional_str("lang")
-            .and_then(|s| Some(self.string_pool.get_or_intern(s)));
+        // 'lang' key must be present
+        let language = self
+            .string_pool
+            .get_or_intern(json_item.get_expected_str("lang")?);
         // 'etymology_text' key may be missing or empty
         let ety_text = json_item
             .get_str("etymology_text")
@@ -612,9 +662,6 @@ impl Processor {
             .get_or_intern(json_item.get_expected_str("pos")?);
         // 'senses' key should always be present with non-empty value, but glosses
         // may be missing or empty.
-        // $$ For reconstructed terms, what should really be different entries
-        // $$ are muddled together as different senses in the same entry.
-        // $$ Need to implement adding different items for each sense for reconstructed terms.
         let gloss = json_item
             .get_array("senses")
             .and_then(|senses| senses.get(0))
@@ -624,6 +671,9 @@ impl Processor {
             .and_then(|s| (!s.is_empty()).then(|| self.string_pool.get_or_intern(s)));
 
         let raw_ety_nodes = self.process_json_ety_templates(json_item, lang)?;
+
+        self.langs.insert(lang, language);
+        self.poss.insert(pos);
 
         let item = Item {
             term: term,
@@ -694,8 +744,23 @@ impl Processor {
         };
         self.process_file(file)?;
         println!("Finished");
+        println!("Writing all encountered PoSs to {}", POS_PATH);
+        self.write_poss()?;
+        println!("Finished");
+        println!("Writing all encountered langs to {}", LANG_PATH);
+        self.write_langs()?;
+        println!("Finished");
+        println!("Writing all generated term ids to {}", ID_PATH);
+        self.write_ids()?;
+        println!("Finished");
         println!("Processing etymologies");
         self.process_items()?;
+        println!("Finished");
+        println!(
+            "Writing all found immediate etymology relationships to {}",
+            SOURCE_PATH
+        );
+        self.write_sources()?;
         println!("Finished");
         println!("Writing to database {DB_PATH}");
         // write to oxigraph store
