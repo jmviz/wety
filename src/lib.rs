@@ -2,9 +2,12 @@
 
 mod etymology_templates;
 
-use crate::etymology_templates::*;
+use crate::etymology_templates::{
+    ABBREV_TYPE_TEMPLATES, COMPOUND_TYPE_TEMPLATES, DERIVED_TYPE_TEMPLATES,
+};
 
 use std::cmp::min;
+use std::convert::TryFrom;
 use std::fs::File;
 use std::io::Write;
 use std::io::{BufRead, BufReader};
@@ -121,16 +124,17 @@ impl Items {
             let mut pos_map = PosMap::new();
             let mut ety_map = EtyMap::new();
             let mut lang_map = LangMap::new();
-            let (g, p, e, l, t) = (item.gloss, item.pos, item.ety_text, item.lang, item.term);
-            let gn = g.map_or(0, |_| 1) as u8;
-            item.gloss_num = gn;
-            let en = e.map_or(0, |_| 1) as u8;
-            item.ety_num = en;
-            gloss_map.insert(g, (gn, Rc::from(item)));
-            pos_map.insert(p, gloss_map);
-            ety_map.insert(e, (en, pos_map));
-            lang_map.insert(l, ety_map);
-            self.term_map.insert(t, lang_map);
+            let (gloss, pos, ety_text, lang, term) =
+                (item.gloss, item.pos, item.ety_text, item.lang, item.term);
+            let gloss_num = gloss.map_or(0u8, |_| 1u8);
+            item.gloss_num = gloss_num;
+            let ety_num = ety_text.map_or(0u8, |_| 1u8);
+            item.ety_num = ety_num;
+            gloss_map.insert(gloss, (gloss_num, Rc::from(item)));
+            pos_map.insert(pos, gloss_map);
+            ety_map.insert(ety_text, (ety_num, pos_map));
+            lang_map.insert(lang, ety_map);
+            self.term_map.insert(term, lang_map);
             return Ok(());
         }
         // since term has been seen before, there must be at least one lang for it
@@ -143,15 +147,15 @@ impl Items {
             let mut gloss_map = GlossMap::new();
             let mut pos_map = PosMap::new();
             let mut ety_map = EtyMap::new();
-            let (g, p, e, l) = (item.gloss, item.pos, item.ety_text, item.lang);
-            let gloss_num = g.map_or(0, |_| 1) as u8;
+            let (gloss, pos, ety_text, lang) = (item.gloss, item.pos, item.ety_text, item.lang);
+            let gloss_num = gloss.map_or(0u8, |_| 1u8);
             item.gloss_num = gloss_num;
-            let ety_num = e.map_or(0, |_| 1) as u8;
+            let ety_num = ety_text.map_or(0u8, |_| 1u8);
             item.ety_num = ety_num;
-            gloss_map.insert(g, (gloss_num, Rc::from(item)));
-            pos_map.insert(p, gloss_map);
-            ety_map.insert(e, (ety_num, pos_map));
-            lang_map.insert(l, ety_map);
+            gloss_map.insert(gloss, (gloss_num, Rc::from(item)));
+            pos_map.insert(pos, gloss_map);
+            ety_map.insert(ety_text, (ety_num, pos_map));
+            lang_map.insert(lang, ety_map);
             return Ok(());
         }
         // since lang has been seen before, there must be at least one ety (possibly None)
@@ -162,14 +166,15 @@ impl Items {
         if !ety_map.contains_key(&item.ety_text) {
             let mut gloss_map = GlossMap::new();
             let mut pos_map = PosMap::new();
-            let (g, p, e) = (item.gloss, item.pos, item.ety_text);
-            let gloss_num = g.map_or(0, |_| 1) as u8;
+            let (gloss, pos, ety_text) = (item.gloss, item.pos, item.ety_text);
+            let gloss_num = gloss.map_or(0u8, |_| 1u8);
             item.gloss_num = gloss_num;
-            let ety_num = e.map_or(0, |_| 1 + ety_map.len()) as u8;
+            let ety_map_len = u8::try_from(ety_map.len())?;
+            let ety_num = ety_text.map_or(0u8, |_| 1u8 + ety_map_len);
             item.ety_num = ety_num;
-            gloss_map.insert(g, (gloss_num, Rc::from(item)));
-            pos_map.insert(p, gloss_map);
-            ety_map.insert(e, (ety_num, pos_map));
+            gloss_map.insert(gloss, (gloss_num, Rc::from(item)));
+            pos_map.insert(pos, gloss_map);
+            ety_map.insert(ety_text, (ety_num, pos_map));
             return Ok(());
         }
         // since ety has been seen before, there must be at least one pos
@@ -179,12 +184,12 @@ impl Items {
             .ok_or_else(|| anyhow!("no PosMap for ety when adding:\n{:#?}", item))?;
         if !pos_map.contains_key(&item.pos) {
             let mut gloss_map = GlossMap::new();
-            let (g, p) = (item.gloss, item.pos);
-            let gloss_num = g.map_or(0, |_| 1) as u8;
+            let (gloss, pos) = (item.gloss, item.pos);
+            let gloss_num = gloss.map_or(0u8, |_| 1u8);
             item.gloss_num = gloss_num;
             item.ety_num = *ety_num;
-            gloss_map.insert(g, (gloss_num, Rc::from(item)));
-            pos_map.insert(p, gloss_map);
+            gloss_map.insert(gloss, (gloss_num, Rc::from(item)));
+            pos_map.insert(pos, gloss_map);
             return Ok(());
         }
         // since pos has been seen before, there must be at least one gloss (possibly None)
@@ -192,11 +197,12 @@ impl Items {
             .get_mut(&item.pos)
             .ok_or_else(|| anyhow!("no GlossMap for pos when adding:\n{:#?}", item))?;
         if !gloss_map.contains_key(&item.gloss) {
-            let g = item.gloss;
-            let gloss_num = g.map_or(0, |_| 1 + gloss_map.len()) as u8;
+            let gloss = item.gloss;
+            let gloss_map_len = u8::try_from(gloss_map.len())?;
+            let gloss_num = gloss.map_or(0u8, |_| 1u8 + gloss_map_len);
             item.gloss_num = gloss_num;
             item.ety_num = *ety_num;
-            gloss_map.insert(item.gloss, (gloss_num, Rc::from(item)));
+            gloss_map.insert(gloss, (gloss_num, Rc::from(item)));
             return Ok(());
         }
         Ok(())
@@ -215,7 +221,7 @@ impl Sources {
         self.item_map
             .try_insert(Rc::clone(item), ety_node_opt)
             .and(Ok(()))
-            .or_else(|_| Err(anyhow!("Tried inserting duplicate item:\n{:#?}", item)))
+            .map_err(|_| anyhow!("Tried inserting duplicate item:\n{:#?}", item))
     }
     // For now we'll just take the first node. But cf. notes.md.
     /// Only to be called once all json items have been processed into items.
@@ -228,7 +234,7 @@ impl Sources {
         if item.raw_ety_nodes.is_none() {
             return Ok(()); // don't add anything to sources if no valid raw ety nodes
         }
-        let sense = Sense::new(string_pool, &item);
+        let sense = Sense::new(string_pool, item);
         // The boxed array should never be empty, based on the logic in
         // process_json_ety_templates().
         let raw_ety_node = &item.raw_ety_nodes.as_ref().unwrap()[0];
@@ -251,12 +257,12 @@ impl Sources {
                                 })
                             })
                             .max_by_key(|other_item| {
-                                let other_item_sense = Sense::new(string_pool, &other_item);
+                                let other_item_sense = Sense::new(string_pool, other_item);
                                 sense.lesk_score(&other_item_sense)
                             })
                         {
                             let node = EtyNode::DerivedFrom(DerivedFrom {
-                                item: Rc::clone(&source_item),
+                                item: Rc::clone(source_item),
                                 mode: raw_derived_from.mode,
                             });
                             self.add(item, Some(node))?;
@@ -279,8 +285,7 @@ impl Sources {
                 let source_langs = raw_combines
                     .source_langs
                     .as_ref()
-                    .and_then(|s| Some(s.to_vec()))
-                    .unwrap_or_else(|| [item.lang].repeat(source_terms.len()));
+                    .map_or_else(|| [item.lang].repeat(source_terms.len()), |s| s.to_vec());
                 let mut source_items = Vec::with_capacity(source_terms.len());
                 for (source_term, source_lang) in source_terms.iter().zip(source_langs.iter()) {
                     let ety_map = items
@@ -300,11 +305,11 @@ impl Sources {
                                     })
                                 })
                                 .max_by_key(|other_item| {
-                                    let other_item_sense = Sense::new(string_pool, &other_item);
+                                    let other_item_sense = Sense::new(string_pool, other_item);
                                     sense.lesk_score(&other_item_sense)
                                 })
                             {
-                                source_items.push(Rc::clone(&source_item));
+                                source_items.push(Rc::clone(source_item));
                             } else {
                                 // should never be reached
                                 bail!(
@@ -364,11 +369,11 @@ impl Sense {
         for word in remove_punctuation(gloss_str).split_whitespace() {
             gloss.insert(word.to_string());
         }
-        Sense { gloss: gloss }
+        Sense { gloss }
     }
     // https://en.wikipedia.org/wiki/Lesk_algorithm
-    fn lesk_score(&self, other: &Sense) -> u32 {
-        self.gloss.intersection(&other.gloss).count() as u32
+    fn lesk_score(&self, other: &Sense) -> usize {
+        self.gloss.intersection(&other.gloss).count()
     }
 }
 
@@ -538,12 +543,12 @@ impl Processor {
         let mut source_langs = vec![];
         let mut has_source_langs = false;
         while let Some(source_term) = args.get_optional_str(n.to_string().as_str()) {
-            if source_term == "" || source_term == "-" {
+            if source_term.is_empty() || source_term == "-" {
                 break;
             }
             source_terms.push(self.string_pool.get_or_intern(clean_json_term(source_term)));
             if let Some(source_lang) = args.get_optional_str(format!("lang{n}").as_str()) {
-                if source_lang == "" || source_lang == "-" {
+                if source_lang.is_empty() || source_lang == "-" {
                     break;
                 }
                 has_source_langs = true;
@@ -588,7 +593,7 @@ impl Processor {
 
     fn process_json_ety_templates(
         &mut self,
-        json_item: Value,
+        json_item: &Value,
         lang: SymbolU32,
     ) -> Result<Option<Box<[RawEtyNode]>>> {
         let mut raw_ety_nodes = vec![];
@@ -634,7 +639,7 @@ impl Processor {
         Ok(Some(raw_ety_nodes.into_boxed_slice()))
     }
 
-    fn process_json_item(&mut self, json_item: Value) -> Result<()> {
+    fn process_json_item(&mut self, json_item: &Value) -> Result<()> {
         // some wiktionary pages are redirects, which we don't want
         // https://github.com/tatuylonen/wiktextract#format-of-extracted-redirects
         if json_item.contains_key("redirect") {
@@ -655,7 +660,7 @@ impl Processor {
         // 'etymology_text' key may be missing or empty
         let ety_text = json_item
             .get_str("etymology_text")
-            .and_then(|s| Some(self.string_pool.get_or_intern(s)));
+            .map(|s| self.string_pool.get_or_intern(s));
         // 'pos' key must be present
         let pos = self
             .string_pool
@@ -667,7 +672,7 @@ impl Processor {
             .and_then(|senses| senses.get(0))
             .and_then(|sense| sense.get_array("glosses"))
             .and_then(|glosses| glosses.get(0))
-            .and_then(|gloss| gloss.as_str())
+            .and_then(simd_json::ValueAccess::as_str)
             .and_then(|s| (!s.is_empty()).then(|| self.string_pool.get_or_intern(s)));
 
         let raw_ety_nodes = self.process_json_ety_templates(json_item, lang)?;
@@ -676,15 +681,15 @@ impl Processor {
         self.poss.insert(pos);
 
         let item = Item {
-            term: term,
-            lang: lang,
-            language: language,
-            ety_text: ety_text,
+            term,
+            lang,
+            language,
+            ety_text,
             ety_num: 0, // temp value to be changed if need be in add()
-            pos: pos,
-            gloss: gloss,
+            pos,
+            gloss,
             gloss_num: 0, // temp value to be changed if need be in add()
-            raw_ety_nodes: raw_ety_nodes,
+            raw_ety_nodes,
         };
         self.items.add(item)?;
         Ok(())
@@ -693,7 +698,7 @@ impl Processor {
     fn process_json_items<T: BufRead>(&mut self, lines: ByteLines<T>) -> Result<()> {
         for mut line in lines.into_iter().filter_map(Result::ok) {
             let json_item = to_borrowed_value(&mut line)?;
-            self.process_json_item(json_item)?;
+            self.process_json_item(&json_item)?;
         }
         Ok(())
     }
@@ -726,22 +731,23 @@ impl Processor {
         Ok(())
     }
 
+    /// # Errors
+    ///
+    /// Will return `Err` if any unexpected problem arises in processing.
     pub async fn process_wiktextract_data(&mut self) -> Result<()> {
-        let file = match File::open(WIKTEXTRACT_PATH) {
-            Ok(file) => {
-                println!("Processing data from local file {WIKTEXTRACT_PATH}");
-                file
-            }
-            Err(_) => {
-                // file doesn't exist or error opening it; download it
-                println!("No local file found, downloading from {WIKTEXTRACT_URL}");
-                download_file(WIKTEXTRACT_URL, WIKTEXTRACT_PATH).await?;
-                let file = File::open(WIKTEXTRACT_PATH)
-                    .or_else(|_| Err(anyhow!("Failed to open file '{WIKTEXTRACT_PATH}'")))?;
-                println!("Processing data from downloaded file {WIKTEXTRACT_PATH}");
-                file
-            }
+        let file = if let Ok(file) = File::open(WIKTEXTRACT_PATH) {
+            println!("Processing data from local file {WIKTEXTRACT_PATH}");
+            file
+        } else {
+            // file doesn't exist or error opening it; download it
+            println!("No local file found, downloading from {WIKTEXTRACT_URL}");
+            download_file(WIKTEXTRACT_URL, WIKTEXTRACT_PATH).await?;
+            let file = File::open(WIKTEXTRACT_PATH)
+                .map_err(|_| anyhow!("Failed to open file '{WIKTEXTRACT_PATH}'"))?;
+            println!("Processing data from downloaded file {WIKTEXTRACT_PATH}");
+            file
         };
+
         self.process_file(file)?;
         println!("Finished");
         println!("Writing all encountered PoSs to {}", POS_PATH);
@@ -779,11 +785,8 @@ fn clean_json_term(term: &str) -> &str {
     // seem to be cleaned already. Since we will be trying to match to terms
     // taken from 'word' keys, we need to clean the terms when they do start
     // with "*".
-    if term.starts_with("*") {
-        &term[1..]
-    } else {
-        term
-    }
+    // $$ revisit this in light of https://en.wiktionary.org/wiki/Module:languages#Language:makeEntryName
+    term.strip_prefix('*').unwrap_or(term)
 }
 
 fn remove_punctuation(text: &str) -> String {
@@ -793,13 +796,13 @@ fn remove_punctuation(text: &str) -> String {
 }
 
 // https://gist.github.com/giuliano-oliveira/4d11d6b3bb003dba3a1b53f43d81b30d
-pub async fn download_file(url: &str, path: &str) -> Result<()> {
+async fn download_file(url: &str, path: &str) -> Result<()> {
     let client = reqwest::Client::new();
     let response = client
         .get(url)
         .send()
         .await
-        .or_else(|_| Err(anyhow!("Failed to GET from '{url}'")))?;
+        .map_err(|_| anyhow!("Failed to GET from '{url}'"))?;
     let total_size = response
         .content_length()
         .ok_or_else(|| anyhow!("Failed to get content length from '{url}'"))?;
@@ -813,13 +816,12 @@ pub async fn download_file(url: &str, path: &str) -> Result<()> {
     if response.status() == reqwest::StatusCode::OK {
         let mut stream = response.bytes_stream();
         let mut downloaded: u64 = 0;
-        let mut file =
-            File::create(path).or_else(|_| Err(anyhow!("Failed to create file '{path}'")))?;
+        let mut file = File::create(path).map_err(|_| anyhow!("Failed to create file '{path}'"))?;
 
         while let Some(item) = stream.next().await {
-            let chunk = item.or_else(|_| Err(anyhow!("Error while downloading file")))?;
+            let chunk = item.map_err(|_| anyhow!("Error while downloading file"))?;
             file.write_all(&chunk)
-                .or_else(|_| Err(anyhow!("Error while writing to file")))?;
+                .map_err(|_| anyhow!("Error while writing to file"))?;
             let new = min(downloaded + (chunk.len() as u64), total_size);
             downloaded = new;
             pb.set_position(new);
