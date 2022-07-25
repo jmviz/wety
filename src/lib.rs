@@ -498,7 +498,7 @@ impl Processor {
             .and_then(|source_term| match source_term {
                 "" | "-" => None,
                 _ => Some(RawEtyNode::RawDerivedFrom(RawDerivedFrom {
-                    source_term: self.string_pool.get_or_intern(clean_json_term(source_term)),
+                    source_term: self.string_pool.get_or_intern(entry_name(source_term)),
                     source_lang: self.string_pool.get_or_intern(source_lang),
                     mode: self.string_pool.get_or_intern(mode),
                 })),
@@ -520,7 +520,7 @@ impl Processor {
             .and_then(|source_term| match source_term {
                 "" | "-" => None,
                 _ => Some(RawEtyNode::RawDerivedFrom(RawDerivedFrom {
-                    source_term: self.string_pool.get_or_intern(clean_json_term(source_term)),
+                    source_term: self.string_pool.get_or_intern(entry_name(source_term)),
                     source_lang: lang,
                     mode: self.string_pool.get_or_intern(mode),
                 })),
@@ -546,7 +546,7 @@ impl Processor {
             if source_term.is_empty() || source_term == "-" {
                 break;
             }
-            source_terms.push(self.string_pool.get_or_intern(clean_json_term(source_term)));
+            source_terms.push(self.string_pool.get_or_intern(entry_name(source_term)));
             if let Some(source_lang) = args.get_optional_str(format!("lang{n}").as_str()) {
                 if source_lang.is_empty() || source_lang == "-" {
                     break;
@@ -779,14 +779,15 @@ impl Processor {
     }
 }
 
-fn clean_json_term(term: &str) -> &str {
-    // In wiktextract json, reconstructed terms (e.g. PIE) start with "*",
-    // except for when they are values of a json item's 'word' key, where they
-    // seem to be cleaned already. Since we will be trying to match to terms
-    // taken from 'word' keys, we need to clean the terms when they do start
-    // with "*".
-    // $$ revisit this in light of https://en.wiktionary.org/wiki/Module:languages#Language:makeEntryName
+fn entry_name(term: &str) -> &str {
+    // Reconstructed terms (e.g. PIE) start with "*", but their entry titles do not.
+    // This is done by https://en.wiktionary.org/wiki/Module:links.
+
+    // check if lang ends with -pro before doing this
     term.strip_prefix('*').unwrap_or(term)
+
+    // else do regular lang entryName creation stuff here a la
+    // https://en.wiktionary.org/wiki/Module:languages#Language:makeEntryName
 }
 
 fn remove_punctuation(text: &str) -> String {
