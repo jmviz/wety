@@ -19,6 +19,7 @@ use flate2::read::GzDecoder;
 use futures_util::StreamExt;
 use hashbrown::{HashMap, HashSet};
 use indicatif::{ProgressBar, ProgressStyle};
+use phf::{phf_set, Set};
 use simd_json::{to_borrowed_value, value::borrowed::Value, ValueAccess};
 use string_interner::{backend::StringBackend, symbol::SymbolU32, StringInterner};
 
@@ -32,6 +33,13 @@ const ID_PATH: &str = "data/id.txt";
 const SOURCE_PATH: &str = "data/source.txt";
 const DB_PATH: &str = "data/wety.db";
 const RDF_PATH: &str = "data/wety.rdf";
+
+// https://github.com/tatuylonen/wiktextract/blob/master/wiktwords
+static IGNORED_REDIRECTS: Set<&'static str> = phf_set! {
+    "Index:", "Help:", "MediaWiki:", "Citations:", "Concordance:", "Rhymes:",
+    "Thread:", "Summary:", "File:", "Transwiki:", "Category:", "Appendix:",
+    "Wiktionary:", "Thesaurus:", "Module:", "Template:"
+};
 
 // For etymological relationships given by DERIVED_TYPE_TEMPLATES
 // and ABBREV_TYPE_TEMPLATES in etymology_templates.rs.
@@ -403,11 +411,19 @@ impl ValueExt for Value<'_> {
     }
 }
 
+#[derive(Hash, Eq, PartialEq, Debug)]
+struct ReconstructionTitle {
+    language: SymbolU32,
+    term: SymbolU32,
+}
+
 #[derive(Default)]
 pub struct Processor {
     string_pool: StringPool,
     items: Items,
     sources: Sources,
+    reconstruction_redirects: HashMap<ReconstructionTitle, ReconstructionTitle>,
+    regular_redirects: HashMap<SymbolU32, SymbolU32>,
     langs: HashMap<SymbolU32, SymbolU32>,
     poss: HashSet<SymbolU32>,
 }
@@ -493,16 +509,19 @@ impl Processor {
             return Ok(None);
         }
         let source_lang = args.get_expected_str("2")?;
-        Ok(args
-            .get_optional_str("3")
-            .and_then(|source_term| match source_term {
-                "" | "-" => None,
-                _ => Some(RawEtyNode::RawDerivedFrom(RawDerivedFrom {
-                    source_term: self.string_pool.get_or_intern(entry_name(source_term)),
+        return if let Some(source_term) = args.get_optional_str("3") {
+            let source_term = clean_ety_term(self.string_pool.resolve(lang), source_term);
+            match source_term {
+                "" | "-" => Ok(None),
+                _ => Ok(Some(RawEtyNode::RawDerivedFrom(RawDerivedFrom {
+                    source_term: self.string_pool.get_or_intern(source_term),
                     source_lang: self.string_pool.get_or_intern(source_lang),
                     mode: self.string_pool.get_or_intern(mode),
-                })),
-            }))
+                }))),
+            }
+        } else {
+            Ok(None)
+        };
     }
 
     fn process_abbrev_type_json_template(
@@ -515,16 +534,19 @@ impl Processor {
         if term_lang != self.string_pool.resolve(lang) {
             return Ok(None);
         }
-        Ok(args
-            .get_optional_str("2")
-            .and_then(|source_term| match source_term {
-                "" | "-" => None,
-                _ => Some(RawEtyNode::RawDerivedFrom(RawDerivedFrom {
-                    source_term: self.string_pool.get_or_intern(entry_name(source_term)),
+        return if let Some(source_term) = args.get_optional_str("2") {
+            let source_term = clean_ety_term(self.string_pool.resolve(lang), source_term);
+            match source_term {
+                "" | "-" => Ok(None),
+                _ => Ok(Some(RawEtyNode::RawDerivedFrom(RawDerivedFrom {
+                    source_term: self.string_pool.get_or_intern(source_term),
                     source_lang: lang,
                     mode: self.string_pool.get_or_intern(mode),
-                })),
-            }))
+                }))),
+            }
+        } else {
+            Ok(None)
+        };
     }
 
     fn process_compound_type_json_template(
@@ -546,14 +568,17 @@ impl Processor {
             if source_term.is_empty() || source_term == "-" {
                 break;
             }
-            source_terms.push(self.string_pool.get_or_intern(entry_name(source_term)));
             if let Some(source_lang) = args.get_optional_str(format!("lang{n}").as_str()) {
                 if source_lang.is_empty() || source_lang == "-" {
                     break;
                 }
                 has_source_langs = true;
+                let source_term = clean_ety_term(source_lang, source_term);
+                source_terms.push(self.string_pool.get_or_intern(source_term));
                 source_langs.push(self.string_pool.get_or_intern(source_lang));
             } else {
+                let source_term = clean_ety_term(self.string_pool.resolve(lang), source_term);
+                source_terms.push(self.string_pool.get_or_intern(source_term));
                 source_langs.push(lang);
             }
             n += 1;
@@ -639,16 +664,82 @@ impl Processor {
         Ok(Some(raw_ety_nodes.into_boxed_slice()))
     }
 
+    fn process_redirect(&mut self, json_item: &Value) -> Result<()> {
+        // there is one tricky redirect that makes it so title is
+        // "optional" (i.e. could be empty string):
+        // {"title": "", "redirect": "Appendix:Control characters"}
+        if let Some(title) = json_item.get_optional_str("title") {
+            for ignored in IGNORED_REDIRECTS.iter() {
+                if title.strip_prefix(ignored).is_some() {
+                    return Ok(());
+                }
+            }
+            let redirect = json_item.get_expected_str("redirect")?;
+            // e.g. Reconstruction:Proto-Germanic/pīpǭ
+            if let Some(from) = self.process_reconstruction_title(title) {
+                // e.g. "Reconstruction:Proto-West Germanic/pīpā"
+                if let Some(to) = self.process_reconstruction_title(redirect) {
+                    self.reconstruction_redirects.insert(from, to);
+                }
+                return Ok(());
+            }
+
+            // otherwise, this is a simple term-to-term redirect
+            let from = self.string_pool.get_or_intern(title);
+            let to = self.string_pool.get_or_intern(redirect);
+            self.regular_redirects.insert(from, to);
+        }
+        Ok(())
+    }
+
+    fn process_reconstruction_title(&mut self, title: &str) -> Option<ReconstructionTitle> {
+        // e.g. Reconstruction:Proto-Germanic/pīpǭ
+        if let Some(title) = title.strip_prefix("Reconstruction:") {
+            if let Some(slash) = title.find('/') {
+                let language = &title[..slash];
+                if let Some(term) = title.get(slash + 1..) {
+                    return Some(ReconstructionTitle {
+                        language: self.string_pool.get_or_intern(language),
+                        term: self.string_pool.get_or_intern(term),
+                    });
+                }
+            }
+        }
+        None
+    }
+
+    // We look for a canonical form, otherwise we take the "word" field.
+    // See notes.md for motivation.
+    fn get_term(&mut self, json_item: &Value) -> Result<SymbolU32> {
+        if let Some(forms) = json_item.get_array("forms") {
+            let mut f = 0;
+            while let Some(form) = forms.get(f) {
+                if let Some(tags) = form.get_array("tags") {
+                    let mut t = 0;
+                    while let Some(tag) = tags.get(t).as_str() {
+                        if tag == "canonical" {
+                            let canonical_form = form.get_expected_str("form")?;
+                            return Ok(self.string_pool.get_or_intern(canonical_form));
+                        }
+                        t += 1;
+                    }
+                }
+                f += 1;
+            }
+        }
+        return Ok(self
+            .string_pool
+            .get_or_intern(json_item.get_expected_str("word")?));
+    }
+
     fn process_json_item(&mut self, json_item: &Value) -> Result<()> {
-        // some wiktionary pages are redirects, which we don't want
+        // Some wiktionary pages are redirects. These are actually used somewhat
+        // heavily, so we need to take them into account
         // https://github.com/tatuylonen/wiktextract#format-of-extracted-redirects
         if json_item.contains_key("redirect") {
-            return Ok(());
+            return self.process_redirect(json_item);
         }
-        // 'word' key must be present
-        let term = self
-            .string_pool
-            .get_or_intern(json_item.get_expected_str("word")?);
+        let term = self.get_term(json_item)?;
         // 'lang_code' key must be present
         let lang = self
             .string_pool
@@ -779,12 +870,19 @@ impl Processor {
     }
 }
 
-fn entry_name(term: &str) -> &str {
-    // Reconstructed terms (e.g. PIE) start with "*", but their entry titles do not.
+fn clean_ety_term<'a>(lang: &str, term: &'a str) -> &'a str {
+    // Reconstructed terms (e.g. PIE) are supposed to start with "*" when cited in
+    // etymologies but their entry titles (and hence wiktextract "word" field) do not.
     // This is done by https://en.wiktionary.org/wiki/Module:links.
 
-    // check if lang ends with -pro before doing this
-    term.strip_prefix('*').unwrap_or(term)
+    // lang code ends with "-pro" iff term is a Reconstruction
+    if lang.ends_with("-pro") {
+        // it's common enough for proto terms to be missing *, so
+        // we can't just err if we don't find it
+        term.strip_prefix('*').unwrap_or(term)
+    } else {
+        term
+    }
 
     // else do regular lang entryName creation stuff here a la
     // https://en.wiktionary.org/wiki/Module:languages#Language:makeEntryName
