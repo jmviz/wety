@@ -24,9 +24,9 @@ use simd_json::{to_borrowed_value, value::borrowed::Value, ValueAccess};
 use string_interner::{backend::StringBackend, symbol::SymbolU32, StringInterner};
 
 const WIKTEXTRACT_URL: &str = "https://kaikki.org/dictionary/raw-wiktextract-data.json.gz";
-const WIKTEXTRACT_PATH: &str = "data/raw-wiktextract-data.json.gz";
+// const WIKTEXTRACT_PATH: &str = "data/raw-wiktextract-data.json.gz";
 // const WIKTEXTRACT_URL: &str = "http://0.0.0.0:8000/data/test/bank.json.gz";
-// const WIKTEXTRACT_PATH: &str = "data/test/bank.json.gz";
+const WIKTEXTRACT_PATH: &str = "data/test/glow.json.gz";
 const LANG_PATH: &str = "data/lang.txt";
 const POS_PATH: &str = "data/pos.txt";
 const ID_PATH: &str = "data/id.txt";
@@ -557,7 +557,7 @@ impl Processor {
         }
         let source_lang = args.get_expected_str("2")?;
         return if let Some(source_term) = args.get_optional_str("3") {
-            let source_term = clean_ety_term(self.string_pool.resolve(lang), source_term);
+            let source_term = clean_ety_term(source_lang, source_term);
             match source_term {
                 "" | "-" => Ok(None),
                 _ => Ok(Some(RawEtyNode::RawDerivedFrom(RawDerivedFrom {
@@ -582,7 +582,7 @@ impl Processor {
             return Ok(None);
         }
         return if let Some(source_term) = args.get_optional_str("2") {
-            let source_term = clean_ety_term(self.string_pool.resolve(lang), source_term);
+            let source_term = clean_ety_term(term_lang, source_term);
             match source_term {
                 "" | "-" => Ok(None),
                 _ => Ok(Some(RawEtyNode::RawDerivedFrom(RawDerivedFrom {
