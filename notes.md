@@ -1,6 +1,8 @@
 ## Immediate TODOs
 
-* Finish accounting for redirects.
+* Why does `glōwan__ang__e1__verb__s1` go to `NONE` instead of `inherited`, `glōaną__gem-pro__e1__verb__s1`?
+
+* Implement better sense disambiguation that takes PoSs into account. This will be particularly helpful when items have no gloss. Could add specific rules for the few templates where you would expect a different PoS, e.g. `deverbal`.
 
 * A number of affix templates (but not the `affix` template itself, notably) modify one or more of their term arguments when expanded, so that the raw text of the term argument is not exactly equivalent to the text of the relevant linked wiktionary entry. So if we were to naively follow the exact raw text in the template, we would end up in the wrong spot, if anywhere. We need to identify all templates that do any modification to any of their template term arguments, and replicate this modification in wety so that the correct term entries are linked. Here is a provisional list:
     * [Prefix](https://en.wiktionary.org/wiki/Template:prefix): `{{prefix|en|un|do}}` -> `un-` + `do`

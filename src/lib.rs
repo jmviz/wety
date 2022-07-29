@@ -13,7 +13,7 @@ use std::io::Write;
 use std::io::{BufRead, BufReader};
 use std::rc::Rc;
 
-use anyhow::{anyhow, bail, Result};
+use anyhow::{anyhow, bail, Ok, Result};
 use bytelines::ByteLines;
 use flate2::read::GzDecoder;
 use futures_util::StreamExt;
@@ -228,7 +228,7 @@ impl Sources {
     fn add(&mut self, item: &Rc<Item>, ety_node_opt: Option<EtyNode>) -> Result<()> {
         self.item_map
             .try_insert(Rc::clone(item), ety_node_opt)
-            .and(Ok(()))
+            .and(std::result::Result::Ok(()))
             .map_err(|_| anyhow!("Tried inserting duplicate item:\n{:#?}", item))
     }
     // For now we'll just take the first node. But cf. notes.md.
@@ -236,6 +236,8 @@ impl Sources {
     fn process_item_raw_ety_nodes(
         &mut self,
         string_pool: &StringPool,
+        redirects: &Redirects,
+        langs: &Langs,
         items: &Items,
         item: &Rc<Item>,
     ) -> Result<()> {
@@ -248,10 +250,15 @@ impl Sources {
         let raw_ety_node = &item.raw_ety_nodes.as_ref().unwrap()[0];
         match raw_ety_node {
             RawEtyNode::RawDerivedFrom(raw_derived_from) => {
+                let (source_lang, source_term) = redirects.get(
+                    langs,
+                    raw_derived_from.source_lang,
+                    raw_derived_from.source_term,
+                );
                 let ety_map = items
                     .term_map
-                    .get(&raw_derived_from.source_term)
-                    .and_then(|lang_map| lang_map.get(&raw_derived_from.source_lang));
+                    .get(&source_term)
+                    .and_then(|lang_map| lang_map.get(&source_lang));
                 match ety_map {
                     // if we found an ety_map, we're guaranteed to find at least
                     // one item at the end of the following nested iteration. If
@@ -278,8 +285,8 @@ impl Sources {
                             // should never be reached
                             bail!(
                                 "ety_map was found but no ultimate item for:\n{}, {}",
-                                string_pool.resolve(raw_derived_from.source_lang),
-                                string_pool.resolve(raw_derived_from.source_term),
+                                string_pool.resolve(source_lang),
+                                string_pool.resolve(source_term),
                             );
                         }
                     }
@@ -295,11 +302,13 @@ impl Sources {
                     .as_ref()
                     .map_or_else(|| [item.lang].repeat(source_terms.len()), |s| s.to_vec());
                 let mut source_items = Vec::with_capacity(source_terms.len());
-                for (source_term, source_lang) in source_terms.iter().zip(source_langs.iter()) {
+                for (source_lang, source_term) in source_langs.iter().zip(source_terms.iter()) {
+                    let (source_lang, source_term) =
+                        redirects.get(langs, *source_lang, *source_term);
                     let ety_map = items
                         .term_map
-                        .get(source_term)
-                        .and_then(|lang_map| lang_map.get(source_lang));
+                        .get(&source_term)
+                        .and_then(|lang_map| lang_map.get(&source_lang));
                     match ety_map {
                         // if we found an ety_map, we're guaranteed to find at least
                         // one item at the end of the following nested iteration. If
@@ -322,8 +331,8 @@ impl Sources {
                                 // should never be reached
                                 bail!(
                                     "ety_map was found but no ultimate item for:\n{}, {}",
-                                    string_pool.resolve(*source_lang),
-                                    string_pool.resolve(*source_term),
+                                    string_pool.resolve(source_lang),
+                                    string_pool.resolve(source_term),
                                 );
                             }
                         }
@@ -418,13 +427,51 @@ struct ReconstructionTitle {
 }
 
 #[derive(Default)]
+struct Redirects {
+    reconstruction: HashMap<ReconstructionTitle, ReconstructionTitle>,
+    regular: HashMap<SymbolU32, SymbolU32>,
+}
+
+impl Redirects {
+    // If a redirect page exists for given lang + term combo, get the redirect.
+    // If not, just return back the original lang + term.
+    fn get(&self, langs: &Langs, lang: SymbolU32, term: SymbolU32) -> (SymbolU32, SymbolU32) {
+        if let Some(language) = langs.lang_language.get(&lang) {
+            if let Some(redirect) = self.reconstruction.get(&ReconstructionTitle {
+                language: *language,
+                term,
+            }) {
+                if let Some(redirect_lang) = langs.language_lang.get(&redirect.language) {
+                    return (*redirect_lang, redirect.term);
+                }
+            } else if let Some(redirect_term) = self.regular.get(&term) {
+                return (lang, *redirect_term);
+            }
+        }
+        (lang, term)
+    }
+}
+
+#[derive(Default)]
+struct Langs {
+    lang_language: HashMap<SymbolU32, SymbolU32>, // (e.g. en -> English)
+    language_lang: HashMap<SymbolU32, SymbolU32>, // (e.g. English -> en)
+}
+
+impl Langs {
+    fn add(&mut self, lang: SymbolU32, language: SymbolU32) {
+        self.lang_language.insert(lang, language);
+        self.language_lang.insert(language, lang);
+    }
+}
+
+#[derive(Default)]
 pub struct Processor {
     string_pool: StringPool,
     items: Items,
     sources: Sources,
-    reconstruction_redirects: HashMap<ReconstructionTitle, ReconstructionTitle>,
-    regular_redirects: HashMap<SymbolU32, SymbolU32>,
-    langs: HashMap<SymbolU32, SymbolU32>,
+    redirects: Redirects,
+    langs: Langs,
     poss: HashSet<SymbolU32>,
 }
 
@@ -485,7 +532,7 @@ impl Processor {
 
     fn write_langs(&self) -> Result<()> {
         let mut file = File::create(LANG_PATH)?;
-        for (lang, language) in self.langs.iter() {
+        for (lang, language) in self.langs.lang_language.iter() {
             file.write_all(
                 format!(
                     "{}, {}\n",
@@ -679,7 +726,7 @@ impl Processor {
             if let Some(from) = self.process_reconstruction_title(title) {
                 // e.g. "Reconstruction:Proto-West Germanic/pīpā"
                 if let Some(to) = self.process_reconstruction_title(redirect) {
-                    self.reconstruction_redirects.insert(from, to);
+                    self.redirects.reconstruction.insert(from, to);
                 }
                 return Ok(());
             }
@@ -687,7 +734,7 @@ impl Processor {
             // otherwise, this is a simple term-to-term redirect
             let from = self.string_pool.get_or_intern(title);
             let to = self.string_pool.get_or_intern(redirect);
-            self.regular_redirects.insert(from, to);
+            self.redirects.regular.insert(from, to);
         }
         Ok(())
     }
@@ -768,7 +815,7 @@ impl Processor {
 
         let raw_ety_nodes = self.process_json_ety_templates(json_item, lang)?;
 
-        self.langs.insert(lang, language);
+        self.langs.add(lang, language);
         self.poss.insert(pos);
 
         let item = Item {
@@ -811,6 +858,8 @@ impl Processor {
                         for (_, item) in gloss_map.values() {
                             self.sources.process_item_raw_ety_nodes(
                                 &self.string_pool,
+                                &self.redirects,
+                                &self.langs,
                                 &self.items,
                                 item,
                             )?;
@@ -826,7 +875,7 @@ impl Processor {
     ///
     /// Will return `Err` if any unexpected problem arises in processing.
     pub async fn process_wiktextract_data(&mut self) -> Result<()> {
-        let file = if let Ok(file) = File::open(WIKTEXTRACT_PATH) {
+        let file = if let std::result::Result::Ok(file) = File::open(WIKTEXTRACT_PATH) {
             println!("Processing data from local file {WIKTEXTRACT_PATH}");
             file
         } else {
