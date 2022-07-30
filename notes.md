@@ -1,17 +1,11 @@
 ## Immediate TODOs
 
-* Implement better sense disambiguation that takes PoSs into account. This will be particularly helpful when items have no gloss. Could add specific rules for the few templates where you would expect a different PoS, e.g. `deverbal`.
-
-* A number of affix templates (but not the `affix` template itself, notably) modify one or more of their term arguments when expanded, so that the raw text of the term argument is not exactly equivalent to the text of the relevant linked wiktionary entry. So if we were to naively follow the exact raw text in the template, we would end up in the wrong spot, if anywhere. We need to identify all templates that do any modification to any of their template term arguments, and replicate this modification in wety so that the correct term entries are linked. Here is a provisional list:
-    * [Prefix](https://en.wiktionary.org/wiki/Template:prefix): `{{prefix|en|un|do}}` -> `un-` + `do`
-    * [Suffix](https://en.wiktionary.org/wiki/Template:suffix): `{{suffix|en|do|ing}}` -> `do` + `-ing`
-    * [Circumfix](https://en.wiktionary.org/wiki/Template:circumfix): `{{circumfix|nl|ver|giftig|en}}` -> `ver-` + `giftig` + `-en`
-    * [Infix](https://en.wiktionary.org/wiki/Template:infix): `{{infix|en|house|iz}}` -> `house` + `-iz-` (for entry `hizouse`)
-    * [Confix](https://en.wiktionary.org/wiki/Template:confix): `{{confix|en|neuro|genic}}` -> `neuro-` + `-genic`; `{{confix|en|be|dew|ed}}` -> `be-` + `dew` + `-ed`. That is, the first positional term arg is treated as a prefix, and the last positional term arg is treated as a suffix.
-
-* Whenever `inh+`/`der+`/`bor+` appear in wikitext, wiktextract inserts two imputed ety templates into the list of templates before listing the `+` template, see e.g. https://kaikki.org/dictionary/All%20languages%20combined/meaning/%D1%80/%D1%80%D0%B8/%D1%80%D0%B8%D1%81%D0%BE%D0%B2%D0%B0%D1%82%D1%8C.html. Therefore if the first actual ety template is a `+`, it will be third in the wiktextract template list. Since we want the `+` template itself, we need to add special logic to handle this, rather than naively taking the first listed, which will not be what we expect. 
-
-* Just take first raw ety template and hash on it in ety_map, don't store ety_text and the further raw ety templates. This should cut down on RAM significantly. 
+* Implement better sense disambiguation.
+    * Take PoSs into account. This will be particularly helpful when items have no gloss. 
+    * Could add specific rules for the few templates where you would expect a different PoS, e.g. `deverbal`.
+    * Could do better than simple Lesk algorithm. For example, "poison" and "poisoned" don't match but should count as similar. 
+    
+* Decide whether to keep using ety_text as hash for ety_map. Could just take first raw ety template and hash on it, not storing store ety_text and the further raw ety templates. This should cut down on RAM significantly. However, there could be collisions where two unique etys share the same first template because the term in the template is homographic...
 
 ## Things to keep in mind
 
@@ -23,7 +17,13 @@
     * Currently, this is addressed by preferring the wiktextract "canonical" form (when it exists in the json) over the `word` as the term for each item on which we hash. N.B. the "canonical" form is often listed in wiktextract entries in `forms[0].form` when `forms[0].tags[0]` == `canonical` (However, the canonical form is not guaranteed to be the first listed).
         * If this proves problematic somehow, an alternative approach is to run the lua code directly from within the rust program to generate `entryName`s for all terms listed in etymology templates, so they can be appropriately linked with their corresponding entries.
 
-## If in the future I attempt to process the entire etymology (i.e. all templates and text)
+* Whenever `inh+`/`der+`/`bor+`/`com+` (there may be others) appear in wikitext, wiktextract inserts two imputed ety templates into the list of templates before listing the `+` template, see e.g. https://kaikki.org/dictionary/All%20languages%20combined/meaning/%D1%80/%D1%80%D0%B8/%D1%80%D0%B8%D1%81%D0%BE%D0%B2%D0%B0%D1%82%D1%8C.html. Therefore if the first actual ety template is a `+`, it will be third in the wiktextract template list. The first is of the form e.g. 
+```
+{"name": "glossary", "args": {"1": "Inherited"}, "expansion": "Inherited"}
+```
+while the second is a non-`+` version of the template. Therefore, these imputatations  shouldn't matter for us, as we currently take the first ety template that is on our lists in `etymology_templates.rs`. Therefore we will take the imputed second template, the non-`+` version, which has all the same info as the `+` version.  However, if in the future we decide to try processing all the ety templates, these imputations will become relevant. 
+
+### If in the future I attempt to process the entire etymology (i.e. all templates and text)
 * Need to handle when ety entries have multiple ety's for some reason, e.g. https://en.wiktionary.org/wiki/hap#Etymology_1. A simple approach might be to only process the first paragraph, as often the different ety's are listed in different paragraphs. Unfortunately, the templates given in wiktextract data are not separated out into paragraphs, so this would involve processing a combination of the wiktextract ety text (which does preserve the newlines) and the templates list. This can be done by using the expansions given for each template and looking for them in the ety text. In case a template expansion appears multiple times in the ety text in different paragraphs, can compare the order of the templates in the template list with the order of expansions in the ety text to try to infer which paragraph the template appeared in.
 * When processing the ety templates, deal with case where there is a valid chain of derivs but there is a term amid it that doesn't have an item entry, while a subsequent term in the chain does.
 * Some etymologies on Wiktionary (e.g. https://en.wiktionary.org/wiki/astrology) have {{der}}-type chains followed by a template in this category which recapitulates the etymology through surface analysis. Simply treating all templates the same and chugging through the chain will result in a lot of bad ety connections. A simple provisional solution might be to only take the first compound-type template (with "1" parameter being the language of the item term), if one is present, discarding everything else. This will lose the actual historical etymology information if there is any (i.e. the derived-type chain), but might lead to most reliably far-reaching derivation chains.

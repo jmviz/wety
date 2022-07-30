@@ -13,7 +13,7 @@ use std::io::Write;
 use std::io::{BufRead, BufReader};
 use std::rc::Rc;
 
-use anyhow::{anyhow, bail, Ok, Result};
+use anyhow::{anyhow, Ok, Result};
 use bytelines::ByteLines;
 use flate2::read::GzDecoder;
 use futures_util::StreamExt;
@@ -24,9 +24,8 @@ use simd_json::{to_borrowed_value, value::borrowed::Value, ValueAccess};
 use string_interner::{backend::StringBackend, symbol::SymbolU32, StringInterner};
 
 const WIKTEXTRACT_URL: &str = "https://kaikki.org/dictionary/raw-wiktextract-data.json.gz";
-// const WIKTEXTRACT_PATH: &str = "data/raw-wiktextract-data.json.gz";
-// const WIKTEXTRACT_URL: &str = "http://0.0.0.0:8000/data/test/bank.json.gz";
-const WIKTEXTRACT_PATH: &str = "data/test/glow.json.gz";
+const WIKTEXTRACT_PATH: &str = "data/raw-wiktextract-data.json.gz";
+// const WIKTEXTRACT_PATH: &str = "data/test/fix.json.gz";
 const LANG_PATH: &str = "data/lang.txt";
 const POS_PATH: &str = "data/pos.txt";
 const ID_PATH: &str = "data/id.txt";
@@ -221,13 +220,13 @@ impl Items {
 // as parsed from the first raw ety node.
 #[derive(Default)]
 struct Sources {
-    item_map: HashMap<Rc<Item>, Option<EtyNode>>,
+    item_map: HashMap<Rc<Item>, EtyNode>,
 }
 
 impl Sources {
-    fn add(&mut self, item: &Rc<Item>, ety_node_opt: Option<EtyNode>) -> Result<()> {
+    fn add(&mut self, item: &Rc<Item>, ety_node: EtyNode) -> Result<()> {
         self.item_map
-            .try_insert(Rc::clone(item), ety_node_opt)
+            .try_insert(Rc::clone(item), ety_node)
             .and(std::result::Result::Ok(()))
             .map_err(|_| anyhow!("Tried inserting duplicate item:\n{:#?}", item))
     }
@@ -255,43 +254,31 @@ impl Sources {
                     raw_derived_from.source_lang,
                     raw_derived_from.source_term,
                 );
-                let ety_map = items
+                if let Some(ety_map) = items
                     .term_map
                     .get(&source_term)
-                    .and_then(|lang_map| lang_map.get(&source_lang));
-                match ety_map {
+                    .and_then(|lang_map| lang_map.get(&source_lang))
+                {
                     // if we found an ety_map, we're guaranteed to find at least
                     // one item at the end of the following nested iteration. If
                     // there are multiple items, we have to do a word sense disambiguation.
-                    Some(ety_map) => {
-                        if let Some(source_item) = ety_map
-                            .values()
-                            .flat_map(|(_, pos_map)| {
-                                pos_map.values().flat_map(|gloss_map| {
-                                    gloss_map.values().map(|(_, other_item)| other_item)
-                                })
+                    if let Some(source_item) = ety_map
+                        .values()
+                        .flat_map(|(_, pos_map)| {
+                            pos_map.values().flat_map(|gloss_map| {
+                                gloss_map.values().map(|(_, other_item)| other_item)
                             })
-                            .max_by_key(|other_item| {
-                                let other_item_sense = Sense::new(string_pool, other_item);
-                                sense.lesk_score(&other_item_sense)
-                            })
-                        {
-                            let node = EtyNode::DerivedFrom(DerivedFrom {
-                                item: Rc::clone(source_item),
-                                mode: raw_derived_from.mode,
-                            });
-                            self.add(item, Some(node))?;
-                        } else {
-                            // should never be reached
-                            bail!(
-                                "ety_map was found but no ultimate item for:\n{}, {}",
-                                string_pool.resolve(source_lang),
-                                string_pool.resolve(source_term),
-                            );
-                        }
-                    }
-                    None => {
-                        self.add(item, None)?;
+                        })
+                        .max_by_key(|other_item| {
+                            let other_item_sense = Sense::new(string_pool, other_item);
+                            sense.lesk_score(&other_item_sense)
+                        })
+                    {
+                        let node = EtyNode::DerivedFrom(DerivedFrom {
+                            item: Rc::clone(source_item),
+                            mode: raw_derived_from.mode,
+                        });
+                        self.add(item, node)?;
                     }
                 }
             }
@@ -305,38 +292,28 @@ impl Sources {
                 for (source_lang, source_term) in source_langs.iter().zip(source_terms.iter()) {
                     let (source_lang, source_term) =
                         redirects.get(langs, *source_lang, *source_term);
-                    let ety_map = items
+                    if let Some(ety_map) = items
                         .term_map
                         .get(&source_term)
-                        .and_then(|lang_map| lang_map.get(&source_lang));
-                    match ety_map {
+                        .and_then(|lang_map| lang_map.get(&source_lang))
+                    {
                         // if we found an ety_map, we're guaranteed to find at least
                         // one item at the end of the following nested iteration. If
                         // there are multiple items, we have to do a word sense disambiguation.
-                        Some(ety_map) => {
-                            if let Some(source_item) = ety_map
-                                .values()
-                                .flat_map(|(_, pos_map)| {
-                                    pos_map.values().flat_map(|gloss_map| {
-                                        gloss_map.values().map(|(_, other_item)| other_item)
-                                    })
+                        if let Some(source_item) = ety_map
+                            .values()
+                            .flat_map(|(_, pos_map)| {
+                                pos_map.values().flat_map(|gloss_map| {
+                                    gloss_map.values().map(|(_, other_item)| other_item)
                                 })
-                                .max_by_key(|other_item| {
-                                    let other_item_sense = Sense::new(string_pool, other_item);
-                                    sense.lesk_score(&other_item_sense)
-                                })
-                            {
-                                source_items.push(Rc::clone(source_item));
-                            } else {
-                                // should never be reached
-                                bail!(
-                                    "ety_map was found but no ultimate item for:\n{}, {}",
-                                    string_pool.resolve(source_lang),
-                                    string_pool.resolve(source_term),
-                                );
-                            }
+                            })
+                            .max_by_key(|other_item| {
+                                let other_item_sense = Sense::new(string_pool, other_item);
+                                sense.lesk_score(&other_item_sense)
+                            })
+                        {
+                            source_items.push(Rc::clone(source_item));
                         }
-                        None => {}
                     }
                 }
                 if source_items.len() == source_terms.len() {
@@ -344,9 +321,7 @@ impl Sources {
                         items: source_items.into_boxed_slice(),
                         mode: raw_combines.mode,
                     });
-                    self.add(item, Some(node))?;
-                } else {
-                    self.add(item, None)?;
+                    self.add(item, node)?;
                 }
             }
         }
@@ -481,25 +456,20 @@ impl Processor {
         for (item, ety) in self.sources.item_map.iter() {
             file.write_all(format!("{}, ", item.id(&self.string_pool)).as_bytes())?;
             match ety {
-                Some(ety) => match ety {
-                    EtyNode::DerivedFrom(d) => file.write_all(
-                        format!(
-                            "{}, {}",
-                            self.string_pool.resolve(d.mode),
-                            d.item.id(&self.string_pool)
-                        )
-                        .as_bytes(),
-                    )?,
-                    EtyNode::Combines(c) => {
-                        file.write_all(
-                            format!("{}, ", self.string_pool.resolve(c.mode)).as_bytes(),
-                        )?;
-                        for i in c.items.iter() {
-                            file.write_all(format!("{}, ", i.id(&self.string_pool)).as_bytes())?;
-                        }
+                EtyNode::DerivedFrom(d) => file.write_all(
+                    format!(
+                        "{}, {}",
+                        self.string_pool.resolve(d.mode),
+                        d.item.id(&self.string_pool)
+                    )
+                    .as_bytes(),
+                )?,
+                EtyNode::Combines(c) => {
+                    file.write_all(format!("{}, ", self.string_pool.resolve(c.mode)).as_bytes())?;
+                    for i in c.items.iter() {
+                        file.write_all(format!("{}, ", i.id(&self.string_pool)).as_bytes())?;
                     }
-                },
-                None => file.write_all(b"NONE")?,
+                }
             }
             file.write_all(b"\n")?;
         }
@@ -556,19 +526,18 @@ impl Processor {
             return Ok(None);
         }
         let source_lang = args.get_expected_str("2")?;
-        return if let Some(source_term) = args.get_optional_str("3") {
-            let source_term = clean_ety_term(source_lang, source_term);
-            match source_term {
-                "" | "-" => Ok(None),
-                _ => Ok(Some(RawEtyNode::RawDerivedFrom(RawDerivedFrom {
-                    source_term: self.string_pool.get_or_intern(source_term),
-                    source_lang: self.string_pool.get_or_intern(source_lang),
-                    mode: self.string_pool.get_or_intern(mode),
-                }))),
+        if let Some(source_term) = args.get_optional_str("3") {
+            if source_term.is_empty() || source_term == "-" {
+                return Ok(None);
             }
-        } else {
-            Ok(None)
-        };
+            let source_term = clean_ety_term(source_lang, source_term);
+            return Ok(Some(RawEtyNode::RawDerivedFrom(RawDerivedFrom {
+                source_term: self.string_pool.get_or_intern(source_term),
+                source_lang: self.string_pool.get_or_intern(source_lang),
+                mode: self.string_pool.get_or_intern(mode),
+            })));
+        }
+        Ok(None)
     }
 
     fn process_abbrev_type_json_template(
@@ -581,19 +550,204 @@ impl Processor {
         if term_lang != self.string_pool.resolve(lang) {
             return Ok(None);
         }
-        return if let Some(source_term) = args.get_optional_str("2") {
-            let source_term = clean_ety_term(term_lang, source_term);
-            match source_term {
-                "" | "-" => Ok(None),
-                _ => Ok(Some(RawEtyNode::RawDerivedFrom(RawDerivedFrom {
-                    source_term: self.string_pool.get_or_intern(source_term),
-                    source_lang: lang,
-                    mode: self.string_pool.get_or_intern(mode),
-                }))),
+        if let Some(source_term) = args.get_optional_str("2") {
+            if source_term.is_empty() || source_term == "-" {
+                return Ok(None);
             }
-        } else {
-            Ok(None)
-        };
+            let source_term = clean_ety_term(term_lang, source_term);
+            return Ok(Some(RawEtyNode::RawDerivedFrom(RawDerivedFrom {
+                source_term: self.string_pool.get_or_intern(source_term),
+                source_lang: lang,
+                mode: self.string_pool.get_or_intern(mode),
+            })));
+        }
+        Ok(None)
+    }
+
+    fn process_prefix_json_template(
+        &mut self,
+        args: &Value,
+        lang: SymbolU32,
+    ) -> Result<Option<RawEtyNode>> {
+        let term_lang = args.get_expected_str("1")?;
+        if term_lang != self.string_pool.resolve(lang) {
+            return Ok(None);
+        }
+        if let Some(source_prefix) = args.get_optional_str("2") {
+            if source_prefix.is_empty() || source_prefix == "-" {
+                return Ok(None);
+            }
+            if let Some(source_term) = args.get_optional_str("3") {
+                if source_term.is_empty() || source_term == "-" {
+                    return Ok(None);
+                }
+                let source_prefix = clean_ety_term(term_lang, source_prefix).to_string();
+                let source_prefix = format!("{}-", source_prefix);
+                let source_prefix = self.string_pool.get_or_intern(source_prefix.as_str());
+                let source_term = clean_ety_term(term_lang, source_term);
+                let source_term = self.string_pool.get_or_intern(source_term);
+                return Ok(Some(RawEtyNode::RawCombines(RawCombines {
+                    source_terms: [source_prefix, source_term].to_vec().into_boxed_slice(),
+                    source_langs: None,
+                    mode: self.string_pool.get_or_intern("prefix"),
+                })));
+            }
+        }
+        Ok(None)
+    }
+
+    fn process_suffix_json_template(
+        &mut self,
+        args: &Value,
+        lang: SymbolU32,
+    ) -> Result<Option<RawEtyNode>> {
+        let term_lang = args.get_expected_str("1")?;
+        if term_lang != self.string_pool.resolve(lang) {
+            return Ok(None);
+        }
+        if let Some(source_term) = args.get_optional_str("2") {
+            if source_term.is_empty() || source_term == "-" {
+                return Ok(None);
+            }
+            if let Some(source_suffix) = args.get_optional_str("3") {
+                if source_suffix.is_empty() || source_suffix == "-" {
+                    return Ok(None);
+                }
+                let source_term = clean_ety_term(term_lang, source_term);
+                let source_term = self.string_pool.get_or_intern(source_term);
+                let source_suffix = clean_ety_term(term_lang, source_suffix).to_string();
+                let source_suffix = format!("-{}", source_suffix);
+                let source_suffix = self.string_pool.get_or_intern(source_suffix.as_str());
+                return Ok(Some(RawEtyNode::RawCombines(RawCombines {
+                    source_terms: [source_term, source_suffix].to_vec().into_boxed_slice(),
+                    source_langs: None,
+                    mode: self.string_pool.get_or_intern("suffix"),
+                })));
+            }
+        }
+        Ok(None)
+    }
+
+    fn process_circumfix_json_template(
+        &mut self,
+        args: &Value,
+        lang: SymbolU32,
+    ) -> Result<Option<RawEtyNode>> {
+        let term_lang = args.get_expected_str("1")?;
+        if term_lang != self.string_pool.resolve(lang) {
+            return Ok(None);
+        }
+        if let Some(source_prefix) = args.get_optional_str("2") {
+            if source_prefix.is_empty() || source_prefix == "-" {
+                return Ok(None);
+            }
+            if let Some(source_term) = args.get_optional_str("3") {
+                if source_term.is_empty() || source_term == "-" {
+                    return Ok(None);
+                }
+                if let Some(source_suffix) = args.get_optional_str("4") {
+                    if source_suffix.is_empty() || source_suffix == "-" {
+                        return Ok(None);
+                    }
+                    let source_term = clean_ety_term(term_lang, source_term);
+                    let source_term = self.string_pool.get_or_intern(source_term);
+                    let source_prefix = clean_ety_term(term_lang, source_prefix).to_string();
+                    let source_suffix = clean_ety_term(term_lang, source_suffix).to_string();
+                    let source_circumfix = format!("{}- -{}", source_prefix, source_suffix);
+                    let source_circumfix =
+                        self.string_pool.get_or_intern(source_circumfix.as_str());
+
+                    return Ok(Some(RawEtyNode::RawCombines(RawCombines {
+                        source_terms: [source_term, source_circumfix].to_vec().into_boxed_slice(),
+                        source_langs: None,
+                        mode: self.string_pool.get_or_intern("circumfix"),
+                    })));
+                }
+            }
+        }
+        Ok(None)
+    }
+
+    fn process_infix_json_template(
+        &mut self,
+        args: &Value,
+        lang: SymbolU32,
+    ) -> Result<Option<RawEtyNode>> {
+        let term_lang = args.get_expected_str("1")?;
+        if term_lang != self.string_pool.resolve(lang) {
+            return Ok(None);
+        }
+        if let Some(source_term) = args.get_optional_str("2") {
+            if source_term.is_empty() || source_term == "-" {
+                return Ok(None);
+            }
+            if let Some(source_infix) = args.get_optional_str("3") {
+                if source_infix.is_empty() || source_infix == "-" {
+                    return Ok(None);
+                }
+                let source_term = clean_ety_term(term_lang, source_term);
+                let source_term = self.string_pool.get_or_intern(source_term);
+                let source_infix = clean_ety_term(term_lang, source_infix).to_string();
+                let source_infix = format!("-{}-", source_infix);
+                let source_infix = self.string_pool.get_or_intern(source_infix.as_str());
+                return Ok(Some(RawEtyNode::RawCombines(RawCombines {
+                    source_terms: [source_term, source_infix].to_vec().into_boxed_slice(),
+                    source_langs: None,
+                    mode: self.string_pool.get_or_intern("infix"),
+                })));
+            }
+        }
+        Ok(None)
+    }
+
+    fn process_confix_json_template(
+        &mut self,
+        args: &Value,
+        lang: SymbolU32,
+    ) -> Result<Option<RawEtyNode>> {
+        let term_lang = args.get_expected_str("1")?;
+        if term_lang != self.string_pool.resolve(lang) {
+            return Ok(None);
+        }
+        if let Some(source_prefix) = args.get_optional_str("2") {
+            if source_prefix.is_empty() || source_prefix == "-" {
+                return Ok(None);
+            }
+            if let Some(source2) = args.get_optional_str("3") {
+                if source2.is_empty() || source2 == "-" {
+                    return Ok(None);
+                }
+                let source_prefix = clean_ety_term(term_lang, source_prefix).to_string();
+                let source_prefix = format!("{}-", source_prefix);
+                let source_prefix = self.string_pool.get_or_intern(source_prefix.as_str());
+                if let Some(source3) = args.get_optional_str("4") {
+                    if source3.is_empty() || source3 == "-" {
+                        return Ok(None);
+                    }
+                    let source_term = clean_ety_term(term_lang, source2);
+                    let source_term = self.string_pool.get_or_intern(source_term);
+                    let source_suffix = clean_ety_term(term_lang, source3).to_string();
+                    let source_suffix = format!("-{}", source_suffix);
+                    let source_suffix = self.string_pool.get_or_intern(source_suffix.as_str());
+                    return Ok(Some(RawEtyNode::RawCombines(RawCombines {
+                        source_terms: [source_prefix, source_term, source_suffix]
+                            .to_vec()
+                            .into_boxed_slice(),
+                        source_langs: None,
+                        mode: self.string_pool.get_or_intern("confix"),
+                    })));
+                }
+                let source_suffix = clean_ety_term(term_lang, source2).to_string();
+                let source_suffix = format!("-{}", source_suffix);
+                let source_suffix = self.string_pool.get_or_intern(source_suffix.as_str());
+                return Ok(Some(RawEtyNode::RawCombines(RawCombines {
+                    source_terms: [source_prefix, source_suffix].to_vec().into_boxed_slice(),
+                    source_langs: None,
+                    mode: self.string_pool.get_or_intern("confix"),
+                })));
+            }
+        }
+        Ok(None)
     }
 
     fn process_compound_type_json_template(
@@ -646,15 +800,19 @@ impl Processor {
     ) -> Result<Option<RawEtyNode>> {
         if let Some(name) = template.get_str("name") {
             let args = template.get_expected_object("args")?;
-            if DERIVED_TYPE_TEMPLATES.contains_key(name) {
-                let mode = *DERIVED_TYPE_TEMPLATES.get(name).unwrap();
+            if let Some(mode) = DERIVED_TYPE_TEMPLATES.get(name) {
                 self.process_derived_type_json_template(args, mode, lang)
-            } else if ABBREV_TYPE_TEMPLATES.contains_key(name) {
-                let mode = *ABBREV_TYPE_TEMPLATES.get(name).unwrap();
+            } else if let Some(mode) = ABBREV_TYPE_TEMPLATES.get(name) {
                 self.process_abbrev_type_json_template(args, mode, lang)
-            } else if COMPOUND_TYPE_TEMPLATES.contains_key(name) {
-                let mode = *COMPOUND_TYPE_TEMPLATES.get(name).unwrap();
-                self.process_compound_type_json_template(args, mode, lang)
+            } else if let Some(&mode) = COMPOUND_TYPE_TEMPLATES.get(name) {
+                match mode {
+                    "prefix" => self.process_prefix_json_template(args, lang),
+                    "suffix" => self.process_suffix_json_template(args, lang),
+                    "circumfix" => self.process_circumfix_json_template(args, lang),
+                    "infix" => self.process_infix_json_template(args, lang),
+                    "confix" => self.process_confix_json_template(args, lang),
+                    _ => self.process_compound_type_json_template(args, mode, lang),
+                }
             } else {
                 Ok(None)
             }
