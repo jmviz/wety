@@ -4,8 +4,6 @@
     * Take PoSs into account. This will be particularly helpful when items have no gloss. 
     * Could add specific rules for the few templates where you would expect a different PoS, e.g. `deverbal`.
     * Could do better than simple Lesk algorithm. For example, "poison" and "poisoned" don't match but should count as similar. 
-    
-* Decide whether to keep using ety_text as hash for ety_map. Could just take first raw ety template and hash on it, not storing store ety_text and the further raw ety templates. This should cut down on RAM significantly. However, there could be collisions where two unique etys share the same first template because the term in the template is homographic...
 
 ## Things to keep in mind
 

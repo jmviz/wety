@@ -91,10 +91,10 @@ struct Item {
     lang: SymbolU32,             // e.g "en", i.e. the wiktextract lang_code
     language: SymbolU32,         // e.g. "English" i.e. the wiktextract lang
     ety_text: Option<SymbolU32>, // e.g. "From Middle English banke, from Middle French banque...
-    ety_num: u8, // the nth ety encountered for this term-lang combo, 0 means ety is missing or ""
-    pos: SymbolU32, // e.g. "noun"
-    gloss: Option<SymbolU32>, // e.g. "An institution where one can place and borrow money...
-    gloss_num: u8, // the nth gloss encountered for this term-lang-ety-pos combo, 0 means gloss is missing or ""
+    ety_num: u8,                 // the nth ety encountered for this term-lang combo
+    pos: SymbolU32,              // e.g. "noun"
+    gloss: Option<SymbolU32>,    // e.g. "An institution where one can place and borrow money...
+    gloss_num: u8,               // the nth gloss encountered for this term-lang-ety-pos combo
     raw_ety_nodes: Option<Box<[RawEtyNode]>>,
 }
 
@@ -112,7 +112,7 @@ impl Item {
     }
 }
 
-type GlossMap = HashMap<Option<SymbolU32>, (u8, Rc<Item>)>;
+type GlossMap = HashMap<Option<SymbolU32>, Rc<Item>>;
 type PosMap = HashMap<SymbolU32, GlossMap>;
 type EtyMap = HashMap<Option<SymbolU32>, (u8, PosMap)>;
 type LangMap = HashMap<SymbolU32, EtyMap>;
@@ -133,13 +133,9 @@ impl Items {
             let mut lang_map = LangMap::new();
             let (gloss, pos, ety_text, lang, term) =
                 (item.gloss, item.pos, item.ety_text, item.lang, item.term);
-            let gloss_num = gloss.map_or(0u8, |_| 1u8);
-            item.gloss_num = gloss_num;
-            let ety_num = ety_text.map_or(0u8, |_| 1u8);
-            item.ety_num = ety_num;
-            gloss_map.insert(gloss, (gloss_num, Rc::from(item)));
+            gloss_map.insert(gloss, Rc::from(item));
             pos_map.insert(pos, gloss_map);
-            ety_map.insert(ety_text, (ety_num, pos_map));
+            ety_map.insert(ety_text, (0, pos_map));
             lang_map.insert(lang, ety_map);
             self.term_map.insert(term, lang_map);
             return Ok(());
@@ -155,13 +151,9 @@ impl Items {
             let mut pos_map = PosMap::new();
             let mut ety_map = EtyMap::new();
             let (gloss, pos, ety_text, lang) = (item.gloss, item.pos, item.ety_text, item.lang);
-            let gloss_num = gloss.map_or(0u8, |_| 1u8);
-            item.gloss_num = gloss_num;
-            let ety_num = ety_text.map_or(0u8, |_| 1u8);
-            item.ety_num = ety_num;
-            gloss_map.insert(gloss, (gloss_num, Rc::from(item)));
+            gloss_map.insert(gloss, Rc::from(item));
             pos_map.insert(pos, gloss_map);
-            ety_map.insert(ety_text, (ety_num, pos_map));
+            ety_map.insert(ety_text, (0, pos_map));
             lang_map.insert(lang, ety_map);
             return Ok(());
         }
@@ -174,12 +166,9 @@ impl Items {
             let mut gloss_map = GlossMap::new();
             let mut pos_map = PosMap::new();
             let (gloss, pos, ety_text) = (item.gloss, item.pos, item.ety_text);
-            let gloss_num = gloss.map_or(0u8, |_| 1u8);
-            item.gloss_num = gloss_num;
-            let ety_map_len = u8::try_from(ety_map.len())?;
-            let ety_num = ety_text.map_or(0u8, |_| 1u8 + ety_map_len);
+            let ety_num = u8::try_from(ety_map.len())?;
             item.ety_num = ety_num;
-            gloss_map.insert(gloss, (gloss_num, Rc::from(item)));
+            gloss_map.insert(gloss, Rc::from(item));
             pos_map.insert(pos, gloss_map);
             ety_map.insert(ety_text, (ety_num, pos_map));
             return Ok(());
@@ -192,10 +181,8 @@ impl Items {
         if !pos_map.contains_key(&item.pos) {
             let mut gloss_map = GlossMap::new();
             let (gloss, pos) = (item.gloss, item.pos);
-            let gloss_num = gloss.map_or(0u8, |_| 1u8);
-            item.gloss_num = gloss_num;
             item.ety_num = *ety_num;
-            gloss_map.insert(gloss, (gloss_num, Rc::from(item)));
+            gloss_map.insert(gloss, Rc::from(item));
             pos_map.insert(pos, gloss_map);
             return Ok(());
         }
@@ -205,11 +192,9 @@ impl Items {
             .ok_or_else(|| anyhow!("no GlossMap for pos when adding:\n{:#?}", item))?;
         if !gloss_map.contains_key(&item.gloss) {
             let gloss = item.gloss;
-            let gloss_map_len = u8::try_from(gloss_map.len())?;
-            let gloss_num = gloss.map_or(0u8, |_| 1u8 + gloss_map_len);
-            item.gloss_num = gloss_num;
+            item.gloss_num = u8::try_from(gloss_map.len())?;
             item.ety_num = *ety_num;
-            gloss_map.insert(gloss, (gloss_num, Rc::from(item)));
+            gloss_map.insert(gloss, Rc::from(item));
             return Ok(());
         }
         Ok(())
@@ -265,9 +250,7 @@ impl Sources {
                     if let Some(source_item) = ety_map
                         .values()
                         .flat_map(|(_, pos_map)| {
-                            pos_map.values().flat_map(|gloss_map| {
-                                gloss_map.values().map(|(_, other_item)| other_item)
-                            })
+                            pos_map.values().flat_map(hashbrown::HashMap::values)
                         })
                         .max_by_key(|other_item| {
                             let other_item_sense = Sense::new(string_pool, other_item);
@@ -303,9 +286,7 @@ impl Sources {
                         if let Some(source_item) = ety_map
                             .values()
                             .flat_map(|(_, pos_map)| {
-                                pos_map.values().flat_map(|gloss_map| {
-                                    gloss_map.values().map(|(_, other_item)| other_item)
-                                })
+                                pos_map.values().flat_map(hashbrown::HashMap::values)
                             })
                             .max_by_key(|other_item| {
                                 let other_item_sense = Sense::new(string_pool, other_item);
@@ -482,7 +463,7 @@ impl Processor {
             for ety_map in lang_map.values() {
                 for (_, pos_map) in ety_map.values() {
                     for gloss_map in pos_map.values() {
-                        for (_, item) in gloss_map.values() {
+                        for item in gloss_map.values() {
                             file.write_all(format!("{}\n", item.id(&self.string_pool)).as_bytes())?;
                         }
                     }
@@ -1013,7 +994,7 @@ impl Processor {
             for ety_map in lang_map.values() {
                 for (_, pos_map) in ety_map.values() {
                     for gloss_map in pos_map.values() {
-                        for (_, item) in gloss_map.values() {
+                        for item in gloss_map.values() {
                             self.sources.process_item_raw_ety_nodes(
                                 &self.string_pool,
                                 &self.redirects,
