@@ -19,3 +19,4 @@ string-interner = "0.14.0"
 phf = {version = "0.10", features = ["macros"]}
 hashbrown = "0.12.2"
 anyhow = {version = "1.0.58", features = ["backtrace"]}
+oxigraph = "0.3.5"

@@ -6,12 +6,14 @@ use crate::etymology_templates::{
     ABBREV_TYPE_TEMPLATES, COMPOUND_TYPE_TEMPLATES, DERIVED_TYPE_TEMPLATES,
 };
 
-use std::cmp::min;
-use std::convert::TryFrom;
-use std::fs::File;
-use std::io::Write;
-use std::io::{BufRead, BufReader};
-use std::rc::Rc;
+use std::{
+    cmp::min,
+    convert::TryFrom,
+    fs::{remove_dir_all, File},
+    io::{BufRead, BufReader},
+    io::{BufWriter, Write},
+    rc::Rc,
+};
 
 use anyhow::{anyhow, Ok, Result};
 use bytelines::ByteLines;
@@ -19,19 +21,36 @@ use flate2::read::GzDecoder;
 use futures_util::StreamExt;
 use hashbrown::{HashMap, HashSet};
 use indicatif::{ProgressBar, ProgressStyle};
+use oxigraph::{
+    io::GraphFormat,
+    model::{GraphNameRef, LiteralRef, NamedNodeRef, QuadRef},
+    store::Store,
+};
 use phf::{phf_set, Set};
 use simd_json::{to_borrowed_value, value::borrowed::Value, ValueAccess};
 use string_interner::{backend::StringBackend, symbol::SymbolU32, StringInterner};
 
 const WIKTEXTRACT_URL: &str = "https://kaikki.org/dictionary/raw-wiktextract-data.json.gz";
 const WIKTEXTRACT_PATH: &str = "data/raw-wiktextract-data.json.gz";
-// const WIKTEXTRACT_PATH: &str = "data/test/fix.json.gz";
-const LANG_PATH: &str = "data/lang.txt";
-const POS_PATH: &str = "data/pos.txt";
-const ID_PATH: &str = "data/id.txt";
-const SOURCE_PATH: &str = "data/source.txt";
+// const WIKTEXTRACT_PATH: &str = "data/test/glow.json.gz";
+// const LANG_PATH: &str = "data/lang.txt";
+// const POS_PATH: &str = "data/pos.txt";
+// const ID_PATH: &str = "data/id.txt";
+// const SOURCE_PATH: &str = "data/source.txt";
 const DB_PATH: &str = "data/wety.db";
-const RDF_PATH: &str = "data/wety.rdf";
+const TTL_PATH: &str = "data/wety.ttl";
+
+// placeholders until I figure out what I will actually use as IRIs...
+// see "Best Practices for Publishing Linked Data" https://www.w3.org/TR/ld-bp/
+// also "Cool URIs for the Semantic Web" https://www.w3.org/TR/cooluris
+// const ONTOLOGY_PREFIX: &str = "o:";
+const O_TERM: &str = "o:term";
+const O_LANG: &str = "o:lang";
+const O_POS: &str = "o:pos";
+const O_GLOSS: &str = "o:gloss";
+const O_SOURCE: &str = "o:source";
+const O_MODE: &str = "o:mode";
+const DATA_PREFIX: &str = "w:";
 
 // https://github.com/tatuylonen/wiktextract/blob/master/wiktwords
 static IGNORED_REDIRECTS: Set<&'static str> = phf_set! {
@@ -87,6 +106,7 @@ enum RawEtyNode {
 
 #[derive(Hash, Eq, PartialEq, Debug)]
 struct Item {
+    i: usize,
     term: SymbolU32,             // e.g. "bank"
     lang: SymbolU32,             // e.g "en", i.e. the wiktextract lang_code
     language: SymbolU32,         // e.g. "English" i.e. the wiktextract lang
@@ -98,19 +118,19 @@ struct Item {
     raw_ety_nodes: Option<Box<[RawEtyNode]>>,
 }
 
-impl Item {
-    fn id(&self, string_pool: &StringPool) -> String {
-        // term__lang__eN__pos__sM
-        format!(
-            "{}__{}__e{}__{}__s{}",
-            string_pool.resolve(self.term),
-            string_pool.resolve(self.lang),
-            self.ety_num,
-            string_pool.resolve(self.pos),
-            self.gloss_num
-        )
-    }
-}
+// impl Item {
+//     fn id(&self, string_pool: &StringPool) -> String {
+//         // term__lang__eN__pos__sM
+//         format!(
+//             "{}__{}__e{}__{}__s{}",
+//             string_pool.resolve(self.term),
+//             string_pool.resolve(self.lang),
+//             self.ety_num,
+//             string_pool.resolve(self.pos),
+//             self.gloss_num
+//         )
+//     }
+// }
 
 type GlossMap = HashMap<Option<SymbolU32>, Rc<Item>>;
 type PosMap = HashMap<SymbolU32, GlossMap>;
@@ -121,6 +141,7 @@ type TermMap = HashMap<SymbolU32, LangMap>;
 #[derive(Default)]
 struct Items {
     term_map: TermMap,
+    n: usize,
 }
 
 impl Items {
@@ -138,6 +159,7 @@ impl Items {
             ety_map.insert(ety_text, (0, pos_map));
             lang_map.insert(lang, ety_map);
             self.term_map.insert(term, lang_map);
+            self.n += 1;
             return Ok(());
         }
         // since term has been seen before, there must be at least one lang for it
@@ -155,6 +177,7 @@ impl Items {
             pos_map.insert(pos, gloss_map);
             ety_map.insert(ety_text, (0, pos_map));
             lang_map.insert(lang, ety_map);
+            self.n += 1;
             return Ok(());
         }
         // since lang has been seen before, there must be at least one ety (possibly None)
@@ -171,6 +194,7 @@ impl Items {
             gloss_map.insert(gloss, Rc::from(item));
             pos_map.insert(pos, gloss_map);
             ety_map.insert(ety_text, (ety_num, pos_map));
+            self.n += 1;
             return Ok(());
         }
         // since ety has been seen before, there must be at least one pos
@@ -184,6 +208,7 @@ impl Items {
             item.ety_num = *ety_num;
             gloss_map.insert(gloss, Rc::from(item));
             pos_map.insert(pos, gloss_map);
+            self.n += 1;
             return Ok(());
         }
         // since pos has been seen before, there must be at least one gloss (possibly None)
@@ -195,6 +220,7 @@ impl Items {
             item.gloss_num = u8::try_from(gloss_map.len())?;
             item.ety_num = *ety_num;
             gloss_map.insert(gloss, Rc::from(item));
+            self.n += 1;
             return Ok(());
         }
         Ok(())
@@ -432,69 +458,69 @@ pub struct Processor {
 }
 
 impl Processor {
-    fn write_sources(&self) -> Result<()> {
-        let mut file = File::create(SOURCE_PATH)?;
-        for (item, ety) in self.sources.item_map.iter() {
-            file.write_all(format!("{}, ", item.id(&self.string_pool)).as_bytes())?;
-            match ety {
-                EtyNode::DerivedFrom(d) => file.write_all(
-                    format!(
-                        "{}, {}",
-                        self.string_pool.resolve(d.mode),
-                        d.item.id(&self.string_pool)
-                    )
-                    .as_bytes(),
-                )?,
-                EtyNode::Combines(c) => {
-                    file.write_all(format!("{}, ", self.string_pool.resolve(c.mode)).as_bytes())?;
-                    for i in c.items.iter() {
-                        file.write_all(format!("{}, ", i.id(&self.string_pool)).as_bytes())?;
-                    }
-                }
-            }
-            file.write_all(b"\n")?;
-        }
-        Ok(())
-    }
+    // fn write_sources(&self) -> Result<()> {
+    //     let mut file = File::create(SOURCE_PATH)?;
+    //     for (item, ety) in self.sources.item_map.iter() {
+    //         file.write_all(format!("{}, ", item.id(&self.string_pool)).as_bytes())?;
+    //         match ety {
+    //             EtyNode::DerivedFrom(d) => file.write_all(
+    //                 format!(
+    //                     "{}, {}",
+    //                     self.string_pool.resolve(d.mode),
+    //                     d.item.id(&self.string_pool)
+    //                 )
+    //                 .as_bytes(),
+    //             )?,
+    //             EtyNode::Combines(c) => {
+    //                 file.write_all(format!("{}, ", self.string_pool.resolve(c.mode)).as_bytes())?;
+    //                 for i in c.items.iter() {
+    //                     file.write_all(format!("{}, ", i.id(&self.string_pool)).as_bytes())?;
+    //                 }
+    //             }
+    //         }
+    //         file.write_all(b"\n")?;
+    //     }
+    //     Ok(())
+    // }
 
-    fn write_ids(&self) -> Result<()> {
-        let mut file = File::create(ID_PATH)?;
-        for lang_map in self.items.term_map.values() {
-            for ety_map in lang_map.values() {
-                for (_, pos_map) in ety_map.values() {
-                    for gloss_map in pos_map.values() {
-                        for item in gloss_map.values() {
-                            file.write_all(format!("{}\n", item.id(&self.string_pool)).as_bytes())?;
-                        }
-                    }
-                }
-            }
-        }
-        Ok(())
-    }
+    // fn write_ids(&self) -> Result<()> {
+    //     let mut file = File::create(ID_PATH)?;
+    //     for lang_map in self.items.term_map.values() {
+    //         for ety_map in lang_map.values() {
+    //             for (_, pos_map) in ety_map.values() {
+    //                 for gloss_map in pos_map.values() {
+    //                     for item in gloss_map.values() {
+    //                         file.write_all(format!("{}\n", item.id(&self.string_pool)).as_bytes())?;
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     Ok(())
+    // }
 
-    fn write_poss(&self) -> Result<()> {
-        let mut file = File::create(POS_PATH)?;
-        for pos in self.poss.iter() {
-            file.write_all(format!("{}\n", self.string_pool.resolve(*pos)).as_bytes())?;
-        }
-        Ok(())
-    }
+    // fn write_poss(&self) -> Result<()> {
+    //     let mut file = File::create(POS_PATH)?;
+    //     for pos in self.poss.iter() {
+    //         file.write_all(format!("{}\n", self.string_pool.resolve(*pos)).as_bytes())?;
+    //     }
+    //     Ok(())
+    // }
 
-    fn write_langs(&self) -> Result<()> {
-        let mut file = File::create(LANG_PATH)?;
-        for (lang, language) in self.langs.lang_language.iter() {
-            file.write_all(
-                format!(
-                    "{}, {}\n",
-                    self.string_pool.resolve(*lang),
-                    self.string_pool.resolve(*language),
-                )
-                .as_bytes(),
-            )?;
-        }
-        Ok(())
-    }
+    // fn write_langs(&self) -> Result<()> {
+    //     let mut file = File::create(LANG_PATH)?;
+    //     for (lang, language) in self.langs.lang_language.iter() {
+    //         file.write_all(
+    //             format!(
+    //                 "{}, {}\n",
+    //                 self.string_pool.resolve(*lang),
+    //                 self.string_pool.resolve(*language),
+    //             )
+    //             .as_bytes(),
+    //         )?;
+    //     }
+    //     Ok(())
+    // }
 
     fn process_derived_type_json_template(
         &mut self,
@@ -958,6 +984,7 @@ impl Processor {
         self.poss.insert(pos);
 
         let item = Item {
+            i: self.items.n,
             term,
             lang,
             language,
@@ -1010,6 +1037,71 @@ impl Processor {
         Ok(())
     }
 
+    fn write_item_to_store(&self, store: &mut Store, item: &Item) -> Result<()> {
+        let iri = format!("{DATA_PREFIX}{}", item.i);
+        let s = NamedNodeRef::new(&iri)?;
+        let mut p = NamedNodeRef::new(O_TERM)?;
+        let mut o = LiteralRef::new_simple_literal(self.string_pool.resolve(item.term));
+        let mut quad = QuadRef::new(s, p, o, GraphNameRef::DefaultGraph);
+        store.insert(quad)?;
+        p = NamedNodeRef::new(O_LANG)?;
+        o = LiteralRef::new_simple_literal(self.string_pool.resolve(item.lang));
+        quad = QuadRef::new(s, p, o, GraphNameRef::DefaultGraph);
+        store.insert(quad)?;
+        p = NamedNodeRef::new(O_POS)?;
+        o = LiteralRef::new_simple_literal(self.string_pool.resolve(item.pos));
+        quad = QuadRef::new(s, p, o, GraphNameRef::DefaultGraph);
+        store.insert(quad)?;
+        if let Some(gloss) = item.gloss {
+            p = NamedNodeRef::new(O_GLOSS)?;
+            o = LiteralRef::new_simple_literal(self.string_pool.resolve(gloss));
+            quad = QuadRef::new(s, p, o, GraphNameRef::DefaultGraph);
+            store.insert(quad)?;
+        }
+        if let Some(ety_node) = self.sources.item_map.get(item) {
+            p = NamedNodeRef::new(O_SOURCE)?;
+            match ety_node {
+                EtyNode::DerivedFrom(d) => {
+                    let source_iri = format!("{DATA_PREFIX}{}", d.item.i);
+                    let o = NamedNodeRef::new(&source_iri)?;
+                    quad = QuadRef::new(s, p, o, GraphNameRef::DefaultGraph);
+                    store.insert(quad)?;
+                    p = NamedNodeRef::new(O_MODE)?;
+                    let o = LiteralRef::new_simple_literal(self.string_pool.resolve(d.mode));
+                    quad = QuadRef::new(s, p, o, GraphNameRef::DefaultGraph);
+                    store.insert(quad)?;
+                }
+                EtyNode::Combines(c) => {
+                    for source in c.items.iter() {
+                        let source_iri = format!("{DATA_PREFIX}{}", source.i);
+                        let o = NamedNodeRef::new(&source_iri)?;
+                        quad = QuadRef::new(s, p, o, GraphNameRef::DefaultGraph);
+                        store.insert(quad)?;
+                    }
+                    p = NamedNodeRef::new(O_MODE)?;
+                    let o = LiteralRef::new_simple_literal(self.string_pool.resolve(c.mode));
+                    quad = QuadRef::new(s, p, o, GraphNameRef::DefaultGraph);
+                    store.insert(quad)?;
+                }
+            }
+        }
+        Ok(())
+    }
+    fn write_all_to_store(&self, store: &mut Store) -> Result<()> {
+        for lang_map in self.items.term_map.values() {
+            for ety_map in lang_map.values() {
+                for (_, pos_map) in ety_map.values() {
+                    for gloss_map in pos_map.values() {
+                        for item in gloss_map.values() {
+                            self.write_item_to_store(store, item)?;
+                        }
+                    }
+                }
+            }
+        }
+        Ok(())
+    }
+
     /// # Errors
     ///
     /// Will return `Err` if any unexpected problem arises in processing.
@@ -1029,29 +1121,37 @@ impl Processor {
 
         self.process_file(file)?;
         println!("Finished");
-        println!("Writing all encountered PoSs to {}", POS_PATH);
-        self.write_poss()?;
-        println!("Finished");
-        println!("Writing all encountered langs to {}", LANG_PATH);
-        self.write_langs()?;
-        println!("Finished");
-        println!("Writing all generated term ids to {}", ID_PATH);
-        self.write_ids()?;
-        println!("Finished");
+        // println!("Writing all encountered PoSs to {}", POS_PATH);
+        // self.write_poss()?;
+        // println!("Finished");
+        // println!("Writing all encountered langs to {}", LANG_PATH);
+        // self.write_langs()?;
+        // println!("Finished");
+        // println!("Writing all generated term ids to {}", ID_PATH);
+        // self.write_ids()?;
+        // println!("Finished");
         println!("Processing etymologies");
         self.process_items()?;
         println!("Finished");
-        println!(
-            "Writing all found immediate etymology relationships to {}",
-            SOURCE_PATH
-        );
-        self.write_sources()?;
+        // println!(
+        //     "Writing all found immediate etymology relationships to {}",
+        //     SOURCE_PATH
+        // );
+        // self.write_sources()?;
+        // println!("Finished");
+        println!("Writing to oxigraph store {DB_PATH}");
+        // delete any previous oxigraph db
+        remove_dir_all(DB_PATH)?;
+        let mut store = Store::open(DB_PATH)?;
+        self.write_all_to_store(&mut store)?;
         println!("Finished");
-        println!("Writing to database {DB_PATH}");
-        // write to oxigraph store
-        println!("Finished");
-        println!("Writing to RDF {RDF_PATH}");
-        // dump oxigraph store
+        println!("Dumping oxigraph store to file {TTL_PATH}");
+        let mut ttl_file = BufWriter::new(File::create(TTL_PATH)?);
+        store.dump_graph(
+            &mut ttl_file,
+            GraphFormat::Turtle,
+            GraphNameRef::DefaultGraph,
+        )?;
         println!("Finished");
         println!("All done! Exiting");
         Ok(())

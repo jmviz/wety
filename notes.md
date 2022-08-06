@@ -5,6 +5,10 @@
     * Could add specific rules for the few templates where you would expect a different PoS, e.g. `deverbal`.
     * Could do better than simple Lesk algorithm. For example, "poison" and "poisoned" don't match but should count as similar. 
 
+* For Compound-type ety nodes, identify a "root" part. This will be well-defined for -fix type templates: take the first component term which is not a -fix. This same rule can be applied to the rest (affix, univerbiation, compound, blend, surface analysis). However, in many of these cases, where multiple of the components are not -fix type, the "root" will simply be arbitarily the first non-fix component term.
+
+* Optionally filter items to include only english leafs whose ultimate ety nodes are ine-pro. This could be done either within the rust program or as a SPARQL query on the oxigraph db...
+
 ## Things to keep in mind
 
 * If ever out of immediate TODOs in this document, remember to ctrl+f "$" in project to find notes pointing out problems/todos.
