@@ -12,6 +12,7 @@ use std::{
     fs::{remove_dir_all, File},
     io::{BufRead, BufReader},
     io::{BufWriter, Write},
+    path::Path,
     rc::Rc,
 };
 
@@ -354,9 +355,6 @@ impl StringPool {
 }
 
 // Always short-lived struct used for sense disambiguation.
-// $$ This should be a more structured representation using all fields of Item
-// $$ but we'll start with just a bag of words from the gloss and Lesk score
-// $$ comparison for now. In a better implementation, shared pos e.g. could be weighted more.
 struct Sense {
     gloss: HashSet<String>,
 }
@@ -1141,7 +1139,9 @@ impl Processor {
         // println!("Finished");
         println!("Writing to oxigraph store {DB_PATH}");
         // delete any previous oxigraph db
-        remove_dir_all(DB_PATH)?;
+        if Path::new(DB_PATH).is_dir() {
+            remove_dir_all(DB_PATH)?;
+        }
         let mut store = Store::open(DB_PATH)?;
         self.write_all_to_store(&mut store)?;
         println!("Finished");

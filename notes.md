@@ -9,9 +9,11 @@
 
 * Optionally filter items to include only english leafs whose ultimate ety nodes are ine-pro. This could be done either within the rust program or as a SPARQL query on the oxigraph db...
 
+* Go through raw ety templates until we find the first valid template that links to a page section *that actually exists*. It seems often to be the case that wiktionary editors violate the expectation that a non-red-link template link actually points to an appropriate entry. See e.g. [arsenic](https://en.wiktionary.org/wiki/arsenic#English). The first two templates linking to Middle English and Middle French terms are both valid for our purposes, and the pages exist, but the language sections they link to do not exist. Therefore, both of these terms will not correspond to a findable item, and so the current procedure will give an ety of None. Instead we can go through the templates until we find the template linking Latin [arsenicum](https://en.wiktionary.org/wiki/arsenicum#Latin), where the page and section both exist. We can record the first two terms in a Processor field ImputedTerms. Can record imputed terms in the RDF with  boolean property isImputed (see [oxigraph typed literal](https://docs.rs/oxigraph/latest/oxigraph/model/struct.Literal.html), [Turtle booleans](https://www.w3.org/TR/turtle/#booleans))?
+
 ## Things to keep in mind
 
-* If ever out of immediate TODOs in this document, remember to ctrl+f "$" in project to find notes pointing out problems/todos.
+* If we don't end up using the actual string contents of ety_text at all and/or RAM becomes an issue, we can use [ahash](https://docs.rs/ahash/0.7.6/ahash/trait.CallHasher.html) just to compute the hashes of ety_texts and store those (either hashing the hashes in a hashset or just pushing them to a vec) rather than storing/interning the ety_text strings themselves.
 
 * Adding tracking of ety_nums and gloss_nums (so that informative unique item id can be generated) added about 1GB to RAM usage. If RAM becomes an issue, could try Vec implementation rather than the ugly tuples being used currently. Will be slower but should save RAM which is more of a concern.
 
@@ -24,6 +26,8 @@
 {"name": "glossary", "args": {"1": "Inherited"}, "expansion": "Inherited"}
 ```
 while the second is a non-`+` version of the template. Therefore, these imputatations  shouldn't matter for us, as we currently take the first ety template that is on our lists in `etymology_templates.rs`. Therefore we will take the imputed second template, the non-`+` version, which has all the same info as the `+` version.  However, if in the future we decide to try processing all the ety templates, these imputations will become relevant. 
+
+* If ever out of immediate TODOs in this document, remember to ctrl+f "$" in project to find notes pointing out problems/todos.
 
 ### If in the future I attempt to process the entire etymology (i.e. all templates and text)
 * Need to handle when ety entries have multiple ety's for some reason, e.g. https://en.wiktionary.org/wiki/hap#Etymology_1. A simple approach might be to only process the first paragraph, as often the different ety's are listed in different paragraphs. Unfortunately, the templates given in wiktextract data are not separated out into paragraphs, so this would involve processing a combination of the wiktextract ety text (which does preserve the newlines) and the templates list. This can be done by using the expansions given for each template and looking for them in the ety text. In case a template expansion appears multiple times in the ety text in different paragraphs, can compare the order of the templates in the template list with the order of expansions in the ety text to try to infer which paragraph the template appeared in.
