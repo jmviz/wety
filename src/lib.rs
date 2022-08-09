@@ -165,10 +165,7 @@ impl Items {
         }
         // since term has been seen before, there must be at least one lang for it
         // check if item's lang has been seen before
-        let lang_map: &mut LangMap = self
-            .term_map
-            .get_mut(&item.term)
-            .ok_or_else(|| anyhow!("no LangMap for term when adding:\n{:#?}", item))?;
+        let lang_map: &mut LangMap = self.term_map.get_mut(&item.term).unwrap();
         if !lang_map.contains_key(&item.lang) {
             let mut gloss_map = GlossMap::new();
             let mut pos_map = PosMap::new();
@@ -183,9 +180,7 @@ impl Items {
         }
         // since lang has been seen before, there must be at least one ety (possibly None)
         // check if this ety has been seen in this lang before
-        let ety_map: &mut EtyMap = lang_map
-            .get_mut(&item.lang)
-            .ok_or_else(|| anyhow!("no EtyMap for lang when adding:\n{:#?}", item))?;
+        let ety_map: &mut EtyMap = lang_map.get_mut(&item.lang).unwrap();
         if !ety_map.contains_key(&item.ety_text) {
             let mut gloss_map = GlossMap::new();
             let mut pos_map = PosMap::new();
@@ -200,9 +195,7 @@ impl Items {
         }
         // since ety has been seen before, there must be at least one pos
         // check if this pos has been seen for this ety before
-        let (ety_num, pos_map): &mut (u8, PosMap) = ety_map
-            .get_mut(&item.ety_text)
-            .ok_or_else(|| anyhow!("no PosMap for ety when adding:\n{:#?}", item))?;
+        let (ety_num, pos_map): &mut (u8, PosMap) = ety_map.get_mut(&item.ety_text).unwrap();
         if !pos_map.contains_key(&item.pos) {
             let mut gloss_map = GlossMap::new();
             let (gloss, pos) = (item.gloss, item.pos);
@@ -213,9 +206,7 @@ impl Items {
             return Ok(());
         }
         // since pos has been seen before, there must be at least one gloss (possibly None)
-        let gloss_map: &mut GlossMap = pos_map
-            .get_mut(&item.pos)
-            .ok_or_else(|| anyhow!("no GlossMap for pos when adding:\n{:#?}", item))?;
+        let gloss_map: &mut GlossMap = pos_map.get_mut(&item.pos).unwrap();
         if !gloss_map.contains_key(&item.gloss) {
             let gloss = item.gloss;
             item.gloss_num = u8::try_from(gloss_map.len())?;
@@ -457,7 +448,7 @@ pub struct Processor {
 
 impl Processor {
     // fn write_sources(&self) -> Result<()> {
-    //     let mut file = File::create(SOURCE_PATH)?;
+    //     let mut file = BufWriter::new(File::create(SOURCE_PATH)?);
     //     for (item, ety) in self.sources.item_map.iter() {
     //         file.write_all(format!("{}, ", item.id(&self.string_pool)).as_bytes())?;
     //         match ety {
@@ -482,7 +473,7 @@ impl Processor {
     // }
 
     // fn write_ids(&self) -> Result<()> {
-    //     let mut file = File::create(ID_PATH)?;
+    //     let mut file = BufWriter::new(File::create(ID_PATH)?);
     //     for lang_map in self.items.term_map.values() {
     //         for ety_map in lang_map.values() {
     //             for (_, pos_map) in ety_map.values() {
@@ -498,7 +489,7 @@ impl Processor {
     // }
 
     // fn write_poss(&self) -> Result<()> {
-    //     let mut file = File::create(POS_PATH)?;
+    //     let mut file = BufWriter::new(File::create(POS_PATH)?);
     //     for pos in self.poss.iter() {
     //         file.write_all(format!("{}\n", self.string_pool.resolve(*pos)).as_bytes())?;
     //     }
@@ -506,7 +497,7 @@ impl Processor {
     // }
 
     // fn write_langs(&self) -> Result<()> {
-    //     let mut file = File::create(LANG_PATH)?;
+    //     let mut file = BufWriter::new(File::create(LANG_PATH)?);
     //     for (lang, language) in self.langs.lang_language.iter() {
     //         file.write_all(
     //             format!(
