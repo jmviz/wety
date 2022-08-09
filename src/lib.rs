@@ -34,10 +34,6 @@ use string_interner::{backend::StringBackend, symbol::SymbolU32, StringInterner}
 const WIKTEXTRACT_URL: &str = "https://kaikki.org/dictionary/raw-wiktextract-data.json.gz";
 const WIKTEXTRACT_PATH: &str = "data/raw-wiktextract-data.json.gz";
 // const WIKTEXTRACT_PATH: &str = "data/test/glow.json.gz";
-// const LANG_PATH: &str = "data/lang.txt";
-// const POS_PATH: &str = "data/pos.txt";
-// const ID_PATH: &str = "data/id.txt";
-// const SOURCE_PATH: &str = "data/source.txt";
 const DB_PATH: &str = "data/wety.db";
 const TTL_PATH: &str = "data/wety.ttl";
 
@@ -447,70 +443,6 @@ pub struct Processor {
 }
 
 impl Processor {
-    // fn write_sources(&self) -> Result<()> {
-    //     let mut file = BufWriter::new(File::create(SOURCE_PATH)?);
-    //     for (item, ety) in self.sources.item_map.iter() {
-    //         file.write_all(format!("{}, ", item.id(&self.string_pool)).as_bytes())?;
-    //         match ety {
-    //             EtyNode::DerivedFrom(d) => file.write_all(
-    //                 format!(
-    //                     "{}, {}",
-    //                     self.string_pool.resolve(d.mode),
-    //                     d.item.id(&self.string_pool)
-    //                 )
-    //                 .as_bytes(),
-    //             )?,
-    //             EtyNode::Combines(c) => {
-    //                 file.write_all(format!("{}, ", self.string_pool.resolve(c.mode)).as_bytes())?;
-    //                 for i in c.items.iter() {
-    //                     file.write_all(format!("{}, ", i.id(&self.string_pool)).as_bytes())?;
-    //                 }
-    //             }
-    //         }
-    //         file.write_all(b"\n")?;
-    //     }
-    //     Ok(())
-    // }
-
-    // fn write_ids(&self) -> Result<()> {
-    //     let mut file = BufWriter::new(File::create(ID_PATH)?);
-    //     for lang_map in self.items.term_map.values() {
-    //         for ety_map in lang_map.values() {
-    //             for (_, pos_map) in ety_map.values() {
-    //                 for gloss_map in pos_map.values() {
-    //                     for item in gloss_map.values() {
-    //                         file.write_all(format!("{}\n", item.id(&self.string_pool)).as_bytes())?;
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     }
-    //     Ok(())
-    // }
-
-    // fn write_poss(&self) -> Result<()> {
-    //     let mut file = BufWriter::new(File::create(POS_PATH)?);
-    //     for pos in self.poss.iter() {
-    //         file.write_all(format!("{}\n", self.string_pool.resolve(*pos)).as_bytes())?;
-    //     }
-    //     Ok(())
-    // }
-
-    // fn write_langs(&self) -> Result<()> {
-    //     let mut file = BufWriter::new(File::create(LANG_PATH)?);
-    //     for (lang, language) in self.langs.lang_language.iter() {
-    //         file.write_all(
-    //             format!(
-    //                 "{}, {}\n",
-    //                 self.string_pool.resolve(*lang),
-    //                 self.string_pool.resolve(*language),
-    //             )
-    //             .as_bytes(),
-    //         )?;
-    //     }
-    //     Ok(())
-    // }
-
     fn process_derived_type_json_template(
         &mut self,
         args: &Value,
@@ -1110,24 +1042,9 @@ impl Processor {
 
         self.process_file(file)?;
         println!("Finished");
-        // println!("Writing all encountered PoSs to {}", POS_PATH);
-        // self.write_poss()?;
-        // println!("Finished");
-        // println!("Writing all encountered langs to {}", LANG_PATH);
-        // self.write_langs()?;
-        // println!("Finished");
-        // println!("Writing all generated term ids to {}", ID_PATH);
-        // self.write_ids()?;
-        // println!("Finished");
         println!("Processing etymologies");
         self.process_items()?;
         println!("Finished");
-        // println!(
-        //     "Writing all found immediate etymology relationships to {}",
-        //     SOURCE_PATH
-        // );
-        // self.write_sources()?;
-        // println!("Finished");
         println!("Writing to oxigraph store {DB_PATH}");
         // delete any previous oxigraph db
         if Path::new(DB_PATH).is_dir() {
