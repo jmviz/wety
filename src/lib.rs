@@ -24,7 +24,7 @@ use hashbrown::{HashMap, HashSet};
 use indicatif::{ProgressBar, ProgressStyle};
 use oxigraph::{
     io::GraphFormat,
-    model::{GraphNameRef, LiteralRef, NamedNodeRef, QuadRef},
+    model::{vocab::xsd, GraphNameRef::DefaultGraph, LiteralRef, NamedNode, NamedNodeRef, QuadRef},
     store::Store,
 };
 use phf::{phf_set, Set};
@@ -33,7 +33,7 @@ use string_interner::{backend::StringBackend, symbol::SymbolU32, StringInterner}
 
 const WIKTEXTRACT_URL: &str = "https://kaikki.org/dictionary/raw-wiktextract-data.json.gz";
 const WIKTEXTRACT_PATH: &str = "data/raw-wiktextract-data.json.gz";
-// const WIKTEXTRACT_PATH: &str = "data/test/glow.json.gz";
+// const WIKTEXTRACT_PATH: &str = "data/test/fix.json.gz";
 const DB_PATH: &str = "data/wety.db";
 const TTL_PATH: &str = "data/wety.ttl";
 
@@ -47,7 +47,11 @@ const O_POS: &str = "o:pos";
 const O_GLOSS: &str = "o:gloss";
 const O_SOURCE: &str = "o:source";
 const O_MODE: &str = "o:mode";
-const DATA_PREFIX: &str = "w:";
+const O_HEAD: &str = "o:head";
+const O_ITEM: &str = "o:item";
+const O_ORDER: &str = "o:order";
+const ITEM_PREFIX: &str = "w:";
+const SOURCE_NODE_PREFIX: &str = "s:";
 
 // https://github.com/tatuylonen/wiktextract/blob/master/wiktwords
 static IGNORED_REDIRECTS: Set<&'static str> = phf_set! {
@@ -56,54 +60,18 @@ static IGNORED_REDIRECTS: Set<&'static str> = phf_set! {
     "Wiktionary:", "Thesaurus:", "Module:", "Template:"
 };
 
-// For etymological relationships given by DERIVED_TYPE_TEMPLATES
-// and ABBREV_TYPE_TEMPLATES in etymology_templates.rs.
-// Akin to Wikidata's derived from lexeme https://www.wikidata.org/wiki/Property:P5191
-// and mode of derivation https://www.wikidata.org/wiki/Property:P5886
+// models the basic info from a wiktionary etymology template
 #[derive(Hash, Eq, PartialEq, Debug)]
-struct DerivedFrom {
-    item: Rc<Item>,
-    mode: SymbolU32,
-}
-
-#[derive(Hash, Eq, PartialEq, Debug)]
-struct RawDerivedFrom {
-    source_term: SymbolU32,
-    source_lang: SymbolU32,
-    mode: SymbolU32,
-}
-
-// For etymological relationships given by COMPOUND_TYPE_TEMPLATES
-// in etymology_templates.rs.
-// Akin to Wikidata's combines lexeme https://www.wikidata.org/wiki/Property:P5238
-#[derive(Hash, Eq, PartialEq, Debug)]
-struct Combines {
-    items: Box<[Rc<Item>]>,
-    mode: SymbolU32,
-}
-
-#[derive(Hash, Eq, PartialEq, Debug)]
-struct RawCombines {
-    source_terms: Box<[SymbolU32]>,
-    source_langs: Option<Box<[SymbolU32]>>,
-    mode: SymbolU32,
-}
-
-#[derive(Hash, Eq, PartialEq, Debug)]
-enum EtyNode {
-    DerivedFrom(DerivedFrom),
-    Combines(Combines),
-}
-
-#[derive(Hash, Eq, PartialEq, Debug)]
-enum RawEtyNode {
-    RawDerivedFrom(RawDerivedFrom),
-    RawCombines(RawCombines),
+struct RawEtyNode {
+    source_terms: Box<[SymbolU32]>, // e.g. "re-", "do"
+    source_langs: Box<[SymbolU32]>, // e.g. "en", "en"
+    mode: SymbolU32,                // e.g. "prefix"
+    head: u8,                       // e.g. 1 (the index of "do")
 }
 
 #[derive(Hash, Eq, PartialEq, Debug)]
 struct Item {
-    i: usize,
+    i: usize,                    // the i-th item seem, used as id for RDF
     term: SymbolU32,             // e.g. "bank"
     lang: SymbolU32,             // e.g "en", i.e. the wiktextract lang_code
     language: SymbolU32,         // e.g. "English" i.e. the wiktextract lang
@@ -215,15 +183,22 @@ impl Items {
     }
 }
 
+#[derive(Hash, Eq, PartialEq, Debug)]
+struct Source {
+    items: Box<[Rc<Item>]>,
+    mode: SymbolU32,
+    head: u8,
+}
+
 // wrapper around a Hashmap linking items with their immediate etymological source,
 // as parsed from the first raw ety node.
 #[derive(Default)]
 struct Sources {
-    item_map: HashMap<Rc<Item>, EtyNode>,
+    item_map: HashMap<Rc<Item>, Source>,
 }
 
 impl Sources {
-    fn add(&mut self, item: &Rc<Item>, ety_node: EtyNode) -> Result<()> {
+    fn add(&mut self, item: &Rc<Item>, ety_node: Source) -> Result<()> {
         self.item_map
             .try_insert(Rc::clone(item), ety_node)
             .and(std::result::Result::Ok(()))
@@ -245,82 +220,43 @@ impl Sources {
         let sense = Sense::new(string_pool, item);
         // The boxed array should never be empty, based on the logic in
         // process_json_ety_templates().
-        let raw_ety_node = &item.raw_ety_nodes.as_ref().unwrap()[0];
-        match raw_ety_node {
-            RawEtyNode::RawDerivedFrom(raw_derived_from) => {
-                let (source_lang, source_term) = redirects.get(
-                    langs,
-                    raw_derived_from.source_lang,
-                    raw_derived_from.source_term,
-                );
-                if let Some(ety_map) = items
-                    .term_map
-                    .get(&source_term)
-                    .and_then(|lang_map| lang_map.get(&source_lang))
+        let node = &item.raw_ety_nodes.as_ref().unwrap()[0];
+        let mut source_items = Vec::with_capacity(node.source_terms.len());
+        for (&source_lang, &source_term) in node.source_langs.iter().zip(node.source_terms.iter()) {
+            let (source_lang, source_term) = redirects.get(langs, source_lang, source_term);
+            if let Some(ety_map) = items
+                .term_map
+                .get(&source_term)
+                .and_then(|lang_map| lang_map.get(&source_lang))
+            {
+                // if we found an ety_map, we're guaranteed to find at least
+                // one item at the end of the following nested iteration. If
+                // there are multiple items, we have to do a word sense disambiguation.
+                if let Some(source_item) = ety_map
+                    .values()
+                    .flat_map(|(_, pos_map)| pos_map.values().flat_map(hashbrown::HashMap::values))
+                    .max_by_key(|other_item| {
+                        let other_item_sense = Sense::new(string_pool, other_item);
+                        sense.lesk_score(&other_item_sense)
+                    })
                 {
-                    // if we found an ety_map, we're guaranteed to find at least
-                    // one item at the end of the following nested iteration. If
-                    // there are multiple items, we have to do a word sense disambiguation.
-                    if let Some(source_item) = ety_map
-                        .values()
-                        .flat_map(|(_, pos_map)| {
-                            pos_map.values().flat_map(hashbrown::HashMap::values)
-                        })
-                        .max_by_key(|other_item| {
-                            let other_item_sense = Sense::new(string_pool, other_item);
-                            sense.lesk_score(&other_item_sense)
-                        })
-                    {
-                        let node = EtyNode::DerivedFrom(DerivedFrom {
-                            item: Rc::clone(source_item),
-                            mode: raw_derived_from.mode,
-                        });
-                        self.add(item, node)?;
-                    }
-                }
-            }
-            RawEtyNode::RawCombines(raw_combines) => {
-                let source_terms = &raw_combines.source_terms;
-                let source_langs = raw_combines
-                    .source_langs
-                    .as_ref()
-                    .map_or_else(|| [item.lang].repeat(source_terms.len()), |s| s.to_vec());
-                let mut source_items = Vec::with_capacity(source_terms.len());
-                for (source_lang, source_term) in source_langs.iter().zip(source_terms.iter()) {
-                    let (source_lang, source_term) =
-                        redirects.get(langs, *source_lang, *source_term);
-                    if let Some(ety_map) = items
-                        .term_map
-                        .get(&source_term)
-                        .and_then(|lang_map| lang_map.get(&source_lang))
-                    {
-                        // if we found an ety_map, we're guaranteed to find at least
-                        // one item at the end of the following nested iteration. If
-                        // there are multiple items, we have to do a word sense disambiguation.
-                        if let Some(source_item) = ety_map
-                            .values()
-                            .flat_map(|(_, pos_map)| {
-                                pos_map.values().flat_map(hashbrown::HashMap::values)
-                            })
-                            .max_by_key(|other_item| {
-                                let other_item_sense = Sense::new(string_pool, other_item);
-                                sense.lesk_score(&other_item_sense)
-                            })
-                        {
-                            source_items.push(Rc::clone(source_item));
-                        }
-                    }
-                }
-                if source_items.len() == source_terms.len() {
-                    let node = EtyNode::Combines(Combines {
-                        items: source_items.into_boxed_slice(),
-                        mode: raw_combines.mode,
-                    });
-                    self.add(item, node)?;
+                    source_items.push(Rc::clone(source_item));
                 }
             }
         }
+        if source_items.len() == node.source_terms.len() {
+            let source = Source {
+                items: source_items.into_boxed_slice(),
+                mode: node.mode,
+                head: node.head,
+            };
+            self.add(item, source)?;
+        }
         Ok(())
+    }
+
+    fn get(&self, item: &Item) -> Option<&Source> {
+        self.item_map.get(item)
     }
 }
 
@@ -432,17 +368,111 @@ impl Langs {
     }
 }
 
-#[derive(Default)]
-pub struct Processor {
+struct StoreWrapper {
+    store: Store,
+    n_source_nodes: usize,
+}
+
+impl StoreWrapper {
+    fn new(path: &str) -> Result<StoreWrapper> {
+        // delete any previous oxigraph db
+        if Path::new(path).is_dir() {
+            remove_dir_all(path)?;
+        }
+        Ok(Self {
+            store: Store::open(path)?,
+            n_source_nodes: 0,
+        })
+    }
+
+    fn insert(&mut self, quad: QuadRef) -> Result<bool> {
+        Ok(self.store.insert(quad)?)
+    }
+
+    fn add(&mut self, string_pool: &StringPool, sources: &Sources, item: &Item) -> Result<()> {
+        let iri = format!("{ITEM_PREFIX}{}", item.i);
+        let subject = NamedNodeRef::new(&iri)?;
+        let mut predicate = NamedNodeRef::new(O_TERM)?;
+        let mut object = LiteralRef::new_simple_literal(string_pool.resolve(item.term));
+        let mut quad = QuadRef::new(subject, predicate, object, DefaultGraph);
+        self.insert(quad)?;
+        predicate = NamedNodeRef::new(O_LANG)?;
+        object = LiteralRef::new_simple_literal(string_pool.resolve(item.lang));
+        quad = QuadRef::new(subject, predicate, object, DefaultGraph);
+        self.insert(quad)?;
+        predicate = NamedNodeRef::new(O_POS)?;
+        object = LiteralRef::new_simple_literal(string_pool.resolve(item.pos));
+        quad = QuadRef::new(subject, predicate, object, DefaultGraph);
+        self.insert(quad)?;
+        if let Some(gloss) = item.gloss {
+            predicate = NamedNodeRef::new(O_GLOSS)?;
+            object = LiteralRef::new_simple_literal(string_pool.resolve(gloss));
+            quad = QuadRef::new(subject, predicate, object, DefaultGraph);
+            self.insert(quad)?;
+        }
+        if let Some(source) = sources.get(item) {
+            for (s_i, source_item) in source.items.iter().enumerate() {
+                let source_node_iri = format!("{SOURCE_NODE_PREFIX}{}", self.n_source_nodes);
+                self.n_source_nodes += 1;
+                predicate = NamedNodeRef::new(O_SOURCE)?;
+                let object = NamedNode::new(source_node_iri.clone())?;
+                quad = QuadRef::new(subject, predicate, &object, DefaultGraph);
+                self.insert(quad)?;
+                if source.head == u8::try_from(s_i)? {
+                    predicate = NamedNodeRef::new(O_HEAD)?;
+                    quad = QuadRef::new(subject, predicate, &object, DefaultGraph);
+                    self.insert(quad)?;
+                }
+                let subject = NamedNode::new(source_node_iri)?;
+                predicate = NamedNodeRef::new(O_ITEM)?;
+                let source_item_iri = format!("{ITEM_PREFIX}{}", source_item.i);
+                let object = NamedNodeRef::new(&source_item_iri)?;
+                quad = QuadRef::new(&subject, predicate, object, DefaultGraph);
+                self.insert(quad)?;
+                predicate = NamedNodeRef::new(O_ORDER)?;
+                let source_item_order = s_i.to_string();
+                let object =
+                    LiteralRef::new_typed_literal(&source_item_order, xsd::NON_NEGATIVE_INTEGER);
+                quad = QuadRef::new(&subject, predicate, object, DefaultGraph);
+                self.insert(quad)?;
+            }
+            predicate = NamedNodeRef::new(O_MODE)?;
+            let object = LiteralRef::new_simple_literal(string_pool.resolve(source.mode));
+            quad = QuadRef::new(subject, predicate, object, DefaultGraph);
+            self.insert(quad)?;
+        }
+        Ok(())
+    }
+
+    fn dump(&self, path: &str) -> Result<()> {
+        let mut f = BufWriter::new(File::create(path)?);
+        self.store
+            .dump_graph(&mut f, GraphFormat::Turtle, DefaultGraph)?;
+        Ok(())
+    }
+}
+
+struct Processor {
     string_pool: StringPool,
     items: Items,
     sources: Sources,
     redirects: Redirects,
     langs: Langs,
-    poss: HashSet<SymbolU32>,
+    store: StoreWrapper,
 }
 
 impl Processor {
+    fn new() -> Result<Self> {
+        Ok(Self {
+            string_pool: StringPool::default(),
+            items: Items::default(),
+            sources: Sources::default(),
+            redirects: Redirects::default(),
+            langs: Langs::default(),
+            store: StoreWrapper::new(DB_PATH)?,
+        })
+    }
+
     fn process_derived_type_json_template(
         &mut self,
         args: &Value,
@@ -459,11 +489,12 @@ impl Processor {
                 return Ok(None);
             }
             let source_term = clean_ety_term(source_lang, source_term);
-            return Ok(Some(RawEtyNode::RawDerivedFrom(RawDerivedFrom {
-                source_term: self.string_pool.get_or_intern(source_term),
-                source_lang: self.string_pool.get_or_intern(source_lang),
+            return Ok(Some(RawEtyNode {
+                source_terms: Box::new([self.string_pool.get_or_intern(source_term)]),
+                source_langs: Box::new([self.string_pool.get_or_intern(source_lang)]),
                 mode: self.string_pool.get_or_intern(mode),
-            })));
+                head: 0,
+            }));
         }
         Ok(None)
     }
@@ -483,11 +514,12 @@ impl Processor {
                 return Ok(None);
             }
             let source_term = clean_ety_term(term_lang, source_term);
-            return Ok(Some(RawEtyNode::RawDerivedFrom(RawDerivedFrom {
-                source_term: self.string_pool.get_or_intern(source_term),
-                source_lang: lang,
+            return Ok(Some(RawEtyNode {
+                source_terms: Box::new([self.string_pool.get_or_intern(source_term)]),
+                source_langs: Box::new([lang]),
                 mode: self.string_pool.get_or_intern(mode),
-            })));
+                head: 0,
+            }));
         }
         Ok(None)
     }
@@ -514,11 +546,12 @@ impl Processor {
                 let source_prefix = self.string_pool.get_or_intern(source_prefix.as_str());
                 let source_term = clean_ety_term(term_lang, source_term);
                 let source_term = self.string_pool.get_or_intern(source_term);
-                return Ok(Some(RawEtyNode::RawCombines(RawCombines {
-                    source_terms: [source_prefix, source_term].to_vec().into_boxed_slice(),
-                    source_langs: None,
+                return Ok(Some(RawEtyNode {
+                    source_terms: Box::new([source_prefix, source_term]),
+                    source_langs: Box::new([lang; 2]),
                     mode: self.string_pool.get_or_intern("prefix"),
-                })));
+                    head: 1,
+                }));
             }
         }
         Ok(None)
@@ -546,11 +579,12 @@ impl Processor {
                 let source_suffix = clean_ety_term(term_lang, source_suffix).to_string();
                 let source_suffix = format!("-{}", source_suffix);
                 let source_suffix = self.string_pool.get_or_intern(source_suffix.as_str());
-                return Ok(Some(RawEtyNode::RawCombines(RawCombines {
-                    source_terms: [source_term, source_suffix].to_vec().into_boxed_slice(),
-                    source_langs: None,
+                return Ok(Some(RawEtyNode {
+                    source_terms: Box::new([source_term, source_suffix]),
+                    source_langs: Box::new([lang; 2]),
                     mode: self.string_pool.get_or_intern("suffix"),
-                })));
+                    head: 0,
+                }));
             }
         }
         Ok(None)
@@ -585,11 +619,12 @@ impl Processor {
                     let source_circumfix =
                         self.string_pool.get_or_intern(source_circumfix.as_str());
 
-                    return Ok(Some(RawEtyNode::RawCombines(RawCombines {
-                        source_terms: [source_term, source_circumfix].to_vec().into_boxed_slice(),
-                        source_langs: None,
+                    return Ok(Some(RawEtyNode {
+                        source_terms: Box::new([source_term, source_circumfix]),
+                        source_langs: Box::new([lang; 2]),
                         mode: self.string_pool.get_or_intern("circumfix"),
-                    })));
+                        head: 0,
+                    }));
                 }
             }
         }
@@ -618,11 +653,12 @@ impl Processor {
                 let source_infix = clean_ety_term(term_lang, source_infix).to_string();
                 let source_infix = format!("-{}-", source_infix);
                 let source_infix = self.string_pool.get_or_intern(source_infix.as_str());
-                return Ok(Some(RawEtyNode::RawCombines(RawCombines {
-                    source_terms: [source_term, source_infix].to_vec().into_boxed_slice(),
-                    source_langs: None,
+                return Ok(Some(RawEtyNode {
+                    source_terms: Box::new([source_term, source_infix]),
+                    source_langs: Box::new([lang; 2]),
                     mode: self.string_pool.get_or_intern("infix"),
-                })));
+                    head: 0,
+                }));
             }
         }
         Ok(None)
@@ -657,22 +693,22 @@ impl Processor {
                     let source_suffix = clean_ety_term(term_lang, source3).to_string();
                     let source_suffix = format!("-{}", source_suffix);
                     let source_suffix = self.string_pool.get_or_intern(source_suffix.as_str());
-                    return Ok(Some(RawEtyNode::RawCombines(RawCombines {
-                        source_terms: [source_prefix, source_term, source_suffix]
-                            .to_vec()
-                            .into_boxed_slice(),
-                        source_langs: None,
+                    return Ok(Some(RawEtyNode {
+                        source_terms: Box::new([source_prefix, source_term, source_suffix]),
+                        source_langs: Box::new([lang; 3]),
                         mode: self.string_pool.get_or_intern("confix"),
-                    })));
+                        head: 1,
+                    }));
                 }
                 let source_suffix = clean_ety_term(term_lang, source2).to_string();
                 let source_suffix = format!("-{}", source_suffix);
                 let source_suffix = self.string_pool.get_or_intern(source_suffix.as_str());
-                return Ok(Some(RawEtyNode::RawCombines(RawCombines {
-                    source_terms: [source_prefix, source_suffix].to_vec().into_boxed_slice(),
-                    source_langs: None,
+                return Ok(Some(RawEtyNode {
+                    source_terms: Box::new([source_prefix, source_suffix]),
+                    source_langs: Box::new([lang; 2]),
                     mode: self.string_pool.get_or_intern("confix"),
-                })));
+                    head: 0, // no true head here, arbitrarily take first
+                }));
             }
         }
         Ok(None)
@@ -692,7 +728,6 @@ impl Processor {
         let mut n = 2;
         let mut source_terms = vec![];
         let mut source_langs = vec![];
-        let mut has_source_langs = false;
         while let Some(source_term) = args.get_optional_str(n.to_string().as_str()) {
             if source_term.is_empty() || source_term == "-" {
                 break;
@@ -701,7 +736,6 @@ impl Processor {
                 if source_lang.is_empty() || source_lang == "-" {
                     break;
                 }
-                has_source_langs = true;
                 let source_term = clean_ety_term(source_lang, source_term);
                 source_terms.push(self.string_pool.get_or_intern(source_term));
                 source_langs.push(self.string_pool.get_or_intern(source_lang));
@@ -712,12 +746,11 @@ impl Processor {
             }
             n += 1;
         }
-        Ok((!source_terms.is_empty()).then(|| {
-            RawEtyNode::RawCombines(RawCombines {
-                source_terms: source_terms.into_boxed_slice(),
-                source_langs: has_source_langs.then(|| source_langs.into_boxed_slice()),
-                mode: self.string_pool.get_or_intern(mode),
-            })
+        Ok((!source_terms.is_empty()).then(|| RawEtyNode {
+            source_terms: source_terms.into_boxed_slice(),
+            source_langs: source_langs.into_boxed_slice(),
+            mode: self.string_pool.get_or_intern(mode),
+            head: 0, // no true head here, arbitrarily take first
         }))
     }
 
@@ -781,11 +814,12 @@ impl Processor {
                 .and_then(|alt_obj| alt_obj.get_str("word"));
             match alt_term {
                 Some(alt) => {
-                    let raw_ety_node = RawEtyNode::RawDerivedFrom(RawDerivedFrom {
-                        source_term: self.string_pool.get_or_intern(alt),
-                        source_lang: lang,
+                    let raw_ety_node = RawEtyNode {
+                        source_terms: Box::new([self.string_pool.get_or_intern(alt)]),
+                        source_langs: Box::new([lang]),
                         mode: self.string_pool.get_or_intern("form of"),
-                    });
+                        head: 0,
+                    };
                     raw_ety_nodes.push(raw_ety_node);
                     return Ok(Some(raw_ety_nodes.into_boxed_slice()));
                 }
@@ -902,7 +936,6 @@ impl Processor {
         let raw_ety_nodes = self.process_json_ety_templates(json_item, lang)?;
 
         self.langs.add(lang, language);
-        self.poss.insert(pos);
 
         let item = Item {
             i: self.items.n,
@@ -937,7 +970,7 @@ impl Processor {
         Ok(())
     }
 
-    fn process_items(&mut self) -> Result<()> {
+    fn process_sources(&mut self) -> Result<()> {
         for lang_map in self.items.term_map.values() {
             for ety_map in lang_map.values() {
                 for (_, pos_map) in ety_map.values() {
@@ -958,63 +991,13 @@ impl Processor {
         Ok(())
     }
 
-    fn write_item_to_store(&self, store: &mut Store, item: &Item) -> Result<()> {
-        let iri = format!("{DATA_PREFIX}{}", item.i);
-        let s = NamedNodeRef::new(&iri)?;
-        let mut p = NamedNodeRef::new(O_TERM)?;
-        let mut o = LiteralRef::new_simple_literal(self.string_pool.resolve(item.term));
-        let mut quad = QuadRef::new(s, p, o, GraphNameRef::DefaultGraph);
-        store.insert(quad)?;
-        p = NamedNodeRef::new(O_LANG)?;
-        o = LiteralRef::new_simple_literal(self.string_pool.resolve(item.lang));
-        quad = QuadRef::new(s, p, o, GraphNameRef::DefaultGraph);
-        store.insert(quad)?;
-        p = NamedNodeRef::new(O_POS)?;
-        o = LiteralRef::new_simple_literal(self.string_pool.resolve(item.pos));
-        quad = QuadRef::new(s, p, o, GraphNameRef::DefaultGraph);
-        store.insert(quad)?;
-        if let Some(gloss) = item.gloss {
-            p = NamedNodeRef::new(O_GLOSS)?;
-            o = LiteralRef::new_simple_literal(self.string_pool.resolve(gloss));
-            quad = QuadRef::new(s, p, o, GraphNameRef::DefaultGraph);
-            store.insert(quad)?;
-        }
-        if let Some(ety_node) = self.sources.item_map.get(item) {
-            p = NamedNodeRef::new(O_SOURCE)?;
-            match ety_node {
-                EtyNode::DerivedFrom(d) => {
-                    let source_iri = format!("{DATA_PREFIX}{}", d.item.i);
-                    let o = NamedNodeRef::new(&source_iri)?;
-                    quad = QuadRef::new(s, p, o, GraphNameRef::DefaultGraph);
-                    store.insert(quad)?;
-                    p = NamedNodeRef::new(O_MODE)?;
-                    let o = LiteralRef::new_simple_literal(self.string_pool.resolve(d.mode));
-                    quad = QuadRef::new(s, p, o, GraphNameRef::DefaultGraph);
-                    store.insert(quad)?;
-                }
-                EtyNode::Combines(c) => {
-                    for source in c.items.iter() {
-                        let source_iri = format!("{DATA_PREFIX}{}", source.i);
-                        let o = NamedNodeRef::new(&source_iri)?;
-                        quad = QuadRef::new(s, p, o, GraphNameRef::DefaultGraph);
-                        store.insert(quad)?;
-                    }
-                    p = NamedNodeRef::new(O_MODE)?;
-                    let o = LiteralRef::new_simple_literal(self.string_pool.resolve(c.mode));
-                    quad = QuadRef::new(s, p, o, GraphNameRef::DefaultGraph);
-                    store.insert(quad)?;
-                }
-            }
-        }
-        Ok(())
-    }
-    fn write_all_to_store(&self, store: &mut Store) -> Result<()> {
+    fn write_all_to_store(&mut self) -> Result<()> {
         for lang_map in self.items.term_map.values() {
             for ety_map in lang_map.values() {
                 for (_, pos_map) in ety_map.values() {
                     for gloss_map in pos_map.values() {
                         for item in gloss_map.values() {
-                            self.write_item_to_store(store, item)?;
+                            self.store.add(&self.string_pool, &self.sources, item)?;
                         }
                     }
                 }
@@ -1023,47 +1006,42 @@ impl Processor {
         Ok(())
     }
 
-    /// # Errors
-    ///
-    /// Will return `Err` if any unexpected problem arises in processing.
-    pub async fn process_wiktextract_data(&mut self) -> Result<()> {
-        let file = if let std::result::Result::Ok(file) = File::open(WIKTEXTRACT_PATH) {
-            println!("Processing data from local file {WIKTEXTRACT_PATH}");
-            file
-        } else {
-            // file doesn't exist or error opening it; download it
-            println!("No local file found, downloading from {WIKTEXTRACT_URL}");
-            download_file(WIKTEXTRACT_URL, WIKTEXTRACT_PATH).await?;
-            let file = File::open(WIKTEXTRACT_PATH)
-                .map_err(|_| anyhow!("Failed to open file '{WIKTEXTRACT_PATH}'"))?;
-            println!("Processing data from downloaded file {WIKTEXTRACT_PATH}");
-            file
-        };
-
-        self.process_file(file)?;
-        println!("Finished");
-        println!("Processing etymologies");
-        self.process_items()?;
-        println!("Finished");
-        println!("Writing to oxigraph store {DB_PATH}");
-        // delete any previous oxigraph db
-        if Path::new(DB_PATH).is_dir() {
-            remove_dir_all(DB_PATH)?;
-        }
-        let mut store = Store::open(DB_PATH)?;
-        self.write_all_to_store(&mut store)?;
-        println!("Finished");
-        println!("Dumping oxigraph store to file {TTL_PATH}");
-        let mut ttl_file = BufWriter::new(File::create(TTL_PATH)?);
-        store.dump_graph(
-            &mut ttl_file,
-            GraphFormat::Turtle,
-            GraphNameRef::DefaultGraph,
-        )?;
-        println!("Finished");
-        println!("All done! Exiting");
-        Ok(())
+    fn dump_store(&self, path: &str) -> Result<()> {
+        Ok(self.store.dump(path)?)
     }
+}
+
+/// # Errors
+///
+/// Will return `Err` if any unexpected problem arises in processing.
+pub async fn process_wiktextract_data() -> Result<()> {
+    let file = if let std::result::Result::Ok(file) = File::open(WIKTEXTRACT_PATH) {
+        println!("Processing data from local file {WIKTEXTRACT_PATH}");
+        file
+    } else {
+        // file doesn't exist or error opening it; download it
+        println!("No local file found, downloading from {WIKTEXTRACT_URL}");
+        download_file(WIKTEXTRACT_URL, WIKTEXTRACT_PATH).await?;
+        let file = File::open(WIKTEXTRACT_PATH)
+            .map_err(|_| anyhow!("Failed to open file '{WIKTEXTRACT_PATH}'"))?;
+        println!("Processing data from downloaded file {WIKTEXTRACT_PATH}");
+        file
+    };
+
+    let mut processor = Processor::new()?;
+    processor.process_file(file)?;
+    println!("Finished");
+    println!("Processing etymologies");
+    processor.process_sources()?;
+    println!("Finished");
+    println!("Writing to oxigraph store {DB_PATH}");
+    processor.write_all_to_store()?;
+    println!("Finished");
+    println!("Dumping oxigraph store to file {TTL_PATH}");
+    processor.dump_store(TTL_PATH)?;
+    println!("Finished");
+    println!("All done! Exiting");
+    Ok(())
 }
 
 fn clean_ety_term<'a>(lang: &str, term: &'a str) -> &'a str {
