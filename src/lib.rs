@@ -10,12 +10,14 @@ use std::{
     cmp::min,
     convert::TryFrom,
     fs::{remove_dir_all, File},
+    hash::Hasher,
     io::{BufRead, BufReader},
     io::{BufWriter, Write},
     path::Path,
     rc::Rc,
 };
 
+use ahash::AHasher;
 use anyhow::{anyhow, Ok, Result};
 use bytelines::ByteLines;
 use flate2::read::GzDecoder;
@@ -24,7 +26,10 @@ use hashbrown::{HashMap, HashSet};
 use indicatif::{ProgressBar, ProgressStyle};
 use oxigraph::{
     io::GraphFormat,
-    model::{vocab::xsd, GraphNameRef::DefaultGraph, LiteralRef, NamedNode, NamedNodeRef, QuadRef},
+    model::{
+        vocab::xsd, GraphNameRef::DefaultGraph, LiteralRef, NamedNode, NamedNodeRef, QuadRef,
+        SubjectRef,
+    },
     store::Store,
 };
 use phf::{phf_set, Set};
@@ -37,21 +42,21 @@ const WIKTEXTRACT_PATH: &str = "data/raw-wiktextract-data.json.gz";
 const DB_PATH: &str = "data/wety.db";
 const TTL_PATH: &str = "data/wety.ttl";
 
-// placeholders until I figure out what I will actually use as IRIs...
-// see "Best Practices for Publishing Linked Data" https://www.w3.org/TR/ld-bp/
-// also "Cool URIs for the Semantic Web" https://www.w3.org/TR/cooluris
-// const ONTOLOGY_PREFIX: &str = "o:";
+const ITEM_PREFIX: &str = "w:";
+const O_IS_IMPUTED: &str = "o:isImputed";
 const O_TERM: &str = "o:term";
 const O_LANG: &str = "o:lang";
 const O_POS: &str = "o:pos";
 const O_GLOSS: &str = "o:gloss";
+const O_ETY_NUM: &str = "o:etyNum";
+const O_GLOSS_NUM: &str = "o:glossNum";
 const O_SOURCE: &str = "o:source";
 const O_MODE: &str = "o:mode";
 const O_HEAD: &str = "o:head";
+
+const SOURCE_NODE_PREFIX: &str = "s:";
 const O_ITEM: &str = "o:item";
 const O_ORDER: &str = "o:order";
-const ITEM_PREFIX: &str = "w:";
-const SOURCE_NODE_PREFIX: &str = "s:";
 
 // https://github.com/tatuylonen/wiktextract/blob/master/wiktwords
 static IGNORED_REDIRECTS: Set<&'static str> = phf_set! {
@@ -71,35 +76,47 @@ struct RawEtyNode {
 
 #[derive(Hash, Eq, PartialEq, Debug)]
 struct Item {
-    i: usize,                    // the i-th item seem, used as id for RDF
-    term: SymbolU32,             // e.g. "bank"
-    lang: SymbolU32,             // e.g "en", i.e. the wiktextract lang_code
-    language: SymbolU32,         // e.g. "English" i.e. the wiktextract lang
-    ety_text: Option<SymbolU32>, // e.g. "From Middle English banke, from Middle French banque...
-    ety_num: u8,                 // the nth ety encountered for this term-lang combo
-    pos: SymbolU32,              // e.g. "noun"
-    gloss: Option<SymbolU32>,    // e.g. "An institution where one can place and borrow money...
-    gloss_num: u8,               // the nth gloss encountered for this term-lang-ety-pos combo
+    is_imputed: bool,
+    i: usize,                 // the i-th item seem, used as id for RDF
+    term: SymbolU32,          // e.g. "bank"
+    lang: SymbolU32,          // e.g "en", i.e. the wiktextract lang_code
+    ety_num: u8,              // the nth ety encountered for this term-lang combo
+    pos: SymbolU32,           // e.g. "noun"
+    gloss: Option<SymbolU32>, // e.g. "An institution where one can place and borrow money...
+    gloss_num: u8,            // the nth gloss encountered for this term-lang-ety-pos combo
     raw_ety_nodes: Option<Box<[RawEtyNode]>>,
 }
 
-// impl Item {
-//     fn id(&self, string_pool: &StringPool) -> String {
-//         // term__lang__eN__pos__sM
-//         format!(
-//             "{}__{}__e{}__{}__s{}",
-//             string_pool.resolve(self.term),
-//             string_pool.resolve(self.lang),
-//             self.ety_num,
-//             string_pool.resolve(self.pos),
-//             self.gloss_num
-//         )
-//     }
-// }
+impl Item {
+    fn new_imputed(i: usize, pos: SymbolU32, lang: SymbolU32, term: SymbolU32) -> Self {
+        Self {
+            is_imputed: true,
+            i,
+            term,
+            lang,
+            pos,
+            ety_num: 0,
+            gloss_num: 0,
+            gloss: None,
+            raw_ety_nodes: None,
+        }
+    }
+    // fn id(&self, string_pool: &StringPool) -> String {
+    //     // term__lang__eN__pos__sM
+    //     format!(
+    //         "{}__{}__e{}__{}__s{}",
+    //         string_pool.resolve(self.term),
+    //         string_pool.resolve(self.lang),
+    //         self.ety_num,
+    //         string_pool.resolve(self.pos),
+    //         self.gloss_num
+    //     )
+    // }
+}
 
 type GlossMap = HashMap<Option<SymbolU32>, Rc<Item>>;
 type PosMap = HashMap<SymbolU32, GlossMap>;
-type EtyMap = HashMap<Option<SymbolU32>, (u8, PosMap)>;
+type EtyMap = HashMap<Option<u64>, (u8, PosMap)>;
 type LangMap = HashMap<SymbolU32, EtyMap>;
 type TermMap = HashMap<SymbolU32, LangMap>;
 
@@ -110,18 +127,17 @@ struct Items {
 }
 
 impl Items {
-    fn add(&mut self, mut item: Item) -> Result<()> {
+    fn add(&mut self, ety_text_hash: Option<u64>, mut item: Item) -> Result<()> {
         // check if the item's term has been seen before
         if !self.term_map.contains_key(&item.term) {
             let mut gloss_map = GlossMap::new();
             let mut pos_map = PosMap::new();
             let mut ety_map = EtyMap::new();
             let mut lang_map = LangMap::new();
-            let (gloss, pos, ety_text, lang, term) =
-                (item.gloss, item.pos, item.ety_text, item.lang, item.term);
-            gloss_map.insert(gloss, Rc::from(item));
+            let (pos, lang, term) = (item.pos, item.lang, item.term);
+            gloss_map.insert(item.gloss, Rc::from(item));
             pos_map.insert(pos, gloss_map);
-            ety_map.insert(ety_text, (0, pos_map));
+            ety_map.insert(ety_text_hash, (0, pos_map));
             lang_map.insert(lang, ety_map);
             self.term_map.insert(term, lang_map);
             self.n += 1;
@@ -134,10 +150,10 @@ impl Items {
             let mut gloss_map = GlossMap::new();
             let mut pos_map = PosMap::new();
             let mut ety_map = EtyMap::new();
-            let (gloss, pos, ety_text, lang) = (item.gloss, item.pos, item.ety_text, item.lang);
-            gloss_map.insert(gloss, Rc::from(item));
+            let (pos, lang) = (item.pos, item.lang);
+            gloss_map.insert(item.gloss, Rc::from(item));
             pos_map.insert(pos, gloss_map);
-            ety_map.insert(ety_text, (0, pos_map));
+            ety_map.insert(ety_text_hash, (0, pos_map));
             lang_map.insert(lang, ety_map);
             self.n += 1;
             return Ok(());
@@ -145,26 +161,26 @@ impl Items {
         // since lang has been seen before, there must be at least one ety (possibly None)
         // check if this ety has been seen in this lang before
         let ety_map: &mut EtyMap = lang_map.get_mut(&item.lang).unwrap();
-        if !ety_map.contains_key(&item.ety_text) {
+        if !ety_map.contains_key(&ety_text_hash) {
             let mut gloss_map = GlossMap::new();
             let mut pos_map = PosMap::new();
-            let (gloss, pos, ety_text) = (item.gloss, item.pos, item.ety_text);
+            let pos = item.pos;
             let ety_num = u8::try_from(ety_map.len())?;
             item.ety_num = ety_num;
-            gloss_map.insert(gloss, Rc::from(item));
+            gloss_map.insert(item.gloss, Rc::from(item));
             pos_map.insert(pos, gloss_map);
-            ety_map.insert(ety_text, (ety_num, pos_map));
+            ety_map.insert(ety_text_hash, (ety_num, pos_map));
             self.n += 1;
             return Ok(());
         }
         // since ety has been seen before, there must be at least one pos
         // check if this pos has been seen for this ety before
-        let (ety_num, pos_map): &mut (u8, PosMap) = ety_map.get_mut(&item.ety_text).unwrap();
+        let (ety_num, pos_map): &mut (u8, PosMap) = ety_map.get_mut(&ety_text_hash).unwrap();
         if !pos_map.contains_key(&item.pos) {
             let mut gloss_map = GlossMap::new();
-            let (gloss, pos) = (item.gloss, item.pos);
+            let pos = item.pos;
             item.ety_num = *ety_num;
-            gloss_map.insert(gloss, Rc::from(item));
+            gloss_map.insert(item.gloss, Rc::from(item));
             pos_map.insert(pos, gloss_map);
             self.n += 1;
             return Ok(());
@@ -172,14 +188,54 @@ impl Items {
         // since pos has been seen before, there must be at least one gloss (possibly None)
         let gloss_map: &mut GlossMap = pos_map.get_mut(&item.pos).unwrap();
         if !gloss_map.contains_key(&item.gloss) {
-            let gloss = item.gloss;
             item.gloss_num = u8::try_from(gloss_map.len())?;
             item.ety_num = *ety_num;
-            gloss_map.insert(gloss, Rc::from(item));
+            gloss_map.insert(item.gloss, Rc::from(item));
             self.n += 1;
             return Ok(());
         }
         Ok(())
+    }
+}
+
+type ImputedLangMap = HashMap<SymbolU32, Rc<Item>>;
+type ImputedTermMap = HashMap<SymbolU32, ImputedLangMap>;
+
+// Quite often an etymology section on wiktionary will have multiple valid
+// templates that don't actually link to anything (because the term has no page,
+// or doesn't have the relevant page section), before an eventual valid template
+// that does. See e.g. https://en.wiktionary.org/wiki/arsenic#English. The first
+// two templates linking to Middle English and Middle French terms are both
+// valid for our purposes, and the pages exist, but the language sections they
+// link to do not exist. Therefore, both of these terms will not correspond to a
+// findable item, and so the current procedure will give an ety of None. Instead
+// we can go through the templates until we find the template linking Latin
+// https://en.wiktionary.org/wiki/arsenicum#Latin, where the page and section
+// both exist.
+#[derive(Default)]
+struct ImputedItems {
+    term_map: ImputedTermMap,
+    n: usize,
+}
+
+impl ImputedItems {
+    fn add(&mut self, item: &Rc<Item>) {
+        // check if the item's term has been seen before
+        if !self.term_map.contains_key(&item.term) {
+            let mut lang_map = ImputedLangMap::new();
+            let term = item.term;
+            lang_map.insert(item.lang, Rc::clone(item));
+            self.term_map.insert(term, lang_map);
+            self.n += 1;
+            return;
+        }
+        // since term has been seen before, there must be at least one lang for it
+        // check if item's lang has been seen before
+        let lang_map: &mut ImputedLangMap = self.term_map.get_mut(&item.term).unwrap();
+        if !lang_map.contains_key(&item.lang) {
+            lang_map.insert(item.lang, Rc::clone(item));
+            self.n += 1;
+        }
     }
 }
 
@@ -190,17 +246,17 @@ struct Source {
     head: u8,
 }
 
-// wrapper around a Hashmap linking items with their immediate etymological source,
-// as parsed from the first raw ety node.
+// wrapper around a Hashmap linking items with their immediate etymological source
 #[derive(Default)]
 struct Sources {
     item_map: HashMap<Rc<Item>, Source>,
+    imputed_items: ImputedItems,
 }
 
 impl Sources {
-    fn add(&mut self, item: &Rc<Item>, ety_node: Source) -> Result<()> {
+    fn add(&mut self, item: &Rc<Item>, source: Source) -> Result<()> {
         self.item_map
-            .try_insert(Rc::clone(item), ety_node)
+            .try_insert(Rc::clone(item), source)
             .and(std::result::Result::Ok(()))
             .map_err(|_| anyhow!("Tried inserting duplicate item:\n{:#?}", item))
     }
@@ -217,40 +273,83 @@ impl Sources {
         if item.raw_ety_nodes.is_none() {
             return Ok(()); // don't add anything to sources if no valid raw ety nodes
         }
-        let sense = Sense::new(string_pool, item);
-        // The boxed array should never be empty, based on the logic in
-        // process_json_ety_templates().
-        let node = &item.raw_ety_nodes.as_ref().unwrap()[0];
-        let mut source_items = Vec::with_capacity(node.source_terms.len());
-        for (&source_lang, &source_term) in node.source_langs.iter().zip(node.source_terms.iter()) {
-            let (source_lang, source_term) = redirects.get(langs, source_lang, source_term);
-            if let Some(ety_map) = items
-                .term_map
-                .get(&source_term)
-                .and_then(|lang_map| lang_map.get(&source_lang))
+        let mut current_item = Rc::clone(item); // for tracking possibly imputed items
+        let mut next_item = Rc::clone(item); // for tracking possibly imputed items
+        for node in item.raw_ety_nodes.as_ref().unwrap().iter() {
+            let sense = Sense::new(string_pool, &current_item);
+            let n_source_terms = node.source_terms.len();
+            let mut source_items = Vec::with_capacity(node.source_terms.len());
+            let mut has_new_imputation = false;
+            for (&source_lang, &source_term) in
+                node.source_langs.iter().zip(node.source_terms.iter())
             {
-                // if we found an ety_map, we're guaranteed to find at least
-                // one item at the end of the following nested iteration. If
-                // there are multiple items, we have to do a word sense disambiguation.
-                if let Some(source_item) = ety_map
-                    .values()
-                    .flat_map(|(_, pos_map)| pos_map.values().flat_map(hashbrown::HashMap::values))
-                    .max_by_key(|other_item| {
-                        let other_item_sense = Sense::new(string_pool, other_item);
-                        sense.lesk_score(&other_item_sense)
-                    })
+                let (source_lang, source_term) = redirects.get(langs, source_lang, source_term);
+                if let Some(ety_map) = items
+                    .term_map
+                    .get(&source_term)
+                    .and_then(|lang_map| lang_map.get(&source_lang))
                 {
+                    // There exists at least one item for this term. We have to
+                    // do a word sense disambiguation in case there are multiple
+                    // items.
+                    let source_item = ety_map
+                        .values()
+                        .flat_map(|(_, pos_map)| {
+                            pos_map.values().flat_map(hashbrown::HashMap::values)
+                        })
+                        .max_by_key(|other_item| {
+                            let other_item_sense = Sense::new(string_pool, other_item);
+                            sense.lesk_score(&other_item_sense)
+                        })
+                        .unwrap(); // see logic in Item::add() to see why this is safe
+
                     source_items.push(Rc::clone(source_item));
+                } else if let Some(imputed_source_item) = self
+                    .imputed_items
+                    .term_map
+                    .get(&source_term)
+                    .and_then(|lang_map| lang_map.get(&source_lang))
+                {
+                    // We have already imputed an item that corresponds to this term.
+                    source_items.push(Rc::clone(imputed_source_item));
+                } else if n_source_terms == 1 {
+                    // This is an unseen term, and it is in a non-compound-type template.
+                    // We will impute an item for this term, and use this new imputed
+                    // item as the item for the next template in the outer loop.
+                    has_new_imputation = true;
+                    let i = items.n + self.imputed_items.n;
+                    // We assume the imputed item has the same pos as the current_item.
+                    // (How often is this not the case?)
+                    let imputed_source_item = Rc::from(Item::new_imputed(
+                        i,
+                        current_item.pos,
+                        source_lang,
+                        source_term,
+                    ));
+                    self.imputed_items.add(&imputed_source_item);
+                    source_items.push(Rc::clone(&imputed_source_item));
+                    next_item = Rc::clone(&imputed_source_item);
+                } else {
+                    // This is a term of a compound-type template without a
+                    // link, and for which a corresponding imputed item has not
+                    // yet been created. We won't bother trying to do convoluted
+                    // imputations for such cases at the moment. So we stop
+                    // processing templates here.
+                    return Ok(());
                 }
             }
-        }
-        if source_items.len() == node.source_terms.len() {
             let source = Source {
                 items: source_items.into_boxed_slice(),
                 mode: node.mode,
                 head: node.head,
             };
-            self.add(item, source)?;
+            self.add(&current_item, source)?;
+            // We keep processing templates until we hit the first one with no
+            // imputation required.
+            if !has_new_imputation {
+                return Ok(());
+            }
+            current_item = Rc::clone(&next_item);
         }
         Ok(())
     }
@@ -339,16 +438,16 @@ impl Redirects {
     // If a redirect page exists for given lang + term combo, get the redirect.
     // If not, just return back the original lang + term.
     fn get(&self, langs: &Langs, lang: SymbolU32, term: SymbolU32) -> (SymbolU32, SymbolU32) {
-        if let Some(language) = langs.lang_language.get(&lang) {
-            if let Some(redirect) = self.reconstruction.get(&ReconstructionTitle {
-                language: *language,
-                term,
-            }) {
-                if let Some(redirect_lang) = langs.language_lang.get(&redirect.language) {
-                    return (*redirect_lang, redirect.term);
+        if let Some(&language) = langs.lang_language.get(&lang) {
+            if let Some(redirect) = self
+                .reconstruction
+                .get(&ReconstructionTitle { language, term })
+            {
+                if let Some(&redirect_lang) = langs.language_lang.get(&redirect.language) {
+                    return (redirect_lang, redirect.term);
                 }
-            } else if let Some(redirect_term) = self.regular.get(&term) {
-                return (lang, *redirect_term);
+            } else if let Some(&redirect_term) = self.regular.get(&term) {
+                return (lang, redirect_term);
             }
         }
         (lang, term)
@@ -385,7 +484,13 @@ impl StoreWrapper {
         })
     }
 
-    fn insert(&mut self, quad: QuadRef) -> Result<bool> {
+    fn insert<'a>(
+        &mut self,
+        subject: impl Into<SubjectRef<'a>>,
+        predicate: impl Into<NamedNodeRef<'a>>,
+        object: impl Into<oxigraph::model::TermRef<'a>>,
+    ) -> Result<bool> {
+        let quad = QuadRef::new(subject, predicate, object, DefaultGraph);
         Ok(self.store.insert(quad)?)
     }
 
@@ -394,21 +499,34 @@ impl StoreWrapper {
         let subject = NamedNodeRef::new(&iri)?;
         let mut predicate = NamedNodeRef::new(O_TERM)?;
         let mut object = LiteralRef::new_simple_literal(string_pool.resolve(item.term));
-        let mut quad = QuadRef::new(subject, predicate, object, DefaultGraph);
-        self.insert(quad)?;
+        self.insert(subject, predicate, object)?;
         predicate = NamedNodeRef::new(O_LANG)?;
         object = LiteralRef::new_simple_literal(string_pool.resolve(item.lang));
-        quad = QuadRef::new(subject, predicate, object, DefaultGraph);
-        self.insert(quad)?;
+        self.insert(subject, predicate, object)?;
         predicate = NamedNodeRef::new(O_POS)?;
         object = LiteralRef::new_simple_literal(string_pool.resolve(item.pos));
-        quad = QuadRef::new(subject, predicate, object, DefaultGraph);
-        self.insert(quad)?;
+        self.insert(subject, predicate, object)?;
+        if item.is_imputed {
+            predicate = NamedNodeRef::new(O_IS_IMPUTED)?;
+            let object = LiteralRef::new_typed_literal("true", xsd::BOOLEAN);
+            self.insert(subject, predicate, object)?;
+        }
         if let Some(gloss) = item.gloss {
             predicate = NamedNodeRef::new(O_GLOSS)?;
             object = LiteralRef::new_simple_literal(string_pool.resolve(gloss));
-            quad = QuadRef::new(subject, predicate, object, DefaultGraph);
-            self.insert(quad)?;
+            self.insert(subject, predicate, object)?;
+        }
+        if item.ety_num > 0 {
+            predicate = NamedNodeRef::new(O_ETY_NUM)?;
+            let ety_num = (item.ety_num + 1).to_string();
+            let object = LiteralRef::new_typed_literal(&ety_num, xsd::NON_NEGATIVE_INTEGER);
+            self.insert(subject, predicate, object)?;
+        }
+        if item.gloss_num > 0 {
+            predicate = NamedNodeRef::new(O_GLOSS_NUM)?;
+            let gloss_num = (item.gloss_num + 1).to_string();
+            let object = LiteralRef::new_typed_literal(&gloss_num, xsd::NON_NEGATIVE_INTEGER);
+            self.insert(subject, predicate, object)?;
         }
         if let Some(source) = sources.get(item) {
             for (s_i, source_item) in source.items.iter().enumerate() {
@@ -416,30 +534,25 @@ impl StoreWrapper {
                 self.n_source_nodes += 1;
                 predicate = NamedNodeRef::new(O_SOURCE)?;
                 let object = NamedNode::new(source_node_iri.clone())?;
-                quad = QuadRef::new(subject, predicate, &object, DefaultGraph);
-                self.insert(quad)?;
+                self.insert(subject, predicate, &object)?;
                 if source.head == u8::try_from(s_i)? {
                     predicate = NamedNodeRef::new(O_HEAD)?;
-                    quad = QuadRef::new(subject, predicate, &object, DefaultGraph);
-                    self.insert(quad)?;
+                    self.insert(subject, predicate, &object)?;
                 }
                 let subject = NamedNode::new(source_node_iri)?;
                 predicate = NamedNodeRef::new(O_ITEM)?;
                 let source_item_iri = format!("{ITEM_PREFIX}{}", source_item.i);
                 let object = NamedNodeRef::new(&source_item_iri)?;
-                quad = QuadRef::new(&subject, predicate, object, DefaultGraph);
-                self.insert(quad)?;
+                self.insert(&subject, predicate, object)?;
                 predicate = NamedNodeRef::new(O_ORDER)?;
                 let source_item_order = s_i.to_string();
                 let object =
                     LiteralRef::new_typed_literal(&source_item_order, xsd::NON_NEGATIVE_INTEGER);
-                quad = QuadRef::new(&subject, predicate, object, DefaultGraph);
-                self.insert(quad)?;
+                self.insert(&subject, predicate, object)?;
             }
             predicate = NamedNodeRef::new(O_MODE)?;
             let object = LiteralRef::new_simple_literal(string_pool.resolve(source.mode));
-            quad = QuadRef::new(subject, predicate, object, DefaultGraph);
-            self.insert(quad)?;
+            self.insert(subject, predicate, object)?;
         }
         Ok(())
     }
@@ -916,9 +1029,11 @@ impl Processor {
             .string_pool
             .get_or_intern(json_item.get_expected_str("lang")?);
         // 'etymology_text' key may be missing or empty
-        let ety_text = json_item
-            .get_str("etymology_text")
-            .map(|s| self.string_pool.get_or_intern(s));
+        let ety_text_hash = json_item.get_str("etymology_text").map(|s| {
+            let mut hasher = AHasher::default();
+            hasher.write(s.as_bytes());
+            hasher.finish()
+        });
         // 'pos' key must be present
         let pos = self
             .string_pool
@@ -938,18 +1053,17 @@ impl Processor {
         self.langs.add(lang, language);
 
         let item = Item {
+            is_imputed: false,
             i: self.items.n,
             term,
             lang,
-            language,
-            ety_text,
             ety_num: 0, // temp value to be changed if need be in add()
             pos,
             gloss,
             gloss_num: 0, // temp value to be changed if need be in add()
             raw_ety_nodes,
         };
-        self.items.add(item)?;
+        self.items.add(ety_text_hash, item)?;
         Ok(())
     }
 
@@ -1057,9 +1171,6 @@ fn clean_ety_term<'a>(lang: &str, term: &'a str) -> &'a str {
     } else {
         term
     }
-
-    // else do regular lang entryName creation stuff here a la
-    // https://en.wiktionary.org/wiki/Module:languages#Language:makeEntryName
 }
 
 fn remove_punctuation(text: &str) -> String {

@@ -5,13 +5,9 @@
     * Could add specific rules for the few templates where you would expect a different PoS, e.g. `deverbal`.
     * Could do better than simple Lesk algorithm. For example, "poison" and "poisoned" don't match but should count as similar. 
 
-* Optionally filter items to include only english leafs whose ultimate ety nodes are ine-pro. This could be done either within the rust program or as a SPARQL query on the oxigraph db...
-
-* Go through raw ety templates until we find the first valid template that links to a page section *that actually exists*. It seems often to be the case that wiktionary editors violate the expectation that a non-red-link template link actually points to an appropriate entry. See e.g. [arsenic](https://en.wiktionary.org/wiki/arsenic#English). The first two templates linking to Middle English and Middle French terms are both valid for our purposes, and the pages exist, but the language sections they link to do not exist. Therefore, both of these terms will not correspond to a findable item, and so the current procedure will give an ety of None. Instead we can go through the templates until we find the template linking Latin [arsenicum](https://en.wiktionary.org/wiki/arsenicum#Latin), where the page and section both exist. We can record the first two terms in a Processor field ImputedTerms. Can record imputed terms in the RDF with  boolean property isImputed (see [oxigraph typed literal](https://docs.rs/oxigraph/latest/oxigraph/model/struct.Literal.html), [Turtle booleans](https://www.w3.org/TR/turtle/#booleans))?
+* Collect glosses from ety templates. These are quite commonly used and would be helpful for sense disambiguation as well as for having glosses for imputed terms. If RAM becomes an issue, look into storing all strings besides lang/pos (i.e. gloss, ety_text) on-disk in a temporary [rocksdb](https://github.com/rust-rocksdb/rust-rocksdb).
 
 ## Things to keep in mind
-
-* If we don't end up using the actual string contents of ety_text at all and/or RAM becomes an issue, we can use [ahash](https://docs.rs/ahash/0.7.6/ahash/trait.CallHasher.html) just to compute the hashes of ety_texts and store those (either hashing the hashes in a hashset or just pushing them to a vec) rather than storing/interning the ety_text strings themselves.
 
 * Adding tracking of ety_nums and gloss_nums (so that informative unique item id can be generated) added about 1GB to RAM usage. If RAM becomes an issue, could try Vec implementation rather than the ugly tuples being used currently. Will be slower but should save RAM which is more of a concern.
 
