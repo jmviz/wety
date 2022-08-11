@@ -1,5 +1,9 @@
 ## Immediate TODOs
 
+* Make test case for imputation with [ǵʰelh₃-](https://en.wiktionary.org/wiki/Category:English_terms_derived_from_the_Proto-Indo-European_root_*%C7%B5%CA%B0elh%E2%82%83-). 
+    * E.g. should get `arsenic`. 
+    * Also see e.g. https://en.wiktionary.org/wiki/Reconstruction:Proto-Hellenic/k%CA%B0l%C5%8Dr%C3%B3s, template could be fixed on wiktionary. Or see https://en.wiktionary.org/wiki/Reconstruction:Proto-Germanic/beun%C4%85, where PIE root is given in `m` template and so we ignore it. For cases like these, perhaps we could record the `root` info for each entry, if it exists. Then, after all other source processing, we have a impute_roots() function where we follow the sources of each item until the last, and test if the last == the root. If not, add a (imputed) source, last -> root.
+
 * Implement better sense disambiguation.
     * Take PoSs into account. This will be particularly helpful when items have no gloss. 
     * Could add specific rules for the few templates where you would expect a different PoS, e.g. `deverbal`.
