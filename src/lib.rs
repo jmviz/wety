@@ -7,23 +7,22 @@ use crate::etymology_templates::{
 };
 
 use std::{
-    cmp::min,
     convert::TryFrom,
     fs::{remove_dir_all, File},
     hash::Hasher,
+    io::BufWriter,
     io::{BufRead, BufReader},
-    io::{BufWriter, Write},
     path::Path,
     rc::Rc,
+    time::Instant,
 };
 
 use ahash::AHasher;
 use anyhow::{anyhow, Ok, Result};
 use bytelines::ByteLines;
 use flate2::read::GzDecoder;
-use futures_util::StreamExt;
 use hashbrown::{HashMap, HashSet};
-use indicatif::{ProgressBar, ProgressStyle};
+use indicatif::{HumanDuration, ProgressBar, ProgressStyle};
 use oxigraph::{
     io::GraphFormat,
     model::{
@@ -36,7 +35,6 @@ use phf::{phf_set, Set};
 use simd_json::{to_borrowed_value, value::borrowed::Value, ValueAccess};
 use string_interner::{backend::StringBackend, symbol::SymbolU32, StringInterner};
 
-const WIKTEXTRACT_URL: &str = "https://kaikki.org/dictionary/raw-wiktextract-data.json.gz";
 const WIKTEXTRACT_PATH: &str = "data/raw-wiktextract-data.json.gz";
 // const WIKTEXTRACT_PATH: &str = "data/test/fix.json.gz";
 const DB_PATH: &str = "data/wety.db";
@@ -58,7 +56,7 @@ const SOURCE_NODE_PREFIX: &str = "s:";
 const O_ITEM: &str = "o:item";
 const O_ORDER: &str = "o:order";
 
-// https://github.com/tatuylonen/wiktextract/blob/master/wiktwords
+// cf. https://github.com/tatuylonen/wiktextract/blob/master/wiktwords
 static IGNORED_REDIRECTS: Set<&'static str> = phf_set! {
     "Index:", "Help:", "MediaWiki:", "Citations:", "Concordance:", "Rhymes:",
     "Thread:", "Summary:", "File:", "Transwiki:", "Category:", "Appendix:",
@@ -101,17 +99,6 @@ impl Item {
             raw_ety_nodes: None,
         }
     }
-    // fn id(&self, string_pool: &StringPool) -> String {
-    //     // term__lang__eN__pos__sM
-    //     format!(
-    //         "{}__{}__e{}__{}__s{}",
-    //         string_pool.resolve(self.term),
-    //         string_pool.resolve(self.lang),
-    //         self.ety_num,
-    //         string_pool.resolve(self.pos),
-    //         self.gloss_num
-    //     )
-    // }
 }
 
 type GlossMap = HashMap<Option<SymbolU32>, Rc<Item>>;
@@ -988,30 +975,6 @@ impl Processor {
         None
     }
 
-    // We look for a canonical form, otherwise we take the "word" field.
-    // See notes.md for motivation.
-    fn get_term(&mut self, json_item: &Value) -> Result<SymbolU32> {
-        if let Some(forms) = json_item.get_array("forms") {
-            let mut f = 0;
-            while let Some(form) = forms.get(f) {
-                if let Some(tags) = form.get_array("tags") {
-                    let mut t = 0;
-                    while let Some(tag) = tags.get(t).as_str() {
-                        if tag == "canonical" {
-                            let canonical_form = form.get_expected_str("form")?;
-                            return Ok(self.string_pool.get_or_intern(canonical_form));
-                        }
-                        t += 1;
-                    }
-                }
-                f += 1;
-            }
-        }
-        return Ok(self
-            .string_pool
-            .get_or_intern(json_item.get_expected_str("word")?));
-    }
-
     fn process_json_item(&mut self, json_item: &Value) -> Result<()> {
         // Some wiktionary pages are redirects. These are actually used somewhat
         // heavily, so we need to take them into account
@@ -1019,7 +982,11 @@ impl Processor {
         if json_item.contains_key("redirect") {
             return self.process_redirect(json_item);
         }
-        let term = self.get_term(json_item)?;
+        let term = get_term(json_item)?;
+        if should_ignore_term(term) {
+            return Ok(());
+        }
+        let term = self.string_pool.get_or_intern(term);
         // 'lang_code' key must be present
         let lang = self
             .string_pool
@@ -1067,7 +1034,7 @@ impl Processor {
         Ok(())
     }
 
-    fn process_json_items<T: BufRead>(&mut self, lines: ByteLines<T>) -> Result<()> {
+    fn process_json<T: BufRead>(&mut self, lines: ByteLines<T>) -> Result<()> {
         for mut line in lines.into_iter().filter_map(Result::ok) {
             let json_item = to_borrowed_value(&mut line)?;
             self.process_json_item(&json_item)?;
@@ -1080,7 +1047,7 @@ impl Processor {
         let gz = GzDecoder::new(reader);
         let gz_reader = BufReader::new(gz);
         let lines = ByteLines::new(gz_reader);
-        self.process_json_items(lines)?;
+        self.process_json(lines)?;
         Ok(())
     }
 
@@ -1106,17 +1073,30 @@ impl Processor {
     }
 
     fn write_all_to_store(&mut self) -> Result<()> {
+        let n = u64::try_from(self.items.n + self.sources.imputed_items.n)?;
+        let pb = ProgressBar::new(n);
+        pb.set_style(ProgressStyle::default_bar()
+            .template("{spinner:.green} [{elapsed}] [{wide_bar:.cyan/blue}] {human_pos}/{human_len} ({per_sec}, {eta})")?
+            .progress_chars("#>-"));
         for lang_map in self.items.term_map.values() {
             for ety_map in lang_map.values() {
                 for (_, pos_map) in ety_map.values() {
                     for gloss_map in pos_map.values() {
                         for item in gloss_map.values() {
                             self.store.add(&self.string_pool, &self.sources, item)?;
+                            pb.inc(1);
                         }
                     }
                 }
             }
         }
+        for lang_map in self.sources.imputed_items.term_map.values() {
+            for item in lang_map.values() {
+                self.store.add(&self.string_pool, &self.sources, item)?;
+                pb.inc(1);
+            }
+        }
+        pb.finish();
         Ok(())
     }
 
@@ -1128,33 +1108,30 @@ impl Processor {
 /// # Errors
 ///
 /// Will return `Err` if any unexpected problem arises in processing.
-pub async fn process_wiktextract_data() -> Result<()> {
-    let file = if let std::result::Result::Ok(file) = File::open(WIKTEXTRACT_PATH) {
-        println!("Processing data from local file {WIKTEXTRACT_PATH}");
-        file
-    } else {
-        // file doesn't exist or error opening it; download it
-        println!("No local file found, downloading from {WIKTEXTRACT_URL}");
-        download_file(WIKTEXTRACT_URL, WIKTEXTRACT_PATH).await?;
-        let file = File::open(WIKTEXTRACT_PATH)
-            .map_err(|_| anyhow!("Failed to open file '{WIKTEXTRACT_PATH}'"))?;
-        println!("Processing data from downloaded file {WIKTEXTRACT_PATH}");
-        file
-    };
-
+pub fn process_wiktextract_data() -> Result<()> {
+    let total_time = Instant::now();
+    let mut t = Instant::now();
+    let file = File::open(WIKTEXTRACT_PATH)?;
+    println!("Processing data from {WIKTEXTRACT_PATH}");
     let mut processor = Processor::new()?;
     processor.process_file(file)?;
-    println!("Finished");
+    println!("Finished. Took {}.", HumanDuration(t.elapsed()));
     println!("Processing etymologies");
+    t = Instant::now();
     processor.process_sources()?;
-    println!("Finished");
+    println!("Finished. Took {}.", HumanDuration(t.elapsed()));
     println!("Writing to oxigraph store {DB_PATH}");
+    t = Instant::now();
     processor.write_all_to_store()?;
-    println!("Finished");
+    println!("Finished. Took {}.", HumanDuration(t.elapsed()));
     println!("Dumping oxigraph store to file {TTL_PATH}");
+    t = Instant::now();
     processor.dump_store(TTL_PATH)?;
-    println!("Finished");
-    println!("All done! Exiting");
+    println!("Finished. Took {}.", HumanDuration(t.elapsed()));
+    println!(
+        "All done! Total time: {}. Exiting...",
+        HumanDuration(total_time.elapsed())
+    );
     Ok(())
 }
 
@@ -1179,38 +1156,27 @@ fn remove_punctuation(text: &str) -> String {
         .collect::<String>()
 }
 
-// https://gist.github.com/giuliano-oliveira/4d11d6b3bb003dba3a1b53f43d81b30d
-async fn download_file(url: &str, path: &str) -> Result<()> {
-    let client = reqwest::Client::new();
-    let response = client
-        .get(url)
-        .send()
-        .await
-        .map_err(|_| anyhow!("Failed to GET from '{url}'"))?;
-    let total_size = response
-        .content_length()
-        .ok_or_else(|| anyhow!("Failed to get content length from '{url}'"))?;
+fn should_ignore_term(term: &str) -> bool {
+    term.contains(|c: char| c.is_ascii_punctuation() || c.is_ascii_whitespace())
+}
 
-    let pb = ProgressBar::new(total_size);
-    pb.set_style(ProgressStyle::default_bar()
-        .template("{msg}\n{spinner:.green} [{elapsed_precise}] [{wide_bar:.cyan/blue}] {bytes}/{total_bytes} ({bytes_per_sec}, {eta})")?
-        .progress_chars("#>-"));
-    pb.set_message("Downloading...");
-
-    if response.status() == reqwest::StatusCode::OK {
-        let mut stream = response.bytes_stream();
-        let mut downloaded: u64 = 0;
-        let mut file = File::create(path).map_err(|_| anyhow!("Failed to create file '{path}'"))?;
-
-        while let Some(item) = stream.next().await {
-            let chunk = item.map_err(|_| anyhow!("Error while downloading file"))?;
-            file.write_all(&chunk)
-                .map_err(|_| anyhow!("Error while writing to file"))?;
-            let new = min(downloaded + (chunk.len() as u64), total_size);
-            downloaded = new;
-            pb.set_position(new);
+// We look for a canonical form, otherwise we take the "word" field.
+// See notes.md for motivation.
+fn get_term<'a>(json_item: &'a Value) -> Result<&'a str> {
+    if let Some(forms) = json_item.get_array("forms") {
+        let mut f = 0;
+        while let Some(form) = forms.get(f) {
+            if let Some(tags) = form.get_array("tags") {
+                let mut t = 0;
+                while let Some(tag) = tags.get(t).as_str() {
+                    if tag == "canonical" {
+                        return Ok(form.get_expected_str("form")?);
+                    }
+                    t += 1;
+                }
+            }
+            f += 1;
         }
-        pb.finish_with_message("Finished download.");
     }
-    Ok(())
+    Ok(json_item.get_expected_str("word")?)
 }
