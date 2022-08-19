@@ -481,7 +481,14 @@ impl StoreWrapper {
         Ok(self.store.insert(quad)?)
     }
 
-    fn add(&mut self, string_pool: &StringPool, sources: &Sources, item: &Item) -> Result<()> {
+    fn add(
+        &mut self,
+        string_pool: &StringPool,
+        sources: &Sources,
+        item: &Item,
+        has_multi_ety: bool,
+        has_multi_gloss: bool,
+    ) -> Result<()> {
         let iri = format!("{ITEM_PREFIX}{}", item.i);
         let subject = NamedNodeRef::new(&iri)?;
         let mut predicate = NamedNodeRef::new(O_TERM)?;
@@ -503,13 +510,13 @@ impl StoreWrapper {
             object = LiteralRef::new_simple_literal(string_pool.resolve(gloss));
             self.insert(subject, predicate, object)?;
         }
-        if item.ety_num > 0 {
+        if has_multi_ety {
             predicate = NamedNodeRef::new(O_ETY_NUM)?;
             let ety_num = (item.ety_num + 1).to_string();
             let object = LiteralRef::new_typed_literal(&ety_num, xsd::NON_NEGATIVE_INTEGER);
             self.insert(subject, predicate, object)?;
         }
-        if item.gloss_num > 0 {
+        if has_multi_gloss {
             predicate = NamedNodeRef::new(O_GLOSS_NUM)?;
             let gloss_num = (item.gloss_num + 1).to_string();
             let object = LiteralRef::new_typed_literal(&gloss_num, xsd::NON_NEGATIVE_INTEGER);
@@ -1083,7 +1090,13 @@ impl Processor {
                 for (_, pos_map) in ety_map.values() {
                     for gloss_map in pos_map.values() {
                         for item in gloss_map.values() {
-                            self.store.add(&self.string_pool, &self.sources, item)?;
+                            self.store.add(
+                                &self.string_pool,
+                                &self.sources,
+                                item,
+                                ety_map.len() > 1,
+                                gloss_map.len() > 1,
+                            )?;
                             pb.inc(1);
                         }
                     }
@@ -1092,7 +1105,8 @@ impl Processor {
         }
         for lang_map in self.sources.imputed_items.term_map.values() {
             for item in lang_map.values() {
-                self.store.add(&self.string_pool, &self.sources, item)?;
+                self.store
+                    .add(&self.string_pool, &self.sources, item, false, false)?;
                 pb.inc(1);
             }
         }
@@ -1112,24 +1126,24 @@ pub fn process_wiktextract_data() -> Result<()> {
     let total_time = Instant::now();
     let mut t = Instant::now();
     let file = File::open(WIKTEXTRACT_PATH)?;
-    println!("Processing data from {WIKTEXTRACT_PATH}");
+    println!("Processing data from {WIKTEXTRACT_PATH}...");
     let mut processor = Processor::new()?;
     processor.process_file(file)?;
     println!("Finished. Took {}.", HumanDuration(t.elapsed()));
-    println!("Processing etymologies");
+    println!("Processing etymologies...");
     t = Instant::now();
     processor.process_sources()?;
     println!("Finished. Took {}.", HumanDuration(t.elapsed()));
-    println!("Writing to oxigraph store {DB_PATH}");
+    println!("Writing to oxigraph store {DB_PATH}...");
     t = Instant::now();
     processor.write_all_to_store()?;
     println!("Finished. Took {}.", HumanDuration(t.elapsed()));
-    println!("Dumping oxigraph store to file {TTL_PATH}");
+    println!("Dumping oxigraph store to file {TTL_PATH}...");
     t = Instant::now();
     processor.dump_store(TTL_PATH)?;
     println!("Finished. Took {}.", HumanDuration(t.elapsed()));
     println!(
-        "All done! Total time: {}. Exiting...",
+        "All done! Took {} overall. Exiting...",
         HumanDuration(total_time.elapsed())
     );
     Ok(())
