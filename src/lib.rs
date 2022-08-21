@@ -861,10 +861,13 @@ impl Processor {
             return self.process_redirect(json_item);
         }
         let term = get_term(json_item)?;
-        if should_ignore_term(term) {
+        // 'pos' key must be present
+        let pos = json_item.get_expected_str("pos")?;
+        if should_ignore_term(term, pos) {
             return Ok(());
         }
         let term = self.string_pool.get_or_intern(term);
+        let pos = self.string_pool.get_or_intern(pos);
         // 'lang_code' key must be present
         let lang = self
             .string_pool
@@ -879,10 +882,6 @@ impl Processor {
             hasher.write(s.as_bytes());
             hasher.finish()
         });
-        // 'pos' key must be present
-        let pos = self
-            .string_pool
-            .get_or_intern(json_item.get_expected_str("pos")?);
         // 'senses' key should always be present with non-empty value, but glosses
         // may be missing or empty.
         let gloss = json_item
@@ -995,7 +994,7 @@ fn clean_ety_term(term: &str) -> &str {
     // https://en.wiktionary.org/wiki/Module:links. Sometimes reconstructed
     // terms are missing this *, and sometimes non-reconstructed terms start
     // with * incorrectly. So we strip the * in every case. This will break
-    // terms actually start with *, but there are almost none of these, and
+    // terms that actually start with *, but there are almost none of these, and
     // none of them are particularly relevant for our purposes AFAIK.
     term.strip_prefix('*').unwrap_or(term)
 }
@@ -1006,12 +1005,22 @@ fn remove_punctuation(text: &str) -> String {
         .collect::<String>()
 }
 
-fn should_ignore_term(term: &str) -> bool {
-    // The idea is to ignore phrases. Might need revisiting if too strict. Just
-    // barring terms with pos "phrase" etc. is not enough as many phrases are
-    // categorized as other pos. See e.g.
-    // https://en.wiktionary.org/wiki/this,_that,_or_the_other.
-    term.contains(|c: char| c.is_ascii_whitespace())
+fn should_ignore_term(term: &str, pos: &str) -> bool {
+    // This function needs revisiting depending on results.
+
+    // We would generally like to ignore phrases, and potentially other things.
+    //  Barring all phrases may be both too strict and not strict enough. Too
+    // strict because certain phrases may be relevant for etymologies (i.e. a
+    // phrase became one word in a daughter language). Not strict enough because
+    // many phrases are categorized as other pos. See e.g.
+    // https://en.wiktionary.org/wiki/this,_that,_or_the_other. Ignoring terms
+    // that contain any ascii punctuation is too strict, as this would ingore
+    // e.g. affixes with -. Ignoring terms with any ascii whitespace is too
+    // strict as well, as this would ignore e.g. circumfixes (e.g. "ver- -en").
+    if pos.contains("phrase") || term.contains(|c: char| c == ',') {
+        return true;
+    }
+    false
 }
 
 // We look for a canonical form, otherwise we take the "word" field.
