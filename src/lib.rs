@@ -1,16 +1,17 @@
 //! WIP attempt to digest etymologies from wiktextract data
 
 mod etymology_templates;
+mod turtle;
 
-use crate::etymology_templates::{
-    ABBREV_TYPE_TEMPLATES, COMPOUND_TYPE_TEMPLATES, DERIVED_TYPE_TEMPLATES,
+use crate::{
+    etymology_templates::{ABBREV_TYPE_TEMPLATES, COMPOUND_TYPE_TEMPLATES, DERIVED_TYPE_TEMPLATES},
+    turtle::write_turtle_file,
 };
 
 use std::{
     convert::TryFrom,
     fs::{remove_dir_all, File},
     hash::Hasher,
-    io::BufWriter,
     io::{BufRead, BufReader},
     path::Path,
     rc::Rc,
@@ -23,38 +24,15 @@ use bytelines::ByteLines;
 use flate2::read::GzDecoder;
 use hashbrown::{HashMap, HashSet};
 use indicatif::{HumanDuration, ProgressBar, ProgressStyle};
-use oxigraph::{
-    io::GraphFormat,
-    model::{
-        vocab::xsd, GraphNameRef::DefaultGraph, LiteralRef, NamedNode, NamedNodeRef, QuadRef,
-        SubjectRef,
-    },
-    store::Store,
-};
+use oxigraph::{io::GraphFormat::Turtle, model::GraphNameRef::DefaultGraph, store::Store};
 use phf::{phf_set, Set};
 use simd_json::{to_borrowed_value, value::borrowed::Value, ValueAccess};
 use string_interner::{backend::StringBackend, symbol::SymbolU32, StringInterner};
 
 const WIKTEXTRACT_PATH: &str = "data/raw-wiktextract-data.json.gz";
 // const WIKTEXTRACT_PATH: &str = "data/test/fix.json.gz";
-const DB_PATH: &str = "data/wety.db";
-const TTL_PATH: &str = "data/wety.ttl";
-
-const ITEM_PREFIX: &str = "w:";
-const O_IS_IMPUTED: &str = "o:isImputed";
-const O_TERM: &str = "o:term";
-const O_LANG: &str = "o:lang";
-const O_POS: &str = "o:pos";
-const O_GLOSS: &str = "o:gloss";
-const O_ETY_NUM: &str = "o:etyNum";
-const O_GLOSS_NUM: &str = "o:glossNum";
-const O_SOURCE: &str = "o:source";
-const O_MODE: &str = "o:mode";
-const O_HEAD: &str = "o:head";
-
-const SOURCE_NODE_PREFIX: &str = "s:";
-const O_ITEM: &str = "o:item";
-const O_ORDER: &str = "o:order";
+const TURTLE_PATH: &str = "data/wety.ttl";
+const STORE_PATH: &str = "data/wety.db";
 
 // cf. https://github.com/tatuylonen/wiktextract/blob/master/wiktwords
 static IGNORED_REDIRECTS: Set<&'static str> = phf_set! {
@@ -454,118 +432,12 @@ impl Langs {
     }
 }
 
-struct StoreWrapper {
-    store: Store,
-    n_source_nodes: usize,
-}
-
-impl StoreWrapper {
-    fn new(path: &str) -> Result<StoreWrapper> {
-        // delete any previous oxigraph db
-        if Path::new(path).is_dir() {
-            remove_dir_all(path)?;
-        }
-        Ok(Self {
-            store: Store::open(path)?,
-            n_source_nodes: 0,
-        })
-    }
-
-    fn insert<'a>(
-        &mut self,
-        subject: impl Into<SubjectRef<'a>>,
-        predicate: impl Into<NamedNodeRef<'a>>,
-        object: impl Into<oxigraph::model::TermRef<'a>>,
-    ) -> Result<bool> {
-        let quad = QuadRef::new(subject, predicate, object, DefaultGraph);
-        Ok(self.store.insert(quad)?)
-    }
-
-    fn add(
-        &mut self,
-        string_pool: &StringPool,
-        sources: &Sources,
-        item: &Item,
-        has_multi_ety: bool,
-        has_multi_gloss: bool,
-    ) -> Result<()> {
-        let iri = format!("{ITEM_PREFIX}{}", item.i);
-        let subject = NamedNodeRef::new(&iri)?;
-        let mut predicate = NamedNodeRef::new(O_TERM)?;
-        let mut object = LiteralRef::new_simple_literal(string_pool.resolve(item.term));
-        self.insert(subject, predicate, object)?;
-        predicate = NamedNodeRef::new(O_LANG)?;
-        object = LiteralRef::new_simple_literal(string_pool.resolve(item.lang));
-        self.insert(subject, predicate, object)?;
-        predicate = NamedNodeRef::new(O_POS)?;
-        object = LiteralRef::new_simple_literal(string_pool.resolve(item.pos));
-        self.insert(subject, predicate, object)?;
-        if item.is_imputed {
-            predicate = NamedNodeRef::new(O_IS_IMPUTED)?;
-            let object = LiteralRef::new_typed_literal("true", xsd::BOOLEAN);
-            self.insert(subject, predicate, object)?;
-        }
-        if let Some(gloss) = item.gloss {
-            predicate = NamedNodeRef::new(O_GLOSS)?;
-            object = LiteralRef::new_simple_literal(string_pool.resolve(gloss));
-            self.insert(subject, predicate, object)?;
-        }
-        if has_multi_ety {
-            predicate = NamedNodeRef::new(O_ETY_NUM)?;
-            let ety_num = (item.ety_num + 1).to_string();
-            let object = LiteralRef::new_typed_literal(&ety_num, xsd::NON_NEGATIVE_INTEGER);
-            self.insert(subject, predicate, object)?;
-        }
-        if has_multi_gloss {
-            predicate = NamedNodeRef::new(O_GLOSS_NUM)?;
-            let gloss_num = (item.gloss_num + 1).to_string();
-            let object = LiteralRef::new_typed_literal(&gloss_num, xsd::NON_NEGATIVE_INTEGER);
-            self.insert(subject, predicate, object)?;
-        }
-        if let Some(source) = sources.get(item) {
-            for (s_i, source_item) in source.items.iter().enumerate() {
-                let source_node_iri = format!("{SOURCE_NODE_PREFIX}{}", self.n_source_nodes);
-                self.n_source_nodes += 1;
-                predicate = NamedNodeRef::new(O_SOURCE)?;
-                let object = NamedNode::new(source_node_iri.clone())?;
-                self.insert(subject, predicate, &object)?;
-                if source.head == u8::try_from(s_i)? {
-                    predicate = NamedNodeRef::new(O_HEAD)?;
-                    self.insert(subject, predicate, &object)?;
-                }
-                let subject = NamedNode::new(source_node_iri)?;
-                predicate = NamedNodeRef::new(O_ITEM)?;
-                let source_item_iri = format!("{ITEM_PREFIX}{}", source_item.i);
-                let object = NamedNodeRef::new(&source_item_iri)?;
-                self.insert(&subject, predicate, object)?;
-                predicate = NamedNodeRef::new(O_ORDER)?;
-                let source_item_order = s_i.to_string();
-                let object =
-                    LiteralRef::new_typed_literal(&source_item_order, xsd::NON_NEGATIVE_INTEGER);
-                self.insert(&subject, predicate, object)?;
-            }
-            predicate = NamedNodeRef::new(O_MODE)?;
-            let object = LiteralRef::new_simple_literal(string_pool.resolve(source.mode));
-            self.insert(subject, predicate, object)?;
-        }
-        Ok(())
-    }
-
-    fn dump(&self, path: &str) -> Result<()> {
-        let mut f = BufWriter::new(File::create(path)?);
-        self.store
-            .dump_graph(&mut f, GraphFormat::Turtle, DefaultGraph)?;
-        Ok(())
-    }
-}
-
-struct Processor {
+pub struct Processor {
     string_pool: StringPool,
     items: Items,
     sources: Sources,
     redirects: Redirects,
     langs: Langs,
-    store: StoreWrapper,
 }
 
 impl Processor {
@@ -576,7 +448,6 @@ impl Processor {
             sources: Sources::default(),
             redirects: Redirects::default(),
             langs: Langs::default(),
-            store: StoreWrapper::new(DB_PATH)?,
         })
     }
 
@@ -595,7 +466,7 @@ impl Processor {
             if source_term.is_empty() || source_term == "-" {
                 return Ok(None);
             }
-            let source_term = clean_ety_term(source_lang, source_term);
+            let source_term = clean_ety_term(source_term);
             return Ok(Some(RawEtyNode {
                 source_terms: Box::new([self.string_pool.get_or_intern(source_term)]),
                 source_langs: Box::new([self.string_pool.get_or_intern(source_lang)]),
@@ -620,7 +491,7 @@ impl Processor {
             if source_term.is_empty() || source_term == "-" {
                 return Ok(None);
             }
-            let source_term = clean_ety_term(term_lang, source_term);
+            let source_term = clean_ety_term(source_term);
             return Ok(Some(RawEtyNode {
                 source_terms: Box::new([self.string_pool.get_or_intern(source_term)]),
                 source_langs: Box::new([lang]),
@@ -648,10 +519,10 @@ impl Processor {
                 if source_term.is_empty() || source_term == "-" {
                     return Ok(None);
                 }
-                let source_prefix = clean_ety_term(term_lang, source_prefix).to_string();
+                let source_prefix = clean_ety_term(source_prefix).to_string();
                 let source_prefix = format!("{}-", source_prefix);
                 let source_prefix = self.string_pool.get_or_intern(source_prefix.as_str());
-                let source_term = clean_ety_term(term_lang, source_term);
+                let source_term = clean_ety_term(source_term);
                 let source_term = self.string_pool.get_or_intern(source_term);
                 return Ok(Some(RawEtyNode {
                     source_terms: Box::new([source_prefix, source_term]),
@@ -681,9 +552,9 @@ impl Processor {
                 if source_suffix.is_empty() || source_suffix == "-" {
                     return Ok(None);
                 }
-                let source_term = clean_ety_term(term_lang, source_term);
+                let source_term = clean_ety_term(source_term);
                 let source_term = self.string_pool.get_or_intern(source_term);
-                let source_suffix = clean_ety_term(term_lang, source_suffix).to_string();
+                let source_suffix = clean_ety_term(source_suffix).to_string();
                 let source_suffix = format!("-{}", source_suffix);
                 let source_suffix = self.string_pool.get_or_intern(source_suffix.as_str());
                 return Ok(Some(RawEtyNode {
@@ -718,10 +589,10 @@ impl Processor {
                     if source_suffix.is_empty() || source_suffix == "-" {
                         return Ok(None);
                     }
-                    let source_term = clean_ety_term(term_lang, source_term);
+                    let source_term = clean_ety_term(source_term);
                     let source_term = self.string_pool.get_or_intern(source_term);
-                    let source_prefix = clean_ety_term(term_lang, source_prefix).to_string();
-                    let source_suffix = clean_ety_term(term_lang, source_suffix).to_string();
+                    let source_prefix = clean_ety_term(source_prefix).to_string();
+                    let source_suffix = clean_ety_term(source_suffix).to_string();
                     let source_circumfix = format!("{}- -{}", source_prefix, source_suffix);
                     let source_circumfix =
                         self.string_pool.get_or_intern(source_circumfix.as_str());
@@ -755,9 +626,9 @@ impl Processor {
                 if source_infix.is_empty() || source_infix == "-" {
                     return Ok(None);
                 }
-                let source_term = clean_ety_term(term_lang, source_term);
+                let source_term = clean_ety_term(source_term);
                 let source_term = self.string_pool.get_or_intern(source_term);
-                let source_infix = clean_ety_term(term_lang, source_infix).to_string();
+                let source_infix = clean_ety_term(source_infix).to_string();
                 let source_infix = format!("-{}-", source_infix);
                 let source_infix = self.string_pool.get_or_intern(source_infix.as_str());
                 return Ok(Some(RawEtyNode {
@@ -788,16 +659,16 @@ impl Processor {
                 if source2.is_empty() || source2 == "-" {
                     return Ok(None);
                 }
-                let source_prefix = clean_ety_term(term_lang, source_prefix).to_string();
+                let source_prefix = clean_ety_term(source_prefix).to_string();
                 let source_prefix = format!("{}-", source_prefix);
                 let source_prefix = self.string_pool.get_or_intern(source_prefix.as_str());
                 if let Some(source3) = args.get_optional_str("4") {
                     if source3.is_empty() || source3 == "-" {
                         return Ok(None);
                     }
-                    let source_term = clean_ety_term(term_lang, source2);
+                    let source_term = clean_ety_term(source2);
                     let source_term = self.string_pool.get_or_intern(source_term);
-                    let source_suffix = clean_ety_term(term_lang, source3).to_string();
+                    let source_suffix = clean_ety_term(source3).to_string();
                     let source_suffix = format!("-{}", source_suffix);
                     let source_suffix = self.string_pool.get_or_intern(source_suffix.as_str());
                     return Ok(Some(RawEtyNode {
@@ -807,7 +678,7 @@ impl Processor {
                         head: 1,
                     }));
                 }
-                let source_suffix = clean_ety_term(term_lang, source2).to_string();
+                let source_suffix = clean_ety_term(source2).to_string();
                 let source_suffix = format!("-{}", source_suffix);
                 let source_suffix = self.string_pool.get_or_intern(source_suffix.as_str());
                 return Ok(Some(RawEtyNode {
@@ -843,11 +714,11 @@ impl Processor {
                 if source_lang.is_empty() || source_lang == "-" {
                     break;
                 }
-                let source_term = clean_ety_term(source_lang, source_term);
+                let source_term = clean_ety_term(source_term);
                 source_terms.push(self.string_pool.get_or_intern(source_term));
                 source_langs.push(self.string_pool.get_or_intern(source_lang));
             } else {
-                let source_term = clean_ety_term(self.string_pool.resolve(lang), source_term);
+                let source_term = clean_ety_term(source_term);
                 source_terms.push(self.string_pool.get_or_intern(source_term));
                 source_langs.push(lang);
             }
@@ -1059,6 +930,11 @@ impl Processor {
     }
 
     fn process_sources(&mut self) -> Result<()> {
+        let n = u64::try_from(self.items.n)?;
+        let pb = ProgressBar::new(n);
+        pb.set_style(ProgressStyle::default_bar()
+            .template("{spinner:.green} [{elapsed}] [{wide_bar:.cyan/blue}] {human_pos}/{human_len} ({per_sec}, {eta})")?
+            .progress_chars("#>-"));
         for lang_map in self.items.term_map.values() {
             for ety_map in lang_map.values() {
                 for (_, pos_map) in ety_map.values() {
@@ -1071,51 +947,14 @@ impl Processor {
                                 &self.items,
                                 item,
                             )?;
-                        }
-                    }
-                }
-            }
-        }
-        Ok(())
-    }
-
-    fn write_all_to_store(&mut self) -> Result<()> {
-        let n = u64::try_from(self.items.n + self.sources.imputed_items.n)?;
-        let pb = ProgressBar::new(n);
-        pb.set_style(ProgressStyle::default_bar()
-            .template("{spinner:.green} [{elapsed}] [{wide_bar:.cyan/blue}] {human_pos}/{human_len} ({per_sec}, {eta})")?
-            .progress_chars("#>-"));
-        for lang_map in self.items.term_map.values() {
-            for ety_map in lang_map.values() {
-                for (_, pos_map) in ety_map.values() {
-                    for gloss_map in pos_map.values() {
-                        for item in gloss_map.values() {
-                            self.store.add(
-                                &self.string_pool,
-                                &self.sources,
-                                item,
-                                ety_map.len() > 1,
-                                gloss_map.len() > 1,
-                            )?;
                             pb.inc(1);
                         }
                     }
                 }
             }
         }
-        for lang_map in self.sources.imputed_items.term_map.values() {
-            for item in lang_map.values() {
-                self.store
-                    .add(&self.string_pool, &self.sources, item, false, false)?;
-                pb.inc(1);
-            }
-        }
         pb.finish();
         Ok(())
-    }
-
-    fn dump_store(&self, path: &str) -> Result<()> {
-        Ok(self.store.dump(path)?)
     }
 }
 
@@ -1134,13 +973,13 @@ pub fn process_wiktextract_data() -> Result<()> {
     t = Instant::now();
     processor.process_sources()?;
     println!("Finished. Took {}.", HumanDuration(t.elapsed()));
-    println!("Writing to oxigraph store {DB_PATH}...");
+    println!("Writing RDF to Turtle file {TURTLE_PATH}...");
     t = Instant::now();
-    processor.write_all_to_store()?;
+    write_turtle_file(&processor, TURTLE_PATH)?;
     println!("Finished. Took {}.", HumanDuration(t.elapsed()));
-    println!("Dumping oxigraph store to file {TTL_PATH}...");
+    println!("Building oxigraph store {STORE_PATH}...");
     t = Instant::now();
-    processor.dump_store(TTL_PATH)?;
+    build_store(TURTLE_PATH, STORE_PATH)?;
     println!("Finished. Took {}.", HumanDuration(t.elapsed()));
     println!(
         "All done! Took {} overall. Exiting...",
@@ -1149,19 +988,16 @@ pub fn process_wiktextract_data() -> Result<()> {
     Ok(())
 }
 
-fn clean_ety_term<'a>(lang: &str, term: &'a str) -> &'a str {
-    // Reconstructed terms (e.g. PIE) are supposed to start with "*" when cited in
-    // etymologies but their entry titles (and hence wiktextract "word" field) do not.
-    // This is done by https://en.wiktionary.org/wiki/Module:links.
-
-    // lang code ends with "-pro" iff term is a Reconstruction
-    if lang.ends_with("-pro") {
-        // it's common enough for proto terms to be missing *, so
-        // we can't just err if we don't find it
-        term.strip_prefix('*').unwrap_or(term)
-    } else {
-        term
-    }
+fn clean_ety_term(term: &str) -> &str {
+    // Reconstructed terms (e.g. PIE) are supposed to start with "*" when cited
+    // in etymologies but their entry titles (and hence wiktextract "word"
+    // field) do not. This is done by
+    // https://en.wiktionary.org/wiki/Module:links. Sometimes reconstructed
+    // terms are missing this *, and sometimes non-reconstructed terms start
+    // with * incorrectly. So we strip the * in every case. This will break
+    // terms actually start with *, but there are almost none of these, and
+    // none of them are particularly relevant for our purposes AFAIK.
+    term.strip_prefix('*').unwrap_or(term)
 }
 
 fn remove_punctuation(text: &str) -> String {
@@ -1171,7 +1007,11 @@ fn remove_punctuation(text: &str) -> String {
 }
 
 fn should_ignore_term(term: &str) -> bool {
-    term.contains(|c: char| c.is_ascii_punctuation() || c.is_ascii_whitespace())
+    // The idea is to ignore phrases. Might need revisiting if too strict. Just
+    // barring terms with pos "phrase" etc. is not enough as many phrases are
+    // categorized as other pos. See e.g.
+    // https://en.wiktionary.org/wiki/this,_that,_or_the_other.
+    term.contains(|c: char| c.is_ascii_whitespace())
 }
 
 // We look for a canonical form, otherwise we take the "word" field.
@@ -1193,4 +1033,17 @@ fn get_term<'a>(json_item: &'a Value) -> Result<&'a str> {
         }
     }
     Ok(json_item.get_expected_str("word")?)
+}
+
+fn build_store(turtle_path: &str, store_path: &str) -> Result<()> {
+    let turtle = BufReader::new(File::open(turtle_path)?);
+    // delete any previous oxigraph db
+    if Path::new(store_path).is_dir() {
+        remove_dir_all(store_path)?;
+    }
+    let store = Store::open(store_path)?;
+    store
+        .bulk_loader()
+        .load_graph(turtle, Turtle, DefaultGraph, None)?;
+    Ok(())
 }
