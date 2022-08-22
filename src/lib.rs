@@ -29,11 +29,6 @@ use phf::{phf_set, Set};
 use simd_json::{to_borrowed_value, value::borrowed::Value, ValueAccess};
 use string_interner::{backend::StringBackend, symbol::SymbolU32, StringInterner};
 
-const WIKTEXTRACT_PATH: &str = "data/raw-wiktextract-data.json.gz";
-// const WIKTEXTRACT_PATH: &str = "data/test/fix.json.gz";
-const TURTLE_PATH: &str = "data/wety.ttl";
-const STORE_PATH: &str = "data/wety.db";
-
 // cf. https://github.com/tatuylonen/wiktextract/blob/master/wiktwords
 static IGNORED_REDIRECTS: Set<&'static str> = phf_set! {
     "Index:", "Help:", "MediaWiki:", "Citations:", "Concordance:", "Rhymes:",
@@ -957,36 +952,6 @@ impl Processor {
     }
 }
 
-/// # Errors
-///
-/// Will return `Err` if any unexpected problem arises in processing.
-pub fn process_wiktextract_data() -> Result<()> {
-    let total_time = Instant::now();
-    let mut t = Instant::now();
-    let file = File::open(WIKTEXTRACT_PATH)?;
-    println!("Processing data from {WIKTEXTRACT_PATH}...");
-    let mut processor = Processor::new()?;
-    processor.process_file(file)?;
-    println!("Finished. Took {}.", HumanDuration(t.elapsed()));
-    println!("Processing etymologies...");
-    t = Instant::now();
-    processor.process_sources()?;
-    println!("Finished. Took {}.", HumanDuration(t.elapsed()));
-    println!("Writing RDF to Turtle file {TURTLE_PATH}...");
-    t = Instant::now();
-    write_turtle_file(&processor, TURTLE_PATH)?;
-    println!("Finished. Took {}.", HumanDuration(t.elapsed()));
-    println!("Building oxigraph store {STORE_PATH}...");
-    t = Instant::now();
-    build_store(TURTLE_PATH, STORE_PATH)?;
-    println!("Finished. Took {}.", HumanDuration(t.elapsed()));
-    println!(
-        "All done! Took {} overall. Exiting...",
-        HumanDuration(total_time.elapsed())
-    );
-    Ok(())
-}
-
 fn clean_ety_term(term: &str) -> &str {
     // Reconstructed terms (e.g. PIE) are supposed to start with "*" when cited
     // in etymologies but their entry titles (and hence wiktextract "word"
@@ -1044,7 +1009,36 @@ fn get_term<'a>(json_item: &'a Value) -> Result<&'a str> {
     Ok(json_item.get_expected_str("word")?)
 }
 
-fn build_store(turtle_path: &str, store_path: &str) -> Result<()> {
+/// # Errors
+///
+/// Will return `Err` if any unexpected issue arises parsing the wiktextract
+/// data or writing to Turtle file.
+pub fn wiktextract_to_turtle(wiktextract_path: &str, turtle_path: &str) -> Result<Instant> {
+    let mut t = Instant::now();
+    let file = File::open(wiktextract_path)?;
+    println!("Processing raw wiktextract data from {wiktextract_path}...");
+    let mut processor = Processor::new()?;
+    processor.process_file(file)?;
+    println!("Finished. Took {}.", HumanDuration(t.elapsed()));
+    println!("Processing etymologies...");
+    t = Instant::now();
+    processor.process_sources()?;
+    println!("Finished. Took {}.", HumanDuration(t.elapsed()));
+    println!("Writing RDF to Turtle file {turtle_path}...");
+    t = Instant::now();
+    write_turtle_file(&processor, turtle_path)?;
+    println!("Finished. Took {}.", HumanDuration(t.elapsed()));
+    t = Instant::now();
+    println!("Dropping all processed data...");
+    Ok(t)
+}
+
+/// # Errors
+///
+/// Will return `Err` if any unexpected issue arises building the Oxigraph store.
+pub fn build_store(turtle_path: &str, store_path: &str, skip_optimizing: bool) -> Result<()> {
+    let mut t = Instant::now();
+    println!("Building oxigraph store {store_path}...");
     let turtle = BufReader::new(File::open(turtle_path)?);
     // delete any previous oxigraph db
     if Path::new(store_path).is_dir() {
@@ -1054,5 +1048,14 @@ fn build_store(turtle_path: &str, store_path: &str) -> Result<()> {
     store
         .bulk_loader()
         .load_graph(turtle, Turtle, DefaultGraph, None)?;
+    store.flush()?;
+    println!("Finished. Took {}.", HumanDuration(t.elapsed()));
+    if !skip_optimizing {
+        t = Instant::now();
+        println!("Optimizing oxigraph store {store_path}...");
+        store.optimize()?;
+        store.flush()?;
+        println!("Finished. Took {}.", HumanDuration(t.elapsed()));
+    }
     Ok(())
 }
