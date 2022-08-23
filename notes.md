@@ -1,5 +1,7 @@
 ## Immediate TODOs
 
+* When there is dispute about which root a word has, sometimes there are multiple `root` templates (e.g. https://en.wiktionary.org/wiki/sect#Etymology) or, alternatively, multiple roots given in one `root` template (e.g. https://en.wiktionary.org/wiki/bunker#Etymology_1). Homographic roots are fairly common so sense id arguments are not uncommon to see being used in `root` templates. It seems an alternate usage (though not specified by template documentation) is to give the sense id in parentheses after the root term, with a space separating (see e.g. https://en.wiktionary.org/wiki/bitch#Etymology). Finally, it seems somewhat common not to have a `root` template at all, but instead to manually give a link to the Category for words derived from a root (see e.g. https://en.wiktionary.org/w/index.php?title=bank), where this link is of the form (e.g.) "English terms derived from the Proto-Indo-European root *bʰeg- (bend)".
+
 * Could track the total number of glosses associated with all items that share the same ety, as an approximate measure of the "commonness" of the ety. This could then be used to order the etys by commonness, which would be useful for ordering the results of a search of a homographic term. This won't need implementing if https://github.com/tatuylonen/wiktextract/issues/74 gets resolved.
 
 * Make test case for imputation with [ǵʰelh₃-](https://en.wiktionary.org/wiki/Category:English_terms_derived_from_the_Proto-Indo-European_root_*%C7%B5%CA%B0elh%E2%82%83-). 
@@ -10,7 +12,7 @@
     * Could add specific rules for the few templates where you would expect a different PoS, e.g. `deverbal`.
     * Could do better than simple Lesk algorithm. For example, "poison" and "poisoned" don't match but should count as similar. 
 
-* Collect glosses from ety templates. These are quite commonly used and would be helpful for sense disambiguation as well as for having glosses for imputed terms. If RAM becomes an issue, look into storing all strings besides lang/pos (i.e. gloss, ety_text) on-disk in a temporary [rocksdb](https://github.com/rust-rocksdb/rust-rocksdb).
+* Collect glosses from ety templates. These are quite commonly used and would be helpful for sense disambiguation as well as for having glosses for imputed terms. 
 
 ## Things to keep in mind
 
