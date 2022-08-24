@@ -237,7 +237,6 @@ impl Sources {
         let mut next_item = Rc::clone(item); // for tracking possibly imputed items
         for node in item.raw_ety_nodes.as_ref().unwrap().iter() {
             let sense = Sense::new(string_pool, &current_item);
-            let n_source_terms = node.source_terms.len();
             let mut source_items = Vec::with_capacity(node.source_terms.len());
             let mut has_new_imputation = false;
             for (&source_lang, &source_term) in
@@ -272,7 +271,7 @@ impl Sources {
                 {
                     // We have already imputed an item that corresponds to this term.
                     source_items.push(Rc::clone(imputed_source_item));
-                } else if n_source_terms == 1 {
+                } else if node.source_terms.len() == 1 {
                     // This is an unseen term, and it is in a non-compound-type template.
                     // We will impute an item for this term, and use this new imputed
                     // item as the item for the next template in the outer loop.
