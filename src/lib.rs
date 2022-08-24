@@ -46,6 +46,13 @@ struct RawEtyNode {
 }
 
 #[derive(Hash, Eq, PartialEq, Debug)]
+struct RawRoot {
+    term: SymbolU32,
+    lang: SymbolU32,
+    sense_id: Option<SymbolU32>,
+}
+
+#[derive(Hash, Eq, PartialEq, Debug)]
 struct Item {
     is_imputed: bool,
     i: usize,                 // the i-th item seem, used as id for RDF
@@ -56,6 +63,7 @@ struct Item {
     gloss: Option<SymbolU32>, // e.g. "An institution where one can place and borrow money...
     gloss_num: u8,            // the nth gloss encountered for this term-lang-ety-pos combo
     raw_ety_nodes: Option<Box<[RawEtyNode]>>,
+    raw_root: Option<RawRoot>,
 }
 
 impl Item {
@@ -70,6 +78,7 @@ impl Item {
             gloss_num: 0,
             gloss: None,
             raw_ety_nodes: None,
+            raw_root: None,
         }
     }
 }
@@ -426,7 +435,7 @@ impl Langs {
     }
 }
 
-pub struct Processor {
+pub(crate) struct Processor {
     string_pool: StringPool,
     items: Items,
     sources: Sources,
@@ -731,30 +740,27 @@ impl Processor {
         template: &Value,
         lang: SymbolU32,
     ) -> Result<Option<RawEtyNode>> {
-        if let Some(name) = template.get_str("name") {
-            let args = template.get_expected_object("args")?;
-            if let Some(mode) = DERIVED_TYPE_TEMPLATES.get(name) {
-                self.process_derived_type_json_template(args, mode, lang)
-            } else if let Some(mode) = ABBREV_TYPE_TEMPLATES.get(name) {
-                self.process_abbrev_type_json_template(args, mode, lang)
-            } else if let Some(&mode) = COMPOUND_TYPE_TEMPLATES.get(name) {
-                match mode {
-                    "prefix" => self.process_prefix_json_template(args, lang),
-                    "suffix" => self.process_suffix_json_template(args, lang),
-                    "circumfix" => self.process_circumfix_json_template(args, lang),
-                    "infix" => self.process_infix_json_template(args, lang),
-                    "confix" => self.process_confix_json_template(args, lang),
-                    _ => self.process_compound_type_json_template(args, mode, lang),
-                }
-            } else {
-                Ok(None)
+        let name = template.get_expected_str("name")?;
+        let args = template.get_expected_object("args")?;
+        if let Some(mode) = DERIVED_TYPE_TEMPLATES.get(name) {
+            self.process_derived_type_json_template(args, mode, lang)
+        } else if let Some(mode) = ABBREV_TYPE_TEMPLATES.get(name) {
+            self.process_abbrev_type_json_template(args, mode, lang)
+        } else if let Some(&mode) = COMPOUND_TYPE_TEMPLATES.get(name) {
+            match mode {
+                "prefix" => self.process_prefix_json_template(args, lang),
+                "suffix" => self.process_suffix_json_template(args, lang),
+                "circumfix" => self.process_circumfix_json_template(args, lang),
+                "infix" => self.process_infix_json_template(args, lang),
+                "confix" => self.process_confix_json_template(args, lang),
+                _ => self.process_compound_type_json_template(args, mode, lang),
             }
         } else {
             Ok(None)
         }
     }
 
-    fn process_json_ety_templates(
+    fn process_json_ety(
         &mut self,
         json_item: &Value,
         lang: SymbolU32,
@@ -801,6 +807,51 @@ impl Processor {
             }
         }
         Ok(Some(raw_ety_nodes.into_boxed_slice()))
+    }
+
+    // cf. https://en.wiktionary.org/wiki/Template:root. For now we skip
+    // attempting to deal with multiple roots listed in a root template or
+    // multiple root templates being listed. In both cases we just take the
+    // first root term seen. If we discover it is common, we will handle it. $$
+    // NEED TO HANDLE CHECKING CATEGORIES IF NO ROOT TEMPLATE FOUND, $$ ONCE WE
+    // MAKE PHF MAPS FOR LANG AND POS.
+    fn process_json_root(&mut self, json_item: &Value, lang: SymbolU32) -> Result<Option<RawRoot>> {
+        if let Some(templates) = json_item.get_array("etymology_templates") {
+            for template in templates {
+                if template.get_expected_str("name")? == "root" {
+                    let args = template.get_expected_object("args")?;
+                    let term_lang = args.get_expected_str("1")?;
+                    if term_lang != self.string_pool.resolve(lang) {
+                        return Ok(None);
+                    }
+                    let root_lang = args.get_expected_str("2")?;
+                    let mut root_term = args.get_expected_str("3")?;
+                    let mut root_sense_id = "";
+                    // Sometimes a root's senseid is given in parentheses after the term in
+                    // the 3 arg slot, see e.g. https://en.wiktionary.org/wiki/blaze.
+                    if let Some(right_paren_idx) = root_term.rfind(')') {
+                        if let Some(left_paren_idx) = root_term.rfind(" (") {
+                            root_sense_id = &root_term[left_paren_idx + 2..right_paren_idx];
+                            root_term = &root_term[..left_paren_idx];
+                        }
+                    } else if let Some(sense_id) = args.get_optional_str("id") {
+                        root_sense_id = sense_id;
+                    }
+                    let root_sense_id = if root_sense_id.is_empty() {
+                        None
+                    } else {
+                        Some(self.string_pool.get_or_intern(root_sense_id))
+                    };
+                    return Ok(Some(RawRoot {
+                        term: self.string_pool.get_or_intern(root_term),
+                        lang: self.string_pool.get_or_intern(root_lang),
+                        sense_id: root_sense_id,
+                    }));
+                }
+            }
+        }
+        // if { $$ CHECK CATEGORIES FOR ROOT $$}
+        Ok(None)
     }
 
     fn process_redirect(&mut self, json_item: &Value) -> Result<()> {
@@ -871,6 +922,9 @@ impl Processor {
             .string_pool
             .get_or_intern(json_item.get_expected_str("lang")?);
         // 'etymology_text' key may be missing or empty
+
+        self.langs.add(lang, language);
+
         let ety_text_hash = json_item.get_str("etymology_text").map(|s| {
             let mut hasher = AHasher::default();
             hasher.write(s.as_bytes());
@@ -886,9 +940,8 @@ impl Processor {
             .and_then(simd_json::ValueAccess::as_str)
             .and_then(|s| (!s.is_empty()).then(|| self.string_pool.get_or_intern(s)));
 
-        let raw_ety_nodes = self.process_json_ety_templates(json_item, lang)?;
-
-        self.langs.add(lang, language);
+        let raw_root = self.process_json_root(json_item, lang)?;
+        let raw_ety_nodes = self.process_json_ety(json_item, lang)?;
 
         let item = Item {
             is_imputed: false,
@@ -900,6 +953,7 @@ impl Processor {
             gloss,
             gloss_num: 0, // temp value to be changed if need be in add()
             raw_ety_nodes,
+            raw_root,
         };
         self.items.add(ety_text_hash, item)?;
         Ok(())

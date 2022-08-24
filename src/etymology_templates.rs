@@ -13,7 +13,7 @@ use phf::{phf_map, Map};
 // "5" or "t": gloss/translation for the source term (optional)
 // "tr": transliteration for the source term (optional)
 // "pos": part of speech of the source term (optional)
-pub static DERIVED_TYPE_TEMPLATES: Map<&'static str, &'static str> = phf_map! {
+pub(crate) static DERIVED_TYPE_TEMPLATES: Map<&'static str, &'static str> = phf_map! {
     "derived" => "derived", // https://en.wiktionary.org/wiki/Template:derived
     "der" => "derived", // shortcut for "derived"
     "der+" => "derived", // https://en.wiktionary.org/wiki/Template:der%2B
@@ -64,7 +64,7 @@ pub static DERIVED_TYPE_TEMPLATES: Map<&'static str, &'static str> = phf_map! {
 // $$ acronym, initialism)
 // $$ have source "term" that is often multiple individual terms
 // $$ that together do not have a term entry.
-pub static ABBREV_TYPE_TEMPLATES: Map<&'static str, &'static str> = phf_map! {
+pub(crate) static ABBREV_TYPE_TEMPLATES: Map<&'static str, &'static str> = phf_map! {
     "abbrev" => "abbreviation", // https://en.wiktionary.org/wiki/Template:abbrev
     "adverbial accusative" => "adverbial accusative", // https://en.wiktionary.org/wiki/Template:adverbial_accusative
     "contraction" => "contraction", // https://en.wiktionary.org/wiki/Template:contraction
@@ -100,7 +100,7 @@ pub static ABBREV_TYPE_TEMPLATES: Map<&'static str, &'static str> = phf_map! {
 // "posn": part of speech for source term given in arg n+1 (optional)
 // Some of these templates have optional "lang1", "lang2", etc. arguments,
 // which are the lang codes of the source terms. We handle this.
-pub static COMPOUND_TYPE_TEMPLATES: Map<&'static str, &'static str> = phf_map! {
+pub(crate) static COMPOUND_TYPE_TEMPLATES: Map<&'static str, &'static str> = phf_map! {
     "compound" => "compound", // https://en.wiktionary.org/wiki/Template:compound
     "com" => "compound", // shortcut for "compound"
     "com+" => "compound", // https://en.wiktionary.org/wiki/Template:com%2B

@@ -106,7 +106,7 @@ fn write_item(
     Ok(())
 }
 
-pub fn write_turtle_file(data: &Processor, path: &str) -> Result<()> {
+pub(crate) fn write_turtle_file(data: &Processor, path: &str) -> Result<()> {
     let mut f = BufWriter::new(File::create(path)?);
     write_prefixes(&mut f)?;
     let n = u64::try_from(data.items.n + data.sources.imputed_items.n)?;
