@@ -495,18 +495,19 @@ impl Processor {
         if term_lang != lang {
             return Ok(None);
         }
-        let source_lang = args.get_expected_str("2")?;
-        if let Some(source_term) = args.get_optional_str("3") {
-            if source_term.is_empty() || source_term == "-" {
-                return Ok(None);
+        if let Some(source_lang) = LANG_CODE2NAME.get_index(args.get_expected_str("2")?) {
+            if let Some(source_term) = args.get_optional_str("3") {
+                if source_term.is_empty() || source_term == "-" {
+                    return Ok(None);
+                }
+                let source_term = clean_ety_term(source_term);
+                return Ok(Some(RawEtyNode {
+                    source_terms: Box::new([self.string_pool.get_or_intern(source_term)]),
+                    source_langs: Box::new([source_lang]),
+                    mode: MODE.get_expected_index(mode)?,
+                    head: 0,
+                }));
             }
-            let source_term = clean_ety_term(source_term);
-            return Ok(Some(RawEtyNode {
-                source_terms: Box::new([self.string_pool.get_or_intern(source_term)]),
-                source_langs: Box::new([LANG_CODE2NAME.get_expected_index(source_lang)?]),
-                mode: MODE.get_expected_index(mode)?,
-                head: 0,
-            }));
         }
         Ok(None)
     }
@@ -745,12 +746,13 @@ impl Processor {
                 return Ok(None);
             }
             if let Some(source_lang) = args.get_optional_str(format!("lang{n}").as_str()) {
-                if source_lang.is_empty() || source_lang == "-" {
+                let source_lang_index = LANG_CODE2NAME.get_index(source_lang);
+                if source_lang.is_empty() || source_lang == "-" || source_lang_index.is_none() {
                     return Ok(None);
                 }
                 let source_term = clean_ety_term(source_term);
                 source_terms.push(self.string_pool.get_or_intern(source_term));
-                source_langs.push(LANG_CODE2NAME.get_expected_index(source_lang)?);
+                source_langs.push(source_lang_index.unwrap());
             } else {
                 let source_term = clean_ety_term(source_term);
                 source_terms.push(self.string_pool.get_or_intern(source_term));
@@ -859,7 +861,17 @@ impl Processor {
                         return Ok(None);
                     }
                     let root_lang = args.get_expected_str("2")?;
-                    let mut root_term = args.get_expected_str("3")?;
+                    let root_lang_index = LANG_CODE2NAME.get_index(root_lang);
+                    let root_term = args.get_optional_str("3");
+                    let further_root_term = args.get_optional_str("4");
+                    if root_lang_index.is_none()
+                        || root_term.is_none()
+                        || further_root_term.is_some()
+                    {
+                        return Ok(None);
+                    }
+                    let root_lang_index = root_lang_index.unwrap();
+                    let mut root_term = root_term.unwrap();
                     let mut root_sense_id = "";
                     // Sometimes a root's senseid is given in parentheses after the term in
                     // the 3 arg slot, see e.g. https://en.wiktionary.org/wiki/blaze.
@@ -878,7 +890,7 @@ impl Processor {
                     };
                     return Ok(Some(RawRoot {
                         term: self.string_pool.get_or_intern(root_term),
-                        lang: LANG_CODE2NAME.get_expected_index(root_lang)?,
+                        lang: root_lang_index,
                         sense_id: root_sense_id,
                     }));
                 }
@@ -922,10 +934,12 @@ impl Processor {
             if let Some(slash) = title.find('/') {
                 let language = &title[..slash];
                 if let Some(term) = title.get(slash + 1..) {
-                    return Ok(Some(ReconstructionTitle {
-                        language: LANG_NAME2CODE.get_expected_index(language)?,
-                        term: self.string_pool.get_or_intern(term),
-                    }));
+                    if let Some(language_index) = LANG_NAME2CODE.get_index(language) {
+                        return Ok(Some(ReconstructionTitle {
+                            language: language_index,
+                            term: self.string_pool.get_or_intern(term),
+                        }));
+                    }
                 }
             }
         }
@@ -948,14 +962,6 @@ impl Processor {
         // 'lang_code' key must be present
         let lang = json_item.get_expected_str("lang_code")?;
         let lang_index = LANG_CODE2NAME.get_expected_index(lang)?;
-        let mapped_language = LANG_CODE2NAME.get_expected_index_value(lang_index)?;
-        // 'lang' key must be present
-        let language = json_item.get_expected_str("lang")?;
-        assert_eq!(
-            mapped_language, language,
-            "When parsing {} ({}, {}), the lang field was {}, while LANG_CODE2NAME maps the code to {}.",
-            term, lang, pos, language, mapped_language
-        );
         // 'etymology_text' key may be missing or empty
         let ety_text_hash = json_item.get_str("etymology_text").map(|s| {
             let mut hasher = AHasher::default();
