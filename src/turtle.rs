@@ -1,4 +1,7 @@
-use crate::{Item, Processor};
+use crate::{
+    etymology_templates::MODE, lang::LANG_CODE2NAME, pos::POS, Item, OrderedMapExt, OrderedSetExt,
+    Processor,
+};
 
 use std::{
     fs::File,
@@ -67,9 +70,9 @@ fn write_item(
     writeln!(f, "{ITEM_PRE}{}", item.i)?;
     let term = data.string_pool.resolve(item.term);
     write_item_quoted_prop(f, PRED_TERM, term)?;
-    let lang = data.string_pool.resolve(item.lang);
-    write_item_quoted_prop(f, PRED_LANG, lang)?;
-    let pos = data.string_pool.resolve(item.pos);
+    let language = LANG_CODE2NAME.get_expected_index_value(item.lang)?;
+    write_item_quoted_prop(f, PRED_LANG, language)?;
+    let pos = POS.get_expected_index_key(item.pos)?;
     write_item_quoted_prop(f, PRED_POS, pos)?;
     if item.is_imputed {
         writeln!(f, "  {PRED_IS_IMPUTED} true ;")?;
@@ -85,7 +88,7 @@ fn write_item(
         writeln!(f, "  {PRED_GLOSS_NUM} {} ;", item.gloss_num)?;
     }
     if let Some(source) = data.sources.get(item) {
-        let mode = data.string_pool.resolve(source.mode);
+        let mode = MODE.get_expected_index_key(source.mode)?;
         write_item_quoted_prop(f, PRED_MODE, mode)?;
         writeln!(f, "  {PRED_HEAD} {} ;", source.head)?;
         write!(f, "  {PRED_SOURCE} ")?;

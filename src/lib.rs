@@ -1,10 +1,16 @@
 //! WIP attempt to digest etymologies from wiktextract data
 
 mod etymology_templates;
+mod lang;
+mod pos;
 mod turtle;
 
 use crate::{
-    etymology_templates::{ABBREV_TYPE_TEMPLATES, COMPOUND_TYPE_TEMPLATES, DERIVED_TYPE_TEMPLATES},
+    etymology_templates::{
+        ABBREV_TYPE_TEMPLATES, COMPOUND_TYPE_TEMPLATES, DERIVED_TYPE_TEMPLATES, MODE,
+    },
+    lang::{LANG_CODE2NAME, LANG_NAME2CODE},
+    pos::POS,
     turtle::write_turtle_file,
 };
 
@@ -25,7 +31,7 @@ use flate2::read::GzDecoder;
 use hashbrown::{HashMap, HashSet};
 use indicatif::{HumanDuration, ProgressBar, ProgressStyle};
 use oxigraph::{io::GraphFormat::Turtle, model::GraphNameRef::DefaultGraph, store::Store};
-use phf::{phf_set, Set};
+use phf::{phf_set, OrderedMap, OrderedSet, Set};
 use simd_json::{to_borrowed_value, value::borrowed::Value, ValueAccess};
 use string_interner::{backend::StringBackend, symbol::SymbolU32, StringInterner};
 
@@ -40,15 +46,15 @@ static IGNORED_REDIRECTS: Set<&'static str> = phf_set! {
 #[derive(Hash, Eq, PartialEq, Debug)]
 struct RawEtyNode {
     source_terms: Box<[SymbolU32]>, // e.g. "re-", "do"
-    source_langs: Box<[SymbolU32]>, // e.g. "en", "en"
-    mode: SymbolU32,                // e.g. "prefix"
+    source_langs: Box<[usize]>,     // e.g. "en", "en"
+    mode: usize,                    // e.g. "prefix"
     head: u8,                       // e.g. 1 (the index of "do")
 }
 
 #[derive(Hash, Eq, PartialEq, Debug)]
 struct RawRoot {
     term: SymbolU32,
-    lang: SymbolU32,
+    lang: usize,
     sense_id: Option<SymbolU32>,
 }
 
@@ -57,9 +63,9 @@ struct Item {
     is_imputed: bool,
     i: usize,                 // the i-th item seem, used as id for RDF
     term: SymbolU32,          // e.g. "bank"
-    lang: SymbolU32,          // e.g "en", i.e. the wiktextract lang_code
+    lang: usize,              // e.g "en", i.e. the wiktextract lang_code
     ety_num: u8,              // the nth ety encountered for this term-lang combo
-    pos: SymbolU32,           // e.g. "noun"
+    pos: usize,               // e.g. "noun"
     gloss: Option<SymbolU32>, // e.g. "An institution where one can place and borrow money...
     gloss_num: u8,            // the nth gloss encountered for this term-lang-ety-pos combo
     raw_ety_nodes: Option<Box<[RawEtyNode]>>,
@@ -67,7 +73,7 @@ struct Item {
 }
 
 impl Item {
-    fn new_imputed(i: usize, pos: SymbolU32, lang: SymbolU32, term: SymbolU32) -> Self {
+    fn new_imputed(i: usize, pos: usize, lang: usize, term: SymbolU32) -> Self {
         Self {
             is_imputed: true,
             i,
@@ -84,9 +90,9 @@ impl Item {
 }
 
 type GlossMap = HashMap<Option<SymbolU32>, Rc<Item>>;
-type PosMap = HashMap<SymbolU32, GlossMap>;
+type PosMap = HashMap<usize, GlossMap>;
 type EtyMap = HashMap<Option<u64>, (u8, PosMap)>;
-type LangMap = HashMap<SymbolU32, EtyMap>;
+type LangMap = HashMap<usize, EtyMap>;
 type TermMap = HashMap<SymbolU32, LangMap>;
 
 #[derive(Default)]
@@ -167,7 +173,7 @@ impl Items {
     }
 }
 
-type ImputedLangMap = HashMap<SymbolU32, Rc<Item>>;
+type ImputedLangMap = HashMap<usize, Rc<Item>>;
 type ImputedTermMap = HashMap<SymbolU32, ImputedLangMap>;
 
 // Quite often an etymology section on wiktionary will have multiple valid
@@ -211,7 +217,7 @@ impl ImputedItems {
 #[derive(Hash, Eq, PartialEq, Debug)]
 struct Source {
     items: Box<[Rc<Item>]>,
-    mode: SymbolU32,
+    mode: usize,
     head: u8,
 }
 
@@ -235,7 +241,6 @@ impl Sources {
         &mut self,
         string_pool: &StringPool,
         redirects: &Redirects,
-        langs: &Langs,
         items: &Items,
         item: &Rc<Item>,
     ) -> Result<()> {
@@ -251,7 +256,7 @@ impl Sources {
             for (&source_lang, &source_term) in
                 node.source_langs.iter().zip(node.source_terms.iter())
             {
-                let (source_lang, source_term) = redirects.get(langs, source_lang, source_term);
+                let (source_lang, source_term) = redirects.get(source_lang, source_term)?;
                 if let Some(ety_map) = items
                     .term_map
                     .get(&source_term)
@@ -390,9 +395,47 @@ impl ValueExt for Value<'_> {
     }
 }
 
+// convenience extension trait methods for dealing with ordered maps and sets
+trait OrderedMapExt {
+    fn get_index_value(&self, index: usize) -> Option<&str>;
+    fn get_expected_index_value(&self, index: usize) -> Result<&str>;
+    fn get_expected_index(&self, key: &str) -> Result<usize>;
+}
+
+impl OrderedMapExt for OrderedMap<&str, &str> {
+    fn get_index_value(&self, index: usize) -> Option<&str> {
+        self.index(index).map(|(_, &value)| value)
+    }
+    fn get_expected_index_value(&self, index: usize) -> Result<&str> {
+        self.get_index_value(index)
+            .ok_or_else(|| anyhow!("The index {index} does not exist."))
+    }
+    fn get_expected_index(&self, key: &str) -> Result<usize> {
+        self.get_index(key)
+            .ok_or_else(|| anyhow!("The key '{key}' does not exist."))
+    }
+}
+
+trait OrderedSetExt {
+    fn get_expected_index_key(&self, index: usize) -> Result<&str>;
+    fn get_expected_index(&self, key: &str) -> Result<usize>;
+}
+
+impl OrderedSetExt for OrderedSet<&str> {
+    fn get_expected_index_key(&self, index: usize) -> Result<&str> {
+        self.index(index)
+            .copied()
+            .ok_or_else(|| anyhow!("The index {index} does not exist."))
+    }
+    fn get_expected_index(&self, key: &str) -> Result<usize> {
+        self.get_index(key)
+            .ok_or_else(|| anyhow!("The key '{key}' does not exist."))
+    }
+}
+
 #[derive(Hash, Eq, PartialEq, Debug)]
 struct ReconstructionTitle {
-    language: SymbolU32,
+    language: usize,
     term: SymbolU32,
 }
 
@@ -405,42 +448,31 @@ struct Redirects {
 impl Redirects {
     // If a redirect page exists for given lang + term combo, get the redirect.
     // If not, just return back the original lang + term.
-    fn get(&self, langs: &Langs, lang: SymbolU32, term: SymbolU32) -> (SymbolU32, SymbolU32) {
-        if let Some(&language) = langs.lang_language.get(&lang) {
-            if let Some(redirect) = self
-                .reconstruction
-                .get(&ReconstructionTitle { language, term })
-            {
-                if let Some(&redirect_lang) = langs.language_lang.get(&redirect.language) {
-                    return (redirect_lang, redirect.term);
+    fn get(&self, lang: usize, term: SymbolU32) -> Result<(usize, SymbolU32)> {
+        if let Some(language) = LANG_CODE2NAME.get_index_value(lang) {
+            let language_index = LANG_NAME2CODE.get_expected_index(language)?;
+            if let Some(redirect) = self.reconstruction.get(&ReconstructionTitle {
+                language: language_index,
+                term,
+            }) {
+                if let Some(redirect_lang) = LANG_NAME2CODE.get_index_value(redirect.language) {
+                    let redirect_lang_index = LANG_CODE2NAME.get_expected_index(redirect_lang)?;
+                    return Ok((redirect_lang_index, redirect.term));
                 }
             } else if let Some(&redirect_term) = self.regular.get(&term) {
-                return (lang, redirect_term);
+                return Ok((lang, redirect_term));
             }
         }
-        (lang, term)
+        Ok((lang, term))
     }
 }
 
 #[derive(Default)]
-struct Langs {
-    lang_language: HashMap<SymbolU32, SymbolU32>, // (e.g. en -> English)
-    language_lang: HashMap<SymbolU32, SymbolU32>, // (e.g. English -> en)
-}
-
-impl Langs {
-    fn add(&mut self, lang: SymbolU32, language: SymbolU32) {
-        self.lang_language.insert(lang, language);
-        self.language_lang.insert(language, lang);
-    }
-}
-
 pub(crate) struct Processor {
     string_pool: StringPool,
     items: Items,
     sources: Sources,
     redirects: Redirects,
-    langs: Langs,
 }
 
 impl Processor {
@@ -450,7 +482,6 @@ impl Processor {
             items: Items::default(),
             sources: Sources::default(),
             redirects: Redirects::default(),
-            langs: Langs::default(),
         })
     }
 
@@ -458,10 +489,10 @@ impl Processor {
         &mut self,
         args: &Value,
         mode: &str,
-        lang: SymbolU32,
+        lang: &str,
     ) -> Result<Option<RawEtyNode>> {
         let term_lang = args.get_expected_str("1")?;
-        if term_lang != self.string_pool.resolve(lang) {
+        if term_lang != lang {
             return Ok(None);
         }
         let source_lang = args.get_expected_str("2")?;
@@ -472,8 +503,8 @@ impl Processor {
             let source_term = clean_ety_term(source_term);
             return Ok(Some(RawEtyNode {
                 source_terms: Box::new([self.string_pool.get_or_intern(source_term)]),
-                source_langs: Box::new([self.string_pool.get_or_intern(source_lang)]),
-                mode: self.string_pool.get_or_intern(mode),
+                source_langs: Box::new([LANG_CODE2NAME.get_expected_index(source_lang)?]),
+                mode: MODE.get_expected_index(mode)?,
                 head: 0,
             }));
         }
@@ -484,10 +515,10 @@ impl Processor {
         &mut self,
         args: &Value,
         mode: &str,
-        lang: SymbolU32,
+        lang: &str,
     ) -> Result<Option<RawEtyNode>> {
         let term_lang = args.get_expected_str("1")?;
-        if term_lang != self.string_pool.resolve(lang) {
+        if term_lang != lang {
             return Ok(None);
         }
         if let Some(source_term) = args.get_optional_str("2") {
@@ -497,8 +528,8 @@ impl Processor {
             let source_term = clean_ety_term(source_term);
             return Ok(Some(RawEtyNode {
                 source_terms: Box::new([self.string_pool.get_or_intern(source_term)]),
-                source_langs: Box::new([lang]),
-                mode: self.string_pool.get_or_intern(mode),
+                source_langs: Box::new([LANG_CODE2NAME.get_expected_index(lang)?]),
+                mode: MODE.get_expected_index(mode)?,
                 head: 0,
             }));
         }
@@ -508,10 +539,10 @@ impl Processor {
     fn process_prefix_json_template(
         &mut self,
         args: &Value,
-        lang: SymbolU32,
+        lang: &str,
     ) -> Result<Option<RawEtyNode>> {
         let term_lang = args.get_expected_str("1")?;
-        if term_lang != self.string_pool.resolve(lang) {
+        if term_lang != lang {
             return Ok(None);
         }
         if let Some(source_prefix) = args.get_optional_str("2") {
@@ -529,8 +560,8 @@ impl Processor {
                 let source_term = self.string_pool.get_or_intern(source_term);
                 return Ok(Some(RawEtyNode {
                     source_terms: Box::new([source_prefix, source_term]),
-                    source_langs: Box::new([lang; 2]),
-                    mode: self.string_pool.get_or_intern("prefix"),
+                    source_langs: Box::new([LANG_CODE2NAME.get_expected_index(lang)?; 2]),
+                    mode: MODE.get_expected_index("prefix")?,
                     head: 1,
                 }));
             }
@@ -541,10 +572,10 @@ impl Processor {
     fn process_suffix_json_template(
         &mut self,
         args: &Value,
-        lang: SymbolU32,
+        lang: &str,
     ) -> Result<Option<RawEtyNode>> {
         let term_lang = args.get_expected_str("1")?;
-        if term_lang != self.string_pool.resolve(lang) {
+        if term_lang != lang {
             return Ok(None);
         }
         if let Some(source_term) = args.get_optional_str("2") {
@@ -562,8 +593,8 @@ impl Processor {
                 let source_suffix = self.string_pool.get_or_intern(source_suffix.as_str());
                 return Ok(Some(RawEtyNode {
                     source_terms: Box::new([source_term, source_suffix]),
-                    source_langs: Box::new([lang; 2]),
-                    mode: self.string_pool.get_or_intern("suffix"),
+                    source_langs: Box::new([LANG_CODE2NAME.get_expected_index(lang)?; 2]),
+                    mode: MODE.get_expected_index("suffix")?,
                     head: 0,
                 }));
             }
@@ -574,10 +605,10 @@ impl Processor {
     fn process_circumfix_json_template(
         &mut self,
         args: &Value,
-        lang: SymbolU32,
+        lang: &str,
     ) -> Result<Option<RawEtyNode>> {
         let term_lang = args.get_expected_str("1")?;
-        if term_lang != self.string_pool.resolve(lang) {
+        if term_lang != lang {
             return Ok(None);
         }
         if let Some(source_prefix) = args.get_optional_str("2") {
@@ -602,8 +633,8 @@ impl Processor {
 
                     return Ok(Some(RawEtyNode {
                         source_terms: Box::new([source_term, source_circumfix]),
-                        source_langs: Box::new([lang; 2]),
-                        mode: self.string_pool.get_or_intern("circumfix"),
+                        source_langs: Box::new([LANG_CODE2NAME.get_expected_index(lang)?; 2]),
+                        mode: MODE.get_expected_index("circumfix")?,
                         head: 0,
                     }));
                 }
@@ -615,10 +646,10 @@ impl Processor {
     fn process_infix_json_template(
         &mut self,
         args: &Value,
-        lang: SymbolU32,
+        lang: &str,
     ) -> Result<Option<RawEtyNode>> {
         let term_lang = args.get_expected_str("1")?;
-        if term_lang != self.string_pool.resolve(lang) {
+        if term_lang != lang {
             return Ok(None);
         }
         if let Some(source_term) = args.get_optional_str("2") {
@@ -636,8 +667,8 @@ impl Processor {
                 let source_infix = self.string_pool.get_or_intern(source_infix.as_str());
                 return Ok(Some(RawEtyNode {
                     source_terms: Box::new([source_term, source_infix]),
-                    source_langs: Box::new([lang; 2]),
-                    mode: self.string_pool.get_or_intern("infix"),
+                    source_langs: Box::new([LANG_CODE2NAME.get_expected_index(lang)?; 2]),
+                    mode: MODE.get_expected_index("infix")?,
                     head: 0,
                 }));
             }
@@ -648,10 +679,10 @@ impl Processor {
     fn process_confix_json_template(
         &mut self,
         args: &Value,
-        lang: SymbolU32,
+        lang: &str,
     ) -> Result<Option<RawEtyNode>> {
         let term_lang = args.get_expected_str("1")?;
-        if term_lang != self.string_pool.resolve(lang) {
+        if term_lang != lang {
             return Ok(None);
         }
         if let Some(source_prefix) = args.get_optional_str("2") {
@@ -676,8 +707,8 @@ impl Processor {
                     let source_suffix = self.string_pool.get_or_intern(source_suffix.as_str());
                     return Ok(Some(RawEtyNode {
                         source_terms: Box::new([source_prefix, source_term, source_suffix]),
-                        source_langs: Box::new([lang; 3]),
-                        mode: self.string_pool.get_or_intern("confix"),
+                        source_langs: Box::new([LANG_CODE2NAME.get_expected_index(lang)?; 3]),
+                        mode: MODE.get_expected_index("confix")?,
                         head: 1,
                     }));
                 }
@@ -686,8 +717,8 @@ impl Processor {
                 let source_suffix = self.string_pool.get_or_intern(source_suffix.as_str());
                 return Ok(Some(RawEtyNode {
                     source_terms: Box::new([source_prefix, source_suffix]),
-                    source_langs: Box::new([lang; 2]),
-                    mode: self.string_pool.get_or_intern("confix"),
+                    source_langs: Box::new([LANG_CODE2NAME.get_expected_index(lang)?; 2]),
+                    mode: MODE.get_expected_index("confix")?,
                     head: 0, // no true head here, arbitrarily take first
                 }));
             }
@@ -699,10 +730,10 @@ impl Processor {
         &mut self,
         args: &Value,
         mode: &str,
-        lang: SymbolU32,
+        lang: &str,
     ) -> Result<Option<RawEtyNode>> {
         let term_lang = args.get_expected_str("1")?;
-        if term_lang != self.string_pool.resolve(lang) {
+        if term_lang != lang {
             return Ok(None);
         }
 
@@ -711,40 +742,43 @@ impl Processor {
         let mut source_langs = vec![];
         while let Some(source_term) = args.get_optional_str(n.to_string().as_str()) {
             if source_term.is_empty() || source_term == "-" {
-                break;
+                return Ok(None);
             }
             if let Some(source_lang) = args.get_optional_str(format!("lang{n}").as_str()) {
                 if source_lang.is_empty() || source_lang == "-" {
-                    break;
+                    return Ok(None);
                 }
                 let source_term = clean_ety_term(source_term);
                 source_terms.push(self.string_pool.get_or_intern(source_term));
-                source_langs.push(self.string_pool.get_or_intern(source_lang));
+                source_langs.push(LANG_CODE2NAME.get_expected_index(source_lang)?);
             } else {
                 let source_term = clean_ety_term(source_term);
                 source_terms.push(self.string_pool.get_or_intern(source_term));
-                source_langs.push(lang);
+                source_langs.push(LANG_CODE2NAME.get_expected_index(lang)?);
             }
             n += 1;
         }
-        Ok((!source_terms.is_empty()).then(|| RawEtyNode {
-            source_terms: source_terms.into_boxed_slice(),
-            source_langs: source_langs.into_boxed_slice(),
-            mode: self.string_pool.get_or_intern(mode),
-            head: 0, // no true head here, arbitrarily take first
-        }))
+        if !source_terms.is_empty() {
+            return Ok(Some(RawEtyNode {
+                source_terms: source_terms.into_boxed_slice(),
+                source_langs: source_langs.into_boxed_slice(),
+                mode: MODE.get_expected_index(mode)?,
+                head: 0, // no true head here, arbitrarily take first
+            }));
+        }
+        Ok(None)
     }
 
     fn process_json_ety_template(
         &mut self,
         template: &Value,
-        lang: SymbolU32,
+        lang: &str,
     ) -> Result<Option<RawEtyNode>> {
         let name = template.get_expected_str("name")?;
         let args = template.get_expected_object("args")?;
-        if let Some(mode) = DERIVED_TYPE_TEMPLATES.get(name) {
+        if let Some(&mode) = DERIVED_TYPE_TEMPLATES.get(name) {
             self.process_derived_type_json_template(args, mode, lang)
-        } else if let Some(mode) = ABBREV_TYPE_TEMPLATES.get(name) {
+        } else if let Some(&mode) = ABBREV_TYPE_TEMPLATES.get(name) {
             self.process_abbrev_type_json_template(args, mode, lang)
         } else if let Some(&mode) = COMPOUND_TYPE_TEMPLATES.get(name) {
             match mode {
@@ -763,7 +797,7 @@ impl Processor {
     fn process_json_ety(
         &mut self,
         json_item: &Value,
-        lang: SymbolU32,
+        lang: &str,
     ) -> Result<Option<Box<[RawEtyNode]>>> {
         let mut raw_ety_nodes = vec![];
         if let Some(templates) = json_item.get_array("etymology_templates") {
@@ -794,8 +828,8 @@ impl Processor {
                 Some(alt) => {
                     let raw_ety_node = RawEtyNode {
                         source_terms: Box::new([self.string_pool.get_or_intern(alt)]),
-                        source_langs: Box::new([lang]),
-                        mode: self.string_pool.get_or_intern("form of"),
+                        source_langs: Box::new([LANG_CODE2NAME.get_expected_index(lang)?]),
+                        mode: MODE.get_expected_index("form")?,
                         head: 0,
                     };
                     raw_ety_nodes.push(raw_ety_node);
@@ -815,13 +849,13 @@ impl Processor {
     // first root term seen. If we discover it is common, we will handle it. $$
     // NEED TO HANDLE CHECKING CATEGORIES IF NO ROOT TEMPLATE FOUND, $$ ONCE WE
     // MAKE PHF MAPS FOR LANG AND POS.
-    fn process_json_root(&mut self, json_item: &Value, lang: SymbolU32) -> Result<Option<RawRoot>> {
+    fn process_json_root(&mut self, json_item: &Value, lang: &str) -> Result<Option<RawRoot>> {
         if let Some(templates) = json_item.get_array("etymology_templates") {
             for template in templates {
                 if template.get_expected_str("name")? == "root" {
                     let args = template.get_expected_object("args")?;
                     let term_lang = args.get_expected_str("1")?;
-                    if term_lang != self.string_pool.resolve(lang) {
+                    if term_lang != lang {
                         return Ok(None);
                     }
                     let root_lang = args.get_expected_str("2")?;
@@ -844,7 +878,7 @@ impl Processor {
                     };
                     return Ok(Some(RawRoot {
                         term: self.string_pool.get_or_intern(root_term),
-                        lang: self.string_pool.get_or_intern(root_lang),
+                        lang: LANG_CODE2NAME.get_expected_index(root_lang)?,
                         sense_id: root_sense_id,
                     }));
                 }
@@ -866,9 +900,9 @@ impl Processor {
             }
             let redirect = json_item.get_expected_str("redirect")?;
             // e.g. Reconstruction:Proto-Germanic/pīpǭ
-            if let Some(from) = self.process_reconstruction_title(title) {
+            if let Some(from) = self.process_reconstruction_title(title)? {
                 // e.g. "Reconstruction:Proto-West Germanic/pīpā"
-                if let Some(to) = self.process_reconstruction_title(redirect) {
+                if let Some(to) = self.process_reconstruction_title(redirect)? {
                     self.redirects.reconstruction.insert(from, to);
                 }
                 return Ok(());
@@ -882,20 +916,20 @@ impl Processor {
         Ok(())
     }
 
-    fn process_reconstruction_title(&mut self, title: &str) -> Option<ReconstructionTitle> {
+    fn process_reconstruction_title(&mut self, title: &str) -> Result<Option<ReconstructionTitle>> {
         // e.g. Reconstruction:Proto-Germanic/pīpǭ
         if let Some(title) = title.strip_prefix("Reconstruction:") {
             if let Some(slash) = title.find('/') {
                 let language = &title[..slash];
                 if let Some(term) = title.get(slash + 1..) {
-                    return Some(ReconstructionTitle {
-                        language: self.string_pool.get_or_intern(language),
+                    return Ok(Some(ReconstructionTitle {
+                        language: LANG_NAME2CODE.get_expected_index(language)?,
                         term: self.string_pool.get_or_intern(term),
-                    });
+                    }));
                 }
             }
         }
-        None
+        Ok(None)
     }
 
     fn process_json_item(&mut self, json_item: &Value) -> Result<()> {
@@ -911,20 +945,18 @@ impl Processor {
         if should_ignore_term(term, pos) {
             return Ok(());
         }
-        let term = self.string_pool.get_or_intern(term);
-        let pos = self.string_pool.get_or_intern(pos);
         // 'lang_code' key must be present
-        let lang = self
-            .string_pool
-            .get_or_intern(json_item.get_expected_str("lang_code")?);
+        let lang = json_item.get_expected_str("lang_code")?;
+        let lang_index = LANG_CODE2NAME.get_expected_index(lang)?;
+        let mapped_language = LANG_CODE2NAME.get_expected_index_value(lang_index)?;
         // 'lang' key must be present
-        let language = self
-            .string_pool
-            .get_or_intern(json_item.get_expected_str("lang")?);
+        let language = json_item.get_expected_str("lang")?;
+        assert_eq!(
+            mapped_language, language,
+            "When parsing {} ({}, {}), the lang field was {}, while LANG_CODE2NAME maps the code to {}.",
+            term, lang, pos, language, mapped_language
+        );
         // 'etymology_text' key may be missing or empty
-
-        self.langs.add(lang, language);
-
         let ety_text_hash = json_item.get_str("etymology_text").map(|s| {
             let mut hasher = AHasher::default();
             hasher.write(s.as_bytes());
@@ -946,10 +978,10 @@ impl Processor {
         let item = Item {
             is_imputed: false,
             i: self.items.n,
-            term,
-            lang,
+            term: self.string_pool.get_or_intern(term),
+            lang: lang_index,
             ety_num: 0, // temp value to be changed if need be in add()
-            pos,
+            pos: POS.get_expected_index(pos)?,
             gloss,
             gloss_num: 0, // temp value to be changed if need be in add()
             raw_ety_nodes,
@@ -990,7 +1022,6 @@ impl Processor {
                             self.sources.process_item_raw_ety_nodes(
                                 &self.string_pool,
                                 &self.redirects,
-                                &self.langs,
                                 &self.items,
                                 item,
                             )?;

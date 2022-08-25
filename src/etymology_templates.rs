@@ -1,8 +1,57 @@
-use phf::{phf_map, Map};
+use phf::{phf_ordered_map, phf_ordered_set, OrderedMap, OrderedSet};
 
-// For each of the three maps below, the key is the name of the template
-// as it appears in a given etymology section for a given word on wiktionary,
-// as read from the wiktextract json. The value is the canonical name used by wety.
+// For each of the three maps below, the key is the name of the template as it
+// appears in a given etymology section for a given word on wiktionary, as read
+// from the wiktextract json. The value is the canonical name used by wety. We
+// first define the set MODES that contains all of the unique values from all 3
+// maps. REMEMBER, IF EVER ADDING/REMOVING TO/FROM A MAP, YOU NEED TO ALSO
+// ADD/REMOVE THE CANONICAL NAME TO/FROM MODES.
+
+// This is the set of canonical names for all templates listed below
+pub(crate) static MODE: OrderedSet<&'static str> = phf_ordered_set! {
+    "derived", // start derived-type modes
+    "inherited",
+    "borrowed",
+    "learned borrowing",
+    "semi-learned borrowing",
+    "unadapted borrowing",
+    "orthographic borrowing",
+    "semantic loan",
+    "calque",
+    "partial calque",
+    "phono-semantic matching",
+    "undefined derivation",
+    "transliteration",
+    "abbreviation", // start abbrev-type modes
+    "adverbial accusative",
+    "contraction",
+    "reduplication",
+    "syncopic form",
+    "rebracketing",
+    "nominalization",
+    "ellipsis",
+    "acronym",
+    "initialism",
+    "conversion",
+    "clipping",
+    "causative",
+    "back-formation",
+    "deverbal",
+    "apocopic form",
+    "aphetic form",
+    "compound", // start compound-type modes
+    "univerbation",
+    "transfix",
+    "surface analysis",
+    "suffix",
+    "prefix",
+    "infix",
+    "confix",
+    "circumfix",
+    "blend",
+    "affix",
+    "form", // ad-hoc mode used when term is wiktextract alt or form of another
+};
 
 // Wiktionary etymology template names that will be considered to represent
 // the concept "derived from", in a broad sense. They have 3 main parameters:
@@ -13,7 +62,7 @@ use phf::{phf_map, Map};
 // "5" or "t": gloss/translation for the source term (optional)
 // "tr": transliteration for the source term (optional)
 // "pos": part of speech of the source term (optional)
-pub(crate) static DERIVED_TYPE_TEMPLATES: Map<&'static str, &'static str> = phf_map! {
+pub(crate) static DERIVED_TYPE_TEMPLATES: OrderedMap<&'static str, &'static str> = phf_ordered_map! {
     "derived" => "derived", // https://en.wiktionary.org/wiki/Template:derived
     "der" => "derived", // shortcut for "derived"
     "der+" => "derived", // https://en.wiktionary.org/wiki/Template:der%2B
@@ -64,7 +113,7 @@ pub(crate) static DERIVED_TYPE_TEMPLATES: Map<&'static str, &'static str> = phf_
 // $$ acronym, initialism)
 // $$ have source "term" that is often multiple individual terms
 // $$ that together do not have a term entry.
-pub(crate) static ABBREV_TYPE_TEMPLATES: Map<&'static str, &'static str> = phf_map! {
+pub(crate) static ABBREV_TYPE_TEMPLATES: OrderedMap<&'static str, &'static str> = phf_ordered_map! {
     "abbrev" => "abbreviation", // https://en.wiktionary.org/wiki/Template:abbrev
     "adverbial accusative" => "adverbial accusative", // https://en.wiktionary.org/wiki/Template:adverbial_accusative
     "contraction" => "contraction", // https://en.wiktionary.org/wiki/Template:contraction
@@ -100,7 +149,7 @@ pub(crate) static ABBREV_TYPE_TEMPLATES: Map<&'static str, &'static str> = phf_m
 // "posn": part of speech for source term given in arg n+1 (optional)
 // Some of these templates have optional "lang1", "lang2", etc. arguments,
 // which are the lang codes of the source terms. We handle this.
-pub(crate) static COMPOUND_TYPE_TEMPLATES: Map<&'static str, &'static str> = phf_map! {
+pub(crate) static COMPOUND_TYPE_TEMPLATES: OrderedMap<&'static str, &'static str> = phf_ordered_map! {
     "compound" => "compound", // https://en.wiktionary.org/wiki/Template:compound
     "com" => "compound", // shortcut for "compound"
     "com+" => "compound", // https://en.wiktionary.org/wiki/Template:com%2B

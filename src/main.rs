@@ -30,6 +30,7 @@ pub struct Args {
 }
 
 fn main() -> Result<()> {
+    std::env::set_var("RUST_BACKTRACE", "1");
     let args = Args::parse();
     let total_time = Instant::now();
     let t = wiktextract_to_turtle(&args.wiktextract_path, &args.turtle_path)?;
