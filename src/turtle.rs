@@ -1,6 +1,6 @@
 use crate::{
     etymology_templates::MODE, lang::LANG_CODE2NAME, pos::POS, Item, OrderedMapExt, OrderedSetExt,
-    Processor,
+    ProcessedData,
 };
 
 use std::{
@@ -62,7 +62,7 @@ fn write_item_quoted_prop(f: &mut BufWriter<File>, pred: &str, obj: &str) -> Res
 }
 fn write_item(
     f: &mut BufWriter<File>,
-    data: &Processor,
+    data: &ProcessedData,
     item: &Item,
     has_multi_ety: bool,
     has_multi_gloss: bool,
@@ -109,7 +109,7 @@ fn write_item(
     Ok(())
 }
 
-pub(crate) fn write_turtle_file(data: &Processor, path: &str) -> Result<()> {
+pub(crate) fn write_turtle_file(data: &ProcessedData, path: &str) -> Result<()> {
     let mut f = BufWriter::new(File::create(path)?);
     write_prefixes(&mut f)?;
     let n = u64::try_from(data.items.n + data.sources.imputed_items.n)?;

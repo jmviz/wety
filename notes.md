@@ -1,5 +1,7 @@
 ## Immediate TODOs
 
+* Need to impute items for all raw_roots before doing generate_sources. 
+
 * Add senseid to items. Parse in JSON by finding ':' then taking everything after.
 
 * When there is dispute about which root a word has, sometimes there are multiple `root` templates (e.g. https://en.wiktionary.org/wiki/sect#Etymology) or, alternatively, multiple roots given in one `root` template (e.g. https://en.wiktionary.org/wiki/bunker#Etymology_1). Homographic roots are fairly common so sense id arguments are not uncommon to see being used in `root` templates. It seems an alternate usage (though not specified by template documentation) is to give the sense id in parentheses after the root term, with a space separating (see e.g. https://en.wiktionary.org/wiki/bitch#Etymology). Finally, it seems somewhat common not to have a `root` template at all, but instead to manually give a link to the Category for words derived from a root (see e.g. https://en.wiktionary.org/w/index.php?title=bank), where this link is of the form (e.g.) "English terms derived from the Proto-Indo-European root *bʰeg- (bend)".

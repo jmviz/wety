@@ -9,7 +9,7 @@ use crate::{
     etymology_templates::{
         ABBREV_TYPE_TEMPLATES, COMPOUND_TYPE_TEMPLATES, DERIVED_TYPE_TEMPLATES, MODE,
     },
-    lang::{LANG_CODE2NAME, LANG_NAME2CODE},
+    lang::{LANG_CODE2NAME, LANG_ETYCODE2CODE, LANG_NAME2CODE},
     pos::POS,
     turtle::write_turtle_file,
 };
@@ -18,7 +18,7 @@ use std::{
     convert::TryFrom,
     fs::{remove_dir_all, File},
     hash::Hasher,
-    io::{BufRead, BufReader},
+    io::BufReader,
     path::Path,
     rc::Rc,
     time::Instant,
@@ -99,6 +99,7 @@ type TermMap = HashMap<SymbolU32, LangMap>;
 struct Items {
     term_map: TermMap,
     n: usize,
+    redirects: Redirects,
 }
 
 impl Items {
@@ -171,6 +172,139 @@ impl Items {
         }
         Ok(())
     }
+
+    // Get all items that have this lang and term
+    fn get(&self, lang: usize, term: SymbolU32) -> Result<Option<Vec<&Rc<Item>>>> {
+        // If lang is an etymology-only language, we will not find any entries
+        // for it in Items lang map, since such a language definitionally does
+        // not have any entries itself. So we look for the actual lang that the
+        // ety lang is associated with.
+        let lang = LANG_ETYCODE2CODE
+            .get(LANG_CODE2NAME.get_expected_index_key(lang)?)
+            .and_then(|code| LANG_CODE2NAME.get_index(code))
+            .unwrap_or(lang);
+        // Then we also check if there is a redirect for this lang term combo.
+        let (lang, term) = self.redirects.get(lang, term)?;
+        Ok(self
+            .term_map
+            .get(&term)
+            .and_then(|lang_map| lang_map.get(&lang))
+            // If an ety_map is found, that means there is at least one item to
+            // collect after this nested iteration. See logic in Items::add()
+            // for why. Therefore, this function will always return either a
+            // non-empty Vec or None.
+            .map(|ety_map| {
+                ety_map
+                    .values()
+                    .flat_map(|(_, pos_map)| pos_map.values().flat_map(hashbrown::HashMap::values))
+                    .collect()
+            }))
+    }
+
+    // For now we'll just take the first node. But cf. notes.md.
+    /// Only to be called once all json items have been processed into items.
+    fn process_item_raw_ety_nodes(
+        &self,
+        string_pool: &StringPool,
+        sources: &mut Sources,
+        item: &Rc<Item>,
+    ) -> Result<()> {
+        if item.raw_ety_nodes.is_none() {
+            return Ok(()); // don't add anything to sources if no valid raw ety nodes
+        }
+        let mut current_item = Rc::clone(item); // for tracking possibly imputed items
+        let mut next_item = Rc::clone(item); // for tracking possibly imputed items
+        for node in item.raw_ety_nodes.as_ref().unwrap().iter() {
+            let sense = Sense::new(string_pool, &current_item);
+            let mut source_items = Vec::with_capacity(node.source_terms.len());
+            let mut has_new_imputation = false;
+            for (&source_lang, &source_term) in
+                node.source_langs.iter().zip(node.source_terms.iter())
+            {
+                if let Some(candidate_source_items) = self.get(source_lang, source_term)? {
+                    // There exists at least one item for this lang term combo.
+                    // We have to do a word sense disambiguation in case there
+                    // are multiple items.
+                    let source_item = candidate_source_items
+                        .iter()
+                        .max_by_key(|candidate| {
+                            let candidate_sense = Sense::new(string_pool, candidate);
+                            sense.lesk_score(&candidate_sense)
+                        })
+                        .unwrap(); // Item::get() never returns an empty Vec
+
+                    source_items.push(Rc::clone(source_item));
+                } else if let Some(imputed_source_item) = sources
+                    .imputed_items
+                    .term_map
+                    .get(&source_term)
+                    .and_then(|lang_map| lang_map.get(&source_lang))
+                {
+                    // We have already imputed an item that corresponds to this term.
+                    source_items.push(Rc::clone(imputed_source_item));
+                } else if node.source_terms.len() == 1 {
+                    // This is an unseen term, and it is in a non-compound-type template.
+                    // We will impute an item for this term, and use this new imputed
+                    // item as the item for the next template in the outer loop.
+                    has_new_imputation = true;
+                    let i = self.n + sources.imputed_items.n;
+                    // We assume the imputed item has the same pos as the current_item.
+                    // (How often is this not the case?)
+                    let imputed_source_item = Rc::from(Item::new_imputed(
+                        i,
+                        current_item.pos,
+                        source_lang,
+                        source_term,
+                    ));
+                    sources.imputed_items.add(&imputed_source_item);
+                    source_items.push(Rc::clone(&imputed_source_item));
+                    next_item = Rc::clone(&imputed_source_item);
+                } else {
+                    // This is a term of a compound-type template without a
+                    // link, and for which a corresponding imputed item has not
+                    // yet been created. We won't bother trying to do convoluted
+                    // imputations for such cases at the moment. So we stop
+                    // processing templates here.
+                    return Ok(());
+                }
+            }
+            let source = Source {
+                items: source_items.into_boxed_slice(),
+                mode: node.mode,
+                head: node.head,
+            };
+            sources.add(&current_item, source)?;
+            // We keep processing templates until we hit the first one with no
+            // imputation required.
+            if !has_new_imputation {
+                return Ok(());
+            }
+            current_item = Rc::clone(&next_item);
+        }
+        Ok(())
+    }
+
+    fn generate_sources(&self, string_pool: &StringPool) -> Result<Sources> {
+        let pb = ProgressBar::new(u64::try_from(self.n)?);
+        pb.set_style(ProgressStyle::default_bar()
+            .template("{spinner:.green} [{elapsed}] [{wide_bar:.cyan/blue}] {human_pos}/{human_len} ({per_sec}, {eta})")?
+            .progress_chars("#>-"));
+        let mut sources = Sources::default();
+        for lang_map in self.term_map.values() {
+            for ety_map in lang_map.values() {
+                for (_, pos_map) in ety_map.values() {
+                    for gloss_map in pos_map.values() {
+                        for item in gloss_map.values() {
+                            self.process_item_raw_ety_nodes(string_pool, &mut sources, item)?;
+                            pb.inc(1);
+                        }
+                    }
+                }
+            }
+        }
+        pb.finish();
+        Ok(sources)
+    }
 }
 
 type ImputedLangMap = HashMap<usize, Rc<Item>>;
@@ -234,97 +368,6 @@ impl Sources {
             .try_insert(Rc::clone(item), source)
             .and(std::result::Result::Ok(()))
             .map_err(|_| anyhow!("Tried inserting duplicate item:\n{:#?}", item))
-    }
-    // For now we'll just take the first node. But cf. notes.md.
-    /// Only to be called once all json items have been processed into items.
-    fn process_item_raw_ety_nodes(
-        &mut self,
-        string_pool: &StringPool,
-        redirects: &Redirects,
-        items: &Items,
-        item: &Rc<Item>,
-    ) -> Result<()> {
-        if item.raw_ety_nodes.is_none() {
-            return Ok(()); // don't add anything to sources if no valid raw ety nodes
-        }
-        let mut current_item = Rc::clone(item); // for tracking possibly imputed items
-        let mut next_item = Rc::clone(item); // for tracking possibly imputed items
-        for node in item.raw_ety_nodes.as_ref().unwrap().iter() {
-            let sense = Sense::new(string_pool, &current_item);
-            let mut source_items = Vec::with_capacity(node.source_terms.len());
-            let mut has_new_imputation = false;
-            for (&source_lang, &source_term) in
-                node.source_langs.iter().zip(node.source_terms.iter())
-            {
-                let (source_lang, source_term) = redirects.get(source_lang, source_term)?;
-                if let Some(ety_map) = items
-                    .term_map
-                    .get(&source_term)
-                    .and_then(|lang_map| lang_map.get(&source_lang))
-                {
-                    // There exists at least one item for this term. We have to
-                    // do a word sense disambiguation in case there are multiple
-                    // items.
-                    let source_item = ety_map
-                        .values()
-                        .flat_map(|(_, pos_map)| {
-                            pos_map.values().flat_map(hashbrown::HashMap::values)
-                        })
-                        .max_by_key(|other_item| {
-                            let other_item_sense = Sense::new(string_pool, other_item);
-                            sense.lesk_score(&other_item_sense)
-                        })
-                        .unwrap(); // see logic in Item::add() to see why this is safe
-
-                    source_items.push(Rc::clone(source_item));
-                } else if let Some(imputed_source_item) = self
-                    .imputed_items
-                    .term_map
-                    .get(&source_term)
-                    .and_then(|lang_map| lang_map.get(&source_lang))
-                {
-                    // We have already imputed an item that corresponds to this term.
-                    source_items.push(Rc::clone(imputed_source_item));
-                } else if node.source_terms.len() == 1 {
-                    // This is an unseen term, and it is in a non-compound-type template.
-                    // We will impute an item for this term, and use this new imputed
-                    // item as the item for the next template in the outer loop.
-                    has_new_imputation = true;
-                    let i = items.n + self.imputed_items.n;
-                    // We assume the imputed item has the same pos as the current_item.
-                    // (How often is this not the case?)
-                    let imputed_source_item = Rc::from(Item::new_imputed(
-                        i,
-                        current_item.pos,
-                        source_lang,
-                        source_term,
-                    ));
-                    self.imputed_items.add(&imputed_source_item);
-                    source_items.push(Rc::clone(&imputed_source_item));
-                    next_item = Rc::clone(&imputed_source_item);
-                } else {
-                    // This is a term of a compound-type template without a
-                    // link, and for which a corresponding imputed item has not
-                    // yet been created. We won't bother trying to do convoluted
-                    // imputations for such cases at the moment. So we stop
-                    // processing templates here.
-                    return Ok(());
-                }
-            }
-            let source = Source {
-                items: source_items.into_boxed_slice(),
-                mode: node.mode,
-                head: node.head,
-            };
-            self.add(&current_item, source)?;
-            // We keep processing templates until we hit the first one with no
-            // imputation required.
-            if !has_new_imputation {
-                return Ok(());
-            }
-            current_item = Rc::clone(&next_item);
-        }
-        Ok(())
     }
 
     fn get(&self, item: &Item) -> Option<&Source> {
@@ -397,12 +440,21 @@ impl ValueExt for Value<'_> {
 
 // convenience extension trait methods for dealing with ordered maps and sets
 trait OrderedMapExt {
+    fn get_index_key(&self, index: usize) -> Option<&str>;
+    fn get_expected_index_key(&self, index: usize) -> Result<&str>;
     fn get_index_value(&self, index: usize) -> Option<&str>;
     fn get_expected_index_value(&self, index: usize) -> Result<&str>;
     fn get_expected_index(&self, key: &str) -> Result<usize>;
 }
 
 impl OrderedMapExt for OrderedMap<&str, &str> {
+    fn get_index_key(&self, index: usize) -> Option<&str> {
+        self.index(index).map(|(&key, _)| key)
+    }
+    fn get_expected_index_key(&self, index: usize) -> Result<&str> {
+        self.get_index_key(index)
+            .ok_or_else(|| anyhow!("The index {index} does not exist."))
+    }
     fn get_index_value(&self, index: usize) -> Option<&str> {
         self.index(index).map(|(_, &value)| value)
     }
@@ -468,23 +520,11 @@ impl Redirects {
 }
 
 #[derive(Default)]
-pub(crate) struct Processor {
+struct RawDataProcessor {
     string_pool: StringPool,
-    items: Items,
-    sources: Sources,
-    redirects: Redirects,
 }
 
-impl Processor {
-    fn new() -> Result<Self> {
-        Ok(Self {
-            string_pool: StringPool::default(),
-            items: Items::default(),
-            sources: Sources::default(),
-            redirects: Redirects::default(),
-        })
-    }
-
+impl RawDataProcessor {
     fn process_derived_type_json_template(
         &mut self,
         args: &Value,
@@ -900,7 +940,7 @@ impl Processor {
         Ok(None)
     }
 
-    fn process_redirect(&mut self, json_item: &Value) -> Result<()> {
+    fn process_redirect(&mut self, items: &mut Items, json_item: &Value) -> Result<()> {
         // there is one tricky redirect that makes it so title is
         // "optional" (i.e. could be empty string):
         // {"title": "", "redirect": "Appendix:Control characters"}
@@ -915,7 +955,7 @@ impl Processor {
             if let Some(from) = self.process_reconstruction_title(title)? {
                 // e.g. "Reconstruction:Proto-West Germanic/pīpā"
                 if let Some(to) = self.process_reconstruction_title(redirect)? {
-                    self.redirects.reconstruction.insert(from, to);
+                    items.redirects.reconstruction.insert(from, to);
                 }
                 return Ok(());
             }
@@ -923,7 +963,7 @@ impl Processor {
             // otherwise, this is a simple term-to-term redirect
             let from = self.string_pool.get_or_intern(title);
             let to = self.string_pool.get_or_intern(redirect);
-            self.redirects.regular.insert(from, to);
+            items.redirects.regular.insert(from, to);
         }
         Ok(())
     }
@@ -946,12 +986,12 @@ impl Processor {
         Ok(None)
     }
 
-    fn process_json_item(&mut self, json_item: &Value) -> Result<()> {
+    fn process_json_item(&mut self, items: &mut Items, json_item: &Value) -> Result<()> {
         // Some wiktionary pages are redirects. These are actually used somewhat
         // heavily, so we need to take them into account
         // https://github.com/tatuylonen/wiktextract#format-of-extracted-redirects
         if json_item.contains_key("redirect") {
-            return self.process_redirect(json_item);
+            return self.process_redirect(items, json_item);
         }
         let term = get_term(json_item)?;
         // 'pos' key must be present
@@ -983,7 +1023,7 @@ impl Processor {
 
         let item = Item {
             is_imputed: false,
-            i: self.items.n,
+            i: items.n,
             term: self.string_pool.get_or_intern(term),
             lang: lang_index,
             ety_num: 0, // temp value to be changed if need be in add()
@@ -993,52 +1033,21 @@ impl Processor {
             raw_ety_nodes,
             raw_root,
         };
-        self.items.add(ety_text_hash, item)?;
+        items.add(ety_text_hash, item)?;
         Ok(())
     }
 
-    fn process_json<T: BufRead>(&mut self, lines: ByteLines<T>) -> Result<()> {
-        for mut line in lines.into_iter().filter_map(Result::ok) {
-            let json_item = to_borrowed_value(&mut line)?;
-            self.process_json_item(&json_item)?;
-        }
-        Ok(())
-    }
-
-    fn process_file(&mut self, file: File) -> Result<()> {
+    fn process_file(&mut self, file: File) -> Result<Items> {
+        let mut items = Items::default();
         let reader = BufReader::new(file);
         let gz = GzDecoder::new(reader);
         let gz_reader = BufReader::new(gz);
         let lines = ByteLines::new(gz_reader);
-        self.process_json(lines)?;
-        Ok(())
-    }
-
-    fn process_sources(&mut self) -> Result<()> {
-        let n = u64::try_from(self.items.n)?;
-        let pb = ProgressBar::new(n);
-        pb.set_style(ProgressStyle::default_bar()
-            .template("{spinner:.green} [{elapsed}] [{wide_bar:.cyan/blue}] {human_pos}/{human_len} ({per_sec}, {eta})")?
-            .progress_chars("#>-"));
-        for lang_map in self.items.term_map.values() {
-            for ety_map in lang_map.values() {
-                for (_, pos_map) in ety_map.values() {
-                    for gloss_map in pos_map.values() {
-                        for item in gloss_map.values() {
-                            self.sources.process_item_raw_ety_nodes(
-                                &self.string_pool,
-                                &self.redirects,
-                                &self.items,
-                                item,
-                            )?;
-                            pb.inc(1);
-                        }
-                    }
-                }
-            }
+        for mut line in lines.into_iter().filter_map(Result::ok) {
+            let json_item = to_borrowed_value(&mut line)?;
+            self.process_json_item(&mut items, &json_item)?;
         }
-        pb.finish();
-        Ok(())
+        Ok(items)
     }
 }
 
@@ -1099,6 +1108,12 @@ fn get_term<'a>(json_item: &'a Value) -> Result<&'a str> {
     Ok(json_item.get_expected_str("word")?)
 }
 
+pub(crate) struct ProcessedData {
+    string_pool: StringPool,
+    items: Items,
+    sources: Sources,
+}
+
 /// # Errors
 ///
 /// Will return `Err` if any unexpected issue arises parsing the wiktextract
@@ -1107,16 +1122,22 @@ pub fn wiktextract_to_turtle(wiktextract_path: &str, turtle_path: &str) -> Resul
     let mut t = Instant::now();
     let file = File::open(wiktextract_path)?;
     println!("Processing raw wiktextract data from {wiktextract_path}...");
-    let mut processor = Processor::new()?;
-    processor.process_file(file)?;
+    let mut processor = RawDataProcessor::default();
+    let items = processor.process_file(file)?;
     println!("Finished. Took {}.", HumanDuration(t.elapsed()));
     println!("Processing etymologies...");
     t = Instant::now();
-    processor.process_sources()?;
+    let string_pool = processor.string_pool;
+    let sources = items.generate_sources(&string_pool)?;
     println!("Finished. Took {}.", HumanDuration(t.elapsed()));
     println!("Writing RDF to Turtle file {turtle_path}...");
     t = Instant::now();
-    write_turtle_file(&processor, turtle_path)?;
+    let data = ProcessedData {
+        string_pool,
+        items,
+        sources,
+    };
+    write_turtle_file(&data, turtle_path)?;
     println!("Finished. Took {}.", HumanDuration(t.elapsed()));
     t = Instant::now();
     println!("Dropping all processed data...");
