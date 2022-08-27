@@ -71,7 +71,7 @@ for _, lang in list_of_languages.iterrows():
     # useful to have the data in case we decide placeholder nodes with no
     # definite source term are ever desired.
     family_code = lang["family code"].strip()
-    family = lang["family code"].strip()
+    family = lang["family"].strip()
     if family_code and family:
         code2name[family_code] = family
         name2code[family] = family_code
