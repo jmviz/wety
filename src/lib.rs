@@ -17,8 +17,9 @@ use crate::{
 use std::{
     convert::TryFrom,
     fs::{remove_dir_all, File},
-    hash::Hasher,
+    hash::{Hash, Hasher},
     io::BufReader,
+    ops::Index,
     path::Path,
     rc::Rc,
     time::Instant,
@@ -31,6 +32,11 @@ use flate2::read::GzDecoder;
 use hashbrown::{HashMap, HashSet};
 use indicatif::{HumanDuration, ProgressBar, ProgressStyle};
 use oxigraph::{io::GraphFormat::Turtle, model::GraphNameRef::DefaultGraph, store::Store};
+use petgraph::{
+    algo::greedy_feedback_arc_set,
+    stable_graph::{EdgeIndex, EdgeReference, NodeIndex, StableDiGraph},
+    visit::EdgeRef,
+};
 use phf::{phf_set, OrderedMap, OrderedSet, Set};
 use simd_json::{to_borrowed_value, value::borrowed::Value, ValueAccess};
 use string_interner::{backend::StringBackend, symbol::SymbolU32, StringInterner};
@@ -45,10 +51,10 @@ static IGNORED_REDIRECTS: Set<&'static str> = phf_set! {
 // models the basic info from a wiktionary etymology template
 #[derive(Hash, Eq, PartialEq, Debug)]
 struct RawEtyNode {
-    source_terms: Box<[SymbolU32]>, // e.g. "re-", "do"
-    source_langs: Box<[usize]>,     // e.g. "en", "en"
-    mode: usize,                    // e.g. "prefix"
-    head: u8,                       // e.g. 1 (the index of "do")
+    ety_terms: Box<[SymbolU32]>, // e.g. "re-", "do"
+    ety_langs: Box<[usize]>,     // e.g. "en", "en"
+    mode: usize,                 // e.g. "prefix"
+    head: u8,                    // e.g. 1 (the index of "do")
 }
 
 #[derive(Hash, Eq, PartialEq, Debug)]
@@ -173,18 +179,33 @@ impl Items {
         Ok(())
     }
 
-    // Get all items that have this lang and term
-    fn get(&self, lang: usize, term: SymbolU32) -> Result<Option<Vec<&Rc<Item>>>> {
+    fn rectify_lang_term(&self, lang: usize, term: SymbolU32) -> Result<(usize, SymbolU32)> {
         // If lang is an etymology-only language, we will not find any entries
         // for it in Items lang map, since such a language definitionally does
         // not have any entries itself. So we look for the actual lang that the
         // ety lang is associated with.
-        let lang = LANG_ETYCODE2CODE
-            .get(LANG_CODE2NAME.get_expected_index_key(lang)?)
-            .and_then(|code| LANG_CODE2NAME.get_index(code))
-            .unwrap_or(lang);
+        let lang = etylang2lang(lang)?;
         // Then we also check if there is a redirect for this lang term combo.
-        let (lang, term) = self.redirects.get(lang, term)?;
+        Ok(self.redirects.get(lang, term)?)
+    }
+
+    fn contains(&self, lang: usize, term: SymbolU32) -> Result<bool> {
+        let (lang, term) = self.rectify_lang_term(lang, term)?;
+        Ok(self
+            .term_map
+            .get(&term)
+            .map_or(false, |lang_map| lang_map.contains_key(&lang)))
+    }
+
+    // Get all items that have this lang and term
+    fn get_disambiguated_item(
+        &self,
+        string_pool: &StringPool,
+        sense: &Sense,
+        lang: usize,
+        term: SymbolU32,
+    ) -> Result<Option<&Rc<Item>>> {
+        let (lang, term) = self.rectify_lang_term(lang, term)?;
         Ok(self
             .term_map
             .get(&term)
@@ -193,72 +214,60 @@ impl Items {
             // collect after this nested iteration. See logic in Items::add()
             // for why. Therefore, this function will always return either a
             // non-empty Vec or None.
-            .map(|ety_map| {
+            .and_then(|ety_map| {
                 ety_map
                     .values()
                     .flat_map(|(_, pos_map)| pos_map.values().flat_map(hashbrown::HashMap::values))
-                    .collect()
+                    .max_by_key(|candidate| {
+                        let candidate_sense = Sense::new(string_pool, candidate);
+                        sense.lesk_score(&candidate_sense)
+                    })
             }))
     }
 
     // For now we'll just take the first node. But cf. notes.md.
-    /// Only to be called once all json items have been processed into items.
+    // Only to be called once all json items have been processed into items.
     fn process_item_raw_ety_nodes(
         &self,
         string_pool: &StringPool,
-        sources: &mut Sources,
+        ety_graph: &mut EtyGraph,
         item: &Rc<Item>,
     ) -> Result<()> {
         if item.raw_ety_nodes.is_none() {
-            return Ok(()); // don't add anything to sources if no valid raw ety nodes
+            return Ok(()); // don't add anything to ety_graph if no valid raw ety nodes
         }
         let mut current_item = Rc::clone(item); // for tracking possibly imputed items
         let mut next_item = Rc::clone(item); // for tracking possibly imputed items
         for node in item.raw_ety_nodes.as_ref().unwrap().iter() {
             let sense = Sense::new(string_pool, &current_item);
-            let mut source_items = Vec::with_capacity(node.source_terms.len());
+            let mut ety_items = Vec::with_capacity(node.ety_terms.len());
             let mut has_new_imputation = false;
-            for (&source_lang, &source_term) in
-                node.source_langs.iter().zip(node.source_terms.iter())
-            {
-                if let Some(candidate_source_items) = self.get(source_lang, source_term)? {
+            for (&ety_lang, &ety_term) in node.ety_langs.iter().zip(node.ety_terms.iter()) {
+                if let Some(ety_item) =
+                    self.get_disambiguated_item(string_pool, &sense, ety_lang, ety_term)?
+                {
                     // There exists at least one item for this lang term combo.
                     // We have to do a word sense disambiguation in case there
                     // are multiple items.
-                    let source_item = candidate_source_items
-                        .iter()
-                        .max_by_key(|candidate| {
-                            let candidate_sense = Sense::new(string_pool, candidate);
-                            sense.lesk_score(&candidate_sense)
-                        })
-                        .unwrap(); // Item::get() never returns an empty Vec
-
-                    source_items.push(Rc::clone(source_item));
-                } else if let Some(imputed_source_item) = sources
-                    .imputed_items
-                    .term_map
-                    .get(&source_term)
-                    .and_then(|lang_map| lang_map.get(&source_lang))
+                    ety_items.push(Rc::clone(ety_item));
+                } else if let Some(imputed_ety_item) =
+                    ety_graph.imputed_items.get(ety_lang, ety_term)
                 {
                     // We have already imputed an item that corresponds to this term.
-                    source_items.push(Rc::clone(imputed_source_item));
-                } else if node.source_terms.len() == 1 {
+                    ety_items.push(Rc::clone(imputed_ety_item));
+                } else if node.ety_terms.len() == 1 {
                     // This is an unseen term, and it is in a non-compound-type template.
                     // We will impute an item for this term, and use this new imputed
                     // item as the item for the next template in the outer loop.
                     has_new_imputation = true;
-                    let i = self.n + sources.imputed_items.n;
+                    let i = self.n + ety_graph.imputed_items.n;
                     // We assume the imputed item has the same pos as the current_item.
                     // (How often is this not the case?)
-                    let imputed_source_item = Rc::from(Item::new_imputed(
-                        i,
-                        current_item.pos,
-                        source_lang,
-                        source_term,
-                    ));
-                    sources.imputed_items.add(&imputed_source_item);
-                    source_items.push(Rc::clone(&imputed_source_item));
-                    next_item = Rc::clone(&imputed_source_item);
+                    let imputed_ety_item =
+                        Rc::from(Item::new_imputed(i, current_item.pos, ety_lang, ety_term));
+                    ety_graph.add_imputed(&imputed_ety_item);
+                    ety_items.push(Rc::clone(&imputed_ety_item));
+                    next_item = Rc::clone(&imputed_ety_item);
                 } else {
                     // This is a term of a compound-type template without a
                     // link, and for which a corresponding imputed item has not
@@ -268,12 +277,7 @@ impl Items {
                     return Ok(());
                 }
             }
-            let source = Source {
-                items: source_items.into_boxed_slice(),
-                mode: node.mode,
-                head: node.head,
-            };
-            sources.add(&current_item, source)?;
+            ety_graph.add_ety(&current_item, node.mode, node.head, &ety_items);
             // We keep processing templates until we hit the first one with no
             // imputation required.
             if !has_new_imputation {
@@ -284,18 +288,51 @@ impl Items {
         Ok(())
     }
 
-    fn generate_sources(&self, string_pool: &StringPool) -> Result<Sources> {
+    fn add_all_to_ety_graph(&self, ety_graph: &mut EtyGraph) -> Result<()> {
         let pb = ProgressBar::new(u64::try_from(self.n)?);
         pb.set_style(ProgressStyle::default_bar()
-            .template("{spinner:.green} [{elapsed}] [{wide_bar:.cyan/blue}] {human_pos}/{human_len} ({per_sec}, {eta})")?
+            .template("{spinner:.green} Adding items to ety graph: [{elapsed}] [{wide_bar:.cyan/blue}] {human_pos}/{human_len} ({per_sec}, {eta})")?
             .progress_chars("#>-"));
-        let mut sources = Sources::default();
         for lang_map in self.term_map.values() {
             for ety_map in lang_map.values() {
                 for (_, pos_map) in ety_map.values() {
                     for gloss_map in pos_map.values() {
                         for item in gloss_map.values() {
-                            self.process_item_raw_ety_nodes(string_pool, &mut sources, item)?;
+                            ety_graph.add(&Rc::clone(item));
+                            pb.inc(1);
+                        }
+                    }
+                }
+            }
+        }
+
+        pb.finish();
+        Ok(())
+    }
+
+    fn impute_root_items(&self, ety_graph: &mut EtyGraph) -> Result<()> {
+        let root_pos = POS.get_expected_index("root")?;
+        let pb = ProgressBar::new(u64::try_from(self.n)?);
+        pb.set_style(ProgressStyle::default_bar()
+            .template("{spinner:.green} Imputing roots: [{elapsed}] [{wide_bar:.cyan/blue}] {human_pos}/{human_len} ({per_sec}, {eta})")?
+            .progress_chars("#>-"));
+        for lang_map in self.term_map.values() {
+            for ety_map in lang_map.values() {
+                for (_, pos_map) in ety_map.values() {
+                    for gloss_map in pos_map.values() {
+                        for item in gloss_map.values() {
+                            if let Some(raw_root) = &item.raw_root {
+                                if !self.contains(raw_root.lang, raw_root.term)? {
+                                    let i = self.n + ety_graph.imputed_items.n;
+                                    let root = Rc::from(Item::new_imputed(
+                                        i,
+                                        root_pos,
+                                        raw_root.lang,
+                                        raw_root.term,
+                                    ));
+                                    ety_graph.add_imputed(&root);
+                                }
+                            }
                             pb.inc(1);
                         }
                     }
@@ -303,7 +340,99 @@ impl Items {
             }
         }
         pb.finish();
-        Ok(sources)
+        Ok(())
+    }
+
+    fn process_etys(&self, string_pool: &StringPool, ety_graph: &mut EtyGraph) -> Result<()> {
+        let pb = ProgressBar::new(u64::try_from(self.n)?);
+        pb.set_style(ProgressStyle::default_bar()
+            .template("{spinner:.green} Processing etymologies: [{elapsed}] [{wide_bar:.cyan/blue}] {human_pos}/{human_len} ({per_sec}, {eta})")?
+            .progress_chars("#>-"));
+        for lang_map in self.term_map.values() {
+            for ety_map in lang_map.values() {
+                for (_, pos_map) in ety_map.values() {
+                    for gloss_map in pos_map.values() {
+                        for item in gloss_map.values() {
+                            self.process_item_raw_ety_nodes(string_pool, ety_graph, item)?;
+                            pb.inc(1);
+                        }
+                    }
+                }
+            }
+        }
+        pb.finish();
+        Ok(())
+    }
+
+    fn impute_item_root_ety(
+        &self,
+        string_pool: &StringPool,
+        ety_graph: &mut EtyGraph,
+        sense: &Sense,
+        item: &Rc<Item>,
+    ) -> Result<()> {
+        if let Some(raw_root) = &item.raw_root {
+            if let Some(root_item) = self
+                .get_disambiguated_item(string_pool, sense, raw_root.lang, raw_root.term)?
+                .or_else(|| ety_graph.imputed_items.get(raw_root.lang, raw_root.term))
+            {
+                let mut visited_items: HashSet<Rc<Item>> =
+                    HashSet::from([Rc::clone(item), Rc::clone(root_item)]);
+                let mut current_item = Rc::clone(item);
+                while let Some(immediate_ety) = ety_graph.get_immediate_ety(&current_item) {
+                    // Don't try imputing a root for any item that has a compound in its ety DAG.
+                    // Also, if the root or any previously visited item is encountered again,
+                    // don't impute anything, so we don't create or get caught in a cycle.
+                    if immediate_ety.items.len() != 1 || visited_items.contains(&current_item) {
+                        return Ok(());
+                    }
+                    current_item = Rc::clone(&immediate_ety.items[0]);
+                    visited_items.insert(Rc::clone(&current_item));
+                }
+                if &current_item != root_item {
+                    ety_graph.add_ety(
+                        &current_item,
+                        MODE.get_expected_index("root")?,
+                        0u8,
+                        &[Rc::clone(root_item)],
+                    );
+                }
+            }
+        }
+        Ok(())
+    }
+
+    fn impute_root_etys(&self, string_pool: &StringPool, ety_graph: &mut EtyGraph) -> Result<()> {
+        let pb = ProgressBar::new(u64::try_from(self.n)?);
+        pb.set_style(ProgressStyle::default_bar()
+            .template("{spinner:.green} Imputing root etys: [{elapsed}] [{wide_bar:.cyan/blue}] {human_pos}/{human_len} ({per_sec}, {eta})")?
+            .progress_chars("#>-"));
+        for lang_map in self.term_map.values() {
+            for ety_map in lang_map.values() {
+                for (_, pos_map) in ety_map.values() {
+                    for gloss_map in pos_map.values() {
+                        for item in gloss_map.values() {
+                            let sense = Sense::new(string_pool, item);
+                            self.impute_item_root_ety(string_pool, ety_graph, &sense, item)?;
+                            pb.inc(1);
+                        }
+                    }
+                }
+            }
+        }
+        pb.finish();
+        Ok(())
+    }
+
+    fn generate_ety_graph(&self, string_pool: &StringPool) -> Result<EtyGraph> {
+        let mut ety_graph = EtyGraph::default();
+        self.add_all_to_ety_graph(&mut ety_graph)?;
+        self.impute_root_items(&mut ety_graph)?;
+        self.process_etys(string_pool, &mut ety_graph)?;
+        ety_graph.remove_cycles(string_pool);
+        self.impute_root_etys(string_pool, &mut ety_graph)?;
+        ety_graph.remove_cycles(string_pool);
+        Ok(ety_graph)
     }
 }
 
@@ -346,32 +475,116 @@ impl ImputedItems {
             self.n += 1;
         }
     }
+    fn get(&self, lang: usize, term: SymbolU32) -> Option<&Rc<Item>> {
+        self.term_map
+            .get(&term)
+            .and_then(|lang_map| lang_map.get(&lang))
+    }
 }
 
-#[derive(Hash, Eq, PartialEq, Debug)]
-struct Source {
-    items: Box<[Rc<Item>]>,
+struct EtyLink {
+    mode: usize,
+    order: u8,
+    head: bool,
+}
+
+#[derive(Default)]
+struct EtyGraph {
+    graph: StableDiGraph<Rc<Item>, EtyLink>,
+    imputed_items: ImputedItems,
+    index: HashMap<Rc<Item>, NodeIndex>,
+}
+
+struct ImmediateEty {
+    items: Vec<Rc<Item>>,
     mode: usize,
     head: u8,
 }
 
-// wrapper around a Hashmap linking items with their immediate etymological source
-#[derive(Default)]
-struct Sources {
-    item_map: HashMap<Rc<Item>, Source>,
-    imputed_items: ImputedItems,
-}
-
-impl Sources {
-    fn add(&mut self, item: &Rc<Item>, source: Source) -> Result<()> {
-        self.item_map
-            .try_insert(Rc::clone(item), source)
-            .and(std::result::Result::Ok(()))
-            .map_err(|_| anyhow!("Tried inserting duplicate item:\n{:#?}", item))
+impl EtyGraph {
+    fn get_index(&self, item: &Rc<Item>) -> NodeIndex {
+        *self.index.get(item).expect("index previously added item")
     }
-
-    fn get(&self, item: &Item) -> Option<&Source> {
-        self.item_map.get(item)
+    fn get_immediate_ety(&self, item: &Rc<Item>) -> Option<ImmediateEty> {
+        let item_index = self.get_index(item);
+        let mut ety_items = vec![];
+        let mut order = vec![];
+        let mut head = 0;
+        let mut mode = 0usize;
+        for (ety_link, ety_item) in self
+            .graph
+            .edges(item_index)
+            .map(|e| (e.weight(), self.graph.index(e.target())))
+        {
+            ety_items.push(Rc::clone(ety_item));
+            order.push(ety_link.order);
+            mode = ety_link.mode;
+            if ety_link.head {
+                head = ety_link.order;
+            }
+        }
+        ety_items = order
+            .iter()
+            .map(|&ord| Rc::clone(&ety_items[ord as usize]))
+            .collect();
+        (!ety_items.is_empty()).then(|| ImmediateEty {
+            items: ety_items,
+            mode,
+            head,
+        })
+    }
+    fn add(&mut self, item: &Rc<Item>) {
+        let node_index = self.graph.add_node(Rc::clone(item));
+        self.index.insert(Rc::clone(item), node_index);
+    }
+    fn add_imputed(&mut self, item: &Rc<Item>) {
+        self.imputed_items.add(&Rc::clone(item));
+        self.add(&Rc::clone(item));
+    }
+    fn add_ety(&mut self, item: &Rc<Item>, mode: usize, head: u8, ety_items: &[Rc<Item>]) {
+        let item_index = self.get_index(item);
+        for (i, ety_item) in (0u8..).zip(ety_items.iter()) {
+            let ety_item_index = self.get_index(ety_item);
+            let ety_link = EtyLink {
+                mode,
+                order: i,
+                head: head == i,
+            };
+            self.graph.add_edge(item_index, ety_item_index, ety_link);
+        }
+    }
+    fn remove_cycles(&mut self, string_pool: &StringPool) {
+        println!("\tRemoving ety link feedback arc set:");
+        let debug = |e: EdgeReference<EtyLink>| {
+            let source = self.graph.index(e.source());
+            let target = self.graph.index(e.target());
+            println!(
+                "\t\t{}, {} -> {}, {}",
+                LANG_CODE2NAME
+                    .get_expected_index_value(source.lang)
+                    .unwrap(),
+                string_pool.resolve(source.term),
+                LANG_CODE2NAME
+                    .get_expected_index_value(target.lang)
+                    .unwrap(),
+                string_pool.resolve(target.term),
+            );
+        };
+        let fas: Vec<Vec<EdgeIndex>> = greedy_feedback_arc_set(&self.graph)
+            .map(|e| {
+                debug(e);
+                // We take not only the edges forming the fas, but all edges
+                // that share the same source of any of the fas edges. This is
+                // to ensure there are no degenerate etys in the graph once we
+                // remove the edges.
+                self.graph.edges(e.source()).map(|e| e.id()).collect()
+            })
+            .collect();
+        for source_edges in fas {
+            for edge in source_edges {
+                self.graph.remove_edge(edge);
+            }
+        }
     }
 }
 
@@ -535,15 +748,15 @@ impl RawDataProcessor {
         if term_lang != lang {
             return Ok(None);
         }
-        if let Some(source_lang) = LANG_CODE2NAME.get_index(args.get_expected_str("2")?) {
-            if let Some(source_term) = args.get_optional_str("3") {
-                if source_term.is_empty() || source_term == "-" {
+        if let Some(ety_lang) = LANG_CODE2NAME.get_index(args.get_expected_str("2")?) {
+            if let Some(ety_term) = args.get_optional_str("3") {
+                if ety_term.is_empty() || ety_term == "-" {
                     return Ok(None);
                 }
-                let source_term = clean_ety_term(source_term);
+                let ety_term = clean_ety_term(ety_term);
                 return Ok(Some(RawEtyNode {
-                    source_terms: Box::new([self.string_pool.get_or_intern(source_term)]),
-                    source_langs: Box::new([source_lang]),
+                    ety_terms: Box::new([self.string_pool.get_or_intern(ety_term)]),
+                    ety_langs: Box::new([ety_lang]),
                     mode: MODE.get_expected_index(mode)?,
                     head: 0,
                 }));
@@ -562,14 +775,14 @@ impl RawDataProcessor {
         if term_lang != lang {
             return Ok(None);
         }
-        if let Some(source_term) = args.get_optional_str("2") {
-            if source_term.is_empty() || source_term == "-" {
+        if let Some(ety_term) = args.get_optional_str("2") {
+            if ety_term.is_empty() || ety_term == "-" {
                 return Ok(None);
             }
-            let source_term = clean_ety_term(source_term);
+            let ety_term = clean_ety_term(ety_term);
             return Ok(Some(RawEtyNode {
-                source_terms: Box::new([self.string_pool.get_or_intern(source_term)]),
-                source_langs: Box::new([LANG_CODE2NAME.get_expected_index(lang)?]),
+                ety_terms: Box::new([self.string_pool.get_or_intern(ety_term)]),
+                ety_langs: Box::new([LANG_CODE2NAME.get_expected_index(lang)?]),
                 mode: MODE.get_expected_index(mode)?,
                 head: 0,
             }));
@@ -586,22 +799,22 @@ impl RawDataProcessor {
         if term_lang != lang {
             return Ok(None);
         }
-        if let Some(source_prefix) = args.get_optional_str("2") {
-            if source_prefix.is_empty() || source_prefix == "-" {
+        if let Some(ety_prefix) = args.get_optional_str("2") {
+            if ety_prefix.is_empty() || ety_prefix == "-" {
                 return Ok(None);
             }
-            if let Some(source_term) = args.get_optional_str("3") {
-                if source_term.is_empty() || source_term == "-" {
+            if let Some(ety_term) = args.get_optional_str("3") {
+                if ety_term.is_empty() || ety_term == "-" {
                     return Ok(None);
                 }
-                let source_prefix = clean_ety_term(source_prefix).to_string();
-                let source_prefix = format!("{}-", source_prefix);
-                let source_prefix = self.string_pool.get_or_intern(source_prefix.as_str());
-                let source_term = clean_ety_term(source_term);
-                let source_term = self.string_pool.get_or_intern(source_term);
+                let ety_prefix = clean_ety_term(ety_prefix).to_string();
+                let ety_prefix = format!("{}-", ety_prefix);
+                let ety_prefix = self.string_pool.get_or_intern(ety_prefix.as_str());
+                let ety_term = clean_ety_term(ety_term);
+                let ety_term = self.string_pool.get_or_intern(ety_term);
                 return Ok(Some(RawEtyNode {
-                    source_terms: Box::new([source_prefix, source_term]),
-                    source_langs: Box::new([LANG_CODE2NAME.get_expected_index(lang)?; 2]),
+                    ety_terms: Box::new([ety_prefix, ety_term]),
+                    ety_langs: Box::new([LANG_CODE2NAME.get_expected_index(lang)?; 2]),
                     mode: MODE.get_expected_index("prefix")?,
                     head: 1,
                 }));
@@ -619,22 +832,22 @@ impl RawDataProcessor {
         if term_lang != lang {
             return Ok(None);
         }
-        if let Some(source_term) = args.get_optional_str("2") {
-            if source_term.is_empty() || source_term == "-" {
+        if let Some(ety_term) = args.get_optional_str("2") {
+            if ety_term.is_empty() || ety_term == "-" {
                 return Ok(None);
             }
-            if let Some(source_suffix) = args.get_optional_str("3") {
-                if source_suffix.is_empty() || source_suffix == "-" {
+            if let Some(ety_suffix) = args.get_optional_str("3") {
+                if ety_suffix.is_empty() || ety_suffix == "-" {
                     return Ok(None);
                 }
-                let source_term = clean_ety_term(source_term);
-                let source_term = self.string_pool.get_or_intern(source_term);
-                let source_suffix = clean_ety_term(source_suffix).to_string();
-                let source_suffix = format!("-{}", source_suffix);
-                let source_suffix = self.string_pool.get_or_intern(source_suffix.as_str());
+                let ety_term = clean_ety_term(ety_term);
+                let ety_term = self.string_pool.get_or_intern(ety_term);
+                let ety_suffix = clean_ety_term(ety_suffix).to_string();
+                let ety_suffix = format!("-{}", ety_suffix);
+                let ety_suffix = self.string_pool.get_or_intern(ety_suffix.as_str());
                 return Ok(Some(RawEtyNode {
-                    source_terms: Box::new([source_term, source_suffix]),
-                    source_langs: Box::new([LANG_CODE2NAME.get_expected_index(lang)?; 2]),
+                    ety_terms: Box::new([ety_term, ety_suffix]),
+                    ety_langs: Box::new([LANG_CODE2NAME.get_expected_index(lang)?; 2]),
                     mode: MODE.get_expected_index("suffix")?,
                     head: 0,
                 }));
@@ -652,29 +865,28 @@ impl RawDataProcessor {
         if term_lang != lang {
             return Ok(None);
         }
-        if let Some(source_prefix) = args.get_optional_str("2") {
-            if source_prefix.is_empty() || source_prefix == "-" {
+        if let Some(ety_prefix) = args.get_optional_str("2") {
+            if ety_prefix.is_empty() || ety_prefix == "-" {
                 return Ok(None);
             }
-            if let Some(source_term) = args.get_optional_str("3") {
-                if source_term.is_empty() || source_term == "-" {
+            if let Some(ety_term) = args.get_optional_str("3") {
+                if ety_term.is_empty() || ety_term == "-" {
                     return Ok(None);
                 }
-                if let Some(source_suffix) = args.get_optional_str("4") {
-                    if source_suffix.is_empty() || source_suffix == "-" {
+                if let Some(ety_suffix) = args.get_optional_str("4") {
+                    if ety_suffix.is_empty() || ety_suffix == "-" {
                         return Ok(None);
                     }
-                    let source_term = clean_ety_term(source_term);
-                    let source_term = self.string_pool.get_or_intern(source_term);
-                    let source_prefix = clean_ety_term(source_prefix).to_string();
-                    let source_suffix = clean_ety_term(source_suffix).to_string();
-                    let source_circumfix = format!("{}- -{}", source_prefix, source_suffix);
-                    let source_circumfix =
-                        self.string_pool.get_or_intern(source_circumfix.as_str());
+                    let ety_term = clean_ety_term(ety_term);
+                    let ety_term = self.string_pool.get_or_intern(ety_term);
+                    let ety_prefix = clean_ety_term(ety_prefix).to_string();
+                    let ety_suffix = clean_ety_term(ety_suffix).to_string();
+                    let ety_circumfix = format!("{}- -{}", ety_prefix, ety_suffix);
+                    let ety_circumfix = self.string_pool.get_or_intern(ety_circumfix.as_str());
 
                     return Ok(Some(RawEtyNode {
-                        source_terms: Box::new([source_term, source_circumfix]),
-                        source_langs: Box::new([LANG_CODE2NAME.get_expected_index(lang)?; 2]),
+                        ety_terms: Box::new([ety_term, ety_circumfix]),
+                        ety_langs: Box::new([LANG_CODE2NAME.get_expected_index(lang)?; 2]),
                         mode: MODE.get_expected_index("circumfix")?,
                         head: 0,
                     }));
@@ -693,22 +905,22 @@ impl RawDataProcessor {
         if term_lang != lang {
             return Ok(None);
         }
-        if let Some(source_term) = args.get_optional_str("2") {
-            if source_term.is_empty() || source_term == "-" {
+        if let Some(ety_term) = args.get_optional_str("2") {
+            if ety_term.is_empty() || ety_term == "-" {
                 return Ok(None);
             }
-            if let Some(source_infix) = args.get_optional_str("3") {
-                if source_infix.is_empty() || source_infix == "-" {
+            if let Some(ety_infix) = args.get_optional_str("3") {
+                if ety_infix.is_empty() || ety_infix == "-" {
                     return Ok(None);
                 }
-                let source_term = clean_ety_term(source_term);
-                let source_term = self.string_pool.get_or_intern(source_term);
-                let source_infix = clean_ety_term(source_infix).to_string();
-                let source_infix = format!("-{}-", source_infix);
-                let source_infix = self.string_pool.get_or_intern(source_infix.as_str());
+                let ety_term = clean_ety_term(ety_term);
+                let ety_term = self.string_pool.get_or_intern(ety_term);
+                let ety_infix = clean_ety_term(ety_infix).to_string();
+                let ety_infix = format!("-{}-", ety_infix);
+                let ety_infix = self.string_pool.get_or_intern(ety_infix.as_str());
                 return Ok(Some(RawEtyNode {
-                    source_terms: Box::new([source_term, source_infix]),
-                    source_langs: Box::new([LANG_CODE2NAME.get_expected_index(lang)?; 2]),
+                    ety_terms: Box::new([ety_term, ety_infix]),
+                    ety_langs: Box::new([LANG_CODE2NAME.get_expected_index(lang)?; 2]),
                     mode: MODE.get_expected_index("infix")?,
                     head: 0,
                 }));
@@ -726,39 +938,39 @@ impl RawDataProcessor {
         if term_lang != lang {
             return Ok(None);
         }
-        if let Some(source_prefix) = args.get_optional_str("2") {
-            if source_prefix.is_empty() || source_prefix == "-" {
+        if let Some(ety_prefix) = args.get_optional_str("2") {
+            if ety_prefix.is_empty() || ety_prefix == "-" {
                 return Ok(None);
             }
-            if let Some(source2) = args.get_optional_str("3") {
-                if source2.is_empty() || source2 == "-" {
+            if let Some(ety2) = args.get_optional_str("3") {
+                if ety2.is_empty() || ety2 == "-" {
                     return Ok(None);
                 }
-                let source_prefix = clean_ety_term(source_prefix).to_string();
-                let source_prefix = format!("{}-", source_prefix);
-                let source_prefix = self.string_pool.get_or_intern(source_prefix.as_str());
-                if let Some(source3) = args.get_optional_str("4") {
-                    if source3.is_empty() || source3 == "-" {
+                let ety_prefix = clean_ety_term(ety_prefix).to_string();
+                let ety_prefix = format!("{}-", ety_prefix);
+                let ety_prefix = self.string_pool.get_or_intern(ety_prefix.as_str());
+                if let Some(ety3) = args.get_optional_str("4") {
+                    if ety3.is_empty() || ety3 == "-" {
                         return Ok(None);
                     }
-                    let source_term = clean_ety_term(source2);
-                    let source_term = self.string_pool.get_or_intern(source_term);
-                    let source_suffix = clean_ety_term(source3).to_string();
-                    let source_suffix = format!("-{}", source_suffix);
-                    let source_suffix = self.string_pool.get_or_intern(source_suffix.as_str());
+                    let ety_term = clean_ety_term(ety2);
+                    let ety_term = self.string_pool.get_or_intern(ety_term);
+                    let ety_suffix = clean_ety_term(ety3).to_string();
+                    let ety_suffix = format!("-{}", ety_suffix);
+                    let ety_suffix = self.string_pool.get_or_intern(ety_suffix.as_str());
                     return Ok(Some(RawEtyNode {
-                        source_terms: Box::new([source_prefix, source_term, source_suffix]),
-                        source_langs: Box::new([LANG_CODE2NAME.get_expected_index(lang)?; 3]),
+                        ety_terms: Box::new([ety_prefix, ety_term, ety_suffix]),
+                        ety_langs: Box::new([LANG_CODE2NAME.get_expected_index(lang)?; 3]),
                         mode: MODE.get_expected_index("confix")?,
                         head: 1,
                     }));
                 }
-                let source_suffix = clean_ety_term(source2).to_string();
-                let source_suffix = format!("-{}", source_suffix);
-                let source_suffix = self.string_pool.get_or_intern(source_suffix.as_str());
+                let ety_suffix = clean_ety_term(ety2).to_string();
+                let ety_suffix = format!("-{}", ety_suffix);
+                let ety_suffix = self.string_pool.get_or_intern(ety_suffix.as_str());
                 return Ok(Some(RawEtyNode {
-                    source_terms: Box::new([source_prefix, source_suffix]),
-                    source_langs: Box::new([LANG_CODE2NAME.get_expected_index(lang)?; 2]),
+                    ety_terms: Box::new([ety_prefix, ety_suffix]),
+                    ety_langs: Box::new([LANG_CODE2NAME.get_expected_index(lang)?; 2]),
                     mode: MODE.get_expected_index("confix")?,
                     head: 0, // no true head here, arbitrarily take first
                 }));
@@ -779,31 +991,31 @@ impl RawDataProcessor {
         }
 
         let mut n = 2;
-        let mut source_terms = vec![];
-        let mut source_langs = vec![];
-        while let Some(source_term) = args.get_optional_str(n.to_string().as_str()) {
-            if source_term.is_empty() || source_term == "-" {
+        let mut ety_terms = vec![];
+        let mut ety_langs = vec![];
+        while let Some(ety_term) = args.get_optional_str(n.to_string().as_str()) {
+            if ety_term.is_empty() || ety_term == "-" {
                 return Ok(None);
             }
-            if let Some(source_lang) = args.get_optional_str(format!("lang{n}").as_str()) {
-                let source_lang_index = LANG_CODE2NAME.get_index(source_lang);
-                if source_lang.is_empty() || source_lang == "-" || source_lang_index.is_none() {
+            if let Some(ety_lang) = args.get_optional_str(format!("lang{n}").as_str()) {
+                let ety_lang_index = LANG_CODE2NAME.get_index(ety_lang);
+                if ety_lang.is_empty() || ety_lang == "-" || ety_lang_index.is_none() {
                     return Ok(None);
                 }
-                let source_term = clean_ety_term(source_term);
-                source_terms.push(self.string_pool.get_or_intern(source_term));
-                source_langs.push(source_lang_index.unwrap());
+                let ety_term = clean_ety_term(ety_term);
+                ety_terms.push(self.string_pool.get_or_intern(ety_term));
+                ety_langs.push(ety_lang_index.unwrap());
             } else {
-                let source_term = clean_ety_term(source_term);
-                source_terms.push(self.string_pool.get_or_intern(source_term));
-                source_langs.push(LANG_CODE2NAME.get_expected_index(lang)?);
+                let ety_term = clean_ety_term(ety_term);
+                ety_terms.push(self.string_pool.get_or_intern(ety_term));
+                ety_langs.push(LANG_CODE2NAME.get_expected_index(lang)?);
             }
             n += 1;
         }
-        if !source_terms.is_empty() {
+        if !ety_terms.is_empty() {
             return Ok(Some(RawEtyNode {
-                source_terms: source_terms.into_boxed_slice(),
-                source_langs: source_langs.into_boxed_slice(),
+                ety_terms: ety_terms.into_boxed_slice(),
+                ety_langs: ety_langs.into_boxed_slice(),
                 mode: MODE.get_expected_index(mode)?,
                 head: 0, // no true head here, arbitrarily take first
             }));
@@ -869,8 +1081,8 @@ impl RawDataProcessor {
             match alt_term {
                 Some(alt) => {
                     let raw_ety_node = RawEtyNode {
-                        source_terms: Box::new([self.string_pool.get_or_intern(alt)]),
-                        source_langs: Box::new([LANG_CODE2NAME.get_expected_index(lang)?]),
+                        ety_terms: Box::new([self.string_pool.get_or_intern(alt)]),
+                        ety_langs: Box::new([LANG_CODE2NAME.get_expected_index(lang)?]),
                         mode: MODE.get_expected_index("form")?,
                         head: 0,
                     };
@@ -1108,10 +1320,21 @@ fn get_term<'a>(json_item: &'a Value) -> Result<&'a str> {
     Ok(json_item.get_expected_str("word")?)
 }
 
+fn etylang2lang(lang: usize) -> Result<usize> {
+    // If lang is an etymology-only language, we will not find any entries
+    // for it in Items lang map, since such a language definitionally does
+    // not have any entries itself. So we look for the actual lang that the
+    // ety lang is associated with.
+    Ok(LANG_ETYCODE2CODE
+        .get(LANG_CODE2NAME.get_expected_index_key(lang)?)
+        .and_then(|code| LANG_CODE2NAME.get_index(code))
+        .unwrap_or(lang))
+}
+
 pub(crate) struct ProcessedData {
     string_pool: StringPool,
     items: Items,
-    sources: Sources,
+    ety_graph: EtyGraph,
 }
 
 /// # Errors
@@ -1125,17 +1348,17 @@ pub fn wiktextract_to_turtle(wiktextract_path: &str, turtle_path: &str) -> Resul
     let mut processor = RawDataProcessor::default();
     let items = processor.process_file(file)?;
     println!("Finished. Took {}.", HumanDuration(t.elapsed()));
-    println!("Processing etymologies...");
     t = Instant::now();
+    println!("Generating ety graph...");
     let string_pool = processor.string_pool;
-    let sources = items.generate_sources(&string_pool)?;
+    let ety_graph = items.generate_ety_graph(&string_pool)?;
     println!("Finished. Took {}.", HumanDuration(t.elapsed()));
     println!("Writing RDF to Turtle file {turtle_path}...");
     t = Instant::now();
     let data = ProcessedData {
         string_pool,
         items,
-        sources,
+        ety_graph,
     };
     write_turtle_file(&data, turtle_path)?;
     println!("Finished. Took {}.", HumanDuration(t.elapsed()));

@@ -6,6 +6,7 @@ use crate::{
 use std::{
     fs::File,
     io::{BufWriter, Write},
+    rc::Rc,
 };
 
 use anyhow::{Ok, Result};
@@ -63,7 +64,7 @@ fn write_item_quoted_prop(f: &mut BufWriter<File>, pred: &str, obj: &str) -> Res
 fn write_item(
     f: &mut BufWriter<File>,
     data: &ProcessedData,
-    item: &Item,
+    item: &Rc<Item>,
     has_multi_ety: bool,
     has_multi_gloss: bool,
 ) -> Result<()> {
@@ -87,18 +88,18 @@ fn write_item(
     if has_multi_gloss {
         writeln!(f, "  {PRED_GLOSS_NUM} {} ;", item.gloss_num)?;
     }
-    if let Some(source) = data.sources.get(item) {
-        let mode = MODE.get_expected_index_key(source.mode)?;
+    if let Some(immediate_ety) = data.ety_graph.get_immediate_ety(item) {
+        let mode = MODE.get_expected_index_key(immediate_ety.mode)?;
         write_item_quoted_prop(f, PRED_MODE, mode)?;
-        writeln!(f, "  {PRED_HEAD} {} ;", source.head)?;
+        writeln!(f, "  {PRED_HEAD} {} ;", immediate_ety.head)?;
         write!(f, "  {PRED_SOURCE} ")?;
-        for (s_i, source_item) in source.items.iter().enumerate() {
+        for (e_i, ety_item) in immediate_ety.items.iter().enumerate() {
             write!(
                 f,
                 "[ {PRED_ITEM} {ITEM_PRE}{}; {PRED_ORDER} {} ]",
-                source_item.i, s_i
+                ety_item.i, e_i
             )?;
-            if s_i + 1 < source.items.len() {
+            if e_i + 1 < immediate_ety.items.len() {
                 write!(f, ", ")?;
             } else {
                 writeln!(f, " ;")?;
@@ -112,7 +113,7 @@ fn write_item(
 pub(crate) fn write_turtle_file(data: &ProcessedData, path: &str) -> Result<()> {
     let mut f = BufWriter::new(File::create(path)?);
     write_prefixes(&mut f)?;
-    let n = u64::try_from(data.items.n + data.sources.imputed_items.n)?;
+    let n = u64::try_from(data.items.n + data.ety_graph.imputed_items.n)?;
     let pb = ProgressBar::new(n);
     pb.set_style(ProgressStyle::default_bar()
             .template("{spinner:.green} [{elapsed}] [{wide_bar:.cyan/blue}] {human_pos}/{human_len} ({per_sec}, {eta})")?
@@ -129,7 +130,7 @@ pub(crate) fn write_turtle_file(data: &ProcessedData, path: &str) -> Result<()> 
             }
         }
     }
-    for lang_map in data.sources.imputed_items.term_map.values() {
+    for lang_map in data.ety_graph.imputed_items.term_map.values() {
         for item in lang_map.values() {
             write_item(&mut f, data, item, false, false)?;
             pb.inc(1);

@@ -1,6 +1,6 @@
 ## Immediate TODOs
 
-* Need to impute items for all raw_roots before doing generate_sources. 
+* There is a regression. Need to find why scratch descendants doesn't give e.g. "gold" for "ǵʰelh₃-" when it previously did.
 
 * Add senseid to items. Parse in JSON by finding ':' then taking everything after.
 

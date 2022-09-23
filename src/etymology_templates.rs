@@ -51,6 +51,7 @@ pub(crate) static MODE: OrderedSet<&'static str> = phf_ordered_set! {
     "blend",
     "affix",
     "form", // ad-hoc mode used when term is wiktextract alt or form of another
+    "root", // ad-hoc mode used when imputing root source for an item
 };
 
 // Wiktionary etymology template names that will be considered to represent

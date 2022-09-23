@@ -19,3 +19,4 @@ oxigraph = "0.3.5"
 ahash = "0.8.0"
 indicatif = "0.17.0"
 clap = { version = "3.2.17", features = ["derive"] }
+petgraph = "0.6.2"
