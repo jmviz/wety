@@ -67,7 +67,7 @@ struct RawRoot {
 #[derive(Hash, Eq, PartialEq, Debug)]
 struct Item {
     is_imputed: bool,
-    i: usize,                 // the i-th item seem, used as id for RDF
+    i: usize,                 // the i-th item seen, used as id for RDF
     term: SymbolU32,          // e.g. "bank"
     lang: usize,              // e.g "en", i.e. the wiktextract lang_code
     ety_num: u8,              // the nth ety encountered for this term-lang combo
@@ -109,7 +109,12 @@ struct Items {
 }
 
 impl Items {
-    fn add(&mut self, ety_text_hash: Option<u64>, mut item: Item) -> Result<()> {
+    fn add(
+        &mut self,
+        ety_text_hash: Option<u64>,
+        mut item: Item,
+        string_pool: &StringPool,
+    ) -> Result<()> {
         // check if the item's term has been seen before
         if !self.term_map.contains_key(&item.term) {
             let mut gloss_map = GlossMap::new();
@@ -170,6 +175,13 @@ impl Items {
         // since pos has been seen before, there must be at least one gloss (possibly None)
         let gloss_map: &mut GlossMap = pos_map.get_mut(&item.pos).unwrap();
         if !gloss_map.contains_key(&item.gloss) {
+            if gloss_map.len() > 255 {
+                println!(
+                    "{}, {}",
+                    string_pool.resolve(item.term),
+                    LANG_CODE2NAME.get_expected_index_value(item.lang).unwrap()
+                );
+            }
             item.gloss_num = u8::try_from(gloss_map.len())?;
             item.ety_num = *ety_num;
             gloss_map.insert(item.gloss, Rc::from(item));
@@ -1245,7 +1257,7 @@ impl RawDataProcessor {
             raw_ety_nodes,
             raw_root,
         };
-        items.add(ety_text_hash, item)?;
+        items.add(ety_text_hash, item, &self.string_pool)?;
         Ok(())
     }
 
@@ -1309,7 +1321,10 @@ fn get_term<'a>(json_item: &'a Value) -> Result<&'a str> {
                 let mut t = 0;
                 while let Some(tag) = tags.get(t).as_str() {
                     if tag == "canonical" {
-                        return Ok(form.get_expected_str("form")?);
+                        // There are some
+                        if let Some(term) = form.get_optional_str("form") {
+                            return Ok(term);
+                        }
                     }
                     t += 1;
                 }
