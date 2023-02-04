@@ -431,5 +431,5 @@ with open("src/pos.rs", "w") as f:
     f.write("pub(crate) static POS: OrderedSet<&'static str> = phf_ordered_set! {\n")
     for pos in PARTS_OF_SPEECH:
         f.write(f'    "{pos}",\n')
-    f.write("};")
+    f.write("};\n")
 

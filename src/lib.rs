@@ -1,5 +1,7 @@
 //! WIP attempt to digest etymologies from wiktextract data
 
+#![feature(let_chains)]
+
 mod etymology_templates;
 mod lang;
 mod pos;
@@ -31,6 +33,7 @@ use bytelines::ByteLines;
 use flate2::read::GzDecoder;
 use hashbrown::{HashMap, HashSet};
 use indicatif::{HumanDuration, ProgressBar, ProgressStyle};
+use lazy_static::lazy_static;
 use oxigraph::{io::GraphFormat::Turtle, model::GraphNameRef::DefaultGraph, store::Store};
 use petgraph::{
     algo::greedy_feedback_arc_set,
@@ -38,6 +41,7 @@ use petgraph::{
     visit::EdgeRef,
 };
 use phf::{phf_set, OrderedMap, OrderedSet, Set};
+use regex::Regex;
 use simd_json::{to_borrowed_value, value::borrowed::Value, ValueAccess};
 use string_interner::{backend::StringBackend, symbol::SymbolU32, StringInterner};
 
@@ -539,7 +543,7 @@ impl EtyGraph {
             .iter()
             .map(|&ord| Rc::clone(&ety_items[ord as usize]))
             .collect();
-        (!ety_items.is_empty()).then(|| ImmediateEty {
+        (!ety_items.is_empty()).then_some(ImmediateEty {
             items: ety_items,
             mode,
             head,
@@ -650,12 +654,12 @@ impl ValueExt for Value<'_> {
             .ok_or_else(|| anyhow!("failed parsing '{key}' key in json:\n{self}"))
             .and_then(|s| {
                 (!s.is_empty())
-                    .then(|| s)
+                    .then_some(s)
                     .ok_or_else(|| anyhow!("empty str value for '{key}' key in json:\n{self}"))
             })
     }
     fn get_optional_str(&self, key: &str) -> Option<&str> {
-        self.get_str(key).and_then(|s| (!s.is_empty()).then(|| s))
+        self.get_str(key).and_then(|s| (!s.is_empty()).then_some(s))
     }
     fn get_expected_object(&self, key: &str) -> Result<&Value> {
         self.get(key)
@@ -820,7 +824,7 @@ impl RawDataProcessor {
                     return Ok(None);
                 }
                 let ety_prefix = clean_ety_term(ety_prefix).to_string();
-                let ety_prefix = format!("{}-", ety_prefix);
+                let ety_prefix = format!("{ety_prefix}-");
                 let ety_prefix = self.string_pool.get_or_intern(ety_prefix.as_str());
                 let ety_term = clean_ety_term(ety_term);
                 let ety_term = self.string_pool.get_or_intern(ety_term);
@@ -855,7 +859,7 @@ impl RawDataProcessor {
                 let ety_term = clean_ety_term(ety_term);
                 let ety_term = self.string_pool.get_or_intern(ety_term);
                 let ety_suffix = clean_ety_term(ety_suffix).to_string();
-                let ety_suffix = format!("-{}", ety_suffix);
+                let ety_suffix = format!("-{ety_suffix}");
                 let ety_suffix = self.string_pool.get_or_intern(ety_suffix.as_str());
                 return Ok(Some(RawEtyNode {
                     ety_terms: Box::new([ety_term, ety_suffix]),
@@ -893,7 +897,7 @@ impl RawDataProcessor {
                     let ety_term = self.string_pool.get_or_intern(ety_term);
                     let ety_prefix = clean_ety_term(ety_prefix).to_string();
                     let ety_suffix = clean_ety_term(ety_suffix).to_string();
-                    let ety_circumfix = format!("{}- -{}", ety_prefix, ety_suffix);
+                    let ety_circumfix = format!("{ety_prefix}- -{ety_suffix}");
                     let ety_circumfix = self.string_pool.get_or_intern(ety_circumfix.as_str());
 
                     return Ok(Some(RawEtyNode {
@@ -928,7 +932,7 @@ impl RawDataProcessor {
                 let ety_term = clean_ety_term(ety_term);
                 let ety_term = self.string_pool.get_or_intern(ety_term);
                 let ety_infix = clean_ety_term(ety_infix).to_string();
-                let ety_infix = format!("-{}-", ety_infix);
+                let ety_infix = format!("-{ety_infix}-");
                 let ety_infix = self.string_pool.get_or_intern(ety_infix.as_str());
                 return Ok(Some(RawEtyNode {
                     ety_terms: Box::new([ety_term, ety_infix]),
@@ -959,7 +963,7 @@ impl RawDataProcessor {
                     return Ok(None);
                 }
                 let ety_prefix = clean_ety_term(ety_prefix).to_string();
-                let ety_prefix = format!("{}-", ety_prefix);
+                let ety_prefix = format!("{ety_prefix}-");
                 let ety_prefix = self.string_pool.get_or_intern(ety_prefix.as_str());
                 if let Some(ety3) = args.get_optional_str("4") {
                     if ety3.is_empty() || ety3 == "-" {
@@ -968,7 +972,7 @@ impl RawDataProcessor {
                     let ety_term = clean_ety_term(ety2);
                     let ety_term = self.string_pool.get_or_intern(ety_term);
                     let ety_suffix = clean_ety_term(ety3).to_string();
-                    let ety_suffix = format!("-{}", ety_suffix);
+                    let ety_suffix = format!("-{ety_suffix}");
                     let ety_suffix = self.string_pool.get_or_intern(ety_suffix.as_str());
                     return Ok(Some(RawEtyNode {
                         ety_terms: Box::new([ety_prefix, ety_term, ety_suffix]),
@@ -978,7 +982,7 @@ impl RawDataProcessor {
                     }));
                 }
                 let ety_suffix = clean_ety_term(ety2).to_string();
-                let ety_suffix = format!("-{}", ety_suffix);
+                let ety_suffix = format!("-{ety_suffix}");
                 let ety_suffix = self.string_pool.get_or_intern(ety_suffix.as_str());
                 return Ok(Some(RawEtyNode {
                     ety_terms: Box::new([ety_prefix, ety_suffix]),
@@ -1160,7 +1164,36 @@ impl RawDataProcessor {
                 }
             }
         }
-        // if { $$ CHECK CATEGORIES FOR ROOT $$}
+
+        // if no {root} found in ety section, look for a category of the form
+        // e.g. "English terms derived from the Proto-Indo-European root *dʰeh₁-"
+        // or "English terms derived from the Proto-Indo-European root *bʰel- (shiny)"
+        lazy_static! {
+            static ref ROOT_CAT: Regex =
+                Regex::new(r"^(.+) terms derived from the (.+) root \*([^ ]+)(?: \((.+)\))?$")
+                    .unwrap();
+        }
+        if let Some(categories) = json_item.get_array("categories") {
+            for category in categories.iter().filter_map(simd_json::ValueAccess::as_str) {
+                if let Some(caps) = ROOT_CAT.captures(category)
+                    && let cat_term_lang_name = caps.get(1).unwrap().as_str()
+                    && let Some(&cat_term_lang) = LANG_NAME2CODE.get(cat_term_lang_name)
+                    && cat_term_lang == lang
+                    && let cat_root_lang_name = caps.get(2).unwrap().as_str()
+                    && let Some(&cat_root_lang) = LANG_NAME2CODE.get(cat_root_lang_name)
+                    && let Some(cat_root_lang_index) = LANG_CODE2NAME.get_index(cat_root_lang) 
+                {
+                    let cat_root_term = caps.get(3).unwrap().as_str();
+                    let cat_root_sense_id = caps.get(4)
+                        .map(|cap| self.string_pool.get_or_intern(cap.as_str()));
+                    return Ok(Some(RawRoot {
+                        term: self.string_pool.get_or_intern(cat_root_term),
+                        lang: cat_root_lang_index,
+                        sense_id: cat_root_sense_id,
+                    }));
+                }
+            }
+        }
         Ok(None)
     }
 

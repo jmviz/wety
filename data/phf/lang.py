@@ -159,4 +159,4 @@ with open("src/lang.rs", "w") as f:
     f.write("pub(crate) static LANG_ETYCODE2CODE: OrderedMap<&'static str, &'static str> = phf_ordered_map! {\n")
     for etycode, code in etycode2code.items():
         f.write(f'    "{etycode}" => "{code}",\n')
-    f.write("};")
+    f.write("};\n")

@@ -31,7 +31,7 @@ const PRED_ITEM: &str = "p:item";
 const PRED_ORDER: &str = "p:order";
 
 fn write_prefix(f: &mut BufWriter<File>, prefix: &str, iri: &str) -> Result<()> {
-    writeln!(f, "@prefix {} <{}> .", prefix, iri)?;
+    writeln!(f, "@prefix {prefix} <{iri}> .")?;
     Ok(())
 }
 fn write_prefixes(f: &mut BufWriter<File>) -> Result<()> {
