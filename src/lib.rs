@@ -19,7 +19,6 @@ use crate::{
 use std::{
     convert::TryFrom,
     fs::{remove_dir_all, File},
-    hash::{Hash, Hasher},
     io::BufReader,
     ops::Index,
     path::Path,
@@ -27,7 +26,6 @@ use std::{
     time::Instant,
 };
 
-use ahash::AHasher;
 use anyhow::{anyhow, Ok, Result};
 use bytelines::ByteLines;
 use flate2::read::GzDecoder;
@@ -74,7 +72,7 @@ struct Item {
     i: usize,                 // the i-th item seen, used as id for RDF
     term: SymbolU32,          // e.g. "bank"
     lang: usize,              // e.g "en", i.e. the wiktextract lang_code
-    ety_num: u8,              // the nth ety encountered for this term-lang combo
+    ety_num: Option<u8>,      // the nth ety encountered for this term-lang combo
     pos: usize,               // e.g. "noun"
     gloss: Option<SymbolU32>, // e.g. "An institution where one can place and borrow money...
     gloss_num: u8,            // the nth gloss encountered for this term-lang-ety-pos combo
@@ -90,7 +88,7 @@ impl Item {
             term,
             lang,
             pos,
-            ety_num: 0,
+            ety_num: None,
             gloss_num: 0,
             gloss: None,
             raw_ety_nodes: None,
@@ -101,7 +99,7 @@ impl Item {
 
 type GlossMap = HashMap<Option<SymbolU32>, Rc<Item>>;
 type PosMap = HashMap<usize, GlossMap>;
-type EtyMap = HashMap<Option<u64>, (u8, PosMap)>;
+type EtyMap = HashMap<Option<u8>, PosMap>;
 type LangMap = HashMap<usize, EtyMap>;
 type TermMap = HashMap<SymbolU32, LangMap>;
 
@@ -115,9 +113,7 @@ struct Items {
 impl Items {
     fn add(
         &mut self,
-        ety_text_hash: Option<u64>,
-        mut item: Item,
-        string_pool: &StringPool,
+        mut item: Item
     ) -> Result<()> {
         // check if the item's term has been seen before
         if !self.term_map.contains_key(&item.term) {
@@ -125,10 +121,10 @@ impl Items {
             let mut pos_map = PosMap::new();
             let mut ety_map = EtyMap::new();
             let mut lang_map = LangMap::new();
-            let (pos, lang, term) = (item.pos, item.lang, item.term);
+            let (pos, ety_num, lang, term) = (item.pos, item.ety_num, item.lang, item.term);
             gloss_map.insert(item.gloss, Rc::from(item));
             pos_map.insert(pos, gloss_map);
-            ety_map.insert(ety_text_hash, (0, pos_map));
+            ety_map.insert(ety_num, pos_map);
             lang_map.insert(lang, ety_map);
             self.term_map.insert(term, lang_map);
             self.n += 1;
@@ -141,10 +137,10 @@ impl Items {
             let mut gloss_map = GlossMap::new();
             let mut pos_map = PosMap::new();
             let mut ety_map = EtyMap::new();
-            let (pos, lang) = (item.pos, item.lang);
+            let (pos, ety_num, lang) = (item.pos, item.ety_num, item.lang);
             gloss_map.insert(item.gloss, Rc::from(item));
             pos_map.insert(pos, gloss_map);
-            ety_map.insert(ety_text_hash, (0, pos_map));
+            ety_map.insert(ety_num, pos_map);
             lang_map.insert(lang, ety_map);
             self.n += 1;
             return Ok(());
@@ -152,25 +148,22 @@ impl Items {
         // since lang has been seen before, there must be at least one ety (possibly None)
         // check if this ety has been seen in this lang before
         let ety_map: &mut EtyMap = lang_map.get_mut(&item.lang).unwrap();
-        if !ety_map.contains_key(&ety_text_hash) {
+        if !ety_map.contains_key(&item.ety_num) {
             let mut gloss_map = GlossMap::new();
             let mut pos_map = PosMap::new();
-            let pos = item.pos;
-            let ety_num = u8::try_from(ety_map.len())?;
-            item.ety_num = ety_num;
+            let (pos, ety_num) = (item.pos, item.ety_num);
             gloss_map.insert(item.gloss, Rc::from(item));
             pos_map.insert(pos, gloss_map);
-            ety_map.insert(ety_text_hash, (ety_num, pos_map));
+            ety_map.insert(ety_num, pos_map);
             self.n += 1;
             return Ok(());
         }
         // since ety has been seen before, there must be at least one pos
         // check if this pos has been seen for this ety before
-        let (ety_num, pos_map): &mut (u8, PosMap) = ety_map.get_mut(&ety_text_hash).unwrap();
+        let pos_map: &mut PosMap = ety_map.get_mut(&item.ety_num).unwrap();
         if !pos_map.contains_key(&item.pos) {
             let mut gloss_map = GlossMap::new();
             let pos = item.pos;
-            item.ety_num = *ety_num;
             gloss_map.insert(item.gloss, Rc::from(item));
             pos_map.insert(pos, gloss_map);
             self.n += 1;
@@ -179,15 +172,7 @@ impl Items {
         // since pos has been seen before, there must be at least one gloss (possibly None)
         let gloss_map: &mut GlossMap = pos_map.get_mut(&item.pos).unwrap();
         if !gloss_map.contains_key(&item.gloss) {
-            if gloss_map.len() > 255 {
-                println!(
-                    "{}, {}",
-                    string_pool.resolve(item.term),
-                    LANG_CODE2NAME.get_expected_index_value(item.lang).unwrap()
-                );
-            }
             item.gloss_num = u8::try_from(gloss_map.len())?;
-            item.ety_num = *ety_num;
             gloss_map.insert(item.gloss, Rc::from(item));
             self.n += 1;
             return Ok(());
@@ -233,7 +218,7 @@ impl Items {
             .and_then(|ety_map| {
                 ety_map
                     .values()
-                    .flat_map(|(_, pos_map)| pos_map.values().flat_map(hashbrown::HashMap::values))
+                    .flat_map(|pos_map| pos_map.values().flat_map(hashbrown::HashMap::values))
                     .max_by_key(|candidate| {
                         let candidate_sense = Sense::new(string_pool, candidate);
                         sense.lesk_score(&candidate_sense)
@@ -311,7 +296,7 @@ impl Items {
             .progress_chars("#>-"));
         for lang_map in self.term_map.values() {
             for ety_map in lang_map.values() {
-                for (_, pos_map) in ety_map.values() {
+                for pos_map in ety_map.values() {
                     for gloss_map in pos_map.values() {
                         for item in gloss_map.values() {
                             ety_graph.add(&Rc::clone(item));
@@ -334,7 +319,7 @@ impl Items {
             .progress_chars("#>-"));
         for lang_map in self.term_map.values() {
             for ety_map in lang_map.values() {
-                for (_, pos_map) in ety_map.values() {
+                for pos_map in ety_map.values() {
                     for gloss_map in pos_map.values() {
                         for item in gloss_map.values() {
                             if let Some(raw_root) = &item.raw_root {
@@ -366,7 +351,7 @@ impl Items {
             .progress_chars("#>-"));
         for lang_map in self.term_map.values() {
             for ety_map in lang_map.values() {
-                for (_, pos_map) in ety_map.values() {
+                for pos_map in ety_map.values() {
                     for gloss_map in pos_map.values() {
                         for item in gloss_map.values() {
                             self.process_item_raw_ety_nodes(string_pool, ety_graph, item)?;
@@ -425,7 +410,7 @@ impl Items {
             .progress_chars("#>-"));
         for lang_map in self.term_map.values() {
             for ety_map in lang_map.values() {
-                for (_, pos_map) in ety_map.values() {
+                for pos_map in ety_map.values() {
                     for gloss_map in pos_map.values() {
                         for item in gloss_map.values() {
                             let sense = Sense::new(string_pool, item);
@@ -1116,9 +1101,7 @@ impl RawDataProcessor {
     // cf. https://en.wiktionary.org/wiki/Template:root. For now we skip
     // attempting to deal with multiple roots listed in a root template or
     // multiple root templates being listed. In both cases we just take the
-    // first root term seen. If we discover it is common, we will handle it. $$
-    // NEED TO HANDLE CHECKING CATEGORIES IF NO ROOT TEMPLATE FOUND, $$ ONCE WE
-    // MAKE PHF MAPS FOR LANG AND POS.
+    // first root term seen. If we discover it is common, we will handle it. 
     fn process_json_root(&mut self, json_item: &Value, lang: &str) -> Result<Option<RawRoot>> {
         if let Some(templates) = json_item.get_array("etymology_templates") {
             for template in templates {
@@ -1259,12 +1242,9 @@ impl RawDataProcessor {
         // 'lang_code' key must be present
         let lang = json_item.get_expected_str("lang_code")?;
         let lang_index = LANG_CODE2NAME.get_expected_index(lang)?;
-        // 'etymology_text' key may be missing or empty
-        let ety_text_hash = json_item.get_str("etymology_text").map(|s| {
-            let mut hasher = AHasher::default();
-            hasher.write(s.as_bytes());
-            hasher.finish()
-        });
+        // if term-lang combo has multiple ety's, then 'etymology_number' is
+        // present with range 1,2,... Otherwise, this key is missing.
+        let ety_num = json_item.get_u8("etymology_number");
         // 'senses' key should always be present with non-empty value, but glosses
         // may be missing or empty.
         let gloss = json_item
@@ -1283,14 +1263,14 @@ impl RawDataProcessor {
             i: items.n,
             term: self.string_pool.get_or_intern(term),
             lang: lang_index,
-            ety_num: 0, // temp value to be changed if need be in add()
+            ety_num,
             pos: POS.get_expected_index(pos)?,
             gloss,
             gloss_num: 0, // temp value to be changed if need be in add()
             raw_ety_nodes,
             raw_root,
         };
-        items.add(ety_text_hash, item, &self.string_pool)?;
+        items.add(item)?;
         Ok(())
     }
 

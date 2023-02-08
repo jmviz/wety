@@ -65,7 +65,6 @@ fn write_item(
     f: &mut BufWriter<File>,
     data: &ProcessedData,
     item: &Rc<Item>,
-    has_multi_ety: bool,
     has_multi_gloss: bool,
 ) -> Result<()> {
     writeln!(f, "{ITEM_PRE}{}", item.i)?;
@@ -82,8 +81,8 @@ fn write_item(
         let gloss = data.string_pool.resolve(gloss);
         write_item_quoted_prop(f, PRED_GLOSS, gloss)?;
     }
-    if has_multi_ety {
-        writeln!(f, "  {PRED_ETY_NUM} {} ;", item.ety_num)?;
+    if let Some(ety_num) = item.ety_num {
+        writeln!(f, "  {PRED_ETY_NUM} {ety_num} ;")?;
     }
     if has_multi_gloss {
         writeln!(f, "  {PRED_GLOSS_NUM} {} ;", item.gloss_num)?;
@@ -120,10 +119,10 @@ pub(crate) fn write_turtle_file(data: &ProcessedData, path: &str) -> Result<()> 
             .progress_chars("#>-"));
     for lang_map in data.items.term_map.values() {
         for ety_map in lang_map.values() {
-            for (_, pos_map) in ety_map.values() {
+            for pos_map in ety_map.values() {
                 for gloss_map in pos_map.values() {
                     for item in gloss_map.values() {
-                        write_item(&mut f, data, item, ety_map.len() > 1, gloss_map.len() > 1)?;
+                        write_item(&mut f, data, item, gloss_map.len() > 1)?;
                         pb.inc(1);
                     }
                 }
@@ -132,7 +131,7 @@ pub(crate) fn write_turtle_file(data: &ProcessedData, path: &str) -> Result<()> 
     }
     for lang_map in data.ety_graph.imputed_items.term_map.values() {
         for item in lang_map.values() {
-            write_item(&mut f, data, item, false, false)?;
+            write_item(&mut f, data, item, false)?;
             pb.inc(1);
         }
     }
