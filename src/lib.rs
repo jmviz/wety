@@ -19,7 +19,7 @@ use crate::{
 use std::{
     convert::TryFrom,
     fs::{remove_dir_all, File},
-    io::BufReader,
+    io::{BufReader, BufWriter, Write},
     ops::Index,
     path::Path,
     rc::Rc,
@@ -35,7 +35,7 @@ use lazy_static::lazy_static;
 use oxigraph::{io::GraphFormat::Turtle, model::GraphNameRef::DefaultGraph, store::Store};
 use petgraph::{
     algo::greedy_feedback_arc_set,
-    stable_graph::{EdgeIndex, EdgeReference, NodeIndex, StableDiGraph},
+    stable_graph::{EdgeIndex, NodeIndex, StableDiGraph},
     visit::EdgeRef,
 };
 use phf::{phf_set, OrderedMap, OrderedSet, Set};
@@ -72,7 +72,7 @@ struct Item {
     i: usize,                 // the i-th item seen, used as id for RDF
     term: SymbolU32,          // e.g. "bank"
     lang: usize,              // e.g "en", i.e. the wiktextract lang_code
-    ety_num: Option<u8>,      // the nth ety encountered for this term-lang combo
+    ety_num: Option<u8>,      // the nth numbered ety for this term-lang combo (1,2,...)
     pos: usize,               // e.g. "noun"
     gloss: Option<SymbolU32>, // e.g. "An institution where one can place and borrow money...
     gloss_num: u8,            // the nth gloss encountered for this term-lang-ety-pos combo
@@ -111,10 +111,7 @@ struct Items {
 }
 
 impl Items {
-    fn add(
-        &mut self,
-        mut item: Item
-    ) -> Result<()> {
+    fn add(&mut self, mut item: Item) -> Result<()> {
         // check if the item's term has been seen before
         if !self.term_map.contains_key(&item.term) {
             let mut gloss_map = GlossMap::new();
@@ -430,9 +427,9 @@ impl Items {
         self.add_all_to_ety_graph(&mut ety_graph)?;
         self.impute_root_items(&mut ety_graph)?;
         self.process_etys(string_pool, &mut ety_graph)?;
-        ety_graph.remove_cycles(string_pool);
+        ety_graph.remove_cycles(string_pool, 1)?;
         self.impute_root_etys(string_pool, &mut ety_graph)?;
-        ety_graph.remove_cycles(string_pool);
+        ety_graph.remove_cycles(string_pool, 2)?;
         Ok(ety_graph)
     }
 }
@@ -554,38 +551,55 @@ impl EtyGraph {
             self.graph.add_edge(item_index, ety_item_index, ety_link);
         }
     }
-    fn remove_cycles(&mut self, string_pool: &StringPool) {
-        println!("\tRemoving ety link feedback arc set:");
-        let debug = |e: EdgeReference<EtyLink>| {
-            let source = self.graph.index(e.source());
-            let target = self.graph.index(e.target());
-            println!(
-                "\t\t{}, {} -> {}, {}",
-                LANG_CODE2NAME
-                    .get_expected_index_value(source.lang)
-                    .unwrap(),
-                string_pool.resolve(source.term),
-                LANG_CODE2NAME
-                    .get_expected_index_value(target.lang)
-                    .unwrap(),
-                string_pool.resolve(target.term),
-            );
-        };
-        let fas: Vec<Vec<EdgeIndex>> = greedy_feedback_arc_set(&self.graph)
-            .map(|e| {
-                debug(e);
-                // We take not only the edges forming the fas, but all edges
-                // that share the same source of any of the fas edges. This is
-                // to ensure there are no degenerate etys in the graph once we
-                // remove the edges.
-                self.graph.edges(e.source()).map(|e| e.id()).collect()
-            })
+    fn remove_cycles(&mut self, string_pool: &StringPool, pass: u8) -> Result<()> {
+        println!("  Checking for ety link feedback arc set, pass {pass}...");
+        let filename = format!("data/feedback_arc_set_pass_{pass}.tsv");
+        let mut f = BufWriter::new(File::create(&filename)?);
+        writeln!(f, "child_lang\tchild_term\tparent_lang\tparent_term")?;
+        let fas: Vec<EdgeIndex> = greedy_feedback_arc_set(&self.graph)
+            .map(|e| e.id())
             .collect();
-        for source_edges in fas {
-            for edge in source_edges {
-                self.graph.remove_edge(edge);
+        if fas.is_empty() {
+            println!("    Found none. Writing blank {filename}.");
+        } else {
+            println!(
+                "    Found ety link feedback arc set of size {}. Writing to {filename}.",
+                fas.len()
+            );
+
+            for edge in fas {
+                let (source, target) = self
+                    .graph
+                    .edge_endpoints(edge)
+                    .ok_or_else(|| anyhow!("feedback arc set edge endpoints not found"))?;
+                let source_item = self.graph.index(source);
+                let target_item = self.graph.index(target);
+                writeln!(
+                    f,
+                    "{}\t{}\t{}\t{}",
+                    LANG_CODE2NAME
+                        .get_expected_index_value(source_item.lang)
+                        .unwrap(),
+                    string_pool.resolve(source_item.term),
+                    LANG_CODE2NAME
+                        .get_expected_index_value(target_item.lang)
+                        .unwrap(),
+                    string_pool.resolve(target_item.term),
+                )?;
+                // We take not only the edges forming the fas, but all edges
+                // that share the same source of any of the fas edges (recall:
+                // the edge source is a child and the edge target is an
+                // etymological parent). This is to ensure there are no
+                // degenerate etys in the graph once we remove the edges.
+                let edges_from_source: Vec<EdgeIndex> =
+                    self.graph.edges(source).map(|e| e.id()).collect();
+                for e in edges_from_source {
+                    self.graph.remove_edge(e);
+                }
             }
         }
+        f.flush()?;
+        Ok(())
     }
 }
 
@@ -1101,7 +1115,7 @@ impl RawDataProcessor {
     // cf. https://en.wiktionary.org/wiki/Template:root. For now we skip
     // attempting to deal with multiple roots listed in a root template or
     // multiple root templates being listed. In both cases we just take the
-    // first root term seen. If we discover it is common, we will handle it. 
+    // first root term seen. If we discover it is common, we will handle it.
     fn process_json_root(&mut self, json_item: &Value, lang: &str) -> Result<Option<RawRoot>> {
         if let Some(templates) = json_item.get_array("etymology_templates") {
             for template in templates {
@@ -1164,7 +1178,7 @@ impl RawDataProcessor {
                     && cat_term_lang == lang
                     && let cat_root_lang_name = caps.get(2).unwrap().as_str()
                     && let Some(&cat_root_lang) = LANG_NAME2CODE.get(cat_root_lang_name)
-                    && let Some(cat_root_lang_index) = LANG_CODE2NAME.get_index(cat_root_lang) 
+                    && let Some(cat_root_lang_index) = LANG_CODE2NAME.get_index(cat_root_lang)
                 {
                     let cat_root_term = caps.get(3).unwrap().as_str();
                     let cat_root_sense_id = caps.get(4)
