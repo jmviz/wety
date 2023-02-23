@@ -9,7 +9,8 @@ mod turtle;
 
 use crate::{
     etymology_templates::{
-        ABBREV_TYPE_TEMPLATES, COMPOUND_TYPE_TEMPLATES, DERIVED_TYPE_TEMPLATES, MODE,
+        EtyMode, TemplateType, ABBREV_TYPE_TEMPLATES, COMPOUND_TYPE_TEMPLATES,
+        DERIVED_TYPE_TEMPLATES, MODE,
     },
     lang::{LANG_CODE2NAME, LANG_ETYCODE2CODE, LANG_NAME2CODE},
     pos::POS,
@@ -23,6 +24,7 @@ use std::{
     ops::Index,
     path::Path,
     rc::Rc,
+    str::FromStr,
     time::Instant,
 };
 
@@ -65,6 +67,23 @@ struct RawRoot {
     lang: usize,
     sense_id: Option<SymbolU32>,
 }
+
+// enum DescMode {
+//     Inherited,
+//     Borrowed,
+
+// }
+
+// enum DescTemplate {
+//     Desc{mode: }
+// }
+
+// struct RawDesc {
+//     depth: u8,
+//     term: SymbolU32,
+//     lang: usize,
+//     template: DescEntry,
+// }
 
 #[derive(Hash, Eq, PartialEq, Debug)]
 struct Item {
@@ -1043,24 +1062,38 @@ impl RawDataProcessor {
         template: &Value,
         lang: &str,
     ) -> Result<Option<RawEtyNode>> {
-        let name = template.get_expected_str("name")?;
-        let args = template.get_expected_object("args")?;
-        if let Some(&mode) = DERIVED_TYPE_TEMPLATES.get(name) {
-            self.process_derived_type_json_template(args, mode, lang)
-        } else if let Some(&mode) = ABBREV_TYPE_TEMPLATES.get(name) {
-            self.process_abbrev_type_json_template(args, mode, lang)
-        } else if let Some(&mode) = COMPOUND_TYPE_TEMPLATES.get(name) {
-            match mode {
-                "prefix" => self.process_prefix_json_template(args, lang),
-                "suffix" => self.process_suffix_json_template(args, lang),
-                "circumfix" => self.process_circumfix_json_template(args, lang),
-                "infix" => self.process_infix_json_template(args, lang),
-                "confix" => self.process_confix_json_template(args, lang),
-                _ => self.process_compound_type_json_template(args, mode, lang),
+        match EtyMode::from_str(template.get_expected_str("name")?) {
+            std::result::Result::Ok(ety_mode) => {
+                let args = template.get_expected_object("args")?;
+                match ety_mode.template_type() {
+                    TemplateType::Derived => {
+                        self.process_derived_type_json_template(args, mode, lang)
+                    }
+                    TemplateType::Abbreviation => todo!(),
+                    TemplateType::Compound => todo!(),
+                    TemplateType::Root => todo!(),
+                    TemplateType::None => todo!(),
+                }
             }
-        } else {
-            Ok(None)
+            Err(_) => Ok(None),
         }
+        // let args = template.get_expected_object("args")?;
+        // if let Some(&mode) = DERIVED_TYPE_TEMPLATES.get(name) {
+        //     self.process_derived_type_json_template(args, mode, lang)
+        // } else if let Some(&mode) = ABBREV_TYPE_TEMPLATES.get(name) {
+        //     self.process_abbrev_type_json_template(args, mode, lang)
+        // } else if let Some(&mode) = COMPOUND_TYPE_TEMPLATES.get(name) {
+        //     match mode {
+        //         "prefix" => self.process_prefix_json_template(args, lang),
+        //         "suffix" => self.process_suffix_json_template(args, lang),
+        //         "circumfix" => self.process_circumfix_json_template(args, lang),
+        //         "infix" => self.process_infix_json_template(args, lang),
+        //         "confix" => self.process_confix_json_template(args, lang),
+        //         _ => self.process_compound_type_json_template(args, mode, lang),
+        //     }
+        // } else {
+        //     Ok(None)
+        // }
     }
 
     fn process_json_ety(

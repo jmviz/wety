@@ -1,4 +1,5 @@
 use phf::{phf_ordered_map, phf_ordered_set, OrderedMap, OrderedSet};
+use strum::{AsRefStr, EnumString};
 
 // For each of the three maps below, the key is the name of the template as it
 // appears in a given etymology section for a given word on wiktionary, as read
@@ -53,6 +54,303 @@ pub(crate) static MODE: OrderedSet<&'static str> = phf_ordered_set! {
     "form", // ad-hoc mode used when term is wiktextract alt or form of another
     "root", // ad-hoc mode used when imputing root source for an item
 };
+
+//     "partial calque" => "partial calque", // https://en.wiktionary.org/wiki/Template:partial_calque
+//     "pcal" => "partial calque", // shortcut for "partial calque"
+//     "pclq" => "partial calque", // shortcut for "partial calque"
+//     "phono-semantic matching" => "phono-semantic matching", // https://en.wiktionary.org/wiki/Template:phono-semantic_matching
+//     "psm" => "phono-semantic matching", // shortcut for "phono-semantic matching"
+//     "undefined derivation" => "undefined derivation", // https://en.wiktionary.org/wiki/Template:undefined_derivation
+//     "uder" => "undefined derivation", // shortcut for "undefined derivation"
+//     "der?" => "undefined derivation", // shortcut for "undefined derivation"
+//     "transliteration" => "transliteration", // https://en.wiktionary.org/wiki/Template:transliteration
+//     "translit" => "transliteration", // shortcut for "transliteration"
+
+#[derive(Clone, AsRefStr, EnumString)]
+#[strum(use_phf)]
+pub(crate) enum EtyMode {
+    // start derived-type modes
+    #[strum(
+        to_string = "derived", // https://en.wiktionary.org/wiki/Template:derived
+        serialize = "der", // shortcut for "derived"
+        serialize = "der+", // https://en.wiktionary.org/wiki/Template:der%2B
+        serialize = "der-lite", // https://en.wiktionary.org/wiki/Template:der-lite
+    )]
+    Derived,
+    #[strum(
+        to_string = "inherited", // https://en.wiktionary.org/wiki/Template:inherited
+        serialize = "inh", // shortcut for "inherited"
+        serialize = "inh+", // https://en.wiktionary.org/wiki/Template:inh%2B
+        serialize = "inh-lite", // https://en.wiktionary.org/wiki/Template:inh-lite
+    )]
+    Inherited,
+    #[strum(
+        to_string = "borrowed", // https://en.wiktionary.org/wiki/Template:borrowed
+        serialize = "bor", // shortcut for "borrowed"
+        serialize = "bor+", // https://en.wiktionary.org/wiki/Template:bor%2B
+    )]
+    Borrowed,
+    #[strum(
+        to_string = "learned borrowing", // https://en.wiktionary.org/wiki/Template:learned_borrowing
+        serialize = "lbor", // shortcut for "learned borrowing"
+    )]
+    LearnedBorrowing,
+    #[strum(
+        to_string = "semi-learned borrowing", // https://en.wiktionary.org/wiki/Template:semi-learned_borrowing
+        serialize = "slbor", // shortcut for "semi-learned borrowing"
+    )]
+    SemiLearnedBorrowing,
+    #[strum(
+        to_string = "unadapted borrowing", // https://en.wiktionary.org/wiki/Template:unadapted_borrowing
+        serialize = "ubor", // shortcut for "unadapted borrowing"
+    )]
+    UnadaptedBorrowing,
+    #[strum(
+        to_string = "orthographic borrowing", // https://en.wiktionary.org/wiki/Template:orthographic_borrowing
+        serialize = "obor", // shortcut for "orthographic borrowing"
+    )]
+    OrthographicBorrowing,
+    #[strum(
+        to_string = "semantic loan", // https://en.wiktionary.org/wiki/Template:semantic_loan
+        serialize = "sl", // shortcut for "semantic loan"
+    )]
+    SemanticLoan,
+    #[strum(
+        to_string = "calque", // https://en.wiktionary.org/wiki/Template:calque
+        serialize = "cal", // shortcut for "calque"
+        serialize = "clq", // shortcut for "calque"
+    )]
+    Calque,
+    #[strum(
+        to_string = "partial calque", // https://en.wiktionary.org/wiki/Template:partial_calque
+        serialize = "pcal", // shortcut for "partial calque"
+        serialize = "pclq", // shortcut for "partial calque"
+    )]
+    PartialCalque,
+    #[strum(
+        to_string = "phono-semantic matching", // https://en.wiktionary.org/wiki/Template:phono-semantic_matching
+        serialize = "psm", // shortcut for "phono-semantic matching"
+    )]
+    PhonoSemanticMatching,
+    #[strum(
+        to_string = "undefined derivation", // https://en.wiktionary.org/wiki/Template:undefined_derivation
+        serialize = "uder", // shortcut for "undefined derivation"
+        serialize = "der?", // shortcut for "undefined derivation"
+    )]
+    UndefinedDerivation,
+    #[strum(
+        to_string = "transliteration", // https://en.wiktionary.org/wiki/Template:transliteration
+        serialize = "translit", // shortcut for "transliteration"
+    )]
+    Transliteration,
+    // start abbreviation-type modes
+    #[strum(
+        to_string = "abbreviation", // this is not a wiktionary template
+        serialize = "abbrev", // https://en.wiktionary.org/wiki/Template:abbrev
+    )]
+    Abbreviation,
+    #[strum(
+        to_string = "adverbial accusative", // https://en.wiktionary.org/wiki/Template:adverbial_accusative
+    )]
+    AdverbialAccusative,
+    #[strum(
+        to_string = "contraction", // https://en.wiktionary.org/wiki/Template:contraction
+        serialize = "contr", // shortcut for "contraction"
+    )]
+    Contraction,
+    #[strum(
+        to_string = "reduplication", // https://en.wiktionary.org/wiki/Template:reduplication
+        serialize = "rdp", // shortcut for "reduplication"
+    )]
+    Reduplication,
+    #[strum(
+        to_string = "syncopic form", // https://en.wiktionary.org/wiki/Template:syncopic_form
+        serialize = "sync", // shortcut for "syncopic form"
+    )]
+    SyncopicForm,
+    #[strum(
+        to_string = "rebracketing", // https://en.wiktionary.org/wiki/Template:rebracketing
+    )]
+    Rebracketing,
+    #[strum(
+        to_string = "nominalization", // https://en.wiktionary.org/wiki/Template:nominalization
+        serialize = "nom", // shortcut for "nominalization"
+    )]
+    Nominalization,
+    #[strum(
+        to_string = "ellipsis", // https://en.wiktionary.org/wiki/Template:ellipsis
+    )]
+    Ellipsis,
+    #[strum(
+        to_string = "acronym", // https://en.wiktionary.org/wiki/Template:acronym
+    )]
+    Acronym,
+    #[strum(
+        to_string = "initialism", // https://en.wiktionary.org/wiki/Template:initialism
+    )]
+    Initialism,
+    #[strum(
+        to_string = "conversion", // https://en.wiktionary.org/wiki/Template:conversion
+    )]
+    Conversion,
+    #[strum(
+        to_string = "clipping", // https://en.wiktionary.org/wiki/Template:clipping
+    )]
+    Clipping,
+    #[strum(
+        to_string = "causative", // https://en.wiktionary.org/wiki/Template:causative
+    )]
+    Causative,
+    #[strum(
+        to_string = "back-formation", // https://en.wiktionary.org/wiki/Template:back-formation
+        serialize = "back-form", // shortcut for "back-formation"
+        serialize = "bf", // shortcut for "back-formation"
+    )]
+    BackFormation,
+    #[strum(
+        to_string = "deverbal", // https://en.wiktionary.org/wiki/Template:deverbal
+    )]
+    Deverbal,
+    #[strum(
+        to_string = "apocopic form", // https://en.wiktionary.org/wiki/Template:apocopic_form
+    )]
+    ApocopicForm,
+    #[strum(
+        to_string = "aphetic form", // https://en.wiktionary.org/wiki/Template:aphetic_form
+    )]
+    ApheticForm,
+    // start compound-type modes
+
+    // "compound" => "compound", // https://en.wiktionary.org/wiki/Template:compound
+    // "com" => "compound", // shortcut for "compound"
+    // "com+" => "compound", // https://en.wiktionary.org/wiki/Template:com%2B
+    // "univerbation" => "univerbation", // https://en.wiktionary.org/wiki/Template:univerbation
+    // "univ" => "univerbation", // shortcut for "univerbation"
+    // "transfix" => "transfix", // https://en.wiktionary.org/wiki/Template:transfix
+    // "surface analysis" => "surface analysis", // https://en.wiktionary.org/wiki/Template:surface_analysis
+    // "surf" => "surface analysis", // shortcut for "surface analysis"
+    // "suffix" => "suffix", // https://en.wiktionary.org/wiki/Template:suffix
+    // "prefix" => "prefix", // https://en.wiktionary.org/wiki/Template:prefix
+    // "pre" => "prefix", // shortcut for "prefix"
+    // "infix" => "infix", // https://en.wiktionary.org/wiki/Template:infix
+    // "confix" => "confix", // https://en.wiktionary.org/wiki/Template:confix
+    // "con" => "confix", // shortcut for "confix"
+    // "circumfix" => "circumfix", // https://en.wiktionary.org/wiki/Template:circumfix
+    // "blend" => "blend", // https://en.wiktionary.org/wiki/Template:blend
+    // "affix" => "affix", // https://en.wiktionary.org/wiki/Template:affix
+    // "af" => "affix", // shortcut for "affix"
+    #[strum(
+        to_string = "compound", // https://en.wiktionary.org/wiki/Template:compound
+        serialize = "com", // shortcut for "compound"
+        serialize = "com+", // https://en.wiktionary.org/wiki/Template:com%2B
+    )]
+    Compound,
+    #[strum(
+        to_string = "univerbation", // https://en.wiktionary.org/wiki/Template:univerbation
+        serialize = "univ", // shortcut for "univerbation"
+    )]
+    Univerbation,
+    #[strum(
+        to_string = "transfix", // https://en.wiktionary.org/wiki/Template:transfix
+    )]
+    Transfix,
+    #[strum(
+        to_string = "surface analysis", // https://en.wiktionary.org/wiki/Template:surface_analysis
+        serialize = "surf", // shortcut for "surface analysis"
+    )]
+    SurfaceAnalysis,
+    #[strum(
+        to_string = "suffix", // https://en.wiktionary.org/wiki/Template:suffix
+    )]
+    Suffix,
+    #[strum(
+        to_string = "prefix", // https://en.wiktionary.org/wiki/Template:prefix
+        serialize = "pre", // shortcut for "prefix"
+    )]
+    Prefix,
+    #[strum(
+        to_string = "infix", // https://en.wiktionary.org/wiki/Template:infix
+    )]
+    Infix,
+    #[strum(
+        to_string = "confix", // https://en.wiktionary.org/wiki/Template:confix
+        serialize = "con", // shortcut for "confix"
+    )]
+    Confix,
+    #[strum(
+        to_string = "circumfix", // https://en.wiktionary.org/wiki/Template:circumfix
+    )]
+    Circumfix,
+    #[strum(
+        to_string = "blend", // https://en.wiktionary.org/wiki/Template:blend
+    )]
+    Blend,
+    #[strum(
+        to_string = "affix", // https://en.wiktionary.org/wiki/Template:affix
+        serialize = "af", // shortcut for "affix"
+    )]
+    Affix,
+    Form, // ad-hoc mode used when term is wiktextract alt or form of another
+    Root, // ad-hoc mode used when imputing root source for an item
+}
+
+impl EtyMode {
+    pub(crate) fn template_type(&self) -> TemplateType {
+        match self {
+            EtyMode::Derived
+            | EtyMode::Inherited
+            | EtyMode::Borrowed
+            | EtyMode::LearnedBorrowing
+            | EtyMode::SemiLearnedBorrowing
+            | EtyMode::UnadaptedBorrowing
+            | EtyMode::OrthographicBorrowing
+            | EtyMode::SemanticLoan
+            | EtyMode::Calque
+            | EtyMode::PartialCalque
+            | EtyMode::PhonoSemanticMatching
+            | EtyMode::UndefinedDerivation
+            | EtyMode::Transliteration => TemplateType::Derived,
+            EtyMode::Abbreviation
+            | EtyMode::AdverbialAccusative
+            | EtyMode::Contraction
+            | EtyMode::Reduplication
+            | EtyMode::SyncopicForm
+            | EtyMode::Rebracketing
+            | EtyMode::Nominalization
+            | EtyMode::Ellipsis
+            | EtyMode::Acronym
+            | EtyMode::Initialism
+            | EtyMode::Conversion
+            | EtyMode::Clipping
+            | EtyMode::Causative
+            | EtyMode::BackFormation
+            | EtyMode::Deverbal
+            | EtyMode::ApocopicForm
+            | EtyMode::ApheticForm => TemplateType::Abbreviation,
+            EtyMode::Compound
+            | EtyMode::Univerbation
+            | EtyMode::Transfix
+            | EtyMode::SurfaceAnalysis
+            | EtyMode::Suffix
+            | EtyMode::Prefix
+            | EtyMode::Infix
+            | EtyMode::Confix
+            | EtyMode::Circumfix
+            | EtyMode::Blend
+            | EtyMode::Affix => TemplateType::Compound,
+            EtyMode::Root => TemplateType::Root,
+            EtyMode::Form => TemplateType::None,
+        }
+    }
+}
+
+pub(crate) enum TemplateType {
+    Derived,
+    Abbreviation,
+    Compound,
+    Root,
+    None,
+}
 
 // Wiktionary etymology template names that will be considered to represent
 // the concept "derived from", in a broad sense. They have 3 main parameters:
