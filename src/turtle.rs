@@ -1,7 +1,4 @@
-use crate::{
-    etymology_templates::MODE, lang::LANG_CODE2NAME, pos::POS, Item, OrderedMapExt, OrderedSetExt,
-    ProcessedData,
-};
+use crate::{lang::LANG_CODE2NAME, pos::POS, Item, OrderedMapExt, OrderedSetExt, ProcessedData};
 
 use std::{
     fs::File,
@@ -88,7 +85,7 @@ fn write_item(
         writeln!(f, "  {PRED_GLOSS_NUM} {} ;", item.gloss_num)?;
     }
     if let Some(immediate_ety) = data.ety_graph.get_immediate_ety(item) {
-        let mode = MODE.get_expected_index_key(immediate_ety.mode)?;
+        let mode = immediate_ety.mode.as_ref();
         write_item_quoted_prop(f, PRED_MODE, mode)?;
         writeln!(f, "  {PRED_HEAD} {} ;", immediate_ety.head)?;
         write!(f, "  {PRED_SOURCE} ")?;

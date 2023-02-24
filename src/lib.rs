@@ -8,10 +8,7 @@ mod pos;
 mod turtle;
 
 use crate::{
-    etymology_templates::{
-        EtyMode, TemplateType, ABBREV_TYPE_TEMPLATES, COMPOUND_TYPE_TEMPLATES,
-        DERIVED_TYPE_TEMPLATES, MODE,
-    },
+    etymology_templates::{EtyMode, TemplateKind},
     lang::{LANG_CODE2NAME, LANG_ETYCODE2CODE, LANG_NAME2CODE},
     pos::POS,
     turtle::write_turtle_file,
@@ -57,7 +54,7 @@ static IGNORED_REDIRECTS: Set<&'static str> = phf_set! {
 struct RawEtyNode {
     ety_terms: Box<[SymbolU32]>, // e.g. "re-", "do"
     ety_langs: Box<[usize]>,     // e.g. "en", "en"
-    mode: usize,                 // e.g. "prefix"
+    mode: EtyMode,               // e.g. Prefix
     head: u8,                    // e.g. 1 (the index of "do")
 }
 
@@ -273,7 +270,7 @@ impl Items {
                     // We have already imputed an item that corresponds to this term.
                     ety_items.push(Rc::clone(imputed_ety_item));
                 } else if node.ety_terms.len() == 1 {
-                    // This is an unseen term, and it is in a non-compound-type template.
+                    // This is an unseen term, and it is in a non-compound-kind template.
                     // We will impute an item for this term, and use this new imputed
                     // item as the item for the next template in the outer loop.
                     has_new_imputation = true;
@@ -286,7 +283,7 @@ impl Items {
                     ety_items.push(Rc::clone(&imputed_ety_item));
                     next_item = Rc::clone(&imputed_ety_item);
                 } else {
-                    // This is a term of a compound-type template without a
+                    // This is a term of a compound-kind template without a
                     // link, and for which a corresponding imputed item has not
                     // yet been created. We won't bother trying to do convoluted
                     // imputations for such cases at the moment. So we stop
@@ -338,17 +335,17 @@ impl Items {
                 for pos_map in ety_map.values() {
                     for gloss_map in pos_map.values() {
                         for item in gloss_map.values() {
-                            if let Some(raw_root) = &item.raw_root {
-                                if !self.contains(raw_root.lang, raw_root.term)? {
-                                    let i = self.n + ety_graph.imputed_items.n;
-                                    let root = Rc::from(Item::new_imputed(
-                                        i,
-                                        root_pos,
-                                        raw_root.lang,
-                                        raw_root.term,
-                                    ));
-                                    ety_graph.add_imputed(&root);
-                                }
+                            if let Some(raw_root) = &item.raw_root
+                                && !self.contains(raw_root.lang, raw_root.term)?
+                            {
+                                let i = self.n + ety_graph.imputed_items.n;
+                                let root = Rc::from(Item::new_imputed(
+                                    i,
+                                    root_pos,
+                                    raw_root.lang,
+                                    raw_root.term,
+                                ));
+                                ety_graph.add_imputed(&root);
                             }
                             pb.inc(1);
                         }
@@ -407,12 +404,7 @@ impl Items {
                     visited_items.insert(Rc::clone(&current_item));
                 }
                 if &current_item != root_item {
-                    ety_graph.add_ety(
-                        &current_item,
-                        MODE.get_expected_index("root")?,
-                        0u8,
-                        &[Rc::clone(root_item)],
-                    );
+                    ety_graph.add_ety(&current_item, EtyMode::Root, 0u8, &[Rc::clone(root_item)]);
                 }
             }
         }
@@ -500,7 +492,7 @@ impl ImputedItems {
 }
 
 struct EtyLink {
-    mode: usize,
+    mode: EtyMode,
     order: u8,
     head: bool,
 }
@@ -514,7 +506,7 @@ struct EtyGraph {
 
 struct ImmediateEty {
     items: Vec<Rc<Item>>,
-    mode: usize,
+    mode: EtyMode,
     head: u8,
 }
 
@@ -526,8 +518,11 @@ impl EtyGraph {
         let item_index = self.get_index(item);
         let mut ety_items = vec![];
         let mut order = vec![];
+        // Next two lines are dummy assignments. If there are any parents in the
+        // ety_graph, they will get overwritten with correct values. If no
+        // parents, they will not get returned.
         let mut head = 0;
-        let mut mode = 0usize;
+        let mut mode = EtyMode::Derived;
         for (ety_link, ety_item) in self
             .graph
             .edges(item_index)
@@ -558,7 +553,7 @@ impl EtyGraph {
         self.imputed_items.add(&Rc::clone(item));
         self.add(&Rc::clone(item));
     }
-    fn add_ety(&mut self, item: &Rc<Item>, mode: usize, head: u8, ety_items: &[Rc<Item>]) {
+    fn add_ety(&mut self, item: &Rc<Item>, mode: EtyMode, head: u8, ety_items: &[Rc<Item>]) {
         let item_index = self.get_index(item);
         for (i, ety_item) in (0u8..).zip(ety_items.iter()) {
             let ety_item_index = self.get_index(ety_item);
@@ -662,7 +657,7 @@ impl Sense {
 // convenience extension trait methods for reading from json
 trait ValueExt {
     fn get_expected_str(&self, key: &str) -> Result<&str>;
-    fn get_optional_str(&self, key: &str) -> Option<&str>;
+    fn get_valid_str(&self, key: &str) -> Option<&str>;
     fn get_expected_object(&self, key: &str) -> Result<&Value>;
 }
 
@@ -676,8 +671,15 @@ impl ValueExt for Value<'_> {
                     .ok_or_else(|| anyhow!("empty str value for '{key}' key in json:\n{self}"))
             })
     }
-    fn get_optional_str(&self, key: &str) -> Option<&str> {
-        self.get_str(key).and_then(|s| (!s.is_empty()).then_some(s))
+    // return a cleaned version of the str if it exists
+    fn get_valid_str(&self, key: &str) -> Option<&str> {
+        self.get_str(key)
+            // even though get_valid_str is called on other bits of wiktextract
+            // json such as template lang args, clean_ety_term should never
+            // effect them unless they're degenerate anyway, so we always call
+            // this
+            .map(clean_ety_term)
+            .and_then(|s| (!s.is_empty() && s != "-").then_some(s))
     }
     fn get_expected_object(&self, key: &str) -> Result<&Value> {
         self.get(key)
@@ -772,289 +774,210 @@ struct RawDataProcessor {
 }
 
 impl RawDataProcessor {
-    fn process_derived_type_json_template(
+    fn process_derived_kind_json_template(
         &mut self,
         args: &Value,
-        mode: &str,
+        mode: EtyMode,
         lang: &str,
-    ) -> Result<Option<RawEtyNode>> {
-        let term_lang = args.get_expected_str("1")?;
-        if term_lang != lang {
-            return Ok(None);
-        }
-        if let Some(ety_lang) = LANG_CODE2NAME.get_index(args.get_expected_str("2")?) {
-            if let Some(ety_term) = args.get_optional_str("3") {
-                if ety_term.is_empty() || ety_term == "-" {
-                    return Ok(None);
-                }
-                let ety_term = clean_ety_term(ety_term);
-                return Ok(Some(RawEtyNode {
-                    ety_terms: Box::new([self.string_pool.get_or_intern(ety_term)]),
-                    ety_langs: Box::new([ety_lang]),
-                    mode: MODE.get_expected_index(mode)?,
-                    head: 0,
-                }));
-            }
-        }
-        Ok(None)
-    }
-
-    fn process_abbrev_type_json_template(
-        &mut self,
-        args: &Value,
-        mode: &str,
-        lang: &str,
-    ) -> Result<Option<RawEtyNode>> {
-        let term_lang = args.get_expected_str("1")?;
-        if term_lang != lang {
-            return Ok(None);
-        }
-        if let Some(ety_term) = args.get_optional_str("2") {
-            if ety_term.is_empty() || ety_term == "-" {
-                return Ok(None);
-            }
-            let ety_term = clean_ety_term(ety_term);
-            return Ok(Some(RawEtyNode {
-                ety_terms: Box::new([self.string_pool.get_or_intern(ety_term)]),
-                ety_langs: Box::new([LANG_CODE2NAME.get_expected_index(lang)?]),
-                mode: MODE.get_expected_index(mode)?,
+    ) -> Option<RawEtyNode> {
+        if let Some(term_lang) = args.get_valid_str("1")
+            && term_lang == lang
+            && let Some(ety_lang) = args.get_valid_str("2")
+            && let Some(ety_lang_index) = LANG_CODE2NAME.get_index(ety_lang)
+            && let Some(ety_term) = args.get_valid_str("3")
+        {
+            let ety_term = self.string_pool.get_or_intern(ety_term);
+            return Some(RawEtyNode {
+                ety_terms: Box::new([ety_term]),
+                ety_langs: Box::new([ety_lang_index]),
+                mode,
                 head: 0,
-            }));
+            });
         }
-        Ok(None)
+        None
     }
 
-    fn process_prefix_json_template(
+    fn process_abbrev_kind_json_template(
         &mut self,
         args: &Value,
+        mode: EtyMode,
         lang: &str,
-    ) -> Result<Option<RawEtyNode>> {
-        let term_lang = args.get_expected_str("1")?;
-        if term_lang != lang {
-            return Ok(None);
+    ) -> Option<RawEtyNode> {
+        if let Some(term_lang) = args.get_valid_str("1")
+            && term_lang == lang
+            && let Some(lang_index) = LANG_CODE2NAME.get_index(lang)
+            && let Some(ety_term) = args.get_valid_str("2")
+        {
+            let ety_term = self.string_pool.get_or_intern(ety_term);
+            return Some(RawEtyNode {
+                ety_terms: Box::new([ety_term]),
+                ety_langs: Box::new([lang_index]),
+                mode,
+                head: 0,
+            });
         }
-        if let Some(ety_prefix) = args.get_optional_str("2") {
-            if ety_prefix.is_empty() || ety_prefix == "-" {
-                return Ok(None);
-            }
-            if let Some(ety_term) = args.get_optional_str("3") {
-                if ety_term.is_empty() || ety_term == "-" {
-                    return Ok(None);
-                }
-                let ety_prefix = clean_ety_term(ety_prefix).to_string();
+        None
+    }
+
+    fn process_prefix_json_template(&mut self, args: &Value, lang: &str) -> Option<RawEtyNode> {
+        if let Some(term_lang) = args.get_valid_str("1")
+            && term_lang == lang
+            && let Some(lang_index) = LANG_CODE2NAME.get_index(lang)
+            && let Some(ety_prefix) = args.get_valid_str("2")
+            && let Some(ety_term) = args.get_valid_str("3") 
+        {
                 let ety_prefix = format!("{ety_prefix}-");
-                let ety_prefix = self.string_pool.get_or_intern(ety_prefix.as_str());
-                let ety_term = clean_ety_term(ety_term);
+                let ety_prefix = ety_prefix.as_str();
+                let ety_prefix = self.string_pool.get_or_intern(ety_prefix);
                 let ety_term = self.string_pool.get_or_intern(ety_term);
-                return Ok(Some(RawEtyNode {
+                return Some(RawEtyNode {
                     ety_terms: Box::new([ety_prefix, ety_term]),
-                    ety_langs: Box::new([LANG_CODE2NAME.get_expected_index(lang)?; 2]),
-                    mode: MODE.get_expected_index("prefix")?,
+                    ety_langs: Box::new([lang_index; 2]),
+                    mode: EtyMode::Prefix,
                     head: 1,
-                }));
-            }
+                });
         }
-        Ok(None)
+        None
     }
 
-    fn process_suffix_json_template(
-        &mut self,
-        args: &Value,
-        lang: &str,
-    ) -> Result<Option<RawEtyNode>> {
-        let term_lang = args.get_expected_str("1")?;
-        if term_lang != lang {
-            return Ok(None);
+    fn process_suffix_json_template(&mut self, args: &Value, lang: &str) -> Option<RawEtyNode> {
+        if let Some(term_lang) = args.get_valid_str("1")
+            && term_lang == lang
+            && let Some(lang_index) = LANG_CODE2NAME.get_index(lang)
+            && let Some(ety_term) = args.get_valid_str("2")
+            && let Some(ety_suffix) = args.get_valid_str("3")
+        {
+            let ety_term = self.string_pool.get_or_intern(ety_term);
+            let ety_suffix = format!("-{ety_suffix}");
+            let ety_suffix = ety_suffix.as_str();
+            let ety_suffix = self.string_pool.get_or_intern(ety_suffix);
+            return Some(RawEtyNode {
+                ety_terms: Box::new([ety_term, ety_suffix]),
+                ety_langs: Box::new([lang_index; 2]),
+                mode: EtyMode::Suffix,
+                head: 0,
+            });
         }
-        if let Some(ety_term) = args.get_optional_str("2") {
-            if ety_term.is_empty() || ety_term == "-" {
-                return Ok(None);
-            }
-            if let Some(ety_suffix) = args.get_optional_str("3") {
-                if ety_suffix.is_empty() || ety_suffix == "-" {
-                    return Ok(None);
-                }
-                let ety_term = clean_ety_term(ety_term);
-                let ety_term = self.string_pool.get_or_intern(ety_term);
-                let ety_suffix = clean_ety_term(ety_suffix).to_string();
-                let ety_suffix = format!("-{ety_suffix}");
-                let ety_suffix = self.string_pool.get_or_intern(ety_suffix.as_str());
-                return Ok(Some(RawEtyNode {
-                    ety_terms: Box::new([ety_term, ety_suffix]),
-                    ety_langs: Box::new([LANG_CODE2NAME.get_expected_index(lang)?; 2]),
-                    mode: MODE.get_expected_index("suffix")?,
-                    head: 0,
-                }));
-            }
-        }
-        Ok(None)
+        None
     }
 
-    fn process_circumfix_json_template(
-        &mut self,
-        args: &Value,
-        lang: &str,
-    ) -> Result<Option<RawEtyNode>> {
-        let term_lang = args.get_expected_str("1")?;
-        if term_lang != lang {
-            return Ok(None);
+    fn process_circumfix_json_template(&mut self, args: &Value, lang: &str) -> Option<RawEtyNode> {
+        if let Some(term_lang) = args.get_valid_str("1")
+            && term_lang == lang
+            && let Some(lang_index) = LANG_CODE2NAME.get_index(lang)
+            && let Some(ety_prefix) = args.get_valid_str("2")
+            && let Some(ety_term) = args.get_valid_str("3")
+            && let Some(ety_suffix) = args.get_valid_str("4") 
+        {
+            let ety_term = self.string_pool.get_or_intern(ety_term);
+            let ety_circumfix = format!("{ety_prefix}- -{ety_suffix}");
+            let ety_circumfix = ety_circumfix.as_str();
+            let ety_circumfix = self.string_pool.get_or_intern(ety_circumfix);
+            return Some(RawEtyNode {
+                ety_terms: Box::new([ety_term, ety_circumfix]),
+                ety_langs: Box::new([lang_index; 2]),
+                mode: EtyMode::Circumfix,
+                head: 0,
+            });
         }
-        if let Some(ety_prefix) = args.get_optional_str("2") {
-            if ety_prefix.is_empty() || ety_prefix == "-" {
-                return Ok(None);
-            }
-            if let Some(ety_term) = args.get_optional_str("3") {
-                if ety_term.is_empty() || ety_term == "-" {
-                    return Ok(None);
-                }
-                if let Some(ety_suffix) = args.get_optional_str("4") {
-                    if ety_suffix.is_empty() || ety_suffix == "-" {
-                        return Ok(None);
-                    }
-                    let ety_term = clean_ety_term(ety_term);
-                    let ety_term = self.string_pool.get_or_intern(ety_term);
-                    let ety_prefix = clean_ety_term(ety_prefix).to_string();
-                    let ety_suffix = clean_ety_term(ety_suffix).to_string();
-                    let ety_circumfix = format!("{ety_prefix}- -{ety_suffix}");
-                    let ety_circumfix = self.string_pool.get_or_intern(ety_circumfix.as_str());
-
-                    return Ok(Some(RawEtyNode {
-                        ety_terms: Box::new([ety_term, ety_circumfix]),
-                        ety_langs: Box::new([LANG_CODE2NAME.get_expected_index(lang)?; 2]),
-                        mode: MODE.get_expected_index("circumfix")?,
-                        head: 0,
-                    }));
-                }
-            }
-        }
-        Ok(None)
+        None
     }
 
-    fn process_infix_json_template(
-        &mut self,
-        args: &Value,
-        lang: &str,
-    ) -> Result<Option<RawEtyNode>> {
-        let term_lang = args.get_expected_str("1")?;
-        if term_lang != lang {
-            return Ok(None);
+    fn process_infix_json_template(&mut self, args: &Value, lang: &str) -> Option<RawEtyNode> {
+        if let Some(term_lang) = args.get_valid_str("1")
+            && term_lang == lang
+            && let Some(lang_index) = LANG_CODE2NAME.get_index(lang)
+            && let Some(ety_term) = args.get_valid_str("2")
+            && let Some(ety_infix) = args.get_valid_str("3")
+        {
+            let ety_term = self.string_pool.get_or_intern(ety_term);
+            let ety_infix = format!("-{ety_infix}-");
+            let ety_infix = ety_infix.as_str();
+            let ety_infix = self.string_pool.get_or_intern(ety_infix);
+            return Some(RawEtyNode {
+                ety_terms: Box::new([ety_term, ety_infix]),
+                ety_langs: Box::new([lang_index; 2]),
+                mode: EtyMode::Infix,
+                head: 0,
+            });
         }
-        if let Some(ety_term) = args.get_optional_str("2") {
-            if ety_term.is_empty() || ety_term == "-" {
-                return Ok(None);
-            }
-            if let Some(ety_infix) = args.get_optional_str("3") {
-                if ety_infix.is_empty() || ety_infix == "-" {
-                    return Ok(None);
-                }
-                let ety_term = clean_ety_term(ety_term);
-                let ety_term = self.string_pool.get_or_intern(ety_term);
-                let ety_infix = clean_ety_term(ety_infix).to_string();
-                let ety_infix = format!("-{ety_infix}-");
-                let ety_infix = self.string_pool.get_or_intern(ety_infix.as_str());
-                return Ok(Some(RawEtyNode {
-                    ety_terms: Box::new([ety_term, ety_infix]),
-                    ety_langs: Box::new([LANG_CODE2NAME.get_expected_index(lang)?; 2]),
-                    mode: MODE.get_expected_index("infix")?,
-                    head: 0,
-                }));
-            }
-        }
-        Ok(None)
+        None
     }
 
-    fn process_confix_json_template(
-        &mut self,
-        args: &Value,
-        lang: &str,
-    ) -> Result<Option<RawEtyNode>> {
-        let term_lang = args.get_expected_str("1")?;
-        if term_lang != lang {
-            return Ok(None);
-        }
-        if let Some(ety_prefix) = args.get_optional_str("2") {
-            if ety_prefix.is_empty() || ety_prefix == "-" {
-                return Ok(None);
+    fn process_confix_json_template(&mut self, args: &Value, lang: &str) -> Option<RawEtyNode> {
+        if let Some(term_lang) = args.get_valid_str("1")
+            && term_lang == lang
+            && let Some(lang_index) = LANG_CODE2NAME.get_index(lang)
+            && let Some(ety_prefix) = args.get_valid_str("2")
+            && let Some(ety2) = args.get_valid_str("3") 
+        {
+            let ety_prefix = format!("{ety_prefix}-");
+            let ety_prefix = ety_prefix.as_str();
+            let ety_prefix = self.string_pool.get_or_intern(ety_prefix);
+            if let Some(ety3) = args.get_valid_str("4") {
+                let ety_term = self.string_pool.get_or_intern(ety2);
+                let ety_suffix = format!("-{ety3}");
+                let ety_suffix = ety_suffix.as_str();
+                let ety_suffix = self.string_pool.get_or_intern(ety_suffix);
+                return Some(RawEtyNode {
+                    ety_terms: Box::new([ety_prefix, ety_term, ety_suffix]),
+                    ety_langs: Box::new([lang_index; 3]),
+                    mode: EtyMode::Confix,
+                    head: 1,
+                });
             }
-            if let Some(ety2) = args.get_optional_str("3") {
-                if ety2.is_empty() || ety2 == "-" {
-                    return Ok(None);
-                }
-                let ety_prefix = clean_ety_term(ety_prefix).to_string();
-                let ety_prefix = format!("{ety_prefix}-");
-                let ety_prefix = self.string_pool.get_or_intern(ety_prefix.as_str());
-                if let Some(ety3) = args.get_optional_str("4") {
-                    if ety3.is_empty() || ety3 == "-" {
-                        return Ok(None);
-                    }
-                    let ety_term = clean_ety_term(ety2);
-                    let ety_term = self.string_pool.get_or_intern(ety_term);
-                    let ety_suffix = clean_ety_term(ety3).to_string();
-                    let ety_suffix = format!("-{ety_suffix}");
-                    let ety_suffix = self.string_pool.get_or_intern(ety_suffix.as_str());
-                    return Ok(Some(RawEtyNode {
-                        ety_terms: Box::new([ety_prefix, ety_term, ety_suffix]),
-                        ety_langs: Box::new([LANG_CODE2NAME.get_expected_index(lang)?; 3]),
-                        mode: MODE.get_expected_index("confix")?,
-                        head: 1,
-                    }));
-                }
-                let ety_suffix = clean_ety_term(ety2).to_string();
-                let ety_suffix = format!("-{ety_suffix}");
-                let ety_suffix = self.string_pool.get_or_intern(ety_suffix.as_str());
-                return Ok(Some(RawEtyNode {
-                    ety_terms: Box::new([ety_prefix, ety_suffix]),
-                    ety_langs: Box::new([LANG_CODE2NAME.get_expected_index(lang)?; 2]),
-                    mode: MODE.get_expected_index("confix")?,
-                    head: 0, // no true head here, arbitrarily take first
-                }));
-            }
-        }
-        Ok(None)
-    }
-
-    fn process_compound_type_json_template(
-        &mut self,
-        args: &Value,
-        mode: &str,
-        lang: &str,
-    ) -> Result<Option<RawEtyNode>> {
-        let term_lang = args.get_expected_str("1")?;
-        if term_lang != lang {
-            return Ok(None);
-        }
-
-        let mut n = 2;
-        let mut ety_terms = vec![];
-        let mut ety_langs = vec![];
-        while let Some(ety_term) = args.get_optional_str(n.to_string().as_str()) {
-            if ety_term.is_empty() || ety_term == "-" {
-                return Ok(None);
-            }
-            if let Some(ety_lang) = args.get_optional_str(format!("lang{n}").as_str()) {
-                let ety_lang_index = LANG_CODE2NAME.get_index(ety_lang);
-                if ety_lang.is_empty() || ety_lang == "-" || ety_lang_index.is_none() {
-                    return Ok(None);
-                }
-                let ety_term = clean_ety_term(ety_term);
-                ety_terms.push(self.string_pool.get_or_intern(ety_term));
-                ety_langs.push(ety_lang_index.unwrap());
-            } else {
-                let ety_term = clean_ety_term(ety_term);
-                ety_terms.push(self.string_pool.get_or_intern(ety_term));
-                ety_langs.push(LANG_CODE2NAME.get_expected_index(lang)?);
-            }
-            n += 1;
-        }
-        if !ety_terms.is_empty() {
-            return Ok(Some(RawEtyNode {
-                ety_terms: ety_terms.into_boxed_slice(),
-                ety_langs: ety_langs.into_boxed_slice(),
-                mode: MODE.get_expected_index(mode)?,
+            let ety_suffix = format!("-{ety2}");
+            let ety_suffix = ety_suffix.as_str();
+            let ety_suffix = self.string_pool.get_or_intern(ety_suffix);
+            return Some(RawEtyNode {
+                ety_terms: Box::new([ety_prefix, ety_suffix]),
+                ety_langs: Box::new([lang_index; 2]),
+                mode: EtyMode::Confix,
                 head: 0, // no true head here, arbitrarily take first
-            }));
+            });
         }
-        Ok(None)
+        None
+    }
+
+    fn process_compound_kind_json_template(
+        &mut self,
+        args: &Value,
+        mode: EtyMode,
+        lang: &str,
+    ) -> Option<RawEtyNode> {
+        if let Some(term_lang) = args.get_valid_str("1")
+            && term_lang == lang
+            && let Some(lang_index) = LANG_CODE2NAME.get_index(lang)
+        {
+            let mut n = 2;
+            let mut ety_terms = vec![];
+            let mut ety_langs = vec![];
+            while let Some(ety_term) = args.get_valid_str(n.to_string().as_str()) {
+                if let Some(ety_lang) = args.get_valid_str(format!("lang{n}").as_str()) {
+                    if let Some(ety_lang_index) = LANG_CODE2NAME.get_index(ety_lang) {
+                        let ety_term = self.string_pool.get_or_intern(ety_term);
+                        ety_terms.push(ety_term);
+                        ety_langs.push(ety_lang_index);
+                    } else {
+                        return None;
+                    }
+                } else {
+                    let ety_term = self.string_pool.get_or_intern(ety_term);
+                    ety_terms.push(ety_term);
+                    ety_langs.push(lang_index);
+                }
+                n += 1;
+            }
+            if !ety_terms.is_empty() {
+                return Some(RawEtyNode {
+                    ety_terms: ety_terms.into_boxed_slice(),
+                    ety_langs: ety_langs.into_boxed_slice(),
+                    mode,
+                    head: 0, // no true head here, arbitrarily take first
+                });
+            }
+        }
+        None
     }
 
     fn process_json_ety_template(
@@ -1062,38 +985,28 @@ impl RawDataProcessor {
         template: &Value,
         lang: &str,
     ) -> Result<Option<RawEtyNode>> {
-        match EtyMode::from_str(template.get_expected_str("name")?) {
-            std::result::Result::Ok(ety_mode) => {
-                let args = template.get_expected_object("args")?;
-                match ety_mode.template_type() {
-                    TemplateType::Derived => {
-                        self.process_derived_type_json_template(args, mode, lang)
-                    }
-                    TemplateType::Abbreviation => todo!(),
-                    TemplateType::Compound => todo!(),
-                    TemplateType::Root => todo!(),
-                    TemplateType::None => todo!(),
+        if let Result::Ok(ety_mode) = EtyMode::from_str(template.get_expected_str("name")?) {
+            let args = template.get_expected_object("args")?;
+            Ok(match ety_mode.template_kind() {
+                TemplateKind::Derived => {
+                    self.process_derived_kind_json_template(args, ety_mode, lang)
                 }
-            }
-            Err(_) => Ok(None),
+                TemplateKind::Abbreviation => {
+                    self.process_abbrev_kind_json_template(args, ety_mode, lang)
+                }
+                TemplateKind::Compound => match ety_mode {
+                    EtyMode::Prefix => self.process_prefix_json_template(args, lang),
+                    EtyMode::Suffix => self.process_suffix_json_template(args, lang),
+                    EtyMode::Circumfix => self.process_circumfix_json_template(args, lang),
+                    EtyMode::Infix => self.process_infix_json_template(args, lang),
+                    EtyMode::Confix => self.process_confix_json_template(args, lang),
+                    _ => self.process_compound_kind_json_template(args, ety_mode, lang),
+                },
+                _ => None,
+            })
+        } else {
+            Ok(None)
         }
-        // let args = template.get_expected_object("args")?;
-        // if let Some(&mode) = DERIVED_TYPE_TEMPLATES.get(name) {
-        //     self.process_derived_type_json_template(args, mode, lang)
-        // } else if let Some(&mode) = ABBREV_TYPE_TEMPLATES.get(name) {
-        //     self.process_abbrev_type_json_template(args, mode, lang)
-        // } else if let Some(&mode) = COMPOUND_TYPE_TEMPLATES.get(name) {
-        //     match mode {
-        //         "prefix" => self.process_prefix_json_template(args, lang),
-        //         "suffix" => self.process_suffix_json_template(args, lang),
-        //         "circumfix" => self.process_circumfix_json_template(args, lang),
-        //         "infix" => self.process_infix_json_template(args, lang),
-        //         "confix" => self.process_confix_json_template(args, lang),
-        //         _ => self.process_compound_type_json_template(args, mode, lang),
-        //     }
-        // } else {
-        //     Ok(None)
-        // }
     }
 
     fn process_json_ety(
@@ -1131,7 +1044,7 @@ impl RawDataProcessor {
                     let raw_ety_node = RawEtyNode {
                         ety_terms: Box::new([self.string_pool.get_or_intern(alt)]),
                         ety_langs: Box::new([LANG_CODE2NAME.get_expected_index(lang)?]),
-                        mode: MODE.get_expected_index("form")?,
+                        mode: EtyMode::Form,
                         head: 0,
                     };
                     raw_ety_nodes.push(raw_ety_node);
@@ -1160,8 +1073,8 @@ impl RawDataProcessor {
                     }
                     let root_lang = args.get_expected_str("2")?;
                     let root_lang_index = LANG_CODE2NAME.get_index(root_lang);
-                    let root_term = args.get_optional_str("3");
-                    let further_root_term = args.get_optional_str("4");
+                    let root_term = args.get_valid_str("3");
+                    let further_root_term = args.get_valid_str("4");
                     if root_lang_index.is_none()
                         || root_term.is_none()
                         || further_root_term.is_some()
@@ -1178,7 +1091,7 @@ impl RawDataProcessor {
                             root_sense_id = &root_term[left_paren_idx + 2..right_paren_idx];
                             root_term = &root_term[..left_paren_idx];
                         }
-                    } else if let Some(sense_id) = args.get_optional_str("id") {
+                    } else if let Some(sense_id) = args.get_valid_str("id") {
                         root_sense_id = sense_id;
                     }
                     let root_sense_id = if root_sense_id.is_empty() {
@@ -1231,7 +1144,7 @@ impl RawDataProcessor {
         // there is one tricky redirect that makes it so title is
         // "optional" (i.e. could be empty string):
         // {"title": "", "redirect": "Appendix:Control characters"}
-        if let Some(title) = json_item.get_optional_str("title") {
+        if let Some(title) = json_item.get_valid_str("title") {
             for ignored in IGNORED_REDIRECTS.iter() {
                 if title.strip_prefix(ignored).is_some() {
                     return Ok(());
@@ -1382,7 +1295,7 @@ fn get_term<'a>(json_item: &'a Value) -> Result<&'a str> {
                 while let Some(tag) = tags.get(t).as_str() {
                     if tag == "canonical" {
                         // There are some
-                        if let Some(term) = form.get_optional_str("form") {
+                        if let Some(term) = form.get_valid_str("form") {
                             return Ok(term);
                         }
                     }
