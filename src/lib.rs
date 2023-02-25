@@ -385,27 +385,26 @@ impl Items {
         sense: &Sense,
         item: &Rc<Item>,
     ) -> Result<()> {
-        if let Some(raw_root) = &item.raw_root {
-            if let Some(root_item) = self
+        if let Some(raw_root) = &item.raw_root
+            && let Some(root_item) = self
                 .get_disambiguated_item(string_pool, sense, raw_root.lang, raw_root.term)?
                 .or_else(|| ety_graph.imputed_items.get(raw_root.lang, raw_root.term))
-            {
-                let mut visited_items: HashSet<Rc<Item>> =
-                    HashSet::from([Rc::clone(item), Rc::clone(root_item)]);
-                let mut current_item = Rc::clone(item);
-                while let Some(immediate_ety) = ety_graph.get_immediate_ety(&current_item) {
-                    // Don't try imputing a root for any item that has a compound in its ety DAG.
-                    // Also, if the root or any previously visited item is encountered again,
-                    // don't impute anything, so we don't create or get caught in a cycle.
-                    if immediate_ety.items.len() != 1 || visited_items.contains(&current_item) {
-                        return Ok(());
-                    }
-                    current_item = Rc::clone(&immediate_ety.items[0]);
-                    visited_items.insert(Rc::clone(&current_item));
+        {
+            let mut visited_items: HashSet<Rc<Item>> =
+                HashSet::from([Rc::clone(item), Rc::clone(root_item)]);
+            let mut current_item = Rc::clone(item);
+            while let Some(immediate_ety) = ety_graph.get_immediate_ety(&current_item) {
+                // Don't try imputing a root for any item that has a compound in its ety DAG.
+                // Also, if the root or any previously visited item is encountered again,
+                // don't impute anything, so we don't create or get caught in a cycle.
+                if immediate_ety.items.len() != 1 || visited_items.contains(&current_item) {
+                    return Ok(());
                 }
-                if &current_item != root_item {
-                    ety_graph.add_ety(&current_item, EtyMode::Root, 0u8, &[Rc::clone(root_item)]);
-                }
+                current_item = Rc::clone(&immediate_ety.items[0]);
+                visited_items.insert(Rc::clone(&current_item));
+            }
+            if &current_item != root_item {
+                ety_graph.add_ety(&current_item, EtyMode::Root, 0u8, &[Rc::clone(root_item)]);
             }
         }
         Ok(())
@@ -750,19 +749,19 @@ impl Redirects {
     // If a redirect page exists for given lang + term combo, get the redirect.
     // If not, just return back the original lang + term.
     fn get(&self, lang: usize, term: SymbolU32) -> Result<(usize, SymbolU32)> {
-        if let Some(language) = LANG_CODE2NAME.get_index_value(lang) {
-            let language_index = LANG_NAME2CODE.get_expected_index(language)?;
-            if let Some(redirect) = self.reconstruction.get(&ReconstructionTitle {
+        if let Some(language) = LANG_CODE2NAME.get_index_value(lang)
+            && let language_index = LANG_NAME2CODE.get_expected_index(language)?
+            && let Some(redirect) = self.reconstruction.get(&ReconstructionTitle {
                 language: language_index,
                 term,
-            }) {
-                if let Some(redirect_lang) = LANG_NAME2CODE.get_index_value(redirect.language) {
-                    let redirect_lang_index = LANG_CODE2NAME.get_expected_index(redirect_lang)?;
-                    return Ok((redirect_lang_index, redirect.term));
-                }
-            } else if let Some(&redirect_term) = self.regular.get(&term) {
+            })
+            && let Some(redirect_lang) = LANG_NAME2CODE.get_index_value(redirect.language)
+        {
+            let redirect_lang_index = LANG_CODE2NAME.get_expected_index(redirect_lang)?;
+            return Ok((redirect_lang_index, redirect.term));
+            
+        } else if let Some(&redirect_term) = self.regular.get(&term) {
                 return Ok((lang, redirect_term));
-            }
         }
         Ok((lang, term))
     }
@@ -1065,32 +1064,26 @@ impl RawDataProcessor {
     fn process_json_root(&mut self, json_item: &Value, lang: &str) -> Result<Option<RawRoot>> {
         if let Some(templates) = json_item.get_array("etymology_templates") {
             for template in templates {
-                if template.get_expected_str("name")? == "root" {
-                    let args = template.get_expected_object("args")?;
-                    let term_lang = args.get_expected_str("1")?;
-                    if term_lang != lang {
-                        return Ok(None);
-                    }
-                    let root_lang = args.get_expected_str("2")?;
-                    let root_lang_index = LANG_CODE2NAME.get_index(root_lang);
-                    let root_term = args.get_valid_str("3");
-                    let further_root_term = args.get_valid_str("4");
-                    if root_lang_index.is_none()
-                        || root_term.is_none()
-                        || further_root_term.is_some()
-                    {
-                        return Ok(None);
-                    }
-                    let root_lang_index = root_lang_index.unwrap();
-                    let mut root_term = root_term.unwrap();
+                if let Some(name) = template.get_valid_str("name")
+                    && name == "root"
+                    && let Some(args) = template.get("args")
+                    && let Some(term_lang) = args.get_valid_str("1")
+                    && term_lang == lang
+                    && let Some(root_lang) = args.get_valid_str("2")
+                    && let Some(root_lang_index) = LANG_CODE2NAME.get_index(root_lang)
+                    && let Some(root_term) = args.get_valid_str("3")
+                    // we don't deal with multi-roots for now:
+                    && args.get_valid_str("4").is_none()
+                {
+                    let mut root_term = root_term;
                     let mut root_sense_id = "";
                     // Sometimes a root's senseid is given in parentheses after the term in
                     // the 3 arg slot, see e.g. https://en.wiktionary.org/wiki/blaze.
-                    if let Some(right_paren_idx) = root_term.rfind(')') {
-                        if let Some(left_paren_idx) = root_term.rfind(" (") {
-                            root_sense_id = &root_term[left_paren_idx + 2..right_paren_idx];
-                            root_term = &root_term[..left_paren_idx];
-                        }
+                    if let Some(right_paren_idx) = root_term.rfind(')')
+                        && let Some(left_paren_idx) = root_term.rfind(" (")
+                    {
+                        root_sense_id = &root_term[left_paren_idx + 2..right_paren_idx];
+                        root_term = &root_term[..left_paren_idx];
                     } else if let Some(sense_id) = args.get_valid_str("id") {
                         root_sense_id = sense_id;
                     }
@@ -1152,9 +1145,9 @@ impl RawDataProcessor {
             }
             let redirect = json_item.get_expected_str("redirect")?;
             // e.g. Reconstruction:Proto-Germanic/pīpǭ
-            if let Some(from) = self.process_reconstruction_title(title)? {
+            if let Some(from) = self.process_reconstruction_title(title) {
                 // e.g. "Reconstruction:Proto-West Germanic/pīpā"
-                if let Some(to) = self.process_reconstruction_title(redirect)? {
+                if let Some(to) = self.process_reconstruction_title(redirect) {
                     items.redirects.reconstruction.insert(from, to);
                 }
                 return Ok(());
@@ -1168,22 +1161,20 @@ impl RawDataProcessor {
         Ok(())
     }
 
-    fn process_reconstruction_title(&mut self, title: &str) -> Result<Option<ReconstructionTitle>> {
+    fn process_reconstruction_title(&mut self, title: &str) -> Option<ReconstructionTitle> {
         // e.g. Reconstruction:Proto-Germanic/pīpǭ
-        if let Some(title) = title.strip_prefix("Reconstruction:") {
-            if let Some(slash) = title.find('/') {
-                let language = &title[..slash];
-                if let Some(term) = title.get(slash + 1..) {
-                    if let Some(language_index) = LANG_NAME2CODE.get_index(language) {
-                        return Ok(Some(ReconstructionTitle {
-                            language: language_index,
-                            term: self.string_pool.get_or_intern(term),
-                        }));
-                    }
-                }
+        if let Some(title) = title.strip_prefix("Reconstruction:")
+            && let Some(slash) = title.find('/')
+            && let language = &title[..slash]
+            && let Some(term) = title.get(slash + 1..)
+            && let Some(language_index) = LANG_NAME2CODE.get_index(language)
+            {
+                return Some(ReconstructionTitle {
+                    language: language_index,
+                    term: self.string_pool.get_or_intern(term),
+                });
             }
-        }
-        Ok(None)
+        None
     }
 
     fn process_json_item(&mut self, items: &mut Items, json_item: &Value) -> Result<()> {
@@ -1305,7 +1296,7 @@ fn get_term<'a>(json_item: &'a Value) -> Result<&'a str> {
             f += 1;
         }
     }
-    Ok(json_item.get_expected_str("word")?)
+    json_item.get_expected_str("word")
 }
 
 fn etylang2lang(lang: usize) -> Result<usize> {
