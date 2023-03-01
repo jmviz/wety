@@ -65,22 +65,17 @@ struct RawRoot {
     sense_id: Option<SymbolU32>,
 }
 
-// enum DescMode {
-//     Inherited,
-//     Borrowed,
+enum DescTemplate {
+    Desc{desc: RawDesc},
+    DescTree{lang: SymbolU32, term: SymbolU32},
+}
 
-// }
-
-// enum DescTemplate {
-//     Desc{mode: }
-// }
-
-// struct RawDesc {
-//     depth: u8,
-//     term: SymbolU32,
-//     lang: usize,
-//     template: DescEntry,
-// }
+struct RawDesc {
+    depth: u8,
+    lang: usize,
+    terms: Box<[SymbolU32]>,
+    modes: Box<[EtyMode]>,
+}
 
 #[derive(Hash, Eq, PartialEq, Debug)]
 struct Item {
