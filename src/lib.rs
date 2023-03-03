@@ -1,6 +1,7 @@
 //! WIP attempt to digest etymologies from wiktextract data
 
 #![feature(let_chains)]
+#![allow(clippy::redundant_closure_for_method_calls)]
 
 mod etymology_templates;
 mod lang;
@@ -70,24 +71,30 @@ struct RawRoot {
     sense_id: Option<SymbolU32>,
 }
 
+#[derive(Hash, Eq, PartialEq, Debug)]
 struct RawDescendants {
     inner: Box<[RawDescLine]>,
 }
 
+#[derive(Hash, Eq, PartialEq, Debug)]
 struct RawDescLine {
     depth: u8,
-    kind: Option<RawDescLineKind>,
+    kind: RawDescLineKind,
 }
 
+#[derive(Hash, Eq, PartialEq, Debug)]
 enum RawDescLineKind {
     Desc { desc: RawDesc },
+    // e.g. {{desc|osp|-}}, {{desc|itc-pro|}},
+    BareLang { lang: usize },
     // i.e. line with no templates e.g. "Unsorted Formations", "with prefix -a"
-    Text { text: SymbolU32 },
+    BareText { text: SymbolU32 },
     // stretch goal: https://en.wiktionary.org/wiki/Template:CJKV
 }
 
 // some combination of desc, l, desctree templates that together provide one or
 // more descendant lang, term, mode combos
+#[derive(Hash, Eq, PartialEq, Debug)]
 struct RawDesc {
     lang: usize,
     terms: Box<[SymbolU32]>,
@@ -106,6 +113,7 @@ struct Item {
     gloss_num: u8,            // the nth gloss encountered for this term-lang-ety-pos combo
     raw_etymology: Option<RawEtymology>,
     raw_root: Option<RawRoot>,
+    raw_descendants: Option<RawDescendants>,
 }
 
 impl Item {
@@ -121,6 +129,7 @@ impl Item {
             gloss: None,
             raw_etymology: None,
             raw_root: None,
+            raw_descendants: None,
         }
     }
 }
@@ -243,7 +252,7 @@ impl Items {
             .and_then(|ety_map| {
                 ety_map
                     .values()
-                    .flat_map(|pos_map| pos_map.values().flat_map(hashbrown::HashMap::values))
+                    .flat_map(|pos_map| pos_map.values().flat_map(|gloss_map| gloss_map.values()))
                     .max_by_key(|candidate| {
                         let candidate_sense = Sense::new(string_pool, candidate);
                         sense.lesk_score(&candidate_sense)
@@ -1002,7 +1011,7 @@ impl RawDataProcessor {
         }
     }
 
-    fn process_json_ety(&mut self, json_item: &Value, lang: &str) -> Result<Option<RawEtymology>> {
+    fn process_json_ety(&mut self, json_item: &Value, lang: &str) -> Option<RawEtymology> {
         let mut raw_ety_nodes = vec![];
         if let Some(templates) = json_item.get_array("etymology_templates") {
             raw_ety_nodes.reserve(templates.len());
@@ -1013,49 +1022,47 @@ impl RawDataProcessor {
             }
         }
 
+        if !raw_ety_nodes.is_empty() {
+            return Some(RawEtymology {
+                inner: raw_ety_nodes.into_boxed_slice(),
+            });
+        }
+
         // if no ety section or no templates, as a fallback we see if term
         // is listed as a "form_of" (item.senses[0].form_of[0].word)
         // or "alt_of" (item.senses[0].alt_of[0].word) another term.
         // e.g. "happenin'" is listed as an alt_of of "happening".
-        if raw_ety_nodes.is_empty() {
-            let alt_term = json_item
-                .get_array("senses")
-                .and_then(|senses| senses.get(0))
-                .and_then(|sense| {
-                    sense
-                        .get_array("alt_of")
-                        .or_else(|| sense.get_array("form_of"))
-                })
-                .and_then(|alt_list| alt_list.get(0))
-                .and_then(|alt_obj| alt_obj.get_str("word"));
-            match alt_term {
-                Some(alt) => {
-                    let raw_ety_node = RawEtyNode {
-                        ety_terms: Box::new([self.string_pool.get_or_intern(alt)]),
-                        ety_langs: Box::new([LANG_CODE2NAME.get_expected_index(lang)?]),
-                        mode: EtyMode::Form,
-                        head: 0,
-                    };
-                    raw_ety_nodes.push(raw_ety_node);
-                    return Ok(Some(RawEtymology {
-                        inner: raw_ety_nodes.into_boxed_slice(),
-                    }));
-                }
-                None => {
-                    return Ok(None);
-                }
-            }
+        if let Some(alt_term) = json_item
+            .get_array("senses")
+            .and_then(|senses| senses.get(0))
+            .and_then(|sense| {
+                sense
+                    .get_array("alt_of")
+                    .or_else(|| sense.get_array("form_of"))
+            })
+            .and_then(|alt_list| alt_list.get(0))
+            .and_then(|alt_obj| alt_obj.get_str("word"))
+            && let Some(lang_index) = LANG_CODE2NAME.get_index(lang)
+        {
+            let raw_ety_node = RawEtyNode {
+                ety_terms: Box::new([self.string_pool.get_or_intern(alt_term)]),
+                ety_langs: Box::new([lang_index]),
+                mode: EtyMode::Form,
+                head: 0,
+            };
+            raw_ety_nodes.push(raw_ety_node);
+            return Some(RawEtymology {
+                inner: raw_ety_nodes.into_boxed_slice(),
+            });
         }
-        Ok(Some(RawEtymology {
-            inner: raw_ety_nodes.into_boxed_slice(),
-        }))
+        None
     }
 
     // cf. https://en.wiktionary.org/wiki/Template:root. For now we skip
     // attempting to deal with multiple roots listed in a root template or
     // multiple root templates being listed. In both cases we just take the
     // first root term seen. If we discover it is common, we will handle it.
-    fn process_json_root(&mut self, json_item: &Value, lang: &str) -> Result<Option<RawRoot>> {
+    fn process_json_root(&mut self, json_item: &Value, lang: &str) -> Option<RawRoot> {
         if let Some(templates) = json_item.get_array("etymology_templates") {
             for template in templates {
                 if let Some(name) = template.get_valid_str("name")
@@ -1086,11 +1093,11 @@ impl RawDataProcessor {
                     } else {
                         Some(self.string_pool.get_or_intern(root_sense_id))
                     };
-                    return Ok(Some(RawRoot {
+                    return Some(RawRoot {
                         term: self.string_pool.get_or_intern(root_term),
                         lang: root_lang_index,
                         sense_id: root_sense_id,
-                    }));
+                    });
                 }
             }
         }
@@ -1104,57 +1111,98 @@ impl RawDataProcessor {
                     .unwrap();
         }
         if let Some(categories) = json_item.get_array("categories") {
-            for category in categories.iter().filter_map(simd_json::ValueAccess::as_str) {
+            for category in categories.iter().filter_map(|c| c.as_str()) {
                 if let Some(caps) = ROOT_CAT.captures(category)
-                    && let cat_term_lang_name = caps.get(1).unwrap().as_str()
+                    && let Some(cat_term_lang_name) = caps.get(1).map(|m| m.as_str())
                     && let Some(&cat_term_lang) = LANG_NAME2CODE.get(cat_term_lang_name)
                     && cat_term_lang == lang
-                    && let cat_root_lang_name = caps.get(2).unwrap().as_str()
+                    && let Some(cat_root_lang_name) = caps.get(2).map(|m| m.as_str())
                     && let Some(&cat_root_lang) = LANG_NAME2CODE.get(cat_root_lang_name)
                     && let Some(cat_root_lang_index) = LANG_CODE2NAME.get_index(cat_root_lang)
+                    && let Some(cat_root_term) = caps.get(3).map(|m| m.as_str())
                 {
-                    let cat_root_term = caps.get(3).unwrap().as_str();
                     let cat_root_sense_id = caps.get(4)
                         .map(|cap| self.string_pool.get_or_intern(cap.as_str()));
-                    return Ok(Some(RawRoot {
+                    return Some(RawRoot {
                         term: self.string_pool.get_or_intern(cat_root_term),
                         lang: cat_root_lang_index,
                         sense_id: cat_root_sense_id,
-                    }));
+                    });
                 }
             }
         }
-        Ok(None)
+        None
     }
 
-    fn process_json_descendants(
-        &mut self,
-        json_descendants: &Vec<Value>,
-    ) -> Result<Option<RawDescendants>> {
-        let mut descendants: Vec<RawDescLine> = vec![];
-        for desc_line in json_descendants {
-            if let Some(raw_desc_line) = self.process_json_desc_line(desc_line)? {
-                descendants.push(raw_desc_line);
-            } else {
-                return Ok(None);
+    fn process_json_descendants(&mut self, json_item: &Value) -> Option<RawDescendants> {
+        if let Some(json_descendants) = json_item.get_array("descendants") {
+            let mut descendants: Vec<RawDescLine> = vec![];
+            for desc_line in json_descendants {
+                if let Some(raw_desc_line) = self.process_json_desc_line(desc_line) {
+                    descendants.push(raw_desc_line);
+                } else {
+                    return None;
+                }
             }
-        }
-        if descendants.is_empty() {
-            Ok(None)
-        } else {
-            Ok(Some(RawDescendants {
+            if descendants.is_empty() {
+                return None;
+            }
+            return Some(RawDescendants {
                 inner: descendants.into_boxed_slice(),
-            }))
+            });
         }
+        None
     }
 
-    fn process_json_desc_line(&mut self, desc_line: &Value) -> Result<Option<RawDescLine>> {
+    fn process_json_desc_line(&mut self, desc_line: &Value) -> Option<RawDescLine> {
         if let Some(depth) = desc_line.get_u8("depth")
             && let Some(templates) = desc_line.get_array("templates")
         {
-
+            if templates.is_empty()
+                && let Some(text) = desc_line.get_valid_str("text") 
+            {
+                let text = self.string_pool.get_or_intern(text);
+                let kind = RawDescLineKind::BareText { text };
+                return Some(RawDescLine { depth, kind });
+            }
+            if templates.len() == 1
+                && let Some(template) = templates.get(0)
+                && let Some(name) = template.get_valid_str("name")
+                && phf_set!{"desc", "descendant"}.contains(name)
+                && let Some(lang) = template.get_valid_str("1")
+                && let Some(lang_index) = LANG_CODE2NAME.get_index(lang)
+                && template.get_valid_str("2").is_none()
+                && template.get_valid_str("alt").is_none()
+            {
+                let kind = RawDescLineKind::BareLang { lang: lang_index };
+                return Some(RawDescLine{ depth, kind });
+            }
+            let mut lang = 0;
+            let (mut langs, mut terms, mut modes) = (HashSet::new(), vec![], vec![]);
+            for template in templates {
+                if let Some((template_lang, template_terms, template_modes)) = self.process_json_desc_template(template) {
+                    lang = template_lang;
+                    langs.insert(template_lang);
+                    terms.extend(template_terms);
+                    modes.extend(template_modes);
+                }
+            }
+            if langs.len() == 1 && !terms.is_empty() && terms.len() == modes.len() {
+                let terms = terms.into_boxed_slice();
+                let modes = modes.into_boxed_slice();
+                let desc = RawDesc { lang, terms, modes };
+                let kind = RawDescLineKind::Desc { desc };
+                return Some(RawDescLine { depth, kind });
+            }
         }
-        Ok(None)
+        None
+    }
+
+    fn process_json_desc_template(
+        &mut self,
+        template: &Value,
+    ) -> Option<(usize, Vec<SymbolU32>, Vec<EtyMode>)> {
+        None
     }
 
     fn process_redirect(&mut self, items: &mut Items, json_item: &Value) {
@@ -1225,11 +1273,12 @@ impl RawDataProcessor {
                 .and_then(|senses| senses.get(0))
                 .and_then(|sense| sense.get_array("glosses"))
                 .and_then(|glosses| glosses.get(0))
-                .and_then(simd_json::ValueAccess::as_str)
+                .and_then(|gloss| gloss.as_str())
                 .and_then(|s| (!s.is_empty()).then(|| self.string_pool.get_or_intern(s)));
 
-            let raw_root = self.process_json_root(json_item, lang)?;
-            let raw_etymology = self.process_json_ety(json_item, lang)?;
+            let raw_root = self.process_json_root(json_item, lang);
+            let raw_etymology = self.process_json_ety(json_item, lang);
+            let raw_descendants = self.process_json_descendants(json_item);
 
             let item = Item {
                 is_imputed: false,
@@ -1242,6 +1291,7 @@ impl RawDataProcessor {
                 gloss_num: 0, // temp value to be changed if need be in add()
                 raw_etymology,
                 raw_root,
+                raw_descendants,
             };
             items.add(item)?;
         }
