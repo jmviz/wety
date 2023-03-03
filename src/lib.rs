@@ -81,9 +81,13 @@ struct RawDescLine {
 
 enum RawDescLineKind {
     Desc { desc: RawDesc },
-    DescTree { lang: usize, term: SymbolU32 },
+    // i.e. line with no templates e.g. "Unsorted Formations", "with prefix -a"
+    Text { text: SymbolU32 },
+    // stretch goal: https://en.wiktionary.org/wiki/Template:CJKV
 }
 
+// some combination of desc, l, desctree templates that together provide one or
+// more descendant lang, term, mode combos
 struct RawDesc {
     lang: usize,
     terms: Box<[SymbolU32]>,
@@ -1135,13 +1139,13 @@ impl RawDataProcessor {
                 return Ok(None);
             }
         }
-        return if descendants.is_empty() {
+        if descendants.is_empty() {
             Ok(None)
         } else {
             Ok(Some(RawDescendants {
                 inner: descendants.into_boxed_slice(),
             }))
-        };
+        }
     }
 
     fn process_json_desc_line(&mut self, desc_line: &Value) -> Result<Option<RawDescLine>> {
