@@ -154,25 +154,6 @@ pub(crate) enum EtyMode {
     )]
     ApheticForm,
     // start compound-type modes
-
-    // "compound" => "compound", // https://en.wiktionary.org/wiki/Template:compound
-    // "com" => "compound", // shortcut for "compound"
-    // "com+" => "compound", // https://en.wiktionary.org/wiki/Template:com%2B
-    // "univerbation" => "univerbation", // https://en.wiktionary.org/wiki/Template:univerbation
-    // "univ" => "univerbation", // shortcut for "univerbation"
-    // "transfix" => "transfix", // https://en.wiktionary.org/wiki/Template:transfix
-    // "surface analysis" => "surface analysis", // https://en.wiktionary.org/wiki/Template:surface_analysis
-    // "surf" => "surface analysis", // shortcut for "surface analysis"
-    // "suffix" => "suffix", // https://en.wiktionary.org/wiki/Template:suffix
-    // "prefix" => "prefix", // https://en.wiktionary.org/wiki/Template:prefix
-    // "pre" => "prefix", // shortcut for "prefix"
-    // "infix" => "infix", // https://en.wiktionary.org/wiki/Template:infix
-    // "confix" => "confix", // https://en.wiktionary.org/wiki/Template:confix
-    // "con" => "confix", // shortcut for "confix"
-    // "circumfix" => "circumfix", // https://en.wiktionary.org/wiki/Template:circumfix
-    // "blend" => "blend", // https://en.wiktionary.org/wiki/Template:blend
-    // "affix" => "affix", // https://en.wiktionary.org/wiki/Template:affix
-    // "af" => "affix", // shortcut for "affix"
     #[strum(
         to_string = "compound", // https://en.wiktionary.org/wiki/Template:compound
         serialize = "com", // shortcut for "compound"
@@ -279,7 +260,7 @@ impl EtyMode {
             | EtyMode::Blend
             | EtyMode::Affix => TemplateKind::Compound,
             EtyMode::Root => TemplateKind::Root,
-            EtyMode::Form => TemplateKind::None,
+            EtyMode::Form => TemplateKind::AdHoc,
         }
     }
 }
@@ -323,7 +304,7 @@ pub(crate) enum TemplateKind {
     // which are the lang codes of the source terms. We handle this.
     Compound,
     Root,
-    None,
+    AdHoc,
 }
 
 // $$ Should {{cognate}} and the like be treated at all?

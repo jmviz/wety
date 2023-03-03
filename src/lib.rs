@@ -44,10 +44,15 @@ use string_interner::{backend::StringBackend, symbol::SymbolU32, StringInterner}
 
 // cf. https://github.com/tatuylonen/wiktextract/blob/master/wiktwords
 static IGNORED_REDIRECTS: Set<&'static str> = phf_set! {
-    "Index:", "Help:", "MediaWiki:", "Citations:", "Concordance:", "Rhymes:",
-    "Thread:", "Summary:", "File:", "Transwiki:", "Category:", "Appendix:",
-    "Wiktionary:", "Thesaurus:", "Module:", "Template:"
+    "Index", "Help", "MediaWiki", "Citations", "Concordance", "Rhymes",
+    "Thread", "Summary", "File", "Transwiki", "Category", "Appendix",
+    "Wiktionary", "Thesaurus", "Module", "Template"
 };
+
+#[derive(Hash, Eq, PartialEq, Debug)]
+struct RawEtymology {
+    inner: Box<[RawEtyNode]>,
+}
 
 // models the basic info from a wiktionary etymology template
 #[derive(Hash, Eq, PartialEq, Debug)]
@@ -65,13 +70,21 @@ struct RawRoot {
     sense_id: Option<SymbolU32>,
 }
 
-enum DescTemplate {
-    Desc{desc: RawDesc},
-    DescTree{lang: SymbolU32, term: SymbolU32},
+struct RawDescendants {
+    inner: Box<[RawDescLine]>,
+}
+
+struct RawDescLine {
+    depth: u8,
+    kind: Option<RawDescLineKind>,
+}
+
+enum RawDescLineKind {
+    Desc { desc: RawDesc },
+    DescTree { lang: usize, term: SymbolU32 },
 }
 
 struct RawDesc {
-    depth: u8,
     lang: usize,
     terms: Box<[SymbolU32]>,
     modes: Box<[EtyMode]>,
@@ -87,7 +100,7 @@ struct Item {
     pos: usize,               // e.g. "noun"
     gloss: Option<SymbolU32>, // e.g. "An institution where one can place and borrow money...
     gloss_num: u8,            // the nth gloss encountered for this term-lang-ety-pos combo
-    raw_ety_nodes: Option<Box<[RawEtyNode]>>,
+    raw_etymology: Option<RawEtymology>,
     raw_root: Option<RawRoot>,
 }
 
@@ -102,7 +115,7 @@ impl Item {
             ety_num: None,
             gloss_num: 0,
             gloss: None,
-            raw_ety_nodes: None,
+            raw_etymology: None,
             raw_root: None,
         }
     }
@@ -242,12 +255,12 @@ impl Items {
         ety_graph: &mut EtyGraph,
         item: &Rc<Item>,
     ) -> Result<()> {
-        if item.raw_ety_nodes.is_none() {
+        if item.raw_etymology.is_none() {
             return Ok(()); // don't add anything to ety_graph if no valid raw ety nodes
         }
         let mut current_item = Rc::clone(item); // for tracking possibly imputed items
         let mut next_item = Rc::clone(item); // for tracking possibly imputed items
-        for node in item.raw_ety_nodes.as_ref().unwrap().iter() {
+        for node in item.raw_etymology.as_ref().unwrap().inner.iter() {
             let sense = Sense::new(string_pool, &current_item);
             let mut ety_items = Vec::with_capacity(node.ety_terms.len());
             let mut has_new_imputation = false;
@@ -648,23 +661,12 @@ impl Sense {
     }
 }
 
-// convenience extension trait methods for reading from json
+// convenience extension trait for reading from json
 trait ValueExt {
-    fn get_expected_str(&self, key: &str) -> Result<&str>;
     fn get_valid_str(&self, key: &str) -> Option<&str>;
-    fn get_expected_object(&self, key: &str) -> Result<&Value>;
 }
 
 impl ValueExt for Value<'_> {
-    fn get_expected_str(&self, key: &str) -> Result<&str> {
-        self.get_str(key)
-            .ok_or_else(|| anyhow!("failed parsing '{key}' key in json:\n{self}"))
-            .and_then(|s| {
-                (!s.is_empty())
-                    .then_some(s)
-                    .ok_or_else(|| anyhow!("empty str value for '{key}' key in json:\n{self}"))
-            })
-    }
     // return a cleaned version of the str if it exists
     fn get_valid_str(&self, key: &str) -> Option<&str> {
         self.get_str(key)
@@ -674,10 +676,6 @@ impl ValueExt for Value<'_> {
             // this
             .map(clean_ety_term)
             .and_then(|s| (!s.is_empty() && s != "-").then_some(s))
-    }
-    fn get_expected_object(&self, key: &str) -> Result<&Value> {
-        self.get(key)
-            .ok_or_else(|| anyhow!("failed parsing '{key}' key in json:\n{self}"))
     }
 }
 
@@ -754,7 +752,6 @@ impl Redirects {
         {
             let redirect_lang_index = LANG_CODE2NAME.get_expected_index(redirect_lang)?;
             return Ok((redirect_lang_index, redirect.term));
-            
         } else if let Some(&redirect_term) = self.regular.get(&term) {
                 return Ok((lang, redirect_term));
         }
@@ -974,14 +971,12 @@ impl RawDataProcessor {
         None
     }
 
-    fn process_json_ety_template(
-        &mut self,
-        template: &Value,
-        lang: &str,
-    ) -> Result<Option<RawEtyNode>> {
-        if let Result::Ok(ety_mode) = EtyMode::from_str(template.get_expected_str("name")?) {
-            let args = template.get_expected_object("args")?;
-            Ok(match ety_mode.template_kind() {
+    fn process_json_ety_template(&mut self, template: &Value, lang: &str) -> Option<RawEtyNode> {
+        if let Some(name) = template.get_valid_str("name")
+            && let Result::Ok(ety_mode) = EtyMode::from_str(name)
+            && let Some(args) = template.get("args")
+        {
+            match ety_mode.template_kind() {
                 TemplateKind::Derived => {
                     self.process_derived_kind_json_template(args, ety_mode, lang)
                 }
@@ -997,22 +992,18 @@ impl RawDataProcessor {
                     _ => self.process_compound_kind_json_template(args, ety_mode, lang),
                 },
                 _ => None,
-            })
+            }
         } else {
-            Ok(None)
+            None
         }
     }
 
-    fn process_json_ety(
-        &mut self,
-        json_item: &Value,
-        lang: &str,
-    ) -> Result<Option<Box<[RawEtyNode]>>> {
+    fn process_json_ety(&mut self, json_item: &Value, lang: &str) -> Result<Option<RawEtymology>> {
         let mut raw_ety_nodes = vec![];
         if let Some(templates) = json_item.get_array("etymology_templates") {
             raw_ety_nodes.reserve(templates.len());
             for template in templates {
-                if let Some(raw_ety_node) = self.process_json_ety_template(template, lang)? {
+                if let Some(raw_ety_node) = self.process_json_ety_template(template, lang) {
                     raw_ety_nodes.push(raw_ety_node);
                 }
             }
@@ -1042,14 +1033,18 @@ impl RawDataProcessor {
                         head: 0,
                     };
                     raw_ety_nodes.push(raw_ety_node);
-                    return Ok(Some(raw_ety_nodes.into_boxed_slice()));
+                    return Ok(Some(RawEtymology {
+                        inner: raw_ety_nodes.into_boxed_slice(),
+                    }));
                 }
                 None => {
                     return Ok(None);
                 }
             }
         }
-        Ok(Some(raw_ety_nodes.into_boxed_slice()))
+        Ok(Some(RawEtymology {
+            inner: raw_ety_nodes.into_boxed_slice(),
+        }))
     }
 
     // cf. https://en.wiktionary.org/wiki/Template:root. For now we skip
@@ -1128,39 +1123,68 @@ impl RawDataProcessor {
         Ok(None)
     }
 
-    fn process_redirect(&mut self, items: &mut Items, json_item: &Value) -> Result<()> {
-        // there is one tricky redirect that makes it so title is
-        // "optional" (i.e. could be empty string):
-        // {"title": "", "redirect": "Appendix:Control characters"}
-        if let Some(title) = json_item.get_valid_str("title") {
-            for ignored in IGNORED_REDIRECTS.iter() {
-                if title.strip_prefix(ignored).is_some() {
-                    return Ok(());
-                }
+    fn process_json_descendants(
+        &mut self,
+        json_descendants: &Vec<Value>,
+    ) -> Result<Option<RawDescendants>> {
+        let mut descendants: Vec<RawDescLine> = vec![];
+        for desc_line in json_descendants {
+            if let Some(raw_desc_line) = self.process_json_desc_line(desc_line)? {
+                descendants.push(raw_desc_line);
+            } else {
+                return Ok(None);
             }
-            let redirect = json_item.get_expected_str("redirect")?;
-            // e.g. Reconstruction:Proto-Germanic/pīpǭ
-            if let Some(from) = self.process_reconstruction_title(title) {
-                // e.g. "Reconstruction:Proto-West Germanic/pīpā"
-                if let Some(to) = self.process_reconstruction_title(redirect) {
-                    items.redirects.reconstruction.insert(from, to);
-                }
-                return Ok(());
-            }
-
-            // otherwise, this is a simple term-to-term redirect
-            let from = self.string_pool.get_or_intern(title);
-            let to = self.string_pool.get_or_intern(redirect);
-            items.redirects.regular.insert(from, to);
         }
-        Ok(())
+        return if descendants.is_empty() {
+            Ok(None)
+        } else {
+            Ok(Some(RawDescendants {
+                inner: descendants.into_boxed_slice(),
+            }))
+        };
+    }
+
+    fn process_json_desc_line(&mut self, desc_line: &Value) -> Result<Option<RawDescLine>> {
+        if let Some(depth) = desc_line.get_u8("depth")
+            && let Some(templates) = desc_line.get_array("templates")
+        {
+
+        }
+        Ok(None)
+    }
+
+    fn process_redirect(&mut self, items: &mut Items, json_item: &Value) {
+        if let Some(from_title) = json_item.get_valid_str("title")
+            && let Some(to_title) = json_item.get_valid_str("redirect")
+        {
+            for title in [from_title, to_title] {
+                if let Some(colon) = title.find(':')
+                    && let Some(namespace) = title.get(..colon)
+                    && IGNORED_REDIRECTS.contains(namespace)
+                {
+                    return;
+                }
+            }
+            // e.g. Reconstruction:Proto-Germanic/pīpǭ
+            if let Some(from_title) = self.process_reconstruction_title(from_title) {
+                // e.g. "Reconstruction:Proto-West Germanic/pīpā"
+                if let Some(to_title) = self.process_reconstruction_title(to_title) {
+                    items.redirects.reconstruction.insert(from_title, to_title);
+                }
+                return;
+            }
+            // otherwise, this is a simple term-to-term redirect
+            let from_title = self.string_pool.get_or_intern(from_title);
+            let to_title = self.string_pool.get_or_intern(to_title);
+            items.redirects.regular.insert(from_title, to_title);
+        }
     }
 
     fn process_reconstruction_title(&mut self, title: &str) -> Option<ReconstructionTitle> {
         // e.g. Reconstruction:Proto-Germanic/pīpǭ
         if let Some(title) = title.strip_prefix("Reconstruction:")
             && let Some(slash) = title.find('/')
-            && let language = &title[..slash]
+            && let Some(language) = &title.get(..slash)
             && let Some(term) = title.get(slash + 1..)
             && let Some(language_index) = LANG_NAME2CODE.get_index(language)
             {
@@ -1177,46 +1201,46 @@ impl RawDataProcessor {
         // heavily, so we need to take them into account
         // https://github.com/tatuylonen/wiktextract#format-of-extracted-redirects
         if json_item.contains_key("redirect") {
-            return self.process_redirect(items, json_item);
-        }
-        let term = get_term(json_item)?;
-        // 'pos' key must be present
-        let pos = json_item.get_expected_str("pos")?;
-        if should_ignore_term(term, pos) {
+            self.process_redirect(items, json_item);
             return Ok(());
         }
-        // 'lang_code' key must be present
-        let lang = json_item.get_expected_str("lang_code")?;
-        let lang_index = LANG_CODE2NAME.get_expected_index(lang)?;
-        // if term-lang combo has multiple ety's, then 'etymology_number' is
-        // present with range 1,2,... Otherwise, this key is missing.
-        let ety_num = json_item.get_u8("etymology_number");
-        // 'senses' key should always be present with non-empty value, but glosses
-        // may be missing or empty.
-        let gloss = json_item
-            .get_array("senses")
-            .and_then(|senses| senses.get(0))
-            .and_then(|sense| sense.get_array("glosses"))
-            .and_then(|glosses| glosses.get(0))
-            .and_then(simd_json::ValueAccess::as_str)
-            .and_then(|s| (!s.is_empty()).then(|| self.string_pool.get_or_intern(s)));
+        if let Some(term) = get_term(json_item)
+            && let Some(pos) = json_item.get_valid_str("pos")
+            && let Some(pos_index) = POS.get_index(pos)
+            && !should_ignore_term(term, pos)
+            && let Some(lang) = json_item.get_valid_str("lang_code")
+            && let Some(lang_index) = LANG_CODE2NAME.get_index(lang)
+        {
+            // if term-lang combo has multiple ety's, then 'etymology_number' is
+            // present with range 1,2,... Otherwise, this key is missing.
+            let ety_num = json_item.get_u8("etymology_number");
+            // 'senses' key should always be present with non-empty value, but glosses
+            // may be missing or empty.
+            let gloss = json_item
+                .get_array("senses")
+                .and_then(|senses| senses.get(0))
+                .and_then(|sense| sense.get_array("glosses"))
+                .and_then(|glosses| glosses.get(0))
+                .and_then(simd_json::ValueAccess::as_str)
+                .and_then(|s| (!s.is_empty()).then(|| self.string_pool.get_or_intern(s)));
 
-        let raw_root = self.process_json_root(json_item, lang)?;
-        let raw_ety_nodes = self.process_json_ety(json_item, lang)?;
+            let raw_root = self.process_json_root(json_item, lang)?;
+            let raw_etymology = self.process_json_ety(json_item, lang)?;
 
-        let item = Item {
-            is_imputed: false,
-            i: items.n,
-            term: self.string_pool.get_or_intern(term),
-            lang: lang_index,
-            ety_num,
-            pos: POS.get_expected_index(pos)?,
-            gloss,
-            gloss_num: 0, // temp value to be changed if need be in add()
-            raw_ety_nodes,
-            raw_root,
-        };
-        items.add(item)?;
+            let item = Item {
+                is_imputed: false,
+                i: items.n,
+                term: self.string_pool.get_or_intern(term),
+                lang: lang_index,
+                ety_num,
+                pos: pos_index,
+                gloss,
+                gloss_num: 0, // temp value to be changed if need be in add()
+                raw_etymology,
+                raw_root,
+            };
+            items.add(item)?;
+        }
         Ok(())
     }
 
@@ -1272,7 +1296,7 @@ fn should_ignore_term(term: &str, pos: &str) -> bool {
 
 // We look for a canonical form, otherwise we take the "word" field.
 // See notes.md for motivation.
-fn get_term<'a>(json_item: &'a Value) -> Result<&'a str> {
+fn get_term<'a>(json_item: &'a Value) -> Option<&'a str> {
     if let Some(forms) = json_item.get_array("forms") {
         let mut f = 0;
         while let Some(form) = forms.get(f) {
@@ -1282,7 +1306,7 @@ fn get_term<'a>(json_item: &'a Value) -> Result<&'a str> {
                     if tag == "canonical" {
                         // There are some
                         if let Some(term) = form.get_valid_str("form") {
-                            return Ok(term);
+                            return Some(term);
                         }
                     }
                     t += 1;
@@ -1291,7 +1315,7 @@ fn get_term<'a>(json_item: &'a Value) -> Result<&'a str> {
             f += 1;
         }
     }
-    json_item.get_expected_str("word")
+    json_item.get_valid_str("word")
 }
 
 fn etylang2lang(lang: usize) -> Result<usize> {
