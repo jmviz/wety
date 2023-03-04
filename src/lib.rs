@@ -43,13 +43,6 @@ use regex::Regex;
 use simd_json::{to_borrowed_value, value::borrowed::Value, ValueAccess};
 use string_interner::{backend::StringBackend, symbol::SymbolU32, StringInterner};
 
-// cf. https://github.com/tatuylonen/wiktextract/blob/master/wiktwords
-static IGNORED_REDIRECTS: Set<&'static str> = phf_set! {
-    "Index", "Help", "MediaWiki", "Citations", "Concordance", "Rhymes",
-    "Thread", "Summary", "File", "Transwiki", "Category", "Appendix",
-    "Wiktionary", "Thesaurus", "Module", "Template"
-};
-
 #[derive(Hash, Eq, PartialEq, Debug)]
 struct RawEtymology {
     inner: Box<[RawEtyNode]>,
@@ -105,10 +98,10 @@ struct RawDesc {
 struct Item {
     is_imputed: bool,
     i: usize,                 // the i-th item seen, used as id for RDF
-    term: SymbolU32,          // e.g. "bank"
     lang: usize,              // e.g "en", i.e. the wiktextract lang_code
+    term: SymbolU32,          // e.g. "bank"
     ety_num: Option<u8>,      // the nth numbered ety for this term-lang combo (1,2,...)
-    pos: usize,               // e.g. "noun"
+    pos: Option<usize>,       // e.g. "noun"
     gloss: Option<SymbolU32>, // e.g. "An institution where one can place and borrow money...
     gloss_num: u8,            // the nth gloss encountered for this term-lang-ety-pos combo
     raw_etymology: Option<RawEtymology>,
@@ -117,12 +110,12 @@ struct Item {
 }
 
 impl Item {
-    fn new_imputed(i: usize, pos: usize, lang: usize, term: SymbolU32) -> Self {
+    fn new_imputed(i: usize, lang: usize, term: SymbolU32, pos: Option<usize>) -> Self {
         Self {
             is_imputed: true,
             i,
-            term,
             lang,
+            term,
             pos,
             ety_num: None,
             gloss_num: 0,
@@ -135,7 +128,7 @@ impl Item {
 }
 
 type GlossMap = HashMap<Option<SymbolU32>, Rc<Item>>;
-type PosMap = HashMap<usize, GlossMap>;
+type PosMap = HashMap<Option<usize>, GlossMap>;
 type EtyMap = HashMap<Option<u8>, PosMap>;
 type LangMap = HashMap<usize, EtyMap>;
 type TermMap = HashMap<SymbolU32, LangMap>;
@@ -299,7 +292,7 @@ impl Items {
                     // We assume the imputed item has the same pos as the current_item.
                     // (How often is this not the case?)
                     let imputed_ety_item =
-                        Rc::from(Item::new_imputed(i, current_item.pos, ety_lang, ety_term));
+                        Rc::from(Item::new_imputed(i, ety_lang, ety_term, current_item.pos));
                     ety_graph.add_imputed(&imputed_ety_item);
                     ety_items.push(Rc::clone(&imputed_ety_item));
                     next_item = Rc::clone(&imputed_ety_item);
@@ -346,7 +339,7 @@ impl Items {
     }
 
     fn impute_root_items(&self, ety_graph: &mut EtyGraph) -> Result<()> {
-        let root_pos = POS.get_expected_index("root")?;
+        let root_pos = Some(POS.get_expected_index("root")?);
         let pb = ProgressBar::new(u64::try_from(self.n)?);
         pb.set_style(ProgressStyle::default_bar()
             .template("{spinner:.green} Imputing roots: [{elapsed}] [{wide_bar:.cyan/blue}] {human_pos}/{human_len} ({per_sec}, {eta})")?
@@ -362,9 +355,9 @@ impl Items {
                                 let i = self.n + ety_graph.imputed_items.n;
                                 let root = Rc::from(Item::new_imputed(
                                     i,
-                                    root_pos,
                                     raw_root.lang,
                                     raw_root.term,
+                                    root_pos,
                                 ));
                                 ety_graph.add_imputed(&root);
                             }
@@ -1239,6 +1232,12 @@ impl RawDataProcessor {
     }
 
     fn process_redirect(&mut self, items: &mut Items, json_item: &Value) {
+        // cf. https://github.com/tatuylonen/wiktextract/blob/master/wiktwords
+        static IGNORED_REDIRECTS: Set<&'static str> = phf_set! {
+            "Index", "Help", "MediaWiki", "Citations", "Concordance", "Rhymes",
+            "Thread", "Summary", "File", "Transwiki", "Category", "Appendix",
+            "Wiktionary", "Thesaurus", "Module", "Template"
+        };
         if let Some(from_title) = json_item.get_valid_str("title")
             && let Some(to_title) = json_item.get_valid_str("redirect")
         {
@@ -1316,10 +1315,10 @@ impl RawDataProcessor {
             let item = Item {
                 is_imputed: false,
                 i: items.n,
-                term: self.string_pool.get_or_intern(term),
                 lang: lang_index,
+                term: self.string_pool.get_or_intern(term),
                 ety_num,
-                pos: pos_index,
+                pos: Some(pos_index),
                 gloss,
                 gloss_num: 0, // temp value to be changed if need be in add()
                 raw_etymology,
