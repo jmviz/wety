@@ -1180,7 +1180,7 @@ impl RawDataProcessor {
             let mut lang = 0;
             let (mut langs, mut terms, mut modes) = (HashSet::new(), vec![], vec![]);
             for template in templates {
-                if let Some((template_lang, template_terms, template_modes)) = self.process_json_desc_template(template) {
+                if let Some((template_lang, template_terms, template_modes)) = self.process_json_desc_line_template(template) {
                     lang = template_lang;
                     langs.insert(template_lang);
                     terms.extend(template_terms);
@@ -1198,9 +1198,42 @@ impl RawDataProcessor {
         None
     }
 
-    fn process_json_desc_template(
+    fn process_json_desc_line_template(
         &mut self,
         template: &Value,
+    ) -> Option<(usize, Vec<SymbolU32>, Vec<EtyMode>)> {
+        if let Some(name) = template.get_valid_str("name")
+            && let Some(args) = template.get("args")
+        {
+            return match name {
+                "desc" | "descendant" => self.process_json_desc_line_desc_template(args),
+                "l" | "link" => self.process_json_desc_line_l_template(args),
+                "desctree" | "descendants tree" => {
+                    self.process_json_desc_line_desctree_template(args)
+                }
+                _ => None,
+            };
+        }
+        None
+    }
+
+    fn process_json_desc_line_desc_template(
+        &mut self,
+        args: &Value,
+    ) -> Option<(usize, Vec<SymbolU32>, Vec<EtyMode>)> {
+        None
+    }
+
+    fn process_json_desc_line_l_template(
+        &mut self,
+        args: &Value,
+    ) -> Option<(usize, Vec<SymbolU32>, Vec<EtyMode>)> {
+        None
+    }
+
+    fn process_json_desc_line_desctree_template(
+        &mut self,
+        args: &Value,
     ) -> Option<(usize, Vec<SymbolU32>, Vec<EtyMode>)> {
         None
     }
