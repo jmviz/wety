@@ -1247,18 +1247,16 @@ impl RawDataProcessor {
 
     fn process_reconstruction_title(&mut self, title: &str) -> Option<ReconstructionTitle> {
         // e.g. Reconstruction:Proto-Germanic/pīpǭ
-        if let Some(title) = title.strip_prefix("Reconstruction:")
-            && let Some(slash) = title.find('/')
-            && let Some(language) = &title.get(..slash)
-            && let Some(term) = title.get(slash + 1..)
-            && let Some(language_index) = LANG_NAME2CODE.get_index(language)
-            {
-                return Some(ReconstructionTitle {
-                    language: language_index,
-                    term: self.string_pool.get_or_intern(term),
-                });
-            }
-        None
+        let title = title.strip_prefix("Reconstruction:")?;
+        let slash = title.find('/')?;
+        let language = &title.get(..slash)?;
+        let term = title.get(slash + 1..)?;
+        let language_index = LANG_NAME2CODE.get_index(language)?;
+
+        Some(ReconstructionTitle {
+            language: language_index,
+            term: self.string_pool.get_or_intern(term),
+        })
     }
 
     fn process_json_item(&mut self, items: &mut Items, json_item: &Value) -> Result<()> {
