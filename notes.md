@@ -2,13 +2,6 @@
 
 * Add senseid to items. Parse in JSON by finding ':' then taking everything after.
 
-* When there is dispute about which root a word has, sometimes there are multiple `root` templates (e.g. https://en.wiktionary.org/wiki/sect#Etymology) or, alternatively, multiple roots given in one `root` template (e.g. https://en.wiktionary.org/wiki/bunker#Etymology_1). Homographic roots are fairly common so sense id arguments are not uncommon to see being used in `root` templates. It seems an alternate usage (though not specified by template documentation) is to give the sense id in parentheses after the root term, with a space separating (see e.g. https://en.wiktionary.org/wiki/bitch#Etymology). Finally, it seems somewhat common not to have a `root` template at all, but instead to manually give a link to the Category for words derived from a root (see e.g. https://en.wiktionary.org/w/index.php?title=bank), where this link is of the form (e.g.) "English terms derived from the Proto-Indo-European root *bʰeg- (bend)".
-
-* Could track the total number of glosses associated with all items that share the same ety, as an approximate measure of the "commonness" of the ety. This could then be used to order the etys by commonness, which would be useful for ordering the results of a search of a homographic term. This won't need implementing if https://github.com/tatuylonen/wiktextract/issues/74 gets resolved.
-
-* Make test case for imputation with [ǵʰelh₃-](https://en.wiktionary.org/wiki/Category:English_terms_derived_from_the_Proto-Indo-European_root_*%C7%B5%CA%B0elh%E2%82%83-). 
-    * Also see e.g. https://en.wiktionary.org/wiki/Reconstruction:Proto-Hellenic/k%CA%B0l%C5%8Dr%C3%B3s, template could be fixed on wiktionary. Or see https://en.wiktionary.org/wiki/Reconstruction:Proto-Germanic/beun%C4%85, where PIE root is given in `m` template and so we ignore it. For cases like these, perhaps we could record the `root` info for each entry, if it exists. Then, after all other source processing, we have a impute_roots() function where we follow the sources of each item until the last, and test if the last == the root. If not, add a (imputed) source, last -> root.
-
 * Implement better sense disambiguation.
     * Take PoSs into account. This will be particularly helpful when items have no gloss. 
     * Could add specific rules for the few templates where you would expect a different PoS, e.g. `deverbal`.
@@ -17,8 +10,6 @@
 * Collect glosses from ety templates. These are quite commonly used and would be helpful for sense disambiguation as well as for having glosses for imputed terms. 
 
 ## Things to keep in mind
-
-* Adding tracking of ety_nums and gloss_nums (so that informative unique item id can be generated) added about 1GB to RAM usage. If RAM becomes an issue, could try Vec implementation rather than the ugly tuples being used currently. Will be slower but should save RAM which is more of a concern.
 
 * For many languages, Wiktionary makes a distinction between a term's "entryName" (i.e., the written form that acts as the title of its corresponding page, which is captured in wiktextract's `word` field.) and any "canonical" or otherwise used forms of the term as they may appear in etymology sections. For example, in Latin, macrons are omitted for a term's entryName, while macrons are supposed to be included in etymology sections (and therefore, in arguments in etymology templates). This leads to problems when trying to link a form listed in some etymology template argument with a corresponding wiktextract `word`. The rules for transforming a form of a term to its entryName form are contained in [Module:languages](https://en.wiktionary.org/wiki/Module:languages). In particular, the `Language:makeEntryName` function makes this conversion by applying specific rules for each language provided in the module's data submodules. For many languages, the rules are fairly simple character substitutions; but for others, the rules are a module unto themselves.  Therefore it would not be completely trivial to recreate all this behavior de novo. 
     * Currently, this is addressed by preferring the wiktextract "canonical" form (when it exists in the json) over the `word` as the term for each item on which we hash. N.B. the "canonical" form is often listed in wiktextract entries in `forms[0].form` when `forms[0].tags[0]` == `canonical` (However, the canonical form is not guaranteed to be the first listed).

@@ -32,6 +32,7 @@ pub(crate) enum EtyMode {
     #[strum(
         to_string = "semi-learned borrowing", // https://en.wiktionary.org/wiki/Template:semi-learned_borrowing
         serialize = "slbor", // shortcut for "semi-learned borrowing"
+        serialize = "slb", // not a template shortcut, but an arg used in {{desc}}
     )]
     SemiLearnedBorrowing,
     #[strum(
@@ -47,6 +48,7 @@ pub(crate) enum EtyMode {
     #[strum(
         to_string = "semantic loan", // https://en.wiktionary.org/wiki/Template:semantic_loan
         serialize = "sl", // shortcut for "semantic loan"
+        serialize = "sml", // not a template shortcut, but an arg used in {{desc}}
     )]
     SemanticLoan,
     #[strum(
@@ -213,6 +215,13 @@ pub(crate) enum EtyMode {
         to_string = "root", // this is a wiktionary template, but this is only used for writing
     )]
     Root, // ad-hoc mode used when imputing root source for an item
+    #[strum(
+        to_string = "morphological derivation", // not a wiktionary template, only used for writing
+    )]
+    // ad-hoc mode used for terms listed in descendants trees of proto-languages
+    // which are morphologically derived within the language, e.g. from a root
+    // to a noun
+    MorphologicalDerivation,
 }
 
 impl EtyMode {
@@ -260,7 +269,7 @@ impl EtyMode {
             | EtyMode::Blend
             | EtyMode::Affix => TemplateKind::Compound,
             EtyMode::Root => TemplateKind::Root,
-            EtyMode::Form => TemplateKind::AdHoc,
+            EtyMode::Form | EtyMode::MorphologicalDerivation => TemplateKind::AdHoc,
         }
     }
 }

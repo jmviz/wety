@@ -24,6 +24,7 @@ use std::{
     rc::Rc,
     str::FromStr,
     time::Instant,
+    vec,
 };
 
 use anyhow::{anyhow, Ok, Result};
@@ -1134,17 +1135,17 @@ impl RawDataProcessor {
     }
 
     fn process_json_desc_line(&mut self, desc_line: &Value) -> Option<RawDescLine> {
-        if let Some(depth) = desc_line.get_u8("depth")
-            && let Some(templates) = desc_line.get_array("templates")
-        {
-            if templates.is_empty()
+        let depth = desc_line.get_u8("depth")?;
+        let templates = desc_line.get_array("templates")?;
+
+        if templates.is_empty()
                 && let Some(text) = desc_line.get_valid_str("text") 
             {
                 let text = self.string_pool.get_or_intern(text);
                 let kind = RawDescLineKind::BareText { text };
                 return Some(RawDescLine { depth, kind });
             }
-            if templates.len() == 1
+        if templates.len() == 1
                 && let Some(template) = templates.get(0)
                 && let Some(name) = template.get_valid_str("name")
                 && matches!(name, "desc" | "descendant")
@@ -1156,23 +1157,27 @@ impl RawDataProcessor {
                 let kind = RawDescLineKind::BareLang { lang: lang_index };
                 return Some(RawDescLine{ depth, kind });
             }
-            let mut lang = 0;
-            let (mut langs, mut terms, mut modes) = (HashSet::new(), vec![], vec![]);
-            for template in templates {
-                if let Some((template_lang, template_terms, template_modes)) = self.process_json_desc_line_template(template) {
-                    lang = template_lang;
-                    langs.insert(template_lang);
-                    terms.extend(template_terms);
-                    modes.extend(template_modes);
-                }
+        let is_derivation = desc_line.get_array("tags").map_or(false, |tags| {
+            tags.iter().any(|tag| tag.as_str() == Some("derived"))
+        });
+        let mut lang = 0;
+        let (mut langs, mut terms, mut modes) = (HashSet::new(), vec![], vec![]);
+        for template in templates {
+            if let Some((template_lang, template_terms, template_modes)) =
+                self.process_json_desc_line_template(template, is_derivation)
+            {
+                lang = template_lang;
+                langs.insert(template_lang);
+                terms.extend(template_terms);
+                modes.extend(template_modes);
             }
-            if langs.len() == 1 && !terms.is_empty() && terms.len() == modes.len() {
-                let terms = terms.into_boxed_slice();
-                let modes = modes.into_boxed_slice();
-                let desc = RawDesc { lang, terms, modes };
-                let kind = RawDescLineKind::Desc { desc };
-                return Some(RawDescLine { depth, kind });
-            }
+        }
+        if langs.len() == 1 && !terms.is_empty() && terms.len() == modes.len() {
+            let terms = terms.into_boxed_slice();
+            let modes = modes.into_boxed_slice();
+            let desc = RawDesc { lang, terms, modes };
+            let kind = RawDescLineKind::Desc { desc };
+            return Some(RawDescLine { depth, kind });
         }
         None
     }
@@ -1180,36 +1185,104 @@ impl RawDataProcessor {
     fn process_json_desc_line_template(
         &mut self,
         template: &Value,
+        is_derivation: bool,
     ) -> Option<(usize, Vec<SymbolU32>, Vec<EtyMode>)> {
         let name = template.get_valid_str("name")?;
         let args = template.get("args")?;
         match name {
             "desc" | "descendant" => self.process_json_desc_line_desc_template(args),
-            "l" | "link" => self.process_json_desc_line_l_template(args),
+            "l" | "link" => self.process_json_desc_line_l_template(args, is_derivation),
             "desctree" | "descendants tree" => self.process_json_desc_line_desctree_template(args),
             _ => None,
         }
     }
 
+    // cf. https://en.wiktionary.org/wiki/Template:descendant
     fn process_json_desc_line_desc_template(
         &mut self,
         args: &Value,
     ) -> Option<(usize, Vec<SymbolU32>, Vec<EtyMode>)> {
-        None
+        fn get_mode(args: &Value, n: usize) -> Option<EtyMode> {
+            // what about "der"?
+            const MODES: [&str; 7] = ["bor", "lbor", "slb", "clq", "pclq", "sml", "translit"];
+            for mode in MODES {
+                let mode_n = format!("{mode}{n}");
+                if args.contains_key(mode) || args.contains_key(mode_n.as_str()) {
+                    return EtyMode::from_str(mode).ok();
+                }
+            }
+            None
+        }
+
+        let lang = args.get_valid_str("1")?;
+        let lang_index = LANG_CODE2NAME.get_index(lang)?;
+
+        let (mut terms, mut modes) = (vec![], vec![]);
+        // Confusingly, "2" corresponds to the first term and "alt" to its alt,
+        // while "3" corresponds to the second term, and "alt2" to its alt, etc.
+        let mut n = 1;
+        let mut n_str = String::from("2");
+        let mut n_alt_str = String::from("alt");
+        while let Some(term) = args
+            .get_valid_str(n_str.as_str())
+            .or_else(|| args.get_valid_str(n_alt_str.as_str()))
+            .map(|term| self.string_pool.get_or_intern(term))
+        {
+            terms.push(term);
+            modes.push(get_mode(args, n).unwrap_or(EtyMode::Inherited));
+            n += 1;
+            n_str = (n + 1).to_string();
+            n_alt_str = format!("alt{n}");
+        }
+        Some((lang_index, terms, modes))
     }
 
+    // cf. https://en.wiktionary.org/wiki/Template:link
     fn process_json_desc_line_l_template(
         &mut self,
         args: &Value,
+        is_derivation: bool,
     ) -> Option<(usize, Vec<SymbolU32>, Vec<EtyMode>)> {
-        None
+        let lang = args.get_valid_str("1")?;
+        let lang_index = LANG_CODE2NAME.get_index(lang)?;
+        let term = args
+            .get_valid_str("2")
+            .or_else(|| args.get_valid_str("3"))
+            .map(|term| self.string_pool.get_or_intern(term))?;
+        // There is a bit of confusion here in the nominal similarity of these
+        // two modes. It is wiktionary's fault for defaulting to "derived" for
+        // "unspecified etymological relationship". We are merely following this
+        // tradition in this case, although some finer-grained inference could
+        // be implemented in the future (probably most {{l}} templates in
+        // descendants sections actually are indicating inheritance, unless they
+        // are preceded by a {{desc}} on the same line that indicates some other
+        // relationship). For wiktionary ety sections, there is ongoing effort
+        // to replace most {{der}} templates with {{inh}} or {{bor}}.
+        let mode = if is_derivation {
+            EtyMode::MorphologicalDerivation
+        } else {
+            EtyMode::Derived
+        };
+        Some((lang_index, vec![term], vec![mode]))
     }
 
+    // cf. https://en.wiktionary.org/wiki/Template:descendants_tree
+    // While {{desctree}} docs say it supports all {{desc}} args, I've never
+    // seen one that's more than just e.g. {{desctree|gmw-pro|*fuhs}}.
+    // (Importantly, both "1" AND "2" are required here.) So we just handle this
+    // simple case until we find that any other usage has any currency.
     fn process_json_desc_line_desctree_template(
         &mut self,
         args: &Value,
     ) -> Option<(usize, Vec<SymbolU32>, Vec<EtyMode>)> {
-        None
+        let lang = args.get_valid_str("1")?;
+        let lang_index = LANG_CODE2NAME.get_index(lang)?;
+        let term = args
+            .get_valid_str("2")
+            .map(|term| self.string_pool.get_or_intern(term))?;
+        // $$ It's conceivable that another mode could be specified by template arg...$$
+        let mode = EtyMode::Inherited;
+        Some((lang_index, vec![term], vec![mode]))
     }
 
     fn process_redirect(&mut self, items: &mut Items, json_item: &Value) {
