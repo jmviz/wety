@@ -3,7 +3,7 @@ static ALLOC: snmalloc_rs::SnMalloc = snmalloc_rs::SnMalloc;
 
 use wety::{build_store, wiktextract_to_turtle};
 
-use std::time::Instant;
+use std::{path::PathBuf, time::Instant};
 
 use anyhow::Result;
 use clap::Parser;
@@ -18,11 +18,11 @@ pub struct Args {
         default_value = "data/raw-wiktextract-data.json.gz",
         value_parser
     )]
-    wiktextract_path: String,
+    wiktextract_path: PathBuf,
     #[clap(short, long, default_value = "data/wety.ttl", value_parser)]
-    turtle_path: String,
+    turtle_path: PathBuf,
     #[clap(short, long, default_value = "data/wety.db", value_parser)]
-    store_path: String,
+    store_path: PathBuf,
     #[clap(short = 'b', long, action)]
     skip_building_store: bool,
     #[clap(short = 'o', long, action)]

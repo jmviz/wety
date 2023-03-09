@@ -22,5 +22,5 @@ You will have to adjust `num-threads` to fit your machine's CPU and RAM (each th
 To use the resulting `data.json` with `wety`, specify the appropiate path to the file:
 
 ```bash
-cargo run --release -- --wiktextract_path path/to/data.json
+cargo run --release -- --wiktextract-path path/to/data.json
 ```

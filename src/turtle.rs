@@ -3,6 +3,7 @@ use crate::{lang::LANG_CODE2NAME, pos::POS, Item, OrderedMapExt, OrderedSetExt, 
 use std::{
     fs::File,
     io::{BufWriter, Write},
+    path::Path,
     rc::Rc,
 };
 
@@ -109,7 +110,7 @@ fn write_item(
     Ok(())
 }
 
-pub(crate) fn write_turtle_file(data: &ProcessedData, path: &str) -> Result<()> {
+pub(crate) fn write_turtle_file(data: &ProcessedData, path: &Path) -> Result<()> {
     let mut f = BufWriter::new(File::create(path)?);
     write_prefixes(&mut f)?;
     let n = u64::try_from(data.items.n + data.ety_graph.imputed_items.n)?;

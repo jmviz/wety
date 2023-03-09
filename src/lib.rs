@@ -1,6 +1,6 @@
 //! WIP attempt to digest etymologies from wiktextract data
 
-#![feature(let_chains)]
+#![feature(is_some_and, let_chains)]
 #![allow(clippy::redundant_closure_for_method_calls)]
 
 mod etymology_templates;
@@ -18,7 +18,7 @@ use crate::{
 use std::{
     convert::TryFrom,
     fs::{remove_dir_all, File},
-    io::{BufReader, BufWriter, Write},
+    io::{BufReader, BufWriter, Read, Write},
     ops::Index,
     path::Path,
     rc::Rc,
@@ -344,59 +344,101 @@ impl Items {
         ety_graph: &mut EtyGraph,
         item: &Rc<Item>,
     ) {
+        #[derive(Clone, PartialEq, Eq)]
+        struct Ancestor {
+            item: Rc<Item>,
+            depth: u8,
+        }
+        impl Ancestor {
+            fn new(item: &Rc<Item>, depth: u8) -> Self {
+                Self {
+                    item: Rc::clone(item),
+                    depth,
+                }
+            }
+        }
+        struct Ancestors {
+            ancestors: Vec<Ancestor>,
+            progenitor: Ancestor,
+        }
+        impl Ancestors {
+            fn new(item: &Rc<Item>) -> Self {
+                Self {
+                    ancestors: vec![],
+                    progenitor: Ancestor::new(item, 0),
+                }
+            }
+            fn prune(&mut self, depth: u8) {
+                while let Some(ancestor) = self.ancestors.last().map(Ancestor::clone)
+                    && depth <= ancestor.depth
+                {
+                    self.ancestors.pop();
+                }
+            }
+            fn prune_and_get_parent(&mut self, depth: u8) -> Ancestor {
+                self.prune(depth);
+                self.ancestors
+                    .last()
+                    .map_or_else(|| self.progenitor.clone(), Ancestor::clone)
+            }
+            fn add(&mut self, item: &Rc<Item>, depth: u8) {
+                let ancestor = Ancestor::new(item, depth);
+                self.ancestors.push(ancestor);
+            }
+        }
+
         if item.raw_descendants.is_none() {
             return;
         }
-        let mut ancestors = vec![];
+        let mut ancestors = Ancestors::new(item);
         let mut ancestor_senses = HashMap::new();
-        let mut prev_depth = 0usize;
         for line in item.raw_descendants.as_ref().unwrap().lines.iter() {
-            let depth = line.depth as usize;
-            if depth > prev_depth + 1 {
-                continue; // try to avoid processing ill-formed parts of trees
-            }
+            let parent = ancestors.prune_and_get_parent(line.depth);
             match &line.kind {
                 RawDescLineKind::Desc { desc } => {
                     if desc.terms.is_empty() || desc.terms.len() != desc.modes.len() {
                         continue;
                     }
                     let lang = desc.lang;
-                    if depth == prev_depth + 1 || (depth == 0 && ancestors.is_empty()) {
-                        let parent = ancestors.last().map_or_else(|| Rc::clone(item), Rc::clone);
-                        let parent_sense = ancestor_senses
-                            .entry(parent.i)
-                            .or_insert_with(|| Sense::new(string_pool, &parent));
-                        for (i, (&term, &mode)) in
-                            desc.terms.iter().zip(desc.modes.iter()).enumerate()
-                        {
-                            let desc_item = self
-                                .get_disambiguated_item(string_pool, parent_sense, lang, term)
-                                .or_else(|| ety_graph.imputed_items.get(lang, term))
-                                .map(Rc::clone);
-                            // Borrow checker complains when I use map_or_else
-                            // instead of map then unwrap_or_else. But if I
-                            // chain these last two then clippy::pedantic
-                            // complains...
-                            let desc_item = desc_item.unwrap_or_else(|| {
-                                let n = self.n + ety_graph.imputed_items.n;
-                                let imputed_item = Rc::from(Item::new_imputed(n, lang, term, None));
-                                ety_graph.add_imputed(&imputed_item);
-                                imputed_item
-                            });
-                            if i == 0 {
-                                ancestors.push(Rc::clone(&desc_item));
-                            }
-                            ety_graph.add_ety(&desc_item, mode, 0, &[Rc::clone(&parent)]);
+                    let parent_sense = ancestor_senses
+                        .entry(parent.item.i)
+                        .or_insert_with(|| Sense::new(string_pool, &parent.item));
+                    for (i, (&term, &mode)) in desc.terms.iter().zip(desc.modes.iter()).enumerate()
+                    {
+                        let desc_item = self
+                            .get_disambiguated_item(string_pool, parent_sense, lang, term)
+                            .or_else(|| ety_graph.imputed_items.get(lang, term))
+                            .map(Rc::clone);
+                        // Borrow checker complains when I use map_or_else
+                        // instead of map then unwrap_or_else. But if I
+                        // chain these last two then clippy::pedantic
+                        // complains...
+                        let desc_item = desc_item.unwrap_or_else(|| {
+                            let n = self.n + ety_graph.imputed_items.n;
+                            let imputed_item = Rc::from(Item::new_imputed(n, lang, term, None));
+                            ety_graph.add_imputed(&imputed_item);
+                            imputed_item
+                        });
+                        ety_graph.add_ety(&desc_item, mode, 0, &[Rc::clone(&parent.item)]);
+                        if i == 0 {
+                            ancestors.add(&desc_item, line.depth);
                         }
                     }
-                    // $$ NEED TO FIGURE OUT PROPER DEPTH / ANCESTOR LIST
-                    // TRACKING, THIS AND THE ABOVE ARE WRONG AS IT STANDS $$
-                    ancestors.truncate(ancestors.len() - prev_depth + depth);
                 }
-                RawDescLineKind::BareLang { lang } => todo!(),
-                RawDescLineKind::BareText { text } => todo!(),
+                // Might want to do something for these cases in the future,
+                // e.g. impute placeholder "items" that have no info, or only
+                // lang info (perhaps by making Item an enum?), to indicate
+                // that there is a known missing step in the ety chain. Right
+                // now, we just skip them. So e.g. for a descendants snippet
+                // like on the page for PIE ḱerh₂-:
+                //
+                // * Unsorted formations: [BareText]
+                // ** {{desc|grk-pro|}} [BareLang]
+                // *** {{desc|grc|κάρυον}} [Desc]
+                //
+                // our resultant ety chain would just be  κάρυον -> ḱerh₂-.
+                RawDescLineKind::BareLang { .. } | RawDescLineKind::BareText { .. } => continue,
             }
-            prev_depth = depth;
         }
     }
 
@@ -455,7 +497,11 @@ impl Items {
         Ok(())
     }
 
-    fn process_etys(&self, string_pool: &StringPool, ety_graph: &mut EtyGraph) -> Result<()> {
+    fn process_raw_etymologies(
+        &self,
+        string_pool: &StringPool,
+        ety_graph: &mut EtyGraph,
+    ) -> Result<()> {
         let pb = ProgressBar::new(u64::try_from(self.n)?);
         pb.set_style(ProgressStyle::default_bar()
             .template("{spinner:.green} Processing etymologies: [{elapsed}] [{wide_bar:.cyan/blue}] {human_pos}/{human_len} ({per_sec}, {eta})")?
@@ -466,6 +512,31 @@ impl Items {
                     for gloss_map in pos_map.values() {
                         for item in gloss_map.values() {
                             self.process_item_raw_etymology(string_pool, ety_graph, item);
+                            pb.inc(1);
+                        }
+                    }
+                }
+            }
+        }
+        pb.finish();
+        Ok(())
+    }
+
+    fn process_raw_descendants(
+        &self,
+        string_pool: &StringPool,
+        ety_graph: &mut EtyGraph,
+    ) -> Result<()> {
+        let pb = ProgressBar::new(u64::try_from(self.n)?);
+        pb.set_style(ProgressStyle::default_bar()
+            .template("{spinner:.green} Processing descendants: [{elapsed}] [{wide_bar:.cyan/blue}] {human_pos}/{human_len} ({per_sec}, {eta})")?
+            .progress_chars("#>-"));
+        for lang_map in self.term_map.values() {
+            for ety_map in lang_map.values() {
+                for pos_map in ety_map.values() {
+                    for gloss_map in pos_map.values() {
+                        for item in gloss_map.values() {
+                            self.process_item_raw_descendants(string_pool, ety_graph, item);
                             pb.inc(1);
                         }
                     }
@@ -533,10 +604,12 @@ impl Items {
         let mut ety_graph = EtyGraph::default();
         self.add_all_to_ety_graph(&mut ety_graph)?;
         self.impute_root_items(&mut ety_graph)?;
-        self.process_etys(string_pool, &mut ety_graph)?;
+        self.process_raw_descendants(string_pool, &mut ety_graph)?;
         ety_graph.remove_cycles(string_pool, 1)?;
-        self.impute_root_etys(string_pool, &mut ety_graph)?;
+        self.process_raw_etymologies(string_pool, &mut ety_graph)?;
         ety_graph.remove_cycles(string_pool, 2)?;
+        self.impute_root_etys(string_pool, &mut ety_graph)?;
+        ety_graph.remove_cycles(string_pool, 3)?;
         Ok(ety_graph)
     }
 }
@@ -651,6 +724,13 @@ impl EtyGraph {
     }
     fn add_ety(&mut self, item: &Rc<Item>, mode: EtyMode, head: u8, ety_items: &[Rc<Item>]) {
         let item_index = self.get_index(item);
+        // StableGraph allows adding multiple parallel edges from one node
+        // to another. So we have to be careful not to override any already
+        // existing ety links (e.g. from raw descendants which have been
+        // processed before raw etymology.)
+        if self.graph.edges(item_index).next().is_some() {
+            return;
+        }
         for (i, ety_item) in (0u8..).zip(ety_items.iter()) {
             let ety_item_index = self.get_index(ety_item);
             let ety_link = EtyLink {
@@ -1431,12 +1511,16 @@ impl RawDataProcessor {
         Ok(())
     }
 
-    fn process_file(&mut self, file: File) -> Result<Items> {
+    fn process_file(&mut self, file: File, is_gz_compressed: bool) -> Result<Items> {
         let mut items = Items::default();
         let reader = BufReader::new(file);
-        let gz = GzDecoder::new(reader);
-        let gz_reader = BufReader::new(gz);
-        let lines = ByteLines::new(gz_reader);
+        let uncompressed: Box<dyn Read> = if is_gz_compressed {
+            Box::new(GzDecoder::new(reader))
+        } else {
+            Box::new(reader)
+        };
+        let reader = BufReader::new(uncompressed);
+        let lines = ByteLines::new(reader);
         for mut line in lines.into_iter().filter_map(Result::ok) {
             let json_item = to_borrowed_value(&mut line)?;
             self.process_json_item(&mut items, &json_item)?;
@@ -1543,19 +1627,23 @@ pub(crate) struct ProcessedData {
 ///
 /// Will return `Err` if any unexpected issue arises parsing the wiktextract
 /// data or writing to Turtle file.
-pub fn wiktextract_to_turtle(wiktextract_path: &str, turtle_path: &str) -> Result<Instant> {
+pub fn wiktextract_to_turtle(wiktextract_path: &Path, turtle_path: &Path) -> Result<Instant> {
     let mut t = Instant::now();
     let file = File::open(wiktextract_path)?;
-    println!("Processing raw wiktextract data from {wiktextract_path}...");
+    println!(
+        "Processing raw wiktextract data from {}...",
+        wiktextract_path.display()
+    );
     let mut processor = RawDataProcessor::default();
-    let items = processor.process_file(file)?;
+    let is_gz_compressed = wiktextract_path.extension().is_some_and(|ext| ext == "gz");
+    let items = processor.process_file(file, is_gz_compressed)?;
     println!("Finished. Took {}.", HumanDuration(t.elapsed()));
     t = Instant::now();
     println!("Generating ety graph...");
     let string_pool = processor.string_pool;
     let ety_graph = items.generate_ety_graph(&string_pool)?;
     println!("Finished. Took {}.", HumanDuration(t.elapsed()));
-    println!("Writing RDF to Turtle file {turtle_path}...");
+    println!("Writing RDF to Turtle file {}...", turtle_path.display());
     t = Instant::now();
     let data = ProcessedData {
         string_pool,
@@ -1572,12 +1660,12 @@ pub fn wiktextract_to_turtle(wiktextract_path: &str, turtle_path: &str) -> Resul
 /// # Errors
 ///
 /// Will return `Err` if any unexpected issue arises building the Oxigraph store.
-pub fn build_store(turtle_path: &str, store_path: &str, skip_optimizing: bool) -> Result<()> {
+pub fn build_store(turtle_path: &Path, store_path: &Path, skip_optimizing: bool) -> Result<()> {
     let mut t = Instant::now();
-    println!("Building oxigraph store {store_path}...");
+    println!("Building oxigraph store {}...", store_path.display());
     let turtle = BufReader::new(File::open(turtle_path)?);
     // delete any previous oxigraph db
-    if Path::new(store_path).is_dir() {
+    if store_path.is_dir() {
         remove_dir_all(store_path)?;
     }
     let store = Store::open(store_path)?;
@@ -1588,7 +1676,7 @@ pub fn build_store(turtle_path: &str, store_path: &str, skip_optimizing: bool) -
     println!("Finished. Took {}.", HumanDuration(t.elapsed()));
     if !skip_optimizing {
         t = Instant::now();
-        println!("Optimizing oxigraph store {store_path}...");
+        println!("Optimizing oxigraph store {}...", store_path.display());
         store.optimize()?;
         store.flush()?;
         println!("Finished. Took {}.", HumanDuration(t.elapsed()));
