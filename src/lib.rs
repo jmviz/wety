@@ -24,7 +24,6 @@ use std::{
     rc::Rc,
     str::FromStr,
     time::Instant,
-    vec,
 };
 
 use anyhow::{anyhow, Ok, Result};
@@ -280,7 +279,7 @@ impl Items {
 
     // For now we'll just take the first template. But cf. notes.md.
     // Only to be called once all json items have been processed into items.
-    fn process_item_raw_ety_templates(
+    fn process_item_raw_etymology(
         &self,
         string_pool: &StringPool,
         ety_graph: &mut EtyGraph,
@@ -313,11 +312,10 @@ impl Items {
                     // We will impute an item for this term, and use this new imputed
                     // item as the item for the next template in the outer loop.
                     has_new_imputation = true;
-                    let i = self.n + ety_graph.imputed_items.n;
-                    // We assume the imputed item has the same pos as the current_item.
-                    // (How often is this not the case?)
-                    let imputed_ety_item =
-                        Rc::from(Item::new_imputed(i, ety_lang, ety_term, current_item.pos));
+                    let n = self.n + ety_graph.imputed_items.n;
+                    // We previously assumed the imputed item has the same pos as the current_item.
+                    // How often is this not the case?
+                    let imputed_ety_item = Rc::from(Item::new_imputed(n, ety_lang, ety_term, None));
                     ety_graph.add_imputed(&imputed_ety_item);
                     ety_items.push(Rc::clone(&imputed_ety_item));
                     next_item = Rc::clone(&imputed_ety_item);
@@ -337,6 +335,68 @@ impl Items {
                 return;
             }
             current_item = Rc::clone(&next_item);
+        }
+    }
+
+    fn process_item_raw_descendants(
+        &self,
+        string_pool: &StringPool,
+        ety_graph: &mut EtyGraph,
+        item: &Rc<Item>,
+    ) {
+        if item.raw_descendants.is_none() {
+            return;
+        }
+        let mut ancestors = vec![];
+        let mut ancestor_senses = HashMap::new();
+        let mut prev_depth = 0usize;
+        for line in item.raw_descendants.as_ref().unwrap().lines.iter() {
+            let depth = line.depth as usize;
+            if depth > prev_depth + 1 {
+                continue; // try to avoid processing ill-formed parts of trees
+            }
+            match &line.kind {
+                RawDescLineKind::Desc { desc } => {
+                    if desc.terms.is_empty() || desc.terms.len() != desc.modes.len() {
+                        continue;
+                    }
+                    let lang = desc.lang;
+                    if depth == prev_depth + 1 || (depth == 0 && ancestors.is_empty()) {
+                        let parent = ancestors.last().map_or_else(|| Rc::clone(item), Rc::clone);
+                        let parent_sense = ancestor_senses
+                            .entry(parent.i)
+                            .or_insert_with(|| Sense::new(string_pool, &parent));
+                        for (i, (&term, &mode)) in
+                            desc.terms.iter().zip(desc.modes.iter()).enumerate()
+                        {
+                            let desc_item = self
+                                .get_disambiguated_item(string_pool, parent_sense, lang, term)
+                                .or_else(|| ety_graph.imputed_items.get(lang, term))
+                                .map(Rc::clone);
+                            // Borrow checker complains when I use map_or_else
+                            // instead of map then unwrap_or_else. But if I
+                            // chain these last two then clippy::pedantic
+                            // complains...
+                            let desc_item = desc_item.unwrap_or_else(|| {
+                                let n = self.n + ety_graph.imputed_items.n;
+                                let imputed_item = Rc::from(Item::new_imputed(n, lang, term, None));
+                                ety_graph.add_imputed(&imputed_item);
+                                imputed_item
+                            });
+                            if i == 0 {
+                                ancestors.push(Rc::clone(&desc_item));
+                            }
+                            ety_graph.add_ety(&desc_item, mode, 0, &[Rc::clone(&parent)]);
+                        }
+                    }
+                    // $$ NEED TO FIGURE OUT PROPER DEPTH / ANCESTOR LIST
+                    // TRACKING, THIS AND THE ABOVE ARE WRONG AS IT STANDS $$
+                    ancestors.truncate(ancestors.len() - prev_depth + depth);
+                }
+                RawDescLineKind::BareLang { lang } => todo!(),
+                RawDescLineKind::BareText { text } => todo!(),
+            }
+            prev_depth = depth;
         }
     }
 
@@ -405,7 +465,7 @@ impl Items {
                 for pos_map in ety_map.values() {
                     for gloss_map in pos_map.values() {
                         for item in gloss_map.values() {
-                            self.process_item_raw_ety_templates(string_pool, ety_graph, item);
+                            self.process_item_raw_etymology(string_pool, ety_graph, item);
                             pb.inc(1);
                         }
                     }
@@ -659,11 +719,10 @@ struct StringPool {
 }
 
 impl StringPool {
-    // SymbolU32 is Copy so we don't need to do &SymbolU32
     fn resolve(&self, symbol: SymbolU32) -> &str {
         self.pool
             .resolve(symbol)
-            .expect("Could not resolve string pool symbol")
+            .expect("Resolve interned string from symbol")
     }
     fn get_or_intern(&mut self, s: &str) -> SymbolU32 {
         self.pool.get_or_intern(s)
@@ -1202,18 +1261,6 @@ impl RawDataProcessor {
         &mut self,
         args: &Value,
     ) -> Option<(usize, Vec<SymbolU32>, Vec<EtyMode>)> {
-        fn get_mode(args: &Value, n: usize) -> Option<EtyMode> {
-            // what about "der"?
-            const MODES: [&str; 7] = ["bor", "lbor", "slb", "clq", "pclq", "sml", "translit"];
-            for mode in MODES {
-                let mode_n = format!("{mode}{n}");
-                if args.contains_key(mode) || args.contains_key(mode_n.as_str()) {
-                    return EtyMode::from_str(mode).ok();
-                }
-            }
-            None
-        }
-
         let lang = args.get_valid_str("1")?;
         let lang_index = LANG_CODE2NAME.get_index(lang)?;
 
@@ -1229,7 +1276,8 @@ impl RawDataProcessor {
             .map(|term| self.string_pool.get_or_intern(term))
         {
             terms.push(term);
-            modes.push(get_mode(args, n).unwrap_or(EtyMode::Inherited));
+            let mode = get_desc_mode(args, n);
+            modes.push(mode);
             n += 1;
             n_str = (n + 1).to_string();
             n_alt_str = format!("alt{n}");
@@ -1266,11 +1314,12 @@ impl RawDataProcessor {
         Some((lang_index, vec![term], vec![mode]))
     }
 
-    // cf. https://en.wiktionary.org/wiki/Template:descendants_tree
-    // While {{desctree}} docs say it supports all {{desc}} args, I've never
-    // seen one that's more than just e.g. {{desctree|gmw-pro|*fuhs}}.
-    // (Importantly, both "1" AND "2" are required here.) So we just handle this
-    // simple case until we find that any other usage has any currency.
+    // cf. https://en.wiktionary.org/wiki/Template:descendants_tree While
+    // {{desctree}} docs say it supports all {{desc}} args, I've never seen one
+    // that's more than just e.g. {{desctree|gmw-pro|*fuhs}}. (Importantly, both
+    // "1" AND "2" are required here.) So we just handle this simple case of one
+    // descendant generating the tree, until we find that listing multiple has
+    // any currency (how would that even work?).
     fn process_json_desc_line_desctree_template(
         &mut self,
         args: &Value,
@@ -1280,8 +1329,8 @@ impl RawDataProcessor {
         let term = args
             .get_valid_str("2")
             .map(|term| self.string_pool.get_or_intern(term))?;
-        // $$ It's conceivable that another mode could be specified by template arg...$$
-        let mode = EtyMode::Inherited;
+        // It's conceivable that another mode could be specified by template arg
+        let mode = get_desc_mode(args, 1);
         Some((lang_index, vec![term], vec![mode]))
     }
 
@@ -1469,6 +1518,19 @@ fn etylang2lang(lang: usize) -> usize {
                 .and_then(|code| LANG_CODE2NAME.get_index(code))
         })
         .unwrap_or(lang)
+}
+
+fn get_desc_mode(args: &Value, n: usize) -> EtyMode {
+    // what about "der"?
+    const MODES: [&str; 7] = ["bor", "lbor", "slb", "clq", "pclq", "sml", "translit"];
+    const DEFAULT: EtyMode = EtyMode::Inherited;
+    for mode in MODES {
+        let mode_n = format!("{mode}{n}");
+        if args.contains_key(mode) || args.contains_key(mode_n.as_str()) {
+            return EtyMode::from_str(mode).ok().unwrap_or(DEFAULT);
+        }
+    }
+    DEFAULT
 }
 
 pub(crate) struct ProcessedData {
