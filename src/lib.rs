@@ -1278,24 +1278,25 @@ impl RawDataProcessor {
         let templates = desc_line.get_array("templates")?;
 
         if templates.is_empty()
-                && let Some(text) = desc_line.get_valid_str("text") 
-            {
-                let text = self.string_pool.get_or_intern(text);
-                let kind = RawDescLineKind::BareText { text };
-                return Some(RawDescLine { depth, kind });
-            }
+            && let Some(text) = desc_line.get_valid_str("text") 
+        {
+            let text = self.string_pool.get_or_intern(text);
+            let kind = RawDescLineKind::BareText { text };
+            return Some(RawDescLine { depth, kind });
+        }
         if templates.len() == 1
-                && let Some(template) = templates.get(0)
-                && let Some(name) = template.get_valid_str("name")
-                && matches!(name, "desc" | "descendant")
-                && let Some(lang) = template.get_valid_str("1")
-                && let Some(lang_index) = LANG_CODE2NAME.get_index(lang)
-                && template.get_valid_str("2").is_none()
-                && template.get_valid_str("alt").is_none()
-            {
-                let kind = RawDescLineKind::BareLang { lang: lang_index };
-                return Some(RawDescLine{ depth, kind });
-            }
+            && let Some(template) = templates.get(0)
+            && let Some(name) = template.get_valid_str("name")
+            && matches!(name, "desc" | "descendant")
+            && let Some(args) = template.get("args")
+            && let Some(lang) = args.get_valid_str("1")
+            && let Some(lang_index) = LANG_CODE2NAME.get_index(lang)
+            && args.get_valid_str("2").is_none()
+            && args.get_valid_str("alt").is_none()
+        {
+            let kind = RawDescLineKind::BareLang { lang: lang_index };
+            return Some(RawDescLine{ depth, kind });
+        }
         let is_derivation = desc_line.get_array("tags").map_or(false, |tags| {
             tags.iter().any(|tag| tag.as_str() == Some("derived"))
         });
