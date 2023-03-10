@@ -70,11 +70,10 @@ fn write_item(
     write_item_quoted_prop(f, PRED_TERM, term)?;
     let language = LANG_CODE2NAME.get_expected_index_value(item.lang)?;
     write_item_quoted_prop(f, PRED_LANG, language)?;
-    let pos = match item.pos {
-        Some(pos) => POS.get_expected_index_key(pos)?,
-        None => "unknown",
+    if let Some(pos) = item.pos {
+        let pos = POS.get_expected_index_key(pos)?;
+        write_item_quoted_prop(f, PRED_POS, pos)?;
     };
-    write_item_quoted_prop(f, PRED_POS, pos)?;
     if item.is_imputed {
         writeln!(f, "  {PRED_IS_IMPUTED} true ;")?;
     }
