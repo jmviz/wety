@@ -10,7 +10,7 @@ mod turtle;
 
 use crate::{
     etymology_templates::{EtyMode, TemplateKind},
-    lang::{LANG_CODE2NAME, LANG_ETYCODE2CODE, LANG_NAME2CODE},
+    lang::{LANG_CODE2NAME, LANG_ETYCODE2CODE, LANG_NAME2CODE, LANG_RECONSTRUCTED},
     pos::POS,
     turtle::write_turtle_file,
 };
@@ -109,6 +109,9 @@ enum RawDescLineKind {
     BareLang { lang: usize },
     // i.e. line with no templates e.g. "Unsorted Formations", "with prefix -a"
     BareText { text: SymbolU32 },
+    // e.g. a line with {{PIE root see}} or some other unhandled template(s)
+    // or unexpected form of above line kinds
+    Other,
     // stretch goal: https://en.wiktionary.org/wiki/Template:CJKV
 }
 
@@ -124,13 +127,15 @@ struct RawDesc {
 #[derive(Hash, Eq, PartialEq, Debug)]
 struct Item {
     is_imputed: bool,
-    i: usize,                 // the i-th item seen, used as id for RDF
-    lang: usize,              // e.g "en", i.e. the wiktextract lang_code
-    term: SymbolU32,          // e.g. "bank"
-    ety_num: Option<u8>,      // the nth numbered ety for this term-lang combo (1,2,...)
-    pos: Option<usize>,       // e.g. "noun"
-    gloss: Option<SymbolU32>, // e.g. "An institution where one can place and borrow money...
-    gloss_num: u8,            // the nth gloss encountered for this term-lang-ety-pos combo
+    is_reconstructed: bool, // i.e. Reconstruction: namespace page, or an imputed item of form *term
+    i: usize,               // the i-th item seen, used as id for RDF
+    lang: usize,            // e.g "en", i.e. the wiktextract lang_code
+    term: SymbolU32,        // e.g. "bank"
+    page_title: Option<SymbolU32>, // i.e. the term stripped of diacritics etc. at the top of the page
+    ety_num: Option<u8>,           // the nth numbered ety for this term-lang combo (1,2,...)
+    pos: Option<usize>,            // e.g. "noun"
+    gloss: Option<SymbolU32>,      // e.g. "An institution where one can place and borrow money...
+    gloss_num: u8,                 // the nth gloss encountered for this term-lang-ety-pos combo
     raw_etymology: Option<RawEtymology>,
     raw_root: Option<RawRoot>,
     raw_descendants: Option<RawDescendants>,
@@ -140,10 +145,15 @@ impl Item {
     fn new_imputed(i: usize, lang: usize, term: SymbolU32, pos: Option<usize>) -> Self {
         Self {
             is_imputed: true,
+            // $$ This will not catch all reconstructed terms, since some terms
+            // in attested languages are reconstructed. Some better inference
+            // should be done based on "*" prefix for terms.
+            is_reconstructed: is_reconstructed_lang(lang),
             i,
             lang,
             term,
             pos,
+            page_title: None,
             ety_num: None,
             gloss_num: 0,
             gloss: None,
@@ -425,19 +435,19 @@ impl Items {
                         }
                     }
                 }
-                // Might want to do something for these cases in the future,
+                // Might want to do something for the other cases in the future,
                 // e.g. impute placeholder "items" that have no info, or only
-                // lang info (perhaps by making Item an enum?), to indicate
-                // that there is a known missing step in the ety chain. Right
-                // now, we just skip them. So e.g. for a descendants snippet
-                // like on the page for PIE ḱerh₂-:
+                // lang info (perhaps by making Item an enum?), to indicate that
+                // there is a known missing step in the ety chain. Right now, we
+                // just skip them. So e.g. for a descendants snippet like on the
+                // page for PIE ḱerh₂-:
                 //
                 // * Unsorted formations: [BareText]
                 // ** {{desc|grk-pro|}} [BareLang]
                 // *** {{desc|grc|κάρυον}} [Desc]
                 //
                 // our resultant ety chain would just be  κάρυον -> ḱerh₂-.
-                RawDescLineKind::BareLang { .. } | RawDescLineKind::BareText { .. } => continue,
+                _ => continue,
             }
         }
     }
@@ -675,8 +685,19 @@ struct EtyGraph {
 
 struct ImmediateEty {
     items: Vec<Rc<Item>>,
-    mode: EtyMode,
     head: u8,
+    mode: EtyMode,
+}
+
+impl ImmediateEty {
+    fn head(&self) -> &Rc<Item> {
+        &self.items[self.head as usize]
+    }
+}
+
+struct Progenitors {
+    items: HashSet<Rc<Item>>,
+    head: Rc<Item>,
 }
 
 impl EtyGraph {
@@ -711,6 +732,42 @@ impl EtyGraph {
         (!ety_items.is_empty()).then_some(ImmediateEty {
             items: ety_items,
             mode,
+            head,
+        })
+    }
+    fn get_progenitors(&self, item: &Rc<Item>) -> Option<Progenitors> {
+        struct Tracker {
+            unexpanded: Vec<Rc<Item>>,
+            progenitors: HashSet<Rc<Item>>,
+            head: Rc<Item>,
+        }
+        fn recurse(ety_graph: &EtyGraph, t: &mut Tracker) {
+            while let Some(item) = t.unexpanded.pop() {
+                if let Some(immediate_ety) = ety_graph.get_immediate_ety(&item) {
+                    let ety_head = immediate_ety.head();
+                    for ety_item in &immediate_ety.items {
+                        if t.head == item && ety_item == ety_head {
+                            t.head = Rc::clone(ety_head);
+                        }
+                        t.unexpanded.push(Rc::clone(ety_item));
+                    }
+                    recurse(ety_graph, t);
+                } else {
+                    t.progenitors.insert(item);
+                }
+            }
+        }
+        let immediate_ety = self.get_immediate_ety(item)?;
+        let head = Rc::clone(immediate_ety.head());
+        let mut t = Tracker {
+            unexpanded: immediate_ety.items,
+            progenitors: HashSet::new(),
+            head,
+        };
+        recurse(self, &mut t);
+        let head = Rc::clone(&t.head);
+        Some(Progenitors {
+            items: t.progenitors,
             head,
         })
     }
@@ -1319,7 +1376,10 @@ impl RawDataProcessor {
             let kind = RawDescLineKind::Desc { desc };
             return Some(RawDescLine { depth, kind });
         }
-        None
+        Some(RawDescLine {
+            depth,
+            kind: RawDescLineKind::Other,
+        })
     }
 
     fn process_json_desc_line_template(
@@ -1470,13 +1530,16 @@ impl RawDataProcessor {
             self.process_redirect(items, json_item);
             return Ok(());
         }
-        if let Some(term) = get_term(json_item)
+        if let Some(page_title) = json_item.get_valid_str("word")
             && let Some(pos) = json_item.get_valid_str("pos")
             && let Some(pos_index) = POS.get_index(pos)
-            && !should_ignore_term(term, pos)
+            && !should_ignore_term(page_title, pos)
             && let Some(lang) = json_item.get_valid_str("lang_code")
             && let Some(lang_index) = LANG_CODE2NAME.get_index(lang)
         {
+            let term = get_term_canonical_form(json_item).unwrap_or(page_title);
+            let term = self.string_pool.get_or_intern(term);
+            let page_title = Some(self.string_pool.get_or_intern(page_title));
             // if term-lang combo has multiple ety's, then 'etymology_number' is
             // present with range 1,2,... Otherwise, this key is missing.
             let ety_num = json_item.get_u8("etymology_number");
@@ -1496,9 +1559,14 @@ impl RawDataProcessor {
 
             let item = Item {
                 is_imputed: false,
+                // $$ This will not catch all reconstructed terms, since some terms
+                // in attested languages are reconstructed. Some better inference
+                // should be done based on "*" prefix for terms. 
+                is_reconstructed: is_reconstructed_lang(lang_index),
                 i: items.n,
                 lang: lang_index,
-                term: self.string_pool.get_or_intern(term),
+                term,
+                page_title,
                 ety_num,
                 pos: Some(pos_index),
                 gloss,
@@ -1568,26 +1636,25 @@ fn should_ignore_term(term: &str, pos: &str) -> bool {
 
 // We look for a canonical form, otherwise we take the "word" field.
 // See notes.md for motivation.
-fn get_term<'a>(json_item: &'a Value) -> Option<&'a str> {
-    if let Some(forms) = json_item.get_array("forms") {
-        let mut f = 0;
-        while let Some(form) = forms.get(f) {
-            if let Some(tags) = form.get_array("tags") {
-                let mut t = 0;
-                while let Some(tag) = tags.get(t).as_str() {
-                    if tag == "canonical" {
-                        // There are some
-                        if let Some(term) = form.get_valid_str("form") {
-                            return Some(term);
-                        }
+fn get_term_canonical_form<'a>(json_item: &'a Value) -> Option<&'a str> {
+    let forms = json_item.get_array("forms")?;
+    let mut f = 0;
+    while let Some(form) = forms.get(f) {
+        if let Some(tags) = form.get_array("tags") {
+            let mut t = 0;
+            while let Some(tag) = tags.get(t).as_str() {
+                if tag == "canonical" {
+                    // There are some
+                    if let Some(term) = form.get_valid_str("form") {
+                        return Some(term);
                     }
-                    t += 1;
                 }
+                t += 1;
             }
-            f += 1;
         }
+        f += 1;
     }
-    json_item.get_valid_str("word")
+    None
 }
 
 fn etylang2lang(lang: usize) -> usize {
@@ -1603,6 +1670,12 @@ fn etylang2lang(lang: usize) -> usize {
                 .and_then(|code| LANG_CODE2NAME.get_index(code))
         })
         .unwrap_or(lang)
+}
+
+fn is_reconstructed_lang(lang: usize) -> bool {
+    LANG_CODE2NAME
+        .get_index_key(lang)
+        .map_or(false, |code| LANG_RECONSTRUCTED.contains(code))
 }
 
 fn get_desc_mode(args: &Value, n: usize) -> EtyMode {
