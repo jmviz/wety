@@ -402,7 +402,7 @@ impl Items {
         }
         let mut ancestors = Ancestors::new(item);
         let mut ancestor_senses = HashMap::new();
-        for line in item.raw_descendants.as_ref().unwrap().lines.iter() {
+        'outer: for line in item.raw_descendants.as_ref().unwrap().lines.iter() {
             let parent = ancestors.prune_and_get_parent(line.depth);
             match &line.kind {
                 RawDescLineKind::Desc { desc } => {
@@ -413,6 +413,7 @@ impl Items {
                     let parent_sense = ancestor_senses
                         .entry(parent.item.i)
                         .or_insert_with(|| Sense::new(string_pool, &parent.item));
+                    let (mut desc_items, mut modes) = (vec![], vec![]);
                     for (i, (&term, &mode)) in desc.terms.iter().zip(desc.modes.iter()).enumerate()
                     {
                         let desc_item = self
@@ -429,10 +430,32 @@ impl Items {
                             ety_graph.add_imputed(&imputed_item);
                             imputed_item
                         });
-                        ety_graph.add_ety(&desc_item, mode, 0, &[Rc::clone(&parent.item)]);
+                        // A root generally shouldn't be listed as a descendant
+                        // of another term. If it really is an etymological
+                        // child, we will rely on the etymology section of the
+                        // root to get the relationship. In descendants trees,
+                        // creating this link will probably more often than not
+                        // be a mistake. See e.g. page for PIE men-, where
+                        // compound of men- and dʰeh₁- is listed. If we didn't
+                        // skip the template featuring dʰeh₁-, then we would
+                        // erroneously add an ety link from men- to dʰeh₁-. In
+                        // general, we may need to end up doing much smarter
+                        // processing of descendants sections if there is more
+                        // such variation I am unaware of (probable?).
+                        if desc_item
+                            .pos
+                            .is_some_and(|pos| pos == POS.get_expected_index("root").unwrap())
+                        {
+                            continue 'outer;
+                        }
                         if i == 0 {
                             ancestors.add(&desc_item, line.depth);
                         }
+                        desc_items.push(desc_item);
+                        modes.push(mode);
+                    }
+                    for (desc_item, mode) in desc_items.iter().zip(modes) {
+                        ety_graph.add_ety(desc_item, mode, 0, &[Rc::clone(&parent.item)]);
                     }
                 }
                 // Might want to do something for the other cases in the future,
