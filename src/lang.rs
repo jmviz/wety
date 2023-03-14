@@ -2,7 +2,7 @@
 
 #![allow(clippy::all)]
 
-use phf::{phf_ordered_map, OrderedMap, phf_set, Set};
+use phf::{phf_ordered_map, phf_set, OrderedMap, Set};
 
 pub(crate) static LANG_CODE2NAME: OrderedMap<&'static str, &'static str> = phf_ordered_map! {
     "abh-prk" => "Abhiri",

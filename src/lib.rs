@@ -596,13 +596,29 @@ impl Items {
                 HashSet::from([Rc::clone(item), Rc::clone(root_item)]);
             let mut current_item = Rc::clone(item);
             while let Some(immediate_ety) = ety_graph.get_immediate_ety(&current_item) {
-                // Don't try imputing a root for any item that has a compound in its ety DAG.
-                // Also, if the root or any previously visited item is encountered again,
-                // don't impute anything, so we don't create or get caught in a cycle.
-                if immediate_ety.items.len() != 1 || visited_items.contains(&current_item) {
+                // If the root or any previously visited item is encountered
+                // again, don't impute anything, so we don't create or get
+                // caught in a cycle.
+                if visited_items.contains(&current_item) {
                     return;
                 }
-                current_item = Rc::clone(&immediate_ety.items[0]);
+                // If there are multiple ety items but one has the same root, pick this.
+                let ety_item = immediate_ety.items.iter().find(|ety_item| {
+                    ety_item.raw_root.as_ref()
+                        .and_then(|r| {
+                            let ety_item_sense = Sense::new(string_pool, ety_item);
+                            self
+                                .get_disambiguated_item(string_pool, &ety_item_sense, r.lang, r.term)
+                                .or_else(|| ety_graph.imputed_items.get(r.lang, r.term))})
+                        .is_some_and(|ety_root_item| ety_root_item == root_item)
+                });
+                // Otherwise, return so we don't guess wrong.
+                if ety_item.is_none() && immediate_ety.items.len() > 1 {
+                    return
+                }
+                // There is no chance of guessing wrong if only 1 ety item.
+                let ety_item = ety_item.unwrap_or(&immediate_ety.items[0]);
+                current_item = Rc::clone(ety_item);
                 visited_items.insert(Rc::clone(&current_item));
             }
             if &current_item != root_item {
