@@ -40,6 +40,9 @@ use petgraph::{
 };
 use phf::{phf_set, OrderedMap, OrderedSet, Set};
 use regex::Regex;
+use rust_bert::pipelines::sentence_embeddings::{
+    Embedding, SentenceEmbeddingsBuilder, SentenceEmbeddingsModel, SentenceEmbeddingsModelType,
+};
 use simd_json::{to_borrowed_value, value::borrowed::Value, ValueAccess};
 use string_interner::{backend::StringBackend, symbol::SymbolU32, StringInterner};
 
@@ -178,7 +181,8 @@ struct Items {
 }
 
 impl Items {
-    fn add(&mut self, mut item: Item) -> Result<()> {
+    fn add(&mut self, mut item: Item) -> Result<Option<usize>> {
+        let i = item.i;
         // check if the item's term has been seen before
         if !self.term_map.contains_key(&item.term) {
             let mut gloss_map = GlossMap::new();
@@ -192,7 +196,7 @@ impl Items {
             lang_map.insert(lang, ety_map);
             self.term_map.insert(term, lang_map);
             self.n += 1;
-            return Ok(());
+            return Ok(Some(i));
         }
         // since term has been seen before, there must be at least one lang for it
         // check if item's lang has been seen before
@@ -207,7 +211,7 @@ impl Items {
             ety_map.insert(ety_num, pos_map);
             lang_map.insert(lang, ety_map);
             self.n += 1;
-            return Ok(());
+            return Ok(Some(i));
         }
         // since lang has been seen before, there must be at least one ety (possibly None)
         // check if this ety has been seen in this lang before
@@ -220,7 +224,7 @@ impl Items {
             pos_map.insert(pos, gloss_map);
             ety_map.insert(ety_num, pos_map);
             self.n += 1;
-            return Ok(());
+            return Ok(Some(i));
         }
         // since ety has been seen before, there must be at least one pos
         // check if this pos has been seen for this ety before
@@ -231,7 +235,7 @@ impl Items {
             gloss_map.insert(item.gloss, Rc::from(item));
             pos_map.insert(pos, gloss_map);
             self.n += 1;
-            return Ok(());
+            return Ok(Some(i));
         }
         // since pos has been seen before, there must be at least one gloss (possibly None)
         let gloss_map: &mut GlossMap = pos_map.get_mut(&item.pos).unwrap();
@@ -239,9 +243,9 @@ impl Items {
             item.gloss_num = u8::try_from(gloss_map.len())?;
             gloss_map.insert(item.gloss, Rc::from(item));
             self.n += 1;
-            return Ok(());
+            return Ok(Some(i));
         }
-        Ok(())
+        Ok(None)
     }
 
     fn rectify_lang_term(&self, lang: usize, term: SymbolU32) -> (usize, SymbolU32) {
@@ -1024,11 +1028,66 @@ impl Redirects {
 }
 
 #[derive(Default)]
+struct EmbeddingMap {
+    map: HashMap<usize, Embedding>,
+}
+
+struct Embeddings {
+    model: SentenceEmbeddingsModel,
+    ety: EmbeddingMap,
+    glosses: EmbeddingMap,
+}
+
+impl Embeddings {
+    fn new() -> Result<Self> {
+        // https://www.sbert.net/docs/pretrained_models.html
+        // https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2
+        let model = SentenceEmbeddingsBuilder::remote(SentenceEmbeddingsModelType::AllMiniLmL6V2)
+            .create_model()?;
+        Ok(Self {
+            model,
+            ety: EmbeddingMap::default(),
+            glosses: EmbeddingMap::default(),
+        })
+    }
+    fn add(&mut self, json_item: &Value, i: usize) -> Result<()> {
+        if let Some(ety_text) = json_item.get_str("etymology_text")
+            && !ety_text.is_empty() {
+                let mut embedding = self.model.encode(&[ety_text])?;
+                self.ety.map.insert(i, embedding.pop().unwrap());
+            }
+        let mut glosses = String::new();
+        if let Some(senses) = json_item.get_array("senses") {
+            for sense in senses {
+                if let Some(gloss) = sense
+                    .get_array("glosses")
+                    .and_then(|glosses| glosses.get(0))
+                    .and_then(|gloss| gloss.as_str())
+                {
+                    glosses.push_str(gloss);
+                }
+            }
+        }
+        if !glosses.is_empty() {
+            let mut embedding = self.model.encode(&[&glosses])?;
+            self.glosses.map.insert(i, embedding.pop().unwrap());
+        }
+        Ok(())
+    }
+}
+
 struct RawDataProcessor {
     string_pool: StringPool,
+    embeddings: Embeddings,
 }
 
 impl RawDataProcessor {
+    fn new() -> Result<Self> {
+        Ok(Self {
+            string_pool: StringPool::default(),
+            embeddings: Embeddings::new()?,
+        })
+    }
     fn process_derived_kind_json_template(
         &mut self,
         args: &Value,
@@ -1614,7 +1673,9 @@ impl RawDataProcessor {
                 raw_root,
                 raw_descendants,
             };
-            items.add(item)?;
+            if let Some(i) = items.add(item)? {
+
+            }
         }
         Ok(())
     }
@@ -1747,19 +1808,18 @@ pub fn wiktextract_to_turtle(wiktextract_path: &Path, turtle_path: &Path) -> Res
         "Processing raw wiktextract data from {}...",
         wiktextract_path.display()
     );
-    let mut processor = RawDataProcessor::default();
+    let mut processor = RawDataProcessor::new()?;
     let is_gz_compressed = wiktextract_path.extension().is_some_and(|ext| ext == "gz");
     let items = processor.process_file(file, is_gz_compressed)?;
     println!("Finished. Took {}.", HumanDuration(t.elapsed()));
     t = Instant::now();
     println!("Generating ety graph...");
-    let string_pool = processor.string_pool;
-    let ety_graph = items.generate_ety_graph(&string_pool)?;
+    let ety_graph = items.generate_ety_graph(&processor.string_pool)?;
     println!("Finished. Took {}.", HumanDuration(t.elapsed()));
     println!("Writing RDF to Turtle file {}...", turtle_path.display());
     t = Instant::now();
     let data = ProcessedData {
-        string_pool,
+        string_pool: processor.string_pool,
         items,
         ety_graph,
     };

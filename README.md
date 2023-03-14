@@ -2,7 +2,7 @@
 Digest etymologies from [wiktextract](https://github.com/tatuylonen/wiktextract) data. This is a work-in-progress project to which I make indiscriminate commits. Current `main` may not run as described below, or may fail. Sometimes it may not even compile!
 
 ## Usage
-If you do not have rust installed, [install it](https://www.rust-lang.org/tools/install). Clone this repo and `cd` into it. Download the latest wiktextract raw data from [https://kaikki.org/dictionary/rawdata.html](https://kaikki.org/dictionary/rawdata.html), namely [this file](https://kaikki.org/dictionary/raw-wiktextract-data.json.gz), into `/data`. (To get the data including wiktionary `Descendants` sections, see below.) Run the rust program:
+If you do not have rust installed, [install it](https://www.rust-lang.org/tools/install). Clone this repo and `cd` into it. Download the latest wiktextract raw data from [https://kaikki.org/dictionary/rawdata.html](https://kaikki.org/dictionary/rawdata.html), namely [this file](https://kaikki.org/dictionary/raw-wiktextract-data.json.gz), into `/data`. (To get the data including wiktionary `Descendants` sections, see below.) This uses `rust-bert`, which uses `pytorch`, for word sense disambiguations. So follow the [`rust-bert` installation instructions](https://github.com/guillaume-be/rust-bert#manual-installation-recommended) if you have a capable GPU you want to use instead of the default CPU backend. Finally, Run the rust program:
 
 ```bash
 cargo run --release

@@ -23,3 +23,4 @@ regex = "1.7.1"
 lazy_static = "1.4.0"
 strum = {version = "0.24.1", features = ["derive", "phf"]}
 urlencoding = "2.1.2"
+rust-bert = "0.20.0"
