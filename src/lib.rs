@@ -1,8 +1,9 @@
 //! WIP attempt to digest etymologies from wiktextract data
 
-#![feature(is_some_and, let_chains)]
+#![feature(is_some_and, let_chains, vec_push_within_capacity)]
 #![allow(clippy::redundant_closure_for_method_calls)]
 
+mod embeddings;
 mod etymology_templates;
 mod lang;
 mod pos;
@@ -28,6 +29,7 @@ use std::{
 
 use anyhow::{anyhow, Ok, Result};
 use bytelines::ByteLines;
+use embeddings::Embeddings;
 use flate2::read::GzDecoder;
 use hashbrown::{HashMap, HashSet};
 use indicatif::{HumanDuration, ProgressBar, ProgressStyle};
@@ -40,9 +42,6 @@ use petgraph::{
 };
 use phf::{phf_set, OrderedMap, OrderedSet, Set};
 use regex::Regex;
-use rust_bert::pipelines::sentence_embeddings::{
-    Embedding, SentenceEmbeddingsBuilder, SentenceEmbeddingsModel, SentenceEmbeddingsModelType,
-};
 use simd_json::{to_borrowed_value, value::borrowed::Value, ValueAccess};
 use string_interner::{backend::StringBackend, symbol::SymbolU32, StringInterner};
 
@@ -129,6 +128,7 @@ struct RawDesc {
 
 #[derive(Hash, Eq, PartialEq, Debug)]
 struct Item {
+    line: Option<usize>, // the line-th ok line in the wiktextract file, if it was in the file
     is_imputed: bool,
     is_reconstructed: bool, // i.e. Reconstruction: namespace page, or an imputed item of form *term
     i: usize,               // the i-th item seen, used as id for RDF
@@ -147,6 +147,7 @@ struct Item {
 impl Item {
     fn new_imputed(i: usize, lang: usize, term: SymbolU32, pos: Option<usize>) -> Self {
         Self {
+            line: None,
             is_imputed: true,
             // $$ This will not catch all reconstructed terms, since some terms
             // in attested languages are reconstructed. Some better inference
@@ -178,11 +179,11 @@ struct Items {
     term_map: TermMap,
     n: usize,
     redirects: Redirects,
+    line_map: HashMap<usize, Rc<Item>>,
 }
 
 impl Items {
-    fn add(&mut self, mut item: Item) -> Result<Option<usize>> {
-        let i = item.i;
+    fn add_to_term_map(&mut self, mut item: Item) -> Result<Option<Rc<Item>>> {
         // check if the item's term has been seen before
         if !self.term_map.contains_key(&item.term) {
             let mut gloss_map = GlossMap::new();
@@ -190,13 +191,14 @@ impl Items {
             let mut ety_map = EtyMap::new();
             let mut lang_map = LangMap::new();
             let (pos, ety_num, lang, term) = (item.pos, item.ety_num, item.lang, item.term);
-            gloss_map.insert(item.gloss, Rc::from(item));
+            let item = Rc::from(item);
+            gloss_map.insert(item.gloss, Rc::clone(&item));
             pos_map.insert(pos, gloss_map);
             ety_map.insert(ety_num, pos_map);
             lang_map.insert(lang, ety_map);
             self.term_map.insert(term, lang_map);
             self.n += 1;
-            return Ok(Some(i));
+            return Ok(Some(Rc::clone(&item)));
         }
         // since term has been seen before, there must be at least one lang for it
         // check if item's lang has been seen before
@@ -206,12 +208,13 @@ impl Items {
             let mut pos_map = PosMap::new();
             let mut ety_map = EtyMap::new();
             let (pos, ety_num, lang) = (item.pos, item.ety_num, item.lang);
-            gloss_map.insert(item.gloss, Rc::from(item));
+            let item = Rc::from(item);
+            gloss_map.insert(item.gloss, Rc::clone(&item));
             pos_map.insert(pos, gloss_map);
             ety_map.insert(ety_num, pos_map);
             lang_map.insert(lang, ety_map);
             self.n += 1;
-            return Ok(Some(i));
+            return Ok(Some(Rc::clone(&item)));
         }
         // since lang has been seen before, there must be at least one ety (possibly None)
         // check if this ety has been seen in this lang before
@@ -220,11 +223,12 @@ impl Items {
             let mut gloss_map = GlossMap::new();
             let mut pos_map = PosMap::new();
             let (pos, ety_num) = (item.pos, item.ety_num);
-            gloss_map.insert(item.gloss, Rc::from(item));
+            let item = Rc::from(item);
+            gloss_map.insert(item.gloss, Rc::clone(&item));
             pos_map.insert(pos, gloss_map);
             ety_map.insert(ety_num, pos_map);
             self.n += 1;
-            return Ok(Some(i));
+            return Ok(Some(Rc::clone(&item)));
         }
         // since ety has been seen before, there must be at least one pos
         // check if this pos has been seen for this ety before
@@ -232,18 +236,20 @@ impl Items {
         if !pos_map.contains_key(&item.pos) {
             let mut gloss_map = GlossMap::new();
             let pos = item.pos;
-            gloss_map.insert(item.gloss, Rc::from(item));
+            let item = Rc::from(item);
+            gloss_map.insert(item.gloss, Rc::clone(&item));
             pos_map.insert(pos, gloss_map);
             self.n += 1;
-            return Ok(Some(i));
+            return Ok(Some(Rc::clone(&item)));
         }
         // since pos has been seen before, there must be at least one gloss (possibly None)
         let gloss_map: &mut GlossMap = pos_map.get_mut(&item.pos).unwrap();
         if !gloss_map.contains_key(&item.gloss) {
             item.gloss_num = u8::try_from(gloss_map.len())?;
-            gloss_map.insert(item.gloss, Rc::from(item));
+            let item = Rc::from(item);
+            gloss_map.insert(item.gloss, Rc::clone(&item));
             self.n += 1;
-            return Ok(Some(i));
+            return Ok(Some(Rc::clone(&item)));
         }
         Ok(None)
     }
@@ -289,6 +295,26 @@ impl Items {
                         sense.lesk_score(&candidate_sense)
                     })
             })
+    }
+
+    fn get_item_lang_term_duplicates(&self, item: &Rc<Item>) -> Option<Vec<Rc<Item>>> {
+        let lang_map = self.term_map.get(&item.term)?;
+        let ety_map = lang_map.get(&item.lang)?;
+        let mut duplicates = vec![];
+        for pos_map in ety_map.values() {
+            for gloss_map in pos_map.values() {
+                for duplicate in gloss_map.values() {
+                    if duplicate != item {
+                        duplicates.push(Rc::clone(duplicate));
+                    }
+                }
+            }
+        }
+        (!duplicates.is_empty()).then_some(duplicates)
+    }
+
+    fn item_has_duplicates(&self, item: &Rc<Item>) -> bool {
+        self.get_item_lang_term_duplicates(item).is_some()
     }
 
     // For now we'll just take the first template. But cf. notes.md.
@@ -537,6 +563,7 @@ impl Items {
     fn process_raw_etymologies(
         &self,
         string_pool: &StringPool,
+        embeddings: &Embeddings,
         ety_graph: &mut EtyGraph,
     ) -> Result<()> {
         let pb = ProgressBar::new(u64::try_from(self.n)?);
@@ -562,6 +589,7 @@ impl Items {
     fn process_raw_descendants(
         &self,
         string_pool: &StringPool,
+        embeddings: &Embeddings,
         ety_graph: &mut EtyGraph,
     ) -> Result<()> {
         let pb = ProgressBar::new(u64::try_from(self.n)?);
@@ -631,7 +659,12 @@ impl Items {
         }
     }
 
-    fn impute_root_etys(&self, string_pool: &StringPool, ety_graph: &mut EtyGraph) -> Result<()> {
+    fn impute_root_etys(
+        &self,
+        string_pool: &StringPool,
+        embeddings: &Embeddings,
+        ety_graph: &mut EtyGraph,
+    ) -> Result<()> {
         let pb = ProgressBar::new(u64::try_from(self.n)?);
         pb.set_style(ProgressStyle::default_bar()
             .template("{spinner:.green} Imputing root etys: [{elapsed}] [{wide_bar:.cyan/blue}] {human_pos}/{human_len} ({per_sec}, {eta})")?
@@ -653,15 +686,36 @@ impl Items {
         Ok(())
     }
 
-    fn generate_ety_graph(&self, string_pool: &StringPool) -> Result<EtyGraph> {
+    // We go through the wiktextract file again, generating embeddings for all
+    // ambiguous terms we found the first time.
+    fn generate_embeddings(&self, path: &Path) -> Result<Embeddings> {
+        let mut embeddings = Embeddings::new()?;
+        for (line_number, mut line) in wiktextract_lines(path)?.enumerate() {
+            // Items were only inserted into the line map if they were added to
+            // the term_map in process_json_item.
+            if let Some(item) = self.line_map.get(&line_number) {
+                let json_item = to_borrowed_value(&mut line)?;
+                if self.item_has_duplicates(item) {
+                    embeddings.add(&json_item, item.i)?;
+                }
+            }
+        }
+        Ok(embeddings)
+    }
+
+    fn generate_ety_graph(
+        &self,
+        string_pool: &StringPool,
+        embeddings: &Embeddings,
+    ) -> Result<EtyGraph> {
         let mut ety_graph = EtyGraph::default();
         self.add_all_to_ety_graph(&mut ety_graph)?;
         self.impute_root_items(&mut ety_graph)?;
-        self.process_raw_descendants(string_pool, &mut ety_graph)?;
+        self.process_raw_descendants(string_pool, embeddings, &mut ety_graph)?;
         ety_graph.remove_cycles(string_pool, 1)?;
-        self.process_raw_etymologies(string_pool, &mut ety_graph)?;
+        self.process_raw_etymologies(string_pool, embeddings, &mut ety_graph)?;
         ety_graph.remove_cycles(string_pool, 2)?;
-        self.impute_root_etys(string_pool, &mut ety_graph)?;
+        self.impute_root_etys(string_pool, embeddings, &mut ety_graph)?;
         ety_graph.remove_cycles(string_pool, 3)?;
         Ok(ety_graph)
     }
@@ -1027,65 +1081,14 @@ impl Redirects {
     }
 }
 
-#[derive(Default)]
-struct EmbeddingMap {
-    map: HashMap<usize, Embedding>,
-}
-
-struct Embeddings {
-    model: SentenceEmbeddingsModel,
-    ety: EmbeddingMap,
-    glosses: EmbeddingMap,
-}
-
-impl Embeddings {
-    fn new() -> Result<Self> {
-        // https://www.sbert.net/docs/pretrained_models.html
-        // https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2
-        let model = SentenceEmbeddingsBuilder::remote(SentenceEmbeddingsModelType::AllMiniLmL6V2)
-            .create_model()?;
-        Ok(Self {
-            model,
-            ety: EmbeddingMap::default(),
-            glosses: EmbeddingMap::default(),
-        })
-    }
-    fn add(&mut self, json_item: &Value, i: usize) -> Result<()> {
-        if let Some(ety_text) = json_item.get_str("etymology_text")
-            && !ety_text.is_empty() {
-                let mut embedding = self.model.encode(&[ety_text])?;
-                self.ety.map.insert(i, embedding.pop().unwrap());
-            }
-        let mut glosses = String::new();
-        if let Some(senses) = json_item.get_array("senses") {
-            for sense in senses {
-                if let Some(gloss) = sense
-                    .get_array("glosses")
-                    .and_then(|glosses| glosses.get(0))
-                    .and_then(|gloss| gloss.as_str())
-                {
-                    glosses.push_str(gloss);
-                }
-            }
-        }
-        if !glosses.is_empty() {
-            let mut embedding = self.model.encode(&[&glosses])?;
-            self.glosses.map.insert(i, embedding.pop().unwrap());
-        }
-        Ok(())
-    }
-}
-
 struct RawDataProcessor {
     string_pool: StringPool,
-    embeddings: Embeddings,
 }
 
 impl RawDataProcessor {
     fn new() -> Result<Self> {
         Ok(Self {
             string_pool: StringPool::default(),
-            embeddings: Embeddings::new()?,
         })
     }
     fn process_derived_kind_json_template(
@@ -1620,7 +1623,12 @@ impl RawDataProcessor {
         })
     }
 
-    fn process_json_item(&mut self, items: &mut Items, json_item: &Value) -> Result<()> {
+    fn process_json_item(
+        &mut self,
+        items: &mut Items,
+        json_item: &Value,
+        line_number: usize,
+    ) -> Result<()> {
         // Some wiktionary pages are redirects. These are actually used somewhat
         // heavily, so we need to take them into account
         // https://github.com/tatuylonen/wiktextract#format-of-extracted-redirects
@@ -1656,6 +1664,7 @@ impl RawDataProcessor {
             let raw_descendants = self.process_json_descendants(json_item);
 
             let item = Item {
+                line: Some(line_number),
                 is_imputed: false,
                 // $$ This will not catch all reconstructed terms, since some terms
                 // in attested languages are reconstructed. Some better inference
@@ -1673,29 +1682,38 @@ impl RawDataProcessor {
                 raw_root,
                 raw_descendants,
             };
-            if let Some(i) = items.add(item)? {
-
+            if let Some(item) = items.add_to_term_map(item)? {
+                items.line_map.insert(line_number, item);
             }
         }
         Ok(())
     }
 
-    fn process_file(&mut self, file: File, is_gz_compressed: bool) -> Result<Items> {
+    fn process_json_items(&mut self, path: &Path) -> Result<Items> {
         let mut items = Items::default();
-        let reader = BufReader::new(file);
-        let uncompressed: Box<dyn Read> = if is_gz_compressed {
-            Box::new(GzDecoder::new(reader))
-        } else {
-            Box::new(reader)
-        };
-        let reader = BufReader::new(uncompressed);
-        let lines = ByteLines::new(reader);
-        for mut line in lines.into_iter().filter_map(Result::ok) {
+        for (line_number, mut line) in wiktextract_lines(path)?.enumerate() {
             let json_item = to_borrowed_value(&mut line)?;
-            self.process_json_item(&mut items, &json_item)?;
+            self.process_json_item(&mut items, &json_item, line_number)?;
         }
         Ok(items)
     }
+}
+
+fn wiktextract_lines(path: &Path) -> Result<impl Iterator<Item = Vec<u8>>> {
+    let file = File::open(path)?;
+    let reader = BufReader::new(file);
+    let is_gz_compressed = path.extension().is_some_and(|ext| ext == "gz");
+    let uncompressed: Box<dyn Read> = if is_gz_compressed {
+        Box::new(GzDecoder::new(reader))
+    } else {
+        Box::new(reader)
+    };
+    let reader = BufReader::new(uncompressed);
+    let lines = ByteLines::new(reader);
+    // We use into_iter() here and thereby allocate a Vec<u8> for each line, so
+    // that we have the convenience of returning an iterator. These allocations
+    // are not particularly a bottleneck relative to other things so it's fine.
+    Ok(lines.into_iter().filter_map(Result::ok))
 }
 
 fn clean_ety_term(term: &str) -> &str {
@@ -1803,18 +1821,20 @@ pub(crate) struct ProcessedData {
 /// data or writing to Turtle file.
 pub fn wiktextract_to_turtle(wiktextract_path: &Path, turtle_path: &Path) -> Result<Instant> {
     let mut t = Instant::now();
-    let file = File::open(wiktextract_path)?;
     println!(
         "Processing raw wiktextract data from {}...",
         wiktextract_path.display()
     );
     let mut processor = RawDataProcessor::new()?;
-    let is_gz_compressed = wiktextract_path.extension().is_some_and(|ext| ext == "gz");
-    let items = processor.process_file(file, is_gz_compressed)?;
+    let items = processor.process_json_items(wiktextract_path)?;
+    println!("Finished. Took {}.", HumanDuration(t.elapsed()));
+    t = Instant::now();
+    println!("Generating embeddings for ambiguous terms...");
+    let embeddings = items.generate_embeddings(wiktextract_path)?;
     println!("Finished. Took {}.", HumanDuration(t.elapsed()));
     t = Instant::now();
     println!("Generating ety graph...");
-    let ety_graph = items.generate_ety_graph(&processor.string_pool)?;
+    let ety_graph = items.generate_ety_graph(&processor.string_pool, &embeddings)?;
     println!("Finished. Took {}.", HumanDuration(t.elapsed()));
     println!("Writing RDF to Turtle file {}...", turtle_path.display());
     t = Instant::now();

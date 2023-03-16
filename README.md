@@ -8,7 +8,7 @@ If you do not have rust installed, [install it](https://www.rust-lang.org/tools/
 cargo run --release
 ```
 
-This will parse the raw data, process etymologies, and output a Turtle file and Oxigraph store. 
+This will parse the raw data, process etymologies, and output a Turtle file and Oxigraph store. Note that the first time this is run, the relevant `rust-bert` files will be downloaded from Hugging Face and placed in `~/.cache/.rustbert`. On subsequent runs, the files will be read from this cache rather than redownloaded. 
 
 ## Using local `wiktextract` data
 You can run my [fork](https://github.com/jmviz/wiktextract/tree/descendants) of wiktextract to get data for wiktionary `Descendants` sections which can then be used with `wety`. Here is the invocation I use to run it (refer to the `wiktextract` README for explanations of the arguments):
