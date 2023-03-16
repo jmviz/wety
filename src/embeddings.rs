@@ -186,8 +186,13 @@ impl EmbeddingComparand for Option<&Embedding> {
 
 impl EmbeddingComparand for &ItemEmbedding<'_> {
     fn cosine_similarity(self, other: Self) -> f32 {
-        let similarity_ety = self.ety.cosine_similarity(other.ety);
-        let similarity_glosses = self.glosses.cosine_similarity(other.glosses);
-        (similarity_ety + similarity_glosses) / 2.0
+        let glosses_similarity = self.glosses.cosine_similarity(other.glosses);
+        if let Some(self_ety) = self.ety
+            && let Some(other_ety) = other.ety
+            {
+                let ety_similarity = self_ety.cosine_similarity(other_ety);
+                return (ety_similarity + glosses_similarity) / 2.0
+            }
+        glosses_similarity
     }
 }
