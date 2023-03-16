@@ -9,6 +9,8 @@ use rust_bert::pipelines::sentence_embeddings::{
 };
 use simd_json::{value::borrowed::Value, ValueAccess};
 
+use crate::Item;
+
 const ETY_BATCH_SIZE: usize = 800;
 const GLOSSES_BATCH_SIZE: usize = 800;
 
@@ -67,6 +69,15 @@ impl EmbeddingBatch {
         }
         Ok(None)
     }
+    fn flush(&mut self) -> Result<Option<(Vec<usize>, Vec<Embedding>)>> {
+        if self.len() > 0 {
+            let items = take(&mut self.items);
+            let embeddings = self.model.encode(&self.texts)?;
+            self.clear();
+            return Ok(Some((items, embeddings)));
+        }
+        Ok(None)
+    }
 }
 
 struct EmbeddingMap {
@@ -89,6 +100,19 @@ impl EmbeddingMap {
         }
         Ok(())
     }
+    fn flush(&mut self) -> Result<()> {
+        if let Some((items, embeddings)) = self.batch.flush()? {
+            for (&item, embedding) in items.iter().zip(embeddings) {
+                self.map.insert(item, embedding);
+            }
+        }
+        Ok(())
+    }
+}
+
+pub(crate) struct ItemEmbedding<'a> {
+    ety: Option<&'a Embedding>,
+    glosses: Option<&'a Embedding>,
 }
 
 pub(crate) struct Embeddings {
@@ -112,10 +136,10 @@ impl Embeddings {
             glosses: EmbeddingMap::new(&model, GLOSSES_BATCH_SIZE, "glosses"),
         })
     }
-    pub(crate) fn add(&mut self, json_item: &Value, i: usize) -> Result<()> {
+    pub(crate) fn add(&mut self, json_item: &Value, item: &Rc<Item>) -> Result<()> {
         if let Some(ety_text) = json_item.get_str("etymology_text")
             && !ety_text.is_empty() {
-                self.ety.update(i, ety_text.to_string())?;
+                self.ety.update(item.i, ety_text.to_string())?;
             }
         let mut glosses_text = String::new();
         if let Some(senses) = json_item.get_array("senses") {
@@ -130,12 +154,54 @@ impl Embeddings {
             }
         }
         if !glosses_text.is_empty() {
-            self.glosses.update(i, glosses_text.to_string())?;
+            self.glosses.update(item.i, glosses_text.to_string())?;
         }
         Ok(())
     }
+    pub(crate) fn flush(&mut self) -> Result<()> {
+        self.ety.flush()?;
+        self.glosses.flush()?;
+        Ok(())
+    }
+    pub(crate) fn get(&self, item: &Rc<Item>) -> ItemEmbedding {
+        ItemEmbedding {
+            ety: self.ety.map.get(&item.i),
+            glosses: self.glosses.map.get(&item.i),
+        }
+    }
 }
 
-trait EmbeddingExt {
-    fn cosine_similarity(&self, other: &Embedding) -> f32 {}
+pub(crate) trait EmbeddingComparand {
+    fn cosine_similarity(self, other: Self) -> f32;
+}
+
+impl EmbeddingComparand for &Embedding {
+    fn cosine_similarity(self, other: Self) -> f32 {
+        let (mut ab, mut aa, mut bb) = (0.0, 0.0, 0.0);
+        for (a, b) in self.iter().zip(other) {
+            ab += a * b;
+            aa += a * a;
+            bb += b * b;
+        }
+        ab / (aa.sqrt() * bb.sqrt())
+    }
+}
+
+impl EmbeddingComparand for Option<&Embedding> {
+    fn cosine_similarity(self, other: Self) -> f32 {
+        if let Some(this) = self
+            && let Some(other) = other
+        {
+            return this.cosine_similarity(other);
+        }
+        0.0
+    }
+}
+
+impl EmbeddingComparand for &ItemEmbedding<'_> {
+    fn cosine_similarity(self, other: Self) -> f32 {
+        let similarity_ety = self.ety.cosine_similarity(other.ety);
+        let similarity_glosses = self.glosses.cosine_similarity(other.glosses);
+        (similarity_ety + similarity_glosses) / 2.0
+    }
 }

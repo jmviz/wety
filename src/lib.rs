@@ -1,6 +1,6 @@
 //! WIP attempt to digest etymologies from wiktextract data
 
-#![feature(is_some_and, let_chains, vec_push_within_capacity)]
+#![feature(is_some_and, let_chains)]
 #![allow(clippy::redundant_closure_for_method_calls)]
 
 mod embeddings;
@@ -10,6 +10,7 @@ mod pos;
 mod turtle;
 
 use crate::{
+    embeddings::{EmbeddingComparand, Embeddings, ItemEmbedding},
     etymology_templates::{EtyMode, TemplateKind},
     lang::{LANG_CODE2NAME, LANG_ETYCODE2CODE, LANG_NAME2CODE, LANG_RECONSTRUCTED},
     pos::POS,
@@ -29,7 +30,6 @@ use std::{
 
 use anyhow::{anyhow, Ok, Result};
 use bytelines::ByteLines;
-use embeddings::Embeddings;
 use flate2::read::GzDecoder;
 use hashbrown::{HashMap, HashSet};
 use indicatif::{HumanDuration, ProgressBar, ProgressStyle};
@@ -198,7 +198,7 @@ impl Items {
             lang_map.insert(lang, ety_map);
             self.term_map.insert(term, lang_map);
             self.n += 1;
-            return Ok(Some(Rc::clone(&item)));
+            return Ok(Some(item));
         }
         // since term has been seen before, there must be at least one lang for it
         // check if item's lang has been seen before
@@ -214,7 +214,7 @@ impl Items {
             ety_map.insert(ety_num, pos_map);
             lang_map.insert(lang, ety_map);
             self.n += 1;
-            return Ok(Some(Rc::clone(&item)));
+            return Ok(Some(item));
         }
         // since lang has been seen before, there must be at least one ety (possibly None)
         // check if this ety has been seen in this lang before
@@ -228,7 +228,7 @@ impl Items {
             pos_map.insert(pos, gloss_map);
             ety_map.insert(ety_num, pos_map);
             self.n += 1;
-            return Ok(Some(Rc::clone(&item)));
+            return Ok(Some(item));
         }
         // since ety has been seen before, there must be at least one pos
         // check if this pos has been seen for this ety before
@@ -240,7 +240,7 @@ impl Items {
             gloss_map.insert(item.gloss, Rc::clone(&item));
             pos_map.insert(pos, gloss_map);
             self.n += 1;
-            return Ok(Some(Rc::clone(&item)));
+            return Ok(Some(item));
         }
         // since pos has been seen before, there must be at least one gloss (possibly None)
         let gloss_map: &mut GlossMap = pos_map.get_mut(&item.pos).unwrap();
@@ -249,7 +249,7 @@ impl Items {
             let item = Rc::from(item);
             gloss_map.insert(item.gloss, Rc::clone(&item));
             self.n += 1;
-            return Ok(Some(Rc::clone(&item)));
+            return Ok(Some(item));
         }
         Ok(None)
     }
@@ -273,55 +273,54 @@ impl Items {
 
     fn get_disambiguated_item(
         &self,
-        string_pool: &StringPool,
-        sense: &Sense,
+        embeddings: &Embeddings,
+        item_embedding: &ItemEmbedding,
         lang: usize,
         term: SymbolU32,
     ) -> Option<&Rc<Item>> {
         let (lang, term) = self.rectify_lang_term(lang, term);
-        self.term_map
-            .get(&term)
-            .and_then(|lang_map| lang_map.get(&lang))
-            // If an ety_map is found, that means there is at least one item to
-            // collect after this nested iteration. See logic in Items::add()
-            // for why. Therefore, this function will always return either a
-            // non-empty Vec or None.
-            .and_then(|ety_map| {
-                ety_map
-                    .values()
-                    .flat_map(|pos_map| pos_map.values().flat_map(|gloss_map| gloss_map.values()))
-                    .max_by_key(|candidate| {
-                        let candidate_sense = Sense::new(string_pool, candidate);
-                        sense.lesk_score(&candidate_sense)
-                    })
-            })
+        let others = self.get_all_lang_term_items(lang, term)?;
+        let mut max_similarity = 0f32;
+        let mut best_candidate = 0usize;
+        for (i, other) in others.iter().enumerate() {
+            let other_embedding = embeddings.get(other);
+            let similarity = item_embedding.cosine_similarity(&other_embedding);
+            let old_max_similarity = max_similarity;
+            max_similarity = max_similarity.max(similarity);
+            if max_similarity > old_max_similarity {
+                best_candidate = i;
+            }
+        }
+        Some(others[best_candidate])
     }
 
-    fn get_item_lang_term_duplicates(&self, item: &Rc<Item>) -> Option<Vec<Rc<Item>>> {
-        let lang_map = self.term_map.get(&item.term)?;
-        let ety_map = lang_map.get(&item.lang)?;
-        let mut duplicates = vec![];
+    // returns all items that share the same lang and term
+    fn get_all_lang_term_items(&self, lang: usize, term: SymbolU32) -> Option<Vec<&Rc<Item>>> {
+        let lang_map = self.term_map.get(&term)?;
+        let ety_map = lang_map.get(&lang)?;
+        let mut items = vec![];
         for pos_map in ety_map.values() {
             for gloss_map in pos_map.values() {
-                for duplicate in gloss_map.values() {
-                    if duplicate != item {
-                        duplicates.push(Rc::clone(duplicate));
-                    }
+                for item in gloss_map.values() {
+                    items.push(item);
                 }
             }
         }
-        (!duplicates.is_empty()).then_some(duplicates)
+        (!items.is_empty()).then_some(items)
     }
 
+    // since get_all_lang_term_items will return at least the item itself, we
+    // need the len of items to be > 1
     fn item_has_duplicates(&self, item: &Rc<Item>) -> bool {
-        self.get_item_lang_term_duplicates(item).is_some()
+        self.get_all_lang_term_items(item.lang, item.term)
+            .is_some_and(|items| items.len() > 1)
     }
 
     // For now we'll just take the first template. But cf. notes.md.
     // Only to be called once all json items have been processed into items.
     fn process_item_raw_etymology(
         &self,
-        string_pool: &StringPool,
+        embeddings: &Embeddings,
         ety_graph: &mut EtyGraph,
         item: &Rc<Item>,
     ) {
@@ -331,12 +330,12 @@ impl Items {
         let mut current_item = Rc::clone(item); // for tracking possibly imputed items
         let mut next_item = Rc::clone(item); // for tracking possibly imputed items
         for template in item.raw_etymology.as_ref().unwrap().templates.iter() {
-            let sense = Sense::new(string_pool, &current_item);
+            let embedding = embeddings.get(&current_item);
             let mut ety_items = Vec::with_capacity(template.terms.len());
             let mut has_new_imputation = false;
             for (&ety_lang, &ety_term) in template.langs.iter().zip(template.terms.iter()) {
                 if let Some(ety_item) =
-                    self.get_disambiguated_item(string_pool, &sense, ety_lang, ety_term)
+                    self.get_disambiguated_item(embeddings, &embedding, ety_lang, ety_term)
                 {
                     // There exists at least one item for this lang term combo.
                     // We have to do a word sense disambiguation in case there
@@ -380,7 +379,7 @@ impl Items {
 
     fn process_item_raw_descendants(
         &self,
-        string_pool: &StringPool,
+        embeddings: &Embeddings,
         ety_graph: &mut EtyGraph,
         item: &Rc<Item>,
     ) {
@@ -431,7 +430,6 @@ impl Items {
             return;
         }
         let mut ancestors = Ancestors::new(item);
-        let mut ancestor_senses = HashMap::new();
         'outer: for line in item.raw_descendants.as_ref().unwrap().lines.iter() {
             let parent = ancestors.prune_and_get_parent(line.depth);
             match &line.kind {
@@ -440,14 +438,12 @@ impl Items {
                         continue;
                     }
                     let lang = desc.lang;
-                    let parent_sense = ancestor_senses
-                        .entry(parent.item.i)
-                        .or_insert_with(|| Sense::new(string_pool, &parent.item));
+                    let parent_embedding = embeddings.get(&parent.item);
                     let (mut desc_items, mut modes) = (vec![], vec![]);
                     for (i, (&term, &mode)) in desc.terms.iter().zip(desc.modes.iter()).enumerate()
                     {
                         let desc_item = self
-                            .get_disambiguated_item(string_pool, parent_sense, lang, term)
+                            .get_disambiguated_item(embeddings, &parent_embedding, lang, term)
                             .or_else(|| ety_graph.imputed_items.get(lang, term))
                             .map(Rc::clone);
                         // Borrow checker complains when I use map_or_else
@@ -562,7 +558,6 @@ impl Items {
 
     fn process_raw_etymologies(
         &self,
-        string_pool: &StringPool,
         embeddings: &Embeddings,
         ety_graph: &mut EtyGraph,
     ) -> Result<()> {
@@ -575,7 +570,7 @@ impl Items {
                 for pos_map in ety_map.values() {
                     for gloss_map in pos_map.values() {
                         for item in gloss_map.values() {
-                            self.process_item_raw_etymology(string_pool, ety_graph, item);
+                            self.process_item_raw_etymology(embeddings, ety_graph, item);
                             pb.inc(1);
                         }
                     }
@@ -588,7 +583,6 @@ impl Items {
 
     fn process_raw_descendants(
         &self,
-        string_pool: &StringPool,
         embeddings: &Embeddings,
         ety_graph: &mut EtyGraph,
     ) -> Result<()> {
@@ -601,7 +595,7 @@ impl Items {
                 for pos_map in ety_map.values() {
                     for gloss_map in pos_map.values() {
                         for item in gloss_map.values() {
-                            self.process_item_raw_descendants(string_pool, ety_graph, item);
+                            self.process_item_raw_descendants(embeddings, ety_graph, item);
                             pb.inc(1);
                         }
                     }
@@ -614,14 +608,14 @@ impl Items {
 
     fn impute_item_root_ety(
         &self,
-        string_pool: &StringPool,
         ety_graph: &mut EtyGraph,
-        sense: &Sense,
+        embeddings: &Embeddings,
+        embedding: &ItemEmbedding,
         item: &Rc<Item>,
     ) {
         if let Some(raw_root) = &item.raw_root
             && let Some(root_item) = self
-                .get_disambiguated_item(string_pool, sense, raw_root.lang, raw_root.term)
+                .get_disambiguated_item(embeddings, embedding, raw_root.lang, raw_root.term)
                 .or_else(|| ety_graph.imputed_items.get(raw_root.lang, raw_root.term))
         {
             let mut visited_items: HashSet<Rc<Item>> =
@@ -638,9 +632,9 @@ impl Items {
                 let ety_item = immediate_ety.items.iter().find(|ety_item| {
                     ety_item.raw_root.as_ref()
                         .and_then(|r| {
-                            let ety_item_sense = Sense::new(string_pool, ety_item);
+                            let ety_item_embedding = embeddings.get(ety_item);
                             self
-                                .get_disambiguated_item(string_pool, &ety_item_sense, r.lang, r.term)
+                                .get_disambiguated_item(embeddings, &ety_item_embedding, r.lang, r.term)
                                 .or_else(|| ety_graph.imputed_items.get(r.lang, r.term))})
                         .is_some_and(|ety_root_item| ety_root_item == root_item)
                 });
@@ -659,12 +653,7 @@ impl Items {
         }
     }
 
-    fn impute_root_etys(
-        &self,
-        string_pool: &StringPool,
-        embeddings: &Embeddings,
-        ety_graph: &mut EtyGraph,
-    ) -> Result<()> {
+    fn impute_root_etys(&self, embeddings: &Embeddings, ety_graph: &mut EtyGraph) -> Result<()> {
         let pb = ProgressBar::new(u64::try_from(self.n)?);
         pb.set_style(ProgressStyle::default_bar()
             .template("{spinner:.green} Imputing root etys: [{elapsed}] [{wide_bar:.cyan/blue}] {human_pos}/{human_len} ({per_sec}, {eta})")?
@@ -674,8 +663,8 @@ impl Items {
                 for pos_map in ety_map.values() {
                     for gloss_map in pos_map.values() {
                         for item in gloss_map.values() {
-                            let sense = Sense::new(string_pool, item);
-                            self.impute_item_root_ety(string_pool, ety_graph, &sense, item);
+                            let embedding = embeddings.get(item);
+                            self.impute_item_root_ety(ety_graph, embeddings, &embedding, item);
                             pb.inc(1);
                         }
                     }
@@ -696,10 +685,11 @@ impl Items {
             if let Some(item) = self.line_map.get(&line_number) {
                 let json_item = to_borrowed_value(&mut line)?;
                 if self.item_has_duplicates(item) {
-                    embeddings.add(&json_item, item.i)?;
+                    embeddings.add(&json_item, item)?;
                 }
             }
         }
+        embeddings.flush()?;
         Ok(embeddings)
     }
 
@@ -711,11 +701,11 @@ impl Items {
         let mut ety_graph = EtyGraph::default();
         self.add_all_to_ety_graph(&mut ety_graph)?;
         self.impute_root_items(&mut ety_graph)?;
-        self.process_raw_descendants(string_pool, embeddings, &mut ety_graph)?;
+        self.process_raw_descendants(embeddings, &mut ety_graph)?;
         ety_graph.remove_cycles(string_pool, 1)?;
-        self.process_raw_etymologies(string_pool, embeddings, &mut ety_graph)?;
+        self.process_raw_etymologies(embeddings, &mut ety_graph)?;
         ety_graph.remove_cycles(string_pool, 2)?;
-        self.impute_root_etys(string_pool, embeddings, &mut ety_graph)?;
+        self.impute_root_etys(embeddings, &mut ety_graph)?;
         ety_graph.remove_cycles(string_pool, 3)?;
         Ok(ety_graph)
     }
@@ -960,26 +950,6 @@ impl StringPool {
     }
     fn get_or_intern(&mut self, s: &str) -> SymbolU32 {
         self.pool.get_or_intern(s)
-    }
-}
-
-// Always short-lived struct used for sense disambiguation.
-struct Sense {
-    gloss: HashSet<String>,
-}
-
-impl Sense {
-    fn new(string_pool: &StringPool, item: &Rc<Item>) -> Sense {
-        let mut gloss = HashSet::new();
-        let gloss_str = item.gloss.map_or("", |g| string_pool.resolve(g));
-        for word in remove_punctuation(gloss_str).split_whitespace() {
-            gloss.insert(word.to_string());
-        }
-        Sense { gloss }
-    }
-    // https://en.wikipedia.org/wiki/Lesk_algorithm
-    fn lesk_score(&self, other: &Sense) -> usize {
-        self.gloss.intersection(&other.gloss).count()
     }
 }
 
@@ -1728,12 +1698,6 @@ fn clean_ety_term(term: &str) -> &str {
     term.strip_prefix('*').unwrap_or(term)
 }
 
-fn remove_punctuation(text: &str) -> String {
-    text.chars()
-        .filter(|c| !c.is_ascii_punctuation())
-        .collect::<String>()
-}
-
 fn should_ignore_term(term: &str, pos: &str) -> bool {
     // This function needs revisiting depending on results.
 
@@ -1746,10 +1710,7 @@ fn should_ignore_term(term: &str, pos: &str) -> bool {
     // that contain any ascii punctuation is too strict, as this would ingore
     // e.g. affixes with -. Ignoring terms with any ascii whitespace is too
     // strict as well, as this would ignore e.g. circumfixes (e.g. "ver- -en").
-    if pos.contains("phrase") || term.contains(|c: char| c == ',') {
-        return true;
-    }
-    false
+    pos.contains("phrase") || term.contains(|c: char| c == ',')
 }
 
 // We look for a canonical form, otherwise we take the "word" field.
