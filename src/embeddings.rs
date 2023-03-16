@@ -1,8 +1,7 @@
-use std::{mem::take, rc::Rc, time::Instant};
+use std::{mem::take, rc::Rc};
 
 use anyhow::Result;
 use hashbrown::HashMap;
-use indicatif::HumanDuration;
 use rust_bert::pipelines::sentence_embeddings::{
     Embedding, SentenceEmbeddingsBuilder, SentenceEmbeddingsConfig, SentenceEmbeddingsModel,
     SentenceEmbeddingsModelType,
@@ -19,19 +18,15 @@ struct EmbeddingBatch {
     texts: Vec<String>,
     max_size: usize,
     model: Rc<SentenceEmbeddingsModel>,
-    name: String,
-    n_batches: usize,
 }
 
 impl EmbeddingBatch {
-    fn new(model: &Rc<SentenceEmbeddingsModel>, size: usize, name: &str) -> Self {
+    fn new(model: &Rc<SentenceEmbeddingsModel>, size: usize) -> Self {
         Self {
             items: Vec::with_capacity(size),
             texts: Vec::with_capacity(size),
             max_size: size,
             model: Rc::clone(model),
-            name: name.into(),
-            n_batches: 0,
         }
     }
     fn len(&self) -> usize {
@@ -53,17 +48,8 @@ impl EmbeddingBatch {
     ) -> Result<Option<(Vec<usize>, Vec<Embedding>)>> {
         self.add(item, text);
         if self.len() >= self.max_size {
-            self.n_batches += 1;
             let items = take(&mut self.items);
-            let t = Instant::now();
             let embeddings = self.model.encode(&self.texts)?;
-            println!(
-                "Generated {} {} embeddings in total. Last batch of {} took {}.",
-                self.n_batches * self.max_size,
-                &self.name,
-                self.max_size,
-                HumanDuration(t.elapsed())
-            );
             self.clear();
             return Ok(Some((items, embeddings)));
         }
@@ -86,9 +72,9 @@ struct EmbeddingMap {
 }
 
 impl EmbeddingMap {
-    fn new(model: &Rc<SentenceEmbeddingsModel>, batch_size: usize, name: &str) -> Self {
+    fn new(model: &Rc<SentenceEmbeddingsModel>, batch_size: usize) -> Self {
         Self {
-            batch: EmbeddingBatch::new(model, batch_size, name),
+            batch: EmbeddingBatch::new(model, batch_size),
             map: HashMap::new(),
         }
     }
@@ -132,8 +118,8 @@ impl Embeddings {
         let maybe_cuda = if config.device.is_cuda() { "" } else { "non-" };
         println!("...Using {maybe_cuda}CUDA backend...");
         Ok(Self {
-            ety: EmbeddingMap::new(&model, ETY_BATCH_SIZE, "ety"),
-            glosses: EmbeddingMap::new(&model, GLOSSES_BATCH_SIZE, "glosses"),
+            ety: EmbeddingMap::new(&model, ETY_BATCH_SIZE),
+            glosses: EmbeddingMap::new(&model, GLOSSES_BATCH_SIZE),
         })
     }
     pub(crate) fn add(&mut self, json_item: &Value, item: &Rc<Item>) -> Result<()> {
