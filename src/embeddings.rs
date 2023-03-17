@@ -10,6 +10,18 @@ use simd_json::{value::borrowed::Value, ValueAccess};
 
 use crate::Item;
 
+#[derive(Clone, Copy)]
+pub(crate) struct ItemEmbedding<'a> {
+    ety: Option<&'a Embedding>,
+    glosses: Option<&'a Embedding>,
+}
+
+impl ItemEmbedding<'_> {
+    pub(crate) fn is_empty(&self) -> bool {
+        self.ety.is_none() && self.glosses.is_none()
+    }
+}
+
 const ETY_BATCH_SIZE: usize = 800;
 const GLOSSES_BATCH_SIZE: usize = 800;
 
@@ -94,11 +106,6 @@ impl EmbeddingMap {
         }
         Ok(())
     }
-}
-
-pub(crate) struct ItemEmbedding<'a> {
-    ety: Option<&'a Embedding>,
-    glosses: Option<&'a Embedding>,
 }
 
 pub(crate) struct Embeddings {
@@ -199,5 +206,16 @@ impl EmbeddingComparand for &ItemEmbedding<'_> {
                 return (ety_similarity + glosses_similarity) / 2.0
             }
         glosses_similarity
+    }
+}
+
+impl EmbeddingComparand for Option<&ItemEmbedding<'_>> {
+    fn cosine_similarity(self, other: Self) -> f32 {
+        if let Some(self_ie) = self
+            && let Some(other_ie) = other
+        {
+            return self_ie.cosine_similarity(other_ie);
+        }
+        0.0
     }
 }

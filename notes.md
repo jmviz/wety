@@ -1,13 +1,8 @@
-## Immediate TODOs
+## Things to consider for reducing RAM usage
 
-* Add senseid to items. Parse in JSON by finding ':' then taking everything after.
+* Use [`cacache`](https://docs.rs/cacache/latest/cacache/) to cache item embeddings, or potentially the entire item (implementing serialize on Item) and keeping only item id (or `sri` from `cacache`) in memory.
 
-* Implement better sense disambiguation.
-    * Take PoSs into account. This will be particularly helpful when items have no gloss. 
-    * Could add specific rules for the few templates where you would expect a different PoS, e.g. `deverbal`.
-    * Could do better than simple Lesk algorithm. For example, "poison" and "poisoned" don't match but should count as similar. 
-
-* Collect glosses from ety templates. These are quite commonly used and would be helpful for sense disambiguation as well as for having glosses for imputed terms. 
+* Restructure `TermMap` to be flatter, with a `LangTerm` struct key and a simple `Vec` of `i`s as key.
 
 ## Things to keep in mind
 

@@ -330,13 +330,22 @@ impl Items {
         }
         let mut current_item = Rc::clone(item); // for tracking possibly imputed items
         let mut next_item = Rc::clone(item); // for tracking possibly imputed items
+        let mut last_good_embedding = embeddings.get(&current_item);
         for template in item.raw_etymology.as_ref().unwrap().templates.iter() {
-            let embedding = embeddings.get(&current_item);
+            let mut current_embedding = embeddings.get(&current_item);
+            // Imputed items and the rare defective normal items with no glosses
+            // or ety will have no embeddings, so we need to fallback to get any
+            // kind of useful sense disambiguation.
+            if current_embedding.is_empty() {
+                current_embedding = last_good_embedding;
+            } else {
+                last_good_embedding = current_embedding;
+            };
             let mut ety_items = Vec::with_capacity(template.terms.len());
             let mut has_new_imputation = false;
             for (&ety_lang, &ety_term) in template.langs.iter().zip(template.terms.iter()) {
                 if let Some(ety_item) =
-                    self.get_disambiguated_item(embeddings, &embedding, ety_lang, ety_term)
+                    self.get_disambiguated_item(embeddings, &current_embedding, ety_lang, ety_term)
                 {
                     // There exists at least one item for this lang term combo.
                     // We have to do a word sense disambiguation in case there
@@ -425,6 +434,17 @@ impl Items {
                 let ancestor = Ancestor::new(item, depth);
                 self.ancestors.push(ancestor);
             }
+            // Imputed items and the rare defective normal items with no glosses or
+            // ety will have no embeddings, so we need to fallback to get any kind
+            // of useful sense disambiguation.
+            fn last_good_embedding<'a>(&self, embeddings: &'a Embeddings) -> ItemEmbedding<'a> {
+                self.ancestors
+                    .iter()
+                    .rev()
+                    .map(|ancestor| embeddings.get(&ancestor.item))
+                    .find(|item_embedding| !item_embedding.is_empty())
+                    .unwrap_or_else(|| embeddings.get(&self.progenitor.item))
+            }
         }
 
         if item.raw_descendants.is_none() {
@@ -439,12 +459,12 @@ impl Items {
                         continue;
                     }
                     let lang = desc.lang;
-                    let parent_embedding = embeddings.get(&parent.item);
+                    let last_good_embedding = ancestors.last_good_embedding(embeddings);
                     let (mut desc_items, mut modes) = (vec![], vec![]);
                     for (i, (&term, &mode)) in desc.terms.iter().zip(desc.modes.iter()).enumerate()
                     {
                         let desc_item = self
-                            .get_disambiguated_item(embeddings, &parent_embedding, lang, term)
+                            .get_disambiguated_item(embeddings, &last_good_embedding, lang, term)
                             .or_else(|| ety_graph.imputed_items.get(lang, term))
                             .map(Rc::clone);
                         // Borrow checker complains when I use map_or_else
@@ -475,6 +495,8 @@ impl Items {
                         {
                             continue 'outer;
                         }
+                        // Only use the first term in a multi-term desc line as
+                        // the ancestor for any deeper-nested lines below it.
                         if i == 0 {
                             ancestors.add(&desc_item, line.depth);
                         }
@@ -611,12 +633,6 @@ impl Items {
                 HashSet::from([Rc::clone(item), Rc::clone(root_item)]);
             let mut current_item = Rc::clone(item);
             while let Some(immediate_ety) = ety_graph.get_immediate_ety(&current_item) {
-                // If the root or any previously visited item is encountered
-                // again, don't impute anything, so we don't create or get
-                // caught in a cycle.
-                if visited_items.contains(&current_item) {
-                    return;
-                }
                 // If there are multiple ety items but one has the same root, pick this.
                 let ety_item = immediate_ety.items.iter().find(|ety_item| {
                     ety_item.raw_root.as_ref()
@@ -634,6 +650,12 @@ impl Items {
                 // There is no chance of guessing wrong if only 1 ety item.
                 let ety_item = ety_item.unwrap_or(&immediate_ety.items[0]);
                 current_item = Rc::clone(ety_item);
+                // If the root or any previously visited item is encountered
+                // again, don't impute anything, so we don't create or get
+                // caught in a cycle.
+                if visited_items.contains(&current_item) {
+                    return;
+                }
                 visited_items.insert(Rc::clone(&current_item));
             }
             if &current_item != root_item {
