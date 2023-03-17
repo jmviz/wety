@@ -4,6 +4,8 @@
 
 * Restructure `TermMap` to be flatter, with a `LangTerm` struct key and a simple `Vec` of `i`s as key.
 
+* Get rid of all the `Rc` stuff with the `Item`s. Make `TermMap` (or whatever that becomes in light of above bullet) own the `Item`s until the `EtyGraph` is created, at which point drain the `Item`s so that `EtyGraph` owns them. 
+
 ## Things to keep in mind
 
 * For many languages, Wiktionary makes a distinction between a term's "entryName" (i.e., the written form that acts as the title of its corresponding page, which is captured in wiktextract's `word` field.) and any "canonical" or otherwise used forms of the term as they may appear in etymology sections. For example, in Latin, macrons are omitted for a term's entryName, while macrons are supposed to be included in etymology sections (and therefore, in arguments in etymology templates). This leads to problems when trying to link a form listed in some etymology template argument with a corresponding wiktextract `word`. The rules for transforming a form of a term to its entryName form are contained in [Module:languages](https://en.wiktionary.org/wiki/Module:languages). In particular, the `Language:makeEntryName` function makes this conversion by applying specific rules for each language provided in the module's data submodules. For many languages, the rules are fairly simple character substitutions; but for others, the rules are a module unto themselves.  Therefore it would not be completely trivial to recreate all this behavior de novo. 

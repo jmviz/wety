@@ -1,3 +1,5 @@
+use crate::raw_items::RawItem;
+
 use std::{mem::take, rc::Rc};
 
 use anyhow::Result;
@@ -7,8 +9,6 @@ use rust_bert::pipelines::sentence_embeddings::{
     SentenceEmbeddingsModelType,
 };
 use simd_json::{value::borrowed::Value, ValueAccess};
-
-use crate::Item;
 
 #[derive(Clone, Copy)]
 pub(crate) struct ItemEmbedding<'a> {
@@ -129,7 +129,7 @@ impl Embeddings {
             glosses: EmbeddingMap::new(&model, GLOSSES_BATCH_SIZE),
         })
     }
-    pub(crate) fn add(&mut self, json_item: &Value, item: &Rc<Item>) -> Result<()> {
+    pub(crate) fn add(&mut self, json_item: &Value, item: &Rc<RawItem>) -> Result<()> {
         if !self.ety.map.contains_key(&item.i)
             && let Some(ety_text) = json_item.get_str("etymology_text")
             && !ety_text.is_empty()
@@ -161,7 +161,7 @@ impl Embeddings {
         self.glosses.flush()?;
         Ok(())
     }
-    pub(crate) fn get(&self, item: &Rc<Item>) -> ItemEmbedding {
+    pub(crate) fn get(&self, item: &Rc<RawItem>) -> ItemEmbedding {
         ItemEmbedding {
             ety: self.ety.map.get(&item.i),
             glosses: self.glosses.map.get(&item.i),
