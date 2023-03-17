@@ -503,7 +503,7 @@ impl Items {
     }
 
     fn add_all_to_ety_graph(&self, ety_graph: &mut EtyGraph) -> Result<()> {
-        let pb = progress_bar(self.n, "Adding items to ety graph")?;
+        let pb = progress_bar(self.n, "Adding items to ety graph", true)?;
         for lang_map in self.term_map.values() {
             for ety_map in lang_map.values() {
                 for pos_map in ety_map.values() {
@@ -522,7 +522,7 @@ impl Items {
     }
 
     fn impute_root_items(&self, ety_graph: &mut EtyGraph) -> Result<()> {
-        let pb = progress_bar(self.n, "Imputing roots")?;
+        let pb = progress_bar(self.n, "Imputing roots", true)?;
         let root_pos = Some(POS.get_expected_index("root")?);
         for lang_map in self.term_map.values() {
             for ety_map in lang_map.values() {
@@ -556,7 +556,7 @@ impl Items {
         embeddings: &Embeddings,
         ety_graph: &mut EtyGraph,
     ) -> Result<()> {
-        let pb = progress_bar(self.n, "Processing etymologies")?;
+        let pb = progress_bar(self.n, "Processing etymologies", true)?;
         for lang_map in self.term_map.values() {
             for ety_map in lang_map.values() {
                 for pos_map in ety_map.values() {
@@ -578,7 +578,7 @@ impl Items {
         embeddings: &Embeddings,
         ety_graph: &mut EtyGraph,
     ) -> Result<()> {
-        let pb = progress_bar(self.n, "Processing descendants")?;
+        let pb = progress_bar(self.n, "Processing descendants", true)?;
         for lang_map in self.term_map.values() {
             for ety_map in lang_map.values() {
                 for pos_map in ety_map.values() {
@@ -643,7 +643,7 @@ impl Items {
     }
 
     fn impute_root_etys(&self, embeddings: &Embeddings, ety_graph: &mut EtyGraph) -> Result<()> {
-        let pb = progress_bar(self.n, "Imputing root etys")?;
+        let pb = progress_bar(self.n, "Imputing root etys", true)?;
         for lang_map in self.term_map.values() {
             for ety_map in lang_map.values() {
                 for pos_map in ety_map.values() {
@@ -667,6 +667,7 @@ impl Items {
         let pb = progress_bar(
             self.total_ok_lines_in_file,
             "Generating embeddings for ambiguous items",
+            false,
         )?;
         let mut embeddings = Embeddings::new()?;
         for (line_number, mut line) in wiktextract_lines(path)?.enumerate() {
@@ -674,9 +675,10 @@ impl Items {
             // the term_map in process_json_item.
             if let Some(item) = self.line_map.get(&line_number) {
                 let json_item = to_borrowed_value(&mut line)?;
-                if self.item_has_duplicates(item) {
-                    embeddings.add(&json_item, item)?;
-                }
+                // if self.item_has_duplicates(item) {
+                //     embeddings.add(&json_item, item)?;
+                // }
+                embeddings.add(&json_item, item)?;
             }
             pb.inc(1);
         }
@@ -1763,9 +1765,10 @@ fn get_desc_mode(args: &Value, n: usize) -> EtyMode {
     DEFAULT
 }
 
-fn progress_bar(n: usize, message: &str) -> Result<ProgressBar> {
+fn progress_bar(n: usize, message: &str, eta: bool) -> Result<ProgressBar> {
     let pb = ProgressBar::new(u64::try_from(n)?);
-    let template = format!("{{spinner:.green}} {message}: [{{elapsed}}] [{{wide_bar:.cyan/blue}}] {{human_pos}}/{{human_len}} ({{per_sec}}, {{eta}})");
+    let eta = if eta { " ({per_sec}, {eta})" } else { "" };
+    let template = format!("{{spinner:.green}} {message}: [{{elapsed}}] [{{wide_bar:.cyan/blue}}] {{human_pos}}/{{human_len}}{eta}");
     pb.set_style(
         ProgressStyle::default_bar()
             .template(&template)?

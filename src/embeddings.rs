@@ -116,31 +116,36 @@ impl Embeddings {
         );
         let config = SentenceEmbeddingsConfig::from(SentenceEmbeddingsModelType::AllMiniLmL6V2);
         let maybe_cuda = if config.device.is_cuda() { "" } else { "non-" };
-        println!("...Using {maybe_cuda}CUDA backend...");
+        println!("Using {maybe_cuda}CUDA backend for embeddings...");
         Ok(Self {
             ety: EmbeddingMap::new(&model, ETY_BATCH_SIZE),
             glosses: EmbeddingMap::new(&model, GLOSSES_BATCH_SIZE),
         })
     }
     pub(crate) fn add(&mut self, json_item: &Value, item: &Rc<Item>) -> Result<()> {
-        if let Some(ety_text) = json_item.get_str("etymology_text")
-            && !ety_text.is_empty() {
+        if !self.ety.map.contains_key(&item.i)
+            && let Some(ety_text) = json_item.get_str("etymology_text")
+            && !ety_text.is_empty()
+            {
                 self.ety.update(item.i, ety_text.to_string())?;
             }
-        let mut glosses_text = String::new();
-        if let Some(senses) = json_item.get_array("senses") {
-            for sense in senses {
-                if let Some(gloss) = sense
-                    .get_array("glosses")
-                    .and_then(|glosses| glosses.get(0))
-                    .and_then(|gloss| gloss.as_str())
-                {
-                    glosses_text.push_str(gloss);
+        if !self.glosses.map.contains_key(&item.i) {
+            let mut glosses_text = String::new();
+            if let Some(senses) = json_item.get_array("senses") {
+                for sense in senses {
+                    if let Some(gloss) = sense
+                        .get_array("glosses")
+                        .and_then(|glosses| glosses.get(0))
+                        .and_then(|gloss| gloss.as_str())
+                    {
+                        glosses_text.push_str(gloss);
+                        glosses_text.push(' ');
+                    }
                 }
             }
-        }
-        if !glosses_text.is_empty() {
-            self.glosses.update(item.i, glosses_text.to_string())?;
+            if !glosses_text.is_empty() {
+                self.glosses.update(item.i, glosses_text.to_string())?;
+            }
         }
         Ok(())
     }
