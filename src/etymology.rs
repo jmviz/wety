@@ -422,7 +422,7 @@ impl RawItems {
         embeddings: &Embeddings,
         ety_graph: &mut EtyGraph,
     ) -> Result<()> {
-        let pb = progress_bar(self.n, "Processing etymologies", true)?;
+        let pb = progress_bar(self.n, "Processing etymologies")?;
         for lang_map in self.term_map.values() {
             for ety_map in lang_map.values() {
                 for pos_map in ety_map.values() {

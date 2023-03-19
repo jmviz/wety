@@ -51,10 +51,9 @@ impl RawDataProcessor {
     }
 }
 
-pub(crate) fn progress_bar(n: usize, message: &str, eta: bool) -> Result<ProgressBar> {
+pub(crate) fn progress_bar(n: usize, message: &str) -> Result<ProgressBar> {
     let pb = ProgressBar::new(u64::try_from(n)?);
-    let eta = if eta { " ({per_sec}, {eta})" } else { "" };
-    let template = format!("{{spinner:.green}} {message}: [{{elapsed}}] [{{bar:.cyan/blue}}] {{human_pos}}/{{human_len}}{eta}");
+    let template = format!("{{spinner:.green}} {message}: [{{elapsed}}] [{{bar:.cyan/blue}}] {{human_pos}}/{{human_len}} ({{per_sec}}, {{eta}})");
     pb.set_style(
         ProgressStyle::default_bar()
             .template(&template)?
@@ -87,15 +86,12 @@ pub fn wiktextract_to_turtle(wiktextract_path: &Path, turtle_path: &Path) -> Res
     println!("Generating ety graph...");
     let ety_graph = items.generate_ety_graph(&processor.string_pool, &embeddings)?;
     println!("Finished. Took {}.", HumanDuration(t.elapsed()));
-    println!("Writing RDF to Turtle file {}...", turtle_path.display());
-    t = Instant::now();
     let data = ProcessedData {
         string_pool: processor.string_pool,
         items,
         ety_graph,
     };
     write_turtle_file(&data, turtle_path)?;
-    println!("Finished. Took {}.", HumanDuration(t.elapsed()));
     t = Instant::now();
     println!("Dropping all processed data...");
     Ok(t)

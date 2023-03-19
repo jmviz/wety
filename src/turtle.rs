@@ -3,6 +3,7 @@ use crate::{
     lang_phf::LANG_CODE2NAME,
     phf_ext::{OrderedMapExt, OrderedSetExt},
     pos_phf::POS,
+    progress_bar,
     raw_items::RawItem,
     ProcessedData,
 };
@@ -15,7 +16,6 @@ use std::{
 };
 
 use anyhow::{Ok, Result};
-use indicatif::{ProgressBar, ProgressStyle};
 use urlencoding::encode;
 
 const WIKTIONARY_PRE: &str = "k:";
@@ -180,11 +180,8 @@ fn write_item(
 pub(crate) fn write_turtle_file(data: &ProcessedData, path: &Path) -> Result<()> {
     let mut f = BufWriter::new(File::create(path)?);
     write_prefixes(&mut f)?;
-    let n = u64::try_from(data.items.n + data.ety_graph.imputed_items.n)?;
-    let pb = ProgressBar::new(n);
-    pb.set_style(ProgressStyle::default_bar()
-            .template("{spinner:.green} [{elapsed}] [{wide_bar:.cyan/blue}] {human_pos}/{human_len} ({per_sec}, {eta})")?
-            .progress_chars("#>-"));
+    let n = data.items.n + data.ety_graph.imputed_items.n;
+    let pb = progress_bar(n, "Writing RDF to Turtle file data/wety.ttl")?;
     for lang_map in data.items.term_map.values() {
         for ety_map in lang_map.values() {
             for pos_map in ety_map.values() {

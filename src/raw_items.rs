@@ -243,7 +243,7 @@ impl RawItems {
     }
 
     fn get_all_items_needing_embedding(&self) -> Result<HashSet<Rc<RawItem>>> {
-        let pb = progress_bar(self.n, "Determining which items need embeddings", true)?;
+        let pb = progress_bar(self.n, "Determining which items need embeddings")?;
         let mut items_needing_embedding = HashSet::new();
         for lang_map in self.term_map.values() {
             for ety_map in lang_map.values() {
@@ -270,7 +270,7 @@ impl RawItems {
         const EMBEDDINGS_UPDATE_INTERVAL: usize = EMBEDDING_BATCH_SIZE * 10;
         let mut added = 0;
         let items_needing_embedding = self.get_all_items_needing_embedding()?;
-        let pb = progress_bar(items_needing_embedding.len(), "Generating embeddings", true)?;
+        let pb = progress_bar(items_needing_embedding.len(), "Generating embeddings")?;
         let mut embeddings = Embeddings::new()?;
         for (line_number, mut line) in wiktextract_lines(path)?.enumerate() {
             // Items were only inserted into the line map if they were added to
@@ -292,7 +292,7 @@ impl RawItems {
     }
 
     fn add_all_to_ety_graph(&self, ety_graph: &mut EtyGraph) -> Result<()> {
-        let pb = progress_bar(self.n, "Adding items to ety graph", true)?;
+        let pb = progress_bar(self.n, "Adding items to ety graph")?;
         for lang_map in self.term_map.values() {
             for ety_map in lang_map.values() {
                 for pos_map in ety_map.values() {

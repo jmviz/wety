@@ -124,7 +124,7 @@ impl RawDataProcessor {
 
 impl RawItems {
     pub(crate) fn impute_root_items(&self, ety_graph: &mut EtyGraph) -> Result<()> {
-        let pb = progress_bar(self.n, "Imputing roots", true)?;
+        let pb = progress_bar(self.n, "Imputing roots")?;
         let root_pos = Some(POS.get_expected_index("root")?);
         for lang_map in self.term_map.values() {
             for ety_map in lang_map.values() {
@@ -206,7 +206,7 @@ impl RawItems {
         embeddings: &Embeddings,
         ety_graph: &mut EtyGraph,
     ) -> Result<()> {
-        let pb = progress_bar(self.n, "Imputing root etys", true)?;
+        let pb = progress_bar(self.n, "Imputing root etys")?;
         for lang_map in self.term_map.values() {
             for ety_map in lang_map.values() {
                 for pos_map in ety_map.values() {
