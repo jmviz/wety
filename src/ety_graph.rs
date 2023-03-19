@@ -60,10 +60,11 @@ impl ImputedItems {
             self.n += 1;
         }
     }
-    pub(crate) fn get(&self, lang: usize, term: Symbol) -> Option<&Rc<RawItem>> {
+    pub(crate) fn get(&self, lang: usize, term: Symbol) -> Option<Rc<RawItem>> {
         self.term_map
             .get(&term)
             .and_then(|lang_map| lang_map.get(&lang))
+            .map(Rc::clone)
     }
 }
 

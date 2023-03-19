@@ -153,27 +153,31 @@ impl RawItems {
             .map_or(false, |lang_map| lang_map.contains_key(&lang))
     }
 
-    pub(crate) fn get_disambiguated_item(
+    pub(crate) fn get_disambiguated_item<'a>(
         &self,
-        embeddings: &Embeddings,
-        item_embedding: &ItemEmbedding,
+        // string_pool: &StringPool,
+        embeddings: &'a Embeddings,
+        embedding: impl EmbeddingComparand<ItemEmbedding<'a>> + Copy,
         lang: usize,
         term: Symbol,
-    ) -> Option<&Rc<RawItem>> {
+    ) -> Option<Rc<RawItem>> {
+        // if LANG_CODE2NAME.get_index_value(lang) == "English" && string_pool.resolve(term) == "min" {
+        //     println!("hey");
+        // }
         let (lang, term) = self.redirects.rectify_lang_term(lang, term);
-        let others = self.get_all_lang_term_items(lang, term)?;
+        let candidate_items = self.get_all_lang_term_items(lang, term)?;
         let mut max_similarity = 0f32;
         let mut best_candidate = 0usize;
-        for (i, other) in others.iter().enumerate() {
-            let other_embedding = embeddings.get(other);
-            let similarity = item_embedding.cosine_similarity(&other_embedding);
+        for (i, candidate) in candidate_items.iter().enumerate() {
+            let candidate_embedding = embeddings.get(candidate);
+            let similarity = embedding.cosine_similarity(candidate_embedding);
             let old_max_similarity = max_similarity;
             max_similarity = max_similarity.max(similarity);
             if max_similarity > old_max_similarity {
                 best_candidate = i;
             }
         }
-        Some(others[best_candidate])
+        Some(candidate_items[best_candidate].clone())
     }
 
     // returns all items that share the same lang and term
@@ -181,14 +185,14 @@ impl RawItems {
         &self,
         lang: usize,
         term: Symbol,
-    ) -> Option<Vec<&Rc<RawItem>>> {
+    ) -> Option<Vec<Rc<RawItem>>> {
         let lang_map = self.term_map.get(&term)?;
         let ety_map = lang_map.get(&lang)?;
         let mut items = vec![];
         for pos_map in ety_map.values() {
             for gloss_map in pos_map.values() {
                 for item in gloss_map.values() {
-                    items.push(item);
+                    items.push(item.clone());
                 }
             }
         }
@@ -228,69 +232,14 @@ impl RawItems {
         }
         if let Some(raw_root) = &item.raw_root
             && let Some(root_items) = self.get_all_lang_term_items(raw_root.lang, raw_root.term)
+            && root_items.len() > 1
         {
+            items_needing_embedding.insert(Rc::clone(item));
             for root_item in &root_items {
                 items_needing_embedding.insert(Rc::clone(root_item));
             }
         }
-
         items_needing_embedding
-    }
-
-    fn get_ety_items_needing_embedding(
-        &self,
-        item: &Rc<RawItem>,
-        raw_etymology: &RawEtymology,
-    ) -> HashSet<Rc<RawItem>> {
-        let mut items_needing_embedding = HashSet::new();
-        let mut parent_items = vec![Rc::clone(item)];
-        let mut has_ambiguous_child = false;
-        let mut has_imputed_child = false;
-        for template in raw_etymology.templates.iter() {
-            let mut next_parent_items = vec![];
-            for (&lang, &term) in template.langs.iter().zip(template.terms.iter()) {
-                if let Some(ety_items) = self.get_all_lang_term_items(lang, term) {
-                    if ety_items.len() > 1 {
-                        // i.e. (lang, term) is ambiguous
-                        has_ambiguous_child = true;
-                        for ety_item in &ety_items {
-                            items_needing_embedding.insert(Rc::clone(ety_item));
-                        }
-                    }
-                    for ety_item in &ety_items {
-                        next_parent_items.push(Rc::clone(ety_item));
-                    }
-                } else {
-                    has_imputed_child = true;
-                }
-            }
-            if has_ambiguous_child || has_imputed_child {
-                for parent_item in &parent_items {
-                    items_needing_embedding.insert(Rc::clone(parent_item));
-                }
-            }
-            parent_items = next_parent_items;
-        }
-        items_needing_embedding
-    }
-
-    fn add_all_to_ety_graph(&self, ety_graph: &mut EtyGraph) -> Result<()> {
-        let pb = progress_bar(self.n, "Adding items to ety graph", true)?;
-        for lang_map in self.term_map.values() {
-            for ety_map in lang_map.values() {
-                for pos_map in ety_map.values() {
-                    for gloss_map in pos_map.values() {
-                        for item in gloss_map.values() {
-                            ety_graph.add(&Rc::clone(item));
-                            pb.inc(1);
-                        }
-                    }
-                }
-            }
-        }
-
-        pb.finish();
-        Ok(())
     }
 
     fn get_all_items_needing_embedding(&self) -> Result<HashSet<Rc<RawItem>>> {
@@ -318,6 +267,8 @@ impl RawItems {
     // We go through the wiktextract file again, generating embeddings for all
     // ambiguous terms we found the first time.
     pub(crate) fn generate_embeddings(&self, path: &Path) -> Result<Embeddings> {
+        const EMBEDDINGS_UPDATE_INTERVAL: u64 = 8000;
+        let mut added = 0;
         let items_needing_embedding = self.get_all_items_needing_embedding()?;
         let pb = progress_bar(
             items_needing_embedding.len(),
@@ -333,12 +284,34 @@ impl RawItems {
             {
                 let json_item = to_borrowed_value(&mut line)?;
                 embeddings.add(&json_item, item)?;
-                pb.inc(1);
+                added += 1;
+                if added % EMBEDDINGS_UPDATE_INTERVAL == 0 {
+                    pb.inc(EMBEDDINGS_UPDATE_INTERVAL);
+                }
             }
         }
         embeddings.flush()?;
         pb.finish();
         Ok(embeddings)
+    }
+
+    fn add_all_to_ety_graph(&self, ety_graph: &mut EtyGraph) -> Result<()> {
+        let pb = progress_bar(self.n, "Adding items to ety graph", true)?;
+        for lang_map in self.term_map.values() {
+            for ety_map in lang_map.values() {
+                for pos_map in ety_map.values() {
+                    for gloss_map in pos_map.values() {
+                        for item in gloss_map.values() {
+                            ety_graph.add(&Rc::clone(item));
+                            pb.inc(1);
+                        }
+                    }
+                }
+            }
+        }
+
+        pb.finish();
+        Ok(())
     }
 
     pub(crate) fn generate_ety_graph(

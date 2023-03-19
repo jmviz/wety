@@ -54,7 +54,7 @@ impl RawDataProcessor {
 pub(crate) fn progress_bar(n: usize, message: &str, eta: bool) -> Result<ProgressBar> {
     let pb = ProgressBar::new(u64::try_from(n)?);
     let eta = if eta { " ({per_sec}, {eta})" } else { "" };
-    let template = format!("{{spinner:.green}} {message}: [{{elapsed}}] [{{wide_bar:.cyan/blue}}] {{human_pos}}/{{human_len}}{eta}");
+    let template = format!("{{spinner:.green}} {message}: [{{elapsed}}] [{{bar:.cyan/blue}}] {{human_pos}}/{{human_len}}{eta}");
     pb.set_style(
         ProgressStyle::default_bar()
             .template(&template)?

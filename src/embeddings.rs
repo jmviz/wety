@@ -1,4 +1,4 @@
-use crate::raw_items::RawItem;
+use crate::{raw_items::RawItem, wiktextract_json::WiktextractJson};
 
 use std::{mem::take, rc::Rc};
 
@@ -8,7 +8,7 @@ use rust_bert::pipelines::sentence_embeddings::{
     Embedding, SentenceEmbeddingsBuilder, SentenceEmbeddingsConfig, SentenceEmbeddingsModel,
     SentenceEmbeddingsModelType,
 };
-use simd_json::{value::borrowed::Value, ValueAccess};
+use simd_json::ValueAccess;
 
 #[derive(Clone, Copy)]
 pub(crate) struct ItemEmbedding<'a> {
@@ -129,7 +129,10 @@ impl Embeddings {
             glosses: EmbeddingMap::new(&model, GLOSSES_BATCH_SIZE),
         })
     }
-    pub(crate) fn add(&mut self, json_item: &Value, item: &Rc<RawItem>) -> Result<()> {
+    pub(crate) fn add(&mut self, json_item: &WiktextractJson, item: &Rc<RawItem>) -> Result<()> {
+        if json_item.get_str("word").is_some_and(|w| w == "min") {
+            println!("hey");
+        }
         if !self.ety.map.contains_key(&item.i)
             && let Some(ety_text) = json_item.get_str("etymology_text")
             && !ety_text.is_empty()
@@ -169,12 +172,12 @@ impl Embeddings {
     }
 }
 
-pub(crate) trait EmbeddingComparand {
-    fn cosine_similarity(self, other: Self) -> f32;
+pub(crate) trait EmbeddingComparand<T> {
+    fn cosine_similarity(self, other: T) -> f32;
 }
 
-impl EmbeddingComparand for &Embedding {
-    fn cosine_similarity(self, other: Self) -> f32 {
+impl EmbeddingComparand<&Embedding> for &Embedding {
+    fn cosine_similarity(self, other: &Embedding) -> f32 {
         let (mut ab, mut aa, mut bb) = (0.0, 0.0, 0.0);
         for (a, b) in self.iter().zip(other) {
             ab += a * b;
@@ -185,8 +188,8 @@ impl EmbeddingComparand for &Embedding {
     }
 }
 
-impl EmbeddingComparand for Option<&Embedding> {
-    fn cosine_similarity(self, other: Self) -> f32 {
+impl EmbeddingComparand<Option<&Embedding>> for Option<&Embedding> {
+    fn cosine_similarity(self, other: Option<&Embedding>) -> f32 {
         if let Some(this) = self
             && let Some(other) = other
         {
@@ -196,25 +199,52 @@ impl EmbeddingComparand for Option<&Embedding> {
     }
 }
 
-impl EmbeddingComparand for &ItemEmbedding<'_> {
-    fn cosine_similarity(self, other: Self) -> f32 {
+const ETY_WEIGHT: f32 = 0.5;
+const GLOSSES_WEIGHT: f32 = 1.0 - ETY_WEIGHT;
+
+impl EmbeddingComparand<ItemEmbedding<'_>> for ItemEmbedding<'_> {
+    fn cosine_similarity(self, other: ItemEmbedding<'_>) -> f32 {
         let glosses_similarity = self.glosses.cosine_similarity(other.glosses);
         if let Some(self_ety) = self.ety
             && let Some(other_ety) = other.ety
             {
                 let ety_similarity = self_ety.cosine_similarity(other_ety);
-                return (ety_similarity + glosses_similarity) / 2.0
+                return ETY_WEIGHT * ety_similarity + GLOSSES_WEIGHT * glosses_similarity
             }
         glosses_similarity
     }
 }
 
-impl EmbeddingComparand for Option<&ItemEmbedding<'_>> {
-    fn cosine_similarity(self, other: Self) -> f32 {
-        if let Some(self_ie) = self
-            && let Some(other_ie) = other
-        {
-            return self_ie.cosine_similarity(other_ie);
+const DISCOUNT: f32 = 0.95;
+const ETY_QUALITY: f32 = 1.0;
+const NO_ETY_QUALITY: f32 = 0.5;
+const EMPTY_QUALITY: f32 = 0.0;
+
+// for comparing an item with all its ancestors
+impl EmbeddingComparand<ItemEmbedding<'_>> for &Vec<ItemEmbedding<'_>> {
+    fn cosine_similarity(self, other: ItemEmbedding<'_>) -> f32 {
+        if other.is_empty() {
+            return 0.0;
+        }
+        let mut total_similarity = 0.0;
+        let mut discount = 1.0;
+        let mut total_weight = 0.0;
+        for &ancestor in self.iter().rev() {
+            let similarity = other.cosine_similarity(ancestor);
+            let quality = if other.ety.is_some() && ancestor.ety.is_some() {
+                ETY_QUALITY
+            } else if !ancestor.is_empty() {
+                NO_ETY_QUALITY
+            } else {
+                EMPTY_QUALITY
+            };
+            let weight = discount * quality;
+            total_similarity += weight * similarity;
+            total_weight += weight;
+            discount *= DISCOUNT;
+        }
+        if total_weight > 0.0 {
+            return total_similarity / total_weight;
         }
         0.0
     }

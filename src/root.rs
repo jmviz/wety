@@ -1,5 +1,3 @@
-use std::rc::Rc;
-
 use crate::{
     embeddings::{Embeddings, ItemEmbedding},
     ety_graph::EtyGraph,
@@ -13,6 +11,8 @@ use crate::{
     wiktextract_json::{WiktextractJson, WiktextractJsonAccess},
     RawDataProcessor,
 };
+
+use std::rc::Rc;
 
 use anyhow::{Ok, Result};
 use hashbrown::HashSet;
@@ -157,7 +157,7 @@ impl RawItems {
         &self,
         ety_graph: &mut EtyGraph,
         embeddings: &Embeddings,
-        embedding: &ItemEmbedding,
+        embedding: ItemEmbedding,
         item: &Rc<RawItem>,
     ) {
         if let Some(raw_root) = &item.raw_root
@@ -166,16 +166,17 @@ impl RawItems {
                 .or_else(|| ety_graph.imputed_items.get(raw_root.lang, raw_root.term))
         {
             let mut visited_items: HashSet<Rc<RawItem>> =
-                HashSet::from([Rc::clone(item), Rc::clone(root_item)]);
+                HashSet::from([Rc::clone(item), Rc::clone(&root_item)]);
             let mut current_item = Rc::clone(item);
+            let mut item_embeddings = vec![embedding];
             while let Some(immediate_ety) = ety_graph.get_immediate_ety(&current_item) {
                 // If there are multiple ety items but one has the same root, pick this.
                 let ety_item = immediate_ety.items.iter().find(|ety_item| {
                     ety_item.raw_root.as_ref()
                         .and_then(|r| {
-                            let ety_item_embedding = embeddings.get(ety_item);
+                            item_embeddings.push(embeddings.get(ety_item));
                             self
-                                .get_disambiguated_item(embeddings, &ety_item_embedding, r.lang, r.term)
+                                .get_disambiguated_item(embeddings, &item_embeddings, r.lang, r.term)
                                 .or_else(|| ety_graph.imputed_items.get(r.lang, r.term))})
                         .is_some_and(|ety_root_item| ety_root_item == root_item)
                 });
@@ -194,8 +195,8 @@ impl RawItems {
                 }
                 visited_items.insert(Rc::clone(&current_item));
             }
-            if &current_item != root_item {
-                ety_graph.add_ety(&current_item, EtyMode::Root, 0u8, &[Rc::clone(root_item)]);
+            if current_item != root_item {
+                ety_graph.add_ety(&current_item, EtyMode::Root, 0u8, &[Rc::clone(&root_item)]);
             }
         }
     }
@@ -212,7 +213,7 @@ impl RawItems {
                     for gloss_map in pos_map.values() {
                         for item in gloss_map.values() {
                             let embedding = embeddings.get(item);
-                            self.impute_item_root_ety(ety_graph, embeddings, &embedding, item);
+                            self.impute_item_root_ety(ety_graph, embeddings, embedding, item);
                             pb.inc(1);
                         }
                     }

@@ -233,59 +233,70 @@ fn get_desc_mode(args: &WiktextractJson, n: usize) -> EtyMode {
     DEFAULT
 }
 
-#[derive(Clone, PartialEq, Eq)]
-pub(crate) struct Ancestor {
-    item: Rc<RawItem>,
-    depth: u8,
+struct Ancestors<T: Clone> {
+    ancestors: Vec<T>,
+    depths: Vec<u8>,
+    // progenitor: Ancestor<T>,
 }
-impl Ancestor {
-    pub(crate) fn new(item: &Rc<RawItem>, depth: u8) -> Self {
+impl<T: Clone> Ancestors<T> {
+    fn new(item: &T) -> Self {
         Self {
-            item: Rc::clone(item),
-            depth,
+            ancestors: vec![item.clone()],
+            depths: vec![0],
         }
     }
-}
-pub(crate) struct Ancestors {
-    ancestors: Vec<Ancestor>,
-    progenitor: Ancestor,
-}
-impl Ancestors {
-    pub(crate) fn new(item: &Rc<RawItem>) -> Self {
-        Self {
-            ancestors: vec![],
-            progenitor: Ancestor::new(item, 0),
+    // fn progenitor(&self) -> T {
+    //     self.ancestors
+    //         .get(0)
+    //         .map(T::clone)
+    //         .expect("ancestors always contains at least the progenitor")
+    // }
+    fn remove_last(&mut self) {
+        self.ancestors.pop();
+        self.depths.pop();
+    }
+    fn prune(&mut self, depth: u8) {
+        while let Some(&ancestor_depth) = self.depths.last()
+            && depth <= ancestor_depth
+            && self.depths.len() > 1 // ensure at least progenitor remains
+        {
+            self.remove_last();
         }
     }
-    pub(crate) fn prune(&mut self, depth: u8) {
-        while let Some(ancestor) = self.ancestors.last().map(Ancestor::clone)
-                    && depth <= ancestor.depth
-                {
-                    self.ancestors.pop();
-                }
-    }
-    pub(crate) fn prune_and_get_parent(&mut self, depth: u8) -> Ancestor {
+    fn prune_and_get_parent(&mut self, depth: u8) -> T {
         self.prune(depth);
         self.ancestors
             .last()
-            .map_or_else(|| self.progenitor.clone(), Ancestor::clone)
+            .map(T::clone)
+            .expect("ancestors always contains at least the progenitor")
     }
-    pub(crate) fn add(&mut self, item: &Rc<RawItem>, depth: u8) {
-        let ancestor = Ancestor::new(item, depth);
-        self.ancestors.push(ancestor);
-    }
-    // Imputed items and the rare defective normal items with no glosses or
-    // ety will have no embeddings, so we need to fallback to get any kind
-    // of useful sense disambiguation.
-    pub(crate) fn last_good_embedding<'a>(&self, embeddings: &'a Embeddings) -> ItemEmbedding<'a> {
-        self.ancestors
-            .iter()
-            .rev()
-            .map(|ancestor| embeddings.get(&ancestor.item))
-            .find(|item_embedding| !item_embedding.is_empty())
-            .unwrap_or_else(|| embeddings.get(&self.progenitor.item))
+    fn add(&mut self, item: &T, depth: u8) {
+        self.ancestors.push(item.clone());
+        self.depths.push(depth);
     }
 }
+
+impl Ancestors<Rc<RawItem>> {
+    fn embeddings<'a>(&self, embeddings: &'a Embeddings) -> Vec<ItemEmbedding<'a>> {
+        self.ancestors.iter().map(|a| embeddings.get(a)).collect()
+    }
+}
+
+// // Imputed items and the rare defective normal items with no glosses or
+// // ety will have no embeddings, so we need to fallback to get any kind
+// // of useful sense disambiguation.
+// fn last_good_embedding<'a>(
+//     ancestors: &Ancestors<Rc<RawItem>>,
+//     embeddings: &'a Embeddings,
+// ) -> ItemEmbedding<'a> {
+//     ancestors
+//         .ancestors
+//         .iter()
+//         .rev()
+//         .map(|ancestor| embeddings.get(ancestor))
+//         .find(|item_embedding| !item_embedding.is_empty())
+//         .unwrap_or_else(|| embeddings.get(&ancestors.progenitor()))
+// }
 
 impl RawItems {
     pub(crate) fn get_desc_items_needing_embedding(
@@ -294,13 +305,31 @@ impl RawItems {
         raw_descendants: &RawDescendants,
     ) -> HashSet<Rc<RawItem>> {
         let mut items_needing_embedding = HashSet::new();
+        let mut possible_ancestors = Ancestors::new(&vec![item.clone()]);
         for line in raw_descendants.lines.iter() {
+            let possible_parents = possible_ancestors.prune_and_get_parent(line.depth);
+            let mut has_ambiguous_child = false;
+            let mut has_imputed_child = false;
             if let RawDescLineKind::Desc { desc } = &line.kind {
-                for &term in desc.terms.iter() {
+                for (i, &term) in desc.terms.iter().enumerate() {
                     if let Some(desc_items) = self.get_all_lang_term_items(desc.lang, term) {
-                        for desc_item in &desc_items {
-                            items_needing_embedding.insert(Rc::clone(desc_item));
+                        if i == 0 {
+                            possible_ancestors.add(&desc_items, line.depth);
                         }
+                        if desc_items.len() > 1 {
+                            // i.e. (lang, term) is ambiguous
+                            has_ambiguous_child = true;
+                            for desc_item in &desc_items {
+                                items_needing_embedding.insert(Rc::clone(desc_item));
+                            }
+                        }
+                    } else {
+                        has_imputed_child = true;
+                    }
+                }
+                if has_ambiguous_child || has_imputed_child {
+                    for possible_parent in possible_parents {
+                        items_needing_embedding.insert(possible_parent.clone());
                     }
                 }
             }
@@ -348,14 +377,17 @@ impl RawItems {
                         continue;
                     }
                     let lang = desc.lang;
-                    let last_good_embedding = ancestors.last_good_embedding(embeddings);
                     let (mut desc_items, mut modes) = (vec![], vec![]);
                     for (i, (&term, &mode)) in desc.terms.iter().zip(desc.modes.iter()).enumerate()
                     {
                         let desc_item = self
-                            .get_disambiguated_item(embeddings, &last_good_embedding, lang, term)
-                            .or_else(|| ety_graph.imputed_items.get(lang, term))
-                            .map(Rc::clone);
+                            .get_disambiguated_item(
+                                embeddings,
+                                &ancestors.embeddings(embeddings),
+                                lang,
+                                term,
+                            )
+                            .or_else(|| ety_graph.imputed_items.get(lang, term));
                         // Borrow checker complains when I use map_or_else
                         // instead of map then unwrap_or_else. But if I
                         // chain these last two then clippy::pedantic
@@ -393,7 +425,7 @@ impl RawItems {
                         modes.push(mode);
                     }
                     for (desc_item, mode) in desc_items.iter().zip(modes) {
-                        ety_graph.add_ety(desc_item, mode, 0, &[Rc::clone(&parent.item)]);
+                        ety_graph.add_ety(desc_item, mode, 0, &[Rc::clone(&parent)]);
                     }
                 }
                 // Might want to do something for the other cases in the future,

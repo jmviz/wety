@@ -13,6 +13,7 @@ use crate::{
 use std::{rc::Rc, str::FromStr};
 
 use anyhow::{Ok, Result};
+use hashbrown::HashSet;
 use simd_json::ValueAccess;
 
 #[derive(Hash, Eq, PartialEq, Debug)]
@@ -315,6 +316,44 @@ impl RawDataProcessor {
 }
 
 impl RawItems {
+    pub(crate) fn get_ety_items_needing_embedding(
+        &self,
+        item: &Rc<RawItem>,
+        raw_etymology: &RawEtymology,
+    ) -> HashSet<Rc<RawItem>> {
+        let mut items_needing_embedding = HashSet::new();
+        let mut parent_items = vec![Rc::clone(item)];
+
+        for template in raw_etymology.templates.iter() {
+            let mut has_ambiguous_child = false;
+            let mut has_imputed_child = false;
+            let mut next_parent_items = vec![];
+            for (&lang, &term) in template.langs.iter().zip(template.terms.iter()) {
+                if let Some(ety_items) = self.get_all_lang_term_items(lang, term) {
+                    if ety_items.len() > 1 {
+                        // i.e. (lang, term) is ambiguous
+                        has_ambiguous_child = true;
+                        for ety_item in &ety_items {
+                            items_needing_embedding.insert(Rc::clone(ety_item));
+                        }
+                    }
+                    for ety_item in &ety_items {
+                        next_parent_items.push(Rc::clone(ety_item));
+                    }
+                } else {
+                    has_imputed_child = true;
+                }
+            }
+            if has_ambiguous_child || has_imputed_child {
+                for parent_item in &parent_items {
+                    items_needing_embedding.insert(Rc::clone(parent_item));
+                }
+            }
+            parent_items = next_parent_items;
+        }
+        items_needing_embedding
+    }
+
     // For now we'll just take the first template. But cf. notes.md.
     // Only to be called once all json items have been processed into items.
     fn process_item_raw_etymology(
@@ -328,32 +367,24 @@ impl RawItems {
         }
         let mut current_item = Rc::clone(item); // for tracking possibly imputed items
         let mut next_item = Rc::clone(item); // for tracking possibly imputed items
-        let mut last_good_embedding = embeddings.get(&current_item);
+        let mut item_embeddings = vec![];
         for template in item.raw_etymology.as_ref().unwrap().templates.iter() {
-            let mut current_embedding = embeddings.get(&current_item);
-            // Imputed items and the rare defective normal items with no glosses
-            // or ety will have no embeddings, so we need to fallback to get any
-            // kind of useful sense disambiguation.
-            if current_embedding.is_empty() {
-                current_embedding = last_good_embedding;
-            } else {
-                last_good_embedding = current_embedding;
-            };
+            item_embeddings.push(embeddings.get(&current_item));
             let mut ety_items = Vec::with_capacity(template.terms.len());
             let mut has_new_imputation = false;
             for (&ety_lang, &ety_term) in template.langs.iter().zip(template.terms.iter()) {
                 if let Some(ety_item) =
-                    self.get_disambiguated_item(embeddings, &current_embedding, ety_lang, ety_term)
+                    self.get_disambiguated_item(embeddings, &item_embeddings, ety_lang, ety_term)
                 {
                     // There exists at least one item for this lang term combo.
                     // We have to do a word sense disambiguation in case there
                     // are multiple items.
-                    ety_items.push(Rc::clone(ety_item));
+                    ety_items.push(Rc::clone(&ety_item));
                 } else if let Some(imputed_ety_item) =
                     ety_graph.imputed_items.get(ety_lang, ety_term)
                 {
                     // We have already imputed an item that corresponds to this term.
-                    ety_items.push(Rc::clone(imputed_ety_item));
+                    ety_items.push(Rc::clone(&imputed_ety_item));
                 } else if template.terms.len() == 1 {
                     // This is an unseen term, and it is in a non-compound-kind template.
                     // We will impute an item for this term, and use this new imputed
