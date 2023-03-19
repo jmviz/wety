@@ -1,6 +1,6 @@
 use crate::{
     descendants::RawDescendants,
-    embeddings::{EmbeddingComparand, Embeddings, ItemEmbedding},
+    embeddings::{EmbeddingComparand, Embeddings, ItemEmbedding, EMBEDDING_BATCH_SIZE},
     ety_graph::EtyGraph,
     etymology::RawEtymology,
     lang::is_reconstructed_lang,
@@ -267,14 +267,10 @@ impl RawItems {
     // We go through the wiktextract file again, generating embeddings for all
     // ambiguous terms we found the first time.
     pub(crate) fn generate_embeddings(&self, path: &Path) -> Result<Embeddings> {
-        const EMBEDDINGS_UPDATE_INTERVAL: u64 = 8000;
+        const EMBEDDINGS_UPDATE_INTERVAL: usize = EMBEDDING_BATCH_SIZE * 10;
         let mut added = 0;
         let items_needing_embedding = self.get_all_items_needing_embedding()?;
-        let pb = progress_bar(
-            items_needing_embedding.len(),
-            "Generating embeddings",
-            false,
-        )?;
+        let pb = progress_bar(items_needing_embedding.len(), "Generating embeddings", true)?;
         let mut embeddings = Embeddings::new()?;
         for (line_number, mut line) in wiktextract_lines(path)?.enumerate() {
             // Items were only inserted into the line map if they were added to
@@ -286,7 +282,7 @@ impl RawItems {
                 embeddings.add(&json_item, item)?;
                 added += 1;
                 if added % EMBEDDINGS_UPDATE_INTERVAL == 0 {
-                    pb.inc(EMBEDDINGS_UPDATE_INTERVAL);
+                    pb.inc(EMBEDDINGS_UPDATE_INTERVAL as u64);
                 }
             }
         }

@@ -282,22 +282,6 @@ impl Ancestors<Rc<RawItem>> {
     }
 }
 
-// // Imputed items and the rare defective normal items with no glosses or
-// // ety will have no embeddings, so we need to fallback to get any kind
-// // of useful sense disambiguation.
-// fn last_good_embedding<'a>(
-//     ancestors: &Ancestors<Rc<RawItem>>,
-//     embeddings: &'a Embeddings,
-// ) -> ItemEmbedding<'a> {
-//     ancestors
-//         .ancestors
-//         .iter()
-//         .rev()
-//         .map(|ancestor| embeddings.get(ancestor))
-//         .find(|item_embedding| !item_embedding.is_empty())
-//         .unwrap_or_else(|| embeddings.get(&ancestors.progenitor()))
-// }
-
 impl RawItems {
     pub(crate) fn get_desc_items_needing_embedding(
         &self,

@@ -22,8 +22,7 @@ impl ItemEmbedding<'_> {
     }
 }
 
-const ETY_BATCH_SIZE: usize = 800;
-const GLOSSES_BATCH_SIZE: usize = 800;
+pub(crate) const EMBEDDING_BATCH_SIZE: usize = 800;
 
 struct EmbeddingBatch {
     items: Vec<usize>,
@@ -125,14 +124,11 @@ impl Embeddings {
         let maybe_cuda = if config.device.is_cuda() { "" } else { "non-" };
         println!("Using {maybe_cuda}CUDA backend for embeddings...");
         Ok(Self {
-            ety: EmbeddingMap::new(&model, ETY_BATCH_SIZE),
-            glosses: EmbeddingMap::new(&model, GLOSSES_BATCH_SIZE),
+            ety: EmbeddingMap::new(&model, EMBEDDING_BATCH_SIZE),
+            glosses: EmbeddingMap::new(&model, EMBEDDING_BATCH_SIZE),
         })
     }
     pub(crate) fn add(&mut self, json_item: &WiktextractJson, item: &Rc<RawItem>) -> Result<()> {
-        if json_item.get_str("word").is_some_and(|w| w == "min") {
-            println!("hey");
-        }
         if !self.ety.map.contains_key(&item.i)
             && let Some(ety_text) = json_item.get_str("etymology_text")
             && !ety_text.is_empty()
