@@ -4,7 +4,7 @@
 #![allow(clippy::redundant_closure_for_method_calls)]
 
 mod descendants;
-mod embeddings;
+pub mod embeddings;
 mod ety_graph;
 mod etymology;
 mod etymology_templates;
@@ -36,6 +36,7 @@ use std::{
 };
 
 use anyhow::{Ok, Result};
+use embeddings::EmbeddingsConfig;
 use indicatif::{HumanDuration, ProgressBar, ProgressStyle};
 use oxigraph::{io::GraphFormat::Turtle, model::GraphNameRef::DefaultGraph, store::Store};
 
@@ -72,7 +73,11 @@ pub(crate) struct ProcessedData {
 ///
 /// Will return `Err` if any unexpected issue arises parsing the wiktextract
 /// data or writing to Turtle file.
-pub fn wiktextract_to_turtle(wiktextract_path: &Path, turtle_path: &Path) -> Result<Instant> {
+pub fn wiktextract_to_turtle(
+    wiktextract_path: &Path,
+    turtle_path: &Path,
+    embeddings_config: &EmbeddingsConfig,
+) -> Result<Instant> {
     let mut t = Instant::now();
     println!(
         "Processing raw wiktextract data from {}...",
@@ -81,7 +86,7 @@ pub fn wiktextract_to_turtle(wiktextract_path: &Path, turtle_path: &Path) -> Res
     let mut processor = RawDataProcessor::new()?;
     let items = processor.process_json_items(wiktextract_path)?;
     println!("Finished. Took {}.", HumanDuration(t.elapsed()));
-    let embeddings = items.generate_embeddings(wiktextract_path)?;
+    let embeddings = items.generate_embeddings(wiktextract_path, embeddings_config)?;
     t = Instant::now();
     println!("Generating ety graph...");
     let ety_graph = items.generate_ety_graph(&processor.string_pool, &embeddings)?;

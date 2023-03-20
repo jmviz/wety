@@ -3,6 +3,7 @@ use crate::{raw_items::RawItem, wiktextract_json::WiktextractJson};
 use std::{mem::take, rc::Rc};
 
 use anyhow::Result;
+use clap::ValueEnum;
 use hashbrown::HashMap;
 use rust_bert::pipelines::sentence_embeddings::{
     Embedding, SentenceEmbeddingsBuilder, SentenceEmbeddingsConfig, SentenceEmbeddingsModel,
@@ -21,8 +22,6 @@ impl ItemEmbedding<'_> {
         self.ety.is_none() && self.glosses.is_none()
     }
 }
-
-pub(crate) const EMBEDDING_BATCH_SIZE: usize = 800;
 
 struct EmbeddingBatch {
     items: Vec<usize>,
@@ -112,20 +111,66 @@ pub(crate) struct Embeddings {
     glosses: EmbeddingMap,
 }
 
+#[allow(clippy::module_name_repetitions)]
+#[derive(ValueEnum, Clone)]
+#[clap(rename_all = "PascalCase")]
+pub enum EmbeddingsModel {
+    AllMiniLmL6V2,
+    DistiluseBaseMultilingualCased,
+    BertBaseNliMeanTokens,
+    AllMiniLmL12V2,
+    AllDistilrobertaV1,
+    ParaphraseAlbertSmallV2,
+    SentenceT5Base,
+}
+
+pub const DEFAULT_MODEL: EmbeddingsModel = EmbeddingsModel::AllMiniLmL6V2;
+pub const DEFAULT_BATCH_SIZE: usize = 800;
+pub const DEFAULT_PROGRESS_UPDATE_INTERVAL: usize = DEFAULT_BATCH_SIZE * 10;
+
+impl EmbeddingsModel {
+    fn kind(&self) -> SentenceEmbeddingsModelType {
+        match self {
+            EmbeddingsModel::AllMiniLmL6V2 => SentenceEmbeddingsModelType::AllMiniLmL6V2,
+            EmbeddingsModel::DistiluseBaseMultilingualCased => {
+                SentenceEmbeddingsModelType::DistiluseBaseMultilingualCased
+            }
+            EmbeddingsModel::BertBaseNliMeanTokens => {
+                SentenceEmbeddingsModelType::BertBaseNliMeanTokens
+            }
+            EmbeddingsModel::AllMiniLmL12V2 => SentenceEmbeddingsModelType::AllMiniLmL12V2,
+            EmbeddingsModel::AllDistilrobertaV1 => SentenceEmbeddingsModelType::AllDistilrobertaV1,
+            EmbeddingsModel::ParaphraseAlbertSmallV2 => {
+                SentenceEmbeddingsModelType::ParaphraseAlbertSmallV2
+            }
+            EmbeddingsModel::SentenceT5Base => SentenceEmbeddingsModelType::SentenceT5Base,
+        }
+    }
+}
+
+#[allow(clippy::module_name_repetitions)]
+pub struct EmbeddingsConfig {
+    pub model: EmbeddingsModel,
+    pub batch_size: usize,
+    pub progress_update_interval: usize,
+}
+
 impl Embeddings {
-    pub(crate) fn new() -> Result<Self> {
+    pub(crate) fn new(config: &EmbeddingsConfig) -> Result<Self> {
         // https://www.sbert.net/docs/pretrained_models.html
         // https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2
-        let model = Rc::from(
-            SentenceEmbeddingsBuilder::remote(SentenceEmbeddingsModelType::AllMiniLmL6V2)
-                .create_model()?,
-        );
-        let config = SentenceEmbeddingsConfig::from(SentenceEmbeddingsModelType::AllMiniLmL6V2);
-        let maybe_cuda = if config.device.is_cuda() { "" } else { "non-" };
+        let model =
+            Rc::from(SentenceEmbeddingsBuilder::remote(config.model.kind()).create_model()?);
+        let se_config = SentenceEmbeddingsConfig::from(config.model.kind());
+        let maybe_cuda = if se_config.device.is_cuda() {
+            ""
+        } else {
+            "non-"
+        };
         println!("Using {maybe_cuda}CUDA backend for embeddings...");
         Ok(Self {
-            ety: EmbeddingMap::new(&model, EMBEDDING_BATCH_SIZE),
-            glosses: EmbeddingMap::new(&model, EMBEDDING_BATCH_SIZE),
+            ety: EmbeddingMap::new(&model, config.batch_size),
+            glosses: EmbeddingMap::new(&model, config.batch_size),
         })
     }
     pub(crate) fn add(&mut self, json_item: &WiktextractJson, item: &Rc<RawItem>) -> Result<()> {
@@ -133,6 +178,7 @@ impl Embeddings {
             && let Some(ety_text) = json_item.get_str("etymology_text")
             && !ety_text.is_empty()
             {
+                println!("{ety_text}");
                 self.ety.update(item.i, ety_text.to_string())?;
             }
         if !self.glosses.map.contains_key(&item.i) {
@@ -150,6 +196,7 @@ impl Embeddings {
                 }
             }
             if !glosses_text.is_empty() {
+                println!("{glosses_text}");
                 self.glosses.update(item.i, glosses_text.to_string())?;
             }
         }
@@ -243,5 +290,86 @@ impl EmbeddingComparand<ItemEmbedding<'_>> for &Vec<ItemEmbedding<'_>> {
             return total_similarity / total_weight;
         }
         0.0
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    use crate::string_pool::Symbol;
+    use simd_json::to_borrowed_value;
+    use string_interner::Symbol as SymbolTrait;
+
+    fn json(ety: &str, gloss: &str) -> Vec<u8> {
+        r#"{
+            "etymology_text": "test",
+            "senses": [
+                {
+                    "glosses": ["test"]
+                },
+                {
+                    "glosses": ["test"]
+                }
+            ]
+        }"#
+        .into()
+    }
+
+    fn item(i: usize) -> Rc<RawItem> {
+        Rc::from(RawItem {
+            line: None,
+            is_imputed: false,
+            is_reconstructed: false,
+            i,
+            lang: 0,
+            term: Symbol::try_from_usize(0).unwrap(),
+            page_title: None,
+            ety_num: None,
+            pos: None,
+            gloss: None,
+            gloss_num: 0,
+            raw_etymology: None,
+            raw_root: None,
+            raw_descendants: None,
+        })
+    }
+
+    fn embeddings(batch_size: usize) -> Embeddings {
+        let config = EmbeddingsConfig {
+            model: DEFAULT_MODEL,
+            batch_size,
+            progress_update_interval: 1,
+        };
+        Embeddings::new(&config).unwrap()
+    }
+
+    fn feq(f0: f32, f1: f32) -> bool {
+        (f0 - f1).abs() <= f32::EPSILON
+    }
+
+    #[test]
+    fn cosine_similarity_identical() {
+        let mut embeddings = embeddings(1);
+        let mut json = json("", "");
+        let value = to_borrowed_value(&mut json).unwrap();
+        let item0 = item(0);
+        let item1 = item(1);
+        embeddings.add(&value, &item0).unwrap();
+        embeddings.add(&value, &item1).unwrap();
+        let item_embedding0 = embeddings.get(&item0);
+        assert!(item_embedding0.ety.is_some());
+        assert!(item_embedding0.glosses.is_some());
+        let item_embedding1 = embeddings.get(&item1);
+        assert!(item_embedding1.ety.is_some());
+        assert!(item_embedding1.glosses.is_some());
+        assert_eq!(item_embedding0.ety.unwrap(), item_embedding1.ety.unwrap());
+        assert_eq!(
+            item_embedding0.glosses.unwrap(),
+            item_embedding1.glosses.unwrap()
+        );
+        let similarity = item_embedding0.cosine_similarity(item_embedding1);
+        println!("{similarity}");
+        assert!(feq(similarity, 1.0));
     }
 }

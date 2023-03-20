@@ -170,29 +170,31 @@ impl RawItems {
             let mut current_item = Rc::clone(item);
             let mut item_embeddings = vec![embedding];
             while let Some(immediate_ety) = ety_graph.get_immediate_ety(&current_item) {
-                // If there are multiple ety items but one has the same root, pick this.
-                let ety_item = immediate_ety.items.iter().find(|ety_item| {
+                // If the root or any previously visited item is encountered
+                // again, don't impute anything, so we don't create or get
+                // caught in a cycle.
+                if immediate_ety.items.iter().any(|item| visited_items.contains(item)) {
+                    return;
+                }
+                // If there are multiple ety items but one has the same root, pick this
+                let shared_root_item = immediate_ety.items.iter().find(|ety_item| {
                     ety_item.raw_root.as_ref()
                         .and_then(|r| {
-                            item_embeddings.push(embeddings.get(ety_item));
+                            let mut temp_embeddings = item_embeddings.clone();
+                            temp_embeddings.push(embeddings.get(ety_item));
                             self
-                                .get_disambiguated_item(embeddings, &item_embeddings, r.lang, r.term)
+                                .get_disambiguated_item(embeddings, &temp_embeddings, r.lang, r.term)
                                 .or_else(|| ety_graph.imputed_items.get(r.lang, r.term))})
                         .is_some_and(|ety_root_item| ety_root_item == root_item)
                 });
                 // Otherwise, return so we don't guess wrong.
-                if ety_item.is_none() && immediate_ety.items.len() > 1 {
+                if shared_root_item.is_none() && immediate_ety.items.len() > 1 {
                     return
                 }
                 // There is no chance of guessing wrong if only 1 ety item.
-                let ety_item = ety_item.unwrap_or(&immediate_ety.items[0]);
+                let ety_item = shared_root_item.unwrap_or(&immediate_ety.items[0]);
+                item_embeddings.push(embeddings.get(ety_item));
                 current_item = Rc::clone(ety_item);
-                // If the root or any previously visited item is encountered
-                // again, don't impute anything, so we don't create or get
-                // caught in a cycle.
-                if visited_items.contains(&current_item) {
-                    return;
-                }
                 visited_items.insert(Rc::clone(&current_item));
             }
             if current_item != root_item {
