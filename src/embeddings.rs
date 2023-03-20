@@ -178,7 +178,6 @@ impl Embeddings {
             && let Some(ety_text) = json_item.get_str("etymology_text")
             && !ety_text.is_empty()
             {
-                println!("{ety_text}");
                 self.ety.update(item.i, ety_text.to_string())?;
             }
         if !self.glosses.map.contains_key(&item.i) {
@@ -196,7 +195,6 @@ impl Embeddings {
                 }
             }
             if !glosses_text.is_empty() {
-                println!("{glosses_text}");
                 self.glosses.update(item.i, glosses_text.to_string())?;
             }
         }
@@ -298,21 +296,20 @@ mod tests {
     use super::*;
 
     use crate::string_pool::Symbol;
-    use simd_json::to_borrowed_value;
+    use simd_json::json;
     use string_interner::Symbol as SymbolTrait;
 
-    fn json(ety: &str, gloss: &str) -> Vec<u8> {
-        r#"{
-            "etymology_text": "test",
+    fn json<'a>(ety: &str, gloss: &str) -> WiktextractJson<'a> {
+        json!({
+            "etymology_text": ety,
             "senses": [
                 {
-                    "glosses": ["test"]
-                },
-                {
-                    "glosses": ["test"]
+                    "glosses": [
+                        gloss
+                    ]
                 }
             ]
-        }"#
+        })
         .into()
     }
 
@@ -335,10 +332,10 @@ mod tests {
         })
     }
 
-    fn embeddings(batch_size: usize) -> Embeddings {
+    fn embeddings() -> Embeddings {
         let config = EmbeddingsConfig {
             model: DEFAULT_MODEL,
-            batch_size,
+            batch_size: 1,
             progress_update_interval: 1,
         };
         Embeddings::new(&config).unwrap()
@@ -350,13 +347,12 @@ mod tests {
 
     #[test]
     fn cosine_similarity_identical() {
-        let mut embeddings = embeddings(1);
-        let mut json = json("", "");
-        let value = to_borrowed_value(&mut json).unwrap();
+        let mut embeddings = embeddings();
+        let json = json("test", "test test");
         let item0 = item(0);
         let item1 = item(1);
-        embeddings.add(&value, &item0).unwrap();
-        embeddings.add(&value, &item1).unwrap();
+        embeddings.add(&json, &item0).unwrap();
+        embeddings.add(&json, &item1).unwrap();
         let item_embedding0 = embeddings.get(&item0);
         assert!(item_embedding0.ety.is_some());
         assert!(item_embedding0.glosses.is_some());
@@ -368,8 +364,44 @@ mod tests {
             item_embedding0.glosses.unwrap(),
             item_embedding1.glosses.unwrap()
         );
-        let similarity = item_embedding0.cosine_similarity(item_embedding1);
-        println!("{similarity}");
-        assert!(feq(similarity, 1.0));
+        let similarity0 = item_embedding0.cosine_similarity(item_embedding1);
+        println!("{similarity0}");
+        assert!(feq(similarity0, 1.0));
+        let similarity1 = item_embedding1.cosine_similarity(item_embedding0);
+        assert!(feq(similarity0, similarity1));
+    }
+
+    #[test]
+    fn cosine_similarity_obvious() {
+        let mut embeddings = embeddings();
+        let parent_json = json(
+            "From Proto-Indo-European *men- (“to think”).",
+            "memory, remembrance",
+        );
+        let candidate0_json = json("From Proto-Germanic *(ga)minþiją.", "memory");
+        let candidate1_json = json(
+            "From Proto-Germanic *minnizô, comparative of *lītilaz.",
+            "less, smaller: comparative degree of lítill",
+        );
+        let parent_item = item(0);
+        let candidate0_item = item(1);
+        let candidate1_item = item(2);
+        embeddings.add(&parent_json, &parent_item).unwrap();
+        embeddings.add(&candidate0_json, &candidate0_item).unwrap();
+        embeddings.add(&candidate1_json, &candidate1_item).unwrap();
+        let parent_item_embedding = embeddings.get(&parent_item);
+        assert!(parent_item_embedding.ety.is_some());
+        assert!(parent_item_embedding.glosses.is_some());
+        let candidate0_item_embedding = embeddings.get(&candidate0_item);
+        assert!(candidate0_item_embedding.ety.is_some());
+        assert!(candidate0_item_embedding.glosses.is_some());
+        let candidate1_item_embedding = embeddings.get(&candidate1_item);
+        assert!(candidate1_item_embedding.ety.is_some());
+        assert!(candidate1_item_embedding.glosses.is_some());
+        let similarity0 = parent_item_embedding.cosine_similarity(candidate0_item_embedding);
+        println!("{similarity0}");
+        let similarity1 = parent_item_embedding.cosine_similarity(candidate1_item_embedding);
+        println!("{similarity1}");
+        assert!(similarity0 > similarity1);
     }
 }

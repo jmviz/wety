@@ -15,9 +15,9 @@ use std::{
 use anyhow::{Ok, Result};
 use bytelines::ByteLines;
 use flate2::read::GzDecoder;
-use simd_json::{to_borrowed_value, value::borrowed::Value, ValueAccess};
+use simd_json::{to_borrowed_value, ValueAccess};
 
-pub(crate) type WiktextractJson<'a> = Value<'a>;
+pub(crate) type WiktextractJson<'a> = simd_json::value::borrowed::Value<'a>;
 
 pub(crate) trait WiktextractJsonAccess {
     fn get_valid_str(&self, key: &str) -> Option<&str>;
@@ -160,7 +160,7 @@ fn should_ignore_term(term: &str, pos: &str) -> bool {
 
 // We look for a canonical form, otherwise we take the "word" field.
 // See notes.md for motivation.
-fn get_term_canonical_form<'a>(json_item: &'a Value) -> Option<&'a str> {
+fn get_term_canonical_form<'a>(json_item: &'a WiktextractJson) -> Option<&'a str> {
     let forms = json_item.get_array("forms")?;
     let mut f = 0;
     while let Some(form) = forms.get(f) {

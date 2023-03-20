@@ -7,7 +7,7 @@ edition = "2021"
 debug = true
 
 [dependencies]
-simd-json = "0.5.0"
+simd-json = "0.7.0"
 snmalloc-rs = {version = "0.3.0", features = ["native-cpu"]}
 bytelines = "2.4"
 flate2 = "1.0.24"
@@ -24,3 +24,4 @@ lazy_static = "1.4.0"
 strum = {version = "0.24.1", features = ["derive", "phf"]}
 urlencoding = "2.1.2"
 rust-bert = "0.20.0"
+itertools = "0.10.5"

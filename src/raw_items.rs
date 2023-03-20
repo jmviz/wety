@@ -74,6 +74,13 @@ pub(crate) struct RawItems {
     pub(crate) total_ok_lines_in_file: usize,
 }
 
+pub(crate) struct Retrieval {
+    pub(crate) item: Rc<RawItem>,
+    pub(crate) confidence: f32,
+    // is_imputed: bool,
+    pub(crate) is_newly_imputed: bool,
+}
+
 impl RawItems {
     pub(crate) fn add_to_term_map(&mut self, mut item: RawItem) -> Result<Option<Rc<RawItem>>> {
         // check if the item's term has been seen before
@@ -155,29 +162,62 @@ impl RawItems {
 
     pub(crate) fn get_disambiguated_item<'a>(
         &self,
-        // string_pool: &StringPool,
         embeddings: &'a Embeddings,
-        embedding: impl EmbeddingComparand<ItemEmbedding<'a>> + Copy,
+        embedding_comp: impl EmbeddingComparand<ItemEmbedding<'a>> + Copy,
         lang: usize,
         term: Symbol,
-    ) -> Option<Rc<RawItem>> {
-        // if LANG_CODE2NAME.get_index_value(lang) == "English" && string_pool.resolve(term) == "min" {
-        //     println!("hey");
-        // }
+    ) -> Option<(Rc<RawItem>, f32)> {
         let (lang, term) = self.redirects.rectify_lang_term(lang, term);
         let candidate_items = self.get_all_lang_term_items(lang, term)?;
         let mut max_similarity = 0f32;
         let mut best_candidate = 0usize;
         for (i, candidate) in candidate_items.iter().enumerate() {
             let candidate_embedding = embeddings.get(candidate);
-            let similarity = embedding.cosine_similarity(candidate_embedding);
+            let similarity = embedding_comp.cosine_similarity(candidate_embedding);
             let old_max_similarity = max_similarity;
             max_similarity = max_similarity.max(similarity);
             if max_similarity > old_max_similarity {
                 best_candidate = i;
             }
         }
-        Some(candidate_items[best_candidate].clone())
+        Some((candidate_items[best_candidate].clone(), max_similarity))
+    }
+
+    pub(crate) fn get_or_impute_item<'a>(
+        &self,
+        ety_graph: &mut EtyGraph,
+        embeddings: &'a Embeddings,
+        embedding_comp: impl EmbeddingComparand<ItemEmbedding<'a>> + Copy,
+        lang: usize,
+        term: Symbol,
+    ) -> Retrieval {
+        if let Some((item, confidence)) =
+            self.get_disambiguated_item(embeddings, embedding_comp, lang, term)
+        {
+            return Retrieval {
+                item,
+                confidence,
+                // is_imputed: false,
+                is_newly_imputed: false,
+            };
+        }
+        if let Some(item) = ety_graph.imputed_items.get(lang, term) {
+            return Retrieval {
+                item,
+                confidence: 0.0,
+                // is_imputed: true,
+                is_newly_imputed: false,
+            };
+        }
+        let n = self.n + ety_graph.imputed_items.n;
+        let imputed_item = Rc::from(RawItem::new_imputed(n, lang, term, None));
+        ety_graph.add_imputed(&imputed_item);
+        Retrieval {
+            item: imputed_item,
+            confidence: 0.0,
+            // is_imputed: true,
+            is_newly_imputed: true,
+        }
     }
 
     // returns all items that share the same lang and term
@@ -198,13 +238,6 @@ impl RawItems {
         }
         (!items.is_empty()).then_some(items)
     }
-
-    // // since get_all_lang_term_items will return at least the item itself, we
-    // // need the len of items to be > 1
-    // fn item_has_duplicates(&self, item: &Rc<Item>) -> bool {
-    //     self.get_all_lang_term_items(item.lang, item.term)
-    //         .is_some_and(|items| items.len() > 1)
-    // }
 
     // We determine that an item needs an embedding if it has any
     // raw_(descendants|etymology|root) (raw_*), since any ambiguous lang-terms

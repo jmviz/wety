@@ -6,7 +6,7 @@ use crate::{
     phf_ext::OrderedSetExt,
     pos_phf::POS,
     progress_bar,
-    raw_items::{RawItem, RawItems},
+    raw_items::{RawItem, RawItems, Retrieval},
     string_pool::Symbol,
     wiktextract_json::{WiktextractJson, WiktextractJsonAccess},
     RawDataProcessor,
@@ -16,6 +16,7 @@ use std::{rc::Rc, str::FromStr};
 
 use anyhow::{Ok, Result};
 use hashbrown::HashSet;
+use itertools::izip;
 use simd_json::ValueAccess;
 
 #[derive(Hash, Eq, PartialEq, Debug)]
@@ -361,27 +362,20 @@ impl RawItems {
                         continue;
                     }
                     let lang = desc.lang;
-                    let (mut desc_items, mut modes) = (vec![], vec![]);
+                    let (mut desc_items, mut confidences, mut modes) = (vec![], vec![], vec![]);
                     for (i, (&term, &mode)) in desc.terms.iter().zip(desc.modes.iter()).enumerate()
                     {
-                        let desc_item = self
-                            .get_disambiguated_item(
-                                embeddings,
-                                &ancestors.embeddings(embeddings),
-                                lang,
-                                term,
-                            )
-                            .or_else(|| ety_graph.imputed_items.get(lang, term));
-                        // Borrow checker complains when I use map_or_else
-                        // instead of map then unwrap_or_else. But if I
-                        // chain these last two then clippy::pedantic
-                        // complains...
-                        let desc_item = desc_item.unwrap_or_else(|| {
-                            let n = self.n + ety_graph.imputed_items.n;
-                            let imputed_item = Rc::from(RawItem::new_imputed(n, lang, term, None));
-                            ety_graph.add_imputed(&imputed_item);
-                            imputed_item
-                        });
+                        let Retrieval {
+                            item: desc_item,
+                            confidence,
+                            ..
+                        } = self.get_or_impute_item(
+                            ety_graph,
+                            embeddings,
+                            &ancestors.embeddings(embeddings),
+                            lang,
+                            term,
+                        );
                         // A root generally shouldn't be listed as a descendant
                         // of another term. If it really is an etymological
                         // child, we will rely on the etymology section of the
@@ -406,10 +400,17 @@ impl RawItems {
                             ancestors.add(&desc_item, line.depth);
                         }
                         desc_items.push(desc_item);
+                        confidences.push(confidence);
                         modes.push(mode);
                     }
-                    for (desc_item, mode) in desc_items.iter().zip(modes) {
-                        ety_graph.add_ety(desc_item, mode, 0, &[Rc::clone(&parent)]);
+                    for (desc_item, confidence, mode) in izip!(desc_items, confidences, modes) {
+                        ety_graph.add_ety(
+                            &desc_item,
+                            mode,
+                            0,
+                            &[Rc::clone(&parent)],
+                            &[confidence],
+                        );
                     }
                 }
                 // Might want to do something for the other cases in the future,

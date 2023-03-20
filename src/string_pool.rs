@@ -1,6 +1,6 @@
-use string_interner::{backend::StringBackend, symbol::SymbolU32, StringInterner};
+use string_interner::{backend::StringBackend, StringInterner};
 
-pub(crate) type Symbol = SymbolU32;
+pub(crate) type Symbol = string_interner::symbol::SymbolU32;
 
 #[derive(Default)]
 pub(crate) struct StringPool {

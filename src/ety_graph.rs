@@ -15,6 +15,7 @@ use std::{
 
 use anyhow::{anyhow, Ok, Result};
 use hashbrown::{HashMap, HashSet};
+use itertools::{izip, Itertools};
 use petgraph::{
     algo::greedy_feedback_arc_set,
     stable_graph::{EdgeIndex, NodeIndex, StableDiGraph},
@@ -72,6 +73,7 @@ pub(crate) struct EtyLink {
     pub(crate) mode: EtyMode,
     pub(crate) order: u8,
     pub(crate) head: bool,
+    confidence: f32,
 }
 
 #[derive(Default)]
@@ -183,21 +185,42 @@ impl EtyGraph {
         mode: EtyMode,
         head: u8,
         ety_items: &[Rc<RawItem>],
+        confidences: &[f32],
     ) {
         let item_index = self.get_index(item);
-        // StableGraph allows adding multiple parallel edges from one node
-        // to another. So we have to be careful not to override any already
-        // existing ety links (e.g. from raw descendants which have been
-        // processed before raw etymology.)
-        if self.graph.edges(item_index).next().is_some() {
-            return;
+        // StableGraph allows adding multiple parallel edges from one node to
+        // another. So we have to be careful to check for any already existing
+        // ety links. If there are some, we keep them and don't add any new
+        // ones, unless the least confidence for the new ety links is greater
+        // than the greatest confidence for the old ety links. In that case, we
+        // delete all the old ones and add the new ones in their stead.
+        let mut old_edges = self.graph.edges(item_index).peekable();
+        if old_edges.peek().is_some() {
+            let min_new_confidence = confidences
+                .iter()
+                .min_by(|a, b| a.total_cmp(b))
+                .expect("at least one");
+            let max_old_confidence = old_edges
+                .map(|e| e.weight().confidence)
+                .max_by(|a, b| a.total_cmp(b))
+                .expect("at least one");
+            if min_new_confidence > &max_old_confidence {
+                let old_edge_ids = self.graph.edges(item_index).map(|e| e.id()).collect_vec();
+                for old_edge_id in old_edge_ids {
+                    self.graph.remove_edge(old_edge_id);
+                }
+            } else {
+                return;
+            }
         }
-        for (i, ety_item) in (0u8..).zip(ety_items.iter()) {
+
+        for (i, ety_item, &confidence) in izip!(0u8.., ety_items, confidences) {
             let ety_item_index = self.get_index(ety_item);
             let ety_link = EtyLink {
                 mode,
                 order: i,
                 head: head == i,
+                confidence,
             };
             self.graph.add_edge(item_index, ety_item_index, ety_link);
         }

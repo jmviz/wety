@@ -1,12 +1,12 @@
 use crate::{
-    embeddings::{Embeddings, ItemEmbedding},
+    embeddings::{EmbeddingComparand, Embeddings, ItemEmbedding},
     ety_graph::EtyGraph,
     etymology_templates::EtyMode,
     lang_phf::{LANG_CODE2NAME, LANG_NAME2CODE},
     phf_ext::OrderedSetExt,
     pos_phf::POS,
     progress_bar,
-    raw_items::{RawItem, RawItems},
+    raw_items::{RawItem, RawItems, Retrieval},
     string_pool::Symbol,
     wiktextract_json::{WiktextractJson, WiktextractJsonAccess},
     RawDataProcessor,
@@ -160,11 +160,16 @@ impl RawItems {
         embedding: ItemEmbedding,
         item: &Rc<RawItem>,
     ) {
-        if let Some(raw_root) = &item.raw_root
-            && let Some(root_item) = self
-                .get_disambiguated_item(embeddings, embedding, raw_root.lang, raw_root.term)
-                .or_else(|| ety_graph.imputed_items.get(raw_root.lang, raw_root.term))
-        {
+        if let Some(raw_root) = &item.raw_root {
+            let Retrieval {
+                item: root_item, ..
+            } = self.get_or_impute_item(
+                ety_graph,
+                embeddings,
+                embedding,
+                raw_root.lang,
+                raw_root.term,
+            );
             let mut visited_items: HashSet<Rc<RawItem>> =
                 HashSet::from([Rc::clone(item), Rc::clone(&root_item)]);
             let mut current_item = Rc::clone(item);
@@ -173,23 +178,38 @@ impl RawItems {
                 // If the root or any previously visited item is encountered
                 // again, don't impute anything, so we don't create or get
                 // caught in a cycle.
-                if immediate_ety.items.iter().any(|item| visited_items.contains(item)) {
+                if immediate_ety
+                    .items
+                    .iter()
+                    .any(|item| visited_items.contains(item))
+                {
                     return;
                 }
                 // If there are multiple ety items but one has the same root, pick this
                 let shared_root_item = immediate_ety.items.iter().find(|ety_item| {
-                    ety_item.raw_root.as_ref()
-                        .and_then(|r| {
+                    ety_item
+                        .raw_root
+                        .as_ref()
+                        .map(|r| {
                             let mut temp_embeddings = item_embeddings.clone();
                             temp_embeddings.push(embeddings.get(ety_item));
-                            self
-                                .get_disambiguated_item(embeddings, &temp_embeddings, r.lang, r.term)
-                                .or_else(|| ety_graph.imputed_items.get(r.lang, r.term))})
+                            let Retrieval {
+                                item: ety_root_item,
+                                ..
+                            } = self.get_or_impute_item(
+                                ety_graph,
+                                embeddings,
+                                &temp_embeddings,
+                                r.lang,
+                                r.term,
+                            );
+                            ety_root_item
+                        })
                         .is_some_and(|ety_root_item| ety_root_item == root_item)
                 });
                 // Otherwise, return so we don't guess wrong.
                 if shared_root_item.is_none() && immediate_ety.items.len() > 1 {
-                    return
+                    return;
                 }
                 // There is no chance of guessing wrong if only 1 ety item.
                 let ety_item = shared_root_item.unwrap_or(&immediate_ety.items[0]);
@@ -198,7 +218,14 @@ impl RawItems {
                 visited_items.insert(Rc::clone(&current_item));
             }
             if current_item != root_item {
-                ety_graph.add_ety(&current_item, EtyMode::Root, 0u8, &[Rc::clone(&root_item)]);
+                let confidence = item_embeddings.cosine_similarity(embeddings.get(&root_item));
+                ety_graph.add_ety(
+                    &current_item,
+                    EtyMode::Root,
+                    0u8,
+                    &[Rc::clone(&root_item)],
+                    &[confidence],
+                );
             }
         }
     }

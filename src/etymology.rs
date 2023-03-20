@@ -4,7 +4,7 @@ use crate::{
     etymology_templates::{EtyMode, TemplateKind},
     lang_phf::LANG_CODE2NAME,
     progress_bar,
-    raw_items::{RawItem, RawItems},
+    raw_items::{RawItem, RawItems, Retrieval},
     string_pool::Symbol,
     wiktextract_json::{WiktextractJson, WiktextractJsonAccess},
     RawDataProcessor,
@@ -371,43 +371,45 @@ impl RawItems {
         for template in item.raw_etymology.as_ref().unwrap().templates.iter() {
             item_embeddings.push(embeddings.get(&current_item));
             let mut ety_items = Vec::with_capacity(template.terms.len());
+            let mut confidences = Vec::with_capacity(template.terms.len());
             let mut has_new_imputation = false;
             for (&ety_lang, &ety_term) in template.langs.iter().zip(template.terms.iter()) {
-                if let Some(ety_item) =
-                    self.get_disambiguated_item(embeddings, &item_embeddings, ety_lang, ety_term)
-                {
-                    // There exists at least one item for this lang term combo.
-                    // We have to do a word sense disambiguation in case there
-                    // are multiple items.
-                    ety_items.push(Rc::clone(&ety_item));
-                } else if let Some(imputed_ety_item) =
-                    ety_graph.imputed_items.get(ety_lang, ety_term)
-                {
-                    // We have already imputed an item that corresponds to this term.
-                    ety_items.push(Rc::clone(&imputed_ety_item));
-                } else if template.terms.len() == 1 {
-                    // This is an unseen term, and it is in a non-compound-kind template.
-                    // We will impute an item for this term, and use this new imputed
-                    // item as the item for the next template in the outer loop.
-                    has_new_imputation = true;
-                    let n = self.n + ety_graph.imputed_items.n;
-                    // We previously assumed the imputed item has the same pos as the current_item.
-                    // How often is this not the case?
-                    let imputed_ety_item =
-                        Rc::from(RawItem::new_imputed(n, ety_lang, ety_term, None));
-                    ety_graph.add_imputed(&imputed_ety_item);
-                    ety_items.push(Rc::clone(&imputed_ety_item));
-                    next_item = Rc::clone(&imputed_ety_item);
-                } else {
-                    // This is a term of a compound-kind template without a
-                    // link, and for which a corresponding imputed item has not
-                    // yet been created. We won't bother trying to do convoluted
-                    // imputations for such cases at the moment. So we stop
-                    // processing templates here.
-                    return;
+                let Retrieval {
+                    item: ety_item,
+                    confidence,
+                    is_newly_imputed,
+                } = self.get_or_impute_item(
+                    ety_graph,
+                    embeddings,
+                    &item_embeddings,
+                    ety_lang,
+                    ety_term,
+                );
+                has_new_imputation = is_newly_imputed;
+                if has_new_imputation {
+                    if template.terms.len() == 1 {
+                        // This is a newly imputed term in a non-compound-kind template.
+                        // We will use this newly imputed item as the item for the next
+                        // template in the outer loop.
+                        next_item = Rc::clone(&ety_item);
+                    } else {
+                        // This is a newly imputed item for a term in a
+                        // compound-kind template. We won't bother trying to do
+                        // convoluted ety link imputations for such cases at the
+                        // moment. So we stop processing templates here.
+                        return;
+                    }
                 }
+                ety_items.push(Rc::clone(&ety_item));
+                confidences.push(confidence);
             }
-            ety_graph.add_ety(&current_item, template.mode, template.head, &ety_items);
+            ety_graph.add_ety(
+                &current_item,
+                template.mode,
+                template.head,
+                &ety_items,
+                &confidences,
+            );
             // We keep processing templates until we hit the first one with no
             // imputation required.
             if !has_new_imputation {
