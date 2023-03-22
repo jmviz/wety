@@ -173,14 +173,32 @@ impl Embeddings {
             glosses: EmbeddingMap::new(&model, config.batch_size),
         })
     }
-    pub(crate) fn add(&mut self, json_item: &WiktextractJson, item: &Rc<RawItem>) -> Result<()> {
-        if !self.ety.map.contains_key(&item.i)
+    pub(crate) fn add(
+        &mut self,
+        json_item: &WiktextractJson,
+        item_lang: &str,
+        item_term: &str,
+        item_i: usize,
+    ) -> Result<()> {
+        if !self.ety.map.contains_key(&item_i)
             && let Some(ety_text) = json_item.get_str("etymology_text")
             && !ety_text.is_empty()
-            {
-                self.ety.update(item.i, ety_text.to_string())?;
-            }
-        if !self.glosses.map.contains_key(&item.i) {
+        {
+            // We prepend the lang name and term to the ety text. Consider a
+            // veridical ancestor chain of a>b>c0, where c0 has a within-lang
+            // homograph c1. Suppose that the ety texts are as follows: a: "",
+            // b: "From a.", c0: "From b.", c1: "From z." If we just compared
+            // ety texts, then c0 and c1 would have comparable similarities to
+            // b, because neither c0 nor c1's ety text share's anything from
+            // b's. Now consider the prepended versions: a: "a", b: "b. From
+            // a.", c0: "c0. From b.", c1: "c1. From z." Now c0 shares "b" with
+            // b's ety text, while c1 still shares nothing with b's ety text. So
+            // c0's similarity to b will be higher than c1's, as desired.
+            let ety_text = format!("{item_lang} {item_term}. {ety_text}");
+            println!("{ety_text}");
+            self.ety.update(item_i, ety_text)?;
+        }
+        if !self.glosses.map.contains_key(&item_i) {
             let mut glosses_text = String::new();
             if let Some(senses) = json_item.get_array("senses") {
                 for sense in senses {
@@ -195,7 +213,7 @@ impl Embeddings {
                 }
             }
             if !glosses_text.is_empty() {
-                self.glosses.update(item.i, glosses_text.to_string())?;
+                self.glosses.update(item_i, glosses_text.to_string())?;
             }
         }
         Ok(())
@@ -240,7 +258,7 @@ impl EmbeddingComparand<Option<&Embedding>> for Option<&Embedding> {
     }
 }
 
-const ETY_WEIGHT: f32 = 0.5;
+const ETY_WEIGHT: f32 = 0.4;
 const GLOSSES_WEIGHT: f32 = 1.0 - ETY_WEIGHT;
 
 impl EmbeddingComparand<ItemEmbedding<'_>> for ItemEmbedding<'_> {
@@ -256,7 +274,12 @@ impl EmbeddingComparand<ItemEmbedding<'_>> for ItemEmbedding<'_> {
     }
 }
 
+// The farther you get down a chain of ancestry, the more an item's meaning (and
+// hence glosses) is likely to diverge from the remoter ancestors'. This
+// discount factor thus assigns ancestors progressively lesser weights the
+// farther you get up the chain from the item in question.
 const DISCOUNT: f32 = 0.95;
+
 const ETY_QUALITY: f32 = 1.0;
 const NO_ETY_QUALITY: f32 = 0.5;
 const EMPTY_QUALITY: f32 = 0.0;
@@ -349,10 +372,12 @@ mod tests {
     fn cosine_similarity_identical() {
         let mut embeddings = embeddings();
         let json = json("test", "test test");
+        let lang = "test_lang";
+        let term = "test_term";
         let item0 = item(0);
         let item1 = item(1);
-        embeddings.add(&json, &item0).unwrap();
-        embeddings.add(&json, &item1).unwrap();
+        embeddings.add(&json, lang, term, item0.i).unwrap();
+        embeddings.add(&json, lang, term, item1.i).unwrap();
         let item_embedding0 = embeddings.get(&item0);
         assert!(item_embedding0.ety.is_some());
         assert!(item_embedding0.glosses.is_some());
@@ -371,37 +396,101 @@ mod tests {
         assert!(feq(similarity0, similarity1));
     }
 
-    #[test]
-    fn cosine_similarity_obvious() {
+    fn assert_right_disambiguation(
+        base_lang: &str,
+        base_term: &str,
+        base_json: &WiktextractJson,
+        candidates_lang: &str,
+        candidates_term: &str,
+        right_json: &WiktextractJson,
+        wrong_json: &WiktextractJson,
+    ) {
         let mut embeddings = embeddings();
-        let parent_json = json(
+        let parent = item(0);
+        let right = item(1);
+        let wrong = item(2);
+        embeddings
+            .add(base_json, base_lang, base_term, parent.i)
+            .unwrap();
+        embeddings
+            .add(right_json, candidates_lang, candidates_term, right.i)
+            .unwrap();
+        embeddings
+            .add(wrong_json, candidates_lang, candidates_term, wrong.i)
+            .unwrap();
+        let base_embedding = embeddings.get(&parent);
+        let right_embedding = embeddings.get(&right);
+        let wrong_embedding = embeddings.get(&wrong);
+        let ety_right_similarity = base_embedding.ety.cosine_similarity(right_embedding.ety);
+        let ety_wrong_similarity = base_embedding.ety.cosine_similarity(wrong_embedding.ety);
+        println!("ety similarities: {ety_right_similarity}, {ety_wrong_similarity}");
+        // assert!(ety_right_similarity > ety_wrong_similarity);
+        let glosses_right_similarity = base_embedding
+            .glosses
+            .cosine_similarity(right_embedding.glosses);
+        let glosses_wrong_similarity = base_embedding
+            .glosses
+            .cosine_similarity(wrong_embedding.glosses);
+        println!("glosses similarities: {glosses_right_similarity}, {glosses_wrong_similarity}");
+        // assert!(glosses_right_similarity > glosses_wrong_similarity);
+        let right_similarity = base_embedding.cosine_similarity(right_embedding);
+        let wrong_similarity = base_embedding.cosine_similarity(wrong_embedding);
+        println!("similarities: {right_similarity}, {wrong_similarity}");
+        assert!(right_similarity > wrong_similarity);
+    }
+
+    #[test]
+    fn cosine_similarity_minþiją() {
+        let base_lang = "Proto-Germanic";
+        let base_term = "minþiją";
+        let base_json = json(
             "From Proto-Indo-European *men- (“to think”).",
             "memory, remembrance",
         );
-        let candidate0_json = json("From Proto-Germanic *(ga)minþiją.", "memory");
-        let candidate1_json = json(
+        let candidates_lang = "Old Norse";
+        let candidates_term = "minni";
+        let right_json = json("From Proto-Germanic *(ga)minþiją.", "memory");
+        let wrong_json = json(
             "From Proto-Germanic *minnizô, comparative of *lītilaz.",
             "less, smaller: comparative degree of lítill",
         );
-        let parent_item = item(0);
-        let candidate0_item = item(1);
-        let candidate1_item = item(2);
-        embeddings.add(&parent_json, &parent_item).unwrap();
-        embeddings.add(&candidate0_json, &candidate0_item).unwrap();
-        embeddings.add(&candidate1_json, &candidate1_item).unwrap();
-        let parent_item_embedding = embeddings.get(&parent_item);
-        assert!(parent_item_embedding.ety.is_some());
-        assert!(parent_item_embedding.glosses.is_some());
-        let candidate0_item_embedding = embeddings.get(&candidate0_item);
-        assert!(candidate0_item_embedding.ety.is_some());
-        assert!(candidate0_item_embedding.glosses.is_some());
-        let candidate1_item_embedding = embeddings.get(&candidate1_item);
-        assert!(candidate1_item_embedding.ety.is_some());
-        assert!(candidate1_item_embedding.glosses.is_some());
-        let similarity0 = parent_item_embedding.cosine_similarity(candidate0_item_embedding);
-        println!("{similarity0}");
-        let similarity1 = parent_item_embedding.cosine_similarity(candidate1_item_embedding);
-        println!("{similarity1}");
-        assert!(similarity0 > similarity1);
+        assert_right_disambiguation(
+            base_lang,
+            base_term,
+            &base_json,
+            candidates_lang,
+            candidates_term,
+            &right_json,
+            &wrong_json,
+        );
+    }
+
+    #[test]
+    fn cosine_similarity_mone() {
+        let base_lang = "English";
+        let base_term = "moon";
+        let base_json = json(
+            "From Middle English mone, from Old English mōna (“moon”), from Proto-West Germanic *mānō, from Proto-Germanic *mēnô (“moon”), from Proto-Indo-European *mḗh₁n̥s (“moon, month”), probably from *meh₁- (“to measure”).\ncognates and doublets\nCognate with Scots mone, mune, muin (“moon”), North Frisian muun (“moon”), West Frisian moanne (“moon”), Dutch maan (“moon”), German Mond (“moon”), Danish måne (“moon”), Norwegian Bokmål måne (“moon”), Norwegian Nynorsk måne (“moon”), Swedish måne (“moon”), Icelandic máni (“moon”), Latin mēnsis (“month”). See also month, a related term within Indo-European.",
+            "Alternative letter-case form of Moon (“the Earth's only permanent natural satellite”).",
+        );
+        let candidates_lang = "Middle English";
+        let candidates_term = "mone";
+        let right_json = json(
+            "From Old English mōna. The sense of the word as silver is the result of its astrological association with the planet.",
+            "The celestial body closest to the Earth, considered to be a planet in the Ptolemic system as well as the boundary between the Earth and the heavens; the Moon. A white, precious metal; silver."
+        );
+        let wrong_json = json(
+            "From Old English mān, from Proto-West Germanic *mainu, from Proto-Germanic *mainō.",
+            "A lamentation A moan, complaint",
+        );
+        assert_right_disambiguation(
+            base_lang,
+            base_term,
+            &base_json,
+            candidates_lang,
+            candidates_term,
+            &right_json,
+            &wrong_json,
+        );
     }
 }

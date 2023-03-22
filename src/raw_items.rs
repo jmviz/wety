@@ -4,6 +4,8 @@ use crate::{
     ety_graph::EtyGraph,
     etymology::RawEtymology,
     lang::is_reconstructed_lang,
+    lang_phf::LANG_CODE2NAME,
+    phf_ext::OrderedMapExt,
     progress_bar,
     redirects::Redirects,
     root::RawRoot,
@@ -301,6 +303,7 @@ impl RawItems {
     // ambiguous terms we found the first time.
     pub(crate) fn generate_embeddings(
         &self,
+        string_pool: &StringPool,
         wiktextract_path: &Path,
         embeddings_config: &EmbeddingsConfig,
     ) -> Result<Embeddings> {
@@ -316,7 +319,9 @@ impl RawItems {
                 && items_needing_embedding.contains(item)
             {
                 let json_item = to_borrowed_value(&mut line)?;
-                embeddings.add(&json_item, item)?;
+                let lang = LANG_CODE2NAME.get_expected_index_value(item.lang)?;
+                let term = string_pool.resolve(item.term);
+                embeddings.add(&json_item, lang, term, item.i)?;
                 added += 1;
                 if added % embeddings_config.progress_update_interval == 0 {
                     pb.inc(embeddings_config.progress_update_interval as u64);

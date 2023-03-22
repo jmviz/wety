@@ -1,3 +1,23 @@
+## TODO
+
+* Prepend items's language name and term to ety text in embeddings. But still store None embedding if item has no ety_text. 
+* Cache embeddings using `cacache`.
+* Serialize EtyGraph.
+* Write rust server for frontend client queries. The server will use the serialized EtyGraph as input on startup, then hold the EtyGraph in memory while running.
+
+
+### Potential improvements to item disambiguation / ety link inference
+
+* Use senseid's to augment disambiguation. Seem to be fairly common in e.g. Middle English, which has tons of ambiguous terms. 
+
+* Consider adding a confidence threshold, where the item embedding similarity between two items needs to be above the threshold for the ety link to be added (unless one of the items is an imputed item, in which case the similarity will always be 0 and the threshold should be bypassed).
+
+### Bugs to investigate
+
+* Spurious progenitors, e.g. PIE deh₃- is progenitor of PIE men-.
+* Spurious roots, e.g. Proto-Germanic mainą is given root PIE meh₁- even though it has no raw_root and its one child has no raw root either.
+* These first two items above might be related to the * counting depth bug in wiktextract descendants fork. Rerun wiktextract to see if this resolves.
+
 ## Things to consider for reducing RAM usage
 
 * Use [`cacache`](https://docs.rs/cacache/latest/cacache/) to cache item embeddings, or potentially the entire item (implementing serialize on Item) and keeping only item id (or `sri` from `cacache`) in memory.

@@ -86,7 +86,8 @@ pub fn wiktextract_to_turtle(
     let mut processor = RawDataProcessor::new()?;
     let items = processor.process_json_items(wiktextract_path)?;
     println!("Finished. Took {}.", HumanDuration(t.elapsed()));
-    let embeddings = items.generate_embeddings(wiktextract_path, embeddings_config)?;
+    let embeddings =
+        items.generate_embeddings(&processor.string_pool, wiktextract_path, embeddings_config)?;
     t = Instant::now();
     println!("Generating ety graph...");
     let ety_graph = items.generate_ety_graph(&processor.string_pool, &embeddings)?;
