@@ -1,6 +1,5 @@
 ## TODO
 
-* Prepend items's language name and term to ety text in embeddings. But still store None embedding if item has no ety_text. 
 * Cache embeddings using `cacache`.
 * Serialize EtyGraph.
 * Write rust server for frontend client queries. The server will use the serialized EtyGraph as input on startup, then hold the EtyGraph in memory while running.

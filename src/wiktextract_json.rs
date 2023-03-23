@@ -1,6 +1,6 @@
 use crate::{
-    lang::is_reconstructed_lang,
     lang_phf::LANG_CODE2NAME,
+    lang_term::Lang,
     pos_phf::POS,
     raw_items::{RawItem, RawItems},
     RawDataProcessor,
@@ -68,55 +68,54 @@ impl RawDataProcessor {
             return Ok(());
         }
         if let Some(page_title) = json_item.get_valid_str("word")
-        && let Some(pos) = json_item.get_valid_str("pos")
-        && let Some(pos_index) = POS.get_index(pos)
-        && !should_ignore_term(page_title, pos)
-        && let Some(lang) = json_item.get_valid_str("lang_code")
-        && let Some(lang_index) = LANG_CODE2NAME.get_index(lang)
-    {
-        let term = get_term_canonical_form(json_item).unwrap_or(page_title);
-        let term = self.string_pool.get_or_intern(term);
-        let page_title = Some(self.string_pool.get_or_intern(page_title));
-        // if term-lang combo has multiple ety's, then 'etymology_number' is
-        // present with range 1,2,... Otherwise, this key is missing.
-        let ety_num = json_item.get_u8("etymology_number");
-        // 'senses' key should always be present with non-empty value, but glosses
-        // may be missing or empty.
-        let gloss = json_item
-            .get_array("senses")
-            .and_then(|senses| senses.get(0))
-            .and_then(|sense| sense.get_array("glosses"))
-            .and_then(|glosses| glosses.get(0))
-            .and_then(|gloss| gloss.as_str())
-            .and_then(|s| (!s.is_empty()).then(|| self.string_pool.get_or_intern(s)));
+            && let Some(pos) = json_item.get_valid_str("pos")
+            && let Some(pos_index) = POS.get_index(pos)
+            && !should_ignore_term(page_title, pos)
+            && let Some(lang) = Lang::try_from(json_item).ok()
+        {
+            let term = get_term_canonical_form(json_item).unwrap_or(page_title);
+            let term = self.string_pool.get_or_intern(term);
+            let page_title = Some(self.string_pool.get_or_intern(page_title));
+            // if term-lang combo has multiple ety's, then 'etymology_number' is
+            // present with range 1,2,... Otherwise, this key is missing.
+            let ety_num = json_item.get_u8("etymology_number");
+            // 'senses' key should always be present with non-empty value, but glosses
+            // may be missing or empty.
+            let gloss = json_item
+                .get_array("senses")
+                .and_then(|senses| senses.get(0))
+                .and_then(|sense| sense.get_array("glosses"))
+                .and_then(|glosses| glosses.get(0))
+                .and_then(|gloss| gloss.as_str())
+                .and_then(|s| (!s.is_empty()).then(|| self.string_pool.get_or_intern(s)));
 
-        let raw_root = self.process_json_root(json_item, lang);
-        let raw_etymology = self.process_json_ety(json_item, lang);
-        let raw_descendants = self.process_json_descendants(json_item);
+            let raw_root = self.process_json_root(json_item, lang);
+            let raw_etymology = self.process_json_ety(json_item, lang);
+            let raw_descendants = self.process_json_descendants(json_item);
 
-        let item = RawItem {
-            line: Some(line_number),
-            is_imputed: false,
-            // $$ This will not catch all reconstructed terms, since some terms
-            // in attested languages are reconstructed. Some better inference
-            // should be done based on "*" prefix for terms. 
-            is_reconstructed: is_reconstructed_lang(lang_index),
-            i: items.n,
-            lang: lang_index,
-            term,
-            page_title,
-            ety_num,
-            pos: Some(pos_index),
-            gloss,
-            gloss_num: 0, // temp value to be changed if need be in add()
-            raw_etymology,
-            raw_root,
-            raw_descendants,
-        };
-        if let Some(item) = items.add_to_term_map(item)? {
-            items.line_map.insert(line_number, item);
+            let item = RawItem {
+                line: Some(line_number),
+                is_imputed: false,
+                // $$ This will not catch all reconstructed terms, since some terms
+                // in attested languages are reconstructed. Some better inference
+                // should be done based on "*" prefix for terms. 
+                is_reconstructed: is_reconstructed_lang(lang_index),
+                i: items.n,
+                lang: lang_index,
+                term,
+                page_title,
+                ety_num,
+                pos: Some(pos_index),
+                gloss,
+                gloss_num: 0, // temp value to be changed if need be in add()
+                raw_etymology,
+                raw_root,
+                raw_descendants,
+            };
+            if let Some(item) = items.add_to_term_map(item)? {
+                items.line_map.insert(line_number, item);
+            }
         }
-    }
         Ok(())
     }
 

@@ -3,7 +3,6 @@ use crate::{
     embeddings::{EmbeddingComparand, Embeddings, EmbeddingsConfig, ItemEmbedding},
     ety_graph::EtyGraph,
     etymology::RawEtymology,
-    lang::is_reconstructed_lang,
     lang_phf::LANG_CODE2NAME,
     phf_ext::OrderedMapExt,
     progress_bar,

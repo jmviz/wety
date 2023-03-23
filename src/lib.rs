@@ -8,8 +8,8 @@ pub mod embeddings;
 mod ety_graph;
 mod etymology;
 mod etymology_templates;
-mod lang;
 mod lang_phf;
+mod lang_term;
 mod phf_ext;
 mod pos_phf;
 mod raw_items;
@@ -20,11 +20,7 @@ mod turtle;
 mod wiktextract_json;
 
 use crate::{
-    ety_graph::EtyGraph,
-    lang::{etylang2lang, is_reconstructed_lang},
-    raw_items::RawItems,
-    string_pool::StringPool,
-    turtle::write_turtle_file,
+    ety_graph::EtyGraph, raw_items::RawItems, string_pool::StringPool, turtle::write_turtle_file,
 };
 
 use std::{

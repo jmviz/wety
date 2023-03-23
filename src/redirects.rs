@@ -1,9 +1,6 @@
 use crate::{
-    lang::etylang2lang,
-    lang_phf::{LANG_CODE2NAME, LANG_NAME2CODE},
-    phf_ext::OrderedMapExt,
+    lang_term::{LangTerm, Language, LanguageTerm, Term},
     raw_items::RawItems,
-    string_pool::Symbol,
     wiktextract_json::{WiktextractJson, WiktextractJsonAccess},
     RawDataProcessor,
 };
@@ -11,45 +8,31 @@ use crate::{
 use hashbrown::HashMap;
 use phf::{phf_set, Set};
 
-#[derive(Hash, Eq, PartialEq, Debug)]
-struct ReconstructionTitle {
-    language: usize,
-    term: Symbol,
-}
-
 #[derive(Default)]
 pub(crate) struct Redirects {
-    reconstruction: HashMap<ReconstructionTitle, ReconstructionTitle>,
-    regular: HashMap<Symbol, Symbol>,
+    reconstruction: HashMap<LanguageTerm, LanguageTerm>,
+    regular: HashMap<Term, Term>,
 }
 
 impl Redirects {
     // If a redirect page exists for given lang + term combo, get the redirect.
     // If not, just return back the original lang + term.
-    fn get(&self, lang: usize, term: Symbol) -> (usize, Symbol) {
-        if let Some(language) = LANG_CODE2NAME.get_index_value(lang)
-            && let Some(language_index) = LANG_NAME2CODE.get_index(language)
-            && let Some(redirect) = self.reconstruction.get(&ReconstructionTitle {
-                language: language_index,
-                term,
-            })
-            && let Some(redirect_lang) = LANG_NAME2CODE.get_index_value(redirect.language)
-            && let Some(redirect_lang_index) = LANG_CODE2NAME.get_index(redirect_lang)
-        {
-            return (redirect_lang_index, redirect.term);
-        } else if let Some(&redirect_term) = self.regular.get(&term) {
-                return (lang, redirect_term);
+    fn get(&self, lang_term: LangTerm) -> LangTerm {
+        if let Some(&redirect) = self.reconstruction.get(&LanguageTerm::from(lang_term)) {
+            return redirect.into();
+        } else if let Some(&redirect_term) = self.regular.get(&lang_term.term) {
+            return LangTerm::new(lang_term.lang, redirect_term);
         }
-        (lang, term)
+        lang_term
     }
-    pub(crate) fn rectify_lang_term(&self, lang: usize, term: Symbol) -> (usize, Symbol) {
+    pub(crate) fn rectify_lang_term(&self, lang_term: LangTerm) -> LangTerm {
         // If lang is an etymology-only language, we will not find any entries
         // for it in Items lang map, since such a language definitionally does
         // not have any entries itself. So we look for the actual lang that the
         // ety lang is associated with.
-        let lang = etylang2lang(lang);
+        let main_lang = lang_term.lang.ety2main();
         // Then we also check if there is a redirect for this lang term combo.
-        self.get(lang, term)
+        self.get(LangTerm::new(main_lang, lang_term.term))
     }
 }
 
@@ -83,23 +66,20 @@ impl RawDataProcessor {
                 return;
             }
             // otherwise, this is a simple term-to-term redirect
-            let from_title = self.string_pool.get_or_intern(from_title);
-            let to_title = self.string_pool.get_or_intern(to_title);
+            let from_title = Term::new(&mut self.string_pool, from_title);
+            let to_title = Term::new(&mut self.string_pool, to_title);
             items.redirects.regular.insert(from_title, to_title);
         }
     }
 
-    fn process_reconstruction_title(&mut self, title: &str) -> Option<ReconstructionTitle> {
+    fn process_reconstruction_title(&mut self, title: &str) -> Option<LanguageTerm> {
         // e.g. Reconstruction:Proto-Germanic/pīpǭ
         let title = title.strip_prefix("Reconstruction:")?;
         let slash = title.find('/')?;
-        let language = &title.get(..slash)?;
+        let language = title.get(..slash)?;
         let term = title.get(slash + 1..)?;
-        let language_index = LANG_NAME2CODE.get_index(language)?;
-
-        Some(ReconstructionTitle {
-            language: language_index,
-            term: self.string_pool.get_or_intern(term),
-        })
+        let language = Language::try_from(language).ok()?;
+        let term = Term::new(&mut self.string_pool, term);
+        Some(LanguageTerm { language, term })
     }
 }
