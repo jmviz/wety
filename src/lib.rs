@@ -11,6 +11,7 @@ mod etymology_templates;
 mod lang_phf;
 mod lang_term;
 mod phf_ext;
+mod pos;
 mod pos_phf;
 mod raw_items;
 mod redirects;

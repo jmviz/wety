@@ -1,8 +1,9 @@
 use crate::{
-    lang_phf::LANG_CODE2NAME,
-    lang_term::Lang,
+    lang_term::{Lang, LangTerm, Term},
+    pos::Pos,
     pos_phf::POS,
     raw_items::{RawItem, RawItems},
+    string_pool::StringPool,
     RawDataProcessor,
 };
 
@@ -21,6 +22,11 @@ pub(crate) type WiktextractJson<'a> = simd_json::value::borrowed::Value<'a>;
 
 pub(crate) trait WiktextractJsonAccess {
     fn get_valid_str(&self, key: &str) -> Option<&str>;
+    fn get_lang(&self) -> Option<Lang>;
+    fn get_page_term(&self, string_pool: &mut StringPool) -> Option<Term>;
+    fn get_canonical_term(&self, string_pool: &mut StringPool) -> Option<Term>;
+    fn get_lang_term(&self, string_pool: &mut StringPool) -> Option<LangTerm>;
+    fn get_pos(&self) -> Option<Pos>;
 }
 
 impl WiktextractJsonAccess for WiktextractJson<'_> {
@@ -34,6 +40,91 @@ impl WiktextractJsonAccess for WiktextractJson<'_> {
             .map(clean_ety_term)
             .and_then(|s| (!s.is_empty() && s != "-").then_some(s))
     }
+
+    fn get_lang(&self) -> Option<Lang> {
+        let lang_code = self.get_valid_str("lang_code")?;
+        lang_code.try_into().ok()
+    }
+
+    // The form of the term used in the page url, e.g. "voco"
+    fn get_page_term(&self, string_pool: &mut StringPool) -> Option<Term> {
+        if let Some(term) = self.get_valid_str("word")
+            && !should_ignore_term(term)
+        {
+            return Some(Term::new(string_pool, term));
+    }
+        None
+    }
+
+    // The canonical form of the term, e.g. "vocō". This is the form generally
+    // used in ety templates, which gets converted under the hood by wiktionary
+    // Module:languages into the page_term "link" version. See notes.md for
+    // more.
+    fn get_canonical_term(&self, string_pool: &mut StringPool) -> Option<Term> {
+        if let Some(forms) = self.get_array("forms") {
+            let mut f = 0;
+            while let Some(form) = forms.get(f) {
+                if let Some(tags) = form.get_array("tags") {
+                    let mut t = 0;
+                    while let Some(tag) = tags.get(t).as_str() {
+                        if tag == "canonical" {
+                            // There are some
+                            if let Some(term) = form.get_valid_str("form")
+                                && !should_ignore_term(term)
+                            {
+                                return Some(Term::new(string_pool, term));
+                            }
+                        }
+                        t += 1;
+                    }
+                }
+                f += 1;
+            }
+        }
+        self.get_page_term(string_pool)
+    }
+
+    fn get_lang_term(&self, string_pool: &mut StringPool) -> Option<LangTerm> {
+        let lang = self.get_lang()?;
+        let term = self.get_canonical_term(string_pool)?;
+        Some(LangTerm { lang, term })
+    }
+
+    fn get_pos(&self) -> Option<Pos> {
+        let pos = self.get_valid_str("pos")?;
+        pos.try_into().ok()
+    }
+}
+
+fn clean_ety_term(term: &str) -> &str {
+    // Reconstructed terms (e.g. PIE) are supposed to start with "*" when cited
+    // in etymologies but their entry titles (and hence wiktextract "word"
+    // field) do not. This is done by
+    // https://en.wiktionary.org/wiki/Module:links. Sometimes reconstructed
+    // terms are missing this *, and sometimes non-reconstructed terms start
+    // with * incorrectly. So we strip the * in every case. This will break
+    // terms that actually start with *, but there are almost none of these, and
+    // none of them are particularly relevant for our purposes AFAIK.
+    term.strip_prefix('*').unwrap_or(term)
+}
+
+// These two functions needs revisiting depending on results.
+
+// We would generally like to ignore phrases, and potentially other things.
+//  Barring all phrases may be both too strict and not strict enough. Too
+// strict because certain phrases may be relevant for etymologies (i.e. a
+// phrase became one word in a daughter language). Not strict enough because
+// many phrases are categorized as other pos. See e.g.
+// https://en.wiktionary.org/wiki/this,_that,_or_the_other. Ignoring terms
+// that contain any ascii punctuation is too strict, as this would ingore
+// e.g. affixes with -. Ignoring terms with any ascii whitespace is too
+// strict as well, as this would ignore e.g. circumfixes (e.g. "ver- -en").
+fn should_ignore_term(term: &str) -> bool {
+    term.contains(|c: char| c == ',')
+}
+
+fn should_ignore_pos(pos: &str) -> bool {
+    pos.contains("phrase")
 }
 
 pub(crate) fn wiktextract_lines(path: &Path) -> Result<impl Iterator<Item = Vec<u8>>> {
@@ -67,10 +158,9 @@ impl RawDataProcessor {
             self.process_redirect(items, json_item);
             return Ok(());
         }
-        if let Some(page_title) = json_item.get_valid_str("word")
-            && let Some(pos) = json_item.get_valid_str("pos")
-            && let Some(pos_index) = POS.get_index(pos)
-            && !should_ignore_term(page_title, pos)
+        if let Some(page_term) = json_item.get_page_term(&mut self.string_pool)
+            && let Some(pos) = json_item.get_pos()
+            && !should_ignore_term(page_term, pos)
             && let Some(lang) = Lang::try_from(json_item).ok()
         {
             let term = get_term_canonical_form(json_item).unwrap_or(page_title);
@@ -128,54 +218,4 @@ impl RawDataProcessor {
         }
         Ok(items)
     }
-}
-
-fn clean_ety_term(term: &str) -> &str {
-    // Reconstructed terms (e.g. PIE) are supposed to start with "*" when cited
-    // in etymologies but their entry titles (and hence wiktextract "word"
-    // field) do not. This is done by
-    // https://en.wiktionary.org/wiki/Module:links. Sometimes reconstructed
-    // terms are missing this *, and sometimes non-reconstructed terms start
-    // with * incorrectly. So we strip the * in every case. This will break
-    // terms that actually start with *, but there are almost none of these, and
-    // none of them are particularly relevant for our purposes AFAIK.
-    term.strip_prefix('*').unwrap_or(term)
-}
-
-fn should_ignore_term(term: &str, pos: &str) -> bool {
-    // This function needs revisiting depending on results.
-
-    // We would generally like to ignore phrases, and potentially other things.
-    //  Barring all phrases may be both too strict and not strict enough. Too
-    // strict because certain phrases may be relevant for etymologies (i.e. a
-    // phrase became one word in a daughter language). Not strict enough because
-    // many phrases are categorized as other pos. See e.g.
-    // https://en.wiktionary.org/wiki/this,_that,_or_the_other. Ignoring terms
-    // that contain any ascii punctuation is too strict, as this would ingore
-    // e.g. affixes with -. Ignoring terms with any ascii whitespace is too
-    // strict as well, as this would ignore e.g. circumfixes (e.g. "ver- -en").
-    pos.contains("phrase") || term.contains(|c: char| c == ',')
-}
-
-// We look for a canonical form, otherwise we take the "word" field.
-// See notes.md for motivation.
-fn get_term_canonical_form<'a>(json_item: &'a WiktextractJson) -> Option<&'a str> {
-    let forms = json_item.get_array("forms")?;
-    let mut f = 0;
-    while let Some(form) = forms.get(f) {
-        if let Some(tags) = form.get_array("tags") {
-            let mut t = 0;
-            while let Some(tag) = tags.get(t).as_str() {
-                if tag == "canonical" {
-                    // There are some
-                    if let Some(term) = form.get_valid_str("form") {
-                        return Some(term);
-                    }
-                }
-                t += 1;
-            }
-        }
-        f += 1;
-    }
-    None
 }

@@ -4,8 +4,18 @@ use crate::{
     lang_phf::{LANG_CODE2NAME, LANG_ETYCODE2CODE, LANG_NAME2CODE, LANG_RECONSTRUCTED},
     phf_ext::OrderedMapExt,
     string_pool::{StringPool, Symbol},
-    wiktextract_json::{WiktextractJson, WiktextractJsonAccess},
 };
+
+// See data/phf/lang.py for more on these, but in summary:
+// LANG_CODE2NAME: A bijection from all lang codes to their canonical names,
+// e.g. "en" -> "English".
+// LANG_NAME2CODE: Not merely the inverse of CODE2NAME. Many languages have
+// multiple names, each of which maps to the same lang code (i.e. the map is
+// surjective but not injective).
+// LANG_ETYCODE2CODE: Maps every etymology-only lang code to the lang code of
+// its nearest "main" parent (i.e. lang code for which a wiktionary page can
+// exist), e.g. "VL." -> "la"
+// LANG_RECONSTRUCTED: A set of all reconstructed lang codes.
 
 // LangId refers to an index in the LANG_CODE2NAME OrderedMap
 pub(crate) type LangId = usize;
@@ -30,19 +40,8 @@ impl TryFrom<&str> for Lang {
             return Ok(id.into());
         }
         Err(anyhow!(
-            "The key '{lang_code}' does not exist LANG_CODE2NAME"
+            "The key \"{lang_code}\" does not exist LANG_CODE2NAME"
         ))
-    }
-}
-
-impl TryFrom<&WiktextractJson<'_>> for Lang {
-    type Error = anyhow::Error;
-
-    fn try_from(json_item: &WiktextractJson) -> Result<Self, Self::Error> {
-        if let Some(lang_code) = json_item.get_valid_str("lang_code") {
-            return Ok(lang_code.try_into()?);
-        }
-        Err(anyhow!("\"lang_code\" was not in json:\n{json_item}"))
     }
 }
 
@@ -80,9 +79,7 @@ impl Lang {
     }
 }
 
-// LanguageId refers to an index in the LANG_NAME2CODE OrderedMap. LANG_NAME2CODE is
-// not bijective with LANG_CODE2NAME (see data/phf/lang.py for why) so we need
-// to treat them separately.
+// LanguageId refers to an index in the LANG_NAME2CODE OrderedMap.
 pub(crate) type LanguageId = usize;
 
 #[derive(Hash, Eq, PartialEq, Debug, Copy, Clone)]
@@ -123,7 +120,7 @@ impl TryFrom<&str> for Language {
             return Ok(id.into());
         }
         Err(anyhow!(
-            "The key '{language_name}' does not exist LANG_NAME2CODE"
+            "The key \"{language_name}\" does not exist LANG_NAME2CODE"
         ))
     }
 }
