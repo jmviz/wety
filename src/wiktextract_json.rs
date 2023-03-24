@@ -1,9 +1,9 @@
 use crate::{
     gloss::Gloss,
+    items::{Item, RawItems},
     langterm::{Lang, LangTerm, Term},
     pos::Pos,
     pos_phf::POS,
-    raw_items::{RawItem, RawItems},
     string_pool::StringPool,
     RawDataProcessor,
 };
@@ -193,7 +193,7 @@ impl RawDataProcessor {
             let raw_etymology = self.process_json_ety(json_item, lang.code());
             let raw_descendants = self.process_json_descendants(json_item);
 
-            let item = RawItem {
+            let item = Item {
                 line: Some(line_number),
                 is_imputed: false,
                 // $$ This will not catch all reconstructed terms, since some terms
@@ -212,7 +212,7 @@ impl RawDataProcessor {
                 raw_descendants,
             };
             if let Some(item) = items.add(item)? {
-                items.line_map.insert(line_number, item);
+                items.lines.insert(line_number, item);
             }
         }
         Ok(())

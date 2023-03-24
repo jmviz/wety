@@ -1,4 +1,4 @@
-use crate::{raw_items::RawItem, wiktextract_json::WiktextractJson};
+use crate::{items::Item, wiktextract_json::WiktextractJson};
 
 use std::{mem::take, rc::Rc};
 
@@ -223,7 +223,7 @@ impl Embeddings {
         self.glosses.flush()?;
         Ok(())
     }
-    pub(crate) fn get(&self, item: &Rc<RawItem>) -> ItemEmbedding {
+    pub(crate) fn get(&self, item: ItemId) -> ItemEmbedding {
         ItemEmbedding {
             ety: self.ety.map.get(&item.i),
             glosses: self.glosses.map.get(&item.i),
@@ -336,8 +336,8 @@ mod tests {
         .into()
     }
 
-    fn item(i: usize) -> Rc<RawItem> {
-        Rc::from(RawItem {
+    fn item(i: usize) -> ItemId {
+        Rc::from(Item {
             line: None,
             is_imputed: false,
             is_reconstructed: false,

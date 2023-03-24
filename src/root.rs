@@ -2,11 +2,12 @@ use crate::{
     embeddings::{EmbeddingComparand, Embeddings, ItemEmbedding},
     ety_graph::EtyGraph,
     etymology_templates::EtyMode,
+    items::{Item, RawItems, Retrieval},
     lang_phf::{LANG_CODE2NAME, LANG_NAME2CODE},
+    langterm::LangTerm,
     phf_ext::OrderedSetExt,
     pos_phf::POS,
     progress_bar,
-    raw_items::{RawItem, RawItems, Retrieval},
     string_pool::Symbol,
     wiktextract_json::{WiktextractJson, WiktextractJsonAccess},
     RawDataProcessor,
@@ -21,8 +22,7 @@ use simd_json::ValueAccess;
 
 #[derive(Hash, Eq, PartialEq, Debug)]
 pub(crate) struct RawRoot {
-    pub(crate) langterm: usize,
-    pub(crate) term: Symbol,
+    pub(crate) langterm: LangTerm,
     pub(crate) sense_id: Option<Symbol>,
 }
 
@@ -134,7 +134,7 @@ impl RawItems {
                                 && !self.contains(raw_root.lang, raw_root.term)
                             {
                                 let i = self.n + ety_graph.imputed_items.n;
-                                let root = Rc::from(RawItem::new_imputed(
+                                let root = Rc::from(Item::new_imputed(
                                     i,
                                     raw_root.lang,
                                     raw_root.term,
@@ -157,13 +157,13 @@ impl RawItems {
         ety_graph: &mut EtyGraph,
         embeddings: &Embeddings,
         embedding: ItemEmbedding,
-        item: &Rc<RawItem>,
+        item: ItemId,
     ) {
         if let Some(raw_root) = &item.raw_root
             && ety_graph.get_immediate_ety(item).is_none()
         {
             let Retrieval {
-                item: root_item, ..
+                item_id: root_item, ..
                 } = self.get_or_impute_item(
                     ety_graph,
                     embeddings,

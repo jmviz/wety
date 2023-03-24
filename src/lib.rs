@@ -9,12 +9,12 @@ mod ety_graph;
 mod etymology;
 mod etymology_templates;
 mod gloss;
+mod items;
 mod lang_phf;
 mod langterm;
 mod phf_ext;
 mod pos;
 mod pos_phf;
-mod raw_items;
 mod redirects;
 mod root;
 mod string_pool;
@@ -22,13 +22,14 @@ mod turtle;
 mod wiktextract_json;
 
 use crate::{
-    ety_graph::EtyGraph, raw_items::RawItems, string_pool::StringPool, turtle::write_turtle_file,
+    ety_graph::EtyGraph, items::RawItems, string_pool::StringPool, turtle::write_turtle_file,
 };
 
 use std::{
     convert::TryFrom,
     fs::{remove_dir_all, File},
     io::BufReader,
+    mem::take,
     path::Path,
     time::Instant,
 };
@@ -83,6 +84,7 @@ pub fn process_wiktextract(
     );
     let mut processor = RawDataProcessor::new()?;
     let items = processor.process_json_items(wiktextract_path)?;
+    let string_pool = take(&mut processor.string_pool);
 
     println!("Finished. Took {}.", HumanDuration(t.elapsed()));
     let embeddings =

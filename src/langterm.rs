@@ -19,7 +19,7 @@ use crate::{
 // LANG_RECONSTRUCTED: A set of all reconstructed lang codes.
 
 // LangId refers to an index in the LANG_CODE2NAME OrderedMap
-pub(crate) type LangId = usize;
+pub(crate) type LangId = u16; // The map has ~10k elements
 
 #[derive(Hash, Eq, PartialEq, Debug, Copy, Clone, Serialize, Deserialize)]
 pub(crate) struct Lang {
@@ -38,7 +38,7 @@ impl TryFrom<&str> for Lang {
 
     fn try_from(lang_code: &str) -> Result<Self, Self::Error> {
         if let Some(id) = LANG_CODE2NAME.get_index(lang_code) {
-            return Ok(id.into());
+            return Ok(LangId::try_from(id)?.into());
         }
         Err(anyhow!(
             "The key \"{lang_code}\" does not exist LANG_CODE2NAME"
@@ -53,13 +53,13 @@ impl Lang {
 
     pub(crate) fn code(&self) -> &'static str {
         LANG_CODE2NAME
-            .get_index_key(self.id)
+            .get_index_key(self.id as usize)
             .expect("id cannot have been created without being a valid index")
     }
 
     pub(crate) fn name(&self) -> &'static str {
         LANG_CODE2NAME
-            .get_index_value(self.id)
+            .get_index_value(self.id as usize)
             .expect("id cannot have been created without being a valid index")
     }
 
@@ -68,11 +68,12 @@ impl Lang {
     // not have any entries itself. So we look for the main lang that the
     // ety lang is associated with.
     pub(crate) fn ety2main(&self) -> Self {
-        let id = LANG_ETYCODE2CODE
+        LANG_ETYCODE2CODE
             .get(self.code())
             .and_then(|code| LANG_CODE2NAME.get_index(code))
-            .unwrap_or(self.id);
-        Self { id }
+            .map(|i| LangId::try_from(i).expect("less than LangId::MAX elements in LANG_CODE2NAME"))
+            .unwrap_or(self.id)
+            .into()
     }
 
     pub(crate) fn is_reconstructed(&self) -> bool {
@@ -81,17 +82,17 @@ impl Lang {
 }
 
 // LanguageId refers to an index in the LANG_NAME2CODE OrderedMap.
-pub(crate) type LanguageId = usize;
+pub(crate) type LanguageId = u16; // map has ~15k elements
 
 #[derive(Hash, Eq, PartialEq, Debug, Copy, Clone, Serialize, Deserialize)]
 pub(crate) struct Language {
-    pub(crate) id: LanguageId,
+    id: LanguageId,
 }
 
 impl Language {
     fn code(&self) -> &'static str {
         LANG_NAME2CODE
-            .get_index_value(self.id)
+            .get_index_value(self.id as usize)
             .expect("id cannot have been created without being a valid index")
     }
 }
@@ -104,10 +105,14 @@ impl From<LanguageId> for Language {
 
 impl From<Lang> for Language {
     fn from(lang: Lang) -> Self {
-        let id = LANG_NAME2CODE
+        LANG_NAME2CODE
             .get_index(lang.name())
-            .expect("all name values in LANG_CODE2NAME should be keys in LANG_NAME2CODE");
-        Self { id }
+            .map(|i| {
+                LanguageId::try_from(i)
+                    .expect("less than LanguageId::MAX elements in LANG_NAME2CODE")
+            })
+            .expect("all name values in LANG_CODE2NAME should be keys in LANG_NAME2CODE")
+            .into()
     }
 }
 
@@ -118,7 +123,7 @@ impl TryFrom<&str> for Language {
 
     fn try_from(language_name: &str) -> Result<Self, Self::Error> {
         if let Some(id) = LANG_NAME2CODE.get_index(language_name) {
-            return Ok(id.into());
+            return Ok(LanguageId::try_from(id)?.into());
         }
         Err(anyhow!(
             "The key \"{language_name}\" does not exist LANG_NAME2CODE"
@@ -130,6 +135,7 @@ impl From<Language> for Lang {
     fn from(language: Language) -> Self {
         let id = LANG_CODE2NAME
             .get_index(language.code())
+            .map(|i| LangId::try_from(i).expect("less than LangId::MAX elements in LANG_CODE2NAME"))
             .expect("all code values in LANG_NAME2CODE should be keys in LANG_CODE2NAME");
         Self { id }
     }

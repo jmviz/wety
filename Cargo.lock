@@ -1991,6 +1991,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "serde_json_any_key"
+version = "2.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b2c409ca1209f6c4741028b9e1e56d973c868ffaef25ffbaf2471e486c2a74b3"
+dependencies = [
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "serde_urlencoded"
 version = "0.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2081,6 +2091,9 @@ name = "smallvec"
 version = "1.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a507befe795404456341dfab10cef66ead4c041f62b8b11bbb92bffe5d0953e0"
+dependencies = [
+ "serde",
+]
 
 [[package]]
 name = "snmalloc-rs"
@@ -2675,7 +2688,9 @@ dependencies = [
  "rust-bert",
  "serde",
  "serde_json",
+ "serde_json_any_key",
  "simd-json",
+ "smallvec",
  "snmalloc-rs",
  "string-interner",
  "strum",

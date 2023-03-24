@@ -2,9 +2,9 @@ use crate::{
     embeddings::Embeddings,
     ety_graph::EtyGraph,
     etymology_templates::{EtyMode, TemplateKind},
+    items::{Item, ItemId, RawItems, Retrieval},
     lang_phf::LANG_CODE2NAME,
     progress_bar,
-    raw_items::{RawItem, RawItems, Retrieval},
     string_pool::Symbol,
     wiktextract_json::{WiktextractJson, WiktextractJsonAccess},
     RawDataProcessor,
@@ -318,9 +318,9 @@ impl RawDataProcessor {
 impl RawItems {
     pub(crate) fn get_ety_items_needing_embedding(
         &self,
-        item: &Rc<RawItem>,
+        item: ItemId,
         raw_etymology: &RawEtymology,
-    ) -> HashSet<Rc<RawItem>> {
+    ) -> HashSet<ItemId> {
         let mut items_needing_embedding = HashSet::new();
         let mut parent_items = vec![Rc::clone(item)];
 
@@ -360,7 +360,7 @@ impl RawItems {
         &self,
         embeddings: &Embeddings,
         ety_graph: &mut EtyGraph,
-        item: &Rc<RawItem>,
+        item: ItemId,
     ) {
         if item.raw_etymology.is_none() {
             return; // don't add anything to ety_graph if no valid raw ety templates
@@ -375,7 +375,7 @@ impl RawItems {
             let mut has_new_imputation = false;
             for (&ety_lang, &ety_term) in template.langs.iter().zip(template.terms.iter()) {
                 let Retrieval {
-                    item: ety_item,
+                    item_id: ety_item,
                     confidence,
                     is_newly_imputed,
                 } = self.get_or_impute_item(

@@ -2,11 +2,11 @@ use crate::{
     embeddings::{Embeddings, ItemEmbedding},
     ety_graph::EtyGraph,
     etymology_templates::EtyMode,
+    items::{Item, ItemId, RawItems, Retrieval},
     lang_phf::LANG_CODE2NAME,
     phf_ext::OrderedSetExt,
     pos_phf::POS,
     progress_bar,
-    raw_items::{RawItem, RawItems, Retrieval},
     string_pool::Symbol,
     wiktextract_json::{WiktextractJson, WiktextractJsonAccess},
     RawDataProcessor,
@@ -277,7 +277,7 @@ impl<T: Clone> Ancestors<T> {
     }
 }
 
-impl Ancestors<Rc<RawItem>> {
+impl Ancestors<ItemId> {
     fn embeddings<'a>(&self, embeddings: &'a Embeddings) -> Vec<ItemEmbedding<'a>> {
         self.ancestors.iter().map(|a| embeddings.get(a)).collect()
     }
@@ -286,9 +286,9 @@ impl Ancestors<Rc<RawItem>> {
 impl RawItems {
     pub(crate) fn get_desc_items_needing_embedding(
         &self,
-        item: &Rc<RawItem>,
+        item: ItemId,
         raw_descendants: &RawDescendants,
-    ) -> HashSet<Rc<RawItem>> {
+    ) -> HashSet<ItemId> {
         let mut items_needing_embedding = HashSet::new();
         let mut possible_ancestors = Ancestors::new(&vec![item.clone()]);
         for line in raw_descendants.lines.iter() {
@@ -348,7 +348,7 @@ impl RawItems {
         &self,
         embeddings: &Embeddings,
         ety_graph: &mut EtyGraph,
-        item: &Rc<RawItem>,
+        item: ItemId,
     ) {
         if item.raw_descendants.is_none() {
             return;
@@ -366,7 +366,7 @@ impl RawItems {
                     for (i, (&term, &mode)) in desc.terms.iter().zip(desc.modes.iter()).enumerate()
                     {
                         let Retrieval {
-                            item: desc_item,
+                            item_id: desc_item,
                             confidence,
                             ..
                         } = self.get_or_impute_item(

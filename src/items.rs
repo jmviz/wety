@@ -4,14 +4,12 @@ use crate::{
     ety_graph::EtyGraph,
     etymology::RawEtymology,
     gloss::Gloss,
-    lang_phf::LANG_CODE2NAME,
     langterm::{Lang, LangTerm, Term},
-    phf_ext::OrderedMapExt,
     pos::Pos,
     progress_bar,
     redirects::Redirects,
     root::RawRoot,
-    string_pool::{StringPool, Symbol},
+    string_pool::StringPool,
     wiktextract_json::wiktextract_lines,
 };
 
@@ -19,50 +17,151 @@ use std::{path::Path, rc::Rc};
 
 use anyhow::{Ok, Result};
 use hashbrown::{HashMap, HashSet};
+use serde::{Deserialize, Serialize};
+use serde_json_any_key::any_key_map;
 use simd_json::to_borrowed_value;
+use smallvec::{smallvec, SmallVec};
 
-pub(crate) type ItemId = usize;
+pub(crate) type ItemId = u32; // wiktionary has about ~10M items including imputations
 
-#[derive(Hash, Eq, PartialEq, Debug)]
-pub(crate) struct RawItem {
+#[derive(Hash, Eq, PartialEq, Debug, Serialize, Deserialize)]
+pub(crate) struct Item {
     pub(crate) is_imputed: bool,
     pub(crate) i: ItemId, // the i-th item seen, used as id for RDF
-    pub(crate) langterm: LangTerm,
+    pub(crate) lang: Lang,
+    pub(crate) term: Term,
     pub(crate) page_term: Option<Term>, // i.e. the term stripped of diacritics etc. at the top of the page
     pub(crate) ety_num: Option<u8>,     // the nth numbered ety for this term-lang combo (1,2,...)
     pub(crate) pos: Option<Pos>,        // e.g. "noun"
     pub(crate) gloss: Option<Gloss>,
 }
 
-impl RawItem {
-    pub(crate) fn new_imputed(i: usize, lang: usize, term: Symbol, pos: Option<usize>) -> Self {
+impl Item {
+    pub(crate) fn new_imputed(langterm: LangTerm, pos: Option<Pos>) -> Self {
         Self {
             is_imputed: true,
-            i,
-            lang,
-            term,
+            i: 0, // temp value, will be changed by imputed_items.store.add()
+            lang: langterm.lang,
+            term: langterm.term,
             pos,
             page_term: None,
             ety_num: None,
             gloss: None,
         }
     }
+
+    pub(crate) fn langterm(&self) -> LangTerm {
+        LangTerm {
+            lang: self.lang,
+            term: self.term,
+        }
+    }
+}
+
+#[derive(Default, Serialize, Deserialize)]
+pub(crate) struct ItemStore {
+    start_id: ItemId,
+    vec: Vec<Item>,
+}
+
+impl ItemStore {
+    pub(crate) fn new(start_id: ItemId) -> Self {
+        Self {
+            start_id,
+            ..Default::default()
+        }
+    }
+    pub(crate) fn len(&self) -> usize {
+        self.vec.len()
+    }
+
+    pub(crate) fn get_index(&self, id: ItemId) -> usize {
+        (id - self.start_id) as usize
+    }
+
+    pub(crate) fn get(&self, id: ItemId) -> &Item {
+        &self.vec[self.get_index(id)]
+    }
+
+    pub(crate) fn next_id(&self) -> ItemId {
+        ItemId::try_from(self.len()).expect("len less than ItemId::MAX items") + self.start_id
+    }
+
+    pub(crate) fn add(&mut self, item: Item) -> ItemId {
+        let id = self.next_id();
+        item.i = id;
+        self.vec.push(item);
+        id
+    }
+}
+
+pub(crate) type Dupes = SmallVec<[ItemId; 1]>; // most items don't have langterm dupes
+
+#[derive(Default, Serialize, Deserialize)]
+pub(crate) struct Items {
+    pub(crate) store: ItemStore,
+    #[serde(with = "any_key_map")]
+    pub(crate) dupes: HashMap<LangTerm, Dupes>,
+}
+
+impl Items {
+    pub(crate) fn new(start_id: ItemId) -> Self {
+        Self {
+            store: ItemStore::new(start_id),
+            ..Default::default()
+        }
+    }
+
+    pub(crate) fn next_id(&self) -> ItemId {
+        self.store.next_id()
+    }
+
+    pub(crate) fn len(&self) -> usize {
+        self.store.len()
+    }
+
+    pub(crate) fn get(&self, id: ItemId) -> &Item {
+        &self.store.get(id)
+    }
+
+    // returns all items that share the same lang and term
+    pub(crate) fn get_dupes(&self, langterm: LangTerm) -> Option<&Dupes> {
+        self.dupes.get(&langterm)
+    }
+
+    pub(crate) fn add(&mut self, item: Item) {
+        let langterm = item.langterm();
+        let id = self.store.add(item);
+        if let Some(ids) = self.dupes.get_mut(&langterm) {
+            ids.push(id);
+            return;
+        }
+        self.dupes.insert(langterm, smallvec![id]);
+    }
+
+    pub(crate) fn iter(&self) -> impl Iterator<Item = &Item> {
+        self.store.vec.iter()
+    }
+}
+
+#[derive(Default)]
+pub(crate) struct RawTemplates {
+    pub(crate) ety: HashMap<ItemId, RawEtymology>,
+    pub(crate) desc: HashMap<ItemId, RawDescendants>,
+    pub(crate) root: HashMap<ItemId, RawRoot>,
 }
 
 #[derive(Default)]
 pub(crate) struct RawItems {
-    pub(crate) items: Vec<RawItem>,
-    pub(crate) langterm_map: HashMap<LangTerm, Vec<ItemId>>,
-    pub(crate) ety_map: HashMap<ItemId, RawEtymology>,
-    pub(crate) desc_map: HashMap<ItemId, RawDescendants>,
-    pub(crate) root_map: HashMap<ItemId, RawRoot>,
+    pub(crate) items: Items,
     pub(crate) redirects: Redirects,
-    pub(crate) line_map: HashMap<usize, ItemId>,
+    pub(crate) raw_templates: RawTemplates,
+    pub(crate) lines: HashMap<usize, ItemId>,
     pub(crate) total_ok_lines_in_file: usize,
 }
 
 pub(crate) struct Retrieval {
-    pub(crate) item: Rc<RawItem>,
+    pub(crate) item_id: ItemId,
     pub(crate) confidence: f32,
     // is_imputed: bool,
     pub(crate) is_newly_imputed: bool,
@@ -70,38 +169,26 @@ pub(crate) struct Retrieval {
 
 impl RawItems {
     pub(crate) fn len(&self) -> usize {
-        self.items.len()
+        self.items.store.len()
     }
 
-    pub(crate) fn get(&self, id: ItemId) -> &RawItem {
-        &self.items[id]
-    }
-
-    pub(crate) fn add(&mut self, item: RawItem) {
-        let id = self.items.len();
-        item.i = id;
-        let langterm = LangTerm::new(item.lang, item.term);
-        self.items.push(item);
-        if let Some(ids) = self.langterm_map.get_mut(&langterm) {
-            ids.push(id);
-            return;
-        }
-        self.langterm_map.insert(langterm, vec![id]);
+    pub(crate) fn get(&self, id: ItemId) -> &Item {
+        &self.items.store.get(id)
     }
 
     pub(crate) fn contains(&self, langterm: LangTerm) -> bool {
         let langterm = self.redirects.rectify_langterm(langterm);
-        self.langterm_map.contains_key(&langterm)
+        self.items.dupes.contains_key(&langterm)
     }
 
-    pub(crate) fn get_disambiguated_item<'a>(
+    pub(crate) fn get_disambiguated_item_id<'a>(
         &self,
         embeddings: &'a Embeddings,
         embedding_comp: impl EmbeddingComparand<ItemEmbedding<'a>> + Copy,
         langterm: LangTerm,
-    ) -> Option<(Rc<RawItem>, f32)> {
+    ) -> Option<(ItemId, f32)> {
         let langterm = self.redirects.rectify_langterm(langterm);
-        let candidates = self.get_all_langterm_ids(langterm)?;
+        let candidates = self.items.get_dupes(langterm)?;
         let mut max_similarity = 0f32;
         let mut best_candidate = 0usize;
         for (i, candidate) in candidates.iter().enumerate() {
@@ -113,7 +200,7 @@ impl RawItems {
                 best_candidate = i;
             }
         }
-        Some((candidates[best_candidate].clone(), max_similarity))
+        Some((candidates[best_candidate], max_similarity))
     }
 
     pub(crate) fn get_or_impute_item<'a>(
@@ -123,38 +210,31 @@ impl RawItems {
         embedding_comp: impl EmbeddingComparand<ItemEmbedding<'a>> + Copy,
         langterm: LangTerm,
     ) -> Retrieval {
-        if let Some((item, confidence)) =
-            self.get_disambiguated_item(embeddings, embedding_comp, langterm)
+        if let Some((item_id, confidence)) =
+            self.get_disambiguated_item_id(embeddings, embedding_comp, langterm)
         {
             return Retrieval {
-                item,
+                item_id,
                 confidence,
                 // is_imputed: false,
                 is_newly_imputed: false,
             };
         }
-        if let Some(item) = ety_graph.imputed_items.get(langterm) {
+        if let Some(item_id) = ety_graph.get_imputed_item_id(langterm) {
             return Retrieval {
-                item,
+                item_id,
                 confidence: 0.0,
                 // is_imputed: true,
                 is_newly_imputed: false,
             };
         }
-        let n = self.n + ety_graph.imputed_items.n;
-        let imputed_item = Rc::from(RawItem::new_imputed(n, langterm, None));
-        ety_graph.add_imputed(&imputed_item);
+        let item_id = ety_graph.add_imputed(langterm, None);
         Retrieval {
-            item: imputed_item,
+            item_id,
             confidence: 0.0,
             // is_imputed: true,
             is_newly_imputed: true,
         }
-    }
-
-    // returns all items that share the same lang and term
-    pub(crate) fn get_all_langterm_ids(&self, langterm: LangTerm) -> Option<&Vec<ItemId>> {
-        self.langterm_map.get(&langterm)
     }
 
     // We determine that an item needs an embedding if it has any
@@ -171,39 +251,37 @@ impl RawItems {
     // inflections of a main item, which have no raw_* and are extremely
     // unlikely to appear in any other item's raw_*. Our method will thus
     // disclude all these.
-    fn get_items_needing_embedding(&self, item: &Rc<RawItem>) -> HashSet<Rc<RawItem>> {
+    fn get_items_needing_embedding(&self, item_id: ItemId) -> HashSet<ItemId> {
         let mut items_needing_embedding = HashSet::new();
-        if let Some(raw_etymology) = &item.raw_etymology {
+        if let Some(raw_etymology) = self.raw_templates.ety.get(&item_id) {
             items_needing_embedding
-                .extend(self.get_ety_items_needing_embedding(item, raw_etymology));
+                .extend(self.get_ety_items_needing_embedding(item_id, raw_etymology));
         }
-        if let Some(raw_descendants) = &item.raw_descendants {
+        if let Some(raw_descendants) = self.raw_templates.desc.get(&item_id) {
             items_needing_embedding
-                .extend(self.get_desc_items_needing_embedding(item, raw_descendants));
+                .extend(self.get_desc_items_needing_embedding(item_id, raw_descendants));
         }
-        if let Some(raw_root) = &item.raw_root
-            && let Some(root_items) = self.get_all_langterm_ids(raw_root.lang, raw_root.term)
+        if let Some(raw_root) = self.raw_templates.root.get(&item_id)
+            && let Some(root_items) = self.items.get_dupes(raw_root.langterm)
             && root_items.len() > 1
         {
-            items_needing_embedding.insert(Rc::clone(item));
-            for root_item in &root_items {
-                items_needing_embedding.insert(Rc::clone(root_item));
+            items_needing_embedding.insert(item_id);
+            for &root_item in root_items {
+                items_needing_embedding.insert(root_item);
             }
         }
         items_needing_embedding
     }
 
     fn get_all_items_needing_embedding(&self) -> Result<HashSet<ItemId>> {
-        let pb = progress_bar(self.n, "Determining which items need embeddings")?;
+        let pb = progress_bar(self.len(), "Determining which items need embeddings")?;
         let mut items_needing_embedding = HashSet::new();
-        for items in self.langterm_map.values() {
-            for item in items {
-                let more = self.get_items_needing_embedding(item);
-                for m in more.iter() {
-                    items_needing_embedding.insert(item.i);
-                }
-                pb.inc(1);
+        for item_id in self.items.iter().map(|item| item.i) {
+            let items_to_embed = self.get_items_needing_embedding(item_id);
+            for &item_to_embed in items_to_embed.iter() {
+                items_needing_embedding.insert(item_to_embed);
             }
+            pb.inc(1);
         }
         pb.finish();
         Ok(items_needing_embedding)
@@ -225,13 +303,14 @@ impl RawItems {
         for (line_number, mut line) in wiktextract_lines(wiktextract_path)?.enumerate() {
             // Items were only inserted into the line map if they were added to
             // the term_map in process_json_item.
-            if let Some(item) = self.line_map.get(&line_number)
-                && items_needing_embedding.contains(item)
+            if let Some(item_id) = self.lines.get(&line_number)
+                && items_needing_embedding.contains(item_id)
             {
                 let json_item = to_borrowed_value(&mut line)?;
-                let lang = LANG_CODE2NAME.get_expected_index_value(item.lang)?;
-                let term = string_pool.resolve(item.term);
-                embeddings.add(&json_item, lang, term, item.i)?;
+                let item = self.get(item_id);
+                let lang_name = item.langterm.lang.name();
+                let term = json_item.get_term().expect("known good item");
+                embeddings.add(&json_item, lang.name(), term, item_id.i)?;
                 added += 1;
                 if added % embeddings_config.progress_update_interval == 0 {
                     pb.inc(embeddings_config.progress_update_interval as u64);

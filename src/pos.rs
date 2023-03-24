@@ -1,11 +1,12 @@
 use anyhow::anyhow;
+use serde::{Deserialize, Serialize};
 
 use crate::pos_phf::POS;
 
 // PosId refers to an index in the POS OrderedSet
-pub(crate) type PosId = usize;
+pub(crate) type PosId = u8; // the set has ~50 elements
 
-#[derive(Hash, Eq, PartialEq, Debug, Copy, Clone)]
+#[derive(Hash, Eq, PartialEq, Debug, Copy, Clone, Serialize, Deserialize)]
 pub(crate) struct Pos {
     id: PosId,
 }
@@ -21,7 +22,7 @@ impl TryFrom<&str> for Pos {
 
     fn try_from(pos: &str) -> Result<Self, Self::Error> {
         if let Some(id) = POS.get_index(pos) {
-            return Ok(id.into());
+            return Ok(PosId::try_from(id)?.into());
         }
         Err(anyhow!("\"{pos}\" does not exist POS"))
     }
@@ -33,7 +34,7 @@ impl Pos {
     }
 
     pub(crate) fn name(&self) -> &'static str {
-        POS.index(self.id)
+        POS.index(self.id as usize)
             .expect("id cannot have been created without being a valid index")
     }
 }

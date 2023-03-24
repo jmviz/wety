@@ -1,11 +1,10 @@
 use crate::{
     etylang2lang, is_reconstructed_lang,
+    items::Item,
     lang_phf::LANG_CODE2NAME,
     phf_ext::{OrderedMapExt, OrderedSetExt},
     pos_phf::POS,
-    progress_bar,
-    raw_items::RawItem,
-    ProcessedData,
+    progress_bar, ProcessedData,
 };
 
 use std::{
@@ -97,7 +96,7 @@ fn write_local_name(f: &mut BufWriter<File>, s: &str) -> Result<()> {
 fn write_item(
     f: &mut BufWriter<File>,
     data: &ProcessedData,
-    item: &Rc<RawItem>,
+    item: ItemId,
     has_multi_gloss: bool,
 ) -> Result<()> {
     writeln!(f, "{ITEM_PRE}{}", item.i)?;

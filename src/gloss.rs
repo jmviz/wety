@@ -1,8 +1,9 @@
 use itertools::Itertools;
+use serde::{Deserialize, Serialize};
 
 use crate::string_pool::{StringPool, Symbol};
 
-#[derive(Hash, Eq, PartialEq, Debug)]
+#[derive(Hash, Eq, PartialEq, Debug, Serialize, Deserialize)]
 pub(crate) struct Gloss {
     symbols: Box<[Symbol]>,
 }
