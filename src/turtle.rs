@@ -105,7 +105,7 @@ fn write_item(
     write_item_quoted_prop(f, PRED_TERM, term)?;
     let language = LANG_CODE2NAME.get_expected_index_value(item.lang)?;
     write_item_quoted_prop(f, PRED_LANG, language)?;
-    if let Some(page_title) = item.page_title {
+    if let Some(page_title) = item.page_term {
         let page_title = data.string_pool.resolve(page_title);
         let page_lang_index = etylang2lang(item.lang);
         let page_lang = LANG_CODE2NAME.get_expected_index_value(page_lang_index)?;
@@ -182,7 +182,7 @@ pub(crate) fn write_turtle_file(data: &ProcessedData, path: &Path) -> Result<()>
     write_prefixes(&mut f)?;
     let n = data.items.n + data.ety_graph.imputed_items.n;
     let pb = progress_bar(n, "Writing RDF to Turtle file data/wety.ttl")?;
-    for lang_map in data.items.term_map.values() {
+    for lang_map in data.items.langterm_map.values() {
         for ety_map in lang_map.values() {
             for pos_map in ety_map.values() {
                 for gloss_map in pos_map.values() {

@@ -1,4 +1,5 @@
 use anyhow::anyhow;
+use serde::{Deserialize, Serialize};
 
 use crate::{
     lang_phf::{LANG_CODE2NAME, LANG_ETYCODE2CODE, LANG_NAME2CODE, LANG_RECONSTRUCTED},
@@ -20,7 +21,7 @@ use crate::{
 // LangId refers to an index in the LANG_CODE2NAME OrderedMap
 pub(crate) type LangId = usize;
 
-#[derive(Hash, Eq, PartialEq, Debug, Copy, Clone)]
+#[derive(Hash, Eq, PartialEq, Debug, Copy, Clone, Serialize, Deserialize)]
 pub(crate) struct Lang {
     id: LangId,
 }
@@ -82,7 +83,7 @@ impl Lang {
 // LanguageId refers to an index in the LANG_NAME2CODE OrderedMap.
 pub(crate) type LanguageId = usize;
 
-#[derive(Hash, Eq, PartialEq, Debug, Copy, Clone)]
+#[derive(Hash, Eq, PartialEq, Debug, Copy, Clone, Serialize, Deserialize)]
 pub(crate) struct Language {
     pub(crate) id: LanguageId,
 }
@@ -134,31 +135,29 @@ impl From<Language> for Lang {
     }
 }
 
-pub(crate) type TermId = Symbol;
-
-#[derive(Hash, Eq, PartialEq, Debug, Copy, Clone)]
+#[derive(Hash, Eq, PartialEq, Debug, Copy, Clone, Serialize, Deserialize)]
 pub(crate) struct Term {
-    id: TermId,
+    symbol: Symbol,
 }
 
-impl From<TermId> for Term {
-    fn from(id: TermId) -> Self {
-        Self { id }
+impl From<Symbol> for Term {
+    fn from(symbol: Symbol) -> Self {
+        Self { symbol }
     }
 }
 
 impl<'a> Term {
     pub(crate) fn new(string_pool: &mut StringPool, term: &str) -> Self {
-        let id = string_pool.get_or_intern(term);
-        Self { id }
+        let symbol = string_pool.get_or_intern(term);
+        Self { symbol }
     }
 
     pub(crate) fn resolve(&self, string_pool: &'a StringPool) -> &'a str {
-        string_pool.resolve(self.id)
+        string_pool.resolve(self.symbol)
     }
 }
 
-#[derive(Hash, Eq, PartialEq, Debug, Copy, Clone)]
+#[derive(Hash, Eq, PartialEq, Debug, Copy, Clone, Serialize, Deserialize)]
 pub(crate) struct LangTerm {
     pub(crate) lang: Lang,
     pub(crate) term: Term,
@@ -171,7 +170,7 @@ impl LangTerm {
 }
 
 // Used in redirects
-#[derive(Hash, Eq, PartialEq, Debug, Copy, Clone)]
+#[derive(Hash, Eq, PartialEq, Debug, Copy, Clone, Serialize, Deserialize)]
 pub(crate) struct LanguageTerm {
     pub(crate) language: Language,
     pub(crate) term: Term,
@@ -184,10 +183,10 @@ impl LanguageTerm {
 }
 
 impl From<LangTerm> for LanguageTerm {
-    fn from(lang_term: LangTerm) -> Self {
+    fn from(langterm: LangTerm) -> Self {
         Self {
-            language: lang_term.lang.into(),
-            term: lang_term.term,
+            language: langterm.lang.into(),
+            term: langterm.term,
         }
     }
 }

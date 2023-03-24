@@ -1,5 +1,6 @@
 use crate::{
-    lang_term::{Lang, LangTerm, Term},
+    gloss::Gloss,
+    langterm::{Lang, LangTerm, Term},
     pos::Pos,
     pos_phf::POS,
     raw_items::{RawItem, RawItems},
@@ -25,8 +26,10 @@ pub(crate) trait WiktextractJsonAccess {
     fn get_lang(&self) -> Option<Lang>;
     fn get_page_term(&self, string_pool: &mut StringPool) -> Option<Term>;
     fn get_canonical_term(&self, string_pool: &mut StringPool) -> Option<Term>;
-    fn get_lang_term(&self, string_pool: &mut StringPool) -> Option<LangTerm>;
+    fn get_langterm(&self, string_pool: &mut StringPool) -> Option<LangTerm>;
     fn get_pos(&self) -> Option<Pos>;
+    fn get_ety_num(&self) -> Option<u8>;
+    fn get_gloss(&self, string_pool: &mut StringPool) -> Option<Gloss>;
 }
 
 impl WiktextractJsonAccess for WiktextractJson<'_> {
@@ -84,7 +87,7 @@ impl WiktextractJsonAccess for WiktextractJson<'_> {
         self.get_page_term(string_pool)
     }
 
-    fn get_lang_term(&self, string_pool: &mut StringPool) -> Option<LangTerm> {
+    fn get_langterm(&self, string_pool: &mut StringPool) -> Option<LangTerm> {
         let lang = self.get_lang()?;
         let term = self.get_canonical_term(string_pool)?;
         Some(LangTerm { lang, term })
@@ -92,7 +95,27 @@ impl WiktextractJsonAccess for WiktextractJson<'_> {
 
     fn get_pos(&self) -> Option<Pos> {
         let pos = self.get_valid_str("pos")?;
-        pos.try_into().ok()
+        if !should_ignore_pos(pos) {
+            return pos.try_into().ok();
+        }
+        None
+    }
+
+    fn get_ety_num(&self) -> Option<u8> {
+        // if term-lang combo has multiple ety's, then 'etymology_number' is
+        // present with range 1,2,... Otherwise, this key is missing.
+        self.get_u8("etymology_number")
+    }
+
+    fn get_gloss(&self, string_pool: &mut StringPool) -> Option<Gloss> {
+        // 'senses' key should always be present with non-empty value, but glosses
+        // may be missing or empty.
+        self.get_array("senses")
+            .and_then(|senses| senses.get(0))
+            .and_then(|sense| sense.get_array("glosses"))
+            .and_then(|glosses| glosses.get(0))
+            .and_then(|gloss| gloss.as_str())
+            .and_then(|gloss| (!gloss.is_empty()).then(|| Gloss::new(string_pool, gloss)))
     }
 }
 
@@ -159,28 +182,15 @@ impl RawDataProcessor {
             return Ok(());
         }
         if let Some(page_term) = json_item.get_page_term(&mut self.string_pool)
-            && let Some(pos) = json_item.get_pos()
-            && !should_ignore_term(page_term, pos)
-            && let Some(lang) = Lang::try_from(json_item).ok()
+            && let Some(term) = json_item.get_canonical_term(&mut self.string_pool)
+            && let Some(lang) = json_item.get_lang()
         {
-            let term = get_term_canonical_form(json_item).unwrap_or(page_title);
-            let term = self.string_pool.get_or_intern(term);
-            let page_title = Some(self.string_pool.get_or_intern(page_title));
-            // if term-lang combo has multiple ety's, then 'etymology_number' is
-            // present with range 1,2,... Otherwise, this key is missing.
-            let ety_num = json_item.get_u8("etymology_number");
-            // 'senses' key should always be present with non-empty value, but glosses
-            // may be missing or empty.
-            let gloss = json_item
-                .get_array("senses")
-                .and_then(|senses| senses.get(0))
-                .and_then(|sense| sense.get_array("glosses"))
-                .and_then(|glosses| glosses.get(0))
-                .and_then(|gloss| gloss.as_str())
-                .and_then(|s| (!s.is_empty()).then(|| self.string_pool.get_or_intern(s)));
+            let pos = json_item.get_pos();
+            let ety_num = json_item.get_ety_num();
+            let gloss = json_item.get_gloss(&mut self.string_pool);
 
-            let raw_root = self.process_json_root(json_item, lang);
-            let raw_etymology = self.process_json_ety(json_item, lang);
+            let raw_root = self.process_json_root(json_item, lang.code());
+            let raw_etymology = self.process_json_ety(json_item, lang.code());
             let raw_descendants = self.process_json_descendants(json_item);
 
             let item = RawItem {
@@ -189,20 +199,19 @@ impl RawDataProcessor {
                 // $$ This will not catch all reconstructed terms, since some terms
                 // in attested languages are reconstructed. Some better inference
                 // should be done based on "*" prefix for terms. 
-                is_reconstructed: is_reconstructed_lang(lang_index),
+                is_reconstructed: lang.is_reconstructed(),
                 i: items.n,
-                lang: lang_index,
+                lang: lang.id(),
                 term,
-                page_title,
+                page_term,
                 ety_num,
-                pos: Some(pos_index),
+                pos,
                 gloss,
-                gloss_num: 0, // temp value to be changed if need be in add()
                 raw_etymology,
                 raw_root,
                 raw_descendants,
             };
-            if let Some(item) = items.add_to_term_map(item)? {
+            if let Some(item) = items.add(item)? {
                 items.line_map.insert(line_number, item);
             }
         }

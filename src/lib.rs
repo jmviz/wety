@@ -8,8 +8,9 @@ pub mod embeddings;
 mod ety_graph;
 mod etymology;
 mod etymology_templates;
+mod gloss;
 mod lang_phf;
-mod lang_term;
+mod langterm;
 mod phf_ext;
 mod pos;
 mod pos_phf;
@@ -44,7 +45,7 @@ struct RawDataProcessor {
 impl RawDataProcessor {
     fn new() -> Result<Self> {
         Ok(Self {
-            string_pool: StringPool::default(),
+            string_pool: StringPool::new(),
         })
     }
 }
@@ -70,7 +71,7 @@ pub(crate) struct ProcessedData {
 ///
 /// Will return `Err` if any unexpected issue arises parsing the wiktextract
 /// data or writing to Turtle file.
-pub fn wiktextract_to_turtle(
+pub fn process_wiktextract(
     wiktextract_path: &Path,
     turtle_path: &Path,
     embeddings_config: &EmbeddingsConfig,
@@ -82,6 +83,7 @@ pub fn wiktextract_to_turtle(
     );
     let mut processor = RawDataProcessor::new()?;
     let items = processor.process_json_items(wiktextract_path)?;
+
     println!("Finished. Took {}.", HumanDuration(t.elapsed()));
     let embeddings =
         items.generate_embeddings(&processor.string_pool, wiktextract_path, embeddings_config)?;

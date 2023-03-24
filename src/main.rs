@@ -7,7 +7,7 @@ use wety::{
         EmbeddingsConfig, EmbeddingsModel, DEFAULT_BATCH_SIZE, DEFAULT_MODEL,
         DEFAULT_PROGRESS_UPDATE_INTERVAL,
     },
-    wiktextract_to_turtle,
+    process_wiktextract,
 };
 
 use std::{path::PathBuf, time::Instant};
@@ -51,7 +51,7 @@ fn main() -> Result<()> {
         batch_size: args.embeddings_batch_size,
         progress_update_interval: args.embeddings_progress_update_interval,
     };
-    let t = wiktextract_to_turtle(
+    let t = process_wiktextract(
         &args.wiktextract_path,
         &args.turtle_path,
         &embeddings_config,

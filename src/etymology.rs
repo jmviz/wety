@@ -329,7 +329,7 @@ impl RawItems {
             let mut has_imputed_child = false;
             let mut next_parent_items = vec![];
             for (&lang, &term) in template.langs.iter().zip(template.terms.iter()) {
-                if let Some(ety_items) = self.get_all_lang_term_items(lang, term) {
+                if let Some(ety_items) = self.get_all_langterm_ids(lang, term) {
                     if ety_items.len() > 1 {
                         // i.e. (lang, term) is ambiguous
                         has_ambiguous_child = true;
@@ -425,7 +425,7 @@ impl RawItems {
         ety_graph: &mut EtyGraph,
     ) -> Result<()> {
         let pb = progress_bar(self.n, "Processing etymologies")?;
-        for lang_map in self.term_map.values() {
+        for lang_map in self.langterm_map.values() {
             for ety_map in lang_map.values() {
                 for pos_map in ety_map.values() {
                     for gloss_map in pos_map.values() {

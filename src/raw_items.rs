@@ -3,8 +3,11 @@ use crate::{
     embeddings::{EmbeddingComparand, Embeddings, EmbeddingsConfig, ItemEmbedding},
     ety_graph::EtyGraph,
     etymology::RawEtymology,
+    gloss::Gloss,
     lang_phf::LANG_CODE2NAME,
+    langterm::{Lang, LangTerm, Term},
     phf_ext::OrderedMapExt,
+    pos::Pos,
     progress_bar,
     redirects::Redirects,
     root::RawRoot,
@@ -18,60 +21,43 @@ use anyhow::{Ok, Result};
 use hashbrown::{HashMap, HashSet};
 use simd_json::to_borrowed_value;
 
+pub(crate) type ItemId = usize;
+
 #[derive(Hash, Eq, PartialEq, Debug)]
 pub(crate) struct RawItem {
-    pub(crate) line: Option<usize>, // the line-th ok line in the wiktextract file, if it was in the file
     pub(crate) is_imputed: bool,
-    pub(crate) is_reconstructed: bool, // i.e. Reconstruction: namespace page, or an imputed item of form *term
-    pub(crate) i: usize,               // the i-th item seen, used as id for RDF
-    pub(crate) lang: usize,            // e.g "en", i.e. the wiktextract lang_code
-    pub(crate) term: Symbol,           // e.g. "bank"
-    pub(crate) page_title: Option<Symbol>, // i.e. the term stripped of diacritics etc. at the top of the page
-    pub(crate) ety_num: Option<u8>, // the nth numbered ety for this term-lang combo (1,2,...)
-    pub(crate) pos: Option<usize>,  // e.g. "noun"
-    pub(crate) gloss: Option<Symbol>, // e.g. "An institution where one can place and borrow money...
-    pub(crate) gloss_num: u8,         // the nth gloss encountered for this term-lang-ety-pos combo
-    pub(crate) raw_etymology: Option<RawEtymology>,
-    pub(crate) raw_root: Option<RawRoot>,
-    pub(crate) raw_descendants: Option<RawDescendants>,
+    pub(crate) i: ItemId, // the i-th item seen, used as id for RDF
+    pub(crate) langterm: LangTerm,
+    pub(crate) page_term: Option<Term>, // i.e. the term stripped of diacritics etc. at the top of the page
+    pub(crate) ety_num: Option<u8>,     // the nth numbered ety for this term-lang combo (1,2,...)
+    pub(crate) pos: Option<Pos>,        // e.g. "noun"
+    pub(crate) gloss: Option<Gloss>,
 }
 
 impl RawItem {
     pub(crate) fn new_imputed(i: usize, lang: usize, term: Symbol, pos: Option<usize>) -> Self {
         Self {
-            line: None,
             is_imputed: true,
-            // $$ This will not catch all reconstructed terms, since some terms
-            // in attested languages are reconstructed. Some better inference
-            // should be done based on "*" prefix for terms.
-            is_reconstructed: is_reconstructed_lang(lang),
             i,
             lang,
             term,
             pos,
-            page_title: None,
+            page_term: None,
             ety_num: None,
-            gloss_num: 0,
             gloss: None,
-            raw_etymology: None,
-            raw_root: None,
-            raw_descendants: None,
         }
     }
 }
 
-type GlossMap = HashMap<Option<Symbol>, Rc<RawItem>>;
-type PosMap = HashMap<Option<usize>, GlossMap>;
-type EtyMap = HashMap<Option<u8>, PosMap>;
-type LangMap = HashMap<usize, EtyMap>;
-type TermMap = HashMap<Symbol, LangMap>;
-
 #[derive(Default)]
 pub(crate) struct RawItems {
-    pub(crate) term_map: TermMap,
-    pub(crate) n: usize,
+    pub(crate) items: Vec<RawItem>,
+    pub(crate) langterm_map: HashMap<LangTerm, Vec<ItemId>>,
+    pub(crate) ety_map: HashMap<ItemId, RawEtymology>,
+    pub(crate) desc_map: HashMap<ItemId, RawDescendants>,
+    pub(crate) root_map: HashMap<ItemId, RawRoot>,
     pub(crate) redirects: Redirects,
-    pub(crate) line_map: HashMap<usize, Rc<RawItem>>,
+    pub(crate) line_map: HashMap<usize, ItemId>,
     pub(crate) total_ok_lines_in_file: usize,
 }
 
@@ -83,96 +69,42 @@ pub(crate) struct Retrieval {
 }
 
 impl RawItems {
-    pub(crate) fn add_to_term_map(&mut self, mut item: RawItem) -> Result<Option<Rc<RawItem>>> {
-        // check if the item's term has been seen before
-        if !self.term_map.contains_key(&item.term) {
-            let mut gloss_map = GlossMap::new();
-            let mut pos_map = PosMap::new();
-            let mut ety_map = EtyMap::new();
-            let mut lang_map = LangMap::new();
-            let (pos, ety_num, lang, term) = (item.pos, item.ety_num, item.lang, item.term);
-            let item = Rc::from(item);
-            gloss_map.insert(item.gloss, Rc::clone(&item));
-            pos_map.insert(pos, gloss_map);
-            ety_map.insert(ety_num, pos_map);
-            lang_map.insert(lang, ety_map);
-            self.term_map.insert(term, lang_map);
-            self.n += 1;
-            return Ok(Some(item));
-        }
-        // since term has been seen before, there must be at least one lang for it
-        // check if item's lang has been seen before
-        let lang_map: &mut LangMap = self.term_map.get_mut(&item.term).unwrap();
-        if !lang_map.contains_key(&item.lang) {
-            let mut gloss_map = GlossMap::new();
-            let mut pos_map = PosMap::new();
-            let mut ety_map = EtyMap::new();
-            let (pos, ety_num, lang) = (item.pos, item.ety_num, item.lang);
-            let item = Rc::from(item);
-            gloss_map.insert(item.gloss, Rc::clone(&item));
-            pos_map.insert(pos, gloss_map);
-            ety_map.insert(ety_num, pos_map);
-            lang_map.insert(lang, ety_map);
-            self.n += 1;
-            return Ok(Some(item));
-        }
-        // since lang has been seen before, there must be at least one ety (possibly None)
-        // check if this ety has been seen in this lang before
-        let ety_map: &mut EtyMap = lang_map.get_mut(&item.lang).unwrap();
-        if !ety_map.contains_key(&item.ety_num) {
-            let mut gloss_map = GlossMap::new();
-            let mut pos_map = PosMap::new();
-            let (pos, ety_num) = (item.pos, item.ety_num);
-            let item = Rc::from(item);
-            gloss_map.insert(item.gloss, Rc::clone(&item));
-            pos_map.insert(pos, gloss_map);
-            ety_map.insert(ety_num, pos_map);
-            self.n += 1;
-            return Ok(Some(item));
-        }
-        // since ety has been seen before, there must be at least one pos
-        // check if this pos has been seen for this ety before
-        let pos_map: &mut PosMap = ety_map.get_mut(&item.ety_num).unwrap();
-        if !pos_map.contains_key(&item.pos) {
-            let mut gloss_map = GlossMap::new();
-            let pos = item.pos;
-            let item = Rc::from(item);
-            gloss_map.insert(item.gloss, Rc::clone(&item));
-            pos_map.insert(pos, gloss_map);
-            self.n += 1;
-            return Ok(Some(item));
-        }
-        // since pos has been seen before, there must be at least one gloss (possibly None)
-        let gloss_map: &mut GlossMap = pos_map.get_mut(&item.pos).unwrap();
-        if !gloss_map.contains_key(&item.gloss) {
-            item.gloss_num = u8::try_from(gloss_map.len())?;
-            let item = Rc::from(item);
-            gloss_map.insert(item.gloss, Rc::clone(&item));
-            self.n += 1;
-            return Ok(Some(item));
-        }
-        Ok(None)
+    pub(crate) fn len(&self) -> usize {
+        self.items.len()
     }
 
-    pub(crate) fn contains(&self, lang: usize, term: Symbol) -> bool {
-        let (lang, term) = self.redirects.rectify_lang_term(lang, term);
-        self.term_map
-            .get(&term)
-            .map_or(false, |lang_map| lang_map.contains_key(&lang))
+    pub(crate) fn get(&self, id: ItemId) -> &RawItem {
+        &self.items[id]
+    }
+
+    pub(crate) fn add(&mut self, item: RawItem) {
+        let id = self.items.len();
+        item.i = id;
+        let langterm = LangTerm::new(item.lang, item.term);
+        self.items.push(item);
+        if let Some(ids) = self.langterm_map.get_mut(&langterm) {
+            ids.push(id);
+            return;
+        }
+        self.langterm_map.insert(langterm, vec![id]);
+    }
+
+    pub(crate) fn contains(&self, langterm: LangTerm) -> bool {
+        let langterm = self.redirects.rectify_langterm(langterm);
+        self.langterm_map.contains_key(&langterm)
     }
 
     pub(crate) fn get_disambiguated_item<'a>(
         &self,
         embeddings: &'a Embeddings,
         embedding_comp: impl EmbeddingComparand<ItemEmbedding<'a>> + Copy,
-        lang: usize,
-        term: Symbol,
+        langterm: LangTerm,
     ) -> Option<(Rc<RawItem>, f32)> {
-        let (lang, term) = self.redirects.rectify_lang_term(lang, term);
-        let candidate_items = self.get_all_lang_term_items(lang, term)?;
+        let langterm = self.redirects.rectify_langterm(langterm);
+        let candidates = self.get_all_langterm_ids(langterm)?;
         let mut max_similarity = 0f32;
         let mut best_candidate = 0usize;
-        for (i, candidate) in candidate_items.iter().enumerate() {
+        for (i, candidate) in candidates.iter().enumerate() {
             let candidate_embedding = embeddings.get(candidate);
             let similarity = embedding_comp.cosine_similarity(candidate_embedding);
             let old_max_similarity = max_similarity;
@@ -181,7 +113,7 @@ impl RawItems {
                 best_candidate = i;
             }
         }
-        Some((candidate_items[best_candidate].clone(), max_similarity))
+        Some((candidates[best_candidate].clone(), max_similarity))
     }
 
     pub(crate) fn get_or_impute_item<'a>(
@@ -189,11 +121,10 @@ impl RawItems {
         ety_graph: &mut EtyGraph,
         embeddings: &'a Embeddings,
         embedding_comp: impl EmbeddingComparand<ItemEmbedding<'a>> + Copy,
-        lang: usize,
-        term: Symbol,
+        langterm: LangTerm,
     ) -> Retrieval {
         if let Some((item, confidence)) =
-            self.get_disambiguated_item(embeddings, embedding_comp, lang, term)
+            self.get_disambiguated_item(embeddings, embedding_comp, langterm)
         {
             return Retrieval {
                 item,
@@ -202,7 +133,7 @@ impl RawItems {
                 is_newly_imputed: false,
             };
         }
-        if let Some(item) = ety_graph.imputed_items.get(lang, term) {
+        if let Some(item) = ety_graph.imputed_items.get(langterm) {
             return Retrieval {
                 item,
                 confidence: 0.0,
@@ -211,7 +142,7 @@ impl RawItems {
             };
         }
         let n = self.n + ety_graph.imputed_items.n;
-        let imputed_item = Rc::from(RawItem::new_imputed(n, lang, term, None));
+        let imputed_item = Rc::from(RawItem::new_imputed(n, langterm, None));
         ety_graph.add_imputed(&imputed_item);
         Retrieval {
             item: imputed_item,
@@ -222,22 +153,8 @@ impl RawItems {
     }
 
     // returns all items that share the same lang and term
-    pub(crate) fn get_all_lang_term_items(
-        &self,
-        lang: usize,
-        term: Symbol,
-    ) -> Option<Vec<Rc<RawItem>>> {
-        let lang_map = self.term_map.get(&term)?;
-        let ety_map = lang_map.get(&lang)?;
-        let mut items = vec![];
-        for pos_map in ety_map.values() {
-            for gloss_map in pos_map.values() {
-                for item in gloss_map.values() {
-                    items.push(item.clone());
-                }
-            }
-        }
-        (!items.is_empty()).then_some(items)
+    pub(crate) fn get_all_langterm_ids(&self, langterm: LangTerm) -> Option<&Vec<ItemId>> {
+        self.langterm_map.get(&langterm)
     }
 
     // We determine that an item needs an embedding if it has any
@@ -265,7 +182,7 @@ impl RawItems {
                 .extend(self.get_desc_items_needing_embedding(item, raw_descendants));
         }
         if let Some(raw_root) = &item.raw_root
-            && let Some(root_items) = self.get_all_lang_term_items(raw_root.lang, raw_root.term)
+            && let Some(root_items) = self.get_all_langterm_ids(raw_root.lang, raw_root.term)
             && root_items.len() > 1
         {
             items_needing_embedding.insert(Rc::clone(item));
@@ -276,22 +193,16 @@ impl RawItems {
         items_needing_embedding
     }
 
-    fn get_all_items_needing_embedding(&self) -> Result<HashSet<Rc<RawItem>>> {
+    fn get_all_items_needing_embedding(&self) -> Result<HashSet<ItemId>> {
         let pb = progress_bar(self.n, "Determining which items need embeddings")?;
         let mut items_needing_embedding = HashSet::new();
-        for lang_map in self.term_map.values() {
-            for ety_map in lang_map.values() {
-                for pos_map in ety_map.values() {
-                    for gloss_map in pos_map.values() {
-                        for item in gloss_map.values() {
-                            let more = self.get_items_needing_embedding(item);
-                            for m in more.iter() {
-                                items_needing_embedding.insert(Rc::clone(m));
-                            }
-                            pb.inc(1);
-                        }
-                    }
+        for items in self.langterm_map.values() {
+            for item in items {
+                let more = self.get_items_needing_embedding(item);
+                for m in more.iter() {
+                    items_needing_embedding.insert(item.i);
                 }
+                pb.inc(1);
             }
         }
         pb.finish();
@@ -334,7 +245,7 @@ impl RawItems {
 
     fn add_all_to_ety_graph(&self, ety_graph: &mut EtyGraph) -> Result<()> {
         let pb = progress_bar(self.n, "Adding items to ety graph")?;
-        for lang_map in self.term_map.values() {
+        for lang_map in self.langterm_map.values() {
             for ety_map in lang_map.values() {
                 for pos_map in ety_map.values() {
                     for gloss_map in pos_map.values() {

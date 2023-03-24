@@ -22,9 +22,6 @@ use petgraph::{
     visit::EdgeRef,
 };
 
-type ImputedLangMap = HashMap<usize, Rc<RawItem>>;
-type ImputedTermMap = HashMap<Symbol, ImputedLangMap>;
-
 // Quite often an etymology section on wiktionary will have multiple valid
 // templates that don't actually link to anything (because the term has no page,
 // or doesn't have the relevant page section), before an eventual valid template
@@ -38,12 +35,11 @@ type ImputedTermMap = HashMap<Symbol, ImputedLangMap>;
 // both exist.
 #[derive(Default)]
 pub(crate) struct ImputedItems {
-    pub(crate) term_map: ImputedTermMap,
-    pub(crate) n: usize,
+    pub(crate) langterm_map: HashMap<LangTerm, ItemId>,
 }
 
 impl ImputedItems {
-    fn add(&mut self, item: &Rc<RawItem>) {
+    fn add(&mut self, id: ItemId) {
         // check if the item's term has been seen before
         if !self.term_map.contains_key(&item.term) {
             let mut lang_map = ImputedLangMap::new();

@@ -297,7 +297,7 @@ impl RawItems {
             let mut has_imputed_child = false;
             if let RawDescLineKind::Desc { desc } = &line.kind {
                 for (i, &term) in desc.terms.iter().enumerate() {
-                    if let Some(desc_items) = self.get_all_lang_term_items(desc.lang, term) {
+                    if let Some(desc_items) = self.get_all_langterm_ids(desc.lang, term) {
                         if i == 0 {
                             possible_ancestors.add(&desc_items, line.depth);
                         }
@@ -328,7 +328,7 @@ impl RawItems {
         ety_graph: &mut EtyGraph,
     ) -> Result<()> {
         let pb = progress_bar(self.n, "Processing descendants")?;
-        for lang_map in self.term_map.values() {
+        for lang_map in self.langterm_map.values() {
             for ety_map in lang_map.values() {
                 for pos_map in ety_map.values() {
                     for gloss_map in pos_map.values() {

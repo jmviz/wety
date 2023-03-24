@@ -1,5 +1,5 @@
 use crate::{
-    lang_term::{LangTerm, Language, LanguageTerm, Term},
+    langterm::{LangTerm, Language, LanguageTerm, Term},
     raw_items::RawItems,
     wiktextract_json::{WiktextractJson, WiktextractJsonAccess},
     RawDataProcessor,
@@ -17,22 +17,22 @@ pub(crate) struct Redirects {
 impl Redirects {
     // If a redirect page exists for given lang + term combo, get the redirect.
     // If not, just return back the original lang + term.
-    fn get(&self, lang_term: LangTerm) -> LangTerm {
-        if let Some(&redirect) = self.reconstruction.get(&LanguageTerm::from(lang_term)) {
+    fn get(&self, langterm: LangTerm) -> LangTerm {
+        if let Some(&redirect) = self.reconstruction.get(&LanguageTerm::from(langterm)) {
             return redirect.into();
-        } else if let Some(&redirect_term) = self.regular.get(&lang_term.term) {
-            return LangTerm::new(lang_term.lang, redirect_term);
+        } else if let Some(&redirect_term) = self.regular.get(&langterm.term) {
+            return LangTerm::new(langterm.lang, redirect_term);
         }
-        lang_term
+        langterm
     }
-    pub(crate) fn rectify_lang_term(&self, lang_term: LangTerm) -> LangTerm {
+    pub(crate) fn rectify_langterm(&self, langterm: LangTerm) -> LangTerm {
         // If lang is an etymology-only language, we will not find any entries
         // for it in Items lang map, since such a language definitionally does
         // not have any entries itself. So we look for the actual lang that the
         // ety lang is associated with.
-        let main_lang = lang_term.lang.ety2main();
+        let main_lang = langterm.lang.ety2main();
         // Then we also check if there is a redirect for this lang term combo.
-        self.get(LangTerm::new(main_lang, lang_term.term))
+        self.get(LangTerm::new(main_lang, langterm.term))
     }
 }
 

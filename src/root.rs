@@ -21,7 +21,7 @@ use simd_json::ValueAccess;
 
 #[derive(Hash, Eq, PartialEq, Debug)]
 pub(crate) struct RawRoot {
-    pub(crate) lang: usize,
+    pub(crate) langterm: usize,
     pub(crate) term: Symbol,
     pub(crate) sense_id: Option<Symbol>,
 }
@@ -125,7 +125,7 @@ impl RawItems {
     pub(crate) fn impute_root_items(&self, ety_graph: &mut EtyGraph) -> Result<()> {
         let pb = progress_bar(self.n, "Imputing roots")?;
         let root_pos = Some(POS.get_expected_index("root")?);
-        for lang_map in self.term_map.values() {
+        for lang_map in self.langterm_map.values() {
             for ety_map in lang_map.values() {
                 for pos_map in ety_map.values() {
                     for gloss_map in pos_map.values() {
@@ -188,7 +188,7 @@ impl RawItems {
         ety_graph: &mut EtyGraph,
     ) -> Result<()> {
         let pb = progress_bar(self.n, "Imputing root etys")?;
-        for lang_map in self.term_map.values() {
+        for lang_map in self.langterm_map.values() {
             for ety_map in lang_map.values() {
                 for pos_map in ety_map.values() {
                     for gloss_map in pos_map.values() {
