@@ -4,9 +4,10 @@ use crate::{
     etymology_templates::{EtyMode, TemplateKind},
     items::{Item, ItemId, RawItems, Retrieval},
     lang_phf::LANG_CODE2NAME,
+    langterm::{LangTerm, Term},
     progress_bar,
     string_pool::Symbol,
-    wiktextract_json::{WiktextractJson, WiktextractJsonAccess},
+    wiktextract_json::{WiktextractJson, WiktextractJsonValidStr},
     RawDataProcessor,
 };
 
@@ -15,6 +16,7 @@ use std::{rc::Rc, str::FromStr};
 use anyhow::{Ok, Result};
 use hashbrown::HashSet;
 use simd_json::ValueAccess;
+use smallvec::{smallvec, SmallVec};
 
 #[derive(Hash, Eq, PartialEq, Debug)]
 pub(crate) struct RawEtymology {
@@ -32,17 +34,15 @@ impl From<Vec<RawEtyTemplate>> for RawEtymology {
 // models the basic info from a wiktionary etymology template
 #[derive(Hash, Eq, PartialEq, Debug)]
 pub(crate) struct RawEtyTemplate {
-    pub(crate) langs: Box<[usize]>,  // e.g. "en", "en"
-    pub(crate) terms: Box<[Symbol]>, // e.g. "re-", "do"
-    pub(crate) mode: EtyMode,        // e.g. Prefix
-    pub(crate) head: u8,             // e.g. 1 (the index of "do")
+    pub(crate) langterms: SmallVec<[LangTerm; 1]>, // e.g. "en" "re-", "en" "do"
+    pub(crate) mode: EtyMode,                      // e.g. Prefix
+    pub(crate) head: u8,                           // e.g. 1 (the index of "do")
 }
 
 impl RawEtyTemplate {
-    fn new(lang: usize, term: Symbol, mode: EtyMode) -> Self {
+    fn new(langterm: LangTerm, mode: EtyMode) -> Self {
         Self {
-            langs: Box::new([lang]),
-            terms: Box::new([term]),
+            langterms: smallvec![langterm],
             mode,
             head: 0,
         }
@@ -62,7 +62,7 @@ impl RawDataProcessor {
         let ety_lang_index = LANG_CODE2NAME.get_index(ety_lang)?;
         let ety_term = args.get_valid_str("3")?;
 
-        let ety_term = self.string_pool.get_or_intern(ety_term);
+        let ety_term = Term::new();
         Some(RawEtyTemplate::new(ety_lang_index, ety_term, mode))
     }
 
@@ -361,14 +361,12 @@ impl RawItems {
         embeddings: &Embeddings,
         ety_graph: &mut EtyGraph,
         item: ItemId,
+        raw_etymology: RawEtymology,
     ) {
-        if item.raw_etymology.is_none() {
-            return; // don't add anything to ety_graph if no valid raw ety templates
-        }
         let mut current_item = Rc::clone(item); // for tracking possibly imputed items
         let mut next_item = Rc::clone(item); // for tracking possibly imputed items
         let mut item_embeddings = vec![];
-        for template in item.raw_etymology.as_ref().unwrap().templates.iter() {
+        for template in raw_etymology.templates.iter() {
             item_embeddings.push(embeddings.get(&current_item));
             let mut ety_items = Vec::with_capacity(template.terms.len());
             let mut confidences = Vec::with_capacity(template.terms.len());
@@ -420,22 +418,15 @@ impl RawItems {
     }
 
     pub(crate) fn process_raw_etymologies(
-        &self,
+        &mut self,
         embeddings: &Embeddings,
         ety_graph: &mut EtyGraph,
     ) -> Result<()> {
-        let pb = progress_bar(self.n, "Processing etymologies")?;
-        for lang_map in self.langterm_map.values() {
-            for ety_map in lang_map.values() {
-                for pos_map in ety_map.values() {
-                    for gloss_map in pos_map.values() {
-                        for item in gloss_map.values() {
-                            self.process_item_raw_etymology(embeddings, ety_graph, item);
-                            pb.inc(1);
-                        }
-                    }
-                }
-            }
+        let n = self.raw_templates.ety.len();
+        let pb = progress_bar(n, "Processing etymologies")?;
+        for (item_id, ety) in self.raw_templates.ety.into_iter() {
+            self.process_item_raw_etymology(embeddings, ety_graph, item_id, ety);
+            pb.inc(1);
         }
         pb.finish();
         Ok(())

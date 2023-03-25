@@ -5,10 +5,11 @@ use crate::{
     items::{Item, ItemId, RawItems, Retrieval},
     lang_phf::LANG_CODE2NAME,
     phf_ext::OrderedSetExt,
+    pos,
     pos_phf::POS,
     progress_bar,
     string_pool::Symbol,
-    wiktextract_json::{WiktextractJson, WiktextractJsonAccess},
+    wiktextract_json::{WiktextractJson, WiktextractJsonValidStr},
     RawDataProcessor,
 };
 
@@ -323,23 +324,17 @@ impl RawItems {
     }
 
     pub(crate) fn process_raw_descendants(
-        &self,
+        &mut self,
         embeddings: &Embeddings,
         ety_graph: &mut EtyGraph,
     ) -> Result<()> {
-        let pb = progress_bar(self.n, "Processing descendants")?;
-        for lang_map in self.langterm_map.values() {
-            for ety_map in lang_map.values() {
-                for pos_map in ety_map.values() {
-                    for gloss_map in pos_map.values() {
-                        for item in gloss_map.values() {
-                            self.process_item_raw_descendants(embeddings, ety_graph, item);
-                            pb.inc(1);
-                        }
-                    }
-                }
-            }
+        let n = self.raw_templates.desc.len();
+        let pb = progress_bar(n, "Processing descendants")?;
+        for (item_id, desc) in self.raw_templates.desc.into_iter() {
+            self.process_item_raw_descendants(embeddings, ety_graph, desc, item_id);
+            pb.inc(1);
         }
+
         pb.finish();
         Ok(())
     }
@@ -348,13 +343,11 @@ impl RawItems {
         &self,
         embeddings: &Embeddings,
         ety_graph: &mut EtyGraph,
+        raw_descendants: RawDescendants,
         item: ItemId,
     ) {
-        if item.raw_descendants.is_none() {
-            return;
-        }
-        let mut ancestors = Ancestors::new(item);
-        'outer: for line in item.raw_descendants.as_ref().unwrap().lines.iter() {
+        let mut ancestors = Ancestors::new(&item);
+        'outer: for line in raw_descendants.lines.iter() {
             let parent = ancestors.prune_and_get_parent(line.depth);
             match &line.kind {
                 RawDescLineKind::Desc { desc } => {
@@ -388,10 +381,7 @@ impl RawItems {
                         // general, we may need to end up doing much smarter
                         // processing of descendants sections if there is more
                         // such variation I am unaware of (probable?).
-                        if desc_item
-                            .pos
-                            .is_some_and(|pos| pos == POS.get_expected_index("root").unwrap())
-                        {
+                        if self.get(desc_item).pos.is_some_and(|pos| pos == pos::ROOT) {
                             continue 'outer;
                         }
                         // Only use the first term in a multi-term desc line as

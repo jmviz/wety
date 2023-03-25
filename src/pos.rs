@@ -24,7 +24,7 @@ impl TryFrom<&str> for Pos {
         if let Some(id) = POS.get_index(pos) {
             return Ok(PosId::try_from(id)?.into());
         }
-        Err(anyhow!("\"{pos}\" does not exist POS"))
+        Err(anyhow!("\"{pos}\" does not exist in POS"))
     }
 }
 
@@ -38,3 +38,5 @@ impl Pos {
             .expect("id cannot have been created without being a valid index")
     }
 }
+
+pub(crate) const ROOT: Pos = Pos::try_from("root").expect("root pos must exist");

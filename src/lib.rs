@@ -23,13 +23,13 @@ mod wiktextract_json;
 
 use crate::{
     ety_graph::EtyGraph, items::RawItems, string_pool::StringPool, turtle::write_turtle_file,
+    wiktextract_json::process_wiktextract_lines,
 };
 
 use std::{
     convert::TryFrom,
     fs::{remove_dir_all, File},
     io::BufReader,
-    mem::take,
     path::Path,
     time::Instant,
 };
@@ -82,19 +82,17 @@ pub fn process_wiktextract(
         "Processing raw wiktextract data from {}...",
         wiktextract_path.display()
     );
-    let mut processor = RawDataProcessor::new()?;
-    let items = processor.process_json_items(wiktextract_path)?;
-    let string_pool = take(&mut processor.string_pool);
-
+    let mut string_pool = StringPool::new();
+    let items = process_wiktextract_lines(&mut string_pool, wiktextract_path)?;
     println!("Finished. Took {}.", HumanDuration(t.elapsed()));
     let embeddings =
-        items.generate_embeddings(&processor.string_pool, wiktextract_path, embeddings_config)?;
+        items.generate_embeddings(&string_pool, wiktextract_path, embeddings_config)?;
     t = Instant::now();
     println!("Generating ety graph...");
-    let ety_graph = items.generate_ety_graph(&processor.string_pool, &embeddings)?;
+    let ety_graph = items.generate_ety_graph(&string_pool, &embeddings)?;
     println!("Finished. Took {}.", HumanDuration(t.elapsed()));
     let data = ProcessedData {
-        string_pool: processor.string_pool,
+        string_pool,
         items,
         ety_graph,
     };

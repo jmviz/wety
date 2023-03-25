@@ -41,10 +41,18 @@ pub(crate) struct StringPool {
     pool: StringInterner<StringBackend<Symbol>>,
 }
 
-impl StringPool {
-    pub(crate) fn new() -> Self {
+impl Default for StringPool {
+    fn default() -> Self {
         let pool: StringInterner<StringBackend<Symbol>> = StringInterner::new();
         Self { pool }
+    }
+}
+
+impl StringPool {
+    pub(crate) fn new() -> Self {
+        Self {
+            ..Default::default()
+        }
     }
 
     pub(crate) fn resolve(&self, symbol: Symbol) -> &str {

@@ -1,21 +1,11 @@
 use crate::{
     etymology_templates::EtyMode,
-    items::{Item, ItemId, ItemStore, Items, RawTemplates},
-    lang_phf::LANG_CODE2NAME,
+    items::{Item, ItemId, ItemStore},
     langterm::LangTerm,
-    phf_ext::OrderedMapExt,
     pos::Pos,
-    progress_bar,
-    redirects::Redirects,
-    string_pool::{StringPool, Symbol},
 };
 
-use std::{
-    fs::File,
-    io::{BufWriter, Write},
-    ops::Index,
-    rc::Rc,
-};
+use std::ops::Index;
 
 use anyhow::{anyhow, Ok, Result};
 use hashbrown::{HashMap, HashSet};

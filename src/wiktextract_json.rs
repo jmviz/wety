@@ -3,7 +3,7 @@ use crate::{
     items::{Item, RawItems},
     langterm::{Lang, LangTerm, Term},
     pos::Pos,
-    pos_phf::POS,
+    redirects::WiktextractJsonRedirect,
     string_pool::StringPool,
     RawDataProcessor,
 };
@@ -19,20 +19,52 @@ use bytelines::ByteLines;
 use flate2::read::GzDecoder;
 use simd_json::{to_borrowed_value, ValueAccess};
 
-pub(crate) type WiktextractJson<'a> = simd_json::value::borrowed::Value<'a>;
-
-pub(crate) trait WiktextractJsonAccess {
-    fn get_valid_str(&self, key: &str) -> Option<&str>;
-    fn get_lang(&self) -> Option<Lang>;
-    fn get_page_term(&self, string_pool: &mut StringPool) -> Option<Term>;
-    fn get_canonical_term(&self, string_pool: &mut StringPool) -> Option<Term>;
-    fn get_langterm(&self, string_pool: &mut StringPool) -> Option<LangTerm>;
-    fn get_pos(&self) -> Option<Pos>;
-    fn get_ety_num(&self) -> Option<u8>;
-    fn get_gloss(&self, string_pool: &mut StringPool) -> Option<Gloss>;
+pub(crate) fn wiktextract_lines(path: &Path) -> Result<impl Iterator<Item = Vec<u8>>> {
+    let file = File::open(path)?;
+    let reader = BufReader::new(file);
+    let is_gz_compressed = path.extension().is_some_and(|ext| ext == "gz");
+    let uncompressed: Box<dyn Read> = if is_gz_compressed {
+        Box::new(GzDecoder::new(reader))
+    } else {
+        Box::new(reader)
+    };
+    let reader = BufReader::new(uncompressed);
+    let lines = ByteLines::new(reader);
+    // We use into_iter() here and thereby allocate a Vec<u8> for each line, so
+    // that we have the convenience of returning an iterator. These allocations
+    // are not particularly a bottleneck relative to other things so it's fine.
+    Ok(lines.into_iter().filter_map(Result::ok))
 }
 
-impl WiktextractJsonAccess for WiktextractJson<'_> {
+pub(crate) fn process_wiktextract_lines(
+    string_pool: &mut StringPool,
+    path: &Path,
+) -> Result<RawItems> {
+    let mut items = RawItems::default();
+    for (line_number, mut line) in wiktextract_lines(path)?.enumerate() {
+        let json = to_borrowed_value(&mut line)?;
+        items.total_ok_lines_in_file += 1;
+        // Some wiktionary pages are redirects. These are actually used somewhat
+        // heavily, so we need to take them into account
+        // https://github.com/tatuylonen/wiktextract#format-of-extracted-redirects
+        if json.contains_key("redirect") {
+            let redirect = WiktextractJsonRedirect { json };
+            redirect.process(string_pool, items);
+        } else {
+            let item = WiktextractJsonItem { json };
+            item.process(string_pool, &mut items, line_number);
+        }
+    }
+    Ok(items)
+}
+
+pub(crate) type WiktextractJson<'a> = simd_json::value::borrowed::Value<'a>;
+
+pub(crate) trait WiktextractJsonValidStr {
+    fn get_valid_str(&self, key: &str) -> Option<&str>;
+}
+
+impl WiktextractJsonValidStr for WiktextractJson<'_> {
     // return a cleaned version of the str if it exists
     fn get_valid_str(&self, key: &str) -> Option<&str> {
         self.get_str(key)
@@ -43,15 +75,55 @@ impl WiktextractJsonAccess for WiktextractJson<'_> {
             .map(clean_ety_term)
             .and_then(|s| (!s.is_empty() && s != "-").then_some(s))
     }
+}
+
+pub(crate) struct WiktextractJsonItem<'a> {
+    pub(crate) json: WiktextractJson<'a>,
+}
+
+impl WiktextractJsonItem<'_> {
+    fn process(&self, string_pool: &mut StringPool, items: &mut RawItems, line_number: usize) {
+        if let Some(page_term) = self.get_page_term(string_pool)
+            && let Some(term) = self.get_canonical_term(string_pool)
+            && let Some(lang) = self.get_lang()
+        {
+            let pos = self.get_pos();
+            let ety_num = self.get_ety_num();
+            let gloss = self.get_gloss(string_pool);
+
+            let item = Item {
+                is_imputed: false,
+                i: 0, // temp value that will be changed in items.add()
+                lang,
+                term,
+                page_term: Some(page_term),
+                ety_num,
+                pos,
+                gloss,
+            };
+            let item_id = items.add(item);
+            items.lines.insert(line_number, item_id);
+
+            if let Some(raw_root) = self.get_root(string_pool, lang) {
+                items.raw_templates.root.insert(item_id, raw_root);
+            }
+            if let Some(raw_etymology) = self.get_etymology(string_pool, lang) {
+                items.raw_templates.ety.insert(item_id, raw_etymology);
+            }
+            if let Some(raw_descendants) = self.get_descendants(string_pool) {
+                items.raw_templates.desc.insert(item_id, raw_descendants);
+            }
+        }
+    }
 
     fn get_lang(&self) -> Option<Lang> {
-        let lang_code = self.get_valid_str("lang_code")?;
+        let lang_code = self.json.get_valid_str("lang_code")?;
         lang_code.try_into().ok()
     }
 
     // The form of the term used in the page url, e.g. "voco"
     fn get_page_term(&self, string_pool: &mut StringPool) -> Option<Term> {
-        if let Some(term) = self.get_valid_str("word")
+        if let Some(term) = self.json.get_valid_str("word")
             && !should_ignore_term(term)
         {
             return Some(Term::new(string_pool, term));
@@ -64,7 +136,7 @@ impl WiktextractJsonAccess for WiktextractJson<'_> {
     // Module:languages into the page_term "link" version. See notes.md for
     // more.
     fn get_canonical_term(&self, string_pool: &mut StringPool) -> Option<Term> {
-        if let Some(forms) = self.get_array("forms") {
+        if let Some(forms) = self.json.get_array("forms") {
             let mut f = 0;
             while let Some(form) = forms.get(f) {
                 if let Some(tags) = form.get_array("tags") {
@@ -94,7 +166,7 @@ impl WiktextractJsonAccess for WiktextractJson<'_> {
     }
 
     fn get_pos(&self) -> Option<Pos> {
-        let pos = self.get_valid_str("pos")?;
+        let pos = self.json.get_valid_str("pos")?;
         if !should_ignore_pos(pos) {
             return pos.try_into().ok();
         }
@@ -104,13 +176,14 @@ impl WiktextractJsonAccess for WiktextractJson<'_> {
     fn get_ety_num(&self) -> Option<u8> {
         // if term-lang combo has multiple ety's, then 'etymology_number' is
         // present with range 1,2,... Otherwise, this key is missing.
-        self.get_u8("etymology_number")
+        self.json.get_u8("etymology_number")
     }
 
     fn get_gloss(&self, string_pool: &mut StringPool) -> Option<Gloss> {
         // 'senses' key should always be present with non-empty value, but glosses
         // may be missing or empty.
-        self.get_array("senses")
+        self.json
+            .get_array("senses")
             .and_then(|senses| senses.get(0))
             .and_then(|sense| sense.get_array("glosses"))
             .and_then(|glosses| glosses.get(0))
@@ -150,81 +223,13 @@ fn should_ignore_pos(pos: &str) -> bool {
     pos.contains("phrase")
 }
 
-pub(crate) fn wiktextract_lines(path: &Path) -> Result<impl Iterator<Item = Vec<u8>>> {
-    let file = File::open(path)?;
-    let reader = BufReader::new(file);
-    let is_gz_compressed = path.extension().is_some_and(|ext| ext == "gz");
-    let uncompressed: Box<dyn Read> = if is_gz_compressed {
-        Box::new(GzDecoder::new(reader))
-    } else {
-        Box::new(reader)
-    };
-    let reader = BufReader::new(uncompressed);
-    let lines = ByteLines::new(reader);
-    // We use into_iter() here and thereby allocate a Vec<u8> for each line, so
-    // that we have the convenience of returning an iterator. These allocations
-    // are not particularly a bottleneck relative to other things so it's fine.
-    Ok(lines.into_iter().filter_map(Result::ok))
+pub(crate) struct WiktextractJsonTemplate {
+    args: WiktextractJson,
 }
 
-impl RawDataProcessor {
-    fn process_json_item(
-        &mut self,
-        items: &mut RawItems,
-        json_item: &WiktextractJson,
-        line_number: usize,
-    ) -> Result<()> {
-        // Some wiktionary pages are redirects. These are actually used somewhat
-        // heavily, so we need to take them into account
-        // https://github.com/tatuylonen/wiktextract#format-of-extracted-redirects
-        if json_item.contains_key("redirect") {
-            self.process_redirect(items, json_item);
-            return Ok(());
-        }
-        if let Some(page_term) = json_item.get_page_term(&mut self.string_pool)
-            && let Some(term) = json_item.get_canonical_term(&mut self.string_pool)
-            && let Some(lang) = json_item.get_lang()
-        {
-            let pos = json_item.get_pos();
-            let ety_num = json_item.get_ety_num();
-            let gloss = json_item.get_gloss(&mut self.string_pool);
-
-            let raw_root = self.process_json_root(json_item, lang.code());
-            let raw_etymology = self.process_json_ety(json_item, lang.code());
-            let raw_descendants = self.process_json_descendants(json_item);
-
-            let item = Item {
-                line: Some(line_number),
-                is_imputed: false,
-                // $$ This will not catch all reconstructed terms, since some terms
-                // in attested languages are reconstructed. Some better inference
-                // should be done based on "*" prefix for terms. 
-                is_reconstructed: lang.is_reconstructed(),
-                i: items.n,
-                lang: lang.id(),
-                term,
-                page_term,
-                ety_num,
-                pos,
-                gloss,
-                raw_etymology,
-                raw_root,
-                raw_descendants,
-            };
-            if let Some(item) = items.add(item)? {
-                items.lines.insert(line_number, item);
-            }
-        }
-        Ok(())
-    }
-
-    pub(crate) fn process_json_items(&mut self, path: &Path) -> Result<RawItems> {
-        let mut items = RawItems::default();
-        for (line_number, mut line) in wiktextract_lines(path)?.enumerate() {
-            let json_item = to_borrowed_value(&mut line)?;
-            self.process_json_item(&mut items, &json_item, line_number)?;
-            items.total_ok_lines_in_file += 1;
-        }
-        Ok(items)
+trait WiktextractJsonTemplateValidation {
+    fn validate_lang(&self, lang: &str) {
+        let term_lang = args.get_valid_str("1")?;
+        (term_lang == lang).then_some(())?;
     }
 }

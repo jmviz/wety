@@ -2,14 +2,15 @@ use crate::{
     embeddings::{EmbeddingComparand, Embeddings, ItemEmbedding},
     ety_graph::EtyGraph,
     etymology_templates::EtyMode,
-    items::{Item, RawItems, Retrieval},
+    items::{Item, ItemId, RawItems, Retrieval},
     lang_phf::{LANG_CODE2NAME, LANG_NAME2CODE},
-    langterm::LangTerm,
+    langterm::{LangTerm, Lang, Language, Term},
     phf_ext::OrderedSetExt,
+    pos,
     pos_phf::POS,
     progress_bar,
-    string_pool::Symbol,
-    wiktextract_json::{WiktextractJson, WiktextractJsonAccess},
+    string_pool::{StringPool, Symbol},
+    wiktextract_json::{WiktextractJson, WiktextractJsonItem, WiktextractJsonValidStr},
     RawDataProcessor,
 };
 
@@ -26,22 +27,23 @@ pub(crate) struct RawRoot {
     pub(crate) sense_id: Option<Symbol>,
 }
 
-impl RawDataProcessor {
+struct JsonRootTemplate {
+    args: WiktextractJson
+}
+
+impl WiktextractJsonItem<'_> {
     // cf. https://en.wiktionary.org/wiki/Template:root. For now we skip
     // attempting to deal with multiple roots listed in a root template or
     // multiple root templates being listed. In both cases we just take the
     // first root term seen. If we discover it is common, we will handle it.
-    pub(crate) fn process_json_root(
-        &mut self,
-        json_item: &WiktextractJson,
-        lang: &str,
-    ) -> Option<RawRoot> {
-        if let Some(templates) = json_item.get_array("etymology_templates") {
+    pub(crate) fn get_root(&self, string_pool: &mut StringPool, lang: Lang) -> Option<RawRoot> {
+        if let Some(templates) = self.json.get_array("etymology_templates") {
             for template in templates {
                 if let Some(name) = template.get_valid_str("name")
                     && name == "root"
                     && let Some(args) = template.get("args")
-                    && let Some(raw_root) = self.process_json_root_template(args, lang)
+                    && let root_template = JsonRootTemplate {args}
+                    && let Some(raw_root) = root_template.process(string_pool, lang)
                 {
                    return Some(raw_root);
                 }
@@ -51,9 +53,9 @@ impl RawDataProcessor {
         // if no {root} found in ety section, look for a category of the form
         // e.g. "English terms derived from the Proto-Indo-European root *dʰeh₁-"
         // or "English terms derived from the Proto-Indo-European root *bʰel- (shiny)"
-        if let Some(categories) = json_item.get_array("categories") {
+        if let Some(categories) = self.json.get_array("categories") {
             for category in categories.iter().filter_map(|c| c.as_str()) {
-                if let Some(raw_root) = self.process_json_root_category(category, lang) {
+                if let Some(raw_root) = process_json_root_category(string_pool, category, lang) {
                     return Some(raw_root);
                 }
             }
@@ -62,8 +64,8 @@ impl RawDataProcessor {
         None
     }
 
-    fn process_json_root_template(
-        &mut self,
+    fn process_root_template(
+        string_pool: &mut StringPool,
         args: &WiktextractJson,
         lang: &str,
     ) -> Option<RawRoot> {
@@ -94,92 +96,51 @@ impl RawDataProcessor {
             sense_id: root_sense_id,
         })
     }
+}
 
-    fn process_json_root_category(&mut self, category: &str, lang: &str) -> Option<RawRoot> {
-        lazy_static! {
-            static ref ROOT_CAT: Regex =
-                Regex::new(r"^(.+) terms derived from the (.+) root \*([^ ]+)(?: \((.+)\))?$")
-                    .unwrap();
-        }
-        let caps = ROOT_CAT.captures(category)?;
-        let cat_term_lang_name = caps.get(1).map(|m| m.as_str())?;
-        let &cat_term_lang = LANG_NAME2CODE.get(cat_term_lang_name)?;
-        (cat_term_lang == lang).then_some(())?;
-        let cat_root_lang_name = caps.get(2).map(|m| m.as_str())?;
-        let &cat_root_lang = LANG_NAME2CODE.get(cat_root_lang_name)?;
-        let cat_root_lang_index = LANG_CODE2NAME.get_index(cat_root_lang)?;
-        let cat_root_term = caps.get(3).map(|m| m.as_str())?;
-
-        let cat_root_sense_id = caps
-            .get(4)
-            .map(|cap| self.string_pool.get_or_intern(cap.as_str()));
-        Some(RawRoot {
-            lang: cat_root_lang_index,
-            term: self.string_pool.get_or_intern(cat_root_term),
-            sense_id: cat_root_sense_id,
-        })
+fn process_json_root_category(string_pool: &mut StringPool, category: &str, lang: Lang) -> Option<RawRoot> {
+    lazy_static! {
+        static ref ROOT_CAT: Regex =
+            Regex::new(r"^(.+) terms derived from the (.+) root \*([^ ]+)(?: \((.+)\))?$")
+                .unwrap();
     }
+    let caps = ROOT_CAT.captures(category)?;
+    let cat_term_lang_name = caps.get(1).map(|m| m.as_str())?;
+    let cat_term_lang = Lang::from(Language::try_from(cat_term_lang_name).ok()?);
+    (cat_term_lang == lang).then_some(())?;
+    let cat_root_lang_name = caps.get(2).map(|m| m.as_str())?;
+    let cat_root_lang = Lang::from(Language::try_from(cat_root_lang_name).ok()?);
+    let cat_root_term = caps.get(3).map(|m| m.as_str())?;
+    let cat_root_term = Term::new(string_pool, cat_root_term);
+    let cat_root_sense_id = caps
+        .get(4)
+        .map(|cap| string_pool.get_or_intern(cap.as_str()));
+    Some(RawRoot {
+        langterm: LangTerm::new(cat_root_lang, cat_root_term),
+        sense_id: cat_root_sense_id,
+    })
 }
 
 impl RawItems {
-    pub(crate) fn impute_root_items(&self, ety_graph: &mut EtyGraph) -> Result<()> {
-        let pb = progress_bar(self.n, "Imputing roots")?;
-        let root_pos = Some(POS.get_expected_index("root")?);
-        for lang_map in self.langterm_map.values() {
-            for ety_map in lang_map.values() {
-                for pos_map in ety_map.values() {
-                    for gloss_map in pos_map.values() {
-                        for item in gloss_map.values() {
-                            if let Some(raw_root) = &item.raw_root
-                                && !self.contains(raw_root.lang, raw_root.term)
-                            {
-                                let i = self.n + ety_graph.imputed_items.n;
-                                let root = Rc::from(Item::new_imputed(
-                                    i,
-                                    raw_root.lang,
-                                    raw_root.term,
-                                    root_pos,
-                                ));
-                                ety_graph.add_imputed(&root);
-                            }
-                            pb.inc(1);
-                        }
-                    }
-                }
-            }
-        }
-        pb.finish();
-        Ok(())
-    }
-
     fn impute_item_root_ety(
         &self,
         ety_graph: &mut EtyGraph,
         embeddings: &Embeddings,
         embedding: ItemEmbedding,
-        item: ItemId,
+        item_id: ItemId,
+        raw_root: RawRoot,
     ) {
-        if let Some(raw_root) = &item.raw_root
-            && ety_graph.get_immediate_ety(item).is_none()
-        {
-            let Retrieval {
-                item_id: root_item, ..
-                } = self.get_or_impute_item(
-                    ety_graph,
-                    embeddings,
-                    embedding,
-                    raw_root.lang,
-                    raw_root.term,
-                );
-            let confidence = embedding.cosine_similarity(embeddings.get(&root_item));
-            ety_graph.add_ety(
-                item,
-                EtyMode::Root,
-                0u8,
-                &[Rc::clone(&root_item)],
-                &[confidence],
-            );
+        let Retrieval {
+            item_id: root_item_id,
+            ..
+        } = self.get_or_impute_item(ety_graph, embeddings, embedding, raw_root.langterm);
+
+        if ety_graph.get_immediate_ety(item_id).is_some() {
+            return;
         }
+
+        let confidence = embedding.cosine_similarity(embeddings.get(root_item_id));
+        ety_graph.add_ety(item_id, EtyMode::Root, 0u8, &[root_item_id], &[confidence]);
     }
 
     pub(crate) fn impute_root_etys(
@@ -187,19 +148,12 @@ impl RawItems {
         embeddings: &Embeddings,
         ety_graph: &mut EtyGraph,
     ) -> Result<()> {
-        let pb = progress_bar(self.n, "Imputing root etys")?;
-        for lang_map in self.langterm_map.values() {
-            for ety_map in lang_map.values() {
-                for pos_map in ety_map.values() {
-                    for gloss_map in pos_map.values() {
-                        for item in gloss_map.values() {
-                            let embedding = embeddings.get(item);
-                            self.impute_item_root_ety(ety_graph, embeddings, embedding, item);
-                            pb.inc(1);
-                        }
-                    }
-                }
-            }
+        let n = self.raw_templates.root.len();
+        let pb = progress_bar(n, "Imputing root etys")?;
+        for (item_id, root) in self.raw_templates.root.into_iter() {
+            let embedding = embeddings.get(item_id);
+            self.impute_item_root_ety(ety_graph, embeddings, embedding, item_id, root);
+            pb.inc(1);
         }
         pb.finish();
         Ok(())

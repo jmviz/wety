@@ -1,4 +1,4 @@
-use crate::{items::Item, wiktextract_json::WiktextractJson};
+use crate::{items::ItemId, wiktextract_json::WiktextractJson};
 
 use std::{mem::take, rc::Rc};
 
@@ -24,7 +24,7 @@ impl ItemEmbedding<'_> {
 }
 
 struct EmbeddingBatch {
-    items: Vec<usize>,
+    items: Vec<ItemId>,
     texts: Vec<String>,
     max_size: usize,
     model: Rc<SentenceEmbeddingsModel>,
@@ -43,7 +43,7 @@ impl EmbeddingBatch {
         assert!(self.items.len() == self.texts.len());
         self.items.len()
     }
-    fn add(&mut self, item: usize, text: String) {
+    fn add(&mut self, item: ItemId, text: String) {
         self.items.push(item);
         self.texts.push(text);
     }
@@ -53,9 +53,9 @@ impl EmbeddingBatch {
     }
     fn update(
         &mut self,
-        item: usize,
+        item: ItemId,
         text: String,
-    ) -> Result<Option<(Vec<usize>, Vec<Embedding>)>> {
+    ) -> Result<Option<(Vec<ItemId>, Vec<Embedding>)>> {
         self.add(item, text);
         if self.len() >= self.max_size {
             let items = take(&mut self.items);
@@ -65,7 +65,7 @@ impl EmbeddingBatch {
         }
         Ok(None)
     }
-    fn flush(&mut self) -> Result<Option<(Vec<usize>, Vec<Embedding>)>> {
+    fn flush(&mut self) -> Result<Option<(Vec<ItemId>, Vec<Embedding>)>> {
         if self.len() > 0 {
             let items = take(&mut self.items);
             let embeddings = self.model.encode(&self.texts)?;
@@ -78,7 +78,7 @@ impl EmbeddingBatch {
 
 struct EmbeddingMap {
     batch: EmbeddingBatch,
-    map: HashMap<usize, Embedding>,
+    map: HashMap<ItemId, Embedding>,
 }
 
 impl EmbeddingMap {
@@ -88,7 +88,7 @@ impl EmbeddingMap {
             map: HashMap::new(),
         }
     }
-    fn update(&mut self, item: usize, text: String) -> Result<()> {
+    fn update(&mut self, item: ItemId, text: String) -> Result<()> {
         if let Some((items, embeddings)) = self.batch.update(item, text)? {
             for (&item, embedding) in items.iter().zip(embeddings) {
                 self.map.insert(item, embedding);
@@ -178,9 +178,9 @@ impl Embeddings {
         json_item: &WiktextractJson,
         item_lang: &str,
         item_term: &str,
-        item_i: usize,
+        item_id: ItemId,
     ) -> Result<()> {
-        if !self.ety.map.contains_key(&item_i)
+        if !self.ety.map.contains_key(&item_id)
             && let Some(ety_text) = json_item.get_str("etymology_text")
             && !ety_text.is_empty()
         {
@@ -196,9 +196,9 @@ impl Embeddings {
             // c0's similarity to b will be higher than c1's, as desired.
             let ety_text = format!("{item_lang} {item_term}. {ety_text}");
             println!("{ety_text}");
-            self.ety.update(item_i, ety_text)?;
+            self.ety.update(item_id, ety_text)?;
         }
-        if !self.glosses.map.contains_key(&item_i) {
+        if !self.glosses.map.contains_key(&item_id) {
             let mut glosses_text = String::new();
             if let Some(senses) = json_item.get_array("senses") {
                 for sense in senses {
@@ -213,7 +213,7 @@ impl Embeddings {
                 }
             }
             if !glosses_text.is_empty() {
-                self.glosses.update(item_i, glosses_text.to_string())?;
+                self.glosses.update(item_id, glosses_text.to_string())?;
             }
         }
         Ok(())
@@ -225,8 +225,8 @@ impl Embeddings {
     }
     pub(crate) fn get(&self, item: ItemId) -> ItemEmbedding {
         ItemEmbedding {
-            ety: self.ety.map.get(&item.i),
-            glosses: self.glosses.map.get(&item.i),
+            ety: self.ety.map.get(&item),
+            glosses: self.glosses.map.get(&item),
         }
     }
 }
@@ -318,9 +318,7 @@ impl EmbeddingComparand<ItemEmbedding<'_>> for &Vec<ItemEmbedding<'_>> {
 mod tests {
     use super::*;
 
-    use crate::string_pool::Symbol;
     use simd_json::json;
-    use string_interner::Symbol as SymbolTrait;
 
     fn json<'a>(ety: &str, gloss: &str) -> WiktextractJson<'a> {
         json!({
@@ -334,24 +332,6 @@ mod tests {
             ]
         })
         .into()
-    }
-
-    fn item(i: usize) -> ItemId {
-        Rc::from(Item {
-            line: None,
-            is_imputed: false,
-            is_reconstructed: false,
-            i,
-            lang: 0,
-            term: Symbol::try_from_usize(0).unwrap(),
-            page_term: None,
-            ety_num: None,
-            pos: None,
-            gloss: None,
-            raw_etymology: None,
-            raw_root: None,
-            raw_descendants: None,
-        })
     }
 
     fn embeddings() -> Embeddings {
@@ -373,14 +353,12 @@ mod tests {
         let json = json("test", "test test");
         let lang = "test_lang";
         let term = "test_term";
-        let item0 = item(0);
-        let item1 = item(1);
-        embeddings.add(&json, lang, term, item0.i).unwrap();
-        embeddings.add(&json, lang, term, item1.i).unwrap();
-        let item_embedding0 = embeddings.get(&item0);
+        embeddings.add(&json, lang, term, 0).unwrap();
+        embeddings.add(&json, lang, term, 1).unwrap();
+        let item_embedding0 = embeddings.get(0);
         assert!(item_embedding0.ety.is_some());
         assert!(item_embedding0.glosses.is_some());
-        let item_embedding1 = embeddings.get(&item1);
+        let item_embedding1 = embeddings.get(1);
         assert!(item_embedding1.ety.is_some());
         assert!(item_embedding1.glosses.is_some());
         assert_eq!(item_embedding0.ety.unwrap(), item_embedding1.ety.unwrap());
@@ -405,21 +383,21 @@ mod tests {
         wrong_json: &WiktextractJson,
     ) {
         let mut embeddings = embeddings();
-        let parent = item(0);
-        let right = item(1);
-        let wrong = item(2);
+        let parent = 0;
+        let right = 1;
+        let wrong = 2;
         embeddings
-            .add(base_json, base_lang, base_term, parent.i)
+            .add(base_json, base_lang, base_term, parent)
             .unwrap();
         embeddings
-            .add(right_json, candidates_lang, candidates_term, right.i)
+            .add(right_json, candidates_lang, candidates_term, right)
             .unwrap();
         embeddings
-            .add(wrong_json, candidates_lang, candidates_term, wrong.i)
+            .add(wrong_json, candidates_lang, candidates_term, wrong)
             .unwrap();
-        let base_embedding = embeddings.get(&parent);
-        let right_embedding = embeddings.get(&right);
-        let wrong_embedding = embeddings.get(&wrong);
+        let base_embedding = embeddings.get(parent);
+        let right_embedding = embeddings.get(right);
+        let wrong_embedding = embeddings.get(wrong);
         let ety_right_similarity = base_embedding.ety.cosine_similarity(right_embedding.ety);
         let ety_wrong_similarity = base_embedding.ety.cosine_similarity(wrong_embedding.ety);
         println!("ety similarities: {ety_right_similarity}, {ety_wrong_similarity}");

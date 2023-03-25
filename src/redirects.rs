@@ -1,8 +1,8 @@
 use crate::{
+    items::RawItems,
     langterm::{LangTerm, Language, LanguageTerm, Term},
-    raw_items::RawItems,
-    wiktextract_json::{WiktextractJson, WiktextractJsonAccess},
-    RawDataProcessor,
+    string_pool::StringPool,
+    wiktextract_json::{WiktextractJson, WiktextractJsonValidStr},
 };
 
 use hashbrown::HashMap;
@@ -42,12 +42,16 @@ static IGNORED_REDIRECTS: Set<&'static str> = phf_set! {
     "Wiktionary", "Thesaurus", "Module", "Template"
 };
 
-impl RawDataProcessor {
-    pub(crate) fn process_redirect(&mut self, items: &mut RawItems, json_item: &WiktextractJson) {
+pub(crate) struct WiktextractJsonRedirect<'a> {
+    json: WiktextractJson<'a>,
+}
+
+impl WiktextractJsonRedirect<'_> {
+    pub(crate) fn process(&self, string_pool: &mut StringPool, items: &mut RawItems) {
         // cf. https://github.com/tatuylonen/wiktextract/blob/master/wiktwords
 
-        if let Some(from_title) = json_item.get_valid_str("title")
-            && let Some(to_title) = json_item.get_valid_str("redirect")
+        if let Some(from_title) = self.json.get_valid_str("title")
+            && let Some(to_title) = self.json.get_valid_str("redirect")
         {
             for title in [from_title, to_title] {
                 if let Some(colon) = title.find(':')
@@ -58,28 +62,28 @@ impl RawDataProcessor {
                 }
             }
             // e.g. Reconstruction:Proto-Germanic/pīpǭ
-            if let Some(from_title) = self.process_reconstruction_title(from_title) {
+            if let Some(from_title) = process_reconstruction_title(string_pool, from_title) {
                 // e.g. "Reconstruction:Proto-West Germanic/pīpā"
-                if let Some(to_title) = self.process_reconstruction_title(to_title) {
+                if let Some(to_title) = process_reconstruction_title(string_pool, to_title) {
                     items.redirects.reconstruction.insert(from_title, to_title);
                 }
                 return;
             }
             // otherwise, this is a simple term-to-term redirect
-            let from_title = Term::new(&mut self.string_pool, from_title);
-            let to_title = Term::new(&mut self.string_pool, to_title);
+            let from_title = Term::new(string_pool, from_title);
+            let to_title = Term::new(string_pool, to_title);
             items.redirects.regular.insert(from_title, to_title);
         }
     }
+}
 
-    fn process_reconstruction_title(&mut self, title: &str) -> Option<LanguageTerm> {
-        // e.g. Reconstruction:Proto-Germanic/pīpǭ
-        let title = title.strip_prefix("Reconstruction:")?;
-        let slash = title.find('/')?;
-        let language = title.get(..slash)?;
-        let term = title.get(slash + 1..)?;
-        let language = Language::try_from(language).ok()?;
-        let term = Term::new(&mut self.string_pool, term);
-        Some(LanguageTerm { language, term })
-    }
+fn process_reconstruction_title(string_pool: &mut StringPool, title: &str) -> Option<LanguageTerm> {
+    // e.g. Reconstruction:Proto-Germanic/pīpǭ
+    let title = title.strip_prefix("Reconstruction:")?;
+    let slash = title.find('/')?;
+    let language = title.get(..slash)?;
+    let term = title.get(slash + 1..)?;
+    let language = Language::try_from(language).ok()?;
+    let term = Term::new(string_pool, term);
+    Some(LanguageTerm { language, term })
 }

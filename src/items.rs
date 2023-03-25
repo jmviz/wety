@@ -13,7 +13,7 @@ use crate::{
     wiktextract_json::wiktextract_lines,
 };
 
-use std::{path::Path, rc::Rc};
+use std::path::Path;
 
 use anyhow::{Ok, Result};
 use hashbrown::{HashMap, HashSet};
@@ -129,14 +129,15 @@ impl Items {
         self.dupes.get(&langterm)
     }
 
-    pub(crate) fn add(&mut self, item: Item) {
+    pub(crate) fn add(&mut self, item: Item) -> ItemId {
         let langterm = item.langterm();
         let id = self.store.add(item);
         if let Some(ids) = self.dupes.get_mut(&langterm) {
             ids.push(id);
-            return;
+            return id;
         }
         self.dupes.insert(langterm, smallvec![id]);
+        id
     }
 
     pub(crate) fn iter(&self) -> impl Iterator<Item = &Item> {
@@ -176,6 +177,18 @@ impl RawItems {
         &self.items.store.get(id)
     }
 
+    pub(crate) fn add(&self, item: Item) -> ItemId {
+        self.items.add(item)
+    }
+
+    pub(crate) fn iter_items(&self) -> impl Iterator<Item = &Item> {
+        self.items.store.vec.iter()
+    }
+
+    pub(crate) fn iter_ids(&self) -> impl Iterator<Item = ItemId> + '_ {
+        self.iter_items().map(|item| item.i)
+    }
+
     pub(crate) fn contains(&self, langterm: LangTerm) -> bool {
         let langterm = self.redirects.rectify_langterm(langterm);
         self.items.dupes.contains_key(&langterm)
@@ -191,7 +204,7 @@ impl RawItems {
         let candidates = self.items.get_dupes(langterm)?;
         let mut max_similarity = 0f32;
         let mut best_candidate = 0usize;
-        for (i, candidate) in candidates.iter().enumerate() {
+        for (i, &candidate) in candidates.iter().enumerate() {
             let candidate_embedding = embeddings.get(candidate);
             let similarity = embedding_comp.cosine_similarity(candidate_embedding);
             let old_max_similarity = max_similarity;
@@ -276,7 +289,7 @@ impl RawItems {
     fn get_all_items_needing_embedding(&self) -> Result<HashSet<ItemId>> {
         let pb = progress_bar(self.len(), "Determining which items need embeddings")?;
         let mut items_needing_embedding = HashSet::new();
-        for item_id in self.items.iter().map(|item| item.i) {
+        for item_id in self.iter_ids() {
             let items_to_embed = self.get_items_needing_embedding(item_id);
             for &item_to_embed in items_to_embed.iter() {
                 items_needing_embedding.insert(item_to_embed);
@@ -303,14 +316,14 @@ impl RawItems {
         for (line_number, mut line) in wiktextract_lines(wiktextract_path)?.enumerate() {
             // Items were only inserted into the line map if they were added to
             // the term_map in process_json_item.
-            if let Some(item_id) = self.lines.get(&line_number)
-                && items_needing_embedding.contains(item_id)
+            if let Some(&item_id) = self.lines.get(&line_number)
+                && items_needing_embedding.contains(&item_id)
             {
                 let json_item = to_borrowed_value(&mut line)?;
                 let item = self.get(item_id);
-                let lang_name = item.langterm.lang.name();
-                let term = json_item.get_term().expect("known good item");
-                embeddings.add(&json_item, lang.name(), term, item_id.i)?;
+                let lang_name = item.lang.name();
+                let term = item.term.resolve(string_pool);
+                embeddings.add(&json_item, lang_name, term, item_id)?;
                 added += 1;
                 if added % embeddings_config.progress_update_interval == 0 {
                     pb.inc(embeddings_config.progress_update_interval as u64);
@@ -323,38 +336,28 @@ impl RawItems {
     }
 
     fn add_all_to_ety_graph(&self, ety_graph: &mut EtyGraph) -> Result<()> {
-        let pb = progress_bar(self.n, "Adding items to ety graph")?;
-        for lang_map in self.langterm_map.values() {
-            for ety_map in lang_map.values() {
-                for pos_map in ety_map.values() {
-                    for gloss_map in pos_map.values() {
-                        for item in gloss_map.values() {
-                            ety_graph.add(&Rc::clone(item));
-                            pb.inc(1);
-                        }
-                    }
-                }
-            }
+        let pb = progress_bar(self.items.len(), "Adding items to ety graph")?;
+        for item_id in self.iter_ids() {
+            ety_graph.add(item_id);
+            pb.inc(1);
         }
-
         pb.finish();
         Ok(())
     }
 
     pub(crate) fn generate_ety_graph(
-        &self,
+        &mut self,
         string_pool: &StringPool,
         embeddings: &Embeddings,
     ) -> Result<EtyGraph> {
         let mut ety_graph = EtyGraph::default();
         self.add_all_to_ety_graph(&mut ety_graph)?;
-        self.impute_root_items(&mut ety_graph)?;
         self.process_raw_descendants(embeddings, &mut ety_graph)?;
-        ety_graph.remove_cycles(string_pool, 1)?;
+        ety_graph.remove_cycles()?;
         self.process_raw_etymologies(embeddings, &mut ety_graph)?;
-        ety_graph.remove_cycles(string_pool, 2)?;
+        ety_graph.remove_cycles()?;
         self.impute_root_etys(embeddings, &mut ety_graph)?;
-        ety_graph.remove_cycles(string_pool, 3)?;
+        ety_graph.remove_cycles()?;
         Ok(ety_graph)
     }
 }
