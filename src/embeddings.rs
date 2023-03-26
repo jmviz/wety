@@ -195,7 +195,6 @@ impl Embeddings {
             // b's ety text, while c1 still shares nothing with b's ety text. So
             // c0's similarity to b will be higher than c1's, as desired.
             let ety_text = format!("{item_lang} {item_term}. {ety_text}");
-            println!("{ety_text}");
             self.ety.update(item_id, ety_text)?;
         }
         if !self.glosses.map.contains_key(&item_id) {

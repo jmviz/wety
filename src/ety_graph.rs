@@ -16,6 +16,7 @@ use petgraph::{
     visit::EdgeRef,
 };
 use serde::{Deserialize, Serialize};
+use serde_json_any_key::any_key_map;
 
 // Quite often an etymology section on wiktionary will have multiple valid
 // templates that don't actually link to anything (because the term has no page,
@@ -28,13 +29,25 @@ use serde::{Deserialize, Serialize};
 // we can go through the templates until we find the template linking Latin
 // https://en.wiktionary.org/wiki/arsenicum#Latin, where the page and section
 // both exist.
-#[derive(Default)]
+#[derive(Default, Serialize, Deserialize)]
 pub(crate) struct ImputedItems {
     pub(crate) store: ItemStore,
+    #[serde(with = "any_key_map")]
     pub(crate) langterms: HashMap<LangTerm, ItemId>,
 }
 
 impl ImputedItems {
+    pub(crate) fn new(start_id: ItemId) -> Self {
+        Self {
+            store: ItemStore::new(start_id),
+            ..Default::default()
+        }
+    }
+
+    pub(crate) fn len(&self) -> usize {
+        self.store.len()
+    }
+
     pub(crate) fn add(&mut self, item: Item) -> ItemId {
         let langterm = item.langterm();
         if let Some(&item_id) = self.langterms.get(&langterm) {
@@ -45,8 +58,12 @@ impl ImputedItems {
         item_id
     }
 
-    pub(crate) fn get_item_id(&self, langterm: &LangTerm) -> Option<ItemId> {
-        self.langterms.get(langterm).copied()
+    pub(crate) fn get_item_id(&self, langterm: LangTerm) -> Option<ItemId> {
+        self.langterms.get(&langterm).copied()
+    }
+
+    pub(crate) fn iter(&self) -> impl Iterator<Item = &Item> {
+        self.store.iter()
     }
 }
 
@@ -75,16 +92,24 @@ pub(crate) struct Progenitors {
     pub(crate) head: ItemId,
 }
 
-#[derive(Default)]
+#[derive(Default, Serialize, Deserialize)]
 pub(crate) struct EtyGraph {
     pub(crate) imputed_items: ImputedItems,
     pub(crate) graph: StableDiGraph<ItemId, EtyLink>,
+    #[serde(with = "any_key_map")]
     pub(crate) index: HashMap<ItemId, NodeIndex>,
 }
 
 impl EtyGraph {
+    pub(crate) fn new(start_id: ItemId) -> Self {
+        Self {
+            imputed_items: ImputedItems::new(start_id),
+            ..Default::default()
+        }
+    }
+
     pub(crate) fn get_imputed_item_id(&self, langterm: LangTerm) -> Option<ItemId> {
-        self.imputed_items.get_item_id(&langterm)
+        self.imputed_items.get_item_id(langterm)
     }
 
     fn get_index(&self, item_id: ItemId) -> NodeIndex {
@@ -149,16 +174,17 @@ impl EtyGraph {
             }
         }
         let immediate_ety = self.get_immediate_ety(item)?;
+        let head = immediate_ety.head();
         let mut t = Tracker {
             unexpanded: immediate_ety.items,
             progenitors: HashSet::new(),
-            head: immediate_ety.head(),
+            head,
         };
         recurse(self, &mut t);
         let head = t.head;
         Some(Progenitors {
             items: t.progenitors,
-            head: t.head,
+            head,
         })
     }
 
@@ -232,12 +258,10 @@ impl EtyGraph {
         } else {
             println!("Found set of size {}. Removing.", fas.len());
             for edge in fas {
-                let (source, target) = self
+                let (source, _) = self
                     .graph
                     .edge_endpoints(edge)
                     .ok_or_else(|| anyhow!("feedback arc set edge endpoints not found"))?;
-                let source_item = self.graph.index(source);
-                let target_item = self.graph.index(target);
                 // We take not only the edges forming the fas, but all edges
                 // that share the same source of any of the fas edges (recall:
                 // the edge source is a child and the edge target is an

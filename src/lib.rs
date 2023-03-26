@@ -22,34 +22,24 @@ mod turtle;
 mod wiktextract_json;
 
 use crate::{
-    ety_graph::EtyGraph, items::RawItems, string_pool::StringPool, turtle::write_turtle_file,
-    wiktextract_json::process_wiktextract_lines,
+    ety_graph::EtyGraph, string_pool::StringPool, wiktextract_json::process_wiktextract_lines,
 };
 
 use std::{
     convert::TryFrom,
     fs::{remove_dir_all, File},
-    io::BufReader,
+    io::{BufReader, BufWriter, Write},
     path::Path,
     time::Instant,
 };
 
 use anyhow::{Ok, Result};
 use embeddings::EmbeddingsConfig;
+use flate2::{write::GzEncoder, Compression};
 use indicatif::{HumanDuration, ProgressBar, ProgressStyle};
+use items::Items;
 use oxigraph::{io::GraphFormat::Turtle, model::GraphNameRef::DefaultGraph, store::Store};
-
-struct RawDataProcessor {
-    string_pool: StringPool,
-}
-
-impl RawDataProcessor {
-    fn new() -> Result<Self> {
-        Ok(Self {
-            string_pool: StringPool::new(),
-        })
-    }
-}
+use serde::{Deserialize, Serialize};
 
 pub(crate) fn progress_bar(n: usize, message: &str) -> Result<ProgressBar> {
     let pb = ProgressBar::new(u64::try_from(n)?);
@@ -62,9 +52,10 @@ pub(crate) fn progress_bar(n: usize, message: &str) -> Result<ProgressBar> {
     Ok(pb)
 }
 
+#[derive(Serialize, Deserialize)]
 pub(crate) struct ProcessedData {
     string_pool: StringPool,
-    items: RawItems,
+    items: Items,
     ety_graph: EtyGraph,
 }
 
@@ -74,6 +65,7 @@ pub(crate) struct ProcessedData {
 /// data or writing to Turtle file.
 pub fn process_wiktextract(
     wiktextract_path: &Path,
+    serialization_path: &Path,
     turtle_path: &Path,
     embeddings_config: &EmbeddingsConfig,
 ) -> Result<Instant> {
@@ -83,20 +75,21 @@ pub fn process_wiktextract(
         wiktextract_path.display()
     );
     let mut string_pool = StringPool::new();
-    let items = process_wiktextract_lines(&mut string_pool, wiktextract_path)?;
+    let mut raw_items = process_wiktextract_lines(&mut string_pool, wiktextract_path)?;
     println!("Finished. Took {}.", HumanDuration(t.elapsed()));
     let embeddings =
-        items.generate_embeddings(&string_pool, wiktextract_path, embeddings_config)?;
+        raw_items.generate_embeddings(&string_pool, wiktextract_path, embeddings_config)?;
     t = Instant::now();
     println!("Generating ety graph...");
-    let ety_graph = items.generate_ety_graph(&string_pool, &embeddings)?;
+    let ety_graph = raw_items.generate_ety_graph(&embeddings)?;
     println!("Finished. Took {}.", HumanDuration(t.elapsed()));
     let data = ProcessedData {
         string_pool,
-        items,
+        items: raw_items.items,
         ety_graph,
     };
-    write_turtle_file(&data, turtle_path)?;
+    data.write_turtle_file(turtle_path)?;
+    serialize_data(&data, serialization_path)?;
     t = Instant::now();
     println!("Dropping all processed data...");
     Ok(t)
@@ -126,5 +119,20 @@ pub fn build_store(turtle_path: &Path, store_path: &Path, skip_optimizing: bool)
         store.flush()?;
         println!("Finished. Took {}.", HumanDuration(t.elapsed()));
     }
+    Ok(())
+}
+
+fn serialize_data(data: &ProcessedData, path: &Path) -> Result<()> {
+    let t = Instant::now();
+    println!("Serializing processed data to {}...", path.display());
+    let file = File::create(path)?;
+    let should_gz_compress = path.extension().is_some_and(|ext| ext == "gz");
+    let writer: Box<dyn Write> = if should_gz_compress {
+        Box::new(GzEncoder::new(file, Compression::best()))
+    } else {
+        Box::new(BufWriter::new(file))
+    };
+    serde_json::to_writer(writer, data)?;
+    println!("Finished. Took {}.", HumanDuration(t.elapsed()));
     Ok(())
 }

@@ -1,20 +1,16 @@
+use std::mem;
+
 use crate::{
     embeddings::{EmbeddingComparand, Embeddings, ItemEmbedding},
     ety_graph::EtyGraph,
+    etymology::validate_ety_template_lang,
     etymology_templates::EtyMode,
-    items::{Item, ItemId, RawItems, Retrieval},
-    lang_phf::{LANG_CODE2NAME, LANG_NAME2CODE},
-    langterm::{LangTerm, Lang, Language, Term},
-    phf_ext::OrderedSetExt,
-    pos,
-    pos_phf::POS,
+    items::{ItemId, RawItems, Retrieval},
+    langterm::{Lang, LangTerm, Language, Term},
     progress_bar,
     string_pool::{StringPool, Symbol},
     wiktextract_json::{WiktextractJson, WiktextractJsonItem, WiktextractJsonValidStr},
-    RawDataProcessor,
 };
-
-use std::rc::Rc;
 
 use anyhow::{Ok, Result};
 use lazy_static::lazy_static;
@@ -25,10 +21,6 @@ use simd_json::ValueAccess;
 pub(crate) struct RawRoot {
     pub(crate) langterm: LangTerm,
     pub(crate) sense_id: Option<Symbol>,
-}
-
-struct JsonRootTemplate {
-    args: WiktextractJson
 }
 
 impl WiktextractJsonItem<'_> {
@@ -42,8 +34,7 @@ impl WiktextractJsonItem<'_> {
                 if let Some(name) = template.get_valid_str("name")
                     && name == "root"
                     && let Some(args) = template.get("args")
-                    && let root_template = JsonRootTemplate {args}
-                    && let Some(raw_root) = root_template.process(string_pool, lang)
+                    && let Some(raw_root) = process_root_template(string_pool, args, lang)
                 {
                    return Some(raw_root);
                 }
@@ -63,46 +54,44 @@ impl WiktextractJsonItem<'_> {
 
         None
     }
-
-    fn process_root_template(
-        string_pool: &mut StringPool,
-        args: &WiktextractJson,
-        lang: &str,
-    ) -> Option<RawRoot> {
-        let term_lang = args.get_valid_str("1")?;
-        (term_lang == lang).then_some(())?;
-        let root_lang = args.get_valid_str("2")?;
-        let root_lang_index = LANG_CODE2NAME.get_index(root_lang)?;
-        let mut root_term = args.get_valid_str("3")?;
-        // we don't deal with multi-roots for now:
-        args.get_valid_str("4").is_none().then_some(())?;
-
-        let mut root_sense_id = "";
-        // Sometimes a root's senseid is given in parentheses after the term in
-        // the 3 arg slot, see e.g. https://en.wiktionary.org/wiki/blaze.
-        if let Some(right_paren_idx) = root_term.rfind(')')
-            && let Some(left_paren_idx) = root_term.rfind(" (")
-        {
-            root_sense_id = &root_term[left_paren_idx + 2..right_paren_idx];
-            root_term = &root_term[..left_paren_idx];
-        } else if let Some(sense_id) = args.get_valid_str("id") {
-            root_sense_id = sense_id;
-        }
-        let root_sense_id =
-            (!root_sense_id.is_empty()).then_some(self.string_pool.get_or_intern(root_sense_id));
-        Some(RawRoot {
-            lang: root_lang_index,
-            term: self.string_pool.get_or_intern(root_term),
-            sense_id: root_sense_id,
-        })
-    }
 }
 
-fn process_json_root_category(string_pool: &mut StringPool, category: &str, lang: Lang) -> Option<RawRoot> {
+fn process_root_template(
+    string_pool: &mut StringPool,
+    args: &WiktextractJson,
+    lang: Lang,
+) -> Option<RawRoot> {
+    validate_ety_template_lang(args, lang).ok()?;
+    let root_lang = args.get_valid_str("2")?;
+    let root_lang = Lang::try_from(root_lang).ok()?;
+    let mut root_term = args.get_valid_str("3")?;
+    // we don't deal with multi-roots for now:
+    args.get_valid_str("4").is_none().then_some(())?;
+
+    let mut sense_id = "";
+    // Sometimes a root's senseid is given in parentheses after the term in
+    // the 3 arg slot, see e.g. https://en.wiktionary.org/wiki/blaze.
+    if let Some(right_paren_idx) = root_term.rfind(')')
+        && let Some(left_paren_idx) = root_term.rfind(" (")
+    {
+        sense_id = &root_term[left_paren_idx + 2..right_paren_idx];
+        root_term = &root_term[..left_paren_idx];
+    } else if let Some(id) = args.get_valid_str("id") {
+        sense_id = id;
+    }
+    let sense_id = (!sense_id.is_empty()).then_some(string_pool.get_or_intern(sense_id));
+    let langterm = root_lang.new_langterm(string_pool, root_term);
+    Some(RawRoot { langterm, sense_id })
+}
+
+fn process_json_root_category(
+    string_pool: &mut StringPool,
+    category: &str,
+    lang: Lang,
+) -> Option<RawRoot> {
     lazy_static! {
         static ref ROOT_CAT: Regex =
-            Regex::new(r"^(.+) terms derived from the (.+) root \*([^ ]+)(?: \((.+)\))?$")
-                .unwrap();
+            Regex::new(r"^(.+) terms derived from the (.+) root \*([^ ]+)(?: \((.+)\))?$").unwrap();
     }
     let caps = ROOT_CAT.captures(category)?;
     let cat_term_lang_name = caps.get(1).map(|m| m.as_str())?;
@@ -128,7 +117,7 @@ impl RawItems {
         embeddings: &Embeddings,
         embedding: ItemEmbedding,
         item_id: ItemId,
-        raw_root: RawRoot,
+        raw_root: &RawRoot,
     ) {
         let Retrieval {
             item_id: root_item_id,
@@ -144,15 +133,16 @@ impl RawItems {
     }
 
     pub(crate) fn impute_root_etys(
-        &self,
+        &mut self,
         embeddings: &Embeddings,
         ety_graph: &mut EtyGraph,
     ) -> Result<()> {
         let n = self.raw_templates.root.len();
         let pb = progress_bar(n, "Imputing root etys")?;
-        for (item_id, root) in self.raw_templates.root.into_iter() {
+        let raw_templates_root = mem::take(&mut self.raw_templates.root);
+        for (item_id, root) in raw_templates_root {
             let embedding = embeddings.get(item_id);
-            self.impute_item_root_ety(ety_graph, embeddings, embedding, item_id, root);
+            self.impute_item_root_ety(ety_graph, embeddings, embedding, item_id, &root);
             pb.inc(1);
         }
         pb.finish();

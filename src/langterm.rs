@@ -47,17 +47,13 @@ impl TryFrom<&str> for Lang {
 }
 
 impl Lang {
-    pub(crate) fn id(&self) -> LangId {
-        self.id
-    }
-
-    pub(crate) fn code(&self) -> &'static str {
+    pub(crate) fn code(self) -> &'static str {
         LANG_CODE2NAME
             .get_index_key(self.id as usize)
             .expect("id cannot have been created without being a valid index")
     }
 
-    pub(crate) fn name(&self) -> &'static str {
+    pub(crate) fn name(self) -> &'static str {
         LANG_CODE2NAME
             .get_index_value(self.id as usize)
             .expect("id cannot have been created without being a valid index")
@@ -67,17 +63,23 @@ impl Lang {
     // for it in Items lang map, since such a language definitionally does
     // not have any entries itself. So we look for the main lang that the
     // ety lang is associated with.
-    pub(crate) fn ety2main(&self) -> Self {
+    pub(crate) fn ety2main(self) -> Self {
         LANG_ETYCODE2CODE
             .get(self.code())
             .and_then(|code| LANG_CODE2NAME.get_index(code))
-            .map(|i| LangId::try_from(i).expect("less than LangId::MAX elements in LANG_CODE2NAME"))
-            .unwrap_or(self.id)
+            .map_or(self.id, |i| {
+                LangId::try_from(i).expect("less than LangId::MAX elements in LANG_CODE2NAME")
+            })
             .into()
     }
 
-    pub(crate) fn is_reconstructed(&self) -> bool {
+    pub(crate) fn is_reconstructed(self) -> bool {
         LANG_RECONSTRUCTED.contains(self.code())
+    }
+
+    pub(crate) fn new_langterm(self, string_pool: &mut StringPool, term: &str) -> LangTerm {
+        let term = Term::new(string_pool, term);
+        LangTerm::new(self, term)
     }
 }
 
@@ -90,7 +92,7 @@ pub(crate) struct Language {
 }
 
 impl Language {
-    fn code(&self) -> &'static str {
+    fn code(self) -> &'static str {
         LANG_NAME2CODE
             .get_index_value(self.id as usize)
             .expect("id cannot have been created without being a valid index")
@@ -158,7 +160,7 @@ impl<'a> Term {
         Self { symbol }
     }
 
-    pub(crate) fn resolve(&self, string_pool: &'a StringPool) -> &'a str {
+    pub(crate) fn resolve(self, string_pool: &'a StringPool) -> &'a str {
         string_pool.resolve(self.symbol)
     }
 }
@@ -180,12 +182,6 @@ impl LangTerm {
 pub(crate) struct LanguageTerm {
     pub(crate) language: Language,
     pub(crate) term: Term,
-}
-
-impl LanguageTerm {
-    pub(crate) fn new(language: Language, term: Term) -> Self {
-        Self { language, term }
-    }
 }
 
 impl From<LangTerm> for LanguageTerm {

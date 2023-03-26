@@ -9,7 +9,7 @@ pub(crate) struct Symbol(SymbolU32);
 impl SymbolTrait for Symbol {
     fn try_from_usize(index: usize) -> Option<Self> {
         let symbol_u32 = SymbolU32::try_from_usize(index)?;
-        Some(Self { 0: symbol_u32 })
+        Some(Self(symbol_u32))
     }
     fn to_usize(self) -> usize {
         self.0.to_usize()
@@ -72,9 +72,7 @@ mod tests {
 
     #[test]
     fn symbol_serialize() {
-        let s = Symbol {
-            0: SymbolU32::try_from_usize(1337).unwrap(),
-        };
+        let s = Symbol(SymbolU32::try_from_usize(1337).unwrap());
         assert_eq!("1337", serde_json::to_string(&s).unwrap());
     }
 

@@ -10,7 +10,7 @@ use wety::{
     process_wiktextract,
 };
 
-use std::{path::PathBuf, time::Instant};
+use std::{env, path::PathBuf, time::Instant};
 
 use anyhow::Result;
 use clap::Parser;
@@ -26,6 +26,8 @@ pub struct Args {
         value_parser
     )]
     wiktextract_path: PathBuf,
+    #[clap(short = 'j', long, default_value = "data/wety.json.gz", value_parser)]
+    serialization_path: PathBuf,
     #[clap(short = 't', long, default_value = "data/wety.ttl", value_parser)]
     turtle_path: PathBuf,
     #[clap(short = 's', long, default_value = "data/wety.db", value_parser)]
@@ -38,12 +40,12 @@ pub struct Args {
     embeddings_model: EmbeddingsModel,
     #[clap(short = 'z', long, default_value_t = DEFAULT_BATCH_SIZE, value_parser)]
     embeddings_batch_size: usize,
-    #[clap(short = 'p', long, default_value_t = DEFAULT_PROGRESS_UPDATE_INTERVAL, value_parser)]
+    #[clap(short = 'u', long, default_value_t = DEFAULT_PROGRESS_UPDATE_INTERVAL, value_parser)]
     embeddings_progress_update_interval: usize,
 }
 
 fn main() -> Result<()> {
-    std::env::set_var("RUST_BACKTRACE", "1");
+    env::set_var("RUST_BACKTRACE", "1");
     let total_time = Instant::now();
     let args = Args::parse();
     let embeddings_config = EmbeddingsConfig {
@@ -53,6 +55,7 @@ fn main() -> Result<()> {
     };
     let t = process_wiktextract(
         &args.wiktextract_path,
+        &args.serialization_path,
         &args.turtle_path,
         &embeddings_config,
     )?;

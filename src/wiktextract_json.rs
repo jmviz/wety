@@ -1,11 +1,10 @@
 use crate::{
     gloss::Gloss,
     items::{Item, RawItems},
-    langterm::{Lang, LangTerm, Term},
+    langterm::{Lang, Term},
     pos::Pos,
     redirects::WiktextractJsonRedirect,
     string_pool::StringPool,
-    RawDataProcessor,
 };
 
 use std::{
@@ -49,7 +48,7 @@ pub(crate) fn process_wiktextract_lines(
         // https://github.com/tatuylonen/wiktextract#format-of-extracted-redirects
         if json.contains_key("redirect") {
             let redirect = WiktextractJsonRedirect { json };
-            redirect.process(string_pool, items);
+            redirect.process(string_pool, &mut items);
         } else {
             let item = WiktextractJsonItem { json };
             item.process(string_pool, &mut items, line_number);
@@ -159,12 +158,6 @@ impl WiktextractJsonItem<'_> {
         self.get_page_term(string_pool)
     }
 
-    fn get_langterm(&self, string_pool: &mut StringPool) -> Option<LangTerm> {
-        let lang = self.get_lang()?;
-        let term = self.get_canonical_term(string_pool)?;
-        Some(LangTerm { lang, term })
-    }
-
     fn get_pos(&self) -> Option<Pos> {
         let pos = self.json.get_valid_str("pos")?;
         if !should_ignore_pos(pos) {
@@ -221,15 +214,4 @@ fn should_ignore_term(term: &str) -> bool {
 
 fn should_ignore_pos(pos: &str) -> bool {
     pos.contains("phrase")
-}
-
-pub(crate) struct WiktextractJsonTemplate {
-    args: WiktextractJson,
-}
-
-trait WiktextractJsonTemplateValidation {
-    fn validate_lang(&self, lang: &str) {
-        let term_lang = args.get_valid_str("1")?;
-        (term_lang == lang).then_some(())?;
-    }
 }

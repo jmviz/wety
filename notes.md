@@ -1,8 +1,7 @@
 ## TODO
 
 * Cache embeddings using `cacache`.
-* Serialize EtyGraph.
-* Write rust server for frontend client queries. The server will use the serialized EtyGraph as input on startup, then hold the EtyGraph in memory while running.
+* Write rust server for frontend client queries. The server will use the serialized ProcessedData as input on startup, then hold it in memory while running.
 
 
 ### Potential improvements to item disambiguation / ety link inference

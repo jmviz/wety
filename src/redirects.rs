@@ -43,7 +43,7 @@ static IGNORED_REDIRECTS: Set<&'static str> = phf_set! {
 };
 
 pub(crate) struct WiktextractJsonRedirect<'a> {
-    json: WiktextractJson<'a>,
+    pub(crate) json: WiktextractJson<'a>,
 }
 
 impl WiktextractJsonRedirect<'_> {

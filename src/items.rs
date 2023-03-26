@@ -20,7 +20,6 @@ use hashbrown::{HashMap, HashSet};
 use serde::{Deserialize, Serialize};
 use serde_json_any_key::any_key_map;
 use simd_json::to_borrowed_value;
-use smallvec::{smallvec, SmallVec};
 
 pub(crate) type ItemId = u32; // wiktionary has about ~10M items including imputations
 
@@ -87,31 +86,26 @@ impl ItemStore {
         ItemId::try_from(self.len()).expect("len less than ItemId::MAX items") + self.start_id
     }
 
-    pub(crate) fn add(&mut self, item: Item) -> ItemId {
+    pub(crate) fn add(&mut self, mut item: Item) -> ItemId {
         let id = self.next_id();
         item.i = id;
         self.vec.push(item);
         id
     }
-}
 
-pub(crate) type Dupes = SmallVec<[ItemId; 1]>; // most items don't have langterm dupes
+    pub(crate) fn iter(&self) -> impl Iterator<Item = &Item> {
+        self.vec.iter()
+    }
+}
 
 #[derive(Default, Serialize, Deserialize)]
 pub(crate) struct Items {
     pub(crate) store: ItemStore,
     #[serde(with = "any_key_map")]
-    pub(crate) dupes: HashMap<LangTerm, Dupes>,
+    pub(crate) dupes: HashMap<LangTerm, Vec<ItemId>>,
 }
 
 impl Items {
-    pub(crate) fn new(start_id: ItemId) -> Self {
-        Self {
-            store: ItemStore::new(start_id),
-            ..Default::default()
-        }
-    }
-
     pub(crate) fn next_id(&self) -> ItemId {
         self.store.next_id()
     }
@@ -121,11 +115,11 @@ impl Items {
     }
 
     pub(crate) fn get(&self, id: ItemId) -> &Item {
-        &self.store.get(id)
+        self.store.get(id)
     }
 
     // returns all items that share the same lang and term
-    pub(crate) fn get_dupes(&self, langterm: LangTerm) -> Option<&Dupes> {
+    pub(crate) fn get_dupes(&self, langterm: LangTerm) -> Option<&Vec<ItemId>> {
         self.dupes.get(&langterm)
     }
 
@@ -136,12 +130,12 @@ impl Items {
             ids.push(id);
             return id;
         }
-        self.dupes.insert(langterm, smallvec![id]);
+        self.dupes.insert(langterm, vec![id]);
         id
     }
 
     pub(crate) fn iter(&self) -> impl Iterator<Item = &Item> {
-        self.store.vec.iter()
+        self.store.iter()
     }
 }
 
@@ -164,7 +158,7 @@ pub(crate) struct RawItems {
 pub(crate) struct Retrieval {
     pub(crate) item_id: ItemId,
     pub(crate) confidence: f32,
-    // is_imputed: bool,
+    pub(crate) is_imputed: bool,
     pub(crate) is_newly_imputed: bool,
 }
 
@@ -174,24 +168,24 @@ impl RawItems {
     }
 
     pub(crate) fn get(&self, id: ItemId) -> &Item {
-        &self.items.store.get(id)
+        self.items.get(id)
     }
 
-    pub(crate) fn add(&self, item: Item) -> ItemId {
+    pub(crate) fn add(&mut self, item: Item) -> ItemId {
         self.items.add(item)
     }
 
     pub(crate) fn iter_items(&self) -> impl Iterator<Item = &Item> {
-        self.items.store.vec.iter()
+        self.items.iter()
     }
 
     pub(crate) fn iter_ids(&self) -> impl Iterator<Item = ItemId> + '_ {
         self.iter_items().map(|item| item.i)
     }
 
-    pub(crate) fn contains(&self, langterm: LangTerm) -> bool {
-        let langterm = self.redirects.rectify_langterm(langterm);
-        self.items.dupes.contains_key(&langterm)
+    // returns all items that share the same lang and term
+    pub(crate) fn get_dupes(&self, langterm: LangTerm) -> Option<&Vec<ItemId>> {
+        self.items.dupes.get(&langterm)
     }
 
     pub(crate) fn get_disambiguated_item_id<'a>(
@@ -229,7 +223,7 @@ impl RawItems {
             return Retrieval {
                 item_id,
                 confidence,
-                // is_imputed: false,
+                is_imputed: false,
                 is_newly_imputed: false,
             };
         }
@@ -237,7 +231,7 @@ impl RawItems {
             return Retrieval {
                 item_id,
                 confidence: 0.0,
-                // is_imputed: true,
+                is_imputed: true,
                 is_newly_imputed: false,
             };
         }
@@ -245,7 +239,7 @@ impl RawItems {
         Retrieval {
             item_id,
             confidence: 0.0,
-            // is_imputed: true,
+            is_imputed: true,
             is_newly_imputed: true,
         }
     }
@@ -345,12 +339,8 @@ impl RawItems {
         Ok(())
     }
 
-    pub(crate) fn generate_ety_graph(
-        &mut self,
-        string_pool: &StringPool,
-        embeddings: &Embeddings,
-    ) -> Result<EtyGraph> {
-        let mut ety_graph = EtyGraph::default();
+    pub(crate) fn generate_ety_graph(&mut self, embeddings: &Embeddings) -> Result<EtyGraph> {
+        let mut ety_graph = EtyGraph::new(self.items.next_id());
         self.add_all_to_ety_graph(&mut ety_graph)?;
         self.process_raw_descendants(embeddings, &mut ety_graph)?;
         ety_graph.remove_cycles()?;

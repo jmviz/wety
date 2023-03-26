@@ -29,14 +29,12 @@ impl TryFrom<&str> for Pos {
 }
 
 impl Pos {
-    pub(crate) fn id(&self) -> PosId {
-        self.id
-    }
-
-    pub(crate) fn name(&self) -> &'static str {
+    pub(crate) fn name(self) -> &'static str {
         POS.index(self.id as usize)
             .expect("id cannot have been created without being a valid index")
     }
-}
 
-pub(crate) const ROOT: Pos = Pos::try_from("root").expect("root pos must exist");
+    pub(crate) fn root_pos() -> Pos {
+        Pos::try_from("root").expect("root pos must exist")
+    }
+}

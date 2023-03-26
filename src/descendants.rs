@@ -2,18 +2,16 @@ use crate::{
     embeddings::{Embeddings, ItemEmbedding},
     ety_graph::EtyGraph,
     etymology_templates::EtyMode,
-    items::{Item, ItemId, RawItems, Retrieval},
-    lang_phf::LANG_CODE2NAME,
-    phf_ext::OrderedSetExt,
-    pos,
-    pos_phf::POS,
+    gloss::Gloss,
+    items::{ItemId, RawItems, Retrieval},
+    langterm::{Lang, LangTerm, Term},
+    pos::Pos,
     progress_bar,
-    string_pool::Symbol,
-    wiktextract_json::{WiktextractJson, WiktextractJsonValidStr},
-    RawDataProcessor,
+    string_pool::StringPool,
+    wiktextract_json::{WiktextractJson, WiktextractJsonItem, WiktextractJsonValidStr},
 };
 
-use std::{rc::Rc, str::FromStr};
+use std::{mem, str::FromStr};
 
 use anyhow::{Ok, Result};
 use hashbrown::HashSet;
@@ -43,9 +41,9 @@ struct RawDescLine {
 enum RawDescLineKind {
     Desc { desc: RawDesc },
     // e.g. {{desc|osp|-}}, {{desc|itc-pro|}},
-    BareLang { lang: usize },
+    BareLang { lang: Lang },
     // i.e. line with no templates e.g. "Unsorted Formations", "with prefix -a"
-    BareText { text: Symbol },
+    BareText { text: Gloss },
     // e.g. a line with {{PIE root see}} or some other unhandled template(s)
     // or unexpected form of above line kinds
     Other,
@@ -56,170 +54,171 @@ enum RawDescLineKind {
 // more descendant lang, term, mode combos
 #[derive(Hash, Eq, PartialEq, Debug)]
 struct RawDesc {
-    lang: usize,
-    terms: Box<[Symbol]>,
+    lang: Lang,
+    terms: Box<[Term]>,
     modes: Box<[EtyMode]>,
 }
-
-impl RawDataProcessor {
-    pub(crate) fn process_json_descendants(
-        &mut self,
-        json_item: &WiktextractJson,
-    ) -> Option<RawDescendants> {
-        let json_descendants = json_item.get_array("descendants")?;
+impl WiktextractJsonItem<'_> {
+    pub(crate) fn get_descendants(&self, string_pool: &mut StringPool) -> Option<RawDescendants> {
+        let json_descendants = self.json.get_array("descendants")?;
         let mut descendants: Vec<RawDescLine> = vec![];
         for desc_line in json_descendants {
-            let raw_desc_line = self.process_json_desc_line(desc_line)?;
+            let raw_desc_line = process_json_desc_line(string_pool, desc_line)?;
             descendants.push(raw_desc_line);
         }
         (!descendants.is_empty()).then_some(())?;
         Some(descendants.into())
     }
+}
 
-    fn process_json_desc_line(&mut self, desc_line: &WiktextractJson) -> Option<RawDescLine> {
-        let depth = desc_line.get_u8("depth")?;
-        let templates = desc_line.get_array("templates")?;
+fn process_json_desc_line(
+    string_pool: &mut StringPool,
+    desc_line: &WiktextractJson,
+) -> Option<RawDescLine> {
+    let depth = desc_line.get_u8("depth")?;
+    let templates = desc_line.get_array("templates")?;
 
-        if templates.is_empty()
+    if templates.is_empty()
             && let Some(text) = desc_line.get_valid_str("text") 
         {
-            let text = self.string_pool.get_or_intern(text);
+            let text = Gloss::new(string_pool, text);
             let kind = RawDescLineKind::BareText { text };
             return Some(RawDescLine { depth, kind });
         }
-        if templates.len() == 1
+    if templates.len() == 1
             && let Some(template) = templates.get(0)
             && let Some(name) = template.get_valid_str("name")
             && matches!(name, "desc" | "descendant")
             && let Some(args) = template.get("args")
             && let Some(lang) = args.get_valid_str("1")
-            && let Some(lang_index) = LANG_CODE2NAME.get_index(lang)
+            && let Some(lang) = Lang::try_from(lang).ok()
             && args.get_valid_str("2").is_none()
             && args.get_valid_str("alt").is_none()
         {
-            let kind = RawDescLineKind::BareLang { lang: lang_index };
+            let kind = RawDescLineKind::BareLang { lang };
             return Some(RawDescLine{ depth, kind });
         }
-        let is_derivation = desc_line.get_array("tags").map_or(false, |tags| {
-            tags.iter().any(|tag| tag.as_str() == Some("derived"))
-        });
-        let mut lang = 0;
-        let (mut langs, mut terms, mut modes) = (HashSet::new(), vec![], vec![]);
-        for template in templates {
-            if let Some((template_lang, template_terms, template_modes)) =
-                self.process_json_desc_line_template(template, is_derivation)
-            {
-                lang = template_lang;
-                langs.insert(template_lang);
-                terms.extend(template_terms);
-                modes.extend(template_modes);
-            }
-        }
-        if langs.len() == 1 && !terms.is_empty() && terms.len() == modes.len() {
-            let terms = terms.into_boxed_slice();
-            let modes = modes.into_boxed_slice();
-            let desc = RawDesc { lang, terms, modes };
-            let kind = RawDescLineKind::Desc { desc };
-            return Some(RawDescLine { depth, kind });
-        }
-        Some(RawDescLine {
-            depth,
-            kind: RawDescLineKind::Other,
-        })
-    }
-
-    fn process_json_desc_line_template(
-        &mut self,
-        template: &WiktextractJson,
-        is_derivation: bool,
-    ) -> Option<(usize, Vec<Symbol>, Vec<EtyMode>)> {
-        let name = template.get_valid_str("name")?;
-        let args = template.get("args")?;
-        match name {
-            "desc" | "descendant" => self.process_json_desc_line_desc_template(args),
-            "l" | "link" => self.process_json_desc_line_l_template(args, is_derivation),
-            "desctree" | "descendants tree" => self.process_json_desc_line_desctree_template(args),
-            _ => None,
-        }
-    }
-
-    // cf. https://en.wiktionary.org/wiki/Template:descendant
-    fn process_json_desc_line_desc_template(
-        &mut self,
-        args: &WiktextractJson,
-    ) -> Option<(usize, Vec<Symbol>, Vec<EtyMode>)> {
-        let lang = args.get_valid_str("1")?;
-        let lang_index = LANG_CODE2NAME.get_index(lang)?;
-
-        let (mut terms, mut modes) = (vec![], vec![]);
-        // Confusingly, "2" corresponds to the first term and "alt" to its alt,
-        // while "3" corresponds to the second term, and "alt2" to its alt, etc.
-        let mut n = 1;
-        let mut n_str = String::from("2");
-        let mut n_alt_str = String::from("alt");
-        while let Some(term) = args
-            .get_valid_str(n_str.as_str())
-            .or_else(|| args.get_valid_str(n_alt_str.as_str()))
-            .map(|term| self.string_pool.get_or_intern(term))
+    let is_derivation = desc_line.get_array("tags").map_or(false, |tags| {
+        tags.iter().any(|tag| tag.as_str() == Some("derived"))
+    });
+    let mut lang = Lang::from(0); // dummy assignment
+    let (mut langs, mut terms, mut modes) = (HashSet::new(), vec![], vec![]);
+    for template in templates {
+        if let Some((template_lang, template_terms, template_modes)) =
+            process_json_desc_line_template(string_pool, template, is_derivation)
         {
-            terms.push(term);
-            let mode = get_desc_mode(args, n);
-            modes.push(mode);
-            n += 1;
-            n_str = (n + 1).to_string();
-            n_alt_str = format!("alt{n}");
+            lang = template_lang;
+            langs.insert(template_lang);
+            terms.extend(template_terms);
+            modes.extend(template_modes);
         }
-        Some((lang_index, terms, modes))
     }
+    if langs.len() == 1 && !terms.is_empty() && terms.len() == modes.len() {
+        let terms = terms.into_boxed_slice();
+        let modes = modes.into_boxed_slice();
+        let desc = RawDesc { lang, terms, modes };
+        let kind = RawDescLineKind::Desc { desc };
+        return Some(RawDescLine { depth, kind });
+    }
+    Some(RawDescLine {
+        depth,
+        kind: RawDescLineKind::Other,
+    })
+}
 
-    // cf. https://en.wiktionary.org/wiki/Template:link
-    fn process_json_desc_line_l_template(
-        &mut self,
-        args: &WiktextractJson,
-        is_derivation: bool,
-    ) -> Option<(usize, Vec<Symbol>, Vec<EtyMode>)> {
-        let lang = args.get_valid_str("1")?;
-        let lang_index = LANG_CODE2NAME.get_index(lang)?;
-        let term = args
-            .get_valid_str("2")
-            .or_else(|| args.get_valid_str("3"))
-            .map(|term| self.string_pool.get_or_intern(term))?;
-        // There is a bit of confusion here in the nominal similarity of these
-        // two modes. It is wiktionary's fault for defaulting to "derived" for
-        // "unspecified etymological relationship". We are merely following this
-        // tradition in this case, although some finer-grained inference could
-        // be implemented in the future (probably most {{l}} templates in
-        // descendants sections actually are indicating inheritance, unless they
-        // are preceded by a {{desc}} on the same line that indicates some other
-        // relationship). For wiktionary ety sections, there is ongoing effort
-        // to replace most {{der}} templates with {{inh}} or {{bor}}.
-        let mode = if is_derivation {
-            EtyMode::MorphologicalDerivation
-        } else {
-            EtyMode::Derived
-        };
-        Some((lang_index, vec![term], vec![mode]))
+fn process_json_desc_line_template(
+    string_pool: &mut StringPool,
+    template: &WiktextractJson,
+    is_derivation: bool,
+) -> Option<(Lang, Vec<Term>, Vec<EtyMode>)> {
+    let name = template.get_valid_str("name")?;
+    let args = template.get("args")?;
+    match name {
+        "desc" | "descendant" => process_json_desc_line_desc_template(string_pool, args),
+        "l" | "link" => process_json_desc_line_l_template(string_pool, args, is_derivation),
+        "desctree" | "descendants tree" => {
+            process_json_desc_line_desctree_template(string_pool, args)
+        }
+        _ => None,
     }
+}
 
-    // cf. https://en.wiktionary.org/wiki/Template:descendants_tree While
-    // {{desctree}} docs say it supports all {{desc}} args, I've never seen one
-    // that's more than just e.g. {{desctree|gmw-pro|*fuhs}}. (Importantly, both
-    // "1" AND "2" are required here.) So we just handle this simple case of one
-    // descendant generating the tree, until we find that listing multiple has
-    // any currency (how would that even work?).
-    fn process_json_desc_line_desctree_template(
-        &mut self,
-        args: &WiktextractJson,
-    ) -> Option<(usize, Vec<Symbol>, Vec<EtyMode>)> {
-        let lang = args.get_valid_str("1")?;
-        let lang_index = LANG_CODE2NAME.get_index(lang)?;
-        let term = args
-            .get_valid_str("2")
-            .map(|term| self.string_pool.get_or_intern(term))?;
-        // It's conceivable that another mode could be specified by template arg
-        let mode = get_desc_mode(args, 1);
-        Some((lang_index, vec![term], vec![mode]))
+// cf. https://en.wiktionary.org/wiki/Template:descendant
+fn process_json_desc_line_desc_template(
+    string_pool: &mut StringPool,
+    args: &WiktextractJson,
+) -> Option<(Lang, Vec<Term>, Vec<EtyMode>)> {
+    let lang = args.get_valid_str("1")?;
+    let lang = Lang::try_from(lang).ok()?;
+
+    let (mut terms, mut modes) = (vec![], vec![]);
+    // Confusingly, "2" corresponds to the first term and "alt" to its alt,
+    // while "3" corresponds to the second term, and "alt2" to its alt, etc.
+    let mut n = 1;
+    let mut n_str = String::from("2");
+    let mut n_alt_str = String::from("alt");
+    while let Some(term) = args
+        .get_valid_str(&n_str)
+        .or_else(|| args.get_valid_str(&n_alt_str))
+        .map(|term| Term::new(string_pool, term))
+    {
+        terms.push(term);
+        let mode = get_desc_mode(args, n);
+        modes.push(mode);
+        n += 1;
+        n_str = (n + 1).to_string();
+        n_alt_str = format!("alt{n}");
     }
+    Some((lang, terms, modes))
+}
+
+// cf. https://en.wiktionary.org/wiki/Template:link
+fn process_json_desc_line_l_template(
+    string_pool: &mut StringPool,
+    args: &WiktextractJson,
+    is_derivation: bool,
+) -> Option<(Lang, Vec<Term>, Vec<EtyMode>)> {
+    let lang = args.get_valid_str("1")?;
+    let lang = Lang::try_from(lang).ok()?;
+    let term = args
+        .get_valid_str("2")
+        .or_else(|| args.get_valid_str("3"))
+        .map(|term| Term::new(string_pool, term))?;
+    // There is a bit of confusion here in the nominal similarity of these
+    // two modes. It is wiktionary's fault for defaulting to "derived" for
+    // "unspecified etymological relationship". We are merely following this
+    // tradition in this case, although some finer-grained inference could
+    // be implemented in the future (probably most {{l}} templates in
+    // descendants sections actually are indicating inheritance, unless they
+    // are preceded by a {{desc}} on the same line that indicates some other
+    // relationship). For wiktionary ety sections, there is ongoing effort
+    // to replace most {{der}} templates with {{inh}} or {{bor}}.
+    let mode = if is_derivation {
+        EtyMode::MorphologicalDerivation
+    } else {
+        EtyMode::Derived
+    };
+    Some((lang, vec![term], vec![mode]))
+}
+
+// cf. https://en.wiktionary.org/wiki/Template:descendants_tree While
+// {{desctree}} docs say it supports all {{desc}} args, I've never seen one
+// that's more than just e.g. {{desctree|gmw-pro|*fuhs}}. (Importantly, both
+// "1" AND "2" are required here.) So we just handle this simple case of one
+// descendant generating the tree, until we find that listing multiple has
+// any currency (how would that even work?).
+fn process_json_desc_line_desctree_template(
+    string_pool: &mut StringPool,
+    args: &WiktextractJson,
+) -> Option<(Lang, Vec<Term>, Vec<EtyMode>)> {
+    let lang = args.get_valid_str("1")?;
+    let lang = Lang::try_from(lang).ok()?;
+    let term = args
+        .get_valid_str("2")
+        .map(|term| Term::new(string_pool, term))?;
+    // It's conceivable that another mode could be specified by template arg
+    let mode = get_desc_mode(args, 1);
+    Some((lang, vec![term], vec![mode]))
 }
 
 fn get_desc_mode(args: &WiktextractJson, n: usize) -> EtyMode {
@@ -238,7 +237,6 @@ fn get_desc_mode(args: &WiktextractJson, n: usize) -> EtyMode {
 struct Ancestors<T: Clone> {
     ancestors: Vec<T>,
     depths: Vec<u8>,
-    // progenitor: Ancestor<T>,
 }
 impl<T: Clone> Ancestors<T> {
     fn new(item: &T) -> Self {
@@ -247,16 +245,12 @@ impl<T: Clone> Ancestors<T> {
             depths: vec![0],
         }
     }
-    // fn progenitor(&self) -> T {
-    //     self.ancestors
-    //         .get(0)
-    //         .map(T::clone)
-    //         .expect("ancestors always contains at least the progenitor")
-    // }
+
     fn remove_last(&mut self) {
         self.ancestors.pop();
         self.depths.pop();
     }
+
     fn prune(&mut self, depth: u8) {
         while let Some(&ancestor_depth) = self.depths.last()
             && depth <= ancestor_depth
@@ -265,6 +259,7 @@ impl<T: Clone> Ancestors<T> {
             self.remove_last();
         }
     }
+
     fn prune_and_get_parent(&mut self, depth: u8) -> T {
         self.prune(depth);
         self.ancestors
@@ -272,6 +267,7 @@ impl<T: Clone> Ancestors<T> {
             .map(T::clone)
             .expect("ancestors always contains at least the progenitor")
     }
+
     fn add(&mut self, item: &T, depth: u8) {
         self.ancestors.push(item.clone());
         self.depths.push(depth);
@@ -280,7 +276,7 @@ impl<T: Clone> Ancestors<T> {
 
 impl Ancestors<ItemId> {
     fn embeddings<'a>(&self, embeddings: &'a Embeddings) -> Vec<ItemEmbedding<'a>> {
-        self.ancestors.iter().map(|a| embeddings.get(a)).collect()
+        self.ancestors.iter().map(|&a| embeddings.get(a)).collect()
     }
 }
 
@@ -291,22 +287,23 @@ impl RawItems {
         raw_descendants: &RawDescendants,
     ) -> HashSet<ItemId> {
         let mut items_needing_embedding = HashSet::new();
-        let mut possible_ancestors = Ancestors::new(&vec![item.clone()]);
+        let mut possible_ancestors = Ancestors::new(&vec![item]);
         for line in raw_descendants.lines.iter() {
             let possible_parents = possible_ancestors.prune_and_get_parent(line.depth);
             let mut has_ambiguous_child = false;
             let mut has_imputed_child = false;
             if let RawDescLineKind::Desc { desc } = &line.kind {
                 for (i, &term) in desc.terms.iter().enumerate() {
-                    if let Some(desc_items) = self.get_all_langterm_ids(desc.lang, term) {
+                    let desc_langterm = LangTerm::new(desc.lang, term);
+                    if let Some(desc_items) = self.get_dupes(desc_langterm) {
                         if i == 0 {
-                            possible_ancestors.add(&desc_items, line.depth);
+                            possible_ancestors.add(desc_items, line.depth);
                         }
                         if desc_items.len() > 1 {
-                            // i.e. (lang, term) is ambiguous
+                            // i.e. langterm is ambiguous
                             has_ambiguous_child = true;
-                            for desc_item in &desc_items {
-                                items_needing_embedding.insert(Rc::clone(desc_item));
+                            for &desc_item in desc_items {
+                                items_needing_embedding.insert(desc_item);
                             }
                         }
                     } else {
@@ -315,7 +312,7 @@ impl RawItems {
                 }
                 if has_ambiguous_child || has_imputed_child {
                     for possible_parent in possible_parents {
-                        items_needing_embedding.insert(possible_parent.clone());
+                        items_needing_embedding.insert(possible_parent);
                     }
                 }
             }
@@ -330,8 +327,9 @@ impl RawItems {
     ) -> Result<()> {
         let n = self.raw_templates.desc.len();
         let pb = progress_bar(n, "Processing descendants")?;
-        for (item_id, desc) in self.raw_templates.desc.into_iter() {
-            self.process_item_raw_descendants(embeddings, ety_graph, desc, item_id);
+        let raw_templates_desc = mem::take(&mut self.raw_templates.desc);
+        for (item_id, desc) in raw_templates_desc {
+            self.process_item_raw_descendants(embeddings, ety_graph, &desc, item_id);
             pb.inc(1);
         }
 
@@ -343,7 +341,7 @@ impl RawItems {
         &self,
         embeddings: &Embeddings,
         ety_graph: &mut EtyGraph,
-        raw_descendants: RawDescendants,
+        raw_descendants: &RawDescendants,
         item: ItemId,
     ) {
         let mut ancestors = Ancestors::new(&item);
@@ -354,20 +352,20 @@ impl RawItems {
                     if desc.terms.is_empty() || desc.terms.len() != desc.modes.len() {
                         continue;
                     }
-                    let lang = desc.lang;
                     let (mut desc_items, mut confidences, mut modes) = (vec![], vec![], vec![]);
                     for (i, (&term, &mode)) in desc.terms.iter().zip(desc.modes.iter()).enumerate()
                     {
+                        let langterm = LangTerm::new(desc.lang, term);
                         let Retrieval {
                             item_id: desc_item,
                             confidence,
+                            is_imputed,
                             ..
                         } = self.get_or_impute_item(
                             ety_graph,
                             embeddings,
                             &ancestors.embeddings(embeddings),
-                            lang,
-                            term,
+                            langterm,
                         );
                         // A root generally shouldn't be listed as a descendant
                         // of another term. If it really is an etymological
@@ -381,7 +379,12 @@ impl RawItems {
                         // general, we may need to end up doing much smarter
                         // processing of descendants sections if there is more
                         // such variation I am unaware of (probable?).
-                        if self.get(desc_item).pos.is_some_and(|pos| pos == pos::ROOT) {
+                        if !is_imputed
+                            && self
+                                .get(desc_item)
+                                .pos
+                                .is_some_and(|pos| pos == Pos::root_pos())
+                        {
                             continue 'outer;
                         }
                         // Only use the first term in a multi-term desc line as
@@ -394,13 +397,7 @@ impl RawItems {
                         modes.push(mode);
                     }
                     for (desc_item, confidence, mode) in izip!(desc_items, confidences, modes) {
-                        ety_graph.add_ety(
-                            &desc_item,
-                            mode,
-                            0,
-                            &[Rc::clone(&parent)],
-                            &[confidence],
-                        );
+                        ety_graph.add_ety(desc_item, mode, 0, &[parent], &[confidence]);
                     }
                 }
                 // Might want to do something for the other cases in the future,
