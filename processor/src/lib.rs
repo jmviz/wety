@@ -53,7 +53,7 @@ pub(crate) fn progress_bar(n: usize, message: &str) -> Result<ProgressBar> {
 }
 
 #[derive(Serialize, Deserialize)]
-pub(crate) struct ProcessedData {
+pub struct ProcessedData {
     string_pool: StringPool,
     items: Items,
     ety_graph: EtyGraph,

@@ -2044,6 +2044,12 @@ dependencies = [
 [[package]]
 name = "server"
 version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "flate2",
+ "processor",
+ "serde_json",
+]
 
 [[package]]
 name = "sha-1"

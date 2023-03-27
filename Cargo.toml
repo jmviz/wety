@@ -6,3 +6,8 @@ members = [
     "processor",
     "server",
 ]
+
+[workspace.dependencies]
+anyhow = {version = "1.0.58", features = ["backtrace"]}
+flate2 = "1.0.24"
+serde_json = "1.0.94"
