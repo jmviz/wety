@@ -1622,6 +1622,33 @@ dependencies = [
 ]
 
 [[package]]
+name = "processor"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "bytelines",
+ "clap",
+ "flate2",
+ "hashbrown 0.12.3",
+ "indicatif 0.17.0",
+ "itertools",
+ "lazy_static",
+ "oxigraph",
+ "petgraph",
+ "phf",
+ "regex",
+ "rust-bert",
+ "serde",
+ "serde_json",
+ "serde_json_any_key",
+ "simd-json",
+ "snmalloc-rs",
+ "string-interner",
+ "strum",
+ "urlencoding",
+]
+
+[[package]]
 name = "protobuf"
 version = "2.27.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2013,6 +2040,10 @@ dependencies = [
  "ryu",
  "serde",
 ]
+
+[[package]]
+name = "server"
+version = "0.1.0"
 
 [[package]]
 name = "sha-1"
@@ -2666,33 +2697,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b6c71e40d7d2c34a5106301fb632274ca37242cd0c9d3e64dbece371a40a2d87"
 dependencies = [
  "webpki",
-]
-
-[[package]]
-name = "wety"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "bytelines",
- "clap",
- "flate2",
- "hashbrown 0.12.3",
- "indicatif 0.17.0",
- "itertools",
- "lazy_static",
- "oxigraph",
- "petgraph",
- "phf",
- "regex",
- "rust-bert",
- "serde",
- "serde_json",
- "serde_json_any_key",
- "simd-json",
- "snmalloc-rs",
- "string-interner",
- "strum",
- "urlencoding",
 ]
 
 [[package]]

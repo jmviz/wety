@@ -1,0 +1,27 @@
+[package]
+name = "processor"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+simd-json = "0.7.0"
+snmalloc-rs = {version = "0.3.0", features = ["native-cpu"]}
+bytelines = "2.4"
+flate2 = "1.0.24"
+string-interner = "0.14.0"
+phf = {version = "0.10", features = ["macros"]}
+hashbrown = "0.12.2"
+anyhow = {version = "1.0.58", features = ["backtrace"]}
+oxigraph = "0.3.5"
+indicatif = "0.17.0"
+clap = { version = "3.2.17", features = ["derive"] }
+petgraph = {version = "0.6.2", features = ["serde-1"]}
+regex = "1.7.1"
+lazy_static = "1.4.0"
+strum = {version = "0.24.1", features = ["derive", "phf"]}
+urlencoding = "2.1.2"
+rust-bert = "0.20.0"
+itertools = "0.10.5"
+serde = { version = "1.0.158", features = ["derive"] }
+serde_json = "1.0.94"
+serde_json_any_key = "2.0.0"

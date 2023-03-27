@@ -10,6 +10,8 @@ cargo run --release
 
 It will take a while to compile, and much longer to run :). By default, it will process the raw wiktextract data and creat three outputs: a Turtle file; an Oxigraph store; a gz-compressed JSON serialization of the finalized internal data structure used by `wety` (for loading into the server binary (TBD) on its startup). See `cargo run --release -- --help` for all options. Note that the first time this is run, the relevant `rust-bert` files will be downloaded from Hugging Face and placed in `~/.cache/.rustbert`. On subsequent runs, the files will be read from this cache rather than redownloaded.
 
+The `wiktextract` raw data file will be automatically decompressed if the `--wiktextract-path` argument has the extension `.gz`, otherwise it will be read as a standard JSON Lines file. Similarly, if the `--serialization-path` argument ends in `.gz`, the output will be gzipped JSON; otherwise, it will be plain JSON.
+
 If you get a CUDA out of memory error, or if you are using the CPU backend and the process gets killed due to RAM usage, try setting `--embeddings-batch-size` lower. The default value was set as the nearest round number that worked on a card with 10GB VRAM. Alternatively, if you have a better card, you could try setting the batch size higher to speed up the embeddings processing.
 
 ## Using local `wiktextract` data
