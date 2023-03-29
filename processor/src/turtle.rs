@@ -1,4 +1,4 @@
-use crate::{items::Item, progress_bar, ProcessedData};
+use crate::{items::Item, processed_data::ProcessedData, progress_bar};
 
 use std::{
     fs::File,
@@ -85,9 +85,18 @@ fn write_local_name(f: &mut BufWriter<File>, s: &str) -> Result<()> {
     Ok(())
 }
 
+fn write_list_delim(f: &mut BufWriter<File>, i: usize, len: usize) -> Result<()> {
+    if i + 1 < len {
+        write!(f, ", ")?;
+    } else {
+        writeln!(f, " ;")?;
+    }
+    Ok(())
+}
+
 impl ProcessedData {
     fn write_turtle_item(&self, f: &mut BufWriter<File>, item: &Item) -> Result<()> {
-        writeln!(f, "{ITEM_PRE}{}", item.i)?;
+        writeln!(f, "{ITEM_PRE}{}", item.id)?;
         let term = item.term.resolve(&self.string_pool);
         write_item_quoted_prop(f, PRED_TERM, term)?;
         write_item_quoted_prop(f, PRED_LANG, item.lang.name())?;
@@ -108,23 +117,31 @@ impl ProcessedData {
             write_local_name(f, &title)?;
             writeln!(f, " ;")?;
         };
-        if let Some(pos) = item.pos {
-            write_item_quoted_prop(f, PRED_POS, pos.name())?;
-        };
+
+        writeln!(f, "  {PRED_ETY_NUM} {} ;", item.ety_num)?;
+
         if item.is_imputed {
             writeln!(f, "  {PRED_IS_IMPUTED} true ;")?;
         }
         if item.lang.is_reconstructed() {
             writeln!(f, "  {PRED_IS_RECONSTRUCTED} true ;")?;
         }
+        if let Some(pos) = &item.pos {
+            write!(f, "  {PRED_POS} ")?;
+            for (p_i, p) in pos.iter().map(|p| p.name()).enumerate() {
+                write!(f, "\"{p}\"")?;
+                write_list_delim(f, p_i, pos.len())?;
+            }
+        };
         if let Some(gloss) = &item.gloss {
-            let gloss = gloss.to_string(&self.string_pool);
-            write_item_quoted_prop(f, PRED_GLOSS, &gloss)?;
+            write!(f, "  {PRED_GLOSS} ")?;
+            for (g_i, g) in gloss.iter().enumerate() {
+                write!(f, "\"{}\"", g.to_string(&self.string_pool))?;
+                write_list_delim(f, g_i, gloss.len())?;
+            }
         }
-        if let Some(ety_num) = item.ety_num {
-            writeln!(f, "  {PRED_ETY_NUM} {ety_num} ;")?;
-        }
-        if let Some(immediate_ety) = self.ety_graph.get_immediate_ety(item.i) {
+
+        if let Some(immediate_ety) = self.ety_graph.get_immediate_ety(item.id) {
             let mode = immediate_ety.mode.as_ref();
             write_item_quoted_prop(f, PRED_MODE, mode)?;
             writeln!(f, "  {PRED_HEAD} {} ;", immediate_ety.head)?;
@@ -134,24 +151,16 @@ impl ProcessedData {
                     f,
                     "[ {PRED_ITEM} {ITEM_PRE}{ety_item}; {PRED_ORDER} {e_i} ]"
                 )?;
-                if e_i + 1 < immediate_ety.items.len() {
-                    write!(f, ", ")?;
-                } else {
-                    writeln!(f, " ;")?;
-                }
+                write_list_delim(f, e_i, immediate_ety.items.len())?;
             }
         }
-        if let Some(progenitors) = self.ety_graph.get_progenitors(item.i) {
+        if let Some(progenitors) = self.ety_graph.get_progenitors(item.id) {
             let head = progenitors.head;
             writeln!(f, "  {PRED_HEAD_PROGENITOR} {ITEM_PRE}{head} ;")?;
             write!(f, "  {PRED_PROGENITOR} ")?;
             for (p_i, progenitor) in progenitors.items.iter().enumerate() {
                 write!(f, "{ITEM_PRE}{progenitor}")?;
-                if p_i + 1 < progenitors.items.len() {
-                    write!(f, ", ")?;
-                } else {
-                    writeln!(f, " ;")?;
-                }
+                write_list_delim(f, p_i, progenitors.items.len())?;
             }
         }
         writeln!(f, ".")?;

@@ -9,6 +9,7 @@ use crate::{
     progress_bar,
     string_pool::StringPool,
     wiktextract_json::{WiktextractJson, WiktextractJsonItem, WiktextractJsonValidStr},
+    HashSet,
 };
 
 use std::{mem, str::FromStr};
@@ -16,11 +17,10 @@ use std::{mem, str::FromStr};
 use anyhow::{Ok, Result};
 use itertools::izip;
 use simd_json::ValueAccess;
-use std::collections::HashSet;
 
 #[derive(Hash, Eq, PartialEq, Debug)]
 pub(crate) struct RawDescendants {
-    lines: Box<[RawDescLine]>,
+    pub(crate) lines: Box<[RawDescLine]>,
 }
 
 impl From<Vec<RawDescLine>> for RawDescendants {
@@ -32,7 +32,7 @@ impl From<Vec<RawDescLine>> for RawDescendants {
 }
 
 #[derive(Hash, Eq, PartialEq, Debug)]
-struct RawDescLine {
+pub(crate) struct RawDescLine {
     depth: u8,
     kind: RawDescLineKind,
 }
@@ -102,7 +102,7 @@ fn process_json_desc_line(
         tags.iter().any(|tag| tag.as_str() == Some("derived"))
     });
     let mut lang = Lang::from(0); // dummy assignment
-    let (mut langs, mut terms, mut modes) = (HashSet::new(), vec![], vec![]);
+    let (mut langs, mut terms, mut modes) = (HashSet::default(), vec![], vec![]);
     for template in templates {
         if let Some((template_lang, template_terms, template_modes)) =
             process_json_desc_line_template(string_pool, template, is_derivation)
@@ -290,7 +290,7 @@ impl RawItems {
         item: ItemId,
         raw_descendants: &RawDescendants,
     ) -> HashSet<ItemId> {
-        let mut items_needing_embedding = HashSet::new();
+        let mut items_needing_embedding = HashSet::default();
         let mut possible_ancestors = Ancestors::new(&vec![item]);
         for line in raw_descendants.lines.iter() {
             let possible_parents = possible_ancestors.prune_and_get_parent(line.depth);
@@ -387,7 +387,8 @@ impl RawItems {
                             && self
                                 .get(desc_item)
                                 .pos
-                                .is_some_and(|pos| pos == Pos::root_pos())
+                                .as_ref()
+                                .is_some_and(|pos| pos[0] == Pos::root_pos())
                         {
                             continue 'outer;
                         }

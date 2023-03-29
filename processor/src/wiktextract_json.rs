@@ -1,16 +1,16 @@
 use crate::{
     gloss::Gloss,
-    items::{Item, RawItems},
+    items::{RawItem, RawItems},
     langterm::{Lang, Term},
     pos::Pos,
     redirects::WiktextractJsonRedirect,
-    string_pool::StringPool,
+    string_pool::StringPool, descendants::RawDescendants,
 };
 
 use std::{
     fs::File,
     io::{BufReader, Read},
-    path::Path,
+    path::Path, mem,
 };
 
 use anyhow::{Ok, Result};
@@ -86,32 +86,51 @@ impl WiktextractJsonItem<'_> {
             && let Some(term) = self.get_canonical_term(string_pool)
             && let Some(lang) = self.get_lang()
             && let Some(pos) = self.get_pos()
+            && let Some(gloss) = self.get_gloss(string_pool)
         {
             let ety_num = self.get_ety_num();
-            let gloss = self.get_gloss(string_pool);
-
-            let item = Item {
-                is_imputed: false,
-                i: 0, // temp value that will be changed in items.add()
+            let raw_item = RawItem {
+                ety_num,
                 lang,
                 term,
-                page_term: Some(page_term),
-                ety_num,
-                pos: Some(pos),
+                page_term,
+                pos,
                 gloss,
             };
-            let item_id = items.add(item);
-            items.lines.insert(line_number, item_id);
-
-            if let Some(raw_root) = self.get_root(string_pool, lang) {
-                items.raw_templates.root.insert(item_id, raw_root);
+            let (item_id, is_new_ety) = items.add(raw_item);
+            if is_new_ety { // a new item was added
+                // This means that the glosses embedding for a multi-pos item
+                // will be based on the glosses for whichever pos happens to
+                // first in the wiktextract data. $$ This may be good enough or
+                // may require better handling in the future...
+                items.lines.insert(line_number, item_id);
+                if let Some(raw_root) = self.get_root(string_pool, lang) {
+                    items.raw_templates.root.insert(item_id, raw_root);
+                }
+                if let Some(raw_etymology) = self.get_etymology(string_pool, lang) {
+                    items.raw_templates.ety.insert(item_id, raw_etymology);
+                }
+                if let Some(raw_descendants) = self.get_descendants(string_pool) {
+                    items.raw_templates.desc.insert(item_id, raw_descendants);
+                }
+                return;
             }
-            if let Some(raw_etymology) = self.get_etymology(string_pool, lang) {
-                items.raw_templates.ety.insert(item_id, raw_etymology);
-            }
-            if let Some(raw_descendants) = self.get_descendants(string_pool) {
+            // This was a new pos of an existing item. 
+            if let Some(mut raw_descendants) = self.get_descendants(string_pool) {
+                // Sometimes multiple pos's under the same ety have different
+                // Descendants sections. This handles that by simply joining the
+                // lists into one. $$ This does assume that each list uses the
+                // same base level of indentation though...
+                if let Some(existing) = items.raw_templates.desc.get_mut(&item_id) {
+                    let mut ex_lines = Vec::from(mem::take(&mut existing.lines));
+                    let new_lines = Vec::from(mem::take(&mut raw_descendants.lines));
+                    ex_lines.extend(new_lines);
+                    let full = RawDescendants::from(ex_lines);
+                    items.raw_templates.desc.insert(item_id, full);
+                }
                 items.raw_templates.desc.insert(item_id, raw_descendants);
             }
+            
         }
     }
 
@@ -165,21 +184,16 @@ impl WiktextractJsonItem<'_> {
         None
     }
 
-    fn get_ety_num(&self) -> Option<u8> {
-        // if langterm has multiple ety's, then 'etymology_number' is
-        // present with range 1,2,... Otherwise, this key is missing.
-        let ety_num = self.json.get_u8("etymology_number");
-        let ety_text = self.json.get_valid_str("etymology_text");
-        if ety_num.is_none() && ety_text.is_some() {
-            // Most likely there is a single unnumbered "Etymology" section
-            return Some(1);
-        }
-        // will be None when there are no ety sections at all (e.g. in a PIE
-        // root page where there are multiple "Root" sections, e.g. see "men-")
-        // or when there one or more blank unnumbered Etymology section(s) (very
-        // rare). None values will possibly be updated during ProcessedData
-        // finalization
-        ety_num
+    fn get_ety_num(&self) -> u8 {
+        // if langterm has multiple ety's, then 'etymology_number' is present
+        // with range 1,2,... Otherwise, this key is missing. If it is missing,
+        // then most likely there is a single unnumbered "Etymology" section.
+        // Or, there could be no ety sections at all (e.g. in a PIE root page
+        // where there are multiple "Root" sections, e.g. see "men-"). Or, there
+        // could be multiple unnumbered ety sections (very rare defective page).
+        // Whatever number is returned here might get changed in items.add()
+        // When the item is compared with its dupes and potentially gets merged.
+        self.json.get_u8("etymology_number").unwrap_or(1)
     }
 
     fn get_gloss(&self, string_pool: &mut StringPool) -> Option<Gloss> {

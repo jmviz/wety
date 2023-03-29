@@ -7,13 +7,13 @@ use crate::{
     progress_bar,
     string_pool::StringPool,
     wiktextract_json::{WiktextractJson, WiktextractJsonItem, WiktextractJsonValidStr},
+    HashSet,
 };
 
 use std::{mem, str::FromStr};
 
 use anyhow::{anyhow, ensure, Ok, Result};
 use simd_json::ValueAccess;
-use std::collections::HashSet;
 
 #[derive(Hash, Eq, PartialEq, Debug)]
 pub(crate) struct RawEtymology {
@@ -283,7 +283,7 @@ impl RawItems {
         item: ItemId,
         raw_etymology: &RawEtymology,
     ) -> HashSet<ItemId> {
-        let mut items_needing_embedding = HashSet::new();
+        let mut items_needing_embedding = HashSet::default();
         let mut parent_items = vec![item];
 
         for template in raw_etymology.templates.iter() {

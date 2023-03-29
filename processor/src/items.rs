@@ -21,30 +21,49 @@ use serde::{Deserialize, Serialize};
 use serde_json_any_key::any_key_map;
 use simd_json::to_borrowed_value;
 
+// basic data read from a line in the wiktextract raw data
+pub(crate) struct RawItem {
+    pub(crate) ety_num: u8, // the nth numbered ety for this term-lang combo (1,2,...)
+    pub(crate) lang: Lang,
+    pub(crate) term: Term,
+    pub(crate) page_term: Term, // i.e. the term stripped of diacritics etc. at the top of the page
+    pub(crate) pos: Pos,        // e.g. "noun"
+    pub(crate) gloss: Gloss,
+}
+
+impl RawItem {
+    fn langterm(&self) -> LangTerm {
+        LangTerm {
+            lang: self.lang,
+            term: self.term,
+        }
+    }
+}
+
 pub(crate) type ItemId = u32; // wiktionary has about ~10M items including imputations
 
 #[derive(Hash, Eq, PartialEq, Debug, Serialize, Deserialize)]
 pub(crate) struct Item {
     pub(crate) is_imputed: bool,
-    pub(crate) i: ItemId, // the i-th item seen, used as id for RDF
+    pub(crate) id: ItemId,  // the i-th item seen, used as id for RDF
+    pub(crate) ety_num: u8, // the nth numbered ety for this term-lang combo (1,2,...)
     pub(crate) lang: Lang,
     pub(crate) term: Term,
     pub(crate) page_term: Option<Term>, // i.e. the term stripped of diacritics etc. at the top of the page
-    pub(crate) ety_num: Option<u8>,     // the nth numbered ety for this term-lang combo (1,2,...)
-    pub(crate) pos: Option<Pos>,        // e.g. "noun"
-    pub(crate) gloss: Option<Gloss>,
+    pub(crate) pos: Option<Vec<Pos>>,   // e.g. "noun"
+    pub(crate) gloss: Option<Vec<Gloss>>,
 }
 
 impl Item {
     pub(crate) fn new_imputed(langterm: LangTerm, pos: Option<Pos>) -> Self {
         Self {
             is_imputed: true,
-            i: 0, // temp value, will be changed by imputed_items.store.add()
+            id: 0, // temp value, will be changed by imputed_items.store.add()
+            ety_num: 1,
             lang: langterm.lang,
             term: langterm.term,
-            pos,
             page_term: None,
-            ety_num: None,
+            pos: pos.map(|p| vec![p]),
             gloss: None,
         }
     }
@@ -74,12 +93,12 @@ impl ItemStore {
         self.vec.len()
     }
 
-    pub(crate) fn get_index(&self, id: ItemId) -> usize {
-        (id - self.start_id) as usize
+    pub(crate) fn get(&self, id: ItemId) -> &Item {
+        &self.vec[(id - self.start_id) as usize]
     }
 
-    pub(crate) fn get(&self, id: ItemId) -> &Item {
-        &self.vec[self.get_index(id)]
+    pub(crate) fn get_mut(&mut self, id: ItemId) -> &mut Item {
+        &mut self.vec[(id - self.start_id) as usize]
     }
 
     pub(crate) fn next_id(&self) -> ItemId {
@@ -88,9 +107,23 @@ impl ItemStore {
 
     pub(crate) fn add(&mut self, mut item: Item) -> ItemId {
         let id = self.next_id();
-        item.i = id;
+        item.id = id;
         self.vec.push(item);
         id
+    }
+
+    pub(crate) fn add_raw(&mut self, raw_item: RawItem) -> ItemId {
+        let item = Item {
+            is_imputed: false,
+            id: 0, // will be changed in add()
+            ety_num: raw_item.ety_num,
+            lang: raw_item.lang,
+            term: raw_item.term,
+            page_term: Some(raw_item.page_term),
+            pos: Some(vec![raw_item.pos]),
+            gloss: Some(vec![raw_item.gloss]),
+        };
+        self.add(item)
     }
 
     pub(crate) fn iter(&self) -> impl Iterator<Item = &Item> {
@@ -118,20 +151,81 @@ impl Items {
         self.store.get(id)
     }
 
+    fn get_mut(&mut self, id: ItemId) -> &mut Item {
+        self.store.get_mut(id)
+    }
+
     // returns all items that share the same lang and term
     pub(crate) fn get_dupes(&self, langterm: LangTerm) -> Option<&Vec<ItemId>> {
         self.dupes.get(&langterm)
     }
 
-    pub(crate) fn add(&mut self, item: Item) -> ItemId {
-        let langterm = item.langterm();
-        let id = self.store.add(item);
-        if let Some(ids) = self.dupes.get_mut(&langterm) {
-            ids.push(id);
-            return id;
+    // the returned bool is true if the ItemId is new, false if the RawItem
+    // got merged into an existing item and hence the ItemId is old
+    pub(crate) fn add(&mut self, mut raw_item: RawItem) -> (ItemId, bool) {
+        let langterm = raw_item.langterm();
+        // If we've seen this langterm before...
+        if let Some(ids) = self.dupes.get(&langterm).map(Vec::clone) {
+            let mut max_ety = 0;
+            let mut same_ety = None;
+            for &id in &ids {
+                let other = self.get(id);
+                if other.ety_num == raw_item.ety_num {
+                    same_ety = Some(id);
+                }
+                max_ety = other.ety_num.max(max_ety);
+            }
+            // If it shares an ety with an already stored item...
+            if let Some(same_ety) = same_ety {
+                // If it also has the same pos as one of the pos's in the
+                // already-stored item, then we need to make a new item for
+                // this. This happens in the case of e.g. PIE root pages where
+                // there are several "Root" pos sections with no Etymology
+                // sections (and hence here they will have have ety_num == 1 in
+                // the raw_item)
+                if self
+                    .get(same_ety)
+                    .pos
+                    .as_ref()
+                    .expect("at least one pos")
+                    .iter()
+                    .any(|&p| p == raw_item.pos)
+                {
+                    raw_item.ety_num = max_ety + 1;
+                    let id = self.store.add_raw(raw_item);
+                    self.dupes
+                        .get_mut(&langterm)
+                        .expect("we already cloned these")
+                        .push(id);
+                    return (id, true);
+                }
+                // Otherwise, we simply append this pos and gloss to the
+                // existing item, since there is no pos overlap.
+                let same = self.get_mut(same_ety);
+                same.pos
+                    .as_mut()
+                    .expect("at least one pos")
+                    .push(raw_item.pos);
+                same.gloss
+                    .as_mut()
+                    .expect("at least one gloss")
+                    .push(raw_item.gloss);
+                return (same_ety, false);
+            }
+            // A new ety_num for an already seen langterm
+            raw_item.ety_num = max_ety + 1;
+            let id = self.store.add_raw(raw_item);
+            self.dupes
+                .get_mut(&langterm)
+                .expect("we already cloned these")
+                .push(id);
+            return (id, true);
         }
+
+        // A langterm that hasn't been seen yet
+        let id = self.store.add_raw(raw_item);
         self.dupes.insert(langterm, vec![id]);
-        id
+        (id, true)
     }
 
     pub(crate) fn iter(&self) -> impl Iterator<Item = &Item> {
@@ -171,8 +265,8 @@ impl RawItems {
         self.items.get(id)
     }
 
-    pub(crate) fn add(&mut self, item: Item) -> ItemId {
-        self.items.add(item)
+    pub(crate) fn add(&mut self, raw_item: RawItem) -> (ItemId, bool) {
+        self.items.add(raw_item)
     }
 
     pub(crate) fn iter_items(&self) -> impl Iterator<Item = &Item> {
@@ -180,7 +274,7 @@ impl RawItems {
     }
 
     pub(crate) fn iter_ids(&self) -> impl Iterator<Item = ItemId> + '_ {
-        self.iter_items().map(|item| item.i)
+        self.iter_items().map(|item| item.id)
     }
 
     // returns all items that share the same lang and term

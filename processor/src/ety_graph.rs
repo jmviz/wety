@@ -96,7 +96,7 @@ pub(crate) struct Progenitors {
 pub(crate) struct EtyGraph {
     pub(crate) imputed_items: ImputedItems,
     pub(crate) graph: StableDiGraph<ItemId, EtyLink>,
-    #[serde(with = "any_key_map")]
+    // #[serde(with = "any_key_map")]
     pub(crate) index: HashMap<ItemId, NodeIndex>,
 }
 

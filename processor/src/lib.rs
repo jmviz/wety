@@ -15,6 +15,7 @@ mod langterm;
 mod phf_ext;
 mod pos;
 mod pos_phf;
+mod processed_data;
 mod redirects;
 mod root;
 mod string_pool;
@@ -22,7 +23,8 @@ mod turtle;
 mod wiktextract_json;
 
 use crate::{
-    ety_graph::EtyGraph, string_pool::StringPool, wiktextract_json::process_wiktextract_lines,
+    processed_data::ProcessedData, string_pool::StringPool,
+    wiktextract_json::process_wiktextract_lines,
 };
 
 use std::{
@@ -37,9 +39,7 @@ use anyhow::{Ok, Result};
 use embeddings::EmbeddingsConfig;
 use flate2::{write::GzEncoder, Compression};
 use indicatif::{HumanDuration, ProgressBar, ProgressStyle};
-use items::Items;
 use oxigraph::{io::GraphFormat::Turtle, model::GraphNameRef::DefaultGraph, store::Store};
-use serde::{Deserialize, Serialize};
 use xxhash_rust::xxh3::Xxh3Builder;
 
 pub(crate) type HashMap<K, V> = std::collections::HashMap<K, V, Xxh3Builder>;
@@ -54,13 +54,6 @@ pub(crate) fn progress_bar(n: usize, message: &str) -> Result<ProgressBar> {
             .progress_chars("#>-"),
     );
     Ok(pb)
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct ProcessedData {
-    string_pool: StringPool,
-    items: Items,
-    ety_graph: EtyGraph,
 }
 
 /// # Errors
