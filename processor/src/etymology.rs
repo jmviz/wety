@@ -12,8 +12,8 @@ use crate::{
 use std::{mem, str::FromStr};
 
 use anyhow::{anyhow, ensure, Ok, Result};
-use hashbrown::HashSet;
 use simd_json::ValueAccess;
+use std::collections::HashSet;
 
 #[derive(Hash, Eq, PartialEq, Debug)]
 pub(crate) struct RawEtymology {
@@ -324,12 +324,12 @@ impl RawItems {
         ety_graph: &mut EtyGraph,
         item: ItemId,
         raw_etymology: &RawEtymology,
-    ) {
+    ) -> Result<()> {
         let mut current_item = item; // for tracking possibly imputed items
         let mut next_item = item; // for tracking possibly imputed items
         let mut item_embeddings = vec![];
         for template in raw_etymology.templates.iter() {
-            item_embeddings.push(embeddings.get(current_item));
+            item_embeddings.push(embeddings.get(current_item)?);
             let mut ety_items = Vec::with_capacity(template.langterms.len());
             let mut confidences = Vec::with_capacity(template.langterms.len());
             let mut has_new_imputation = false;
@@ -339,7 +339,8 @@ impl RawItems {
                     confidence,
                     is_newly_imputed,
                     ..
-                } = self.get_or_impute_item(ety_graph, embeddings, &item_embeddings, ety_langterm);
+                } =
+                    self.get_or_impute_item(ety_graph, embeddings, &item_embeddings, ety_langterm)?;
                 has_new_imputation = is_newly_imputed;
                 if has_new_imputation {
                     if template.langterms.len() == 1 {
@@ -352,7 +353,7 @@ impl RawItems {
                         // compound-kind template. We won't bother trying to do
                         // convoluted ety link imputations for such cases at the
                         // moment. So we stop processing templates here.
-                        return;
+                        return Ok(());
                     }
                 }
                 ety_items.push(ety_item);
@@ -368,10 +369,11 @@ impl RawItems {
             // We keep processing templates until we hit the first one with no
             // imputation required.
             if !has_new_imputation {
-                return;
+                return Ok(());
             }
             current_item = next_item;
         }
+        Ok(())
     }
 
     pub(crate) fn process_raw_etymologies(
@@ -383,7 +385,7 @@ impl RawItems {
         let pb = progress_bar(n, "Processing etymologies")?;
         let raw_templates_ety = mem::take(&mut self.raw_templates.ety);
         for (item_id, ety) in raw_templates_ety {
-            self.process_item_raw_etymology(embeddings, ety_graph, item_id, &ety);
+            self.process_item_raw_etymology(embeddings, ety_graph, item_id, &ety)?;
             pb.inc(1);
         }
         pb.finish();

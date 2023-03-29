@@ -1,6 +1,6 @@
 //! WIP attempt to digest etymologies from wiktextract data
 
-#![feature(is_some_and, let_chains)]
+#![feature(is_some_and, let_chains, array_chunks)]
 #![allow(clippy::redundant_closure_for_method_calls)]
 
 mod descendants;
@@ -40,6 +40,10 @@ use indicatif::{HumanDuration, ProgressBar, ProgressStyle};
 use items::Items;
 use oxigraph::{io::GraphFormat::Turtle, model::GraphNameRef::DefaultGraph, store::Store};
 use serde::{Deserialize, Serialize};
+use xxhash_rust::xxh3::Xxh3Builder;
+
+pub(crate) type HashMap<K, V> = std::collections::HashMap<K, V, Xxh3Builder>;
+pub(crate) type HashSet<T> = std::collections::HashSet<T, Xxh3Builder>;
 
 pub(crate) fn progress_bar(n: usize, message: &str) -> Result<ProgressBar> {
     let pb = ProgressBar::new(u64::try_from(n)?);

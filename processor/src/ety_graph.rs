@@ -3,12 +3,12 @@ use crate::{
     items::{Item, ItemId, ItemStore},
     langterm::LangTerm,
     pos::Pos,
+    HashMap, HashSet,
 };
 
-use std::ops::Index;
+use std::{collections::hash_map::Entry::Vacant, ops::Index};
 
 use anyhow::{anyhow, Ok, Result};
-use hashbrown::{HashMap, HashSet};
 use itertools::{izip, Itertools};
 use petgraph::{
     algo::greedy_feedback_arc_set,
@@ -177,7 +177,7 @@ impl EtyGraph {
         let head = immediate_ety.head();
         let mut t = Tracker {
             unexpanded: immediate_ety.items,
-            progenitors: HashSet::new(),
+            progenitors: HashSet::default(),
             head,
         };
         recurse(self, &mut t);
@@ -189,9 +189,9 @@ impl EtyGraph {
     }
 
     pub(crate) fn add(&mut self, item_id: ItemId) {
-        if !self.index.contains_key(&item_id) {
+        if let Vacant(e) = self.index.entry(item_id) {
             let node_index = self.graph.add_node(item_id);
-            self.index.insert(item_id, node_index);
+            e.insert(node_index);
         }
     }
 

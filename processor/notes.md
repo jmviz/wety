@@ -1,7 +1,5 @@
 ## TODO
 
-* Cache embeddings using `cacache`.
-* Write rust server for frontend client queries. The server will use the serialized ProcessedData as input on startup, then hold it in memory while running.
 
 
 ### Potential improvements to item disambiguation / ety link inference
@@ -18,11 +16,7 @@
 
 ## Things to consider for reducing RAM usage
 
-* Use [`cacache`](https://docs.rs/cacache/latest/cacache/) to cache item embeddings, or potentially the entire item (implementing serialize on Item) and keeping only item id (or `sri` from `cacache`) in memory.
 
-* Restructure `TermMap` to be flatter, with a `LangTerm` struct key and a simple `Vec` of `i`s as key.
-
-* Get rid of all the `Rc` stuff with the `Item`s. Make `TermMap` (or whatever that becomes in light of above bullet) own the `Item`s until the `EtyGraph` is created, at which point drain the `Item`s so that `EtyGraph` owns them. 
 
 ## Things to keep in mind
 

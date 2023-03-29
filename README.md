@@ -5,7 +5,7 @@ Digest etymologies from [`wiktextract`](https://github.com/tatuylonen/wiktextrac
 If you do not have rust installed, [install it](https://www.rust-lang.org/tools/install). Clone this repo and `cd` into it. Download the latest `wiktextract` raw data from [https://kaikki.org/dictionary/rawdata.html](https://kaikki.org/dictionary/rawdata.html), namely [this file](https://kaikki.org/dictionary/raw-wiktextract-data.json.gz), into `/data`. (To get the data including wiktionary `Descendants` sections, see below.) This uses `rust-bert`, which uses `pytorch`, for word sense disambiguations. So follow the [`rust-bert` installation instructions](https://github.com/guillaume-be/rust-bert#manual-installation-recommended) if you have a CUDA-enabled GPU you want to use instead of the default CPU backend. Finally, Run the rust program:
 
 ```bash
-cargo run --release
+cargo run --release --bin processor
 ```
 
 It will take a while to compile, and much longer to run :). By default, it will process the raw wiktextract data and creat three outputs: a Turtle file; an Oxigraph store; a gz-compressed JSON serialization of the finalized internal data structure used by `wety` (for loading into the server binary (TBD) on its startup). See `cargo run --release -- --help` for all options. Note that the first time this is run, the relevant `rust-bert` files will be downloaded from Hugging Face and placed in `~/.cache/.rustbert`. On subsequent runs, the files will be read from this cache rather than redownloaded.

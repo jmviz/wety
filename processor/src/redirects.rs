@@ -3,9 +3,9 @@ use crate::{
     langterm::{LangTerm, Language, LanguageTerm, Term},
     string_pool::StringPool,
     wiktextract_json::{WiktextractJson, WiktextractJsonValidStr},
+    HashMap,
 };
 
-use hashbrown::HashMap;
 use phf::{phf_set, Set};
 
 #[derive(Default)]

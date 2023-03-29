@@ -42,6 +42,13 @@ pub struct Args {
     embeddings_batch_size: usize,
     #[clap(short = 'u', long, default_value_t = DEFAULT_PROGRESS_UPDATE_INTERVAL, value_parser)]
     embeddings_progress_update_interval: usize,
+    #[clap(
+        short = 'c',
+        long,
+        default_value = "data/embeddings_cache",
+        value_parser
+    )]
+    embeddings_cache_path: PathBuf,
 }
 
 fn main() -> Result<()> {
@@ -52,6 +59,7 @@ fn main() -> Result<()> {
         model: args.embeddings_model,
         batch_size: args.embeddings_batch_size,
         progress_update_interval: args.embeddings_progress_update_interval,
+        cache_path: args.embeddings_cache_path,
     };
     let t = process_wiktextract(
         &args.wiktextract_path,

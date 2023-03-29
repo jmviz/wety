@@ -1,114 +1,196 @@
-use crate::{items::ItemId, wiktextract_json::WiktextractJson};
+use crate::{items::ItemId, wiktextract_json::WiktextractJson, HashMap};
 
-use std::{mem::take, rc::Rc};
+use std::{mem, path::PathBuf, rc::Rc};
 
 use anyhow::Result;
 use clap::ValueEnum;
-use hashbrown::HashMap;
 use rust_bert::pipelines::sentence_embeddings::{
-    Embedding, SentenceEmbeddingsBuilder, SentenceEmbeddingsConfig, SentenceEmbeddingsModel,
+    SentenceEmbeddingsBuilder, SentenceEmbeddingsConfig, SentenceEmbeddingsModel,
     SentenceEmbeddingsModelType,
 };
 use simd_json::ValueAccess;
+use sled::{Batch, Db, IVec};
+use xxhash_rust::xxh3::xxh3_64;
 
-#[derive(Clone, Copy)]
-pub(crate) struct ItemEmbedding<'a> {
-    ety: Option<&'a Embedding>,
-    glosses: Option<&'a Embedding>,
+// rust_bert::pipelines::sentence_embeddings::Embedding is also Vec<f32>, but we
+// use our own type so that if we update the package and for some reason it
+// changes to say Vec<f16/f64>, then
+//      embeddings: Vec<Embedding> = model.encode(...)
+// will be a compilation error instead of quiet unexpected behavior, as we need
+// to be sure of the elements being f32 for the caching (see below).
+type Embedding = Vec<f32>;
+
+pub(crate) struct ItemEmbedding {
+    ety: Option<Embedding>,
+    glosses: Option<Embedding>,
 }
 
-impl ItemEmbedding<'_> {
+impl ItemEmbedding {
     pub(crate) fn is_empty(&self) -> bool {
         self.ety.is_none() && self.glosses.is_none()
     }
 }
 
+type TextHash = u64;
+
+trait ToByteSlice {
+    fn to_bytes(&self) -> [u8; 8];
+}
+
+impl ToByteSlice for TextHash {
+    fn to_bytes(&self) -> [u8; 8] {
+        self.to_be_bytes()
+    }
+}
+
+trait ToByteVec {
+    fn to_bytes(&self) -> Vec<u8>;
+}
+
+impl ToByteVec for Embedding {
+    fn to_bytes(&self) -> Vec<u8> {
+        self.iter().flat_map(|e| e.to_be_bytes()).collect()
+    }
+}
+
+trait ToEmbedding {
+    fn to_embedding(&self) -> Embedding;
+}
+
+impl ToEmbedding for &[u8] {
+    fn to_embedding(&self) -> Embedding {
+        // the 4 here assumes Embedding elements are f32
+        self.array_chunks::<4>()
+            .map(|&bytes| f32::from_be_bytes(bytes))
+            .collect()
+    }
+}
+
+impl ToEmbedding for IVec {
+    fn to_embedding(&self) -> Embedding {
+        self.as_ref().to_embedding()
+    }
+}
+
 struct EmbeddingBatch {
-    items: Vec<ItemId>,
-    texts: Vec<String>,
     max_size: usize,
     model: Rc<SentenceEmbeddingsModel>,
+    cache: Rc<Db>,
+    items: Vec<ItemId>,
+    texts: Vec<String>,
+    text_hashes: Vec<TextHash>,
 }
 
 impl EmbeddingBatch {
-    fn new(model: &Rc<SentenceEmbeddingsModel>, size: usize) -> Self {
+    fn new(model: &Rc<SentenceEmbeddingsModel>, size: usize, cache: &Rc<Db>) -> Self {
         Self {
             items: Vec::with_capacity(size),
             texts: Vec::with_capacity(size),
+            text_hashes: Vec::with_capacity(size),
             max_size: size,
             model: Rc::clone(model),
+            cache: Rc::clone(cache),
         }
     }
+
     fn len(&self) -> usize {
-        assert!(self.items.len() == self.texts.len());
         self.items.len()
     }
-    fn add(&mut self, item: ItemId, text: String) {
+
+    fn add(&mut self, item: ItemId, text: String, text_hash: TextHash) {
         self.items.push(item);
         self.texts.push(text);
+        self.text_hashes.push(text_hash);
     }
+
     fn clear(&mut self) {
         self.items.clear();
         self.texts.clear();
+        self.text_hashes.clear();
     }
+
     fn update(
         &mut self,
         item: ItemId,
         text: String,
-    ) -> Result<Option<(Vec<ItemId>, Vec<Embedding>)>> {
-        self.add(item, text);
+        text_hash: TextHash,
+    ) -> Result<Option<(Vec<ItemId>, Vec<TextHash>)>> {
+        self.add(item, text, text_hash);
         if self.len() >= self.max_size {
-            let items = take(&mut self.items);
-            let embeddings = self.model.encode(&self.texts)?;
-            self.clear();
-            return Ok(Some((items, embeddings)));
+            return Ok(Some(self.encode_and_cache()?));
         }
         Ok(None)
     }
-    fn flush(&mut self) -> Result<Option<(Vec<ItemId>, Vec<Embedding>)>> {
+
+    fn flush(&mut self) -> Result<Option<(Vec<ItemId>, Vec<TextHash>)>> {
         if self.len() > 0 {
-            let items = take(&mut self.items);
-            let embeddings = self.model.encode(&self.texts)?;
-            self.clear();
-            return Ok(Some((items, embeddings)));
+            return Ok(Some(self.encode_and_cache()?));
         }
         Ok(None)
     }
+
+    fn encode_and_cache(&mut self) -> Result<(Vec<ItemId>, Vec<TextHash>)> {
+        let items = mem::take(&mut self.items);
+        let text_hashes = mem::take(&mut self.text_hashes);
+        let embeddings: Vec<Embedding> = self.model.encode(&self.texts)?;
+        self.cache(&text_hashes, &embeddings)?;
+        self.clear();
+        Ok((items, text_hashes))
+    }
+
+    fn cache(&self, text_hashes: &[TextHash], embeddings: &[Embedding]) -> Result<()> {
+        let mut batch = Batch::default();
+        for (text_hash, embedding) in text_hashes.iter().zip(embeddings.iter()) {
+            batch.insert(&text_hash.to_bytes(), embedding.to_bytes());
+        }
+        self.cache.apply_batch(batch)?;
+        Ok(())
+    }
 }
 
-struct EmbeddingMap {
+struct EmbeddingsMap {
     batch: EmbeddingBatch,
-    map: HashMap<ItemId, Embedding>,
+    map: HashMap<ItemId, TextHash>,
+    cache: Rc<Db>,
 }
 
-impl EmbeddingMap {
-    fn new(model: &Rc<SentenceEmbeddingsModel>, batch_size: usize) -> Self {
+impl EmbeddingsMap {
+    fn new(model: &Rc<SentenceEmbeddingsModel>, batch_size: usize, cache: &Rc<Db>) -> Self {
         Self {
-            batch: EmbeddingBatch::new(model, batch_size),
-            map: HashMap::new(),
+            batch: EmbeddingBatch::new(model, batch_size, cache),
+            map: HashMap::default(),
+            cache: Rc::clone(cache),
         }
     }
     fn update(&mut self, item: ItemId, text: String) -> Result<()> {
-        if let Some((items, embeddings)) = self.batch.update(item, text)? {
-            for (&item, embedding) in items.iter().zip(embeddings) {
-                self.map.insert(item, embedding);
+        let text_hash = xxh3_64(text.as_bytes());
+        if self.cache.contains_key(text_hash.to_bytes())? {
+            self.map.insert(item, text_hash);
+            return Ok(());
+        }
+        if let Some((items, text_hashes)) = self.batch.update(item, text, text_hash)? {
+            for (&item, text_hash) in items.iter().zip(text_hashes) {
+                self.map.insert(item, text_hash);
             }
         }
         Ok(())
     }
     fn flush(&mut self) -> Result<()> {
-        if let Some((items, embeddings)) = self.batch.flush()? {
-            for (&item, embedding) in items.iter().zip(embeddings) {
-                self.map.insert(item, embedding);
+        if let Some((items, text_hashes)) = self.batch.flush()? {
+            for (&item, text_hash) in items.iter().zip(text_hashes) {
+                self.map.insert(item, text_hash);
             }
         }
         Ok(())
     }
-}
-
-pub(crate) struct Embeddings {
-    ety: EmbeddingMap,
-    glosses: EmbeddingMap,
+    fn get(&self, item: ItemId) -> Result<Option<Embedding>> {
+        if let Some(text_hash) = self.map.get(&item)
+            && let Some(embedding_bytes) = self.cache.get(text_hash.to_bytes())?
+        {
+            return Ok(Some(embedding_bytes.to_embedding()));
+        }
+        Ok(None)
+    }
 }
 
 #[allow(clippy::module_name_repetitions)]
@@ -153,6 +235,13 @@ pub struct EmbeddingsConfig {
     pub model: EmbeddingsModel,
     pub batch_size: usize,
     pub progress_update_interval: usize,
+    pub cache_path: PathBuf,
+}
+
+pub(crate) struct Embeddings {
+    ety: EmbeddingsMap,
+    glosses: EmbeddingsMap,
+    cache: Rc<Db>,
 }
 
 impl Embeddings {
@@ -168,9 +257,11 @@ impl Embeddings {
             "non-"
         };
         println!("Using {maybe_cuda}CUDA backend for embeddings...");
+        let cache = Rc::from(sled::open(&config.cache_path)?);
         Ok(Self {
-            ety: EmbeddingMap::new(&model, config.batch_size),
-            glosses: EmbeddingMap::new(&model, config.batch_size),
+            ety: EmbeddingsMap::new(&model, config.batch_size, &cache),
+            glosses: EmbeddingsMap::new(&model, config.batch_size, &cache),
+            cache,
         })
     }
     pub(crate) fn add(
@@ -220,22 +311,23 @@ impl Embeddings {
     pub(crate) fn flush(&mut self) -> Result<()> {
         self.ety.flush()?;
         self.glosses.flush()?;
+        self.cache.flush()?;
         Ok(())
     }
-    pub(crate) fn get(&self, item: ItemId) -> ItemEmbedding {
-        ItemEmbedding {
-            ety: self.ety.map.get(&item),
-            glosses: self.glosses.map.get(&item),
-        }
+    pub(crate) fn get(&self, item: ItemId) -> Result<ItemEmbedding> {
+        Ok(ItemEmbedding {
+            ety: self.ety.get(item)?,
+            glosses: self.glosses.get(item)?,
+        })
     }
 }
 
 pub(crate) trait EmbeddingComparand<T> {
-    fn cosine_similarity(self, other: T) -> f32;
+    fn cosine_similarity(&self, other: &T) -> f32;
 }
 
-impl EmbeddingComparand<&Embedding> for &Embedding {
-    fn cosine_similarity(self, other: &Embedding) -> f32 {
+impl EmbeddingComparand<Embedding> for Embedding {
+    fn cosine_similarity(&self, other: &Embedding) -> f32 {
         let (mut ab, mut aa, mut bb) = (0.0, 0.0, 0.0);
         for (a, b) in self.iter().zip(other) {
             ab += a * b;
@@ -246,8 +338,8 @@ impl EmbeddingComparand<&Embedding> for &Embedding {
     }
 }
 
-impl EmbeddingComparand<Option<&Embedding>> for Option<&Embedding> {
-    fn cosine_similarity(self, other: Option<&Embedding>) -> f32 {
+impl EmbeddingComparand<Option<Embedding>> for Option<Embedding> {
+    fn cosine_similarity(&self, other: &Option<Embedding>) -> f32 {
         if let Some(this) = self
             && let Some(other) = other
         {
@@ -260,11 +352,11 @@ impl EmbeddingComparand<Option<&Embedding>> for Option<&Embedding> {
 const ETY_WEIGHT: f32 = 0.4;
 const GLOSSES_WEIGHT: f32 = 1.0 - ETY_WEIGHT;
 
-impl EmbeddingComparand<ItemEmbedding<'_>> for ItemEmbedding<'_> {
-    fn cosine_similarity(self, other: ItemEmbedding<'_>) -> f32 {
-        let glosses_similarity = self.glosses.cosine_similarity(other.glosses);
-        if let Some(self_ety) = self.ety
-            && let Some(other_ety) = other.ety
+impl EmbeddingComparand<ItemEmbedding> for ItemEmbedding {
+    fn cosine_similarity(&self, other: &ItemEmbedding) -> f32 {
+        let glosses_similarity = self.glosses.cosine_similarity(&other.glosses);
+        if let Some(self_ety) = &self.ety
+            && let Some(other_ety) = &other.ety
             {
                 let ety_similarity = self_ety.cosine_similarity(other_ety);
                 return ETY_WEIGHT * ety_similarity + GLOSSES_WEIGHT * glosses_similarity
@@ -284,15 +376,15 @@ const NO_ETY_QUALITY: f32 = 0.5;
 const EMPTY_QUALITY: f32 = 0.0;
 
 // for comparing an item with all its ancestors
-impl EmbeddingComparand<ItemEmbedding<'_>> for &Vec<ItemEmbedding<'_>> {
-    fn cosine_similarity(self, other: ItemEmbedding<'_>) -> f32 {
+impl EmbeddingComparand<ItemEmbedding> for Vec<ItemEmbedding> {
+    fn cosine_similarity(&self, other: &ItemEmbedding) -> f32 {
         if other.is_empty() {
             return 0.0;
         }
         let mut total_similarity = 0.0;
         let mut discount = 1.0;
         let mut total_weight = 0.0;
-        for &ancestor in self.iter().rev() {
+        for ancestor in self.iter().rev() {
             let similarity = other.cosine_similarity(ancestor);
             let quality = if other.ety.is_some() && ancestor.ety.is_some() {
                 ETY_QUALITY
@@ -316,8 +408,12 @@ impl EmbeddingComparand<ItemEmbedding<'_>> for &Vec<ItemEmbedding<'_>> {
 #[cfg(test)]
 mod tests {
     use super::*;
-
     use simd_json::json;
+    use std::path::Path;
+
+    fn delete_cache(path: &Path) {
+        std::fs::remove_dir_all(path).unwrap();
+    }
 
     fn json<'a>(ety: &str, gloss: &str) -> WiktextractJson<'a> {
         json!({
@@ -333,11 +429,12 @@ mod tests {
         .into()
     }
 
-    fn embeddings() -> Embeddings {
+    fn embeddings(cache_path: &Path) -> Embeddings {
         let config = EmbeddingsConfig {
             model: DEFAULT_MODEL,
             batch_size: 1,
             progress_update_interval: 1,
+            cache_path: cache_path.to_path_buf(),
         };
         Embeddings::new(&config).unwrap()
     }
@@ -348,31 +445,32 @@ mod tests {
 
     #[test]
     fn cosine_similarity_identical() {
-        let mut embeddings = embeddings();
+        let cache = PathBuf::from("tmp-embeddings-tests-identical");
+        let mut embeddings = embeddings(&cache);
         let json = json("test", "test test");
         let lang = "test_lang";
         let term = "test_term";
         embeddings.add(&json, lang, term, 0).unwrap();
         embeddings.add(&json, lang, term, 1).unwrap();
-        let item_embedding0 = embeddings.get(0);
+        let item_embedding0 = embeddings.get(0).unwrap();
         assert!(item_embedding0.ety.is_some());
         assert!(item_embedding0.glosses.is_some());
-        let item_embedding1 = embeddings.get(1);
+        let item_embedding1 = embeddings.get(1).unwrap();
         assert!(item_embedding1.ety.is_some());
         assert!(item_embedding1.glosses.is_some());
-        assert_eq!(item_embedding0.ety.unwrap(), item_embedding1.ety.unwrap());
-        assert_eq!(
-            item_embedding0.glosses.unwrap(),
-            item_embedding1.glosses.unwrap()
-        );
-        let similarity0 = item_embedding0.cosine_similarity(item_embedding1);
+        assert_eq!(item_embedding0.ety, item_embedding1.ety);
+        assert_eq!(item_embedding0.glosses, item_embedding1.glosses);
+        let similarity0 = item_embedding0.cosine_similarity(&item_embedding1);
         println!("{similarity0}");
         assert!(feq(similarity0, 1.0));
-        let similarity1 = item_embedding1.cosine_similarity(item_embedding0);
+        let similarity1 = item_embedding1.cosine_similarity(&item_embedding0);
         assert!(feq(similarity0, similarity1));
+        delete_cache(&cache);
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn assert_right_disambiguation(
+        embeddings: &mut Embeddings,
         base_lang: &str,
         base_term: &str,
         base_json: &WiktextractJson,
@@ -381,7 +479,6 @@ mod tests {
         right_json: &WiktextractJson,
         wrong_json: &WiktextractJson,
     ) {
-        let mut embeddings = embeddings();
         let parent = 0;
         let right = 1;
         let wrong = 2;
@@ -394,29 +491,31 @@ mod tests {
         embeddings
             .add(wrong_json, candidates_lang, candidates_term, wrong)
             .unwrap();
-        let base_embedding = embeddings.get(parent);
-        let right_embedding = embeddings.get(right);
-        let wrong_embedding = embeddings.get(wrong);
-        let ety_right_similarity = base_embedding.ety.cosine_similarity(right_embedding.ety);
-        let ety_wrong_similarity = base_embedding.ety.cosine_similarity(wrong_embedding.ety);
+        let base_embedding = embeddings.get(parent).unwrap();
+        let right_embedding = embeddings.get(right).unwrap();
+        let wrong_embedding = embeddings.get(wrong).unwrap();
+        let ety_right_similarity = base_embedding.ety.cosine_similarity(&right_embedding.ety);
+        let ety_wrong_similarity = base_embedding.ety.cosine_similarity(&wrong_embedding.ety);
         println!("ety similarities: {ety_right_similarity}, {ety_wrong_similarity}");
         // assert!(ety_right_similarity > ety_wrong_similarity);
         let glosses_right_similarity = base_embedding
             .glosses
-            .cosine_similarity(right_embedding.glosses);
+            .cosine_similarity(&right_embedding.glosses);
         let glosses_wrong_similarity = base_embedding
             .glosses
-            .cosine_similarity(wrong_embedding.glosses);
+            .cosine_similarity(&wrong_embedding.glosses);
         println!("glosses similarities: {glosses_right_similarity}, {glosses_wrong_similarity}");
         // assert!(glosses_right_similarity > glosses_wrong_similarity);
-        let right_similarity = base_embedding.cosine_similarity(right_embedding);
-        let wrong_similarity = base_embedding.cosine_similarity(wrong_embedding);
+        let right_similarity = base_embedding.cosine_similarity(&right_embedding);
+        let wrong_similarity = base_embedding.cosine_similarity(&wrong_embedding);
         println!("similarities: {right_similarity}, {wrong_similarity}");
         assert!(right_similarity > wrong_similarity);
     }
 
     #[test]
     fn cosine_similarity_minþiją() {
+        let cache = PathBuf::from("tmp-embeddings-tests-minþiją");
+        let mut embeddings = embeddings(&cache);
         let base_lang = "Proto-Germanic";
         let base_term = "minþiją";
         let base_json = json(
@@ -431,6 +530,7 @@ mod tests {
             "less, smaller: comparative degree of lítill",
         );
         assert_right_disambiguation(
+            &mut embeddings,
             base_lang,
             base_term,
             &base_json,
@@ -439,10 +539,13 @@ mod tests {
             &right_json,
             &wrong_json,
         );
+        delete_cache(&cache);
     }
 
     #[test]
     fn cosine_similarity_mone() {
+        let cache = PathBuf::from("tmp-embeddings-tests-mone");
+        let mut embeddings = embeddings(&cache);
         let base_lang = "English";
         let base_term = "moon";
         let base_json = json(
@@ -460,6 +563,7 @@ mod tests {
             "A lamentation A moan, complaint",
         );
         assert_right_disambiguation(
+            &mut embeddings,
             base_lang,
             base_term,
             &base_json,
@@ -468,5 +572,13 @@ mod tests {
             &right_json,
             &wrong_json,
         );
+        delete_cache(&cache);
+    }
+
+    #[test]
+    fn xxhash_equality() {
+        let a = xxh3_64("test".as_bytes());
+        let b = xxh3_64("test".as_bytes());
+        assert_eq!(a, b);
     }
 }

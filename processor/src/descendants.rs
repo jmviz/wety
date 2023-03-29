@@ -14,9 +14,9 @@ use crate::{
 use std::{mem, str::FromStr};
 
 use anyhow::{Ok, Result};
-use hashbrown::HashSet;
 use itertools::izip;
 use simd_json::ValueAccess;
+use std::collections::HashSet;
 
 #[derive(Hash, Eq, PartialEq, Debug)]
 pub(crate) struct RawDescendants {
@@ -275,8 +275,12 @@ impl<T: Clone> Ancestors<T> {
 }
 
 impl Ancestors<ItemId> {
-    fn embeddings<'a>(&self, embeddings: &'a Embeddings) -> Vec<ItemEmbedding<'a>> {
-        self.ancestors.iter().map(|&a| embeddings.get(a)).collect()
+    fn embeddings(&self, embeddings: &Embeddings) -> Result<Vec<ItemEmbedding>> {
+        let mut item_embeddings = Vec::with_capacity(self.ancestors.len());
+        for &ancestor in &self.ancestors {
+            item_embeddings.push(embeddings.get(ancestor)?);
+        }
+        Ok(item_embeddings)
     }
 }
 
@@ -329,7 +333,7 @@ impl RawItems {
         let pb = progress_bar(n, "Processing descendants")?;
         let raw_templates_desc = mem::take(&mut self.raw_templates.desc);
         for (item_id, desc) in raw_templates_desc {
-            self.process_item_raw_descendants(embeddings, ety_graph, &desc, item_id);
+            self.process_item_raw_descendants(embeddings, ety_graph, &desc, item_id)?;
             pb.inc(1);
         }
 
@@ -343,7 +347,7 @@ impl RawItems {
         ety_graph: &mut EtyGraph,
         raw_descendants: &RawDescendants,
         item: ItemId,
-    ) {
+    ) -> Result<()> {
         let mut ancestors = Ancestors::new(&item);
         'outer: for line in raw_descendants.lines.iter() {
             let parent = ancestors.prune_and_get_parent(line.depth);
@@ -364,9 +368,9 @@ impl RawItems {
                         } = self.get_or_impute_item(
                             ety_graph,
                             embeddings,
-                            &ancestors.embeddings(embeddings),
+                            &ancestors.embeddings(embeddings)?,
                             langterm,
-                        );
+                        )?;
                         // A root generally shouldn't be listed as a descendant
                         // of another term. If it really is an etymological
                         // child, we will rely on the etymology section of the
@@ -415,5 +419,6 @@ impl RawItems {
                 _ => continue,
             }
         }
+        Ok(())
     }
 }

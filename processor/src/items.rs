@@ -11,12 +11,12 @@ use crate::{
     root::RawRoot,
     string_pool::StringPool,
     wiktextract_json::wiktextract_lines,
+    HashMap, HashSet,
 };
 
 use std::path::Path;
 
 use anyhow::{Ok, Result};
-use hashbrown::{HashMap, HashSet};
 use serde::{Deserialize, Serialize};
 use serde_json_any_key::any_key_map;
 use simd_json::to_borrowed_value;
@@ -188,60 +188,62 @@ impl RawItems {
         self.items.dupes.get(&langterm)
     }
 
-    pub(crate) fn get_disambiguated_item_id<'a>(
+    pub(crate) fn get_disambiguated_item_id(
         &self,
-        embeddings: &'a Embeddings,
-        embedding_comp: impl EmbeddingComparand<ItemEmbedding<'a>> + Copy,
+        embeddings: &Embeddings,
+        embedding_comp: &impl EmbeddingComparand<ItemEmbedding>,
         langterm: LangTerm,
-    ) -> Option<(ItemId, f32)> {
+    ) -> Result<Option<(ItemId, f32)>> {
         let langterm = self.redirects.rectify_langterm(langterm);
-        let candidates = self.items.get_dupes(langterm)?;
-        let mut max_similarity = 0f32;
-        let mut best_candidate = 0usize;
-        for (i, &candidate) in candidates.iter().enumerate() {
-            let candidate_embedding = embeddings.get(candidate);
-            let similarity = embedding_comp.cosine_similarity(candidate_embedding);
-            let old_max_similarity = max_similarity;
-            max_similarity = max_similarity.max(similarity);
-            if max_similarity > old_max_similarity {
-                best_candidate = i;
+        if let Some(candidates) = self.items.get_dupes(langterm) {
+            let mut max_similarity = 0f32;
+            let mut best_candidate = 0usize;
+            for (i, &candidate) in candidates.iter().enumerate() {
+                let candidate_embedding = embeddings.get(candidate)?;
+                let similarity = embedding_comp.cosine_similarity(&candidate_embedding);
+                let old_max_similarity = max_similarity;
+                max_similarity = max_similarity.max(similarity);
+                if max_similarity > old_max_similarity {
+                    best_candidate = i;
+                }
             }
+            return Ok(Some((candidates[best_candidate], max_similarity)));
         }
-        Some((candidates[best_candidate], max_similarity))
+        Ok(None)
     }
 
-    pub(crate) fn get_or_impute_item<'a>(
+    pub(crate) fn get_or_impute_item(
         &self,
         ety_graph: &mut EtyGraph,
-        embeddings: &'a Embeddings,
-        embedding_comp: impl EmbeddingComparand<ItemEmbedding<'a>> + Copy,
+        embeddings: &Embeddings,
+        embedding_comp: &impl EmbeddingComparand<ItemEmbedding>,
         langterm: LangTerm,
-    ) -> Retrieval {
+    ) -> Result<Retrieval> {
         if let Some((item_id, confidence)) =
-            self.get_disambiguated_item_id(embeddings, embedding_comp, langterm)
+            self.get_disambiguated_item_id(embeddings, embedding_comp, langterm)?
         {
-            return Retrieval {
+            return Ok(Retrieval {
                 item_id,
                 confidence,
                 is_imputed: false,
                 is_newly_imputed: false,
-            };
+            });
         }
         if let Some(item_id) = ety_graph.get_imputed_item_id(langterm) {
-            return Retrieval {
+            return Ok(Retrieval {
                 item_id,
                 confidence: 0.0,
                 is_imputed: true,
                 is_newly_imputed: false,
-            };
+            });
         }
         let item_id = ety_graph.add_imputed(langterm, None);
-        Retrieval {
+        Ok(Retrieval {
             item_id,
             confidence: 0.0,
             is_imputed: true,
             is_newly_imputed: true,
-        }
+        })
     }
 
     // We determine that an item needs an embedding if it has any
@@ -259,7 +261,7 @@ impl RawItems {
     // unlikely to appear in any other item's raw_*. Our method will thus
     // disclude all these.
     fn get_items_needing_embedding(&self, item_id: ItemId) -> HashSet<ItemId> {
-        let mut items_needing_embedding = HashSet::new();
+        let mut items_needing_embedding = HashSet::default();
         if let Some(raw_etymology) = self.raw_templates.ety.get(&item_id) {
             items_needing_embedding
                 .extend(self.get_ety_items_needing_embedding(item_id, raw_etymology));
@@ -282,10 +284,10 @@ impl RawItems {
 
     fn get_all_items_needing_embedding(&self) -> Result<HashSet<ItemId>> {
         let pb = progress_bar(self.len(), "Determining which items need embeddings")?;
-        let mut items_needing_embedding = HashSet::new();
+        let mut items_needing_embedding = HashSet::default();
         for item_id in self.iter_ids() {
             let items_to_embed = self.get_items_needing_embedding(item_id);
-            for &item_to_embed in items_to_embed.iter() {
+            for &item_to_embed in &items_to_embed {
                 items_needing_embedding.insert(item_to_embed);
             }
             pb.inc(1);
@@ -302,11 +304,12 @@ impl RawItems {
         wiktextract_path: &Path,
         embeddings_config: &EmbeddingsConfig,
     ) -> Result<Embeddings> {
+        let mut embeddings = Embeddings::new(embeddings_config)?;
         let mut added = 0;
         let items_needing_embedding = self.get_all_items_needing_embedding()?;
         let pb = progress_bar(items_needing_embedding.len(), "Generating embeddings")?;
+        let update_interval = embeddings_config.progress_update_interval;
         pb.inc(0);
-        let mut embeddings = Embeddings::new(embeddings_config)?;
         for (line_number, mut line) in wiktextract_lines(wiktextract_path)?.enumerate() {
             // Items were only inserted into the line map if they were added to
             // the term_map in process_json_item.
@@ -319,8 +322,8 @@ impl RawItems {
                 let term = item.term.resolve(string_pool);
                 embeddings.add(&json_item, lang_name, term, item_id)?;
                 added += 1;
-                if added % embeddings_config.progress_update_interval == 0 {
-                    pb.inc(embeddings_config.progress_update_interval as u64);
+                if added % update_interval == 0 {
+                    pb.inc(update_interval as u64);
                 }
             }
         }

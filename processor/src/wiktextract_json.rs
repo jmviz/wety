@@ -85,8 +85,8 @@ impl WiktextractJsonItem<'_> {
         if let Some(page_term) = self.get_page_term(string_pool)
             && let Some(term) = self.get_canonical_term(string_pool)
             && let Some(lang) = self.get_lang()
+            && let Some(pos) = self.get_pos()
         {
-            let pos = self.get_pos();
             let ety_num = self.get_ety_num();
             let gloss = self.get_gloss(string_pool);
 
@@ -97,7 +97,7 @@ impl WiktextractJsonItem<'_> {
                 term,
                 page_term: Some(page_term),
                 ety_num,
-                pos,
+                pos: Some(pos),
                 gloss,
             };
             let item_id = items.add(item);
@@ -122,11 +122,10 @@ impl WiktextractJsonItem<'_> {
 
     // The form of the term used in the page url, e.g. "voco"
     fn get_page_term(&self, string_pool: &mut StringPool) -> Option<Term> {
-        if let Some(term) = self.json.get_valid_str("word")
-            && !should_ignore_term(term)
-        {
+        let term = self.json.get_valid_str("word")?;
+        if !should_ignore_term(term) {
             return Some(Term::new(string_pool, term));
-    }
+        }
         None
     }
 
@@ -167,9 +166,20 @@ impl WiktextractJsonItem<'_> {
     }
 
     fn get_ety_num(&self) -> Option<u8> {
-        // if term-lang combo has multiple ety's, then 'etymology_number' is
+        // if langterm has multiple ety's, then 'etymology_number' is
         // present with range 1,2,... Otherwise, this key is missing.
-        self.json.get_u8("etymology_number")
+        let ety_num = self.json.get_u8("etymology_number");
+        let ety_text = self.json.get_valid_str("etymology_text");
+        if ety_num.is_none() && ety_text.is_some() {
+            // Most likely there is a single unnumbered "Etymology" section
+            return Some(1);
+        }
+        // will be None when there are no ety sections at all (e.g. in a PIE
+        // root page where there are multiple "Root" sections, e.g. see "men-")
+        // or when there one or more blank unnumbered Etymology section(s) (very
+        // rare). None values will possibly be updated during ProcessedData
+        // finalization
+        ety_num
     }
 
     fn get_gloss(&self, string_pool: &mut StringPool) -> Option<Gloss> {
