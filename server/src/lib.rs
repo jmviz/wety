@@ -1,7 +1,7 @@
 #![feature(is_some_and, let_chains)]
 
 use flate2::read::GzDecoder;
-use processor::ProcessedData;
+use processor::Data;
 
 use std::{
     fs::File,
@@ -17,7 +17,7 @@ use anyhow::{Ok, Result};
 /// # Errors
 ///
 /// This function will return an error if deserialization goes wrong.
-pub fn deserialize_data(path: &Path) -> Result<ProcessedData> {
+pub fn deserialize_data(path: &Path) -> Result<Data> {
     let t = Instant::now();
     println!("Deserializing processed data {}...", path.display());
     let file = File::open(path)?;

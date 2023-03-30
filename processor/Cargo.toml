@@ -24,6 +24,5 @@ rust-bert = "0.20.0"
 itertools = "0.10.5"
 serde = { version = "1.0.158", features = ["derive"] }
 serde_json = {workspace = true}
-serde_json_any_key = "2.0.0"
 sled = "0.34.7"
 xxhash-rust = {version="0.8.6", features=["xxh3"]}

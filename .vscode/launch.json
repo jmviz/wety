@@ -23,7 +23,8 @@
                 "--wiktextract-path=${workspaceFolder}/data/test/descendants.jsonl",
                 "--serialization-path=${workspaceFolder}/data/test_output/wety.json.gz",
                 "--turtle-path=${workspaceFolder}/data/test_output/wety.ttl",
-                "--store-path=${workspaceFolder}/data/test_output/wety.db"
+                "--store-path=${workspaceFolder}/data/test_output/wety.db",
+                "--embeddings-cache-path=${workspaceFolder}/data/test_output/embeddings_cache"
             ],
             "cwd": "${workspaceFolder}",
             "sourceLanguages": ["rust"]

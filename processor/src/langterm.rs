@@ -86,7 +86,7 @@ impl Lang {
 // LanguageId refers to an index in the LANG_NAME2CODE OrderedMap.
 pub(crate) type LanguageId = u16; // map has ~15k elements
 
-#[derive(Hash, Eq, PartialEq, Debug, Copy, Clone, Serialize, Deserialize)]
+#[derive(Hash, Eq, PartialEq, Debug, Copy, Clone)]
 pub(crate) struct Language {
     id: LanguageId,
 }
@@ -165,7 +165,7 @@ impl<'a> Term {
     }
 }
 
-#[derive(Hash, Eq, PartialEq, Debug, Copy, Clone, Serialize, Deserialize)]
+#[derive(Hash, Eq, PartialEq, Debug, Copy, Clone)]
 pub(crate) struct LangTerm {
     pub(crate) lang: Lang,
     pub(crate) term: Term,
@@ -178,7 +178,7 @@ impl LangTerm {
 }
 
 // Used in redirects
-#[derive(Hash, Eq, PartialEq, Debug, Copy, Clone, Serialize, Deserialize)]
+#[derive(Hash, Eq, PartialEq, Debug, Copy, Clone)]
 pub(crate) struct LanguageTerm {
     pub(crate) language: Language,
     pub(crate) term: Term,

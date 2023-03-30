@@ -1,4 +1,4 @@
-use crate::{items::Item, processed_data::ProcessedData, progress_bar};
+use crate::{items::Item, processed::Data, progress_bar};
 
 use std::{
     fs::File,
@@ -94,7 +94,7 @@ fn write_list_delim(f: &mut BufWriter<File>, i: usize, len: usize) -> Result<()>
     Ok(())
 }
 
-impl ProcessedData {
+impl Data {
     fn write_turtle_item(&self, f: &mut BufWriter<File>, item: &Item) -> Result<()> {
         writeln!(f, "{ITEM_PRE}{}", item.id)?;
         let term = item.term.resolve(&self.string_pool);
@@ -129,19 +129,19 @@ impl ProcessedData {
         if let Some(pos) = &item.pos {
             write!(f, "  {PRED_POS} ")?;
             for (p_i, p) in pos.iter().map(|p| p.name()).enumerate() {
-                write!(f, "\"{p}\"")?;
+                write_quoted_str(f, p)?;
                 write_list_delim(f, p_i, pos.len())?;
             }
         };
         if let Some(gloss) = &item.gloss {
             write!(f, "  {PRED_GLOSS} ")?;
             for (g_i, g) in gloss.iter().enumerate() {
-                write!(f, "\"{}\"", g.to_string(&self.string_pool))?;
+                write_quoted_str(f, &g.to_string(&self.string_pool))?;
                 write_list_delim(f, g_i, gloss.len())?;
             }
         }
 
-        if let Some(immediate_ety) = self.ety_graph.get_immediate_ety(item.id) {
+        if let Some(immediate_ety) = self.graph.get_immediate_ety(item.id) {
             let mode = immediate_ety.mode.as_ref();
             write_item_quoted_prop(f, PRED_MODE, mode)?;
             writeln!(f, "  {PRED_HEAD} {} ;", immediate_ety.head)?;
@@ -154,8 +154,8 @@ impl ProcessedData {
                 write_list_delim(f, e_i, immediate_ety.items.len())?;
             }
         }
-        if let Some(progenitors) = self.ety_graph.get_progenitors(item.id) {
-            let head = progenitors.head;
+        if let Some(progenitors) = self.progenitors.get(&item.id) {
+            let head = progenitors.head();
             writeln!(f, "  {PRED_HEAD_PROGENITOR} {ITEM_PRE}{head} ;")?;
             write!(f, "  {PRED_PROGENITOR} ")?;
             for (p_i, progenitor) in progenitors.items.iter().enumerate() {
@@ -167,16 +167,12 @@ impl ProcessedData {
         Ok(())
     }
 
-    pub(crate) fn write_turtle_file(&self, path: &Path) -> Result<()> {
+    pub(crate) fn write_turtle(&self, path: &Path) -> Result<()> {
         let mut f = BufWriter::new(File::create(path)?);
         write_prefixes(&mut f)?;
-        let n = self.items.len() + self.ety_graph.imputed_items.len();
+        let n = self.items.len();
         let pb = progress_bar(n, "Writing RDF to Turtle file data/wety.ttl")?;
-        for item in self.items.iter() {
-            self.write_turtle_item(&mut f, item)?;
-            pb.inc(1);
-        }
-        for item in self.ety_graph.imputed_items.iter() {
+        for item in &self.items {
             self.write_turtle_item(&mut f, item)?;
             pb.inc(1);
         }

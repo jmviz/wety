@@ -15,29 +15,27 @@ mod langterm;
 mod phf_ext;
 mod pos;
 mod pos_phf;
-mod processed_data;
+mod processed;
 mod redirects;
 mod root;
 mod string_pool;
 mod turtle;
 mod wiktextract_json;
 
-use crate::{
-    processed_data::ProcessedData, string_pool::StringPool,
-    wiktextract_json::process_wiktextract_lines,
-};
+pub use crate::processed::Data;
+
+use crate::{string_pool::StringPool, wiktextract_json::process_wiktextract_lines};
 
 use std::{
     convert::TryFrom,
     fs::{remove_dir_all, File},
-    io::{BufReader, BufWriter, Write},
+    io::BufReader,
     path::Path,
     time::Instant,
 };
 
 use anyhow::{Ok, Result};
 use embeddings::EmbeddingsConfig;
-use flate2::{write::GzEncoder, Compression};
 use indicatif::{HumanDuration, ProgressBar, ProgressStyle};
 use oxigraph::{io::GraphFormat::Turtle, model::GraphNameRef::DefaultGraph, store::Store};
 use xxhash_rust::xxh3::Xxh3Builder;
@@ -80,13 +78,9 @@ pub fn process_wiktextract(
     println!("Generating ety graph...");
     let ety_graph = raw_items.generate_ety_graph(&embeddings)?;
     println!("Finished. Took {}.", HumanDuration(t.elapsed()));
-    let data = ProcessedData {
-        string_pool,
-        items: raw_items.items,
-        ety_graph,
-    };
-    data.write_turtle_file(turtle_path)?;
-    serialize_data(&data, serialization_path)?;
+    let data = Data::new(string_pool, raw_items, ety_graph);
+    data.write_turtle(turtle_path)?;
+    data.serialize(serialization_path)?;
     t = Instant::now();
     println!("Dropping all processed data...");
     Ok(t)
@@ -95,7 +89,7 @@ pub fn process_wiktextract(
 /// # Errors
 ///
 /// Will return `Err` if any unexpected issue arises building the Oxigraph store.
-pub fn build_store(turtle_path: &Path, store_path: &Path, skip_optimizing: bool) -> Result<()> {
+pub fn build_oxigraph_store(turtle_path: &Path, store_path: &Path, optimize: bool) -> Result<()> {
     let mut t = Instant::now();
     println!("Building oxigraph store {}...", store_path.display());
     let turtle = BufReader::new(File::open(turtle_path)?);
@@ -109,27 +103,12 @@ pub fn build_store(turtle_path: &Path, store_path: &Path, skip_optimizing: bool)
         .load_graph(turtle, Turtle, DefaultGraph, None)?;
     store.flush()?;
     println!("Finished. Took {}.", HumanDuration(t.elapsed()));
-    if !skip_optimizing {
+    if optimize {
         t = Instant::now();
         println!("Optimizing oxigraph store {}...", store_path.display());
         store.optimize()?;
         store.flush()?;
         println!("Finished. Took {}.", HumanDuration(t.elapsed()));
     }
-    Ok(())
-}
-
-fn serialize_data(data: &ProcessedData, path: &Path) -> Result<()> {
-    let t = Instant::now();
-    println!("Serializing processed data to {}...", path.display());
-    let file = File::create(path)?;
-    let should_gz_compress = path.extension().is_some_and(|ext| ext == "gz");
-    let writer: Box<dyn Write> = if should_gz_compress {
-        Box::new(GzEncoder::new(file, Compression::best()))
-    } else {
-        Box::new(BufWriter::new(file))
-    };
-    serde_json::to_writer(writer, data)?;
-    println!("Finished. Took {}.", HumanDuration(t.elapsed()));
     Ok(())
 }

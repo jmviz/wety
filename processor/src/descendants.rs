@@ -402,7 +402,9 @@ impl RawItems {
                         modes.push(mode);
                     }
                     for (desc_item, confidence, mode) in izip!(desc_items, confidences, modes) {
-                        ety_graph.add_ety(desc_item, mode, 0, &[parent], &[confidence]);
+                        ety_graph
+                            .graph
+                            .add_ety(desc_item, mode, 0, &[parent], &[confidence]);
                     }
                 }
                 // Might want to do something for the other cases in the future,

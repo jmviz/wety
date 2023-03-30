@@ -6,17 +6,16 @@ use crate::{
     HashMap, HashSet,
 };
 
-use std::{collections::hash_map::Entry::Vacant, ops::Index};
+use std::ops::Index;
 
 use anyhow::{anyhow, Ok, Result};
 use itertools::{izip, Itertools};
 use petgraph::{
     algo::greedy_feedback_arc_set,
-    stable_graph::{EdgeIndex, NodeIndex, StableDiGraph},
+    stable_graph::{EdgeIndex, StableDiGraph},
     visit::EdgeRef,
 };
 use serde::{Deserialize, Serialize};
-use serde_json_any_key::any_key_map;
 
 // Quite often an etymology section on wiktionary will have multiple valid
 // templates that don't actually link to anything (because the term has no page,
@@ -29,10 +28,9 @@ use serde_json_any_key::any_key_map;
 // we can go through the templates until we find the template linking Latin
 // https://en.wiktionary.org/wiki/arsenicum#Latin, where the page and section
 // both exist.
-#[derive(Default, Serialize, Deserialize)]
+#[derive(Default)]
 pub(crate) struct ImputedItems {
     pub(crate) store: ItemStore,
-    #[serde(with = "any_key_map")]
     pub(crate) langterms: HashMap<LangTerm, ItemId>,
 }
 
@@ -42,10 +40,6 @@ impl ImputedItems {
             store: ItemStore::new(start_id),
             ..Default::default()
         }
-    }
-
-    pub(crate) fn len(&self) -> usize {
-        self.store.len()
     }
 
     pub(crate) fn add(&mut self, item: Item) -> ItemId {
@@ -60,10 +54,6 @@ impl ImputedItems {
 
     pub(crate) fn get_item_id(&self, langterm: LangTerm) -> Option<ItemId> {
         self.langterms.get(&langterm).copied()
-    }
-
-    pub(crate) fn iter(&self) -> impl Iterator<Item = &Item> {
-        self.store.iter()
     }
 }
 
@@ -87,40 +77,41 @@ impl ImmediateEty {
     }
 }
 
+#[derive(Serialize, Deserialize)]
 pub(crate) struct Progenitors {
-    pub(crate) items: HashSet<ItemId>,
-    pub(crate) head: ItemId,
+    pub(crate) items: Box<[ItemId]>,
+}
+
+impl Progenitors {
+    fn new(mut progenitors: HashSet<ItemId>, head: ItemId) -> Self {
+        let mut items = vec![head];
+        progenitors.remove(&head);
+        items.extend(progenitors);
+        Self {
+            items: items.into_boxed_slice(),
+        }
+    }
+    pub(crate) fn head(&self) -> ItemId {
+        self.items[0]
+    }
 }
 
 #[derive(Default, Serialize, Deserialize)]
-pub(crate) struct EtyGraph {
-    pub(crate) imputed_items: ImputedItems,
-    pub(crate) graph: StableDiGraph<ItemId, EtyLink>,
-    // #[serde(with = "any_key_map")]
-    pub(crate) index: HashMap<ItemId, NodeIndex>,
+pub(crate) struct Graph {
+    pub(crate) graph: StableDiGraph<ItemId, EtyLink, ItemId>,
 }
 
-impl EtyGraph {
-    pub(crate) fn new(start_id: ItemId) -> Self {
-        Self {
-            imputed_items: ImputedItems::new(start_id),
-            ..Default::default()
-        }
-    }
-
-    pub(crate) fn get_imputed_item_id(&self, langterm: LangTerm) -> Option<ItemId> {
-        self.imputed_items.get_item_id(langterm)
-    }
-
-    fn get_index(&self, item_id: ItemId) -> NodeIndex {
-        *self
-            .index
-            .get(&item_id)
-            .expect("index previously added item")
+impl Graph {
+    pub(crate) fn add(&mut self, item_id: ItemId) {
+        let node_index = self.graph.add_node(item_id);
+        // Items are always inserted into the graph in the order they're
+        // created. We rely on this invariance so that we can use ItemId to
+        // directly index into the graph instead of storing a separate ItemId ->
+        // NodeIndex map.
+        assert_eq!(node_index, item_id.into());
     }
 
     pub(crate) fn get_immediate_ety(&self, item_id: ItemId) -> Option<ImmediateEty> {
-        let item_index = self.get_index(item_id);
         let mut ety_item_ids = vec![];
         let mut order = vec![];
         // Next two lines are dummy assignments. If there are any parents in the
@@ -130,7 +121,7 @@ impl EtyGraph {
         let mut mode = EtyMode::Derived;
         for (ety_link, &ety_item_id) in self
             .graph
-            .edges(item_index)
+            .edges(item_id.into())
             .map(|e| (e.weight(), self.graph.index(e.target())))
         {
             ety_item_ids.push(ety_item_id);
@@ -150,29 +141,16 @@ impl EtyGraph {
             head,
         })
     }
+}
 
+struct Tracker {
+    unexpanded: Vec<ItemId>,
+    progenitors: HashSet<ItemId>,
+    head: ItemId,
+}
+
+impl Graph {
     pub(crate) fn get_progenitors(&self, item: ItemId) -> Option<Progenitors> {
-        struct Tracker {
-            unexpanded: Vec<ItemId>,
-            progenitors: HashSet<ItemId>,
-            head: ItemId,
-        }
-        fn recurse(ety_graph: &EtyGraph, t: &mut Tracker) {
-            while let Some(item) = t.unexpanded.pop() {
-                if let Some(immediate_ety) = ety_graph.get_immediate_ety(item) {
-                    let ety_head = immediate_ety.head();
-                    for &ety_item in &immediate_ety.items {
-                        if t.head == item && ety_item == ety_head {
-                            t.head = ety_head;
-                        }
-                        t.unexpanded.push(ety_item);
-                    }
-                    recurse(ety_graph, t);
-                } else {
-                    t.progenitors.insert(item);
-                }
-            }
-        }
         let immediate_ety = self.get_immediate_ety(item)?;
         let head = immediate_ety.head();
         let mut t = Tracker {
@@ -180,74 +158,28 @@ impl EtyGraph {
             progenitors: HashSet::default(),
             head,
         };
-        recurse(self, &mut t);
+        self.get_progenitors_recurse(&mut t);
         let head = t.head;
-        Some(Progenitors {
-            items: t.progenitors,
-            head,
-        })
+        Some(Progenitors::new(t.progenitors, head))
     }
 
-    pub(crate) fn add(&mut self, item_id: ItemId) {
-        if let Vacant(e) = self.index.entry(item_id) {
-            let node_index = self.graph.add_node(item_id);
-            e.insert(node_index);
-        }
-    }
-
-    pub(crate) fn add_imputed(&mut self, langterm: LangTerm, pos: Option<Pos>) -> ItemId {
-        let item = Item::new_imputed(langterm, pos);
-        let item_id = self.imputed_items.add(item);
-        self.add(item_id);
-        item_id
-    }
-
-    pub(crate) fn add_ety(
-        &mut self,
-        item: ItemId,
-        mode: EtyMode,
-        head: u8,
-        ety_items: &[ItemId],
-        confidences: &[f32],
-    ) {
-        let item_index = self.get_index(item);
-        // StableGraph allows adding multiple parallel edges from one node to
-        // another. So we have to be careful to check for any already existing
-        // ety links. If there are some, we keep them and don't add any new
-        // ones, unless the least confidence for the new ety links is greater
-        // than the greatest confidence for the old ety links. In that case, we
-        // delete all the old ones and add the new ones in their stead.
-        let mut old_edges = self.graph.edges(item_index).peekable();
-        if old_edges.peek().is_some() {
-            let min_new_confidence = confidences
-                .iter()
-                .min_by(|a, b| a.total_cmp(b))
-                .expect("at least one");
-            let max_old_confidence = old_edges
-                .map(|e| e.weight().confidence)
-                .max_by(|a, b| a.total_cmp(b))
-                .expect("at least one");
-            if min_new_confidence > &max_old_confidence {
-                let old_edge_ids = self.graph.edges(item_index).map(|e| e.id()).collect_vec();
-                for old_edge_id in old_edge_ids {
-                    self.graph.remove_edge(old_edge_id);
+    fn get_progenitors_recurse(&self, t: &mut Tracker) {
+        while let Some(item) = t.unexpanded.pop() {
+            if let Some(immediate_ety) = self.get_immediate_ety(item) {
+                let ety_head = immediate_ety.head();
+                for &ety_item in &immediate_ety.items {
+                    if t.head == item && ety_item == ety_head {
+                        t.head = ety_head;
+                    }
+                    t.unexpanded.push(ety_item);
                 }
+                self.get_progenitors_recurse(t);
             } else {
-                return;
+                t.progenitors.insert(item);
             }
         }
-
-        for (i, &ety_item, &confidence) in izip!(0u8.., ety_items, confidences) {
-            let ety_item_index = self.get_index(ety_item);
-            let ety_link = EtyLink {
-                mode,
-                order: i,
-                head: head == i,
-                confidence,
-            };
-            self.graph.add_edge(item_index, ety_item_index, ety_link);
-        }
     }
+
     pub(crate) fn remove_cycles(&mut self) -> Result<()> {
         print!("  Checking for ety link feedback arc set... ");
         let fas: Vec<EdgeIndex> = greedy_feedback_arc_set(&self.graph)
@@ -275,5 +207,99 @@ impl EtyGraph {
             }
         }
         Ok(())
+    }
+
+    pub(crate) fn add_ety(
+        &mut self,
+        item: ItemId,
+        mode: EtyMode,
+        head: u8,
+        ety_items: &[ItemId],
+        confidences: &[f32],
+    ) {
+        // StableGraph allows adding multiple parallel edges from one node to
+        // another. So we have to be careful to check for any already existing
+        // ety links. If there are some, we keep them and don't add any new
+        // ones, unless the least confidence for the new ety links is greater
+        // than the greatest confidence for the old ety links. In that case, we
+        // delete all the old ones and add the new ones in their stead.
+        let mut old_edges = self.graph.edges(item.into()).peekable();
+        if old_edges.peek().is_some() {
+            let min_new_confidence = confidences
+                .iter()
+                .min_by(|a, b| a.total_cmp(b))
+                .expect("at least one");
+            let max_old_confidence = old_edges
+                .map(|e| e.weight().confidence)
+                .max_by(|a, b| a.total_cmp(b))
+                .expect("at least one");
+            if min_new_confidence > &max_old_confidence {
+                let old_edge_ids = self.graph.edges(item.into()).map(|e| e.id()).collect_vec();
+                for old_edge_id in old_edge_ids {
+                    self.graph.remove_edge(old_edge_id);
+                }
+            } else {
+                return;
+            }
+        }
+
+        for (i, &ety_item, &confidence) in izip!(0u8.., ety_items, confidences) {
+            let ety_link = EtyLink {
+                mode,
+                order: i,
+                head: head == i,
+                confidence,
+            };
+            self.graph.add_edge(item.into(), ety_item.into(), ety_link);
+        }
+    }
+}
+
+#[derive(Default)]
+pub(crate) struct EtyGraph {
+    pub(crate) imputed_items: ImputedItems,
+    pub(crate) graph: Graph,
+}
+
+impl EtyGraph {
+    pub(crate) fn new(start_id: ItemId) -> Self {
+        Self {
+            imputed_items: ImputedItems::new(start_id),
+            ..Default::default()
+        }
+    }
+
+    pub(crate) fn get_imputed_item_id(&self, langterm: LangTerm) -> Option<ItemId> {
+        self.imputed_items.get_item_id(langterm)
+    }
+
+    pub(crate) fn add(&mut self, item_id: ItemId) {
+        self.graph.add(item_id);
+    }
+
+    pub(crate) fn add_imputed(&mut self, langterm: LangTerm, pos: Option<Pos>) -> ItemId {
+        let item = Item::new_imputed(langterm, pos);
+        let item_id = self.imputed_items.add(item);
+        self.add(item_id);
+        item_id
+    }
+
+    pub(crate) fn add_ety(
+        &mut self,
+        item: ItemId,
+        mode: EtyMode,
+        head: u8,
+        ety_items: &[ItemId],
+        confidences: &[f32],
+    ) {
+        self.graph.add_ety(item, mode, head, ety_items, confidences);
+    }
+
+    pub(crate) fn remove_cycles(&mut self) -> Result<()> {
+        self.graph.remove_cycles()
+    }
+
+    pub(crate) fn get_immediate_ety(&self, item_id: ItemId) -> Option<ImmediateEty> {
+        self.graph.get_immediate_ety(item_id)
     }
 }

@@ -18,7 +18,6 @@ use std::path::Path;
 
 use anyhow::{Ok, Result};
 use serde::{Deserialize, Serialize};
-use serde_json_any_key::any_key_map;
 use simd_json::to_borrowed_value;
 
 // basic data read from a line in the wiktextract raw data
@@ -42,7 +41,7 @@ impl RawItem {
 
 pub(crate) type ItemId = u32; // wiktionary has about ~10M items including imputations
 
-#[derive(Hash, Eq, PartialEq, Debug, Serialize, Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub(crate) struct Item {
     pub(crate) is_imputed: bool,
     pub(crate) id: ItemId,  // the i-th item seen, used as id for RDF
@@ -76,10 +75,10 @@ impl Item {
     }
 }
 
-#[derive(Default, Serialize, Deserialize)]
+#[derive(Default)]
 pub(crate) struct ItemStore {
     start_id: ItemId,
-    vec: Vec<Item>,
+    pub(crate) vec: Vec<Item>,
 }
 
 impl ItemStore {
@@ -131,10 +130,9 @@ impl ItemStore {
     }
 }
 
-#[derive(Default, Serialize, Deserialize)]
+#[derive(Default)]
 pub(crate) struct Items {
     pub(crate) store: ItemStore,
-    #[serde(with = "any_key_map")]
     pub(crate) dupes: HashMap<LangTerm, Vec<ItemId>>,
 }
 
