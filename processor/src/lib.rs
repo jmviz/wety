@@ -15,7 +15,7 @@ mod langterm;
 mod phf_ext;
 mod pos;
 mod pos_phf;
-mod processed;
+pub mod processed;
 mod redirects;
 mod root;
 mod string_pool;

@@ -1,5 +1,5 @@
 use crate::{
-    ety_graph::{EtyGraph, Graph, Progenitors},
+    ety_graph::{EtyGraph, Graph, Progenitors, Progeny},
     items::{Item, ItemId, RawItems},
     string_pool::StringPool,
     HashMap,
@@ -7,13 +7,13 @@ use crate::{
 
 use std::{
     fs::File,
-    io::{BufWriter, Write},
+    io::{BufReader, BufWriter, Read, Write},
     path::Path,
     time::Instant,
 };
 
 use anyhow::{Ok, Result};
-use flate2::{write::GzEncoder, Compression};
+use flate2::{read::GzDecoder, write::GzEncoder, Compression};
 use indicatif::HumanDuration;
 use serde::{Deserialize, Serialize};
 
@@ -23,8 +23,10 @@ pub struct Data {
     pub(crate) items: Vec<Item>,
     pub(crate) graph: Graph,
     pub(crate) progenitors: HashMap<ItemId, Progenitors>,
+    head_progeny: HashMap<ItemId, Progeny>,
 }
 
+// crate implementations
 impl Data {
     pub(crate) fn new(string_pool: StringPool, raw_items: RawItems, ety_graph: EtyGraph) -> Self {
         let mut items = raw_items.items.store.vec;
@@ -33,14 +35,15 @@ impl Data {
         for (i, item) in items.iter().enumerate() {
             assert_eq!(i, item.id as usize);
         }
-
         let graph = ety_graph.graph;
-        let progenitors = generate_progenitors(&items, &graph);
+        let progenitors = graph.get_all_progenitors(&items);
+        let head_progeny = graph.get_all_head_progeny(&items);
         Self {
             string_pool,
             items,
             graph,
             progenitors,
+            head_progeny,
         }
     }
 
@@ -50,7 +53,7 @@ impl Data {
         let file = File::create(path)?;
         let should_gz_compress = path.extension().is_some_and(|ext| ext == "gz");
         let writer: Box<dyn Write> = if should_gz_compress {
-            Box::new(GzEncoder::new(file, Compression::best()))
+            Box::new(GzEncoder::new(file, Compression::fast()))
         } else {
             Box::new(BufWriter::new(file))
         };
@@ -60,12 +63,24 @@ impl Data {
     }
 }
 
-fn generate_progenitors(items: &[Item], graph: &Graph) -> HashMap<ItemId, Progenitors> {
-    let mut progenitors = HashMap::default();
-    for item in items.iter().map(|item| item.id) {
-        if let Some(prog) = graph.get_progenitors(item) {
-            progenitors.insert(item, prog);
-        }
+// pub implementations for server
+impl Data {
+    /// # Errors
+    ///
+    /// Will return `Err` if any unexpected issue arises in the deserialization.
+    pub fn deserialize(path: &Path) -> Result<Self> {
+        let t = Instant::now();
+        println!("Deserializing processed data {}...", path.display());
+        let file = File::open(path)?;
+        let reader = BufReader::new(file);
+        let is_gz_compressed = path.extension().is_some_and(|ext| ext == "gz");
+        let uncompressed: Box<dyn Read> = if is_gz_compressed {
+            Box::new(GzDecoder::new(reader))
+        } else {
+            Box::new(reader)
+        };
+        let data = serde_json::from_reader(uncompressed)?;
+        println!("Finished. Took {:#?}.", t.elapsed());
+        Ok(data)
     }
-    progenitors
 }

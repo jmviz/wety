@@ -14,6 +14,7 @@ use petgraph::{
     algo::greedy_feedback_arc_set,
     stable_graph::{EdgeIndex, StableDiGraph},
     visit::EdgeRef,
+    Direction,
 };
 use serde::{Deserialize, Serialize};
 
@@ -65,6 +66,7 @@ pub(crate) struct EtyLink {
     confidence: f32,
 }
 
+// the parents of some item
 pub(crate) struct ImmediateEty {
     pub(crate) items: Vec<ItemId>,
     pub(crate) head: u8,
@@ -77,6 +79,7 @@ impl ImmediateEty {
     }
 }
 
+// all the terminal nodes of some item's ancestry tree
 #[derive(Serialize, Deserialize)]
 pub(crate) struct Progenitors {
     pub(crate) items: Box<[ItemId]>,
@@ -91,8 +94,23 @@ impl Progenitors {
             items: items.into_boxed_slice(),
         }
     }
+    // the terminal node reached by following the "head" parent at each step
     pub(crate) fn head(&self) -> ItemId {
         self.items[0]
+    }
+}
+
+// descendants of some item
+#[derive(Serialize, Deserialize)]
+pub(crate) struct Progeny {
+    pub(crate) items: Box<[ItemId]>,
+}
+
+impl From<Vec<ItemId>> for Progeny {
+    fn from(items: Vec<ItemId>) -> Self {
+        Self {
+            items: items.into_boxed_slice(),
+        }
     }
 }
 
@@ -178,6 +196,47 @@ impl Graph {
                 t.progenitors.insert(item);
             }
         }
+    }
+
+    pub(crate) fn get_all_progenitors(&self, items: &[Item]) -> HashMap<ItemId, Progenitors> {
+        let mut progenitors = HashMap::default();
+        for item in items.iter().map(|item| item.id) {
+            if let Some(prog) = self.get_progenitors(item) {
+                progenitors.insert(item, prog);
+            }
+        }
+        progenitors
+    }
+}
+
+impl Graph {
+    // all items for which the item is a head parent
+    pub(crate) fn get_head_children(&self, item: ItemId) -> Vec<ItemId> {
+        self.graph
+            .edges_directed(item.into(), Direction::Incoming)
+            .filter(|e| e.weight().head)
+            .map(|e| *self.graph.index(e.source()))
+            .collect()
+    }
+
+    pub(crate) fn get_head_progeny(&self, item: ItemId) -> Option<Progeny> {
+        let mut progeny = HashSet::default();
+        let mut unexpanded = self.get_head_children(item);
+        while let Some(descendant) = unexpanded.pop() {
+            progeny.insert(descendant);
+            unexpanded.extend(self.get_head_children(descendant));
+        }
+        (!progeny.is_empty()).then_some(Vec::from_iter(progeny).into())
+    }
+
+    pub(crate) fn get_all_head_progeny(&self, items: &[Item]) -> HashMap<ItemId, Progeny> {
+        let mut progeny = HashMap::default();
+        for item in items.iter().map(|item| item.id) {
+            if let Some(prog) = self.get_head_progeny(item) {
+                progeny.insert(item, prog);
+            }
+        }
+        progeny
     }
 
     pub(crate) fn remove_cycles(&mut self) -> Result<()> {
