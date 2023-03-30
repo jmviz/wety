@@ -66,6 +66,7 @@ fn main() -> Result<()> {
     let t = process_wiktextract(
         &args.wiktextract_path,
         &args.serialization_path,
+        args.write_turtle,
         &args.turtle_path,
         &embeddings_config,
     )?;

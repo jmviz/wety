@@ -61,6 +61,7 @@ pub(crate) fn progress_bar(n: usize, message: &str) -> Result<ProgressBar> {
 pub fn process_wiktextract(
     wiktextract_path: &Path,
     serialization_path: &Path,
+    write_turtle: bool,
     turtle_path: &Path,
     embeddings_config: &EmbeddingsConfig,
 ) -> Result<Instant> {
@@ -79,7 +80,9 @@ pub fn process_wiktextract(
     let ety_graph = raw_items.generate_ety_graph(&embeddings)?;
     println!("Finished. Took {}.", HumanDuration(t.elapsed()));
     let data = Data::new(string_pool, raw_items, ety_graph);
-    data.write_turtle(turtle_path)?;
+    if write_turtle {
+        data.write_turtle(turtle_path)?;
+    }
     data.serialize(serialization_path)?;
     t = Instant::now();
     println!("Dropping all processed data...");

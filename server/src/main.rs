@@ -6,6 +6,7 @@ use anyhow::{Ok, Result};
 
 fn main() -> Result<()> {
     env::set_var("RUST_BACKTRACE", "1");
-    deserialize_data(Path::new("data/wety.json.gz"))?;
+    let data = deserialize_data(Path::new("data/wety.json.gz"))?;
+    loop {}
     Ok(())
 }
