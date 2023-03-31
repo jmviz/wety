@@ -186,19 +186,21 @@ impl Items {
             }
             // If it shares an ety with an already stored item...
             if let Some(same_ety) = same_ety {
-                // If it also has the same pos as one of the pos's in the
-                // already-stored item, then we need to make a new item for
-                // this. This happens in the case of e.g. PIE root pages where
-                // there are several "Root" pos sections with no Etymology
-                // sections (and hence here they will have have ety_num == 1 in
-                // the raw_item)
-                if self
-                    .get(same_ety)
-                    .pos
-                    .as_ref()
-                    .expect("at least one pos")
-                    .iter()
-                    .any(|&p| p == raw_item.pos)
+                // If the pos is "root" and the already-stored item already has
+                // another "root", then we need to make a new item for this.
+                // This to handle the special but important case of PIE root
+                // pages where there are several "Root" sections with no
+                // Etymology sections (and hence here they will all have ety_num
+                // == 1 in the raw_item), but they really are etymologically
+                // distinct items.
+                if raw_item.pos == Pos::root_pos()
+                    && self
+                        .get(same_ety)
+                        .pos
+                        .as_ref()
+                        .expect("at least one pos")
+                        .iter()
+                        .any(|&p| p == raw_item.pos)
                 {
                     raw_item.ety_num = max_ety + 1;
                     let id = self.store.add_raw(raw_item);
@@ -209,7 +211,7 @@ impl Items {
                     return (id, true);
                 }
                 // Otherwise, we simply append this pos and gloss to the
-                // existing item, since there is no pos overlap.
+                // existing item.
                 let same = self.get_mut(same_ety);
                 same.pos
                     .as_mut()

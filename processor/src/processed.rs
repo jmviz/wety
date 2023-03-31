@@ -102,9 +102,11 @@ impl Data {
             self.graph
                 .get_head_children(id)
                 .filter(|child| {
-                    self.head_progeny_langs
-                        .get(child)
-                        .is_some_and(|langs| langs.contains(&filter_lang))
+                    self.get_item(*child).lang == filter_lang
+                        || self
+                            .head_progeny_langs
+                            .get(child)
+                            .is_some_and(|langs| langs.contains(&filter_lang))
                 })
                 .map(|child| self.expand(child))
                 .collect_vec(),
