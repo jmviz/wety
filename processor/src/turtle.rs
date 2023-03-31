@@ -7,7 +7,6 @@ use std::{
 };
 
 use anyhow::{Ok, Result};
-use urlencoding::encode;
 
 const WIKTIONARY_PRE: &str = "k:";
 const WIKTIONARY_URL: &str = "https://en.wiktionary.org/wiki/";
@@ -112,7 +111,7 @@ impl Data {
             } else {
                 (WIKTIONARY_PRE, format!("{page_title}#{page_lang_name}"))
             };
-            let title = encode(&title);
+            let title = urlencoding::encode(&title);
             write!(f, "  {PRED_URL} {pre}")?;
             write_local_name(f, &title)?;
             writeln!(f, " ;")?;

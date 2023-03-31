@@ -1,8 +1,9 @@
 use crate::{
-    ety_graph::{EtyGraph, Graph, Progenitors, Progeny},
+    ety_graph::{EtyGraph, Graph, Progenitors},
     items::{Item, ItemId, RawItems},
+    langterm::Lang,
     string_pool::StringPool,
-    HashMap,
+    HashMap, HashSet,
 };
 
 use std::{
@@ -15,7 +16,9 @@ use std::{
 use anyhow::{Ok, Result};
 use flate2::{read::GzDecoder, write::GzEncoder, Compression};
 use indicatif::HumanDuration;
+use itertools::Itertools;
 use serde::{Deserialize, Serialize};
+use serde_json::{json, Value};
 
 #[derive(Serialize, Deserialize)]
 pub struct Data {
@@ -23,10 +26,10 @@ pub struct Data {
     pub(crate) items: Vec<Item>,
     pub(crate) graph: Graph,
     pub(crate) progenitors: HashMap<ItemId, Progenitors>,
-    head_progeny: HashMap<ItemId, Progeny>,
+    head_progeny_langs: HashMap<ItemId, HashSet<Lang>>,
 }
 
-// crate implementations
+// methods for use within processor
 impl Data {
     pub(crate) fn new(string_pool: StringPool, raw_items: RawItems, ety_graph: EtyGraph) -> Self {
         let mut items = raw_items.items.store.vec;
@@ -37,13 +40,13 @@ impl Data {
         }
         let graph = ety_graph.graph;
         let progenitors = graph.get_all_progenitors(&items);
-        let head_progeny = graph.get_all_head_progeny(&items);
+        let head_progeny_langs = graph.get_all_head_progeny_langs(&items);
         Self {
             string_pool,
             items,
             graph,
             progenitors,
-            head_progeny,
+            head_progeny_langs,
         }
     }
 
@@ -63,7 +66,14 @@ impl Data {
     }
 }
 
-// pub implementations for server
+// private methods for use within pub methods below
+impl Data {
+    fn get_item(&self, item: ItemId) -> &Item {
+        &self.items[item as usize]
+    }
+}
+
+// pub methods for server
 impl Data {
     /// # Errors
     ///
@@ -82,5 +92,33 @@ impl Data {
         let data = serde_json::from_reader(uncompressed)?;
         println!("Finished. Took {:#?}.", t.elapsed());
         Ok(data)
+    }
+
+    #[must_use]
+    pub fn expand(&self, id: ItemId) -> Value {
+        let filter_lang = crate::langterm::Lang::try_from("en").unwrap();
+        let item = self.get_item(id);
+        let children = (item.lang != filter_lang).then_some(
+            self.graph
+                .get_head_children(id)
+                .filter(|child| {
+                    self.head_progeny_langs
+                        .get(child)
+                        .is_some_and(|langs| langs.contains(&filter_lang))
+                })
+                .map(|child| self.expand(child))
+                .collect_vec(),
+        );
+        json!({
+            "id": item.id,
+            "ety": item.ety_num,
+            "lang": item.lang.name(),
+            "term": item.term.resolve(&self.string_pool),
+            "imputed": item.is_imputed,
+            "url": item.url(&self.string_pool),
+            "pos": item.pos.as_ref().map(|pos| pos.iter().map(|p| p.name()).collect_vec()),
+            "gloss": item.gloss.as_ref().map(|gloss| gloss.iter().map(|g| g.to_string(&self.string_pool)).collect_vec()),
+            "children": children,
+        })
     }
 }

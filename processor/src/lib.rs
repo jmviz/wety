@@ -15,13 +15,14 @@ mod langterm;
 mod phf_ext;
 mod pos;
 mod pos_phf;
-pub mod processed;
+mod processed;
 mod redirects;
 mod root;
 mod string_pool;
 mod turtle;
 mod wiktextract_json;
 
+pub use crate::items::ItemId;
 pub use crate::processed::Data;
 
 use crate::{string_pool::StringPool, wiktextract_json::process_wiktextract_lines};

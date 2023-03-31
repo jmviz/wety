@@ -1,7 +1,7 @@
 use crate::{
     etymology_templates::EtyMode,
     items::{Item, ItemId, ItemStore},
-    langterm::LangTerm,
+    langterm::{Lang, LangTerm},
     pos::Pos,
     HashMap, HashSet,
 };
@@ -100,20 +100,6 @@ impl Progenitors {
     }
 }
 
-// descendants of some item
-#[derive(Serialize, Deserialize)]
-pub(crate) struct Progeny {
-    pub(crate) items: Box<[ItemId]>,
-}
-
-impl From<Vec<ItemId>> for Progeny {
-    fn from(items: Vec<ItemId>) -> Self {
-        Self {
-            items: items.into_boxed_slice(),
-        }
-    }
-}
-
 #[derive(Default, Serialize, Deserialize)]
 pub(crate) struct Graph {
     pub(crate) graph: StableDiGraph<ItemId, EtyLink, ItemId>,
@@ -207,36 +193,42 @@ impl Graph {
         }
         progenitors
     }
-}
 
-impl Graph {
     // all items for which the item is a head parent
-    pub(crate) fn get_head_children(&self, item: ItemId) -> Vec<ItemId> {
+    pub(crate) fn get_head_children(&self, item: ItemId) -> impl Iterator<Item = ItemId> + '_ {
         self.graph
             .edges_directed(item.into(), Direction::Incoming)
             .filter(|e| e.weight().head)
             .map(|e| *self.graph.index(e.source()))
-            .collect()
     }
 
-    pub(crate) fn get_head_progeny(&self, item: ItemId) -> Option<Progeny> {
-        let mut progeny = HashSet::default();
-        let mut unexpanded = self.get_head_children(item);
+    // get all langs that have at least one item that is descended from item
+    // through head parentage
+    pub(crate) fn get_head_progeny_langs(
+        &self,
+        items: &[Item],
+        item: ItemId,
+    ) -> Option<HashSet<Lang>> {
+        let mut progeny_langs = HashSet::default();
+        let mut unexpanded = self.get_head_children(item).collect_vec();
         while let Some(descendant) = unexpanded.pop() {
-            progeny.insert(descendant);
+            progeny_langs.insert(items[descendant as usize].lang);
             unexpanded.extend(self.get_head_children(descendant));
         }
-        (!progeny.is_empty()).then_some(Vec::from_iter(progeny).into())
+        (!progeny_langs.is_empty()).then_some(progeny_langs)
     }
 
-    pub(crate) fn get_all_head_progeny(&self, items: &[Item]) -> HashMap<ItemId, Progeny> {
-        let mut progeny = HashMap::default();
+    pub(crate) fn get_all_head_progeny_langs(
+        &self,
+        items: &[Item],
+    ) -> HashMap<ItemId, HashSet<Lang>> {
+        let mut progeny_langs = HashMap::default();
         for item in items.iter().map(|item| item.id) {
-            if let Some(prog) = self.get_head_progeny(item) {
-                progeny.insert(item, prog);
+            if let Some(prog) = self.get_head_progeny_langs(items, item) {
+                progeny_langs.insert(item, prog);
             }
         }
-        progeny
+        progeny_langs
     }
 
     pub(crate) fn remove_cycles(&mut self) -> Result<()> {

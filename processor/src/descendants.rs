@@ -342,7 +342,7 @@ impl RawItems {
     }
 
     pub(crate) fn process_item_raw_descendants(
-        &self,
+        &mut self,
         embeddings: &Embeddings,
         ety_graph: &mut EtyGraph,
         raw_descendants: &RawDescendants,

@@ -39,7 +39,7 @@ impl RawItem {
     }
 }
 
-pub(crate) type ItemId = u32; // wiktionary has about ~10M items including imputations
+pub type ItemId = u32; // wiktionary has about ~10M items including imputations
 
 #[derive(Serialize, Deserialize)]
 pub(crate) struct Item {
@@ -72,6 +72,17 @@ impl Item {
             lang: self.lang,
             term: self.term,
         }
+    }
+
+    pub(crate) fn url(&self, string_pool: &StringPool) -> Option<String> {
+        let page_term = urlencoding::encode(self.page_term?.resolve(string_pool));
+        let page_lang = self.lang.ety2main();
+        let page_lang_name = urlencoding::encode(page_lang.name());
+        Some(if page_lang.is_reconstructed() {
+            format!("https://en.wiktionary.org/wiki/Reconstruction:{page_lang_name}/{page_term}")
+        } else {
+            format!("https://en.wiktionary.org/wiki/{page_term}#{page_lang_name}")
+        })
     }
 }
 
