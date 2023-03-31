@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use crate::{
     items::RawItems,
     langterm::{LangTerm, Language, LanguageTerm, Term},
@@ -83,7 +85,7 @@ fn process_reconstruction_title(string_pool: &mut StringPool, title: &str) -> Op
     let slash = title.find('/')?;
     let language = title.get(..slash)?;
     let term = title.get(slash + 1..)?;
-    let language = Language::try_from(language).ok()?;
+    let language = Language::from_str(language).ok()?;
     let term = Term::new(string_pool, term);
     Some(LanguageTerm { language, term })
 }

@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use anyhow::anyhow;
 use serde::{Deserialize, Serialize};
 
@@ -19,10 +21,10 @@ use crate::{
 // LANG_RECONSTRUCTED: A set of all reconstructed lang codes.
 
 // LangId refers to an index in the LANG_CODE2NAME OrderedMap
-pub(crate) type LangId = u16; // The map has ~10k elements
+pub type LangId = u16; // The map has ~10k elements
 
 #[derive(Hash, Eq, PartialEq, Debug, Copy, Clone, Serialize, Deserialize)]
-pub(crate) struct Lang {
+pub struct Lang {
     id: LangId,
 }
 
@@ -32,11 +34,10 @@ impl From<LangId> for Lang {
     }
 }
 
-// For converting from a lang code string, as in an ety template (e.g. "en")
-impl TryFrom<&str> for Lang {
-    type Error = anyhow::Error;
+impl FromStr for Lang {
+    type Err = anyhow::Error;
 
-    fn try_from(lang_code: &str) -> Result<Self, Self::Error> {
+    fn from_str(lang_code: &str) -> Result<Self, Self::Err> {
         if let Some(id) = LANG_CODE2NAME.get_index(lang_code) {
             return Ok(LangId::try_from(id)?.into());
         }
@@ -47,6 +48,10 @@ impl TryFrom<&str> for Lang {
 }
 
 impl Lang {
+    // pub(crate) fn id(self) -> LangId {
+    //     self.id
+    // }
+
     pub(crate) fn code(self) -> &'static str {
         LANG_CODE2NAME
             .get_index_key(self.id as usize)
@@ -120,10 +125,10 @@ impl From<Lang> for Language {
 
 // For converting from a language name, as in a reconstruction redirect (e.g.
 // "Proto-Indo-European")
-impl TryFrom<&str> for Language {
-    type Error = anyhow::Error;
+impl FromStr for Language {
+    type Err = anyhow::Error;
 
-    fn try_from(language_name: &str) -> Result<Self, Self::Error> {
+    fn from_str(language_name: &str) -> Result<Self, Self::Err> {
         if let Some(id) = LANG_NAME2CODE.get_index(language_name) {
             return Ok(LanguageId::try_from(id)?.into());
         }

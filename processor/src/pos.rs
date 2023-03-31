@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use anyhow::anyhow;
 use serde::{Deserialize, Serialize};
 
@@ -17,10 +19,10 @@ impl From<PosId> for Pos {
     }
 }
 
-impl TryFrom<&str> for Pos {
-    type Error = anyhow::Error;
+impl FromStr for Pos {
+    type Err = anyhow::Error;
 
-    fn try_from(pos: &str) -> Result<Self, Self::Error> {
+    fn from_str(pos: &str) -> Result<Self, Self::Err> {
         if let Some(id) = POS.get_index(pos) {
             return Ok(PosId::try_from(id)?.into());
         }
@@ -35,6 +37,6 @@ impl Pos {
     }
 
     pub(crate) fn root_pos() -> Pos {
-        Pos::try_from("root").expect("root pos must exist")
+        "root".parse().expect("root pos must exist")
     }
 }

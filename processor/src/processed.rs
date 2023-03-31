@@ -95,12 +95,11 @@ impl Data {
     }
 
     #[must_use]
-    pub fn expand(&self, id: ItemId) -> Value {
-        let filter_lang = crate::langterm::Lang::try_from("en").unwrap();
-        let item = self.get_item(id);
+    pub fn expand(&self, item_id: ItemId, filter_lang: Lang) -> Value {
+        let item = self.get_item(item_id);
         let children = (item.lang != filter_lang).then_some(
             self.graph
-                .get_head_children(id)
+                .get_head_children(item_id)
                 .filter(|child| {
                     self.get_item(*child).lang == filter_lang
                         || self
@@ -108,15 +107,16 @@ impl Data {
                             .get(child)
                             .is_some_and(|langs| langs.contains(&filter_lang))
                 })
-                .map(|child| self.expand(child))
+                .map(|child| self.expand(child, filter_lang))
                 .collect_vec(),
         );
         json!({
             "id": item.id,
-            "ety": item.ety_num,
+            "ety_num": item.ety_num,
             "lang": item.lang.name(),
             "term": item.term.resolve(&self.string_pool),
             "imputed": item.is_imputed,
+            "reconstructed": item.lang.is_reconstructed(),
             "url": item.url(&self.string_pool),
             "pos": item.pos.as_ref().map(|pos| pos.iter().map(|p| p.name()).collect_vec()),
             "gloss": item.gloss.as_ref().map(|gloss| gloss.iter().map(|g| g.to_string(&self.string_pool)).collect_vec()),

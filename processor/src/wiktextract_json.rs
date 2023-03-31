@@ -136,7 +136,7 @@ impl WiktextractJsonItem<'_> {
 
     fn get_lang(&self) -> Option<Lang> {
         let lang_code = self.json.get_valid_str("lang_code")?;
-        lang_code.try_into().ok()
+        lang_code.parse().ok()
     }
 
     // The form of the term used in the page url, e.g. "voco"
@@ -179,7 +179,7 @@ impl WiktextractJsonItem<'_> {
     fn get_pos(&self) -> Option<Pos> {
         let pos = self.json.get_valid_str("pos")?;
         if !should_ignore_pos(pos) {
-            return pos.try_into().ok();
+            return pos.parse().ok();
         }
         None
     }

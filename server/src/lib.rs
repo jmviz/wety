@@ -1,6 +1,6 @@
 #![allow(clippy::unused_async)]
 
-use processor::{Data, ItemId};
+use processor::{Data, ItemId, Lang, LangId};
 
 use std::sync::Arc;
 
@@ -11,8 +11,9 @@ use axum::{
 use serde_json::Value;
 
 pub async fn get_item_expansion(
-    Path(id): Path<ItemId>,
+    Path((item_id, filter_lang_id)): Path<(ItemId, LangId)>,
     State(data): State<Arc<Data>>,
 ) -> Json<Value> {
-    Json(data.expand(id))
+    let filter_lang = Lang::from(filter_lang_id);
+    Json(data.expand(item_id, filter_lang))
 }

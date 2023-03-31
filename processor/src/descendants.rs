@@ -91,7 +91,7 @@ fn process_json_desc_line(
             && matches!(name, "desc" | "descendant")
             && let Some(args) = template.get("args")
             && let Some(lang) = args.get_valid_str("1")
-            && let Some(lang) = Lang::try_from(lang).ok()
+            && let Some(lang) = Lang::from_str(lang).ok()
             && args.get_valid_str("2").is_none()
             && args.get_valid_str("alt").is_none()
         {
@@ -149,7 +149,7 @@ fn process_json_desc_line_desc_template(
     args: &WiktextractJson,
 ) -> Option<(Lang, Vec<Term>, Vec<EtyMode>)> {
     let lang = args.get_valid_str("1")?;
-    let lang = Lang::try_from(lang).ok()?;
+    let lang = Lang::from_str(lang).ok()?;
 
     let (mut terms, mut modes) = (vec![], vec![]);
     // Confusingly, "2" corresponds to the first term and "alt" to its alt,
@@ -179,7 +179,7 @@ fn process_json_desc_line_l_template(
     is_derivation: bool,
 ) -> Option<(Lang, Vec<Term>, Vec<EtyMode>)> {
     let lang = args.get_valid_str("1")?;
-    let lang = Lang::try_from(lang).ok()?;
+    let lang = Lang::from_str(lang).ok()?;
     let term = args
         .get_valid_str("2")
         .or_else(|| args.get_valid_str("3"))
@@ -212,7 +212,7 @@ fn process_json_desc_line_desctree_template(
     args: &WiktextractJson,
 ) -> Option<(Lang, Vec<Term>, Vec<EtyMode>)> {
     let lang = args.get_valid_str("1")?;
-    let lang = Lang::try_from(lang).ok()?;
+    let lang = Lang::from_str(lang).ok()?;
     let term = args
         .get_valid_str("2")
         .map(|term| Term::new(string_pool, term))?;
@@ -228,7 +228,7 @@ fn get_desc_mode(args: &WiktextractJson, n: usize) -> EtyMode {
     for mode in MODES {
         let mode_n = format!("{mode}{n}");
         if args.contains_key(mode) || args.contains_key(mode_n.as_str()) {
-            return EtyMode::from_str(mode).ok().unwrap_or(DEFAULT);
+            return mode.parse().ok().unwrap_or(DEFAULT);
         }
     }
     DEFAULT

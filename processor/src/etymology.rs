@@ -52,7 +52,7 @@ fn process_derived_kind_json_template(
     mode: EtyMode,
 ) -> Option<RawEtyTemplate> {
     let ety_lang = args.get_valid_str("2")?;
-    let ety_lang = Lang::try_from(ety_lang).ok()?;
+    let ety_lang = Lang::from_str(ety_lang).ok()?;
     let ety_term = args.get_valid_str("3")?;
     let ety_langterm = ety_lang.new_langterm(string_pool, ety_term);
     Some(RawEtyTemplate::new(ety_langterm, mode))
@@ -179,7 +179,7 @@ fn process_compound_kind_json_template(
     let mut ety_langterms = vec![];
     while let Some(ety_term) = args.get_valid_str(n.to_string().as_str()) {
         if let Some(ety_lang) = args.get_valid_str(format!("lang{n}").as_str()) {
-            let ety_lang = Lang::try_from(ety_lang).ok()?;
+            let ety_lang = Lang::from_str(ety_lang).ok()?;
             let ety_langterm = ety_lang.new_langterm(string_pool, ety_term);
             ety_langterms.push(ety_langterm);
         } else {

@@ -1,4 +1,4 @@
-use std::mem;
+use std::{mem, str::FromStr};
 
 use crate::{
     embeddings::{EmbeddingComparand, Embeddings, ItemEmbedding},
@@ -63,7 +63,7 @@ fn process_root_template(
 ) -> Option<RawRoot> {
     validate_ety_template_lang(args, lang).ok()?;
     let root_lang = args.get_valid_str("2")?;
-    let root_lang = Lang::try_from(root_lang).ok()?;
+    let root_lang = Lang::from_str(root_lang).ok()?;
     let mut root_term = args.get_valid_str("3")?;
     // we don't deal with multi-roots for now:
     args.get_valid_str("4").is_none().then_some(())?;
@@ -95,10 +95,10 @@ fn process_json_root_category(
     }
     let caps = ROOT_CAT.captures(category)?;
     let cat_term_lang_name = caps.get(1).map(|m| m.as_str())?;
-    let cat_term_lang = Lang::from(Language::try_from(cat_term_lang_name).ok()?);
+    let cat_term_lang = Lang::from(Language::from_str(cat_term_lang_name).ok()?);
     (cat_term_lang == lang).then_some(())?;
     let cat_root_lang_name = caps.get(2).map(|m| m.as_str())?;
-    let cat_root_lang = Lang::from(Language::try_from(cat_root_lang_name).ok()?);
+    let cat_root_lang = Lang::from(Language::from_str(cat_root_lang_name).ok()?);
     let cat_root_term = caps.get(3).map(|m| m.as_str())?;
     let cat_root_term = Term::new(string_pool, cat_root_term);
     let cat_root_sense_id = caps
