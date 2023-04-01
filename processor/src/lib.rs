@@ -24,7 +24,7 @@ mod wiktextract_json;
 
 pub use crate::items::ItemId;
 pub use crate::langterm::{Lang, LangId};
-pub use crate::processed::Data;
+pub use crate::processed::{Data, Search};
 
 use crate::{string_pool::StringPool, wiktextract_json::process_wiktextract_lines};
 

@@ -3,10 +3,11 @@ use crate::{
     items::{Item, ItemId, RawItems},
     langterm::Lang,
     string_pool::StringPool,
-    HashMap, HashSet,
+    HashMap, HashSet, LangId,
 };
 
 use std::{
+    collections::hash_map::Entry,
     fs::File,
     io::{BufReader, BufWriter, Read, Write},
     path::Path,
@@ -15,6 +16,7 @@ use std::{
 
 use anyhow::{Ok, Result};
 use flate2::{read::GzDecoder, write::GzEncoder, Compression};
+use fuzzy_trie::FuzzyTrie;
 use indicatif::HumanDuration;
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
@@ -122,5 +124,65 @@ impl Data {
             "gloss": item.gloss.as_ref().map(|gloss| gloss.iter().map(|g| g.to_string(&self.string_pool)).collect_vec()),
             "children": children,
         })
+    }
+}
+
+pub struct Search {
+    langs: FuzzyTrie<LangId>,
+    terms: HashMap<LangId, FuzzyTrie<ItemId>>,
+}
+
+impl Data {
+    #[must_use]
+    pub fn build_search(&self) -> Search {
+        let t = Instant::now();
+        println!("Building search tries...");
+        let mut langs = FuzzyTrie::new(2, true);
+        let mut terms = HashMap::<LangId, FuzzyTrie<ItemId>>::default();
+        for item in &self.items {
+            let lang_id = item.lang.id();
+            let term = item.term.resolve(&self.string_pool);
+            match terms.entry(lang_id) {
+                Entry::Occupied(mut t) => {
+                    t.get_mut().insert(term).insert(item.id);
+                }
+                Entry::Vacant(e) => {
+                    langs.insert(item.lang.name()).insert(lang_id);
+                    let t = e.insert(FuzzyTrie::new(2, true));
+                    t.insert(term).insert(item.id);
+                }
+            }
+        }
+        println!("Finished. Took {:#?}.", t.elapsed());
+        Search { langs, terms }
+    }
+}
+
+impl Search {
+    #[must_use]
+    pub fn langs(&self, lang: &str) -> Value {
+        let mut matches = Vec::<(u8, LangId)>::new();
+        self.langs.fuzzy_search(lang, &mut matches);
+        matches.sort_unstable_by(|a, b| a.0.cmp(&b.0));
+        json!({ "matches": matches })
+    }
+
+    #[must_use]
+    pub fn items(&self, lang: LangId, term: &str) -> Value {
+        let mut matches = Vec::<(u8, ItemId)>::new();
+        if let Some(lang_terms) = self.terms.get(&lang) {
+            lang_terms.fuzzy_search(term, &mut matches);
+        }
+        json!({ "matches": matches })
+    }
+}
+
+impl Data {
+    pub fn lang_match(&self, lang_id: LangId) -> Value {
+        json!(Lang::from(lang_id).name())
+    }
+
+    pub fn item(&self, lang_id: LangId) -> Value {
+        json!(Lang::from(lang_id).name())
     }
 }

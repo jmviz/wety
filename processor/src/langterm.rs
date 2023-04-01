@@ -48,9 +48,9 @@ impl FromStr for Lang {
 }
 
 impl Lang {
-    // pub(crate) fn id(self) -> LangId {
-    //     self.id
-    // }
+    pub(crate) fn id(self) -> LangId {
+        self.id
+    }
 
     pub(crate) fn code(self) -> &'static str {
         LANG_CODE2NAME
