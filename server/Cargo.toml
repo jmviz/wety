@@ -14,3 +14,5 @@ flate2 = {workspace = true}
 serde_json = {workspace = true}
 axum = "0.6.12"
 tokio = {version = "1.27.0", features = ["macros", "rt-multi-thread"]}
+tower = "0.4.13"
+tower-http = {version = "0.4.0", features = ["compression-br"]}

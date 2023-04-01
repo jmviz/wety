@@ -1,5 +1,7 @@
 use processor::Data;
 use server::get_item_expansion;
+use tower::ServiceBuilder;
+use tower_http::compression::CompressionLayer;
 
 use std::{env, path::Path, sync::Arc};
 
@@ -17,7 +19,8 @@ async fn main() -> Result<()> {
 
     let app = Router::new()
         .route("/expand/:item/filter/:lang", get(get_item_expansion))
-        .with_state(data);
+        .with_state(data)
+        .layer(ServiceBuilder::new().layer(CompressionLayer::new()));
 
     Server::bind(&"0.0.0.0:3000".parse()?)
         .serve(app.into_make_service())
