@@ -20,7 +20,16 @@ async fn main() -> Result<()> {
     let app = Router::new()
         .route("/expand/:item/filter/:lang", get(get_item_expansion))
         .with_state(data)
-        .layer(ServiceBuilder::new().layer(CompressionLayer::new()));
+        .layer(
+            ServiceBuilder::new()
+                // ?
+                // https://docs.rs/tower-http/0.4.0/tower_http/trace/index.html
+                // https://docs.rs/tower/0.4.13/tower/limit/struct.RateLimitLayer.html
+                // https://docs.rs/tower/0.4.13/tower/limit/struct.ConcurrencyLimitLayer.html
+                // https://docs.rs/tower/0.4.13/tower/timeout/struct.TimeoutLayer.html
+                // https://docs.rs/axum/latest/axum/error_handling/struct.HandleErrorLayer.html
+                .layer(CompressionLayer::new()),
+        );
 
     Server::bind(&"0.0.0.0:3000".parse()?)
         .serve(app.into_make_service())
