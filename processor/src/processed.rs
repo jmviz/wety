@@ -3,7 +3,7 @@ use crate::{
     items::{Item, ItemId, RawItems},
     langterm::Lang,
     string_pool::StringPool,
-    HashMap, HashSet, LangId,
+    HashMap, HashSet,
 };
 
 use std::{
@@ -16,7 +16,7 @@ use std::{
 
 use anyhow::{Ok, Result};
 use flate2::{read::GzDecoder, write::GzEncoder, Compression};
-use fuzzy_trie::FuzzyTrie;
+use fuzzy_trie::{Collector, FuzzyTrie};
 use indicatif::HumanDuration;
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
@@ -96,8 +96,23 @@ impl Data {
         Ok(data)
     }
 
+    fn item_json(&self, item: ItemId) -> Value {
+        let item = self.get_item(item);
+        json!({
+            "id": item.id,
+            "ety_num": item.ety_num,
+            "lang": item.lang.name(),
+            "term": item.term.resolve(&self.string_pool),
+            "imputed": item.is_imputed,
+            "reconstructed": item.lang.is_reconstructed(),
+            "url": item.url(&self.string_pool),
+            "pos": item.pos.as_ref().map(|pos| pos.iter().map(|p| p.name()).collect_vec()),
+            "gloss": item.gloss.as_ref().map(|gloss| gloss.iter().map(|g| g.to_string(&self.string_pool)).collect_vec()),
+        })
+    }
+
     #[must_use]
-    pub fn expand(&self, item_id: ItemId, filter_lang: Lang) -> Value {
+    pub fn expanded_item_json(&self, item_id: ItemId, filter_lang: Lang) -> Value {
         let item = self.get_item(item_id);
         let children = (item.lang != filter_lang).then_some(
             self.graph
@@ -109,27 +124,19 @@ impl Data {
                             .get(child)
                             .is_some_and(|langs| langs.contains(&filter_lang))
                 })
-                .map(|child| self.expand(child, filter_lang))
+                .map(|child| self.expanded_item_json(child, filter_lang))
                 .collect_vec(),
         );
         json!({
-            "id": item.id,
-            "ety_num": item.ety_num,
-            "lang": item.lang.name(),
-            "term": item.term.resolve(&self.string_pool),
-            "imputed": item.is_imputed,
-            "reconstructed": item.lang.is_reconstructed(),
-            "url": item.url(&self.string_pool),
-            "pos": item.pos.as_ref().map(|pos| pos.iter().map(|p| p.name()).collect_vec()),
-            "gloss": item.gloss.as_ref().map(|gloss| gloss.iter().map(|g| g.to_string(&self.string_pool)).collect_vec()),
+            "item": self.item_json(item_id),
             "children": children,
         })
     }
 }
 
 pub struct Search {
-    langs: FuzzyTrie<LangId>,
-    terms: HashMap<LangId, FuzzyTrie<ItemId>>,
+    langs: FuzzyTrie<Lang>,
+    terms: HashMap<Lang, FuzzyTrie<ItemId>>,
 }
 
 impl Data {
@@ -137,18 +144,19 @@ impl Data {
     pub fn build_search(&self) -> Search {
         let t = Instant::now();
         println!("Building search tries...");
-        let mut langs = FuzzyTrie::new(2, true);
-        let mut terms = HashMap::<LangId, FuzzyTrie<ItemId>>::default();
+        let mut langs = FuzzyTrie::new(1, true);
+        let mut terms = HashMap::<Lang, FuzzyTrie<ItemId>>::default();
         for item in &self.items {
-            let lang_id = item.lang.id();
             let term = item.term.resolve(&self.string_pool);
-            match terms.entry(lang_id) {
+            match terms.entry(item.lang) {
                 Entry::Occupied(mut t) => {
                     t.get_mut().insert(term).insert(item.id);
                 }
                 Entry::Vacant(e) => {
-                    langs.insert(item.lang.name()).insert(lang_id);
-                    let t = e.insert(FuzzyTrie::new(2, true));
+                    langs
+                        .insert(&item.lang.name().to_ascii_lowercase())
+                        .insert(item.lang);
+                    let t = e.insert(FuzzyTrie::new(1, true));
                     t.insert(term).insert(item.id);
                 }
             }
@@ -158,31 +166,121 @@ impl Data {
     }
 }
 
-impl Search {
-    #[must_use]
-    pub fn langs(&self, lang: &str) -> Value {
-        let mut matches = Vec::<(u8, LangId)>::new();
-        self.langs.fuzzy_search(lang, &mut matches);
-        matches.sort_unstable_by(|a, b| a.0.cmp(&b.0));
-        json!({ "matches": matches })
-    }
+struct LangMatch {
+    distance: u8,
+    lang: Lang,
+}
 
-    #[must_use]
-    pub fn items(&self, lang: LangId, term: &str) -> Value {
-        let mut matches = Vec::<(u8, ItemId)>::new();
-        if let Some(lang_terms) = self.terms.get(&lang) {
-            lang_terms.fuzzy_search(term, &mut matches);
-        }
-        json!({ "matches": matches })
+impl LangMatch {
+    fn json(&self) -> Value {
+        json!({
+            "distance": self.distance,
+            "lang": self.lang.name(),
+            "id": self.lang.id(),
+        })
     }
 }
 
-impl Data {
-    pub fn lang_match(&self, lang_id: LangId) -> Value {
-        json!(Lang::from(lang_id).name())
+pub struct LangMatches {
+    matches: Vec<LangMatch>,
+}
+
+impl LangMatches {
+    fn new() -> Self {
+        Self { matches: vec![] }
     }
 
-    pub fn item(&self, lang_id: LangId) -> Value {
-        json!(Lang::from(lang_id).name())
+    pub fn sort(&mut self) {
+        self.matches
+            .sort_unstable_by(|a, b| a.distance.cmp(&b.distance));
+    }
+
+    pub fn json(&self) -> Value {
+        json!({"matches": self.matches.iter().map(|m| m.json()).collect_vec()})
+    }
+}
+
+impl<'a> Collector<'a, Lang> for LangMatches {
+    fn push(&mut self, distance: u8, lang: &'a Lang) {
+        self.matches.push(LangMatch {
+            distance,
+            lang: *lang,
+        });
+    }
+}
+
+struct ItemMatch {
+    distance: u8,
+    item: ItemId,
+}
+
+impl ItemMatch {
+    fn json(&self, data: &Data) -> Value {
+        json!({
+            "distance": self.distance,
+            "item": data.item_json(self.item),
+        })
+    }
+}
+
+#[derive(Default)]
+pub struct ItemMatches {
+    matches: Vec<ItemMatch>,
+}
+
+impl ItemMatches {
+    fn new() -> Self {
+        Self { matches: vec![] }
+    }
+
+    pub fn sort(&mut self, data: &Data) {
+        self.matches.sort_unstable_by(|a, b| {
+            if a.distance == b.distance {
+                data.get_item(a.item)
+                    .ety_num
+                    .cmp(&data.get_item(b.item).ety_num)
+            } else {
+                a.distance.cmp(&b.distance)
+            }
+        });
+    }
+
+    pub fn json(&self, data: &Data) -> Value {
+        json!({"matches": self.matches.iter().map(|m| m.json(data)).collect_vec()})
+    }
+}
+
+impl<'a> Collector<'a, ItemId> for ItemMatches {
+    fn push(&mut self, distance: u8, item: &'a ItemId) {
+        self.matches.push(ItemMatch {
+            distance,
+            item: *item,
+        });
+    }
+}
+
+impl Search {
+    #[must_use]
+    pub fn langs(&self, lang: &str) -> LangMatches {
+        let mut matches = LangMatches::new();
+        if lang.chars().count() < 5 {
+            self.langs.fuzzy_search(lang, &mut matches);
+        } else {
+            self.langs.prefix_fuzzy_search(lang, &mut matches);
+        }
+        matches
+    }
+
+    #[must_use]
+    pub fn items(&self, lang: Lang, term: &str) -> ItemMatches {
+        let mut matches = ItemMatches::new();
+        if let Some(lang_terms) = self.terms.get(&lang) {
+            if term.chars().count() < 5 {
+                lang_terms.fuzzy_search(term, &mut matches);
+            } else {
+                lang_terms.prefix_fuzzy_search(term, &mut matches);
+            }
+        }
+        matches
     }
 }

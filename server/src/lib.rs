@@ -20,19 +20,24 @@ pub async fn get_item_expansion(
     State(state): State<Arc<AppState>>,
 ) -> Json<Value> {
     let filter_lang = Lang::from(filter_lang_id);
-    Json(state.data.expand(item_id, filter_lang))
+    Json(state.data.expanded_item_json(item_id, filter_lang))
 }
 
 pub async fn get_lang_search_matches(
     Path(lang): Path<String>,
     State(state): State<Arc<AppState>>,
 ) -> Json<Value> {
-    Json(state.search.langs(&lang))
+    let mut matches = state.search.langs(&lang);
+    matches.sort();
+    Json(matches.json())
 }
 
 pub async fn get_item_search_matches(
-    Path((lang, term)): Path<(LangId, String)>,
+    Path((lang_id, term)): Path<(LangId, String)>,
     State(state): State<Arc<AppState>>,
 ) -> Json<Value> {
-    Json(state.search.items(lang, &term))
+    let lang = Lang::from(lang_id);
+    let mut matches = state.search.items(lang, &term);
+    matches.sort(&state.data);
+    Json(matches.json(&state.data))
 }
