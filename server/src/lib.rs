@@ -27,9 +27,8 @@ pub async fn get_lang_search_matches(
     Path(lang): Path<String>,
     State(state): State<Arc<AppState>>,
 ) -> Json<Value> {
-    let mut matches = state.search.langs(&lang);
-    matches.sort();
-    Json(matches.json())
+    let matches = state.search.langs(&lang);
+    Json(matches)
 }
 
 pub async fn get_item_search_matches(
@@ -37,7 +36,6 @@ pub async fn get_item_search_matches(
     State(state): State<Arc<AppState>>,
 ) -> Json<Value> {
     let lang = Lang::from(lang_id);
-    let mut matches = state.search.items(lang, &term);
-    matches.sort(&state.data);
-    Json(matches.json(&state.data))
+    let matches = state.search.items(&state.data, lang, &term);
+    Json(matches)
 }

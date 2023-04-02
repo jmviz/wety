@@ -27,3 +27,4 @@ serde_json = {workspace = true}
 sled = "0.34.7"
 xxhash-rust = {version="0.8.6", features=["xxh3"]}
 fuzzy_trie = "1.2.0"
+ngrammatic = "0.4.0"

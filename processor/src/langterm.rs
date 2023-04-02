@@ -10,11 +10,10 @@ use crate::{
 };
 
 // See data/phf/lang.py for more on these, but in summary:
-// LANG_CODE2NAME: A bijection from all lang codes to their canonical names,
-// e.g. "en" -> "English".
-// LANG_NAME2CODE: Not merely the inverse of CODE2NAME. Many languages have
-// multiple names, each of which maps to the same lang code (i.e. the map is
-// surjective but not injective).
+// LANG_CODE2NAME: A map from from all lang codes to their canonical names. Many
+// canonical names have multiple codes mapping to them.
+// LANG_NAME2CODE: A map from all lang names to their canonical codes. Many
+// canonical codes have multiple names mapping to them.
 // LANG_ETYCODE2CODE: Maps every etymology-only lang code to the lang code of
 // its nearest "main" parent (i.e. lang code for which a wiktionary page can
 // exist), e.g. "VL." -> "la"
@@ -23,7 +22,7 @@ use crate::{
 // LangId refers to an index in the LANG_CODE2NAME OrderedMap
 pub type LangId = u16; // The map has ~10k elements
 
-#[derive(Hash, Eq, PartialEq, Debug, Copy, Clone, Serialize, Deserialize)]
+#[derive(Default, Hash, Eq, PartialEq, Debug, Copy, Clone, Serialize, Deserialize)]
 pub struct Lang {
     id: LangId,
 }
@@ -38,12 +37,15 @@ impl FromStr for Lang {
     type Err = anyhow::Error;
 
     fn from_str(lang_code: &str) -> Result<Self, Self::Err> {
-        if let Some(id) = LANG_CODE2NAME.get_index(lang_code) {
+        // get the canonical name, then get the canonical code
+        if let Some(id) = LANG_CODE2NAME
+            .get(lang_code)
+            .and_then(|name| LANG_NAME2CODE.get(name))
+            .and_then(|code| LANG_CODE2NAME.get_index(code))
+        {
             return Ok(LangId::try_from(id)?.into());
         }
-        Err(anyhow!(
-            "The key \"{lang_code}\" does not exist LANG_CODE2NAME"
-        ))
+        Err(anyhow!("Unknown lang code \"{lang_code}\""))
     }
 }
 
@@ -63,6 +65,24 @@ impl Lang {
             .get_index_value(self.id as usize)
             .expect("id cannot have been created without being a valid index")
     }
+
+    pub(crate) fn normalized_name(self) -> String {
+        self.name()
+            .chars()
+            .filter(|c| !matches!(c, '(' | ')'))
+            .map(|c| match c {
+                '-' => ' ',
+                _ => c.to_ascii_lowercase(),
+            })
+            .collect()
+    }
+
+    // pub(crate) fn name_parts(self) -> impl Iterator<Item = &'static str> {
+    //     self.name()
+    //         .split(|c| c == '-' || c == ' ')
+    //         .map(|s| s.strip_prefix('(').unwrap_or(s))
+    //         .map(|s| s.strip_suffix(')').unwrap_or(s))
+    // }
 
     // If lang is an etymology-only language, we will not find any entries
     // for it in Items lang map, since such a language definitionally does

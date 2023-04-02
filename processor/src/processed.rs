@@ -19,6 +19,7 @@ use flate2::{read::GzDecoder, write::GzEncoder, Compression};
 use fuzzy_trie::{Collector, FuzzyTrie};
 use indicatif::HumanDuration;
 use itertools::Itertools;
+use ngrammatic::{Corpus, CorpusBuilder, Pad};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 
@@ -70,8 +71,20 @@ impl Data {
 
 // private methods for use within pub methods below
 impl Data {
-    fn get_item(&self, item: ItemId) -> &Item {
+    fn get(&self, item: ItemId) -> &Item {
         &self.items[item as usize]
+    }
+
+    fn term_len(&self, item: ItemId) -> usize {
+        self.get(item)
+            .term
+            .resolve(&self.string_pool)
+            .chars()
+            .count()
+    }
+
+    fn ety_num(&self, item: ItemId) -> u8 {
+        self.get(item).ety_num
     }
 }
 
@@ -97,7 +110,7 @@ impl Data {
     }
 
     fn item_json(&self, item: ItemId) -> Value {
-        let item = self.get_item(item);
+        let item = self.get(item);
         json!({
             "id": item.id,
             "ety_num": item.ety_num,
@@ -113,12 +126,12 @@ impl Data {
 
     #[must_use]
     pub fn expanded_item_json(&self, item_id: ItemId, filter_lang: Lang) -> Value {
-        let item = self.get_item(item_id);
+        let item = self.get(item_id);
         let children = (item.lang != filter_lang).then_some(
             self.graph
                 .get_head_children(item_id)
                 .filter(|child| {
-                    self.get_item(*child).lang == filter_lang
+                    self.get(*child).lang == filter_lang
                         || self
                             .head_progeny_langs
                             .get(child)
@@ -134,8 +147,62 @@ impl Data {
     }
 }
 
+// #[derive(Default)]
+// struct LangsData {
+//     parts: HashMap<&'static str, HashSet<Lang>>,
+//     langs: HashMap<Lang, LangData>,
+// }
+
+// impl Data {
+//     fn build_langs_data(&self) -> LangsData {
+//         let mut data = LangsData::default();
+//         for item in &self.items {
+//             match data.langs.entry(item.lang) {
+//                 Entry::Occupied(mut lang) => {
+//                     let lang = lang.get_mut();
+//                     lang.items += 1;
+//                 }
+//                 Entry::Vacant(lang) => {
+//                     let mut parts = vec![];
+//                     for part in item.lang.name_parts() {
+//                         match data.parts.entry(part) {
+//                             Entry::Occupied(mut p) => {
+//                                 p.get_mut().insert(item.lang);
+//                             }
+//                             Entry::Vacant(p) => {
+//                                 let mut s = HashSet::default();
+//                                 s.insert(item.lang);
+//                                 p.insert(s);
+//                             }
+//                         }
+//                         parts.push(part);
+//                     }
+//                     lang.insert(LangData { items: 1, parts });
+//                 }
+//             }
+//         }
+//         data
+//     }
+// }
+
+// impl LangsData {
+//     fn build_lang_search(self) -> FuzzyTrie<LangData> {
+//         let mut search = FuzzyTrie::new(1, true);
+//         for (lang, data) in self.langs {
+
+//         }
+//     }
+// }
+
+#[derive(Default)]
+struct LangData {
+    lang: Lang,
+    items: usize,
+}
+
 pub struct Search {
-    langs: FuzzyTrie<Lang>,
+    normalized_langs: HashMap<String, LangData>,
+    langs: Corpus,
     terms: HashMap<Lang, FuzzyTrie<ItemId>>,
 }
 
@@ -144,70 +211,129 @@ impl Data {
     pub fn build_search(&self) -> Search {
         let t = Instant::now();
         println!("Building search tries...");
-        let mut langs = FuzzyTrie::new(1, true);
+        let mut normalized_langs = HashMap::<String, LangData>::default();
+        let mut langs = CorpusBuilder::new().arity(4).pad_full(Pad::Auto).finish();
         let mut terms = HashMap::<Lang, FuzzyTrie<ItemId>>::default();
         for item in &self.items {
+            let norm_lang = item.lang.normalized_name();
             let term = item.term.resolve(&self.string_pool);
             match terms.entry(item.lang) {
                 Entry::Occupied(mut t) => {
                     t.get_mut().insert(term).insert(item.id);
                 }
                 Entry::Vacant(e) => {
-                    langs
-                        .insert(&item.lang.name().to_ascii_lowercase())
-                        .insert(item.lang);
                     let t = e.insert(FuzzyTrie::new(1, true));
                     t.insert(term).insert(item.id);
                 }
             }
+            if let Some(lang_data) = normalized_langs.get_mut(&norm_lang) {
+                lang_data.items += 1;
+            } else {
+                normalized_langs.insert(
+                    norm_lang.clone(),
+                    LangData {
+                        lang: item.lang,
+                        items: 1,
+                    },
+                );
+                langs.add_text(&norm_lang);
+            }
         }
         println!("Finished. Took {:#?}.", t.elapsed());
-        Search { langs, terms }
+        Search {
+            normalized_langs,
+            langs,
+            terms,
+        }
     }
 }
 
-struct LangMatch {
-    distance: u8,
-    lang: Lang,
-}
-
-impl LangMatch {
-    fn json(&self) -> Value {
-        json!({
-            "distance": self.distance,
-            "lang": self.lang.name(),
-            "id": self.lang.id(),
-        })
-    }
-}
-
-pub struct LangMatches {
-    matches: Vec<LangMatch>,
-}
-
-impl LangMatches {
-    fn new() -> Self {
-        Self { matches: vec![] }
-    }
-
-    pub fn sort(&mut self) {
-        self.matches
-            .sort_unstable_by(|a, b| a.distance.cmp(&b.distance));
-    }
-
-    pub fn json(&self) -> Value {
-        json!({"matches": self.matches.iter().map(|m| m.json()).collect_vec()})
-    }
-}
-
-impl<'a> Collector<'a, Lang> for LangMatches {
-    fn push(&mut self, distance: u8, lang: &'a Lang) {
-        self.matches.push(LangMatch {
-            distance,
-            lang: *lang,
+impl Search {
+    #[must_use]
+    pub fn langs(&self, lang: &str) -> Value {
+        let mut matches = self
+            .langs
+            .search(lang, 0.4)
+            .iter()
+            .filter_map(|r| {
+                self.normalized_langs
+                    .get(&r.text)
+                    .map(|lang_data| (r.similarity, lang_data))
+            })
+            .collect_vec();
+        matches.sort_unstable_by(|a, b| {
+            if (a.0 - b.0).abs() < 0.1 {
+                b.1.items.cmp(&a.1.items)
+            } else {
+                b.0.total_cmp(&a.0)
+            }
         });
+        let matches = matches
+            .iter()
+            .map(|(similarity, lang_data)| {
+                json!({
+                    "lang": lang_data.lang.name(),
+                    "id": lang_data.lang.id(),
+                    "similarity": similarity,
+                    "items": lang_data.items,
+                })
+            })
+            .collect_vec();
+        json!({ "matches": matches })
     }
 }
+// struct LangMatch {
+//     similarity: u8,
+//     lang: Lang,
+// }
+
+// impl LangMatch {
+//     fn json(&self) -> Value {
+//         json!({
+//             "lang": self.lang.name(),
+//             "id": self.lang.id(),
+//             "similarity": self.similarity,
+//             "items":
+//         })
+//     }
+// }
+
+// pub struct LangMatches {
+//     matches: Vec<LangMatch>,
+// }
+
+// impl LangMatches {
+//     fn new() -> Self {
+//         Self { matches: vec![] }
+//     }
+
+//     pub fn sort(&mut self) {
+//         self.matches.sort_unstable_by(|a, b| {
+//             if a.similarity == b.similarity {
+//                 a.lang
+//                     .name()
+//                     .chars()
+//                     .count()
+//                     .cmp(&b.lang.name().chars().count())
+//             } else {
+//                 a.similarity.cmp(&b.similarity)
+//             }
+//         });
+//     }
+
+//     pub fn json(&self) -> Value {
+//         json!({"matches": self.matches.iter().map(|m| m.json()).collect_vec()})
+//     }
+// }
+
+// impl<'a> Collector<'a, Lang> for LangMatches {
+//     fn push(&mut self, distance: u8, lang: &'a Lang) {
+//         self.matches.push(LangMatch {
+//             similarity: distance,
+//             lang: *lang,
+//         });
+//     }
+// }
 
 struct ItemMatch {
     distance: u8,
@@ -233,19 +359,27 @@ impl ItemMatches {
         Self { matches: vec![] }
     }
 
-    pub fn sort(&mut self, data: &Data) {
+    fn is_empty(&self) -> bool {
+        self.matches.is_empty()
+    }
+
+    fn sort(&mut self, data: &Data) {
         self.matches.sort_unstable_by(|a, b| {
             if a.distance == b.distance {
-                data.get_item(a.item)
-                    .ety_num
-                    .cmp(&data.get_item(b.item).ety_num)
+                let a_len = data.term_len(a.item);
+                let b_len = data.term_len(b.item);
+                if a_len == b_len {
+                    data.ety_num(a.item).cmp(&data.ety_num(b.item))
+                } else {
+                    a_len.cmp(&b_len)
+                }
             } else {
                 a.distance.cmp(&b.distance)
             }
         });
     }
 
-    pub fn json(&self, data: &Data) -> Value {
+    fn json(&self, data: &Data) -> Value {
         json!({"matches": self.matches.iter().map(|m| m.json(data)).collect_vec()})
     }
 }
@@ -261,26 +395,15 @@ impl<'a> Collector<'a, ItemId> for ItemMatches {
 
 impl Search {
     #[must_use]
-    pub fn langs(&self, lang: &str) -> LangMatches {
-        let mut matches = LangMatches::new();
-        if lang.chars().count() < 5 {
-            self.langs.fuzzy_search(lang, &mut matches);
-        } else {
-            self.langs.prefix_fuzzy_search(lang, &mut matches);
-        }
-        matches
-    }
-
-    #[must_use]
-    pub fn items(&self, lang: Lang, term: &str) -> ItemMatches {
+    pub fn items(&self, data: &Data, lang: Lang, term: &str) -> Value {
         let mut matches = ItemMatches::new();
         if let Some(lang_terms) = self.terms.get(&lang) {
-            if term.chars().count() < 5 {
-                lang_terms.fuzzy_search(term, &mut matches);
-            } else {
+            lang_terms.fuzzy_search(term, &mut matches);
+            if matches.is_empty() {
                 lang_terms.prefix_fuzzy_search(term, &mut matches);
             }
         }
-        matches
+        matches.sort(data);
+        matches.json(data)
     }
 }
