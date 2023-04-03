@@ -1,19 +1,23 @@
 use processor::Data;
 use server::{get_item_expansion, get_item_search_matches, get_lang_search_matches, AppState};
 use tower::ServiceBuilder;
-use tower_http::compression::CompressionLayer;
+use tower_http::{compression::CompressionLayer, cors::CorsLayer};
 
 use std::{env, path::Path, sync::Arc};
 
 use anyhow::{Ok, Result};
-use axum::{routing::get, Router, Server};
+use axum::{
+    http::{HeaderValue, Method},
+    routing::get,
+    Router, Server,
+};
 
 #[tokio::main]
 async fn main() -> Result<()> {
     env::set_var("RUST_BACKTRACE", "1");
 
-    // let data = Data::deserialize(Path::new("data/test_output/wety.json.gz"))?;
-    let data = Data::deserialize(Path::new("data/wety.json.gz"))?;
+    let data = Data::deserialize(Path::new("data/test_output/wety.json.gz"))?;
+    // let data = Data::deserialize(Path::new("data/wety.json.gz"))?;
     let search = data.build_search();
     let state = Arc::new(AppState { data, search });
 
@@ -32,7 +36,12 @@ async fn main() -> Result<()> {
                 // https://docs.rs/tower/0.4.13/tower/limit/struct.ConcurrencyLimitLayer.html
                 // https://docs.rs/tower/0.4.13/tower/timeout/struct.TimeoutLayer.html
                 // https://docs.rs/axum/latest/axum/error_handling/struct.HandleErrorLayer.html
-                .layer(CompressionLayer::new()),
+                .layer(CompressionLayer::new())
+                .layer(
+                    CorsLayer::new()
+                        .allow_methods([Method::GET])
+                        .allow_origin("http://localhost:8000".parse::<HeaderValue>()?),
+                ),
         );
 
     Server::bind(&"0.0.0.0:3000".parse()?)

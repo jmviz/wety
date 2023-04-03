@@ -10,21 +10,23 @@ mod etymology;
 mod etymology_templates;
 mod gloss;
 mod items;
+#[cfg(feature = "processed")]
+pub use crate::items::ItemId;
 mod lang_phf;
 mod langterm;
+#[cfg(feature = "processed")]
+pub use crate::langterm::{Lang, LangId};
 mod phf_ext;
 mod pos;
 mod pos_phf;
-pub mod processed;
+mod processed;
+#[cfg(feature = "processed")]
+pub use crate::processed::{Data, Search};
 mod redirects;
 mod root;
 mod string_pool;
 mod turtle;
 mod wiktextract_json;
-
-pub use crate::items::ItemId;
-pub use crate::langterm::{Lang, LangId};
-pub use crate::processed::{Data, Search};
 
 use crate::{string_pool::StringPool, wiktextract_json::process_wiktextract_lines};
 
