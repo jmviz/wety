@@ -181,15 +181,15 @@ impl Data {
             .key_trans(Box::new(normalize_lang_name))
             .finish();
         let mut terms = HashMap::<Lang, FuzzyTrie<ItemId>>::default();
-        for item in &self.items {
+        for item in self.items.iter().filter(|item| !item.is_imputed) {
             let norm_lang = normalize_lang_name(item.lang.name());
             let term = item.term.resolve(&self.string_pool);
             match terms.entry(item.lang) {
                 Entry::Occupied(mut t) => {
-                    t.get_mut().insert(term).insert(item.id);
+                    t.get_mut().insert(&term.to_lowercase()).insert(item.id);
                 }
                 Entry::Vacant(e) => {
-                    let t = e.insert(FuzzyTrie::new(1, true));
+                    let t = e.insert(FuzzyTrie::new(0, false));
                     t.insert(term).insert(item.id);
                 }
             }
@@ -197,13 +197,13 @@ impl Data {
                 lang_data.items += 1;
             } else {
                 normalized_langs.insert(
-                    norm_lang.clone(),
+                    norm_lang,
                     LangData {
                         lang: item.lang,
                         items: 1,
                     },
                 );
-                langs.add_text(&norm_lang);
+                langs.add_text(item.lang.name());
             }
         }
         println!("Finished. Took {:#?}.", t.elapsed());
@@ -314,7 +314,7 @@ impl Search {
         let mut matches = ItemMatches::new();
         if let Some(lang_terms) = self.terms.get(&lang) {
             lang_terms.fuzzy_search(term, &mut matches);
-            if matches.is_empty() {
+            if matches.is_empty() && term.chars().count() > 5 {
                 lang_terms.prefix_fuzzy_search(term, &mut matches);
             }
         }
