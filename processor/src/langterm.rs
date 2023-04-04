@@ -66,24 +66,6 @@ impl Lang {
             .expect("id cannot have been created without being a valid index")
     }
 
-    pub(crate) fn normalized_name(self) -> String {
-        self.name()
-            .chars()
-            .filter(|c| !matches!(c, '(' | ')'))
-            .map(|c| match c {
-                '-' => ' ',
-                _ => c.to_ascii_lowercase(),
-            })
-            .collect()
-    }
-
-    // pub(crate) fn name_parts(self) -> impl Iterator<Item = &'static str> {
-    //     self.name()
-    //         .split(|c| c == '-' || c == ' ')
-    //         .map(|s| s.strip_prefix('(').unwrap_or(s))
-    //         .map(|s| s.strip_suffix(')').unwrap_or(s))
-    // }
-
     // If lang is an etymology-only language, we will not find any entries
     // for it in Items lang map, since such a language definitionally does
     // not have any entries itself. So we look for the main lang that the

@@ -147,53 +147,6 @@ impl Data {
     }
 }
 
-// #[derive(Default)]
-// struct LangsData {
-//     parts: HashMap<&'static str, HashSet<Lang>>,
-//     langs: HashMap<Lang, LangData>,
-// }
-
-// impl Data {
-//     fn build_langs_data(&self) -> LangsData {
-//         let mut data = LangsData::default();
-//         for item in &self.items {
-//             match data.langs.entry(item.lang) {
-//                 Entry::Occupied(mut lang) => {
-//                     let lang = lang.get_mut();
-//                     lang.items += 1;
-//                 }
-//                 Entry::Vacant(lang) => {
-//                     let mut parts = vec![];
-//                     for part in item.lang.name_parts() {
-//                         match data.parts.entry(part) {
-//                             Entry::Occupied(mut p) => {
-//                                 p.get_mut().insert(item.lang);
-//                             }
-//                             Entry::Vacant(p) => {
-//                                 let mut s = HashSet::default();
-//                                 s.insert(item.lang);
-//                                 p.insert(s);
-//                             }
-//                         }
-//                         parts.push(part);
-//                     }
-//                     lang.insert(LangData { items: 1, parts });
-//                 }
-//             }
-//         }
-//         data
-//     }
-// }
-
-// impl LangsData {
-//     fn build_lang_search(self) -> FuzzyTrie<LangData> {
-//         let mut search = FuzzyTrie::new(1, true);
-//         for (lang, data) in self.langs {
-
-//         }
-//     }
-// }
-
 #[derive(Default)]
 struct LangData {
     lang: Lang,
@@ -206,16 +159,30 @@ pub struct Search {
     terms: HashMap<Lang, FuzzyTrie<ItemId>>,
 }
 
+fn normalize_lang_name(name: &str) -> String {
+    name.chars()
+        .filter(|c| !matches!(c, '(' | ')'))
+        .map(|c| match c {
+            '-' => ' ',
+            _ => c.to_ascii_lowercase(),
+        })
+        .collect()
+}
+
 impl Data {
     #[must_use]
     pub fn build_search(&self) -> Search {
         let t = Instant::now();
         println!("Building search tries...");
         let mut normalized_langs = HashMap::<String, LangData>::default();
-        let mut langs = CorpusBuilder::new().arity(4).pad_full(Pad::Auto).finish();
+        let mut langs = CorpusBuilder::new()
+            .arity(4)
+            .pad_full(Pad::Auto)
+            .key_trans(Box::new(normalize_lang_name))
+            .finish();
         let mut terms = HashMap::<Lang, FuzzyTrie<ItemId>>::default();
         for item in &self.items {
-            let norm_lang = item.lang.normalized_name();
+            let norm_lang = normalize_lang_name(item.lang.name());
             let term = item.term.resolve(&self.string_pool);
             match terms.entry(item.lang) {
                 Entry::Occupied(mut t) => {
@@ -282,58 +249,6 @@ impl Search {
         json!({ "matches": matches })
     }
 }
-// struct LangMatch {
-//     similarity: u8,
-//     lang: Lang,
-// }
-
-// impl LangMatch {
-//     fn json(&self) -> Value {
-//         json!({
-//             "lang": self.lang.name(),
-//             "id": self.lang.id(),
-//             "similarity": self.similarity,
-//             "items":
-//         })
-//     }
-// }
-
-// pub struct LangMatches {
-//     matches: Vec<LangMatch>,
-// }
-
-// impl LangMatches {
-//     fn new() -> Self {
-//         Self { matches: vec![] }
-//     }
-
-//     pub fn sort(&mut self) {
-//         self.matches.sort_unstable_by(|a, b| {
-//             if a.similarity == b.similarity {
-//                 a.lang
-//                     .name()
-//                     .chars()
-//                     .count()
-//                     .cmp(&b.lang.name().chars().count())
-//             } else {
-//                 a.similarity.cmp(&b.similarity)
-//             }
-//         });
-//     }
-
-//     pub fn json(&self) -> Value {
-//         json!({"matches": self.matches.iter().map(|m| m.json()).collect_vec()})
-//     }
-// }
-
-// impl<'a> Collector<'a, Lang> for LangMatches {
-//     fn push(&mut self, distance: u8, lang: &'a Lang) {
-//         self.matches.push(LangMatch {
-//             similarity: distance,
-//             lang: *lang,
-//         });
-//     }
-// }
 
 struct ItemMatch {
     distance: u8,
