@@ -145,6 +145,13 @@ impl Graph {
             head,
         })
     }
+
+    pub(crate) fn get_ety_mode(&self, item_id: ItemId) -> Option<EtyMode> {
+        self.graph
+            .edges(item_id.into())
+            .next()
+            .map(|e| e.weight().mode)
+    }
 }
 
 struct Tracker {

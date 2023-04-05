@@ -1,5 +1,8 @@
 use processor::Data;
-use server::{get_item_expansion, get_item_search_matches, get_lang_search_matches, AppState};
+use server::{
+    get_item_expansion, get_item_head_progenitor_tree, get_item_search_matches,
+    get_lang_search_matches, AppState,
+};
 use tower::ServiceBuilder;
 use tower_http::{compression::CompressionLayer, cors::CorsLayer};
 
@@ -24,9 +27,13 @@ async fn main() -> Result<()> {
     println!("Running wety server...");
 
     let app = Router::new()
-        .route("/expand/:item/filter/:lang", get(get_item_expansion))
         .route("/langs/:lang", get(get_lang_search_matches))
         .route("/items/:lang/:term", get(get_item_search_matches))
+        .route("/expand/:item/filter/:lang", get(get_item_expansion))
+        .route(
+            "/headProgenitorTree/:item/filter/:lang",
+            get(get_item_head_progenitor_tree),
+        )
         .with_state(state)
         .layer(
             ServiceBuilder::new()

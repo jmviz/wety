@@ -109,13 +109,14 @@ impl Data {
         Ok(data)
     }
 
-    fn item_json(&self, item: ItemId) -> Value {
-        let item = self.get(item);
+    fn item_json(&self, item_id: ItemId) -> Value {
+        let item = self.get(item_id);
         json!({
             "id": item.id,
             "ety_num": item.ety_num,
             "lang": item.lang.name(),
             "term": item.term.resolve(&self.string_pool),
+            "ety_mode": self.graph.get_ety_mode(item_id),
             "imputed": item.is_imputed,
             "reconstructed": item.lang.is_reconstructed(),
             "url": item.url(&self.string_pool),
@@ -144,6 +145,14 @@ impl Data {
             "item": self.item_json(item_id),
             "children": children,
         })
+    }
+
+    #[must_use]
+    pub fn head_progenitor_tree(&self, item_id: ItemId, filter_lang: Lang) -> Value {
+        self.progenitors.get(&item_id).map_or_else(
+            || json!({}),
+            |p| self.expanded_item_json(p.head(), filter_lang),
+        )
     }
 }
 
