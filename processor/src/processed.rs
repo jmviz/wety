@@ -149,10 +149,13 @@ impl Data {
 
     #[must_use]
     pub fn head_progenitor_tree(&self, item_id: ItemId, filter_lang: Lang) -> Value {
-        self.progenitors.get(&item_id).map_or_else(
-            || json!({}),
-            |p| self.expanded_item_json(p.head(), filter_lang),
-        )
+        self.progenitors
+            .get(&item_id)
+            .and_then(|p| p.head)
+            .map_or_else(
+                || json!({}),
+                |head| self.expanded_item_json(head, filter_lang),
+            )
     }
 }
 

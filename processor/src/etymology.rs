@@ -33,7 +33,7 @@ impl From<Vec<RawEtyTemplate>> for RawEtymology {
 pub(crate) struct RawEtyTemplate {
     pub(crate) langterms: Box<[LangTerm]>, // e.g. "en" "re-", "en" "do"
     pub(crate) mode: EtyMode,              // e.g. Prefix
-    pub(crate) head: u8,                   // e.g. 1 (the index of "do")
+    pub(crate) head: Option<u8>,           // e.g. 1 (the index of "do")
 }
 
 impl RawEtyTemplate {
@@ -41,7 +41,7 @@ impl RawEtyTemplate {
         Self {
             langterms: Box::from([langterm]),
             mode,
-            head: 0,
+            head: Some(0),
         }
     }
 }
@@ -82,7 +82,7 @@ fn process_prefix_json_template(
     Some(RawEtyTemplate {
         langterms: Box::new([ety_prefix, ety_term]),
         mode: EtyMode::Prefix,
-        head: 1,
+        head: Some(1),
     })
 }
 
@@ -99,7 +99,7 @@ fn process_suffix_json_template(
     Some(RawEtyTemplate {
         langterms: Box::new([ety_term, ety_suffix]),
         mode: EtyMode::Suffix,
-        head: 0,
+        head: Some(0),
     })
 }
 
@@ -118,7 +118,7 @@ fn process_circumfix_json_template(
     Some(RawEtyTemplate {
         langterms: Box::new([ety_term, ety_circumfix]),
         mode: EtyMode::Circumfix,
-        head: 0,
+        head: Some(0),
     })
 }
 
@@ -136,7 +136,7 @@ fn process_infix_json_template(
     Some(RawEtyTemplate {
         langterms: Box::new([ety_term, ety_infix]),
         mode: EtyMode::Infix,
-        head: 0,
+        head: Some(0),
     })
 }
 
@@ -157,7 +157,7 @@ fn process_confix_json_template(
         return Some(RawEtyTemplate {
             langterms: Box::new([ety_prefix, ety_term, ety_suffix]),
             mode: EtyMode::Confix,
-            head: 1,
+            head: Some(1),
         });
     }
     let ety_suffix = format!("-{ety2}");
@@ -165,7 +165,7 @@ fn process_confix_json_template(
     Some(RawEtyTemplate {
         langterms: Box::new([ety_prefix, ety_suffix]),
         mode: EtyMode::Confix,
-        head: 0, // no true head here, arbitrarily take first
+        head: None, // no true head here
     })
 }
 
@@ -177,7 +177,16 @@ fn process_compound_kind_json_template(
 ) -> Option<RawEtyTemplate> {
     let mut n = 2;
     let mut ety_langterms = vec![];
+    let mut head = None;
     while let Some(ety_term) = args.get_valid_str(n.to_string().as_str()) {
+        // These compound-kind templates generally have no true head (affix is
+        // the most common of these templates, see that). Arbitrarily take the
+        // first ety_term which is not indicated to be some kind of *fix as the
+        // head. $$ We may need to just not give a head in any case in this
+        // function if this turns out to be too loose.
+        if head.is_none() && !ety_term.starts_with('-') && !ety_term.ends_with('-') {
+            head = Some(n - 2);
+        }
         if let Some(ety_lang) = args.get_valid_str(format!("lang{n}").as_str()) {
             let ety_lang = Lang::from_str(ety_lang).ok()?;
             let ety_langterm = ety_lang.new_langterm(string_pool, ety_term);
@@ -192,7 +201,7 @@ fn process_compound_kind_json_template(
         return Some(RawEtyTemplate {
             langterms: ety_langterms.into_boxed_slice(),
             mode,
-            head: 0, // no true head here, arbitrarily take first
+            head, // see above
         });
     }
     None

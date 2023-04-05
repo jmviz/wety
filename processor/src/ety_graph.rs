@@ -69,13 +69,13 @@ pub(crate) struct EtyLink {
 // the parents of some item
 pub(crate) struct ImmediateEty {
     pub(crate) items: Vec<ItemId>,
-    pub(crate) head: u8,
+    pub(crate) head: Option<u8>,
     pub(crate) mode: EtyMode,
 }
 
 impl ImmediateEty {
-    fn head(&self) -> ItemId {
-        self.items[self.head as usize]
+    fn head(&self) -> Option<ItemId> {
+        self.head.map(|head| self.items[head as usize])
     }
 }
 
@@ -83,20 +83,16 @@ impl ImmediateEty {
 #[derive(Serialize, Deserialize)]
 pub(crate) struct Progenitors {
     pub(crate) items: Box<[ItemId]>,
+    // the terminal node reached by following the "head" parent at each step
+    pub(crate) head: Option<ItemId>,
 }
 
 impl Progenitors {
-    fn new(mut progenitors: HashSet<ItemId>, head: ItemId) -> Self {
-        let mut items = vec![head];
-        progenitors.remove(&head);
-        items.extend(progenitors);
+    fn new(mut progenitors: HashSet<ItemId>, head: Option<ItemId>) -> Self {
         Self {
-            items: items.into_boxed_slice(),
+            items: progenitors.drain().collect_vec().into_boxed_slice(),
+            head,
         }
-    }
-    // the terminal node reached by following the "head" parent at each step
-    pub(crate) fn head(&self) -> ItemId {
-        self.items[0]
     }
 }
 
@@ -121,7 +117,7 @@ impl Graph {
         // Next two lines are dummy assignments. If there are any parents in the
         // ety_graph, they will get overwritten with correct values. If no
         // parents, they will not get returned.
-        let mut head = 0;
+        let mut head = None;
         let mut mode = EtyMode::Derived;
         for (ety_link, &ety_item_id) in self
             .graph
@@ -132,7 +128,7 @@ impl Graph {
             order.push(ety_link.order);
             mode = ety_link.mode;
             if ety_link.head {
-                head = ety_link.order;
+                head = Some(ety_link.order);
             }
         }
         ety_item_ids = order
@@ -157,7 +153,7 @@ impl Graph {
 struct Tracker {
     unexpanded: Vec<ItemId>,
     progenitors: HashSet<ItemId>,
-    head: ItemId,
+    head: Option<ItemId>,
 }
 
 impl Graph {
@@ -179,7 +175,9 @@ impl Graph {
             if let Some(immediate_ety) = self.get_immediate_ety(item) {
                 let ety_head = immediate_ety.head();
                 for &ety_item in &immediate_ety.items {
-                    if t.head == item && ety_item == ety_head {
+                    if t.head.is_some_and(|h| h == item)
+                        && ety_head.is_some_and(|eh| eh == ety_item)
+                    {
                         t.head = ety_head;
                     }
                     t.unexpanded.push(ety_item);
@@ -271,7 +269,7 @@ impl Graph {
         &mut self,
         item: ItemId,
         mode: EtyMode,
-        head: u8,
+        head: Option<u8>,
         ety_items: &[ItemId],
         confidences: &[f32],
     ) {
@@ -305,7 +303,7 @@ impl Graph {
             let ety_link = EtyLink {
                 mode,
                 order: i,
-                head: head == i,
+                head: head.map_or(false, |head| head == i),
                 confidence,
             };
             self.graph.add_edge(item.into(), ety_item.into(), ety_link);
@@ -346,7 +344,7 @@ impl EtyGraph {
         &mut self,
         item: ItemId,
         mode: EtyMode,
-        head: u8,
+        head: Option<u8>,
         ety_items: &[ItemId],
         confidences: &[f32],
     ) {

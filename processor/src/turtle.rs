@@ -143,7 +143,9 @@ impl Data {
         if let Some(immediate_ety) = self.graph.get_immediate_ety(item.id) {
             let mode = immediate_ety.mode.as_ref();
             write_item_quoted_prop(f, PRED_MODE, mode)?;
-            writeln!(f, "  {PRED_HEAD} {} ;", immediate_ety.head)?;
+            if let Some(head) = immediate_ety.head {
+                writeln!(f, "  {PRED_HEAD} {head} ;",)?;
+            }
             write!(f, "  {PRED_SOURCE} ")?;
             for (e_i, ety_item) in immediate_ety.items.iter().enumerate() {
                 write!(
@@ -154,8 +156,9 @@ impl Data {
             }
         }
         if let Some(progenitors) = self.progenitors.get(&item.id) {
-            let head = progenitors.head();
-            writeln!(f, "  {PRED_HEAD_PROGENITOR} {ITEM_PRE}{head} ;")?;
+            if let Some(head) = progenitors.head {
+                writeln!(f, "  {PRED_HEAD_PROGENITOR} {ITEM_PRE}{head} ;")?;
+            }
             write!(f, "  {PRED_PROGENITOR} ")?;
             for (p_i, progenitor) in progenitors.items.iter().enumerate() {
                 write!(f, "{ITEM_PRE}{progenitor}")?;
