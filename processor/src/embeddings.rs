@@ -206,7 +206,7 @@ pub enum EmbeddingsModel {
     SentenceT5Base,
 }
 
-pub const DEFAULT_MODEL: EmbeddingsModel = EmbeddingsModel::AllMiniLmL6V2;
+pub const DEFAULT_MODEL: EmbeddingsModel = EmbeddingsModel::AllMiniLmL12V2;
 pub const DEFAULT_BATCH_SIZE: usize = 800;
 pub const DEFAULT_PROGRESS_UPDATE_INTERVAL: usize = DEFAULT_BATCH_SIZE * 10;
 
