@@ -5,7 +5,6 @@ use crate::{
     gloss::Gloss,
     items::{ItemId, RawItems, Retrieval},
     langterm::{Lang, LangTerm, Term},
-    pos::Pos,
     progress_bar,
     string_pool::StringPool,
     wiktextract_json::{WiktextractJson, WiktextractJsonItem, WiktextractJsonValidStr},
@@ -348,8 +347,9 @@ impl RawItems {
         raw_descendants: &RawDescendants,
         item: ItemId,
     ) -> Result<()> {
+        let item_lang = self.get(item).lang;
         let mut ancestors = Ancestors::new(&item);
-        'outer: for line in raw_descendants.lines.iter() {
+        'lines: for line in raw_descendants.lines.iter() {
             let parent = ancestors.prune_and_get_parent(line.depth);
             match &line.kind {
                 RawDescLineKind::Desc { desc } => {
@@ -359,11 +359,24 @@ impl RawItems {
                     let (mut desc_items, mut confidences, mut modes) = (vec![], vec![], vec![]);
                     for (i, (&term, &mode)) in desc.terms.iter().zip(desc.modes.iter()).enumerate()
                     {
+                        // Sometimes a within-language compound is listed as a
+                        // descendant. See e.g. PIE men- page, where compound of
+                        // men- and dʰeh₁- is listed, or PIE bʰer- page, where
+                        // compound of h₂ed and bʰer- is listed. We try to skip
+                        // these lines, as otherwise we would e.g. end up making
+                        // a connection from bʰer- to h₂éd, which will
+                        // completely screw up both of their total descendants
+                        // trees. $$ In general, we may need to end up doing
+                        // much smarter processing of descendants sections if
+                        // there is more such variation I am unaware of
+                        // (probable?).
+                        if desc.terms.len() > 1 && desc.lang == item_lang {
+                            continue 'lines;
+                        }
                         let langterm = LangTerm::new(desc.lang, term);
                         let Retrieval {
                             item_id: desc_item,
                             confidence,
-                            is_imputed,
                             ..
                         } = self.get_or_impute_item(
                             ety_graph,
@@ -371,27 +384,6 @@ impl RawItems {
                             &ancestors.embeddings(embeddings)?,
                             langterm,
                         )?;
-                        // A root generally shouldn't be listed as a descendant
-                        // of another term. If it really is an etymological
-                        // child, we will rely on the etymology section of the
-                        // root to get the relationship. In descendants trees,
-                        // creating this link will probably more often than not
-                        // be a mistake. See e.g. page for PIE men-, where
-                        // compound of men- and dʰeh₁- is listed. If we didn't
-                        // skip the template featuring dʰeh₁-, then we would
-                        // erroneously add an ety link from men- to dʰeh₁-. In
-                        // general, we may need to end up doing much smarter
-                        // processing of descendants sections if there is more
-                        // such variation I am unaware of (probable?).
-                        if !is_imputed
-                            && self
-                                .get(desc_item)
-                                .pos
-                                .as_ref()
-                                .is_some_and(|pos| pos[0] == Pos::root_pos())
-                        {
-                            continue 'outer;
-                        }
                         // Only use the first term in a multi-term desc line as
                         // the ancestor for any deeper-nested lines below it.
                         if i == 0 {

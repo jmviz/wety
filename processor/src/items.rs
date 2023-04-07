@@ -263,7 +263,7 @@ pub(crate) struct RawItems {
 pub(crate) struct Retrieval {
     pub(crate) item_id: ItemId,
     pub(crate) confidence: f32,
-    pub(crate) is_imputed: bool,
+    // pub(crate) is_imputed: bool,
     pub(crate) is_newly_imputed: bool,
 }
 
@@ -330,7 +330,7 @@ impl RawItems {
             return Ok(Retrieval {
                 item_id,
                 confidence,
-                is_imputed: false,
+                // is_imputed: false,
                 is_newly_imputed: false,
             });
         }
@@ -338,7 +338,7 @@ impl RawItems {
             return Ok(Retrieval {
                 item_id,
                 confidence: 0.0,
-                is_imputed: true,
+                // is_imputed: true,
                 is_newly_imputed: false,
             });
         }
@@ -346,7 +346,7 @@ impl RawItems {
         Ok(Retrieval {
             item_id,
             confidence: 0.0,
-            is_imputed: true,
+            // is_imputed: true,
             is_newly_imputed: true,
         })
     }
