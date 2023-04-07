@@ -226,11 +226,13 @@ fn process_json_ety_template(
     let args = template.get("args")?;
     validate_ety_template_lang(args, lang).ok()?;
     match ety_mode.template_kind() {
-        TemplateKind::Derived => process_derived_kind_json_template(string_pool, args, ety_mode),
-        TemplateKind::Abbreviation => {
+        Some(TemplateKind::Derived) => {
+            process_derived_kind_json_template(string_pool, args, ety_mode)
+        }
+        Some(TemplateKind::Abbreviation) => {
             process_abbrev_kind_json_template(string_pool, args, ety_mode, lang)
         }
-        TemplateKind::Compound => match ety_mode {
+        Some(TemplateKind::Compound) => match ety_mode {
             EtyMode::Prefix => process_prefix_json_template(string_pool, args, lang),
             EtyMode::Suffix => process_suffix_json_template(string_pool, args, lang),
             EtyMode::Circumfix => process_circumfix_json_template(string_pool, args, lang),
@@ -243,31 +245,42 @@ fn process_json_ety_template(
 }
 
 impl WiktextractJsonItem<'_> {
-    pub(crate) fn get_etymology(
-        &self,
-        string_pool: &mut StringPool,
-        lang: Lang,
-    ) -> Option<RawEtymology> {
-        let mut raw_ety_templates = vec![];
-        if let Some(templates) = self.json.get_array("etymology_templates") {
-            raw_ety_templates.reserve(templates.len());
-            for template in templates {
-                if let Some(raw_ety_template) =
-                    process_json_ety_template(string_pool, template, lang)
-                {
-                    raw_ety_templates.push(raw_ety_template);
-                }
+    // Many ety sections contain a single {{m}} template and no others, and
+    // consist only of "From {{m...". This is to handle this case.
+    fn get_single_from_mention_ety(&self, string_pool: &mut StringPool) -> Option<RawEtymology> {
+        let templates = self.json.get_array("etymology_templates")?;
+        let template = (templates.len() == 1).then_some(templates.get(0)?)?;
+        let name = template.get_valid_str("name")?;
+        matches!(name, "mention" | "m").then_some(())?;
+        self.json
+            .get_valid_str("etymology_text")
+            .is_some_and(|et| et.starts_with("From "))
+            .then_some(())?;
+        let args = template.get("args")?;
+        let mention_lang = args.get_valid_str("1")?;
+        let mention_term = args.get_valid_str("2")?;
+        let mention_lang = Lang::from_str(mention_lang).ok()?;
+        let mention_langterm = mention_lang.new_langterm(string_pool, mention_term);
+        let ety = RawEtyTemplate::new(mention_langterm, EtyMode::Mention);
+        Some(vec![ety].into())
+    }
+
+    fn get_standard_ety(&self, string_pool: &mut StringPool, lang: Lang) -> Option<RawEtymology> {
+        let templates = self.json.get_array("etymology_templates")?;
+        let mut raw_ety_templates = Vec::with_capacity(templates.len());
+        for template in templates {
+            if let Some(raw_ety_template) = process_json_ety_template(string_pool, template, lang) {
+                raw_ety_templates.push(raw_ety_template);
             }
         }
+        (!raw_ety_templates.is_empty()).then_some(raw_ety_templates.into())
+    }
 
-        if !raw_ety_templates.is_empty() {
-            return Some(raw_ety_templates.into());
-        }
-
-        // if no ety section or no templates, as a fallback we see if term
-        // is listed as a "form_of" (item.senses[0].form_of[0].word)
-        // or "alt_of" (item.senses[0].alt_of[0].word) another term.
-        // e.g. "happenin'" is listed as an alt_of of "happening".
+    // if no ety section or no templates, as a fallback we see if term
+    // is listed as a "form_of" (item.senses[0].form_of[0].word)
+    // or "alt_of" (item.senses[0].alt_of[0].word) another term.
+    // e.g. "happenin'" is listed as an alt_of of "happening".
+    fn get_form_ety(&self, string_pool: &mut StringPool, lang: Lang) -> Option<RawEtymology> {
         let alt_term = self
             .json
             .get_array("senses")
@@ -281,8 +294,17 @@ impl WiktextractJsonItem<'_> {
             .and_then(|alt_obj| alt_obj.get_str("word"))?;
         let langterm = lang.new_langterm(string_pool, alt_term);
         let raw_ety_template = RawEtyTemplate::new(langterm, EtyMode::Form);
-        raw_ety_templates.push(raw_ety_template);
-        Some(raw_ety_templates.into())
+        Some(vec![raw_ety_template].into())
+    }
+
+    pub(crate) fn get_etymology(
+        &self,
+        string_pool: &mut StringPool,
+        lang: Lang,
+    ) -> Option<RawEtymology> {
+        self.get_single_from_mention_ety(string_pool)
+            .or_else(|| self.get_standard_ety(string_pool, lang))
+            .or_else(|| self.get_form_ety(string_pool, lang))
     }
 }
 

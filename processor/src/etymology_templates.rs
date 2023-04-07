@@ -208,14 +208,17 @@ pub(crate) enum EtyMode {
         serialize = "af", // shortcut for "affix"
     )]
     Affix,
-    #[strum(
-        to_string = "form", // not a wiktionary template, only used for writing
-    )]
-    Form, // ad-hoc mode used when term is wiktextract alt or form of another
+    // Start special cases. All of the above are handled in
+    // process_json_ety_template. The below are more ad-hoc ones handled/used in
+    // various other places.
     #[strum(
         to_string = "root", // this is a wiktionary template, but this is only used for writing
     )]
     Root, // ad-hoc mode used when imputing root source for an item
+    #[strum(
+        to_string = "form", // not a wiktionary template, only used for writing
+    )]
+    Form, // ad-hoc mode used when term is wiktextract alt or form of another
     #[strum(
         to_string = "morphological derivation", // not a wiktionary template, only used for writing
     )]
@@ -223,10 +226,24 @@ pub(crate) enum EtyMode {
     // which are morphologically derived within the language, e.g. from a root
     // to a noun
     MorphologicalDerivation,
+    #[strum(
+        to_string = "mention", // https://en.wiktionary.org/wiki/Template:mention
+        serialize = "m", // shortcut for "mention"
+    )]
+    // This is decidedly not an ety mode. But it is a template that is
+    // commonly used in ety sections, which often indicates ety relations.
+    // Sometimes this is an improper use where a real ety mode specifying
+    // template could have been used, and sometimes it is used when no common
+    // ety mode template applies. The latter case can be seen e.g. here:
+    // https://en.wiktionary.org/wiki/fortuitus#Latin. The ety section contains
+    // a single {{m}} template linking to Latin "fors". Presumably this is done
+    // because "fortuitus" is a morphological derivation of "fors" and not
+    // ~derived~ in the wiktionary ety template sense of descending-from.
+    Mention,
 }
 
 impl EtyMode {
-    pub(crate) fn template_kind(self) -> TemplateKind {
+    pub(crate) fn template_kind(self) -> Option<TemplateKind> {
         match self {
             EtyMode::Derived
             | EtyMode::Inherited
@@ -240,7 +257,7 @@ impl EtyMode {
             | EtyMode::PartialCalque
             | EtyMode::PhonoSemanticMatching
             | EtyMode::UndefinedDerivation
-            | EtyMode::Transliteration => TemplateKind::Derived,
+            | EtyMode::Transliteration => Some(TemplateKind::Derived),
             EtyMode::Abbreviation
             | EtyMode::AdverbialAccusative
             | EtyMode::Contraction
@@ -257,7 +274,7 @@ impl EtyMode {
             | EtyMode::BackFormation
             | EtyMode::Deverbal
             | EtyMode::ApocopicForm
-            | EtyMode::ApheticForm => TemplateKind::Abbreviation,
+            | EtyMode::ApheticForm => Some(TemplateKind::Abbreviation),
             EtyMode::Compound
             | EtyMode::Univerbation
             | EtyMode::Transfix
@@ -268,13 +285,15 @@ impl EtyMode {
             | EtyMode::Confix
             | EtyMode::Circumfix
             | EtyMode::Blend
-            | EtyMode::Affix => TemplateKind::Compound,
-            EtyMode::Root => TemplateKind::Root,
-            EtyMode::Form | EtyMode::MorphologicalDerivation => TemplateKind::AdHoc,
+            | EtyMode::Affix => Some(TemplateKind::Compound),
+            // the other EtyMode variants are special cases that are not handled
+            // in process_json_ety_template
+            _ => None,
         }
     }
 }
 
+/// Used to determine how to handle an ety mode template within `process_json_ety_template`
 pub(crate) enum TemplateKind {
     // Wiktionary etymology template names that will be considered to represent
     // the concept "derived from", in a broad sense. They have 3 main parameters:
@@ -313,8 +332,6 @@ pub(crate) enum TemplateKind {
     // Some of these templates have optional "lang1", "lang2", etc. arguments,
     // which are the lang codes of the source terms. We handle this.
     Compound,
-    Root,
-    AdHoc,
 }
 
 // $$ Should {{cognate}} and the like be treated at all?
@@ -323,8 +340,7 @@ pub(crate) enum TemplateKind {
 // https://en.wiktionary.org/wiki/Template:noncognate
 // https://en.wiktionary.org/wiki/Template:piecewise_doublet
 
-// $$ What about {{root}} and {{PIE word}}?
-// https://en.wiktionary.org/wiki/Template:root
+// $$ What about {{PIE word}}?
 // https://en.wiktionary.org/wiki/Template:PIE_word
 // https://en.wiktionary.org/wiki/Template:word
 
