@@ -53,7 +53,7 @@ fn process_derived_kind_json_template(
 ) -> Option<RawEtyTemplate> {
     let ety_lang = args.get_valid_str("2")?;
     let ety_lang = Lang::from_str(ety_lang).ok()?;
-    let ety_term = args.get_valid_str("3")?;
+    let ety_term = args.get_valid_term("3")?;
     let ety_langterm = ety_lang.new_langterm(string_pool, ety_term);
     Some(RawEtyTemplate::new(ety_langterm, mode))
 }
@@ -64,7 +64,7 @@ fn process_abbrev_kind_json_template(
     mode: EtyMode,
     lang: Lang,
 ) -> Option<RawEtyTemplate> {
-    let ety_term = args.get_valid_str("2")?;
+    let ety_term = args.get_valid_term("2")?;
     let ety_langterm = lang.new_langterm(string_pool, ety_term);
     Some(RawEtyTemplate::new(ety_langterm, mode))
 }
@@ -74,10 +74,10 @@ fn process_prefix_json_template(
     args: &WiktextractJson,
     lang: Lang,
 ) -> Option<RawEtyTemplate> {
-    let ety_prefix = args.get_valid_str("2")?;
+    let ety_prefix = args.get_valid_term("2")?;
     let ety_prefix = format!("{ety_prefix}-");
     let ety_prefix = lang.new_langterm(string_pool, &ety_prefix);
-    let ety_term = args.get_valid_str("3")?;
+    let ety_term = args.get_valid_term("3")?;
     let ety_term = lang.new_langterm(string_pool, ety_term);
     Some(RawEtyTemplate {
         langterms: Box::new([ety_prefix, ety_term]),
@@ -91,9 +91,9 @@ fn process_suffix_json_template(
     args: &WiktextractJson,
     lang: Lang,
 ) -> Option<RawEtyTemplate> {
-    let ety_term = args.get_valid_str("2")?;
+    let ety_term = args.get_valid_term("2")?;
     let ety_term = lang.new_langterm(string_pool, ety_term);
-    let ety_suffix = args.get_valid_str("3")?;
+    let ety_suffix = args.get_valid_term("3")?;
     let ety_suffix = format!("-{ety_suffix}");
     let ety_suffix = lang.new_langterm(string_pool, &ety_suffix);
     Some(RawEtyTemplate {
@@ -108,9 +108,9 @@ fn process_circumfix_json_template(
     args: &WiktextractJson,
     lang: Lang,
 ) -> Option<RawEtyTemplate> {
-    let ety_prefix = args.get_valid_str("2")?;
-    let ety_term = args.get_valid_str("3")?;
-    let ety_suffix = args.get_valid_str("4")?;
+    let ety_prefix = args.get_valid_term("2")?;
+    let ety_term = args.get_valid_term("3")?;
+    let ety_suffix = args.get_valid_term("4")?;
 
     let ety_term = lang.new_langterm(string_pool, ety_term);
     let ety_circumfix = format!("{ety_prefix}- -{ety_suffix}");
@@ -127,8 +127,8 @@ fn process_infix_json_template(
     args: &WiktextractJson,
     lang: Lang,
 ) -> Option<RawEtyTemplate> {
-    let ety_term = args.get_valid_str("2")?;
-    let ety_infix = args.get_valid_str("3")?;
+    let ety_term = args.get_valid_term("2")?;
+    let ety_infix = args.get_valid_term("3")?;
 
     let ety_term = lang.new_langterm(string_pool, ety_term);
     let ety_infix = format!("-{ety_infix}-");
@@ -145,12 +145,12 @@ fn process_confix_json_template(
     args: &WiktextractJson,
     lang: Lang,
 ) -> Option<RawEtyTemplate> {
-    let ety_prefix = args.get_valid_str("2")?;
-    let ety2 = args.get_valid_str("3")?;
+    let ety_prefix = args.get_valid_term("2")?;
+    let ety2 = args.get_valid_term("3")?;
 
     let ety_prefix = format!("{ety_prefix}-");
     let ety_prefix = lang.new_langterm(string_pool, &ety_prefix);
-    if let Some(ety3) = args.get_valid_str("4") {
+    if let Some(ety3) = args.get_valid_term("4") {
         let ety_term = lang.new_langterm(string_pool, ety2);
         let ety_suffix = format!("-{ety3}");
         let ety_suffix = lang.new_langterm(string_pool, &ety_suffix);
@@ -178,7 +178,7 @@ fn process_compound_kind_json_template(
     let mut n = 2;
     let mut ety_langterms = vec![];
     let mut head = None;
-    while let Some(ety_term) = args.get_valid_str(n.to_string().as_str()) {
+    while let Some(ety_term) = args.get_valid_term(n.to_string().as_str()) {
         // These compound-kind templates generally have no true head (affix is
         // the most common of these templates, see that). Arbitrarily take the
         // first ety_term which is not indicated to be some kind of *fix as the
@@ -266,7 +266,7 @@ impl WiktextractJsonItem<'_> {
             .then_some(())?;
         let args = template.get("args")?;
         let mention_lang = args.get_valid_str("1")?;
-        let mention_term = args.get_valid_str("2")?;
+        let mention_term = args.get_valid_term("2")?;
         let mention_lang = Lang::from_str(mention_lang).ok()?;
         let mention_langterm = mention_lang.new_langterm(string_pool, mention_term);
         let ety = RawEtyTemplate::new(mention_langterm, EtyMode::Mention);

@@ -91,8 +91,8 @@ fn process_json_desc_line(
             && let Some(args) = template.get("args")
             && let Some(lang) = args.get_valid_str("1")
             && let Some(lang) = Lang::from_str(lang).ok()
-            && args.get_valid_str("2").is_none()
-            && args.get_valid_str("alt").is_none()
+            && args.get_valid_term("2").is_none()
+            && args.get_valid_term("alt").is_none()
         {
             let kind = RawDescLineKind::BareLang { lang };
             return Some(RawDescLine{ depth, kind });
@@ -157,8 +157,8 @@ fn process_json_desc_line_desc_template(
     let mut n_str = String::from("2");
     let mut n_alt_str = String::from("alt");
     while let Some(term) = args
-        .get_valid_str(&n_str)
-        .or_else(|| args.get_valid_str(&n_alt_str))
+        .get_valid_term(&n_str)
+        .or_else(|| args.get_valid_term(&n_alt_str))
         .map(|term| Term::new(string_pool, term))
     {
         terms.push(term);
@@ -180,8 +180,8 @@ fn process_json_desc_line_l_template(
     let lang = args.get_valid_str("1")?;
     let lang = Lang::from_str(lang).ok()?;
     let term = args
-        .get_valid_str("2")
-        .or_else(|| args.get_valid_str("3"))
+        .get_valid_term("2")
+        .or_else(|| args.get_valid_term("3"))
         .map(|term| Term::new(string_pool, term))?;
     // There is a bit of confusion here in the nominal similarity of these
     // two modes. It is wiktionary's fault for defaulting to "derived" for
@@ -213,7 +213,7 @@ fn process_json_desc_line_desctree_template(
     let lang = args.get_valid_str("1")?;
     let lang = Lang::from_str(lang).ok()?;
     let term = args
-        .get_valid_str("2")
+        .get_valid_term("2")
         .map(|term| Term::new(string_pool, term))?;
     // It's conceivable that another mode could be specified by template arg
     let mode = get_desc_mode(args, 1);

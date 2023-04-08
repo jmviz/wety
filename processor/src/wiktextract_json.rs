@@ -63,16 +63,19 @@ pub(crate) type WiktextractJson<'a> = simd_json::value::borrowed::Value<'a>;
 
 pub(crate) trait WiktextractJsonValidStr {
     fn get_valid_str(&self, key: &str) -> Option<&str>;
+    fn get_valid_term(&self, key: &str) -> Option<&str>;
 }
 
 impl WiktextractJsonValidStr for WiktextractJson<'_> {
-    // return a cleaned version of the str if it exists
+    /// return a cleaned version of the str if it exists
     fn get_valid_str(&self, key: &str) -> Option<&str> {
         self.get_str(key)
-            // even though get_valid_str is called on other bits of wiktextract
-            // json such as template lang args, clean_ety_term should never
-            // effect them unless they're degenerate anyway, so we always call
-            // this
+            .and_then(|s| (!s.is_empty() && s != "-").then_some(s))
+    }
+
+    /// A stricter version of `get_valid_str` for terms
+    fn get_valid_term(&self, key: &str) -> Option<&str> {
+        self.get_str(key)
             .map(clean_ety_term)
             .and_then(|s| (!s.is_empty() && s != "-").then_some(s))
     }
@@ -210,6 +213,7 @@ impl WiktextractJsonItem<'_> {
     }
 }
 
+/// Clean a term that appears as a template arg
 fn clean_ety_term(term: &str) -> &str {
     // Reconstructed terms (e.g. PIE) are supposed to start with "*" when cited
     // in etymologies but their entry titles (and hence wiktextract "word"
@@ -225,9 +229,14 @@ fn clean_ety_term(term: &str) -> &str {
     // using #X to link to some other subsection (e.g. language). We just take
     // everything before the first # ($$ do any languages use # that should be
     // exempt from this?)
+    //
+    // Sometimes senseid is given in parentheses like e.g.
+    // {{root|en|ine-pro|*bʰel- (shiny)}}.
     term.strip_prefix('*')
         .unwrap_or(term)
         .split_once('#')
+        .map_or(term, |(t, _)| t)
+        .split_once(" (")
         .map_or(term, |(t, _)| t)
 }
 

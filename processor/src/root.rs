@@ -64,6 +64,7 @@ fn process_root_template(
     validate_ety_template_lang(args, lang).ok()?;
     let root_lang = args.get_valid_str("2")?;
     let root_lang = Lang::from_str(root_lang).ok()?;
+    // we don't use get_valid_term as we want to recover the senseid
     let mut root_term = args.get_valid_str("3")?;
     // we don't deal with multi-roots for now:
     args.get_valid_str("4").is_none().then_some(())?;
