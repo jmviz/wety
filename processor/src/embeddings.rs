@@ -349,8 +349,8 @@ impl EmbeddingComparand<Option<Embedding>> for Option<Embedding> {
     }
 }
 
-const ETY_WEIGHT: f32 = 0.4;
-const GLOSSES_WEIGHT: f32 = 1.0 - ETY_WEIGHT;
+const GLOSSES_WEIGHT: f32 = 0.75;
+const ETY_WEIGHT: f32 = 1.0 - GLOSSES_WEIGHT;
 
 impl EmbeddingComparand<ItemEmbedding> for ItemEmbedding {
     fn cosine_similarity(&self, other: &ItemEmbedding) -> f32 {
@@ -372,7 +372,7 @@ impl EmbeddingComparand<ItemEmbedding> for ItemEmbedding {
 const DISCOUNT: f32 = 0.95;
 
 const ETY_QUALITY: f32 = 1.0;
-const NO_ETY_QUALITY: f32 = 0.5;
+const NO_ETY_QUALITY: f32 = 1.0 - ETY_WEIGHT;
 const EMPTY_QUALITY: f32 = 0.0;
 
 // for comparing an item with all its ancestors
