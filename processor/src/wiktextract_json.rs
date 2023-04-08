@@ -1,16 +1,18 @@
 use crate::{
+    descendants::RawDescendants,
     gloss::Gloss,
     items::{RawItem, RawItems},
     langterm::{Lang, Term},
     pos::Pos,
     redirects::WiktextractJsonRedirect,
-    string_pool::StringPool, descendants::RawDescendants,
+    string_pool::StringPool,
 };
 
 use std::{
     fs::File,
     io::{BufReader, Read},
-    path::Path, mem,
+    mem,
+    path::Path,
 };
 
 use anyhow::{Ok, Result};
@@ -130,7 +132,6 @@ impl WiktextractJsonItem<'_> {
                 }
                 items.raw_templates.desc.insert(item_id, raw_descendants);
             }
-            
         }
     }
 
@@ -217,11 +218,20 @@ fn clean_ety_term(term: &str) -> &str {
     // terms are missing this *, and sometimes non-reconstructed terms start
     // with * incorrectly. So we strip the * in every case. This will break
     // terms that actually start with *, but there are almost none of these, and
-    // none of them are particularly relevant for our purposes AFAIK.
-    term.strip_prefix('*').unwrap_or(term)
+    // none of them are particularly relevant for our purposes AFAIK ($$).
+    //
+    // Occasionally a term is linked in an ety or descendants section like e.g.
+    // on page tuig: {{desc|bor=1|en|twig#Etymology_2}}. Or even more rarely,
+    // using #X to link to some other subsection (e.g. language). We just take
+    // everything before the first # ($$ do any languages use # that should be
+    // exempt from this?)
+    term.strip_prefix('*')
+        .unwrap_or(term)
+        .split_once('#')
+        .map_or(term, |(t, _)| t)
 }
 
-// These two functions needs revisiting depending on results.
+// $$ These two functions needs revisiting depending on results.
 
 // We would generally like to ignore phrases, and potentially other things.
 //  Barring all phrases may be both too strict and not strict enough. Too

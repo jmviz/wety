@@ -248,8 +248,16 @@ impl WiktextractJsonItem<'_> {
     // Many ety sections contain a single {{m}} template and no others, and
     // consist only of "From {{m...". This is to handle this case.
     fn get_single_from_mention_ety(&self, string_pool: &mut StringPool) -> Option<RawEtymology> {
-        let templates = self.json.get_array("etymology_templates")?;
-        let template = (templates.len() == 1).then_some(templates.get(0)?)?;
+        // Since we handle {{root}} separately, we still want to get etys where
+        // there is say one {{root}} then one "From {{m..."
+        let mut templates = self
+            .json
+            .get_array("etymology_templates")?
+            .iter()
+            .filter(|t| t.get_valid_str("name").is_some_and(|n| n != "root"));
+        // i.e. we want exactly 1 non-root template
+        let template = templates.next()?;
+        templates.next().is_none().then_some(())?;
         let name = template.get_valid_str("name")?;
         matches!(name, "mention" | "m").then_some(())?;
         self.json
