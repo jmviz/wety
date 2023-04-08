@@ -14,6 +14,7 @@ mod items;
 pub use crate::items::ItemId;
 mod lang_phf;
 mod langterm;
+use crate::items::Items;
 #[cfg(feature = "processed")]
 pub use crate::langterm::{Lang, LangId};
 mod phf_ext;
@@ -28,7 +29,7 @@ mod string_pool;
 mod turtle;
 mod wiktextract_json;
 
-use crate::{string_pool::StringPool, wiktextract_json::process_wiktextract_lines};
+use crate::string_pool::StringPool;
 
 use std::{
     convert::TryFrom,
@@ -75,15 +76,16 @@ pub fn process_wiktextract(
         wiktextract_path.display()
     );
     let mut string_pool = StringPool::new();
-    let mut raw_items = process_wiktextract_lines(&mut string_pool, wiktextract_path)?;
+    let mut items = Items::new()?;
+    items.process_wiktextract_lines(&mut string_pool, wiktextract_path)?;
     println!("Finished. Took {}.", HumanDuration(t.elapsed()));
     let embeddings =
-        raw_items.generate_embeddings(&string_pool, wiktextract_path, embeddings_config)?;
+        items.generate_embeddings(&string_pool, wiktextract_path, embeddings_config)?;
     t = Instant::now();
     println!("Generating ety graph...");
-    let ety_graph = raw_items.generate_ety_graph(&embeddings)?;
+    items.generate_ety_graph(&embeddings)?;
     println!("Finished. Took {}.", HumanDuration(t.elapsed()));
-    let data = Data::new(string_pool, raw_items, ety_graph);
+    let data = Data::new(string_pool, items.graph);
     if write_turtle {
         data.write_turtle(turtle_path)?;
     }

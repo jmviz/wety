@@ -1,7 +1,7 @@
 use crate::{
     descendants::RawDescendants,
     gloss::Gloss,
-    items::{RawItem, RawItems},
+    items::{Items, RawItem},
     langterm::{Lang, Term},
     pos::Pos,
     redirects::WiktextractJsonRedirect,
@@ -37,26 +37,28 @@ pub(crate) fn wiktextract_lines(path: &Path) -> Result<impl Iterator<Item = Vec<
     Ok(lines.into_iter().filter_map(Result::ok))
 }
 
-pub(crate) fn process_wiktextract_lines(
-    string_pool: &mut StringPool,
-    path: &Path,
-) -> Result<RawItems> {
-    let mut items = RawItems::default();
-    for (line_number, mut line) in wiktextract_lines(path)?.enumerate() {
-        let json = to_borrowed_value(&mut line)?;
-        items.total_ok_lines_in_file += 1;
-        // Some wiktionary pages are redirects. These are actually used somewhat
-        // heavily, so we need to take them into account
-        // https://github.com/tatuylonen/wiktextract#format-of-extracted-redirects
-        if json.contains_key("redirect") {
-            let redirect = WiktextractJsonRedirect { json };
-            redirect.process(string_pool, &mut items);
-        } else {
-            let item = WiktextractJsonItem { json };
-            item.process(string_pool, &mut items, line_number);
+impl Items {
+    pub(crate) fn process_wiktextract_lines(
+        &mut self,
+        string_pool: &mut StringPool,
+        path: &Path,
+    ) -> Result<()> {
+        for (line_number, mut line) in wiktextract_lines(path)?.enumerate() {
+            let json = to_borrowed_value(&mut line)?;
+            self.total_ok_lines_in_file += 1;
+            // Some wiktionary pages are redirects. These are actually used somewhat
+            // heavily, so we need to take them into account
+            // https://github.com/tatuylonen/wiktextract#format-of-extracted-redirects
+            if json.contains_key("redirect") {
+                let redirect = WiktextractJsonRedirect { json };
+                self.process_redirect(string_pool, &redirect);
+            } else {
+                let item = WiktextractJsonItem { json };
+                self.process_item(string_pool, &item, line_number);
+            }
         }
+        Ok(())
     }
-    Ok(items)
 }
 
 pub(crate) type WiktextractJson<'a> = simd_json::value::borrowed::Value<'a>;
@@ -85,15 +87,20 @@ pub(crate) struct WiktextractJsonItem<'a> {
     pub(crate) json: WiktextractJson<'a>,
 }
 
-impl WiktextractJsonItem<'_> {
-    fn process(&self, string_pool: &mut StringPool, items: &mut RawItems, line_number: usize) {
-        if let Some(page_term) = self.get_page_term(string_pool)
-            && let Some(term) = self.get_canonical_term(string_pool)
-            && let Some(lang) = self.get_lang()
-            && let Some(pos) = self.get_pos()
-            && let Some(gloss) = self.get_gloss(string_pool)
+impl Items {
+    fn process_item(
+        &mut self,
+        string_pool: &mut StringPool,
+        item: &WiktextractJsonItem,
+        line_number: usize,
+    ) {
+        if let Some(page_term) = item.get_page_term(string_pool)
+            && let Some(term) = item.get_canonical_term(string_pool)
+            && let Some(lang) = item.get_lang()
+            && let Some(pos) = item.get_pos()
+            && let Some(gloss) = item.get_gloss(string_pool)
         {
-            let ety_num = self.get_ety_num();
+            let ety_num = item.get_ety_num();
             let raw_item = RawItem {
                 ety_num,
                 lang,
@@ -102,42 +109,44 @@ impl WiktextractJsonItem<'_> {
                 pos,
                 gloss,
             };
-            let (item_id, is_new_ety) = items.add(raw_item);
+            let (item_id, is_new_ety) = self.add_raw(raw_item);
             if is_new_ety { // a new item was added
                 // This means that the glosses embedding for a multi-pos item
                 // will be based on the glosses for whichever pos happens to
                 // first in the wiktextract data. $$ This may be good enough or
                 // may require better handling in the future...
-                items.lines.insert(line_number, item_id);
-                if let Some(raw_root) = self.get_root(string_pool, lang) {
-                    items.raw_templates.root.insert(item_id, raw_root);
+                self.lines.insert(line_number, item_id);
+                if let Some(raw_root) = item.get_root(string_pool, lang) {
+                    self.raw_templates.root.insert(item_id, raw_root);
                 }
-                if let Some(raw_etymology) = self.get_etymology(string_pool, lang) {
-                    items.raw_templates.ety.insert(item_id, raw_etymology);
+                if let Some(raw_etymology) = item.get_etymology(string_pool, lang) {
+                    self.raw_templates.ety.insert(item_id, raw_etymology);
                 }
-                if let Some(raw_descendants) = self.get_descendants(string_pool) {
-                    items.raw_templates.desc.insert(item_id, raw_descendants);
+                if let Some(raw_descendants) = item.get_descendants(string_pool) {
+                    self.raw_templates.desc.insert(item_id, raw_descendants);
                 }
                 return;
             }
             // This was a new pos of an existing item. 
-            if let Some(mut raw_descendants) = self.get_descendants(string_pool) {
+            if let Some(mut raw_descendants) = item.get_descendants(string_pool) {
                 // Sometimes multiple pos's under the same ety have different
                 // Descendants sections. This handles that by simply joining the
                 // lists into one. $$ This does assume that each list uses the
                 // same base level of indentation though...
-                if let Some(existing) = items.raw_templates.desc.get_mut(&item_id) {
+                if let Some(existing) = self.raw_templates.desc.get_mut(&item_id) {
                     let mut ex_lines = Vec::from(mem::take(&mut existing.lines));
                     let new_lines = Vec::from(mem::take(&mut raw_descendants.lines));
                     ex_lines.extend(new_lines);
                     let full = RawDescendants::from(ex_lines);
-                    items.raw_templates.desc.insert(item_id, full);
+                    self.raw_templates.desc.insert(item_id, full);
                 }
-                items.raw_templates.desc.insert(item_id, raw_descendants);
+                self.raw_templates.desc.insert(item_id, raw_descendants);
             }
         }
     }
+}
 
+impl WiktextractJsonItem<'_> {
     fn get_lang(&self) -> Option<Lang> {
         let lang_code = self.json.get_valid_str("lang_code")?;
         lang_code.parse().ok()

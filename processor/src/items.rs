@@ -1,7 +1,7 @@
 use crate::{
     descendants::RawDescendants,
     embeddings::{EmbeddingComparand, Embeddings, EmbeddingsConfig, ItemEmbedding},
-    ety_graph::EtyGraph,
+    ety_graph::{EtyGraph, ItemIndex},
     etymology::RawEtymology,
     gloss::Gloss,
     langterm::{Lang, LangTerm, Term},
@@ -17,10 +17,11 @@ use crate::{
 use std::path::Path;
 
 use anyhow::{Ok, Result};
+use petgraph::stable_graph::NodeIndex;
 use serde::{Deserialize, Serialize};
 use simd_json::to_borrowed_value;
 
-// basic data read from a line in the wiktextract raw data
+/// basic data read from a line in the wiktextract raw data
 pub(crate) struct RawItem {
     pub(crate) ety_num: u8, // the nth numbered ety for this term-lang combo (1,2,...)
     pub(crate) lang: Lang,
@@ -39,12 +40,12 @@ impl RawItem {
     }
 }
 
-pub type ItemId = u32; // wiktionary has about ~10M items including imputations
+pub type ItemId = NodeIndex<ItemIndex>; // wiktionary has about ~10M items including imputations
 
+/// An etymologically distinct item, which may have multiple (pos, gloss)'s
 #[derive(Serialize, Deserialize)]
 pub(crate) struct Item {
     pub(crate) is_imputed: bool,
-    pub(crate) id: ItemId,  // the i-th item seen, used as id for RDF
     pub(crate) ety_num: u8, // the nth numbered ety for this term-lang combo (1,2,...)
     pub(crate) lang: Lang,
     pub(crate) term: Term,
@@ -53,24 +54,30 @@ pub(crate) struct Item {
     pub(crate) gloss: Option<Vec<Gloss>>,
 }
 
+impl From<RawItem> for Item {
+    fn from(raw_item: RawItem) -> Self {
+        Item {
+            is_imputed: false,
+            ety_num: raw_item.ety_num,
+            lang: raw_item.lang,
+            term: raw_item.term,
+            page_term: Some(raw_item.page_term),
+            pos: Some(vec![raw_item.pos]),
+            gloss: Some(vec![raw_item.gloss]),
+        }
+    }
+}
+
 impl Item {
-    pub(crate) fn new_imputed(langterm: LangTerm, pos: Option<Pos>) -> Self {
+    pub(crate) fn new_imputed(langterm: LangTerm) -> Self {
         Self {
             is_imputed: true,
-            id: 0, // temp value, will be changed by imputed_items.store.add()
             ety_num: 1,
             lang: langterm.lang,
             term: langterm.term,
             page_term: None,
-            pos: pos.map(|p| vec![p]),
+            pos: None,
             gloss: None,
-        }
-    }
-
-    pub(crate) fn langterm(&self) -> LangTerm {
-        LangTerm {
-            lang: self.lang,
-            term: self.term,
         }
     }
 
@@ -87,91 +94,70 @@ impl Item {
 }
 
 #[derive(Default)]
-pub(crate) struct ItemStore {
-    start_id: ItemId,
-    pub(crate) vec: Vec<Item>,
+pub(crate) struct RawTemplates {
+    pub(crate) ety: HashMap<ItemId, RawEtymology>,
+    pub(crate) desc: HashMap<ItemId, RawDescendants>,
+    pub(crate) root: HashMap<ItemId, RawRoot>,
 }
 
-impl ItemStore {
-    pub(crate) fn new(start_id: ItemId) -> Self {
-        Self {
-            start_id,
-            ..Default::default()
-        }
-    }
-    pub(crate) fn len(&self) -> usize {
-        self.vec.len()
-    }
+type Dupes = HashMap<LangTerm, Vec<ItemId>>;
+type Lines = HashMap<usize, ItemId>;
 
-    pub(crate) fn get(&self, id: ItemId) -> &Item {
-        &self.vec[(id - self.start_id) as usize]
-    }
-
-    pub(crate) fn get_mut(&mut self, id: ItemId) -> &mut Item {
-        &mut self.vec[(id - self.start_id) as usize]
-    }
-
-    pub(crate) fn next_id(&self) -> ItemId {
-        ItemId::try_from(self.len()).expect("len less than ItemId::MAX items") + self.start_id
-    }
-
-    pub(crate) fn add(&mut self, mut item: Item) -> ItemId {
-        let id = self.next_id();
-        item.id = id;
-        self.vec.push(item);
-        id
-    }
-
-    pub(crate) fn add_raw(&mut self, raw_item: RawItem) -> ItemId {
-        let item = Item {
-            is_imputed: false,
-            id: 0, // will be changed in add()
-            ety_num: raw_item.ety_num,
-            lang: raw_item.lang,
-            term: raw_item.term,
-            page_term: Some(raw_item.page_term),
-            pos: Some(vec![raw_item.pos]),
-            gloss: Some(vec![raw_item.gloss]),
-        };
-        self.add(item)
-    }
-
-    pub(crate) fn iter(&self) -> impl Iterator<Item = &Item> {
-        self.vec.iter()
-    }
-}
-
-#[derive(Default)]
 pub(crate) struct Items {
-    pub(crate) store: ItemStore,
-    pub(crate) dupes: HashMap<LangTerm, Vec<ItemId>>,
+    pub(crate) graph: EtyGraph,
+    pub(crate) dupes: Dupes,
+    pub(crate) redirects: Redirects,
+    pub(crate) raw_templates: RawTemplates,
+    pub(crate) lines: Lines,
+    pub(crate) total_ok_lines_in_file: usize,
 }
 
 impl Items {
-    pub(crate) fn next_id(&self) -> ItemId {
-        self.store.next_id()
+    pub(crate) fn new() -> Result<Self> {
+        Ok(Self {
+            graph: EtyGraph::default(),
+            dupes: Dupes::default(),
+            redirects: Redirects::default(),
+            raw_templates: RawTemplates::default(),
+            lines: Lines::default(),
+            total_ok_lines_in_file: 0,
+        })
     }
+}
 
+pub(crate) struct Retrieval {
+    pub(crate) item_id: ItemId,
+    pub(crate) confidence: f32,
+    // pub(crate) is_imputed: bool,
+    pub(crate) is_newly_imputed: bool,
+}
+
+impl Items {
     pub(crate) fn len(&self) -> usize {
-        self.store.len()
+        self.graph.len()
     }
 
+    /// get previously added item
     pub(crate) fn get(&self, id: ItemId) -> &Item {
-        self.store.get(id)
+        self.graph.get(id)
     }
 
-    fn get_mut(&mut self, id: ItemId) -> &mut Item {
-        self.store.get_mut(id)
+    /// get previously added item mutably
+    pub(crate) fn get_mut(&mut self, id: ItemId) -> &mut Item {
+        self.graph.get_mut(id)
     }
 
-    // returns all items that share the same lang and term
-    pub(crate) fn get_dupes(&self, langterm: LangTerm) -> Option<&Vec<ItemId>> {
-        self.dupes.get(&langterm)
+    pub(crate) fn iter(&self) -> impl Iterator<Item = (ItemId, &Item)> {
+        self.graph.iter()
+    }
+
+    pub(crate) fn add(&mut self, item: Item) -> ItemId {
+        self.graph.add(item)
     }
 
     // the returned bool is true if the ItemId is new, false if the RawItem
     // got merged into an existing item and hence the ItemId is old
-    pub(crate) fn add(&mut self, mut raw_item: RawItem) -> (ItemId, bool) {
+    pub(crate) fn add_raw(&mut self, mut raw_item: RawItem) -> (ItemId, bool) {
         let langterm = raw_item.langterm();
         // If we've seen this langterm before...
         if let Some(ids) = self.dupes.get(&langterm).map(Vec::clone) {
@@ -203,7 +189,7 @@ impl Items {
                         .any(|&p| p == raw_item.pos)
                 {
                     raw_item.ety_num = max_ety + 1;
-                    let id = self.store.add_raw(raw_item);
+                    let id = self.add(raw_item.into());
                     self.dupes
                         .get_mut(&langterm)
                         .expect("we already cloned these")
@@ -225,7 +211,7 @@ impl Items {
             }
             // A new ety_num for an already seen langterm
             raw_item.ety_num = max_ety + 1;
-            let id = self.store.add_raw(raw_item);
+            let id = self.add(raw_item.into());
             self.dupes
                 .get_mut(&langterm)
                 .expect("we already cloned these")
@@ -234,63 +220,18 @@ impl Items {
         }
 
         // A langterm that hasn't been seen yet
-        let id = self.store.add_raw(raw_item);
+        let id = self.add(raw_item.into());
         self.dupes.insert(langterm, vec![id]);
         (id, true)
     }
 
-    pub(crate) fn iter(&self) -> impl Iterator<Item = &Item> {
-        self.store.iter()
-    }
-}
-
-#[derive(Default)]
-pub(crate) struct RawTemplates {
-    pub(crate) ety: HashMap<ItemId, RawEtymology>,
-    pub(crate) desc: HashMap<ItemId, RawDescendants>,
-    pub(crate) root: HashMap<ItemId, RawRoot>,
-}
-
-#[derive(Default)]
-pub(crate) struct RawItems {
-    pub(crate) items: Items,
-    pub(crate) redirects: Redirects,
-    pub(crate) raw_templates: RawTemplates,
-    pub(crate) lines: HashMap<usize, ItemId>,
-    pub(crate) total_ok_lines_in_file: usize,
-}
-
-pub(crate) struct Retrieval {
-    pub(crate) item_id: ItemId,
-    pub(crate) confidence: f32,
-    // pub(crate) is_imputed: bool,
-    pub(crate) is_newly_imputed: bool,
-}
-
-impl RawItems {
-    pub(crate) fn len(&self) -> usize {
-        self.items.store.len()
-    }
-
-    pub(crate) fn get(&self, id: ItemId) -> &Item {
-        self.items.get(id)
-    }
-
-    pub(crate) fn add(&mut self, raw_item: RawItem) -> (ItemId, bool) {
-        self.items.add(raw_item)
-    }
-
-    pub(crate) fn iter_items(&self) -> impl Iterator<Item = &Item> {
-        self.items.iter()
-    }
-
-    pub(crate) fn iter_ids(&self) -> impl Iterator<Item = ItemId> + '_ {
-        self.iter_items().map(|item| item.id)
+    pub(crate) fn add_imputed(&mut self, langterm: LangTerm) -> ItemId {
+        self.add(Item::new_imputed(langterm))
     }
 
     // returns all items that share the same lang and term
     pub(crate) fn get_dupes(&self, langterm: LangTerm) -> Option<&Vec<ItemId>> {
-        self.items.dupes.get(&langterm)
+        self.dupes.get(&langterm)
     }
 
     pub(crate) fn get_disambiguated_item_id(
@@ -300,7 +241,7 @@ impl RawItems {
         langterm: LangTerm,
     ) -> Result<Option<(ItemId, f32)>> {
         let langterm = self.redirects.rectify_langterm(langterm);
-        if let Some(candidates) = self.items.get_dupes(langterm) {
+        if let Some(candidates) = self.get_dupes(langterm) {
             let mut max_similarity = 0f32;
             let mut best_candidate = 0usize;
             for (i, &candidate) in candidates.iter().enumerate() {
@@ -318,8 +259,7 @@ impl RawItems {
     }
 
     pub(crate) fn get_or_impute_item(
-        &self,
-        ety_graph: &mut EtyGraph,
+        &mut self,
         embeddings: &Embeddings,
         embedding_comp: &impl EmbeddingComparand<ItemEmbedding>,
         langterm: LangTerm,
@@ -330,23 +270,13 @@ impl RawItems {
             return Ok(Retrieval {
                 item_id,
                 confidence,
-                // is_imputed: false,
                 is_newly_imputed: false,
             });
         }
-        if let Some(item_id) = ety_graph.get_imputed_item_id(langterm) {
-            return Ok(Retrieval {
-                item_id,
-                confidence: 0.0,
-                // is_imputed: true,
-                is_newly_imputed: false,
-            });
-        }
-        let item_id = ety_graph.add_imputed(langterm, None);
+        let item_id = self.add_imputed(langterm);
         Ok(Retrieval {
             item_id,
             confidence: 0.0,
-            // is_imputed: true,
             is_newly_imputed: true,
         })
     }
@@ -376,7 +306,7 @@ impl RawItems {
                 .extend(self.get_desc_items_needing_embedding(item_id, raw_descendants));
         }
         if let Some(raw_root) = self.raw_templates.root.get(&item_id)
-            && let Some(root_items) = self.items.get_dupes(raw_root.langterm)
+            && let Some(root_items) = self.get_dupes(raw_root.langterm)
             && root_items.len() > 1
         {
             items_needing_embedding.insert(item_id);
@@ -390,7 +320,7 @@ impl RawItems {
     fn get_all_items_needing_embedding(&self) -> Result<HashSet<ItemId>> {
         let pb = progress_bar(self.len(), "Determining which items need embeddings")?;
         let mut items_needing_embedding = HashSet::default();
-        for item_id in self.iter_ids() {
+        for (item_id, _) in self.iter() {
             let items_to_embed = self.get_items_needing_embedding(item_id);
             for &item_to_embed in &items_to_embed {
                 items_needing_embedding.insert(item_to_embed);
@@ -437,25 +367,13 @@ impl RawItems {
         Ok(embeddings)
     }
 
-    fn add_all_to_ety_graph(&self, ety_graph: &mut EtyGraph) -> Result<()> {
-        let pb = progress_bar(self.items.len(), "Adding items to ety graph")?;
-        for item_id in self.iter_ids() {
-            ety_graph.add(item_id);
-            pb.inc(1);
-        }
-        pb.finish();
+    pub(crate) fn generate_ety_graph(&mut self, embeddings: &Embeddings) -> Result<()> {
+        self.process_raw_descendants(embeddings)?;
+        self.graph.remove_cycles()?;
+        self.process_raw_etymologies(embeddings)?;
+        self.graph.remove_cycles()?;
+        self.impute_root_etys(embeddings)?;
+        self.graph.remove_cycles()?;
         Ok(())
-    }
-
-    pub(crate) fn generate_ety_graph(&mut self, embeddings: &Embeddings) -> Result<EtyGraph> {
-        let mut ety_graph = EtyGraph::new(self.items.next_id());
-        self.add_all_to_ety_graph(&mut ety_graph)?;
-        self.process_raw_descendants(embeddings, &mut ety_graph)?;
-        ety_graph.remove_cycles()?;
-        self.process_raw_etymologies(embeddings, &mut ety_graph)?;
-        ety_graph.remove_cycles()?;
-        self.impute_root_etys(embeddings, &mut ety_graph)?;
-        ety_graph.remove_cycles()?;
-        Ok(ety_graph)
     }
 }

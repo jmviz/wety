@@ -1,9 +1,8 @@
 use crate::{
     embeddings::{Embeddings, ItemEmbedding},
-    ety_graph::EtyGraph,
     etymology_templates::EtyMode,
     gloss::Gloss,
-    items::{ItemId, RawItems, Retrieval},
+    items::{ItemId, Items, Retrieval},
     langterm::{Lang, LangTerm, Term},
     progress_bar,
     string_pool::StringPool,
@@ -283,7 +282,7 @@ impl Ancestors<ItemId> {
     }
 }
 
-impl RawItems {
+impl Items {
     pub(crate) fn get_desc_items_needing_embedding(
         &self,
         item: ItemId,
@@ -323,16 +322,12 @@ impl RawItems {
         items_needing_embedding
     }
 
-    pub(crate) fn process_raw_descendants(
-        &mut self,
-        embeddings: &Embeddings,
-        ety_graph: &mut EtyGraph,
-    ) -> Result<()> {
+    pub(crate) fn process_raw_descendants(&mut self, embeddings: &Embeddings) -> Result<()> {
         let n = self.raw_templates.desc.len();
         let pb = progress_bar(n, "Processing descendants")?;
         let raw_templates_desc = mem::take(&mut self.raw_templates.desc);
         for (item_id, desc) in raw_templates_desc {
-            self.process_item_raw_descendants(embeddings, ety_graph, &desc, item_id)?;
+            self.process_item_raw_descendants(embeddings, item_id, &desc)?;
             pb.inc(1);
         }
 
@@ -343,9 +338,8 @@ impl RawItems {
     pub(crate) fn process_item_raw_descendants(
         &mut self,
         embeddings: &Embeddings,
-        ety_graph: &mut EtyGraph,
-        raw_descendants: &RawDescendants,
         item: ItemId,
+        raw_descendants: &RawDescendants,
     ) -> Result<()> {
         let item_lang = self.get(item).lang;
         let mut ancestors = Ancestors::new(&item);
@@ -379,7 +373,6 @@ impl RawItems {
                             confidence,
                             ..
                         } = self.get_or_impute_item(
-                            ety_graph,
                             embeddings,
                             &ancestors.embeddings(embeddings)?,
                             langterm,
@@ -394,8 +387,7 @@ impl RawItems {
                         modes.push(mode);
                     }
                     for (desc_item, confidence, mode) in izip!(desc_items, confidences, modes) {
-                        ety_graph
-                            .graph
+                        self.graph
                             .add_ety(desc_item, mode, Some(0), &[parent], &[confidence]);
                     }
                 }

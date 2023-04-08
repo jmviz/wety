@@ -2,10 +2,9 @@ use std::{mem, str::FromStr};
 
 use crate::{
     embeddings::{EmbeddingComparand, Embeddings, ItemEmbedding},
-    ety_graph::EtyGraph,
     etymology::validate_ety_template_lang,
     etymology_templates::EtyMode,
-    items::{ItemId, RawItems, Retrieval},
+    items::{ItemId, Items, Retrieval},
     langterm::{Lang, LangTerm, Language, Term},
     progress_bar,
     string_pool::{StringPool, Symbol},
@@ -111,10 +110,9 @@ fn process_json_root_category(
     })
 }
 
-impl RawItems {
+impl Items {
     fn impute_item_root_ety(
-        &self,
-        ety_graph: &mut EtyGraph,
+        &mut self,
         embeddings: &Embeddings,
         embedding: &ItemEmbedding,
         item_id: ItemId,
@@ -123,14 +121,14 @@ impl RawItems {
         let Retrieval {
             item_id: root_item_id,
             ..
-        } = self.get_or_impute_item(ety_graph, embeddings, embedding, raw_root.langterm)?;
+        } = self.get_or_impute_item(embeddings, embedding, raw_root.langterm)?;
 
-        if ety_graph.get_immediate_ety(item_id).is_some() {
+        if self.graph.get_immediate_ety(item_id).is_some() {
             return Ok(());
         }
 
         let confidence = embedding.cosine_similarity(&embeddings.get(root_item_id)?);
-        ety_graph.add_ety(
+        self.graph.add_ety(
             item_id,
             EtyMode::Root,
             Some(0u8),
@@ -140,17 +138,13 @@ impl RawItems {
         Ok(())
     }
 
-    pub(crate) fn impute_root_etys(
-        &mut self,
-        embeddings: &Embeddings,
-        ety_graph: &mut EtyGraph,
-    ) -> Result<()> {
+    pub(crate) fn impute_root_etys(&mut self, embeddings: &Embeddings) -> Result<()> {
         let n = self.raw_templates.root.len();
         let pb = progress_bar(n, "Imputing root etys")?;
         let raw_templates_root = mem::take(&mut self.raw_templates.root);
         for (item_id, root) in raw_templates_root {
             let embedding = embeddings.get(item_id)?;
-            self.impute_item_root_ety(ety_graph, embeddings, &embedding, item_id, &root)?;
+            self.impute_item_root_ety(embeddings, &embedding, item_id, &root)?;
             pb.inc(1);
         }
         pb.finish();

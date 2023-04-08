@@ -1,4 +1,4 @@
-use crate::{items::Item, processed::Data, progress_bar};
+use crate::{items::Item, processed::Data, progress_bar, ItemId};
 
 use std::{
     fs::File,
@@ -94,8 +94,8 @@ fn write_list_delim(f: &mut BufWriter<File>, i: usize, len: usize) -> Result<()>
 }
 
 impl Data {
-    fn write_turtle_item(&self, f: &mut BufWriter<File>, item: &Item) -> Result<()> {
-        writeln!(f, "{ITEM_PRE}{}", item.id)?;
+    fn write_turtle_item(&self, f: &mut BufWriter<File>, id: ItemId, item: &Item) -> Result<()> {
+        writeln!(f, "{ITEM_PRE}{}", id.index())?;
         let term = item.term.resolve(&self.string_pool);
         write_item_quoted_prop(f, PRED_TERM, term)?;
         write_item_quoted_prop(f, PRED_LANG, item.lang.name())?;
@@ -140,7 +140,7 @@ impl Data {
             }
         }
 
-        if let Some(immediate_ety) = self.graph.get_immediate_ety(item.id) {
+        if let Some(immediate_ety) = self.graph.get_immediate_ety(id) {
             let mode = immediate_ety.mode.as_ref();
             write_item_quoted_prop(f, PRED_MODE, mode)?;
             if let Some(head) = immediate_ety.head {
@@ -150,18 +150,19 @@ impl Data {
             for (e_i, ety_item) in immediate_ety.items.iter().enumerate() {
                 write!(
                     f,
-                    "[ {PRED_ITEM} {ITEM_PRE}{ety_item}; {PRED_ORDER} {e_i} ]"
+                    "[ {PRED_ITEM} {ITEM_PRE}{}; {PRED_ORDER} {e_i} ]",
+                    ety_item.index()
                 )?;
                 write_list_delim(f, e_i, immediate_ety.items.len())?;
             }
         }
-        if let Some(progenitors) = self.progenitors.get(&item.id) {
+        if let Some(progenitors) = self.progenitors.get(&id) {
             if let Some(head) = progenitors.head {
-                writeln!(f, "  {PRED_HEAD_PROGENITOR} {ITEM_PRE}{head} ;")?;
+                writeln!(f, "  {PRED_HEAD_PROGENITOR} {ITEM_PRE}{} ;", head.index())?;
             }
             write!(f, "  {PRED_PROGENITOR} ")?;
             for (p_i, progenitor) in progenitors.items.iter().enumerate() {
-                write!(f, "{ITEM_PRE}{progenitor}")?;
+                write!(f, "{ITEM_PRE}{}", progenitor.index())?;
                 write_list_delim(f, p_i, progenitors.items.len())?;
             }
         }
@@ -172,10 +173,10 @@ impl Data {
     pub(crate) fn write_turtle(&self, path: &Path) -> Result<()> {
         let mut f = BufWriter::new(File::create(path)?);
         write_prefixes(&mut f)?;
-        let n = self.items.len();
+        let n = self.graph.len();
         let pb = progress_bar(n, "Writing RDF to Turtle file data/wety.ttl")?;
-        for item in &self.items {
-            self.write_turtle_item(&mut f, item)?;
+        for (id, item) in self.graph.iter() {
+            self.write_turtle_item(&mut f, id, item)?;
             pb.inc(1);
         }
         f.flush()?;

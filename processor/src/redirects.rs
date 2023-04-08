@@ -1,7 +1,7 @@
 use std::str::FromStr;
 
 use crate::{
-    items::RawItems,
+    items::Items,
     langterm::{LangTerm, Language, LanguageTerm, Term},
     string_pool::StringPool,
     wiktextract_json::{WiktextractJson, WiktextractJsonValidStr},
@@ -48,12 +48,16 @@ pub(crate) struct WiktextractJsonRedirect<'a> {
     pub(crate) json: WiktextractJson<'a>,
 }
 
-impl WiktextractJsonRedirect<'_> {
-    pub(crate) fn process(&self, string_pool: &mut StringPool, items: &mut RawItems) {
+impl Items {
+    pub(crate) fn process_redirect(
+        &mut self,
+        string_pool: &mut StringPool,
+        redirect: &WiktextractJsonRedirect,
+    ) {
         // cf. https://github.com/tatuylonen/wiktextract/blob/master/wiktwords
 
-        if let Some(from_title) = self.json.get_valid_str("title")
-            && let Some(to_title) = self.json.get_valid_str("redirect")
+        if let Some(from_title) = redirect.json.get_valid_str("title")
+            && let Some(to_title) = redirect.json.get_valid_str("redirect")
         {
             for title in [from_title, to_title] {
                 if let Some(colon) = title.find(':')
@@ -67,14 +71,14 @@ impl WiktextractJsonRedirect<'_> {
             if let Some(from_title) = process_reconstruction_title(string_pool, from_title) {
                 // e.g. "Reconstruction:Proto-West Germanic/pīpā"
                 if let Some(to_title) = process_reconstruction_title(string_pool, to_title) {
-                    items.redirects.reconstruction.insert(from_title, to_title);
+                    self.redirects.reconstruction.insert(from_title, to_title);
                 }
                 return;
             }
             // otherwise, this is a simple term-to-term redirect
             let from_title = Term::new(string_pool, from_title);
             let to_title = Term::new(string_pool, to_title);
-            items.redirects.regular.insert(from_title, to_title);
+            self.redirects.regular.insert(from_title, to_title);
         }
     }
 }

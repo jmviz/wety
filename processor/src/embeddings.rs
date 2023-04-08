@@ -450,12 +450,14 @@ mod tests {
         let json = json("test", "test test");
         let lang = "test_lang";
         let term = "test_term";
-        embeddings.add(&json, lang, term, 0).unwrap();
-        embeddings.add(&json, lang, term, 1).unwrap();
-        let item_embedding0 = embeddings.get(0).unwrap();
+        let id0 = ItemId::from(0);
+        let id1 = ItemId::from(1);
+        embeddings.add(&json, lang, term, id0).unwrap();
+        embeddings.add(&json, lang, term, id1).unwrap();
+        let item_embedding0 = embeddings.get(id0).unwrap();
         assert!(item_embedding0.ety.is_some());
         assert!(item_embedding0.glosses.is_some());
-        let item_embedding1 = embeddings.get(1).unwrap();
+        let item_embedding1 = embeddings.get(id1).unwrap();
         assert!(item_embedding1.ety.is_some());
         assert!(item_embedding1.glosses.is_some());
         assert_eq!(item_embedding0.ety, item_embedding1.ety);
@@ -479,9 +481,9 @@ mod tests {
         right_json: &WiktextractJson,
         wrong_json: &WiktextractJson,
     ) {
-        let parent = 0;
-        let right = 1;
-        let wrong = 2;
+        let parent = ItemId::from(0);
+        let right = ItemId::from(1);
+        let wrong = ItemId::from(2);
         embeddings
             .add(base_json, base_lang, base_term, parent)
             .unwrap();

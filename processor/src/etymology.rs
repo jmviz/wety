@@ -1,8 +1,7 @@
 use crate::{
     embeddings::Embeddings,
-    ety_graph::EtyGraph,
     etymology_templates::{EtyMode, TemplateKind},
-    items::{ItemId, RawItems, Retrieval},
+    items::{ItemId, Items, Retrieval},
     langterm::{Lang, LangTerm},
     progress_bar,
     string_pool::StringPool,
@@ -316,7 +315,7 @@ impl WiktextractJsonItem<'_> {
     }
 }
 
-impl RawItems {
+impl Items {
     pub(crate) fn get_ety_items_needing_embedding(
         &self,
         item: ItemId,
@@ -358,9 +357,8 @@ impl RawItems {
     // For now we'll just take the first template. But cf. notes.md.
     // Only to be called once all json items have been processed into items.
     fn process_item_raw_etymology(
-        &self,
+        &mut self,
         embeddings: &Embeddings,
-        ety_graph: &mut EtyGraph,
         item: ItemId,
         raw_etymology: &RawEtymology,
     ) -> Result<()> {
@@ -378,8 +376,7 @@ impl RawItems {
                     confidence,
                     is_newly_imputed,
                     ..
-                } =
-                    self.get_or_impute_item(ety_graph, embeddings, &item_embeddings, ety_langterm)?;
+                } = self.get_or_impute_item(embeddings, &item_embeddings, ety_langterm)?;
                 has_new_imputation = is_newly_imputed;
                 if has_new_imputation {
                     if template.langterms.len() == 1 {
@@ -398,7 +395,7 @@ impl RawItems {
                 ety_items.push(ety_item);
                 confidences.push(confidence);
             }
-            ety_graph.add_ety(
+            self.graph.add_ety(
                 current_item,
                 template.mode,
                 template.head,
@@ -415,16 +412,12 @@ impl RawItems {
         Ok(())
     }
 
-    pub(crate) fn process_raw_etymologies(
-        &mut self,
-        embeddings: &Embeddings,
-        ety_graph: &mut EtyGraph,
-    ) -> Result<()> {
+    pub(crate) fn process_raw_etymologies(&mut self, embeddings: &Embeddings) -> Result<()> {
         let n = self.raw_templates.ety.len();
         let pb = progress_bar(n, "Processing etymologies")?;
         let raw_templates_ety = mem::take(&mut self.raw_templates.ety);
         for (item_id, ety) in raw_templates_ety {
-            self.process_item_raw_etymology(embeddings, ety_graph, item_id, &ety)?;
+            self.process_item_raw_etymology(embeddings, item_id, &ety)?;
             pb.inc(1);
         }
         pb.finish();

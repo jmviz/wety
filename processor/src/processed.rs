@@ -1,6 +1,6 @@
 use crate::{
-    ety_graph::{EtyGraph, Graph, Progenitors},
-    items::{Item, ItemId, RawItems},
+    ety_graph::{EtyGraph, Progenitors},
+    items::{Item, ItemId},
     langterm::Lang,
     string_pool::StringPool,
     HashMap, HashSet,
@@ -26,27 +26,18 @@ use serde_json::{json, Value};
 #[derive(Serialize, Deserialize)]
 pub struct Data {
     pub(crate) string_pool: StringPool,
-    pub(crate) items: Vec<Item>,
-    pub(crate) graph: Graph,
+    pub(crate) graph: EtyGraph,
     pub(crate) progenitors: HashMap<ItemId, Progenitors>,
     head_progeny_langs: HashMap<ItemId, HashSet<Lang>>,
 }
 
 // methods for use within processor
 impl Data {
-    pub(crate) fn new(string_pool: StringPool, raw_items: RawItems, ety_graph: EtyGraph) -> Self {
-        let mut items = raw_items.items.store.vec;
-        let imputed_items = ety_graph.imputed_items.store.vec;
-        items.extend(imputed_items);
-        for (i, item) in items.iter().enumerate() {
-            assert_eq!(i, item.id as usize);
-        }
-        let graph = ety_graph.graph;
-        let progenitors = graph.get_all_progenitors(&items);
-        let head_progeny_langs = graph.get_all_head_progeny_langs(&items);
+    pub(crate) fn new(string_pool: StringPool, graph: EtyGraph) -> Self {
+        let progenitors = graph.get_all_progenitors();
+        let head_progeny_langs = graph.get_all_head_progeny_langs();
         Self {
             string_pool,
-            items,
             graph,
             progenitors,
             head_progeny_langs,
@@ -72,7 +63,7 @@ impl Data {
 // private methods for use within pub methods below
 impl Data {
     fn get(&self, item: ItemId) -> &Item {
-        &self.items[item as usize]
+        self.graph.get(item)
     }
 
     fn term_len(&self, item: ItemId) -> usize {
@@ -112,7 +103,7 @@ impl Data {
     fn item_json(&self, item_id: ItemId) -> Value {
         let item = self.get(item_id);
         json!({
-            "id": item.id,
+            "id": item_id,
             "ety_num": item.ety_num,
             "lang": item.lang.name(),
             "term": item.term.resolve(&self.string_pool),
@@ -131,14 +122,14 @@ impl Data {
         let children = (item.lang != filter_lang).then_some(
             self.graph
                 .get_head_children(item_id)
-                .filter(|child| {
-                    self.get(*child).lang == filter_lang
+                .filter(|(child_id, child)| {
+                    child.lang == filter_lang
                         || self
                             .head_progeny_langs
-                            .get(child)
+                            .get(child_id)
                             .is_some_and(|langs| langs.contains(&filter_lang))
                 })
-                .map(|child| self.expanded_item_json(child, filter_lang))
+                .map(|(child_id, _)| self.expanded_item_json(child_id, filter_lang))
                 .collect_vec(),
         );
         json!({
@@ -193,16 +184,16 @@ impl Data {
             .key_trans(Box::new(normalize_lang_name))
             .finish();
         let mut terms = HashMap::<Lang, FuzzyTrie<ItemId>>::default();
-        for item in self.items.iter().filter(|item| !item.is_imputed) {
+        for (item_id, item) in self.graph.iter().filter(|(_, item)| !item.is_imputed) {
             let norm_lang = normalize_lang_name(item.lang.name());
             let term = item.term.resolve(&self.string_pool);
             match terms.entry(item.lang) {
                 Entry::Occupied(mut t) => {
-                    t.get_mut().insert(&term.to_lowercase()).insert(item.id);
+                    t.get_mut().insert(&term.to_lowercase()).insert(item_id);
                 }
                 Entry::Vacant(e) => {
                     let t = e.insert(FuzzyTrie::new(0, false));
-                    t.insert(term).insert(item.id);
+                    t.insert(term).insert(item_id);
                 }
             }
             if let Some(lang_data) = normalized_langs.get_mut(&norm_lang) {
