@@ -63,19 +63,18 @@ fn process_root_template(
     validate_ety_template_lang(args, lang).ok()?;
     let root_lang = args.get_valid_str("2")?;
     let root_lang = Lang::from_str(root_lang).ok()?;
-    // we don't use get_valid_term as we want to recover the senseid
-    let mut root_term = args.get_valid_str("3")?;
+    let raw_root_term = args.get_valid_str("3")?;
+    let root_term = args.get_valid_term("3")?;
     // we don't deal with multi-roots for now:
-    args.get_valid_str("4").is_none().then_some(())?;
+    args.get_valid_term("4").is_none().then_some(())?;
 
     let mut sense_id = "";
     // Sometimes a root's senseid is given in parentheses after the term in
     // the 3 arg slot, see e.g. https://en.wiktionary.org/wiki/blaze.
-    if let Some(right_paren_idx) = root_term.rfind(')')
-        && let Some(left_paren_idx) = root_term.rfind(" (")
+    if let Some(right_paren_idx) = raw_root_term.rfind(')')
+        && let Some(left_paren_idx) = raw_root_term.rfind(" (")
     {
-        sense_id = &root_term[left_paren_idx + 2..right_paren_idx];
-        root_term = &root_term[..left_paren_idx];
+        sense_id = &raw_root_term[left_paren_idx + 2..right_paren_idx];
     } else if let Some(id) = args.get_valid_str("id") {
         sense_id = id;
     }

@@ -20,6 +20,9 @@ use xxhash_rust::xxh3::xxh3_64;
 // to be sure of the elements being f32 for the caching (see below).
 type Embedding = Vec<f32>;
 
+// Only retrieve items with similarity greater than threshold
+pub(crate) const SIMILARITY_THRESHOLD: f32 = 0.0;
+
 pub(crate) struct ItemEmbedding {
     ety: Option<Embedding>,
     glosses: Option<Embedding>,

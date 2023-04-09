@@ -17,47 +17,6 @@ use petgraph::{
 };
 use serde::{Deserialize, Serialize};
 
-// Quite often an etymology section on wiktionary will have multiple valid
-// templates that don't actually link to anything (because the term has no page,
-// or doesn't have the relevant page section), before an eventual valid template
-// that does. See e.g. https://en.wiktionary.org/wiki/arsenic#English. The first
-// two templates linking to Middle English and Middle French terms are both
-// valid for our purposes, and the pages exist, but the language sections they
-// link to do not exist. Therefore, both of these terms will not correspond to a
-// findable item, and so the current procedure will give an ety of None. Instead
-// we can go through the templates until we find the template linking Latin
-// https://en.wiktionary.org/wiki/arsenicum#Latin, where the page and section
-// both exist.
-
-// #[derive(Default)]
-// pub(crate) struct ImputedItems {
-//     pub(crate) store: ItemStore,
-//     pub(crate) langterms: HashMap<LangTerm, ItemId>,
-// }
-
-// impl ImputedItems {
-//     pub(crate) fn new(start_id: ItemId) -> Self {
-//         Self {
-//             store: ItemStore::new(start_id),
-//             ..Default::default()
-//         }
-//     }
-
-//     pub(crate) fn add(&mut self, item: Item) -> ItemId {
-//         let langterm = item.langterm();
-//         if let Some(&item_id) = self.langterms.get(&langterm) {
-//             return item_id;
-//         }
-//         let item_id = self.store.add(item);
-//         self.langterms.insert(langterm, item_id);
-//         item_id
-//     }
-
-//     pub(crate) fn get_item_id(&self, langterm: LangTerm) -> Option<ItemId> {
-//         self.langterms.get(&langterm).copied()
-//     }
-// }
-
 #[derive(Serialize, Deserialize)]
 pub(crate) struct EtyLink {
     pub(crate) mode: EtyMode,
@@ -314,52 +273,3 @@ impl EtyGraph {
         }
     }
 }
-
-// #[derive(Default)]
-// pub(crate) struct EtyGraph {
-//     pub(crate) imputed_items: ImputedItems,
-//     pub(crate) graph: Graph,
-// }
-
-// impl EtyGraph {
-//     pub(crate) fn new(start_id: ItemId) -> Self {
-//         Self {
-//             imputed_items: ImputedItems::new(start_id),
-//             ..Default::default()
-//         }
-//     }
-
-//     pub(crate) fn get_imputed_item_id(&self, langterm: LangTerm) -> Option<ItemId> {
-//         self.imputed_items.get_item_id(langterm)
-//     }
-
-//     pub(crate) fn add(&mut self, item_id: ItemId) {
-//         self.graph.add(item_id);
-//     }
-
-//     pub(crate) fn add_imputed(&mut self, langterm: LangTerm, pos: Option<Pos>) -> ItemId {
-//         let item = Item::new_imputed(langterm, pos);
-//         let item_id = self.imputed_items.add(item);
-//         self.add(item_id);
-//         item_id
-//     }
-
-//     pub(crate) fn add_ety(
-//         &mut self,
-//         item: ItemId,
-//         mode: EtyMode,
-//         head: Option<u8>,
-//         ety_items: &[ItemId],
-//         confidences: &[f32],
-//     ) {
-//         self.graph.add_ety(item, mode, head, ety_items, confidences);
-//     }
-
-//     pub(crate) fn remove_cycles(&mut self) -> Result<()> {
-//         self.graph.remove_cycles()
-//     }
-
-//     pub(crate) fn get_immediate_ety(&self, item_id: ItemId) -> Option<ImmediateEty> {
-//         self.graph.get_immediate_ety(item_id)
-//     }
-// }

@@ -1,6 +1,6 @@
 use crate::{
     descendants::RawDescendants,
-    embeddings::{EmbeddingComparand, Embeddings, EmbeddingsConfig, ItemEmbedding},
+    embeddings::{self, EmbeddingComparand, Embeddings, EmbeddingsConfig, ItemEmbedding},
     ety_graph::{EtyGraph, ItemIndex},
     etymology::RawEtymology,
     gloss::Gloss,
@@ -14,7 +14,7 @@ use crate::{
     HashMap, HashSet,
 };
 
-use std::path::Path;
+use std::{collections::hash_map::Entry, path::Path};
 
 use anyhow::{Ok, Result};
 use petgraph::stable_graph::NodeIndex;
@@ -106,6 +106,7 @@ type Lines = HashMap<usize, ItemId>;
 pub(crate) struct Items {
     pub(crate) graph: EtyGraph,
     pub(crate) dupes: Dupes,
+    pub(crate) page_term_dupes: Dupes,
     pub(crate) redirects: Redirects,
     pub(crate) raw_templates: RawTemplates,
     pub(crate) lines: Lines,
@@ -117,6 +118,7 @@ impl Items {
         Ok(Self {
             graph: EtyGraph::default(),
             dupes: Dupes::default(),
+            page_term_dupes: Dupes::default(),
             redirects: Redirects::default(),
             raw_templates: RawTemplates::default(),
             lines: Lines::default(),
@@ -128,7 +130,6 @@ impl Items {
 pub(crate) struct Retrieval {
     pub(crate) item_id: ItemId,
     pub(crate) confidence: f32,
-    // pub(crate) is_imputed: bool,
     pub(crate) is_newly_imputed: bool,
 }
 
@@ -155,15 +156,44 @@ impl Items {
         self.graph.add(item)
     }
 
+    fn add_page_term_dupe(&mut self, page_langterm: LangTerm, id: ItemId) {
+        match self.page_term_dupes.entry(page_langterm) {
+            Entry::Occupied(mut e) => e.get_mut().push(id),
+            Entry::Vacant(e) => {
+                e.insert(vec![id]);
+            }
+        }
+    }
+
+    fn add_dupe(
+        &mut self,
+        mut raw_item: RawItem,
+        max_ety: u8,
+        langterm: LangTerm,
+        page_langterm: LangTerm,
+    ) -> (ItemId, bool) {
+        raw_item.ety_num = max_ety + 1;
+        let id = self.add(raw_item.into());
+        self.dupes
+            .get_mut(&langterm)
+            .expect("only called when dupes already found for langterm")
+            .push(id);
+        if langterm != page_langterm {
+            self.add_page_term_dupe(page_langterm, id);
+        }
+        (id, true)
+    }
+
     // the returned bool is true if the ItemId is new, false if the RawItem
     // got merged into an existing item and hence the ItemId is old
-    pub(crate) fn add_raw(&mut self, mut raw_item: RawItem) -> (ItemId, bool) {
+    pub(crate) fn add_raw(&mut self, raw_item: RawItem) -> (ItemId, bool) {
         let langterm = raw_item.langterm();
+        let page_langterm = LangTerm::new(raw_item.lang, raw_item.page_term);
         // If we've seen this langterm before...
-        if let Some(ids) = self.dupes.get(&langterm).map(Vec::clone) {
+        if let Some(ids) = self.dupes.get(&langterm) {
             let mut max_ety = 0;
             let mut same_ety = None;
-            for &id in &ids {
+            for &id in ids {
                 let other = self.get(id);
                 if other.ety_num == raw_item.ety_num {
                     same_ety = Some(id);
@@ -188,13 +218,7 @@ impl Items {
                         .iter()
                         .any(|&p| p == raw_item.pos)
                 {
-                    raw_item.ety_num = max_ety + 1;
-                    let id = self.add(raw_item.into());
-                    self.dupes
-                        .get_mut(&langterm)
-                        .expect("we already cloned these")
-                        .push(id);
-                    return (id, true);
+                    return self.add_dupe(raw_item, max_ety, langterm, page_langterm);
                 }
                 // Otherwise, we simply append this pos and gloss to the
                 // existing item.
@@ -210,18 +234,15 @@ impl Items {
                 return (same_ety, false);
             }
             // A new ety_num for an already seen langterm
-            raw_item.ety_num = max_ety + 1;
-            let id = self.add(raw_item.into());
-            self.dupes
-                .get_mut(&langterm)
-                .expect("we already cloned these")
-                .push(id);
-            return (id, true);
+            return self.add_dupe(raw_item, max_ety, langterm, page_langterm);
         }
 
         // A langterm that hasn't been seen yet
         let id = self.add(raw_item.into());
         self.dupes.insert(langterm, vec![id]);
+        if langterm != page_langterm {
+            self.add_page_term_dupe(page_langterm, id);
+        }
         (id, true)
     }
 
@@ -233,7 +254,31 @@ impl Items {
     pub(crate) fn get_dupes(&self, langterm: LangTerm) -> Option<&Vec<ItemId>> {
         self.dupes.get(&langterm)
     }
+}
 
+fn get_max_similarity_candidate(
+    embeddings: &Embeddings,
+    embedding_comp: &impl EmbeddingComparand<ItemEmbedding>,
+    candidates: &[ItemId],
+) -> Result<Option<(ItemId, f32)>> {
+    let mut max_similarity = 0f32;
+    let mut best_candidate = 0usize;
+    for (i, &candidate) in candidates.iter().enumerate() {
+        let candidate_embedding = embeddings.get(candidate)?;
+        let similarity = embedding_comp.cosine_similarity(&candidate_embedding);
+        let old_max_similarity = max_similarity;
+        max_similarity = max_similarity.max(similarity);
+        if max_similarity > old_max_similarity {
+            best_candidate = i;
+        }
+    }
+    if max_similarity > embeddings::SIMILARITY_THRESHOLD {
+        return Ok(Some((candidates[best_candidate], max_similarity)));
+    }
+    Ok(None)
+}
+
+impl Items {
     pub(crate) fn get_disambiguated_item_id(
         &self,
         embeddings: &Embeddings,
@@ -241,19 +286,13 @@ impl Items {
         langterm: LangTerm,
     ) -> Result<Option<(ItemId, f32)>> {
         let langterm = self.redirects.rectify_langterm(langterm);
-        if let Some(candidates) = self.get_dupes(langterm) {
-            let mut max_similarity = 0f32;
-            let mut best_candidate = 0usize;
-            for (i, &candidate) in candidates.iter().enumerate() {
-                let candidate_embedding = embeddings.get(candidate)?;
-                let similarity = embedding_comp.cosine_similarity(&candidate_embedding);
-                let old_max_similarity = max_similarity;
-                max_similarity = max_similarity.max(similarity);
-                if max_similarity > old_max_similarity {
-                    best_candidate = i;
-                }
-            }
-            return Ok(Some((candidates[best_candidate], max_similarity)));
+        if let Some(candidates) = self.get_dupes(langterm)
+            && let Some((item_id, similarity)) = get_max_similarity_candidate(embeddings, embedding_comp, candidates)? {
+            return Ok(Some((item_id, similarity)));
+        }
+        if let Some(candidates) = self.page_term_dupes.get(&langterm)
+            && let Some((item_id, similarity)) = get_max_similarity_candidate(embeddings, embedding_comp, candidates)? {
+            return Ok(Some((item_id, similarity)));
         }
         Ok(None)
     }

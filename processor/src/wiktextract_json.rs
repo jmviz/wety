@@ -78,7 +78,7 @@ impl WiktextractJsonValidStr for WiktextractJson<'_> {
     /// A stricter version of `get_valid_str` for terms
     fn get_valid_term(&self, key: &str) -> Option<&str> {
         self.get_str(key)
-            .map(clean_ety_term)
+            .map(clean_template_term)
             .and_then(|s| (!s.is_empty() && s != "-").then_some(s))
     }
 }
@@ -154,7 +154,7 @@ impl WiktextractJsonItem<'_> {
 
     // The form of the term used in the page url, e.g. "voco"
     fn get_page_term(&self, string_pool: &mut StringPool) -> Option<Term> {
-        let term = self.json.get_valid_str("word")?;
+        let term = self.json.get_valid_term("word")?;
         if !should_ignore_term(term) {
             return Some(Term::new(string_pool, term));
         }
@@ -174,7 +174,7 @@ impl WiktextractJsonItem<'_> {
                     while let Some(tag) = tags.get(t).as_str() {
                         if tag == "canonical" {
                             // There are some
-                            if let Some(term) = form.get_valid_str("form")
+                            if let Some(term) = form.get_valid_term("form")
                                 && !should_ignore_term(term)
                             {
                                 return Some(Term::new(string_pool, term));
@@ -223,7 +223,7 @@ impl WiktextractJsonItem<'_> {
 }
 
 /// Clean a term that appears as a template arg
-fn clean_ety_term(term: &str) -> &str {
+fn clean_template_term(mut term: &str) -> &str {
     // Reconstructed terms (e.g. PIE) are supposed to start with "*" when cited
     // in etymologies but their entry titles (and hence wiktextract "word"
     // field) do not. This is done by
@@ -232,21 +232,17 @@ fn clean_ety_term(term: &str) -> &str {
     // with * incorrectly. So we strip the * in every case. This will break
     // terms that actually start with *, but there are almost none of these, and
     // none of them are particularly relevant for our purposes AFAIK ($$).
-    //
+    term = term.strip_prefix('*').unwrap_or(term);
     // Occasionally a term is linked in an ety or descendants section like e.g.
     // on page tuig: {{desc|bor=1|en|twig#Etymology_2}}. Or even more rarely,
     // using #X to link to some other subsection (e.g. language). We just take
     // everything before the first # ($$ do any languages use # that should be
     // exempt from this?)
-    //
+    term = term.split_once('#').map_or(term, |(t, _)| t);
     // Sometimes senseid is given in parentheses like e.g.
     // {{root|en|ine-pro|*bʰel- (shiny)}}.
-    term.strip_prefix('*')
-        .unwrap_or(term)
-        .split_once('#')
-        .map_or(term, |(t, _)| t)
-        .split_once(" (")
-        .map_or(term, |(t, _)| t)
+    term = term.split_once(" (").map_or(term, |(t, _)| t);
+    term
 }
 
 // $$ These two functions needs revisiting depending on results.
@@ -266,4 +262,16 @@ fn should_ignore_term(term: &str) -> bool {
 
 fn should_ignore_pos(pos: &str) -> bool {
     pos.contains("phrase")
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn clean_template_terms() {
+        assert_eq!("gaberaną", clean_template_term("*gaberaną"));
+        assert_eq!("bʰel-", clean_template_term("*bʰel- (shiny)"));
+        assert_eq!("twig", clean_template_term("twig#Etymology_2"));
+    }
 }

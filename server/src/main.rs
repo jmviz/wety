@@ -20,7 +20,7 @@ async fn main() -> Result<()> {
     env::set_var("RUST_BACKTRACE", "1");
 
     // let data = Data::deserialize(Path::new("data/test_output/wety.json.gz"))?;
-    let data = Data::deserialize(Path::new("data/wety.json.gz"))?;
+    let data = Data::deserialize(Path::new("data/wety.json"))?;
     let search = data.build_search();
     let state = Arc::new(AppState { data, search });
 
