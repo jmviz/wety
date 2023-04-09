@@ -113,6 +113,7 @@ impl Data {
             "url": item.url(&self.string_pool),
             "pos": item.pos.as_ref().map(|pos| pos.iter().map(|p| p.name()).collect_vec()),
             "gloss": item.gloss.as_ref().map(|gloss| gloss.iter().map(|g| g.to_string(&self.string_pool)).collect_vec()),
+            "romanization": item.romanization,
         })
     }
 

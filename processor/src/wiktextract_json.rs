@@ -100,14 +100,14 @@ impl Items {
             && let Some(pos) = item.get_pos()
             && let Some(gloss) = item.get_gloss(string_pool)
         {
-            let ety_num = item.get_ety_num();
             let raw_item = RawItem {
-                ety_num,
+                ety_num: item.get_ety_num(),
                 lang,
                 term,
                 page_term,
                 pos,
                 gloss,
+                romanization: item.get_romanization(string_pool),
             };
             let (item_id, is_new_ety) = self.add_raw(raw_item);
             if is_new_ety { // a new item was added
@@ -219,6 +219,21 @@ impl WiktextractJsonItem<'_> {
             .and_then(|glosses| glosses.get(0))
             .and_then(|gloss| gloss.as_str())
             .and_then(|gloss| (!gloss.is_empty()).then(|| Gloss::new(string_pool, gloss)))
+    }
+
+    fn get_romanization(&self, string_pool: &mut StringPool) -> Option<Term> {
+        for form in self.json.get_array("forms")? {
+            if form.get_array("tags").is_some_and(|tags| {
+                tags.iter()
+                    .filter_map(|tag| tag.as_str())
+                    .any(|tag| tag == "romanization")
+            }) {
+                return form
+                    .get_valid_term("form")
+                    .map(|romanization| Term::new(string_pool, romanization));
+            }
+        }
+        None
     }
 }
 

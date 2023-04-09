@@ -50,7 +50,11 @@ fn process_derived_kind_json_template(
     args: &WiktextractJson,
     mode: EtyMode,
 ) -> Option<RawEtyTemplate> {
-    let ety_lang = args.get_valid_str("2")?;
+    let mut ety_lang = args.get_valid_str("2")?;
+    // Template::borrowed and its siblings allow specifying multiple ety langs
+    // in a comma-separated list, e.g. {{bor|lv|sv,da,no|Gunnar}}. We take the
+    // the first one in this case.
+    ety_lang = ety_lang.split_once(',').map_or(ety_lang, |(el, _)| el);
     let ety_lang = Lang::from_str(ety_lang).ok()?;
     let ety_term = args.get_valid_term("3")?;
     let ety_langterm = ety_lang.new_langterm(string_pool, ety_term);

@@ -29,6 +29,7 @@ pub(crate) struct RawItem {
     pub(crate) page_term: Term, // i.e. the term stripped of diacritics etc. at the top of the page
     pub(crate) pos: Pos,        // e.g. "noun"
     pub(crate) gloss: Gloss,
+    pub(crate) romanization: Option<Term>,
 }
 
 impl RawItem {
@@ -52,6 +53,7 @@ pub(crate) struct Item {
     pub(crate) page_term: Option<Term>, // i.e. the term stripped of diacritics etc. at the top of the page
     pub(crate) pos: Option<Vec<Pos>>,   // e.g. "noun"
     pub(crate) gloss: Option<Vec<Gloss>>,
+    pub(crate) romanization: Option<Term>,
 }
 
 impl From<RawItem> for Item {
@@ -64,6 +66,7 @@ impl From<RawItem> for Item {
             page_term: Some(raw_item.page_term),
             pos: Some(vec![raw_item.pos]),
             gloss: Some(vec![raw_item.gloss]),
+            romanization: raw_item.romanization,
         }
     }
 }
@@ -78,6 +81,7 @@ impl Item {
             page_term: None,
             pos: None,
             gloss: None,
+            romanization: None,
         }
     }
 
