@@ -122,6 +122,8 @@ struct Tracker {
     unexpanded: Vec<ItemId>,
     progenitors: HashSet<ItemId>,
     head: Option<ItemId>,
+    expanded: HashSet<ItemId>,
+    cycle_found: bool,
 }
 
 impl EtyGraph {
@@ -132,14 +134,23 @@ impl EtyGraph {
             unexpanded: immediate_ety.items,
             progenitors: HashSet::default(),
             head,
+            expanded: HashSet::default(),
+            cycle_found: false,
         };
         self.get_progenitors_recurse(&mut t);
+        if t.cycle_found {
+            return None;
+        }
         let head = t.head;
         Some(Progenitors::new(t.progenitors, head))
     }
 
     fn get_progenitors_recurse(&self, t: &mut Tracker) {
-        while let Some(item) = t.unexpanded.pop() {
+        while !t.cycle_found && let Some(item) = t.unexpanded.pop() {
+            if !t.expanded.insert(item) {
+                t.cycle_found = true;
+                return;
+            }
             if let Some(immediate_ety) = self.get_immediate_ety(item) {
                 let ety_head = immediate_ety.head();
                 for &ety_item in &immediate_ety.items {

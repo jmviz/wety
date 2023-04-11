@@ -378,7 +378,6 @@ impl Items {
                 let Retrieval {
                     item_id: ety_item,
                     confidence,
-                    ..
                 } = self.get_or_impute_item(embeddings, &item_embeddings, item, ety_langterm)?;
                 has_imputation = self.get(ety_item).is_imputed();
                 if has_imputation {

@@ -371,7 +371,6 @@ impl Items {
                         let Retrieval {
                             item_id: desc_item,
                             confidence,
-                            ..
                         } = self.get_or_impute_item(
                             embeddings,
                             &ancestors.embeddings(self, embeddings)?,

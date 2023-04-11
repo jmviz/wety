@@ -117,21 +117,27 @@ impl Items {
         item_id: ItemId,
         raw_root: &RawRoot,
     ) -> Result<()> {
-        if self.graph.get_immediate_ety(item_id).is_some() {
-            return Ok(());
-        }
         let Retrieval {
             item_id: root_item_id,
             confidence,
-            ..
         } = self.get_or_impute_item(embeddings, embedding, item_id, raw_root.langterm)?;
-        self.graph.add_ety(
-            item_id,
-            EtyMode::Root,
-            Some(0u8),
-            &[root_item_id],
-            &[confidence],
-        );
+        // $$ Implement adding a connection from the item's head progenitor to
+        // the root_item if the head progenitor's lang is a descendant lang of
+        // the root_item's lang. This requires us to create this lang data by
+        // parsing Module:languages data.
+
+        // If the item has no ety at all, then we add an ety link from the
+        // item to the root item.
+        if self.graph.get_immediate_ety(item_id).is_none() {
+            self.graph.add_ety(
+                item_id,
+                EtyMode::Root,
+                Some(0u8),
+                &[root_item_id],
+                &[confidence],
+            );
+        }
+
         Ok(())
     }
 
