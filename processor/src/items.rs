@@ -14,86 +14,119 @@ use crate::{
     HashMap, HashSet,
 };
 
-use std::{collections::hash_map::Entry, path::Path};
+use std::{collections::hash_map::Entry, mem, path::Path};
 
 use anyhow::{Ok, Result};
 use petgraph::stable_graph::NodeIndex;
 use serde::{Deserialize, Serialize};
 use simd_json::to_borrowed_value;
 
-/// basic data read from a line in the wiktextract raw data
-pub(crate) struct RawItem {
-    pub(crate) ety_num: u8, // the nth numbered ety for this term-lang combo (1,2,...)
-    pub(crate) lang: Lang,
-    pub(crate) term: Term,
-    pub(crate) page_term: Term, // i.e. the term stripped of diacritics etc. at the top of the page
-    pub(crate) pos: Pos,        // e.g. "noun"
-    pub(crate) gloss: Gloss,
-    pub(crate) romanization: Option<Term>,
-}
-
-impl RawItem {
-    fn langterm(&self) -> LangTerm {
-        LangTerm {
-            lang: self.lang,
-            term: self.term,
-        }
-    }
-}
-
 pub type ItemId = NodeIndex<ItemIndex>; // wiktionary has about ~10M items including imputations
 
 /// An etymologically distinct item, which may have multiple (pos, gloss)'s
 #[derive(Serialize, Deserialize)]
-pub(crate) struct Item {
-    pub(crate) is_imputed: bool,
+pub(crate) struct RealItem {
     pub(crate) ety_num: u8, // the nth numbered ety for this term-lang combo (1,2,...)
     pub(crate) lang: Lang,
     pub(crate) term: Term,
+    pub(crate) pos: Vec<Pos>, // e.g. "noun"
+    pub(crate) gloss: Vec<Gloss>,
     pub(crate) page_term: Option<Term>, // i.e. the term stripped of diacritics etc. at the top of the page
-    pub(crate) pos: Option<Vec<Pos>>,   // e.g. "noun"
-    pub(crate) gloss: Option<Vec<Gloss>>,
     pub(crate) romanization: Option<Term>,
 }
 
-impl From<RawItem> for Item {
-    fn from(raw_item: RawItem) -> Self {
-        Item {
-            is_imputed: false,
-            ety_num: raw_item.ety_num,
-            lang: raw_item.lang,
-            term: raw_item.term,
-            page_term: Some(raw_item.page_term),
-            pos: Some(vec![raw_item.pos]),
-            gloss: Some(vec![raw_item.gloss]),
-            romanization: raw_item.romanization,
+impl RealItem {
+    pub(crate) fn url(&self, string_pool: &StringPool) -> String {
+        let page_term = self.page_term.unwrap_or(self.term);
+        let url_term = urlencoding::encode(page_term.resolve(string_pool));
+        let page_lang = self.lang.ety2main();
+        let url_lang_name = urlencoding::encode(page_lang.name());
+        if page_lang.is_reconstructed() {
+            return format!(
+                "https://en.wiktionary.org/wiki/Reconstruction:{url_lang_name}/{url_term}"
+            );
         }
+        format!("https://en.wiktionary.org/wiki/{url_term}#{url_lang_name}")
     }
 }
 
+#[derive(Serialize, Deserialize)]
+pub(crate) struct ImputedItem {
+    pub(crate) ety_num: u8,
+    pub(crate) lang: Lang,
+    pub(crate) term: Term,
+    pub(crate) romanization: Option<Term>,
+    pub(crate) from: ItemId, // during the processing of which Item was this imputed?
+}
+
+#[derive(Serialize, Deserialize)]
+pub(crate) enum Item {
+    Real(RealItem),
+    Imputed(ImputedItem),
+}
+
 impl Item {
-    pub(crate) fn new_imputed(langterm: LangTerm) -> Self {
-        Self {
-            is_imputed: true,
-            ety_num: 1,
-            lang: langterm.lang,
-            term: langterm.term,
-            page_term: None,
-            pos: None,
-            gloss: None,
-            romanization: None,
+    pub(crate) fn is_imputed(&self) -> bool {
+        match self {
+            Item::Real(_) => false,
+            Item::Imputed(_) => true,
+        }
+    }
+
+    pub(crate) fn ety_num(&self) -> u8 {
+        match self {
+            Item::Real(real_item) => real_item.ety_num,
+            Item::Imputed(imputed_item) => imputed_item.ety_num,
+        }
+    }
+
+    pub(crate) fn lang(&self) -> Lang {
+        match self {
+            Item::Real(real_item) => real_item.lang,
+            Item::Imputed(imputed_item) => imputed_item.lang,
+        }
+    }
+
+    pub(crate) fn term(&self) -> Term {
+        match self {
+            Item::Real(real_item) => real_item.term,
+            Item::Imputed(imputed_item) => imputed_item.term,
+        }
+    }
+
+    pub(crate) fn page_term(&self) -> Option<Term> {
+        match self {
+            Item::Real(real_item) => real_item.page_term,
+            Item::Imputed(_) => None,
+        }
+    }
+
+    pub(crate) fn pos(&self) -> Option<&Vec<Pos>> {
+        match self {
+            Item::Real(real_item) => Some(&real_item.pos),
+            Item::Imputed(_) => None,
+        }
+    }
+
+    pub(crate) fn gloss(&self) -> Option<&Vec<Gloss>> {
+        match self {
+            Item::Real(real_item) => Some(&real_item.gloss),
+            Item::Imputed(_) => None,
+        }
+    }
+
+    pub(crate) fn romanization(&self) -> Option<Term> {
+        match self {
+            Item::Real(real_item) => real_item.romanization,
+            Item::Imputed(imputed_item) => imputed_item.romanization,
         }
     }
 
     pub(crate) fn url(&self, string_pool: &StringPool) -> Option<String> {
-        let page_term = urlencoding::encode(self.page_term?.resolve(string_pool));
-        let page_lang = self.lang.ety2main();
-        let page_lang_name = urlencoding::encode(page_lang.name());
-        Some(if page_lang.is_reconstructed() {
-            format!("https://en.wiktionary.org/wiki/Reconstruction:{page_lang_name}/{page_term}")
-        } else {
-            format!("https://en.wiktionary.org/wiki/{page_term}#{page_lang_name}")
-        })
+        match self {
+            Item::Real(real_item) => Some(real_item.url(string_pool)),
+            Item::Imputed(_) => None,
+        }
     }
 }
 
@@ -131,12 +164,6 @@ impl Items {
     }
 }
 
-pub(crate) struct Retrieval {
-    pub(crate) item_id: ItemId,
-    pub(crate) confidence: f32,
-    pub(crate) is_newly_imputed: bool,
-}
-
 impl Items {
     pub(crate) fn len(&self) -> usize {
         self.graph.len()
@@ -145,11 +172,6 @@ impl Items {
     /// get previously added item
     pub(crate) fn get(&self, id: ItemId) -> &Item {
         self.graph.get(id)
-    }
-
-    /// get previously added item mutably
-    pub(crate) fn get_mut(&mut self, id: ItemId) -> &mut Item {
-        self.graph.get_mut(id)
     }
 
     pub(crate) fn iter(&self) -> impl Iterator<Item = (ItemId, &Item)> {
@@ -169,120 +191,116 @@ impl Items {
         }
     }
 
-    fn add_dupe(
-        &mut self,
-        mut raw_item: RawItem,
-        max_ety: u8,
-        langterm: LangTerm,
-        page_langterm: LangTerm,
-    ) -> (ItemId, bool) {
-        raw_item.ety_num = max_ety + 1;
-        let id = self.add(raw_item.into());
-        self.dupes
-            .get_mut(&langterm)
-            .expect("only called when dupes already found for langterm")
-            .push(id);
-        if langterm != page_langterm {
-            self.add_page_term_dupe(page_langterm, id);
-        }
-        (id, true)
-    }
-
     // the returned bool is true if the ItemId is new, false if the RawItem
     // got merged into an existing item and hence the ItemId is old
-    pub(crate) fn add_raw(&mut self, raw_item: RawItem) -> (ItemId, bool) {
-        let langterm = raw_item.langterm();
-        let page_langterm = LangTerm::new(raw_item.lang, raw_item.page_term);
+    pub(crate) fn add_real(&mut self, mut item: RealItem) -> (ItemId, bool) {
+        let langterm = LangTerm::new(item.lang, item.term);
+        let page_langterm = item.page_term.map(|pt| LangTerm::new(item.lang, pt));
         // If we've seen this langterm before...
-        if let Some(ids) = self.dupes.get(&langterm) {
+        if let Some(dupes) = self.dupes.get(&langterm) {
             let mut max_ety = 0;
-            let mut same_ety = None;
-            for &id in ids {
-                let other = self.get(id);
-                if other.ety_num == raw_item.ety_num {
-                    same_ety = Some(id);
+            let mut same_ety_id = None;
+            for &id in dupes {
+                let other = self.graph.get(id);
+                if other.ety_num() == item.ety_num {
+                    same_ety_id = Some(id);
                 }
-                max_ety = other.ety_num.max(max_ety);
+                max_ety = other.ety_num().max(max_ety);
             }
-            // If it shares an ety with an already stored item...
-            if let Some(same_ety) = same_ety {
-                // If the pos is "root" and the already-stored item already has
-                // another "root", then we need to make a new item for this.
-                // This to handle the special but important case of PIE root
-                // pages where there are several "Root" sections with no
-                // Etymology sections (and hence here they will all have ety_num
-                // == 1 in the raw_item), but they really are etymologically
-                // distinct items.
-                if raw_item.pos == Pos::root_pos()
-                    && self
-                        .get(same_ety)
-                        .pos
-                        .as_ref()
-                        .expect("at least one pos")
-                        .iter()
-                        .any(|&p| p == raw_item.pos)
+            // If it shares an ety with an already stored real item...
+            if let Some(same_ety_id) = same_ety_id
+                    && let Item::Real(same_ety) = self.graph.get_mut(same_ety_id)
+                    && !(item.pos[0] == Pos::root_pos() && same_ety.pos.iter().any(|&p| p == item.pos[0]))
                 {
-                    return self.add_dupe(raw_item, max_ety, langterm, page_langterm);
+                    // If the pos is "root" and the already-stored item already has
+                    // another "root", then we need to make a new item for this.
+                    // This to handle the special but important case of PIE root
+                    // pages where there are several "Root" sections with no
+                    // Etymology sections (and hence here they will all have ety_num
+                    // == 1 in the raw_item), but they really are etymologically
+                    // distinct items.
+                    // 
+                    // Otherwise, we simply append this pos and gloss to the
+                    // existing item.
+                    same_ety.pos.push(item.pos[0]);
+                    same_ety.gloss.push(mem::take(&mut item.gloss[0]));
+                    return (same_ety_id, false);
                 }
-                // Otherwise, we simply append this pos and gloss to the
-                // existing item.
-                let same = self.get_mut(same_ety);
-                same.pos
-                    .as_mut()
-                    .expect("at least one pos")
-                    .push(raw_item.pos);
-                same.gloss
-                    .as_mut()
-                    .expect("at least one gloss")
-                    .push(raw_item.gloss);
-                return (same_ety, false);
-            }
             // A new ety_num for an already seen langterm
-            return self.add_dupe(raw_item, max_ety, langterm, page_langterm);
+            item.ety_num = max_ety + 1;
+            let id = self.add(Item::Real(item));
+            self.dupes
+                .get_mut(&langterm)
+                .expect("already found")
+                .push(id);
+            if let Some(page_langterm) = page_langterm {
+                self.add_page_term_dupe(page_langterm, id);
+            }
+            return (id, true);
         }
-
         // A langterm that hasn't been seen yet
-        let id = self.add(raw_item.into());
+        let id = self.add(Item::Real(item));
         self.dupes.insert(langterm, vec![id]);
-        if langterm != page_langterm {
+        if let Some(page_langterm) = page_langterm {
             self.add_page_term_dupe(page_langterm, id);
         }
         (id, true)
     }
 
-    pub(crate) fn add_imputed(&mut self, langterm: LangTerm) -> ItemId {
-        self.add(Item::new_imputed(langterm))
+    pub(crate) fn add_imputed(&mut self, mut item: ImputedItem) -> ItemId {
+        let langterm = LangTerm::new(item.lang, item.term);
+        // If we've seen this langterm before...
+        if let Some(dupes) = self.dupes.get(&langterm) {
+            item.ety_num = dupes
+                .iter()
+                .map(|&id| self.get(id).ety_num())
+                .max()
+                .expect("at least one")
+                + 1;
+
+            let id = self.add(Item::Imputed(item));
+            self.dupes
+                .get_mut(&langterm)
+                .expect("already found")
+                .push(id);
+            return id;
+        }
+        // A langterm that hasn't been seen yet
+        let id = self.add(Item::Imputed(item));
+        self.dupes.insert(langterm, vec![id]);
+        id
     }
 
     // returns all items that share the same lang and term
     pub(crate) fn get_dupes(&self, langterm: LangTerm) -> Option<&Vec<ItemId>> {
-        self.dupes.get(&langterm)
+        self.dupes
+            .get(&langterm)
+            .or_else(|| self.page_term_dupes.get(&langterm))
     }
-}
 
-fn get_max_similarity_candidate(
-    embeddings: &Embeddings,
-    embedding_comp: &impl EmbeddingComparand<ItemEmbedding>,
-    candidates: &[ItemId],
-) -> Result<Option<(ItemId, f32)>> {
-    let mut max_similarity = 0f32;
-    let mut best_candidate = 0usize;
-    for (i, &candidate) in candidates.iter().enumerate() {
-        let candidate_embedding = embeddings.get(candidate)?;
-        let similarity = embedding_comp.cosine_similarity(&candidate_embedding);
-        let old_max_similarity = max_similarity;
-        max_similarity = max_similarity.max(similarity);
-        if max_similarity > old_max_similarity {
-            best_candidate = i;
+    fn get_max_similarity_candidate(
+        &self,
+        embeddings: &Embeddings,
+        embedding_comp: &impl EmbeddingComparand<ItemEmbedding>,
+        candidates: &[ItemId],
+    ) -> Result<Option<(ItemId, f32)>> {
+        let mut max_similarity = 0f32;
+        let mut best_candidate = 0usize;
+        for (i, &candidate) in candidates.iter().enumerate() {
+            let candidate_embedding = embeddings.get(self.get(candidate), candidate)?;
+            let similarity = embedding_comp.cosine_similarity(&candidate_embedding);
+            let old_max_similarity = max_similarity;
+            max_similarity = max_similarity.max(similarity);
+            if max_similarity > old_max_similarity {
+                best_candidate = i;
+            }
         }
+        if max_similarity >= embeddings::SIMILARITY_THRESHOLD {
+            return Ok(Some((candidates[best_candidate], max_similarity)));
+        }
+        Ok(None)
     }
-    if max_similarity > embeddings::SIMILARITY_THRESHOLD {
-        return Ok(Some((candidates[best_candidate], max_similarity)));
-    }
-    Ok(None)
-}
 
-impl Items {
     pub(crate) fn get_disambiguated_item_id(
         &self,
         embeddings: &Embeddings,
@@ -291,20 +309,29 @@ impl Items {
     ) -> Result<Option<(ItemId, f32)>> {
         let langterm = self.redirects.rectify_langterm(langterm);
         if let Some(candidates) = self.get_dupes(langterm)
-            && let Some((item_id, similarity)) = get_max_similarity_candidate(embeddings, embedding_comp, candidates)? {
+            && let Some((item_id, similarity)) = self.get_max_similarity_candidate(embeddings, embedding_comp, candidates)? {
             return Ok(Some((item_id, similarity)));
         }
         if let Some(candidates) = self.page_term_dupes.get(&langterm)
-            && let Some((item_id, similarity)) = get_max_similarity_candidate(embeddings, embedding_comp, candidates)? {
+            && let Some((item_id, similarity)) = self.get_max_similarity_candidate(embeddings, embedding_comp, candidates)? {
             return Ok(Some((item_id, similarity)));
         }
         Ok(None)
     }
+}
 
+pub(crate) struct Retrieval {
+    pub(crate) item_id: ItemId,
+    pub(crate) confidence: f32,
+    // pub(crate) is_newly_imputed: bool,
+}
+
+impl Items {
     pub(crate) fn get_or_impute_item(
         &mut self,
         embeddings: &Embeddings,
         embedding_comp: &impl EmbeddingComparand<ItemEmbedding>,
+        from_item: ItemId,
         langterm: LangTerm,
     ) -> Result<Retrieval> {
         if let Some((item_id, confidence)) =
@@ -313,14 +340,21 @@ impl Items {
             return Ok(Retrieval {
                 item_id,
                 confidence,
-                is_newly_imputed: false,
+                // is_newly_imputed: false,
             });
         }
-        let item_id = self.add_imputed(langterm);
+        let imputed = ImputedItem {
+            ety_num: 1, // may get changed in add_imputed
+            lang: langterm.lang,
+            term: langterm.term,
+            romanization: None, // $$ implement getting this from template
+            from: from_item,
+        };
+        let item_id = self.add_imputed(imputed);
         Ok(Retrieval {
             item_id,
-            confidence: 0.0,
-            is_newly_imputed: true,
+            confidence: embeddings::SIMILARITY_THRESHOLD,
+            // is_newly_imputed: true,
         })
     }
 
@@ -396,8 +430,8 @@ impl Items {
             {
                 let json_item = to_borrowed_value(&mut line)?;
                 let item = self.get(item_id);
-                let lang_name = item.lang.name();
-                let term = item.term.resolve(string_pool);
+                let lang_name = item.lang().name();
+                let term = item.term().resolve(string_pool);
                 embeddings.add(&json_item, lang_name, term, item_id)?;
                 added += 1;
                 if added % update_interval == 0 {

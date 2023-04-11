@@ -1,7 +1,7 @@
 use crate::{
     descendants::RawDescendants,
     gloss::Gloss,
-    items::{Items, RawItem},
+    items::{Items, RealItem},
     langterm::{Lang, Term},
     pos::Pos,
     redirects::WiktextractJsonRedirect,
@@ -91,44 +91,44 @@ impl Items {
     fn process_item(
         &mut self,
         string_pool: &mut StringPool,
-        item: &WiktextractJsonItem,
+        json_item: &WiktextractJsonItem,
         line_number: usize,
     ) {
-        if let Some(page_term) = item.get_page_term(string_pool)
-            && let Some(term) = item.get_canonical_term(string_pool)
-            && let Some(lang) = item.get_lang()
-            && let Some(pos) = item.get_pos()
-            && let Some(gloss) = item.get_gloss(string_pool)
+        if let Some(page_term) = json_item.get_page_term(string_pool)
+            && let Some(term) = json_item.get_canonical_term(string_pool)
+            && let Some(lang) = json_item.get_lang()
+            && let Some(pos) = json_item.get_pos()
+            && let Some(gloss) = json_item.get_gloss(string_pool)
         {
-            let raw_item = RawItem {
-                ety_num: item.get_ety_num(),
+            let item = RealItem {
+                ety_num: json_item.get_ety_num(),
                 lang,
                 term,
-                page_term,
-                pos,
-                gloss,
-                romanization: item.get_romanization(string_pool),
+                pos: vec![pos],
+                gloss: vec![gloss],
+                page_term: (page_term != term).then_some(page_term),
+                romanization: json_item.get_romanization(string_pool),
             };
-            let (item_id, is_new_ety) = self.add_raw(raw_item);
+            let (item_id, is_new_ety) = self.add_real(item);
             if is_new_ety { // a new item was added
                 // This means that the glosses embedding for a multi-pos item
                 // will be based on the glosses for whichever pos happens to
                 // first in the wiktextract data. $$ This may be good enough or
                 // may require better handling in the future...
                 self.lines.insert(line_number, item_id);
-                if let Some(raw_root) = item.get_root(string_pool, lang) {
+                if let Some(raw_root) = json_item.get_root(string_pool, lang) {
                     self.raw_templates.root.insert(item_id, raw_root);
                 }
-                if let Some(raw_etymology) = item.get_etymology(string_pool, lang) {
+                if let Some(raw_etymology) = json_item.get_etymology(string_pool, lang) {
                     self.raw_templates.ety.insert(item_id, raw_etymology);
                 }
-                if let Some(raw_descendants) = item.get_descendants(string_pool) {
+                if let Some(raw_descendants) = json_item.get_descendants(string_pool) {
                     self.raw_templates.desc.insert(item_id, raw_descendants);
                 }
                 return;
             }
             // This was a new pos of an existing item. 
-            if let Some(mut raw_descendants) = item.get_descendants(string_pool) {
+            if let Some(mut raw_descendants) = json_item.get_descendants(string_pool) {
                 // Sometimes multiple pos's under the same ety have different
                 // Descendants sections. This handles that by simply joining the
                 // lists into one. $$ This does assume that each list uses the

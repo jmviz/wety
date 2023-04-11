@@ -68,14 +68,14 @@ impl Data {
 
     fn term_len(&self, item: ItemId) -> usize {
         self.get(item)
-            .term
+            .term()
             .resolve(&self.string_pool)
             .chars()
             .count()
     }
 
     fn ety_num(&self, item: ItemId) -> u8 {
-        self.get(item).ety_num
+        self.get(item).ety_num()
     }
 }
 
@@ -104,27 +104,27 @@ impl Data {
         let item = self.get(item_id);
         json!({
             "id": item_id,
-            "ety_num": item.ety_num,
-            "lang": item.lang.name(),
-            "term": item.term.resolve(&self.string_pool),
+            "ety_num": item.ety_num(),
+            "lang": item.lang().name(),
+            "term": item.term().resolve(&self.string_pool),
             "ety_mode": self.graph.get_ety_mode(item_id),
-            "imputed": item.is_imputed,
-            "reconstructed": item.lang.is_reconstructed(),
+            "imputed": item.is_imputed(),
+            "reconstructed": item.lang().is_reconstructed(),
             "url": item.url(&self.string_pool),
-            "pos": item.pos.as_ref().map(|pos| pos.iter().map(|p| p.name()).collect_vec()),
-            "gloss": item.gloss.as_ref().map(|gloss| gloss.iter().map(|g| g.to_string(&self.string_pool)).collect_vec()),
-            "romanization": item.romanization,
+            "pos": item.pos().as_ref().map(|pos| pos.iter().map(|p| p.name()).collect_vec()),
+            "gloss": item.gloss().as_ref().map(|gloss| gloss.iter().map(|g| g.to_string(&self.string_pool)).collect_vec()),
+            "romanization": item.romanization().map(|r| r.resolve(&self.string_pool)),
         })
     }
 
     #[must_use]
     pub fn expanded_item_json(&self, item_id: ItemId, filter_lang: Lang) -> Value {
         let item = self.get(item_id);
-        let children = (item.lang != filter_lang).then_some(
+        let children = (item.lang() != filter_lang).then_some(
             self.graph
                 .get_head_children(item_id)
                 .filter(|(child_id, child)| {
-                    child.lang == filter_lang
+                    child.lang() == filter_lang
                         || self
                             .head_progeny_langs
                             .get(child_id)
@@ -185,10 +185,10 @@ impl Data {
             .key_trans(Box::new(normalize_lang_name))
             .finish();
         let mut terms = HashMap::<Lang, FuzzyTrie<ItemId>>::default();
-        for (item_id, item) in self.graph.iter().filter(|(_, item)| !item.is_imputed) {
-            let norm_lang = normalize_lang_name(item.lang.name());
-            let term = item.term.resolve(&self.string_pool);
-            match terms.entry(item.lang) {
+        for (item_id, item) in self.graph.iter().filter(|(_, item)| !item.is_imputed()) {
+            let norm_lang = normalize_lang_name(item.lang().name());
+            let term = item.term().resolve(&self.string_pool);
+            match terms.entry(item.lang()) {
                 Entry::Occupied(mut t) => {
                     t.get_mut().insert(&term.to_lowercase()).insert(item_id);
                 }
@@ -203,11 +203,11 @@ impl Data {
                 normalized_langs.insert(
                     norm_lang,
                     LangData {
-                        lang: item.lang,
+                        lang: item.lang(),
                         items: 1,
                     },
                 );
-                langs.add_text(item.lang.name());
+                langs.add_text(item.lang().name());
             }
         }
         println!("Finished. Took {:#?}.", t.elapsed());

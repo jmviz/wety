@@ -273,10 +273,10 @@ impl<T: Clone> Ancestors<T> {
 }
 
 impl Ancestors<ItemId> {
-    fn embeddings(&self, embeddings: &Embeddings) -> Result<Vec<ItemEmbedding>> {
+    fn embeddings(&self, items: &Items, embeddings: &Embeddings) -> Result<Vec<ItemEmbedding>> {
         let mut item_embeddings = Vec::with_capacity(self.ancestors.len());
         for &ancestor in &self.ancestors {
-            item_embeddings.push(embeddings.get(ancestor)?);
+            item_embeddings.push(embeddings.get(items.get(ancestor), ancestor)?);
         }
         Ok(item_embeddings)
     }
@@ -341,7 +341,7 @@ impl Items {
         item: ItemId,
         raw_descendants: &RawDescendants,
     ) -> Result<()> {
-        let item_lang = self.get(item).lang;
+        let item_lang = self.get(item).lang();
         let mut ancestors = Ancestors::new(&item);
         'lines: for line in raw_descendants.lines.iter() {
             let parent = ancestors.prune_and_get_parent(line.depth);
@@ -374,7 +374,8 @@ impl Items {
                             ..
                         } = self.get_or_impute_item(
                             embeddings,
-                            &ancestors.embeddings(embeddings)?,
+                            &ancestors.embeddings(self, embeddings)?,
+                            item,
                             langterm,
                         )?;
                         // Only use the first term in a multi-term desc line as

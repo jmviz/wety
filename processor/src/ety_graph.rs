@@ -1,4 +1,5 @@
 use crate::{
+    embeddings,
     etymology_templates::EtyMode,
     items::{Item, ItemId},
     langterm::Lang,
@@ -183,7 +184,7 @@ impl EtyGraph {
         let mut progeny_langs = HashSet::default();
         let mut unexpanded = self.get_head_children(item).collect_vec();
         while let Some((id, descendant)) = unexpanded.pop() {
-            progeny_langs.insert(descendant.lang);
+            progeny_langs.insert(descendant.lang());
             unexpanded.extend(self.get_head_children(id));
         }
         (!progeny_langs.is_empty()).then_some(progeny_langs)
@@ -236,6 +237,16 @@ impl EtyGraph {
         ety_items: &[ItemId],
         confidences: &[f32],
     ) {
+        // Don't add ety connection if the confidence is too low. This currently
+        // should never get applied, as items.get_or_impute_item() returns a min
+        // confidence of SIMILARITY_THRESHOLD
+        let min_new_confidence = confidences
+            .iter()
+            .min_by(|a, b| a.total_cmp(b))
+            .expect("at least one");
+        if min_new_confidence < &embeddings::SIMILARITY_THRESHOLD {
+            return;
+        }
         // StableGraph allows adding multiple parallel edges from one node to
         // another. So we have to be careful to check for any already existing
         // ety links. If there are some, we keep them and don't add any new
@@ -244,10 +255,6 @@ impl EtyGraph {
         // delete all the old ones and add the new ones in their stead.
         let mut old_edges = self.graph.edges(item).peekable();
         if old_edges.peek().is_some() {
-            let min_new_confidence = confidences
-                .iter()
-                .min_by(|a, b| a.total_cmp(b))
-                .expect("at least one");
             let max_old_confidence = old_edges
                 .map(|e| e.weight().confidence)
                 .max_by(|a, b| a.total_cmp(b))

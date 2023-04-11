@@ -1,7 +1,7 @@
 use std::{mem, str::FromStr};
 
 use crate::{
-    embeddings::{EmbeddingComparand, Embeddings, ItemEmbedding},
+    embeddings::{Embeddings, ItemEmbedding},
     etymology::validate_ety_template_lang,
     etymology_templates::EtyMode,
     items::{ItemId, Items, Retrieval},
@@ -117,16 +117,14 @@ impl Items {
         item_id: ItemId,
         raw_root: &RawRoot,
     ) -> Result<()> {
-        let Retrieval {
-            item_id: root_item_id,
-            ..
-        } = self.get_or_impute_item(embeddings, embedding, raw_root.langterm)?;
-
         if self.graph.get_immediate_ety(item_id).is_some() {
             return Ok(());
         }
-
-        let confidence = embedding.cosine_similarity(&embeddings.get(root_item_id)?);
+        let Retrieval {
+            item_id: root_item_id,
+            confidence,
+            ..
+        } = self.get_or_impute_item(embeddings, embedding, item_id, raw_root.langterm)?;
         self.graph.add_ety(
             item_id,
             EtyMode::Root,
@@ -142,7 +140,7 @@ impl Items {
         let pb = progress_bar(n, "Imputing root etys")?;
         let raw_templates_root = mem::take(&mut self.raw_templates.root);
         for (item_id, root) in raw_templates_root {
-            let embedding = embeddings.get(item_id)?;
+            let embedding = embeddings.get(self.get(item_id), item_id)?;
             self.impute_item_root_ety(embeddings, &embedding, item_id, &root)?;
             pb.inc(1);
         }

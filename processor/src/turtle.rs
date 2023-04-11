@@ -96,12 +96,12 @@ fn write_list_delim(f: &mut BufWriter<File>, i: usize, len: usize) -> Result<()>
 impl Data {
     fn write_turtle_item(&self, f: &mut BufWriter<File>, id: ItemId, item: &Item) -> Result<()> {
         writeln!(f, "{ITEM_PRE}{}", id.index())?;
-        let term = item.term.resolve(&self.string_pool);
+        let term = item.term().resolve(&self.string_pool);
         write_item_quoted_prop(f, PRED_TERM, term)?;
-        write_item_quoted_prop(f, PRED_LANG, item.lang.name())?;
-        if let Some(page_term) = item.page_term {
+        write_item_quoted_prop(f, PRED_LANG, item.lang().name())?;
+        if let Some(page_term) = item.page_term() {
             let page_title = page_term.resolve(&self.string_pool);
-            let page_lang = item.lang.ety2main();
+            let page_lang = item.lang().ety2main();
             let page_lang_name = page_lang.name();
             let (pre, title) = if page_lang.is_reconstructed() {
                 (
@@ -117,22 +117,22 @@ impl Data {
             writeln!(f, " ;")?;
         };
 
-        writeln!(f, "  {PRED_ETY_NUM} {} ;", item.ety_num)?;
+        writeln!(f, "  {PRED_ETY_NUM} {} ;", item.ety_num())?;
 
-        if item.is_imputed {
+        if item.is_imputed() {
             writeln!(f, "  {PRED_IS_IMPUTED} true ;")?;
         }
-        if item.lang.is_reconstructed() {
+        if item.lang().is_reconstructed() {
             writeln!(f, "  {PRED_IS_RECONSTRUCTED} true ;")?;
         }
-        if let Some(pos) = &item.pos {
+        if let Some(pos) = &item.pos() {
             write!(f, "  {PRED_POS} ")?;
             for (p_i, p) in pos.iter().map(|p| p.name()).enumerate() {
                 write_quoted_str(f, p)?;
                 write_list_delim(f, p_i, pos.len())?;
             }
         };
-        if let Some(gloss) = &item.gloss {
+        if let Some(gloss) = &item.gloss() {
             write!(f, "  {PRED_GLOSS} ")?;
             for (g_i, g) in gloss.iter().enumerate() {
                 write_quoted_str(f, &g.to_string(&self.string_pool))?;

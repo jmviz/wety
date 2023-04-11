@@ -370,26 +370,25 @@ impl Items {
         let mut next_item = item; // for tracking possibly imputed items
         let mut item_embeddings = vec![];
         for template in raw_etymology.templates.iter() {
-            item_embeddings.push(embeddings.get(current_item)?);
+            item_embeddings.push(embeddings.get(self.get(current_item), current_item)?);
             let mut ety_items = Vec::with_capacity(template.langterms.len());
             let mut confidences = Vec::with_capacity(template.langterms.len());
-            let mut has_new_imputation = false;
+            let mut has_imputation = false;
             for &ety_langterm in template.langterms.iter() {
                 let Retrieval {
                     item_id: ety_item,
                     confidence,
-                    is_newly_imputed,
                     ..
-                } = self.get_or_impute_item(embeddings, &item_embeddings, ety_langterm)?;
-                has_new_imputation = is_newly_imputed;
-                if has_new_imputation {
+                } = self.get_or_impute_item(embeddings, &item_embeddings, item, ety_langterm)?;
+                has_imputation = self.get(ety_item).is_imputed();
+                if has_imputation {
                     if template.langterms.len() == 1 {
-                        // This is a newly imputed term in a non-compound-kind template.
-                        // We will use this newly imputed item as the item for the next
+                        // This is an imputed term in a non-compound-kind template.
+                        // We will use this imputed item as the item for the next
                         // template in the outer loop.
                         next_item = ety_item;
                     } else {
-                        // This is a newly imputed item for a term in a
+                        // This is an imputed item for a term in a
                         // compound-kind template. We won't bother trying to do
                         // convoluted ety link imputations for such cases at the
                         // moment. So we stop processing templates here.
@@ -408,7 +407,7 @@ impl Items {
             );
             // We keep processing templates until we hit the first one with no
             // imputation required.
-            if !has_new_imputation {
+            if !has_imputation {
                 return Ok(());
             }
             current_item = next_item;

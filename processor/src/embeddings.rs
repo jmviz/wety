@@ -1,4 +1,8 @@
-use crate::{items::ItemId, wiktextract_json::WiktextractJson, HashMap};
+use crate::{
+    items::{Item, ItemId},
+    wiktextract_json::WiktextractJson,
+    HashMap,
+};
 
 use std::{mem, path::PathBuf, rc::Rc};
 
@@ -20,12 +24,17 @@ use xxhash_rust::xxh3::xxh3_64;
 // to be sure of the elements being f32 for the caching (see below).
 type Embedding = Vec<f32>;
 
-// Only retrieve items with similarity greater than threshold
+/// Only retrieve items with similarity greater than this threshold
 pub(crate) const SIMILARITY_THRESHOLD: f32 = 0.0;
+
+/// For an `imputed_item` embedding, we use the embedding for
+/// `imputed_item.from`, weighted by this discount factor
+pub(crate) const IMPUTATION_DISCOUNT: f32 = 0.5;
 
 pub(crate) struct ItemEmbedding {
     ety: Option<Embedding>,
     glosses: Option<Embedding>,
+    discount: f32,
 }
 
 impl ItemEmbedding {
@@ -165,6 +174,7 @@ impl EmbeddingsMap {
             cache: Rc::clone(cache),
         }
     }
+
     fn update(&mut self, item: ItemId, text: String) -> Result<()> {
         let text_hash = xxh3_64(text.as_bytes());
         if self.cache.contains_key(text_hash.to_bytes())? {
@@ -178,6 +188,7 @@ impl EmbeddingsMap {
         }
         Ok(())
     }
+
     fn flush(&mut self) -> Result<()> {
         if let Some((items, text_hashes)) = self.batch.flush()? {
             for (&item, text_hash) in items.iter().zip(text_hashes) {
@@ -186,6 +197,7 @@ impl EmbeddingsMap {
         }
         Ok(())
     }
+
     fn get(&self, item: ItemId) -> Result<Option<Embedding>> {
         if let Some(text_hash) = self.map.get(&item)
             && let Some(embedding_bytes) = self.cache.get(text_hash.to_bytes())?
@@ -267,6 +279,7 @@ impl Embeddings {
             cache,
         })
     }
+
     pub(crate) fn add(
         &mut self,
         json_item: &WiktextractJson,
@@ -311,16 +324,26 @@ impl Embeddings {
         }
         Ok(())
     }
+
     pub(crate) fn flush(&mut self) -> Result<()> {
         self.ety.flush()?;
         self.glosses.flush()?;
         self.cache.flush()?;
         Ok(())
     }
-    pub(crate) fn get(&self, item: ItemId) -> Result<ItemEmbedding> {
-        Ok(ItemEmbedding {
-            ety: self.ety.get(item)?,
-            glosses: self.glosses.get(item)?,
+
+    pub(crate) fn get(&self, item: &Item, item_id: ItemId) -> Result<ItemEmbedding> {
+        Ok(match item {
+            Item::Real(_) => ItemEmbedding {
+                ety: self.ety.get(item_id)?,
+                glosses: self.glosses.get(item_id)?,
+                discount: 1.0,
+            },
+            Item::Imputed(imputed) => ItemEmbedding {
+                ety: self.ety.get(imputed.from)?,
+                glosses: self.glosses.get(imputed.from)?,
+                discount: IMPUTATION_DISCOUNT,
+            },
         })
     }
 }
@@ -357,14 +380,16 @@ const ETY_WEIGHT: f32 = 1.0 - GLOSSES_WEIGHT;
 
 impl EmbeddingComparand<ItemEmbedding> for ItemEmbedding {
     fn cosine_similarity(&self, other: &ItemEmbedding) -> f32 {
+        let discount = self.discount.min(other.discount);
         let glosses_similarity = self.glosses.cosine_similarity(&other.glosses);
-        if let Some(self_ety) = &self.ety
+        discount * if let Some(self_ety) = &self.ety
             && let Some(other_ety) = &other.ety
             {
                 let ety_similarity = self_ety.cosine_similarity(other_ety);
-                return ETY_WEIGHT * ety_similarity + GLOSSES_WEIGHT * glosses_similarity
+                ETY_WEIGHT * ety_similarity + GLOSSES_WEIGHT * glosses_similarity
+            } else {
+                glosses_similarity
             }
-        glosses_similarity
     }
 }
 
@@ -446,6 +471,16 @@ mod tests {
         (f0 - f1).abs() <= f32::EPSILON
     }
 
+    impl Embeddings {
+        fn get_real(&self, item_id: ItemId) -> Result<ItemEmbedding> {
+            Ok(ItemEmbedding {
+                ety: self.ety.get(item_id)?,
+                glosses: self.glosses.get(item_id)?,
+                discount: 1.0,
+            })
+        }
+    }
+
     #[test]
     fn cosine_similarity_identical() {
         let cache = PathBuf::from("tmp-embeddings-tests-identical");
@@ -457,10 +492,10 @@ mod tests {
         let id1 = ItemId::from(1);
         embeddings.add(&json, lang, term, id0).unwrap();
         embeddings.add(&json, lang, term, id1).unwrap();
-        let item_embedding0 = embeddings.get(id0).unwrap();
+        let item_embedding0 = embeddings.get_real(id0).unwrap();
         assert!(item_embedding0.ety.is_some());
         assert!(item_embedding0.glosses.is_some());
-        let item_embedding1 = embeddings.get(id1).unwrap();
+        let item_embedding1 = embeddings.get_real(id1).unwrap();
         assert!(item_embedding1.ety.is_some());
         assert!(item_embedding1.glosses.is_some());
         assert_eq!(item_embedding0.ety, item_embedding1.ety);
@@ -496,9 +531,9 @@ mod tests {
         embeddings
             .add(wrong_json, candidates_lang, candidates_term, wrong)
             .unwrap();
-        let base_embedding = embeddings.get(parent).unwrap();
-        let right_embedding = embeddings.get(right).unwrap();
-        let wrong_embedding = embeddings.get(wrong).unwrap();
+        let base_embedding = embeddings.get_real(parent).unwrap();
+        let right_embedding = embeddings.get_real(right).unwrap();
+        let wrong_embedding = embeddings.get_real(wrong).unwrap();
         let ety_right_similarity = base_embedding.ety.cosine_similarity(&right_embedding.ety);
         let ety_wrong_similarity = base_embedding.ety.cosine_similarity(&wrong_embedding.ety);
         println!("ety similarities: {ety_right_similarity}, {ety_wrong_similarity}");

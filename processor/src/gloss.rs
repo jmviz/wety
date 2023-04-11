@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::string_pool::{StringPool, Symbol};
 
-#[derive(Hash, Eq, PartialEq, Debug, Serialize, Deserialize)]
+#[derive(Default, Hash, Eq, PartialEq, Debug, Serialize, Deserialize)]
 pub(crate) struct Gloss {
     symbols: Box<[Symbol]>,
 }
