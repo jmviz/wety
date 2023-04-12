@@ -70,19 +70,6 @@ fn write_item_quoted_prop(f: &mut BufWriter<File>, pred: &str, obj: &str) -> Res
     writeln!(f, " ;")?;
     Ok(())
 }
-// cf. https://www.w3.org/TR/turtle/#sec-escapes
-fn write_local_name(f: &mut BufWriter<File>, s: &str) -> Result<()> {
-    for c in s.chars() {
-        let mut buf = [0; 4];
-        let c_str = c.encode_utf8(&mut buf);
-        match c {
-            '~' | '.' | '-' | '!' | '$' | '&' | '\'' | '(' | ')' | '*' | '+' | ',' | ';' | '='
-            | '/' | '?' | '#' | '@' | '%' | '_' => write!(f, "\\{c_str}")?,
-            _ => write!(f, "{c_str}")?,
-        };
-    }
-    Ok(())
-}
 
 fn write_list_delim(f: &mut BufWriter<File>, i: usize, len: usize) -> Result<()> {
     if i + 1 < len {
@@ -99,22 +86,9 @@ impl Data {
         let term = item.term().resolve(&self.string_pool);
         write_item_quoted_prop(f, PRED_TERM, term)?;
         write_item_quoted_prop(f, PRED_LANG, item.lang().name())?;
-        if let Some(page_term) = item.page_term() {
-            let page_title = page_term.resolve(&self.string_pool);
-            let page_lang = item.lang().ety2main();
-            let page_lang_name = page_lang.name();
-            let (pre, title) = if page_lang.is_reconstructed() {
-                (
-                    WIKTIONARY_RECONSTRUCTION_PRE,
-                    format!("{page_lang_name}/{page_title}"),
-                )
-            } else {
-                (WIKTIONARY_PRE, format!("{page_title}#{page_lang_name}"))
-            };
-            let title = urlencoding::encode(&title);
-            write!(f, "  {PRED_URL} {pre}")?;
-            write_local_name(f, &title)?;
-            writeln!(f, " ;")?;
+
+        if let Some(url) = item.url(&self.string_pool) {
+            write_item_quoted_prop(f, PRED_URL, &url)?;
         };
 
         writeln!(f, "  {PRED_ETY_NUM} {} ;", item.ety_num())?;
@@ -122,7 +96,7 @@ impl Data {
         if item.is_imputed() {
             writeln!(f, "  {PRED_IS_IMPUTED} true ;")?;
         }
-        if item.lang().is_reconstructed() {
+        if item.is_reconstructed() {
             writeln!(f, "  {PRED_IS_RECONSTRUCTED} true ;")?;
         }
         if let Some(pos) = &item.pos() {

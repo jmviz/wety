@@ -33,6 +33,7 @@ pub(crate) struct RealItem {
     pub(crate) gloss: Vec<Gloss>,
     pub(crate) page_term: Option<Term>, // i.e. the term stripped of diacritics etc. at the top of the page
     pub(crate) romanization: Option<Term>,
+    pub(crate) is_reconstructed: bool,
 }
 
 impl RealItem {
@@ -41,7 +42,7 @@ impl RealItem {
         let url_term = urlencoding::encode(page_term.resolve(string_pool));
         let page_lang = self.lang.ety2main();
         let url_lang_name = urlencoding::encode(page_lang.name());
-        if page_lang.is_reconstructed() {
+        if self.is_reconstructed {
             return format!(
                 "https://en.wiktionary.org/wiki/Reconstruction:{url_lang_name}/{url_term}"
             );
@@ -94,13 +95,6 @@ impl Item {
         }
     }
 
-    pub(crate) fn page_term(&self) -> Option<Term> {
-        match self {
-            Item::Real(real_item) => real_item.page_term,
-            Item::Imputed(_) => None,
-        }
-    }
-
     pub(crate) fn pos(&self) -> Option<&Vec<Pos>> {
         match self {
             Item::Real(real_item) => Some(&real_item.pos),
@@ -126,6 +120,13 @@ impl Item {
         match self {
             Item::Real(real_item) => Some(real_item.url(string_pool)),
             Item::Imputed(_) => None,
+        }
+    }
+
+    pub(crate) fn is_reconstructed(&self) -> bool {
+        match self {
+            Item::Real(real_item) => real_item.is_reconstructed,
+            Item::Imputed(imputed_item) => imputed_item.lang.is_reconstructed(),
         }
     }
 }

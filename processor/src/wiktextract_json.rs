@@ -108,6 +108,7 @@ impl Items {
                 gloss: vec![gloss],
                 page_term: (page_term != term).then_some(page_term),
                 romanization: json_item.get_romanization(string_pool),
+                is_reconstructed: json_item.is_reconstructed(),
             };
             let (item_id, is_new_ety) = self.add_real(item);
             if is_new_ety { // a new item was added
@@ -234,6 +235,20 @@ impl WiktextractJsonItem<'_> {
             }
         }
         None
+    }
+
+    fn is_reconstructed(&self) -> bool {
+        self.json
+            .get_array("senses")
+            .into_iter()
+            .flatten()
+            .any(|sense| {
+                sense
+                    .get_array("tags")
+                    .into_iter()
+                    .flatten()
+                    .any(|tag| tag.as_str().map_or(false, |s| s == "reconstruction"))
+            })
     }
 }
 

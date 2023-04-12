@@ -109,7 +109,7 @@ impl Data {
             "term": item.term().resolve(&self.string_pool),
             "ety_mode": self.graph.get_ety_mode(item_id),
             "imputed": item.is_imputed(),
-            "reconstructed": item.lang().is_reconstructed(),
+            "reconstructed": item.is_reconstructed(),
             "url": item.url(&self.string_pool),
             "pos": item.pos().as_ref().map(|pos| pos.iter().map(|p| p.name()).collect_vec()),
             "gloss": item.gloss().as_ref().map(|gloss| gloss.iter().map(|g| g.to_string(&self.string_pool)).collect_vec()),
