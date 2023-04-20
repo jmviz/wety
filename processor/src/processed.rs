@@ -145,7 +145,7 @@ impl Data {
             .get(&item_id)
             .and_then(|p| p.head)
             .map_or_else(
-                || json!({}),
+                || self.expanded_item_json(item_id, filter_lang),
                 |head| self.expanded_item_json(head, filter_lang),
             )
     }
