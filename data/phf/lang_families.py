@@ -24,16 +24,13 @@ def get_ancestors(family):
         parent_code = parent['parent_code']
     return ancestors
 
-families = []
+families = {}
 for code, w_family in wiktextract_families.items():
-    family = {
-        code: {
-            'name': w_family['name'],
-            'ancestors': get_ancestors(w_family),
-            'url': w_family['url'],
-        }
+    families[code] = {
+        'name': w_family['name'],
+        'ancestors': get_ancestors(w_family),
+        'url': w_family['url'],
     }
-    families.append(family)
 
 with open('data/phf/lang_families.json', 'w') as f:
     json.dump(families, f, indent=4, ensure_ascii=False)
