@@ -1,0 +1,5895 @@
+{
+    "gmw-fri": {
+        "1": "Frisian",
+        "2": 25325,
+        "3": "gmw",
+        "type": "family",
+        "protoLanguage": "ofs"
+    },
+    "poz-bre": {
+        "1": "East Barito",
+        "2": 2701314,
+        "3": "poz-bop",
+        "type": "family"
+    },
+    "aus-wdj": {
+        "1": "Iwaidjan",
+        "2": 4196968,
+        "type": "family",
+        "aliases": [
+            "Yiwaidjan"
+        ]
+    },
+    "azc-tak": {
+        "1": "Takic",
+        "2": 1280305,
+        "3": "azc",
+        "type": "family"
+    },
+    "nic-plc": {
+        "1": "Central Plateau",
+        "2": 5061668,
+        "3": "nic-plt",
+        "type": "family"
+    },
+    "qfa-ads": {
+        "1": "Southern Great Andamanese",
+        "3": "qfa-adm",
+        "type": "family"
+    },
+    "azc-cup": {
+        "1": "Cupan",
+        "2": 19866871,
+        "3": "azc-tak",
+        "type": "family"
+    },
+    "qfa-buy": {
+        "1": "Buyang",
+        "3": "qfa-kra",
+        "type": "family"
+    },
+    "sai-bor": {
+        "1": "Boran",
+        "2": 43079266,
+        "type": "family"
+    },
+    "nic-ser": {
+        "1": "Sere",
+        "2": 7453058,
+        "3": "nic-ubg",
+        "type": "family"
+    },
+    "aus-cww": {
+        "1": "Central New South Wales",
+        "2": 5061507,
+        "3": "aus-pam",
+        "type": "family"
+    },
+    "nic-bco": {
+        "1": "Benue-Congo",
+        "2": 33253,
+        "3": "nic-vco",
+        "type": "family"
+    },
+    "ine-ana": {
+        "1": "Anatolian",
+        "2": 147085,
+        "3": "ine",
+        "type": "family"
+    },
+    "csu-bkr": {
+        "1": "Birri-Kresh",
+        "3": "csu",
+        "type": "family"
+    },
+    "aav-nic": {
+        "1": "Nicobarese",
+        "2": 217380,
+        "3": "aav",
+        "type": "family"
+    },
+    "nic-gnn": {
+        "1": "Northern Gurunsi",
+        "3": "nic-gns",
+        "type": "family",
+        "aliases": [
+            "Northern Grũsi"
+        ]
+    },
+    "nai-cat": {
+        "1": "Catawban",
+        "2": 3446638,
+        "3": "nai-sca",
+        "type": "family"
+    },
+    "poz-pep": {
+        "1": "Eastern Polynesian",
+        "2": 390979,
+        "3": "poz-pnp",
+        "type": "family"
+    },
+    "csu-maa": {
+        "1": "Mangbetu",
+        "2": 6748874,
+        "3": "csu-ecs",
+        "type": "family",
+        "aliases": [
+            "Mangbetu-Asoa",
+            "Mangbetu-Asua"
+        ]
+    },
+    "alv-nup": {
+        "1": "Nupoid",
+        "2": 1429143,
+        "3": "alv-von",
+        "type": "family"
+    },
+    "bnt-seu": {
+        "1": "Seuta",
+        "3": "bnt-ncb",
+        "type": "family"
+    },
+    "qfa-mix": {
+        "1": "mixed",
+        "2": 33694,
+        "3": "qfa-not",
+        "type": "family"
+    },
+    "sem-are": {
+        "1": "Eastern Aramaic",
+        "2": 3410322,
+        "3": "sem-ara",
+        "type": "family"
+    },
+    "alg": {
+        "1": "Algonquian",
+        "2": 33392,
+        "3": "aql",
+        "type": "family"
+    },
+    "sem-nna": {
+        "1": "Northeastern Neo-Aramaic",
+        "2": 2560578,
+        "3": "sem-are",
+        "type": "family"
+    },
+    "kro-ekr": {
+        "1": "Eastern Kru",
+        "2": 5972899,
+        "3": "kro",
+        "type": "family"
+    },
+    "mkh-asl": {
+        "1": "Aslian",
+        "2": 3111082,
+        "3": "mkh",
+        "type": "family"
+    },
+    "paa-egb": {
+        "1": "East Geelvink Bay",
+        "2": 1497678,
+        "type": "family",
+        "aliases": [
+            "East Cenderawasih"
+        ]
+    },
+    "omq-mix": {
+        "1": "Mixtecan",
+        "2": 21996392,
+        "3": "omq",
+        "type": "family"
+    },
+    "nai-ckn": {
+        "1": "Chinookan",
+        "2": 610586,
+        "type": "family"
+    },
+    "alv-edo": {
+        "1": "Edoid",
+        "2": 1287469,
+        "3": "alv-von",
+        "type": "family"
+    },
+    "paa-brd": {
+        "1": "Border",
+        "2": 1752158,
+        "type": "family",
+        "aliases": [
+            "Upper Tami"
+        ]
+    },
+    "sai-tyu": {
+        "1": "Ticuna-Yuri",
+        "2": 4467010,
+        "type": "family"
+    },
+    "bnt-nze": {
+        "1": "Nzebi",
+        "2": 1755498,
+        "3": "bnt-tmb",
+        "type": "family",
+        "aliases": [
+            "Njebi"
+        ]
+    },
+    "inc-bhi": {
+        "1": "Bhil",
+        "2": 4901727,
+        "3": "inc-cen",
+        "type": "family"
+    },
+    "zhx-min-shn": {
+        "1": "Inland Min",
+        "3": "zhx-min",
+        "type": "family"
+    },
+    "poz-swa": {
+        "1": "North Sarawakan",
+        "2": 538569,
+        "3": "poz-bnn",
+        "type": "family"
+    },
+    "cel-bry": {
+        "1": "Brythonic",
+        "2": 156877,
+        "3": "cel",
+        "type": "family"
+    },
+    "cau-vay": {
+        "1": "Vainakh",
+        "2": 4102486,
+        "3": "cau-nkh",
+        "type": "family",
+        "aliases": [
+            "Veinakh",
+            "Vaynakh"
+        ]
+    },
+    "qfa-adm": {
+        "1": "Great Andamanese",
+        "2": 3515103,
+        "type": "family"
+    },
+    "dmn-sam": {
+        "1": "Samo",
+        "2": 36327,
+        "3": "dmn-bbu",
+        "type": "family",
+        "aliases": [
+            "Samuic"
+        ]
+    },
+    "xme": {
+        "1": "Median",
+        "3": "ira-mpr",
+        "type": "family",
+        "protoLanguage": "xme-old"
+    },
+    "bnt-sir": {
+        "1": "Sira",
+        "2": 1436372,
+        "3": "bnt",
+        "type": "family",
+        "aliases": [
+            "Shira-Punu"
+        ]
+    },
+    "bnt-yak": {
+        "1": "Yaka",
+        "2": 8047027,
+        "3": "bnt",
+        "type": "family"
+    },
+    "alv-gng": {
+        "1": "Guang",
+        "2": 684009,
+        "3": "alv-ptn",
+        "type": "family"
+    },
+    "mkh": {
+        "1": "Mon-Khmer",
+        "2": 33199,
+        "3": "aav",
+        "type": "family"
+    },
+    "nic-npd": {
+        "1": "North Plateau Dogon",
+        "3": "qfa-dgn",
+        "type": "family"
+    },
+    "aus-rnd": {
+        "1": "Arandic",
+        "2": 4784071,
+        "3": "aus-pam",
+        "type": "family"
+    },
+    "znd": {
+        "1": "Zande",
+        "2": 8066072,
+        "3": "nic-ubg",
+        "type": "family"
+    },
+    "alv-sav": {
+        "1": "Savanna",
+        "2": 4403672,
+        "3": "nic-vco",
+        "type": "family",
+        "aliases": [
+            "Savannas"
+        ]
+    },
+    "nic-sis": {
+        "1": "Sisaala",
+        "2": 36532,
+        "3": "nic-gnw",
+        "type": "family"
+    },
+    "nic-mom": {
+        "1": "Momo",
+        "2": 6897393,
+        "3": "nic-grf",
+        "type": "family"
+    },
+    "gme": {
+        "1": "East Germanic",
+        "2": 108662,
+        "3": "gem",
+        "type": "family"
+    },
+    "nic-bds": {
+        "1": "Southern Bantoid",
+        "2": 3183152,
+        "3": "nic-bod",
+        "type": "family",
+        "aliases": [
+            "Wide Bantu",
+            "Bin"
+        ]
+    },
+    "bnt-tkc": {
+        "1": "Central Teke",
+        "3": "bnt-tek",
+        "type": "family"
+    },
+    "cus": {
+        "1": "Cushitic",
+        "2": 33248,
+        "3": "afa",
+        "type": "family"
+    },
+    "sdv-tmn": {
+        "1": "Taman",
+        "2": 3408873,
+        "3": "sdv-nes",
+        "type": "family",
+        "aliases": [
+            "Tamaic"
+        ]
+    },
+    "aav": {
+        "1": "Austroasiatic",
+        "2": 33199,
+        "type": "family",
+        "aliases": [
+            "Austro-Asiatic"
+        ]
+    },
+    "nic-plt": {
+        "1": "Plateau",
+        "2": 1267471,
+        "3": "nic-pla",
+        "type": "family"
+    },
+    "bnt-sbi": {
+        "1": "Sabi",
+        "2": 7396071,
+        "3": "bnt",
+        "type": "family"
+    },
+    "xnd": {
+        "1": "Na-Dene",
+        "2": 26986,
+        "3": "qfa-dny",
+        "type": "family",
+        "aliases": [
+            "Na-Dené"
+        ]
+    },
+    "qfa-dny": {
+        "1": "Dene-Yeniseian",
+        "2": 21103,
+        "type": "family",
+        "aliases": [
+            "Dené-Yeniseian"
+        ]
+    },
+    "ngf-mad": {
+        "1": "Madang",
+        "2": 11217556,
+        "3": "ngf",
+        "type": "family"
+    },
+    "ira-sei": {
+        "1": "Southeastern Iranian",
+        "3": "ira",
+        "type": "family"
+    },
+    "alv-wan": {
+        "1": "Wara-Natyoro",
+        "2": 7968830,
+        "3": "alv-sav",
+        "type": "family"
+    },
+    "nai-mus": {
+        "1": "Muskogean",
+        "2": 902978,
+        "type": "family",
+        "aliases": [
+            "Muskhogean"
+        ]
+    },
+    "kro-aiz": {
+        "1": "Aizi",
+        "2": 4699431,
+        "3": "kro",
+        "type": "family"
+    },
+    "alg-ara": {
+        "1": "Arapahoan",
+        "2": 2153686,
+        "3": "alg",
+        "type": "family"
+    },
+    "alv-tal": {
+        "1": "Talodi",
+        "2": 12643302,
+        "3": "alv-the",
+        "type": "family"
+    },
+    "ira-sgc": {
+        "1": "Sogdic",
+        "3": "ira-sbc",
+        "type": "family",
+        "aliases": [
+            "Sogdian"
+        ]
+    },
+    "omq-zpc": {
+        "1": "Zapotec",
+        "2": 13214,
+        "3": "omq-zap",
+        "type": "family"
+    },
+    "alv-gbe": {
+        "1": "Gbe",
+        "2": 668284,
+        "3": "alv-von",
+        "type": "family"
+    },
+    "dmn-jje": {
+        "1": "Jogo-Jeri",
+        "3": "dmn-mjo",
+        "type": "family"
+    },
+    "nic-beb": {
+        "1": "Beboid",
+        "2": 813549,
+        "3": "nic-bds",
+        "type": "family"
+    },
+    "alv-bak": {
+        "1": "Bak",
+        "2": 1708174,
+        "3": "alv-sng",
+        "type": "family"
+    },
+    "tbq-anp": {
+        "1": "Angami-Pochuri",
+        "2": 530460,
+        "3": "sit",
+        "type": "family"
+    },
+    "ine": {
+        "1": "Indo-European",
+        "2": 19860,
+        "type": "family",
+        "aliases": [
+            "Indo-Germanic"
+        ]
+    },
+    "cba": {
+        "1": "Chibchan",
+        "2": 520478,
+        "3": "qfa-mch",
+        "type": "family"
+    },
+    "nai-shp": {
+        "1": "Sahaptian",
+        "2": 114782,
+        "3": "nai-plp",
+        "type": "family"
+    },
+    "nai-you": {
+        "1": "Yok-Utian",
+        "2": 2886186,
+        "type": "family"
+    },
+    "ccn": {
+        "1": "North Caucasian",
+        "2": 33732,
+        "type": "family"
+    },
+    "bnt-chg": {
+        "1": "Chaga",
+        "2": 33016,
+        "3": "bnt-cht",
+        "type": "family"
+    },
+    "bnt-bot": {
+        "1": "Botatwe",
+        "2": 4948532,
+        "3": "bnt",
+        "type": "family"
+    },
+    "sit-hrs": {
+        "1": "Hrusish",
+        "2": 1632501,
+        "3": "sit",
+        "type": "family",
+        "aliases": [
+            "Southeast Kamengic"
+        ]
+    },
+    "azc-nah": {
+        "1": "Nahuan",
+        "2": 11965602,
+        "3": "azc",
+        "type": "family",
+        "aliases": [
+            "Aztecan"
+        ]
+    },
+    "bnt-tmb": {
+        "1": "Teke-Mbede",
+        "2": 7695332,
+        "3": "bnt",
+        "type": "family",
+        "aliases": [
+            "Teke-Mbere"
+        ]
+    },
+    "nic-bdn": {
+        "1": "Northern Bantoid",
+        "3": "nic-bod",
+        "type": "family",
+        "aliases": [
+            "North Bantoid"
+        ]
+    },
+    "aus-nga": {
+        "1": "Ngayarda",
+        "2": 16153490,
+        "3": "aus-psw",
+        "type": "family"
+    },
+    "nai-tqn": {
+        "1": "Tequistlatecan",
+        "2": 1754988,
+        "3": "hok",
+        "type": "family",
+        "aliases": [
+            "Tequistlatec",
+            "Chontal",
+            "Chontalan",
+            "Oaxacan Chontal",
+            "Chontal of Oaxaca"
+        ]
+    },
+    "alv-swd": {
+        "1": "Southwestern Edoid",
+        "3": "alv-edo",
+        "type": "family"
+    },
+    "mkh-mnc": {
+        "1": "Monic",
+        "2": 3217497,
+        "3": "mkh",
+        "type": "family"
+    },
+    "nic-fru": {
+        "1": "Furu",
+        "2": 5509783,
+        "3": "nic-bds",
+        "type": "family"
+    },
+    "sit-alm": {
+        "1": "Almora",
+        "3": "sit-whm",
+        "type": "family"
+    },
+    "bnt-bsh": {
+        "1": "Bushoong",
+        "2": 5001551,
+        "3": "bnt-bte",
+        "type": "family"
+    },
+    "zhx-gba": {
+        "1": "Greater Bai",
+        "2": 16963847,
+        "3": "zhx",
+        "type": "family",
+        "aliases": [
+            "Macro-Bai"
+        ]
+    },
+    "ccs-gzn": {
+        "1": "Georgian-Zan",
+        "2": 34030,
+        "3": "ccs",
+        "type": "family",
+        "aliases": [
+            "Karto-Zan"
+        ]
+    },
+    "poz-pol": {
+        "1": "Polynesian",
+        "2": 390979,
+        "3": "poz-occ",
+        "type": "family"
+    },
+    "omq-pop": {
+        "1": "Popolocan",
+        "2": 5132273,
+        "3": "omq",
+        "type": "family"
+    },
+    "nic-ief": {
+        "1": "Ibibio-Efik",
+        "2": 2743643,
+        "3": "nic-lcr",
+        "type": "family"
+    },
+    "aav-khs": {
+        "1": "Khasian",
+        "2": 3073734,
+        "3": "aav",
+        "type": "family",
+        "aliases": [
+            "Khasic"
+        ]
+    },
+    "ath-nor": {
+        "1": "North Athabaskan",
+        "3": "ath",
+        "type": "family",
+        "aliases": [
+            "Northern Athabaskan"
+        ]
+    },
+    "bnt-ske": {
+        "1": "Soko-Kele",
+        "3": "bnt-bte",
+        "type": "family"
+    },
+    "ssa-kom": {
+        "1": "Koman",
+        "2": 1781084,
+        "3": "ssa",
+        "type": "family"
+    },
+    "alv-bag": {
+        "1": "Baga",
+        "3": "alv-mel",
+        "type": "family"
+    },
+    "ira-sym": {
+        "1": "Shughni-Yazghulami-Munji",
+        "3": "ira-sei",
+        "type": "family"
+    },
+    "paa-yua": {
+        "1": "Yuat",
+        "2": 8060096,
+        "type": "family"
+    },
+    "poz-clb": {
+        "1": "Celebic",
+        "2": 1078041,
+        "3": "poz-sus",
+        "type": "family"
+    },
+    "poz-vnc": {
+        "1": "North-Central Vanuatu",
+        "2": 3039118,
+        "3": "poz-occ",
+        "type": "family"
+    },
+    "omq-chi": {
+        "1": "Chinantecan",
+        "2": 35828,
+        "3": "omq",
+        "type": "family"
+    },
+    "sit-kon": {
+        "1": "Konyak",
+        "2": 774590,
+        "3": "tbq-bkj",
+        "type": "family",
+        "aliases": [
+            "Konyakian",
+            "Northern Naga"
+        ]
+    },
+    "sit-jpl": {
+        "1": "Kachin-Luic",
+        "2": 1515454,
+        "3": "tbq-bkj",
+        "type": "family",
+        "aliases": [
+            "Jingpho-Luish",
+            "Jingpho-Asakian",
+            "Kachinic"
+        ]
+    },
+    "mkh-mng": {
+        "1": "Mangic",
+        "2": 3509556,
+        "3": "mkh",
+        "type": "family"
+    },
+    "nai-utn": {
+        "1": "Utian",
+        "2": 13371763,
+        "3": "nai-you",
+        "type": "family",
+        "aliases": [
+            "Miwok-Costanoan",
+            "Mutsun"
+        ]
+    },
+    "bnt-mra": {
+        "1": "Mbugwe-Rangi",
+        "2": 6799795,
+        "3": "bnt",
+        "type": "family"
+    },
+    "csu": {
+        "1": "Central Sudanic",
+        "2": 190822,
+        "3": "ssa",
+        "type": "family"
+    },
+    "alv-sma": {
+        "1": "Suppire-Mamara",
+        "2": 4446348,
+        "3": "alv-snf",
+        "type": "family"
+    },
+    "alv-gbf": {
+        "1": "Eastern Gbaya",
+        "3": "alv-gba",
+        "type": "family"
+    },
+    "sai-hrp": {
+        "1": "Huarpean",
+        "2": 1578336,
+        "type": "family",
+        "aliases": [
+            "Warpean",
+            "Huarpe",
+            "Warpe"
+        ]
+    },
+    "cau-esm": {
+        "1": "Eastern Samur",
+        "3": "cau-sam",
+        "type": "family"
+    },
+    "nai-yok": {
+        "1": "Yokutsan",
+        "2": 34249,
+        "3": "nai-you",
+        "type": "family",
+        "aliases": [
+            "Yokuts",
+            "Mariposan",
+            "Mariposa"
+        ]
+    },
+    "omq-otp": {
+        "1": "Oto-Pamean",
+        "3": "omq",
+        "type": "family"
+    },
+    "nic-kne": {
+        "1": "East Kainji",
+        "2": 5328687,
+        "3": "nic-knj",
+        "type": "family"
+    },
+    "sem-wes": {
+        "1": "West Semitic",
+        "2": 124901,
+        "3": "sem",
+        "type": "family"
+    },
+    "csu-sar": {
+        "1": "Sara",
+        "2": 2036691,
+        "3": "csu-bba",
+        "type": "family"
+    },
+    "nic-grm": {
+        "1": "Gurma",
+        "2": 30587833,
+        "3": "nic-ovo",
+        "type": "family"
+    },
+    "nai-ttn": {
+        "1": "Totonacan",
+        "2": 34039,
+        "type": "family",
+        "varieties": [
+            "Totonac"
+        ],
+        "aliases": [
+            "Totonac-Tepehua",
+            "Totonacan-Tepehuan"
+        ]
+    },
+    "ssa-klk": {
+        "1": "Kuliak",
+        "2": 1791476,
+        "3": "ssa",
+        "type": "family",
+        "aliases": [
+            "Rub"
+        ]
+    },
+    "cau-nec": {
+        "1": "Northeast Caucasian",
+        "2": 27387,
+        "3": "ccn",
+        "type": "family",
+        "aliases": [
+            "Dagestanian",
+            "Nakho-Dagestanian",
+            "Caspian"
+        ]
+    },
+    "cdd": {
+        "1": "Caddoan",
+        "2": 1025090,
+        "type": "family"
+    },
+    "bnt-mby": {
+        "1": "Mbeya",
+        "3": "bnt-ruk",
+        "type": "family"
+    },
+    "ngf-fin": {
+        "1": "Finisterre",
+        "2": 5450373,
+        "3": "ngf",
+        "type": "family"
+    },
+    "cdc-est": {
+        "1": "East Chadic",
+        "2": 2276221,
+        "3": "cdc",
+        "type": "family"
+    },
+    "roa-oil": {
+        "1": "Oïl",
+        "2": 37351,
+        "3": "roa",
+        "type": "family",
+        "protoLanguage": "fro"
+    },
+    "sdv-nie": {
+        "1": "Eastern Nilotic",
+        "2": 153795,
+        "3": "sdv-nil",
+        "type": "family"
+    },
+    "paa": {
+        "1": "Papuan",
+        "2": 236425,
+        "3": "qfa-not",
+        "type": "family"
+    },
+    "egx": {
+        "1": "Egyptian",
+        "2": 50868,
+        "3": "afa",
+        "type": "family",
+        "protoLanguage": "egy"
+    },
+    "qfa-tyn": {
+        "1": "Tyrsenian",
+        "2": 1344038,
+        "type": "family"
+    },
+    "bat": {
+        "1": "Baltic",
+        "2": 33136,
+        "3": "ine-bsl",
+        "type": "family"
+    },
+    "tuw": {
+        "1": "Tungusic",
+        "2": 34230,
+        "type": "family",
+        "aliases": [
+            "Manchu-Tungus",
+            "Tungus"
+        ]
+    },
+    "nic-yon": {
+        "1": "Yom-Nawdm",
+        "3": "nic-ovo",
+        "type": "family",
+        "aliases": [
+            "Moré-Dagbani"
+        ]
+    },
+    "bai": {
+        "1": "Bamileke",
+        "2": 806005,
+        "3": "nic-gre",
+        "type": "family"
+    },
+    "alv-kul": {
+        "1": "Kulango",
+        "2": 16977424,
+        "3": "alv-sav",
+        "type": "family",
+        "aliases": [
+            "Kulango-Lorhon",
+            "Kulango-Lorom"
+        ]
+    },
+    "bnt-mwi": {
+        "1": "Mwika",
+        "3": "bnt-ruk",
+        "type": "family"
+    },
+    "alv-nyn": {
+        "1": "Nyun",
+        "3": "alv-fwo",
+        "type": "family"
+    },
+    "alv-gtm": {
+        "1": "Ghana-Togo Mountain",
+        "2": 493020,
+        "3": "alv-kwa",
+        "type": "family",
+        "aliases": [
+            "Togo Remnant",
+            "Central Togo"
+        ]
+    },
+    "omq-cha": {
+        "1": "Chatino",
+        "2": 35111,
+        "3": "omq-zap",
+        "type": "family"
+    },
+    "ira-mpr": {
+        "1": "Medo-Parthian",
+        "3": "ira-nwi",
+        "type": "family",
+        "aliases": [
+            "Partho-Median"
+        ]
+    },
+    "alv-fwo": {
+        "1": "Fula-Wolof",
+        "2": 12631267,
+        "3": "alv-sng",
+        "type": "family"
+    },
+    "alv-cng": {
+        "1": "Cangin",
+        "2": 1033184,
+        "3": "alv-fwo",
+        "type": "family"
+    },
+    "nai-wtq": {
+        "1": "Wintuan",
+        "2": 1294259,
+        "type": "family",
+        "aliases": [
+            "Wintun"
+        ]
+    },
+    "sgn": {
+        "1": "sign",
+        "2": 34228,
+        "3": "qfa-not",
+        "type": "family"
+    },
+    "qfa-hur": {
+        "1": "Hurro-Urartian",
+        "2": 1144159,
+        "type": "family"
+    },
+    "nur-nor": {
+        "1": "Northern Nuristani",
+        "3": "iir-nur",
+        "type": "family"
+    },
+    "sit-mnz": {
+        "1": "Mondzish",
+        "2": 6898839,
+        "3": "tbq-lob",
+        "type": "family",
+        "aliases": [
+            "Mangish"
+        ]
+    },
+    "paa-yam": {
+        "1": "Yam",
+        "2": 15062272,
+        "type": "family",
+        "aliases": [
+            "Morehead and Upper Maro River"
+        ]
+    },
+    "poz-nws": {
+        "1": "Northwest Sumatran",
+        "2": 2071308,
+        "3": "poz-sus",
+        "type": "family"
+    },
+    "nic-mam": {
+        "1": "Mamfe",
+        "2": 2005898,
+        "3": "nic-bds",
+        "type": "family",
+        "aliases": [
+            "Nyang"
+        ]
+    },
+    "alv-yek": {
+        "1": "Yekhee",
+        "3": "alv-nce",
+        "type": "family"
+    },
+    "alv-ptn": {
+        "1": "Potou-Tano",
+        "2": 1475003,
+        "3": "alv-kwa",
+        "type": "family"
+    },
+    "cdc-cbm": {
+        "1": "Central Chadic",
+        "2": 2251547,
+        "3": "cdc",
+        "type": "family",
+        "aliases": [
+            "Biu-Mandara"
+        ]
+    },
+    "aus-arn": {
+        "1": "Arnhem",
+        "2": 2581700,
+        "type": "family",
+        "aliases": [
+            "Gunwinyguan",
+            "Macro-Gunwinyguan"
+        ]
+    },
+    "nic-nge": {
+        "1": "Ngemba",
+        "2": 7022271,
+        "3": "nic-gre",
+        "type": "family"
+    },
+    "sai-pat": {
+        "1": "Pano-Tacanan",
+        "2": 2475746,
+        "type": "family",
+        "aliases": [
+            "Pano-Tacana",
+            "Pano-Takana",
+            "Páno-Takána",
+            "Pano-Takánan"
+        ]
+    },
+    "nic-nkg": {
+        "1": "Gbanziri",
+        "3": "nic-nkw",
+        "type": "family"
+    },
+    "azc-trc": {
+        "1": "Taracahitic",
+        "2": 4245032,
+        "3": "azc",
+        "type": "family",
+        "aliases": [
+            "Taracahitan"
+        ]
+    },
+    "bnt-kng": {
+        "1": "Kongo",
+        "2": 6429214,
+        "3": "bnt",
+        "type": "family"
+    },
+    "esx-inu": {
+        "1": "Inuit",
+        "2": 27796,
+        "3": "esx-esk",
+        "type": "family"
+    },
+    "nic-ngd": {
+        "1": "Ngbandi",
+        "2": 36439,
+        "3": "nic-ubg",
+        "type": "family"
+    },
+    "xsc-skw": {
+        "1": "Saka-Wakhi",
+        "3": "xsc",
+        "type": "family"
+    },
+    "nai-kta": {
+        "1": "Kiowa-Tanoan",
+        "2": 386288,
+        "type": "family"
+    },
+    "poz-mun": {
+        "1": "Muna-Buton",
+        "2": 3037924,
+        "3": "poz-clb",
+        "type": "family"
+    },
+    "awd-nwk": {
+        "1": "Nawiki",
+        "3": "awd",
+        "type": "family",
+        "aliases": [
+            "Newiki"
+        ]
+    },
+    "aus-yng": {
+        "1": "Yangmanic",
+        "2": 42727644,
+        "type": "family"
+    },
+    "esx": {
+        "1": "Eskimo-Aleut",
+        "2": 25946,
+        "type": "family"
+    },
+    "alv-gda": {
+        "1": "Ga-Dangme",
+        "2": 3443338,
+        "3": "alv-kwa",
+        "type": "family"
+    },
+    "bnt-sna": {
+        "1": "Sena",
+        "3": "bnt-nys",
+        "type": "family"
+    },
+    "bnt-pen": {
+        "1": "Pende",
+        "2": 7162373,
+        "3": "bnt",
+        "type": "family"
+    },
+    "bnt-bnm": {
+        "1": "Bangi-Ntomba",
+        "2": 806477,
+        "3": "bnt-bte",
+        "type": "family"
+    },
+    "btk": {
+        "1": "Batak",
+        "2": 1998595,
+        "3": "poz-nws",
+        "type": "family"
+    },
+    "khi-tuu": {
+        "1": "Tuu",
+        "2": 631046,
+        "type": "family",
+        "aliases": [
+            "Kwi",
+            "Taa-Kwi",
+            "Southern Khoisan",
+            "Taa-ǃKwi",
+            "Taa-ǃUi",
+            "ǃUi-Taa"
+        ]
+    },
+    "ira-kms": {
+        "1": "Komisenian",
+        "3": "ira-mpr",
+        "type": "family",
+        "aliases": [
+            "Semnani"
+        ]
+    },
+    "bnt-zbi": {
+        "1": "Zamba-Binza",
+        "3": "bnt-bnm",
+        "type": "family"
+    },
+    "nic-kmk": {
+        "1": "Kamuku",
+        "2": 6359821,
+        "3": "nic-knj",
+        "type": "family"
+    },
+    "sai-aym": {
+        "1": "Aymaran",
+        "2": 33010,
+        "type": "family"
+    },
+    "sai-hoc": {
+        "1": "Huitoto-Ocaina",
+        "type": "family"
+    },
+    "sit-luu": {
+        "1": "Luish",
+        "2": 55621439,
+        "3": "sit-jpl",
+        "type": "family",
+        "aliases": [
+            "Asakian",
+            "Sak"
+        ]
+    },
+    "ine-bsl": {
+        "1": "Balto-Slavic",
+        "2": 147356,
+        "3": "ine",
+        "type": "family"
+    },
+    "dmn-mmo": {
+        "1": "Manding-Mokole",
+        "3": "dmn-mva",
+        "type": "family"
+    },
+    "sai-mje": {
+        "1": "Macro-Jê",
+        "2": 887133,
+        "type": "family",
+        "aliases": [
+            "Macro-Gê"
+        ]
+    },
+    "sai-chc": {
+        "1": "Chocoan",
+        "2": 1075616,
+        "type": "family",
+        "aliases": [
+            "Choco",
+            "Chocó"
+        ]
+    },
+    "bnt-boa": {
+        "1": "Boan",
+        "2": 4931250,
+        "3": "bnt",
+        "type": "family",
+        "aliases": [
+            "Buan",
+            "Ababuan"
+        ]
+    },
+    "nai-mdu": {
+        "1": "Maiduan",
+        "2": 33502,
+        "type": "family"
+    },
+    "nic-nka": {
+        "1": "Nkambe",
+        "2": 7042520,
+        "3": "nic-gre",
+        "type": "family"
+    },
+    "grk": {
+        "1": "Hellenic",
+        "2": 2042538,
+        "3": "ine",
+        "type": "family",
+        "aliases": [
+            "Greek"
+        ]
+    },
+    "sem-can": {
+        "1": "Canaanite",
+        "2": 747547,
+        "3": "sem-nwe",
+        "type": "family"
+    },
+    "bnt-lun": {
+        "1": "Lunda",
+        "2": 6704091,
+        "3": "bnt",
+        "type": "family"
+    },
+    "sit-lab": {
+        "1": "Ladakhi-Balti",
+        "2": 6450957,
+        "3": "sit-tib",
+        "type": "family"
+    },
+    "csu-mma": {
+        "1": "Moru-Madi",
+        "2": 6915156,
+        "3": "csu-ecs",
+        "type": "family"
+    },
+    "nic-ovo": {
+        "1": "Oti-Volta",
+        "2": 1157178,
+        "3": "nic-gur",
+        "type": "family"
+    },
+    "bnt-bne": {
+        "1": "Northeast Bantu",
+        "2": 7057832,
+        "3": "bnt",
+        "type": "family"
+    },
+    "aus-pmn": {
+        "1": "Paman",
+        "2": 2640654,
+        "3": "aus-pam",
+        "type": "family"
+    },
+    "bnt-bbo": {
+        "1": "Bafo-Bonkeng",
+        "3": "bnt-saw",
+        "type": "family"
+    },
+    "cdc-wst": {
+        "1": "West Chadic",
+        "2": 2447774,
+        "3": "cdc",
+        "type": "family"
+    },
+    "alv-nce": {
+        "1": "North-Central Edoid",
+        "3": "alv-edo",
+        "type": "family"
+    },
+    "alv-nwd": {
+        "1": "Northwestern Edoid",
+        "3": "alv-edo",
+        "type": "family"
+    },
+    "paa-ram": {
+        "1": "Ramu",
+        "2": 3442808,
+        "type": "family"
+    },
+    "bnt-cht": {
+        "1": "Chaga-Taita",
+        "3": "bnt-bne",
+        "type": "family"
+    },
+    "nic-pla": {
+        "1": "Platoid",
+        "2": 453244,
+        "3": "nic-bco",
+        "type": "family",
+        "aliases": [
+            "Central Nigerian"
+        ]
+    },
+    "ine-toc": {
+        "1": "Tocharian",
+        "2": 37029,
+        "3": "ine",
+        "type": "family",
+        "aliases": [
+            "Tokharian"
+        ]
+    },
+    "nic-dge": {
+        "1": "Escarpment Dogon",
+        "2": 5397128,
+        "3": "qfa-dgn",
+        "type": "family"
+    },
+    "bnt-lub": {
+        "1": "Luba",
+        "3": "bnt-lbn",
+        "type": "family"
+    },
+    "omv-gon": {
+        "1": "Gonga",
+        "2": 4143043,
+        "3": "omv",
+        "type": "family",
+        "aliases": [
+            "Kefoid"
+        ]
+    },
+    "nic-kam": {
+        "1": "Kambari",
+        "2": 6356294,
+        "3": "nic-knj",
+        "type": "family"
+    },
+    "sit-khb": {
+        "1": "Kho-Bwa",
+        "2": 6401917,
+        "3": "sit",
+        "type": "family",
+        "aliases": [
+            "Bugunish",
+            "Kamengic"
+        ]
+    },
+    "nic-ben": {
+        "1": "Bendi",
+        "2": 4887065,
+        "3": "nic-bcr",
+        "type": "family"
+    },
+    "sdv-dnu": {
+        "1": "Dinka-Nuer",
+        "3": "sdv-niw",
+        "type": "family"
+    },
+    "alv-mbd": {
+        "1": "Mbum-Day",
+        "2": 6799816,
+        "3": "alv-ada",
+        "type": "family"
+    },
+    "alv-ctn": {
+        "1": "Central Tano",
+        "2": 1658486,
+        "3": "alv-ptn",
+        "type": "family",
+        "aliases": [
+            "Akan"
+        ]
+    },
+    "alv-ngb": {
+        "1": "Nupe-Gbagyi",
+        "3": "alv-nup",
+        "type": "family",
+        "aliases": [
+            "Nupe-Gbari"
+        ]
+    },
+    "nai-xin": {
+        "1": "Xincan",
+        "2": 1546494,
+        "type": "family",
+        "aliases": [
+            "Xinca"
+        ]
+    },
+    "sio-dkt": {
+        "1": "Dakotan",
+        "2": 17188640,
+        "3": "sio-msv",
+        "type": "family"
+    },
+    "bad-cnt": {
+        "1": "Central Banda",
+        "2": 3438391,
+        "3": "bad",
+        "type": "family"
+    },
+    "nic-beo": {
+        "1": "Beromic",
+        "2": 4894642,
+        "3": "nic-plt",
+        "type": "family"
+    },
+    "dmn-nbe": {
+        "1": "Nwa-Beng",
+        "3": "dmn-mse",
+        "type": "family"
+    },
+    "cau-drg": {
+        "1": "Dargwa",
+        "2": 5222637,
+        "3": "cau-nec",
+        "type": "family",
+        "otherNames": [
+            "Dargin"
+        ]
+    },
+    "trk-kip": {
+        "1": "Kipchak",
+        "2": 1339898,
+        "3": "trk",
+        "type": "family",
+        "otherNames": [
+            "Western Turkic"
+        ],
+        "protoLanguage": "qwm",
+        "aliases": [
+            "Kypchak",
+            "Qypchaq",
+            "Northwestern Turkic",
+            "Western Turkic"
+        ]
+    },
+    "bnt-btb": {
+        "1": "Beti",
+        "2": 35118,
+        "3": "bnt",
+        "type": "family"
+    },
+    "bnt-bun": {
+        "1": "Buja-Ngombe",
+        "2": 4986733,
+        "3": "bnt-mbb",
+        "type": "family"
+    },
+    "sai-ctc": {
+        "1": "Catacaoan",
+        "2": 5051139,
+        "type": "family"
+    },
+    "roa-ibe": {
+        "1": "West Iberian",
+        "2": 1377152,
+        "3": "roa",
+        "type": "family"
+    },
+    "poz-msa": {
+        "1": "Malayo-Sumbawan",
+        "2": 1363818,
+        "3": "poz-sus",
+        "type": "family"
+    },
+    "inc-nor": {
+        "1": "Northern Indo-Aryan",
+        "2": 12642170,
+        "3": "inc",
+        "type": "family",
+        "protoLanguage": "inc-kha"
+    },
+    "zlw": {
+        "1": "West Slavic",
+        "2": 145852,
+        "3": "sla",
+        "type": "family"
+    },
+    "zls": {
+        "1": "South Slavic",
+        "2": 146665,
+        "3": "sla",
+        "type": "family"
+    },
+    "nic-ykb": {
+        "1": "Yukubenic",
+        "2": 16909196,
+        "3": "nic-plt",
+        "type": "family",
+        "aliases": [
+            "Oohum"
+        ]
+    },
+    "alg-eas": {
+        "1": "Eastern Algonquian",
+        "2": 2257525,
+        "3": "alg",
+        "type": "family"
+    },
+    "bnt-kmb": {
+        "1": "Kimbundu",
+        "2": 16947687,
+        "3": "bnt",
+        "type": "family"
+    },
+    "bnt-mij": {
+        "1": "Mijikenda",
+        "2": 6845474,
+        "3": "bnt-sab",
+        "type": "family"
+    },
+    "zhx-min": {
+        "1": "Min",
+        "3": "zhx",
+        "type": "family"
+    },
+    "omv-nom": {
+        "1": "North Ometo",
+        "3": "omv-ome",
+        "type": "family"
+    },
+    "cau-abz": {
+        "1": "Abkhaz-Abaza",
+        "2": 4663617,
+        "3": "cau-nwc",
+        "otherNames": [
+            "Abkhaz-Tapanta"
+        ],
+        "type": "family",
+        "aliases": [
+            "Abazgi"
+        ]
+    },
+    "zhx": {
+        "1": "Sinitic",
+        "2": 33857,
+        "3": "sit",
+        "type": "family",
+        "protoLanguage": "och",
+        "aliases": [
+            "Chinese"
+        ]
+    },
+    "bnt-rvm": {
+        "1": "Ruvuma",
+        "3": "bnt-rur",
+        "type": "family"
+    },
+    "nic-jkn": {
+        "1": "Jukunoid",
+        "2": 1711622,
+        "3": "nic-pla",
+        "type": "family"
+    },
+    "ypk": {
+        "1": "Yupik",
+        "2": 27970,
+        "3": "esx-esk",
+        "type": "family",
+        "aliases": [
+            "Yup'ik",
+            "Yuit"
+        ]
+    },
+    "xgn": {
+        "1": "Mongolic",
+        "2": 33750,
+        "type": "family",
+        "aliases": [
+            "Mongolian"
+        ]
+    },
+    "poz-aay": {
+        "1": "Admiralty Islands",
+        "2": 2701306,
+        "3": "poz-oce",
+        "type": "family"
+    },
+    "paa-kiw": {
+        "1": "Kiwaian",
+        "2": 338449,
+        "type": "family"
+    },
+    "nic-nkb": {
+        "1": "Baka",
+        "3": "nic-nkw",
+        "type": "family"
+    },
+    "trk-kbu": {
+        "1": "Kipchak-Bulgar",
+        "2": 3512539,
+        "3": "trk-kip",
+        "type": "family",
+        "aliases": [
+            "Uralian",
+            "Uralo-Caspian"
+        ]
+    },
+    "nic-knn": {
+        "1": "Northwest Kainji",
+        "2": 7060098,
+        "3": "nic-knj",
+        "type": "family"
+    },
+    "sai-nmk": {
+        "1": "Nambikwaran",
+        "2": 15548027,
+        "type": "family",
+        "aliases": [
+            "Nambicuaran",
+            "Nambiquaran",
+            "Nambikuaran"
+        ]
+    },
+    "nic-bas": {
+        "1": "Basa",
+        "2": 4866154,
+        "3": "nic-knj",
+        "type": "family"
+    },
+    "urj-prm": {
+        "1": "Permic",
+        "2": 161493,
+        "3": "urj",
+        "type": "family"
+    },
+    "urj-mdv": {
+        "1": "Mordvinic",
+        "2": 627313,
+        "3": "urj",
+        "type": "family"
+    },
+    "paa-eng": {
+        "1": "Engan",
+        "2": 3217449,
+        "type": "family"
+    },
+    "urj-fin": {
+        "1": "Finnic",
+        "2": 33328,
+        "3": "urj",
+        "type": "family",
+        "aliases": [
+            "Baltic-Finnic",
+            "Balto-Finnic",
+            "Fennic"
+        ]
+    },
+    "map": {
+        "1": "Austronesian",
+        "2": 49228,
+        "type": "family"
+    },
+    "urj": {
+        "1": "Uralic",
+        "2": 34113,
+        "varieties": [
+            "Finno-Ugric"
+        ],
+        "type": "family"
+    },
+    "paa-asa": {
+        "1": "Arai-Samaia",
+        "2": 48803569,
+        "type": "family"
+    },
+    "ccs": {
+        "1": "Kartvelian",
+        "2": 34030,
+        "type": "family",
+        "aliases": [
+            "South Caucasian"
+        ]
+    },
+    "csu-ecs": {
+        "1": "Eastern Central Sudanic",
+        "2": 16911698,
+        "3": "csu",
+        "type": "family",
+        "aliases": [
+            "East Central Sudanic",
+            "Central Sudanic East",
+            "Lendu-Mangbetu"
+        ]
+    },
+    "tup-gua": {
+        "1": "Tupi-Guarani",
+        "2": 148610,
+        "3": "tup",
+        "type": "family",
+        "aliases": [
+            "Tupí-Guaraní"
+        ]
+    },
+    "tup": {
+        "1": "Tupian",
+        "2": 34070,
+        "type": "family",
+        "aliases": [
+            "Tupi"
+        ]
+    },
+    "ira-nei": {
+        "1": "Northeastern Iranian",
+        "3": "ira",
+        "type": "family"
+    },
+    "cau-wts": {
+        "1": "West Tsezian",
+        "3": "cau-tsz",
+        "type": "family",
+        "aliases": [
+            "West Tsezic",
+            "West Didoic"
+        ]
+    },
+    "alv-ntg": {
+        "1": "Na-Togo",
+        "3": "alv-gtm",
+        "type": "family"
+    },
+    "poz-pnp": {
+        "1": "Nuclear Polynesian",
+        "2": 743851,
+        "3": "poz-pol",
+        "type": "family"
+    },
+    "nic-rnn": {
+        "1": "Northern Ring",
+        "3": "nic-rng",
+        "type": "family"
+    },
+    "ira-mny": {
+        "1": "Munji-Yidgha",
+        "3": "ira-sym",
+        "type": "family",
+        "aliases": [
+            "Yidgha-Munji"
+        ]
+    },
+    "nic-tiv": {
+        "1": "Tivoid",
+        "2": 752377,
+        "3": "nic-bds",
+        "type": "family"
+    },
+    "cau-tsz": {
+        "1": "Tsezian",
+        "2": 1651530,
+        "3": "cau-nec",
+        "type": "family",
+        "aliases": [
+            "Tsezic",
+            "Didoic"
+        ]
+    },
+    "trk-sib": {
+        "1": "Siberian Turkic",
+        "3": "trk",
+        "otherNames": [
+            "Northern Turkic"
+        ],
+        "type": "family",
+        "aliases": [
+            "Northeastern Turkic"
+        ]
+    },
+    "trk-ogz": {
+        "1": "Oghuz",
+        "2": 494600,
+        "3": "trk",
+        "type": "family",
+        "aliases": [
+            "Southwestern Turkic"
+        ]
+    },
+    "trk-ogr": {
+        "1": "Oghur",
+        "2": 1422731,
+        "3": "trk",
+        "type": "family",
+        "aliases": [
+            "Lir-Turkic",
+            "r-Turkic"
+        ]
+    },
+    "trk-kno": {
+        "1": "Kipchak-Nogai",
+        "3": "trk-kip",
+        "type": "family",
+        "aliases": [
+            "Aralo-Caspian"
+        ]
+    },
+    "dmn-mnk": {
+        "1": "Maninka",
+        "3": "dmn-emn",
+        "type": "family"
+    },
+    "bnt-ruv": {
+        "1": "Ruvu",
+        "3": "bnt-ncb",
+        "type": "family"
+    },
+    "alv-snf": {
+        "1": "Senufo",
+        "2": 33795,
+        "3": "alv",
+        "type": "family",
+        "aliases": [
+            "Senufic",
+            "Senoufo"
+        ]
+    },
+    "kro-bet": {
+        "1": "Bété",
+        "2": 32956,
+        "3": "kro-ekr",
+        "type": "family"
+    },
+    "alv-bny": {
+        "1": "Banyum",
+        "3": "alv-nyn",
+        "type": "family"
+    },
+    "alv-mye": {
+        "1": "Mumuye-Yendang",
+        "2": 6935539,
+        "3": "alv-lni",
+        "type": "family"
+    },
+    "aav-pkl": {
+        "1": "Pnar-Khasi-Lyngngam",
+        "3": "aav-khs",
+        "type": "family"
+    },
+    "aus-yuk": {
+        "1": "Yuin-Kuric",
+        "2": 3833021,
+        "3": "aus-pam",
+        "type": "family"
+    },
+    "poz": {
+        "1": "Malayo-Polynesian",
+        "2": 143158,
+        "3": "map",
+        "type": "family"
+    },
+    "inc-psu": {
+        "1": "Sauraseni Prakrit",
+        "3": "pra",
+        "type": "family",
+        "aliases": [
+            "Sauraseni",
+            "Shauraseni"
+        ]
+    },
+    "aus-yol": {
+        "1": "Yolngu",
+        "2": 2511254,
+        "3": "aus-pam",
+        "type": "family",
+        "aliases": [
+            "Yolŋu",
+            "Yolngu Matha"
+        ]
+    },
+    "nic-ogo": {
+        "1": "Ogoni",
+        "2": 2350726,
+        "3": "nic-cri",
+        "type": "family",
+        "aliases": [
+            "Ogonoid"
+        ]
+    },
+    "trk-kar": {
+        "1": "Karluk",
+        "3": "trk",
+        "type": "family",
+        "varieties": [
+            "Eastern Turkic"
+        ],
+        "aliases": [
+            "Qarluq",
+            "Uyghur-Uzbek",
+            "Southeastern Turkic"
+        ]
+    },
+    "paa-nim": {
+        "1": "Nimboran",
+        "2": 12638426,
+        "type": "family"
+    },
+    "paa-arf": {
+        "1": "Arafundi",
+        "2": 4783702,
+        "type": "family"
+    },
+    "aus-kar": {
+        "1": "Karnic",
+        "2": 4215578,
+        "3": "aus-pam",
+        "type": "family"
+    },
+    "bnt-nys": {
+        "1": "Nyasa",
+        "2": 7070921,
+        "3": "bnt",
+        "type": "family"
+    },
+    "khi-khk": {
+        "1": "Khoekhoe",
+        "3": "khi-kho",
+        "type": "family"
+    },
+    "trk": {
+        "1": "Turkic",
+        "2": 34090,
+        "type": "family"
+    },
+    "tbq-lol": {
+        "1": "Loloish",
+        "2": 37035,
+        "3": "tbq-lob",
+        "type": "family"
+    },
+    "chi": {
+        "1": "Chimakuan",
+        "2": 1073088,
+        "type": "family"
+    },
+    "tbq-lob": {
+        "1": "Lolo-Burmese",
+        "2": 1635712,
+        "3": "tbq-buq",
+        "type": "family"
+    },
+    "nic-tar": {
+        "1": "Tarokoid",
+        "2": 2394472,
+        "3": "nic-plt",
+        "type": "family"
+    },
+    "nic-grf": {
+        "1": "Grassfields",
+        "2": 750932,
+        "3": "nic-bds",
+        "type": "family",
+        "aliases": [
+            "Grassfields Bantu",
+            "Wide Grassfields"
+        ]
+    },
+    "omq-cui": {
+        "1": "Cuicatec",
+        "2": 616024,
+        "3": "omq-mix",
+        "type": "family"
+    },
+    "nic-ubg": {
+        "1": "Ubangian",
+        "2": 33932,
+        "3": "nic-vco",
+        "type": "family"
+    },
+    "aus-gun": {
+        "1": "Gunwinyguan",
+        "2": 2581700,
+        "3": "aus-arn",
+        "type": "family",
+        "aliases": [
+            "Gunwingguan"
+        ]
+    },
+    "bnt-mbo": {
+        "1": "Mboshi",
+        "2": 6799763,
+        "3": "bnt-mbb",
+        "type": "family"
+    },
+    "cau-cir": {
+        "1": "Circassian",
+        "2": 858543,
+        "3": "cau-nwc",
+        "type": "family",
+        "aliases": [
+            "Cherkess"
+        ]
+    },
+    "tbq-kuk": {
+        "1": "Kukish",
+        "2": 832413,
+        "3": "sit",
+        "type": "family"
+    },
+    "tbq-buq": {
+        "1": "Burmo-Qiangic",
+        "2": 16056278,
+        "3": "sit",
+        "type": "family",
+        "aliases": [
+            "Eastern Tibeto-Burman"
+        ]
+    },
+    "tbq-brm": {
+        "1": "Burmish",
+        "2": 865713,
+        "3": "tbq-lob",
+        "type": "family"
+    },
+    "tbq-bkj": {
+        "1": "Sal",
+        "2": 889900,
+        "3": "sit",
+        "type": "family",
+        "aliases": [
+            "Bodo-Konyak-Jinghpaw",
+            "Brahmaputran",
+            "Jingpho-Konyak-Bodo"
+        ]
+    },
+    "alv-lek": {
+        "1": "Leko",
+        "2": 6520642,
+        "3": "alv-lni",
+        "type": "family",
+        "otherNames": [
+            "Sambaic"
+        ]
+    },
+    "tbq-bdg": {
+        "1": "Bodo-Garo",
+        "2": 4090000,
+        "3": "tbq-bkj",
+        "type": "family"
+    },
+    "kro-wkr": {
+        "1": "Western Kru",
+        "2": 5972897,
+        "3": "kro",
+        "type": "family"
+    },
+    "alv-the": {
+        "1": "Talodi-Heiban",
+        "2": 1521145,
+        "3": "alv",
+        "type": "family"
+    },
+    "tbq": {
+        "1": "Tibeto-Burman",
+        "2": 34064,
+        "3": "sit",
+        "type": "family"
+    },
+    "tai-nor": {
+        "1": "Northern Tai",
+        "2": 7059014,
+        "3": "tai",
+        "type": "family"
+    },
+    "tai-cen": {
+        "1": "Central Tai",
+        "2": 5061891,
+        "3": "tai",
+        "type": "family"
+    },
+    "dmn-mdc": {
+        "1": "Central Mande",
+        "2": 5972907,
+        "3": "dmn-mdw",
+        "type": "family"
+    },
+    "dmn-smg": {
+        "1": "Samogo",
+        "2": 7410000,
+        "3": "dmn-mnw",
+        "type": "family",
+        "aliases": [
+            "Duun-Seenku"
+        ]
+    },
+    "tai-cho": {
+        "1": "Chongzuo Tai",
+        "2": 13216,
+        "3": "tai",
+        "type": "family"
+    },
+    "dmn-bbu": {
+        "1": "Bisa-Busa",
+        "2": 12627956,
+        "3": "dmn-mde",
+        "type": "family"
+    },
+    "tai-swe": {
+        "1": "Southwestern Tai",
+        "2": 3447105,
+        "3": "tai-sap",
+        "type": "family"
+    },
+    "paa-kwm": {
+        "1": "Kwomtari",
+        "2": 2075415,
+        "type": "family"
+    },
+    "tai-sap": {
+        "1": "Sapa-Southwestern Tai",
+        "3": "tai-wen",
+        "type": "family",
+        "aliases": [
+            "Sapa-Thai"
+        ]
+    },
+    "gmw": {
+        "1": "West Germanic",
+        "2": 26721,
+        "3": "gem",
+        "type": "family"
+    },
+    "alv-bam": {
+        "1": "Bambukic",
+        "2": 4853456,
+        "3": "alv-ada",
+        "type": "family",
+        "aliases": [
+            "Yungur-Jen"
+        ]
+    },
+    "poz-mly": {
+        "1": "Malayic",
+        "2": 662628,
+        "3": "poz-mcm",
+        "type": "family"
+    },
+    "nic-mmb": {
+        "1": "Mambiloid",
+        "2": 1888151,
+        "3": "nic-bdn",
+        "type": "family",
+        "otherNames": [
+            "North Bantoid"
+        ]
+    },
+    "tai-tay": {
+        "1": "Tày",
+        "3": "tai-wen",
+        "type": "family"
+    },
+    "bnt-ksb": {
+        "1": "Kavango-Southwest Bantu",
+        "2": 6379098,
+        "3": "bnt",
+        "type": "family"
+    },
+    "zlw-pom": {
+        "1": "Pomeranian",
+        "3": "zlw-lch",
+        "type": "family"
+    },
+    "tai": {
+        "1": "Tai",
+        "2": 749720,
+        "3": "qfa-bet",
+        "type": "family",
+        "aliases": [
+            "Daic"
+        ]
+    },
+    "nai-yuc": {
+        "1": "Yuman-Cochimí",
+        "2": 579137,
+        "type": "family"
+    },
+    "awd": {
+        "1": "Arawakan",
+        "2": 626753,
+        "type": "family",
+        "aliases": [
+            "Arawak",
+            "Maipurean",
+            "Maipuran"
+        ]
+    },
+    "syd": {
+        "1": "Samoyedic",
+        "2": 34005,
+        "3": "urj",
+        "type": "family",
+        "aliases": [
+            "Samoyed",
+            "Samodeic"
+        ]
+    },
+    "ssa-sah": {
+        "1": "Saharan",
+        "2": 1757661,
+        "3": "ssa",
+        "type": "family"
+    },
+    "bnt-baf": {
+        "1": "Bafia",
+        "2": 799784,
+        "3": "bnt",
+        "type": "family"
+    },
+    "ssa-fur": {
+        "1": "Fur",
+        "2": 2989512,
+        "3": "ssa",
+        "type": "family"
+    },
+    "kar": {
+        "1": "Karen",
+        "2": 1364815,
+        "3": "sit",
+        "type": "family"
+    },
+    "sai-car": {
+        "1": "Cariban",
+        "2": 33090,
+        "type": "family",
+        "aliases": [
+            "Carib"
+        ]
+    },
+    "bnt-mbb": {
+        "1": "Mboshi-Buja",
+        "2": 6799764,
+        "3": "bnt",
+        "type": "family"
+    },
+    "poz-cln": {
+        "1": "New Caledonian",
+        "2": 3091221,
+        "3": "poz-occ",
+        "type": "family"
+    },
+    "son": {
+        "1": "Songhay",
+        "2": 505198,
+        "3": "ssa",
+        "type": "family",
+        "aliases": [
+            "Songhai"
+        ]
+    },
+    "ira-nwi": {
+        "1": "Northwestern Iranian",
+        "3": "ira-wes",
+        "type": "family"
+    },
+    "smi": {
+        "1": "Sami",
+        "2": 56463,
+        "3": "urj",
+        "type": "family",
+        "aliases": [
+            "Saami",
+            "Samic",
+            "Saamic"
+        ]
+    },
+    "sla": {
+        "1": "Slavic",
+        "2": 23526,
+        "3": "ine-bsl",
+        "type": "family",
+        "aliases": [
+            "Slavonic"
+        ]
+    },
+    "paa-spk": {
+        "1": "Sepik",
+        "2": 3508772,
+        "type": "family"
+    },
+    "bnt-mka": {
+        "1": "Makaa",
+        "3": "bnt-ndb",
+        "type": "family"
+    },
+    "sit-tno": {
+        "1": "Tangsa-Nocte",
+        "3": "sit-kon",
+        "type": "family"
+    },
+    "nic-pld": {
+        "1": "Plains Dogon",
+        "3": "qfa-dgn",
+        "type": "family"
+    },
+    "sit-tsk": {
+        "1": "Tshangla",
+        "3": "sit-bdi",
+        "type": "family"
+    },
+    "sit-whm": {
+        "1": "West Himalayish",
+        "2": 2301695,
+        "3": "sit",
+        "type": "family"
+    },
+    "sem-ara": {
+        "1": "Aramaic",
+        "2": 28602,
+        "3": "sem-nwe",
+        "type": "family",
+        "protoLanguage": "arc"
+    },
+    "sai-ara": {
+        "1": "Araucanian",
+        "2": 626630,
+        "type": "family"
+    },
+    "sit-tng": {
+        "1": "Tangkhulic",
+        "2": 1516657,
+        "3": "sit-tma",
+        "type": "family",
+        "aliases": [
+            "Tangkhul"
+        ]
+    },
+    "poz-tim": {
+        "1": "Timoric",
+        "2": 7806987,
+        "3": "poz-cet",
+        "type": "family"
+    },
+    "qfa-tap": {
+        "1": "Timor-Alor-Pantar",
+        "2": 16590002,
+        "type": "family"
+    },
+    "sit-tja": {
+        "1": "Tujia",
+        "3": "sit",
+        "type": "family"
+    },
+    "sit-tib": {
+        "1": "Tibetic",
+        "2": 1641150,
+        "3": "sit-bdi",
+        "type": "family",
+        "protoLanguage": "otb"
+    },
+    "cel-gae": {
+        "1": "Goidelic",
+        "2": 56433,
+        "3": "cel",
+        "type": "family",
+        "protoLanguage": "pgl",
+        "aliases": [
+            "Gaelic"
+        ]
+    },
+    "alv-gba": {
+        "1": "Gbaya",
+        "2": 3099986,
+        "3": "alv-sav",
+        "type": "family",
+        "protoLanguage": "gba"
+    },
+    "sit-tan": {
+        "1": "Tani",
+        "2": 3217538,
+        "3": "sit",
+        "type": "family"
+    },
+    "urj-ugr": {
+        "1": "Ugric",
+        "2": 156631,
+        "3": "urj",
+        "type": "family"
+    },
+    "poz-mic": {
+        "1": "Micronesian",
+        "2": 420591,
+        "3": "poz-occ",
+        "type": "family"
+    },
+    "sit-rgy": {
+        "1": "Rgyalrongic",
+        "2": 56936,
+        "3": "sit-qia",
+        "type": "family",
+        "aliases": [
+            "Jiarongic"
+        ]
+    },
+    "sit-qia": {
+        "1": "Qiangic",
+        "2": 1636765,
+        "3": "tbq-buq",
+        "type": "family"
+    },
+    "mkh-pal": {
+        "1": "Palaungic",
+        "2": 2391173,
+        "3": "mkh",
+        "type": "family"
+    },
+    "nic": {
+        "1": "Niger-Congo",
+        "2": 33838,
+        "type": "family",
+        "aliases": [
+            "Niger-Kordofanian"
+        ]
+    },
+    "hmx-mie": {
+        "1": "Mien",
+        "2": 7992695,
+        "3": "hmx",
+        "type": "family"
+    },
+    "sit-nng": {
+        "1": "Nungish",
+        "2": 1515482,
+        "3": "sit",
+        "type": "family",
+        "aliases": [
+            "Nung"
+        ]
+    },
+    "sit-new": {
+        "1": "Newaric",
+        "2": 55625069,
+        "3": "sit",
+        "type": "family"
+    },
+    "nai-tot": {
+        "1": "Totozoquean",
+        "2": 7828419,
+        "type": "family"
+    },
+    "mkh-vie": {
+        "1": "Vietic",
+        "2": 2355546,
+        "3": "mkh",
+        "type": "family"
+    },
+    "bnt-mbi": {
+        "1": "Mbinga",
+        "3": "bnt-rur",
+        "type": "family"
+    },
+    "bnt-kbi": {
+        "1": "Komo-Bira",
+        "2": 6428591,
+        "3": "bnt-boa",
+        "type": "family"
+    },
+    "inc-hiw": {
+        "1": "Western Hindi",
+        "2": 12600937,
+        "3": "inc-cen",
+        "type": "family",
+        "protoLanguage": "inc-sap"
+    },
+    "nic-rnc": {
+        "1": "Central Ring",
+        "3": "nic-rng",
+        "type": "family"
+    },
+    "sit-mdz": {
+        "1": "Midzu",
+        "2": 6843504,
+        "3": "sit",
+        "type": "family",
+        "aliases": [
+            "Geman",
+            "Midzuish",
+            "Miju-Meyor",
+            "Southern Mishmi"
+        ]
+    },
+    "ber": {
+        "1": "Berber",
+        "2": 25448,
+        "3": "afa",
+        "type": "family",
+        "aliases": [
+            "Tamazight"
+        ]
+    },
+    "sit-las": {
+        "1": "Lahuli-Spiti",
+        "2": 6473510,
+        "3": "sit-tib",
+        "type": "family"
+    },
+    "bnt-nyg": {
+        "1": "Nyoro-Ganda",
+        "2": 12638666,
+        "3": "bnt-glb",
+        "type": "family"
+    },
+    "aus-gar": {
+        "1": "Garawan",
+        "2": 5521951,
+        "type": "family"
+    },
+    "sit-kyk": {
+        "1": "Kyirong-Kagate",
+        "2": 6450957,
+        "3": "sit-tib",
+        "type": "family"
+    },
+    "apa": {
+        "1": "Apachean",
+        "2": 27758,
+        "3": "ath",
+        "type": "family",
+        "aliases": [
+            "Southern Athabaskan"
+        ]
+    },
+    "sit-kir": {
+        "1": "Kiranti",
+        "2": 922148,
+        "3": "sit",
+        "type": "family"
+    },
+    "cau-nkh": {
+        "1": "Nakh",
+        "2": 24441,
+        "3": "cau-nec",
+        "type": "family",
+        "aliases": [
+            "North-Central Caucasian"
+        ]
+    },
+    "sit-kin": {
+        "1": "Kinnauri",
+        "3": "sit-whm",
+        "type": "family"
+    },
+    "alv-lni": {
+        "1": "Leko-Nimbari",
+        "2": 1708170,
+        "3": "alv-ada",
+        "otherNames": [
+            "Central Adamawa"
+        ],
+        "type": "family",
+        "aliases": [
+            "Chamba-Mumuye"
+        ]
+    },
+    "aus-wor": {
+        "1": "Worrorran",
+        "2": 2038619,
+        "type": "family"
+    },
+    "sit-kie": {
+        "1": "Eastern Kiranti",
+        "3": "sit-kir",
+        "type": "family"
+    },
+    "sit-kic": {
+        "1": "Central Kiranti",
+        "3": "sit-kir",
+        "type": "family"
+    },
+    "sit-kha": {
+        "1": "Kham",
+        "2": 33305,
+        "3": "sit-gma",
+        "type": "family"
+    },
+    "mkh-kat": {
+        "1": "Katuic",
+        "2": 56697,
+        "3": "mkh",
+        "type": "family"
+    },
+    "sit-kch": {
+        "1": "Konyak-Chang",
+        "3": "sit-kon",
+        "type": "family"
+    },
+    "aql": {
+        "1": "Algic",
+        "2": 721612,
+        "type": "family",
+        "aliases": [
+            "Algonquian-Ritwan",
+            "Algonquian-Wiyot-Yurok"
+        ]
+    },
+    "sem-sar": {
+        "1": "Modern South Arabian",
+        "2": 1981908,
+        "3": "sem-wes",
+        "type": "family"
+    },
+    "nic-ngk": {
+        "1": "Ngbaka",
+        "2": 3217499,
+        "3": "nic-ubg",
+        "type": "family"
+    },
+    "sit-gma": {
+        "1": "Greater Magaric",
+        "2": 55612963,
+        "3": "sit",
+        "type": "family"
+    },
+    "sit-ebo": {
+        "1": "East Bodish",
+        "2": 56402,
+        "3": "sit-bdi",
+        "type": "family"
+    },
+    "iir-nur": {
+        "1": "Nuristani",
+        "2": 161804,
+        "3": "iir",
+        "type": "family"
+    },
+    "inc": {
+        "1": "Indo-Aryan",
+        "2": 33577,
+        "3": "iir",
+        "type": "family",
+        "aliases": [
+            "Indic"
+        ]
+    },
+    "inc-ins": {
+        "1": "Insular Indo-Aryan",
+        "3": "inc",
+        "type": "family",
+        "protoLanguage": "elu-prk"
+    },
+    "bnt-mon": {
+        "1": "Mongo",
+        "3": "bnt-bnm",
+        "type": "family"
+    },
+    "nic-kau": {
+        "1": "Kauru",
+        "3": "nic-kne",
+        "type": "family"
+    },
+    "alv-fli": {
+        "1": "Fali",
+        "2": 3450166,
+        "3": "alv",
+        "type": "family"
+    },
+    "csu-bgr": {
+        "1": "Bagirmi",
+        "2": 4841948,
+        "3": "csu-bba",
+        "type": "family",
+        "aliases": [
+            "Bagirmic"
+        ]
+    },
+    "sai-gui": {
+        "1": "Guianan",
+        "3": "sai-car",
+        "type": "family",
+        "aliases": [
+            "Guianan Carib",
+            "Guiana Carib"
+        ]
+    },
+    "mno": {
+        "1": "Manobo",
+        "2": 3217483,
+        "3": "phi",
+        "type": "family"
+    },
+    "hmn": {
+        "1": "Hmong",
+        "2": 3307894,
+        "3": "hmx",
+        "type": "family"
+    },
+    "sit-dhi": {
+        "1": "Dhimalish",
+        "2": 1207648,
+        "3": "sit",
+        "type": "family"
+    },
+    "sdv-ttu": {
+        "1": "Teso-Turkana",
+        "2": 7705551,
+        "3": "sdv-nie",
+        "type": "family",
+        "aliases": [
+            "Ateker"
+        ]
+    },
+    "sdv-eje": {
+        "1": "Eastern Jebel",
+        "2": 3408878,
+        "3": "sdv",
+        "type": "family"
+    },
+    "dmn": {
+        "1": "Mande",
+        "2": 33681,
+        "3": "nic",
+        "type": "family"
+    },
+    "sit-aao": {
+        "1": "Ao",
+        "2": 615474,
+        "3": "sit",
+        "type": "family",
+        "aliases": [
+            "Central Naga languages"
+        ]
+    },
+    "sit": {
+        "1": "Sino-Tibetan",
+        "2": 45961,
+        "type": "family"
+    },
+    "crp": {
+        "1": "creole or pidgin",
+        "3": "qfa-not",
+        "type": "family"
+    },
+    "bnt-ncb": {
+        "1": "Northeast Coast Bantu",
+        "2": 7057848,
+        "3": "bnt-bne",
+        "type": "family"
+    },
+    "sio-ohv": {
+        "1": "Ohio Valley Siouan",
+        "2": 21070931,
+        "3": "sio",
+        "type": "family"
+    },
+    "sio-msv": {
+        "1": "Mississippi Valley Siouan",
+        "2": 17188638,
+        "3": "sio",
+        "type": "family"
+    },
+    "sio-mor": {
+        "1": "Missouri River Siouan",
+        "2": 26807266,
+        "3": "sio",
+        "type": "family"
+    },
+    "sit-mru": {
+        "1": "Mruic",
+        "2": 16908870,
+        "3": "sit",
+        "type": "family",
+        "aliases": [
+            "Mru-Hkongso"
+        ]
+    },
+    "csu-bbk": {
+        "1": "Bongo-Baka",
+        "2": 4941917,
+        "3": "csu-bba",
+        "type": "family"
+    },
+    "sai-jir": {
+        "1": "Jirajaran",
+        "2": 3028651,
+        "type": "family",
+        "aliases": [
+            "Hiraháran"
+        ]
+    },
+    "poz-sus": {
+        "1": "Sunda-Sulawesi",
+        "2": 319552,
+        "3": "poz",
+        "type": "family"
+    },
+    "sgn-jsl": {
+        "1": "Japanese Sign Languages",
+        "2": 11722508,
+        "3": "sgn",
+        "type": "family"
+    },
+    "sgn-gsl": {
+        "1": "German Sign Languages",
+        "2": 5551235,
+        "3": "sgn",
+        "type": "family"
+    },
+    "bnt-mnj": {
+        "1": "Makaa-Njem",
+        "2": 1603899,
+        "3": "bnt-pob",
+        "type": "family"
+    },
+    "nic-vco": {
+        "1": "Volta-Congo",
+        "2": 37228,
+        "3": "alv",
+        "type": "family"
+    },
+    "nic-gns": {
+        "1": "Gurunsi",
+        "2": 721007,
+        "3": "nic-gur",
+        "type": "family",
+        "aliases": [
+            "Grũsi"
+        ]
+    },
+    "sit-jnp": {
+        "1": "Jingphoic",
+        "3": "sit-jpl",
+        "type": "family",
+        "aliases": [
+            "Jingpho"
+        ]
+    },
+    "sem-osa": {
+        "1": "Old South Arabian",
+        "2": 35025,
+        "3": "sem-cen",
+        "type": "family",
+        "aliases": [
+            "Epigraphic South Arabian",
+            "Sayhadic"
+        ]
+    },
+    "aus-tnk": {
+        "1": "Tangkic",
+        "2": 1823065,
+        "type": "family"
+    },
+    "sem-nwe": {
+        "1": "Northwest Semitic",
+        "2": 162996,
+        "3": "sem-cen",
+        "type": "family"
+    },
+    "bnt-mbt": {
+        "1": "Mbete",
+        "2": 1346910,
+        "3": "bnt-tmb",
+        "type": "family",
+        "aliases": [
+            "Mbere"
+        ]
+    },
+    "alv-kim": {
+        "1": "Kim",
+        "2": 6409701,
+        "3": "alv-mbd",
+        "type": "family"
+    },
+    "sem-eth": {
+        "1": "Ethiopian Semitic",
+        "2": 163629,
+        "3": "sem-wes",
+        "type": "family",
+        "aliases": [
+            "Afro-Semitic",
+            "Ethiopian",
+            "Ethiopic",
+            "Ethiosemitic"
+        ]
+    },
+    "sem-eas": {
+        "1": "East Semitic",
+        "2": 164273,
+        "3": "sem",
+        "type": "family"
+    },
+    "nic-dgw": {
+        "1": "West Dogon",
+        "3": "qfa-dgn",
+        "type": "family"
+    },
+    "mkh-kmr": {
+        "1": "Khmeric",
+        "3": "mkh",
+        "type": "family"
+    },
+    "paa-nbo": {
+        "1": "North Bougainville",
+        "2": 749496,
+        "type": "family"
+    },
+    "hmx": {
+        "1": "Hmong-Mien",
+        "2": 33322,
+        "type": "family",
+        "aliases": [
+            "Miao-Yao"
+        ]
+    },
+    "cmc": {
+        "1": "Chamic",
+        "2": 2997506,
+        "3": "poz-mcm",
+        "type": "family"
+    },
+    "roa-itd": {
+        "1": "Italo-Dalmatian",
+        "2": 3313381,
+        "3": "roa",
+        "type": "family"
+    },
+    "nic-bbe": {
+        "1": "Eastern Beboid",
+        "3": "nic-beb",
+        "type": "family"
+    },
+    "nic-gnw": {
+        "1": "Western Gurunsi",
+        "3": "nic-gns",
+        "type": "family",
+        "aliases": [
+            "Western Grũsi"
+        ]
+    },
+    "poz-wot": {
+        "1": "Wotu-Wolio",
+        "2": 1041317,
+        "3": "poz-clb",
+        "type": "family"
+    },
+    "dra": {
+        "1": "Dravidian",
+        "2": 33311,
+        "type": "family"
+    },
+    "sem-cna": {
+        "1": "Central Neo-Aramaic",
+        "2": 3410322,
+        "3": "sem-are",
+        "type": "family"
+    },
+    "bnt-sho": {
+        "1": "Shona",
+        "2": 2904660,
+        "3": "bnt",
+        "type": "family"
+    },
+    "cus-cen": {
+        "1": "Central Cushitic",
+        "2": 56569,
+        "3": "cus",
+        "type": "family"
+    },
+    "sem-cen": {
+        "1": "Central Semitic",
+        "2": 3433228,
+        "3": "sem-wes",
+        "type": "family"
+    },
+    "ira": {
+        "1": "Iranian",
+        "2": 33527,
+        "3": "iir",
+        "type": "family"
+    },
+    "alv": {
+        "1": "Atlantic-Congo",
+        "2": 771124,
+        "3": "nic",
+        "type": "family"
+    },
+    "sem-ase": {
+        "1": "Southeastern Aramaic",
+        "2": 3410322,
+        "3": "sem-are",
+        "type": "family"
+    },
+    "nai-sca": {
+        "1": "Siouan-Catawban",
+        "2": 34181,
+        "type": "family"
+    },
+    "inc-wes": {
+        "1": "Western Indo-Aryan",
+        "3": "inc-psu",
+        "type": "family",
+        "protoLanguage": "inc-gup"
+    },
+    "nic-jrw": {
+        "1": "Jarawa",
+        "2": 35423,
+        "3": "nic-jrn",
+        "type": "family"
+    },
+    "sem-arb": {
+        "1": "Arabic",
+        "2": 164667,
+        "3": "sem-cen",
+        "type": "family",
+        "protoLanguage": "ar"
+    },
+    "pra": {
+        "1": "Prakrit",
+        "2": 192170,
+        "3": "inc",
+        "type": "family"
+    },
+    "khi-kxa": {
+        "1": "Kx'a",
+        "2": 6450587,
+        "type": "family",
+        "aliases": [
+            "Kxa",
+            "Ju-ǂHoan"
+        ]
+    },
+    "sem": {
+        "1": "Semitic",
+        "2": 34049,
+        "3": "afa",
+        "type": "family"
+    },
+    "sdv-nyi": {
+        "1": "Nyima",
+        "2": 11688746,
+        "3": "sdv-nes",
+        "type": "family",
+        "aliases": [
+            "Nyimang"
+        ]
+    },
+    "ira-swi": {
+        "1": "Southwestern Iranian",
+        "3": "ira-wes",
+        "type": "family"
+    },
+    "sdv-nma": {
+        "1": "Nandi-Markweta",
+        "3": "sdv-kln",
+        "type": "family"
+    },
+    "alv-mbm": {
+        "1": "Mbum",
+        "2": 6799814,
+        "3": "alv-mbd",
+        "type": "family"
+    },
+    "nai-min": {
+        "1": "Misumalpan",
+        "2": 281693,
+        "3": "qfa-mch",
+        "type": "family",
+        "aliases": [
+            "Misuluan",
+            "Misumalpa"
+        ]
+    },
+    "sdv-nis": {
+        "1": "Southern Nilotic",
+        "2": 1552410,
+        "3": "sdv-nil",
+        "type": "family"
+    },
+    "sai-wic": {
+        "1": "Wichí",
+        "2": 3027047,
+        "type": "family"
+    },
+    "oto": {
+        "1": "Otomian",
+        "2": 1270220,
+        "3": "omq",
+        "type": "family"
+    },
+    "sdv-nes": {
+        "1": "Northern Eastern Sudanic",
+        "2": 4810496,
+        "3": "sdv",
+        "type": "family",
+        "aliases": [
+            "Astaboran",
+            "Ek Sudanic"
+        ]
+    },
+    "sai-guh": {
+        "1": "Guahiban",
+        "2": 944056,
+        "type": "family",
+        "aliases": [
+            "Guahiboan",
+            "Guajiboan",
+            "Wahivoan"
+        ]
+    },
+    "alg-abp": {
+        "1": "Abenaki-Penobscot",
+        "2": 197936,
+        "3": "alg-eas",
+        "type": "family"
+    },
+    "poz-lgx": {
+        "1": "Lampungic",
+        "2": 49215,
+        "3": "poz-sus",
+        "type": "family"
+    },
+    "alv-gbw": {
+        "1": "Western Gbaya",
+        "3": "alv-gba",
+        "type": "family"
+    },
+    "sdv-los": {
+        "1": "Southern Luo",
+        "2": 7570103,
+        "3": "sdv-luo",
+        "type": "family"
+    },
+    "bnt-msl": {
+        "1": "Masaba-Luhya",
+        "2": 12636428,
+        "3": "bnt-glb",
+        "type": "family"
+    },
+    "bnt-lok": {
+        "1": "Logooli-Kuria",
+        "3": "bnt-glb",
+        "type": "family"
+    },
+    "sdv-lon": {
+        "1": "Northern Luo",
+        "3": "sdv-luo",
+        "type": "family"
+    },
+    "sdv-lma": {
+        "1": "Lotuko-Maa",
+        "3": "sdv-nie",
+        "type": "family"
+    },
+    "sdv-kln": {
+        "1": "Kalenjin",
+        "2": 637228,
+        "3": "sdv-nis",
+        "type": "family"
+    },
+    "ira-pat": {
+        "1": "Pathan",
+        "3": "ira-sei",
+        "type": "family"
+    },
+    "nic-bcr": {
+        "1": "Bantoid-Cross",
+        "2": 806983,
+        "3": "nic-bco",
+        "type": "family"
+    },
+    "sit-bdi": {
+        "1": "Bodish",
+        "2": 1814078,
+        "3": "sit",
+        "type": "family"
+    },
+    "del": {
+        "1": "Lenape",
+        "2": 2665761,
+        "3": "alg-eas",
+        "type": "family",
+        "aliases": [
+            "Delaware"
+        ]
+    },
+    "qfa-bet": {
+        "1": "Be-Tai",
+        "3": "qfa-tak",
+        "type": "family",
+        "aliases": [
+            "Tai-Be",
+            "Daic-Beic",
+            "Beic-Daic"
+        ]
+    },
+    "omq": {
+        "1": "Oto-Manguean",
+        "2": 33669,
+        "type": "family"
+    },
+    "sal": {
+        "1": "Salishan",
+        "2": 33985,
+        "type": "family"
+    },
+    "bnt-mne": {
+        "1": "Manenguba",
+        "2": 31147471,
+        "3": "bnt",
+        "type": "family",
+        "aliases": [
+            "Mbo",
+            "Ngoe"
+        ]
+    },
+    "dmn-mjo": {
+        "1": "Manding-Jogo",
+        "2": 12636153,
+        "3": "dmn-mdc",
+        "type": "family"
+    },
+    "roa-rhe": {
+        "1": "Rhaeto-Romance",
+        "2": 515593,
+        "3": "roa",
+        "type": "family"
+    },
+    "sai-zap": {
+        "1": "Zaparoan",
+        "2": 33911,
+        "type": "family",
+        "aliases": [
+            "Záparoan",
+            "Saparoan",
+            "Sáparoan",
+            "Záparo",
+            "Zaparoano",
+            "Zaparoana"
+        ]
+    },
+    "ath": {
+        "1": "Athabaskan",
+        "2": 27475,
+        "3": "xnd",
+        "type": "family"
+    },
+    "omv-mao": {
+        "1": "Mao",
+        "2": 1351495,
+        "3": "omv",
+        "type": "family"
+    },
+    "sai-yuk": {
+        "1": "Yukpan",
+        "3": "sai-car",
+        "type": "family",
+        "aliases": [
+            "Yukpa",
+            "Yukpano",
+            "Yukpa-Japreria"
+        ]
+    },
+    "sai-ynm": {
+        "1": "Yanomami",
+        "type": "family",
+        "aliases": [
+            "Yanomam",
+            "Shamatari",
+            "Yamomami",
+            "Yanomaman"
+        ]
+    },
+    "aus-bub": {
+        "1": "Bunuban",
+        "2": 2495148,
+        "type": "family",
+        "aliases": [
+            "Bunaban"
+        ]
+    },
+    "sdv-nil": {
+        "1": "Nilotic",
+        "2": 513408,
+        "3": "sdv",
+        "type": "family"
+    },
+    "sai-ven": {
+        "1": "Venezuelan Cariban",
+        "3": "sai-car",
+        "type": "family",
+        "aliases": [
+            "Venezuelan Carib",
+            "Venezuelan",
+            "Venezuelano"
+        ]
+    },
+    "inc-snd": {
+        "1": "Sindhi",
+        "2": 7522212,
+        "3": "inc-nwe",
+        "type": "family",
+        "protoLanguage": "inc-vra"
+    },
+    "itc-sbl": {
+        "1": "Osco-Umbrian",
+        "2": 515194,
+        "3": "itc",
+        "type": "family",
+        "aliases": [
+            "Sabellian"
+        ]
+    },
+    "cau-lzg": {
+        "1": "Lezghian",
+        "2": 2144370,
+        "3": "cau-nec",
+        "type": "family",
+        "aliases": [
+            "Lezgi",
+            "Lezgian",
+            "Lezgic"
+        ]
+    },
+    "sai-ucp": {
+        "1": "Uru-Chipaya",
+        "2": 2475488,
+        "type": "family",
+        "aliases": [
+            "Uru-Chipayan"
+        ]
+    },
+    "sai-tuc": {
+        "1": "Tucanoan",
+        "2": 788144,
+        "type": "family"
+    },
+    "sai-tar": {
+        "1": "Taranoan",
+        "2": 105097814,
+        "3": "sai-gui",
+        "type": "family",
+        "aliases": [
+            "Trio",
+            "Tarano"
+        ]
+    },
+    "sai-tac": {
+        "1": "Tacanan",
+        "2": 3113762,
+        "3": "sai-pat",
+        "type": "family"
+    },
+    "sai-sje": {
+        "1": "Southern Jê",
+        "2": 98078245,
+        "3": "sai-jee",
+        "type": "family"
+    },
+    "sai-prk": {
+        "1": "Parukotoan",
+        "2": 107451482,
+        "3": "sai-car",
+        "type": "family",
+        "aliases": [
+            "Parukoto"
+        ]
+    },
+    "csu-bba": {
+        "1": "Bongo-Bagirmi",
+        "2": 3505042,
+        "3": "csu",
+        "type": "family"
+    },
+    "omv-ome": {
+        "1": "Ometo",
+        "2": 36310,
+        "3": "omv",
+        "type": "family"
+    },
+    "hok": {
+        "1": "Hokan",
+        "2": 33406,
+        "type": "family"
+    },
+    "sai-pek": {
+        "1": "Pekodian",
+        "2": 107451736,
+        "3": "sai-car",
+        "type": "family",
+        "aliases": [
+            "South Amazonian Carib",
+            "Southern Cariban",
+            "Pekodi"
+        ]
+    },
+    "sai-pan": {
+        "1": "Panoan",
+        "2": 1544537,
+        "3": "sai-pat",
+        "type": "family",
+        "aliases": [
+            "Pano"
+        ]
+    },
+    "nic-gne": {
+        "1": "Eastern Gurunsi",
+        "2": 12633072,
+        "3": "nic-gns",
+        "type": "family",
+        "aliases": [
+            "Eastern Grũsi"
+        ]
+    },
+    "sai-otm": {
+        "1": "Otomacoan",
+        "2": 3217503,
+        "type": "family",
+        "aliases": [
+            "Otomákoan",
+            "Otomakoan"
+        ]
+    },
+    "sit-tam": {
+        "1": "Tamangic",
+        "2": 3309439,
+        "3": "sit",
+        "type": "family",
+        "aliases": [
+            "West Bodish"
+        ]
+    },
+    "sai-nje": {
+        "1": "Northern Jê",
+        "2": 98078225,
+        "3": "sai-cer",
+        "type": "family",
+        "aliases": [
+            "Core Jê"
+        ]
+    },
+    "cdc-mas": {
+        "1": "Masa",
+        "2": 2136092,
+        "3": "cdc",
+        "type": "family"
+    },
+    "xsc": {
+        "1": "Scythian",
+        "3": "ira-nei",
+        "type": "family"
+    },
+    "sai-nad": {
+        "1": "Nadahup",
+        "2": 1856439,
+        "type": "family",
+        "aliases": [
+            "Makú",
+            "Macú",
+            "Vaupés-Japurá"
+        ]
+    },
+    "sai-mur": {
+        "1": "Muran",
+        "2": 33826,
+        "type": "family",
+        "aliases": [
+            "Mura"
+        ]
+    },
+    "ccs-zan": {
+        "1": "Zan",
+        "2": 2606912,
+        "3": "ccs-gzn",
+        "type": "family",
+        "aliases": [
+            "Zanuri",
+            "Colchian"
+        ]
+    },
+    "paa-nha": {
+        "1": "North Halmahera",
+        "3": "paa-wpa",
+        "type": "family"
+    },
+    "nic-nwa": {
+        "1": "Nanga-Walo",
+        "3": "qfa-dgn",
+        "type": "family"
+    },
+    "kro-grb": {
+        "1": "Grebo",
+        "2": 5601537,
+        "3": "kro-wkr",
+        "type": "family"
+    },
+    "nic-eko": {
+        "1": "Ekoid",
+        "2": 1323395,
+        "3": "nic-bds",
+        "type": "family"
+    },
+    "sai-mgc": {
+        "1": "Mataco-Guaicuru",
+        "2": 255512,
+        "type": "family"
+    },
+    "nic-cri": {
+        "1": "Cross River",
+        "2": 1141096,
+        "3": "nic-bcr",
+        "type": "family"
+    },
+    "sai-map": {
+        "1": "Mapoyan",
+        "2": 61096301,
+        "3": "sai-ven",
+        "type": "family",
+        "aliases": [
+            "Mapoyo",
+            "Mapoyo-Yabarana",
+            "Mapoyo-Yavarana",
+            "Mapoyo-Yawarana"
+        ]
+    },
+    "sai-kui": {
+        "1": "Kuikuroan",
+        "3": "sai-car",
+        "type": "family",
+        "aliases": [
+            "Kuikuro",
+            "Nahukwa"
+        ]
+    },
+    "xme-ttc": {
+        "1": "Tatic",
+        "3": "xme",
+        "type": "family"
+    },
+    "khi-kal": {
+        "1": "Kalahari Khoe",
+        "3": "khi-kho",
+        "type": "family"
+    },
+    "dmn-mdw": {
+        "1": "Western Mande",
+        "2": 16113831,
+        "3": "dmn",
+        "type": "family"
+    },
+    "auf": {
+        "1": "Arauan",
+        "2": 626772,
+        "type": "family",
+        "aliases": [
+            "Arahuan",
+            "Arauán",
+            "Arawa",
+            "Arawan",
+            "Arawán"
+        ]
+    },
+    "nic-ras": {
+        "1": "Rashad",
+        "2": 3401986,
+        "3": "nic",
+        "type": "family"
+    },
+    "paa-sen": {
+        "1": "Sentani",
+        "2": 17044584,
+        "3": "paa-wpa",
+        "type": "family"
+    },
+    "sai-wit": {
+        "1": "Witotoan",
+        "2": 43079317,
+        "3": "sai-hoc",
+        "type": "family",
+        "aliases": [
+            "Huitotoan",
+            "Uitotoan"
+        ]
+    },
+    "pqe": {
+        "1": "Eastern Malayo-Polynesian",
+        "2": 2269883,
+        "3": "poz-cet",
+        "type": "family"
+    },
+    "sai-har": {
+        "1": "Harákmbut",
+        "2": 1584402,
+        "3": "sai-hkt",
+        "type": "family",
+        "aliases": [
+            "Harákmbet"
+        ]
+    },
+    "poz-sbj": {
+        "1": "Sama-Bajaw",
+        "2": 2160409,
+        "3": "poz-bop",
+        "type": "family"
+    },
+    "sai-guc": {
+        "1": "Guaicuruan",
+        "2": 1974973,
+        "3": "sai-mgc",
+        "type": "family",
+        "aliases": [
+            "Guaicurú",
+            "Guaycuruana",
+            "Guaikurú",
+            "Guaycuruano",
+            "Guaykuruan",
+            "Waikurúan"
+        ]
+    },
+    "iro": {
+        "1": "Iroquoian",
+        "2": 33623,
+        "type": "family"
+    },
+    "phi-kal": {
+        "1": "Kalamian",
+        "2": 3217466,
+        "3": "phi",
+        "type": "family",
+        "aliases": [
+            "Calamian"
+        ]
+    },
+    "ira-csp": {
+        "1": "Caspian",
+        "3": "ira-mpr",
+        "type": "family"
+    },
+    "sai-crn": {
+        "1": "Charruan",
+        "2": 3112423,
+        "type": "family",
+        "aliases": [
+            "Charrúan"
+        ]
+    },
+    "inc-mid": {
+        "1": "Middle Indo-Aryan",
+        "2": 3236316,
+        "3": "inc",
+        "type": "family",
+        "aliases": [
+            "Middle Indic"
+        ]
+    },
+    "sai-cpc": {
+        "1": "Chapacuran",
+        "2": 1062626,
+        "type": "family"
+    },
+    "nic-ktl": {
+        "1": "Katloid",
+        "2": 6377681,
+        "3": "nic",
+        "type": "family",
+        "aliases": [
+            "Katla",
+            "Katla-Tima"
+        ]
+    },
+    "sai-cje": {
+        "1": "Central Jê",
+        "2": 18010843,
+        "3": "sai-cer",
+        "type": "family",
+        "aliases": [
+            "Akuwẽ"
+        ]
+    },
+    "roa-ocr": {
+        "1": "Occitano-Romance",
+        "2": 599958,
+        "3": "roa",
+        "type": "family"
+    },
+    "bnt-par": {
+        "1": "Pare",
+        "3": "bnt-ncb",
+        "type": "family"
+    },
+    "kro-wee": {
+        "1": "Wee",
+        "3": "kro-wkr",
+        "type": "family"
+    },
+    "qfa-kra": {
+        "1": "Kra",
+        "2": 1022087,
+        "3": "qfa-tak",
+        "type": "family"
+    },
+    "sai-cho": {
+        "1": "Chonan",
+        "2": 33019,
+        "type": "family",
+        "aliases": [
+            "Chon"
+        ]
+    },
+    "sai-cer": {
+        "1": "Cerrado",
+        "2": 98078151,
+        "3": "sai-jee",
+        "type": "family",
+        "aliases": [
+            "Amazonian Jê"
+        ]
+    },
+    "alv-snr": {
+        "1": "Senari",
+        "2": 4416084,
+        "3": "alv-snf",
+        "type": "family"
+    },
+    "csu-lnd": {
+        "1": "Lendu",
+        "2": 6522357,
+        "3": "csu-ecs",
+        "type": "family",
+        "aliases": [
+            "Lenduic"
+        ]
+    },
+    "ssa": {
+        "1": "Nilo-Saharan",
+        "2": 33705,
+        "type": "family"
+    },
+    "sai-cah": {
+        "1": "Cahuapanan",
+        "2": 1025793,
+        "type": "family"
+    },
+    "sai-bar": {
+        "1": "Barbacoan",
+        "2": 807304,
+        "type": "family",
+        "aliases": [
+            "Barbakoan"
+        ]
+    },
+    "roa-git": {
+        "1": "Gallo-Italic",
+        "2": 516074,
+        "3": "roa",
+        "type": "family"
+    },
+    "zlw-lch": {
+        "1": "Lechitic",
+        "2": 742782,
+        "3": "zlw",
+        "type": "family",
+        "aliases": [
+            "Lekhitic"
+        ]
+    },
+    "roa": {
+        "1": "Romance",
+        "2": 19814,
+        "3": "itc",
+        "type": "family",
+        "protoLanguage": "la",
+        "aliases": [
+            "Romanic",
+            "Latin",
+            "Neolatin",
+            "Neo-Latin"
+        ]
+    },
+    "alv-igb": {
+        "1": "Igboid",
+        "2": 1429100,
+        "3": "alv-von",
+        "type": "family"
+    },
+    "bnt-ngu": {
+        "1": "Nguni",
+        "2": 961559,
+        "3": "bnt-bso",
+        "type": "family",
+        "aliases": [
+            "Ngoni"
+        ]
+    },
+    "poz-bnn": {
+        "1": "North Bornean",
+        "2": 1427907,
+        "3": "poz-bop",
+        "type": "family"
+    },
+    "qwe": {
+        "1": "Quechuan",
+        "2": 5218,
+        "type": "family"
+    },
+    "qfa-yuk": {
+        "1": "Yukaghir",
+        "2": 34164,
+        "type": "family",
+        "aliases": [
+            "Yukagir",
+            "Jukagir"
+        ]
+    },
+    "qfa-yen": {
+        "1": "Yeniseian",
+        "2": 27639,
+        "3": "qfa-dny",
+        "type": "family",
+        "aliases": [
+            "Yeniseic",
+            "Yenisei-Ostyak"
+        ]
+    },
+    "nai-plp": {
+        "1": "Plateau Penutian",
+        "2": 2307476,
+        "type": "family"
+    },
+    "poz-oce": {
+        "1": "Oceanic",
+        "2": 324457,
+        "3": "pqe",
+        "type": "family"
+    },
+    "qfa-tor": {
+        "1": "Torricelli",
+        "2": 1333831,
+        "type": "family"
+    },
+    "hyx": {
+        "1": "Armenian",
+        "2": 8785,
+        "3": "ine",
+        "type": "family"
+    },
+    "bnt-kka": {
+        "1": "Kikuyu-Kamba",
+        "2": 18419596,
+        "3": "bnt-bne",
+        "type": "family",
+        "aliases": [
+            "Thagiicu"
+        ]
+    },
+    "bnt-bdz": {
+        "1": "Boma-Dzing",
+        "2": 1729203,
+        "3": "bnt",
+        "type": "family"
+    },
+    "omq-zap": {
+        "1": "Zapotecan",
+        "2": 8066463,
+        "3": "omq",
+        "type": "family"
+    },
+    "dmn-emn": {
+        "1": "East Manding",
+        "3": "dmn-man",
+        "type": "family"
+    },
+    "sit-tma": {
+        "1": "Tangkhul-Maring",
+        "3": "sit",
+        "type": "family"
+    },
+    "poz-ssw": {
+        "1": "South Sulawesi",
+        "2": 2778190,
+        "3": "poz-sus",
+        "type": "family"
+    },
+    "omv-diz": {
+        "1": "Dizoid",
+        "2": 430251,
+        "3": "omv",
+        "type": "family",
+        "aliases": [
+            "Maji",
+            "Majoid"
+        ]
+    },
+    "qfa-sub": {
+        "1": "substrate",
+        "2": 20730913,
+        "type": "family"
+    },
+    "qfa-ong": {
+        "1": "Ongan",
+        "2": 2090575,
+        "type": "family",
+        "aliases": [
+            "Angan",
+            "South Andamanese",
+            "Jarawa-Onge"
+        ]
+    },
+    "nic-nin": {
+        "1": "Ninzic",
+        "2": 7039282,
+        "3": "nic-plt",
+        "type": "family"
+    },
+    "qfa-not": {
+        "1": "not a family",
+        "3": "qfa-not",
+        "type": "family"
+    },
+    "qfa-cka": {
+        "1": "Chukotko-Kamchatkan",
+        "2": 33255,
+        "type": "family"
+    },
+    "bnt-bki": {
+        "1": "Bena-Kinga",
+        "2": 16113307,
+        "3": "bnt-bne",
+        "type": "family"
+    },
+    "qfa-lic": {
+        "1": "Hlai",
+        "2": 1023648,
+        "3": "qfa-tak",
+        "type": "family",
+        "aliases": [
+            "Hlaic"
+        ]
+    },
+    "qfa-kor": {
+        "1": "Koreanic",
+        "2": 11263525,
+        "type": "family"
+    },
+    "alv-jol": {
+        "1": "Jola",
+        "2": 35176,
+        "3": "alv-bak",
+        "type": "family",
+        "aliases": [
+            "Diola"
+        ]
+    },
+    "qfa-kms": {
+        "1": "Kam-Sui",
+        "2": 1023641,
+        "3": "qfa-tak",
+        "type": "family"
+    },
+    "nur-sou": {
+        "1": "Southern Nuristani",
+        "3": "iir-nur",
+        "type": "family"
+    },
+    "nic-nun": {
+        "1": "Nun",
+        "2": 13654297,
+        "3": "nic-gre",
+        "type": "family"
+    },
+    "kro-did": {
+        "1": "Dida",
+        "2": 32685,
+        "3": "kro-ekr",
+        "type": "family"
+    },
+    "bnt-tek": {
+        "1": "Teke",
+        "2": 36528,
+        "3": "bnt-tmb",
+        "type": "family"
+    },
+    "nai-len": {
+        "1": "Lencan",
+        "2": 36189,
+        "type": "family",
+        "aliases": [
+            "Lenca"
+        ]
+    },
+    "qfa-gel": {
+        "1": "Gelao",
+        "3": "qfa-kra",
+        "type": "family"
+    },
+    "aus-pam": {
+        "1": "Pama-Nyungan",
+        "2": 33942,
+        "type": "family"
+    },
+    "alv-gbs": {
+        "1": "Southern Gbaya",
+        "3": "alv-gba",
+        "type": "family"
+    },
+    "bnt": {
+        "1": "Bantu",
+        "2": 33146,
+        "3": "nic-bds",
+        "type": "family"
+    },
+    "qfa-mch": {
+        "1": "Macro-Chibchan",
+        "2": 3438062,
+        "type": "family"
+    },
+    "sdv-bri": {
+        "1": "Bari",
+        "3": "sdv-nie",
+        "type": "family"
+    },
+    "bnt-bta": {
+        "1": "Bati-Angba",
+        "2": 4869303,
+        "3": "bnt-boa",
+        "otherNames": [
+            "Late Bomokandian"
+        ],
+        "type": "family",
+        "aliases": [
+            "Bwa"
+        ]
+    },
+    "qfa-adn": {
+        "1": "Northern Great Andamanese",
+        "3": "qfa-adm",
+        "type": "family"
+    },
+    "alv-ada": {
+        "1": "Adamawa",
+        "2": 32906,
+        "3": "alv-sav",
+        "type": "family"
+    },
+    "itc": {
+        "1": "Italic",
+        "2": 131848,
+        "3": "ine",
+        "type": "family"
+    },
+    "bnt-glb": {
+        "1": "Great Lakes Bantu",
+        "2": 5599420,
+        "3": "bnt-bne",
+        "type": "family"
+    },
+    "mkh-pea": {
+        "1": "Pearic",
+        "2": 3073022,
+        "3": "mkh",
+        "type": "family"
+    },
+    "sai-hkt": {
+        "1": "Harákmbut-Katukinan",
+        "2": 17107635,
+        "type": "family"
+    },
+    "nic-knj": {
+        "1": "Kainji",
+        "2": 681495,
+        "3": "nic-pla",
+        "type": "family"
+    },
+    "nai-coo": {
+        "1": "Coosan",
+        "2": 940278,
+        "type": "family"
+    },
+    "qfa-tak": {
+        "1": "Kra-Dai",
+        "2": 34171,
+        "type": "family",
+        "aliases": [
+            "Tai-Kadai",
+            "Kadai"
+        ]
+    },
+    "poz-sls": {
+        "1": "Southeast Solomonic",
+        "2": 3119671,
+        "3": "poz-occ",
+        "type": "family"
+    },
+    "poz-slb": {
+        "1": "Saluan-Banggai",
+        "2": 3217519,
+        "3": "poz-clb",
+        "type": "family"
+    },
+    "poz-san": {
+        "1": "Sabahan",
+        "2": 3217517,
+        "3": "poz-bnn",
+        "type": "family"
+    },
+    "bnt-yko": {
+        "1": "Yasa-Kombe",
+        "3": "bnt-saw",
+        "type": "family"
+    },
+    "poz-ocw": {
+        "1": "Western Oceanic",
+        "2": 2701282,
+        "3": "poz-oce",
+        "type": "family"
+    },
+    "nic-ucr": {
+        "1": "Upper Cross River",
+        "2": 4108624,
+        "3": "nic-cri",
+        "type": "family",
+        "aliases": [
+            "Upper Cross"
+        ]
+    },
+    "poz-occ": {
+        "1": "Central-Eastern Oceanic",
+        "2": 2068435,
+        "3": "poz-oce",
+        "type": "family"
+    },
+    "tai-wen": {
+        "1": "Wenma-Southwestern Tai",
+        "3": "tai",
+        "type": "family"
+    },
+    "poz-mcm": {
+        "1": "Malayo-Chamic",
+        "3": "poz-msa",
+        "type": "family"
+    },
+    "aus-psw": {
+        "1": "Southwest Pama-Nyungan",
+        "2": 2258160,
+        "3": "aus-pam",
+        "type": "family"
+    },
+    "poz-kal": {
+        "1": "Kaili-Pamona",
+        "2": 3217465,
+        "3": "poz-clb",
+        "type": "family"
+    },
+    "alv-lag": {
+        "1": "Lagoon",
+        "3": "alv-kwa",
+        "type": "family"
+    },
+    "poz-hce": {
+        "1": "Halmahera-Cenderawasih",
+        "2": 2526616,
+        "3": "pqe",
+        "type": "family"
+    },
+    "bnt-tkm": {
+        "1": "Takama",
+        "3": "bnt-bne",
+        "type": "family"
+    },
+    "poz-cma": {
+        "1": "Central Maluku",
+        "2": 3217479,
+        "3": "poz-cet",
+        "type": "family"
+    },
+    "sqj": {
+        "1": "Albanian",
+        "2": 8748,
+        "3": "ine",
+        "type": "family"
+    },
+    "ira-wes": {
+        "1": "Western Iranian",
+        "2": 129850,
+        "3": "ira",
+        "type": "family"
+    },
+    "poz-cet": {
+        "1": "Central-Eastern Malayo-Polynesian",
+        "2": 2269883,
+        "3": "poz",
+        "type": "family"
+    },
+    "sdv": {
+        "1": "Eastern Sudanic",
+        "2": 2036148,
+        "3": "ssa",
+        "type": "family"
+    },
+    "iir": {
+        "1": "Indo-Iranian",
+        "2": 33514,
+        "3": "ine",
+        "type": "family"
+    },
+    "poz-bop": {
+        "1": "Borneo-Philippines",
+        "2": 4273393,
+        "3": "poz",
+        "type": "family"
+    },
+    "phi": {
+        "1": "Philippine",
+        "2": 947858,
+        "3": "poz-bop",
+        "type": "family"
+    },
+    "cus-eas": {
+        "1": "East Cushitic",
+        "2": 56568,
+        "3": "cus",
+        "type": "family"
+    },
+    "inc-cen": {
+        "1": "Central Indo-Aryan",
+        "2": 10979187,
+        "3": "inc-psu",
+        "type": "family"
+    },
+    "aus-dyb": {
+        "1": "Dyirbalic",
+        "2": 1850666,
+        "3": "aus-pam",
+        "type": "family"
+    },
+    "bnt-nya": {
+        "1": "Nyali",
+        "2": 7070832,
+        "3": "bnt-leb",
+        "type": "family"
+    },
+    "paa-wpa": {
+        "1": "West Papuan",
+        "2": 1363026,
+        "type": "family"
+    },
+    "paa-tkw": {
+        "1": "Tor-Kwerba",
+        "2": 7827523,
+        "type": "family"
+    },
+    "sit-zem": {
+        "1": "Zeme",
+        "2": 189291,
+        "3": "sit",
+        "type": "family",
+        "aliases": [
+            "Zeliangrong",
+            "Zemeic"
+        ]
+    },
+    "nai-miz": {
+        "1": "Mixe-Zoquean",
+        "2": 954016,
+        "type": "family",
+        "aliases": [
+            "Mixe-Zoque"
+        ]
+    },
+    "alv-wjk": {
+        "1": "Waja-Kam",
+        "3": "alv-ada",
+        "type": "family"
+    },
+    "poz-brw": {
+        "1": "West Barito",
+        "2": 2761679,
+        "3": "poz-bop",
+        "type": "family"
+    },
+    "bnt-pob": {
+        "1": "Pomo-Bomwali",
+        "3": "bnt",
+        "type": "family"
+    },
+    "khi-kho": {
+        "1": "Khoe",
+        "2": 2736449,
+        "3": "khi-kkw",
+        "type": "family",
+        "aliases": [
+            "Central Khoisan"
+        ]
+    },
+    "paa-pag": {
+        "1": "Papuan Gulf",
+        "2": 48803685,
+        "type": "family"
+    },
+    "paa-msk": {
+        "1": "Sko",
+        "2": 953509,
+        "type": "family",
+        "aliases": [
+            "Skou"
+        ]
+    },
+    "bnt-swh": {
+        "1": "Swahili",
+        "3": "bnt-sab",
+        "type": "family"
+    },
+    "paa-mai": {
+        "1": "Mairasi",
+        "2": 6736896,
+        "type": "family"
+    },
+    "alv-pap": {
+        "1": "Papel",
+        "2": 7132562,
+        "3": "alv-bak",
+        "type": "family"
+    },
+    "paa-lsp": {
+        "1": "Lower Sepik",
+        "2": 7061700,
+        "type": "family",
+        "aliases": [
+            "Nor-Pondo"
+        ]
+    },
+    "nai-tsi": {
+        "1": "Tsimshianic",
+        "2": 34134,
+        "type": "family"
+    },
+    "mkh-ban": {
+        "1": "Bahnaric",
+        "2": 56309,
+        "3": "mkh",
+        "type": "family"
+    },
+    "oto-otm": {
+        "1": "Otomi",
+        "3": "oto",
+        "type": "family"
+    },
+    "alv-kwa": {
+        "1": "Kwa",
+        "2": 33430,
+        "3": "nic-vco",
+        "type": "family"
+    },
+    "bnt-bte": {
+        "1": "Bangi-Tetela",
+        "2": 4855181,
+        "3": "bnt",
+        "type": "family"
+    },
+    "nic-rnw": {
+        "1": "Western Ring",
+        "3": "nic-rng",
+        "type": "family"
+    },
+    "nic-gur": {
+        "1": "Gur",
+        "2": 33536,
+        "3": "alv-sav",
+        "type": "family",
+        "aliases": [
+            "Voltaic"
+        ]
+    },
+    "sai-mas": {
+        "1": "Mascoian",
+        "2": 1906952,
+        "type": "family",
+        "aliases": [
+            "Mascoyan",
+            "Maskoian",
+            "Enlhet-Enenlhet"
+        ]
+    },
+    "omv-aro": {
+        "1": "Aroid",
+        "2": 3699526,
+        "3": "omv",
+        "type": "family",
+        "aliases": [
+            "Ari-Banna",
+            "South Omotic",
+            "Somotic"
+        ]
+    },
+    "wen": {
+        "1": "Sorbian",
+        "2": 25442,
+        "3": "zlw",
+        "type": "family",
+        "aliases": [
+            "Lusatian",
+            "Wendish"
+        ]
+    },
+    "ira-sgi": {
+        "1": "Sanglechi-Ishkashimi",
+        "3": "ira-sei",
+        "type": "family"
+    },
+    "paa-kag": {
+        "1": "Kainantu-Goroka",
+        "2": 3217463,
+        "3": "ngf",
+        "type": "family"
+    },
+    "paa-iwm": {
+        "1": "Iwam",
+        "2": 15147853,
+        "type": "family"
+    },
+    "nic-mbc": {
+        "1": "Mba",
+        "2": 6799561,
+        "3": "nic-ubg",
+        "type": "family"
+    },
+    "sai-zam": {
+        "1": "Zamucoan",
+        "2": 3048461,
+        "type": "family",
+        "aliases": [
+            "Samúkoan"
+        ]
+    },
+    "alv-krb": {
+        "1": "Karaboro",
+        "2": 4213541,
+        "3": "alv-snf",
+        "type": "family"
+    },
+    "csu-val": {
+        "1": "Vale",
+        "2": 7909520,
+        "3": "csu-bba",
+        "type": "family"
+    },
+    "nai-pal": {
+        "1": "Palaihnihan",
+        "2": 1288332,
+        "type": "family"
+    },
+    "inc-nwe": {
+        "1": "Northwestern Indo-Aryan",
+        "2": 41355020,
+        "3": "inc-psu",
+        "type": "family",
+        "protoLanguage": "inc-psc"
+    },
+    "bnt-saw": {
+        "1": "Sawabantu",
+        "2": 532003,
+        "3": "bnt",
+        "type": "family"
+    },
+    "paa-kut": {
+        "1": "Kutubuan",
+        "2": 48767893,
+        "3": "paa-pag",
+        "type": "family"
+    },
+    "khi-kkw": {
+        "1": "Khoe-Kwadi",
+        "2": 3833005,
+        "type": "family",
+        "aliases": [
+            "Kwadi-Khoe"
+        ]
+    },
+    "cus-hec": {
+        "1": "Highland East Cushitic",
+        "2": 56524,
+        "3": "cus-eas",
+        "type": "family"
+    },
+    "omv": {
+        "1": "Omotic",
+        "2": 33860,
+        "3": "afa",
+        "type": "family"
+    },
+    "cau-and": {
+        "1": "Andian",
+        "2": 492152,
+        "3": "cau-ava",
+        "type": "family",
+        "aliases": [
+            "Andic"
+        ]
+    },
+    "omq-tri": {
+        "1": "Trique",
+        "2": 780200,
+        "3": "omq-mix",
+        "type": "family",
+        "aliases": [
+            "Triqui"
+        ]
+    },
+    "inc-eas": {
+        "1": "Eastern Indo-Aryan",
+        "2": 16590069,
+        "3": "inc",
+        "type": "family",
+        "protoLanguage": "inc-mgd"
+    },
+    "omq-mxt": {
+        "1": "Mixtec",
+        "2": 36363,
+        "3": "omq-mix",
+        "type": "family"
+    },
+    "omq-maz": {
+        "1": "Mazatecan",
+        "2": 36230,
+        "3": "omq",
+        "type": "family",
+        "aliases": [
+            "Mazatec"
+        ]
+    },
+    "csu-mle": {
+        "1": "Mangbutu-Lese",
+        "2": 17009406,
+        "3": "csu-ecs",
+        "type": "family",
+        "aliases": [
+            "Mangbutu–Efe",
+            "Mangbutu",
+            "Membi-Mangbutu-Efe"
+        ]
+    },
+    "poz-btk": {
+        "1": "Bungku-Tolaki",
+        "2": 3217381,
+        "3": "poz-clb",
+        "type": "family"
+    },
+    "nub-hil": {
+        "1": "Hill Nubian",
+        "2": 5762211,
+        "3": "nub",
+        "type": "family",
+        "aliases": [
+            "Kordofan Nubian"
+        ]
+    },
+    "nub": {
+        "1": "Nubian",
+        "2": 1517194,
+        "3": "sdv-nes",
+        "type": "family"
+    },
+    "sdv-luo": {
+        "1": "Luo",
+        "3": "sdv-niw",
+        "type": "family"
+    },
+    "nic-wov": {
+        "1": "Western Oti-Volta",
+        "3": "nic-ovo",
+        "type": "family",
+        "aliases": [
+            "Moré-Dagbani"
+        ]
+    },
+    "csu-kab": {
+        "1": "Kaba",
+        "2": 6343715,
+        "3": "csu-bba",
+        "type": "family"
+    },
+    "sgn-fsl": {
+        "1": "French Sign Languages",
+        "2": 5501921,
+        "3": "sgn",
+        "type": "family"
+    },
+    "chm": {
+        "1": "Mari",
+        "2": 973685,
+        "3": "urj",
+        "type": "family"
+    },
+    "nic-bod": {
+        "1": "Bantoid",
+        "2": 806992,
+        "3": "nic-bcr",
+        "type": "family"
+    },
+    "nic-ucn": {
+        "1": "North-South Upper Cross River",
+        "3": "nic-ucr",
+        "type": "family"
+    },
+    "bnt-tsr": {
+        "1": "Tswa-Ronga",
+        "2": 12643962,
+        "3": "bnt-bso",
+        "type": "family"
+    },
+    "aus-dal": {
+        "1": "Daly",
+        "2": 2478079,
+        "type": "family"
+    },
+    "bnt-lgb": {
+        "1": "Lega-Binja",
+        "2": 6517694,
+        "3": "bnt",
+        "type": "family"
+    },
+    "nic-uce": {
+        "1": "East-West Upper Cross River",
+        "3": "nic-ucr",
+        "type": "family"
+    },
+    "nic-cde": {
+        "1": "Central Delta",
+        "2": 3813191,
+        "3": "nic-cri",
+        "type": "family"
+    },
+    "dmn-mva": {
+        "1": "Manding-Vai",
+        "3": "dmn-mjo",
+        "type": "family"
+    },
+    "mkh-pkn": {
+        "1": "Pakanic",
+        "3": "mkh-mng",
+        "type": "family"
+    },
+    "cel": {
+        "1": "Celtic",
+        "2": 25293,
+        "3": "ine",
+        "type": "family"
+    },
+    "nic-tvn": {
+        "1": "Northern Tivoid",
+        "3": "nic-tiv",
+        "type": "family"
+    },
+    "dmn-msw": {
+        "1": "Southwestern Mande",
+        "2": 12633904,
+        "3": "dmn-mdw",
+        "type": "family"
+    },
+    "inc-old": {
+        "1": "Old Indo-Aryan",
+        "3": "inc",
+        "type": "family",
+        "protoLanguage": "sa",
+        "aliases": [
+            "Old Indic"
+        ]
+    },
+    "bnt-swb": {
+        "1": "Southwest Bantu",
+        "3": "bnt-ksb",
+        "type": "family"
+    },
+    "alv-hei": {
+        "1": "Heiban",
+        "3": "alv-the",
+        "type": "family"
+    },
+    "mun": {
+        "1": "Munda",
+        "2": 33892,
+        "3": "aav",
+        "type": "family"
+    },
+    "bnt-kav": {
+        "1": "Kavango",
+        "3": "bnt-ksb",
+        "type": "family"
+    },
+    "nic-shi": {
+        "1": "Shiroro",
+        "2": 7498953,
+        "3": "nic-knj",
+        "type": "family",
+        "aliases": [
+            "Pongu"
+        ]
+    },
+    "nic-rng": {
+        "1": "Ring",
+        "2": 2269051,
+        "3": "nic-grf",
+        "type": "family",
+        "aliases": [
+            "Ring Road"
+        ]
+    },
+    "sai-jiv": {
+        "1": "Jivaroan",
+        "2": 1393074,
+        "type": "family",
+        "aliases": [
+            "Hívaro",
+            "Jibaro",
+            "Jibaroan",
+            "Jibaroana",
+            "Jívaro"
+        ]
+    },
+    "ath-pco": {
+        "1": "Pacific Coast Athabaskan",
+        "2": 20654,
+        "3": "ath",
+        "type": "family"
+    },
+    "nic-ple": {
+        "1": "East Plateau",
+        "2": 5329154,
+        "3": "nic-plt",
+        "type": "family"
+    },
+    "sai-mtc": {
+        "1": "Matacoan",
+        "2": 2447424,
+        "3": "sai-mgc",
+        "type": "family"
+    },
+    "qfa-kad": {
+        "1": "Kadu",
+        "2": 1720989,
+        "type": "family"
+    },
+    "alv-ede": {
+        "1": "Ede",
+        "2": 35368,
+        "3": "alv-yor",
+        "type": "family"
+    },
+    "nic-nkw": {
+        "1": "Western Ngbaka",
+        "3": "nic-ngk",
+        "type": "family"
+    },
+    "nic-nkm": {
+        "1": "Mbaka",
+        "3": "nic-nkw",
+        "type": "family"
+    },
+    "aus-yid": {
+        "1": "Yidinyic",
+        "2": 4205849,
+        "3": "aus-pam",
+        "type": "family"
+    },
+    "gem": {
+        "1": "Germanic",
+        "2": 21200,
+        "3": "ine",
+        "type": "family"
+    },
+    "sdv-niw": {
+        "1": "Western Nilotic",
+        "2": 3114989,
+        "3": "sdv-nil",
+        "type": "family"
+    },
+    "nic-nkk": {
+        "1": "Kpala",
+        "3": "nic-nkw",
+        "type": "family"
+    },
+    "bnt-kel": {
+        "1": "Kele",
+        "2": 1738162,
+        "3": "bnt-kts",
+        "type": "family",
+        "aliases": [
+            "Sheke"
+        ]
+    },
+    "nic-nke": {
+        "1": "Eastern Ngbaka",
+        "3": "nic-ngk",
+        "type": "family"
+    },
+    "dmn-mse": {
+        "1": "Southeastern Mande",
+        "2": 5972912,
+        "3": "dmn-mde",
+        "type": "family"
+    },
+    "gmq": {
+        "1": "North Germanic",
+        "2": 106085,
+        "3": "gem",
+        "type": "family"
+    },
+    "qfa-onb": {
+        "1": "Be",
+        "3": "qfa-bet",
+        "type": "family",
+        "aliases": [
+            "Ong-Be",
+            "Beic"
+        ]
+    },
+    "nic-dak": {
+        "1": "Dakoid",
+        "2": 1157745,
+        "3": "nic-bdn",
+        "type": "family"
+    },
+    "dmn-vak": {
+        "1": "Vai-Kono",
+        "3": "dmn-mva",
+        "type": "family"
+    },
+    "sit-gsi": {
+        "1": "Greater Siangic",
+        "2": 52698851,
+        "3": "sit",
+        "type": "family"
+    },
+    "dmn-mda": {
+        "1": "Mano-Dan",
+        "3": "dmn-mse",
+        "type": "family"
+    },
+    "inc-rom": {
+        "1": "Romani",
+        "2": 13201,
+        "3": "inc-psu",
+        "type": "family",
+        "protoLanguage": "rom",
+        "aliases": [
+            "Romany",
+            "Gypsy",
+            "Gipsy"
+        ]
+    },
+    "cau-ssm": {
+        "1": "Southern Samur",
+        "3": "cau-sam",
+        "type": "family"
+    },
+    "bnt-tet": {
+        "1": "Tetela",
+        "2": 7706059,
+        "3": "bnt-bte",
+        "type": "family"
+    },
+    "qfa-adc": {
+        "1": "Central Great Andamanese",
+        "3": "qfa-adm",
+        "type": "family"
+    },
+    "nic-mre": {
+        "1": "Moré",
+        "3": "nic-wov",
+        "type": "family"
+    },
+    "nic-mbw": {
+        "1": "West Mbam",
+        "3": "nic-mba",
+        "type": "family"
+    },
+    "bnt-sab": {
+        "1": "Sabaki",
+        "2": 2209395,
+        "3": "bnt-ncb",
+        "type": "family"
+    },
+    "paa-bng": {
+        "1": "Baining",
+        "2": 748487,
+        "type": "family",
+        "aliases": [
+            "East New Britain"
+        ]
+    },
+    "dmn-man": {
+        "1": "Manding",
+        "2": 35772,
+        "3": "dmn-mmo",
+        "type": "family"
+    },
+    "qfa-mal": {
+        "1": "Left May",
+        "2": 614468,
+        "3": "paa-asa",
+        "type": "family"
+    },
+    "ngf": {
+        "1": "Trans-New Guinea",
+        "2": 34018,
+        "type": "family"
+    },
+    "nic-mba": {
+        "1": "Mbam",
+        "2": 687826,
+        "3": "nic-bds",
+        "type": "family"
+    },
+    "bnt-mbe": {
+        "1": "Mbole-Enya",
+        "2": 6799728,
+        "3": "bnt",
+        "type": "family"
+    },
+    "map-ata": {
+        "1": "Atayalic",
+        "2": 716610,
+        "3": "map",
+        "type": "family"
+    },
+    "nic-gre": {
+        "1": "Eastern Grassfields",
+        "2": 5330160,
+        "3": "nic-grf",
+        "type": "family"
+    },
+    "nai-chu": {
+        "1": "Chumashan",
+        "2": 1288420,
+        "type": "family"
+    },
+    "wak": {
+        "1": "Wakashan",
+        "2": 60069,
+        "type": "family"
+    },
+    "bnt-ngn": {
+        "1": "Ngondi-Ngiri",
+        "2": 7022532,
+        "3": "bnt-mbb",
+        "type": "family"
+    },
+    "poz-tot": {
+        "1": "Tomini-Tolitoli",
+        "2": 3217541,
+        "3": "poz-clb",
+        "type": "family"
+    },
+    "nai-shs": {
+        "1": "Shastan",
+        "2": 2991735,
+        "3": "hok",
+        "type": "family"
+    },
+    "bnt-run": {
+        "1": "Rungwe",
+        "3": "bnt-ruk",
+        "type": "family"
+    },
+    "ira-zgr": {
+        "1": "Zaza-Gorani",
+        "3": "ira-mpr",
+        "type": "family",
+        "aliases": [
+            "Zaza-Gurani",
+            "Gorani-Zaza"
+        ]
+    },
+    "nic-jer": {
+        "1": "Jera",
+        "3": "nic-kne",
+        "type": "family"
+    },
+    "alv-tdj": {
+        "1": "Tagwana-Djimini",
+        "2": 7675362,
+        "3": "alv-snf",
+        "type": "family"
+    },
+    "bnt-clu": {
+        "1": "Chokwe-Luchazi",
+        "2": 3339273,
+        "3": "bnt",
+        "type": "family"
+    },
+    "esx-esk": {
+        "1": "Eskimo",
+        "2": 25946,
+        "3": "esx",
+        "type": "family"
+    },
+    "bnt-ova": {
+        "1": "Ovambo",
+        "2": 36489,
+        "3": "bnt-swb",
+        "type": "family",
+        "aliases": [
+            "Oshivambo",
+            "Oshiwambo",
+            "Owambo"
+        ]
+    },
+    "inc-hnd": {
+        "1": "Hindustani",
+        "2": 11051,
+        "3": "inc-hiw",
+        "type": "family",
+        "aliases": [
+            "Hindi-Urdu"
+        ]
+    },
+    "sem-arw": {
+        "1": "Western Aramaic",
+        "2": 3394214,
+        "3": "sem-ara",
+        "type": "family"
+    },
+    "alv-mum": {
+        "1": "Mumuye",
+        "2": 84607009,
+        "3": "alv-mye",
+        "type": "family"
+    },
+    "nic-jrn": {
+        "1": "Jarawan",
+        "2": 1683430,
+        "3": "nic-mba",
+        "type": "family"
+    },
+    "bnt-ruk": {
+        "1": "Rukwa",
+        "2": 7378902,
+        "3": "bnt",
+        "type": "family"
+    },
+    "iro-nor": {
+        "1": "North Iroquoian",
+        "3": "iro",
+        "type": "family"
+    },
+    "aus-nyu": {
+        "1": "Nyulnyulan",
+        "2": 2039408,
+        "type": "family"
+    },
+    "inc-sou": {
+        "1": "Southern Indo-Aryan",
+        "2": 12179304,
+        "3": "inc",
+        "type": "family",
+        "protoLanguage": "pmh"
+    },
+    "aus-jar": {
+        "1": "Jarrakan",
+        "2": 2039423,
+        "type": "family"
+    },
+    "cau-wsm": {
+        "1": "Western Samur",
+        "3": "cau-sam",
+        "type": "family"
+    },
+    "cau-ets": {
+        "1": "East Tsezian",
+        "3": "cau-tsz",
+        "type": "family",
+        "aliases": [
+            "East Tsezic",
+            "East Didoic"
+        ]
+    },
+    "bnt-leb": {
+        "1": "Lebonya",
+        "2": 6511395,
+        "3": "bnt",
+        "type": "family"
+    },
+    "alv-dur": {
+        "1": "Duru",
+        "2": 5316788,
+        "3": "alv-lni",
+        "type": "family"
+    },
+    "alv-eeo": {
+        "1": "Edo-Esan-Ora",
+        "3": "alv-nce",
+        "type": "family"
+    },
+    "nai-klp": {
+        "1": "Kalapuyan",
+        "2": 1569040,
+        "type": "family"
+    },
+    "sai-ktk": {
+        "1": "Katukinan",
+        "2": 2636000,
+        "3": "sai-hkt",
+        "type": "family",
+        "aliases": [
+            "Catuquinan"
+        ]
+    },
+    "nic-grs": {
+        "1": "Southwest Grassfields",
+        "2": 7571285,
+        "3": "nic-grf",
+        "type": "family"
+    },
+    "ngf-sbh": {
+        "1": "South Bird's Head",
+        "2": 7566330,
+        "3": "ngf",
+        "type": "family"
+    },
+    "dmn-wmn": {
+        "1": "West Manding",
+        "3": "dmn-man",
+        "type": "family"
+    },
+    "bnt-haj": {
+        "1": "Haya-Jita",
+        "2": 25502360,
+        "3": "bnt-glb",
+        "type": "family"
+    },
+    "alv-ido": {
+        "1": "Idomoid",
+        "2": 974196,
+        "3": "alv-von",
+        "type": "family"
+    },
+    "inc-pah": {
+        "1": "Pahari",
+        "2": 946077,
+        "3": "inc-nor",
+        "type": "family",
+        "aliases": [
+            "Pahadi"
+        ]
+    },
+    "tbq-lal": {
+        "1": "Lalo",
+        "2": 56548,
+        "3": "tbq-lol",
+        "type": "family"
+    },
+    "bnt-bsa": {
+        "1": "Basaa",
+        "2": 809739,
+        "3": "bnt",
+        "type": "family"
+    },
+    "nic-lcr": {
+        "1": "Lower Cross River",
+        "2": 3813193,
+        "3": "nic-cri",
+        "type": "family"
+    },
+    "alv-kis": {
+        "1": "Kissi",
+        "3": "alv-mel",
+        "type": "family"
+    },
+    "nic-buk": {
+        "1": "Buli-Koma",
+        "3": "nic-ovo",
+        "type": "family"
+    },
+    "jpx": {
+        "1": "Japonic",
+        "2": 33612,
+        "type": "family",
+        "aliases": [
+            "Japanese",
+            "Japanese-Ryukyuan"
+        ]
+    },
+    "nic-pls": {
+        "1": "South Plateau",
+        "2": 7568236,
+        "3": "nic-plt",
+        "type": "family",
+        "aliases": [
+            "Jilic-Eggonic"
+        ]
+    },
+    "ira-msh": {
+        "1": "Mazanderani-Shahmirzadi",
+        "3": "ira-csp",
+        "type": "family"
+    },
+    "nai-pom": {
+        "1": "Pomoan",
+        "2": 2618420,
+        "3": "hok",
+        "type": "family",
+        "aliases": [
+            "Pomo",
+            "Kulanapan"
+        ]
+    },
+    "alv-mel": {
+        "1": "Mel",
+        "2": 12122355,
+        "3": "alv",
+        "type": "family"
+    },
+    "art": {
+        "1": "constructed",
+        "2": 33215,
+        "3": "qfa-not",
+        "type": "family",
+        "aliases": [
+            "artificial",
+            "planned"
+        ]
+    },
+    "nic-alu": {
+        "1": "Alumic",
+        "2": 4737355,
+        "3": "nic-plt",
+        "type": "family"
+    },
+    "euq": {
+        "1": "Vasconic",
+        "2": 4669240,
+        "type": "family"
+    },
+    "nic-dag": {
+        "1": "Dagbani",
+        "3": "nic-wov",
+        "type": "family"
+    },
+    "roa-eas": {
+        "1": "Eastern Romance",
+        "2": 147576,
+        "3": "roa",
+        "type": "family"
+    },
+    "bnt-ndb": {
+        "1": "Ndzem-Bomwali",
+        "3": "bnt-mnj",
+        "type": "family"
+    },
+    "trk-kcu": {
+        "1": "Kipchak-Cuman",
+        "2": 4370412,
+        "3": "trk-kip",
+        "type": "family",
+        "aliases": [
+            "Ponto-Caspian"
+        ]
+    },
+    "sit-nax": {
+        "1": "Naic",
+        "2": 6982999,
+        "3": "tbq-buq",
+        "type": "family",
+        "aliases": [
+            "Naxish"
+        ]
+    },
+    "paa-lkp": {
+        "1": "Lakes Plain",
+        "2": 6478969,
+        "type": "family"
+    },
+    "alv-von": {
+        "1": "Volta-Niger",
+        "2": 34177,
+        "3": "nic-vco",
+        "type": "family"
+    },
+    "nic-bwa": {
+        "1": "Bwa",
+        "2": 12628562,
+        "3": "nic-gur",
+        "type": "family",
+        "otherNames": [
+            "Bwamu",
+            "Bomu"
+        ]
+    },
+    "sit-kiw": {
+        "1": "Western Kiranti",
+        "2": 922148,
+        "3": "sit-kir",
+        "type": "family"
+    },
+    "paa-pau": {
+        "1": "Pauwasi",
+        "2": 7155496,
+        "type": "family"
+    },
+    "alv-bwj": {
+        "1": "Bikwin-Jen",
+        "3": "alv-bam",
+        "type": "family"
+    },
+    "paa-sbo": {
+        "1": "South Bougainville",
+        "2": 3217380,
+        "type": "family"
+    },
+    "cus-sou": {
+        "1": "South Cushitic",
+        "2": 56525,
+        "3": "cus",
+        "type": "family"
+    },
+    "bnt-bek": {
+        "1": "Bekwilic",
+        "3": "bnt-ndb",
+        "type": "family"
+    },
+    "sdv-daj": {
+        "1": "Daju",
+        "2": 956724,
+        "3": "sdv",
+        "type": "family"
+    },
+    "ngf-okk": {
+        "1": "Ok",
+        "2": 7081687,
+        "3": "ngf",
+        "type": "family"
+    },
+    "sai-jee": {
+        "1": "Jê",
+        "2": 1483594,
+        "3": "sai-mje",
+        "type": "family",
+        "aliases": [
+            "Gê",
+            "Jean",
+            "Gean",
+            "Jê-Kaingang",
+            "Ye"
+        ]
+    },
+    "bnt-tso": {
+        "1": "Tsogo",
+        "2": 2458420,
+        "3": "bnt-kts",
+        "type": "family",
+        "otherNames": [
+            "Okani"
+        ]
+    },
+    "nic-ymb": {
+        "1": "Yambasa",
+        "3": "nic-mba",
+        "type": "family"
+    },
+    "cdc": {
+        "1": "Chadic",
+        "2": 33184,
+        "3": "afa",
+        "type": "family"
+    },
+    "ira-shy": {
+        "1": "Shughni-Yazghulami",
+        "3": "ira-sym",
+        "type": "family"
+    },
+    "qfa-iso": {
+        "1": "isolate",
+        "2": 33648,
+        "3": "qfa-not",
+        "type": "family"
+    },
+    "sai-pem": {
+        "1": "Pemongan",
+        "3": "sai-ven",
+        "type": "family",
+        "aliases": [
+            "Pemong",
+            "Pemóng",
+            "Purukoto"
+        ]
+    },
+    "nai-pak": {
+        "1": "Pakawan",
+        "2": 65085487,
+        "3": "hok",
+        "type": "family"
+    },
+    "alv-bua": {
+        "1": "Bua",
+        "2": 4982094,
+        "3": "alv-mbd",
+        "type": "family"
+    },
+    "alv-ktg": {
+        "1": "Ka-Togo",
+        "2": 5972796,
+        "3": "alv-gtm",
+        "type": "family"
+    },
+    "omv-eom": {
+        "1": "East Ometo",
+        "2": 20527288,
+        "3": "omv-ome",
+        "type": "family"
+    },
+    "aus-mir": {
+        "1": "Mirndi",
+        "2": 4294095,
+        "type": "family"
+    },
+    "nai-ker": {
+        "1": "Keresan",
+        "2": 35878,
+        "type": "family"
+    },
+    "myn": {
+        "1": "Mayan",
+        "2": 33738,
+        "type": "family"
+    },
+    "bnt-bso": {
+        "1": "Southern Bantu",
+        "2": 980498,
+        "3": "bnt",
+        "type": "family"
+    },
+    "azc-num": {
+        "1": "Numic",
+        "2": 2657541,
+        "3": "azc",
+        "type": "family"
+    },
+    "nic-tvc": {
+        "1": "Central Tivoid",
+        "3": "nic-tiv",
+        "type": "family"
+    },
+    "bad": {
+        "1": "Banda",
+        "2": 806234,
+        "3": "nic-ubg",
+        "type": "family"
+    },
+    "jpx-ryu": {
+        "1": "Ryukyuan",
+        "2": 56393,
+        "3": "jpx",
+        "type": "family"
+    },
+    "awd-taa": {
+        "1": "Ta-Arawakan",
+        "2": 7672731,
+        "3": "awd",
+        "type": "family",
+        "aliases": [
+            "Ta-Arawak",
+            "Ta-Maipurean"
+        ]
+    },
+    "bnt-nyb": {
+        "1": "Nyanga-Buyi",
+        "2": 7070882,
+        "3": "bnt",
+        "type": "family"
+    },
+    "bnt-com": {
+        "1": "Comorian",
+        "2": 33077,
+        "3": "bnt-sab",
+        "type": "family"
+    },
+    "day": {
+        "1": "Land Dayak",
+        "2": 2760613,
+        "3": "poz-bop",
+        "type": "family"
+    },
+    "mkh-nbn": {
+        "1": "North Bahnaric",
+        "2": 56309,
+        "3": "mkh-ban",
+        "type": "family"
+    },
+    "ira-orp": {
+        "1": "Ormuri-Parachi",
+        "3": "ira-sei",
+        "type": "family"
+    },
+    "aqa": {
+        "1": "Alacalufan",
+        "2": 1288430,
+        "type": "family"
+    },
+    "mjg": {
+        "1": "Monguor",
+        "2": 34214,
+        "3": "xgn",
+        "type": "family"
+    },
+    "ku": {
+        "1": "Kurdish",
+        "2": 36368,
+        "3": "ira-nwi",
+        "type": "family"
+    },
+    "afa": {
+        "1": "Afroasiatic",
+        "2": 25268,
+        "type": "family",
+        "aliases": [
+            "Afro-Asiatic"
+        ]
+    },
+    "bnt-kil": {
+        "1": "Kilombero",
+        "2": 6408121,
+        "3": "bnt",
+        "type": "family"
+    },
+    "cau-nwc": {
+        "1": "Northwest Caucasian",
+        "2": 33852,
+        "3": "ccn",
+        "type": "family",
+        "aliases": [
+            "Abkhazo-Adyghean",
+            "Abkhaz-Adyghe",
+            "Pontic"
+        ]
+    },
+    "inc-hie": {
+        "1": "Eastern Hindi",
+        "2": 4126648,
+        "3": "inc",
+        "type": "family",
+        "protoLanguage": "inc-pka",
+        "aliases": [
+            "Purabiyā"
+        ]
+    },
+    "nic-eov": {
+        "1": "Eastern Oti-Volta",
+        "3": "nic-ovo",
+        "type": "family",
+        "aliases": [
+            "Samba"
+        ]
+    },
+    "bnt-kak": {
+        "1": "Kako",
+        "3": "bnt-pob",
+        "type": "family"
+    },
+    "qfa-dgn": {
+        "1": "Dogon",
+        "2": 1234776,
+        "3": "nic",
+        "type": "family"
+    },
+    "bnt-bmo": {
+        "1": "Bangi-Moi",
+        "3": "bnt-bnm",
+        "type": "family"
+    },
+    "bnt-lbn": {
+        "1": "Luban",
+        "2": 4536504,
+        "3": "bnt",
+        "type": "family"
+    },
+    "kro": {
+        "1": "Kru",
+        "2": 33535,
+        "3": "nic-vco",
+        "type": "family"
+    },
+    "inc-dar": {
+        "1": "Dardic",
+        "2": 161101,
+        "3": "inc-old",
+        "type": "family"
+    },
+    "zle": {
+        "1": "East Slavic",
+        "2": 144713,
+        "3": "sla",
+        "type": "family",
+        "protoLanguage": "orv"
+    },
+    "alv-sng": {
+        "1": "Senegambian",
+        "2": 1708753,
+        "3": "alv",
+        "type": "family"
+    },
+    "alv-pph": {
+        "1": "Phla-Pherá",
+        "2": 3849625,
+        "3": "alv-gbe",
+        "type": "family",
+        "aliases": [
+            "Phla–Pherá"
+        ]
+    },
+    "alv-ten": {
+        "1": "Tenda",
+        "2": 3217535,
+        "3": "alv-fwo",
+        "type": "family"
+    },
+    "alv-yun": {
+        "1": "Yungur",
+        "3": "alv-bam",
+        "type": "family",
+        "aliases": [
+            "Bena-Mboi"
+        ]
+    },
+    "cau-sam": {
+        "1": "Samur",
+        "2": 15229151,
+        "3": "cau-lzg",
+        "type": "family"
+    },
+    "dmn-mnw": {
+        "1": "Northwestern Mande",
+        "2": 5972910,
+        "3": "dmn-mdw",
+        "type": "family"
+    },
+    "alv-aah": {
+        "1": "Ayere-Ahan",
+        "2": 750953,
+        "3": "alv-von",
+        "type": "family"
+    },
+    "cau-ava": {
+        "1": "Avaro-Andian",
+        "2": 4827766,
+        "3": "cau-nec",
+        "type": "family",
+        "aliases": [
+            "Avar-Andian",
+            "Avar-Andi",
+            "Avar-Andic"
+        ]
+    },
+    "xsc-sak": {
+        "1": "Sakan",
+        "3": "xsc-skw",
+        "type": "family",
+        "aliases": [
+            "Saka"
+        ]
+    },
+    "sit-mar": {
+        "1": "Maringic",
+        "3": "sit-tma",
+        "type": "family"
+    },
+    "ira-cen": {
+        "1": "Central Iranian",
+        "3": "ira",
+        "type": "family"
+    },
+    "bnt-rur": {
+        "1": "Rufiji-Ruvuma",
+        "2": 7377947,
+        "3": "bnt",
+        "type": "family"
+    },
+    "bnt-sts": {
+        "1": "Sotho-Tswana",
+        "2": 2038386,
+        "3": "bnt-bso",
+        "type": "family"
+    },
+    "bnt-kts": {
+        "1": "Kele-Tsogo",
+        "2": 6385577,
+        "3": "bnt",
+        "type": "family"
+    },
+    "dmn-mok": {
+        "1": "Mokole",
+        "2": 16935447,
+        "3": "dmn-mmo",
+        "type": "family"
+    },
+    "inc-pan": {
+        "1": "Punjabi-Lahnda",
+        "3": "inc-nwe",
+        "type": "family",
+        "protoLanguage": "inc-tak"
+    },
+    "ijo": {
+        "1": "Ijoid",
+        "2": 1325759,
+        "3": "nic",
+        "type": "family",
+        "otherNames": [
+            "Ijaw"
+        ]
+    },
+    "alg-sfk": {
+        "1": "Sac-Fox-Kickapoo",
+        "2": 1440172,
+        "3": "alg",
+        "type": "family"
+    },
+    "alv-yor": {
+        "1": "Yoruboid",
+        "2": 1789745,
+        "3": "alv-von",
+        "type": "family"
+    },
+    "sio-dhe": {
+        "1": "Dhegihan",
+        "2": 3217420,
+        "3": "sio-msv",
+        "type": "family"
+    },
+    "alv-jfe": {
+        "1": "Jola-Felupe",
+        "2": 1708174,
+        "3": "alv-jol",
+        "type": "family",
+        "aliases": [
+            "Ejamat"
+        ]
+    },
+    "mkh-khm": {
+        "1": "Khmuic",
+        "2": 1323245,
+        "3": "mkh",
+        "type": "family"
+    },
+    "him": {
+        "1": "Western Pahari",
+        "2": 12645574,
+        "3": "inc-pah",
+        "type": "family",
+        "aliases": [
+            "Himachali"
+        ]
+    },
+    "dmn-sya": {
+        "1": "Susu-Yalunka",
+        "3": "dmn-mdc",
+        "type": "family"
+    },
+    "dmn-snb": {
+        "1": "Soninke-Bobo",
+        "2": 16111680,
+        "3": "dmn-mnw",
+        "type": "family"
+    },
+    "bnt-shh": {
+        "1": "Shi-Havu",
+        "3": "bnt-glb",
+        "type": "family"
+    },
+    "dmn-mde": {
+        "1": "Eastern Mande",
+        "2": 12633080,
+        "3": "dmn",
+        "type": "family"
+    },
+    "sio": {
+        "1": "Siouan",
+        "2": 34181,
+        "3": "nai-sca",
+        "type": "family"
+    },
+    "alv-lim": {
+        "1": "Limba",
+        "3": "alv",
+        "type": "family"
+    },
+    "bnt-mak": {
+        "1": "Makua",
+        "2": 6740431,
+        "3": "bnt-bso",
+        "type": "family",
+        "aliases": [
+            "Makhuwa"
+        ]
+    },
+    "bnt-kpw": {
+        "1": "Kpwe",
+        "3": "bnt-saw",
+        "type": "family"
+    },
+    "azc": {
+        "1": "Uto-Aztecan",
+        "2": 34073,
+        "type": "family",
+        "aliases": [
+            "Uto-Aztekan"
+        ]
+    },
+    "alv-dlt": {
+        "1": "Delta Edoid",
+        "3": "alv-edo",
+        "type": "family"
+    },
+    "ira-sbc": {
+        "1": "Sogdo-Bactrian",
+        "3": "ira-nei",
+        "type": "family"
+    },
+    "alv-nal": {
+        "1": "Nalu",
+        "3": "alv-sng",
+        "type": "family"
+    },
+    "zhx-min-hai": {
+        "1": "Coastal Min",
+        "3": "zhx-min",
+        "type": "family"
+    }
+}

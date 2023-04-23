@@ -91,13 +91,12 @@ def trace_ancestry(langs, fams, lang):
     fam = langs[ancestors[-1]]['family'] if ancestors else langs[lang]['family']
     if not fam or fam not in fams: return ancestors
     proto = fam + '-pro'
-    if proto in langs:
+    if proto in langs and proto not in ancestors and proto != lang:
         ancestors.append(proto)
     for fam_ancestor in fams[fam]['ancestors']:
         proto = fam_ancestor + '-pro'
-        if proto in langs:
+        if proto in langs and proto not in ancestors  and proto != lang:
             ancestors.append(proto)
-        else: return ancestors
     return ancestors
 
 
