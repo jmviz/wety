@@ -49,3 +49,5 @@ def get_wikidata(id):
                 wikidata["year"] = year
                 return wikidata
     return wikidata
+
+if __name__
