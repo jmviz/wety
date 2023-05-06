@@ -50,4 +50,3 @@ def get_wikidata(id):
                 return wikidata
     return wikidata
 
-if __name__
