@@ -33,7 +33,7 @@ function export.languages()
             varieties = lang:getVarieties(),
             scripts = lang:getScriptCodes(),
             -- The nearest language that is not an etymology-only language. E.g.
-            -- for both "VL." (Vulgar Latin) and "ita-ola" (Old Latin) it is
+            -- for both "VL." (Vulgar Latin) and "itc-ola" (Old Latin) it is
             -- "la". For a regular language it is its own code.
             nonEtymologyOnly = lang:getNonEtymologicalCode(),
             wikidataItem = lang:getWikidataItem(),
