@@ -2,7 +2,7 @@ use crate::{
     embeddings,
     etymology_templates::EtyMode,
     items::{Item, ItemId},
-    langterm::Lang,
+    languages::Lang,
     HashMap, HashSet,
 };
 

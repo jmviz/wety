@@ -1,7 +1,7 @@
 use crate::{
     ety_graph::{EtyGraph, Progenitors},
     items::{Item, ItemId},
-    langterm::Lang,
+    languages::Lang,
     string_pool::StringPool,
     HashMap, HashSet,
 };
@@ -243,8 +243,8 @@ impl Search {
             .iter()
             .map(|(similarity, lang_data)| {
                 json!({
-                    "lang": lang_data.lang.name(),
-                    "id": lang_data.lang.id(),
+                    "code": lang_data.lang.code(),
+                    "name": lang_data.lang.name(),
                     "similarity": similarity,
                     "items": lang_data.items,
                 })

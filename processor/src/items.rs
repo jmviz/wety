@@ -4,7 +4,8 @@ use crate::{
     ety_graph::{EtyGraph, ItemIndex},
     etymology::RawEtymology,
     gloss::Gloss,
-    langterm::{Lang, LangTerm, Term},
+    langterm::{LangTerm, Term},
+    languages::Lang,
     pos::Pos,
     progress_bar,
     redirects::Redirects,
@@ -40,7 +41,7 @@ impl RealItem {
     pub(crate) fn url(&self, string_pool: &StringPool) -> String {
         let page_term = self.page_term.unwrap_or(self.term);
         let url_term = urlencoding::encode(page_term.resolve(string_pool));
-        let page_lang = self.lang.ety2main();
+        let page_lang = self.lang.ety2non();
         let url_lang_name = urlencoding::encode(page_lang.name());
         if self.is_reconstructed {
             return format!(

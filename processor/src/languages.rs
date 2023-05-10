@@ -64,11 +64,11 @@ impl Languages {
         self.get(code).expect("known lang code")
     }
 
-    fn code2main(&self, code: &str) -> Option<&str> {
+    fn code2main(&self, code: &str) -> Option<&'static str> {
         self.get(code).map(|language| language.code)
     }
 
-    fn name2code(&self, name: &str) -> Option<&str> {
+    fn name2code(&self, name: &str) -> Option<&'static str> {
         self.name2code.get(name).copied()
     }
 }
@@ -84,9 +84,7 @@ lazy_static! {
 }
 
 #[derive(Default, Hash, Eq, PartialEq, Debug, Copy, Clone, Serialize, Deserialize)]
-struct Lang {
-    code: &'static str,
-}
+pub struct Lang(&'static str); // the inner value is the lang (main) code
 
 impl FromStr for Lang {
     type Err = anyhow::Error;
@@ -94,35 +92,43 @@ impl FromStr for Lang {
     fn from_str(code: &str) -> Result<Self, Self::Err> {
         // get the main code
         if let Some(code) = LANGUAGES.code2main(code) {
-            return Ok(Lang { code });
+            return Ok(Lang(code));
         }
         Err(anyhow!("Unknown lang code \"{code}\""))
     }
 }
 
 impl Lang {
-    fn from_name(name: &str) -> Result<Self> {
+    pub(crate) fn from_name(name: &str) -> Result<Self> {
         if let Some(code) = LANGUAGES.name2code(name) {
-            return Ok(Lang { code });
+            return Ok(Lang(code));
         }
         Err(anyhow!("Unknown lang name \"{name}\""))
     }
 
-    fn ety2non(&self) -> Self {
-        let code = LANGUAGES.get_known(self.code).non_etymology_only;
-        Lang { code }
+    pub(crate) fn code(&self) -> &'static str {
+        self.0
     }
 
-    fn is_reconstructed(&self) -> bool {
-        LANGUAGES.get_known(self.code).kind == LangKind::Reconstructed
+    pub(crate) fn name(&self) -> &'static str {
+        LANGUAGES.get_known(self.code()).canonical_name
     }
 
-    fn ancestors(&self) -> Vec<Lang> {
+    pub(crate) fn ety2non(&self) -> Self {
+        let code = LANGUAGES.get_known(self.code()).non_etymology_only;
+        Lang(code)
+    }
+
+    pub(crate) fn is_reconstructed(&self) -> bool {
+        LANGUAGES.get_known(self.code()).kind == LangKind::Reconstructed
+    }
+
+    pub(crate) fn ancestors(&self) -> Vec<Lang> {
         LANGUAGES
-            .get_known(self.code)
+            .get_known(self.code())
             .ancestors
             .iter()
-            .map(|&code| Lang { code })
+            .map(|&code| Lang(code))
             .collect()
     }
 }
@@ -134,21 +140,21 @@ mod tests {
     #[test]
     fn lang_from_code() {
         let lang_en = Lang::from_str("en").unwrap();
-        assert_eq!(lang_en.code, "en");
+        assert_eq!(lang_en.code(), "en");
         let lang_vl1 = Lang::from_str("VL.").unwrap();
-        assert_eq!(lang_vl1.code, "la-vul");
+        assert_eq!(lang_vl1.code(), "la-vul");
         let lang_vl2 = Lang::from_str("VL").unwrap();
-        assert_eq!(lang_vl2.code, "la-vul");
+        assert_eq!(lang_vl2.code(), "la-vul");
         let lang_vl3 = Lang::from_str("la-vul").unwrap();
-        assert_eq!(lang_vl3.code, "la-vul");
+        assert_eq!(lang_vl3.code(), "la-vul");
     }
 
     #[test]
     fn lang_from_name() {
         let lang_en = Lang::from_name("English").unwrap();
-        assert_eq!(lang_en.code, "en");
+        assert_eq!(lang_en.code(), "en");
         let lang_vl = Lang::from_name("Vulgar Latin").unwrap();
-        assert_eq!(lang_vl.code, "la-vul");
+        assert_eq!(lang_vl.code(), "la-vul");
     }
 
     #[test]
@@ -167,7 +173,7 @@ mod tests {
             lang_en.ancestors(),
             known_ancestors
                 .iter()
-                .map(|&code| Lang { code })
+                .map(|&code| Lang(code))
                 .collect::<Vec<_>>()
         );
     }

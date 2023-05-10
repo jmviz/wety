@@ -17,7 +17,7 @@ mod langterm;
 mod languages;
 use crate::items::Items;
 #[cfg(feature = "processed")]
-pub use crate::langterm::{Lang, LangId};
+pub use crate::languages::Lang;
 mod phf_ext;
 mod pos;
 mod pos_phf;

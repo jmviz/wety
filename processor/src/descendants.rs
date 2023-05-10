@@ -3,7 +3,8 @@ use crate::{
     etymology_templates::EtyMode,
     gloss::Gloss,
     items::{ItemId, Items, Retrieval},
-    langterm::{Lang, LangTerm, Term},
+    langterm::{LangTerm, Term},
+    languages::Lang,
     progress_bar,
     string_pool::StringPool,
     wiktextract_json::{WiktextractJson, WiktextractJsonItem, WiktextractJsonValidStr},
@@ -99,7 +100,7 @@ fn process_json_desc_line(
     let is_derivation = desc_line.get_array("tags").map_or(false, |tags| {
         tags.iter().any(|tag| tag.as_str() == Some("derived"))
     });
-    let mut lang = Lang::from(0); // dummy assignment
+    let mut lang = Lang::from_str("en").unwrap(); // dummy assignment
     let (mut langs, mut terms, mut modes) = (HashSet::default(), vec![], vec![]);
     for template in templates {
         if let Some((template_lang, template_terms, template_modes)) =
