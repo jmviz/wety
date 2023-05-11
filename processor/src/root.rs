@@ -5,7 +5,8 @@ use crate::{
     etymology::validate_ety_template_lang,
     etymology_templates::EtyMode,
     items::{ItemId, Items, Retrieval},
-    langterm::{Lang, LangTerm, Language, Term},
+    langterm::{LangTerm, Term},
+    languages::Lang,
     progress_bar,
     string_pool::{StringPool, Symbol},
     wiktextract_json::{WiktextractJson, WiktextractJsonItem, WiktextractJsonValidStr},
@@ -94,10 +95,10 @@ fn process_json_root_category(
     }
     let caps = ROOT_CAT.captures(category)?;
     let cat_term_lang_name = caps.get(1).map(|m| m.as_str())?;
-    let cat_term_lang = Lang::from(Language::from_str(cat_term_lang_name).ok()?);
+    let cat_term_lang = Lang::from_name(cat_term_lang_name).ok()?;
     (cat_term_lang == lang).then_some(())?;
     let cat_root_lang_name = caps.get(2).map(|m| m.as_str())?;
-    let cat_root_lang = Lang::from(Language::from_str(cat_root_lang_name).ok()?);
+    let cat_root_lang = Lang::from_name(cat_root_lang_name).ok()?;
     let cat_root_term = caps.get(3).map(|m| m.as_str())?;
     let cat_root_term = Term::new(string_pool, cat_root_term);
     let cat_root_sense_id = caps

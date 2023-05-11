@@ -1,6 +1,3 @@
-// use std::str::FromStr;
-
-// use anyhow::anyhow;
 use serde::{Deserialize, Serialize};
 
 use crate::{
@@ -8,146 +5,12 @@ use crate::{
     string_pool::{StringPool, Symbol},
 };
 
-// See data/phf/lang.py for more on these, but in summary:
-// LANG_CODE2NAME: A map from from all lang codes to their canonical names. Many
-// canonical names have multiple codes mapping to them.
-// LANG_NAME2CODE: A map from all lang names to their canonical codes. Many
-// canonical codes have multiple names mapping to them.
-// LANG_ETYCODE2CODE: Maps every etymology-only lang code to the lang code of
-// its nearest "main" parent (i.e. lang code for which a wiktionary page can
-// exist), e.g. "VL." -> "la"
-// LANG_RECONSTRUCTED: A set of all reconstructed lang codes.
-
-// // LangId refers to an index in the LANG_CODE2NAME OrderedMap
-// pub type LangId = u16; // The map has ~10k elements
-
-// #[derive(Default, Hash, Eq, PartialEq, Debug, Copy, Clone, Serialize, Deserialize)]
-// pub struct Lang {
-//     id: LangId,
-// }
-
-// impl From<LangId> for Lang {
-//     fn from(lang_id: LangId) -> Self {
-//         Self { id: lang_id }
-//     }
-// }
-
-// impl FromStr for Lang {
-//     type Err = anyhow::Error;
-
-//     fn from_str(lang_code: &str) -> Result<Self, Self::Err> {
-//         // get the canonical name, then get the canonical code
-//         if let Some(id) = LANG_CODE2NAME
-//             .get(lang_code)
-//             .and_then(|name| LANG_NAME2CODE.get(name))
-//             .and_then(|code| LANG_CODE2NAME.get_index(code))
-//         {
-//             return Ok(LangId::try_from(id)?.into());
-//         }
-//         Err(anyhow!("Unknown lang code \"{lang_code}\""))
-//     }
-// }
-
 impl Lang {
-    // pub(crate) fn id(self) -> LangId {
-    //     self.id
-    // }
-
-    // pub(crate) fn code(self) -> &'static str {
-    //     LANG_CODE2NAME
-    //         .get_index_key(self.id as usize)
-    //         .expect("id cannot have been created without being a valid index")
-    // }
-
-    // pub(crate) fn name(self) -> &'static str {
-    //     LANG_CODE2NAME
-    //         .get_index_value(self.id as usize)
-    //         .expect("id cannot have been created without being a valid index")
-    // }
-
-    // // If lang is an etymology-only language, we will not find any entries
-    // // for it in Items lang map, since such a language definitionally does
-    // // not have any entries itself. So we look for the main lang that the
-    // // ety lang is associated with.
-    // pub(crate) fn ety2main(self) -> Self {
-    //     LANG_ETYCODE2CODE
-    //         .get(self.code())
-    //         .and_then(|code| LANG_CODE2NAME.get_index(code))
-    //         .map_or(self.id, |i| {
-    //             LangId::try_from(i).expect("less than LangId::MAX elements in LANG_CODE2NAME")
-    //         })
-    //         .into()
-    // }
-
-    // pub(crate) fn is_reconstructed(self) -> bool {
-    //     LANG_RECONSTRUCTED.contains(self.code())
-    // }
-
     pub(crate) fn new_langterm(self, string_pool: &mut StringPool, term: &str) -> LangTerm {
         let term = Term::new(string_pool, term);
         LangTerm::new(self, term)
     }
 }
-
-// // LanguageId refers to an index in the LANG_NAME2CODE OrderedMap.
-// pub(crate) type LanguageId = u16; // map has ~15k elements
-
-// #[derive(Hash, Eq, PartialEq, Debug, Copy, Clone)]
-// pub(crate) struct Language {
-//     id: LanguageId,
-// }
-
-// impl Language {
-//     fn code(self) -> &'static str {
-//         LANG_NAME2CODE
-//             .get_index_value(self.id as usize)
-//             .expect("id cannot have been created without being a valid index")
-//     }
-// }
-
-// impl From<LanguageId> for Language {
-//     fn from(language_id: LanguageId) -> Self {
-//         Self { id: language_id }
-//     }
-// }
-
-// impl From<Lang> for Language {
-//     fn from(lang: Lang) -> Self {
-//         LANG_NAME2CODE
-//             .get_index(lang.name())
-//             .map(|i| {
-//                 LanguageId::try_from(i)
-//                     .expect("less than LanguageId::MAX elements in LANG_NAME2CODE")
-//             })
-//             .expect("all name values in LANG_CODE2NAME should be keys in LANG_NAME2CODE")
-//             .into()
-//     }
-// }
-
-// // For converting from a language name, as in a reconstruction redirect (e.g.
-// // "Proto-Indo-European")
-// impl FromStr for Language {
-//     type Err = anyhow::Error;
-
-//     fn from_str(language_name: &str) -> Result<Self, Self::Err> {
-//         if let Some(id) = LANG_NAME2CODE.get_index(language_name) {
-//             return Ok(LanguageId::try_from(id)?.into());
-//         }
-//         Err(anyhow!(
-//             "The key \"{language_name}\" does not exist LANG_NAME2CODE"
-//         ))
-//     }
-// }
-
-// impl From<Language> for Lang {
-//     fn from(language: Language) -> Self {
-//         let id = LANG_CODE2NAME
-//             .get_index(language.code())
-//             .map(|i| LangId::try_from(i).expect("less than LangId::MAX elements in LANG_CODE2NAME"))
-//             .expect("all code values in LANG_NAME2CODE should be keys in LANG_CODE2NAME");
-//         Self { id }
-//     }
-// }
 
 #[derive(Hash, Eq, PartialEq, Debug, Copy, Clone, Serialize, Deserialize)]
 pub(crate) struct Term {
@@ -182,28 +45,3 @@ impl LangTerm {
         Self { lang, term }
     }
 }
-
-// // Used in redirects
-// #[derive(Hash, Eq, PartialEq, Debug, Copy, Clone)]
-// pub(crate) struct LanguageTerm {
-//     pub(crate) language: Language,
-//     pub(crate) term: Term,
-// }
-
-// impl From<LangTerm> for LanguageTerm {
-//     fn from(langterm: LangTerm) -> Self {
-//         Self {
-//             language: langterm.lang.into(),
-//             term: langterm.term,
-//         }
-//     }
-// }
-
-// impl From<LanguageTerm> for LangTerm {
-//     fn from(language_term: LanguageTerm) -> Self {
-//         Self {
-//             lang: language_term.language.into(),
-//             term: language_term.term,
-//         }
-//     }
-// }

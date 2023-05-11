@@ -23,7 +23,8 @@ function export.languages()
             table.insert(ancestors, ancestor:getCode())
         end
         local ret = {
-            code = lang:getCode(),
+            code = code,
+            mainCode = lang:getCode(),
             canonicalName = lang:getCanonicalName(),
             family = lang:getFamilyCode(),
             ---- To get other names, aliases and varieties in one list:
@@ -59,13 +60,13 @@ function export.languages()
     -- https://en.wiktionary.org/wiki/Module:languages/data/exceptional
     local allData = mw.loadData("Module:languages/data/all")
     for code, data in pairs(allData) do
-        ret[code] = getData(code, data, "regular")
+        table.insert(ret, getData(code, data, "regular"))
     end
 
     -- https://en.wiktionary.org/wiki/Module:etymology_languages/data
     local etyData = mw.loadData("Module:etymology languages/data")
     for code, data in pairs(etyData) do
-        ret[code] = getData(code, data, "etymology-only")
+        table.insert(ret, getData(code, data, "etymology-only"))
     end
     
     ret = require("Module:table").deepcopy(ret)
@@ -111,15 +112,19 @@ function export.families()
 
     for code, data in pairs(famData) do
         local fam = m_families.getByCode(code)
-        ret[code] = {
-            code = fam:getCode(),
+        table.insert(ret, {
+            code = code,
+            -- I don't think there is ever a difference between code 
+            -- and mainCode here. I'm doing this for consistency 
+            -- with what is done with languages. Check this.
+            mainCode = fam:getCode(),
             canonicalName = fam:getCanonicalName(),
             protoLanguage = fam:getProtoLanguageCode(),
             superfamilies = getSuperfamilies(fam),
             otherNames = fam:getOtherNames(),
             wikidataItem = fam:getWikidataItem(),
             wikipediaArticle = fam:getWikipediaArticle(),
-        }
+        })
     end
     
     ret = require("Module:table").deepcopy(ret)

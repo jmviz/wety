@@ -27,6 +27,7 @@ struct Language {
     code: &'static str,
     // family: Option<&'static str>,
     kind: LangKind,
+    main_code: &'static str,
     non_etymology_only: &'static str,
     // other_names: Vec<&'static str>,
     // parents: Vec<&'static str>,
@@ -36,40 +37,91 @@ struct Language {
     // wikipedia_article: &'static str,
 }
 
-type Code2Language = HashMap<&'static str, Language>;
+type LangId = u16;
 
 struct Languages {
-    code2language: Code2Language,
-    name2code: HashMap<&'static str, &'static str>,
+    languages: Vec<Language>,
+    code2id: HashMap<&'static str, LangId>,
+    name2id: HashMap<&'static str, LangId>,
 }
 
 impl Languages {
-    fn new(code2language: Code2Language) -> Self {
-        let mut name2code = HashMap::default();
-        for language in code2language.values() {
-            // importantly, this maps canonical names to mainCodes
-            name2code.insert(language.canonical_name, language.code);
+    fn new(languages: Vec<Language>) -> Self {
+        let mut code2id = HashMap::default();
+        let mut name2id = HashMap::default();
+        for (idx, language) in languages.iter().enumerate() {
+            let id = LangId::try_from(idx).expect("much fewer than 65,535 languages");
+            code2id.insert(language.code, id);
+            if language.code == language.main_code {
+                name2id.insert(language.canonical_name, id);
+            }
         }
-        Self {
-            code2language,
-            name2code,
+
+        let me = Self {
+            languages,
+            code2id,
+            name2id,
+        };
+        me.validate();
+        me
+    }
+
+    fn validate(&self) {
+        for language in &self.languages {
+            for ancestor in &language.ancestors {
+                assert!(
+                    self.code2id.contains_key(ancestor),
+                    "ancestor {} of {} not in languages.json",
+                    ancestor,
+                    language.code
+                );
+            }
+            assert!(
+                self.code2id.contains_key(language.code),
+                "code {} not in languages.json",
+                language.code
+            );
+            assert!(
+                self.code2id.contains_key(language.main_code),
+                "main code {} of {} not in languages.json",
+                language.main_code,
+                language.code
+            );
+            assert!(
+                self.code2id.contains_key(language.non_etymology_only),
+                "non-etymology-only code {} of {} not in languages.json",
+                language.non_etymology_only,
+                language.code
+            );
+            assert!(
+                self.name2id.contains_key(language.canonical_name),
+                "canonical name {} not in languages.json",
+                language.canonical_name
+            );
         }
     }
 
-    fn get(&self, code: &str) -> Option<&Language> {
-        self.code2language.get(code)
+    fn index(&self, id: LangId) -> &Language {
+        &self.languages[id as usize]
     }
 
-    fn get_known(&self, code: &str) -> &Language {
-        self.get(code).expect("known lang code")
+    fn code2id(&self, code: &str) -> Option<LangId> {
+        self.code2id.get(code).copied()
     }
 
-    fn code2main(&self, code: &str) -> Option<&'static str> {
-        self.get(code).map(|language| language.code)
+    fn code2language(&self, code: &str) -> Option<&Language> {
+        self.code2id(code).map(|id| self.index(id))
     }
 
-    fn name2code(&self, name: &str) -> Option<&'static str> {
-        self.name2code.get(name).copied()
+    fn code2main_id(&self, code: &str) -> Option<LangId> {
+        let language = self.code2language(code)?;
+        self.code2id(language.main_code)
+    }
+
+    // the id returned is guaranteed to be the index of the language whose code
+    // == main_code due to the construction in Languages::new()
+    fn name2id(&self, name: &str) -> Option<LangId> {
+        self.name2id.get(name).copied()
     }
 }
 
@@ -84,15 +136,14 @@ lazy_static! {
 }
 
 #[derive(Default, Hash, Eq, PartialEq, Debug, Copy, Clone, Serialize, Deserialize)]
-pub struct Lang(&'static str); // the inner value is the lang (main) code
+pub struct Lang(LangId);
 
 impl FromStr for Lang {
     type Err = anyhow::Error;
 
     fn from_str(code: &str) -> Result<Self, Self::Err> {
-        // get the main code
-        if let Some(code) = LANGUAGES.code2main(code) {
-            return Ok(Lang(code));
+        if let Some(id) = LANGUAGES.code2main_id(code) {
+            return Ok(Lang(id));
         }
         Err(anyhow!("Unknown lang code \"{code}\""))
     }
@@ -100,35 +151,45 @@ impl FromStr for Lang {
 
 impl Lang {
     pub(crate) fn from_name(name: &str) -> Result<Self> {
-        if let Some(code) = LANGUAGES.name2code(name) {
-            return Ok(Lang(code));
+        if let Some(id) = LANGUAGES.name2id(name) {
+            return Ok(Lang(id));
         }
-        Err(anyhow!("Unknown lang name \"{name}\""))
+        Err(anyhow!("Unknown lang canonical name \"{name}\""))
     }
 
-    pub(crate) fn code(&self) -> &'static str {
+    pub(crate) fn id(self) -> LangId {
         self.0
     }
 
-    pub(crate) fn name(&self) -> &'static str {
-        LANGUAGES.get_known(self.code()).canonical_name
+    fn data(&self) -> &Language {
+        LANGUAGES.index(self.id())
     }
 
-    pub(crate) fn ety2non(&self) -> Self {
-        let code = LANGUAGES.get_known(self.code()).non_etymology_only;
-        Lang(code)
+    #[allow(clippy::misnamed_getters)]
+    pub(crate) fn code(self) -> &'static str {
+        self.data().main_code
     }
 
-    pub(crate) fn is_reconstructed(&self) -> bool {
-        LANGUAGES.get_known(self.code()).kind == LangKind::Reconstructed
+    pub(crate) fn name(self) -> &'static str {
+        self.data().canonical_name
     }
 
-    pub(crate) fn ancestors(&self) -> Vec<Lang> {
-        LANGUAGES
-            .get_known(self.code())
+    pub(crate) fn ety2non(self) -> Self {
+        self.data()
+            .non_etymology_only
+            .parse()
+            .expect("validated lang code")
+    }
+
+    pub(crate) fn is_reconstructed(self) -> bool {
+        self.data().kind == LangKind::Reconstructed
+    }
+
+    pub(crate) fn ancestors(self) -> Vec<Lang> {
+        self.data()
             .ancestors
             .iter()
-            .map(|&code| Lang(code))
+            .map(|&code| code.parse().expect("validated lang code"))
             .collect()
     }
 }
@@ -173,7 +234,7 @@ mod tests {
             lang_en.ancestors(),
             known_ancestors
                 .iter()
-                .map(|&code| Lang(code))
+                .map(|&code| code.parse().unwrap())
                 .collect::<Vec<_>>()
         );
     }

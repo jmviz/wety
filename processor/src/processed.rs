@@ -243,6 +243,7 @@ impl Search {
             .iter()
             .map(|(similarity, lang_data)| {
                 json!({
+                    "id": lang_data.lang.id(),
                     "code": lang_data.lang.code(),
                     "name": lang_data.lang.name(),
                     "similarity": similarity,

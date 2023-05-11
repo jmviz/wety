@@ -1,6 +1,6 @@
 #![allow(clippy::unused_async)]
 
-use processor::{Data, ItemId, Lang, LangId, Search};
+use processor::{Data, ItemId, Lang, Search};
 
 use std::sync::Arc;
 
@@ -24,26 +24,23 @@ pub async fn get_lang_search_matches(
 }
 
 pub async fn get_item_search_matches(
-    Path((lang_id, term)): Path<(LangId, String)>,
+    Path((lang, term)): Path<(Lang, String)>,
     State(state): State<Arc<AppState>>,
 ) -> Json<Value> {
-    let lang = Lang::from(lang_id);
     let matches = state.search.items(&state.data, lang, &term);
     Json(matches)
 }
 
 pub async fn get_item_expansion(
-    Path((item_id, filter_lang_id)): Path<(ItemId, LangId)>,
+    Path((item_id, filter_lang)): Path<(ItemId, Lang)>,
     State(state): State<Arc<AppState>>,
 ) -> Json<Value> {
-    let filter_lang = Lang::from(filter_lang_id);
     Json(state.data.expanded_item_json(item_id, filter_lang))
 }
 
 pub async fn get_item_head_progenitor_tree(
-    Path((item_id, filter_lang_id)): Path<(ItemId, LangId)>,
+    Path((item_id, filter_lang)): Path<(ItemId, Lang)>,
     State(state): State<Arc<AppState>>,
 ) -> Json<Value> {
-    let filter_lang = Lang::from(filter_lang_id);
     Json(state.data.head_progenitor_tree(item_id, filter_lang))
 }
