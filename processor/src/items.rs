@@ -146,6 +146,7 @@ pub(crate) struct Items {
     pub(crate) graph: EtyGraph,
     pub(crate) dupes: Dupes,
     pub(crate) page_term_dupes: Dupes,
+    pub(crate) imputed_dupes: Dupes,
     pub(crate) redirects: Redirects,
     pub(crate) raw_templates: RawTemplates,
     pub(crate) lines: Lines,
@@ -158,6 +159,7 @@ impl Items {
             graph: EtyGraph::default(),
             dupes: Dupes::default(),
             page_term_dupes: Dupes::default(),
+            imputed_dupes: Dupes::default(),
             redirects: Redirects::default(),
             raw_templates: RawTemplates::default(),
             lines: Lines::default(),
@@ -252,7 +254,7 @@ impl Items {
     pub(crate) fn add_imputed(&mut self, mut item: ImputedItem) -> ItemId {
         let langterm = LangTerm::new(item.lang, item.term);
         // If we've seen this langterm before...
-        if let Some(dupes) = self.dupes.get(&langterm) {
+        if let Some(dupes) = self.imputed_dupes.get(&langterm) {
             item.ety_num = dupes
                 .iter()
                 .map(|&id| self.get(id).ety_num())
@@ -261,7 +263,7 @@ impl Items {
                 + 1;
 
             let id = self.add(Item::Imputed(item));
-            self.dupes
+            self.imputed_dupes
                 .get_mut(&langterm)
                 .expect("already found")
                 .push(id);
@@ -269,7 +271,7 @@ impl Items {
         }
         // A langterm that hasn't been seen yet
         let id = self.add(Item::Imputed(item));
-        self.dupes.insert(langterm, vec![id]);
+        self.imputed_dupes.insert(langterm, vec![id]);
         id
     }
 

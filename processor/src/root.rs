@@ -1,7 +1,7 @@
 use std::{mem, str::FromStr};
 
 use crate::{
-    embeddings::{Embeddings, ItemEmbedding},
+    embeddings::{EmbeddingComparand, Embeddings, ItemEmbedding},
     etymology::validate_ety_template_lang,
     etymology_templates::EtyMode,
     items::{ItemId, Items, Retrieval},
@@ -122,21 +122,40 @@ impl Items {
             item_id: root_item_id,
             confidence,
         } = self.get_or_impute_item(embeddings, embedding, item_id, raw_root.langterm)?;
-        // $$ Implement adding a connection from the item's head progenitor to
-        // the root_item if the head progenitor's lang is a descendant lang of
-        // the root_item's lang. This requires us to create this lang data by
-        // parsing Module:languages data.
 
-        // If the item has no ety at all, then we add an ety link from the
-        // item to the root item.
-        if self.graph.get_immediate_ety(item_id).is_none() {
-            self.graph.add_ety(
-                item_id,
-                EtyMode::Root,
-                Some(0u8),
-                &[root_item_id],
-                &[confidence],
-            );
+        let root_lang = self.get(root_item_id).lang();
+
+        match self.graph.get_progenitors(item_id) {
+            None => {
+                if self.get(item_id).lang().strictly_descends_from(root_lang)
+                {
+                    self.graph.add_ety(
+                        item_id,
+                        EtyMode::Root,
+                        Some(0u8),
+                        &[root_item_id],
+                        &[confidence],
+                    );
+                }
+            }
+            Some(progenitors) => {
+                if let Some(head_progenitor) = progenitors.head
+                    && !progenitors.items.contains(&root_item_id)
+                    && let head_progenitor_lang = self.get(head_progenitor).lang()
+                    && head_progenitor_lang.strictly_descends_from(root_lang)
+                {
+                    let root_embedding = embeddings.get(self.get(root_item_id), root_item_id)?;
+                    let hp_embedding = embeddings.get(self.get(head_progenitor), head_progenitor)?;
+                    let similarity = hp_embedding.cosine_similarity(&root_embedding);
+                    self.graph.add_ety(
+                        head_progenitor,
+                        EtyMode::Root,
+                        Some(0u8),
+                        &[root_item_id],
+                        &[similarity],
+                    );
+                }
+            }
         }
 
         Ok(())

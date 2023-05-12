@@ -192,6 +192,21 @@ impl Lang {
             .map(|&code| code.parse().expect("validated lang code"))
             .collect()
     }
+
+    pub(crate) fn strictly_descends_from(self, lang: Lang) -> bool {
+        self.ancestors().contains(&lang)
+    }
+
+    // pub(crate) fn loosely_descends_from(self, lang: Lang) -> bool {
+    //     if self.strictly_descends_from(lang) || self == lang {
+    //         return true;
+    //     }
+    //     let non_ety_lang = self.ety2non();
+    //     if non_ety_lang == self {
+    //         return false;
+    //     }
+    //     non_ety_lang == lang || non_ety_lang.ancestors().contains(&lang)
+    // }
 }
 
 #[cfg(test)]
@@ -200,42 +215,128 @@ mod tests {
 
     #[test]
     fn lang_from_code() {
-        let lang_en = Lang::from_str("en").unwrap();
-        assert_eq!(lang_en.code(), "en");
-        let lang_vl1 = Lang::from_str("VL.").unwrap();
-        assert_eq!(lang_vl1.code(), "la-vul");
-        let lang_vl2 = Lang::from_str("VL").unwrap();
-        assert_eq!(lang_vl2.code(), "la-vul");
-        let lang_vl3 = Lang::from_str("la-vul").unwrap();
-        assert_eq!(lang_vl3.code(), "la-vul");
+        let en = Lang::from_str("en").unwrap();
+        assert_eq!(en.code(), "en");
+        let vl1 = Lang::from_str("VL.").unwrap();
+        assert_eq!(vl1.code(), "la-vul");
+        let vl2 = Lang::from_str("VL").unwrap();
+        assert_eq!(vl2.code(), "la-vul");
+        let vl3 = Lang::from_str("la-vul").unwrap();
+        assert_eq!(vl3.code(), "la-vul");
+        assert_eq!(vl1, vl2);
+        assert_eq!(vl2, vl3);
     }
 
     #[test]
     fn lang_from_name() {
-        let lang_en = Lang::from_name("English").unwrap();
-        assert_eq!(lang_en.code(), "en");
-        let lang_vl = Lang::from_name("Vulgar Latin").unwrap();
-        assert_eq!(lang_vl.code(), "la-vul");
+        let en = Lang::from_name("English").unwrap();
+        assert_eq!(en.code(), "en");
+        let vl = Lang::from_name("Vulgar Latin").unwrap();
+        assert_eq!(vl.code(), "la-vul");
+    }
+
+    #[test]
+    fn lang_non_ety() {
+        let vulgar_latin = Lang::from_str("la-vul").unwrap();
+        let old_latin = Lang::from_str("itc-ola").unwrap();
+        let latin = Lang::from_str("la").unwrap();
+        assert_eq!(vulgar_latin.ety2non(), latin);
+        assert_eq!(old_latin.ety2non(), latin);
     }
 
     #[test]
     fn lang_kind() {
-        let lang_en = Lang::from_str("en").unwrap();
-        assert!(!lang_en.is_reconstructed());
-        let lang_ine_pro = Lang::from_str("ine-pro").unwrap();
-        assert!(lang_ine_pro.is_reconstructed());
+        let en = Lang::from_str("en").unwrap();
+        assert!(!en.is_reconstructed());
+        let ine_pro = Lang::from_str("ine-pro").unwrap();
+        assert!(ine_pro.is_reconstructed());
     }
 
     #[test]
     fn lang_ancestors() {
-        let lang_en = Lang::from_str("en").unwrap();
+        let en = Lang::from_str("en").unwrap();
         let known_ancestors = ["ine-pro", "gem-pro", "gmw-pro", "ang", "enm"];
         assert_eq!(
-            lang_en.ancestors(),
+            en.ancestors(),
             known_ancestors
                 .iter()
                 .map(|&code| code.parse().unwrap())
                 .collect::<Vec<_>>()
         );
     }
+
+    #[test]
+    fn lang_strictly_descends_from() {
+        let vulgar_latin = Lang::from_str("la-vul").unwrap();
+        let classical_latin = Lang::from_str("la-cla").unwrap();
+        let old_latin = Lang::from_str("itc-ola").unwrap();
+        let latin = Lang::from_str("la").unwrap();
+        let proto_italic = Lang::from_str("itc-pro").unwrap();
+        let pie = Lang::from_str("ine-pro").unwrap();
+
+        assert!(!vulgar_latin.strictly_descends_from(vulgar_latin));
+        assert!(!vulgar_latin.strictly_descends_from(latin));
+        assert!(vulgar_latin.strictly_descends_from(classical_latin));
+        assert!(vulgar_latin.strictly_descends_from(old_latin));
+        assert!(vulgar_latin.strictly_descends_from(proto_italic));
+        assert!(vulgar_latin.strictly_descends_from(pie));
+
+        assert!(!classical_latin.strictly_descends_from(classical_latin));
+        assert!(!classical_latin.strictly_descends_from(latin));
+        assert!(classical_latin.strictly_descends_from(old_latin));
+        assert!(classical_latin.strictly_descends_from(proto_italic));
+        assert!(classical_latin.strictly_descends_from(pie));
+
+        assert!(!old_latin.strictly_descends_from(old_latin));
+        assert!(!old_latin.strictly_descends_from(latin));
+        assert!(old_latin.strictly_descends_from(proto_italic));
+        assert!(old_latin.strictly_descends_from(pie));
+
+        assert!(!latin.strictly_descends_from(latin));
+        assert!(latin.strictly_descends_from(proto_italic));
+        assert!(latin.strictly_descends_from(pie));
+
+        assert!(!proto_italic.strictly_descends_from(proto_italic));
+        assert!(proto_italic.strictly_descends_from(pie));
+
+        assert!(!pie.strictly_descends_from(pie));
+    }
+
+    // #[test]
+    // fn lang_loosely_descends_from() {
+    //     let vulgar_latin = Lang::from_str("la-vul").unwrap();
+    //     let classical_latin = Lang::from_str("la-cla").unwrap();
+    //     let old_latin = Lang::from_str("itc-ola").unwrap();
+    //     let latin = Lang::from_str("la").unwrap();
+    //     let proto_italic = Lang::from_str("itc-pro").unwrap();
+    //     let pie = Lang::from_str("ine-pro").unwrap();
+
+    //     assert!(vulgar_latin.loosely_descends_from(vulgar_latin));
+    //     assert!(vulgar_latin.loosely_descends_from(classical_latin));
+    //     assert!(vulgar_latin.loosely_descends_from(old_latin));
+    //     assert!(vulgar_latin.loosely_descends_from(latin));
+    //     assert!(vulgar_latin.loosely_descends_from(proto_italic));
+    //     assert!(vulgar_latin.loosely_descends_from(pie));
+
+    //     assert!(classical_latin.loosely_descends_from(classical_latin));
+    //     assert!(classical_latin.loosely_descends_from(old_latin));
+    //     assert!(classical_latin.loosely_descends_from(latin));
+    //     assert!(classical_latin.loosely_descends_from(proto_italic));
+    //     assert!(classical_latin.loosely_descends_from(pie));
+
+    //     assert!(old_latin.loosely_descends_from(old_latin));
+    //     assert!(old_latin.loosely_descends_from(latin));
+    //     assert!(old_latin.loosely_descends_from(proto_italic));
+    //     assert!(old_latin.loosely_descends_from(pie));
+
+    //     assert!(latin.loosely_descends_from(latin));
+    //     assert!(latin.loosely_descends_from(old_latin));
+    //     assert!(latin.loosely_descends_from(proto_italic));
+    //     assert!(latin.loosely_descends_from(pie));
+
+    //     assert!(proto_italic.loosely_descends_from(proto_italic));
+    //     assert!(proto_italic.loosely_descends_from(pie));
+
+    //     assert!(pie.loosely_descends_from(pie));
+    // }
 }
