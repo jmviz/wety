@@ -1,4 +1,7 @@
-# To be run after fetch_wiktionary_lang_data.py
+# This script is not currently used but kept for reference in case we want to
+# augment languages.json with any data that's only available on Wikidata.
+# Currently it gets time info for languages, but this is too sparse to be useful
+# at the moment.
 
 import json
 import requests

@@ -3,6 +3,4 @@
 !.vscode/launch.json
 /data/*
 !/data/scratch.ipynb
-!/data/descendants/
 # !/data/test/
-!/data/phf/

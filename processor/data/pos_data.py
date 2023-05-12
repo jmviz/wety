@@ -1,6 +1,6 @@
 # This uses the code from this file in wiktextract:
 # https://github.com/tatuylonen/wiktextract/blob/master/wiktextract/parts_of_speech.py,
-# as it was on 2022-08-24. It generates a list of wiktextract-recognized parts
+# as it was on 2023-05-11. It generates a list of wiktextract-recognized parts
 # of speech using that code. Then there is original code tacked on at the end to
 # generate a rust file which defines a phf ordered set (cf.
 # https://docs.rs/phf/latest/phf/macro.phf_ordered_set.html), saving it as
@@ -8,9 +8,9 @@
 #
 # This should be called from the base directory of the repo. Usage:
 # 
-# $ python data/phf/pos.py
-#
-# Original copyright notice follows:
+# $ python processor/data/pos_data.py
+
+############### BEGIN wiktextract/parts_of_speech.py
 
 # Definitions of extracted parts of speech codes and a mapping from
 # Wiktionary section titles to parts of speech.
@@ -116,7 +116,7 @@ part_of_speech_map = {
         "debug": "misspelled subtitle",
     },
     "contraction": {
-        "pos": "abbrev",
+        "pos": "contraction",
         "tags": ["abbreviation"],
     },
     "converb": {
