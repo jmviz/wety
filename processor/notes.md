@@ -1,22 +1,10 @@
 ## TODO
 
-
-
 ### Potential improvements to item disambiguation / ety link inference
 
 * Use senseid's to augment disambiguation. Seem to be fairly common in e.g. Middle English, which has tons of ambiguous terms. 
 
-* Consider adding a confidence threshold, where the item embedding similarity between two items needs to be above the threshold for the ety link to be added (unless one of the items is an imputed item, in which case the similarity will always be 0 and the threshold should be bypassed).
-
-### Bugs to investigate
-
-* Spurious progenitors, e.g. PIE deh₃- is progenitor of PIE men-.
-* Spurious roots, e.g. Proto-Germanic mainą is given root PIE meh₁- even though it has no raw_root and its one child has no raw root either.
-* These first two items above might be related to the * counting depth bug in wiktextract descendants fork. Rerun wiktextract to see if this resolves.
-
 ## Things to consider for reducing RAM usage
-
-
 
 ## Things to keep in mind
 

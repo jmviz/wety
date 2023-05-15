@@ -21,12 +21,12 @@ struct Language {
     // aliases: Vec<&'static str>,
     ancestors: Vec<&'static str>,
     canonical_name: &'static str,
-    // For etymology-only languages, this is the mainCode; it may not be the
-    // same as the code that maps to the Language in Code2Language. For example,
-    // Vulgar Latin codes "VL" and "VL." both have mainCode "la-vul".
     code: &'static str,
     // family: Option<&'static str>,
     kind: LangKind,
+    // For regular languages, the mainCode should be the same as the code. For
+    // etymology-only languages, it may not be the same. For example, Vulgar
+    // Latin codes "VL" and "VL." both have mainCode "la-vul".
     main_code: &'static str,
     non_etymology_only: &'static str,
     // other_names: Vec<&'static str>,
