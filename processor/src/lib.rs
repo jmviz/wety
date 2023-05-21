@@ -1,6 +1,6 @@
 //! WIP attempt to digest etymologies from wiktextract data
 
-#![feature(is_some_and, let_chains, array_chunks)]
+#![feature(let_chains, array_chunks)]
 #![allow(clippy::redundant_closure_for_method_calls)]
 
 mod descendants;
