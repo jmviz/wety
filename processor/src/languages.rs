@@ -22,7 +22,6 @@ struct RawLangData {
     // aliases: Vec<&'static str>,
     ancestors: Vec<&'static str>,
     canonical_name: &'static str,
-    code: &'static str,
     // family: Option<&'static str>,
     kind: LangKind,
     // For regular languages, the mainCode should be the same as the code. For
@@ -67,18 +66,17 @@ struct Languages {
 
 impl Languages {
     fn new() -> Self {
-        let raw_data: Vec<RawLangData> = serde_json::from_str(include_str!(concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/data/languages.json"
-        )))
+        let code2raw_data: HashMap<&'static str, RawLangData> = serde_json::from_str(include_str!(
+            concat!(env!("CARGO_MANIFEST_DIR"), "/data/languages.json")
+        ))
         .expect("well-formed languages.json");
 
         let mut main_code2id = HashMap::default();
         let mut next_id: LangId = 0;
 
-        for raw_lang in &raw_data {
-            if !main_code2id.contains_key(raw_lang.main_code) {
-                main_code2id.insert(raw_lang.main_code, next_id);
+        for raw_data in code2raw_data.values() {
+            if !main_code2id.contains_key(raw_data.main_code) {
+                main_code2id.insert(raw_data.main_code, next_id);
                 next_id += 1;
             }
         }
@@ -87,18 +85,18 @@ impl Languages {
         let mut code2id = HashMap::default();
         let mut name2id = HashMap::default();
 
-        for raw_lang in &raw_data {
-            let id = *main_code2id.get(raw_lang.main_code).expect("added above");
+        for (&code, raw_data) in &code2raw_data {
+            let id = *main_code2id.get(raw_data.main_code).expect("added above");
 
             let lang = Lang(id);
-            code2id.insert(raw_lang.code, lang);
-            name2id.insert(raw_lang.canonical_name, lang);
+            code2id.insert(code, lang);
+            name2id.insert(raw_data.canonical_name, lang);
 
             if data[id as usize] != LangData::default() {
                 continue;
             }
 
-            let mut ancestors = raw_lang
+            let mut ancestors = raw_data
                 .ancestors
                 .iter()
                 .map(|&code| {
@@ -111,11 +109,11 @@ impl Languages {
             ancestors.push(lang);
 
             let lang_data = LangData {
-                code: raw_lang.main_code,
-                name: raw_lang.canonical_name,
-                kind: raw_lang.kind,
+                code: raw_data.main_code,
+                name: raw_data.canonical_name,
+                kind: raw_data.kind,
                 non_ety: main_code2id
-                    .get(raw_lang.non_etymology_only)
+                    .get(raw_data.non_etymology_only)
                     .map(|&id| Lang(id))
                     .expect("non etymology code should be a main code"),
                 ancestors,
@@ -276,7 +274,7 @@ mod tests {
     #[test]
     fn lang_ancestors() {
         let en = Lang::from_str("en").unwrap();
-        let known_ancestors = ["ine-pro", "gem-pro", "gmw-pro", "ang", "enm"];
+        let known_ancestors = ["ine-pro", "gem-pro", "gmw-pro", "ang", "enm", "en"];
         assert_eq!(
             en.ancestors(),
             known_ancestors
