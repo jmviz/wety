@@ -16,7 +16,6 @@ string-interner = "0.14.0"
 phf = {version = "0.10", features = ["macros"]}
 hashbrown = "0.12.2"
 anyhow = {workspace = true}
-oxigraph = "0.3.5"
 indicatif = "0.17.0"
 clap = { version = "3.2.17", features = ["derive"] }
 petgraph = {version = "0.6.2", features = ["serde-1"]}

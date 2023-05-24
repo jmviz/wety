@@ -31,18 +31,11 @@ mod wiktextract_json;
 
 use crate::string_pool::StringPool;
 
-use std::{
-    convert::TryFrom,
-    fs::{remove_dir_all, File},
-    io::BufReader,
-    path::Path,
-    time::Instant,
-};
+use std::{convert::TryFrom, path::Path, time::Instant};
 
 use anyhow::{Ok, Result};
 use embeddings::EmbeddingsConfig;
 use indicatif::{HumanDuration, ProgressBar, ProgressStyle};
-use oxigraph::{io::GraphFormat::Turtle, model::GraphNameRef::DefaultGraph, store::Store};
 use xxhash_rust::xxh3::Xxh3Builder;
 
 pub(crate) type HashMap<K, V> = std::collections::HashMap<K, V, Xxh3Builder>;
@@ -66,8 +59,7 @@ pub(crate) fn progress_bar(n: usize, message: &str) -> Result<ProgressBar> {
 pub fn process_wiktextract(
     wiktextract_path: &Path,
     serialization_path: &Path,
-    write_turtle: bool,
-    turtle_path: &Path,
+    turtle_path: Option<&Path>,
     embeddings_config: &EmbeddingsConfig,
 ) -> Result<Instant> {
     let mut t = Instant::now();
@@ -86,38 +78,11 @@ pub fn process_wiktextract(
     items.generate_ety_graph(&embeddings)?;
     println!("Finished. Took {}.", HumanDuration(t.elapsed()));
     let data = Data::new(string_pool, items.graph);
-    if write_turtle {
+    if let Some(turtle_path) = turtle_path {
         data.write_turtle(turtle_path)?;
     }
     data.serialize(serialization_path)?;
     t = Instant::now();
     println!("Dropping all processed data...");
     Ok(t)
-}
-
-/// # Errors
-///
-/// Will return `Err` if any unexpected issue arises building the Oxigraph store.
-pub fn build_oxigraph_store(turtle_path: &Path, store_path: &Path, optimize: bool) -> Result<()> {
-    let mut t = Instant::now();
-    println!("Building oxigraph store {}...", store_path.display());
-    let turtle = BufReader::new(File::open(turtle_path)?);
-    // delete any previous oxigraph db
-    if store_path.is_dir() {
-        remove_dir_all(store_path)?;
-    }
-    let store = Store::open(store_path)?;
-    store
-        .bulk_loader()
-        .load_graph(turtle, Turtle, DefaultGraph, None)?;
-    store.flush()?;
-    println!("Finished. Took {}.", HumanDuration(t.elapsed()));
-    if optimize {
-        t = Instant::now();
-        println!("Optimizing oxigraph store {}...", store_path.display());
-        store.optimize()?;
-        store.flush()?;
-        println!("Finished. Took {}.", HumanDuration(t.elapsed()));
-    }
-    Ok(())
 }

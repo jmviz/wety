@@ -120,7 +120,8 @@ impl Data {
     #[must_use]
     pub fn expanded_item_json(&self, item_id: ItemId, filter_lang: Lang) -> Value {
         let item = self.get(item_id);
-        let children = (item.lang() != filter_lang).then_some(
+        let item_lang = item.lang();
+        let children = (item_lang != filter_lang).then_some(
             self.graph
                 .get_head_children(item_id)
                 .filter(|(child_id, child)| {
@@ -136,6 +137,7 @@ impl Data {
         json!({
             "item": self.item_json(item_id),
             "children": children,
+            "langDistance": item_lang.distance_from(filter_lang),
         })
     }
 

@@ -2,7 +2,6 @@
 static ALLOC: snmalloc_rs::SnMalloc = snmalloc_rs::SnMalloc;
 
 use processor::{
-    build_oxigraph_store,
     embeddings::{
         EmbeddingsConfig, EmbeddingsModel, DEFAULT_BATCH_SIZE, DEFAULT_MODEL,
         DEFAULT_PROGRESS_UPDATE_INTERVAL,
@@ -28,16 +27,10 @@ pub struct Args {
     wiktextract_path: PathBuf,
     #[clap(short = 'j', long, default_value = "data/wety.json.gz", value_parser)]
     serialization_path: PathBuf,
-    #[clap(short = 't', long, action)]
-    write_turtle: bool,
-    #[clap(short = 'l', long, default_value = "data/wety.ttl", value_parser)]
-    turtle_path: PathBuf,
-    #[clap(short = 'b', long, action)]
-    build_oxigraph_store: bool,
-    #[clap(short = 's', long, default_value = "data/wety.db", value_parser)]
-    oxigraph_store_path: PathBuf,
-    #[clap(short = 'o', long, action)]
-    optimize_oxigraph_store: bool,
+    // #[clap(short = 't', long, action)]
+    // write_turtle: bool,
+    #[clap(short = 't', long, value_parser)]
+    turtle_path: Option<PathBuf>,
     #[clap(short = 'm', long, value_enum, default_value_t = DEFAULT_MODEL, value_parser)]
     embeddings_model: EmbeddingsModel,
     #[clap(short = 'z', long, default_value_t = DEFAULT_BATCH_SIZE, value_parser)]
@@ -66,18 +59,11 @@ fn main() -> Result<()> {
     let t = process_wiktextract(
         &args.wiktextract_path,
         &args.serialization_path,
-        args.write_turtle,
-        &args.turtle_path,
+        args.turtle_path.as_deref(),
         &embeddings_config,
     )?;
     println!("Finished. Took {}.", HumanDuration(t.elapsed()));
-    if args.build_oxigraph_store {
-        build_oxigraph_store(
-            &args.turtle_path,
-            &args.oxigraph_store_path,
-            args.optimize_oxigraph_store,
-        )?;
-    }
+
     println!(
         "All done! Took {} overall. Exiting...",
         HumanDuration(total_time.elapsed())
