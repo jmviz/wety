@@ -104,10 +104,10 @@ impl Data {
         let item = self.get(item_id);
         json!({
             "id": item_id,
-            "ety_num": item.ety_num(),
+            "etyNum": item.ety_num(),
             "lang": item.lang().name(),
             "term": item.term().resolve(&self.string_pool),
-            "ety_mode": self.graph.get_ety_mode(item_id),
+            "etyMode": self.graph.get_ety_mode(item_id).map(|m| {let ms: &'static str = m.into(); ms}),
             "imputed": item.is_imputed(),
             "reconstructed": item.is_reconstructed(),
             "url": item.url(&self.string_pool),

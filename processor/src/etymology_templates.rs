@@ -1,7 +1,19 @@
 use serde::{Deserialize, Serialize};
-use strum::{AsRefStr, EnumString};
+use strum::{AsRefStr, EnumString, IntoStaticStr};
 
-#[derive(Hash, Eq, PartialEq, Debug, Copy, Clone, AsRefStr, EnumString, Serialize, Deserialize)]
+#[derive(
+    Hash,
+    Eq,
+    PartialEq,
+    Debug,
+    Copy,
+    Clone,
+    AsRefStr,
+    IntoStaticStr,
+    EnumString,
+    Serialize,
+    Deserialize,
+)]
 #[strum(use_phf)]
 pub(crate) enum EtyMode {
     // start derived-type modes
