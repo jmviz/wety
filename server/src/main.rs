@@ -29,7 +29,7 @@ async fn main() -> Result<()> {
     let origins = [
         "http://localhost".parse::<HeaderValue>()?,
         "http://localhost:8000".parse::<HeaderValue>()?,
-        "http://api.wety.org".parse::<HeaderValue>()?,
+        "http://wety.org".parse::<HeaderValue>()?,
     ];
 
     let app = Router::new()
