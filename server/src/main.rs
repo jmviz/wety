@@ -26,6 +26,12 @@ async fn main() -> Result<()> {
 
     println!("Running wety server...");
 
+    let origins = [
+        "http://localhost".parse::<HeaderValue>()?,
+        "http://localhost:8000".parse::<HeaderValue>()?,
+        "http://api.wety.org".parse::<HeaderValue>()?,
+    ];
+
     let app = Router::new()
         .route("/langs/:lang", get(get_lang_search_matches))
         .route("/items/:lang/:term", get(get_item_search_matches))
@@ -47,7 +53,7 @@ async fn main() -> Result<()> {
                 .layer(
                     CorsLayer::new()
                         .allow_methods([Method::GET])
-                        .allow_origin("http://localhost:8000".parse::<HeaderValue>()?),
+                        .allow_origin(origins),
                 ),
         );
 
