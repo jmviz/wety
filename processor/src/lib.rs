@@ -4,6 +4,7 @@
 #![allow(clippy::redundant_closure_for_method_calls)]
 
 mod descendants;
+#[cfg(feature = "embeddings")]
 pub mod embeddings;
 mod ety_graph;
 mod etymology;
