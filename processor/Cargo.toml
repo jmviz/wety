@@ -3,11 +3,6 @@ name = "processor"
 version = "0.1.0"
 edition = "2021"
 
-[features]
-default = ["processed", "embeddings"]
-processed = []
-embeddings = []
-
 [dependencies]
 simd-json = "0.7.0"
 snmalloc-rs = {version = "0.3.0", features = ["native-cpu"]}

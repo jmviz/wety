@@ -7,7 +7,6 @@ edition = "2021"
 
 [dependencies.processor]
 path = "../processor"
-features = ["processed"]
 
 [dependencies]
 anyhow = {workspace = true}

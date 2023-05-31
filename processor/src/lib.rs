@@ -4,25 +4,21 @@
 #![allow(clippy::redundant_closure_for_method_calls)]
 
 mod descendants;
-#[cfg(feature = "embeddings")]
 pub mod embeddings;
 mod ety_graph;
 mod etymology;
 mod etymology_templates;
 mod gloss;
 mod items;
-#[cfg(feature = "processed")]
 pub use crate::items::ItemId;
 mod langterm;
 mod languages;
 use crate::items::Items;
-#[cfg(feature = "processed")]
 pub use crate::languages::Lang;
 mod phf_ext;
 mod pos;
 mod pos_phf;
 mod processed;
-#[cfg(feature = "processed")]
 pub use crate::processed::{Data, Search};
 mod redirects;
 mod root;
