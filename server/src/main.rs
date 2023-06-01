@@ -20,11 +20,15 @@ use tower_http::{compression::CompressionLayer, cors::CorsLayer};
 async fn main() -> Result<()> {
     env::set_var("RUST_BACKTRACE", "1");
 
-    let data = Data::deserialize(Path::new("data/wety.json"))?;
-    let search = data.build_search();
-    let state = Arc::new(AppState { data, search });
+    let addr = SocketAddr::from(([0, 0, 0, 0], 3000));
 
-    println!("Running wety server...");
+    let config = RustlsConfig::from_pem_file(
+        "/etc/letsencrypt/live/api.wety.org/fullchain.pem",
+        "/etc/letsencrypt/live/api.wety.org/privkey.pem",
+    )
+    .await?;
+
+    let server = axum_server::bind_rustls(addr, config);
 
     let origins = [
         "https://localhost".parse::<HeaderValue>()?,
@@ -32,6 +36,10 @@ async fn main() -> Result<()> {
         "https://wety.org".parse::<HeaderValue>()?,
         "https://www.wety.org".parse::<HeaderValue>()?,
     ];
+
+    let data = Data::deserialize(Path::new("data/wety.json"))?;
+    let search = data.build_search();
+    let state = Arc::new(AppState { data, search });
 
     let app = Router::new()
         .route("/langs/:lang", get(get_lang_search_matches))
@@ -58,16 +66,7 @@ async fn main() -> Result<()> {
                 ),
         );
 
-    let addr = SocketAddr::from(([0, 0, 0, 0], 3000));
-
-    let config = RustlsConfig::from_pem_file(
-        "/etc/letsencrypt/live/api.wety.org/fullchain.pem",
-        "/etc/letsencrypt/live/api.wety.org/privkey.pem",
-    )
-    .await?;
-
-    axum_server::bind_rustls(addr, config)
-        .serve(app.into_make_service())
-        .await?;
+    println!("Running wety server...");
+    server.serve(app.into_make_service()).await?;
     Ok(())
 }
