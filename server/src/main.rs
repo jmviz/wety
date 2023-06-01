@@ -3,23 +3,23 @@ use server::{
     get_item_expansion, get_item_head_progenitor_tree, get_item_search_matches,
     get_lang_search_matches, AppState,
 };
-use tower::ServiceBuilder;
-use tower_http::{compression::CompressionLayer, cors::CorsLayer};
 
-use std::{env, path::Path, sync::Arc};
+use std::{env, net::SocketAddr, path::Path, sync::Arc};
 
 use anyhow::{Ok, Result};
 use axum::{
     http::{HeaderValue, Method},
     routing::get,
-    Router, Server,
+    Router,
 };
+use axum_server::tls_rustls::RustlsConfig;
+use tower::ServiceBuilder;
+use tower_http::{compression::CompressionLayer, cors::CorsLayer};
 
 #[tokio::main]
 async fn main() -> Result<()> {
     env::set_var("RUST_BACKTRACE", "1");
 
-    // let data = Data::deserialize(Path::new("data/test_output/wety.json.gz"))?;
     let data = Data::deserialize(Path::new("data/wety.json"))?;
     let search = data.build_search();
     let state = Arc::new(AppState { data, search });
@@ -27,10 +27,10 @@ async fn main() -> Result<()> {
     println!("Running wety server...");
 
     let origins = [
-        "http://localhost".parse::<HeaderValue>()?,
-        "http://localhost:8000".parse::<HeaderValue>()?,
-        "http://wety.org".parse::<HeaderValue>()?,
-        "http://www.wety.org".parse::<HeaderValue>()?,
+        "https://localhost".parse::<HeaderValue>()?,
+        "https://localhost:8000".parse::<HeaderValue>()?,
+        "https://wety.org".parse::<HeaderValue>()?,
+        "https://www.wety.org".parse::<HeaderValue>()?,
     ];
 
     let app = Router::new()
@@ -58,7 +58,15 @@ async fn main() -> Result<()> {
                 ),
         );
 
-    Server::bind(&"0.0.0.0:3000".parse()?)
+    let addr = SocketAddr::from(([0, 0, 0, 0], 3000));
+
+    let config = RustlsConfig::from_pem_file(
+        "/etc/letsencrypt/live/api.wety.org/fullchain.pem",
+        "/etc/letsencrypt/live/api.wety.org/privkey.pem",
+    )
+    .await?;
+
+    axum_server::bind_rustls(addr, config)
         .serve(app.into_make_service())
         .await?;
     Ok(())
