@@ -66,7 +66,7 @@ cargo build --release
 
 However, for the server to actually work, we need to set up some networking.
 
-## Open up ports
+## Set up ports
 
 On the Oracle Cloud administration page for your instance, follow [these instructions](https://docs.oracle.com/en-us/iaas/developer-tutorials/tutorials/apache-on-ubuntu/01oci-ubuntu-apache-summary.htm#add-ingress-rules) to add an ingress rule for port 80 HTTP, and also do the same for port 443 (HTTPS). Then, in your `ssh` session:
 
@@ -74,8 +74,11 @@ On the Oracle Cloud administration page for your instance, follow [these instruc
 sudo apt install firewalld
 sudo firewall-cmd --permanent --zone=public --add-port=80/tcp
 sudo firewall-cmd --permanent --zone=public --add-port=443/tcp
+sudo firewall-cmd --permanent --zone=public --add-forward-port=port=443:proto=tcp:toport=3000
 sudo firewall-cmd --reload
 ```
+
+The third rule above forwards HTTPS traffic on 443 to 3000, where the `wety` server listens. 
 
 ## Set up SSL certification
 
@@ -119,16 +122,6 @@ sudo chown ubuntu ~/certs/{fullchain,privkey}.pem
 ``` 
 
 The last few steps were adapted from [here](https://blogs.oracle.com/developers/post/free-ssl-certificates-in-the-oracle-cloud-using-certbot-and-lets-encrypt).
-
-
-## Set up port forwarding
-
-Forward incoming HTTPS traffic on port 443 to port 3000, where the server listens (cf. [here](https://superuser.com/a/1334552)): 
-
-```bash
-sudo iptables -t nat -I PREROUTING -p tcp --dport 443 -j REDIRECT --to-ports 3000
-sudo netfilter-persistent save
-```
 
 ## Set up systemd service
 
