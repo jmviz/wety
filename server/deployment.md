@@ -148,6 +148,8 @@ Description=wety server
 After=network.target
 
 [Service]
+Environment=LIBTORCH=/home/ubuntu/pytorch-1.13.1/torch
+Environment=LD_LIBRARY_PATH=/home/ubuntu/pytorch-1.13.1/torch/lib
 User=ubuntu
 WorkingDirectory=/home/ubuntu/wety
 ExecStart=/home/ubuntu/wety/target/release/server
@@ -181,6 +183,16 @@ Start the service:
 
 ```bash
 sudo systemctl start wety.service
+```
+
+Finished!
+
+### Managing the service
+
+To debug if the service fails to start:
+
+```bash
+sudo runuser -l ubuntu -c "cd /home/ubuntu/wety && /home/ubuntu/wety/target/release/server"
 ```
 
 In general, a cheat sheet for managing the service:
