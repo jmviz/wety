@@ -23,8 +23,8 @@ async fn main() -> Result<()> {
     let addr = SocketAddr::from(([0, 0, 0, 0], 3000));
 
     let config = RustlsConfig::from_pem_file(
-        "/etc/letsencrypt/live/api.wety.org/fullchain.pem",
-        "/etc/letsencrypt/live/api.wety.org/privkey.pem",
+        "/home/ubuntu/certs/fullchain.pem",
+        "/home/ubuntu/certs/privkey.pem",
     )
     .await?;
 
