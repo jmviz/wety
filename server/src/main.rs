@@ -1,12 +1,11 @@
-use processor::Data;
 use server::{
     get_item_expansion, get_item_head_progenitor_tree, get_item_search_matches,
-    get_lang_search_matches, AppState,
+    get_lang_search_matches, AppState, Environment,
 };
 
-use std::{env, net::SocketAddr, path::Path, sync::Arc};
+use std::{env, net::SocketAddr, path::Path, str::FromStr, sync::Arc};
 
-use anyhow::{Ok, Result};
+use anyhow::Result;
 use axum::{
     http::{HeaderValue, Method},
     routing::get,
@@ -20,26 +19,25 @@ use tower_http::{compression::CompressionLayer, cors::CorsLayer};
 async fn main() -> Result<()> {
     env::set_var("RUST_BACKTRACE", "1");
 
-    let addr = SocketAddr::from(([0, 0, 0, 0], 3000));
+    let environment = Environment::from_str(
+        &env::var("WETY_ENVIRONMENT").unwrap_or_else(|_| "development".to_string()),
+    )?;
 
-    let config = RustlsConfig::from_pem_file(
-        "/home/ubuntu/certs/fullchain.pem",
-        "/home/ubuntu/certs/privkey.pem",
-    )
-    .await?;
+    let origins = match environment {
+        Environment::Development => vec!["http://127.0.0.1:8000".parse::<HeaderValue>()?],
+        Environment::Production => vec![
+            "https://wety.org".parse::<HeaderValue>()?,
+            "https://www.wety.org".parse::<HeaderValue>()?,
+        ],
+    };
 
-    let server = axum_server::bind_rustls(addr, config);
-
-    let origins = [
-        "https://localhost".parse::<HeaderValue>()?,
-        "https://localhost:8000".parse::<HeaderValue>()?,
-        "https://wety.org".parse::<HeaderValue>()?,
-        "https://www.wety.org".parse::<HeaderValue>()?,
-    ];
-
-    let data = Data::deserialize(Path::new("data/wety.json"))?;
-    let search = data.build_search();
-    let state = Arc::new(AppState { data, search });
+    // make this configurable
+    let data_path = Path::new("data/wety.json");
+    let state = if data_path.exists() {
+        Arc::new(AppState::new(data_path)?)
+    } else {
+        Arc::new(AppState::new(Path::new("data/wety.json.gz"))?)
+    };
 
     let app = Router::new()
         .route("/langs/:lang", get(get_lang_search_matches))
@@ -66,7 +64,27 @@ async fn main() -> Result<()> {
                 ),
         );
 
-    println!("Running wety server...");
-    server.serve(app.into_make_service()).await?;
+    match environment {
+        Environment::Development => {
+            let addr = SocketAddr::from_str("127.0.0.1:3000")?;
+            println!("Running wety server at http://{}...", addr);
+            axum_server::bind(addr)
+                .serve(app.into_make_service())
+                .await?;
+        }
+        Environment::Production => {
+            let cert_path = env::var("WETY_CERT_PATH")
+                .expect("WETY_CERT_PATH environment variable set in production");
+            let key_path = env::var("WETY_KEY_PATH")
+                .expect("WETY_KEY_PATH environment variable set in production");
+            let config = RustlsConfig::from_pem_file(&cert_path, &key_path).await?;
+            let addr = SocketAddr::from_str("0.0.0.0:3000")?;
+            println!("Running wety server at https://{}...", addr);
+            axum_server::bind_rustls(addr, config)
+                .serve(app.into_make_service())
+                .await?;
+        }
+    }
+
     Ok(())
 }

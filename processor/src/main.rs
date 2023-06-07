@@ -27,8 +27,6 @@ pub struct Args {
     wiktextract_path: PathBuf,
     #[clap(short = 'j', long, default_value = "data/wety.json.gz", value_parser)]
     serialization_path: PathBuf,
-    // #[clap(short = 't', long, action)]
-    // write_turtle: bool,
     #[clap(short = 't', long, value_parser)]
     turtle_path: Option<PathBuf>,
     #[clap(short = 'm', long, value_enum, default_value_t = DEFAULT_MODEL, value_parser)]

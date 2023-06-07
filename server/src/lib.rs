@@ -2,17 +2,45 @@
 
 use processor::{Data, ItemId, Lang, Search};
 
-use std::sync::Arc;
+use std::{str::FromStr, sync::Arc};
 
+use anyhow::Result;
 use axum::{
     extract::{Path, State},
     response::Json,
 };
 use serde_json::Value;
 
+pub enum Environment {
+    Development,
+    Production,
+}
+
+impl FromStr for Environment {
+    type Err = anyhow::Error;
+
+    fn from_str(s: &str) -> Result<Self> {
+        match s {
+            "production" => Ok(Self::Production),
+            _ => Ok(Self::Development),
+        }
+    }
+}
+
 pub struct AppState {
     pub data: Data,
     pub search: Search,
+}
+
+impl AppState {
+    /// # Errors
+    ///
+    /// Will return `Err` if deserializing the data file fails.
+    pub fn new(data_path: &std::path::Path) -> Result<Self> {
+        let data = Data::deserialize(data_path)?;
+        let search = data.build_search();
+        Ok(Self { data, search })
+    }
 }
 
 pub async fn get_lang_search_matches(
