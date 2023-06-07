@@ -119,6 +119,7 @@ And write the following to it:
 #!/bin/bash
 sudo cp /etc/letsencrypt/live/api.wety.org/{fullchain,privkey}.pem ~/certs/
 sudo chown ubuntu ~/certs/{fullchain,privkey}.pem
+sudo systemctl restart wety
 ``` 
 
 The last few steps were adapted from [here](https://blogs.oracle.com/developers/post/free-ssl-certificates-in-the-oracle-cloud-using-certbot-and-lets-encrypt).
@@ -143,6 +144,9 @@ After=network.target
 [Service]
 Environment=LIBTORCH=/home/ubuntu/pytorch-1.13.1/torch
 Environment=LD_LIBRARY_PATH=/home/ubuntu/pytorch-1.13.1/torch/lib
+Environment=WETY_ENVIRONMENT=production
+Environment=WETY_CERT_PATH=/home/ubuntu/certs/fullchain.pem
+Environment=WETY_KEY_PATH=/home/ubuntu/certs/privkey.pem
 User=ubuntu
 WorkingDirectory=/home/ubuntu/wety
 ExecStart=/home/ubuntu/wety/target/release/server
@@ -180,7 +184,18 @@ sudo systemctl start wety.service
 
 Finished!
 
-### Managing the service
+# Management
+
+## Updating the server binary from remote
+
+```bash
+cd ~/wety
+git fetch && git merge
+cargo build --release
+sudo systemctl restart wety
+```
+
+## Managing the systemd service
 
 To debug if the service fails to start:
 
