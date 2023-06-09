@@ -6,6 +6,7 @@ members = [
     "processor",
     "server",
 ]
+resolver = "2"
 
 [workspace.dependencies]
 anyhow = {version = "1.0.58", features = ["backtrace"]}

@@ -20,22 +20,30 @@ pub(crate) enum EtyMode {
     #[strum(
         to_string = "derived", // https://en.wiktionary.org/wiki/Template:derived
         serialize = "der", // shortcut for "derived"
-        serialize = "der+", // https://en.wiktionary.org/wiki/Template:der%2B
+        // serialize = "der+", // https://en.wiktionary.org/wiki/Template:der%2B
         serialize = "der-lite", // https://en.wiktionary.org/wiki/Template:der-lite
     )]
     Derived,
     #[strum(
         to_string = "inherited", // https://en.wiktionary.org/wiki/Template:inherited
         serialize = "inh", // shortcut for "inherited"
-        serialize = "inh+", // https://en.wiktionary.org/wiki/Template:inh%2B
+        // serialize = "inh+", // https://en.wiktionary.org/wiki/Template:inh%2B
         serialize = "inh-lite", // https://en.wiktionary.org/wiki/Template:inh-lite
     )]
     Inherited,
     #[strum(
         to_string = "borrowed", // https://en.wiktionary.org/wiki/Template:borrowed
         serialize = "bor", // shortcut for "borrowed"
-        serialize = "bor+", // https://en.wiktionary.org/wiki/Template:bor%2B
+        // serialize = "bor+", // https://en.wiktionary.org/wiki/Template:bor%2B
     )]
+    // The commented-out (der|inh|bor)+ templates above are so because their
+    // expansions generate (der|inh|bor) templates. So in the list of ety
+    // templates, there will be two templates in succession e.g. bor, bor+. This
+    // confuses the ety template processing. Because the + versions never appear
+    // without their normal versions, we just ignore them. We keep the
+    // commented-out lines to remind us of this in case the way the + templates
+    // get expanded/processed by wiktextract changes at some point for some
+    // reason.
     Borrowed,
     #[strum(
         to_string = "learned borrowing", // https://en.wiktionary.org/wiki/Template:learned_borrowing
@@ -172,8 +180,10 @@ pub(crate) enum EtyMode {
     #[strum(
         to_string = "compound", // https://en.wiktionary.org/wiki/Template:compound
         serialize = "com", // shortcut for "compound"
-        serialize = "com+", // https://en.wiktionary.org/wiki/Template:com%2B
+        // serialize = "com+", // https://en.wiktionary.org/wiki/Template:com%2B
     )]
+    // For the commented-out + variant above, see the comment further above
+    // about (der|inh|bor)+.
     Compound,
     #[strum(
         to_string = "univerbation", // https://en.wiktionary.org/wiki/Template:univerbation

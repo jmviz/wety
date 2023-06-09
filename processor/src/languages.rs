@@ -53,6 +53,7 @@ impl From<LangId> for Lang {
 struct LangData {
     code: &'static str,
     name: &'static str,
+    url_name: String,
     kind: LangKind,
     non_ety: Lang,
     ancestors: Vec<Lang>,
@@ -111,6 +112,8 @@ impl Languages {
             let lang_data = LangData {
                 code: raw_data.main_code,
                 name: raw_data.canonical_name,
+                url_name: urlencoding::encode(&raw_data.canonical_name.replace(' ', "_"))
+                    .to_string(),
                 kind: raw_data.kind,
                 non_ety: main_code2id
                     .get(raw_data.non_etymology_only)
@@ -179,6 +182,10 @@ impl Lang {
 
     pub(crate) fn name(self) -> &'static str {
         self.data().name
+    }
+
+    pub(crate) fn url_name(self) -> &'static str {
+        &self.data().url_name
     }
 
     pub(crate) fn ety2non(self) -> Self {
