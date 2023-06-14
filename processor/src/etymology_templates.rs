@@ -16,7 +16,7 @@ use strum::{AsRefStr, EnumString, IntoStaticStr};
 )]
 #[strum(use_phf)]
 pub(crate) enum EtyMode {
-    // start derived-type modes
+    // start derived-kind modes
     #[strum(
         to_string = "derived", // https://en.wiktionary.org/wiki/Template:derived
         serialize = "der", // shortcut for "derived"
@@ -100,7 +100,7 @@ pub(crate) enum EtyMode {
         serialize = "translit", // shortcut for "transliteration"
     )]
     Transliteration,
-    // start abbreviation-type modes
+    // start abbreviation-kind modes
     #[strum(
         to_string = "abbreviation", // this is not a wiktionary template
         serialize = "abbrev", // https://en.wiktionary.org/wiki/Template:abbrev
@@ -176,7 +176,7 @@ pub(crate) enum EtyMode {
         to_string = "aphetic form", // https://en.wiktionary.org/wiki/Template:aphetic_form
     )]
     ApheticForm,
-    // start compound-type modes
+    // start compound-kind modes
     #[strum(
         to_string = "compound", // https://en.wiktionary.org/wiki/Template:compound
         serialize = "com", // shortcut for "compound"
@@ -230,6 +230,19 @@ pub(crate) enum EtyMode {
         serialize = "af", // shortcut for "affix"
     )]
     Affix,
+    // start vrddhi-kind modes
+    #[strum(
+        to_string = "vṛddhi", // https://en.wiktionary.org/wiki/Template:vrddhi
+        serialize = "vrddhi", // the actual template name (the above is for writing)
+        serialize = "vrd", // shortcut
+    )]
+    Vrddhi,
+    #[strum(
+        to_string = "vṛddhi-ya", // https://en.wiktionary.org/wiki/Template:vrddhi-ya
+        serialize = "vrddhi-ya", // the actual template name (the above is for writing)
+        serialize = "vrd-ya", // shortcut
+    )]
+    VrddhiYa,
     // Start special cases. All of the above are handled in
     // process_json_ety_template. The below are more ad-hoc ones handled/used in
     // various other places.
@@ -308,6 +321,7 @@ impl EtyMode {
             | EtyMode::Circumfix
             | EtyMode::Blend
             | EtyMode::Affix => Some(TemplateKind::Compound),
+            EtyMode::Vrddhi | EtyMode::VrddhiYa => Some(TemplateKind::Vrddhi),
             // the other EtyMode variants are special cases that are not handled
             // in process_json_ety_template
             _ => None,
@@ -316,6 +330,7 @@ impl EtyMode {
 }
 
 /// Used to determine how to handle an ety mode template within `process_json_ety_template`
+#[derive(PartialEq)]
 pub(crate) enum TemplateKind {
     // Wiktionary etymology template names that will be considered to represent
     // the concept "derived from", in a broad sense. They have 3 main parameters:
@@ -329,7 +344,7 @@ pub(crate) enum TemplateKind {
     Derived,
     // Wiktionary etymology template names for templates that deal with
     // within-language derivation but are not generally of a compounding
-    // or affixing type. They have only 2 main parameters, the lang code
+    // or affixing kind. They have only 2 main parameters, the lang code
     // and the source term:
     // "1": lang code of term being described
     // "2": source term (optional)
@@ -354,6 +369,12 @@ pub(crate) enum TemplateKind {
     // Some of these templates have optional "lang1", "lang2", etc. arguments,
     // which are the lang codes of the source terms. We handle this.
     Compound,
+    // Wiktionary etymology template names for templates that deal with with
+    // vrddhi derivates. These templates are unusual in that the "1" arg is not
+    // the lang code of the term being described. They have two main parameters:
+    // "1": lang code of source language
+    // "2": term in source language
+    Vrddhi,
 }
 
 // $$ Should {{cognate}} and the like be treated at all?

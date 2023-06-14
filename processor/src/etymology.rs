@@ -211,6 +211,18 @@ fn process_compound_kind_json_template(
     None
 }
 
+fn process_vrddhi_kind_json_template(
+    string_pool: &mut StringPool,
+    args: &WiktextractJson,
+    ety_mode: EtyMode,
+) -> Option<RawEtyTemplate> {
+    let ety_lang = args.get_valid_str("1")?;
+    let ety_lang = Lang::from_str(ety_lang).ok()?;
+    let ety_term = args.get_valid_term("2")?;
+    let ety_langterm = ety_lang.new_langterm(string_pool, ety_term);
+    Some(RawEtyTemplate::new(ety_langterm, ety_mode))
+}
+
 pub(crate) fn validate_ety_template_lang(args: &WiktextractJson, lang: Lang) -> Result<()> {
     let item_lang = lang.code();
     let template_lang = args.get_valid_str("1").ok_or_else(|| {
@@ -228,8 +240,15 @@ fn process_json_ety_template(
     let name = template.get_valid_str("name")?;
     let ety_mode = EtyMode::from_str(name).ok()?;
     let args = template.get("args")?;
+    let template_kind = ety_mode.template_kind();
+    // vrddhi-kind templates are unusual in that their "1" arg is not the lang
+    // of the term whose ety is being described. Therefore we avoid calling
+    // validate_ety_template_lang() on them.
+    if template_kind == Some(TemplateKind::Vrddhi) {
+        return process_vrddhi_kind_json_template(string_pool, args, ety_mode);
+    }
     validate_ety_template_lang(args, lang).ok()?;
-    match ety_mode.template_kind() {
+    match template_kind {
         Some(TemplateKind::Derived) => {
             process_derived_kind_json_template(string_pool, args, ety_mode)
         }
