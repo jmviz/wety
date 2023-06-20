@@ -13,7 +13,10 @@ use axum::{
 };
 use axum_server::tls_rustls::RustlsConfig;
 use tower::ServiceBuilder;
-use tower_http::{compression::CompressionLayer, cors::CorsLayer};
+use tower_http::{
+    compression::CompressionLayer,
+    cors::{AllowOrigin, CorsLayer},
+};
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -23,12 +26,13 @@ async fn main() -> Result<()> {
         &env::var("WETY_ENVIRONMENT").unwrap_or_else(|_| "development".to_string()),
     )?;
 
-    let origins = match environment {
-        Environment::Development => vec!["http://127.0.0.1:8000".parse::<HeaderValue>()?],
+    let origins: AllowOrigin = match environment {
+        Environment::Development => tower_http::cors::Any.into(),
         Environment::Production => vec![
             "https://wety.org".parse::<HeaderValue>()?,
             "https://www.wety.org".parse::<HeaderValue>()?,
-        ],
+        ]
+        .into(),
     };
 
     // make this configurable
@@ -66,7 +70,7 @@ async fn main() -> Result<()> {
 
     match environment {
         Environment::Development => {
-            let addr = SocketAddr::from_str("127.0.0.1:3000")?;
+            let addr = SocketAddr::from_str("0.0.0.0:3000")?;
             println!("Running wety server at http://{}...", addr);
             axum_server::bind(addr)
                 .serve(app.into_make_service())
