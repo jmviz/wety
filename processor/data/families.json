@@ -3987,10 +3987,27 @@
     "wikidataItem": "Q56524",
     "wikipediaArticle": "Highland East Cushitic languages"
   },
+  "cus-som": {
+    "canonicalName": "Somaloid",
+    "mainCode": "cus-som",
+    "otherNames": [
+      "Sam",
+      "Macro-Somali"
+    ],
+    "protoLanguage": "cus-som-pro",
+    "superfamilies": [
+      "afa",
+      "cus",
+      "cus-eas"
+    ],
+    "wikidataItem": "Q56774",
+    "wikipediaArticle": "Somaloid languages"
+  },
   "cus-sou": {
     "canonicalName": "South Cushitic",
     "mainCode": "cus-sou",
     "otherNames": [],
+    "protoLanguage": "cus-sou-pro",
     "superfamilies": [
       "afa",
       "cus"
@@ -5485,7 +5502,10 @@
     "mainCode": "mjg",
     "otherNames": [],
     "superfamilies": [
-      "xgn"
+      "qfa-xgs",
+      "xgn",
+      "xgn-sou",
+      "xgn-shr"
     ],
     "wikidataItem": "Q34214",
     "wikipediaArticle": "Monguor languages"
@@ -8567,7 +8587,9 @@
   "pra": {
     "canonicalName": "Prakrit",
     "mainCode": "pra",
-    "otherNames": [],
+    "otherNames": [
+      "Prakritic"
+    ],
     "superfamilies": [
       "ine",
       "iir",
@@ -8854,6 +8876,24 @@
     "superfamilies": [],
     "wikidataItem": "Q1344038",
     "wikipediaArticle": "Tyrsenian languages"
+  },
+  "qfa-xgs": {
+    "canonicalName": "Serbi-Mongolic",
+    "mainCode": "qfa-xgs",
+    "otherNames": [],
+    "superfamilies": [],
+    "wikidataItem": "Q108887939",
+    "wikipediaArticle": "Serbi-Mongolic languages"
+  },
+  "qfa-xgx": {
+    "canonicalName": "Para-Mongolic",
+    "mainCode": "qfa-xgx",
+    "otherNames": [],
+    "superfamilies": [
+      "qfa-xgs"
+    ],
+    "wikidataItem": "Q107619002",
+    "wikipediaArticle": "Para-Mongolic languages"
   },
   "qfa-yen": {
     "canonicalName": "Yeniseian",
@@ -11266,9 +11306,45 @@
       "Mongolian"
     ],
     "protoLanguage": "xgn-pro",
-    "superfamilies": [],
+    "superfamilies": [
+      "qfa-xgs"
+    ],
     "wikidataItem": "Q33750",
     "wikipediaArticle": "Mongolic languages"
+  },
+  "xgn-cen": {
+    "canonicalName": "Central Mongolic",
+    "mainCode": "xgn-cen",
+    "otherNames": [],
+    "protoLanguage": "xng-lat",
+    "superfamilies": [
+      "qfa-xgs",
+      "xgn"
+    ],
+    "wikipediaArticle": "Central Mongolic languages"
+  },
+  "xgn-shr": {
+    "canonicalName": "Shirongolic",
+    "mainCode": "xgn-shr",
+    "otherNames": [],
+    "superfamilies": [
+      "qfa-xgs",
+      "xgn",
+      "xgn-sou"
+    ],
+    "wikidataItem": "Q107539435",
+    "wikipediaArticle": "Shirongolic languages"
+  },
+  "xgn-sou": {
+    "canonicalName": "Southern Mongolic",
+    "mainCode": "xgn-sou",
+    "otherNames": [],
+    "protoLanguage": "xng-ear",
+    "superfamilies": [
+      "qfa-xgs",
+      "xgn"
+    ],
+    "wikipediaArticle": "Southern Mongolic languages"
   },
   "xme": {
     "canonicalName": "Median",

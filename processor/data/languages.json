@@ -1867,7 +1867,8 @@
     "aliases": [],
     "ancestors": [
       "afa-pro",
-      "cus-pro"
+      "cus-pro",
+      "cus-sou-pro"
     ],
     "canonicalName": "Aasax",
     "family": "cus-sou",
@@ -8784,8 +8785,17 @@
     "mainCode": "aoc",
     "nonEtymologyOnly": "aoc",
     "otherNames": [
+      "Pemón",
       "Arekuna",
-      "Arecuna"
+      "Arecuna",
+      "Taurepan",
+      "Taurepán",
+      "Taurepang",
+      "Taulipang",
+      "Taulipáng",
+      "Kamarakoto",
+      "Camaracoto",
+      "Camaragoto"
     ],
     "parents": [],
     "scripts": [
@@ -17086,7 +17096,8 @@
     "aliases": [],
     "ancestors": [
       "afa-pro",
-      "cus-pro"
+      "cus-pro",
+      "cus-sou-pro"
     ],
     "canonicalName": "Burunge",
     "family": "cus-sou",
@@ -23515,10 +23526,11 @@
     "aliases": [],
     "ancestors": [
       "afa-pro",
-      "cus-pro"
+      "cus-pro",
+      "cus-som-pro"
     ],
     "canonicalName": "Aweer",
-    "family": "cus-eas",
+    "family": "cus-som",
     "kind": "regular",
     "mainCode": "bob",
     "nonEtymologyOnly": "bob",
@@ -26291,10 +26303,11 @@
     "aliases": [],
     "ancestors": [
       "afa-pro",
-      "cus-pro"
+      "cus-pro",
+      "cus-som-pro"
     ],
     "canonicalName": "Baiso",
-    "family": "cus-eas",
+    "family": "cus-som",
     "kind": "regular",
     "mainCode": "bsw",
     "nonEtymologyOnly": "bsw",
@@ -26568,7 +26581,8 @@
   },
   "btm": {
     "aliases": [
-      "Batak Mandailing"
+      "Batak Mandailing",
+      "Mandailing"
     ],
     "ancestors": [
       "map-pro",
@@ -26702,7 +26716,8 @@
   },
   "bts": {
     "aliases": [
-      "Batak Simalungun"
+      "Batak Simalungun",
+      "Simalungun"
     ],
     "ancestors": [
       "map-pro",
@@ -26890,11 +26905,12 @@
     ],
     "ancestors": [
       "xgn-pro",
-      "xng",
+      "xng-ear",
+      "xng-lat",
       "cmg"
     ],
     "canonicalName": "Buryat",
-    "family": "xgn",
+    "family": "xgn-cen",
     "kind": "regular",
     "mainCode": "bua",
     "nonEtymologyOnly": "bua",
@@ -31694,6 +31710,7 @@
     "aliases": [],
     "ancestors": [
       "dra-pro",
+      "dra-ote",
       "te"
     ],
     "canonicalName": "Chenchu",
@@ -32010,7 +32027,8 @@
     "otherNames": [],
     "parents": [],
     "scripts": [
-      "Latn"
+      "Latn",
+      "Tglg"
     ],
     "varieties": [],
     "wikidataItem": "Q33239",
@@ -34078,17 +34096,16 @@
     "aliases": [],
     "ancestors": [
       "xgn-pro",
-      "xng"
+      "xng-ear",
+      "xng-lat"
     ],
     "canonicalName": "Classical Mongolian",
-    "family": "xgn",
+    "family": "xgn-cen",
     "kind": "regular",
     "mainCode": "cmg",
     "nonEtymologyOnly": "cmg",
     "otherNames": [],
-    "parents": [
-      "xng"
-    ],
+    "parents": [],
     "scripts": [
       "Mong",
       "Soyo",
@@ -34421,7 +34438,9 @@
     "otherNames": [],
     "parents": [],
     "scripts": [
-      "Latn"
+      "Latn",
+      "Ital",
+      "Grek"
     ],
     "varieties": [],
     "wikidataItem": "Q36383",
@@ -36357,6 +36376,29 @@
     "wikidataItem": "Q505125",
     "wikipediaArticle": "Russenorsk language"
   },
+  "crp-tnw": {
+    "aliases": [
+      "Tangwanghua"
+    ],
+    "ancestors": [],
+    "canonicalName": "Tangwang",
+    "family": "crp",
+    "kind": "regular",
+    "mainCode": "crp-tnw",
+    "nonEtymologyOnly": "crp-tnw",
+    "otherNames": [],
+    "parents": [
+      "cmn",
+      "sce"
+    ],
+    "scripts": [
+      "Arab",
+      "Latn"
+    ],
+    "varieties": [],
+    "wikidataItem": "Q7683179",
+    "wikipediaArticle": "Tangwang language"
+  },
   "crp-tpr": {
     "aliases": [],
     "ancestors": [
@@ -37817,10 +37859,11 @@
     "aliases": [],
     "ancestors": [
       "afa-pro",
-      "cus-pro"
+      "cus-pro",
+      "cus-som-pro"
     ],
     "canonicalName": "Ashraaf",
-    "family": "cus-eas",
+    "family": "cus-som",
     "kind": "regular",
     "mainCode": "cus-ash",
     "nonEtymologyOnly": "cus-ash",
@@ -37877,6 +37920,49 @@
     ],
     "varieties": [],
     "wikipediaArticle": "Proto-Cushitic language"
+  },
+  "cus-som-pro": {
+    "aliases": [],
+    "ancestors": [
+      "afa-pro",
+      "cus-pro"
+    ],
+    "canonicalName": "Proto-Somaloid",
+    "family": "cus-som",
+    "kind": "reconstructed",
+    "mainCode": "cus-som-pro",
+    "nonEtymologyOnly": "cus-som-pro",
+    "otherNames": [
+      "Proto-Sam",
+      "Proto-Macro-Somali"
+    ],
+    "parents": [],
+    "scripts": [
+      "Latinx"
+    ],
+    "varieties": [],
+    "wikipediaArticle": "Proto-Somaloid language"
+  },
+  "cus-sou-pro": {
+    "aliases": [],
+    "ancestors": [
+      "afa-pro",
+      "cus-pro"
+    ],
+    "canonicalName": "Proto-South Cushitic",
+    "family": "cus-sou",
+    "kind": "reconstructed",
+    "mainCode": "cus-sou-pro",
+    "nonEtymologyOnly": "cus-sou-pro",
+    "otherNames": [
+      "Proto-Rift"
+    ],
+    "parents": [],
+    "scripts": [
+      "Latinx"
+    ],
+    "varieties": [],
+    "wikipediaArticle": "Proto-South Cushitic language"
   },
   "cut": {
     "aliases": [],
@@ -39030,7 +39116,9 @@
     "wikipediaArticle": "Doka language"
   },
   "dbj": {
-    "aliases": [],
+    "aliases": [
+      "Idahan"
+    ],
     "ancestors": [
       "map-pro",
       "poz-pro"
@@ -39178,10 +39266,11 @@
     "aliases": [],
     "ancestors": [
       "afa-pro",
-      "cus-pro"
+      "cus-pro",
+      "cus-som-pro"
     ],
     "canonicalName": "Dabarre",
-    "family": "cus-eas",
+    "family": "cus-som",
     "kind": "regular",
     "mainCode": "dbr",
     "nonEtymologyOnly": "dbr",
@@ -43001,6 +43090,26 @@
     "wikidataItem": "Q15723156",
     "wikipediaArticle": "Old Kannada language"
   },
+  "dra-ote": {
+    "aliases": [],
+    "ancestors": [
+      "dra-pro"
+    ],
+    "canonicalName": "Old Telugu",
+    "family": "dra",
+    "kind": "regular",
+    "mainCode": "dra-ote",
+    "nonEtymologyOnly": "dra-ote",
+    "otherNames": [],
+    "parents": [
+      "dra-pro"
+    ],
+    "scripts": [
+      "Telu"
+    ],
+    "varieties": [],
+    "wikipediaArticle": "Old Telugu language"
+  },
   "dra-pro": {
     "aliases": [],
     "ancestors": [],
@@ -46591,7 +46700,7 @@
     "otherNames": [],
     "parents": [],
     "scripts": [
-      "Latn"
+      "Cyrl"
     ],
     "varieties": [],
     "wikidataItem": "Q30249597",
@@ -46611,7 +46720,7 @@
     "otherNames": [],
     "parents": [],
     "scripts": [
-      "Latn"
+      "Cyrl"
     ],
     "varieties": [],
     "wikidataItem": "Q25559411",
@@ -49259,7 +49368,9 @@
       "onw"
     ],
     "scripts": [
-      "Latn"
+      "Latn",
+      "Arab",
+      "Copt"
     ],
     "varieties": [],
     "wikidataItem": "Q36503",
@@ -52068,7 +52179,8 @@
     ],
     "parents": [],
     "scripts": [
-      "None"
+      "Orya",
+      "Telu"
     ],
     "varieties": [],
     "wikidataItem": "Q33906",
@@ -52888,10 +53000,11 @@
     "aliases": [],
     "ancestors": [
       "afa-pro",
-      "cus-pro"
+      "cus-pro",
+      "cus-som-pro"
     ],
     "canonicalName": "Garre",
-    "family": "cus-eas",
+    "family": "cus-som",
     "kind": "regular",
     "mainCode": "gex",
     "nonEtymologyOnly": "gex",
@@ -53571,6 +53684,29 @@
     ],
     "varieties": [],
     "wikipediaArticle": "Githabul language"
+  },
+  "gii": {
+    "aliases": [
+      "Gariire"
+    ],
+    "ancestors": [
+      "afa-pro",
+      "cus-pro",
+      "cus-som-pro"
+    ],
+    "canonicalName": "Girirra",
+    "family": "cus-som",
+    "kind": "regular",
+    "mainCode": "gii",
+    "nonEtymologyOnly": "gii",
+    "otherNames": [],
+    "parents": [],
+    "scripts": [
+      "None"
+    ],
+    "varieties": [],
+    "wikidataItem": "Q5564288",
+    "wikipediaArticle": "Girirra language"
   },
   "gil": {
     "aliases": [
@@ -56100,7 +56236,8 @@
     "aliases": [],
     "ancestors": [
       "afa-pro",
-      "cus-pro"
+      "cus-pro",
+      "cus-sou-pro"
     ],
     "canonicalName": "Gorowa",
     "family": "cus-sou",
@@ -57460,6 +57597,7 @@
       "inc-mgu"
     ],
     "scripts": [
+      "Arab",
       "Gujr"
     ],
     "varieties": [],
@@ -57493,6 +57631,7 @@
       "inc-mgu"
     ],
     "scripts": [
+      "Arab",
       "Gujr"
     ],
     "varieties": [],
@@ -57526,6 +57665,7 @@
       "inc-mgu"
     ],
     "scripts": [
+      "Arab",
       "Gujr"
     ],
     "varieties": [],
@@ -59812,10 +59952,11 @@
     "aliases": [],
     "ancestors": [
       "afa-pro",
-      "cus-pro"
+      "cus-pro",
+      "cus-hec-pro"
     ],
     "canonicalName": "Hadiyya",
-    "family": "cus-eas",
+    "family": "cus-hec",
     "kind": "regular",
     "mainCode": "hdy",
     "nonEtymologyOnly": "hdy",
@@ -65285,7 +65426,8 @@
   },
   "ilo": {
     "aliases": [
-      "Ilokano"
+      "Ilokano",
+      "Iloko"
     ],
     "ancestors": [
       "map-pro",
@@ -67227,7 +67369,8 @@
     "aliases": [],
     "ancestors": [
       "afa-pro",
-      "cus-pro"
+      "cus-pro",
+      "cus-sou-pro"
     ],
     "canonicalName": "Iraqw",
     "family": "cus-sou",
@@ -68114,13 +68257,13 @@
       "alv-von-pro",
       "alv-yor-pro"
     ],
-    "canonicalName": "Isekiri",
+    "canonicalName": "Itsekiri",
     "family": "alv-yor",
     "kind": "regular",
     "mainCode": "its",
     "nonEtymologyOnly": "its",
     "otherNames": [
-      "Itsekiri"
+      "Isekiri"
     ],
     "parents": [],
     "scripts": [
@@ -68128,7 +68271,7 @@
     ],
     "varieties": [],
     "wikidataItem": "Q36045",
-    "wikipediaArticle": "Isekiri language"
+    "wikipediaArticle": "Itsekiri language"
   },
   "itt": {
     "aliases": [],
@@ -69798,7 +69941,9 @@
     "wikipediaArticle": "Ngomba language"
   },
   "jhi": {
-    "aliases": [],
+    "aliases": [
+      "Jahai"
+    ],
     "ancestors": [
       "aav-pro",
       "mkh-pro",
@@ -69974,10 +70119,11 @@
     "aliases": [],
     "ancestors": [
       "afa-pro",
-      "cus-pro"
+      "cus-pro",
+      "cus-som-pro"
     ],
     "canonicalName": "Jiiddu",
-    "family": "cus-eas",
+    "family": "cus-som",
     "kind": "regular",
     "mainCode": "jii",
     "nonEtymologyOnly": "jii",
@@ -74170,7 +74316,8 @@
     "otherNames": [],
     "parents": [],
     "scripts": [
-      "Knda"
+      "Knda",
+      "Mlym"
     ],
     "varieties": [],
     "wikidataItem": "Q33531",
@@ -74189,7 +74336,8 @@
     "otherNames": [],
     "parents": [],
     "scripts": [
-      "Deva"
+      "Deva",
+      "Telu"
     ],
     "varieties": [],
     "wikidataItem": "Q33479",
@@ -74208,6 +74356,7 @@
     "otherNames": [],
     "parents": [],
     "scripts": [
+      "Orya",
       "Telu"
     ],
     "varieties": [],
@@ -84521,10 +84670,11 @@
   "kxs": {
     "aliases": [],
     "ancestors": [
-      "xgn-pro"
+      "xgn-pro",
+      "xng-ear"
     ],
     "canonicalName": "Kangjia",
-    "family": "xgn",
+    "family": "xgn-shr",
     "kind": "regular",
     "mainCode": "kxs",
     "nonEtymologyOnly": "kxs",
@@ -86586,7 +86736,9 @@
     "wikipediaArticle": "Label language"
   },
   "lbc": {
-    "aliases": [],
+    "aliases": [
+      "Lakkja"
+    ],
     "ancestors": [
       "qfa-tak-pro"
     ],
@@ -86595,9 +86747,7 @@
     "kind": "regular",
     "mainCode": "lbc",
     "nonEtymologyOnly": "lbc",
-    "otherNames": [
-      "Lakkja"
-    ],
+    "otherNames": [],
     "parents": [],
     "scripts": [
       "None"
@@ -91829,7 +91979,9 @@
     "mainCode": "lrl",
     "nonEtymologyOnly": "lrl",
     "otherNames": [
-      "Achomi"
+      "Achomi",
+      "Lari",
+      "Khodmooni"
     ],
     "parents": [],
     "scripts": [
@@ -92830,7 +92982,8 @@
       "alv-yor-pro",
       "yo"
     ],
-    "canonicalName": "Lucumi",
+    "canonicalName": "Lucumí",
+    "family": "alv-yor",
     "kind": "regular",
     "mainCode": "luq",
     "nonEtymologyOnly": "luq",
@@ -92839,11 +92992,11 @@
       "yo"
     ],
     "scripts": [
-      "None"
+      "Latn"
     ],
     "varieties": [],
     "wikidataItem": "Q1768321",
-    "wikipediaArticle": "Lucumi language"
+    "wikipediaArticle": "Lucumí language"
   },
   "lur": {
     "aliases": [],
@@ -95135,7 +95288,9 @@
     "wikipediaArticle": "Massalat language"
   },
   "mdh": {
-    "aliases": [],
+    "aliases": [
+      "Maguindanaon"
+    ],
     "ancestors": [
       "map-pro",
       "poz-pro",
@@ -97361,7 +97516,9 @@
     "wikipediaArticle": "Mbugu language"
   },
   "mhe": {
-    "aliases": [],
+    "aliases": [
+      "Mah Meri"
+    ],
     "ancestors": [
       "aav-pro",
       "mkh-pro",
@@ -98676,6 +98833,7 @@
     "aliases": [],
     "ancestors": [
       "dra-pro",
+      "dra-ote",
       "te"
     ],
     "canonicalName": "Manna-Dora",
@@ -100585,11 +100743,12 @@
     "aliases": [],
     "ancestors": [
       "xgn-pro",
-      "xng",
+      "xng-ear",
+      "xng-lat",
       "cmg"
     ],
     "canonicalName": "Mongolian",
-    "family": "xgn",
+    "family": "xgn-cen",
     "kind": "regular",
     "mainCode": "mn",
     "nonEtymologyOnly": "mn",
@@ -100600,7 +100759,8 @@
     "scripts": [
       "Cyrl",
       "Mong",
-      "Latn"
+      "Latn",
+      "Brai"
     ],
     "varieties": [
       "Khalkha Mongolian"
@@ -100614,11 +100774,12 @@
     ],
     "ancestors": [
       "xgn-pro",
-      "xng",
+      "xng-ear",
+      "xng-lat",
       "cmg"
     ],
     "canonicalName": "Chakhar Mongolian",
-    "family": "xgn",
+    "family": "xgn-cen",
     "kind": "etymology-only",
     "mainCode": "mn-cha",
     "nonEtymologyOnly": "mn",
@@ -100629,7 +100790,8 @@
     "scripts": [
       "Cyrl",
       "Mong",
-      "Latn"
+      "Latn",
+      "Brai"
     ],
     "varieties": [],
     "wikidataItem": "Q907425",
@@ -100641,11 +100803,12 @@
     ],
     "ancestors": [
       "xgn-pro",
-      "xng",
+      "xng-ear",
+      "xng-lat",
       "cmg"
     ],
     "canonicalName": "Khalkha Mongolian",
-    "family": "xgn",
+    "family": "xgn-cen",
     "kind": "etymology-only",
     "mainCode": "mn-kha",
     "nonEtymologyOnly": "mn",
@@ -100656,7 +100819,8 @@
     "scripts": [
       "Cyrl",
       "Mong",
-      "Latn"
+      "Latn",
+      "Brai"
     ],
     "varieties": [],
     "wikidataItem": "Q6399808",
@@ -100668,11 +100832,12 @@
     ],
     "ancestors": [
       "xgn-pro",
-      "xng",
+      "xng-ear",
+      "xng-lat",
       "cmg"
     ],
     "canonicalName": "Khorchin Mongolian",
-    "family": "xgn",
+    "family": "xgn-cen",
     "kind": "etymology-only",
     "mainCode": "mn-khr",
     "nonEtymologyOnly": "mn",
@@ -100683,7 +100848,8 @@
     "scripts": [
       "Cyrl",
       "Mong",
-      "Latn"
+      "Latn",
+      "Brai"
     ],
     "varieties": [],
     "wikidataItem": "Q3196210",
@@ -100695,11 +100861,12 @@
     ],
     "ancestors": [
       "xgn-pro",
-      "xng",
+      "xng-ear",
+      "xng-lat",
       "cmg"
     ],
     "canonicalName": "Ordos Mongolian",
-    "family": "xgn",
+    "family": "xgn-cen",
     "kind": "etymology-only",
     "mainCode": "mn-ord",
     "nonEtymologyOnly": "mn",
@@ -100710,7 +100877,8 @@
     "scripts": [
       "Cyrl",
       "Mong",
-      "Latn"
+      "Latn",
+      "Brai"
     ],
     "varieties": [],
     "wikidataItem": "Q716904",
@@ -100776,7 +100944,8 @@
       "juc"
     ],
     "scripts": [
-      "mnc-Mong"
+      "mnc-Mong",
+      "Latn"
     ],
     "varieties": [],
     "wikidataItem": "Q33638",
@@ -101056,7 +101225,10 @@
     "wikipediaArticle": "Min Bei language"
   },
   "mnq": {
-    "aliases": [],
+    "aliases": [
+      "Mendriq",
+      "Menriq"
+    ],
     "ancestors": [
       "aav-pro",
       "mkh-pro",
@@ -106062,7 +106234,10 @@
     "wikipediaArticle": "Mvuba language"
   },
   "mxi": {
-    "aliases": [],
+    "aliases": [
+      "Ajami",
+      "Andalusi Romance"
+    ],
     "ancestors": [
       "ine-pro",
       "itc-pro",
@@ -108676,7 +108851,8 @@
       "Hant",
       "Hans",
       "Latn",
-      "Bopo"
+      "Bopo",
+      "Kana"
     ],
     "varieties": [],
     "wikidataItem": "Q36495",
@@ -108701,7 +108877,8 @@
       "Hant",
       "Hans",
       "Latn",
-      "Bopo"
+      "Bopo",
+      "Kana"
     ],
     "varieties": [],
     "wikidataItem": "Q934541",
@@ -108726,7 +108903,8 @@
       "Hant",
       "Hans",
       "Latn",
-      "Bopo"
+      "Bopo",
+      "Kana"
     ],
     "varieties": [],
     "wikidataItem": "Q1624231",
@@ -108751,7 +108929,8 @@
       "Hant",
       "Hans",
       "Latn",
-      "Bopo"
+      "Bopo",
+      "Kana"
     ],
     "varieties": [],
     "wikidataItem": "Q1624231",
@@ -108776,7 +108955,8 @@
       "Hant",
       "Hans",
       "Latn",
-      "Bopo"
+      "Bopo",
+      "Kana"
     ],
     "varieties": [],
     "wikidataItem": "Q3236692",
@@ -108801,7 +108981,8 @@
       "Hant",
       "Hans",
       "Latn",
-      "Bopo"
+      "Bopo",
+      "Kana"
     ],
     "varieties": [],
     "wikidataItem": "Q1624231",
@@ -108828,7 +109009,8 @@
       "Hant",
       "Hans",
       "Latn",
-      "Bopo"
+      "Bopo",
+      "Kana"
     ],
     "varieties": [],
     "wikidataItem": "Q68744",
@@ -108853,7 +109035,8 @@
       "Hant",
       "Hans",
       "Latn",
-      "Bopo"
+      "Bopo",
+      "Kana"
     ],
     "varieties": [],
     "wikidataItem": "Q1624231",
@@ -113075,7 +113258,8 @@
     ],
     "parents": [],
     "scripts": [
-      "None"
+      "Deva",
+      "Telu"
     ],
     "varieties": [],
     "wikidataItem": "Q56767",
@@ -114060,7 +114244,8 @@
       "dum"
     ],
     "scripts": [
-      "Latn"
+      "Latn",
+      "Brai"
     ],
     "varieties": [
       "Netherlandic",
@@ -114093,7 +114278,8 @@
       "dum"
     ],
     "scripts": [
-      "Latn"
+      "Latn",
+      "Brai"
     ],
     "varieties": [],
     "wikidataItem": "Q34147",
@@ -121162,7 +121348,8 @@
     "nonEtymologyOnly": "okn",
     "otherNames": [
       "Okino-Erabu",
-      "Okinoerabu"
+      "Okinoerabu",
+      "Oki-no-Erabu"
     ],
     "parents": [],
     "scripts": [
@@ -125818,10 +126005,11 @@
   "peh": {
     "aliases": [],
     "ancestors": [
-      "xgn-pro"
+      "xgn-pro",
+      "xng-ear"
     ],
     "canonicalName": "Bonan",
-    "family": "xgn",
+    "family": "xgn-shr",
     "kind": "regular",
     "mainCode": "peh",
     "nonEtymologyOnly": "peh",
@@ -126737,8 +126925,8 @@
       "lah"
     ],
     "scripts": [
-      "fa-Arab",
-      "Latn"
+      "pa-Arab",
+      "Guru"
     ],
     "varieties": [],
     "wikidataItem": "Q33739",
@@ -127630,7 +127818,8 @@
       "ine-pro",
       "ine-bsl-pro",
       "sla-pro",
-      "zlw-opl"
+      "zlw-opl",
+      "zlw-mpl"
     ],
     "canonicalName": "Polish",
     "family": "zlw-lch",
@@ -127639,7 +127828,7 @@
     "nonEtymologyOnly": "pl",
     "otherNames": [],
     "parents": [
-      "zlw-opl"
+      "zlw-mpl"
     ],
     "scripts": [
       "Latn"
@@ -132803,6 +132992,89 @@
     "varieties": [],
     "wikipediaArticle": "Proto-Kra-Dai language"
   },
+  "qfa-xgx-tuh": {
+    "aliases": [
+      "'Azha"
+    ],
+    "ancestors": [],
+    "canonicalName": "Tuyuhun",
+    "family": "qfa-xgx",
+    "kind": "regular",
+    "mainCode": "qfa-xgx-tuh",
+    "nonEtymologyOnly": "qfa-xgx-tuh",
+    "otherNames": [],
+    "parents": [],
+    "scripts": [
+      "Hani",
+      "Latinx"
+    ],
+    "varieties": [],
+    "wikidataItem": "Q48816625",
+    "wikipediaArticle": "Tuyuhun language"
+  },
+  "qfa-xgx-tuo": {
+    "aliases": [
+      "Tabghach",
+      "Taghbach"
+    ],
+    "ancestors": [],
+    "canonicalName": "Tuoba",
+    "family": "qfa-xgx",
+    "kind": "regular",
+    "mainCode": "qfa-xgx-tuo",
+    "nonEtymologyOnly": "qfa-xgx-tuo",
+    "otherNames": [],
+    "parents": [],
+    "scripts": [
+      "Hani",
+      "Latinx"
+    ],
+    "varieties": [],
+    "wikidataItem": "Q48816629",
+    "wikipediaArticle": "Tuoba language"
+  },
+  "qfa-xgx-wuh": {
+    "aliases": [
+      "Wuwan",
+      "Awar"
+    ],
+    "ancestors": [],
+    "canonicalName": "Wuhuan",
+    "family": "qfa-xgx",
+    "kind": "regular",
+    "mainCode": "qfa-xgx-wuh",
+    "nonEtymologyOnly": "qfa-xgx-wuh",
+    "otherNames": [],
+    "parents": [],
+    "scripts": [
+      "Hani",
+      "Latinx"
+    ],
+    "varieties": [],
+    "wikidataItem": "Q118976867",
+    "wikipediaArticle": "Wuhuan language"
+  },
+  "qfa-xgx-xbi": {
+    "aliases": [
+      "Serbi",
+      "Shirwi"
+    ],
+    "ancestors": [],
+    "canonicalName": "Xianbei",
+    "family": "qfa-xgx",
+    "kind": "regular",
+    "mainCode": "qfa-xgx-xbi",
+    "nonEtymologyOnly": "qfa-xgx-xbi",
+    "otherNames": [],
+    "parents": [],
+    "scripts": [
+      "Hani",
+      "Latinx"
+    ],
+    "varieties": [],
+    "wikidataItem": "Q4448647",
+    "wikipediaArticle": "Xianbei language"
+  },
   "qfa-yen-pro": {
     "aliases": [],
     "ancestors": [],
@@ -134171,10 +134443,11 @@
     "aliases": [],
     "ancestors": [
       "afa-pro",
-      "cus-pro"
+      "cus-pro",
+      "cus-som-pro"
     ],
     "canonicalName": "Rendille",
-    "family": "cus-eas",
+    "family": "cus-som",
     "kind": "regular",
     "mainCode": "rel",
     "nonEtymologyOnly": "rel",
@@ -140817,10 +141090,11 @@
       "Santa"
     ],
     "ancestors": [
-      "xgn-pro"
+      "xgn-pro",
+      "xng-ear"
     ],
     "canonicalName": "Dongxiang",
-    "family": "xgn",
+    "family": "xgn-shr",
     "kind": "regular",
     "mainCode": "sce",
     "nonEtymologyOnly": "sce",
@@ -141659,7 +141933,9 @@
     "wikipediaArticle": "Gallurese language"
   },
   "sdo": {
-    "aliases": [],
+    "aliases": [
+      "Bukar-Sadong"
+    ],
     "ancestors": [
       "map-pro",
       "poz-pro"
@@ -144117,7 +144393,8 @@
     "nonEtymologyOnly": "shy",
     "otherNames": [
       "Shawiya Berber",
-      "Chaouïa"
+      "Chaouïa",
+      "Tacawit"
     ],
     "parents": [],
     "scripts": [
@@ -147515,10 +147792,11 @@
     "aliases": [],
     "ancestors": [
       "afa-pro",
-      "cus-pro"
+      "cus-pro",
+      "cus-som-pro"
     ],
     "canonicalName": "Somali",
-    "family": "cus-eas",
+    "family": "cus-som",
     "kind": "regular",
     "mainCode": "so",
     "nonEtymologyOnly": "so",
@@ -148960,7 +149238,9 @@
     "wikipediaArticle": "Siriano language"
   },
   "srk": {
-    "aliases": [],
+    "aliases": [
+      "Serudung"
+    ],
     "ancestors": [
       "map-pro",
       "poz-pro"
@@ -154383,7 +154663,8 @@
   "te": {
     "aliases": [],
     "ancestors": [
-      "dra-pro"
+      "dra-pro",
+      "dra-ote"
     ],
     "canonicalName": "Telugu",
     "family": "dra",
@@ -154391,7 +154672,9 @@
     "mainCode": "te",
     "nonEtymologyOnly": "te",
     "otherNames": [],
-    "parents": [],
+    "parents": [
+      "dra-ote"
+    ],
     "scripts": [
       "Telu"
     ],
@@ -160235,10 +160518,11 @@
     "aliases": [],
     "ancestors": [
       "afa-pro",
-      "cus-pro"
+      "cus-pro",
+      "cus-som-pro"
     ],
     "canonicalName": "Tunni",
-    "family": "cus-eas",
+    "family": "cus-som",
     "kind": "regular",
     "mainCode": "tqq",
     "nonEtymologyOnly": "tqq",
@@ -165088,7 +165372,9 @@
     "wikipediaArticle": "Ulithian language"
   },
   "ulk": {
-    "aliases": [],
+    "aliases": [
+      "Meriam Mir"
+    ],
     "ancestors": [
       "ngf-pro"
     ],
@@ -165680,22 +165966,6 @@
     "varieties": [],
     "wikidataItem": "Q3178610",
     "wikipediaArticle": "Western Jicaque language"
-  },
-  "und-xbi": {
-    "aliases": [],
-    "ancestors": [],
-    "canonicalName": "Xianbei",
-    "family": "qfa-not",
-    "kind": "etymology-only",
-    "mainCode": "und-xbi",
-    "nonEtymologyOnly": "und",
-    "otherNames": [],
-    "parents": [],
-    "scripts": [
-      "All"
-    ],
-    "varieties": [],
-    "wikipediaArticle": "Xianbei"
   },
   "und-xnu": {
     "aliases": [],
@@ -169704,7 +169974,8 @@
     "aliases": [],
     "ancestors": [
       "afa-pro",
-      "cus-pro"
+      "cus-pro",
+      "cus-sou-pro"
     ],
     "canonicalName": "Alagwa",
     "family": "cus-sou",
@@ -169812,6 +170083,7 @@
     "aliases": [],
     "ancestors": [
       "dra-pro",
+      "dra-ote",
       "te"
     ],
     "canonicalName": "Waddar",
@@ -170925,7 +171197,8 @@
     "aliases": [],
     "ancestors": [
       "afa-pro",
-      "cus-pro"
+      "cus-pro",
+      "cus-sou-pro"
     ],
     "canonicalName": "Kw'adza",
     "family": "cus-sou",
@@ -172952,13 +173225,18 @@
     "aliases": [],
     "ancestors": [],
     "canonicalName": "Wutunhua",
+    "family": "crp",
     "kind": "regular",
     "mainCode": "wuh",
     "nonEtymologyOnly": "wuh",
     "otherNames": [],
-    "parents": [],
+    "parents": [
+      "cmn",
+      "bo",
+      "peh"
+    ],
     "scripts": [
-      "None"
+      "Latn"
     ],
     "varieties": [],
     "wikidataItem": "Q1012917",
@@ -173679,11 +173957,12 @@
     "aliases": [],
     "ancestors": [
       "xgn-pro",
-      "xng",
+      "xng-ear",
+      "xng-lat",
       "xwo"
     ],
     "canonicalName": "Kalmyk",
-    "family": "xgn",
+    "family": "xgn-cen",
     "kind": "regular",
     "mainCode": "xal",
     "nonEtymologyOnly": "xal",
@@ -174986,7 +175265,8 @@
       "Mongor"
     ],
     "ancestors": [
-      "xgn-pro"
+      "xgn-pro",
+      "xng-ear"
     ],
     "canonicalName": "Mongghul",
     "family": "mjg",
@@ -175009,7 +175289,8 @@
       "Mongor"
     ],
     "ancestors": [
-      "xgn-pro"
+      "xgn-pro",
+      "xng-ear"
     ],
     "canonicalName": "Mangghuer",
     "family": "mjg",
@@ -175041,6 +175322,29 @@
     "varieties": [],
     "wikidataItem": "Q2493677",
     "wikipediaArticle": "Proto-Mongolic language"
+  },
+  "xgn-rou": {
+    "aliases": [
+      "Ruanruan",
+      "Ruan-ruan"
+    ],
+    "ancestors": [
+      "xgn-pro"
+    ],
+    "canonicalName": "Rouran",
+    "family": "xgn",
+    "kind": "regular",
+    "mainCode": "xgn-rou",
+    "nonEtymologyOnly": "xgn-rou",
+    "otherNames": [],
+    "parents": [],
+    "scripts": [
+      "Hani",
+      "Latinx"
+    ],
+    "varieties": [],
+    "wikidataItem": "Q48816637",
+    "wikipediaArticle": "Rouran language"
   },
   "xgr": {
     "aliases": [],
@@ -178596,7 +178900,8 @@
   "xng-lat": {
     "aliases": [],
     "ancestors": [
-      "xgn-pro"
+      "xgn-pro",
+      "xng-ear"
     ],
     "canonicalName": "Late Middle Mongol",
     "family": "xgn",
@@ -178604,7 +178909,9 @@
     "mainCode": "xng-lat",
     "nonEtymologyOnly": "xng",
     "otherNames": [],
-    "parents": [],
+    "parents": [
+      "xng-ear"
+    ],
     "scripts": [
       "Mong",
       "Phag",
@@ -181271,17 +181578,16 @@
     "aliases": [],
     "ancestors": [
       "xgn-pro",
-      "xng"
+      "xng-ear",
+      "xng-lat"
     ],
     "canonicalName": "Written Oirat",
-    "family": "xgn",
+    "family": "xgn-cen",
     "kind": "regular",
     "mainCode": "xwo",
     "nonEtymologyOnly": "xwo",
     "otherNames": [],
-    "parents": [
-      "xng"
-    ],
+    "parents": [],
     "scripts": [
       "xwo-Mong"
     ],
@@ -183516,10 +183822,12 @@
   "ykh": {
     "aliases": [],
     "ancestors": [
-      "xgn-pro"
+      "xgn-pro",
+      "xng-ear",
+      "xng-lat"
     ],
     "canonicalName": "Khamnigan Mongol",
-    "family": "xgn",
+    "family": "xgn-cen",
     "kind": "regular",
     "mainCode": "ykh",
     "nonEtymologyOnly": "ykh",
@@ -184189,10 +184497,11 @@
     "aliases": [],
     "ancestors": [
       "afa-pro",
-      "cus-pro"
+      "cus-pro",
+      "cus-som-pro"
     ],
     "canonicalName": "Maay",
-    "family": "cus-eas",
+    "family": "cus-som",
     "kind": "regular",
     "mainCode": "ymm",
     "nonEtymologyOnly": "ymm",
@@ -185872,10 +186181,11 @@
   "yuy": {
     "aliases": [],
     "ancestors": [
-      "xgn-pro"
+      "xgn-pro",
+      "xng-ear"
     ],
     "canonicalName": "East Yugur",
-    "family": "xgn",
+    "family": "xgn-sou",
     "kind": "regular",
     "mainCode": "yuy",
     "nonEtymologyOnly": "yuy",
@@ -187745,11 +188055,9 @@
   },
   "zkt": {
     "aliases": [],
-    "ancestors": [
-      "xgn-pro"
-    ],
+    "ancestors": [],
     "canonicalName": "Khitan",
-    "family": "xgn",
+    "family": "qfa-xgx",
     "kind": "regular",
     "mainCode": "zkt",
     "nonEtymologyOnly": "zkt",
@@ -187967,6 +188275,30 @@
     "varieties": [],
     "wikidataItem": "Q13211",
     "wikipediaArticle": "Old Ukrainian"
+  },
+  "zlw-mpl": {
+    "aliases": [],
+    "ancestors": [
+      "ine-pro",
+      "ine-bsl-pro",
+      "sla-pro",
+      "zlw-opl"
+    ],
+    "canonicalName": "Middle Polish",
+    "family": "zlw-lch",
+    "kind": "etymology-only",
+    "mainCode": "zlw-mpl",
+    "nonEtymologyOnly": "pl",
+    "otherNames": [],
+    "parents": [
+      "zlw-opl"
+    ],
+    "scripts": [
+      "Latn"
+    ],
+    "varieties": [],
+    "wikidataItem": "Q402878",
+    "wikipediaArticle": "Middle Polish"
   },
   "zlw-ocs": {
     "aliases": [],
@@ -189913,7 +190245,9 @@
     "ancestors": [
       "ine-pro",
       "iir-pro",
-      "ira-pro"
+      "ira-pro",
+      "peo",
+      "pal"
     ],
     "canonicalName": "Kumzari",
     "family": "ira-swi",
@@ -189921,9 +190255,11 @@
     "mainCode": "zum",
     "nonEtymologyOnly": "zum",
     "otherNames": [],
-    "parents": [],
+    "parents": [
+      "pal"
+    ],
     "scripts": [
-      "None"
+      "Arab"
     ],
     "varieties": [],
     "wikidataItem": "Q36158",

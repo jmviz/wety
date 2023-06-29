@@ -8,42 +8,51 @@
 
 import argparse
 from wikitextprocessor import Wtp
+from wiktextract.config import WiktionaryConfig
+from wiktextract.wxr_context import WiktextractContext
 from wikitextprocessor.dumpparser import process_dump
 import json
 
-def export_data(ctx, kind, path):
-    ctx.start_page(f"{kind} data export")
-    data = ctx.expand(f"{{{{#invoke:lang-data-export|{kind}}}}}")
 
+def export_data(wxr: WiktextractContext, kind: str, path: str) -> None:
+    wxr.wtp.start_page(f"{kind} data export")
+    data = wxr.wtp.expand(f"{{{{#invoke:lang-data-export|{kind}}}}}")
     data = json.loads(data)
-
-    with open(path, "w") as fout:
+    with open(path, "w", encoding="utf-8") as fout:
         json.dump(data, fout, indent=2, ensure_ascii=False, sort_keys=True)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-    description="Export Wiktionary language and family data to JSON")
-    parser.add_argument("dump", type=str,
-                        help="Wiktionary xml dump file path")
-    parser.add_argument("--languages", type=str, default="languages.json",
-                            help="Language data output file path")
-    parser.add_argument("--families", type=str, default="families.json",
-                            help="Family data output file path")
+        description="Export Wiktionary language and family data to JSON"
+    )
+    parser.add_argument("dump", type=str, help="Wiktionary xml dump file path")
+    parser.add_argument(
+        "--languages",
+        type=str,
+        default="languages.json",
+        help="Language data output file path",
+    )
+    parser.add_argument(
+        "--families",
+        type=str,
+        default="families.json",
+        help="Family data output file path",
+    )
     args = parser.parse_args()
-
-    ctx = Wtp()
-
-    def page_handler(model, title, text):
-        if title.startswith("Module:"):
-            ctx.add_page(model, title, text)
-
-    process_dump(ctx, args.dump, page_handler=page_handler)
-
+    wxr = WiktextractContext(Wtp(), WiktionaryConfig())
+    module_ns_id = wxr.wtp.NAMESPACE_DATA["Module"]["id"]
+    module_ns_name = wxr.wtp.NAMESPACE_DATA["Module"]["name"]
+    process_dump(wxr.wtp, args.dump, {module_ns_id})
     with open("processor/data/language_data.lua", "r") as fin:
         lua_mod = fin.read()
-
-    ctx.add_page("Scribunto", "Module:lang-data-export", lua_mod, transient=True)
-
-    export_data(ctx, "languages", args.languages)
-    export_data(ctx, "families", args.families)
-
+    wxr.wtp.add_page(
+        f"{module_ns_name}:lang-data-export",
+        module_ns_id,
+        body=lua_mod,
+        model="Scribunto",
+    )
+    wxr.wtp.db_conn.commit()
+    export_data(wxr, "languages", args.languages)
+    export_data(wxr, "families", args.families)
+    wxr.wtp.close_db_conn()
