@@ -289,10 +289,12 @@ impl ItemMatches {
                 let a_len = a_term.chars().count();
                 let b_len = b_term.chars().count();
                 if a_len == b_len {
-                    if data.ety_num(a.item) == data.ety_num(b.item) {
-                        a_term.cmp(b_term)
-                    } else {
+                    if a_term == b_term {
                         data.ety_num(a.item).cmp(&data.ety_num(b.item))
+                    } else {
+                        // we want words that start with a lowercase to appear
+                        // before words that start with an uppercase
+                        b_term.cmp(a_term)
                     }
                 } else {
                     a_len.cmp(&b_len)
