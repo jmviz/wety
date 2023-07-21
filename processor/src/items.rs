@@ -95,6 +95,13 @@ impl Item {
         }
     }
 
+    pub(crate) fn page_term(&self) -> Option<Term> {
+        match self {
+            Item::Real(real_item) => real_item.page_term,
+            Item::Imputed(_) => None,
+        }
+    }
+
     pub(crate) fn pos(&self) -> Option<&Vec<Pos>> {
         match self {
             Item::Real(real_item) => Some(&real_item.pos),

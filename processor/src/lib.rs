@@ -15,7 +15,6 @@ mod langterm;
 mod languages;
 use crate::items::Items;
 pub use crate::languages::Lang;
-mod phf_ext;
 mod pos;
 mod pos_phf;
 mod processed;
@@ -25,6 +24,7 @@ mod root;
 mod string_pool;
 mod turtle;
 mod wiktextract_json;
+pub use crate::wiktextract_json::wiktextract_lines;
 
 use crate::string_pool::StringPool;
 

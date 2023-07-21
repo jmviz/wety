@@ -378,8 +378,10 @@ impl Items {
         items_needing_embedding
     }
 
-    // For now we'll just take the first template. But cf. notes.md.
-    // Only to be called once all json items have been processed into items.
+    // For now we'll just take the first template, unless imputation is requred,
+    // in which case we impute a chain of relations until the first known item
+    // is hit. But cf. notes.md. Only to be called once all json items have been
+    // processed into items.
     fn process_item_raw_etymology(
         &mut self,
         embeddings: &Embeddings,
@@ -417,16 +419,30 @@ impl Items {
                 ety_items.push(ety_item);
                 confidences.push(confidence);
             }
-            self.graph.add_ety(
-                current_item,
-                template.mode,
-                template.head,
-                &ety_items,
-                &confidences,
-            );
-            // We keep processing templates until we hit the first one with no
-            // imputation required.
-            if !has_imputation {
+            if has_imputation {
+                if ety_items.iter().all(|&ei| {
+                    self.get(current_item)
+                        .lang()
+                        .descends_from(self.get(ei).lang())
+                }) {
+                    self.graph.add_ety(
+                        current_item,
+                        template.mode,
+                        template.head,
+                        &ety_items,
+                        &confidences,
+                    );
+                } else {
+                    return Ok(());
+                }
+            } else {
+                self.graph.add_ety(
+                    current_item,
+                    template.mode,
+                    template.head,
+                    &ety_items,
+                    &confidences,
+                );
                 return Ok(());
             }
             current_item = next_item;

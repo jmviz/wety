@@ -200,8 +200,12 @@ impl Lang {
         &self.data().ancestors
     }
 
+    pub(crate) fn descends_from(self, lang: Lang) -> bool {
+        self.ancestors().contains(&lang)
+    }
+
     pub(crate) fn strictly_descends_from(self, lang: Lang) -> bool {
-        self != lang && self.ancestors().contains(&lang)
+        self != lang && self.descends_from(lang)
     }
 
     pub(crate) fn distance_from(self, lang: Lang) -> Option<usize> {

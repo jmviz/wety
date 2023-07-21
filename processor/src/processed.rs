@@ -66,12 +66,8 @@ impl Data {
         self.graph.get(item)
     }
 
-    fn term_len(&self, item: ItemId) -> usize {
-        self.get(item)
-            .term()
-            .resolve(&self.string_pool)
-            .chars()
-            .count()
+    fn term(&self, item: ItemId) -> &str {
+        self.get(item).term().resolve(&self.string_pool)
     }
 
     fn ety_num(&self, item: ItemId) -> u8 {
@@ -288,10 +284,16 @@ impl ItemMatches {
     fn sort(&mut self, data: &Data) {
         self.matches.sort_unstable_by(|a, b| {
             if a.distance == b.distance {
-                let a_len = data.term_len(a.item);
-                let b_len = data.term_len(b.item);
+                let a_term = data.term(a.item);
+                let b_term = data.term(b.item);
+                let a_len = a_term.chars().count();
+                let b_len = b_term.chars().count();
                 if a_len == b_len {
-                    data.ety_num(a.item).cmp(&data.ety_num(b.item))
+                    if data.ety_num(a.item) == data.ety_num(b.item) {
+                        a_term.cmp(b_term)
+                    } else {
+                        data.ety_num(a.item).cmp(&data.ety_num(b.item))
+                    }
                 } else {
                     a_len.cmp(&b_len)
                 }

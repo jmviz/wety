@@ -21,7 +21,12 @@ use bytelines::ByteLines;
 use flate2::read::GzDecoder;
 use simd_json::{to_borrowed_value, ValueAccess};
 
-pub(crate) fn wiktextract_lines(path: &Path) -> Result<impl Iterator<Item = Vec<u8>>> {
+/// Returns an iterator over the lines in the file at the given path.
+///
+/// # Errors
+///
+/// This function will return an error if the file at the given path cannot be opened.
+pub fn wiktextract_lines(path: &Path) -> Result<impl Iterator<Item = Vec<u8>>> {
     let file = File::open(path)?;
     let reader = BufReader::new(file);
     let is_gz_compressed = path.extension().is_some_and(|ext| ext == "gz");

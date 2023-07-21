@@ -19,7 +19,9 @@ const ITEM_PRE: &str = "w:";
 const PRED_IS_IMPUTED: &str = "p:isImputed";
 const PRED_IS_RECONSTRUCTED: &str = "p:isReconstructed";
 const PRED_TERM: &str = "p:term";
+const PRED_PAGE_TERM: &str = "p:pageTerm";
 const PRED_LANG: &str = "p:lang";
+const PRED_ROMANIZATION: &str = "p:romanization";
 const PRED_URL: &str = "p:url";
 const PRED_POS: &str = "p:pos";
 const PRED_GLOSS: &str = "p:gloss";
@@ -83,22 +85,26 @@ fn write_list_delim(f: &mut BufWriter<File>, i: usize, len: usize) -> Result<()>
 impl Data {
     fn write_turtle_item(&self, f: &mut BufWriter<File>, id: ItemId, item: &Item) -> Result<()> {
         writeln!(f, "{ITEM_PRE}{}", id.index())?;
-        let term = item.term().resolve(&self.string_pool);
-        write_item_quoted_prop(f, PRED_TERM, term)?;
+
         write_item_quoted_prop(f, PRED_LANG, item.lang().name())?;
 
-        if let Some(url) = item.url(&self.string_pool) {
-            write_item_quoted_prop(f, PRED_URL, &url)?;
+        let term = item.term().resolve(&self.string_pool);
+        write_item_quoted_prop(f, PRED_TERM, term)?;
+
+        if let Some(page_term) = item.page_term() {
+            write_item_quoted_prop(f, PRED_PAGE_TERM, page_term.resolve(&self.string_pool))?;
+        };
+
+        if let Some(romanization) = item.romanization() {
+            write_item_quoted_prop(
+                f,
+                PRED_ROMANIZATION,
+                romanization.resolve(&self.string_pool),
+            )?;
         };
 
         writeln!(f, "  {PRED_ETY_NUM} {} ;", item.ety_num())?;
 
-        if item.is_imputed() {
-            writeln!(f, "  {PRED_IS_IMPUTED} true ;")?;
-        }
-        if item.is_reconstructed() {
-            writeln!(f, "  {PRED_IS_RECONSTRUCTED} true ;")?;
-        }
         if let Some(pos) = &item.pos() {
             write!(f, "  {PRED_POS} ")?;
             for (p_i, p) in pos.iter().map(|p| p.name()).enumerate() {
@@ -106,12 +112,25 @@ impl Data {
                 write_list_delim(f, p_i, pos.len())?;
             }
         };
+
         if let Some(gloss) = &item.gloss() {
             write!(f, "  {PRED_GLOSS} ")?;
             for (g_i, g) in gloss.iter().enumerate() {
                 write_quoted_str(f, &g.to_string(&self.string_pool))?;
                 write_list_delim(f, g_i, gloss.len())?;
             }
+        }
+
+        if let Some(url) = item.url(&self.string_pool) {
+            write_item_quoted_prop(f, PRED_URL, &url)?;
+        };
+
+        if item.is_imputed() {
+            writeln!(f, "  {PRED_IS_IMPUTED} true ;")?;
+        }
+
+        if item.is_reconstructed() {
+            writeln!(f, "  {PRED_IS_RECONSTRUCTED} true ;")?;
         }
 
         if let Some(immediate_ety) = self.graph.get_immediate_ety(id) {
@@ -130,6 +149,7 @@ impl Data {
                 write_list_delim(f, e_i, immediate_ety.items.len())?;
             }
         }
+
         if let Some(progenitors) = self.progenitors.get(&id) {
             if let Some(head) = progenitors.head {
                 writeln!(f, "  {PRED_HEAD_PROGENITOR} {ITEM_PRE}{} ;", head.index())?;
@@ -148,7 +168,7 @@ impl Data {
         let mut f = BufWriter::new(File::create(path)?);
         write_prefixes(&mut f)?;
         let n = self.graph.len();
-        let pb = progress_bar(n, "Writing RDF to Turtle file data/wety.ttl")?;
+        let pb = progress_bar(n, &format!("Writing RDF to Turtle file {}", path.display()))?;
         for (id, item) in self.graph.iter() {
             self.write_turtle_item(&mut f, id, item)?;
             pb.inc(1);
