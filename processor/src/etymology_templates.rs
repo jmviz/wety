@@ -201,6 +201,7 @@ pub(crate) enum EtyMode {
     SurfaceAnalysis,
     #[strum(
         to_string = "suffix", // https://en.wiktionary.org/wiki/Template:suffix
+        serialize = "suf", // shortcut for "suffix" (undocumented, but used)
     )]
     Suffix,
     #[strum(
