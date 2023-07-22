@@ -1,6 +1,6 @@
 use crate::HashMap;
 
-use std::{str::FromStr, vec};
+use std::{collections::BTreeMap, str::FromStr};
 
 use anyhow::{anyhow, Ok, Result};
 use lazy_static::lazy_static;
@@ -67,16 +67,22 @@ struct Languages {
 
 impl Languages {
     fn new() -> Self {
-        let code2raw_data: HashMap<&'static str, RawLangData> = serde_json::from_str(include_str!(
-            concat!(env!("CARGO_MANIFEST_DIR"), "/data/languages.json")
-        ))
+        // It's important to use an ordered map here. If a HashMap were used,
+        // the iteration order and thus the sequence of ids would be
+        // non-deterministic. This could cause discrepancies in LangId between
+        // runs, particularly when running on different machines (e.g. local dev
+        // vs. prod machines).
+        let code2raw_data: BTreeMap<&'static str, RawLangData> = serde_json::from_str(
+            include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/data/languages.json")),
+        )
         .expect("well-formed languages.json");
 
         let mut main_code2id = HashMap::default();
         let mut next_id: LangId = 0;
 
         for raw_data in code2raw_data.values() {
-            if main_code2id.insert(raw_data.main_code, next_id).is_none() {
+            if !main_code2id.contains_key(raw_data.main_code) {
+                main_code2id.insert(raw_data.main_code, next_id);
                 next_id += 1;
             }
         }
