@@ -391,22 +391,33 @@ impl Items {
         let mut current_item = item; // for tracking possibly imputed items
         let mut next_item = item; // for tracking possibly imputed items
         let mut item_embeddings = vec![];
+        let mut imputation_chain_in_progress = false;
         for template in raw_etymology.templates.iter() {
             item_embeddings.push(embeddings.get(self.get(current_item), current_item)?);
             let mut ety_items = Vec::with_capacity(template.langterms.len());
             let mut confidences = Vec::with_capacity(template.langterms.len());
-            let mut has_imputation = false;
             for &ety_langterm in template.langterms.iter() {
                 let Retrieval {
                     item_id: ety_item,
                     confidence,
                 } = self.get_or_impute_item(embeddings, &item_embeddings, item, ety_langterm)?;
-                has_imputation = self.get(ety_item).is_imputed();
-                if has_imputation {
-                    if template.langterms.len() == 1 {
+
+                if self.get(ety_item).is_imputed() {
+                    if template.langterms.len() == 1
+                    // $$$ It would be better to have language timespan data and
+                    // only impute connection if parent timespan precedes child
+                    // timespan. Going based on genetic descent makes us miss
+                    // out on common connections like e.g. Middle English >
+                    // Latin.
+                        && self
+                            .get(current_item)
+                            .lang()
+                            .descends_from(self.get(ety_item).lang())
+                    {
                         // This is an imputed term in a non-compound-kind template.
                         // We will use this imputed item as the item for the next
                         // template in the outer loop.
+                        imputation_chain_in_progress = true;
                         next_item = ety_item;
                     } else {
                         // This is an imputed item for a term in a
@@ -419,30 +430,16 @@ impl Items {
                 ety_items.push(ety_item);
                 confidences.push(confidence);
             }
-            if has_imputation {
-                if ety_items.iter().all(|&ei| {
-                    self.get(current_item)
-                        .lang()
-                        .descends_from(self.get(ei).lang())
-                }) {
-                    self.graph.add_ety(
-                        current_item,
-                        template.mode,
-                        template.head,
-                        &ety_items,
-                        &confidences,
-                    );
-                } else {
-                    return Ok(());
-                }
-            } else {
-                self.graph.add_ety(
-                    current_item,
-                    template.mode,
-                    template.head,
-                    &ety_items,
-                    &confidences,
-                );
+
+            self.graph.add_ety(
+                current_item,
+                template.mode,
+                template.head,
+                &ety_items,
+                &confidences,
+            );
+
+            if !imputation_chain_in_progress {
                 return Ok(());
             }
             current_item = next_item;
