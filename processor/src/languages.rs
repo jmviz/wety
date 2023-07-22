@@ -76,8 +76,7 @@ impl Languages {
         let mut next_id: LangId = 0;
 
         for raw_data in code2raw_data.values() {
-            if !main_code2id.contains_key(raw_data.main_code) {
-                main_code2id.insert(raw_data.main_code, next_id);
+            if main_code2id.insert(raw_data.main_code, next_id).is_none() {
                 next_id += 1;
             }
         }
@@ -255,6 +254,9 @@ mod tests {
         assert_eq!(vl3.code(), "la-vul");
         assert_eq!(vl1, vl2);
         assert_eq!(vl2, vl3);
+        let nl = Lang::from_str("nl").unwrap();
+        assert_eq!(nl.code(), "nl");
+        assert_eq!(nl.name(), "Dutch");
     }
 
     #[test]
