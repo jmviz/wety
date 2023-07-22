@@ -16,4 +16,6 @@ axum = "0.6.12"
 axum-server = {version = "0.5.1", features = ["tls-rustls"]}
 tokio = {version = "1.27.0", features = ["macros", "rt-multi-thread"]}
 tower = "0.4.13"
-tower-http = {version = "0.4.0", features = ["compression-br", "cors"]}
+tower-http = { version = "0.4.0", features = ["compression-br", "cors", "trace"] }
+tracing-subscriber = "0.3.17"
+tower_governor = "0.0.4"

@@ -7,20 +7,26 @@ use std::{env, net::SocketAddr, path::Path, str::FromStr, sync::Arc};
 
 use anyhow::Result;
 use axum::{
+    error_handling::HandleErrorLayer,
     http::{HeaderValue, Method},
     routing::get,
-    Router,
+    BoxError, Router,
 };
 use axum_server::tls_rustls::RustlsConfig;
 use tower::ServiceBuilder;
+use tower_governor::{errors::display_error, GovernorLayer};
 use tower_http::{
     compression::CompressionLayer,
     cors::{AllowOrigin, CorsLayer},
+    trace::TraceLayer,
 };
 
 #[tokio::main]
 async fn main() -> Result<()> {
     env::set_var("RUST_BACKTRACE", "1");
+
+    env::set_var("RUST_LOG", "tower_http=trace");
+    tracing_subscriber::fmt::init();
 
     let environment = Environment::from_str(
         &env::var("WETY_ENVIRONMENT").unwrap_or_else(|_| "development".to_string()),
@@ -35,7 +41,7 @@ async fn main() -> Result<()> {
         .into(),
     };
 
-    // make this configurable
+    // $$$ make this configurable
     let data_path = Path::new("data/wety.json");
     let state = if data_path.exists() {
         Arc::new(AppState::new(data_path)?)
@@ -54,12 +60,13 @@ async fn main() -> Result<()> {
         .with_state(state)
         .layer(
             ServiceBuilder::new()
-                // ?
-                // https://docs.rs/tower-http/0.4.0/tower_http/trace/index.html
-                // https://docs.rs/tower/0.4.13/tower/limit/struct.RateLimitLayer.html
-                // https://docs.rs/tower/0.4.13/tower/limit/struct.ConcurrencyLimitLayer.html
-                // https://docs.rs/tower/0.4.13/tower/timeout/struct.TimeoutLayer.html
-                // https://docs.rs/axum/latest/axum/error_handling/struct.HandleErrorLayer.html
+                .layer(TraceLayer::new_for_http())
+                .layer(HandleErrorLayer::new(|e: BoxError| async move {
+                    display_error(e)
+                }))
+                .layer(GovernorLayer {
+                    config: Box::leak(Box::default()),
+                })
                 .layer(CompressionLayer::new())
                 .layer(
                     CorsLayer::new()
@@ -73,7 +80,7 @@ async fn main() -> Result<()> {
             let addr = SocketAddr::from_str("0.0.0.0:3000")?;
             println!("Running wety server at http://{}...", addr);
             axum_server::bind(addr)
-                .serve(app.into_make_service())
+                .serve(app.into_make_service_with_connect_info::<SocketAddr>())
                 .await?;
         }
         Environment::Production => {
@@ -85,7 +92,7 @@ async fn main() -> Result<()> {
             let addr = SocketAddr::from_str("0.0.0.0:3000")?;
             println!("Running wety server at https://{}...", addr);
             axum_server::bind_rustls(addr, config)
-                .serve(app.into_make_service())
+                .serve(app.into_make_service_with_connect_info::<SocketAddr>())
                 .await?;
         }
     }

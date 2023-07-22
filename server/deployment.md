@@ -1,6 +1,6 @@
 # Deployment
 
-The following are instructions for deploying the API server (which will run on `https://api.wety.org`) on a fresh [Oracle Cloud ARM instance](https://docs.oracle.com/en-us/iaas/Content/Compute/References/arm.htm) running Ubuntu. This assumes one has already spun an instance up and has `ssh`ed into it. This also assumes that [`wety-client`](https://github.com/jmviz/wety-client) is being served separately on `https://wety.org` (e.g. through github pages), and that one's domain registrar's DNS records are set up properly for github pages and to point the `api` subdomain to the IP address of the Oracle Cloud instance. These instructions are mainly for my (jmviz) own reference. If you are trying to follow these yourself, you should of course substitute whatever your own domain(s) are that you want to have running the client and API server(s). 
+The following are instructions for deploying the API server (which will run on `https://api.wety.org`) on a fresh [Oracle Cloud ARM instance](https://docs.oracle.com/en-us/iaas/Content/Compute/References/arm.htm) running Ubuntu. This assumes one has already spun an instance up and has `ssh`ed into it. This also assumes that [`wety-client`](https://github.com/jmviz/wety-client) is being served separately on `https://wety.org` (e.g. through github pages), and that one's domain registrar's DNS records are set up properly for github pages and to point the `api` subdomain to the IP address of the Oracle Cloud instance. These instructions are mainly for my (jmviz) own reference. If you are trying to follow these yourself, you should of course substitute whatever your own domain(s) are that you want to have running the client and API server(s).
 
 ## Install Rust
 
@@ -62,7 +62,7 @@ At this point, `wety` should be compilable, which you should now do with:
 ```bash
 cd ~/wety
 cargo build --release
-``` 
+```
 
 However, for the server to actually work, we need to set up some networking.
 
@@ -78,7 +78,7 @@ sudo firewall-cmd --permanent --zone=public --add-forward-port=port=443:proto=tc
 sudo firewall-cmd --reload
 ```
 
-The third rule above forwards HTTPS traffic on 443 to 3000, where the `wety` server listens. 
+The third rule above forwards HTTPS traffic on 443 to 3000, where the `wety` server listens.
 
 ## Set up SSL certification
 
@@ -113,14 +113,14 @@ To automate this step every time the certification automatically renews, create 
 sudo nano /etc/letsencrypt/renewal-hooks/deploy/copy-certs
 ```
 
-And write the following to it: 
+And write the following to it:
 
 ```bash
 #!/bin/bash
 sudo cp /etc/letsencrypt/live/api.wety.org/{fullchain,privkey}.pem ~/certs/
 sudo chown ubuntu ~/certs/{fullchain,privkey}.pem
 sudo systemctl restart wety
-``` 
+```
 
 The last few steps were adapted from [here](https://blogs.oracle.com/developers/post/free-ssl-certificates-in-the-oracle-cloud-using-certbot-and-lets-encrypt).
 
@@ -190,7 +190,7 @@ Finished!
 
 ```bash
 cd ~/wety
-git fetch && git merge
+git pull
 cargo build --release
 sudo systemctl restart wety
 ```
@@ -233,7 +233,3 @@ sudo systemctl cat wety
 # Reload the systemd daemon to apply any changes to unit files
 sudo systemctl daemon-reload
 ```
-
-
-
-
