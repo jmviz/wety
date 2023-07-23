@@ -407,7 +407,7 @@ impl Items {
                     // $$$ It would be better to have language timespan data and
                     // only impute connection if parent timespan precedes child
                     // timespan. Going based on genetic descent makes us miss
-                    // out on common connections like e.g. Middle English >
+                    // out on common connections like e.g. Middle English <
                     // Latin.
                         && self
                             .get(current_item)
