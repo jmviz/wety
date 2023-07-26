@@ -16,9 +16,9 @@
         }
       },
       "args": [
-        "--wiktextract-path=${workspaceFolder}/data/test/moral.jsonl",
-        "--serialization-path=${workspaceFolder}/data/test/moral_wety.json",
-        "--turtle-path=${workspaceFolder}/data/test/moral_wety.ttl",
+        "--wiktextract-path=${workspaceFolder}/data/test/trans.jsonl",
+        "--serialization-path=${workspaceFolder}/data/test/trans_wety.json",
+        "--turtle-path=${workspaceFolder}/data/test/trans_wety.ttl",
         "--embeddings-cache-path=${workspaceFolder}/data/test/embeddings-cache"
       ],
       "cwd": "${workspaceFolder}",

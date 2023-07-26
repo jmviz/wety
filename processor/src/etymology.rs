@@ -181,15 +181,17 @@ fn process_compound_kind_json_template(
 ) -> Option<RawEtyTemplate> {
     let mut n = 2;
     let mut ety_langterms = vec![];
-    let mut head = None;
+    let mut head = 0;
+    let mut n_non_fix_terms = 0; // terms that aren't x-, -x, etc.
     while let Some(ety_term) = args.get_valid_term(n.to_string().as_str()) {
-        // These compound-kind templates generally have no true head (affix is
-        // the most common of these templates, see that). Arbitrarily take the
-        // first ety_term which is not indicated to be some kind of *fix as the
-        // head. $$ We may need to just not give a head in any case in this
-        // function if this turns out to be too loose.
-        if head.is_none() && !ety_term.starts_with('-') && !ety_term.ends_with('-') {
-            head = Some(n - 2);
+        // These compound-kind templates often have no true head (affix is the
+        // most common of these templates, see that). We will take a head only
+        // in the case where there is a single non *fix term. So e.g.
+        // {{af|en|pre-|date}} will have date as head, but
+        // {{af|en|volley|ball}} will not have a head.
+        if !ety_term.starts_with('-') && !ety_term.ends_with('-') {
+            n_non_fix_terms += 1;
+            head = n - 2;
         }
         if let Some(ety_lang) = args.get_valid_str(format!("lang{n}").as_str()) {
             let ety_lang = Lang::from_str(ety_lang).ok()?;
@@ -205,7 +207,7 @@ fn process_compound_kind_json_template(
         return Some(RawEtyTemplate {
             langterms: ety_langterms.into_boxed_slice(),
             mode,
-            head, // see above
+            head: (n_non_fix_terms == 1).then_some(head), // see above
         });
     }
     None
