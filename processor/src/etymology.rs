@@ -15,19 +15,6 @@ use std::{mem, str::FromStr};
 use anyhow::{anyhow, ensure, Ok, Result};
 use simd_json::ValueAccess;
 
-#[derive(Hash, Eq, PartialEq, Debug)]
-pub(crate) struct RawEtymology {
-    pub(crate) templates: Box<[RawEtyTemplate]>,
-}
-
-impl From<Vec<RawEtyTemplate>> for RawEtymology {
-    fn from(templates: Vec<RawEtyTemplate>) -> Self {
-        Self {
-            templates: templates.into_boxed_slice(),
-        }
-    }
-}
-
 // models the basic info from a wiktionary etymology template
 #[derive(Hash, Eq, PartialEq, Debug)]
 pub(crate) struct RawEtyTemplate {
@@ -42,6 +29,25 @@ impl RawEtyTemplate {
             langterms: Box::from([langterm]),
             mode,
             head: Some(0),
+        }
+    }
+}
+
+#[derive(Hash, Eq, PartialEq, Debug)]
+pub(crate) enum ParsedRawEtyTemplate {
+    Parsed(RawEtyTemplate),
+    Skipped,
+}
+
+#[derive(Hash, Eq, PartialEq, Debug)]
+pub(crate) struct RawEtymology {
+    pub(crate) templates: Box<[ParsedRawEtyTemplate]>,
+}
+
+impl From<Vec<ParsedRawEtyTemplate>> for RawEtymology {
+    fn from(templates: Vec<ParsedRawEtyTemplate>) -> Self {
+        Self {
+            templates: templates.into_boxed_slice(),
         }
     }
 }
@@ -295,7 +301,7 @@ impl WiktextractJsonItem<'_> {
         let mention_lang = Lang::from_str(mention_lang).ok()?;
         let mention_langterm = mention_lang.new_langterm(string_pool, mention_term);
         let ety = RawEtyTemplate::new(mention_langterm, EtyMode::Mention);
-        Some(vec![ety].into())
+        Some(vec![ParsedRawEtyTemplate::Parsed(ety)].into())
     }
 
     fn get_standard_ety(&self, string_pool: &mut StringPool, lang: Lang) -> Option<RawEtymology> {
@@ -303,7 +309,9 @@ impl WiktextractJsonItem<'_> {
         let mut raw_ety_templates = Vec::with_capacity(templates.len());
         for template in templates {
             if let Some(raw_ety_template) = process_json_ety_template(string_pool, template, lang) {
-                raw_ety_templates.push(raw_ety_template);
+                raw_ety_templates.push(ParsedRawEtyTemplate::Parsed(raw_ety_template));
+            } else {
+                raw_ety_templates.push(ParsedRawEtyTemplate::Skipped);
             }
         }
         (!raw_ety_templates.is_empty()).then_some(raw_ety_templates.into())
@@ -326,8 +334,8 @@ impl WiktextractJsonItem<'_> {
             .and_then(|alt_list| alt_list.get(0))
             .and_then(|alt_obj| alt_obj.get_str("word"))?;
         let langterm = lang.new_langterm(string_pool, alt_term);
-        let raw_ety_template = RawEtyTemplate::new(langterm, EtyMode::Form);
-        Some(vec![raw_ety_template].into())
+        let ety = RawEtyTemplate::new(langterm, EtyMode::Form);
+        Some(vec![ParsedRawEtyTemplate::Parsed(ety)].into())
     }
 
     pub(crate) fn get_etymology(
@@ -350,7 +358,10 @@ impl Items {
         let mut items_needing_embedding = HashSet::default();
         let mut parent_items = vec![item];
 
-        for template in raw_etymology.templates.iter() {
+        for template in raw_etymology.templates.iter().filter_map(|t| match t {
+            ParsedRawEtyTemplate::Parsed(template) => Some(template),
+            ParsedRawEtyTemplate::Skipped => None,
+        }) {
             let mut has_ambiguous_child = false;
             let mut has_imputed_child = false;
             let mut next_parent_items = vec![];
@@ -395,56 +406,71 @@ impl Items {
         let mut item_embeddings = vec![];
         let mut imputation_chain_in_progress = false;
         for template in raw_etymology.templates.iter() {
-            item_embeddings.push(embeddings.get(self.get(current_item), current_item)?);
-            let mut ety_items = Vec::with_capacity(template.langterms.len());
-            let mut confidences = Vec::with_capacity(template.langterms.len());
-            for &ety_langterm in template.langterms.iter() {
-                let Retrieval {
-                    item_id: ety_item,
-                    confidence,
-                } = self.get_or_impute_item(embeddings, &item_embeddings, item, ety_langterm)?;
+            match template {
+                ParsedRawEtyTemplate::Parsed(template) => {
+                    item_embeddings.push(embeddings.get(self.get(current_item), current_item)?);
+                    let mut ety_items = Vec::with_capacity(template.langterms.len());
+                    let mut confidences = Vec::with_capacity(template.langterms.len());
+                    for &ety_langterm in template.langterms.iter() {
+                        let Retrieval {
+                            item_id: ety_item,
+                            confidence,
+                        } = self.get_or_impute_item(
+                            embeddings,
+                            &item_embeddings,
+                            item,
+                            ety_langterm,
+                        )?;
+                        if self.get(ety_item).is_imputed() {
+                            if template.langterms.len() == 1
+                            // $$$ It would be better to have language timespan data and
+                            // only impute connection if parent timespan precedes child
+                            // timespan. Going based on genetic descent makes us miss
+                            // out on common connections like e.g. Middle English <
+                            // Latin.
+                            && self
+                                .get(current_item)
+                                .lang()
+                                .descends_from(self.get(ety_item).lang())
+                            {
+                                // This is an imputed term in a non-compound-kind template.
+                                // We will use this imputed item as the item for the next
+                                // template in the outer loop.
+                                imputation_chain_in_progress = true;
+                                next_item = ety_item;
+                            } else {
+                                // This is an imputed item for a term in a
+                                // compound-kind template. We won't bother trying to do
+                                // convoluted ety link imputations for such cases at the
+                                // moment. So we stop processing templates here.
+                                return Ok(());
+                            }
+                        } else {
+                            imputation_chain_in_progress = false;
+                        }
+                        ety_items.push(ety_item);
+                        confidences.push(confidence);
+                    }
 
-                if self.get(ety_item).is_imputed() {
-                    if template.langterms.len() == 1
-                    // $$$ It would be better to have language timespan data and
-                    // only impute connection if parent timespan precedes child
-                    // timespan. Going based on genetic descent makes us miss
-                    // out on common connections like e.g. Middle English <
-                    // Latin.
-                        && self
-                            .get(current_item)
-                            .lang()
-                            .descends_from(self.get(ety_item).lang())
-                    {
-                        // This is an imputed term in a non-compound-kind template.
-                        // We will use this imputed item as the item for the next
-                        // template in the outer loop.
-                        imputation_chain_in_progress = true;
-                        next_item = ety_item;
-                    } else {
-                        // This is an imputed item for a term in a
-                        // compound-kind template. We won't bother trying to do
-                        // convoluted ety link imputations for such cases at the
-                        // moment. So we stop processing templates here.
+                    self.graph.add_ety(
+                        current_item,
+                        template.mode,
+                        template.head,
+                        &ety_items,
+                        &confidences,
+                    );
+
+                    if !imputation_chain_in_progress {
+                        return Ok(());
+                    }
+                    current_item = next_item;
+                }
+                ParsedRawEtyTemplate::Skipped => {
+                    if imputation_chain_in_progress {
                         return Ok(());
                     }
                 }
-                ety_items.push(ety_item);
-                confidences.push(confidence);
             }
-
-            self.graph.add_ety(
-                current_item,
-                template.mode,
-                template.head,
-                &ety_items,
-                &confidences,
-            );
-
-            if !imputation_chain_in_progress {
-                return Ok(());
-            }
-            current_item = next_item;
         }
         Ok(())
     }
