@@ -62,32 +62,32 @@ pub async fn item_search_matches(
 }
 
 #[derive(Deserialize)]
-pub struct FilterLangs {
-    #[serde(rename = "filterLang")]
+pub struct IncludeLangs {
+    #[serde(rename = "lang")]
     langs: Vec<Lang>,
 }
 
 pub async fn item_expansion(
     State(state): State<Arc<AppState>>,
     Path(item_id): Path<ItemId>,
-    Query(filter_langs): Query<FilterLangs>,
+    Query(include_langs): Query<IncludeLangs>,
 ) -> Json<Value> {
-    let query_lang = state.data.lang(item_id);
+    let input_lang = state.data.lang(item_id);
     Json(
         state
             .data
-            .expanded_item_json(item_id, query_lang, &filter_langs.langs),
+            .expanded_item_json(item_id, input_lang, &include_langs.langs),
     )
 }
 
 pub async fn item_head_progenitor_tree(
     State(state): State<Arc<AppState>>,
     Path(item_id): Path<ItemId>,
-    Query(filter_langs): Query<FilterLangs>,
+    Query(include_langs): Query<IncludeLangs>,
 ) -> Json<Value> {
     Json(
         state
             .data
-            .head_progenitor_tree(item_id, &filter_langs.langs),
+            .head_progenitor_tree(item_id, &include_langs.langs),
     )
 }

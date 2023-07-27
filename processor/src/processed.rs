@@ -122,40 +122,40 @@ impl Data {
     pub fn expanded_item_json(
         &self,
         item_id: ItemId,
-        query_lang: Lang,
-        filter_langs: &[Lang],
+        input_lang: Lang,
+        include_langs: &[Lang],
     ) -> Value {
         let item = self.get(item_id);
         let item_lang = item.lang();
-        let children = (!filter_langs.contains(&item_lang)).then_some(
+        let children = (!include_langs.contains(&item_lang)).then_some(
             self.graph
                 .get_head_children(item_id)
                 .filter(|(child_id, child)| {
-                    filter_langs.contains(&child.lang())
+                    include_langs.contains(&child.lang())
                         || self
                             .head_progeny_langs
                             .get(child_id)
-                            .is_some_and(|langs| filter_langs.iter().any(|fl| langs.contains(fl)))
+                            .is_some_and(|langs| include_langs.iter().any(|il| langs.contains(il)))
                 })
-                .map(|(child_id, _)| self.expanded_item_json(child_id, query_lang, filter_langs))
+                .map(|(child_id, _)| self.expanded_item_json(child_id, input_lang, include_langs))
                 .collect_vec(),
         );
         json!({
             "item": self.item_json(item_id),
             "children": children,
-            "langDistance": item_lang.distance_from(query_lang),
+            "langDistance": item_lang.distance_from(input_lang),
         })
     }
 
     #[must_use]
-    pub fn head_progenitor_tree(&self, item_id: ItemId, filter_langs: &[Lang]) -> Value {
-        let query_lang = self.get(item_id).lang();
+    pub fn head_progenitor_tree(&self, item_id: ItemId, include_langs: &[Lang]) -> Value {
+        let input_lang = self.get(item_id).lang();
         self.progenitors
             .get(&item_id)
             .and_then(|p| p.head)
             .map_or_else(
-                || self.expanded_item_json(item_id, query_lang, filter_langs),
-                |head| self.expanded_item_json(head, query_lang, filter_langs),
+                || self.expanded_item_json(item_id, input_lang, include_langs),
+                |head| self.expanded_item_json(head, input_lang, include_langs),
             )
     }
 }
