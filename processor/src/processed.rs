@@ -77,6 +77,11 @@ impl Data {
 
 // pub methods for server
 impl Data {
+    #[must_use]
+    pub fn lang(&self, item: ItemId) -> Lang {
+        self.get(item).lang()
+    }
+
     /// # Errors
     ///
     /// Will return `Err` if any unexpected issue arises in the deserialization.
@@ -114,37 +119,43 @@ impl Data {
     }
 
     #[must_use]
-    pub fn expanded_item_json(&self, item_id: ItemId, filter_lang: Lang) -> Value {
+    pub fn expanded_item_json(
+        &self,
+        item_id: ItemId,
+        query_lang: Lang,
+        filter_langs: &[Lang],
+    ) -> Value {
         let item = self.get(item_id);
         let item_lang = item.lang();
-        let children = (item_lang != filter_lang).then_some(
+        let children = (!filter_langs.contains(&item_lang)).then_some(
             self.graph
                 .get_head_children(item_id)
                 .filter(|(child_id, child)| {
-                    child.lang() == filter_lang
+                    filter_langs.contains(&child.lang())
                         || self
                             .head_progeny_langs
                             .get(child_id)
-                            .is_some_and(|langs| langs.contains(&filter_lang))
+                            .is_some_and(|langs| filter_langs.iter().any(|fl| langs.contains(fl)))
                 })
-                .map(|(child_id, _)| self.expanded_item_json(child_id, filter_lang))
+                .map(|(child_id, _)| self.expanded_item_json(child_id, query_lang, filter_langs))
                 .collect_vec(),
         );
         json!({
             "item": self.item_json(item_id),
             "children": children,
-            "langDistance": item_lang.distance_from(filter_lang),
+            "langDistance": item_lang.distance_from(query_lang),
         })
     }
 
     #[must_use]
-    pub fn head_progenitor_tree(&self, item_id: ItemId, filter_lang: Lang) -> Value {
+    pub fn head_progenitor_tree(&self, item_id: ItemId, filter_langs: &[Lang]) -> Value {
+        let query_lang = self.get(item_id).lang();
         self.progenitors
             .get(&item_id)
             .and_then(|p| p.head)
             .map_or_else(
-                || self.expanded_item_json(item_id, filter_lang),
-                |head| self.expanded_item_json(head, filter_lang),
+                || self.expanded_item_json(item_id, query_lang, filter_langs),
+                |head| self.expanded_item_json(head, query_lang, filter_langs),
             )
     }
 }

@@ -21,7 +21,7 @@ strum = {version = "0.24.1", features = ["derive", "phf"]}
 urlencoding = "2.1.2"
 rust-bert = "0.20.0"
 itertools = "0.10.5"
-serde = { version = "1.0.158", features = ["derive"] }
+serde = {workspace = true}
 serde_json = {workspace = true}
 sled = "0.34.7"
 xxhash-rust = {version="0.8.6", features=["xxh3"]}

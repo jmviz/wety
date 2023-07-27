@@ -11,6 +11,7 @@ path = "../processor"
 [dependencies]
 anyhow = {workspace = true}
 flate2 = {workspace = true}
+serde = {workspace = true}
 serde_json = {workspace = true}
 axum = "0.6.12"
 axum-server = {version = "0.5.1", features = ["tls-rustls"]}
@@ -19,3 +20,4 @@ tower = "0.4.13"
 tower-http = { version = "0.4.0", features = ["compression-br", "cors", "trace"] }
 tracing-subscriber = "0.3.17"
 tower_governor = "0.0.4"
+axum-extra = { version = "0.7.5", features = ["query"] }
