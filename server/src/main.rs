@@ -25,7 +25,7 @@ use tower_http::{
 async fn main() -> Result<()> {
     env::set_var("RUST_BACKTRACE", "1");
 
-    env::set_var("RUST_LOG", "tower_http=trace");
+    env::set_var("RUST_LOG", "tower_http=trace,tower_governor=trace");
     tracing_subscriber::fmt::init();
 
     let environment = Environment::from_str(
