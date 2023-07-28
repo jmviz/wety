@@ -260,7 +260,7 @@ impl Search {
                 })
             })
             .collect_vec();
-        json!({ "matches": matches })
+        json!(matches)
     }
 }
 
@@ -317,7 +317,7 @@ impl ItemMatches {
     }
 
     fn json(&self, data: &Data) -> Value {
-        json!({"matches": self.matches.iter().map(|m| m.json(data)).collect_vec()})
+        json!(self.matches.iter().map(|m| m.json(data)).collect_vec())
     }
 }
 
