@@ -293,7 +293,7 @@ impl Items {
     ) -> HashSet<ItemId> {
         let mut items_needing_embedding = HashSet::default();
         let mut possible_ancestors = Ancestors::new(&vec![item]);
-        for line in raw_descendants.lines.iter() {
+        for line in &*raw_descendants.lines {
             let possible_parents = possible_ancestors.prune_and_get_parent(line.depth);
             let mut has_ambiguous_child = false;
             let mut has_imputed_child = false;
@@ -346,7 +346,7 @@ impl Items {
     ) -> Result<()> {
         let item_lang = self.get(item).lang();
         let mut ancestors = Ancestors::new(&item);
-        'lines: for line in raw_descendants.lines.iter() {
+        'lines: for line in &*raw_descendants.lines {
             let parent = ancestors.prune_and_get_parent(line.depth);
             match &line.kind {
                 RawDescLineKind::Desc { desc } => {

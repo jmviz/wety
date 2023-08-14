@@ -365,7 +365,7 @@ impl Items {
             let mut has_ambiguous_child = false;
             let mut has_imputed_child = false;
             let mut next_parent_items = vec![];
-            for &langterm in template.langterms.iter() {
+            for &langterm in &*template.langterms {
                 if let Some(ety_items) = self.get_dupes(langterm) {
                     if ety_items.len() > 1 {
                         // i.e. langterm is ambiguous
@@ -405,13 +405,13 @@ impl Items {
         let mut next_item = item; // for tracking possibly imputed items
         let mut item_embeddings = vec![];
         let mut imputation_chain_in_progress = false;
-        for template in raw_etymology.templates.iter() {
+        for template in &*raw_etymology.templates {
             match template {
                 ParsedRawEtyTemplate::Parsed(template) => {
                     item_embeddings.push(embeddings.get(self.get(current_item), current_item)?);
                     let mut ety_items = Vec::with_capacity(template.langterms.len());
                     let mut confidences = Vec::with_capacity(template.langterms.len());
-                    for &ety_langterm in template.langterms.iter() {
+                    for &ety_langterm in &*template.langterms {
                         let Retrieval {
                             item_id: ety_item,
                             confidence,
