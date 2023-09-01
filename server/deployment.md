@@ -82,7 +82,7 @@ The third rule above forwards HTTPS traffic on 443 to 3000, where the `wety` ser
 
 ## Set up SSL certification
 
-We will use CertBot to get free SSL certification so API requests can be made through HTTPS, following [these directions](https://certbot.eff.org/instructions?ws=other&os=ubuntufocal) (`snap` should already be installed, so skip that part):
+We will use Certbot to get free SSL certification so API requests can be made through HTTPS, following [these directions](https://certbot.eff.org/instructions?ws=other&os=ubuntufocal) (`snap` should already be installed, so skip that part):
 
 ```bash
 sudo snap install core; sudo snap refresh core
@@ -107,7 +107,7 @@ sudo cp /etc/letsencrypt/live/api.wety.org/{fullchain,privkey}.pem ~/certs/
 sudo chown ubuntu ~/certs/{fullchain,privkey}.pem
 ```
 
-To automate this step every time the certification automatically renews, create a script:
+The certification will expire in 90 days. At some point before that, Certbot should do an automatic renewal. To rerun this last step and restart the wety service after successful renewal, we create a deploy hook which will run after Certbot successfully renews the certification. Create the file:
 
 ```bash
 sudo nano /etc/letsencrypt/renewal-hooks/deploy/copy-certs
@@ -122,7 +122,13 @@ sudo chown ubuntu ~/certs/{fullchain,privkey}.pem
 sudo systemctl restart wety
 ```
 
-The last few steps were adapted from [here](https://blogs.oracle.com/developers/post/free-ssl-certificates-in-the-oracle-cloud-using-certbot-and-lets-encrypt).
+After saving, make it executable:
+
+```bash
+sudo chmod +x /etc/letsencrypt/renewal-hooks/deploy/copy-certs
+```
+
+The last few steps were adapted from [here](https://blogs.oracle.com/developers/post/free-ssl-certificates-in-the-oracle-cloud-using-certbot-and-lets-encrypt). See also the [official documentation](https://eff-certbot.readthedocs.io/en/stable/using.html#renewing-certificates).
 
 ## Set up systemd service
 
