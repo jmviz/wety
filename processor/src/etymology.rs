@@ -277,8 +277,8 @@ fn process_json_ety_template(
 
 impl WiktextractJsonItem<'_> {
     // Many ety sections contain a single {{m}} template and no others, and
-    // consist only of "From {{m...". This is to handle this case.
-    fn get_single_from_mention_ety(&self, string_pool: &mut StringPool) -> Option<RawEtymology> {
+    // consist only of "From {{m..." (or similar). This is to handle this case.
+    fn get_single_mention_ety(&self, string_pool: &mut StringPool) -> Option<RawEtymology> {
         // Since we handle {{root}} separately, we still want to get etys where
         // there is say one {{root}} then one "From {{m..."
         let mut templates = self
@@ -291,10 +291,15 @@ impl WiktextractJsonItem<'_> {
         templates.next().is_none().then_some(())?;
         let name = template.get_valid_str("name")?;
         matches!(name, "mention" | "m").then_some(())?;
-        self.json
-            .get_valid_str("etymology_text")
-            .is_some_and(|et| et.starts_with("From "))
-            .then_some(())?;
+        // $$ Previously we used this check to only allow "From {{m..." etys.
+        // $$ But cf. eg. la penicillum, which has "Diminutive of {{m|la|pēniculus}}".
+        // $$ So we'll just allow any single {{m}} template for now. Need to monitor
+        // $$ this to see if it is too permissive. If it is, we will check for matches
+        // $$ against a list of "From ", "Diminutive of ", etc. here.
+        // self.json
+        //     .get_valid_str("etymology_text")
+        //     .is_some_and(|et| et.starts_with("From "))
+        //     .then_some(())?;
         let args = template.get("args")?;
         let mention_lang = args.get_valid_str("1")?;
         let mention_term = args.get_valid_term("2")?;
@@ -343,7 +348,7 @@ impl WiktextractJsonItem<'_> {
         string_pool: &mut StringPool,
         lang: Lang,
     ) -> Option<RawEtymology> {
-        self.get_single_from_mention_ety(string_pool)
+        self.get_single_mention_ety(string_pool)
             .or_else(|| self.get_standard_ety(string_pool, lang))
             .or_else(|| self.get_form_ety(string_pool, lang))
     }
