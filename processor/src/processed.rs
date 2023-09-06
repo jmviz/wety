@@ -82,6 +82,11 @@ impl Data {
         self.get(item).lang()
     }
 
+    #[must_use]
+    pub fn get_head_ancestors_within_langs(&self, item: ItemId, langs: &[Lang]) -> Vec<ItemId> {
+        self.graph.get_head_ancestors_within_langs(item, langs)
+    }
+
     /// # Errors
     ///
     /// Will return `Err` if any unexpected issue arises in the deserialization.
@@ -122,12 +127,21 @@ impl Data {
     pub fn expanded_item_json(
         &self,
         item_id: ItemId,
-        input_lang: Lang,
+        req_lang: Lang,
         include_langs: &[Lang],
+        req_item_head_ancestors_within_include_langs: &[ItemId],
     ) -> Value {
         let item = self.get(item_id);
         let item_lang = item.lang();
-        let children = (!include_langs.contains(&item_lang)).then_some(
+        // Don't continue expansion if the item is already in include_langs;
+        // otherwise, the tree will be cluttered with many uninteresting
+        // derivative terms e.g. "feather" will go to "feathers", "feathered",
+        // "feathering", etc. The only exception is if the original request term
+        // is such a one. In that case, we want to be sure the request term ends
+        // up in the tree.
+        let children = (!include_langs.contains(&item_lang)
+            || req_item_head_ancestors_within_include_langs.contains(&item_id))
+        .then_some(
             self.graph
                 .get_head_children(item_id)
                 .filter(|(child_id, child)| {
@@ -137,25 +151,49 @@ impl Data {
                             .get(child_id)
                             .is_some_and(|langs| include_langs.iter().any(|il| langs.contains(il)))
                 })
-                .map(|(child_id, _)| self.expanded_item_json(child_id, input_lang, include_langs))
+                .map(|(child_id, _)| {
+                    self.expanded_item_json(
+                        child_id,
+                        req_lang,
+                        include_langs,
+                        req_item_head_ancestors_within_include_langs,
+                    )
+                })
                 .collect_vec(),
         );
         json!({
             "item": self.item_json(item_id),
             "children": children,
-            "langDistance": item_lang.distance_from(input_lang),
+            "langDistance": item_lang.distance_from(req_lang),
         })
     }
 
     #[must_use]
     pub fn head_progenitor_tree(&self, item_id: ItemId, include_langs: &[Lang]) -> Value {
-        let input_lang = self.get(item_id).lang();
+        let lang = self.get(item_id).lang();
+        let head_ancestors_within_include_langs = self
+            .graph
+            .get_head_ancestors_within_langs(item_id, include_langs);
         self.progenitors
             .get(&item_id)
             .and_then(|p| p.head)
             .map_or_else(
-                || self.expanded_item_json(item_id, input_lang, include_langs),
-                |head| self.expanded_item_json(head, input_lang, include_langs),
+                || {
+                    self.expanded_item_json(
+                        item_id,
+                        lang,
+                        include_langs,
+                        &head_ancestors_within_include_langs,
+                    )
+                },
+                |head| {
+                    self.expanded_item_json(
+                        head,
+                        lang,
+                        include_langs,
+                        &head_ancestors_within_include_langs,
+                    )
+                },
             )
     }
 }

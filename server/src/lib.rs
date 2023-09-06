@@ -72,12 +72,16 @@ pub async fn item_expansion(
     Path(item_id): Path<ItemId>,
     Query(include_langs): Query<IncludeLangs>,
 ) -> Json<Value> {
-    let input_lang = state.data.lang(item_id);
-    Json(
-        state
-            .data
-            .expanded_item_json(item_id, input_lang, &include_langs.langs),
-    )
+    let lang = state.data.lang(item_id);
+    let head_ancestors_within_lang = state
+        .data
+        .get_head_ancestors_within_langs(item_id, &include_langs.langs);
+    Json(state.data.expanded_item_json(
+        item_id,
+        lang,
+        &include_langs.langs,
+        &head_ancestors_within_lang,
+    ))
 }
 
 pub async fn item_head_progenitor_tree(

@@ -211,6 +211,29 @@ impl EtyGraph {
         progeny_langs
     }
 
+    pub(crate) fn get_head_ancestors_within_langs(
+        &self,
+        item: ItemId,
+        langs: &[Lang],
+    ) -> Vec<ItemId> {
+        let mut head_ancestors = vec![];
+        let mut prev_head_ancestor = item;
+        while let Some(head_ancestor) = self
+            .graph
+            .edges_directed(prev_head_ancestor, Direction::Outgoing)
+            .find(|e| e.weight().head)
+            .map(|e| e.target())
+        {
+            if langs.contains(&self.get(head_ancestor).lang()) {
+                head_ancestors.push(head_ancestor);
+                prev_head_ancestor = head_ancestor;
+            } else {
+                break;
+            }
+        }
+        head_ancestors
+    }
+
     pub(crate) fn remove_cycles(&mut self) -> Result<()> {
         print!("  Checking for ety link feedback arc set... ");
         let fas: Vec<EdgeIndex> = greedy_feedback_arc_set(&self.graph)
