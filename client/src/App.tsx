@@ -1,13 +1,12 @@
 import "./App.css";
-import SearchPane from "./SearchPane";
+import SearchPane from "./search/SearchPane";
 
 import { Fragment, useState } from "react";
 import CssBaseline from "@mui/material/CssBaseline";
 
 function App() {
-  const [langId, setLangId] = useState<number | null>(null);
-  // const [includeLangIds, setIncludeLangIds] = useState<number[]>([]);
-  // const [termId, setTermId] = useState<number | null>(null);
+  const [selectedLangId, setSelectedLangId] = useState<number | null>(null);
+  const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
 
   return (
     <Fragment>
@@ -15,10 +14,10 @@ function App() {
       <div className="App">
         <header className="App-header">
           <SearchPane
-            langId={langId}
-            setLangId={setLangId}
-            // setIncludeLangIds={setIncludeLangIds}
-            // setTermId={setTermId}
+            selectedLangId={selectedLangId}
+            setSelectedLangId={setSelectedLangId}
+            selectedItemId={selectedItemId}
+            setSelectedItemId={setSelectedItemId}
           />
         </header>
       </div>
