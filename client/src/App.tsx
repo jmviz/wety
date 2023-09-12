@@ -1,27 +1,35 @@
 import "./App.css";
 import SearchPane from "./search/SearchPane";
+import { LangOption, ItemOption } from "./search/responses";
 
-import { Fragment, useState } from "react";
-import CssBaseline from "@mui/material/CssBaseline";
+import { useState } from "react";
+import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
+
+const theme = createTheme({
+  // todo
+});
 
 function App() {
-  const [selectedLangId, setSelectedLangId] = useState<number | null>(null);
-  const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
+  const [selectedLang, setSelectedLang] = useState<LangOption | null>(null);
+  const [selectedItem, setSelectedItem] = useState<ItemOption | null>(null);
+  const [selectedDescLangs, setSelectedDescLangs] = useState<LangOption[]>([]);
 
   return (
-    <Fragment>
+    <ThemeProvider theme={theme}>
       <CssBaseline />
       <div className="App">
         <header className="App-header">
           <SearchPane
-            selectedLangId={selectedLangId}
-            setSelectedLangId={setSelectedLangId}
-            selectedItemId={selectedItemId}
-            setSelectedItemId={setSelectedItemId}
+            selectedLang={selectedLang}
+            setSelectedLang={setSelectedLang}
+            selectedItem={selectedItem}
+            setSelectedItem={setSelectedItem}
+            selectedDescLangs={selectedDescLangs}
+            setSelectedDescLangs={setSelectedDescLangs}
           />
         </header>
       </div>
-    </Fragment>
+    </ThemeProvider>
   );
 }
 

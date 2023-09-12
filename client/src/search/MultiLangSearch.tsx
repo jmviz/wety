@@ -5,35 +5,23 @@ import TextField from "@mui/material/TextField";
 import { debounce } from "@mui/material/utils";
 import { useCallback, useMemo, useState } from "react";
 
-interface LangSearchProps {
-  selectedLang: LangOption | null;
-  setSelectedLang: (lang: LangOption | null) => void;
-  selectedDescLangs: LangOption[];
-  setSelectedDescLangs: (langs: LangOption[]) => void;
+interface MultiLangSearchProps {
+  label: string;
+  selectedLangs: LangOption[];
+  setSelectedLangs: (langs: LangOption[]) => void;
 }
 
-function LangSearch({
-  selectedLang,
-  setSelectedLang,
-  selectedDescLangs,
-  setSelectedDescLangs,
-}: LangSearchProps) {
+function MultiLangSearch({
+  label,
+  selectedLangs,
+  setSelectedLangs,
+}: MultiLangSearchProps) {
   const [langOptions, setLangOptions] = useState<LangOption[]>([]);
 
   const clearSelectedLangAndOptions = useCallback(() => {
     setLangOptions([]);
-    setSelectedLang(null);
-  }, [setSelectedLang]);
-
-  const setSelectedLangAndMaybeDescLangs = useCallback(
-    (lang: LangOption | null) => {
-      setSelectedLang(lang);
-      if (lang !== null && selectedDescLangs.length === 0) {
-        setSelectedDescLangs([lang]);
-      }
-    },
-    [setSelectedLang, selectedDescLangs, setSelectedDescLangs]
-  );
+    setSelectedLangs([]);
+  }, [setSelectedLangs]);
 
   const fetchLangs = useMemo(
     () =>
@@ -54,24 +42,38 @@ function LangSearch({
 
   return (
     <Autocomplete
-      sx={{ width: 200 }}
+      sx={{ width: 300 }}
+      multiple
+      limitTags={1}
       freeSolo
-      value={selectedLang}
+      disableClearable
+      value={selectedLangs}
       onChange={(event, newValue) => {
-        if (typeof newValue === "string") {
+        if (
+          newValue.length > 0 &&
+          typeof newValue[newValue.length - 1] === "string"
+        ) {
           const match = langOptions.find(
-            (lo) => lo.name.toLowerCase() === newValue.trim().toLowerCase()
+            (lo) =>
+              lo.name.toLowerCase() ===
+              (newValue[newValue.length - 1] as string).trim().toLowerCase()
           );
           if (match) {
-            setSelectedLangAndMaybeDescLangs(match);
+            setSelectedLangs(
+              selectedLangs.concat([match]).reduce((acc, curr) => {
+                if (!acc.some((lo) => lo.id === curr.id)) {
+                  acc.push(curr);
+                }
+                return acc;
+              }, [] as LangOption[])
+            );
             return;
           }
-          clearSelectedLangAndOptions();
+          setSelectedLangs(selectedLangs);
           return;
         }
-        setSelectedLangAndMaybeDescLangs(newValue);
+        setSelectedLangs(newValue as LangOption[]);
       }}
-      blurOnSelect
       onInputChange={(event, newInputValue) => {
         if (newInputValue === "") {
           clearSelectedLangAndOptions();
@@ -80,7 +82,7 @@ function LangSearch({
         fetchLangs(newInputValue);
       }}
       renderInput={(params) => (
-        <TextField {...params} label="Language" placeholder="Language..." />
+        <TextField {...params} label={label} placeholder="Language(s)..." />
       )}
       options={langOptions}
       filterOptions={(x) => x}
@@ -92,4 +94,4 @@ function LangSearch({
   );
 }
 
-export default LangSearch;
+export default MultiLangSearch;
