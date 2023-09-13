@@ -1,6 +1,6 @@
 import "./App.css";
 import SearchPane from "./search/SearchPane";
-import { LangOption, ItemOption } from "./search/responses";
+import { LangOption, ItemOption, ExpandedItem } from "./search/responses";
 
 import { useState } from "react";
 import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
@@ -13,6 +13,7 @@ function App() {
   const [selectedLang, setSelectedLang] = useState<LangOption | null>(null);
   const [selectedItem, setSelectedItem] = useState<ItemOption | null>(null);
   const [selectedDescLangs, setSelectedDescLangs] = useState<LangOption[]>([]);
+  const [etyData, setEtyData] = useState<ExpandedItem | null>(null);
 
   return (
     <ThemeProvider theme={theme}>
@@ -26,6 +27,7 @@ function App() {
             setSelectedItem={setSelectedItem}
             selectedDescLangs={selectedDescLangs}
             setSelectedDescLangs={setSelectedDescLangs}
+            setEtyData={setEtyData}
           />
         </header>
       </div>

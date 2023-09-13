@@ -46,7 +46,6 @@ function MultiLangSearch({
       multiple
       limitTags={1}
       freeSolo
-      disableClearable
       value={selectedLangs}
       onChange={(event, newValue) => {
         if (
