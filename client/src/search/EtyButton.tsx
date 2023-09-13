@@ -3,13 +3,15 @@ import { LangOption, ItemOption, ExpandedItem } from "./responses";
 import Button from "@mui/material/Button";
 import SearchIcon from "@mui/icons-material/Search";
 import { debounce } from "@mui/material/utils";
-import { useMemo } from "react";
+import { RefObject, useMemo } from "react";
+import { ButtonBaseActions } from "@mui/material";
 
 interface EtyButtonProps {
   selectedLang: LangOption | null;
   selectedItem: ItemOption | null;
   selectedDescLangs: LangOption[];
   setEtyData: (data: ExpandedItem | null) => void;
+  actionRef: RefObject<ButtonBaseActions>;
 }
 
 function EtyButton({
@@ -17,6 +19,7 @@ function EtyButton({
   selectedItem,
   selectedDescLangs,
   setEtyData,
+  actionRef,
 }: EtyButtonProps) {
   const onClick = useMemo(
     () =>
@@ -28,7 +31,7 @@ function EtyButton({
           const response = await fetch(
             `${process.env.REACT_APP_API_BASE_URL}/headProgenitorTree/${
               selectedItem.item.id
-            }${selectedDescLangs.map((lang) => `?lang=${lang.id}`).join("")}`
+            }?${selectedDescLangs.map((lang) => `lang=${lang.id}`).join("&")}`
           );
           const etyData = (await response.json()) as ExpandedItem;
           setEtyData(etyData);
@@ -47,6 +50,7 @@ function EtyButton({
         !selectedLang || !selectedItem || selectedDescLangs.length === 0
       }
       onClick={onClick}
+      action={actionRef}
     >
       <SearchIcon />
     </Button>

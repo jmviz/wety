@@ -1,20 +1,29 @@
-import { LangOption } from "./responses";
+import { ButtonBaseActions } from "@mui/material";
+import { ItemOption, LangOption } from "./responses";
 
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
 import { debounce } from "@mui/material/utils";
-import { useCallback, useMemo, useState } from "react";
+import { RefObject, useCallback, useMemo, useState } from "react";
 
 interface MultiLangSearchProps {
   label: string;
+  selectedLang: LangOption | null;
+  selectedItem: ItemOption | null;
   selectedLangs: LangOption[];
   setSelectedLangs: (langs: LangOption[]) => void;
+  inputRef: RefObject<HTMLInputElement>;
+  etyButtonRef: RefObject<ButtonBaseActions>;
 }
 
 function MultiLangSearch({
   label,
+  selectedLang,
+  selectedItem,
   selectedLangs,
   setSelectedLangs,
+  inputRef,
+  etyButtonRef,
 }: MultiLangSearchProps) {
   const [langOptions, setLangOptions] = useState<LangOption[]>([]);
 
@@ -22,6 +31,16 @@ function MultiLangSearch({
     setLangOptions([]);
     setSelectedLangs([]);
   }, [setSelectedLangs]);
+
+  const setSelectedLangsAndMaybeFocus = useCallback(
+    (langs: LangOption[]) => {
+      setSelectedLangs(langs);
+      if (selectedLang && selectedItem && langs.length > 0) {
+        etyButtonRef.current?.focusVisible();
+      }
+    },
+    [setSelectedLangs, selectedLang, selectedItem, etyButtonRef]
+  );
 
   const fetchLangs = useMemo(
     () =>
@@ -58,7 +77,7 @@ function MultiLangSearch({
               (newValue[newValue.length - 1] as string).trim().toLowerCase()
           );
           if (match) {
-            setSelectedLangs(
+            setSelectedLangsAndMaybeFocus(
               selectedLangs.concat([match]).reduce((acc, curr) => {
                 if (!acc.some((lo) => lo.id === curr.id)) {
                   acc.push(curr);
@@ -68,10 +87,10 @@ function MultiLangSearch({
             );
             return;
           }
-          setSelectedLangs(selectedLangs);
+          setSelectedLangsAndMaybeFocus(selectedLangs);
           return;
         }
-        setSelectedLangs(newValue as LangOption[]);
+        setSelectedLangsAndMaybeFocus(newValue as LangOption[]);
       }}
       onInputChange={(event, newInputValue) => {
         if (newInputValue === "") {
@@ -81,7 +100,12 @@ function MultiLangSearch({
         fetchLangs(newInputValue);
       }}
       renderInput={(params) => (
-        <TextField {...params} label={label} placeholder="Language(s)..." />
+        <TextField
+          {...params}
+          label={label}
+          placeholder="Language(s)..."
+          inputRef={inputRef}
+        />
       )}
       options={langOptions}
       filterOptions={(x) => x}

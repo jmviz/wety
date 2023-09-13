@@ -1,21 +1,30 @@
+import { ButtonBaseActions } from "@mui/material";
 import "./ItemSearch.css";
 import { ItemOption, LangOption } from "./responses";
 
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
 import { debounce } from "@mui/material/utils";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState, RefObject } from "react";
 
 interface ItemSearchProps {
   selectedLang: LangOption | null;
   selectedItem: ItemOption | null;
   setSelectedItem: (item: ItemOption | null) => void;
+  inputRef: RefObject<HTMLInputElement>;
+  selectedDescLangs: LangOption[];
+  descLangsSearchInputRef: RefObject<HTMLInputElement>;
+  etyButtonRef: RefObject<ButtonBaseActions>;
 }
 
 function ItemSearch({
   selectedLang,
   selectedItem,
   setSelectedItem,
+  inputRef,
+  selectedDescLangs,
+  descLangsSearchInputRef,
+  etyButtonRef,
 }: ItemSearchProps) {
   const [itemOptions, setItemOptions] = useState<ItemOption[]>([]);
 
@@ -23,6 +32,26 @@ function ItemSearch({
     setItemOptions([]);
     setSelectedItem(null);
   }, [setSelectedItem]);
+
+  const setSelectedItemAndMaybeFocus = useCallback(
+    (item: ItemOption | null) => {
+      setSelectedItem(item);
+      if (selectedLang && item) {
+        if (selectedDescLangs.length > 0) {
+          etyButtonRef.current?.focusVisible();
+          return;
+        }
+        descLangsSearchInputRef.current?.focus();
+      }
+    },
+    [
+      setSelectedItem,
+      selectedLang,
+      selectedDescLangs.length,
+      descLangsSearchInputRef,
+      etyButtonRef,
+    ]
+  );
 
   const fetchItems = useMemo(
     () =>
@@ -60,7 +89,18 @@ function ItemSearch({
       freeSolo
       value={selectedItem}
       onChange={(event, newValue) => {
-        setSelectedItem(newValue as ItemOption | null);
+        if (typeof newValue === "string") {
+          const match = itemOptions.find(
+            (io) => io.item.term.toLowerCase() === newValue.trim().toLowerCase()
+          );
+          if (match) {
+            setSelectedItemAndMaybeFocus(match);
+            return;
+          }
+          clearSelectedItemAndOptions();
+          return;
+        }
+        setSelectedItemAndMaybeFocus(newValue);
       }}
       blurOnSelect
       onInputChange={(event, newInputValue) => {
@@ -71,11 +111,18 @@ function ItemSearch({
         fetchItems(newInputValue);
       }}
       renderInput={(params) => (
-        <TextField {...params} label="Term" placeholder="Term..." />
+        <TextField
+          {...params}
+          label="Term"
+          placeholder="Term..."
+          inputRef={inputRef}
+        />
       )}
       options={itemOptions}
       filterOptions={(x) => x}
-      getOptionLabel={(option) => (option as ItemOption).item.term}
+      getOptionLabel={(option) =>
+        typeof option === "string" ? option : option.item.term
+      }
       isOptionEqualToValue={(option, value) => option.item.id === value.item.id}
       renderOption={(props, option) => {
         const pos = option.item.pos ?? [];

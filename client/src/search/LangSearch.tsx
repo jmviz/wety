@@ -1,13 +1,15 @@
-import { LangOption } from "./responses";
+import { ItemOption, LangOption } from "./responses";
 
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
 import { debounce } from "@mui/material/utils";
-import { useCallback, useMemo, useState } from "react";
+import { RefObject, useCallback, useMemo, useState } from "react";
 
 interface LangSearchProps {
   selectedLang: LangOption | null;
   setSelectedLang: (lang: LangOption | null) => void;
+  setSelectedItem: (item: ItemOption | null) => void;
+  itemSearchInputRef: RefObject<HTMLInputElement>;
   selectedDescLangs: LangOption[];
   setSelectedDescLangs: (langs: LangOption[]) => void;
 }
@@ -15,6 +17,8 @@ interface LangSearchProps {
 function LangSearch({
   selectedLang,
   setSelectedLang,
+  setSelectedItem,
+  itemSearchInputRef,
   selectedDescLangs,
   setSelectedDescLangs,
 }: LangSearchProps) {
@@ -23,16 +27,25 @@ function LangSearch({
   const clearSelectedLangAndOptions = useCallback(() => {
     setLangOptions([]);
     setSelectedLang(null);
-  }, [setSelectedLang]);
+    setSelectedItem(null);
+  }, [setSelectedLang, setSelectedItem]);
 
   const setSelectedLangAndMaybeDescLangs = useCallback(
     (lang: LangOption | null) => {
       setSelectedLang(lang);
+      itemSearchInputRef.current?.focus();
+      setSelectedItem(null);
       if (lang !== null && selectedDescLangs.length === 0) {
         setSelectedDescLangs([lang]);
       }
     },
-    [setSelectedLang, selectedDescLangs, setSelectedDescLangs]
+    [
+      setSelectedLang,
+      setSelectedItem,
+      itemSearchInputRef,
+      selectedDescLangs.length,
+      setSelectedDescLangs,
+    ]
   );
 
   const fetchLangs = useMemo(
