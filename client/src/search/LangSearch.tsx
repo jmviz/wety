@@ -67,7 +67,7 @@ function LangSearch({
 
   return (
     <Autocomplete
-      sx={{ width: 200 }}
+      sx={{ width: "25ch" }}
       freeSolo
       value={selectedLang}
       onChange={(event, newValue) => {

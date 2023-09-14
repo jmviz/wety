@@ -1,6 +1,7 @@
 import "./App.css";
 import SearchPane from "./search/SearchPane";
 import { LangOption, ItemOption, ExpandedItem } from "./search/responses";
+import Ety from "./ety/Ety";
 
 import { useState } from "react";
 import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
@@ -30,6 +31,7 @@ function App() {
             setEtyData={setEtyData}
           />
         </header>
+        <Ety etyData={etyData} selectedItem={selectedItem} />
       </div>
     </ThemeProvider>
   );

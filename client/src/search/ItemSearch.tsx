@@ -1,4 +1,3 @@
-import { ButtonBaseActions } from "@mui/material";
 import "./ItemSearch.css";
 import { ItemOption, LangOption } from "./responses";
 
@@ -14,7 +13,6 @@ interface ItemSearchProps {
   inputRef: RefObject<HTMLInputElement>;
   selectedDescLangs: LangOption[];
   descLangsSearchInputRef: RefObject<HTMLInputElement>;
-  etyButtonRef: RefObject<ButtonBaseActions>;
 }
 
 function ItemSearch({
@@ -24,7 +22,6 @@ function ItemSearch({
   inputRef,
   selectedDescLangs,
   descLangsSearchInputRef,
-  etyButtonRef,
 }: ItemSearchProps) {
   const [itemOptions, setItemOptions] = useState<ItemOption[]>([]);
 
@@ -36,11 +33,7 @@ function ItemSearch({
   const setSelectedItemAndMaybeFocus = useCallback(
     (item: ItemOption | null) => {
       setSelectedItem(item);
-      if (selectedLang && item) {
-        if (selectedDescLangs.length > 0) {
-          etyButtonRef.current?.focusVisible();
-          return;
-        }
+      if (selectedLang && item && selectedDescLangs.length === 0) {
         descLangsSearchInputRef.current?.focus();
       }
     },
@@ -49,7 +42,6 @@ function ItemSearch({
       selectedLang,
       selectedDescLangs.length,
       descLangsSearchInputRef,
-      etyButtonRef,
     ]
   );
 
@@ -77,7 +69,7 @@ function ItemSearch({
   return (
     <Autocomplete
       sx={{
-        width: 300,
+        width: "30ch",
       }}
       ListboxProps={{
         sx: {
