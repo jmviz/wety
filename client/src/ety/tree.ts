@@ -1,4 +1,4 @@
-import { ExpandedItem, ItemOption } from "../search/responses";
+import { ExpandedItem, Item } from "../search/responses";
 import cluster from "./treeCluster";
 
 import { select, Selection } from "d3-selection";
@@ -9,6 +9,11 @@ import {
   HierarchyPointNode,
 } from "d3-hierarchy";
 import { RefObject } from "react";
+
+export interface EtyData {
+  headProgenitorTree: ExpandedItem | null;
+  selectedItem: Item | null;
+}
 
 export interface ExpandedItemNode {
   node: HierarchyPointNode<ExpandedItem>;
@@ -49,28 +54,25 @@ export function langColor(distance: number | null) {
 //
 // Copyright 2021 Observable, Inc.
 // Released under the ISC license.
-export function headProgenitorTreeSVG(
+export function treeSVG(
   svgRef: RefObject<SVGSVGElement>,
-  etyData: ExpandedItem | null,
-  selectedItem: ItemOption | null,
-  smallFontPx: number
+  etyData: EtyData,
+  fontSize: number
 ) {
   // clear the previous svg
   select(svgRef.current).selectAll("*").remove();
 
-  if (etyData === null || selectedItem === null) {
+  const tree = etyData.headProgenitorTree;
+  const selectedItem = etyData.selectedItem;
+
+  if (tree === null || selectedItem === null) {
     return;
   }
 
   // https://github.com/d3/d3-hierarchy#hierarchy
-  const root = hierarchy<ExpandedItem>(
-    etyData,
-    (d: ExpandedItem) => d.children
-  );
+  const root = hierarchy<ExpandedItem>(tree, (d: ExpandedItem) => d.children);
 
-  const selectedItemNode = root.find(
-    (d) => d.data.item.id === selectedItem.item.id
-  );
+  const selectedItemNode = root.find((d) => d.data.item.id === selectedItem.id);
   const selectedItemNodeAncestors = selectedItemNode?.ancestors() ?? [];
 
   root
@@ -90,12 +92,29 @@ export function headProgenitorTreeSVG(
   // with the root on the left and the leaves on the right. So variables
   // defined by d3 like e.g. `root.height` and `d.x` correspond in our case to
   // width and y.
-  const dx = 10 * smallFontPx;
-  const dy = smallFontPx;
-  const sep = Math.floor(0.25 * smallFontPx);
+  const dx = 10 * fontSize;
+  const dy = fontSize;
+  const sep = Math.floor(0.25 * fontSize);
   const layout = cluster<ExpandedItem>()
     .nodeSize([dy, dx])
-    .separation((a, b) => (a.parent === b.parent ? sep : sep));
+    .separation((a, b) => {
+      const aAncestors = a.ancestors();
+      const bAncestors = b.ancestors();
+      for (
+        let i = 0, j = 0;
+        i < aAncestors.length &&
+        j < bAncestors.length &&
+        aAncestors[i].data.item.id !== bAncestors[j].data.item.id &&
+        aAncestors[i].height === bAncestors[j].height;
+        i++, j++
+      ) {
+        if (aAncestors[i].data.item.romanization) {
+          return sep + 1;
+        }
+      }
+      return sep;
+    });
+
   const pointRoot = layout(root);
 
   // Center the tree vertically.
@@ -124,6 +143,7 @@ export function headProgenitorTreeSVG(
     .attr("viewBox", viewBox)
     .attr("width", width)
     .attr("height", height)
+    .attr("class", "tree")
     .attr(
       "style",
       `min-width: ${width}px; max-width: ${width}px; height: auto; height: intrinsic;`
@@ -180,7 +200,7 @@ export function headProgenitorTreeSVG(
     .data(descendants)
     .join("g")
     .attr("font-weight", (d) =>
-      d.node.data.item.id === selectedItem.item.id ? "bold" : null
+      d.node.data.item.id === selectedItem.id ? "bold" : null
     )
     .attr("transform", (d) => `translate(${d.node.y},${d.node.x})`);
 

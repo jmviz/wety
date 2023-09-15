@@ -1,0 +1,11 @@
+.tree {
+  margin: auto;
+}
+
+.tree .lang {
+  font-size: smaller;
+}
+
+.tree .romanization {
+  font-size: smaller;
+}

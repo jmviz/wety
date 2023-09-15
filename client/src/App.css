@@ -1,0 +1,5 @@
+.App-ety-container {
+  display: flex;
+  flex-direction: column;
+  font-size: small;
+}

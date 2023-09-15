@@ -2,7 +2,8 @@ import ItemSearch from "./ItemSearch";
 import LangSearch from "./LangSearch";
 import MultiLangSearch from "./MultiLangSearch";
 import EtyButton from "./EtyButton";
-import { LangOption, ItemOption, ExpandedItem } from "./responses";
+import { LangOption, ItemOption } from "./responses";
+import { EtyData } from "../ety/tree";
 
 import Stack from "@mui/material/Stack";
 import { useRef } from "react";
@@ -15,7 +16,7 @@ interface SearchPaneProps {
   setSelectedItem: (item: ItemOption | null) => void;
   selectedDescLangs: LangOption[];
   setSelectedDescLangs: (langs: LangOption[]) => void;
-  setEtyData: (data: ExpandedItem | null) => void;
+  setEtyData: (data: EtyData) => void;
 }
 
 function SearchPane({

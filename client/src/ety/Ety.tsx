@@ -1,16 +1,21 @@
-import { useRef } from "react";
-import { ExpandedItem, ItemOption } from "../search/responses";
-import { headProgenitorTreeSVG } from "./tree";
+import "./Ety.css";
+import { EtyData, treeSVG } from "./tree";
+
+import { RefObject, useRef } from "react";
 
 interface EtyProps {
-  etyData: ExpandedItem | null;
-  selectedItem: ItemOption | null;
+  data: EtyData;
+  containerRef: RefObject<HTMLDivElement>;
 }
 
-function Ety({ etyData, selectedItem }: EtyProps) {
+function Ety({ data, containerRef }: EtyProps) {
   const svgRef = useRef<SVGSVGElement>(null);
 
-  headProgenitorTreeSVG(svgRef, etyData, selectedItem, 12);
+  const fontSize = containerRef.current
+    ? parseFloat(window.getComputedStyle(containerRef.current).fontSize)
+    : 13;
+
+  treeSVG(svgRef, data, fontSize);
 
   return <svg ref={svgRef} />;
 }

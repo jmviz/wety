@@ -33,10 +33,12 @@ function LangSearch({
   const setSelectedLangAndMaybeDescLangs = useCallback(
     (lang: LangOption | null) => {
       setSelectedLang(lang);
-      itemSearchInputRef.current?.focus();
       setSelectedItem(null);
-      if (lang !== null && selectedDescLangs.length === 0) {
-        setSelectedDescLangs([lang]);
+      if (lang !== null) {
+        itemSearchInputRef.current?.focus();
+        if (selectedDescLangs.length === 0) {
+          setSelectedDescLangs([lang]);
+        }
       }
     },
     [
