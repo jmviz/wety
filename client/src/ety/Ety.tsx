@@ -1,4 +1,5 @@
 import "./Ety.css";
+import { Item } from "../search/responses";
 import { EtyData, treeSVG } from "./tree";
 
 import { RefObject, useRef } from "react";
@@ -6,9 +7,11 @@ import { RefObject, useRef } from "react";
 interface EtyProps {
   data: EtyData;
   containerRef: RefObject<HTMLDivElement>;
+  setTooltipItem: (item: Item | null) => void;
+  // tooltipRef: RefObject<HTMLDivElement>;
 }
 
-function Ety({ data, containerRef }: EtyProps) {
+function Ety({ data, containerRef, setTooltipItem }: EtyProps) {
   const svgRef = useRef<SVGSVGElement>(null);
 
   const fontSize = containerRef.current
@@ -17,7 +20,7 @@ function Ety({ data, containerRef }: EtyProps) {
 
   treeSVG(svgRef, data, fontSize);
 
-  return <svg ref={svgRef} />;
+  return <svg className="tree" ref={svgRef} />;
 }
 
 export default Ety;

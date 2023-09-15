@@ -1,5 +1,6 @@
 import { ExpandedItem, Item } from "../search/responses";
 import cluster from "./treeCluster";
+// import { setNodeTooltipListeners } from "./tooltip";
 
 import { select, Selection } from "d3-selection";
 import { link, curveStepBefore } from "d3-shape";
@@ -58,6 +59,8 @@ export function treeSVG(
   svgRef: RefObject<SVGSVGElement>,
   etyData: EtyData,
   fontSize: number
+  // setTooltipItem: (item: Item | null) => void,
+  // tooltipRef: RefObject<HTMLDivElement>
 ) {
   // clear the previous svg
   select(svgRef.current).selectAll("*").remove();
@@ -143,7 +146,6 @@ export function treeSVG(
     .attr("viewBox", viewBox)
     .attr("width", width)
     .attr("height", height)
-    .attr("class", "tree")
     .attr(
       "style",
       `min-width: ${width}px; max-width: ${width}px; height: auto; height: intrinsic;`
@@ -225,7 +227,7 @@ export function treeSVG(
       d.node.data.item.romanization ? `(${d.node.data.item.romanization})` : ""
     );
 
-  //   setNodeTooltipListeners(node);
+  // setNodeTooltipListeners(node, setTooltipItem, tooltipRef);
 
   addSVGTextBackgrounds(node, nodeBackground);
 }

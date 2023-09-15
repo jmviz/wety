@@ -1,11 +1,12 @@
 import "./App.css";
 import SearchPane from "./search/SearchPane";
-import { LangOption, ItemOption } from "./search/responses";
+import { LangOption, ItemOption, Item } from "./search/responses";
 import Ety from "./ety/Ety";
 import { EtyData } from "./ety/tree";
 
 import { useRef, useState } from "react";
 import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
+import Tooltip from "./ety/Tooltip";
 
 const theme = createTheme({
   // todo
@@ -19,7 +20,10 @@ function App() {
     headProgenitorTree: null,
     selectedItem: null,
   });
-  const etyRef = useRef<HTMLDivElement>(null);
+  const etyContainerRef = useRef<HTMLDivElement>(null);
+  const [tooltipItem, setTooltipItem] = useState<Item | null>(null);
+  // const tooltipRef = useRef<HTMLDivElement>(null);
+  // const tooltipHideTimeout = useRef<number | null>(null);
 
   return (
     <ThemeProvider theme={theme}>
@@ -36,9 +40,15 @@ function App() {
             setEtyData={setEtyData}
           />
         </header>
-        <div className="App-ety-container" ref={etyRef}>
-          <Ety data={etyData} containerRef={etyRef} />
+        <div className="ety-container" ref={etyContainerRef}>
+          <Ety
+            data={etyData}
+            containerRef={etyContainerRef}
+            setTooltipItem={setTooltipItem}
+            // tooltipRef={tooltipRef}
+          />
         </div>
+        {/* <Tooltip item={tooltipItem} ref={tooltipRef} /> */}
       </div>
     </ThemeProvider>
   );
