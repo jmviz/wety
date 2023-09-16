@@ -1,5 +1,5 @@
 import { LangOption, ItemOption, ExpandedItem } from "./responses";
-import { EtyData } from "../ety/tree";
+import { EtyData } from "../ety/Ety";
 
 import Button from "@mui/material/Button";
 import SearchIcon from "@mui/icons-material/Search";

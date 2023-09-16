@@ -1,26 +1,40 @@
 import "./Ety.css";
-import { Item } from "../search/responses";
-import { EtyData, treeSVG } from "./tree";
+import Tree from "./Tree";
+import Tooltip from "./Tooltip";
+import { ExpandedItem, Item } from "../search/responses";
 
-import { RefObject, useRef } from "react";
+import { useRef, useState } from "react";
 
 interface EtyProps {
   data: EtyData;
-  containerRef: RefObject<HTMLDivElement>;
-  setTooltipItem: (item: Item | null) => void;
-  // tooltipRef: RefObject<HTMLDivElement>;
 }
 
-function Ety({ data, containerRef, setTooltipItem }: EtyProps) {
-  const svgRef = useRef<SVGSVGElement>(null);
+export default function Ety({ data }: EtyProps) {
+  const tooltipRef = useRef<HTMLDivElement>(null);
+  const [tooltipItem, setTooltipItem] = useState<Item | null>(null);
+  const tooltipShowTimeout = useRef<number | null>(null);
+  const tooltipHideTimeout = useRef<number | null>(null);
 
-  const fontSize = containerRef.current
-    ? parseFloat(window.getComputedStyle(containerRef.current).fontSize)
-    : 13;
-
-  treeSVG(svgRef, data, fontSize);
-
-  return <svg className="tree" ref={svgRef} />;
+  return (
+    <div className="ety">
+      <Tree
+        etyData={data}
+        tooltipRef={tooltipRef}
+        setTooltipItem={setTooltipItem}
+        tooltipShowTimeout={tooltipShowTimeout}
+        tooltipHideTimeout={tooltipHideTimeout}
+      />
+      {/* <Tooltip
+        item={tooltipItem}
+        ref={tooltipRef}
+        showTimeout={tooltipShowTimeout}
+        hideTimeout={tooltipHideTimeout}
+      /> */}
+    </div>
+  );
 }
 
-export default Ety;
+export interface EtyData {
+  headProgenitorTree: ExpandedItem | null;
+  selectedItem: Item | null;
+}

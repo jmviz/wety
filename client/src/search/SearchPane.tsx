@@ -3,33 +3,22 @@ import LangSearch from "./LangSearch";
 import MultiLangSearch from "./MultiLangSearch";
 import EtyButton from "./EtyButton";
 import { LangOption, ItemOption } from "./responses";
-import { EtyData } from "../ety/tree";
+import { EtyData } from "../ety/Ety";
 
 import Stack from "@mui/material/Stack";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Container } from "@mui/material";
 
 interface SearchPaneProps {
-  selectedLang: LangOption | null;
-  setSelectedLang: (lang: LangOption | null) => void;
-  selectedItem: ItemOption | null;
-  setSelectedItem: (item: ItemOption | null) => void;
-  selectedDescLangs: LangOption[];
-  setSelectedDescLangs: (langs: LangOption[]) => void;
   setEtyData: (data: EtyData) => void;
 }
 
-function SearchPane({
-  selectedLang,
-  setSelectedLang,
-  selectedItem,
-  setSelectedItem,
-  selectedDescLangs,
-  setSelectedDescLangs,
-  setEtyData,
-}: SearchPaneProps) {
-  let itemSearchInputRef = useRef<HTMLInputElement>(null);
-  let descLangsSearchInputRef = useRef<HTMLInputElement>(null);
+function SearchPane({ setEtyData }: SearchPaneProps) {
+  const [selectedLang, setSelectedLang] = useState<LangOption | null>(null);
+  const [selectedItem, setSelectedItem] = useState<ItemOption | null>(null);
+  const [selectedDescLangs, setSelectedDescLangs] = useState<LangOption[]>([]);
+  const itemSearchInputRef = useRef<HTMLInputElement>(null);
+  const descLangsSearchInputRef = useRef<HTMLInputElement>(null);
 
   return (
     <Container>
