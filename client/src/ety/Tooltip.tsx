@@ -1,25 +1,28 @@
 import "./Tooltip.css";
-import { ExpandedItem, Item } from "../search/responses";
+import { ExpandedItem } from "../search/responses";
 import { ExpandedItemNode, langColor } from "./Tree";
 
 import { Selection, HierarchyPointNode } from "d3";
 import { MutableRefObject, RefObject, useEffect } from "react";
 
 interface TooltipProps {
-  item: Item | null;
-  ref: RefObject<HTMLDivElement>;
+  itemNode: HierarchyPointNode<ExpandedItem> | null;
+  positionType: string;
+  divRef: RefObject<HTMLDivElement>;
   showTimeout: MutableRefObject<number | null>;
   hideTimeout: MutableRefObject<number | null>;
 }
 
 export default function Tooltip({
-  item,
-  ref,
+  itemNode,
+  positionType,
+  divRef,
   showTimeout,
   hideTimeout,
 }: TooltipProps) {
   useEffect(() => {
-    const tooltip = ref.current;
+    console.log("tooltip effect");
+    const tooltip = divRef.current;
 
     if (tooltip === null) {
       return;
@@ -34,39 +37,99 @@ export default function Tooltip({
     const handleMouseLeave = (event: PointerEvent) => {
       if (event.pointerType === "mouse") {
         window.clearTimeout(showTimeout.current ?? undefined);
-        hideTimeout.current = window.setTimeout(() => {
-          // Call your hideTooltip function here
-        }, 100);
+        hideTimeout.current = window.setTimeout(() => hideTooltip(divRef), 100);
       }
     };
 
     tooltip.addEventListener("pointerenter", handleMouseEnter);
     tooltip.addEventListener("pointerleave", handleMouseLeave);
 
-    // Clean up event listeners on unmount
     return () => {
       tooltip.removeEventListener("pointerenter", handleMouseEnter);
       tooltip.removeEventListener("pointerleave", handleMouseLeave);
     };
-  }, [ref, showTimeout, hideTimeout]);
+  }, [divRef, showTimeout, hideTimeout]);
 
-  return <div ref={ref}>Tooltip content</div>;
+  console.log("tooltip render");
+
+  if (itemNode === null) {
+    return <div ref={divRef} />;
+  }
+
+  const item = itemNode.data.item;
+  const parent = itemNode.parent
+    ? {
+        lang: itemNode.parent.data.item.lang,
+        term: itemNode.parent.data.item.term,
+        langDistance: itemNode.parent.data.langDistance,
+      }
+    : null;
+
+  const posList = item.pos ?? [];
+  const glossList = item.gloss ?? [];
+
+  return (
+    <div className="tooltip" ref={divRef}>
+      {positionType === "fixed" && (
+        <button className="close-button" onClick={() => hideTooltip(divRef)}>
+          ✕
+        </button>
+      )}
+      <p
+        className="lang"
+        style={{ color: langColor(itemNode.data.langDistance) }}
+      >
+        {item.lang}
+      </p>
+      <p>
+        <span className="term">{item.term}</span>
+        {item.romanization && (
+          <span className="romanization">({item.romanization})</span>
+        )}
+      </p>
+      {item.imputed && (
+        <div className="pos-line">
+          <span className="imputed">(imputed)</span>
+        </div>
+      )}
+      {item.pos && item.gloss && item.pos.length === item.gloss.length && (
+        <div>
+          {posList.map((pos, i) => (
+            <div key={i} className="pos-line">
+              <span className="pos">{pos}</span>:{" "}
+              <span className="gloss">{glossList[i]}</span>
+            </div>
+          ))}
+        </div>
+      )}
+      {item.etyMode && parent && (
+        <div className="ety-line">
+          <span className="ety-mode">{item.etyMode}</span>
+          <span className="ety-prep">{etyPrep(item.etyMode)}</span>
+          <span
+            className="parent-lang"
+            style={{ color: langColor(parent.langDistance) }}
+          >
+            {parent.lang}
+          </span>
+          <span className="parent-term">{parent.term}</span>
+        </div>
+      )}
+      {item.url && (
+        <div className="wiktionary-link-container">
+          <a
+            href={item.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="wiktionary-link"
+          >
+            Wiktionary
+          </a>
+        </div>
+      )}
+    </div>
+  );
 }
-
-// const tooltip = document.getElementById("tooltip") as HTMLDivElement;
-// let tooltipHideTimeout: number;
-// let tooltipShowTimeout: number;
-// tooltip.addEventListener("pointerenter", (event) => {
-//   if (event.pointerType === "mouse") {
-//     window.clearTimeout(tooltipHideTimeout);
-//   }
-// });
-// tooltip.addEventListener("pointerleave", (event) => {
-//   if (event.pointerType === "mouse") {
-//     window.clearTimeout(tooltipShowTimeout);
-//     tooltipHideTimeout = window.setTimeout(hideTooltip, 100);
-//   }
-// });
 
 function etyPrep(etyMode: string): string {
   switch (etyMode) {
@@ -99,85 +162,6 @@ function etyPrep(etyMode: string): string {
       return "of";
   }
 }
-
-// function setTooltipHTML(
-//   selection: HierarchyPointNode<ExpandedItem>,
-//   type: string
-// ) {
-//   tooltip.innerHTML = "";
-
-//   if (type === "fixed") {
-//     const closeButton = document.createElement("button");
-//     closeButton.textContent = "✕";
-//     closeButton.classList.add("close-button");
-//     tooltip.appendChild(closeButton);
-//     closeButton.addEventListener("pointerup", hideTooltip);
-//   }
-
-//   const item = selection.data.item;
-//   const parent = selection.parent
-//     ? {
-//         lang: selection.parent.data.item.lang,
-//         term: selection.parent.data.item.term,
-//         langDistance: selection.parent.data.langDistance,
-//       }
-//     : null;
-
-//   const lang = document.createElement("p");
-//   lang.classList.add("lang");
-//   lang.style.color = langColor(selection.data.langDistance);
-//   lang.textContent = `${item.lang}`;
-//   tooltip.appendChild(lang);
-
-//   const term = document.createElement("p");
-//   term.innerHTML =
-//     `<span class="term">${item.term}</span>` +
-//     (item.romanization
-//       ? ` <span class="romanization">(${item.romanization})</span>`
-//       : "");
-//   tooltip.appendChild(term);
-
-//   if (item.imputed) {
-//     const imputed = document.createElement("div");
-//     imputed.classList.add("pos-line");
-//     imputed.innerHTML = `<span class="imputed">(imputed)</span>`;
-//     tooltip.appendChild(imputed);
-//   } else if (item.pos && item.gloss && item.pos.length === item.gloss.length) {
-//     const posGloss = document.createElement("div");
-//     const posList = item.pos ?? [];
-//     const glossList = item.gloss ?? [];
-//     for (let i = 0; i < posList.length; i++) {
-//       const pos = posList[i];
-//       const gloss = glossList[i];
-//       const posLine = document.createElement("div");
-//       posLine.classList.add("pos-line");
-//       posLine.innerHTML = `<span class="pos">${pos}</span>: <span class="gloss">${gloss}</span>`;
-//       posGloss.appendChild(posLine);
-//     }
-//     tooltip.appendChild(posGloss);
-//   }
-
-//   if (item.etyMode && parent) {
-//     const ety = document.createElement("div");
-//     ety.classList.add("ety-line");
-//     const prep = etyPrep(item.etyMode);
-//     const color = langColor(parent.langDistance);
-//     ety.innerHTML = `<span class="ety-mode">${item.etyMode}</span> <span class="ety-prep">${prep}</span> <span class="parent-lang" style="color: ${color};">${parent.lang}</span> <span class="parent-term">${parent.term}</span>`;
-//     tooltip.appendChild(ety);
-//   }
-
-//   if (item.url) {
-//     const container = document.createElement("div");
-//     container.classList.add("wiktionary-link-container");
-//     const link = document.createElement("a");
-//     link.textContent = "Wiktionary";
-//     link.href = item.url;
-//     link.target = "_blank";
-//     link.classList.add("wiktionary-link");
-//     container.appendChild(link);
-//     tooltip.appendChild(container);
-//   }
-// }
 
 function positionHoverTooltip(
   element: SVGElement,
@@ -264,14 +248,16 @@ export function setNodeTooltipListeners(
     undefined
   >,
   tooltipRef: RefObject<HTMLDivElement>,
-  setTooltipItem: (item: Item | null) => void,
+  setTooltipItem: (item: HierarchyPointNode<ExpandedItem> | null) => void,
+  setPositionType: (type: string) => void,
   tooltipShowTimeout: MutableRefObject<number | null>,
   tooltipHideTimeout: MutableRefObject<number | null>
 ) {
   // for non-mouse, show tooltip on pointerup
   node.on("pointerup", function (event: PointerEvent, d: ExpandedItemNode) {
     if (event.pointerType !== "mouse") {
-      setTooltipItem(d.node.data.item);
+      setTooltipItem(d.node);
+      setPositionType("fixed");
       showTooltip(this, tooltipRef, "fixed");
     }
   });
@@ -281,7 +267,8 @@ export function setNodeTooltipListeners(
     if (event.pointerType === "mouse") {
       window.clearTimeout(tooltipHideTimeout.current ?? undefined);
       tooltipShowTimeout.current = window.setTimeout(() => {
-        setTooltipItem(d.node.data.item);
+        setTooltipItem(d.node);
+        setPositionType("hover");
         showTooltip(this, tooltipRef, "hover");
       }, 100);
     }

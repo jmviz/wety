@@ -3,6 +3,7 @@ import Tree from "./Tree";
 import Tooltip from "./Tooltip";
 import { ExpandedItem, Item } from "../search/responses";
 
+import { HierarchyPointNode } from "d3";
 import { useRef, useState } from "react";
 
 interface EtyProps {
@@ -11,25 +12,31 @@ interface EtyProps {
 
 export default function Ety({ data }: EtyProps) {
   const tooltipRef = useRef<HTMLDivElement>(null);
-  const [tooltipItem, setTooltipItem] = useState<Item | null>(null);
+  const [tooltipItemNode, setTooltipItemNode] =
+    useState<HierarchyPointNode<ExpandedItem> | null>(null);
+  const [positionType, setPositionType] = useState<string>("hover");
   const tooltipShowTimeout = useRef<number | null>(null);
   const tooltipHideTimeout = useRef<number | null>(null);
 
   return (
     <div className="ety">
-      <Tree
-        etyData={data}
-        tooltipRef={tooltipRef}
-        setTooltipItem={setTooltipItem}
-        tooltipShowTimeout={tooltipShowTimeout}
-        tooltipHideTimeout={tooltipHideTimeout}
-      />
-      {/* <Tooltip
-        item={tooltipItem}
-        ref={tooltipRef}
+      <div className="tree-container">
+        <Tree
+          etyData={data}
+          tooltipRef={tooltipRef}
+          setTooltipItem={setTooltipItemNode}
+          setPositionType={setPositionType}
+          tooltipShowTimeout={tooltipShowTimeout}
+          tooltipHideTimeout={tooltipHideTimeout}
+        />
+      </div>
+      <Tooltip
+        itemNode={tooltipItemNode}
+        positionType={positionType}
+        divRef={tooltipRef}
         showTimeout={tooltipShowTimeout}
         hideTimeout={tooltipHideTimeout}
-      /> */}
+      />
     </div>
   );
 }

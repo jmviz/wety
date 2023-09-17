@@ -1,6 +1,6 @@
 import "./Tree.css";
 import { EtyData } from "./Ety";
-import { ExpandedItem, Item } from "../search/responses";
+import { ExpandedItem } from "../search/responses";
 import cluster from "./treeCluster";
 import { setNodeTooltipListeners } from "./Tooltip";
 
@@ -16,7 +16,8 @@ import { RefObject, useRef, useEffect, MutableRefObject } from "react";
 interface TreeProps {
   etyData: EtyData;
   tooltipRef: RefObject<HTMLDivElement>;
-  setTooltipItem: (item: Item | null) => void;
+  setTooltipItem: (item: HierarchyPointNode<ExpandedItem> | null) => void;
+  setPositionType: (positionType: string) => void;
   tooltipShowTimeout: MutableRefObject<number | null>;
   tooltipHideTimeout: MutableRefObject<number | null>;
 }
@@ -25,12 +26,14 @@ export default function Tree({
   etyData,
   tooltipRef,
   setTooltipItem,
+  setPositionType,
   tooltipShowTimeout,
   tooltipHideTimeout,
 }: TreeProps) {
   const svgRef = useRef<SVGSVGElement>(null);
 
   useEffect(() => {
+    console.log("tree effect");
     const svg = svgRef.current;
     if (svg === null) {
       return;
@@ -45,6 +48,7 @@ export default function Tree({
       fontSize,
       tooltipRef,
       setTooltipItem,
+      setPositionType,
       tooltipShowTimeout,
       tooltipHideTimeout
     );
@@ -52,9 +56,12 @@ export default function Tree({
     etyData,
     tooltipRef,
     setTooltipItem,
+    setPositionType,
     tooltipShowTimeout,
     tooltipHideTimeout,
   ]);
+
+  console.log("tree render");
 
   return <svg className="tree" ref={svgRef} />;
 }
@@ -103,7 +110,8 @@ function treeSVG(
   etyData: EtyData,
   fontSize: number,
   tooltipRef: RefObject<HTMLDivElement>,
-  setTooltipItem: (item: Item | null) => void,
+  setTooltipItem: (item: HierarchyPointNode<ExpandedItem> | null) => void,
+  setPositionType: (positionType: string) => void,
   tooltipShowTimeout: MutableRefObject<number | null>,
   tooltipHideTimeout: MutableRefObject<number | null>
 ) {
@@ -276,6 +284,7 @@ function treeSVG(
     node,
     tooltipRef,
     setTooltipItem,
+    setPositionType,
     tooltipShowTimeout,
     tooltipHideTimeout
   );
