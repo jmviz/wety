@@ -2,31 +2,39 @@ import "./Tooltip.css";
 import { ExpandedItem } from "../search/responses";
 import { ExpandedItemNode, langColor } from "./Tree";
 
-import { Selection, HierarchyPointNode } from "d3";
-import { MutableRefObject, RefObject, useEffect } from "react";
+import { HierarchyPointNode, Selection } from "d3";
+import {
+  Dispatch,
+  MutableRefObject,
+  RefObject,
+  SetStateAction,
+  useEffect,
+} from "react";
 
-interface TooltipProps {
+export interface TooltipState {
   itemNode: HierarchyPointNode<ExpandedItem> | null;
+  svgElement: SVGElement | null;
   positionType: string;
+}
+
+export interface TooltipData {
+  state: TooltipState;
+  setState: Dispatch<SetStateAction<TooltipState>>;
   divRef: RefObject<HTMLDivElement>;
   showTimeout: MutableRefObject<number | null>;
   hideTimeout: MutableRefObject<number | null>;
 }
 
 export default function Tooltip({
-  itemNode,
-  positionType,
+  state: { itemNode, svgElement, positionType },
   divRef,
   showTimeout,
   hideTimeout,
-}: TooltipProps) {
+}: TooltipData) {
   useEffect(() => {
     console.log("tooltip effect");
     const tooltip = divRef.current;
-
-    if (tooltip === null) {
-      return;
-    }
+    if (!tooltip) return;
 
     const handleMouseEnter = (event: PointerEvent) => {
       if (event.pointerType === "mouse") {
@@ -49,6 +57,14 @@ export default function Tooltip({
       tooltip.removeEventListener("pointerleave", handleMouseLeave);
     };
   }, [divRef, showTimeout, hideTimeout]);
+
+  useEffect(() => {
+    const tooltip = divRef.current;
+    if (!tooltip || !svgElement) return;
+    positionTooltip(svgElement, tooltip, positionType);
+    tooltip.style.zIndex = "9000";
+    tooltip.style.opacity = "1";
+  }, [divRef, svgElement, positionType]);
 
   console.log("tooltip render");
 
@@ -163,81 +179,58 @@ function etyPrep(etyMode: string): string {
   }
 }
 
-function positionHoverTooltip(
-  element: SVGElement,
-  tooltipRef: RefObject<HTMLDivElement>
-) {
-  if (tooltipRef.current === null) {
-    return;
-  }
-  tooltipRef.current.style.position = "absolute";
+function positionHoverTooltip(element: SVGElement, tooltip: HTMLDivElement) {
+  tooltip.style.position = "absolute";
 
-  const tooltipRect = tooltipRef.current.getBoundingClientRect();
+  const tooltipRect = tooltip.getBoundingClientRect();
   const elementRect = element.getBoundingClientRect();
 
   // Position the tooltip above the element. If there is not enough space,
   // position it below the element.
   if (elementRect.top >= tooltipRect.height) {
-    tooltipRef.current.style.top =
+    tooltip.style.top =
       elementRect.top + window.scrollY - tooltipRect.height + "px";
   } else {
-    tooltipRef.current.style.top = elementRect.bottom + window.scrollY + "px";
+    tooltip.style.top = elementRect.bottom + window.scrollY + "px";
   }
 
   // Align the tooltip with the left side of the element. If there is not
   // enough space, align it with the right side.
   if (elementRect.left + tooltipRect.width <= window.innerWidth) {
-    tooltipRef.current.style.left = elementRect.left + window.scrollX + "px";
+    tooltip.style.left = elementRect.left + window.scrollX + "px";
   } else {
-    tooltipRef.current.style.left =
+    tooltip.style.left =
       elementRect.right + window.scrollX - tooltipRect.width + "px";
   }
 }
 
-function positionFixedTooltip(tooltipRef: RefObject<HTMLDivElement>) {
-  if (tooltipRef.current === null) {
-    return;
-  }
-  tooltipRef.current.style.position = "fixed";
-  tooltipRef.current.style.top = "50%";
-  tooltipRef.current.style.left = "50%";
-  tooltipRef.current.style.transform = "translate(-50%, -50%)";
+function positionFixedTooltip(tooltip: HTMLDivElement) {
+  tooltip.style.position = "fixed";
+  tooltip.style.top = "50%";
+  tooltip.style.left = "50%";
+  tooltip.style.transform = "translate(-50%, -50%)";
 }
 
 function positionTooltip(
   element: SVGElement,
-  tooltipRef: RefObject<HTMLDivElement>,
+  tooltip: HTMLDivElement,
   type: string
 ) {
   if (type === "hover") {
-    positionHoverTooltip(element, tooltipRef);
+    positionHoverTooltip(element, tooltip);
   } else {
-    positionFixedTooltip(tooltipRef);
+    positionFixedTooltip(tooltip);
   }
 }
 
-function showTooltip(
-  element: SVGElement,
-  tooltipRef: RefObject<HTMLDivElement>,
-  type: string
-) {
-  hideTooltip(tooltipRef);
-  positionTooltip(element, tooltipRef, type);
-  if (tooltipRef.current === null) {
+function hideTooltip(tooltip: RefObject<HTMLDivElement>) {
+  if (tooltip.current === null) {
     return;
   }
-  tooltipRef.current.style.zIndex = "9000";
-  tooltipRef.current.style.opacity = "1";
-}
-
-function hideTooltip(tooltipRef: RefObject<HTMLDivElement>) {
-  if (tooltipRef.current === null) {
-    return;
-  }
-  tooltipRef.current.style.opacity = "0";
-  tooltipRef.current.style.zIndex = "-9000";
-  tooltipRef.current.style.top = "0px";
-  tooltipRef.current.style.left = "0px";
+  tooltip.current.style.opacity = "0";
+  tooltip.current.style.zIndex = "-9000";
+  tooltip.current.style.top = "0px";
+  tooltip.current.style.left = "0px";
 }
 
 export function setNodeTooltipListeners(
@@ -247,38 +240,40 @@ export function setNodeTooltipListeners(
     SVGGElement,
     undefined
   >,
-  tooltipRef: RefObject<HTMLDivElement>,
-  setTooltipItem: (item: HierarchyPointNode<ExpandedItem> | null) => void,
-  setPositionType: (type: string) => void,
-  tooltipShowTimeout: MutableRefObject<number | null>,
-  tooltipHideTimeout: MutableRefObject<number | null>
+  tooltipData: TooltipData
 ) {
   // for non-mouse, show tooltip on pointerup
   node.on("pointerup", function (event: PointerEvent, d: ExpandedItemNode) {
     if (event.pointerType !== "mouse") {
-      setTooltipItem(d.node);
-      setPositionType("fixed");
-      showTooltip(this, tooltipRef, "fixed");
+      tooltipData.setState({
+        itemNode: d.node,
+        svgElement: this,
+        positionType: "fixed",
+      });
     }
   });
 
   // for mouse, show tooltip on hover
   node.on("pointerenter", function (event: PointerEvent, d: ExpandedItemNode) {
     if (event.pointerType === "mouse") {
-      window.clearTimeout(tooltipHideTimeout.current ?? undefined);
-      tooltipShowTimeout.current = window.setTimeout(() => {
-        setTooltipItem(d.node);
-        setPositionType("hover");
-        showTooltip(this, tooltipRef, "hover");
-      }, 100);
+      window.clearTimeout(tooltipData.hideTimeout.current ?? undefined);
+      tooltipData.showTimeout.current = window.setTimeout(
+        () =>
+          tooltipData.setState({
+            itemNode: d.node,
+            svgElement: this,
+            positionType: "hover",
+          }),
+        100
+      );
     }
   });
 
   node.on("pointerleave", (event: PointerEvent) => {
     if (event.pointerType === "mouse") {
-      window.clearTimeout(tooltipShowTimeout.current ?? undefined);
-      tooltipHideTimeout.current = window.setTimeout(
-        () => hideTooltip(tooltipRef),
+      window.clearTimeout(tooltipData.showTimeout.current ?? undefined);
+      tooltipData.hideTimeout.current = window.setTimeout(
+        () => hideTooltip(tooltipData.divRef),
         100
       );
     }

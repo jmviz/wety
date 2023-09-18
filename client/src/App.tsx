@@ -9,7 +9,7 @@ const theme = createTheme({
   // todo
 });
 
-function App() {
+export default function App() {
   const [etyData, setEtyData] = useState<EtyData>({
     headProgenitorTree: null,
     selectedItem: null,
@@ -19,9 +19,7 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <SearchPane setEtyData={setEtyData} />
-      <Ety data={etyData} />
+      <Ety {...etyData} />
     </ThemeProvider>
   );
 }
-
-export default App;
