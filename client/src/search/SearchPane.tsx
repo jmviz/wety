@@ -26,6 +26,7 @@ function SearchPane({ setEtyData }: SearchPaneProps) {
         sx={{ padding: 2 }}
         direction={{ xs: "column", sm: "row" }}
         spacing={2}
+        justifyContent={"center"}
       >
         <LangSearch
           selectedLang={selectedLang}
