@@ -2,7 +2,7 @@ import "./Tree.css";
 import { EtyData } from "./Ety";
 import { ExpandedItem } from "../search/responses";
 import cluster from "./treeCluster";
-import { TooltipData, setNodeTooltipListeners } from "./Tooltip";
+import { TooltipState, setNodeTooltipListeners } from "./Tooltip";
 
 import { select, Selection } from "d3-selection";
 import { link, curveStepBefore } from "d3-shape";
@@ -11,18 +11,26 @@ import {
   HierarchyPointLink,
   HierarchyPointNode,
 } from "d3-hierarchy";
-import { RefObject, useRef, useEffect } from "react";
+import { RefObject, useRef, useEffect, MutableRefObject } from "react";
 
 interface TreeProps {
   etyData: EtyData;
-  tooltipData: TooltipData;
+  setTooltipState: (state: TooltipState) => void;
+  tooltipRef: RefObject<HTMLDivElement>;
+  tooltipShowTimeout: MutableRefObject<number | null>;
+  tooltipHideTimeout: MutableRefObject<number | null>;
 }
 
-export default function Tree({ etyData, tooltipData }: TreeProps) {
+export default function Tree({
+  etyData,
+  setTooltipState,
+  tooltipRef,
+  tooltipShowTimeout,
+  tooltipHideTimeout,
+}: TreeProps) {
   const svgRef = useRef<SVGSVGElement>(null);
 
   useEffect(() => {
-    console.log("tree effect");
     const svg = svgRef.current;
     if (svg === null) {
       return;
@@ -31,10 +39,22 @@ export default function Tree({ etyData, tooltipData }: TreeProps) {
       ? parseFloat(window.getComputedStyle(svg).fontSize)
       : 13;
 
-    treeSVG(svgRef, fontSize, etyData, tooltipData);
-  }, [etyData, tooltipData]);
-
-  console.log("tree render");
+    treeSVG(
+      svgRef,
+      fontSize,
+      etyData,
+      setTooltipState,
+      tooltipRef,
+      tooltipShowTimeout,
+      tooltipHideTimeout
+    );
+  }, [
+    etyData,
+    setTooltipState,
+    tooltipRef,
+    tooltipShowTimeout,
+    tooltipHideTimeout,
+  ]);
 
   return <svg className="tree" ref={svgRef} />;
 }
@@ -82,7 +102,10 @@ function treeSVG(
   svgRef: RefObject<SVGSVGElement>,
   fontSize: number,
   etyData: EtyData,
-  tooltipData: TooltipData
+  setTooltipState: (state: TooltipState) => void,
+  tooltipRef: RefObject<HTMLDivElement>,
+  tooltipShowTimeout: MutableRefObject<number | null>,
+  tooltipHideTimeout: MutableRefObject<number | null>
 ) {
   // clear the previous svg
   select(svgRef.current).selectAll("*").remove();
@@ -249,7 +272,13 @@ function treeSVG(
       d.node.data.item.romanization ? `(${d.node.data.item.romanization})` : ""
     );
 
-  setNodeTooltipListeners(node, tooltipData);
+  setNodeTooltipListeners(
+    node,
+    setTooltipState,
+    tooltipRef,
+    tooltipShowTimeout,
+    tooltipHideTimeout
+  );
 
   addSVGTextBackgrounds(node, nodeBackground);
 }

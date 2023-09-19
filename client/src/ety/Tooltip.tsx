@@ -3,13 +3,7 @@ import { ExpandedItem } from "../search/responses";
 import { ExpandedItemNode, langColor } from "./Tree";
 
 import { HierarchyPointNode, Selection } from "d3";
-import {
-  Dispatch,
-  MutableRefObject,
-  RefObject,
-  SetStateAction,
-  useEffect,
-} from "react";
+import { MutableRefObject, RefObject, useEffect, useLayoutEffect } from "react";
 
 export interface TooltipState {
   itemNode: HierarchyPointNode<ExpandedItem> | null;
@@ -17,9 +11,8 @@ export interface TooltipState {
   positionType: string;
 }
 
-export interface TooltipData {
+interface TooltipProps {
   state: TooltipState;
-  setState: Dispatch<SetStateAction<TooltipState>>;
   divRef: RefObject<HTMLDivElement>;
   showTimeout: MutableRefObject<number | null>;
   hideTimeout: MutableRefObject<number | null>;
@@ -30,9 +23,8 @@ export default function Tooltip({
   divRef,
   showTimeout,
   hideTimeout,
-}: TooltipData) {
+}: TooltipProps) {
   useEffect(() => {
-    console.log("tooltip effect");
     const tooltip = divRef.current;
     if (!tooltip) return;
 
@@ -58,15 +50,13 @@ export default function Tooltip({
     };
   }, [divRef, showTimeout, hideTimeout]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const tooltip = divRef.current;
     if (!tooltip || !svgElement) return;
     positionTooltip(svgElement, tooltip, positionType);
     tooltip.style.zIndex = "9000";
     tooltip.style.opacity = "1";
-  }, [divRef, svgElement, positionType]);
-
-  console.log("tooltip render");
+  });
 
   if (itemNode === null) {
     return <div ref={divRef} />;
@@ -120,14 +110,14 @@ export default function Tooltip({
       )}
       {item.etyMode && parent && (
         <div className="ety-line">
-          <span className="ety-mode">{item.etyMode}</span>
-          <span className="ety-prep">{etyPrep(item.etyMode)}</span>
+          <span className="ety-mode">{item.etyMode}</span>{" "}
+          <span className="ety-prep">{etyPrep(item.etyMode)}</span>{" "}
           <span
             className="parent-lang"
             style={{ color: langColor(parent.langDistance) }}
           >
             {parent.lang}
-          </span>
+          </span>{" "}
           <span className="parent-term">{parent.term}</span>
         </div>
       )}
@@ -240,12 +230,15 @@ export function setNodeTooltipListeners(
     SVGGElement,
     undefined
   >,
-  tooltipData: TooltipData
+  setTooltipState: (state: TooltipState) => void,
+  tooltipRef: RefObject<HTMLDivElement>,
+  tooltipShowTimeout: MutableRefObject<number | null>,
+  tooltipHideTimeout: MutableRefObject<number | null>
 ) {
   // for non-mouse, show tooltip on pointerup
   node.on("pointerup", function (event: PointerEvent, d: ExpandedItemNode) {
     if (event.pointerType !== "mouse") {
-      tooltipData.setState({
+      setTooltipState({
         itemNode: d.node,
         svgElement: this,
         positionType: "fixed",
@@ -256,10 +249,10 @@ export function setNodeTooltipListeners(
   // for mouse, show tooltip on hover
   node.on("pointerenter", function (event: PointerEvent, d: ExpandedItemNode) {
     if (event.pointerType === "mouse") {
-      window.clearTimeout(tooltipData.hideTimeout.current ?? undefined);
-      tooltipData.showTimeout.current = window.setTimeout(
+      window.clearTimeout(tooltipHideTimeout.current ?? undefined);
+      tooltipShowTimeout.current = window.setTimeout(
         () =>
-          tooltipData.setState({
+          setTooltipState({
             itemNode: d.node,
             svgElement: this,
             positionType: "hover",
@@ -271,9 +264,9 @@ export function setNodeTooltipListeners(
 
   node.on("pointerleave", (event: PointerEvent) => {
     if (event.pointerType === "mouse") {
-      window.clearTimeout(tooltipData.showTimeout.current ?? undefined);
-      tooltipData.hideTimeout.current = window.setTimeout(
-        () => hideTooltip(tooltipData.divRef),
+      window.clearTimeout(tooltipShowTimeout.current ?? undefined);
+      tooltipHideTimeout.current = window.setTimeout(
+        () => hideTooltip(tooltipRef),
         100
       );
     }

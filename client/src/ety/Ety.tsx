@@ -1,7 +1,7 @@
 import "./Ety.css";
 import Tree from "./Tree";
 import Tooltip from "./Tooltip";
-import { TooltipState, TooltipData } from "./Tooltip";
+import { TooltipState } from "./Tooltip";
 import { ExpandedItem, Item } from "../search/responses";
 
 import { useRef, useState } from "react";
@@ -21,20 +21,23 @@ export default function Ety(data: EtyData) {
   const tooltipShowTimeout = useRef<number | null>(null);
   const tooltipHideTimeout = useRef<number | null>(null);
 
-  const tooltipData: TooltipData = {
-    state: tooltipState,
-    setState: setTooltipState,
-    divRef: tooltipRef,
-    showTimeout: tooltipShowTimeout,
-    hideTimeout: tooltipHideTimeout,
-  };
-
   return (
     <div className="ety">
       <div className="tree-container">
-        <Tree etyData={data} tooltipData={tooltipData} />
+        <Tree
+          etyData={data}
+          setTooltipState={setTooltipState}
+          tooltipRef={tooltipRef}
+          tooltipShowTimeout={tooltipShowTimeout}
+          tooltipHideTimeout={tooltipHideTimeout}
+        />
       </div>
-      <Tooltip {...tooltipData} />
+      <Tooltip
+        state={tooltipState}
+        divRef={tooltipRef}
+        showTimeout={tooltipShowTimeout}
+        hideTimeout={tooltipHideTimeout}
+      />
     </div>
   );
 }
