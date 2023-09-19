@@ -3,30 +3,71 @@ import { ItemOption, LangOption } from "./responses";
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
 import { debounce } from "@mui/material/utils";
-import { RefObject, useCallback, useMemo, useState } from "react";
+import { RefObject, useCallback, useEffect, useMemo, useState } from "react";
 
 interface LangSearchProps {
   selectedLang: LangOption | null;
   setSelectedLang: (lang: LangOption | null) => void;
+  inputRef: RefObject<HTMLInputElement>;
   setSelectedItem: (item: ItemOption | null) => void;
   itemSearchInputRef: RefObject<HTMLInputElement>;
   selectedDescLangs: LangOption[];
   setSelectedDescLangs: (langs: LangOption[]) => void;
 }
 
-function LangSearch({
+export default function LangSearch({
   selectedLang,
   setSelectedLang,
+  inputRef,
   setSelectedItem,
   itemSearchInputRef,
   selectedDescLangs,
   setSelectedDescLangs,
 }: LangSearchProps) {
+  const getStoredLastLang = useCallback(async () => {
+    const lastLangStr = window.localStorage.getItem("lastLang");
+    if (lastLangStr === null) {
+      inputRef.current?.focus();
+      return;
+    }
+    try {
+      const lastLang = JSON.parse(lastLangStr) as LangOption;
+      console.log(`Attempting to use stored last language ${lastLang.name}...`);
+      const response = await fetch(
+        `${process.env.REACT_APP_API_BASE_URL}/langs/${lastLang.name}`
+      );
+      const options = (await response.json()) as LangOption[];
+      const lang = options[0];
+      if (lang.name === lastLang.name) {
+        console.log(
+          `Using stored last language ${lang.name} with id ${lang.id}.`
+        );
+        if (lang.id !== lastLang.id) {
+          console.log(`The previous id for ${lang.name} was ${lastLang.id}.`);
+        }
+        setSelectedLang(lang);
+        setSelectedDescLangs([lang]);
+        itemSearchInputRef.current?.focus();
+        return;
+      }
+      throw new Error("Unable to use stored last language.");
+    } catch (error) {
+      console.log(error);
+      window.localStorage.removeItem("lastLang");
+      inputRef.current?.focus();
+    }
+  }, [inputRef, setSelectedLang, itemSearchInputRef, setSelectedDescLangs]);
+
+  useEffect(() => {
+    getStoredLastLang();
+  }, [getStoredLastLang]);
+
   const [langOptions, setLangOptions] = useState<LangOption[]>([]);
 
   const clearSelectedLangAndOptions = useCallback(() => {
     setLangOptions([]);
     setSelectedLang(null);
+    window.localStorage.removeItem("lastLang");
     setSelectedItem(null);
   }, [setSelectedLang, setSelectedItem]);
 
@@ -39,6 +80,7 @@ function LangSearch({
         if (selectedDescLangs.length === 0) {
           setSelectedDescLangs([lang]);
         }
+        window.localStorage.setItem("lastLang", JSON.stringify(lang));
       }
     },
     [
@@ -95,7 +137,12 @@ function LangSearch({
         fetchLangs(newInputValue);
       }}
       renderInput={(params) => (
-        <TextField {...params} label="Language" placeholder="Language..." />
+        <TextField
+          {...params}
+          label="Language"
+          placeholder="Language..."
+          inputRef={inputRef}
+        />
       )}
       options={langOptions}
       filterOptions={(x) => x}
@@ -106,5 +153,3 @@ function LangSearch({
     />
   );
 }
-
-export default LangSearch;

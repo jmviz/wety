@@ -13,7 +13,7 @@ interface EtyButtonProps {
   setEtyData: (data: EtyData) => void;
 }
 
-function EtyButton({
+export default function EtyButton({
   selectedLang,
   selectedItem,
   selectedDescLangs,
@@ -67,5 +67,3 @@ function EtyButton({
     </Button>
   );
 }
-
-export default EtyButton;

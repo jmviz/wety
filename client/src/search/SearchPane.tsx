@@ -13,10 +13,11 @@ interface SearchPaneProps {
   setEtyData: (data: EtyData) => void;
 }
 
-function SearchPane({ setEtyData }: SearchPaneProps) {
+export default function SearchPane({ setEtyData }: SearchPaneProps) {
   const [selectedLang, setSelectedLang] = useState<LangOption | null>(null);
   const [selectedItem, setSelectedItem] = useState<ItemOption | null>(null);
   const [selectedDescLangs, setSelectedDescLangs] = useState<LangOption[]>([]);
+  const langSearchInputRef = useRef<HTMLInputElement>(null);
   const itemSearchInputRef = useRef<HTMLInputElement>(null);
   const descLangsSearchInputRef = useRef<HTMLInputElement>(null);
 
@@ -31,6 +32,7 @@ function SearchPane({ setEtyData }: SearchPaneProps) {
         <LangSearch
           selectedLang={selectedLang}
           setSelectedLang={setSelectedLang}
+          inputRef={langSearchInputRef}
           setSelectedItem={setSelectedItem}
           itemSearchInputRef={itemSearchInputRef}
           selectedDescLangs={selectedDescLangs}
@@ -60,5 +62,3 @@ function SearchPane({ setEtyData }: SearchPaneProps) {
     </Container>
   );
 }
-
-export default SearchPane;

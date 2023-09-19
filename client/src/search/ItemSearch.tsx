@@ -15,7 +15,7 @@ interface ItemSearchProps {
   descLangsSearchInputRef: RefObject<HTMLInputElement>;
 }
 
-function ItemSearch({
+export default function ItemSearch({
   selectedLang,
   selectedItem,
   setSelectedItem,
@@ -134,5 +134,3 @@ function ItemSearch({
     />
   );
 }
-
-export default ItemSearch;
