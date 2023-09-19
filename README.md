@@ -1,6 +1,6 @@
 # [wety](https://www.wety.org/)
 
-(w)iktionary (ety)mologies. `processor` uses [`wiktextract`](https://github.com/tatuylonen/wiktextract) data to generate an etymological graph of all words on wiktionary. `server` serves the data. For the frontend, see [`wety-client`](https://github.com/jmviz/wety-client).
+(w)iktionary (ety)mologies. `processor` uses [`wiktextract`](https://github.com/tatuylonen/wiktextract) data to generate an etymological graph of all words on wiktionary. `server` serves the data. `client` is the frontend.
 
 ## Installation
 
@@ -80,4 +80,4 @@ To run the server:
 cargo run --release --bin server
 ```
 
-Requests to the server can be made at `127.0.0.1:3000`. For development in conjuction with the frontend, [`wety-client`](https://github.com/jmviz/wety-client), see that repo for instructions on setting up and running the client locally.
+Requests to the server can be made at `127.0.0.1:3000`. For development in conjuction with the frontend, see the README in the `client` subdirectory for instructions on setting up and running the client locally.
