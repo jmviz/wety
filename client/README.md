@@ -6,7 +6,7 @@ This is the frontend for [`wety.org`](https://www.wety.org/). See the root direc
 
 For local development, you'll need to set up both the `wety` API server and the `wety-client` server. Follow the instructions in the README in the root directory of this repository to set up and run the API server.
 
-If you don't have `node` and `npm` installed, [install them](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm). Clone this repo and `cd` into it. Then install the dependencies:
+If you don't have `node` and `npm` installed, [install them](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm). Clone this repo (if you haven't already) and `cd` into the `client` subdirectory. Then install the dependencies:
 
 ```bash
 npm install
