@@ -52,13 +52,13 @@ export default function Tooltip({
 
   useLayoutEffect(() => {
     const tooltip = divRef.current;
-    if (!tooltip || !svgElement) return;
+    if (!tooltip || !itemNode || !svgElement) return;
     positionTooltip(svgElement, tooltip, positionType);
     tooltip.style.zIndex = "9000";
     tooltip.style.opacity = "1";
   });
 
-  if (itemNode === null) {
+  if (itemNode === null || svgElement === null) {
     return <div ref={divRef} />;
   }
 
@@ -73,6 +73,7 @@ export default function Tooltip({
 
   const posList = item.pos ?? [];
   const glossList = item.gloss ?? [];
+  const etyMode = etyModeRep(item.etyMode ?? "");
 
   return (
     <div className="tooltip" ref={divRef}>
@@ -110,8 +111,8 @@ export default function Tooltip({
       )}
       {item.etyMode && parent && (
         <div className="ety-line">
-          <span className="ety-mode">{item.etyMode}</span>{" "}
-          <span className="ety-prep">{etyPrep(item.etyMode)}</span>{" "}
+          <span className="ety-mode">{etyMode}</span>{" "}
+          <span className="ety-prep">{etyPrep(etyMode)}</span>{" "}
           <span
             className="parent-lang"
             style={{ color: langColor(parent.langDistance) }}
@@ -137,10 +138,19 @@ export default function Tooltip({
   );
 }
 
+function etyModeRep(etyMode: string): string {
+  switch (etyMode) {
+    case "undefined derivation":
+    case "mention":
+      return "derived";
+    default:
+      return etyMode;
+  }
+}
+
 function etyPrep(etyMode: string): string {
   switch (etyMode) {
     case "derived":
-    case "undefined derivation":
     case "inherited":
     case "borrowed":
     case "back-formation":
@@ -162,8 +172,6 @@ function etyPrep(etyMode: string): string {
       return "derivative of";
     case "root":
       return "reflex of";
-    case "mention":
-      return "in";
     default:
       return "of";
   }

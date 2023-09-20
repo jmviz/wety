@@ -40,7 +40,7 @@ export default function Tree({
       : 13;
 
     treeSVG(
-      svgRef,
+      svg,
       fontSize,
       etyData,
       setTooltipState,
@@ -48,6 +48,16 @@ export default function Tree({
       tooltipShowTimeout,
       tooltipHideTimeout
     );
+
+    return () => {
+      // clear the previous svg
+      select(svg).selectAll("*").remove();
+      setTooltipState({
+        itemNode: null,
+        svgElement: null,
+        positionType: "hover",
+      });
+    };
   }, [
     etyData,
     setTooltipState,
@@ -99,7 +109,7 @@ export function langColor(distance: number | null) {
 // Copyright 2021 Observable, Inc.
 // Released under the ISC license.
 function treeSVG(
-  svgRef: RefObject<SVGSVGElement>,
+  svgElement: SVGSVGElement,
   fontSize: number,
   etyData: EtyData,
   setTooltipState: (state: TooltipState) => void,
@@ -107,9 +117,6 @@ function treeSVG(
   tooltipShowTimeout: MutableRefObject<number | null>,
   tooltipHideTimeout: MutableRefObject<number | null>
 ) {
-  // clear the previous svg
-  select(svgRef.current).selectAll("*").remove();
-
   const tree = etyData.headProgenitorTree;
   const selectedItem = etyData.selectedItem;
 
@@ -183,7 +190,7 @@ function treeSVG(
   // generally seems to work well but for example Windows Firefox renders
   // random lines with 2px instead of 1px. Consider this as a solution:
   // https://github.com/engray/subpixelFix.
-  const svg = select(svgRef.current)
+  const svg = select(svgElement)
     .attr("version", "1.1")
     .attr("xmlns", "http://www.w3.org/2000/svg")
     .attr("xmlns:xlink", "http://www.w3.org/1999/xlink")
