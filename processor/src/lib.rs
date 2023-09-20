@@ -58,7 +58,7 @@ pub fn process_wiktextract(
     serialization_path: &Path,
     turtle_path: Option<&Path>,
     embeddings_config: &EmbeddingsConfig,
-) -> Result<Instant> {
+) -> Result<()> {
     let mut t = Instant::now();
     println!(
         "Processing raw wiktextract data from {}...",
@@ -79,7 +79,5 @@ pub fn process_wiktextract(
         data.write_turtle(turtle_path)?;
     }
     data.serialize(serialization_path)?;
-    t = Instant::now();
-    println!("Dropping all processed data...");
-    Ok(t)
+    Ok(())
 }

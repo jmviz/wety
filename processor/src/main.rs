@@ -54,13 +54,12 @@ fn main() -> Result<()> {
         progress_update_interval: args.embeddings_progress_update_interval,
         cache_path: args.embeddings_cache_path,
     };
-    let t = process_wiktextract(
+    process_wiktextract(
         &args.wiktextract_path,
         &args.serialization_path,
         args.turtle_path.as_deref(),
         &embeddings_config,
     )?;
-    println!("Finished. Took {}.", HumanDuration(t.elapsed()));
 
     println!(
         "All done! Took {} overall. Exiting...",
