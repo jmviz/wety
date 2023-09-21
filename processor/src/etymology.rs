@@ -6,7 +6,9 @@ use crate::{
     languages::Lang,
     progress_bar,
     string_pool::StringPool,
-    wiktextract_json::{WiktextractJson, WiktextractJsonItem, WiktextractJsonValidStr},
+    wiktextract_json::{
+        HyphenPlacement, WiktextractJson, WiktextractJsonItem, WiktextractJsonValidStr,
+    },
     HashSet,
 };
 
@@ -84,8 +86,7 @@ fn process_prefix_json_template(
     args: &WiktextractJson,
     lang: Lang,
 ) -> Option<RawEtyTemplate> {
-    let ety_prefix = args.get_valid_term("2")?;
-    let ety_prefix = format!("{ety_prefix}-");
+    let ety_prefix = args.get_hyphenated_term("2", &HyphenPlacement::End)?;
     let ety_prefix = lang.new_langterm(string_pool, &ety_prefix);
     let ety_term = args.get_valid_term("3")?;
     let ety_term = lang.new_langterm(string_pool, ety_term);
@@ -103,8 +104,7 @@ fn process_suffix_json_template(
 ) -> Option<RawEtyTemplate> {
     let ety_term = args.get_valid_term("2")?;
     let ety_term = lang.new_langterm(string_pool, ety_term);
-    let ety_suffix = args.get_valid_term("3")?;
-    let ety_suffix = format!("-{ety_suffix}");
+    let ety_suffix = args.get_hyphenated_term("3", &HyphenPlacement::Start)?;
     let ety_suffix = lang.new_langterm(string_pool, &ety_suffix);
     Some(RawEtyTemplate {
         langterms: Box::new([ety_term, ety_suffix]),
@@ -155,14 +155,13 @@ fn process_confix_json_template(
     args: &WiktextractJson,
     lang: Lang,
 ) -> Option<RawEtyTemplate> {
-    let ety_prefix = args.get_valid_term("2")?;
+    // let ety_prefix = args.get_valid_term("2")?;
+    let ety_prefix = args.get_hyphenated_term("2", &HyphenPlacement::End)?;
     let ety2 = args.get_valid_term("3")?;
 
-    let ety_prefix = format!("{ety_prefix}-");
     let ety_prefix = lang.new_langterm(string_pool, &ety_prefix);
-    if let Some(ety3) = args.get_valid_term("4") {
+    if let Some(ety_suffix) = args.get_hyphenated_term("4", &HyphenPlacement::Start) {
         let ety_term = lang.new_langterm(string_pool, ety2);
-        let ety_suffix = format!("-{ety3}");
         let ety_suffix = lang.new_langterm(string_pool, &ety_suffix);
         return Some(RawEtyTemplate {
             langterms: Box::new([ety_prefix, ety_term, ety_suffix]),

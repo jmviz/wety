@@ -23,6 +23,11 @@ pub(crate) struct RawRoot {
     pub(crate) sense_id: Option<Symbol>,
 }
 
+enum RootKind {
+    Root,
+    Word,
+}
+
 impl WiktextractJsonItem<'_> {
     // cf. https://en.wiktionary.org/wiki/Template:root. For now we skip
     // attempting to deal with multiple roots listed in a root template or
@@ -43,10 +48,10 @@ impl WiktextractJsonItem<'_> {
                 {
                    match name {
                         "root" => {
-                            return process_root_template(string_pool, args, lang, false);
+                            return process_root_template(string_pool, args, lang, &RootKind::Root);
                         }
                         "word" => {
-                            return process_root_template(string_pool, args, lang, true);
+                            return process_root_template(string_pool, args, lang, &RootKind::Word);
                         }
                         "PIE word" => {
                             return process_pie_word_template(string_pool, args, lang);
@@ -82,14 +87,13 @@ fn process_root_template(
     string_pool: &mut StringPool,
     args: &WiktextractJson,
     lang: Lang,
-    add_pro: bool,
+    kind: &RootKind,
 ) -> Option<RawRoot> {
     validate_ety_template_lang(args, lang).ok()?;
     let root_lang = args.get_valid_str("2")?;
-    let root_lang = if add_pro {
-        Lang::from_str(&format!("{root_lang}-pro")).ok()?
-    } else {
-        Lang::from_str(root_lang).ok()?
+    let root_lang = match kind {
+        RootKind::Root => Lang::from_str(root_lang).ok()?,
+        RootKind::Word => Lang::from_str(&format!("{root_lang}-pro")).ok()?,
     };
     let raw_root_term = args.get_valid_str("3")?;
     let root_term = args.get_valid_term("3")?;
@@ -170,7 +174,10 @@ impl Items {
 
         match self.graph.get_progenitors(item_id) {
             None => {
-                if self.get(item_id).lang().strictly_descends_from(root_lang)
+                let item = self.get(item_id);
+                let item_lang = item.lang();
+                if item_lang.strictly_descends_from(root_lang)
+                || item.is_imputed() && item_lang.descends_from(root_lang)
                 {
                     self.graph.add_ety(
                         item_id,
@@ -182,16 +189,20 @@ impl Items {
                 }
             }
             Some(progenitors) => {
-                if let Some(head_progenitor) = progenitors.head
+                if let Some(head_progenitor_id) = progenitors.head
+                    && let head_progenitor = self.get(head_progenitor_id) 
                     && !progenitors.items.contains(&root_item_id)
-                    && let head_progenitor_lang = self.get(head_progenitor).lang()
-                    && head_progenitor_lang.strictly_descends_from(root_lang)
+                    && let head_progenitor_lang = head_progenitor.lang()
+                    && (
+                        head_progenitor_lang.strictly_descends_from(root_lang) 
+                        || head_progenitor.is_imputed() && head_progenitor_lang.descends_from(root_lang)
+                    )
                 {
                     let root_embedding = embeddings.get(self.get(root_item_id), root_item_id)?;
-                    let hp_embedding = embeddings.get(self.get(head_progenitor), head_progenitor)?;
+                    let hp_embedding = embeddings.get(head_progenitor, head_progenitor_id)?;
                     let similarity = hp_embedding.cosine_similarity(&root_embedding);
                     self.graph.add_ety(
-                        head_progenitor,
+                        head_progenitor_id,
                         EtyMode::Root,
                         Some(0u8),
                         &[root_item_id],

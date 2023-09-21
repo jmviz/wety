@@ -10,6 +10,7 @@ use crate::{
 };
 
 use std::{
+    borrow::Cow,
     fs::File,
     io::{BufReader, Read},
     mem,
@@ -69,12 +70,22 @@ impl Items {
 
 pub(crate) type WiktextractJson<'a> = simd_json::value::borrowed::Value<'a>;
 
-pub(crate) trait WiktextractJsonValidStr {
-    fn get_valid_str(&self, key: &str) -> Option<&str>;
-    fn get_valid_term(&self, key: &str) -> Option<&str>;
+pub(crate) enum HyphenPlacement {
+    Start,
+    End,
 }
 
-impl WiktextractJsonValidStr for WiktextractJson<'_> {
+pub(crate) trait WiktextractJsonValidStr<'a> {
+    fn get_valid_str(&self, key: &str) -> Option<&str>;
+    fn get_valid_term(&self, key: &str) -> Option<&str>;
+    fn get_hyphenated_term(
+        &'a self,
+        key: &str,
+        hyphen_placement: &HyphenPlacement,
+    ) -> Option<Cow<'a, str>>;
+}
+
+impl<'a> WiktextractJsonValidStr<'a> for WiktextractJson<'a> {
     /// return a cleaned version of the str if it exists
     fn get_valid_str(&self, key: &str) -> Option<&str> {
         self.get_str(key)
@@ -86,6 +97,32 @@ impl WiktextractJsonValidStr for WiktextractJson<'_> {
         self.get_str(key)
             .map(clean_template_term)
             .and_then(|s| (!s.is_empty() && s != "-").then_some(s))
+    }
+
+    // Used for prefix (suffix) templates to handle the case of a proto-root
+    // that ends (begins) with a hyphen being placed in the prefix (suffix) arg
+    // position. Usually the hyphen is not included for a prefix (suffix) term
+    // in the template, so we want to add it. But in this case the hyphen is
+    // already there, correctly, so we don't want to add another.
+    fn get_hyphenated_term(
+        &'a self,
+        key: &str,
+        hyphen_placement: &HyphenPlacement,
+    ) -> Option<Cow<'a, str>> {
+        let mut term = Cow::from(self.get_valid_term(key)?);
+        match hyphen_placement {
+            HyphenPlacement::Start => {
+                if !term.starts_with('-') {
+                    term.to_mut().insert(0, '-');
+                }
+            }
+            HyphenPlacement::End => {
+                if !term.ends_with('-') {
+                    term.to_mut().push('-');
+                }
+            }
+        }
+        Some(term)
     }
 }
 
