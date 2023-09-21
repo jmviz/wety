@@ -2,7 +2,7 @@ import "./Tree.css";
 import { EtyData } from "./Ety";
 import { ExpandedItem } from "../search/responses";
 import cluster from "./treeCluster";
-import { TooltipState, setNodeTooltipListeners } from "./Tooltip";
+import { TooltipState, hideTooltip, setNodeTooltipListeners } from "./Tooltip";
 
 import { select, Selection } from "d3-selection";
 import { link, curveStepBefore } from "d3-shape";
@@ -52,6 +52,7 @@ export default function Tree({
     return () => {
       // clear the previous svg
       select(svg).selectAll("*").remove();
+      hideTooltip(tooltipRef);
       setTooltipState({
         itemNode: null,
         svgElement: null,
