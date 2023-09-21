@@ -360,7 +360,7 @@ impl EmbeddingComparand<Embedding> for Embedding {
             aa += a * a;
             bb += b * b;
         }
-        ab / (aa.sqrt() * bb.sqrt())
+        ab / (aa * bb).sqrt()
     }
 }
 
