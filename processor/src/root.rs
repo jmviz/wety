@@ -27,16 +27,32 @@ impl WiktextractJsonItem<'_> {
     // cf. https://en.wiktionary.org/wiki/Template:root. For now we skip
     // attempting to deal with multiple roots listed in a root template or
     // multiple root templates being listed. In both cases we just take the
-    // first root term seen. If we discover it is common, we will handle it.
+    // first root term seen. If we discover it is common, we will handle it. We
+    // also handle https://en.wiktionary.org/wiki/Template:PIE_word and
+    // https://en.wiktionary.org/wiki/Template:word here. These are both used in
+    // the same way as {{root}}; namely, they are placed at the top of the
+    // etymology section before the body of the etymology where the "normal" ety
+    // templates are found. And all three are used to indicate ultimate descent
+    // from a term in a proto-language. For expedience, we gloss over the
+    // distinction among them and categorize them all as "root" etys.
     pub(crate) fn get_root(&self, string_pool: &mut StringPool, lang: Lang) -> Option<RawRoot> {
         if let Some(templates) = self.json.get_array("etymology_templates") {
             for template in templates {
                 if let Some(name) = template.get_valid_str("name")
-                    && name == "root"
                     && let Some(args) = template.get("args")
-                    && let Some(raw_root) = process_root_template(string_pool, args, lang)
                 {
-                   return Some(raw_root);
+                   match name {
+                        "root" => {
+                            return process_root_template(string_pool, args, lang, false);
+                        }
+                        "word" => {
+                            return process_root_template(string_pool, args, lang, true);
+                        }
+                        "PIE word" => {
+                            return process_pie_word_template(string_pool, args, lang);
+                        }
+                        _ => {}
+                   }
                 }
             }
         }
@@ -56,14 +72,25 @@ impl WiktextractJsonItem<'_> {
     }
 }
 
+// https://en.wiktionary.org/wiki/Template:root
+// https://en.wiktionary.org/wiki/Template:word
+// This handles both {{root}} and {{word}}. The templates work the same, with
+// the only exception being that the arg for the proto-language uses the
+// standard language code in the case of {{root}}, while "-pro" is clipped off
+// in the case of {{word}}.
 fn process_root_template(
     string_pool: &mut StringPool,
     args: &WiktextractJson,
     lang: Lang,
+    add_pro: bool,
 ) -> Option<RawRoot> {
     validate_ety_template_lang(args, lang).ok()?;
     let root_lang = args.get_valid_str("2")?;
-    let root_lang = Lang::from_str(root_lang).ok()?;
+    let root_lang = if add_pro {
+        Lang::from_str(&format!("{root_lang}-pro")).ok()?
+    } else {
+        Lang::from_str(root_lang).ok()?
+    };
     let raw_root_term = args.get_valid_str("3")?;
     let root_term = args.get_valid_term("3")?;
     // we don't deal with multi-roots for now:
@@ -82,6 +109,22 @@ fn process_root_template(
     let sense_id = (!sense_id.is_empty()).then_some(string_pool.get_or_intern(sense_id));
     let langterm = root_lang.new_langterm(string_pool, root_term);
     Some(RawRoot { langterm, sense_id })
+}
+
+// https://en.wiktionary.org/wiki/Template:PIE_word
+fn process_pie_word_template(
+    string_pool: &mut StringPool,
+    args: &WiktextractJson,
+    lang: Lang,
+) -> Option<RawRoot> {
+    validate_ety_template_lang(args, lang).ok()?;
+    let pie_lang = Lang::from_str("ine-pro").ok()?;
+    let pie_word = args.get_valid_term("2")?;
+    let pie_langterm = pie_lang.new_langterm(string_pool, pie_word);
+    Some(RawRoot {
+        langterm: pie_langterm,
+        sense_id: None,
+    })
 }
 
 fn process_json_root_category(
