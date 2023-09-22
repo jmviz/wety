@@ -1,6 +1,6 @@
 use server::{
-    item_expansion, item_head_progenitor_tree, item_search_matches, lang_search_matches, AppState,
-    Environment,
+    item_etymology, item_head_descendants, item_head_progenitor_tree, item_search_matches,
+    lang_search_matches, AppState, Environment,
 };
 
 use std::{env, net::SocketAddr, path::Path, str::FromStr, sync::Arc};
@@ -52,8 +52,9 @@ async fn main() -> Result<()> {
     let app = Router::new()
         .route("/langs/:lang", get(lang_search_matches))
         .route("/items/:lang/:term", get(item_search_matches))
-        .route("/expand/:item", get(item_expansion))
+        .route("/expand/:item", get(item_head_descendants))
         .route("/headProgenitorTree/:item", get(item_head_progenitor_tree))
+        .route("/etymology/:item", get(item_etymology))
         .with_state(state)
         .layer(
             ServiceBuilder::new()

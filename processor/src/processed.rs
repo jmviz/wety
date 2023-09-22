@@ -124,7 +124,7 @@ impl Data {
     }
 
     #[must_use]
-    pub fn expanded_item_json(
+    pub fn item_head_descendants_json(
         &self,
         item_id: ItemId,
         req_lang: Lang,
@@ -152,7 +152,7 @@ impl Data {
                             .is_some_and(|langs| include_langs.iter().any(|il| langs.contains(il)))
                 })
                 .map(|(child_id, _)| {
-                    self.expanded_item_json(
+                    self.item_head_descendants_json(
                         child_id,
                         req_lang,
                         include_langs,
@@ -179,7 +179,7 @@ impl Data {
             .and_then(|p| p.head)
             .map_or_else(
                 || {
-                    self.expanded_item_json(
+                    self.item_head_descendants_json(
                         item_id,
                         lang,
                         include_langs,
@@ -187,7 +187,7 @@ impl Data {
                     )
                 },
                 |head| {
-                    self.expanded_item_json(
+                    self.item_head_descendants_json(
                         head,
                         lang,
                         include_langs,
@@ -195,6 +195,27 @@ impl Data {
                     )
                 },
             )
+    }
+
+    #[must_use]
+    pub fn etymology_json(&self, item_id: ItemId, req_lang: Lang) -> Value {
+        let parents = self.graph.get_immediate_ety(item_id).map(|ety| {
+            ety.items
+                .iter()
+                .map(|&p| self.etymology_json(p, req_lang))
+                .collect_vec()
+        });
+        json!({
+            "item": self.item_json(item_id),
+            // "children" here does not have an etymological sense. it is purely
+            // an abstract term referring to the fact that the parents' json are
+            // nested with the item's. This way, we can use the same type in the
+            // frontend for such nested json regardless whether the nesting
+            // indicates etymological descent or "ascent" (the latter being the
+            // case here).
+            "children": parents,
+            "langDistance": req_lang.distance_from(req_lang),
+        })
     }
 }
 

@@ -67,7 +67,7 @@ pub struct IncludeLangs {
     langs: Vec<Lang>,
 }
 
-pub async fn item_expansion(
+pub async fn item_head_descendants(
     State(state): State<Arc<AppState>>,
     Path(item_id): Path<ItemId>,
     Query(include_langs): Query<IncludeLangs>,
@@ -76,7 +76,7 @@ pub async fn item_expansion(
     let head_ancestors_within_lang = state
         .data
         .get_head_ancestors_within_langs(item_id, &include_langs.langs);
-    Json(state.data.expanded_item_json(
+    Json(state.data.item_head_descendants_json(
         item_id,
         lang,
         &include_langs.langs,
@@ -94,4 +94,12 @@ pub async fn item_head_progenitor_tree(
             .data
             .head_progenitor_tree(item_id, &include_langs.langs),
     )
+}
+
+pub async fn item_etymology(
+    State(state): State<Arc<AppState>>,
+    Path(item_id): Path<ItemId>,
+) -> Json<Value> {
+    let lang = state.data.lang(item_id);
+    Json(state.data.etymology_json(item_id, lang))
 }
