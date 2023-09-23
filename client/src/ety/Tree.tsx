@@ -5,7 +5,7 @@ import cluster from "./treeCluster";
 import { TooltipState, hideTooltip, setNodeTooltipListeners } from "./Tooltip";
 
 import { select, Selection } from "d3-selection";
-import { link, curveStepBefore } from "d3-shape";
+import { link, curveStepBefore, curveStepAfter } from "d3-shape";
 import {
   hierarchy,
   HierarchyPointLink,
@@ -39,7 +39,8 @@ export default function Tree({
       ? parseFloat(window.getComputedStyle(svg).fontSize)
       : 13;
 
-    treeSVG(
+    // treeSVG(
+    verticalTreeSVG(
       svg,
       fontSize,
       etyData,
@@ -291,6 +292,155 @@ function treeSVG(
   addSVGTextBackgrounds(node, nodeBackground);
 }
 
+function verticalTreeSVG(
+  svgElement: SVGSVGElement,
+  fontSize: number,
+  etyData: EtyData,
+  setTooltipState: (state: TooltipState) => void,
+  tooltipRef: RefObject<HTMLDivElement>,
+  tooltipShowTimeout: MutableRefObject<number | null>,
+  tooltipHideTimeout: MutableRefObject<number | null>
+) {
+  const tree = etyData.headProgenitorTree;
+  const selectedItem = etyData.selectedItem;
+
+  if (tree === null || selectedItem === null) {
+    return;
+  }
+
+  // https://github.com/d3/d3-hierarchy#hierarchy
+  const root = hierarchy<ExpandedItem>(tree, (d: ExpandedItem) => d.children);
+
+  root.sort((a, b) => 1);
+
+  const dx = 15 * fontSize;
+  const dy = 5 * fontSize;
+  const sep = Math.floor(0.1 * fontSize);
+  const layout = cluster<ExpandedItem>("mean")
+    .nodeSize([dx, dy])
+    .separation((a, b) => sep);
+
+  const pointRoot = layout(root);
+
+  // Center the tree horizontally.
+  let x0 = Infinity;
+  let x1 = -x0;
+  pointRoot.each((d) => {
+    if (d.x > x1) x1 = d.x;
+    if (d.x < x0) x0 = d.x;
+  });
+
+  // const nLeaves = root.leaves().length;
+  // const width = nLeaves * (dx + sep) - sep;
+  const width = x1 - x0 + dx;
+  const height = (root.height + 1) * dy;
+
+  const viewBox = [x0 - dx / 2, -dy / 2, width, height];
+
+  // crispEdges implementation quality varies from browser to browser. It
+  // generally seems to work well but for example Windows Firefox renders
+  // random lines with 2px instead of 1px. Consider this as a solution:
+  // https://github.com/engray/subpixelFix.
+  const svg = select(svgElement)
+    .attr("version", "1.1")
+    .attr("xmlns", "http://www.w3.org/2000/svg")
+    .attr("xmlns:xlink", "http://www.w3.org/1999/xlink")
+    .attr("xmlns:xhtml", "http://www.w3.org/1999/xhtml")
+    .attr("viewBox", viewBox)
+    .attr("width", width)
+    .attr("height", height)
+    .attr(
+      "style",
+      `min-width: ${width}px; max-width: ${width}px; height: auto; height: intrinsic;`
+    )
+    .attr("shape-rendering", "crispEdges")
+    .attr("vector-effect", "non-scaling-stroke")
+    .attr("text-anchor", "middle")
+    .attr("text-rendering", "optimizeLegibility")
+    // this noop event listener is to cajole mobile browsers (or, at least,
+    // ios webkit) into responding to touch events on svg elements, cf.
+    // https://stackoverflow.com/a/65777666/10658294
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    .on("touchstart", () => {});
+
+  // the lines forming the tree
+  svg
+    .append("g")
+    .attr("fill", "none")
+    .attr("stroke", "#555")
+    .attr("stroke-opacity", 1.0)
+    .attr("stroke-linecap", "butt")
+    .attr("stroke-linejoin", "miter")
+    .attr("stroke-width", 1.0)
+    .selectAll("path")
+    .data(pointRoot.links())
+    .join("path")
+    .attr(
+      "d",
+      link<HierarchyPointLink<ExpandedItem>, HierarchyPointNode<ExpandedItem>>(
+        curveStepAfter
+      )
+        .x((d) => d.x)
+        .y((d) => d.y)
+    );
+
+  const descendants: ExpandedItemNode[] = pointRoot
+    .descendants()
+    .map(function (d) {
+      return { node: d, bbox: new DOMRect(0, 0, 0, 0) };
+    });
+
+  // placeholder rects for text backgrounds to be set in addSVGTextBackgrounds()
+  const nodeBackground = svg
+    .append("g")
+    .selectAll<SVGRectElement, unknown>("rect")
+    .data(descendants)
+    .join("rect")
+    .attr("fill", "white");
+
+  // the text nodes
+  const node = svg
+    .append("g")
+    .selectAll<SVGTextElement, unknown>("g")
+    .data(descendants)
+    .join("g")
+    .attr("font-weight", (d) =>
+      d.node.data.item.id === selectedItem.id ? "bold" : null
+    )
+    .attr("transform", (d) => `translate(${d.node.x},${d.node.y})`);
+
+  node
+    .append("text")
+    .attr("class", "lang")
+    .attr("y", "-1em")
+    .attr("fill", (d) => langColor(d.node.data.langDistance))
+    .text((d) => d.node.data.item.lang);
+
+  node
+    .append("text")
+    .attr("class", "term")
+    .attr("y", "0.25em")
+    .text((d) => d.node.data.item.term);
+
+  node
+    .append("text")
+    .attr("class", "romanization")
+    .attr("y", "1.5em")
+    .text((d) =>
+      d.node.data.item.romanization ? `(${d.node.data.item.romanization})` : ""
+    );
+
+  setNodeTooltipListeners(
+    node,
+    setTooltipState,
+    tooltipRef,
+    tooltipShowTimeout,
+    tooltipHideTimeout
+  );
+
+  addSVGTextBackgrounds(node, nodeBackground);
+}
+
 function addSVGTextBackgrounds(
   node: Selection<
     SVGGElement | SVGTextElement,
@@ -316,8 +466,8 @@ function addSVGTextBackgrounds(
     .attr("width", (d) => d.bbox.width + 2 * xMargin)
     .attr("height", (d) => d.bbox.height + 2 * yMargin)
     .attr("transform", function (d) {
-      const x = d.node.y - xMargin;
-      const y = d.node.x - yMargin;
+      const x = d.node.x - xMargin;
+      const y = d.node.y - yMargin;
       return `translate(${x},${y})`;
     })
     .attr("x", (d) => d.bbox.x)

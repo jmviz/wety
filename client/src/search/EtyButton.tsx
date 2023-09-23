@@ -24,11 +24,13 @@ export default function EtyButton({
   const onClick = useMemo(
     () =>
       debounce(async () => {
-        const currentRequest = `${
-          process.env.REACT_APP_API_BASE_URL
-        }/headProgenitorTree/${selectedItem?.item.id}?${selectedDescLangs
-          .map((lang) => `lang=${lang.id}`)
-          .join("&")}`;
+        // const currentRequest = `${
+        //   process.env.REACT_APP_API_BASE_URL
+        // }/headProgenitorTree/${selectedItem?.item.id}?${selectedDescLangs
+        //   .map((lang) => `lang=${lang.id}`)
+        //   .join("&")}`;
+
+        const currentRequest = `${process.env.REACT_APP_API_BASE_URL}/etymology/${selectedItem?.item.id}`;
 
         if (
           !selectedLang ||
@@ -42,6 +44,7 @@ export default function EtyButton({
         try {
           const response = await fetch(currentRequest);
           const tree = (await response.json()) as ExpandedItem;
+          console.log(tree);
           setEtyData({
             headProgenitorTree: tree,
             selectedItem: selectedItem.item,

@@ -33,6 +33,14 @@ function minXReduce<Datum>(x: number, c: HierarchyPointNode<Datum>) {
   return Math.min(x, c.x ?? 0);
 }
 
+function meanX<Datum>(children: HierarchyPointNode<Datum>[]) {
+  return children.reduce(meanXReduce, 0) / children.length;
+}
+
+function meanXReduce<Datum>(x: number, c: HierarchyPointNode<Datum>) {
+  return x + c.x;
+}
+
 function maxY<Datum>(children: HierarchyPointNode<Datum>[]) {
   return 1 + children.reduce(maxYReduce, 0);
 }
@@ -53,7 +61,9 @@ function leafRight<Datum>(node: HierarchyPointNode<Datum>) {
   return node;
 }
 
-export default function clusterLayout<Datum>(): ClusterLayout<Datum> {
+export default function clusterLayout<Datum>(
+  xPos = "min"
+): ClusterLayout<Datum> {
   let separation = defaultSeparation,
     dx = 1,
     dy = 1,
@@ -69,7 +79,7 @@ export default function clusterLayout<Datum>(): ClusterLayout<Datum> {
     pointRoot.eachAfter(function (node) {
       const children = node.children;
       if (children) {
-        node.x = minX(children);
+        node.x = xPos === "mean" ? meanX(children) : minX(children);
         node.y = maxY(children);
       } else {
         node.x = previousNode ? (x -= separation(node, previousNode)) : 0;
