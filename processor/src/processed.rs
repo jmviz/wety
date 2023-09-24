@@ -113,7 +113,6 @@ impl Data {
             "etyNum": item.ety_num(),
             "lang": item.lang().name(),
             "term": item.term().resolve(&self.string_pool),
-            "etyMode": self.graph.get_ety_mode(item_id).map(|m| {let ms: &'static str = m.into(); ms}),
             "imputed": item.is_imputed(),
             "reconstructed": item.is_reconstructed(),
             "url": item.url(&self.string_pool),
@@ -144,16 +143,16 @@ impl Data {
         .then_some(
             self.graph
                 .get_head_children(item_id)
-                .filter(|(child_id, child)| {
-                    include_langs.contains(&child.lang())
+                .filter(|child| {
+                    include_langs.contains(&child.item.lang())
                         || self
                             .head_progeny_langs
-                            .get(child_id)
+                            .get(&child.id)
                             .is_some_and(|langs| include_langs.iter().any(|il| langs.contains(il)))
                 })
-                .map(|(child_id, _)| {
+                .map(|child| {
                     self.item_head_descendants_json(
-                        child_id,
+                        child.id,
                         req_lang,
                         include_langs,
                         req_item_head_ancestors_within_include_langs,

@@ -1,5 +1,5 @@
 import "./ItemSearch.css";
-import { ItemOption, LangOption } from "./responses";
+import { ItemOption, LangOption, term } from "./responses";
 
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
@@ -83,7 +83,7 @@ export default function ItemSearch({
       onChange={(event, newValue) => {
         if (typeof newValue === "string") {
           const match = itemOptions.find(
-            (io) => io.item.term.toLowerCase() === newValue.trim().toLowerCase()
+            (io) => io.item.term.toLowerCase() === cleanSearchTerm(newValue)
           );
           if (match) {
             setSelectedItemAndMaybeFocus(match);
@@ -96,11 +96,12 @@ export default function ItemSearch({
       }}
       blurOnSelect
       onInputChange={(event, newInputValue) => {
-        if (newInputValue === "" || selectedLang === null) {
+        const cleanInputValue = cleanSearchTerm(newInputValue);
+        if (cleanInputValue === "" || selectedLang === null) {
           clearSelectedItemAndOptions();
           return;
         }
-        fetchItems(newInputValue);
+        fetchItems(cleanInputValue);
       }}
       renderInput={(params) => (
         <TextField
@@ -113,7 +114,7 @@ export default function ItemSearch({
       options={itemOptions}
       filterOptions={(x) => x}
       getOptionLabel={(option) =>
-        typeof option === "string" ? option : option.item.term
+        typeof option === "string" ? option : term(option.item)
       }
       isOptionEqualToValue={(option, value) => option.item.id === value.item.id}
       renderOption={(props, option) => {
@@ -121,7 +122,7 @@ export default function ItemSearch({
         const gloss = option.item.gloss ?? [];
         return (
           <li {...props} key={option.item.id}>
-            <div className="term-line">{option.item.term}</div>
+            <div className="term-line">{term(option.item)}</div>
             {pos.map((p, i) => (
               <div key={i} className="pos-line">
                 <span className="pos">{p}</span>:{" "}
@@ -133,4 +134,8 @@ export default function ItemSearch({
       }}
     />
   );
+}
+
+function cleanSearchTerm(term: string) {
+  return term.trim().replace(/^\*/, "").toLowerCase();
 }

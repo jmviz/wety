@@ -278,6 +278,54 @@ pub(crate) enum EtyMode {
     Mention,
 }
 
+/// Used to determine how to handle an ety mode template within `process_json_ety_template`
+#[derive(PartialEq)]
+pub(crate) enum TemplateKind {
+    // Wiktionary etymology template names that will be considered to represent
+    // the concept "derived from", in a broad sense. They have 3 main parameters:
+    // "1": lang code of term being described
+    // "2": lang code of source language
+    // "3": term in source language (can be optional; sometimes present but = "" or "-")
+    // "4" or "alt": alternative display form to show for the source term (optional)
+    // "5" or "t": gloss/translation for the source term (optional)
+    // "tr": transliteration for the source term (optional)
+    // "pos": part of speech of the source term (optional)
+    Derived,
+    // Wiktionary etymology template names for templates that deal with
+    // within-language derivation but are not generally of a compounding
+    // or affixing kind. They have only 2 main parameters, the lang code
+    // and the source term:
+    // "1": lang code of term being described
+    // "2": source term (optional)
+    // "3" or "alt": alternative display form to show for the source term (optional)
+    // "4" or "t": gloss/translation for the source term (optional)
+    // "tr": transliteration for the source term (optional)
+    // "pos": part of speech for the source term (optional)
+    // $$ A number of these (e.g. contraction, rebracketing, ellipsis,
+    // $$ acronym, initialism)
+    // $$ have source "term" that is often multiple individual terms
+    // $$ that together do not have a term entry.
+    Abbreviation,
+    // Wiktionary etymology template names for templates that deal with
+    // with compounding/affixing etc. They have up to N main parameters, the first
+    // being the lang code, and the rest being the source terms:
+    // "1": lang code of term being described
+    // "2"--"N": N-1 source terms (optional)
+    // "altn": alternative display form to show for source term given in arg n+1 (optional)
+    // "tn": gloss/translation for source term given in arg n+1 (optional)
+    // "trn": transliteration for source term given in arg n+1 (optional)
+    // "posn": part of speech for source term given in arg n+1 (optional)
+    // Some of these templates have optional "lang1", "lang2", etc. arguments,
+    // which are the lang codes of the source terms. We handle this.
+    Compound,
+    // Wiktionary etymology template names for templates that deal with with
+    // vrddhi derivates. These templates are unusual in that the "1" arg is not
+    // the lang code of the term being described. They have two main parameters:
+    // "1": lang code of source language
+    // "2": term in source language
+    Vrddhi,
+}
+
 impl EtyMode {
     pub(crate) fn template_kind(self) -> Option<TemplateKind> {
         match self {
@@ -328,54 +376,13 @@ impl EtyMode {
             _ => None,
         }
     }
-}
 
-/// Used to determine how to handle an ety mode template within `process_json_ety_template`
-#[derive(PartialEq)]
-pub(crate) enum TemplateKind {
-    // Wiktionary etymology template names that will be considered to represent
-    // the concept "derived from", in a broad sense. They have 3 main parameters:
-    // "1": lang code of term being described
-    // "2": lang code of source language
-    // "3": term in source language (can be optional; sometimes present but = "" or "-")
-    // "4" or "alt": alternative display form to show for the source term (optional)
-    // "5" or "t": gloss/translation for the source term (optional)
-    // "tr": transliteration for the source term (optional)
-    // "pos": part of speech of the source term (optional)
-    Derived,
-    // Wiktionary etymology template names for templates that deal with
-    // within-language derivation but are not generally of a compounding
-    // or affixing kind. They have only 2 main parameters, the lang code
-    // and the source term:
-    // "1": lang code of term being described
-    // "2": source term (optional)
-    // "3" or "alt": alternative display form to show for the source term (optional)
-    // "4" or "t": gloss/translation for the source term (optional)
-    // "tr": transliteration for the source term (optional)
-    // "pos": part of speech for the source term (optional)
-    // $$ A number of these (e.g. contraction, rebracketing, ellipsis,
-    // $$ acronym, initialism)
-    // $$ have source "term" that is often multiple individual terms
-    // $$ that together do not have a term entry.
-    Abbreviation,
-    // Wiktionary etymology template names for templates that deal with
-    // with compounding/affixing etc. They have up to N main parameters, the first
-    // being the lang code, and the rest being the source terms:
-    // "1": lang code of term being described
-    // "2"--"N": N-1 source terms (optional)
-    // "altn": alternative display form to show for source term given in arg n+1 (optional)
-    // "tn": gloss/translation for source term given in arg n+1 (optional)
-    // "trn": transliteration for source term given in arg n+1 (optional)
-    // "posn": part of speech for source term given in arg n+1 (optional)
-    // Some of these templates have optional "lang1", "lang2", etc. arguments,
-    // which are the lang codes of the source terms. We handle this.
-    Compound,
-    // Wiktionary etymology template names for templates that deal with with
-    // vrddhi derivates. These templates are unusual in that the "1" arg is not
-    // the lang code of the term being described. They have two main parameters:
-    // "1": lang code of source language
-    // "2": term in source language
-    Vrddhi,
+    pub(crate) fn has_ambiguous_head(self) -> bool {
+        matches!(
+            self,
+            EtyMode::Compound | EtyMode::Univerbation | EtyMode::SurfaceAnalysis | EtyMode::Blend
+        )
+    }
 }
 
 // $$ Should {{cognate}} and the like be treated at all?

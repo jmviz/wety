@@ -1,7 +1,7 @@
 import "./Tree.css";
 import { EtyData } from "./Ety";
-import { ExpandedItem } from "../search/responses";
-import cluster from "./treeCluster";
+import { ExpandedItem, term } from "../search/responses";
+import { xMinClusterLayout, xMeanClusterLayout } from "./treeCluster";
 import { TooltipState, hideTooltip, setNodeTooltipListeners } from "./Tooltip";
 
 import { select, Selection } from "d3-selection";
@@ -35,14 +35,10 @@ export default function Tree({
     if (svg === null) {
       return;
     }
-    const fontSize = svg
-      ? parseFloat(window.getComputedStyle(svg).fontSize)
-      : 13;
 
     // treeSVG(
-    verticalTreeSVG(
+    etymologyTreeSVG(
       svg,
-      fontSize,
       etyData,
       setTooltipState,
       tooltipRef,
@@ -110,9 +106,8 @@ export function langColor(distance: number | null) {
 //
 // Copyright 2021 Observable, Inc.
 // Released under the ISC license.
-function treeSVG(
+function descendantsTreeSVG(
   svgElement: SVGSVGElement,
-  fontSize: number,
   etyData: EtyData,
   setTooltipState: (state: TooltipState) => void,
   tooltipRef: RefObject<HTMLDivElement>,
@@ -149,10 +144,13 @@ function treeSVG(
   // with the root on the left and the leaves on the right. So variables
   // defined by d3 like e.g. `root.height` and `d.x` correspond in our case to
   // width and y.
+  const fontSize = svgElement
+    ? parseFloat(window.getComputedStyle(svgElement).fontSize)
+    : 13;
   const dx = 10 * fontSize;
   const dy = fontSize;
   const sep = Math.floor(0.25 * fontSize);
-  const layout = cluster<ExpandedItem>()
+  const layout = xMinClusterLayout<ExpandedItem>()
     .nodeSize([dy, dx])
     .separation((a, b) => {
       const aAncestors = a.ancestors();
@@ -271,7 +269,7 @@ function treeSVG(
     .append("text")
     .attr("class", "term")
     .attr("y", "0.25em")
-    .text((d) => d.node.data.item.term);
+    .text((d) => term(d.node.data.item));
 
   node
     .append("text")
@@ -292,9 +290,8 @@ function treeSVG(
   addSVGTextBackgrounds(node, nodeBackground);
 }
 
-function verticalTreeSVG(
+function etymologyTreeSVG(
   svgElement: SVGSVGElement,
-  fontSize: number,
   etyData: EtyData,
   setTooltipState: (state: TooltipState) => void,
   tooltipRef: RefObject<HTMLDivElement>,
@@ -313,10 +310,13 @@ function verticalTreeSVG(
 
   root.sort((a, b) => 1);
 
+  const fontSize = svgElement
+    ? parseFloat(window.getComputedStyle(svgElement).fontSize)
+    : 13;
   const dx = 15 * fontSize;
   const dy = 5 * fontSize;
   const sep = Math.floor(0.1 * fontSize);
-  const layout = cluster<ExpandedItem>("mean")
+  const layout = xMeanClusterLayout<ExpandedItem>()
     .nodeSize([dx, dy])
     .separation((a, b) => sep);
 
@@ -420,7 +420,7 @@ function verticalTreeSVG(
     .append("text")
     .attr("class", "term")
     .attr("y", "0.25em")
-    .text((d) => d.node.data.item.term);
+    .text((d) => term(d.node.data.item));
 
   node
     .append("text")

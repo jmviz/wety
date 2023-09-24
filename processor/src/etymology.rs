@@ -155,7 +155,6 @@ fn process_confix_json_template(
     args: &WiktextractJson,
     lang: Lang,
 ) -> Option<RawEtyTemplate> {
-    // let ety_prefix = args.get_valid_term("2")?;
     let ety_prefix = args.get_hyphenated_term("2", &HyphenPlacement::End)?;
     let ety2 = args.get_valid_term("3")?;
 
@@ -211,7 +210,17 @@ fn process_compound_kind_json_template(
     if !ety_langterms.is_empty() {
         return Some(RawEtyTemplate {
             langterms: ety_langterms.into_boxed_slice(),
-            mode,
+            mode: if n_non_fix_terms == n - 2 {
+                // This is to handle the case of e.g. {{af|en|volley|ball}}.
+                // This will allow us to record that there were multiple
+                // ambiguous heads, whereas if we had recorded Affix we wouldn't
+                // know without looking at the terms whether this template
+                // included no non-fix terms or not. This is important for
+                // EtyMode::has_ambiguous_head().
+                EtyMode::Compound
+            } else {
+                mode
+            },
             head: (n_non_fix_terms == 1).then_some(head), // see above
         });
     }

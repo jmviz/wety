@@ -61,9 +61,12 @@ function leafRight<Datum>(node: HierarchyPointNode<Datum>) {
   return node;
 }
 
-export default function clusterLayout<Datum>(
-  xPos = "min"
-): ClusterLayout<Datum> {
+enum XPos {
+  Min,
+  Mean,
+}
+
+function clusterLayout<Datum>(xPos: XPos): ClusterLayout<Datum> {
   let separation = defaultSeparation,
     dx = 1,
     dy = 1,
@@ -79,7 +82,7 @@ export default function clusterLayout<Datum>(
     pointRoot.eachAfter(function (node) {
       const children = node.children;
       if (children) {
-        node.x = xPos === "mean" ? meanX(children) : minX(children);
+        node.x = xPos === XPos.Mean ? meanX(children) : minX(children);
         node.y = maxY(children);
       } else {
         node.x = previousNode ? (x -= separation(node, previousNode)) : 0;
@@ -139,4 +142,12 @@ export default function clusterLayout<Datum>(
   };
 
   return cluster as ClusterLayout<Datum>;
+}
+
+export function xMinClusterLayout<Datum>(): ClusterLayout<Datum> {
+  return clusterLayout(XPos.Min);
+}
+
+export function xMeanClusterLayout<Datum>(): ClusterLayout<Datum> {
+  return clusterLayout(XPos.Mean);
 }

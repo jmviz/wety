@@ -177,26 +177,37 @@ impl EtyGraph {
         }
         progenitors
     }
+}
 
-    // all items for which the item is a head parent
-    pub(crate) fn get_head_children(
-        &self,
-        item: ItemId,
-    ) -> impl Iterator<Item = (ItemId, &Item)> + '_ {
+pub(crate) struct Child<'a> {
+    pub(crate) id: ItemId,
+    pub(crate) item: &'a Item,
+    pub(crate) parent_ety_order: u8,
+}
+
+impl EtyGraph {
+    /// All items for which `item` is a head parent.
+    pub(crate) fn get_head_children(&self, item: ItemId) -> impl Iterator<Item = Child<'_>> + '_ {
         self.graph
             .edges_directed(item, Direction::Incoming)
-            .filter(|e| e.weight().head)
-            .map(|e| (e.source(), self.graph.index(e.source())))
+            // we enforce that "head" is unique. But some compound-type
+            // templates have ambiguous heads (e.g. {{compound|en|fire|brand}}).
+            .filter(|e| e.weight().head || e.weight().mode.has_ambiguous_head())
+            .map(|e| Child {
+                id: e.source(),
+                item: self.get(e.source()),
+                parent_ety_order: e.weight().order,
+            })
     }
 
-    // get all langs that have at least one item that is descended from item
-    // through head parentage
+    /// Get all langs that have at least one item that is descended from `item`
+    /// through head parentage.
     pub(crate) fn get_head_progeny_langs(&self, item: ItemId) -> Option<HashSet<Lang>> {
         let mut progeny_langs = HashSet::default();
         let mut unexpanded = self.get_head_children(item).collect_vec();
-        while let Some((id, descendant)) = unexpanded.pop() {
-            progeny_langs.insert(descendant.lang());
-            unexpanded.extend(self.get_head_children(id));
+        while let Some(child) = unexpanded.pop() {
+            progeny_langs.insert(child.item.lang());
+            unexpanded.extend(self.get_head_children(child.id));
         }
         (!progeny_langs.is_empty()).then_some(progeny_langs)
     }

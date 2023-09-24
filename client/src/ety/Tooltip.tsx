@@ -1,5 +1,5 @@
 import "./Tooltip.css";
-import { ExpandedItem } from "../search/responses";
+import { ExpandedItem, term } from "../search/responses";
 import { ExpandedItemNode, langColor } from "./Tree";
 
 import { HierarchyPointNode, Selection } from "d3";
@@ -66,7 +66,7 @@ export default function Tooltip({
   const parent = itemNode.parent
     ? {
         lang: itemNode.parent.data.item.lang,
-        term: itemNode.parent.data.item.term,
+        term: term(itemNode.parent.data.item),
         langDistance: itemNode.parent.data.langDistance,
       }
     : null;
@@ -89,7 +89,7 @@ export default function Tooltip({
         {item.lang}
       </p>
       <p>
-        <span className="term">{item.term}</span>
+        <span className="term">{term(item)}</span>
         {item.romanization && (
           <span className="romanization">({item.romanization})</span>
         )}

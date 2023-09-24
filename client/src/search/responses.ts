@@ -20,6 +20,10 @@ export interface Item {
   romanization: string | null;
 }
 
+export function term(item: Item): string {
+  return item.reconstructed ? `*${item.term}` : item.term;
+}
+
 export interface ItemOption {
   distance: number;
   item: Item;
