@@ -2,7 +2,7 @@ import ItemSearch from "./ItemSearch";
 import LangSearch from "./LangSearch";
 import MultiLangSearch from "./MultiLangSearch";
 import EtyButton from "./EtyButton";
-import { LangOption, ItemOption } from "./responses";
+import { LangOption, ItemOption, Etymology } from "./responses";
 import { EtyData } from "../ety/Ety";
 
 import Stack from "@mui/material/Stack";
@@ -10,7 +10,7 @@ import { useRef, useState } from "react";
 import { Container } from "@mui/material";
 
 interface SearchPaneProps {
-  setEtyData: (data: EtyData) => void;
+  setEtyData: (data: EtyData<Etymology>) => void;
 }
 
 export default function SearchPane({ setEtyData }: SearchPaneProps) {

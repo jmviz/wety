@@ -1,12 +1,12 @@
 import "./Tooltip.css";
-import { ExpandedItem, term } from "../search/responses";
+import { Etymology, term } from "../search/responses";
 import { ExpandedItemNode, langColor } from "./Tree";
 
 import { HierarchyPointNode, Selection } from "d3";
 import { MutableRefObject, RefObject, useEffect, useLayoutEffect } from "react";
 
 export interface TooltipState {
-  itemNode: HierarchyPointNode<ExpandedItem> | null;
+  itemNode: HierarchyPointNode<Etymology> | null;
   svgElement: SVGElement | null;
   positionType: string;
 }
@@ -63,17 +63,23 @@ export default function Tooltip({
   }
 
   const item = itemNode.data.item;
-  const parent = itemNode.parent
-    ? {
-        lang: itemNode.parent.data.item.lang,
-        term: term(itemNode.parent.data.item),
-        langDistance: itemNode.parent.data.langDistance,
-      }
+  // Confusingly, the "children" with respect to the tree structure and d3 api
+  // are the parents with respect to the etymology.
+  const parents: EtyParent[] | null = itemNode.children
+    ? itemNode.children
+        .map((parentNode) => ({
+          lang: parentNode.data.item.lang,
+          term: term(parentNode.data.item),
+          langDistance: parentNode.data.langDistance,
+        }))
+        .reverse()
     : null;
 
   const posList = item.pos ?? [];
   const glossList = item.gloss ?? [];
-  const etyMode = etyModeRep(item.etyMode ?? "");
+  const etyMode = itemNode.data.etyMode
+    ? etyModeRep(itemNode.data.etyMode)
+    : null;
 
   return (
     <div className="tooltip" ref={divRef}>
@@ -109,19 +115,7 @@ export default function Tooltip({
           ))}
         </div>
       )}
-      {item.etyMode && parent && (
-        <div className="ety-line">
-          <span className="ety-mode">{etyMode}</span>{" "}
-          <span className="ety-prep">{etyPrep(etyMode)}</span>{" "}
-          <span
-            className="parent-lang"
-            style={{ color: langColor(parent.langDistance) }}
-          >
-            {parent.lang}
-          </span>{" "}
-          <span className="parent-term">{parent.term}</span>
-        </div>
-      )}
+      {etyMode && parents && etyLine(etyMode, parents)}
       {item.url && (
         <div className="wiktionary-link-container">
           <a
@@ -134,6 +128,46 @@ export default function Tooltip({
           </a>
         </div>
       )}
+    </div>
+  );
+}
+
+interface EtyParent {
+  lang: string;
+  term: string;
+  langDistance: number;
+}
+
+function etyLine(etyMode: string, parents: EtyParent[]): JSX.Element {
+  let parts = [];
+  for (let i = 0; i < parents.length; i++) {
+    const parent = parents[i];
+    if (i === 0 || parent.lang !== parents[i - 1].lang) {
+      parts.push(
+        <span
+          key={i}
+          className="parent-lang"
+          style={{ color: langColor(parent.langDistance) }}
+        >
+          {parent.lang}{" "}
+        </span>
+      );
+    }
+    parts.push(
+      <span key={i + parents.length} className="parent-term">
+        {parent.term}
+      </span>
+    );
+    if (i < parents.length - 1) {
+      parts.push(<span key={i + 2 * parents.length}>{" + "}</span>);
+    }
+  }
+
+  return (
+    <div className="ety-line">
+      <span className="ety-mode">{etyModeRep(etyMode)}</span>
+      <span className="ety-prep">{etyPrep(etyMode)}</span>
+      {parts}
     </div>
   );
 }
@@ -154,7 +188,9 @@ function etyPrep(etyMode: string): string {
     case "inherited":
     case "borrowed":
     case "back-formation":
-      return "from";
+    case "undefined derivation":
+    case "mention":
+      return " from ";
     case "compound":
     case "univerbation":
     case "transfix":
@@ -166,14 +202,14 @@ function etyPrep(etyMode: string): string {
     case "circumfix":
     case "blend":
     case "affix":
-      return "with";
+      return ": ";
     case "vṛddhi":
     case "vṛddhi-ya":
-      return "derivative of";
+      return " derivative of ";
     case "root":
-      return "reflex of";
+      return " reflex of ";
     default:
-      return "of";
+      return " of ";
   }
 }
 
@@ -234,7 +270,7 @@ export function hideTooltip(tooltip: RefObject<HTMLDivElement>) {
 export function setNodeTooltipListeners(
   node: Selection<
     SVGGElement | SVGTextElement,
-    ExpandedItemNode,
+    ExpandedItemNode<Etymology>,
     SVGGElement,
     undefined
   >,
@@ -244,31 +280,37 @@ export function setNodeTooltipListeners(
   tooltipHideTimeout: MutableRefObject<number | null>
 ) {
   // for non-mouse, show tooltip on pointerup
-  node.on("pointerup", function (event: PointerEvent, d: ExpandedItemNode) {
-    if (event.pointerType !== "mouse") {
-      setTooltipState({
-        itemNode: d.node,
-        svgElement: this,
-        positionType: "fixed",
-      });
+  node.on(
+    "pointerup",
+    function (event: PointerEvent, d: ExpandedItemNode<Etymology>) {
+      if (event.pointerType !== "mouse") {
+        setTooltipState({
+          itemNode: d.node,
+          svgElement: this,
+          positionType: "fixed",
+        });
+      }
     }
-  });
+  );
 
   // for mouse, show tooltip on hover
-  node.on("pointerenter", function (event: PointerEvent, d: ExpandedItemNode) {
-    if (event.pointerType === "mouse") {
-      window.clearTimeout(tooltipHideTimeout.current ?? undefined);
-      tooltipShowTimeout.current = window.setTimeout(
-        () =>
-          setTooltipState({
-            itemNode: d.node,
-            svgElement: this,
-            positionType: "hover",
-          }),
-        100
-      );
+  node.on(
+    "pointerenter",
+    function (event: PointerEvent, d: ExpandedItemNode<Etymology>) {
+      if (event.pointerType === "mouse") {
+        window.clearTimeout(tooltipHideTimeout.current ?? undefined);
+        tooltipShowTimeout.current = window.setTimeout(
+          () =>
+            setTooltipState({
+              itemNode: d.node,
+              svgElement: this,
+              positionType: "hover",
+            }),
+          100
+        );
+      }
     }
-  });
+  );
 
   node.on("pointerleave", (event: PointerEvent) => {
     if (event.pointerType === "mouse") {

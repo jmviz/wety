@@ -4,14 +4,15 @@ import Ety from "./ety/Ety";
 
 import { useState } from "react";
 import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
+import { Etymology } from "./search/responses";
 
 const theme = createTheme({
   // todo
 });
 
 export default function App() {
-  const [etyData, setEtyData] = useState<EtyData>({
-    headProgenitorTree: null,
+  const [etyData, setEtyData] = useState<EtyData<Etymology>>({
+    tree: null,
     selectedItem: null,
   });
 

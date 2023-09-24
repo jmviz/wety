@@ -383,6 +383,10 @@ impl EtyMode {
             EtyMode::Compound | EtyMode::Univerbation | EtyMode::SurfaceAnalysis | EtyMode::Blend
         )
     }
+
+    pub(crate) fn to_str(self) -> &'static str {
+        self.into()
+    }
 }
 
 // $$ Should {{cognate}} and the like be treated at all?

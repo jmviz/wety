@@ -129,9 +129,12 @@ impl Data {
         req_lang: Lang,
         include_langs: &[Lang],
         req_item_head_ancestors_within_include_langs: &[ItemId],
+        item_parent_id: Option<ItemId>,
+        item_parent_ety_order: Option<u8>,
     ) -> Value {
         let item = self.get(item_id);
         let item_lang = item.lang();
+
         // Don't continue expansion if the item is already in include_langs;
         // otherwise, the tree will be cluttered with many uninteresting
         // derivative terms e.g. "feather" will go to "feathers", "feathered",
@@ -156,14 +159,35 @@ impl Data {
                         req_lang,
                         include_langs,
                         req_item_head_ancestors_within_include_langs,
+                        Some(item_id),
+                        Some(child.parent_ety_order),
                     )
                 })
                 .collect_vec(),
         );
+
+        let (ety_mode, other_parents) =
+            match (item_parent_id, self.graph.get_immediate_ety(item_id)) {
+                (Some(item_parent_id), Some(ety)) => (
+                    Some(ety.mode.to_str()),
+                    Some(
+                        ety.items
+                            .iter()
+                            .filter(|&&parent| parent != item_parent_id)
+                            .map(|&parent| self.item_json(parent))
+                            .collect_vec(),
+                    ),
+                ),
+                _ => (None, None),
+            };
+
         json!({
             "item": self.item_json(item_id),
             "children": children,
             "langDistance": item_lang.distance_from(req_lang),
+            "etyMode": ety_mode,
+            "otherParents": other_parents,
+            "parentEtyOrder": item_parent_ety_order,
         })
     }
 
@@ -183,6 +207,8 @@ impl Data {
                         lang,
                         include_langs,
                         &head_ancestors_within_include_langs,
+                        None,
+                        None,
                     )
                 },
                 |head| {
@@ -191,6 +217,8 @@ impl Data {
                         lang,
                         include_langs,
                         &head_ancestors_within_include_langs,
+                        None,
+                        None,
                     )
                 },
             )
@@ -198,22 +226,24 @@ impl Data {
 
     #[must_use]
     pub fn etymology_json(&self, item_id: ItemId, req_lang: Lang) -> Value {
-        let parents = self.graph.get_immediate_ety(item_id).map(|ety| {
-            ety.items
-                .iter()
-                .map(|&p| self.etymology_json(p, req_lang))
-                .collect_vec()
-        });
+        let (ety_mode, parents) = match self.graph.get_immediate_ety(item_id) {
+            Some(ety) => (
+                Some(ety.mode.to_str()),
+                Some(
+                    ety.items
+                        .iter()
+                        .map(|&parent| self.etymology_json(parent, req_lang))
+                        .collect_vec(),
+                ),
+            ),
+            None => (None, None),
+        };
+
         json!({
             "item": self.item_json(item_id),
-            // "children" here does not have an etymological sense. it is purely
-            // an abstract term referring to the fact that the parents' json are
-            // nested with the item's. This way, we can use the same type in the
-            // frontend for such nested json regardless whether the nesting
-            // indicates etymological descent or "ascent" (the latter being the
-            // case here).
-            "children": parents,
-            "langDistance": req_lang.distance_from(req_lang),
+            "etyMode": ety_mode,
+            "parents": parents,
+            "langDistance": self.get(item_id).lang().distance_from(req_lang),
         })
     }
 }

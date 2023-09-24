@@ -2,16 +2,16 @@ import "./Ety.css";
 import Tree from "./Tree";
 import Tooltip from "./Tooltip";
 import { TooltipState } from "./Tooltip";
-import { ExpandedItem, Item } from "../search/responses";
+import { Etymology, Item } from "../search/responses";
 
 import { useRef, useState } from "react";
 
-export interface EtyData {
-  headProgenitorTree: ExpandedItem | null;
+export interface EtyData<T> {
+  tree: T | null;
   selectedItem: Item | null;
 }
 
-export default function Ety(data: EtyData) {
+export default function Ety(data: EtyData<Etymology>) {
   const [tooltipState, setTooltipState] = useState<TooltipState>({
     itemNode: null,
     svgElement: null,

@@ -6,8 +6,6 @@ use crate::{
     HashMap, HashSet,
 };
 
-use std::ops::Index;
-
 use anyhow::{anyhow, Ok, Result};
 use itertools::{izip, Itertools};
 use petgraph::{
@@ -111,10 +109,6 @@ impl EtyGraph {
             mode,
             head,
         })
-    }
-
-    pub(crate) fn get_ety_mode(&self, item_id: ItemId) -> Option<EtyMode> {
-        self.graph.edges(item_id).next().map(|e| e.weight().mode)
     }
 }
 

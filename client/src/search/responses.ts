@@ -11,7 +11,6 @@ export interface Item {
   etyNum: number;
   lang: string;
   term: string;
-  etyMode: string | null;
   imputed: boolean;
   reconstructed: boolean;
   url: string | null;
@@ -29,8 +28,18 @@ export interface ItemOption {
   item: Item;
 }
 
-export interface ExpandedItem {
+export interface Descendants {
   item: Item;
-  children: ExpandedItem[] | null;
-  langDistance: number | null;
+  children: Descendants[] | null;
+  langDistance: number;
+  etyMode: string | null;
+  otherParents: Item[] | null;
+  parentEtyOrder: number | null;
+}
+
+export interface Etymology {
+  item: Item;
+  etyMode: string | null;
+  parents: Etymology[] | null;
+  langDistance: number;
 }

@@ -190,11 +190,11 @@ impl Items {
             }
             Some(progenitors) => {
                 if let Some(head_progenitor_id) = progenitors.head
-                    && let head_progenitor = self.get(head_progenitor_id) 
+                    && let head_progenitor = self.get(head_progenitor_id)
                     && !progenitors.items.contains(&root_item_id)
                     && let head_progenitor_lang = head_progenitor.lang()
                     && (
-                        head_progenitor_lang.strictly_descends_from(root_lang) 
+                        head_progenitor_lang.strictly_descends_from(root_lang)
                         || head_progenitor.is_imputed() && head_progenitor_lang.descends_from(root_lang)
                     )
                 {

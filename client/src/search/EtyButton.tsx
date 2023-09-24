@@ -1,4 +1,4 @@
-import { LangOption, ItemOption, ExpandedItem } from "./responses";
+import { LangOption, ItemOption, Etymology } from "./responses";
 import { EtyData } from "../ety/Ety";
 
 import Button from "@mui/material/Button";
@@ -10,7 +10,7 @@ interface EtyButtonProps {
   selectedLang: LangOption | null;
   selectedItem: ItemOption | null;
   selectedDescLangs: LangOption[];
-  setEtyData: (data: EtyData) => void;
+  setEtyData: (data: EtyData<Etymology>) => void;
 }
 
 export default function EtyButton({
@@ -43,10 +43,10 @@ export default function EtyButton({
 
         try {
           const response = await fetch(currentRequest);
-          const tree = (await response.json()) as ExpandedItem;
+          const tree = (await response.json()) as Etymology;
           console.log(tree);
           setEtyData({
-            headProgenitorTree: tree,
+            tree: tree,
             selectedItem: selectedItem.item,
           });
           lastRequest.current = currentRequest;
