@@ -384,7 +384,7 @@ impl EtyMode {
         )
     }
 
-    pub(crate) fn to_str(self) -> &'static str {
+    pub(crate) fn as_str(self) -> &'static str {
         self.into()
     }
 }

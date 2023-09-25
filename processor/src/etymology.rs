@@ -6,9 +6,7 @@ use crate::{
     languages::Lang,
     progress_bar,
     string_pool::StringPool,
-    wiktextract_json::{
-        HyphenPlacement, WiktextractJson, WiktextractJsonItem, WiktextractJsonValidStr,
-    },
+    wiktextract_json::{Affix, WiktextractJson, WiktextractJsonItem, WiktextractJsonValidStr},
     HashSet,
 };
 
@@ -86,7 +84,7 @@ fn process_prefix_json_template(
     args: &WiktextractJson,
     lang: Lang,
 ) -> Option<RawEtyTemplate> {
-    let ety_prefix = args.get_hyphenated_term("2", &HyphenPlacement::End)?;
+    let ety_prefix = args.get_affix_term("2", &Affix::Prefix)?;
     let ety_prefix = lang.new_langterm(string_pool, &ety_prefix);
     let ety_term = args.get_valid_term("3")?;
     let ety_term = lang.new_langterm(string_pool, ety_term);
@@ -104,7 +102,7 @@ fn process_suffix_json_template(
 ) -> Option<RawEtyTemplate> {
     let ety_term = args.get_valid_term("2")?;
     let ety_term = lang.new_langterm(string_pool, ety_term);
-    let ety_suffix = args.get_hyphenated_term("3", &HyphenPlacement::Start)?;
+    let ety_suffix = args.get_affix_term("3", &Affix::Suffix)?;
     let ety_suffix = lang.new_langterm(string_pool, &ety_suffix);
     Some(RawEtyTemplate {
         langterms: Box::new([ety_term, ety_suffix]),
@@ -118,12 +116,12 @@ fn process_circumfix_json_template(
     args: &WiktextractJson,
     lang: Lang,
 ) -> Option<RawEtyTemplate> {
-    let ety_prefix = args.get_valid_term("2")?;
+    let ety_prefix = args.get_affix_term("2", &Affix::Prefix)?;
     let ety_term = args.get_valid_term("3")?;
-    let ety_suffix = args.get_valid_term("4")?;
+    let ety_suffix = args.get_affix_term("4", &Affix::Suffix)?;
 
     let ety_term = lang.new_langterm(string_pool, ety_term);
-    let ety_circumfix = format!("{ety_prefix}- -{ety_suffix}");
+    let ety_circumfix = format!("{ety_prefix} {ety_suffix}");
     let ety_circumfix = lang.new_langterm(string_pool, &ety_circumfix);
     Some(RawEtyTemplate {
         langterms: Box::new([ety_term, ety_circumfix]),
@@ -138,10 +136,9 @@ fn process_infix_json_template(
     lang: Lang,
 ) -> Option<RawEtyTemplate> {
     let ety_term = args.get_valid_term("2")?;
-    let ety_infix = args.get_valid_term("3")?;
+    let ety_infix = args.get_affix_term("3", &Affix::Infix)?;
 
     let ety_term = lang.new_langterm(string_pool, ety_term);
-    let ety_infix = format!("-{ety_infix}-");
     let ety_infix = lang.new_langterm(string_pool, &ety_infix);
     Some(RawEtyTemplate {
         langterms: Box::new([ety_term, ety_infix]),
@@ -155,11 +152,11 @@ fn process_confix_json_template(
     args: &WiktextractJson,
     lang: Lang,
 ) -> Option<RawEtyTemplate> {
-    let ety_prefix = args.get_hyphenated_term("2", &HyphenPlacement::End)?;
+    let ety_prefix = args.get_affix_term("2", &Affix::Prefix)?;
     let ety2 = args.get_valid_term("3")?;
 
     let ety_prefix = lang.new_langterm(string_pool, &ety_prefix);
-    if let Some(ety_suffix) = args.get_hyphenated_term("4", &HyphenPlacement::Start) {
+    if let Some(ety_suffix) = args.get_affix_term("4", &Affix::Suffix) {
         let ety_term = lang.new_langterm(string_pool, ety2);
         let ety_suffix = lang.new_langterm(string_pool, &ety_suffix);
         return Some(RawEtyTemplate {
@@ -177,6 +174,46 @@ fn process_confix_json_template(
     })
 }
 
+/// {{affix}} is a very general template. We try to narrow down to the specific
+/// type of affixation.
+fn affixation_kind(affixes: &[Affix], n_base_terms: usize) -> EtyMode {
+    let n = affixes.len();
+    if n_base_terms == n {
+        // This is to handle the case of e.g. {{af|en|volley|ball}}.
+        // This will allow us to record that there were multiple
+        // ambiguous heads, whereas if we had recorded Affix we
+        // wouldn't know without looking at the terms whether this
+        // template included no affix terms or not. This is
+        // important for EtyMode::has_ambiguous_head().
+        return EtyMode::Compound;
+    }
+
+    if n == 3
+        && affixes[0] == Affix::Base
+        && affixes[1] == Affix::Infix
+        && affixes[2] == Affix::Base
+    {
+        return EtyMode::Infix;
+    }
+
+    if n != 2 {
+        return EtyMode::Affix;
+    }
+
+    match affixes[0] {
+        Affix::Prefix => match affixes[1] {
+            Affix::Suffix => EtyMode::Confix,
+            Affix::Base => EtyMode::Prefix,
+            _ => EtyMode::Affix,
+        },
+        Affix::Base => match affixes[1] {
+            Affix::Suffix => EtyMode::Suffix,
+            _ => EtyMode::Affix,
+        },
+        _ => EtyMode::Affix,
+    }
+}
+
 fn process_compound_kind_json_template(
     string_pool: &mut StringPool,
     args: &WiktextractJson,
@@ -185,18 +222,28 @@ fn process_compound_kind_json_template(
 ) -> Option<RawEtyTemplate> {
     let mut n = 2;
     let mut ety_langterms = vec![];
+    let mut affixes = vec![];
     let mut head = 0;
-    let mut n_non_fix_terms = 0; // terms that aren't x-, -x, etc.
+    let mut n_base_terms = 0; // terms that aren't x-, -x, etc.
     while let Some(ety_term) = args.get_valid_term(n.to_string().as_str()) {
         // These compound-kind templates often have no true head (affix is the
         // most common of these templates, see that). We will take a head only
-        // in the case where there is a single non *fix term. So e.g.
+        // in the case where there is a single base (non-affix) term. So e.g.
         // {{af|en|pre-|date}} will have date as head, but
         // {{af|en|volley|ball}} will not have a head.
-        if !ety_term.starts_with('-') && !ety_term.ends_with('-') {
-            n_non_fix_terms += 1;
+        affixes.push(if ety_term.starts_with('-') {
+            if ety_term.ends_with('-') {
+                Affix::Infix
+            } else {
+                Affix::Suffix
+            }
+        } else if ety_term.ends_with('-') {
+            Affix::Prefix
+        } else {
+            n_base_terms += 1;
             head = n - 2;
-        }
+            Affix::Base
+        });
         if let Some(ety_lang) = args.get_valid_str(format!("lang{n}").as_str()) {
             let ety_lang = Lang::from_str(ety_lang).ok()?;
             let ety_langterm = ety_lang.new_langterm(string_pool, ety_term);
@@ -210,18 +257,12 @@ fn process_compound_kind_json_template(
     if !ety_langterms.is_empty() {
         return Some(RawEtyTemplate {
             langterms: ety_langterms.into_boxed_slice(),
-            mode: if n_non_fix_terms == n - 2 {
-                // This is to handle the case of e.g. {{af|en|volley|ball}}.
-                // This will allow us to record that there were multiple
-                // ambiguous heads, whereas if we had recorded Affix we wouldn't
-                // know without looking at the terms whether this template
-                // included no non-fix terms or not. This is important for
-                // EtyMode::has_ambiguous_head().
-                EtyMode::Compound
+            mode: if mode == EtyMode::Affix {
+                affixation_kind(&affixes, n_base_terms)
             } else {
                 mode
             },
-            head: (n_non_fix_terms == 1).then_some(head), // see above
+            head: (n_base_terms == 1).then_some(head), // see above
         });
     }
     None

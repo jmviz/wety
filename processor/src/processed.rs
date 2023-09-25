@@ -169,7 +169,7 @@ impl Data {
         let (ety_mode, other_parents) =
             match (item_parent_id, self.graph.get_immediate_ety(item_id)) {
                 (Some(item_parent_id), Some(ety)) => (
-                    Some(ety.mode.to_str()),
+                    Some(ety.mode.as_str()),
                     Some(
                         ety.items
                             .iter()
@@ -228,7 +228,7 @@ impl Data {
     pub fn etymology_json(&self, item_id: ItemId, req_lang: Lang) -> Value {
         let (ety_mode, parents) = match self.graph.get_immediate_ety(item_id) {
             Some(ety) => (
-                Some(ety.mode.to_str()),
+                Some(ety.mode.as_str()),
                 Some(
                     ety.items
                         .iter()

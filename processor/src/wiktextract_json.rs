@@ -70,29 +70,29 @@ impl Items {
 
 pub(crate) type WiktextractJson<'a> = simd_json::value::borrowed::Value<'a>;
 
-pub(crate) enum HyphenPlacement {
-    Start,
-    End,
+/// The most common affix kinds.
+#[derive(PartialEq)]
+pub(crate) enum Affix {
+    Prefix,
+    Suffix,
+    Infix,
+    Base, // i.e., not an affix
 }
 
 pub(crate) trait WiktextractJsonValidStr<'a> {
     fn get_valid_str(&self, key: &str) -> Option<&str>;
     fn get_valid_term(&self, key: &str) -> Option<&str>;
-    fn get_hyphenated_term(
-        &'a self,
-        key: &str,
-        hyphen_placement: &HyphenPlacement,
-    ) -> Option<Cow<'a, str>>;
+    fn get_affix_term(&'a self, key: &str, affix_kind: &Affix) -> Option<Cow<'a, str>>;
 }
 
 impl<'a> WiktextractJsonValidStr<'a> for WiktextractJson<'a> {
-    /// return a cleaned version of the str if it exists
+    /// Return a cleaned version of the str if it exists.
     fn get_valid_str(&self, key: &str) -> Option<&str> {
         self.get_str(key)
             .and_then(|s| (!s.is_empty() && s != "-").then_some(s))
     }
 
-    /// A stricter version of `get_valid_str` for terms
+    /// A stricter version of `get_valid_str` for terms.
     fn get_valid_term(&self, key: &str) -> Option<&str> {
         self.get_str(key)
             .map(clean_template_term)
@@ -104,23 +104,29 @@ impl<'a> WiktextractJsonValidStr<'a> for WiktextractJson<'a> {
     // position. Usually the hyphen is not included for a prefix (suffix) term
     // in the template, so we want to add it. But in this case the hyphen is
     // already there, correctly, so we don't want to add another.
-    fn get_hyphenated_term(
-        &'a self,
-        key: &str,
-        hyphen_placement: &HyphenPlacement,
-    ) -> Option<Cow<'a, str>> {
+    /// Get a valid affix term and add hyphen(s) if needed.
+    fn get_affix_term(&'a self, key: &str, affix_kind: &Affix) -> Option<Cow<'a, str>> {
         let mut term = Cow::from(self.get_valid_term(key)?);
-        match hyphen_placement {
-            HyphenPlacement::Start => {
-                if !term.starts_with('-') {
-                    term.to_mut().insert(0, '-');
-                }
-            }
-            HyphenPlacement::End => {
+        match affix_kind {
+            Affix::Prefix => {
                 if !term.ends_with('-') {
                     term.to_mut().push('-');
                 }
             }
+            Affix::Suffix => {
+                if !term.starts_with('-') {
+                    term.to_mut().insert(0, '-');
+                }
+            }
+            Affix::Infix => {
+                if !term.starts_with('-') {
+                    term.to_mut().insert(0, '-');
+                }
+                if !term.ends_with('-') {
+                    term.to_mut().push('-');
+                }
+            }
+            Affix::Base => {}
         }
         Some(term)
     }
