@@ -11,6 +11,12 @@
   border-radius: 5px;
 }
 
+@media (max-width: 500px) {
+  .tooltip {
+    max-width: 300px;
+  }
+}
+
 .tooltip .close-button {
   width: 1rem;
   height: 1rem;
@@ -63,7 +69,7 @@
 }
 
 .tooltip .wiktionary-link-container {
-  text-align: right;
+  text-align: left;
   font-size: smaller;
 }
 
