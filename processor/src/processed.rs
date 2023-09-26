@@ -225,14 +225,15 @@ impl Data {
     }
 
     #[must_use]
-    pub fn etymology_json(&self, item_id: ItemId, req_lang: Lang) -> Value {
+    pub fn etymology_json(&self, item_id: ItemId, item_ety_order: usize, req_lang: Lang) -> Value {
         let (ety_mode, parents) = match self.graph.get_immediate_ety(item_id) {
             Some(ety) => (
                 Some(ety.mode.as_str()),
                 Some(
                     ety.items
                         .iter()
-                        .map(|&parent| self.etymology_json(parent, req_lang))
+                        .enumerate()
+                        .map(|(i, &parent)| self.etymology_json(parent, i, req_lang))
                         .collect_vec(),
                 ),
             ),
@@ -242,6 +243,7 @@ impl Data {
         json!({
             "item": self.item_json(item_id),
             "etyMode": ety_mode,
+            "etyOrder": item_ety_order,
             "parents": parents,
             "langDistance": self.get(item_id).lang().distance_from(req_lang),
         })

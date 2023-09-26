@@ -67,12 +67,12 @@ export default function Tooltip({
   // are the parents with respect to the etymology.
   const parents: EtyParent[] | null = itemNode.children
     ? itemNode.children
+        .sort((a, b) => a.data.etyOrder - b.data.etyOrder)
         .map((parentNode) => ({
           lang: parentNode.data.item.lang,
           term: term(parentNode.data.item),
           langDistance: parentNode.data.langDistance,
         }))
-        .reverse()
     : null;
 
   const posList = item.pos ?? [];

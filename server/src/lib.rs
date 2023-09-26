@@ -72,7 +72,7 @@ pub async fn item_etymology(
     Path(item_id): Path<ItemId>,
 ) -> Json<Value> {
     let lang = state.data.lang(item_id);
-    Json(state.data.etymology_json(item_id, lang))
+    Json(state.data.etymology_json(item_id, 0, lang))
 }
 
 pub async fn item_head_descendants(

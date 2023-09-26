@@ -308,7 +308,7 @@ function etymologyTreeSVG(
   // https://github.com/d3/d3-hierarchy#hierarchy
   const root = hierarchy<Etymology>(tree, (d: Etymology) => d.parents);
 
-  root.sort((a, b) => 1);
+  root.sort((a, b) => b.data.etyOrder - a.data.etyOrder);
 
   const fontSize = svgElement
     ? parseFloat(window.getComputedStyle(svgElement).fontSize)

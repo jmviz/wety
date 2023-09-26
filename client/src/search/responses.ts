@@ -40,6 +40,7 @@ export interface Descendants {
 export interface Etymology {
   item: Item;
   etyMode: string | null;
+  etyOrder: number;
   parents: Etymology[] | null;
   langDistance: number;
 }
