@@ -77,9 +77,7 @@ export default function Tooltip({
 
   const posList = item.pos ?? [];
   const glossList = item.gloss ?? [];
-  const etyMode = itemNode.data.etyMode
-    ? etyModeRep(itemNode.data.etyMode)
-    : null;
+  const etyMode = itemNode.data.etyMode;
 
   return (
     <div className="tooltip" ref={divRef}>
@@ -177,6 +175,20 @@ function etyModeRep(etyMode: string): string {
     case "undefined derivation":
     case "mention":
       return "derived";
+    case "transfix":
+      return "transfixation";
+    case "suffix":
+      return "suffixation";
+    case "prefix":
+      return "prefixation";
+    case "infix":
+      return "infixation";
+    case "confix":
+      return "confixation";
+    case "circumfix":
+      return "circumfixation";
+    case "affix":
+      return "affixation";
     default:
       return etyMode;
   }
@@ -193,14 +205,14 @@ function etyPrep(etyMode: string): string {
       return " from ";
     case "compound":
     case "univerbation":
-    case "transfix":
     case "surface analysis":
+    case "blend":
+    case "transfix":
     case "suffix":
     case "prefix":
     case "infix":
     case "confix":
     case "circumfix":
-    case "blend":
     case "affix":
       return ": ";
     case "vṛddhi":
