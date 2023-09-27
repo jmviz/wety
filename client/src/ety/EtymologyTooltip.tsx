@@ -1,29 +1,49 @@
 import "./Tooltip.css";
-import { Etymology, term } from "../search/responses";
-import { ExpandedItemNode, langColor } from "./Tree";
+import { TreeData, TreeKind } from "../App";
+import { Descendants, Etymology, Item, term } from "../search/responses";
+import { BoundedHierarchyPointNode, langColor } from "./tree";
+import {
+  PositionKind,
+  etyModeRep,
+  etyPrep,
+  hideTooltip,
+  positionTooltip,
+} from "./tooltip";
 
 import { HierarchyPointNode, Selection } from "d3";
-import { MutableRefObject, RefObject, useEffect, useLayoutEffect } from "react";
+import {
+  MutableRefObject,
+  RefObject,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+} from "react";
+import Button from "@mui/material/Button/Button";
+import { debounce } from "@mui/material/utils";
 
-export interface TooltipState {
+export interface EtymologyTooltipState {
   itemNode: HierarchyPointNode<Etymology> | null;
   svgElement: SVGElement | null;
-  positionType: string;
+  positionKind: PositionKind;
 }
 
-interface TooltipProps {
-  state: TooltipState;
+interface EtymologyTooltipProps {
+  state: EtymologyTooltipState;
+  treeData: TreeData;
+  setTreeData: (treeData: TreeData) => void;
   divRef: RefObject<HTMLDivElement>;
   showTimeout: MutableRefObject<number | null>;
   hideTimeout: MutableRefObject<number | null>;
 }
 
-export default function Tooltip({
-  state: { itemNode, svgElement, positionType },
+export default function EtymologyTooltip({
+  state: { itemNode, svgElement, positionKind },
+  treeData,
+  setTreeData,
   divRef,
   showTimeout,
   hideTimeout,
-}: TooltipProps) {
+}: EtymologyTooltipProps) {
   useEffect(() => {
     const tooltip = divRef.current;
     if (!tooltip) return;
@@ -53,10 +73,36 @@ export default function Tooltip({
   useLayoutEffect(() => {
     const tooltip = divRef.current;
     if (!tooltip || !itemNode || !svgElement) return;
-    positionTooltip(svgElement, tooltip, positionType);
+    positionTooltip(svgElement, tooltip, positionKind);
     tooltip.style.zIndex = "9000";
     tooltip.style.opacity = "1";
   });
+
+  const getDescendants = useMemo(
+    () =>
+      debounce(async (item: Item) => {
+        const request = `${process.env.REACT_APP_API_BASE_URL}/descendants/${
+          item.id
+        }?${treeData.selectedDescLangs
+          .map((lang) => `lang=${lang.id}`)
+          .join("&")}`;
+
+        try {
+          const response = await fetch(request);
+          const tree = (await response.json()) as Descendants;
+          console.log(tree);
+          setTreeData({
+            tree: tree,
+            treeKind: TreeKind.Descendants,
+            selectedItem: item,
+            selectedDescLangs: treeData.selectedDescLangs,
+          });
+        } catch (error) {
+          console.log(error);
+        }
+      }, 0),
+    [treeData, setTreeData]
+  );
 
   if (itemNode === null || svgElement === null) {
     return <div ref={divRef} />;
@@ -81,7 +127,7 @@ export default function Tooltip({
 
   return (
     <div className="tooltip" ref={divRef}>
-      {positionType === "fixed" && (
+      {positionKind === PositionKind.Fixed && (
         <button className="close-button" onClick={() => hideTooltip(divRef)}>
           ✕
         </button>
@@ -114,8 +160,9 @@ export default function Tooltip({
         </div>
       )}
       {etyMode && parents && etyLine(etyMode, parents)}
-      {item.url && (
-        <div className="wiktionary-link-container">
+      <div className="actions-container">
+        <Button onClick={() => getDescendants(item)}>Descendants</Button>
+        {item.url && (
           <a
             href={item.url}
             target="_blank"
@@ -124,8 +171,8 @@ export default function Tooltip({
           >
             Wiktionary
           </a>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
@@ -170,123 +217,14 @@ function etyLine(etyMode: string, parents: EtyParent[]): JSX.Element {
   );
 }
 
-function etyModeRep(etyMode: string): string {
-  switch (etyMode) {
-    case "undefined derivation":
-    case "mention":
-      return "derived";
-    case "transfix":
-      return "transfixation";
-    case "suffix":
-      return "suffixation";
-    case "prefix":
-      return "prefixation";
-    case "infix":
-      return "infixation";
-    case "confix":
-      return "confixation";
-    case "circumfix":
-      return "circumfixation";
-    case "affix":
-      return "affixation";
-    default:
-      return etyMode;
-  }
-}
-
-function etyPrep(etyMode: string): string {
-  switch (etyMode) {
-    case "derived":
-    case "inherited":
-    case "borrowed":
-    case "back-formation":
-    case "undefined derivation":
-    case "mention":
-      return " from ";
-    case "compound":
-    case "univerbation":
-    case "surface analysis":
-    case "blend":
-    case "transfix":
-    case "suffix":
-    case "prefix":
-    case "infix":
-    case "confix":
-    case "circumfix":
-    case "affix":
-      return ": ";
-    case "vṛddhi":
-    case "vṛddhi-ya":
-      return " derivative of ";
-    case "root":
-      return " reflex of ";
-    default:
-      return " of ";
-  }
-}
-
-function positionHoverTooltip(element: SVGElement, tooltip: HTMLDivElement) {
-  tooltip.style.position = "absolute";
-
-  const tooltipRect = tooltip.getBoundingClientRect();
-  const elementRect = element.getBoundingClientRect();
-
-  // Position the tooltip above the element. If there is not enough space,
-  // position it below the element.
-  if (elementRect.top >= tooltipRect.height) {
-    tooltip.style.top =
-      elementRect.top + window.scrollY - tooltipRect.height + "px";
-  } else {
-    tooltip.style.top = elementRect.bottom + window.scrollY + "px";
-  }
-
-  // Align the tooltip with the left side of the element. If there is not
-  // enough space, align it with the right side.
-  if (elementRect.left + tooltipRect.width <= window.innerWidth) {
-    tooltip.style.left = elementRect.left + window.scrollX + "px";
-  } else {
-    tooltip.style.left =
-      elementRect.right + window.scrollX - tooltipRect.width + "px";
-  }
-}
-
-function positionFixedTooltip(tooltip: HTMLDivElement) {
-  tooltip.style.position = "fixed";
-  tooltip.style.top = "50%";
-  tooltip.style.left = "50%";
-  tooltip.style.transform = "translate(-50%, -50%)";
-}
-
-function positionTooltip(
-  element: SVGElement,
-  tooltip: HTMLDivElement,
-  type: string
-) {
-  if (type === "hover") {
-    positionHoverTooltip(element, tooltip);
-  } else {
-    positionFixedTooltip(tooltip);
-  }
-}
-
-export function hideTooltip(tooltip: RefObject<HTMLDivElement>) {
-  if (tooltip.current === null) {
-    return;
-  }
-  tooltip.current.style.opacity = "0";
-  tooltip.current.style.zIndex = "-9000";
-  tooltip.current.style.top = "0px";
-  tooltip.current.style.left = "0px";
-}
-
-export function setNodeTooltipListeners(
+export function setEtymologyTooltipListeners(
   node: Selection<
     SVGGElement | SVGTextElement,
-    ExpandedItemNode<Etymology>,
+    BoundedHierarchyPointNode<Etymology>,
     SVGGElement,
     undefined
   >,
-  setTooltipState: (state: TooltipState) => void,
+  setTooltipState: (state: EtymologyTooltipState) => void,
   tooltipRef: RefObject<HTMLDivElement>,
   tooltipShowTimeout: MutableRefObject<number | null>,
   tooltipHideTimeout: MutableRefObject<number | null>
@@ -294,12 +232,12 @@ export function setNodeTooltipListeners(
   // for non-mouse, show tooltip on pointerup
   node.on(
     "pointerup",
-    function (event: PointerEvent, d: ExpandedItemNode<Etymology>) {
+    function (event: PointerEvent, d: BoundedHierarchyPointNode<Etymology>) {
       if (event.pointerType !== "mouse") {
         setTooltipState({
           itemNode: d.node,
           svgElement: this,
-          positionType: "fixed",
+          positionKind: PositionKind.Fixed,
         });
       }
     }
@@ -308,7 +246,7 @@ export function setNodeTooltipListeners(
   // for mouse, show tooltip on hover
   node.on(
     "pointerenter",
-    function (event: PointerEvent, d: ExpandedItemNode<Etymology>) {
+    function (event: PointerEvent, d: BoundedHierarchyPointNode<Etymology>) {
       if (event.pointerType === "mouse") {
         window.clearTimeout(tooltipHideTimeout.current ?? undefined);
         tooltipShowTimeout.current = window.setTimeout(
@@ -316,7 +254,7 @@ export function setNodeTooltipListeners(
             setTooltipState({
               itemNode: d.node,
               svgElement: this,
-              positionType: "hover",
+              positionKind: PositionKind.Hover,
             }),
           100
         );

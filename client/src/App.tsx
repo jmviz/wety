@@ -1,26 +1,44 @@
 import SearchPane from "./search/SearchPane";
-import { EtyData } from "./ety/Ety";
-import Ety from "./ety/Ety";
+import { Descendants, Etymology, Item, LangOption } from "./search/responses";
+import EtymologyTree from "./ety/EtymologyTree";
+import DescendantsTree from "./ety/DescendantsTree";
 
 import { useState } from "react";
 import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
-import { Etymology } from "./search/responses";
 
 const theme = createTheme({
   // todo
 });
 
+export enum TreeKind {
+  Etymology,
+  Descendants,
+}
+
+export interface TreeData {
+  tree: Etymology | Descendants | null;
+  treeKind: TreeKind;
+  selectedItem: Item | null;
+  selectedDescLangs: LangOption[];
+}
+
 export default function App() {
-  const [etyData, setEtyData] = useState<EtyData<Etymology>>({
+  const [treeData, setTreeData] = useState<TreeData>({
     tree: null,
+    treeKind: TreeKind.Etymology,
     selectedItem: null,
+    selectedDescLangs: [],
   });
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <SearchPane setEtyData={setEtyData} />
-      <Ety {...etyData} />
+      <SearchPane setTreeData={setTreeData} />
+      {treeData.treeKind === TreeKind.Etymology ? (
+        <EtymologyTree treeData={treeData} setTreeData={setTreeData} />
+      ) : (
+        <DescendantsTree {...treeData} />
+      )}
     </ThemeProvider>
   );
 }

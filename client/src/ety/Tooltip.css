@@ -68,12 +68,13 @@
   font-weight: bold;
 }
 
-.tooltip .wiktionary-link-container {
+.tooltip .actions-container {
   text-align: left;
   font-size: smaller;
+  display: inline-block;
 }
 
-.tooltip .wiktionary-link-container .wiktionary-link {
+.tooltip .actions-container .wiktionary-link {
   color: #313639;
   text-decoration: underline;
 }

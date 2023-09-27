@@ -2,18 +2,18 @@ import ItemSearch from "./ItemSearch";
 import LangSearch from "./LangSearch";
 import MultiLangSearch from "./MultiLangSearch";
 import EtyButton from "./EtyButton";
-import { LangOption, ItemOption, Etymology } from "./responses";
-import { EtyData } from "../ety/Ety";
+import { LangOption, ItemOption } from "./responses";
+import { TreeData } from "../App";
 
 import Stack from "@mui/material/Stack";
 import { useRef, useState } from "react";
 import { Container } from "@mui/material";
 
 interface SearchPaneProps {
-  setEtyData: (data: EtyData<Etymology>) => void;
+  setTreeData: (data: TreeData) => void;
 }
 
-export default function SearchPane({ setEtyData }: SearchPaneProps) {
+export default function SearchPane({ setTreeData }: SearchPaneProps) {
   const [selectedLang, setSelectedLang] = useState<LangOption | null>(null);
   const [selectedItem, setSelectedItem] = useState<ItemOption | null>(null);
   const [selectedDescLangs, setSelectedDescLangs] = useState<LangOption[]>([]);
@@ -56,7 +56,7 @@ export default function SearchPane({ setEtyData }: SearchPaneProps) {
           selectedLang={selectedLang}
           selectedItem={selectedItem}
           selectedDescLangs={selectedDescLangs}
-          setEtyData={setEtyData}
+          setEtyData={setTreeData}
         />
       </Stack>
     </Container>

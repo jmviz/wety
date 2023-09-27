@@ -1,0 +1,17 @@
+.tree-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.tree {
+  margin: auto;
+  font-size: small;
+}
+
+.tree .lang {
+  font-size: smaller;
+}
+
+.tree .romanization {
+  font-size: smaller;
+}
