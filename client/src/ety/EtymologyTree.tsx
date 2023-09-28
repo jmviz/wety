@@ -7,13 +7,9 @@ import EtymologyTooltip, {
   setEtymologyTooltipListeners,
 } from "./EtymologyTooltip";
 import { PositionKind, hideTooltip } from "./tooltip";
-import {
-  addSVGTextBackgrounds,
-  BoundedHierarchyPointNode,
-  langColor,
-} from "./tree";
+import { BoundedHierarchyPointNode, langColor } from "./tree";
 
-import { select } from "d3-selection";
+import { select, Selection } from "d3-selection";
 import { link, curveStepAfter } from "d3-shape";
 import {
   hierarchy,
@@ -243,5 +239,38 @@ function etymologyTreeSVG(
     tooltipHideTimeout
   );
 
-  addSVGTextBackgrounds<Etymology>(node, nodeBackground);
+  addSVGTextBackgrounds(node, nodeBackground);
+}
+
+function addSVGTextBackgrounds(
+  node: Selection<
+    SVGGElement | SVGTextElement,
+    BoundedHierarchyPointNode<Etymology>,
+    SVGGElement,
+    undefined
+  >,
+  nodeBackground: Selection<
+    SVGRectElement,
+    BoundedHierarchyPointNode<Etymology>,
+    SVGGElement,
+    undefined
+  >
+) {
+  node.each(function (d) {
+    d.bbox = this.getBBox();
+  });
+
+  const xMargin = 3;
+  const yMargin = 3;
+
+  nodeBackground
+    .attr("width", (d) => d.bbox.width + 2 * xMargin)
+    .attr("height", (d) => d.bbox.height + 2 * yMargin)
+    .attr("transform", function (d) {
+      const x = d.node.x - xMargin;
+      const y = d.node.y - yMargin;
+      return `translate(${x},${y})`;
+    })
+    .attr("x", (d) => d.bbox.x)
+    .attr("y", (d) => d.bbox.y);
 }

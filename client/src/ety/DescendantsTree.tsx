@@ -7,13 +7,9 @@ import DescendantsTooltip, {
   setDescendantsTooltipListeners,
 } from "./DescendantsTooltip";
 import { PositionKind, hideTooltip } from "./tooltip";
-import {
-  BoundedHierarchyPointNode,
-  addSVGTextBackgrounds,
-  langColor,
-} from "./tree";
+import { BoundedHierarchyPointNode, langColor } from "./tree";
 
-import { select } from "d3-selection";
+import { select, Selection } from "d3-selection";
 import { link, curveStepBefore } from "d3-shape";
 import {
   hierarchy,
@@ -28,7 +24,7 @@ import {
   useState,
 } from "react";
 
-export default function DescendantsTree(data: TreeData) {
+export default function DescendantsTree(treeData: TreeData) {
   const svgRef = useRef<SVGSVGElement>(null);
   const [tooltipState, setTooltipState] = useState<DescendantsTooltipState>({
     itemNode: null,
@@ -41,8 +37,8 @@ export default function DescendantsTree(data: TreeData) {
 
   useEffect(() => {
     const svg = svgRef.current;
-    const tree = data.tree;
-    const selectedItem = data.selectedItem;
+    const tree = treeData.tree;
+    const selectedItem = treeData.selectedItem;
 
     if (svg === null || tree === null || selectedItem === null) {
       return;
@@ -69,7 +65,7 @@ export default function DescendantsTree(data: TreeData) {
       });
     };
   }, [
-    data,
+    treeData,
     setTooltipState,
     tooltipRef,
     tooltipShowTimeout,
@@ -264,5 +260,38 @@ function descendantsTreeSVG(
     tooltipHideTimeout
   );
 
-  addSVGTextBackgrounds<Descendants>(node, nodeBackground);
+  addSVGTextBackgrounds(node, nodeBackground);
+}
+
+function addSVGTextBackgrounds(
+  node: Selection<
+    SVGGElement | SVGTextElement,
+    BoundedHierarchyPointNode<Descendants>,
+    SVGGElement,
+    undefined
+  >,
+  nodeBackground: Selection<
+    SVGRectElement,
+    BoundedHierarchyPointNode<Descendants>,
+    SVGGElement,
+    undefined
+  >
+) {
+  node.each(function (d) {
+    d.bbox = this.getBBox();
+  });
+
+  const xMargin = 3;
+  const yMargin = 3;
+
+  nodeBackground
+    .attr("width", (d) => d.bbox.width + 2 * xMargin)
+    .attr("height", (d) => d.bbox.height + 2 * yMargin)
+    .attr("transform", function (d) {
+      const x = d.node.y - xMargin;
+      const y = d.node.x - yMargin;
+      return `translate(${x},${y})`;
+    })
+    .attr("x", (d) => d.bbox.x)
+    .attr("y", (d) => d.bbox.y);
 }
