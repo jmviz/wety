@@ -81,10 +81,13 @@ export default function EtymologyTooltip({
   const getDescendants = useMemo(
     () =>
       debounce(async (item: Item) => {
+        const distLangQuery = treeData.selectedLang
+          ? `distLang=${treeData.selectedLang.id}&`
+          : "";
         const request = `${process.env.REACT_APP_API_BASE_URL}/descendants/${
           item.id
-        }?${treeData.selectedDescLangs
-          .map((lang) => `lang=${lang.id}`)
+        }?${distLangQuery}${treeData.selectedDescLangs
+          .map((lang) => `descLang=${lang.id}`)
           .join("&")}`;
 
         try {
@@ -94,7 +97,8 @@ export default function EtymologyTooltip({
           setTreeData({
             tree: tree,
             treeKind: TreeKind.Descendants,
-            selectedItem: item,
+            treeRootItem: item,
+            selectedLang: treeData.selectedLang,
             selectedDescLangs: treeData.selectedDescLangs,
           });
         } catch (error) {

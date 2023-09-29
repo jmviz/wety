@@ -50,8 +50,8 @@ async fn main() -> Result<()> {
     };
 
     let app = Router::new()
-        .route("/langs/:lang", get(lang_search_matches))
-        .route("/items/:lang/:term", get(item_search_matches))
+        .route("/search/lang", get(lang_search_matches))
+        .route("/search/item/:lang", get(item_search_matches))
         .route("/etymology/:item", get(item_etymology))
         .route("/descendants/:item", get(item_head_descendants))
         .route("/headProgenitorTree/:item", get(item_head_progenitor_tree))

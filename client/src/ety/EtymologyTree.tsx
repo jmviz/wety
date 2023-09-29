@@ -46,16 +46,16 @@ export default function EtymologyTree({
   useEffect(() => {
     const svg = svgRef.current;
     const tree = treeData.tree;
-    const selectedItem = treeData.selectedItem;
+    const treeRootItem = treeData.treeRootItem;
 
-    if (svg === null || tree === null || selectedItem === null) {
+    if (svg === null || tree === null || treeRootItem === null) {
       return;
     }
 
     etymologyTreeSVG(
       svg,
       tree as Etymology,
-      selectedItem,
+      treeRootItem,
       setTooltipState,
       tooltipRef,
       tooltipShowTimeout,
@@ -98,7 +98,7 @@ export default function EtymologyTree({
 function etymologyTreeSVG(
   svgElement: SVGSVGElement,
   tree: Etymology,
-  selectedItem: Item,
+  treeRootItem: Item,
   setTooltipState: (state: EtymologyTooltipState) => void,
   tooltipRef: RefObject<HTMLDivElement>,
   tooltipShowTimeout: MutableRefObject<number | null>,
@@ -206,7 +206,7 @@ function etymologyTreeSVG(
     .data(ancestors)
     .join("g")
     .attr("font-weight", (d) =>
-      d.node.data.item.id === selectedItem.id ? "bold" : null
+      d.node.data.item.id === treeRootItem.id ? "bold" : null
     )
     .attr("transform", (d) => `translate(${d.node.x},${d.node.y})`);
 

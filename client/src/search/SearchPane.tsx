@@ -10,13 +10,21 @@ import { useRef, useState } from "react";
 import { Container } from "@mui/material";
 
 interface SearchPaneProps {
+  selectedLang: LangOption | null;
+  setSelectedLang: (lang: LangOption | null) => void;
+  selectedDescLangs: LangOption[];
+  setSelectedDescLangs: (langs: LangOption[]) => void;
   setTreeData: (data: TreeData) => void;
 }
 
-export default function SearchPane({ setTreeData }: SearchPaneProps) {
-  const [selectedLang, setSelectedLang] = useState<LangOption | null>(null);
+export default function SearchPane({
+  selectedLang,
+  setSelectedLang,
+  selectedDescLangs,
+  setSelectedDescLangs,
+  setTreeData,
+}: SearchPaneProps) {
   const [selectedItem, setSelectedItem] = useState<ItemOption | null>(null);
-  const [selectedDescLangs, setSelectedDescLangs] = useState<LangOption[]>([]);
   const langSearchInputRef = useRef<HTMLInputElement>(null);
   const itemSearchInputRef = useRef<HTMLInputElement>(null);
   const descLangsSearchInputRef = useRef<HTMLInputElement>(null);

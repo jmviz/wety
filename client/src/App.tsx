@@ -18,22 +18,32 @@ export enum TreeKind {
 export interface TreeData {
   tree: Etymology | Descendants | null;
   treeKind: TreeKind;
-  selectedItem: Item | null;
+  treeRootItem: Item | null;
+  selectedLang: LangOption | null;
   selectedDescLangs: LangOption[];
 }
 
 export default function App() {
+  const [selectedLang, setSelectedLang] = useState<LangOption | null>(null);
+  const [selectedDescLangs, setSelectedDescLangs] = useState<LangOption[]>([]);
   const [treeData, setTreeData] = useState<TreeData>({
     tree: null,
     treeKind: TreeKind.Etymology,
-    selectedItem: null,
-    selectedDescLangs: [],
+    treeRootItem: null,
+    selectedLang: selectedLang,
+    selectedDescLangs: selectedDescLangs,
   });
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <SearchPane setTreeData={setTreeData} />
+      <SearchPane
+        selectedLang={selectedLang}
+        setSelectedLang={setSelectedLang}
+        selectedDescLangs={selectedDescLangs}
+        setSelectedDescLangs={setSelectedDescLangs}
+        setTreeData={setTreeData}
+      />
       {treeData.treeKind === TreeKind.Etymology ? (
         <EtymologyTree treeData={treeData} setTreeData={setTreeData} />
       ) : (

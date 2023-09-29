@@ -38,16 +38,16 @@ export default function DescendantsTree(treeData: TreeData) {
   useEffect(() => {
     const svg = svgRef.current;
     const tree = treeData.tree;
-    const selectedItem = treeData.selectedItem;
+    const treeRootItem = treeData.treeRootItem;
 
-    if (svg === null || tree === null || selectedItem === null) {
+    if (svg === null || tree === null || treeRootItem === null) {
       return;
     }
 
     descendantsTreeSVG(
       svg,
       tree as Descendants,
-      selectedItem,
+      treeRootItem,
       setTooltipState,
       tooltipRef,
       tooltipShowTimeout,
@@ -88,7 +88,7 @@ export default function DescendantsTree(treeData: TreeData) {
 function descendantsTreeSVG(
   svgElement: SVGSVGElement,
   tree: Descendants,
-  selectedItem: Item,
+  treeRootItem: Item,
   setTooltipState: (state: DescendantsTooltipState) => void,
   tooltipRef: RefObject<HTMLDivElement>,
   tooltipShowTimeout: MutableRefObject<number | null>,
@@ -97,7 +97,7 @@ function descendantsTreeSVG(
   // https://github.com/d3/d3-hierarchy#hierarchy
   const root = hierarchy<Descendants>(tree, (d: Descendants) => d.children);
 
-  const selectedItemNode = root.find((d) => d.data.item.id === selectedItem.id);
+  const selectedItemNode = root.find((d) => d.data.item.id === treeRootItem.id);
   const selectedItemNodeAncestors = selectedItemNode?.ancestors() ?? [];
 
   root
@@ -227,7 +227,7 @@ function descendantsTreeSVG(
     .data(descendants)
     .join("g")
     .attr("font-weight", (d) =>
-      d.node.data.item.id === selectedItem.id ? "bold" : null
+      d.node.data.item.id === treeRootItem.id ? "bold" : null
     )
     .attr("transform", (d) => `translate(${d.node.y},${d.node.x})`);
 

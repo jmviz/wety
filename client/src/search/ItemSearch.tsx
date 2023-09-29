@@ -54,7 +54,7 @@ export default function ItemSearch({
         }
         try {
           const response = await fetch(
-            `${process.env.REACT_APP_API_BASE_URL}/items/${selectedLang.id}/${input}`
+            `${process.env.REACT_APP_API_BASE_URL}/search/item/${selectedLang.id}?term=${input}`
           );
           const newOptions = (await response.json()) as ItemOption[];
           setItemOptions(newOptions);

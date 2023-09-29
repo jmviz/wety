@@ -34,7 +34,7 @@ export default function LangSearch({
       const lastLang = JSON.parse(lastLangStr) as LangOption;
       console.log(`Attempting to use stored last language ${lastLang.name}...`);
       const response = await fetch(
-        `${process.env.REACT_APP_API_BASE_URL}/langs/${lastLang.name}`
+        `${process.env.REACT_APP_API_BASE_URL}/search/lang?name=${lastLang.name}`
       );
       const options = (await response.json()) as LangOption[];
       const lang = options[0];
@@ -97,7 +97,7 @@ export default function LangSearch({
       debounce(async (input: string) => {
         try {
           const response = await fetch(
-            `${process.env.REACT_APP_API_BASE_URL}/langs/${input}`
+            `${process.env.REACT_APP_API_BASE_URL}/search/lang?name=${input}`
           );
           const newOptions = (await response.json()) as LangOption[];
           setLangOptions(newOptions);

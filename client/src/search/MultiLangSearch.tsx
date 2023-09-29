@@ -30,7 +30,7 @@ function MultiLangSearch({
       debounce(async (input: string) => {
         try {
           const response = await fetch(
-            `${process.env.REACT_APP_API_BASE_URL}/langs/${input}`
+            `${process.env.REACT_APP_API_BASE_URL}/search/lang?name=${input}`
           );
           const newOptions = (await response.json()) as LangOption[];
           setLangOptions(newOptions);

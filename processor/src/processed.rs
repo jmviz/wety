@@ -126,9 +126,9 @@ impl Data {
     pub fn item_head_descendants_json(
         &self,
         item_id: ItemId,
-        req_lang: Lang,
-        include_langs: &[Lang],
-        req_item_head_ancestors_within_include_langs: &[ItemId],
+        dist_lang: Lang,
+        desc_langs: &[Lang],
+        req_item_head_ancestors_within_desc_langs: &[ItemId],
         item_parent_id: Option<ItemId>,
         item_parent_ety_order: Option<u8>,
     ) -> Value {
@@ -141,24 +141,24 @@ impl Data {
         // "feathering", etc. The only exception is if the original request term
         // is such a one. In that case, we want to be sure the request term ends
         // up in the tree.
-        let children = (!include_langs.contains(&item_lang)
-            || req_item_head_ancestors_within_include_langs.contains(&item_id))
+        let children = (!desc_langs.contains(&item_lang)
+            || req_item_head_ancestors_within_desc_langs.contains(&item_id))
         .then_some(
             self.graph
                 .get_head_children(item_id)
                 .filter(|child| {
-                    include_langs.contains(&child.item.lang())
+                    desc_langs.contains(&child.item.lang())
                         || self
                             .head_progeny_langs
                             .get(&child.id)
-                            .is_some_and(|langs| include_langs.iter().any(|il| langs.contains(il)))
+                            .is_some_and(|langs| desc_langs.iter().any(|il| langs.contains(il)))
                 })
                 .map(|child| {
                     self.item_head_descendants_json(
                         child.id,
-                        req_lang,
-                        include_langs,
-                        req_item_head_ancestors_within_include_langs,
+                        dist_lang,
+                        desc_langs,
+                        req_item_head_ancestors_within_desc_langs,
                         Some(item_id),
                         Some(child.parent_ety_order),
                     )
@@ -184,7 +184,7 @@ impl Data {
         json!({
             "item": self.item_json(item_id),
             "children": children,
-            "langDistance": item_lang.distance_from(req_lang),
+            "langDistance": item_lang.distance_from(dist_lang),
             "etyMode": ety_mode,
             "otherParents": other_parents,
             "parentEtyOrder": item_parent_ety_order,
@@ -192,11 +192,11 @@ impl Data {
     }
 
     #[must_use]
-    pub fn head_progenitor_tree(&self, item_id: ItemId, include_langs: &[Lang]) -> Value {
+    pub fn head_progenitor_tree(&self, item_id: ItemId, desc_langs: &[Lang]) -> Value {
         let lang = self.get(item_id).lang();
         let head_ancestors_within_include_langs = self
             .graph
-            .get_head_ancestors_within_langs(item_id, include_langs);
+            .get_head_ancestors_within_langs(item_id, desc_langs);
         self.progenitors
             .get(&item_id)
             .and_then(|p| p.head)
@@ -205,7 +205,7 @@ impl Data {
                     self.item_head_descendants_json(
                         item_id,
                         lang,
-                        include_langs,
+                        desc_langs,
                         &head_ancestors_within_include_langs,
                         None,
                         None,
@@ -215,7 +215,7 @@ impl Data {
                     self.item_head_descendants_json(
                         head,
                         lang,
-                        include_langs,
+                        desc_langs,
                         &head_ancestors_within_include_langs,
                         None,
                         None,
