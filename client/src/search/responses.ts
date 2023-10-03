@@ -28,19 +28,24 @@ export interface ItemOption {
   item: Item;
 }
 
-export interface Descendants {
-  item: Item;
-  children: Descendants[] | null;
-  langDistance: number;
-  etyMode: string | null;
-  otherParents: Item[] | null;
-  parentEtyOrder: number | null;
-}
-
 export interface Etymology {
   item: Item;
   etyMode: string | null;
   etyOrder: number;
   parents: Etymology[] | null;
   langDistance: number;
+}
+
+export interface OtherParent {
+  item: Item;
+  langDistance: number;
+}
+
+export interface Descendants {
+  item: Item;
+  children: Descendants[] | null;
+  langDistance: number;
+  etyMode: string | null;
+  otherParents: OtherParent[];
+  parentEtyOrder: number | null;
 }

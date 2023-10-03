@@ -181,7 +181,7 @@ impl Items {
 
     /// get previously added item
     pub(crate) fn get(&self, id: ItemId) -> &Item {
-        self.graph.get(id)
+        self.graph.item(id)
     }
 
     pub(crate) fn iter(&self) -> impl Iterator<Item = (ItemId, &Item)> {
@@ -211,7 +211,7 @@ impl Items {
             let mut max_ety = 0;
             let mut same_ety_id = None;
             for &id in dupes {
-                let other = self.graph.get(id);
+                let other = self.graph.item(id);
                 if other.ety_num() == item.ety_num {
                     same_ety_id = Some(id);
                 }
@@ -219,7 +219,7 @@ impl Items {
             }
             // If it shares an ety with an already stored real item...
             if let Some(same_ety_id) = same_ety_id
-                    && let Item::Real(same_ety) = self.graph.get_mut(same_ety_id)
+                    && let Item::Real(same_ety) = self.graph.item_mut(same_ety_id)
                     && !(item.pos[0] == Pos::root_pos() && same_ety.pos.iter().any(|&p| p == item.pos[0]))
                 {
                     // If the pos is "root" and the already-stored item already has

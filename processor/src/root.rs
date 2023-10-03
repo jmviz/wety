@@ -172,7 +172,7 @@ impl Items {
 
         let root_lang = self.get(root_item_id).lang();
 
-        match self.graph.get_progenitors(item_id) {
+        match self.graph.progenitors(item_id) {
             None => {
                 let item = self.get(item_id);
                 let item_lang = item.lang();

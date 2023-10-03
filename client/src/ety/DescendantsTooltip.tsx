@@ -70,16 +70,32 @@ export default function DescendantsTooltip({
   }
 
   const item = itemNode.data.item;
-  // const parents: EtyParent[] | null = itemNode.children
-  //   ? itemNode.children
-  //       .sort((a, b) => a.data.etyOrder - b.data.etyOrder)
-  //       .map((parentNode) => ({
-  //         lang: parentNode.data.item.lang,
-  //         term: term(parentNode.data.item),
-  //         langDistance: parentNode.data.langDistance,
-  //       }))
-  //   : null;
-  const parents = null;
+  const parents: EtyParent[] = [];
+  if (itemNode.parent && itemNode.data.parentEtyOrder) {
+    if (itemNode.data.otherParents) {
+      for (let i = 0; i < itemNode.data.otherParents.length; i++) {
+        const otherParent = itemNode.data.otherParents[i];
+        if (i === itemNode.data.parentEtyOrder) {
+          parents.push({
+            lang: itemNode.parent.data.item.lang,
+            term: term(itemNode.parent.data.item),
+            langDistance: itemNode.parent.data.langDistance,
+          });
+        }
+        parents.push({
+          lang: otherParent.item.lang,
+          term: term(otherParent.item),
+          langDistance: otherParent.langDistance,
+        });
+      }
+    } else {
+      parents.push({
+        lang: itemNode.parent.data.item.lang,
+        term: term(itemNode.parent.data.item),
+        langDistance: itemNode.parent.data.langDistance,
+      });
+    }
+  }
 
   const posList = item.pos ?? [];
   const glossList = item.gloss ?? [];

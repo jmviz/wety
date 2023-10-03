@@ -96,8 +96,8 @@ pub async fn item_head_descendants(
     let dist_lang = tree_queries.dist_lang.unwrap_or(state.data.lang(item_id));
     let head_ancestors_within_lang = state
         .data
-        .get_head_ancestors_within_langs(item_id, &tree_queries.desc_langs);
-    Json(state.data.item_head_descendants_json(
+        .ancestors_in_langs(item_id, &tree_queries.desc_langs);
+    Json(state.data.item_descendants_json(
         item_id,
         dist_lang,
         &tree_queries.desc_langs,

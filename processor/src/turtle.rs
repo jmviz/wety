@@ -133,7 +133,7 @@ impl Data {
             writeln!(f, "  {PRED_IS_RECONSTRUCTED} true ;")?;
         }
 
-        if let Some(immediate_ety) = self.graph.get_immediate_ety(id) {
+        if let Some(immediate_ety) = self.graph.immediate_ety(id) {
             let mode = immediate_ety.mode.as_ref();
             write_item_quoted_prop(f, PRED_MODE, mode)?;
             if let Some(head) = immediate_ety.head {

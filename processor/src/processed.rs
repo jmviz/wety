@@ -1,5 +1,5 @@
 use crate::{
-    ety_graph::{EtyGraph, Progenitors},
+    ety_graph::{EtyEdgeAccess, EtyGraph, Progenitors},
     items::{Item, ItemId},
     languages::Lang,
     string_pool::StringPool,
@@ -28,19 +28,19 @@ pub struct Data {
     pub(crate) string_pool: StringPool,
     pub(crate) graph: EtyGraph,
     pub(crate) progenitors: HashMap<ItemId, Progenitors>,
-    head_progeny_langs: HashMap<ItemId, HashSet<Lang>>,
+    descendant_langs: HashMap<ItemId, HashSet<Lang>>,
 }
 
 // methods for use within processor
 impl Data {
     pub(crate) fn new(string_pool: StringPool, graph: EtyGraph) -> Self {
-        let progenitors = graph.get_all_progenitors();
-        let head_progeny_langs = graph.get_all_head_progeny_langs();
+        let progenitors = graph.all_progenitors();
+        let descendant_langs = graph.all_descendant_langs();
         Self {
             string_pool,
             graph,
             progenitors,
-            head_progeny_langs,
+            descendant_langs,
         }
     }
 
@@ -62,16 +62,16 @@ impl Data {
 
 // private methods for use within pub methods below
 impl Data {
-    fn get(&self, item: ItemId) -> &Item {
-        self.graph.get(item)
+    fn item(&self, id: ItemId) -> &Item {
+        self.graph.item(id)
     }
 
     fn term(&self, item: ItemId) -> &str {
-        self.get(item).term().resolve(&self.string_pool)
+        self.item(item).term().resolve(&self.string_pool)
     }
 
     fn ety_num(&self, item: ItemId) -> u8 {
-        self.get(item).ety_num()
+        self.item(item).ety_num()
     }
 }
 
@@ -79,12 +79,12 @@ impl Data {
 impl Data {
     #[must_use]
     pub fn lang(&self, item: ItemId) -> Lang {
-        self.get(item).lang()
+        self.item(item).lang()
     }
 
     #[must_use]
-    pub fn get_head_ancestors_within_langs(&self, item: ItemId, langs: &[Lang]) -> Vec<ItemId> {
-        self.graph.get_head_ancestors_within_langs(item, langs)
+    pub fn ancestors_in_langs(&self, item: ItemId, langs: &[Lang]) -> Vec<ItemId> {
+        self.graph.ancestors_in_langs(item, langs).collect()
     }
 
     /// # Errors
@@ -107,7 +107,7 @@ impl Data {
     }
 
     fn item_json(&self, item_id: ItemId) -> Value {
-        let item = self.get(item_id);
+        let item = self.item(item_id);
         json!({
             "id": item_id,
             "etyNum": item.ety_num(),
@@ -123,16 +123,16 @@ impl Data {
     }
 
     #[must_use]
-    pub fn item_head_descendants_json(
+    pub fn item_descendants_json(
         &self,
         item_id: ItemId,
         dist_lang: Lang,
         desc_langs: &[Lang],
-        req_item_head_ancestors_within_desc_langs: &[ItemId],
+        req_item_ancestors_within_desc_langs: &[ItemId],
         item_parent_id: Option<ItemId>,
         item_parent_ety_order: Option<u8>,
     ) -> Value {
-        let item = self.get(item_id);
+        let item = self.item(item_id);
         let item_lang = item.lang();
 
         // Don't continue expansion if the item is already in include_langs;
@@ -142,50 +142,52 @@ impl Data {
         // is such a one. In that case, we want to be sure the request term ends
         // up in the tree.
         let children = (!desc_langs.contains(&item_lang)
-            || req_item_head_ancestors_within_desc_langs.contains(&item_id))
+            || req_item_ancestors_within_desc_langs.contains(&item_id))
         .then_some(
             self.graph
-                .get_head_children(item_id)
-                .filter(|child| {
-                    desc_langs.contains(&child.item.lang())
+                .child_edges(item_id)
+                .filter(|e| {
+                    desc_langs.contains(&self.item(e.child()).lang())
                         || self
-                            .head_progeny_langs
-                            .get(&child.id)
+                            .descendant_langs
+                            .get(&e.child())
                             .is_some_and(|langs| desc_langs.iter().any(|il| langs.contains(il)))
                 })
-                .map(|child| {
-                    self.item_head_descendants_json(
-                        child.id,
+                .map(|e| {
+                    self.item_descendants_json(
+                        e.child(),
                         dist_lang,
                         desc_langs,
-                        req_item_head_ancestors_within_desc_langs,
+                        req_item_ancestors_within_desc_langs,
                         Some(item_id),
-                        Some(child.parent_ety_order),
+                        Some(e.order()),
                     )
                 })
                 .collect_vec(),
         );
 
-        let (ety_mode, other_parents) =
-            match (item_parent_id, self.graph.get_immediate_ety(item_id)) {
-                (Some(item_parent_id), Some(ety)) => (
-                    Some(ety.mode.as_str()),
-                    Some(
-                        ety.items
-                            .iter()
-                            .filter(|&&parent| parent != item_parent_id)
-                            .map(|&parent| self.item_json(parent))
-                            .collect_vec(),
-                    ),
-                ),
-                _ => (None, None),
-            };
+        let mut ety_mode = None;
+        let other_parents = self
+            .graph
+            .parent_edges(item_id)
+            .map(|e| {
+                ety_mode = Some(e.mode());
+                e.parent()
+            })
+            .filter(|&parent| !(item_parent_id.is_some_and(|id| id == parent)))
+            .map(|parent| {
+                json!({
+                    "item": self.item_json(parent),
+                    "langDistance": self.item(parent).lang().distance_from(dist_lang),
+                })
+            })
+            .collect_vec();
 
         json!({
             "item": self.item_json(item_id),
             "children": children,
             "langDistance": item_lang.distance_from(dist_lang),
-            "etyMode": ety_mode,
+            "etyMode": ety_mode.map(|m| m.as_str()),
             "otherParents": other_parents,
             "parentEtyOrder": item_parent_ety_order,
         })
@@ -193,30 +195,28 @@ impl Data {
 
     #[must_use]
     pub fn head_progenitor_tree(&self, item_id: ItemId, desc_langs: &[Lang]) -> Value {
-        let lang = self.get(item_id).lang();
-        let head_ancestors_within_include_langs = self
-            .graph
-            .get_head_ancestors_within_langs(item_id, desc_langs);
+        let lang = self.item(item_id).lang();
+        let ancestors_within_desc_langs = self.ancestors_in_langs(item_id, desc_langs);
         self.progenitors
             .get(&item_id)
             .and_then(|p| p.head)
             .map_or_else(
                 || {
-                    self.item_head_descendants_json(
+                    self.item_descendants_json(
                         item_id,
                         lang,
                         desc_langs,
-                        &head_ancestors_within_include_langs,
+                        &ancestors_within_desc_langs,
                         None,
                         None,
                     )
                 },
                 |head| {
-                    self.item_head_descendants_json(
+                    self.item_descendants_json(
                         head,
                         lang,
                         desc_langs,
-                        &head_ancestors_within_include_langs,
+                        &ancestors_within_desc_langs,
                         None,
                         None,
                     )
@@ -225,8 +225,9 @@ impl Data {
     }
 
     #[must_use]
+    // $$ change to use parent_edges()
     pub fn etymology_json(&self, item_id: ItemId, item_ety_order: usize, req_lang: Lang) -> Value {
-        let (ety_mode, parents) = match self.graph.get_immediate_ety(item_id) {
+        let (ety_mode, parents) = match self.graph.immediate_ety(item_id) {
             Some(ety) => (
                 Some(ety.mode.as_str()),
                 Some(
@@ -245,7 +246,7 @@ impl Data {
             "etyMode": ety_mode,
             "etyOrder": item_ety_order,
             "parents": parents,
-            "langDistance": self.get(item_id).lang().distance_from(req_lang),
+            "langDistance": self.item(item_id).lang().distance_from(req_lang),
         })
     }
 }
