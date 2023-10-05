@@ -47,7 +47,7 @@ export default function App() {
       {treeData.treeKind === TreeKind.Etymology ? (
         <EtymologyTree treeData={treeData} setTreeData={setTreeData} />
       ) : (
-        <DescendantsTree {...treeData} />
+        <DescendantsTree treeData={treeData} setTreeData={setTreeData} />
       )}
     </ThemeProvider>
   );

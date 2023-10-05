@@ -32,18 +32,19 @@ export interface Etymology {
   item: Item;
   etyMode: string | null;
   etyOrder: number;
-  parents: Etymology[] | null;
+  parents: Etymology[];
   langDistance: number;
 }
 
 export interface OtherParent {
   item: Item;
+  etyOrder: number;
   langDistance: number;
 }
 
 export interface Descendants {
   item: Item;
-  children: Descendants[] | null;
+  children: Descendants[];
   langDistance: number;
   etyMode: string | null;
   otherParents: OtherParent[];

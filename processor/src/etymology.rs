@@ -368,7 +368,7 @@ impl WiktextractJsonItem<'_> {
                 raw_ety_templates.push(ParsedRawEtyTemplate::Skipped);
             }
         }
-        (!raw_ety_templates.is_empty()).then_some(raw_ety_templates.into())
+        (!raw_ety_templates.is_empty()).then(|| raw_ety_templates.into())
     }
 
     // if no ety section or no templates, as a fallback we see if term

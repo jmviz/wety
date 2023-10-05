@@ -377,12 +377,12 @@ impl EtyMode {
         }
     }
 
-    pub(crate) fn has_ambiguous_head(self) -> bool {
-        matches!(
-            self,
-            EtyMode::Compound | EtyMode::Univerbation | EtyMode::SurfaceAnalysis | EtyMode::Blend
-        )
-    }
+    // pub(crate) fn has_ambiguous_head(self) -> bool {
+    //     matches!(
+    //         self,
+    //         EtyMode::Compound | EtyMode::Univerbation | EtyMode::SurfaceAnalysis | EtyMode::Blend
+    //     )
+    // }
 
     pub(crate) fn as_str(self) -> &'static str {
         self.into()

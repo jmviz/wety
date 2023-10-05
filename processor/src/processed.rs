@@ -135,50 +135,55 @@ impl Data {
         let item = self.item(item_id);
         let item_lang = item.lang();
 
-        // Don't continue expansion if the item is already in include_langs;
-        // otherwise, the tree will be cluttered with many uninteresting
-        // derivative terms e.g. "feather" will go to "feathers", "feathered",
-        // "feathering", etc. The only exception is if the original request term
-        // is such a one. In that case, we want to be sure the request term ends
-        // up in the tree.
-        let children = (!desc_langs.contains(&item_lang)
-            || req_item_ancestors_within_desc_langs.contains(&item_id))
-        .then_some(
-            self.graph
-                .child_edges(item_id)
-                .filter(|e| {
-                    desc_langs.contains(&self.item(e.child()).lang())
-                        || self
-                            .descendant_langs
-                            .get(&e.child())
-                            .is_some_and(|langs| desc_langs.iter().any(|il| langs.contains(il)))
-                })
-                .map(|e| {
-                    self.item_descendants_json(
-                        e.child(),
-                        dist_lang,
-                        desc_langs,
-                        req_item_ancestors_within_desc_langs,
-                        Some(item_id),
-                        Some(e.order()),
-                    )
-                })
-                .collect_vec(),
-        );
+        let children = self
+            .graph
+            .child_edges(item_id)
+            .filter(|e| {
+                let child_lang = self.item(e.child()).lang();
+                // The req_... condition makes sure that the request item is
+                // included in the tree, even if it would be disallowed
+                // otherwise. The match says to include children that are in
+                // desc_langs, as long as they are not the same language as
+                // their parent (which would indicate an uninteresting
+                // derived term, like all the declensions of a greek noun),
+                // and also include children that are not themselves in
+                // desc_langs, but who have descendants that are.
+                req_item_ancestors_within_desc_langs.contains(&item_id)
+                    || match (
+                        desc_langs.contains(&child_lang),
+                        child_lang != item_lang,
+                        self.descendant_langs.get(&e.child()),
+                    ) {
+                        (true, true, _) => true,
+                        (false, _, Some(cdl)) => desc_langs.iter().any(|dl| cdl.contains(dl)),
+                        _ => false,
+                    }
+            })
+            .map(|e| {
+                self.item_descendants_json(
+                    e.child(),
+                    dist_lang,
+                    desc_langs,
+                    req_item_ancestors_within_desc_langs,
+                    Some(item_id),
+                    Some(e.order()),
+                )
+            })
+            .collect_vec();
 
         let mut ety_mode = None;
         let other_parents = self
             .graph
             .parent_edges(item_id)
-            .map(|e| {
+            .inspect(|e| {
                 ety_mode = Some(e.mode());
-                e.parent()
             })
-            .filter(|&parent| !(item_parent_id.is_some_and(|id| id == parent)))
-            .map(|parent| {
+            .filter(|&e| !(item_parent_id.is_some_and(|id| id == e.parent())))
+            .map(|e| {
                 json!({
-                    "item": self.item_json(parent),
-                    "langDistance": self.item(parent).lang().distance_from(dist_lang),
+                    "item": self.item_json(e.parent()),
+                    "etyOrder": e.order(),
+                    "langDistance": self.item(e.parent()).lang().distance_from(dist_lang),
                 })
             })
             .collect_vec();
@@ -225,25 +230,20 @@ impl Data {
     }
 
     #[must_use]
-    // $$ change to use parent_edges()
-    pub fn etymology_json(&self, item_id: ItemId, item_ety_order: usize, req_lang: Lang) -> Value {
-        let (ety_mode, parents) = match self.graph.immediate_ety(item_id) {
-            Some(ety) => (
-                Some(ety.mode.as_str()),
-                Some(
-                    ety.items
-                        .iter()
-                        .enumerate()
-                        .map(|(i, &parent)| self.etymology_json(parent, i, req_lang))
-                        .collect_vec(),
-                ),
-            ),
-            None => (None, None),
-        };
+    pub fn etymology_json(&self, item_id: ItemId, item_ety_order: u8, req_lang: Lang) -> Value {
+        let mut ety_mode = None;
+        let parents = self
+            .graph
+            .parent_edges(item_id)
+            .map(|e| {
+                ety_mode = Some(e.mode());
+                self.etymology_json(e.parent(), e.order(), req_lang)
+            })
+            .collect_vec();
 
         json!({
             "item": self.item_json(item_id),
-            "etyMode": ety_mode,
+            "etyMode": ety_mode.map(|m| m.as_str()),
             "etyOrder": item_ety_order,
             "parents": parents,
             "langDistance": self.item(item_id).lang().distance_from(req_lang),

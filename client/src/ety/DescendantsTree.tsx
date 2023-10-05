@@ -24,7 +24,15 @@ import {
   useState,
 } from "react";
 
-export default function DescendantsTree(treeData: TreeData) {
+interface DescendantsTreeProps {
+  treeData: TreeData;
+  setTreeData: (treeData: TreeData) => void;
+}
+
+export default function DescendantsTree({
+  treeData,
+  setTreeData,
+}: DescendantsTreeProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const [tooltipState, setTooltipState] = useState<DescendantsTooltipState>({
     itemNode: null,
@@ -77,6 +85,8 @@ export default function DescendantsTree(treeData: TreeData) {
       <svg className="tree" ref={svgRef} />
       <DescendantsTooltip
         state={tooltipState}
+        treeData={treeData}
+        setTreeData={setTreeData}
         divRef={tooltipRef}
         showTimeout={tooltipShowTimeout}
         hideTimeout={tooltipHideTimeout}

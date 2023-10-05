@@ -1,5 +1,5 @@
 import "./Tooltip.css";
-import { Descendants, term } from "../search/responses";
+import { Descendants, Item, term } from "../search/responses";
 import { BoundedHierarchyPointNode, langColor } from "./tree";
 import {
   PositionKind,
@@ -8,9 +8,18 @@ import {
   hideTooltip,
   positionTooltip,
 } from "./tooltip";
+import { TreeData, TreeKind } from "../App";
 
 import { HierarchyPointNode, Selection } from "d3";
-import { MutableRefObject, RefObject, useEffect, useLayoutEffect } from "react";
+import {
+  MutableRefObject,
+  RefObject,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+} from "react";
+import Button from "@mui/material/Button/Button";
+import { debounce } from "@mui/material/utils";
 
 export interface DescendantsTooltipState {
   itemNode: HierarchyPointNode<Descendants> | null;
@@ -20,6 +29,8 @@ export interface DescendantsTooltipState {
 
 interface DescendantsTooltipProps {
   state: DescendantsTooltipState;
+  treeData: TreeData;
+  setTreeData: (treeData: TreeData) => void;
   divRef: RefObject<HTMLDivElement>;
   showTimeout: MutableRefObject<number | null>;
   hideTimeout: MutableRefObject<number | null>;
@@ -27,6 +38,8 @@ interface DescendantsTooltipProps {
 
 export default function DescendantsTooltip({
   state: { itemNode, svgElement, positionKind },
+  treeData,
+  setTreeData,
   divRef,
   showTimeout,
   hideTimeout,
@@ -65,36 +78,54 @@ export default function DescendantsTooltip({
     tooltip.style.opacity = "1";
   });
 
+  const getDescendants = useMemo(
+    () =>
+      debounce(async (item: Item) => {
+        const distLangQuery = treeData.selectedLang
+          ? `distLang=${treeData.selectedLang.id}&`
+          : "";
+        const request = `${process.env.REACT_APP_API_BASE_URL}/descendants/${
+          item.id
+        }?${distLangQuery}${treeData.selectedDescLangs
+          .map((lang) => `descLang=${lang.id}`)
+          .join("&")}`;
+
+        try {
+          const response = await fetch(request);
+          const tree = (await response.json()) as Descendants;
+          console.log(tree);
+          setTreeData({
+            tree: tree,
+            treeKind: TreeKind.Descendants,
+            treeRootItem: item,
+            selectedLang: treeData.selectedLang,
+            selectedDescLangs: treeData.selectedDescLangs,
+          });
+        } catch (error) {
+          console.log(error);
+        }
+      }, 0),
+    [treeData, setTreeData]
+  );
+
   if (itemNode === null || svgElement === null) {
     return <div ref={divRef} />;
   }
 
   const item = itemNode.data.item;
-  const parents: EtyParent[] = [];
-  if (itemNode.parent && itemNode.data.parentEtyOrder) {
-    if (itemNode.data.otherParents) {
-      for (let i = 0; i < itemNode.data.otherParents.length; i++) {
-        const otherParent = itemNode.data.otherParents[i];
-        if (i === itemNode.data.parentEtyOrder) {
-          parents.push({
-            lang: itemNode.parent.data.item.lang,
-            term: term(itemNode.parent.data.item),
-            langDistance: itemNode.parent.data.langDistance,
-          });
-        }
-        parents.push({
-          lang: otherParent.item.lang,
-          term: term(otherParent.item),
-          langDistance: otherParent.langDistance,
-        });
-      }
-    } else {
-      parents.push({
-        lang: itemNode.parent.data.item.lang,
-        term: term(itemNode.parent.data.item),
-        langDistance: itemNode.parent.data.langDistance,
-      });
-    }
+  const parents: EtyParent[] = itemNode.data.otherParents
+    .sort((a, b) => a.etyOrder - b.etyOrder)
+    .map((parent) => ({
+      lang: parent.item.lang,
+      term: term(parent.item),
+      langDistance: parent.langDistance,
+    }));
+  if (itemNode.parent && itemNode.data.parentEtyOrder !== null) {
+    parents.splice(itemNode.data.parentEtyOrder, 0, {
+      lang: itemNode.parent.data.item.lang,
+      term: term(itemNode.parent.data.item),
+      langDistance: itemNode.parent.data.langDistance,
+    });
   }
 
   const posList = item.pos ?? [];
@@ -136,8 +167,9 @@ export default function DescendantsTooltip({
         </div>
       )}
       {etyMode && parents && etyLine(etyMode, parents)}
-      {item.url && (
-        <div className="actions-container">
+      <div className="actions-container">
+        <Button onClick={() => getDescendants(item)}>Descendants</Button>
+        {item.url && (
           <a
             href={item.url}
             target="_blank"
@@ -146,8 +178,8 @@ export default function DescendantsTooltip({
           >
             Wiktionary
           </a>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

@@ -110,7 +110,7 @@ fn process_root_template(
     } else if let Some(id) = args.get_valid_str("id") {
         sense_id = id;
     }
-    let sense_id = (!sense_id.is_empty()).then_some(string_pool.get_or_intern(sense_id));
+    let sense_id = (!sense_id.is_empty()).then(|| string_pool.get_or_intern(sense_id));
     let langterm = root_lang.new_langterm(string_pool, root_term);
     Some(RawRoot { langterm, sense_id })
 }
