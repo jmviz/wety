@@ -72,20 +72,20 @@ pub async fn item_search_matches(
     Json(matches)
 }
 
-#[derive(Deserialize)]
-pub struct TreeQueries {
-    #[serde(rename = "descLang")]
-    desc_langs: Vec<Lang>,
-    #[serde(rename = "distLang")]
-    dist_lang: Option<Lang>,
-}
-
 pub async fn item_etymology(
     State(state): State<Arc<AppState>>,
     Path(item_id): Path<ItemId>,
 ) -> Json<Value> {
     let lang = state.data.lang(item_id);
     Json(state.data.etymology_json(item_id, 0, lang))
+}
+
+#[derive(Deserialize)]
+pub struct TreeQueries {
+    #[serde(rename = "descLang")]
+    desc_langs: Vec<Lang>,
+    #[serde(rename = "distLang")]
+    dist_lang: Option<Lang>,
 }
 
 pub async fn item_head_descendants(

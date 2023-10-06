@@ -20,6 +20,7 @@ import {
 } from "react";
 import Button from "@mui/material/Button/Button";
 import { debounce } from "@mui/material/utils";
+import Stack from "@mui/material/Stack/Stack";
 
 export interface EtymologyTooltipState {
   itemNode: HierarchyPointNode<Etymology> | null;
@@ -145,7 +146,7 @@ export default function EtymologyTooltip({
       <p>
         <span className="term">{term(item)}</span>
         {item.romanization && (
-          <span className="romanization">({item.romanization})</span>
+          <span className="romanization"> ({item.romanization})</span>
         )}
       </p>
       {item.imputed && (
@@ -164,19 +165,25 @@ export default function EtymologyTooltip({
         </div>
       )}
       {etyMode && parents && etyLine(etyMode, parents)}
-      <div className="actions-container">
-        <Button onClick={() => getDescendants(item)}>Descendants</Button>
-        {item.url && (
-          <a
-            href={item.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="wiktionary-link"
-          >
-            Wiktionary
-          </a>
-        )}
-      </div>
+      <Stack
+        direction={{ xs: "column", sm: "row" }}
+        justifyContent="flex-start"
+        alignItems="flex-start"
+      >
+        <Button size="small" onClick={() => getDescendants(item)}>
+          Descendants
+        </Button>
+      </Stack>
+      {item.url && (
+        <a
+          href={item.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="wiktionary-link"
+        >
+          Wiktionary
+        </a>
+      )}
     </div>
   );
 }

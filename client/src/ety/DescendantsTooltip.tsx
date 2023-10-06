@@ -1,5 +1,5 @@
 import "./Tooltip.css";
-import { Descendants, Item, term } from "../search/responses";
+import { Descendants, Etymology, Item, term } from "../search/responses";
 import { BoundedHierarchyPointNode, langColor } from "./tree";
 import {
   PositionKind,
@@ -20,6 +20,7 @@ import {
 } from "react";
 import Button from "@mui/material/Button/Button";
 import { debounce } from "@mui/material/utils";
+import Stack from "@mui/material/Stack/Stack";
 
 export interface DescendantsTooltipState {
   itemNode: HierarchyPointNode<Descendants> | null;
@@ -108,6 +109,29 @@ export default function DescendantsTooltip({
     [treeData, setTreeData]
   );
 
+  const getEtymology = useMemo(
+    () =>
+      debounce(async (item: Item) => {
+        const request = `${process.env.REACT_APP_API_BASE_URL}/etymology/${item.id}`;
+
+        try {
+          const response = await fetch(request);
+          const tree = (await response.json()) as Etymology;
+          console.log(tree);
+          setTreeData({
+            tree: tree,
+            treeKind: TreeKind.Etymology,
+            treeRootItem: item,
+            selectedLang: treeData.selectedLang,
+            selectedDescLangs: treeData.selectedDescLangs,
+          });
+        } catch (error) {
+          console.log(error);
+        }
+      }, 0),
+    [treeData, setTreeData]
+  );
+
   if (itemNode === null || svgElement === null) {
     return <div ref={divRef} />;
   }
@@ -148,7 +172,7 @@ export default function DescendantsTooltip({
       <p>
         <span className="term">{term(item)}</span>
         {item.romanization && (
-          <span className="romanization">({item.romanization})</span>
+          <span className="romanization"> ({item.romanization})</span>
         )}
       </p>
       {item.imputed && (
@@ -167,19 +191,28 @@ export default function DescendantsTooltip({
         </div>
       )}
       {etyMode && parents && etyLine(etyMode, parents)}
-      <div className="actions-container">
-        <Button onClick={() => getDescendants(item)}>Descendants</Button>
-        {item.url && (
-          <a
-            href={item.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="wiktionary-link"
-          >
-            Wiktionary
-          </a>
-        )}
-      </div>
+      <Stack
+        direction={{ xs: "column", sm: "row" }}
+        justifyContent="flex-start"
+        alignItems="flex-start"
+      >
+        <Button size="small" onClick={() => getDescendants(item)}>
+          Descendants
+        </Button>
+        <Button size="small" onClick={() => getEtymology(item)}>
+          Etymology
+        </Button>
+      </Stack>
+      {item.url && (
+        <a
+          href={item.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="wiktionary-link"
+        >
+          Wiktionary
+        </a>
+      )}
     </div>
   );
 }
