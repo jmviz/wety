@@ -4,54 +4,62 @@ import { TreeData, TreeKind } from "../App";
 import Button from "@mui/material/Button";
 import SearchIcon from "@mui/icons-material/Search";
 import { debounce } from "@mui/material/utils";
-import { useMemo, useRef } from "react";
+import { useMemo } from "react";
 
 interface EtyButtonProps {
   selectedLang: LangOption | null;
   selectedItem: ItemOption | null;
   selectedDescLangs: LangOption[];
-  setEtyData: (data: TreeData) => void;
+  setTreeData: (data: TreeData) => void;
+  lastRequest: string | null;
+  setLastRequest: (request: string | null) => void;
 }
 
 export default function EtyButton({
   selectedLang,
   selectedItem,
   selectedDescLangs,
-  setEtyData,
+  setTreeData,
+  lastRequest,
+  setLastRequest,
 }: EtyButtonProps) {
-  const lastRequest = useRef<string | null>(null);
-
   const onClick = useMemo(
     () =>
       debounce(async () => {
-        const currentRequest = `${process.env.REACT_APP_API_BASE_URL}/etymology/${selectedItem?.item.id}`;
-
+        const request = `${process.env.REACT_APP_API_BASE_URL}/etymology/${selectedItem?.item.id}`;
         if (
           !selectedLang ||
           !selectedItem ||
           selectedDescLangs.length === 0 ||
-          lastRequest.current === currentRequest
+          request === lastRequest
         ) {
           return;
         }
 
         try {
-          const response = await fetch(currentRequest);
+          const response = await fetch(request);
           const tree = (await response.json()) as Etymology;
           console.log(tree);
-          setEtyData({
+          setLastRequest(request);
+          setTreeData({
             tree: tree,
             treeKind: TreeKind.Etymology,
-            treeRootItem: selectedItem.item,
+            selectedItem: selectedItem.item,
             selectedLang: selectedLang,
             selectedDescLangs: selectedDescLangs,
           });
-          lastRequest.current = currentRequest;
         } catch (error) {
           console.log(error);
         }
       }, 0),
-    [selectedLang, selectedItem, selectedDescLangs, setEtyData]
+    [
+      selectedLang,
+      selectedItem,
+      selectedDescLangs,
+      setTreeData,
+      lastRequest,
+      setLastRequest,
+    ]
   );
 
   return (

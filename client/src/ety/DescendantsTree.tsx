@@ -1,6 +1,11 @@
 import "./DescendantsTree.css";
 import { TreeData } from "../App";
-import { Descendants, Item, term } from "../search/responses";
+import {
+  Descendants,
+  InterLangDescendants,
+  Item,
+  term,
+} from "../search/responses";
 import { xMinClusterLayout } from "./treeCluster";
 import DescendantsTooltip, {
   DescendantsTooltipState,
@@ -27,11 +32,15 @@ import {
 interface DescendantsTreeProps {
   treeData: TreeData;
   setTreeData: (treeData: TreeData) => void;
+  lastRequest: string | null;
+  setLastRequest: (request: string | null) => void;
 }
 
 export default function DescendantsTree({
   treeData,
   setTreeData,
+  lastRequest,
+  setLastRequest,
 }: DescendantsTreeProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const [tooltipState, setTooltipState] = useState<DescendantsTooltipState>({
@@ -46,7 +55,7 @@ export default function DescendantsTree({
   useEffect(() => {
     const svg = svgRef.current;
     const tree = treeData.tree;
-    const treeRootItem = treeData.treeRootItem;
+    const treeRootItem = treeData.selectedItem;
 
     if (svg === null || tree === null || treeRootItem === null) {
       return;
@@ -54,7 +63,7 @@ export default function DescendantsTree({
 
     descendantsTreeSVG(
       svg,
-      tree as Descendants,
+      tree as InterLangDescendants,
       treeRootItem,
       setTooltipState,
       tooltipRef,
@@ -90,6 +99,8 @@ export default function DescendantsTree({
         divRef={tooltipRef}
         showTimeout={tooltipShowTimeout}
         hideTimeout={tooltipHideTimeout}
+        lastRequest={lastRequest}
+        setLastRequest={setLastRequest}
       />
     </div>
   );
@@ -97,7 +108,7 @@ export default function DescendantsTree({
 
 function descendantsTreeSVG(
   svgElement: SVGSVGElement,
-  tree: Descendants,
+  tree: InterLangDescendants,
   treeRootItem: Item,
   setTooltipState: (state: DescendantsTooltipState) => void,
   tooltipRef: RefObject<HTMLDivElement>,
@@ -105,7 +116,10 @@ function descendantsTreeSVG(
   tooltipHideTimeout: MutableRefObject<number | null>
 ) {
   // https://github.com/d3/d3-hierarchy#hierarchy
-  const root = hierarchy<Descendants>(tree, (d: Descendants) => d.children);
+  const root = hierarchy<InterLangDescendants>(
+    tree,
+    (d: InterLangDescendants) => d.children
+  );
 
   const selectedItemNode = root.find((d) => d.data.item.id === treeRootItem.id);
   const selectedItemNodeAncestors = selectedItemNode?.ancestors() ?? [];
@@ -133,7 +147,7 @@ function descendantsTreeSVG(
   const dx = 10 * fontSize;
   const dy = fontSize;
   const sep = Math.floor(0.25 * fontSize);
-  const layout = xMinClusterLayout<Descendants>()
+  const layout = xMinClusterLayout<InterLangDescendants>()
     .nodeSize([dy, dx])
     .separation((a, b) => {
       const aAncestors = a.ancestors();
@@ -209,16 +223,16 @@ function descendantsTreeSVG(
     .join("path")
     .attr(
       "d",
-      link<HierarchyPointLink<Descendants>, HierarchyPointNode<Descendants>>(
-        curveStepBefore
-      )
+      link<
+        HierarchyPointLink<InterLangDescendants>,
+        HierarchyPointNode<InterLangDescendants>
+      >(curveStepBefore)
         .x((d) => d.y)
         .y((d) => d.x)
     );
 
-  const descendants: BoundedHierarchyPointNode<Descendants>[] = pointRoot
-    .descendants()
-    .map(function (d) {
+  const descendants: BoundedHierarchyPointNode<InterLangDescendants>[] =
+    pointRoot.descendants().map(function (d) {
       return { node: d, bbox: new DOMRect(0, 0, 0, 0) };
     });
 
@@ -273,16 +287,53 @@ function descendantsTreeSVG(
   addSVGTextBackgrounds(node, nodeBackground);
 }
 
+function interLangDescendantsInner(
+  root: InterLangDescendants
+): InterLangDescendants[] {
+  const children = [];
+  for (const child of root.children) {
+    if (child.item.lang === root.item.lang || root.parentLangAncestry) {
+      child.parentLangAncestry = {
+        item: root.item,
+        ancestralLine: root.parentLangAncestry,
+        langDistance: root.langDistance,
+        etyMode: root.etyMode,
+        otherParents: root.otherParents,
+        parentEtyOrder: root.parentEtyOrder,
+      };
+    }
+    children.push(...interLangDescendantsInner(child));
+  }
+  if (
+    root.parentLangAncestry &&
+    root.parentLangAncestry.item.lang === root.item.lang &&
+    root.children
+  ) {
+    return children;
+  } else {
+    root.children = children;
+    return [root];
+  }
+}
+
+export function interLangDescendants(
+  fullRoot: Descendants
+): InterLangDescendants {
+  const root = fullRoot as InterLangDescendants;
+  root.parentLangAncestry = null;
+  return interLangDescendantsInner(root)[0];
+}
+
 function addSVGTextBackgrounds(
   node: Selection<
     SVGGElement | SVGTextElement,
-    BoundedHierarchyPointNode<Descendants>,
+    BoundedHierarchyPointNode<InterLangDescendants>,
     SVGGElement,
     undefined
   >,
   nodeBackground: Selection<
     SVGRectElement,
-    BoundedHierarchyPointNode<Descendants>,
+    BoundedHierarchyPointNode<InterLangDescendants>,
     SVGGElement,
     undefined
   >

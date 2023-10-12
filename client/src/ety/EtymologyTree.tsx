@@ -27,11 +27,15 @@ import {
 interface EtymologyTreeProps {
   treeData: TreeData;
   setTreeData: (treeData: TreeData) => void;
+  lastRequest: string | null;
+  setLastRequest: (request: string | null) => void;
 }
 
 export default function EtymologyTree({
   treeData,
   setTreeData,
+  lastRequest,
+  setLastRequest,
 }: EtymologyTreeProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const [tooltipState, setTooltipState] = useState<EtymologyTooltipState>({
@@ -46,7 +50,7 @@ export default function EtymologyTree({
   useEffect(() => {
     const svg = svgRef.current;
     const tree = treeData.tree;
-    const treeRootItem = treeData.treeRootItem;
+    const treeRootItem = treeData.selectedItem;
 
     if (svg === null || tree === null || treeRootItem === null) {
       return;
@@ -90,6 +94,8 @@ export default function EtymologyTree({
         divRef={tooltipRef}
         showTimeout={tooltipShowTimeout}
         hideTimeout={tooltipHideTimeout}
+        lastRequest={lastRequest}
+        setLastRequest={setLastRequest}
       />
     </div>
   );

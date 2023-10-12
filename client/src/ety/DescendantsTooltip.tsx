@@ -1,5 +1,11 @@
 import "./Tooltip.css";
-import { Descendants, Etymology, Item, term } from "../search/responses";
+import {
+  Descendants,
+  Etymology,
+  InterLangDescendants,
+  Item,
+  term,
+} from "../search/responses";
 import { BoundedHierarchyPointNode, langColor } from "./tree";
 import {
   PositionKind,
@@ -10,7 +16,7 @@ import {
 } from "./tooltip";
 import { TreeData, TreeKind } from "../App";
 
-import { HierarchyPointNode, Selection } from "d3";
+import { HierarchyPointNode, Selection, tree } from "d3";
 import {
   MutableRefObject,
   RefObject,
@@ -21,9 +27,10 @@ import {
 import Button from "@mui/material/Button/Button";
 import { debounce } from "@mui/material/utils";
 import Stack from "@mui/material/Stack/Stack";
+import { interLangDescendants } from "./DescendantsTree";
 
 export interface DescendantsTooltipState {
-  itemNode: HierarchyPointNode<Descendants> | null;
+  itemNode: HierarchyPointNode<InterLangDescendants> | null;
   svgElement: SVGElement | null;
   positionKind: PositionKind;
 }
@@ -35,6 +42,8 @@ interface DescendantsTooltipProps {
   divRef: RefObject<HTMLDivElement>;
   showTimeout: MutableRefObject<number | null>;
   hideTimeout: MutableRefObject<number | null>;
+  lastRequest: string | null;
+  setLastRequest: (request: string | null) => void;
 }
 
 export default function DescendantsTooltip({
@@ -44,6 +53,8 @@ export default function DescendantsTooltip({
   divRef,
   showTimeout,
   hideTimeout,
+  lastRequest,
+  setLastRequest,
 }: DescendantsTooltipProps) {
   useEffect(() => {
     const tooltip = divRef.current;
@@ -82,23 +93,28 @@ export default function DescendantsTooltip({
   const getDescendants = useMemo(
     () =>
       debounce(async (item: Item) => {
-        const distLangQuery = treeData.selectedLang
+        const distLang = treeData.selectedLang
           ? `distLang=${treeData.selectedLang.id}&`
           : "";
         const request = `${process.env.REACT_APP_API_BASE_URL}/descendants/${
           item.id
-        }?${distLangQuery}${treeData.selectedDescLangs
+        }?${distLang}${treeData.selectedDescLangs
           .map((lang) => `descLang=${lang.id}`)
           .join("&")}`;
+
+        if (request === lastRequest) {
+          return;
+        }
 
         try {
           const response = await fetch(request);
           const tree = (await response.json()) as Descendants;
           console.log(tree);
+          setLastRequest(request);
           setTreeData({
-            tree: tree,
+            tree: interLangDescendants(tree),
             treeKind: TreeKind.Descendants,
-            treeRootItem: item,
+            selectedItem: item,
             selectedLang: treeData.selectedLang,
             selectedDescLangs: treeData.selectedDescLangs,
           });
@@ -106,7 +122,7 @@ export default function DescendantsTooltip({
           console.log(error);
         }
       }, 0),
-    [treeData, setTreeData]
+    [treeData, setTreeData, lastRequest, setLastRequest]
   );
 
   const getEtymology = useMemo(
@@ -114,14 +130,19 @@ export default function DescendantsTooltip({
       debounce(async (item: Item) => {
         const request = `${process.env.REACT_APP_API_BASE_URL}/etymology/${item.id}`;
 
+        if (request === lastRequest) {
+          return;
+        }
+
         try {
           const response = await fetch(request);
           const tree = (await response.json()) as Etymology;
           console.log(tree);
+          setLastRequest(request);
           setTreeData({
             tree: tree,
             treeKind: TreeKind.Etymology,
-            treeRootItem: item,
+            selectedItem: item,
             selectedLang: treeData.selectedLang,
             selectedDescLangs: treeData.selectedDescLangs,
           });
@@ -129,32 +150,33 @@ export default function DescendantsTooltip({
           console.log(error);
         }
       }, 0),
-    [treeData, setTreeData]
+    [treeData, setTreeData, lastRequest, setLastRequest]
   );
 
   if (itemNode === null || svgElement === null) {
     return <div ref={divRef} />;
   }
 
+  console.log(treeData.tree);
+
   const item = itemNode.data.item;
-  const parents: EtyParent[] = itemNode.data.otherParents
-    .sort((a, b) => a.etyOrder - b.etyOrder)
-    .map((parent) => ({
-      lang: parent.item.lang,
-      term: term(parent.item),
-      langDistance: parent.langDistance,
-    }));
-  if (itemNode.parent && itemNode.data.parentEtyOrder !== null) {
-    parents.splice(itemNode.data.parentEtyOrder, 0, {
-      lang: itemNode.parent.data.item.lang,
-      term: term(itemNode.parent.data.item),
-      langDistance: itemNode.parent.data.langDistance,
-    });
-  }
+  // const parents: EtyParent[] = itemNode.data.otherParents
+  //   .sort((a, b) => a.etyOrder - b.etyOrder)
+  //   .map((parent) => ({
+  //     lang: parent.item.lang,
+  //     term: term(parent.item),
+  //     langDistance: parent.langDistance,
+  //   }));
+  // if (itemNode.parent && itemNode.data.parentEtyOrder !== null) {
+  //   parents.splice(itemNode.data.parentEtyOrder, 0, {
+  //     lang: itemNode.parent.data.item.lang,
+  //     term: term(itemNode.parent.data.item),
+  //     langDistance: itemNode.parent.data.langDistance,
+  //   });
+  // }
 
   const posList = item.pos ?? [];
   const glossList = item.gloss ?? [];
-  const etyMode = itemNode.data.etyMode;
 
   return (
     <div className="tooltip" ref={divRef}>
@@ -190,7 +212,7 @@ export default function DescendantsTooltip({
           ))}
         </div>
       )}
-      {etyMode && parents && etyLine(etyMode, parents)}
+      {etyLine(itemNode)}
       <Stack
         direction={{ xs: "column", sm: "row" }}
         justifyContent="flex-start"
@@ -223,44 +245,86 @@ interface EtyParent {
   langDistance: number;
 }
 
-function etyLine(etyMode: string, parents: EtyParent[]): JSX.Element {
+function etyLine(
+  itemNode: HierarchyPointNode<InterLangDescendants>
+): JSX.Element | null {
+  if (!itemNode.parent || !itemNode.data.etyMode) {
+    return null;
+  }
+  // let parts = [];
+  // for (let i = 0; i < parents.length; i++) {
+  //   const parent = parents[i];
+  //   if (i === 0 || parent.lang !== parents[i - 1].lang) {
+  //     parts.push(
+  //       <span
+  //         key={i}
+  //         className="parent-lang"
+  //         style={{ color: langColor(parent.langDistance) }}
+  //       >
+  //         {parent.lang}{" "}
+  //       </span>
+  //     );
+  //   }
+  //   parts.push(
+  //     <span key={i + parents.length} className="parent-term">
+  //       {parent.term}
+  //     </span>
+  //   );
+  //   if (i < parents.length - 1) {
+  //     parts.push(<span key={i + 2 * parents.length}>{" + "}</span>);
+  //   }
+  // }
+
+  // return (
+  //   <div className="ety-line">
+  //     <span className="ety-mode">{etyModeRep(etyMode)}</span>
+  //     <span className="ety-prep">{etyPrep(etyMode)}</span>
+  //     {parts}
+  //   </div>
+  // );
   let parts = [];
-  for (let i = 0; i < parents.length; i++) {
-    const parent = parents[i];
-    if (i === 0 || parent.lang !== parents[i - 1].lang) {
+  let parentLangAncestor = itemNode.data.parentLangAncestry;
+  console.log(parentLangAncestor);
+  while (parentLangAncestor && parentLangAncestor.etyMode) {
+    if (parts.length !== 0) {
+      parts.push(<span key={parts.length}>{", "}</span>);
+    }
+    parts.push(
+      <span key={parts.length} className="ety-mode">
+        {etyModeRep(parentLangAncestor.etyMode)}
+      </span>
+    );
+    parts.push(
+      <span key={parts.length} className="ety-prep">
+        {etyPrep(parentLangAncestor.etyMode)}
+      </span>
+    );
+    if (parts.length === 2) {
       parts.push(
         <span
-          key={i}
-          className="parent-lang"
-          style={{ color: langColor(parent.langDistance) }}
+          key={parts.length}
+          className="ety-lang"
+          style={{ color: langColor(parentLangAncestor.langDistance) }}
         >
-          {parent.lang}{" "}
+          {parentLangAncestor.item.lang}{" "}
         </span>
       );
     }
     parts.push(
-      <span key={i + parents.length} className="parent-term">
-        {parent.term}
+      <span key={parts.length} className="ety-term">
+        {term(parentLangAncestor.item)}
       </span>
     );
-    if (i < parents.length - 1) {
-      parts.push(<span key={i + 2 * parents.length}>{" + "}</span>);
-    }
-  }
 
-  return (
-    <div className="ety-line">
-      <span className="ety-mode">{etyModeRep(etyMode)}</span>
-      <span className="ety-prep">{etyPrep(etyMode)}</span>
-      {parts}
-    </div>
-  );
+    parentLangAncestor = parentLangAncestor.ancestralLine;
+  }
+  return <div className="ety-line">{parts}</div>;
 }
 
 export function setDescendantsTooltipListeners(
   node: Selection<
     SVGGElement | SVGTextElement,
-    BoundedHierarchyPointNode<Descendants>,
+    BoundedHierarchyPointNode<InterLangDescendants>,
     SVGGElement,
     undefined
   >,
@@ -272,7 +336,10 @@ export function setDescendantsTooltipListeners(
   // for non-mouse, show tooltip on pointerup
   node.on(
     "pointerup",
-    function (event: PointerEvent, d: BoundedHierarchyPointNode<Descendants>) {
+    function (
+      event: PointerEvent,
+      d: BoundedHierarchyPointNode<InterLangDescendants>
+    ) {
       if (event.pointerType !== "mouse") {
         setTooltipState({
           itemNode: d.node,
@@ -286,7 +353,10 @@ export function setDescendantsTooltipListeners(
   // for mouse, show tooltip on hover
   node.on(
     "pointerenter",
-    function (event: PointerEvent, d: BoundedHierarchyPointNode<Descendants>) {
+    function (
+      event: PointerEvent,
+      d: BoundedHierarchyPointNode<InterLangDescendants>
+    ) {
       if (event.pointerType === "mouse") {
         window.clearTimeout(tooltipHideTimeout.current ?? undefined);
         tooltipShowTimeout.current = window.setTimeout(

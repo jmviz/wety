@@ -9,6 +9,7 @@ import {
   hideTooltip,
   positionTooltip,
 } from "./tooltip";
+import { interLangDescendants } from "./DescendantsTree";
 
 import { HierarchyPointNode, Selection } from "d3";
 import {
@@ -35,6 +36,8 @@ interface EtymologyTooltipProps {
   divRef: RefObject<HTMLDivElement>;
   showTimeout: MutableRefObject<number | null>;
   hideTimeout: MutableRefObject<number | null>;
+  lastRequest: string | null;
+  setLastRequest: (request: string | null) => void;
 }
 
 export default function EtymologyTooltip({
@@ -44,6 +47,8 @@ export default function EtymologyTooltip({
   divRef,
   showTimeout,
   hideTimeout,
+  lastRequest,
+  setLastRequest,
 }: EtymologyTooltipProps) {
   useEffect(() => {
     const tooltip = divRef.current;
@@ -82,23 +87,28 @@ export default function EtymologyTooltip({
   const getDescendants = useMemo(
     () =>
       debounce(async (item: Item) => {
-        const distLangQuery = treeData.selectedLang
+        const distLang = treeData.selectedLang
           ? `distLang=${treeData.selectedLang.id}&`
           : "";
         const request = `${process.env.REACT_APP_API_BASE_URL}/descendants/${
           item.id
-        }?${distLangQuery}${treeData.selectedDescLangs
+        }?${distLang}${treeData.selectedDescLangs
           .map((lang) => `descLang=${lang.id}`)
           .join("&")}`;
+
+        if (request === lastRequest) {
+          return;
+        }
 
         try {
           const response = await fetch(request);
           const tree = (await response.json()) as Descendants;
           console.log(tree);
+          setLastRequest(request);
           setTreeData({
-            tree: tree,
+            tree: interLangDescendants(tree),
             treeKind: TreeKind.Descendants,
-            treeRootItem: item,
+            selectedItem: item,
             selectedLang: treeData.selectedLang,
             selectedDescLangs: treeData.selectedDescLangs,
           });
@@ -106,7 +116,7 @@ export default function EtymologyTooltip({
           console.log(error);
         }
       }, 0),
-    [treeData, setTreeData]
+    [treeData, setTreeData, lastRequest, setLastRequest]
   );
 
   if (itemNode === null || svgElement === null) {
@@ -202,7 +212,7 @@ function etyLine(etyMode: string, parents: EtyParent[]): JSX.Element {
       parts.push(
         <span
           key={i}
-          className="parent-lang"
+          className="ety-lang"
           style={{ color: langColor(parent.langDistance) }}
         >
           {parent.lang}{" "}
@@ -210,7 +220,7 @@ function etyLine(etyMode: string, parents: EtyParent[]): JSX.Element {
       );
     }
     parts.push(
-      <span key={i + parents.length} className="parent-term">
+      <span key={i + parents.length} className="ety-term">
         {parent.term}
       </span>
     );

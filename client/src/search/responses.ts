@@ -50,3 +50,22 @@ export interface Descendants {
   otherParents: OtherParent[];
   parentEtyOrder: number | null;
 }
+
+export interface AncestralLine {
+  item: Item;
+  ancestralLine: AncestralLine | null;
+  langDistance: number;
+  etyMode: string | null;
+  otherParents: OtherParent[];
+  parentEtyOrder: number | null;
+}
+
+export interface InterLangDescendants {
+  item: Item;
+  parentLangAncestry: AncestralLine | null;
+  children: InterLangDescendants[];
+  langDistance: number;
+  etyMode: string | null;
+  otherParents: OtherParent[];
+  parentEtyOrder: number | null;
+}

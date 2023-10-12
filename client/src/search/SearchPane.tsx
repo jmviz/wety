@@ -15,6 +15,8 @@ interface SearchPaneProps {
   selectedDescLangs: LangOption[];
   setSelectedDescLangs: (langs: LangOption[]) => void;
   setTreeData: (data: TreeData) => void;
+  lastRequest: string | null;
+  setLastRequest: (request: string | null) => void;
 }
 
 export default function SearchPane({
@@ -23,6 +25,8 @@ export default function SearchPane({
   selectedDescLangs,
   setSelectedDescLangs,
   setTreeData,
+  lastRequest,
+  setLastRequest,
 }: SearchPaneProps) {
   const [selectedItem, setSelectedItem] = useState<ItemOption | null>(null);
   const langSearchInputRef = useRef<HTMLInputElement>(null);
@@ -64,7 +68,9 @@ export default function SearchPane({
           selectedLang={selectedLang}
           selectedItem={selectedItem}
           selectedDescLangs={selectedDescLangs}
-          setEtyData={setTreeData}
+          setTreeData={setTreeData}
+          lastRequest={lastRequest}
+          setLastRequest={setLastRequest}
         />
       </Stack>
     </Container>
