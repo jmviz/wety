@@ -292,21 +292,21 @@ function interLangDescendantsInner(
 ): InterLangDescendants[] {
   const children = [];
   for (const child of root.children) {
-    if (child.item.lang === root.item.lang || root.parentLangAncestry) {
-      child.parentLangAncestry = {
+    if (child.item.lang === root.item.lang || root.parent) {
+      child.parent = {
         item: root.item,
-        ancestralLine: root.parentLangAncestry,
+        ancestralLine: root.parent,
         langDistance: root.langDistance,
-        etyMode: root.etyMode,
-        otherParents: root.otherParents,
-        parentEtyOrder: root.parentEtyOrder,
+        etyMode: child.etyMode,
+        otherParents: child.otherParents,
+        etyOrder: child.parentEtyOrder,
       };
     }
     children.push(...interLangDescendantsInner(child));
   }
   if (
-    root.parentLangAncestry &&
-    root.parentLangAncestry.item.lang === root.item.lang &&
+    root.parent &&
+    root.parent.item.lang === root.item.lang &&
     root.children
   ) {
     return children;
@@ -320,7 +320,7 @@ export function interLangDescendants(
   fullRoot: Descendants
 ): InterLangDescendants {
   const root = fullRoot as InterLangDescendants;
-  root.parentLangAncestry = null;
+  root.parent = null;
   return interLangDescendantsInner(root)[0];
 }
 

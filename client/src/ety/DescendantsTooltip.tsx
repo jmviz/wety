@@ -7,6 +7,7 @@ import {
   term,
 } from "../search/responses";
 import { BoundedHierarchyPointNode, langColor } from "./tree";
+import { interLangDescendants } from "./DescendantsTree";
 import {
   PositionKind,
   etyModeRep,
@@ -16,7 +17,7 @@ import {
 } from "./tooltip";
 import { TreeData, TreeKind } from "../App";
 
-import { HierarchyPointNode, Selection, tree } from "d3";
+import { HierarchyPointNode, Selection } from "d3";
 import {
   MutableRefObject,
   RefObject,
@@ -27,7 +28,6 @@ import {
 import Button from "@mui/material/Button/Button";
 import { debounce } from "@mui/material/utils";
 import Stack from "@mui/material/Stack/Stack";
-import { interLangDescendants } from "./DescendantsTree";
 
 export interface DescendantsTooltipState {
   itemNode: HierarchyPointNode<InterLangDescendants> | null;
@@ -157,24 +157,7 @@ export default function DescendantsTooltip({
     return <div ref={divRef} />;
   }
 
-  console.log(treeData.tree);
-
   const item = itemNode.data.item;
-  // const parents: EtyParent[] = itemNode.data.otherParents
-  //   .sort((a, b) => a.etyOrder - b.etyOrder)
-  //   .map((parent) => ({
-  //     lang: parent.item.lang,
-  //     term: term(parent.item),
-  //     langDistance: parent.langDistance,
-  //   }));
-  // if (itemNode.parent && itemNode.data.parentEtyOrder !== null) {
-  //   parents.splice(itemNode.data.parentEtyOrder, 0, {
-  //     lang: itemNode.parent.data.item.lang,
-  //     term: term(itemNode.parent.data.item),
-  //     langDistance: itemNode.parent.data.langDistance,
-  //   });
-  // }
-
   const posList = item.pos ?? [];
   const glossList = item.gloss ?? [];
 
@@ -251,72 +234,61 @@ function etyLine(
   if (!itemNode.parent || !itemNode.data.etyMode) {
     return null;
   }
-  // let parts = [];
-  // for (let i = 0; i < parents.length; i++) {
-  //   const parent = parents[i];
-  //   if (i === 0 || parent.lang !== parents[i - 1].lang) {
-  //     parts.push(
-  //       <span
-  //         key={i}
-  //         className="parent-lang"
-  //         style={{ color: langColor(parent.langDistance) }}
-  //       >
-  //         {parent.lang}{" "}
-  //       </span>
-  //     );
-  //   }
-  //   parts.push(
-  //     <span key={i + parents.length} className="parent-term">
-  //       {parent.term}
-  //     </span>
-  //   );
-  //   if (i < parents.length - 1) {
-  //     parts.push(<span key={i + 2 * parents.length}>{" + "}</span>);
-  //   }
-  // }
 
-  // return (
-  //   <div className="ety-line">
-  //     <span className="ety-mode">{etyModeRep(etyMode)}</span>
-  //     <span className="ety-prep">{etyPrep(etyMode)}</span>
-  //     {parts}
-  //   </div>
-  // );
   let parts = [];
-  let parentLangAncestor = itemNode.data.parentLangAncestry;
-  console.log(parentLangAncestor);
-  while (parentLangAncestor && parentLangAncestor.etyMode) {
+  let prev_lang = "";
+  let ancestor = itemNode.data.parent;
+  while (ancestor && ancestor.etyMode) {
     if (parts.length !== 0) {
       parts.push(<span key={parts.length}>{", "}</span>);
     }
     parts.push(
       <span key={parts.length} className="ety-mode">
-        {etyModeRep(parentLangAncestor.etyMode)}
+        {etyModeRep(ancestor.etyMode)}
       </span>
     );
     parts.push(
       <span key={parts.length} className="ety-prep">
-        {etyPrep(parentLangAncestor.etyMode)}
+        {etyPrep(ancestor.etyMode)}
       </span>
     );
-    if (parts.length === 2) {
+    const parents: EtyParent[] = ancestor.otherParents
+      .sort((a, b) => a.etyOrder - b.etyOrder)
+      .map((parent) => ({
+        lang: parent.item.lang,
+        term: term(parent.item),
+        langDistance: parent.langDistance,
+      }));
+    if (ancestor.etyOrder !== null) {
+      parents.splice(ancestor.etyOrder, 0, {
+        lang: ancestor.item.lang,
+        term: term(ancestor.item),
+        langDistance: ancestor.langDistance,
+      });
+    }
+    for (const parent of parents) {
+      if (parent.lang !== prev_lang) {
+        parts.push(
+          <span
+            key={parts.length}
+            className="ety-lang"
+            style={{ color: langColor(parent.langDistance) }}
+          >
+            {parent.lang}{" "}
+          </span>
+        );
+        prev_lang = parent.lang;
+      }
       parts.push(
-        <span
-          key={parts.length}
-          className="ety-lang"
-          style={{ color: langColor(parentLangAncestor.langDistance) }}
-        >
-          {parentLangAncestor.item.lang}{" "}
+        <span key={parts.length} className="ety-term">
+          {parent.term}
         </span>
       );
+      if (parent !== parents[parents.length - 1]) {
+        parts.push(<span key={parts.length}>{" + "}</span>);
+      }
     }
-    parts.push(
-      <span key={parts.length} className="ety-term">
-        {term(parentLangAncestor.item)}
-      </span>
-    );
-
-    parentLangAncestor = parentLangAncestor.ancestralLine;
+    ancestor = ancestor.ancestralLine;
   }
   return <div className="ety-line">{parts}</div>;
 }

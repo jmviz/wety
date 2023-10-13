@@ -10,6 +10,8 @@ export function etyModeRep(etyMode: string): string {
     case "undefined derivation":
     case "mention":
       return "derived";
+    case "morphological derivation":
+      return "derivation";
     case "transfix":
       return "transfixation";
     case "suffix":
@@ -38,17 +40,17 @@ export function etyPrep(etyMode: string): string {
     case "undefined derivation":
     case "mention":
       return " from ";
-    case "compound":
-    case "univerbation":
     case "surface analysis":
-    case "blend":
-    case "transfix":
-    case "suffix":
-    case "prefix":
-    case "infix":
-    case "confix":
-    case "circumfix":
-    case "affix":
+      // case "compound":
+      // case "univerbation":
+      // case "blend":
+      // case "transfix":
+      // case "suffix":
+      // case "prefix":
+      // case "infix":
+      // case "confix":
+      // case "circumfix":
+      // case "affix":
       return ": ";
     case "vṛddhi":
     case "vṛddhi-ya":
