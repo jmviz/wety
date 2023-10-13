@@ -2,19 +2,27 @@ import ItemSearch from "./ItemSearch";
 import LangSearch from "./LangSearch";
 import MultiLangSearch from "./MultiLangSearch";
 import EtyButton from "./EtyButton";
-import { LangOption, ItemOption } from "./responses";
-import { TreeData } from "../App";
+import {
+  LangOption,
+  ItemOption,
+  Etymology,
+  InterLangDescendants,
+} from "./responses";
+import { TreeKind } from "../App";
 
 import Stack from "@mui/material/Stack";
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { Container } from "@mui/material";
 
 interface SearchPaneProps {
   selectedLang: LangOption | null;
   setSelectedLang: (lang: LangOption | null) => void;
+  selectedItem: ItemOption | null;
+  setSelectedItem: (item: ItemOption | null) => void;
   selectedDescLangs: LangOption[];
   setSelectedDescLangs: (langs: LangOption[]) => void;
-  setTreeData: (data: TreeData) => void;
+  setTree: (tree: Etymology | InterLangDescendants | null) => void;
+  setTreeKind: (treeKind: TreeKind) => void;
   lastRequest: string | null;
   setLastRequest: (request: string | null) => void;
 }
@@ -22,13 +30,15 @@ interface SearchPaneProps {
 export default function SearchPane({
   selectedLang,
   setSelectedLang,
+  selectedItem,
+  setSelectedItem,
   selectedDescLangs,
   setSelectedDescLangs,
-  setTreeData,
+  setTree,
+  setTreeKind,
   lastRequest,
   setLastRequest,
 }: SearchPaneProps) {
-  const [selectedItem, setSelectedItem] = useState<ItemOption | null>(null);
   const langSearchInputRef = useRef<HTMLInputElement>(null);
   const itemSearchInputRef = useRef<HTMLInputElement>(null);
   const descLangsSearchInputRef = useRef<HTMLInputElement>(null);
@@ -68,7 +78,8 @@ export default function SearchPane({
           selectedLang={selectedLang}
           selectedItem={selectedItem}
           selectedDescLangs={selectedDescLangs}
-          setTreeData={setTreeData}
+          setTree={setTree}
+          setTreeKind={setTreeKind}
           lastRequest={lastRequest}
           setLastRequest={setLastRequest}
         />

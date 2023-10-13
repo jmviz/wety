@@ -2,7 +2,7 @@ import SearchPane from "./search/SearchPane";
 import {
   Etymology,
   InterLangDescendants,
-  Item,
+  ItemOption,
   LangOption,
 } from "./search/responses";
 import EtymologyTree from "./ety/EtymologyTree";
@@ -20,24 +20,14 @@ export enum TreeKind {
   Descendants,
 }
 
-export interface TreeData {
-  tree: Etymology | InterLangDescendants | null;
-  treeKind: TreeKind;
-  selectedItem: Item | null;
-  selectedLang: LangOption | null;
-  selectedDescLangs: LangOption[];
-}
-
 export default function App() {
   const [selectedLang, setSelectedLang] = useState<LangOption | null>(null);
+  const [selectedItem, setSelectedItem] = useState<ItemOption | null>(null);
   const [selectedDescLangs, setSelectedDescLangs] = useState<LangOption[]>([]);
-  const [treeData, setTreeData] = useState<TreeData>({
-    tree: null,
-    treeKind: TreeKind.Etymology,
-    selectedItem: null,
-    selectedLang: selectedLang,
-    selectedDescLangs: selectedDescLangs,
-  });
+  const [tree, setTree] = useState<Etymology | InterLangDescendants | null>(
+    null
+  );
+  const [treeKind, setTreeKind] = useState<TreeKind>(TreeKind.Etymology);
   const [lastRequest, setLastRequest] = useState<string | null>(null);
 
   return (
@@ -46,23 +36,36 @@ export default function App() {
       <SearchPane
         selectedLang={selectedLang}
         setSelectedLang={setSelectedLang}
+        selectedItem={selectedItem}
+        setSelectedItem={setSelectedItem}
         selectedDescLangs={selectedDescLangs}
         setSelectedDescLangs={setSelectedDescLangs}
-        setTreeData={setTreeData}
+        setTree={setTree}
+        setTreeKind={setTreeKind}
         lastRequest={lastRequest}
         setLastRequest={setLastRequest}
       />
-      {treeData.treeKind === TreeKind.Etymology ? (
+      {treeKind === TreeKind.Etymology ? (
         <EtymologyTree
-          treeData={treeData}
-          setTreeData={setTreeData}
+          selectedLang={selectedLang}
+          selectedItem={selectedItem}
+          setSelectedItem={setSelectedItem}
+          selectedDescLangs={selectedDescLangs}
+          tree={tree}
+          setTree={setTree}
+          setTreeKind={setTreeKind}
           lastRequest={lastRequest}
           setLastRequest={setLastRequest}
         />
       ) : (
         <DescendantsTree
-          treeData={treeData}
-          setTreeData={setTreeData}
+          selectedLang={selectedLang}
+          selectedItem={selectedItem}
+          setSelectedItem={setSelectedItem}
+          selectedDescLangs={selectedDescLangs}
+          tree={tree}
+          setTree={setTree}
+          setTreeKind={setTreeKind}
           lastRequest={lastRequest}
           setLastRequest={setLastRequest}
         />

@@ -1,6 +1,14 @@
 import "./Tooltip.css";
-import { TreeData, TreeKind } from "../App";
-import { Descendants, Etymology, Item, term } from "../search/responses";
+import { TreeKind } from "../App";
+import {
+  Descendants,
+  Etymology,
+  InterLangDescendants,
+  Item,
+  ItemOption,
+  LangOption,
+  term,
+} from "../search/responses";
 import { BoundedHierarchyPointNode, langColor } from "./tree";
 import {
   PositionKind,
@@ -31,8 +39,11 @@ export interface EtymologyTooltipState {
 
 interface EtymologyTooltipProps {
   state: EtymologyTooltipState;
-  treeData: TreeData;
-  setTreeData: (treeData: TreeData) => void;
+  selectedLang: LangOption | null;
+  setSelectedItem: (item: ItemOption | null) => void;
+  selectedDescLangs: LangOption[];
+  setTree: (tree: Etymology | InterLangDescendants | null) => void;
+  setTreeKind: (treeKind: TreeKind) => void;
   divRef: RefObject<HTMLDivElement>;
   showTimeout: MutableRefObject<number | null>;
   hideTimeout: MutableRefObject<number | null>;
@@ -42,8 +53,11 @@ interface EtymologyTooltipProps {
 
 export default function EtymologyTooltip({
   state: { itemNode, svgElement, positionKind },
-  treeData,
-  setTreeData,
+  selectedLang,
+  setSelectedItem,
+  selectedDescLangs,
+  setTree,
+  setTreeKind,
   divRef,
   showTimeout,
   hideTimeout,
@@ -87,12 +101,10 @@ export default function EtymologyTooltip({
   const getDescendants = useMemo(
     () =>
       debounce(async (item: Item) => {
-        const distLang = treeData.selectedLang
-          ? `distLang=${treeData.selectedLang.id}&`
-          : "";
+        const distLang = selectedLang ? `distLang=${selectedLang.id}&` : "";
         const request = `${process.env.REACT_APP_API_BASE_URL}/descendants/${
           item.id
-        }?${distLang}${treeData.selectedDescLangs
+        }?${distLang}${selectedDescLangs
           .map((lang) => `descLang=${lang.id}`)
           .join("&")}`;
 
@@ -105,18 +117,22 @@ export default function EtymologyTooltip({
           const tree = (await response.json()) as Descendants;
           console.log(tree);
           setLastRequest(request);
-          setTreeData({
-            tree: interLangDescendants(tree),
-            treeKind: TreeKind.Descendants,
-            selectedItem: item,
-            selectedLang: treeData.selectedLang,
-            selectedDescLangs: treeData.selectedDescLangs,
-          });
+          setSelectedItem({ item: item, distance: 0 });
+          setTree(interLangDescendants(tree));
+          setTreeKind(TreeKind.Descendants);
         } catch (error) {
           console.log(error);
         }
       }, 0),
-    [treeData, setTreeData, lastRequest, setLastRequest]
+    [
+      selectedLang,
+      setSelectedItem,
+      selectedDescLangs,
+      setTree,
+      setTreeKind,
+      lastRequest,
+      setLastRequest,
+    ]
   );
 
   if (itemNode === null || svgElement === null) {

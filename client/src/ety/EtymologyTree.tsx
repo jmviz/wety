@@ -1,6 +1,13 @@
 import "./EtymologyTree.css";
-import { TreeData } from "../App";
-import { Etymology, Item, term } from "../search/responses";
+import { TreeKind } from "../App";
+import {
+  Etymology,
+  InterLangDescendants,
+  Item,
+  ItemOption,
+  LangOption,
+  term,
+} from "../search/responses";
 import { xMeanClusterLayout } from "./treeCluster";
 import EtymologyTooltip, {
   EtymologyTooltipState,
@@ -25,15 +32,25 @@ import {
 } from "react";
 
 interface EtymologyTreeProps {
-  treeData: TreeData;
-  setTreeData: (treeData: TreeData) => void;
+  selectedLang: LangOption | null;
+  selectedItem: ItemOption | null;
+  setSelectedItem: (item: ItemOption | null) => void;
+  selectedDescLangs: LangOption[];
+  tree: Etymology | InterLangDescendants | null;
+  setTree: (tree: Etymology | InterLangDescendants | null) => void;
+  setTreeKind: (treeKind: TreeKind) => void;
   lastRequest: string | null;
   setLastRequest: (request: string | null) => void;
 }
 
 export default function EtymologyTree({
-  treeData,
-  setTreeData,
+  selectedLang,
+  selectedItem,
+  setSelectedItem,
+  selectedDescLangs,
+  tree,
+  setTree,
+  setTreeKind,
   lastRequest,
   setLastRequest,
 }: EtymologyTreeProps) {
@@ -49,17 +66,15 @@ export default function EtymologyTree({
 
   useEffect(() => {
     const svg = svgRef.current;
-    const tree = treeData.tree;
-    const treeRootItem = treeData.selectedItem;
 
-    if (svg === null || tree === null || treeRootItem === null) {
+    if (svg === null || tree === null || selectedItem === null) {
       return;
     }
 
     etymologyTreeSVG(
       svg,
       tree as Etymology,
-      treeRootItem,
+      selectedItem.item,
       setTooltipState,
       tooltipRef,
       tooltipShowTimeout,
@@ -77,7 +92,8 @@ export default function EtymologyTree({
       });
     };
   }, [
-    treeData,
+    tree,
+    selectedItem,
     setTooltipState,
     tooltipRef,
     tooltipShowTimeout,
@@ -89,8 +105,11 @@ export default function EtymologyTree({
       <svg className="tree" ref={svgRef} />
       <EtymologyTooltip
         state={tooltipState}
-        treeData={treeData}
-        setTreeData={setTreeData}
+        selectedLang={selectedLang}
+        setSelectedItem={setSelectedItem}
+        selectedDescLangs={selectedDescLangs}
+        setTree={setTree}
+        setTreeKind={setTreeKind}
         divRef={tooltipRef}
         showTimeout={tooltipShowTimeout}
         hideTimeout={tooltipHideTimeout}

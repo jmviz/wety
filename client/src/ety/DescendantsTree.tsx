@@ -1,9 +1,12 @@
 import "./DescendantsTree.css";
-import { TreeData } from "../App";
+import { TreeKind } from "../App";
 import {
   Descendants,
+  Etymology,
   InterLangDescendants,
   Item,
+  ItemOption,
+  LangOption,
   term,
 } from "../search/responses";
 import { xMinClusterLayout } from "./treeCluster";
@@ -30,15 +33,25 @@ import {
 } from "react";
 
 interface DescendantsTreeProps {
-  treeData: TreeData;
-  setTreeData: (treeData: TreeData) => void;
+  selectedLang: LangOption | null;
+  selectedItem: ItemOption | null;
+  setSelectedItem: (item: ItemOption | null) => void;
+  selectedDescLangs: LangOption[];
+  tree: Etymology | InterLangDescendants | null;
+  setTree: (tree: Etymology | InterLangDescendants | null) => void;
+  setTreeKind: (treeKind: TreeKind) => void;
   lastRequest: string | null;
   setLastRequest: (request: string | null) => void;
 }
 
 export default function DescendantsTree({
-  treeData,
-  setTreeData,
+  selectedLang,
+  selectedItem,
+  setSelectedItem,
+  selectedDescLangs,
+  tree,
+  setTree,
+  setTreeKind,
   lastRequest,
   setLastRequest,
 }: DescendantsTreeProps) {
@@ -54,17 +67,15 @@ export default function DescendantsTree({
 
   useEffect(() => {
     const svg = svgRef.current;
-    const tree = treeData.tree;
-    const treeRootItem = treeData.selectedItem;
 
-    if (svg === null || tree === null || treeRootItem === null) {
+    if (svg === null || tree === null || selectedItem === null) {
       return;
     }
 
     descendantsTreeSVG(
       svg,
       tree as InterLangDescendants,
-      treeRootItem,
+      selectedItem.item,
       setTooltipState,
       tooltipRef,
       tooltipShowTimeout,
@@ -82,7 +93,8 @@ export default function DescendantsTree({
       });
     };
   }, [
-    treeData,
+    tree,
+    selectedItem,
     setTooltipState,
     tooltipRef,
     tooltipShowTimeout,
@@ -94,8 +106,11 @@ export default function DescendantsTree({
       <svg className="tree" ref={svgRef} />
       <DescendantsTooltip
         state={tooltipState}
-        treeData={treeData}
-        setTreeData={setTreeData}
+        selectedLang={selectedLang}
+        setSelectedItem={setSelectedItem}
+        selectedDescLangs={selectedDescLangs}
+        setTree={setTree}
+        setTreeKind={setTreeKind}
         divRef={tooltipRef}
         showTimeout={tooltipShowTimeout}
         hideTimeout={tooltipHideTimeout}

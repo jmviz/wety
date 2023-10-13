@@ -1,5 +1,10 @@
-import { LangOption, ItemOption, Etymology } from "./responses";
-import { TreeData, TreeKind } from "../App";
+import {
+  LangOption,
+  ItemOption,
+  Etymology,
+  InterLangDescendants,
+} from "./responses";
+import { TreeKind } from "../App";
 
 import Button from "@mui/material/Button";
 import SearchIcon from "@mui/icons-material/Search";
@@ -10,7 +15,8 @@ interface EtyButtonProps {
   selectedLang: LangOption | null;
   selectedItem: ItemOption | null;
   selectedDescLangs: LangOption[];
-  setTreeData: (data: TreeData) => void;
+  setTree: (tree: Etymology | InterLangDescendants | null) => void;
+  setTreeKind: (treeKind: TreeKind) => void;
   lastRequest: string | null;
   setLastRequest: (request: string | null) => void;
 }
@@ -19,7 +25,8 @@ export default function EtyButton({
   selectedLang,
   selectedItem,
   selectedDescLangs,
-  setTreeData,
+  setTree,
+  setTreeKind,
   lastRequest,
   setLastRequest,
 }: EtyButtonProps) {
@@ -41,13 +48,8 @@ export default function EtyButton({
           const tree = (await response.json()) as Etymology;
           console.log(tree);
           setLastRequest(request);
-          setTreeData({
-            tree: tree,
-            treeKind: TreeKind.Etymology,
-            selectedItem: selectedItem.item,
-            selectedLang: selectedLang,
-            selectedDescLangs: selectedDescLangs,
-          });
+          setTree(tree);
+          setTreeKind(TreeKind.Etymology);
         } catch (error) {
           console.log(error);
         }
@@ -56,7 +58,8 @@ export default function EtyButton({
       selectedLang,
       selectedItem,
       selectedDescLangs,
-      setTreeData,
+      setTree,
+      setTreeKind,
       lastRequest,
       setLastRequest,
     ]
