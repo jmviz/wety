@@ -1,13 +1,12 @@
 import "./EtymologyTree.css";
-import { TreeKind } from "../App";
 import {
   Etymology,
   InterLangDescendants,
   Item,
-  ItemOption,
-  LangOption,
+  Lang,
   term,
-} from "../search/responses";
+  TreeRequest,
+} from "../search/types";
 import { xMeanClusterLayout } from "./treeCluster";
 import EtymologyTooltip, {
   EtymologyTooltipState,
@@ -15,6 +14,7 @@ import EtymologyTooltip, {
 } from "./EtymologyTooltip";
 import { PositionKind, hideTooltip } from "./tooltip";
 import { BoundedHierarchyPointNode, langColor } from "./tree";
+import { TreeKind } from "../search/types";
 
 import { select, Selection } from "d3-selection";
 import { link, curveStepAfter } from "d3-shape";
@@ -32,25 +32,23 @@ import {
 } from "react";
 
 interface EtymologyTreeProps {
-  selectedLang: LangOption | null;
-  selectedItem: ItemOption | null;
-  setSelectedItem: (item: ItemOption | null) => void;
-  selectedDescLangs: LangOption[];
+  setSelectedLang: (lang: Lang | null) => void;
+  setSelectedItem: (item: Item | null) => void;
+  selectedDescLangs: Lang[];
+  setSelectedTreeKind: (treeKind: TreeKind) => void;
   tree: Etymology | InterLangDescendants | null;
   setTree: (tree: Etymology | InterLangDescendants | null) => void;
-  setTreeKind: (treeKind: TreeKind) => void;
-  lastRequest: string | null;
-  setLastRequest: (request: string | null) => void;
+  lastRequest: TreeRequest | null;
+  setLastRequest: (request: TreeRequest | null) => void;
 }
 
 export default function EtymologyTree({
-  selectedLang,
-  selectedItem,
+  setSelectedLang,
   setSelectedItem,
   selectedDescLangs,
+  setSelectedTreeKind,
   tree,
   setTree,
-  setTreeKind,
   lastRequest,
   setLastRequest,
 }: EtymologyTreeProps) {
@@ -67,14 +65,14 @@ export default function EtymologyTree({
   useEffect(() => {
     const svg = svgRef.current;
 
-    if (svg === null || tree === null || selectedItem === null) {
+    if (svg === null || tree === null || lastRequest === null) {
       return;
     }
 
     etymologyTreeSVG(
       svg,
       tree as Etymology,
-      selectedItem.item,
+      lastRequest.item,
       setTooltipState,
       tooltipRef,
       tooltipShowTimeout,
@@ -93,7 +91,7 @@ export default function EtymologyTree({
     };
   }, [
     tree,
-    selectedItem,
+    lastRequest,
     setTooltipState,
     tooltipRef,
     tooltipShowTimeout,
@@ -105,11 +103,11 @@ export default function EtymologyTree({
       <svg className="tree" ref={svgRef} />
       <EtymologyTooltip
         state={tooltipState}
-        selectedLang={selectedLang}
+        setSelectedLang={setSelectedLang}
         setSelectedItem={setSelectedItem}
         selectedDescLangs={selectedDescLangs}
+        setSelectedTreeKind={setSelectedTreeKind}
         setTree={setTree}
-        setTreeKind={setTreeKind}
         divRef={tooltipRef}
         showTimeout={tooltipShowTimeout}
         hideTimeout={tooltipHideTimeout}
@@ -240,7 +238,7 @@ function etymologyTreeSVG(
     .attr("class", "lang")
     .attr("y", "-1em")
     .attr("fill", (d) => langColor(d.node.data.langDistance))
-    .text((d) => d.node.data.item.lang);
+    .text((d) => d.node.data.item.lang.name);
 
   node
     .append("text")

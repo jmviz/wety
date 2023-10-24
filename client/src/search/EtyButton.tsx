@@ -1,24 +1,27 @@
 import {
-  LangOption,
-  ItemOption,
+  Lang,
+  Item,
   Etymology,
   InterLangDescendants,
-} from "./responses";
-import { TreeKind } from "../App";
+  TreeRequest,
+  Descendants,
+} from "./types";
+import { TreeKind } from "./types";
 
 import Button from "@mui/material/Button";
 import SearchIcon from "@mui/icons-material/Search";
 import { debounce } from "@mui/material/utils";
 import { useMemo } from "react";
+import { interLangDescendants } from "../ety/DescendantsTree";
 
 interface EtyButtonProps {
-  selectedLang: LangOption | null;
-  selectedItem: ItemOption | null;
-  selectedDescLangs: LangOption[];
+  selectedLang: Lang | null;
+  selectedItem: Item | null;
+  selectedDescLangs: Lang[];
+  selectedTreeKind: TreeKind;
   setTree: (tree: Etymology | InterLangDescendants | null) => void;
-  setTreeKind: (treeKind: TreeKind) => void;
-  lastRequest: string | null;
-  setLastRequest: (request: string | null) => void;
+  lastRequest: TreeRequest | null;
+  setLastRequest: (request: TreeRequest | null) => void;
 }
 
 export default function EtyButton({
@@ -26,30 +29,38 @@ export default function EtyButton({
   selectedItem,
   selectedDescLangs,
   setTree,
-  setTreeKind,
+  selectedTreeKind,
   lastRequest,
   setLastRequest,
 }: EtyButtonProps) {
   const onClick = useMemo(
     () =>
       debounce(async () => {
-        const request = `${process.env.REACT_APP_API_BASE_URL}/etymology/${selectedItem?.item.id}`;
-        if (
-          !selectedLang ||
-          !selectedItem ||
-          selectedDescLangs.length === 0 ||
-          request === lastRequest
-        ) {
+        if (!selectedLang || !selectedItem || selectedDescLangs.length === 0) {
+          return;
+        }
+        const request = new TreeRequest(
+          selectedLang,
+          selectedItem,
+          selectedDescLangs,
+          selectedTreeKind
+        );
+        if (lastRequest && request.equals(lastRequest)) {
           return;
         }
 
         try {
-          const response = await fetch(request);
-          const tree = (await response.json()) as Etymology;
+          const response = await fetch(request.url());
+          const tree = (await response.json()) as
+            | Etymology
+            | InterLangDescendants;
           console.log(tree);
           setLastRequest(request);
-          setTree(tree);
-          setTreeKind(TreeKind.Etymology);
+          setTree(
+            selectedTreeKind === TreeKind.Etymology
+              ? (tree as Etymology)
+              : interLangDescendants(tree as Descendants)
+          );
         } catch (error) {
           console.log(error);
         }
@@ -58,10 +69,10 @@ export default function EtyButton({
       selectedLang,
       selectedItem,
       selectedDescLangs,
-      setTree,
-      setTreeKind,
+      selectedTreeKind,
       lastRequest,
       setLastRequest,
+      setTree,
     ]
   );
 

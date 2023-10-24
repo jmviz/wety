@@ -1,14 +1,13 @@
 import "./DescendantsTree.css";
-import { TreeKind } from "../App";
 import {
   Descendants,
   Etymology,
   InterLangDescendants,
   Item,
-  ItemOption,
-  LangOption,
+  Lang,
   term,
-} from "../search/responses";
+  TreeRequest,
+} from "../search/types";
 import { xMinClusterLayout } from "./treeCluster";
 import DescendantsTooltip, {
   DescendantsTooltipState,
@@ -16,6 +15,7 @@ import DescendantsTooltip, {
 } from "./DescendantsTooltip";
 import { PositionKind, hideTooltip } from "./tooltip";
 import { BoundedHierarchyPointNode, langColor } from "./tree";
+import { TreeKind } from "../search/types";
 
 import { select, Selection } from "d3-selection";
 import { link, curveStepBefore } from "d3-shape";
@@ -33,25 +33,23 @@ import {
 } from "react";
 
 interface DescendantsTreeProps {
-  selectedLang: LangOption | null;
-  selectedItem: ItemOption | null;
-  setSelectedItem: (item: ItemOption | null) => void;
-  selectedDescLangs: LangOption[];
+  setSelectedLang: (lang: Lang | null) => void;
+  setSelectedItem: (item: Item | null) => void;
+  selectedDescLangs: Lang[];
+  setSelectedTreeKind: (treeKind: TreeKind) => void;
   tree: Etymology | InterLangDescendants | null;
   setTree: (tree: Etymology | InterLangDescendants | null) => void;
-  setTreeKind: (treeKind: TreeKind) => void;
-  lastRequest: string | null;
-  setLastRequest: (request: string | null) => void;
+  lastRequest: TreeRequest | null;
+  setLastRequest: (request: TreeRequest | null) => void;
 }
 
 export default function DescendantsTree({
-  selectedLang,
-  selectedItem,
+  setSelectedLang,
   setSelectedItem,
   selectedDescLangs,
+  setSelectedTreeKind,
   tree,
   setTree,
-  setTreeKind,
   lastRequest,
   setLastRequest,
 }: DescendantsTreeProps) {
@@ -68,14 +66,14 @@ export default function DescendantsTree({
   useEffect(() => {
     const svg = svgRef.current;
 
-    if (svg === null || tree === null || selectedItem === null) {
+    if (svg === null || tree === null || lastRequest === null) {
       return;
     }
 
     descendantsTreeSVG(
       svg,
       tree as InterLangDescendants,
-      selectedItem.item,
+      lastRequest.item,
       setTooltipState,
       tooltipRef,
       tooltipShowTimeout,
@@ -94,7 +92,7 @@ export default function DescendantsTree({
     };
   }, [
     tree,
-    selectedItem,
+    lastRequest,
     setTooltipState,
     tooltipRef,
     tooltipShowTimeout,
@@ -106,11 +104,11 @@ export default function DescendantsTree({
       <svg className="tree" ref={svgRef} />
       <DescendantsTooltip
         state={tooltipState}
-        selectedLang={selectedLang}
+        setSelectedLang={setSelectedLang}
         setSelectedItem={setSelectedItem}
         selectedDescLangs={selectedDescLangs}
         setTree={setTree}
-        setTreeKind={setTreeKind}
+        setSelectedTreeKind={setSelectedTreeKind}
         divRef={tooltipRef}
         showTimeout={tooltipShowTimeout}
         hideTimeout={tooltipHideTimeout}
@@ -275,7 +273,7 @@ function descendantsTreeSVG(
     .attr("class", "lang")
     .attr("y", "-1em")
     .attr("fill", (d) => langColor(d.node.data.langDistance))
-    .text((d) => d.node.data.item.lang);
+    .text((d) => d.node.data.item.lang.name);
 
   node
     .append("text")
@@ -307,7 +305,7 @@ function interLangDescendantsInner(
 ): InterLangDescendants[] {
   const children = [];
   for (const child of root.children) {
-    if (child.item.lang === root.item.lang || root.parent) {
+    if (child.item.lang.id === root.item.lang.id || root.parent) {
       child.parent = {
         item: root.item,
         ancestralLine: root.parent,
@@ -321,7 +319,7 @@ function interLangDescendantsInner(
   }
   if (
     root.parent &&
-    root.parent.item.lang === root.item.lang &&
+    root.parent.item.lang.id === root.item.lang.id &&
     root.children
   ) {
     return children;

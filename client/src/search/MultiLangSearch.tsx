@@ -1,4 +1,4 @@
-import { LangOption } from "./responses";
+import { Lang } from "./types";
 
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
@@ -7,8 +7,8 @@ import { RefObject, useCallback, useMemo, useState } from "react";
 
 interface MultiLangSearchProps {
   label: string;
-  selectedLangs: LangOption[];
-  setSelectedLangs: (langs: LangOption[]) => void;
+  selectedLangs: Lang[];
+  setSelectedLangs: (langs: Lang[]) => void;
   inputRef: RefObject<HTMLInputElement>;
 }
 
@@ -18,10 +18,10 @@ function MultiLangSearch({
   setSelectedLangs,
   inputRef,
 }: MultiLangSearchProps) {
-  const [langOptions, setLangOptions] = useState<LangOption[]>([]);
+  const [Langs, setLangs] = useState<Lang[]>([]);
 
   const clearSelectedLangAndOptions = useCallback(() => {
-    setLangOptions([]);
+    setLangs([]);
     setSelectedLangs([]);
   }, [setSelectedLangs]);
 
@@ -32,8 +32,8 @@ function MultiLangSearch({
           const response = await fetch(
             `${process.env.REACT_APP_API_BASE_URL}/search/lang?name=${input}`
           );
-          const newOptions = (await response.json()) as LangOption[];
-          setLangOptions(newOptions);
+          const newOptions = (await response.json()) as Lang[];
+          setLangs(newOptions);
         } catch (error) {
           console.log(error);
           clearSelectedLangAndOptions();
@@ -54,7 +54,7 @@ function MultiLangSearch({
           newValue.length > 0 &&
           typeof newValue[newValue.length - 1] === "string"
         ) {
-          const match = langOptions.find(
+          const match = Langs.find(
             (lo) =>
               lo.name.toLowerCase() ===
               (newValue[newValue.length - 1] as string).trim().toLowerCase()
@@ -66,14 +66,14 @@ function MultiLangSearch({
                   acc.push(curr);
                 }
                 return acc;
-              }, [] as LangOption[])
+              }, [] as Lang[])
             );
             return;
           }
           setSelectedLangs(selectedLangs);
           return;
         }
-        setSelectedLangs(newValue as LangOption[]);
+        setSelectedLangs(newValue as Lang[]);
       }}
       onInputChange={(event, newInputValue) => {
         if (newInputValue === "") {
@@ -90,7 +90,7 @@ function MultiLangSearch({
           inputRef={inputRef}
         />
       )}
-      options={langOptions}
+      options={Langs}
       filterOptions={(x) => x}
       getOptionLabel={(option) =>
         typeof option === "string" ? option : option.name

@@ -4,11 +4,12 @@ import {
   Etymology,
   InterLangDescendants,
   Item,
-  ItemOption,
-  LangOption,
+  Lang,
+  TreeRequest,
   term,
-} from "../search/responses";
+} from "../search/types";
 import { BoundedHierarchyPointNode, langColor } from "./tree";
+import { TreeKind } from "../search/types";
 import { interLangDescendants } from "./DescendantsTree";
 import {
   PositionKind,
@@ -17,7 +18,6 @@ import {
   hideTooltip,
   positionTooltip,
 } from "./tooltip";
-import { TreeKind } from "../App";
 
 import { HierarchyPointNode, Selection } from "d3";
 import {
@@ -39,25 +39,25 @@ export interface DescendantsTooltipState {
 
 interface DescendantsTooltipProps {
   state: DescendantsTooltipState;
-  selectedLang: LangOption | null;
-  setSelectedItem: (item: ItemOption | null) => void;
-  selectedDescLangs: LangOption[];
+  setSelectedLang: (lang: Lang | null) => void;
+  setSelectedItem: (item: Item | null) => void;
+  selectedDescLangs: Lang[];
+  setSelectedTreeKind: (treeKind: TreeKind) => void;
   setTree: (tree: Etymology | InterLangDescendants | null) => void;
-  setTreeKind: (treeKind: TreeKind) => void;
   divRef: RefObject<HTMLDivElement>;
   showTimeout: MutableRefObject<number | null>;
   hideTimeout: MutableRefObject<number | null>;
-  lastRequest: string | null;
-  setLastRequest: (request: string | null) => void;
+  lastRequest: TreeRequest | null;
+  setLastRequest: (request: TreeRequest | null) => void;
 }
 
 export default function DescendantsTooltip({
   state: { itemNode, svgElement, positionKind },
-  selectedLang,
+  setSelectedLang,
   setSelectedItem,
   selectedDescLangs,
+  setSelectedTreeKind,
   setTree,
-  setTreeKind,
   divRef,
   showTimeout,
   hideTimeout,
@@ -101,35 +101,36 @@ export default function DescendantsTooltip({
   const getDescendants = useMemo(
     () =>
       debounce(async (item: Item) => {
-        const distLang = selectedLang ? `distLang=${selectedLang.id}&` : "";
-        const request = `${process.env.REACT_APP_API_BASE_URL}/descendants/${
-          item.id
-        }?${distLang}${selectedDescLangs
-          .map((lang) => `descLang=${lang.id}`)
-          .join("&")}`;
+        const request = new TreeRequest(
+          item.lang,
+          item,
+          selectedDescLangs,
+          TreeKind.Descendants
+        );
 
-        if (request === lastRequest) {
+        if (lastRequest && request.equals(lastRequest)) {
           return;
         }
 
         try {
-          const response = await fetch(request);
+          const response = await fetch(request.url());
           const tree = (await response.json()) as Descendants;
           console.log(tree);
           setLastRequest(request);
-          setSelectedItem({ item: item, distance: 0 });
+          setSelectedLang(item.lang);
+          setSelectedItem(item);
           setTree(interLangDescendants(tree));
-          setTreeKind(TreeKind.Descendants);
+          setSelectedTreeKind(TreeKind.Descendants);
         } catch (error) {
           console.log(error);
         }
       }, 0),
     [
-      selectedLang,
+      setSelectedLang,
       setSelectedItem,
       selectedDescLangs,
       setTree,
-      setTreeKind,
+      setSelectedTreeKind,
       lastRequest,
       setLastRequest,
     ]
@@ -138,25 +139,39 @@ export default function DescendantsTooltip({
   const getEtymology = useMemo(
     () =>
       debounce(async (item: Item) => {
-        const request = `${process.env.REACT_APP_API_BASE_URL}/etymology/${item.id}`;
+        const request = new TreeRequest(
+          item.lang,
+          item,
+          selectedDescLangs,
+          TreeKind.Etymology
+        );
 
-        if (request === lastRequest) {
+        if (lastRequest && request.equals(lastRequest)) {
           return;
         }
 
         try {
-          const response = await fetch(request);
+          const response = await fetch(request.url());
           const tree = (await response.json()) as Etymology;
           console.log(tree);
           setLastRequest(request);
-          setSelectedItem({ item: item, distance: 0 });
+          setSelectedLang(item.lang);
+          setSelectedItem(item);
           setTree(tree);
-          setTreeKind(TreeKind.Etymology);
+          setSelectedTreeKind(TreeKind.Etymology);
         } catch (error) {
           console.log(error);
         }
       }, 0),
-    [setSelectedItem, setTree, setTreeKind, lastRequest, setLastRequest]
+    [
+      selectedDescLangs,
+      lastRequest,
+      setLastRequest,
+      setSelectedLang,
+      setSelectedItem,
+      setTree,
+      setSelectedTreeKind,
+    ]
   );
 
   if (itemNode === null || svgElement === null) {
@@ -178,7 +193,7 @@ export default function DescendantsTooltip({
         className="lang"
         style={{ color: langColor(itemNode.data.langDistance) }}
       >
-        {item.lang}
+        {item.lang.name}
       </p>
       <p>
         <span className="term">{term(item)}</span>
@@ -261,13 +276,13 @@ function etyLine(
     const parents: EtyParent[] = ancestor.otherParents
       .sort((a, b) => a.etyOrder - b.etyOrder)
       .map((parent) => ({
-        lang: parent.item.lang,
+        lang: parent.item.lang.name,
         term: term(parent.item),
         langDistance: parent.langDistance,
       }));
     if (ancestor.etyOrder !== null) {
       parents.splice(ancestor.etyOrder, 0, {
-        lang: ancestor.item.lang,
+        lang: ancestor.item.lang.name,
         term: term(ancestor.item),
         langDistance: ancestor.langDistance,
       });

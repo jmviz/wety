@@ -1,15 +1,12 @@
-export interface LangOption {
+export interface Lang {
   id: number;
-  code: string;
   name: string;
-  similarity: number;
-  items: number;
 }
 
 export interface Item {
   id: number;
   etyNum: number;
-  lang: string;
+  lang: Lang;
   term: string;
   imputed: boolean;
   reconstructed: boolean;
@@ -21,11 +18,6 @@ export interface Item {
 
 export function term(item: Item): string {
   return item.reconstructed ? `*${item.term}` : item.term;
-}
-
-export interface ItemOption {
-  distance: number;
-  item: Item;
 }
 
 export interface Etymology {
@@ -68,4 +60,47 @@ export interface InterLangDescendants {
   etyMode: string | null;
   otherParents: OtherParent[];
   parentEtyOrder: number | null;
+}
+
+export enum TreeKind {
+  Etymology = "Etymology",
+  Descendants = "Descendants",
+}
+
+export class TreeRequest {
+  lang: Lang;
+  item: Item;
+  descLangs: Lang[];
+  kind: TreeKind;
+
+  constructor(lang: Lang, item: Item, descLangs: Lang[], kind: TreeKind) {
+    this.lang = lang;
+    this.item = item;
+    this.descLangs = descLangs;
+    this.descLangs.sort((a, b) => a.id - b.id);
+    this.kind = kind;
+  }
+
+  url(): string {
+    switch (this.kind) {
+      case TreeKind.Etymology:
+        return `${process.env.REACT_APP_API_BASE_URL}/etymology/${this.item.id}`;
+      case TreeKind.Descendants:
+        return `${process.env.REACT_APP_API_BASE_URL}/descendants/${
+          this.item.id
+        }?distLang=${this.item.lang.id}&${this.descLangs
+          .map((lang) => `descLang=${lang.id}`)
+          .join("&")}`;
+    }
+  }
+
+  equals(other: TreeRequest): boolean {
+    return (
+      this.lang.id === other.lang.id &&
+      this.item.id === other.item.id &&
+      this.descLangs.length === other.descLangs.length &&
+      this.descLangs.every((lang, i) => lang.id === other.descLangs[i].id) &&
+      this.kind === other.kind
+    );
+  }
 }

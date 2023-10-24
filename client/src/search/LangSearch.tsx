@@ -1,4 +1,4 @@
-import { ItemOption, LangOption } from "./responses";
+import { Item, Lang } from "./types";
 
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
@@ -6,13 +6,13 @@ import { debounce } from "@mui/material/utils";
 import { RefObject, useCallback, useEffect, useMemo, useState } from "react";
 
 interface LangSearchProps {
-  selectedLang: LangOption | null;
-  setSelectedLang: (lang: LangOption | null) => void;
+  selectedLang: Lang | null;
+  setSelectedLang: (lang: Lang | null) => void;
   inputRef: RefObject<HTMLInputElement>;
-  setSelectedItem: (item: ItemOption | null) => void;
+  setSelectedItem: (item: Item | null) => void;
   itemSearchInputRef: RefObject<HTMLInputElement>;
-  selectedDescLangs: LangOption[];
-  setSelectedDescLangs: (langs: LangOption[]) => void;
+  selectedDescLangs: Lang[];
+  setSelectedDescLangs: (langs: Lang[]) => void;
 }
 
 export default function LangSearch({
@@ -31,12 +31,12 @@ export default function LangSearch({
       return;
     }
     try {
-      const lastLang = JSON.parse(lastLangStr) as LangOption;
+      const lastLang = JSON.parse(lastLangStr) as Lang;
       console.log(`Attempting to use stored last language ${lastLang.name}...`);
       const response = await fetch(
         `${process.env.REACT_APP_API_BASE_URL}/search/lang?name=${lastLang.name}`
       );
-      const options = (await response.json()) as LangOption[];
+      const options = (await response.json()) as Lang[];
       const lang = options[0];
       if (lang.name === lastLang.name) {
         console.log(
@@ -62,7 +62,7 @@ export default function LangSearch({
     getStoredLastLang();
   }, [getStoredLastLang]);
 
-  const [langOptions, setLangOptions] = useState<LangOption[]>([]);
+  const [langOptions, setLangOptions] = useState<Lang[]>([]);
 
   const clearSelectedLangAndOptions = useCallback(() => {
     setLangOptions([]);
@@ -72,7 +72,7 @@ export default function LangSearch({
   }, [setSelectedLang, setSelectedItem]);
 
   const setSelectedLangAndMaybeDescLangs = useCallback(
-    (lang: LangOption | null) => {
+    (lang: Lang | null) => {
       setSelectedLang(lang);
       setSelectedItem(null);
       if (lang !== null) {
@@ -99,7 +99,7 @@ export default function LangSearch({
           const response = await fetch(
             `${process.env.REACT_APP_API_BASE_URL}/search/lang?name=${input}`
           );
-          const newOptions = (await response.json()) as LangOption[];
+          const newOptions = (await response.json()) as Lang[];
           setLangOptions(newOptions);
         } catch (error) {
           console.log(error);

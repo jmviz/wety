@@ -3,28 +3,31 @@ import LangSearch from "./LangSearch";
 import MultiLangSearch from "./MultiLangSearch";
 import EtyButton from "./EtyButton";
 import {
-  LangOption,
-  ItemOption,
   Etymology,
   InterLangDescendants,
-} from "./responses";
-import { TreeKind } from "../App";
+  Lang,
+  Item,
+  TreeRequest,
+} from "./types";
+import TreeKindSelect from "./TreeKindSelect";
+import { TreeKind } from "./types";
 
 import Stack from "@mui/material/Stack";
 import { useRef } from "react";
 import { Container } from "@mui/material";
 
 interface SearchPaneProps {
-  selectedLang: LangOption | null;
-  setSelectedLang: (lang: LangOption | null) => void;
-  selectedItem: ItemOption | null;
-  setSelectedItem: (item: ItemOption | null) => void;
-  selectedDescLangs: LangOption[];
-  setSelectedDescLangs: (langs: LangOption[]) => void;
+  selectedLang: Lang | null;
+  setSelectedLang: (lang: Lang | null) => void;
+  selectedItem: Item | null;
+  setSelectedItem: (item: Item | null) => void;
+  selectedDescLangs: Lang[];
+  setSelectedDescLangs: (langs: Lang[]) => void;
+  selectedTreeKind: TreeKind;
+  setSelectedTreeKind: (treeKind: TreeKind) => void;
   setTree: (tree: Etymology | InterLangDescendants | null) => void;
-  setTreeKind: (treeKind: TreeKind) => void;
-  lastRequest: string | null;
-  setLastRequest: (request: string | null) => void;
+  lastRequest: TreeRequest | null;
+  setLastRequest: (request: TreeRequest | null) => void;
 }
 
 export default function SearchPane({
@@ -34,8 +37,9 @@ export default function SearchPane({
   setSelectedItem,
   selectedDescLangs,
   setSelectedDescLangs,
+  selectedTreeKind,
+  setSelectedTreeKind,
   setTree,
-  setTreeKind,
   lastRequest,
   setLastRequest,
 }: SearchPaneProps) {
@@ -74,12 +78,16 @@ export default function SearchPane({
           setSelectedLangs={setSelectedDescLangs}
           inputRef={descLangsSearchInputRef}
         />
+        <TreeKindSelect
+          selectedTreeKind={selectedTreeKind}
+          setSelectedTreeKind={setSelectedTreeKind}
+        />
         <EtyButton
           selectedLang={selectedLang}
           selectedItem={selectedItem}
           selectedDescLangs={selectedDescLangs}
+          selectedTreeKind={selectedTreeKind}
           setTree={setTree}
-          setTreeKind={setTreeKind}
           lastRequest={lastRequest}
           setLastRequest={setLastRequest}
         />

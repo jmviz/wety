@@ -1,5 +1,5 @@
 import "./ItemSearch.css";
-import { ItemOption, LangOption, term } from "./responses";
+import { Item, Lang, term } from "./types";
 
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
@@ -7,11 +7,11 @@ import { debounce } from "@mui/material/utils";
 import { useCallback, useMemo, useState, RefObject } from "react";
 
 interface ItemSearchProps {
-  selectedLang: LangOption | null;
-  selectedItem: ItemOption | null;
-  setSelectedItem: (item: ItemOption | null) => void;
+  selectedLang: Lang | null;
+  selectedItem: Item | null;
+  setSelectedItem: (item: Item | null) => void;
   inputRef: RefObject<HTMLInputElement>;
-  selectedDescLangs: LangOption[];
+  selectedDescLangs: Lang[];
   descLangsSearchInputRef: RefObject<HTMLInputElement>;
 }
 
@@ -23,7 +23,7 @@ export default function ItemSearch({
   selectedDescLangs,
   descLangsSearchInputRef,
 }: ItemSearchProps) {
-  const [itemOptions, setItemOptions] = useState<ItemOption[]>([]);
+  const [itemOptions, setItemOptions] = useState<Item[]>([]);
 
   const clearSelectedItemAndOptions = useCallback(() => {
     setItemOptions([]);
@@ -31,7 +31,7 @@ export default function ItemSearch({
   }, [setSelectedItem]);
 
   const setSelectedItemAndMaybeFocus = useCallback(
-    (item: ItemOption | null) => {
+    (item: Item | null) => {
       setSelectedItem(item);
       if (selectedLang && item && selectedDescLangs.length === 0) {
         descLangsSearchInputRef.current?.focus();
@@ -56,7 +56,7 @@ export default function ItemSearch({
           const response = await fetch(
             `${process.env.REACT_APP_API_BASE_URL}/search/item/${selectedLang.id}?term=${input}`
           );
-          const newOptions = (await response.json()) as ItemOption[];
+          const newOptions = (await response.json()) as Item[];
           setItemOptions(newOptions);
         } catch (error) {
           console.log(error);
@@ -83,7 +83,7 @@ export default function ItemSearch({
       onChange={(event, newValue) => {
         if (typeof newValue === "string") {
           const match = itemOptions.find(
-            (io) => io.item.term.toLowerCase() === cleanSearchTerm(newValue)
+            (io) => io.term.toLowerCase() === cleanSearchTerm(newValue)
           );
           if (match) {
             setSelectedItemAndMaybeFocus(match);
@@ -114,15 +114,15 @@ export default function ItemSearch({
       options={itemOptions}
       filterOptions={(x) => x}
       getOptionLabel={(option) =>
-        typeof option === "string" ? option : term(option.item)
+        typeof option === "string" ? option : term(option)
       }
-      isOptionEqualToValue={(option, value) => option.item.id === value.item.id}
+      isOptionEqualToValue={(option, value) => option.id === value.id}
       renderOption={(props, option) => {
-        const pos = option.item.pos ?? [];
-        const gloss = option.item.gloss ?? [];
+        const pos = option.pos ?? [];
+        const gloss = option.gloss ?? [];
         return (
-          <li {...props} key={option.item.id}>
-            <div className="term-line">{term(option.item)}</div>
+          <li {...props} key={option.id}>
+            <div className="term-line">{term(option)}</div>
             {pos.map((p, i) => (
               <div key={i} className="pos-line">
                 <span className="pos">{p}</span>:{" "}

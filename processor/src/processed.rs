@@ -111,7 +111,7 @@ impl Data {
         json!({
             "id": item_id,
             "etyNum": item.ety_num(),
-            "lang": item.lang().name(),
+            "lang": item.lang().json(),
             "term": item.term().resolve(&self.string_pool),
             "imputed": item.is_imputed(),
             "reconstructed": item.is_reconstructed(),
@@ -341,15 +341,7 @@ impl Search {
         });
         let matches = matches
             .iter()
-            .map(|(similarity, lang_data)| {
-                json!({
-                    "id": lang_data.lang.id(),
-                    "code": lang_data.lang.code(),
-                    "name": lang_data.lang.name(),
-                    "similarity": similarity,
-                    "items": lang_data.items,
-                })
-            })
+            .map(|(_, lang_data)| lang_data.lang.json())
             .collect_vec();
         json!(matches)
     }
@@ -362,10 +354,7 @@ struct ItemMatch {
 
 impl ItemMatch {
     fn json(&self, data: &Data) -> Value {
-        json!({
-            "distance": self.distance,
-            "item": data.item_json(self.item),
-        })
+        data.item_json(self.item)
     }
 }
 

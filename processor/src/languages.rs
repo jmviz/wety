@@ -5,6 +5,7 @@ use std::{collections::BTreeMap, str::FromStr};
 use anyhow::{anyhow, Ok, Result};
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
+use serde_json::{json, Value};
 
 #[derive(Hash, Eq, PartialEq, Debug, Copy, Clone, Serialize, Deserialize, Default)]
 #[serde(rename_all = "kebab-case")]
@@ -241,6 +242,13 @@ impl Lang {
         }
 
         Some(distance)
+    }
+
+    pub(crate) fn json(self) -> Value {
+        json!({
+            "id": self.id(),
+            "name": self.name(),
+        })
     }
 }
 
