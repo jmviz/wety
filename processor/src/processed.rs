@@ -139,25 +139,33 @@ impl Data {
             .graph
             .child_edges(item_id)
             .filter(|e| {
-                let child_lang = self.item(e.child()).lang();
-                // The req_... condition makes sure that the request item is
-                // included in the tree, even if it would be disallowed
-                // otherwise. The match says to include children that are in
-                // desc_langs, as long as they are not the same language as
-                // their parent (which would indicate an uninteresting
-                // derived term, like all the declensions of a greek noun),
-                // and also include children that are not themselves in
-                // desc_langs, but who have descendants that are.
+                let child = e.child();
+                let child_lang = self.item(child).lang();
+                // Make sure that the request item is included in the tree, even
+                // if it would be disallowed otherwise.
                 req_item_ancestors_within_desc_langs.contains(&item_id)
-                    || match (
-                        desc_langs.contains(&child_lang),
-                        child_lang != item_lang,
-                        self.descendant_langs.get(&e.child()),
-                    ) {
-                        (true, true, _) => true,
-                        (false, _, Some(cdl)) => desc_langs.iter().any(|dl| cdl.contains(dl)),
-                        _ => false,
-                    }
+                // Include children that are in desc_langs, as long as they are
+                // not the same language as their parent (which would indicate
+                // an uninteresting derived term, like all the declensions of a
+                // greek noun).
+                    || (desc_langs.contains(&child_lang) && child_lang != item_lang)
+                // Include children that are not themselves in desc_langs, but
+                // who have descendants that are, as long as one of those
+                // descendants is not the same language as item_lang. This
+                // avoids cases like English -> German -> Swedish -> English
+                // (where English is a requested desc_lang and German and
+                // Swedish are not, and the first English item has no
+                // descendants in any other desc_langs). The later English item
+                // WILL be included if German is also a desc_lang though, even
+                // though we don't really want this. How common are such
+                // circuitous routes? If they are too common, we could track a
+                // set of encountered_desc_langs for each call to this function
+                // and filter based on that instead.
+                    || self.descendant_langs.get(&child).is_some_and(|cdl| {
+                        desc_langs
+                            .iter()
+                            .any(|dl| dl != &item_lang && cdl.contains(dl))
+                    })
             })
             .map(|e| {
                 self.item_descendants_json(
