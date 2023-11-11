@@ -109,7 +109,11 @@ export function positionTooltip(
   }
 }
 
-export function hideTooltip(tooltip: RefObject<HTMLDivElement>) {
+export function hideTooltip(
+  tooltip: RefObject<HTMLDivElement>,
+  setShowTooltip: (showTooltip: boolean) => void
+) {
+  setShowTooltip(false);
   if (tooltip.current === null) {
     return;
   }

@@ -9,7 +9,6 @@ import {
 } from "../search/types";
 import { xMeanClusterLayout } from "./treeCluster";
 import EtymologyTooltip, {
-  EtymologyTooltipState,
   setEtymologyTooltipListeners,
 } from "./EtymologyTooltip";
 import { PositionKind, hideTooltip } from "./tooltip";
@@ -52,12 +51,16 @@ export default function EtymologyTree({
   lastRequest,
   setLastRequest,
 }: EtymologyTreeProps) {
+  const [showTooltip, setShowTooltip] = useState(false);
+  const [tooltipTreeNode, setTooltipTreeNode] =
+    useState<HierarchyPointNode<Etymology> | null>(null);
+  const [tooltipSVGElement, setTooltipSVGElement] = useState<SVGElement | null>(
+    null
+  );
+  const [tooltipPositionKind, setTooltipPositionKind] = useState<PositionKind>(
+    PositionKind.Hover
+  );
   const svgRef = useRef<SVGSVGElement>(null);
-  const [tooltipState, setTooltipState] = useState<EtymologyTooltipState>({
-    itemNode: null,
-    svgElement: null,
-    positionKind: PositionKind.Hover,
-  });
   const tooltipRef = useRef<HTMLDivElement>(null);
   const tooltipShowTimeout = useRef<number | null>(null);
   const tooltipHideTimeout = useRef<number | null>(null);
@@ -73,7 +76,10 @@ export default function EtymologyTree({
       svg,
       tree as Etymology,
       lastRequest.item,
-      setTooltipState,
+      setShowTooltip,
+      setTooltipTreeNode,
+      setTooltipSVGElement,
+      setTooltipPositionKind,
       tooltipRef,
       tooltipShowTimeout,
       tooltipHideTimeout
@@ -82,17 +88,19 @@ export default function EtymologyTree({
     return () => {
       // clear the previous svg
       select(svg).selectAll("*").remove();
-      hideTooltip(tooltipRef);
-      setTooltipState({
-        itemNode: null,
-        svgElement: null,
-        positionKind: PositionKind.Hover,
-      });
+      hideTooltip(tooltipRef, setShowTooltip);
+      setShowTooltip(false);
+      setTooltipTreeNode(null);
+      setTooltipSVGElement(null);
+      setTooltipPositionKind(PositionKind.Hover);
     };
   }, [
     tree,
     lastRequest,
-    setTooltipState,
+    setShowTooltip,
+    setTooltipTreeNode,
+    setTooltipSVGElement,
+    setTooltipPositionKind,
     tooltipRef,
     tooltipShowTimeout,
     tooltipHideTimeout,
@@ -102,12 +110,16 @@ export default function EtymologyTree({
     <div className="tree-container">
       <svg className="tree" ref={svgRef} />
       <EtymologyTooltip
-        state={tooltipState}
         setSelectedLang={setSelectedLang}
         setSelectedItem={setSelectedItem}
         selectedDescLangs={selectedDescLangs}
-        setSelectedTreeKind={setSelectedTreeKind}
         setTree={setTree}
+        setSelectedTreeKind={setSelectedTreeKind}
+        showTooltip={showTooltip}
+        setShowTooltip={setShowTooltip}
+        treeNode={tooltipTreeNode}
+        svgElement={tooltipSVGElement}
+        positionKind={tooltipPositionKind}
         divRef={tooltipRef}
         showTimeout={tooltipShowTimeout}
         hideTimeout={tooltipHideTimeout}
@@ -122,7 +134,10 @@ function etymologyTreeSVG(
   svgElement: SVGSVGElement,
   tree: Etymology,
   treeRootItem: Item,
-  setTooltipState: (state: EtymologyTooltipState) => void,
+  setShowTooltip: (show: boolean) => void,
+  setTooltipTreeNode: (node: HierarchyPointNode<Etymology> | null) => void,
+  setTooltipSVGElement: (svg: SVGElement | null) => void,
+  setTooltipPositionKind: (positionKind: PositionKind) => void,
   tooltipRef: RefObject<HTMLDivElement>,
   tooltipShowTimeout: MutableRefObject<number | null>,
   tooltipHideTimeout: MutableRefObject<number | null>
@@ -256,7 +271,10 @@ function etymologyTreeSVG(
 
   setEtymologyTooltipListeners(
     node,
-    setTooltipState,
+    setShowTooltip,
+    setTooltipTreeNode,
+    setTooltipSVGElement,
+    setTooltipPositionKind,
     tooltipRef,
     tooltipShowTimeout,
     tooltipHideTimeout

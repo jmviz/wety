@@ -31,19 +31,17 @@ import Button from "@mui/material/Button/Button";
 import { debounce } from "@mui/material/utils";
 import Stack from "@mui/material/Stack/Stack";
 
-export interface EtymologyTooltipState {
-  itemNode: HierarchyPointNode<Etymology> | null;
-  svgElement: SVGElement | null;
-  positionKind: PositionKind;
-}
-
 interface EtymologyTooltipProps {
-  state: EtymologyTooltipState;
   setSelectedLang: (lang: Lang | null) => void;
   setSelectedItem: (item: Item | null) => void;
   selectedDescLangs: Lang[];
   setSelectedTreeKind: (treeKind: TreeKind) => void;
   setTree: (tree: Etymology | InterLangDescendants | null) => void;
+  showTooltip: boolean;
+  setShowTooltip: (show: boolean) => void;
+  treeNode: HierarchyPointNode<Etymology> | null;
+  svgElement: SVGElement | null;
+  positionKind: PositionKind;
   divRef: RefObject<HTMLDivElement>;
   showTimeout: MutableRefObject<number | null>;
   hideTimeout: MutableRefObject<number | null>;
@@ -52,12 +50,16 @@ interface EtymologyTooltipProps {
 }
 
 export default function EtymologyTooltip({
-  state: { itemNode, svgElement, positionKind },
   setSelectedLang,
   setSelectedItem,
   selectedDescLangs,
   setSelectedTreeKind,
   setTree,
+  showTooltip,
+  setShowTooltip,
+  treeNode,
+  svgElement,
+  positionKind,
   divRef,
   showTimeout,
   hideTimeout,
@@ -70,6 +72,7 @@ export default function EtymologyTooltip({
 
     const handleMouseEnter = (event: PointerEvent) => {
       if (event.pointerType === "mouse") {
+        setShowTooltip(true);
         window.clearTimeout(hideTimeout.current ?? undefined);
       }
     };
@@ -77,7 +80,10 @@ export default function EtymologyTooltip({
     const handleMouseLeave = (event: PointerEvent) => {
       if (event.pointerType === "mouse") {
         window.clearTimeout(showTimeout.current ?? undefined);
-        hideTimeout.current = window.setTimeout(() => hideTooltip(divRef), 100);
+        hideTimeout.current = window.setTimeout(
+          () => hideTooltip(divRef, setShowTooltip),
+          100
+        );
       }
     };
 
@@ -88,15 +94,15 @@ export default function EtymologyTooltip({
       tooltip.removeEventListener("pointerenter", handleMouseEnter);
       tooltip.removeEventListener("pointerleave", handleMouseLeave);
     };
-  }, [divRef, showTimeout, hideTimeout]);
+  }, [divRef, setShowTooltip, showTimeout, hideTimeout]);
 
   useLayoutEffect(() => {
     const tooltip = divRef.current;
-    if (!tooltip || !itemNode || !svgElement) return;
+    if (!tooltip || !treeNode || !svgElement || !showTooltip) return;
     positionTooltip(svgElement, tooltip, positionKind);
     tooltip.style.zIndex = "9000";
     tooltip.style.opacity = "1";
-  });
+  }, [divRef, treeNode, svgElement, showTooltip, positionKind]);
 
   const getDescendants = useMemo(
     () =>
@@ -136,15 +142,15 @@ export default function EtymologyTooltip({
     ]
   );
 
-  if (itemNode === null || svgElement === null) {
+  if (treeNode === null || svgElement === null) {
     return <div ref={divRef} />;
   }
 
-  const item = itemNode.data.item;
+  const item = treeNode.data.item;
   // Confusingly, the "children" with respect to the tree structure and d3 api
   // are the parents with respect to the etymology.
-  const parents: EtyParent[] | null = itemNode.children
-    ? itemNode.children
+  const parents: EtyParent[] | null = treeNode.children
+    ? treeNode.children
         .sort((a, b) => a.data.etyOrder - b.data.etyOrder)
         .map((parentNode) => ({
           lang: parentNode.data.item.lang.name,
@@ -155,18 +161,21 @@ export default function EtymologyTooltip({
 
   const posList = item.pos ?? [];
   const glossList = item.gloss ?? [];
-  const etyMode = itemNode.data.etyMode;
+  const etyMode = treeNode.data.etyMode;
 
   return (
     <div className="tooltip" ref={divRef}>
       {positionKind === PositionKind.Fixed && (
-        <button className="close-button" onClick={() => hideTooltip(divRef)}>
+        <button
+          className="close-button"
+          onClick={() => hideTooltip(divRef, setShowTooltip)}
+        >
           ✕
         </button>
       )}
       <p
         className="lang"
-        style={{ color: langColor(itemNode.data.langDistance) }}
+        style={{ color: langColor(treeNode.data.langDistance) }}
       >
         {item.lang.name}
       </p>
@@ -262,7 +271,10 @@ export function setEtymologyTooltipListeners(
     SVGGElement,
     undefined
   >,
-  setTooltipState: (state: EtymologyTooltipState) => void,
+  setShowTooltip: (show: boolean) => void,
+  setTooltipTreeNode: (node: HierarchyPointNode<Etymology> | null) => void,
+  setTooltipSVGElement: (element: SVGElement | null) => void,
+  setTooltipPositionKind: (kind: PositionKind) => void,
   tooltipRef: RefObject<HTMLDivElement>,
   tooltipShowTimeout: MutableRefObject<number | null>,
   tooltipHideTimeout: MutableRefObject<number | null>
@@ -272,11 +284,10 @@ export function setEtymologyTooltipListeners(
     "pointerup",
     function (event: PointerEvent, d: BoundedHierarchyPointNode<Etymology>) {
       if (event.pointerType !== "mouse") {
-        setTooltipState({
-          itemNode: d.node,
-          svgElement: this,
-          positionKind: PositionKind.Fixed,
-        });
+        setShowTooltip(true);
+        setTooltipTreeNode(d.node);
+        setTooltipSVGElement(this);
+        setTooltipPositionKind(PositionKind.Fixed);
       }
     }
   );
@@ -287,15 +298,12 @@ export function setEtymologyTooltipListeners(
     function (event: PointerEvent, d: BoundedHierarchyPointNode<Etymology>) {
       if (event.pointerType === "mouse") {
         window.clearTimeout(tooltipHideTimeout.current ?? undefined);
-        tooltipShowTimeout.current = window.setTimeout(
-          () =>
-            setTooltipState({
-              itemNode: d.node,
-              svgElement: this,
-              positionKind: PositionKind.Hover,
-            }),
-          100
-        );
+        tooltipShowTimeout.current = window.setTimeout(() => {
+          setShowTooltip(true);
+          setTooltipTreeNode(d.node);
+          setTooltipSVGElement(this);
+          setTooltipPositionKind(PositionKind.Hover);
+        }, 100);
       }
     }
   );
@@ -304,7 +312,7 @@ export function setEtymologyTooltipListeners(
     if (event.pointerType === "mouse") {
       window.clearTimeout(tooltipShowTimeout.current ?? undefined);
       tooltipHideTimeout.current = window.setTimeout(
-        () => hideTooltip(tooltipRef),
+        () => hideTooltip(tooltipRef, setShowTooltip),
         100
       );
     }

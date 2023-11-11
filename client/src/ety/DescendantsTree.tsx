@@ -10,7 +10,6 @@ import {
 } from "../search/types";
 import { xMinClusterLayout } from "./treeCluster";
 import DescendantsTooltip, {
-  DescendantsTooltipState,
   setDescendantsTooltipListeners,
 } from "./DescendantsTooltip";
 import { PositionKind, hideTooltip } from "./tooltip";
@@ -53,12 +52,16 @@ export default function DescendantsTree({
   lastRequest,
   setLastRequest,
 }: DescendantsTreeProps) {
+  const [showTooltip, setShowTooltip] = useState(false);
+  const [tooltipTreeNode, setTooltipTreeNode] =
+    useState<HierarchyPointNode<InterLangDescendants> | null>(null);
+  const [tooltipSVGElement, setTooltipSVGElement] = useState<SVGElement | null>(
+    null
+  );
+  const [tooltipPositionKind, setTooltipPositionKind] = useState<PositionKind>(
+    PositionKind.Hover
+  );
   const svgRef = useRef<SVGSVGElement>(null);
-  const [tooltipState, setTooltipState] = useState<DescendantsTooltipState>({
-    itemNode: null,
-    svgElement: null,
-    positionKind: PositionKind.Hover,
-  });
   const tooltipRef = useRef<HTMLDivElement>(null);
   const tooltipShowTimeout = useRef<number | null>(null);
   const tooltipHideTimeout = useRef<number | null>(null);
@@ -74,7 +77,10 @@ export default function DescendantsTree({
       svg,
       tree as InterLangDescendants,
       lastRequest.item,
-      setTooltipState,
+      setShowTooltip,
+      setTooltipTreeNode,
+      setTooltipSVGElement,
+      setTooltipPositionKind,
       tooltipRef,
       tooltipShowTimeout,
       tooltipHideTimeout
@@ -83,17 +89,19 @@ export default function DescendantsTree({
     return () => {
       // clear the previous svg
       select(svg).selectAll("*").remove();
-      hideTooltip(tooltipRef);
-      setTooltipState({
-        itemNode: null,
-        svgElement: null,
-        positionKind: PositionKind.Hover,
-      });
+      hideTooltip(tooltipRef, setShowTooltip);
+      setShowTooltip(false);
+      setTooltipTreeNode(null);
+      setTooltipSVGElement(null);
+      setTooltipPositionKind(PositionKind.Hover);
     };
   }, [
     tree,
     lastRequest,
-    setTooltipState,
+    setShowTooltip,
+    setTooltipTreeNode,
+    setTooltipSVGElement,
+    setTooltipPositionKind,
     tooltipRef,
     tooltipShowTimeout,
     tooltipHideTimeout,
@@ -103,12 +111,16 @@ export default function DescendantsTree({
     <div className="tree-container">
       <svg className="tree" ref={svgRef} />
       <DescendantsTooltip
-        state={tooltipState}
         setSelectedLang={setSelectedLang}
         setSelectedItem={setSelectedItem}
         selectedDescLangs={selectedDescLangs}
         setTree={setTree}
         setSelectedTreeKind={setSelectedTreeKind}
+        showTooltip={showTooltip}
+        setShowTooltip={setShowTooltip}
+        treeNode={tooltipTreeNode}
+        svgElement={tooltipSVGElement}
+        positionKind={tooltipPositionKind}
         divRef={tooltipRef}
         showTimeout={tooltipShowTimeout}
         hideTimeout={tooltipHideTimeout}
@@ -123,7 +135,12 @@ function descendantsTreeSVG(
   svgElement: SVGSVGElement,
   tree: InterLangDescendants,
   treeRootItem: Item,
-  setTooltipState: (state: DescendantsTooltipState) => void,
+  setShowTooltip: (show: boolean) => void,
+  setTooltipTreeNode: (
+    node: HierarchyPointNode<InterLangDescendants> | null
+  ) => void,
+  setTooltipSVGElement: (svg: SVGElement | null) => void,
+  setTooltipPositionKind: (positionKind: PositionKind) => void,
   tooltipRef: RefObject<HTMLDivElement>,
   tooltipShowTimeout: MutableRefObject<number | null>,
   tooltipHideTimeout: MutableRefObject<number | null>
@@ -291,7 +308,10 @@ function descendantsTreeSVG(
 
   setDescendantsTooltipListeners(
     node,
-    setTooltipState,
+    setShowTooltip,
+    setTooltipTreeNode,
+    setTooltipSVGElement,
+    setTooltipPositionKind,
     tooltipRef,
     tooltipShowTimeout,
     tooltipHideTimeout
