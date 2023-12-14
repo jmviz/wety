@@ -22,7 +22,7 @@ export default function App() {
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
   const [selectedDescLangs, setSelectedDescLangs] = useState<Lang[]>([]);
   const [selectedTreeKind, setSelectedTreeKind] = useState<TreeKind>(
-    TreeKind.Etymology
+    TreeKind.Cognates
   );
   const [tree, setTree] = useState<Etymology | InterLangDescendants | null>(
     null

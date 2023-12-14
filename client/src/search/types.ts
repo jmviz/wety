@@ -63,6 +63,7 @@ export interface InterLangDescendants {
 }
 
 export enum TreeKind {
+  Cognates = "Cognates",
   Etymology = "Etymology",
   Descendants = "Descendants",
 }
@@ -83,6 +84,12 @@ export class TreeRequest {
 
   url(): string {
     switch (this.kind) {
+      case TreeKind.Cognates:
+        return `${process.env.REACT_APP_API_BASE_URL}/cognates/${
+          this.item.id
+        }?distLang=${this.item.lang.id}&${this.descLangs
+          .map((lang) => `descLang=${lang.id}`)
+          .join("&")}`;
       case TreeKind.Etymology:
         return `${process.env.REACT_APP_API_BASE_URL}/etymology/${this.item.id}`;
       case TreeKind.Descendants:
