@@ -72,7 +72,7 @@ If you get a CUDA out of memory error, or if you are using the CPU backend and t
 
 You must have run `processor` first, with the serialized processed data having been written to `data/wety.json.gz` or `data/wety.json` (the latter will load faster on server startup).
 
-Alternatively, if you don't want to spend time running `processor` yourself, you can download the current processed data that [wety.org](https://www.wety.org) is using from [data.wety.org](http://data.wety.org/). Download the file into `data/`, and decompress it if you wish (do not rename it in either case). It's possible that the format of the processed data at this link may become out of sync with the format expected by latest `main`, either because production is using an older version or because I have neglected to update the link. If you get a deserialization error running the below, please [ping me](jmviz@jmviz.dev) to update the link.
+Alternatively, if you don't want to spend time running `processor` yourself, you can download the current processed data that [wety.org](https://www.wety.org) is using from [data.wety.org](http://data.wety.org/). Download the file into `data/`, and decompress it if you wish (do not rename it in either case). It's possible that the format of the processed data at this link may become out of sync with the format expected by latest `main`, either because production is using an older version or because I have neglected to update the link. If you get a deserialization error running the below, please [ping me](mailto:jmviz@jmviz.dev) to update the link.
 
 To run the server:
 
