@@ -73,10 +73,11 @@ async fn main() -> Result<()> {
                 ),
         );
 
+    let addr = SocketAddr::from_str("0.0.0.0:3000")?;
+    println!("Running wety server at http://{}...", addr);
+
     match environment {
         Environment::Development => {
-            let addr = SocketAddr::from_str("0.0.0.0:3000")?;
-            println!("Running wety server at http://{}...", addr);
             axum_server::bind(addr)
                 .serve(app.into_make_service_with_connect_info::<SocketAddr>())
                 .await?;
@@ -87,8 +88,6 @@ async fn main() -> Result<()> {
             let key_path = env::var("WETY_KEY_PATH")
                 .expect("WETY_KEY_PATH environment variable set in production");
             let config = RustlsConfig::from_pem_file(&cert_path, &key_path).await?;
-            let addr = SocketAddr::from_str("0.0.0.0:3000")?;
-            println!("Running wety server at https://{}...", addr);
             axum_server::bind_rustls(addr, config)
                 .serve(app.into_make_service_with_connect_info::<SocketAddr>())
                 .await?;
