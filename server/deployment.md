@@ -117,8 +117,8 @@ And write the following to it:
 
 ```bash
 #!/bin/bash
-sudo cp /etc/letsencrypt/live/api.wety.org/{fullchain,privkey}.pem ~/certs/
-sudo chown ubuntu ~/certs/{fullchain,privkey}.pem
+sudo cp /etc/letsencrypt/live/api.wety.org/{fullchain,privkey}.pem /home/ubuntu/certs/
+sudo chown ubuntu /home/ubuntu/certs/{fullchain,privkey}.pem
 sudo systemctl restart wety
 ```
 
