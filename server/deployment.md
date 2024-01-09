@@ -230,8 +230,8 @@ sudo systemctl enable wety
 # Disable the wety service from starting on boot
 sudo systemctl disable wety
 
-# View the logs of the wety service
-sudo journalctl -u wety
+# View the logs of the wety service (in reverse order, i.e. most to least recent)
+sudo journalctl -u wety -r
 
 # Check the configuration of the wety service
 sudo systemctl cat wety
