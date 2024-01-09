@@ -36,7 +36,7 @@ interface EtymologyTooltipProps {
   setSelectedItem: (item: Item | null) => void;
   selectedDescLangs: Lang[];
   setSelectedTreeKind: (treeKind: TreeKind) => void;
-  setTree: (tree: Etymology | InterLangDescendants | null) => void;
+  setTree: (tree: Etymology | InterLangDescendants[] | null) => void;
   showTooltip: boolean;
   setShowTooltip: (show: boolean) => void;
   treeNode: HierarchyPointNode<Etymology> | null;
@@ -125,7 +125,7 @@ export default function EtymologyTooltip({
           setLastRequest(request);
           setSelectedLang(item.lang);
           setSelectedItem(item);
-          setTree(interLangDescendants(tree));
+          setTree([interLangDescendants(tree)]);
           setSelectedTreeKind(TreeKind.Descendants);
         } catch (error) {
           console.log(error);

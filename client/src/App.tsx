@@ -24,7 +24,7 @@ export default function App() {
   const [selectedTreeKind, setSelectedTreeKind] = useState<TreeKind>(
     TreeKind.Cognates
   );
-  const [tree, setTree] = useState<Etymology | InterLangDescendants | null>(
+  const [tree, setTree] = useState<Etymology | InterLangDescendants[] | null>(
     null
   );
   const [lastRequest, setLastRequest] = useState<TreeRequest | null>(null);

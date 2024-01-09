@@ -129,6 +129,23 @@ impl Data {
         dist_lang: Lang,
         desc_langs: &[Lang],
         req_item_ancestors_within_desc_langs: &[ItemId],
+    ) -> Value {
+        self.item_descendants_json_inner(
+            item_id,
+            dist_lang,
+            desc_langs,
+            req_item_ancestors_within_desc_langs,
+            None,
+            None,
+        )
+    }
+
+    fn item_descendants_json_inner(
+        &self,
+        item_id: ItemId,
+        dist_lang: Lang,
+        desc_langs: &[Lang],
+        req_item_ancestors_within_desc_langs: &[ItemId],
         item_parent_id: Option<ItemId>,
         item_parent_ety_order: Option<u8>,
     ) -> Value {
@@ -168,7 +185,7 @@ impl Data {
                     })
             })
             .map(|e| {
-                self.item_descendants_json(
+                self.item_descendants_json_inner(
                     e.child(),
                     dist_lang,
                     desc_langs,
@@ -207,45 +224,46 @@ impl Data {
     }
 
     #[must_use]
-    pub fn head_progenitor_tree(&self, item_id: ItemId, desc_langs: &[Lang]) -> Value {
-        let lang = self.item(item_id).lang();
-        let ancestors_within_desc_langs = self.ancestors_in_langs(item_id, desc_langs);
-        self.progenitors
-            .get(&item_id)
-            .and_then(|p| p.head)
-            .map_or_else(
-                || {
-                    self.item_descendants_json(
-                        item_id,
-                        lang,
-                        desc_langs,
-                        &ancestors_within_desc_langs,
-                        None,
-                        None,
-                    )
-                },
-                |head| {
-                    self.item_descendants_json(
-                        head,
-                        lang,
-                        desc_langs,
-                        &ancestors_within_desc_langs,
-                        None,
-                        None,
-                    )
-                },
-            )
+    pub fn item_cognates_json(
+        &self,
+        item_id: ItemId,
+        dist_lang: Lang,
+        desc_langs: &[Lang],
+        req_item_ancestors_within_desc_langs: &[ItemId],
+    ) -> Value {
+        self.progenitors.get(&item_id).map_or_else(
+            || json!([]),
+            |progenitors| {
+                json!(progenitors
+                    .items
+                    .iter()
+                    .map(|&p| {
+                        self.item_descendants_json(
+                            p,
+                            dist_lang,
+                            desc_langs,
+                            req_item_ancestors_within_desc_langs,
+                        )
+                    })
+                    .collect_vec())
+            },
+        )
     }
 
     #[must_use]
-    pub fn etymology_json(&self, item_id: ItemId, item_ety_order: u8, req_lang: Lang) -> Value {
+    pub fn item_etymology_json(
+        &self,
+        item_id: ItemId,
+        item_ety_order: u8,
+        req_lang: Lang,
+    ) -> Value {
         let mut ety_mode = None;
         let parents = self
             .graph
             .parent_edges(item_id)
             .map(|e| {
                 ety_mode = Some(e.mode());
-                self.etymology_json(e.parent(), e.order(), req_lang)
+                self.item_etymology_json(e.parent(), e.order(), req_lang)
             })
             .collect_vec();
 

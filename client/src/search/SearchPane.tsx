@@ -25,7 +25,7 @@ interface SearchPaneProps {
   setSelectedDescLangs: (langs: Lang[]) => void;
   selectedTreeKind: TreeKind;
   setSelectedTreeKind: (treeKind: TreeKind) => void;
-  setTree: (tree: Etymology | InterLangDescendants | null) => void;
+  setTree: (tree: Etymology | InterLangDescendants[] | null) => void;
   lastRequest: TreeRequest | null;
   setLastRequest: (request: TreeRequest | null) => void;
 }

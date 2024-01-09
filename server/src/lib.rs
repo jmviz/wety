@@ -77,7 +77,7 @@ pub async fn item_etymology(
     Path(item_id): Path<ItemId>,
 ) -> Json<Value> {
     let lang = state.data.lang(item_id);
-    Json(state.data.etymology_json(item_id, 0, lang))
+    Json(state.data.item_etymology_json(item_id, 0, lang))
 }
 
 #[derive(Deserialize)]
@@ -88,7 +88,7 @@ pub struct TreeQueries {
     dist_lang: Option<Lang>,
 }
 
-pub async fn item_head_descendants(
+pub async fn item_descendants(
     State(state): State<Arc<AppState>>,
     Path(item_id): Path<ItemId>,
     ExtraQuery(tree_queries): ExtraQuery<TreeQueries>,
@@ -102,19 +102,22 @@ pub async fn item_head_descendants(
         dist_lang,
         &tree_queries.desc_langs,
         &head_ancestors_within_lang,
-        None,
-        None,
     ))
 }
 
-pub async fn item_head_progenitor_tree(
+pub async fn item_cognates(
     State(state): State<Arc<AppState>>,
     Path(item_id): Path<ItemId>,
     ExtraQuery(tree_queries): ExtraQuery<TreeQueries>,
 ) -> Json<Value> {
-    Json(
-        state
-            .data
-            .head_progenitor_tree(item_id, &tree_queries.desc_langs),
-    )
+    let dist_lang = tree_queries.dist_lang.unwrap_or(state.data.lang(item_id));
+    let head_ancestors_within_lang = state
+        .data
+        .ancestors_in_langs(item_id, &tree_queries.desc_langs);
+    Json(state.data.item_cognates_json(
+        item_id,
+        dist_lang,
+        &tree_queries.desc_langs,
+        &head_ancestors_within_lang,
+    ))
 }

@@ -19,7 +19,7 @@ interface EtyButtonProps {
   selectedItem: Item | null;
   selectedDescLangs: Lang[];
   selectedTreeKind: TreeKind;
-  setTree: (tree: Etymology | InterLangDescendants | null) => void;
+  setTree: (tree: Etymology | InterLangDescendants[] | null) => void;
   lastRequest: TreeRequest | null;
   setLastRequest: (request: TreeRequest | null) => void;
 }
@@ -53,14 +53,24 @@ export default function EtyButton({
           const response = await fetch(request.url());
           const tree = (await response.json()) as
             | Etymology
-            | InterLangDescendants;
+            | Descendants
+            | Descendants[];
           console.log(tree);
           setLastRequest(request);
-          setTree(
-            selectedTreeKind === TreeKind.Etymology
-              ? (tree as Etymology)
-              : interLangDescendants(tree as Descendants)
-          );
+          switch (selectedTreeKind) {
+            case TreeKind.Etymology:
+              setTree(tree as Etymology);
+              break;
+            case TreeKind.Descendants:
+              setTree([interLangDescendants(tree as Descendants)]);
+              break;
+            case TreeKind.Cognates:
+              const cognatesInterLangDescendants = (tree as Descendants[]).map(
+                (t) => interLangDescendants(t)
+              );
+              setTree(cognatesInterLangDescendants);
+              break;
+          }
         } catch (error) {
           console.log(error);
         }

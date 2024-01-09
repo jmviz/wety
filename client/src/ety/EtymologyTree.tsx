@@ -35,8 +35,8 @@ interface EtymologyTreeProps {
   setSelectedItem: (item: Item | null) => void;
   selectedDescLangs: Lang[];
   setSelectedTreeKind: (treeKind: TreeKind) => void;
-  tree: Etymology | InterLangDescendants | null;
-  setTree: (tree: Etymology | InterLangDescendants | null) => void;
+  tree: Etymology | InterLangDescendants[] | null;
+  setTree: (tree: Etymology | InterLangDescendants[] | null) => void;
   lastRequest: TreeRequest | null;
   setLastRequest: (request: TreeRequest | null) => void;
 }

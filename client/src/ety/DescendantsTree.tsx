@@ -27,7 +27,8 @@ import {
   RefObject,
   useRef,
   useEffect,
-  MutableRefObject,
+  useMemo,
+  createRef,
   useState,
 } from "react";
 
@@ -36,8 +37,8 @@ interface DescendantsTreeProps {
   setSelectedItem: (item: Item | null) => void;
   selectedDescLangs: Lang[];
   setSelectedTreeKind: (treeKind: TreeKind) => void;
-  tree: Etymology | InterLangDescendants | null;
-  setTree: (tree: Etymology | InterLangDescendants | null) => void;
+  tree: Etymology | InterLangDescendants[] | null;
+  setTree: (tree: Etymology | InterLangDescendants[] | null) => void;
   lastRequest: TreeRequest | null;
   setLastRequest: (request: TreeRequest | null) => void;
 }
@@ -61,34 +62,55 @@ export default function DescendantsTree({
   const [tooltipPositionKind, setTooltipPositionKind] = useState<PositionKind>(
     PositionKind.Hover
   );
-  const svgRef = useRef<SVGSVGElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
   const tooltipShowTimeout = useRef<number | null>(null);
   const tooltipHideTimeout = useRef<number | null>(null);
 
-  useEffect(() => {
-    const svg = svgRef.current;
+  const svgRefs = useMemo(() => {
+    if (!Array.isArray(tree)) {
+      return [];
+    }
 
-    if (svg === null || tree === null || lastRequest === null) {
+    const refs: RefObject<SVGSVGElement>[] = [];
+    for (let index = 0; index < tree.length; index++) {
+      refs.push(createRef<SVGSVGElement>());
+    }
+    return refs;
+  }, [tree]);
+
+  useEffect(() => {
+    if (!Array.isArray(tree)) {
       return;
     }
 
-    descendantsTreeSVG(
-      svg,
-      tree as InterLangDescendants,
-      lastRequest.item,
-      setShowTooltip,
-      setTooltipTreeNode,
-      setTooltipSVGElement,
-      setTooltipPositionKind,
-      tooltipRef,
-      tooltipShowTimeout,
-      tooltipHideTimeout
-    );
+    const cleanupSVGs: (() => void)[] = [];
+
+    for (let index = 0; index < tree.length; index++) {
+      const svgRef = svgRefs[index];
+      const svg = svgRef.current;
+
+      if (!svg || !tree[index] || !lastRequest) {
+        return;
+      }
+
+      descendantsTreeSVG(
+        svg,
+        tree[index] as InterLangDescendants,
+        lastRequest.item,
+        setShowTooltip,
+        setTooltipTreeNode,
+        setTooltipSVGElement,
+        setTooltipPositionKind,
+        tooltipRef,
+        tooltipShowTimeout,
+        tooltipHideTimeout
+      );
+
+      cleanupSVGs.push(() => select(svg).selectAll("*").remove());
+    }
 
     return () => {
-      // clear the previous svg
-      select(svg).selectAll("*").remove();
+      cleanupSVGs.forEach((cleanup) => cleanup());
       hideTooltip(tooltipRef, setShowTooltip);
       setShowTooltip(false);
       setTooltipTreeNode(null);
@@ -105,11 +127,14 @@ export default function DescendantsTree({
     tooltipRef,
     tooltipShowTimeout,
     tooltipHideTimeout,
+    svgRefs,
   ]);
 
   return (
     <div className="tree-container">
-      <svg className="tree" ref={svgRef} />
+      {svgRefs.map((ref, index) => (
+        <svg key={index} className="tree" ref={ref} />
+      ))}
       <DescendantsTooltip
         setSelectedLang={setSelectedLang}
         setSelectedItem={setSelectedItem}
@@ -130,6 +155,84 @@ export default function DescendantsTree({
     </div>
   );
 }
+// const [showTooltip, setShowTooltip] = useState(false);
+// const [tooltipTreeNode, setTooltipTreeNode] =
+//   useState<HierarchyPointNode<InterLangDescendants> | null>(null);
+// const [tooltipSVGElement, setTooltipSVGElement] = useState<SVGElement | null>(
+//   null
+// );
+// const [tooltipPositionKind, setTooltipPositionKind] = useState<PositionKind>(
+//   PositionKind.Hover
+// );
+// const svgRef = useRef<SVGSVGElement>(null);
+// const tooltipRef = useRef<HTMLDivElement>(null);
+// const tooltipShowTimeout = useRef<number | null>(null);
+// const tooltipHideTimeout = useRef<number | null>(null);
+
+//   useEffect(() => {
+//     const svg = svgRef.current;
+
+//     if (svg === null || tree === null || lastRequest === null) {
+//       return;
+//     }
+
+// descendantsTreeSVG(
+//   svg,
+//   tree as InterLangDescendants,
+//   lastRequest.item,
+//   setShowTooltip,
+//   setTooltipTreeNode,
+//   setTooltipSVGElement,
+//   setTooltipPositionKind,
+//   tooltipRef,
+//   tooltipShowTimeout,
+//   tooltipHideTimeout
+// );
+
+//     return () => {
+//       // clear the previous svg
+//       select(svg).selectAll("*").remove();
+//       hideTooltip(tooltipRef, setShowTooltip);
+//       setShowTooltip(false);
+//       setTooltipTreeNode(null);
+//       setTooltipSVGElement(null);
+//       setTooltipPositionKind(PositionKind.Hover);
+//     };
+//   }, [
+//     tree,
+//     lastRequest,
+//     setShowTooltip,
+//     setTooltipTreeNode,
+//     setTooltipSVGElement,
+//     setTooltipPositionKind,
+//     tooltipRef,
+//     tooltipShowTimeout,
+//     tooltipHideTimeout,
+//   ]);
+
+//   return (
+//     <div className="tree-container">
+//       <svg className="tree" ref={svgRef} />
+// <DescendantsTooltip
+//   setSelectedLang={setSelectedLang}
+//   setSelectedItem={setSelectedItem}
+//   selectedDescLangs={selectedDescLangs}
+//   setTree={setTree}
+//   setSelectedTreeKind={setSelectedTreeKind}
+//   showTooltip={showTooltip}
+//   setShowTooltip={setShowTooltip}
+//   treeNode={tooltipTreeNode}
+//   svgElement={tooltipSVGElement}
+//   positionKind={tooltipPositionKind}
+//   divRef={tooltipRef}
+//   showTimeout={tooltipShowTimeout}
+//   hideTimeout={tooltipHideTimeout}
+//   lastRequest={lastRequest}
+//   setLastRequest={setLastRequest}
+// />
+//     </div>
+//   );
+// }
 
 function descendantsTreeSVG(
   svgElement: SVGSVGElement,
@@ -142,8 +245,8 @@ function descendantsTreeSVG(
   setTooltipSVGElement: (svg: SVGElement | null) => void,
   setTooltipPositionKind: (positionKind: PositionKind) => void,
   tooltipRef: RefObject<HTMLDivElement>,
-  tooltipShowTimeout: MutableRefObject<number | null>,
-  tooltipHideTimeout: MutableRefObject<number | null>
+  tooltipShowTimeout: RefObject<number | null>,
+  tooltipHideTimeout: RefObject<number | null>
 ) {
   // https://github.com/d3/d3-hierarchy#hierarchy
   const root = hierarchy<InterLangDescendants>(
