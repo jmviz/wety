@@ -264,9 +264,9 @@ impl WiktextractJsonItem<'_> {
         // may be missing or empty.
         self.json
             .get_array("senses")
-            .and_then(|senses| senses.get(0))
+            .and_then(|senses| senses.first())
             .and_then(|sense| sense.get_array("glosses"))
-            .and_then(|glosses| glosses.get(0))
+            .and_then(|glosses| glosses.first())
             .and_then(|gloss| gloss.as_str())
             .and_then(|gloss| (!gloss.is_empty()).then(|| Gloss::new(string_pool, gloss)))
     }

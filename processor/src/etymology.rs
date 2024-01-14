@@ -379,13 +379,13 @@ impl WiktextractJsonItem<'_> {
         let alt_term = self
             .json
             .get_array("senses")
-            .and_then(|senses| senses.get(0))
+            .and_then(|senses| senses.first())
             .and_then(|sense| {
                 sense
                     .get_array("alt_of")
                     .or_else(|| sense.get_array("form_of"))
             })
-            .and_then(|alt_list| alt_list.get(0))
+            .and_then(|alt_list| alt_list.first())
             .and_then(|alt_obj| alt_obj.get_str("word"))?;
         let langterm = lang.new_langterm(string_pool, alt_term);
         let ety = RawEtyTemplate::new(langterm, EtyMode::Form);

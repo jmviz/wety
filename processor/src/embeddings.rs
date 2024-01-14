@@ -310,7 +310,7 @@ impl Embeddings {
                 for sense in senses {
                     if let Some(gloss) = sense
                         .get_array("glosses")
-                        .and_then(|glosses| glosses.get(0))
+                        .and_then(|glosses| glosses.first())
                         .and_then(|gloss| gloss.as_str())
                     {
                         glosses_text.push_str(gloss);

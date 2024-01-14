@@ -86,7 +86,7 @@ fn process_json_desc_line(
     }
 
     if templates.len() == 1
-        && let Some(template) = templates.get(0)
+        && let Some(template) = templates.first()
         && let Some(name) = template.get_valid_str("name")
         && matches!(name, "desc" | "descendant")
         && let Some(args) = template.get("args")
