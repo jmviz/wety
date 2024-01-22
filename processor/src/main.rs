@@ -1,13 +1,7 @@
 #[global_allocator]
 static ALLOC: snmalloc_rs::SnMalloc = snmalloc_rs::SnMalloc;
 
-use processor::{
-    embeddings::{
-        EmbeddingsConfig, EmbeddingsModel, DEFAULT_BATCH_SIZE, DEFAULT_MODEL,
-        DEFAULT_PROGRESS_UPDATE_INTERVAL,
-    },
-    process_wiktextract,
-};
+use processor::{embeddings, process_wiktextract};
 
 use std::{env, path::PathBuf, time::Instant};
 
@@ -25,15 +19,17 @@ pub struct Args {
         value_parser
     )]
     wiktextract_path: PathBuf,
-    #[clap(short = 'j', long, default_value = "data/wety.json.gz", value_parser)]
+    #[clap(short = 's', long, default_value = "data/wety.json.gz", value_parser)]
     serialization_path: PathBuf,
     #[clap(short = 't', long, value_parser)]
     turtle_path: Option<PathBuf>,
-    #[clap(short = 'm', long, value_enum, default_value_t = DEFAULT_MODEL, value_parser)]
-    embeddings_model: EmbeddingsModel,
-    #[clap(short = 'z', long, default_value_t = DEFAULT_BATCH_SIZE, value_parser)]
+    #[clap(short = 'm', long, default_value = embeddings::DEFAULT_MODEL, value_parser)]
+    embeddings_model: String,
+    #[clap(short = 'r', long, default_value = embeddings::DEFAULT_MODEL_REVISION, value_parser)]
+    embeddings_model_revision: String,
+    #[clap(short = 'b', long, default_value_t = embeddings::DEFAULT_BATCH_SIZE, value_parser)]
     embeddings_batch_size: usize,
-    #[clap(short = 'u', long, default_value_t = DEFAULT_PROGRESS_UPDATE_INTERVAL, value_parser)]
+    #[clap(short = 'u', long, default_value_t = embeddings::DEFAULT_PROGRESS_UPDATE_INTERVAL, value_parser)]
     embeddings_progress_update_interval: usize,
     #[clap(
         short = 'c',
@@ -48,8 +44,9 @@ fn main() -> Result<()> {
     env::set_var("RUST_BACKTRACE", "1");
     let total_time = Instant::now();
     let args = Args::parse();
-    let embeddings_config = EmbeddingsConfig {
-        model: args.embeddings_model,
+    let embeddings_config = embeddings::Config {
+        model_name: args.embeddings_model,
+        model_revision: args.embeddings_model_revision,
         batch_size: args.embeddings_batch_size,
         progress_update_interval: args.embeddings_progress_update_interval,
         cache_path: args.embeddings_cache_path,

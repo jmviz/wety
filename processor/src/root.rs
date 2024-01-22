@@ -1,7 +1,7 @@
 use std::{mem, str::FromStr};
 
 use crate::{
-    embeddings::{EmbeddingComparand, Embeddings, ItemEmbedding},
+    embeddings::{Comparand, Embeddings, ItemEmbedding},
     etymology::validate_ety_template_lang,
     etymology_templates::EtyMode,
     items::{ItemId, Items, Retrieval},
@@ -46,7 +46,7 @@ impl WiktextractJsonItem<'_> {
                 if let Some(name) = template.get_valid_str("name")
                     && let Some(args) = template.get("args")
                 {
-                   match name {
+                    match name {
                         "root" => {
                             return process_root_template(string_pool, args, lang, &RootKind::Root);
                         }
@@ -57,7 +57,7 @@ impl WiktextractJsonItem<'_> {
                             return process_pie_word_template(string_pool, args, lang);
                         }
                         _ => {}
-                   }
+                    }
                 }
             }
         }
@@ -177,7 +177,7 @@ impl Items {
                 let item = self.get(item_id);
                 let item_lang = item.lang();
                 if item_lang.strictly_descends_from(root_lang)
-                || item.is_imputed() && item_lang.descends_from(root_lang)
+                    || item.is_imputed() && item_lang.descends_from(root_lang)
                 {
                     self.graph.add_ety(
                         item_id,
@@ -193,10 +193,9 @@ impl Items {
                     && let head_progenitor = self.get(head_progenitor_id)
                     && !progenitors.items.contains(&root_item_id)
                     && let head_progenitor_lang = head_progenitor.lang()
-                    && (
-                        head_progenitor_lang.strictly_descends_from(root_lang)
-                        || head_progenitor.is_imputed() && head_progenitor_lang.descends_from(root_lang)
-                    )
+                    && (head_progenitor_lang.strictly_descends_from(root_lang)
+                        || head_progenitor.is_imputed()
+                            && head_progenitor_lang.descends_from(root_lang))
                 {
                     let root_embedding = embeddings.get(self.get(root_item_id), root_item_id)?;
                     let hp_embedding = embeddings.get(head_progenitor, head_progenitor_id)?;

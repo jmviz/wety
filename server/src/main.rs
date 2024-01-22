@@ -74,7 +74,7 @@ async fn main() -> Result<()> {
         );
 
     let addr = SocketAddr::from_str("0.0.0.0:3000")?;
-    println!("Running wety server at http://{}...", addr);
+    println!("Running wety server at http://{addr}...");
 
     match environment {
         Environment::Development => {

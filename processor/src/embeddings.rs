@@ -6,22 +6,12 @@ use crate::{
 
 use std::{mem, path::PathBuf, rc::Rc};
 
-use anyhow::Result;
-use clap::ValueEnum;
-use rust_bert::pipelines::sentence_embeddings::{
-    SentenceEmbeddingsBuilder, SentenceEmbeddingsConfig, SentenceEmbeddingsModel,
-    SentenceEmbeddingsModelType,
-};
+use anyhow::{Error, Result};
+
 use simd_json::ValueAccess;
-use sled::{Batch, Db, IVec};
+use sled::{self, Db, IVec};
 use xxhash_rust::xxh3::xxh3_64;
 
-// rust_bert::pipelines::sentence_embeddings::Embedding is also Vec<f32>, but we
-// use our own type so that if we update the package and for some reason it
-// changes to say Vec<f16/f64>, then
-//      embeddings: Vec<Embedding> = model.encode(...)
-// will be a compilation error instead of quiet unexpected behavior, as we need
-// to be sure of the elements being f32 for the caching (see below).
 type Embedding = Vec<f32>;
 
 /// Only retrieve items with similarity greater than this threshold
@@ -84,17 +74,17 @@ impl ToEmbedding for IVec {
     }
 }
 
-struct EmbeddingBatch {
+struct Batch {
     max_size: usize,
-    model: Rc<SentenceEmbeddingsModel>,
+    model: Rc<Model>,
     cache: Rc<Db>,
     items: Vec<ItemId>,
     texts: Vec<String>,
     text_hashes: Vec<TextHash>,
 }
 
-impl EmbeddingBatch {
-    fn new(model: &Rc<SentenceEmbeddingsModel>, size: usize, cache: &Rc<Db>) -> Self {
+impl Batch {
+    fn new(model: &Rc<Model>, size: usize, cache: &Rc<Db>) -> Self {
         Self {
             items: Vec::with_capacity(size),
             texts: Vec::with_capacity(size),
@@ -144,14 +134,16 @@ impl EmbeddingBatch {
     fn encode_and_cache(&mut self) -> Result<(Vec<ItemId>, Vec<TextHash>)> {
         let items = mem::take(&mut self.items);
         let text_hashes = mem::take(&mut self.text_hashes);
-        let embeddings: Vec<Embedding> = self.model.encode(&self.texts)?;
+        let texts = mem::take(&mut self.texts);
+        let embeddings = self.model.encode(texts)?;
         self.cache(&text_hashes, &embeddings)?;
         self.clear();
         Ok((items, text_hashes))
     }
 
-    fn cache(&self, text_hashes: &[TextHash], embeddings: &[Embedding]) -> Result<()> {
-        let mut batch = Batch::default();
+    fn cache(&self, text_hashes: &[TextHash], embeddings: &Tensor) -> Result<()> {
+        let mut batch = sled::Batch::default();
+        let embeddings = embeddings.to_vec2::<f32>()?;
         for (text_hash, embedding) in text_hashes.iter().zip(embeddings.iter()) {
             batch.insert(&text_hash.to_bytes(), embedding.to_bytes());
         }
@@ -161,15 +153,15 @@ impl EmbeddingBatch {
 }
 
 struct EmbeddingsMap {
-    batch: EmbeddingBatch,
+    batch: Batch,
     map: HashMap<ItemId, TextHash>,
     cache: Rc<Db>,
 }
 
 impl EmbeddingsMap {
-    fn new(model: &Rc<SentenceEmbeddingsModel>, batch_size: usize, cache: &Rc<Db>) -> Self {
+    fn new(model: &Rc<Model>, batch_size: usize, cache: &Rc<Db>) -> Self {
         Self {
-            batch: EmbeddingBatch::new(model, batch_size, cache),
+            batch: Batch::new(model, batch_size, cache),
             map: HashMap::default(),
             cache: Rc::clone(cache),
         }
@@ -208,46 +200,157 @@ impl EmbeddingsMap {
     }
 }
 
-#[allow(clippy::module_name_repetitions)]
-#[derive(ValueEnum, Clone)]
-#[clap(rename_all = "PascalCase")]
-pub enum EmbeddingsModel {
-    AllMiniLmL6V2,
-    DistiluseBaseMultilingualCased,
-    BertBaseNliMeanTokens,
-    AllMiniLmL12V2,
-    AllDistilrobertaV1,
-    ParaphraseAlbertSmallV2,
-    SentenceT5Base,
-}
-
-pub const DEFAULT_MODEL: EmbeddingsModel = EmbeddingsModel::AllMiniLmL12V2;
+// for other options, see:
+// https://huggingface.co/models?library=sentence-transformers&sort=trending
+pub const DEFAULT_MODEL: &str = "sentence-transformers/all-MiniLM-L12-v2";
+pub const DEFAULT_MODEL_REVISION: &str = "main";
 pub const DEFAULT_BATCH_SIZE: usize = 800;
 pub const DEFAULT_PROGRESS_UPDATE_INTERVAL: usize = DEFAULT_BATCH_SIZE * 10;
 
-impl EmbeddingsModel {
-    fn kind(&self) -> SentenceEmbeddingsModelType {
-        match self {
-            EmbeddingsModel::AllMiniLmL6V2 => SentenceEmbeddingsModelType::AllMiniLmL6V2,
-            EmbeddingsModel::DistiluseBaseMultilingualCased => {
-                SentenceEmbeddingsModelType::DistiluseBaseMultilingualCased
-            }
-            EmbeddingsModel::BertBaseNliMeanTokens => {
-                SentenceEmbeddingsModelType::BertBaseNliMeanTokens
-            }
-            EmbeddingsModel::AllMiniLmL12V2 => SentenceEmbeddingsModelType::AllMiniLmL12V2,
-            EmbeddingsModel::AllDistilrobertaV1 => SentenceEmbeddingsModelType::AllDistilrobertaV1,
-            EmbeddingsModel::ParaphraseAlbertSmallV2 => {
-                SentenceEmbeddingsModelType::ParaphraseAlbertSmallV2
-            }
-            EmbeddingsModel::SentenceT5Base => SentenceEmbeddingsModelType::SentenceT5Base,
+#[cfg(feature = "mkl")]
+extern crate intel_mkl_src;
+
+#[cfg(feature = "accelerate")]
+extern crate accelerate_src;
+
+use candle_core::{
+    utils::{cuda_is_available, metal_is_available},
+    Device, Tensor,
+};
+use candle_nn::VarBuilder;
+use candle_transformers::models::bert::{self, BertModel, HiddenAct, DTYPE};
+use hf_hub::{api::sync::Api, Repo, RepoType};
+use tokenizers::{PaddingParams, Tokenizer};
+
+fn device() -> Result<Device> {
+    if cuda_is_available() {
+        println!("Running embeddings model on GPU (CUDA).");
+        return Ok(Device::new_cuda(0)?);
+    }
+    if metal_is_available() {
+        println!("Running embeddings model on GPU (Metal).");
+        return Ok(Device::new_metal(0)?);
+    }
+
+    println!("Running embeddings model on CPU.");
+    #[cfg(target_os = "macos")]
+    {
+        #[cfg(target_arch = "aarch64")]
+        {
+            println!("To run on GPU with Metal, build with `--features metal`.");
         }
+        #[cfg(not(any(feature = "accelerate"), target_arch = "aarch64"))]
+        {
+            println!("For accelerated CPU processing, build with `--features accelerate`.");
+        }
+    }
+    #[cfg(not(target_os = "macos"))]
+    {
+        #[cfg(not(feature = "cuda"))]
+        {
+            println!("If you have a CUDA GPU, use it by building with `--features cuda`.");
+        }
+        #[cfg(all(not(feature = "mkl"), target_arch = "x86_64"))]
+        {
+            println!("For accelerated CPU processing, build with `--features mkl`.");
+        }
+    }
+    Ok(Device::Cpu)
+}
+
+struct Model {
+    device: Device,
+    inner: BertModel,
+    tokenizer: Tokenizer,
+}
+
+// adapted from https://github.com/huggingface/candle/blob/main/candle-examples/examples/bert/main.rs
+impl Model {
+    fn new(model_name: String, revision: String) -> Result<Self> {
+        let device = device()?;
+
+        let repo = Repo::with_revision(model_name, RepoType::Model, revision);
+
+        let (config_filename, tokenizer_filename, weights_filename) = {
+            let api = Api::new()?;
+            let api = api.repo(repo);
+            let config = api.get("config.json")?;
+            let tokenizer = api.get("tokenizer.json")?;
+            let weights = api.get("pytorch_model.bin")?;
+            (config, tokenizer, weights)
+        };
+
+        let mut tokenizer = Tokenizer::from_file(tokenizer_filename).map_err(Error::msg)?;
+        if let Some(pp) = tokenizer.get_padding_mut() {
+            pp.strategy = tokenizers::PaddingStrategy::BatchLongest;
+        } else {
+            let pp = PaddingParams {
+                strategy: tokenizers::PaddingStrategy::BatchLongest,
+                ..Default::default()
+            };
+            tokenizer.with_padding(Some(pp));
+        }
+
+        let vb = VarBuilder::from_pth(&weights_filename, DTYPE, &device)?;
+
+        let config = std::fs::read_to_string(config_filename)?;
+        let mut config: bert::Config = serde_json::from_str(&config)?;
+        config.hidden_act = HiddenAct::GeluApproximate;
+
+        let model = BertModel::load(vb, &config)?;
+
+        Ok(Self {
+            device,
+            inner: model,
+            tokenizer,
+        })
+    }
+
+    fn encode(&self, texts: Vec<String>) -> Result<Tensor> {
+        let tokens = self
+            .tokenizer
+            .encode_batch(texts, true)
+            .map_err(Error::msg)?;
+        let token_ids = tokens
+            .iter()
+            .map(|tokens| {
+                let tokens = tokens.get_ids().to_vec();
+                Ok(Tensor::new(tokens.as_slice(), &self.device)?)
+            })
+            .collect::<Result<Vec<_>>>()?;
+        let token_ids = Tensor::stack(&token_ids, 0)?;
+        let token_type_ids = token_ids.zeros_like()?;
+        let embeddings = self.inner.forward(&token_ids, &token_type_ids)?;
+        // Apply some avg-pooling by taking the mean embedding value for all tokens (including padding)
+        let (_n_sentence, n_tokens, _hidden_size) = embeddings.dims3()?;
+        #[allow(clippy::cast_precision_loss)]
+        let embeddings = (embeddings.sum(1)? / (n_tokens as f64))?;
+        let embeddings = normalize_l2(&embeddings)?;
+        Ok(embeddings)
+
+        // let mut similarities = vec![];
+        // for i in 0..n_texts {
+        //     let e_i = embeddings.get(i)?;
+        //     for j in (i + 1)..n_texts {
+        //         let e_j = embeddings.get(j)?;
+        //         let sum_ij = (&e_i * &e_j)?.sum_all()?.to_scalar::<f32>()?;
+        //         let sum_i2 = (&e_i * &e_i)?.sum_all()?.to_scalar::<f32>()?;
+        //         let sum_j2 = (&e_j * &e_j)?.sum_all()?.to_scalar::<f32>()?;
+        //         let cosine_similarity = sum_ij / (sum_i2 * sum_j2).sqrt();
+        //         similarities.push((cosine_similarity, i, j))
+        //     }
+        // }
+        // similarities.sort_by(|u, v| v.0.total_cmp(&u.0));
     }
 }
 
-#[allow(clippy::module_name_repetitions)]
-pub struct EmbeddingsConfig {
-    pub model: EmbeddingsModel,
+fn normalize_l2(v: &Tensor) -> Result<Tensor> {
+    Ok(v.broadcast_div(&v.sqr()?.sum_keepdim(1)?.sqrt()?)?)
+}
+
+pub struct Config {
+    pub model_name: String,
+    pub model_revision: String,
     pub batch_size: usize,
     pub progress_update_interval: usize,
     pub cache_path: PathBuf,
@@ -260,18 +363,11 @@ pub(crate) struct Embeddings {
 }
 
 impl Embeddings {
-    pub(crate) fn new(config: &EmbeddingsConfig) -> Result<Self> {
-        // https://www.sbert.net/docs/pretrained_models.html
-        // https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2
-        let model =
-            Rc::from(SentenceEmbeddingsBuilder::remote(config.model.kind()).create_model()?);
-        let se_config = SentenceEmbeddingsConfig::from(config.model.kind());
-        let maybe_cuda = if se_config.device.is_cuda() {
-            ""
-        } else {
-            "non-"
-        };
-        println!("Using {maybe_cuda}CUDA backend for embeddings...");
+    pub(crate) fn new(config: &Config) -> Result<Self> {
+        let model = Rc::from(Model::new(
+            config.model_name.clone(),
+            config.model_revision.clone(),
+        )?);
         let cache = Rc::from(sled::open(&config.cache_path)?);
         Ok(Self {
             ety: EmbeddingsMap::new(&model, config.batch_size, &cache),
@@ -348,11 +444,11 @@ impl Embeddings {
     }
 }
 
-pub(crate) trait EmbeddingComparand<T> {
+pub(crate) trait Comparand<T> {
     fn cosine_similarity(&self, other: &T) -> f32;
 }
 
-impl EmbeddingComparand<Embedding> for Embedding {
+impl Comparand<Embedding> for Embedding {
     fn cosine_similarity(&self, other: &Embedding) -> f32 {
         let (mut ab, mut aa, mut bb) = (0.0, 0.0, 0.0);
         for (a, b) in self.iter().zip(other) {
@@ -364,7 +460,7 @@ impl EmbeddingComparand<Embedding> for Embedding {
     }
 }
 
-impl EmbeddingComparand<Option<Embedding>> for Option<Embedding> {
+impl Comparand<Option<Embedding>> for Option<Embedding> {
     fn cosine_similarity(&self, other: &Option<Embedding>) -> f32 {
         if let Some(this) = self
             && let Some(other) = other
@@ -378,12 +474,13 @@ impl EmbeddingComparand<Option<Embedding>> for Option<Embedding> {
 const GLOSSES_WEIGHT: f32 = 0.75;
 const ETY_WEIGHT: f32 = 1.0 - GLOSSES_WEIGHT;
 
-impl EmbeddingComparand<ItemEmbedding> for ItemEmbedding {
+impl Comparand<ItemEmbedding> for ItemEmbedding {
     fn cosine_similarity(&self, other: &ItemEmbedding) -> f32 {
         let discount = self.discount.min(other.discount);
         let glosses_similarity = self.glosses.cosine_similarity(&other.glosses);
-        discount * if let Some(self_ety) = &self.ety
-            && let Some(other_ety) = &other.ety
+        discount
+            * if let Some(self_ety) = &self.ety
+                && let Some(other_ety) = &other.ety
             {
                 let ety_similarity = self_ety.cosine_similarity(other_ety);
                 ETY_WEIGHT * ety_similarity + GLOSSES_WEIGHT * glosses_similarity
@@ -404,7 +501,7 @@ const NO_ETY_QUALITY: f32 = 1.0 - ETY_WEIGHT;
 const EMPTY_QUALITY: f32 = 0.0;
 
 // for comparing an item with all its ancestors
-impl EmbeddingComparand<ItemEmbedding> for Vec<ItemEmbedding> {
+impl Comparand<ItemEmbedding> for Vec<ItemEmbedding> {
     fn cosine_similarity(&self, other: &ItemEmbedding) -> f32 {
         if other.is_empty() {
             return 0.0;
@@ -458,8 +555,9 @@ mod tests {
     }
 
     fn embeddings(cache_path: &Path) -> Embeddings {
-        let config = EmbeddingsConfig {
-            model: DEFAULT_MODEL,
+        let config = Config {
+            model_name: DEFAULT_MODEL.to_string(),
+            model_revision: DEFAULT_MODEL_REVISION.to_string(),
             batch_size: 1,
             progress_update_interval: 1,
             cache_path: cache_path.to_path_buf(),

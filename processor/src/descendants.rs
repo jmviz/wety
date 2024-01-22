@@ -78,7 +78,7 @@ fn process_json_desc_line(
     let templates = desc_line.get_array("templates")?;
 
     if templates.is_empty()
-        && let Some(text) = desc_line.get_valid_str("text") 
+        && let Some(text) = desc_line.get_valid_str("text")
     {
         let text = Gloss::new(string_pool, text);
         let kind = RawDescLineKind::BareText { text };
@@ -96,7 +96,7 @@ fn process_json_desc_line(
         && args.get_valid_term("alt").is_none()
     {
         let kind = RawDescLineKind::BareLang { lang };
-        return Some(RawDescLine{ depth, kind });
+        return Some(RawDescLine { depth, kind });
     }
 
     let is_derivation = desc_line.get_array("tags").map_or(false, |tags| {
@@ -255,7 +255,8 @@ impl<T: Clone> Ancestors<T> {
     fn prune(&mut self, depth: u8) {
         while let Some(&ancestor_depth) = self.depths.last()
             && depth <= ancestor_depth
-            && self.depths.len() > 1 // ensure at least progenitor remains
+            && self.depths.len() > 1
+        // ensure at least progenitor remains
         {
             self.remove_last();
         }
@@ -265,7 +266,7 @@ impl<T: Clone> Ancestors<T> {
         self.prune(depth);
         self.ancestors
             .last()
-            .map(T::clone)
+            .cloned()
             .expect("ancestors always contains at least the progenitor")
     }
 

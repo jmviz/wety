@@ -31,7 +31,6 @@ use crate::string_pool::StringPool;
 use std::{convert::TryFrom, path::Path, time::Instant};
 
 use anyhow::{Ok, Result};
-use embeddings::EmbeddingsConfig;
 use indicatif::{HumanDuration, ProgressBar, ProgressStyle};
 use xxhash_rust::xxh3::Xxh3Builder;
 
@@ -57,7 +56,7 @@ pub fn process_wiktextract(
     wiktextract_path: &Path,
     serialization_path: &Path,
     turtle_path: Option<&Path>,
-    embeddings_config: &EmbeddingsConfig,
+    embeddings_config: &embeddings::Config,
 ) -> Result<()> {
     let mut t = Instant::now();
     println!(

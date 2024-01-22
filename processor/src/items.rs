@@ -1,6 +1,6 @@
 use crate::{
     descendants::RawDescendants,
-    embeddings::{self, EmbeddingComparand, Embeddings, EmbeddingsConfig, ItemEmbedding},
+    embeddings::{self, Embeddings, ItemEmbedding},
     ety_graph::{EtyGraph, ItemIndex},
     etymology::RawEtymology,
     gloss::Gloss,
@@ -219,23 +219,24 @@ impl Items {
             }
             // If it shares an ety with an already stored real item...
             if let Some(same_ety_id) = same_ety_id
-                    && let Item::Real(same_ety) = self.graph.item_mut(same_ety_id)
-                    && !(item.pos[0] == Pos::root_pos() && same_ety.pos.iter().any(|&p| p == item.pos[0]))
-                {
-                    // If the pos is "root" and the already-stored item already has
-                    // another "root", then we need to make a new item for this.
-                    // This to handle the special but important case of PIE root
-                    // pages where there are several "Root" sections with no
-                    // Etymology sections (and hence here they will all have ety_num
-                    // == 1 in the raw_item), but they really are etymologically
-                    // distinct items.
-                    // 
-                    // Otherwise, we simply append this pos and gloss to the
-                    // existing item.
-                    same_ety.pos.push(item.pos[0]);
-                    same_ety.gloss.push(mem::take(&mut item.gloss[0]));
-                    return (same_ety_id, false);
-                }
+                && let Item::Real(same_ety) = self.graph.item_mut(same_ety_id)
+                && !(item.pos[0] == Pos::root_pos()
+                    && same_ety.pos.iter().any(|&p| p == item.pos[0]))
+            {
+                // If the pos is "root" and the already-stored item already has
+                // another "root", then we need to make a new item for this.
+                // This to handle the special but important case of PIE root
+                // pages where there are several "Root" sections with no
+                // Etymology sections (and hence here they will all have ety_num
+                // == 1 in the raw_item), but they really are etymologically
+                // distinct items.
+                //
+                // Otherwise, we simply append this pos and gloss to the
+                // existing item.
+                same_ety.pos.push(item.pos[0]);
+                same_ety.gloss.push(mem::take(&mut item.gloss[0]));
+                return (same_ety_id, false);
+            }
             // A new ety_num for an already seen langterm
             item.ety_num = max_ety + 1;
             let id = self.add(Item::Real(item));
@@ -291,7 +292,7 @@ impl Items {
     fn get_max_similarity_candidate(
         &self,
         embeddings: &Embeddings,
-        embedding_comp: &impl EmbeddingComparand<ItemEmbedding>,
+        embedding_comp: &impl embeddings::Comparand<ItemEmbedding>,
         candidates: &[ItemId],
     ) -> Result<Option<(ItemId, f32)>> {
         let mut max_similarity = 0f32;
@@ -314,16 +315,20 @@ impl Items {
     pub(crate) fn get_disambiguated_item_id(
         &self,
         embeddings: &Embeddings,
-        embedding_comp: &impl EmbeddingComparand<ItemEmbedding>,
+        embedding_comp: &impl embeddings::Comparand<ItemEmbedding>,
         langterm: LangTerm,
     ) -> Result<Option<(ItemId, f32)>> {
         let langterm = self.redirects.rectify_langterm(langterm);
         if let Some(candidates) = self.get_dupes(langterm)
-            && let Some((item_id, similarity)) = self.get_max_similarity_candidate(embeddings, embedding_comp, candidates)? {
+            && let Some((item_id, similarity)) =
+                self.get_max_similarity_candidate(embeddings, embedding_comp, candidates)?
+        {
             return Ok(Some((item_id, similarity)));
         }
         if let Some(candidates) = self.page_term_dupes.get(&langterm)
-            && let Some((item_id, similarity)) = self.get_max_similarity_candidate(embeddings, embedding_comp, candidates)? {
+            && let Some((item_id, similarity)) =
+                self.get_max_similarity_candidate(embeddings, embedding_comp, candidates)?
+        {
             return Ok(Some((item_id, similarity)));
         }
         Ok(None)
@@ -340,7 +345,7 @@ impl Items {
     pub(crate) fn get_or_impute_item(
         &mut self,
         embeddings: &Embeddings,
-        embedding_comp: &impl EmbeddingComparand<ItemEmbedding>,
+        embedding_comp: &impl embeddings::Comparand<ItemEmbedding>,
         from_item: ItemId,
         langterm: LangTerm,
     ) -> Result<Retrieval> {
@@ -424,7 +429,7 @@ impl Items {
         &self,
         string_pool: &StringPool,
         wiktextract_path: &Path,
-        embeddings_config: &EmbeddingsConfig,
+        embeddings_config: &embeddings::Config,
     ) -> Result<Embeddings> {
         let mut embeddings = Embeddings::new(embeddings_config)?;
         let mut added = 0;
