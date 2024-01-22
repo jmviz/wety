@@ -239,7 +239,7 @@ fn device() -> Result<Device> {
         {
             println!("To run on GPU with Metal, build with `--features metal`.");
         }
-        #[cfg(not(any(feature = "accelerate"), target_arch = "aarch64"))]
+        #[cfg(not(any(feature = "accelerate", target_arch = "aarch64")))]
         {
             println!("For accelerated CPU processing, build with `--features accelerate`.");
         }
