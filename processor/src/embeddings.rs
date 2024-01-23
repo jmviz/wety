@@ -205,7 +205,6 @@ impl EmbeddingsMap {
 pub const DEFAULT_MODEL: &str = "sentence-transformers/all-MiniLM-L12-v2";
 pub const DEFAULT_MODEL_REVISION: &str = "main";
 pub const DEFAULT_BATCH_SIZE: usize = 800;
-pub const DEFAULT_PROGRESS_UPDATE_INTERVAL: usize = DEFAULT_BATCH_SIZE * 10;
 
 #[cfg(feature = "mkl")]
 extern crate intel_mkl_src;
@@ -352,7 +351,6 @@ pub struct Config {
     pub model_name: String,
     pub model_revision: String,
     pub batch_size: usize,
-    pub progress_update_interval: usize,
     pub cache_path: PathBuf,
 }
 
@@ -559,7 +557,6 @@ mod tests {
             model_name: DEFAULT_MODEL.to_string(),
             model_revision: DEFAULT_MODEL_REVISION.to_string(),
             batch_size: 1,
-            progress_update_interval: 1,
             cache_path: cache_path.to_path_buf(),
         };
         Embeddings::new(&config).unwrap()

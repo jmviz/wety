@@ -435,7 +435,7 @@ impl Items {
         let mut added = 0;
         let items_needing_embedding = self.get_all_items_needing_embedding()?;
         let pb = progress_bar(items_needing_embedding.len(), "Generating embeddings")?;
-        let update_interval = embeddings_config.progress_update_interval;
+        let update_interval = embeddings_config.batch_size;
         pb.inc(0);
         for (line_number, mut line) in wiktextract_lines(wiktextract_path)?.enumerate() {
             // Items were only inserted into the line map if they were added to

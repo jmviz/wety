@@ -29,8 +29,6 @@ pub struct Args {
     embeddings_model_revision: String,
     #[clap(short = 'b', long, default_value_t = embeddings::DEFAULT_BATCH_SIZE, value_parser)]
     embeddings_batch_size: usize,
-    #[clap(short = 'u', long, default_value_t = embeddings::DEFAULT_PROGRESS_UPDATE_INTERVAL, value_parser)]
-    embeddings_progress_update_interval: usize,
     #[clap(
         short = 'c',
         long,
@@ -48,7 +46,6 @@ fn main() -> Result<()> {
         model_name: args.embeddings_model,
         model_revision: args.embeddings_model_revision,
         batch_size: args.embeddings_batch_size,
-        progress_update_interval: args.embeddings_progress_update_interval,
         cache_path: args.embeddings_cache_path,
     };
     process_wiktextract(
