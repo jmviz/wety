@@ -3,5 +3,3 @@
 !.vscode/launch.json
 /data/*
 !/data/scratch.ipynb
-!/data/create_test_file.py
-# !/data/test/
