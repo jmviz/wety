@@ -8,7 +8,7 @@ use crate::{
 
 use std::collections::VecDeque;
 
-use anyhow::{anyhow, Ok, Result};
+use anyhow::{Ok, Result};
 use itertools::{izip, Itertools};
 use petgraph::{
     algo::greedy_feedback_arc_set,
@@ -135,19 +135,17 @@ impl EtyGraph {
         } else {
             println!("Found set of size {}. Removing.", fas.len());
             for edge in fas {
-                let (source, _) = self
-                    .graph
-                    .edge_endpoints(edge)
-                    .ok_or_else(|| anyhow!("feedback arc set edge endpoints not found"))?;
-                // We take not only the edges forming the fas, but all edges
-                // that share the same source of any of the fas edges (recall:
-                // the edge source is a child and the edge target is an
-                // etymological parent). This is to ensure there are no
-                // degenerate etys in the graph once we remove the edges.
-                let edges_from_source: Vec<EdgeIndex> =
-                    self.graph.edges(source).map(|e| e.id()).collect();
-                for e in edges_from_source {
-                    self.graph.remove_edge(e);
+                if let Some((source, _)) = self.graph.edge_endpoints(edge) {
+                    // We take not only the edges forming the fas, but all edges
+                    // that share the same source of any of the fas edges (recall:
+                    // the edge source is a child and the edge target is an
+                    // etymological parent). This is to ensure there are no
+                    // degenerate etys in the graph once we remove the edges.
+                    let edges_from_source: Vec<EdgeIndex> =
+                        self.graph.edges(source).map(|e| e.id()).collect();
+                    for e in edges_from_source {
+                        self.graph.remove_edge(e);
+                    }
                 }
             }
         }
@@ -184,14 +182,14 @@ impl EtyGraph {
                 .map(|e| e.confidence())
                 .max_by(|a, b| a.total_cmp(b))
                 .expect("at least one");
-            if min_new_confidence > &max_old_confidence {
-                // this allocation needs to be here to avoid a double mutable borrow
-                let old_edge_ids = self.graph.edges(item).map(|e| e.id()).collect_vec();
-                for old_edge_id in old_edge_ids {
-                    self.graph.remove_edge(old_edge_id);
-                }
-            } else {
+            if min_new_confidence <= &max_old_confidence {
                 return;
+            }
+            // println!("Replacing ety for item {item:?}");
+            let old_edge_ids = self.graph.edges(item).map(|e| e.id()).collect_vec();
+            for old_edge_id in old_edge_ids {
+                // println!("Removing edge {old_edge_id:?}");
+                self.graph.remove_edge(old_edge_id);
             }
         }
 
@@ -253,7 +251,9 @@ impl EtyGraph {
     }
 
     fn progenitors_recurse(&self, t: &mut Tracker) {
-        while !t.cycle_found && let Some(item) = t.unexpanded.pop() {
+        while !t.cycle_found
+            && let Some(item) = t.unexpanded.pop()
+        {
             if !t.expanded.insert(item) {
                 t.cycle_found = true;
                 return;
