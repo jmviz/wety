@@ -200,10 +200,10 @@ impl EmbeddingsMap {
     }
 }
 
-// For other options, see:
-// https://huggingface.co/models?library=sentence-transformers&sort=trending.
-// For speed, try sentence-transformers/paraphrase-MiniLM-L3-v2 which should be
-// about 4x faster than sentence-transformers/all-MiniLM-L12-v2.
+/// For other options, see:
+/// <https://huggingface.co/models?library=sentence-transformers&sort=trending>.
+/// For speed, try sentence-transformers/paraphrase-MiniLM-L3-v2, which should be
+/// about 4x faster than sentence-transformers/all-MiniLM-L12-v2.
 pub const DEFAULT_MODEL: &str = "sentence-transformers/all-MiniLM-L12-v2";
 pub const DEFAULT_MODEL_REVISION: &str = "main";
 pub const DEFAULT_BATCH_SIZE: usize = 800;
