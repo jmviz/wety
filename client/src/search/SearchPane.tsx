@@ -46,6 +46,7 @@ export default function SearchPane({
   const langSearchInputRef = useRef<HTMLInputElement>(null);
   const itemSearchInputRef = useRef<HTMLInputElement>(null);
   const descLangsSearchInputRef = useRef<HTMLInputElement>(null);
+  const etyButtonRef = useRef<HTMLButtonElement>(null);
 
   return (
     <Container>
@@ -71,6 +72,7 @@ export default function SearchPane({
           inputRef={itemSearchInputRef}
           selectedDescLangs={selectedDescLangs}
           descLangsSearchInputRef={descLangsSearchInputRef}
+          etyButtonRef={etyButtonRef}
         />
         <MultiLangSearch
           label="Descendant language(s)"
@@ -86,6 +88,7 @@ export default function SearchPane({
           selectedLang={selectedLang}
           selectedItem={selectedItem}
           selectedDescLangs={selectedDescLangs}
+          buttonRef={etyButtonRef}
           selectedTreeKind={selectedTreeKind}
           setTree={setTree}
           lastRequest={lastRequest}

@@ -11,7 +11,7 @@ import { TreeKind } from "./types";
 import Button from "@mui/material/Button";
 import SearchIcon from "@mui/icons-material/Search";
 import { debounce } from "@mui/material/utils";
-import { useMemo } from "react";
+import { RefObject, useMemo } from "react";
 import { interLangDescendants } from "../ety/DescendantsTree";
 
 interface EtyButtonProps {
@@ -19,6 +19,7 @@ interface EtyButtonProps {
   selectedItem: Item | null;
   selectedDescLangs: Lang[];
   selectedTreeKind: TreeKind;
+  buttonRef: RefObject<HTMLButtonElement>;
   setTree: (tree: Etymology | InterLangDescendants[] | null) => void;
   lastRequest: TreeRequest | null;
   setLastRequest: (request: TreeRequest | null) => void;
@@ -28,6 +29,7 @@ export default function EtyButton({
   selectedLang,
   selectedItem,
   selectedDescLangs,
+  buttonRef,
   setTree,
   selectedTreeKind,
   lastRequest,
@@ -36,9 +38,12 @@ export default function EtyButton({
   const onClick = useMemo(
     () =>
       debounce(async () => {
+        buttonRef.current?.blur();
+
         if (!selectedLang || !selectedItem || selectedDescLangs.length === 0) {
           return;
         }
+
         const request = new TreeRequest(
           selectedLang,
           selectedItem,
@@ -76,6 +81,7 @@ export default function EtyButton({
         }
       }, 0),
     [
+      buttonRef,
       selectedLang,
       selectedItem,
       selectedDescLangs,
@@ -88,6 +94,7 @@ export default function EtyButton({
 
   return (
     <Button
+      ref={buttonRef}
       variant="contained"
       aria-label="search"
       disabled={

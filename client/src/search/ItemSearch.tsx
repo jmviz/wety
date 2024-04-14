@@ -13,6 +13,7 @@ interface ItemSearchProps {
   inputRef: RefObject<HTMLInputElement>;
   selectedDescLangs: Lang[];
   descLangsSearchInputRef: RefObject<HTMLInputElement>;
+  etyButtonRef: RefObject<HTMLButtonElement>;
 }
 
 export default function ItemSearch({
@@ -22,6 +23,7 @@ export default function ItemSearch({
   inputRef,
   selectedDescLangs,
   descLangsSearchInputRef,
+  etyButtonRef,
 }: ItemSearchProps) {
   const [itemOptions, setItemOptions] = useState<Item[]>([]);
 
@@ -33,8 +35,15 @@ export default function ItemSearch({
   const setSelectedItemAndMaybeFocus = useCallback(
     (item: Item | null) => {
       setSelectedItem(item);
-      if (selectedLang && item && selectedDescLangs.length === 0) {
-        descLangsSearchInputRef.current?.focus();
+      if (selectedLang && item) {
+        if (selectedDescLangs.length > 0) {
+          if (etyButtonRef.current) {
+            etyButtonRef.current.disabled = false;
+            etyButtonRef.current.focus();
+          }
+        } else {
+          descLangsSearchInputRef.current?.focus();
+        }
       }
     },
     [
@@ -42,6 +51,7 @@ export default function ItemSearch({
       selectedLang,
       selectedDescLangs.length,
       descLangsSearchInputRef,
+      etyButtonRef,
     ]
   );
 
