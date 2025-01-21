@@ -42,7 +42,7 @@ pub struct Args {
     #[clap(
         short = 'f',
         long,
-        default_value = "data/raw-wiktextract-data.json.gz",
+        default_value = "data/raw-wiktextract-data.jsonl.gz",
         help = "Path to full wiktextract raw data file",
         value_parser
     )]
@@ -71,7 +71,10 @@ impl RequestedItems {
         if let Some(lang) = json.get_str("lang_code")
             && let Some(term) = json.get_str("word")
         {
-            return self.items.iter().any(|item| item.lang == lang && item.term == term);
+            return self
+                .items
+                .iter()
+                .any(|item| item.lang == lang && item.term == term);
         }
         false
     }

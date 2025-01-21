@@ -10,7 +10,7 @@ If you do not have Rust installed, [install it](https://www.rust-lang.org/tools/
 
 ## `processor` usage
 
-Make sure you are in the root directory of this repo. Download the latest `wiktextract` raw data from [https://kaikki.org/dictionary/rawdata.html](https://kaikki.org/dictionary/rawdata.html), namely [this file](https://kaikki.org/dictionary/raw-wiktextract-data.json.gz), into `data/`. Run `processor` with:
+Make sure you are in the root directory of this repo. Download the latest `wiktextract` raw data from [https://kaikki.org/dictionary/rawdata.html](https://kaikki.org/dictionary/rawdata.html), namely [this file](https://kaikki.org/dictionary/raw-wiktextract-data.jsonl.gz), into `data/`. Run `processor` with:
 
 ```bash
 cargo run --release --bin processor

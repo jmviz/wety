@@ -15,7 +15,7 @@ pub struct Args {
     #[clap(
         short = 'w',
         long,
-        default_value = "data/raw-wiktextract-data.json.gz",
+        default_value = "data/raw-wiktextract-data.jsonl.gz",
         value_parser
     )]
     wiktextract_path: PathBuf,
