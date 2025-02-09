@@ -1,0 +1,29 @@
+{
+  "name": "wety-client",
+  "version": "0.1.0",
+  "homepage": "https://www.wety.org",
+  "private": true,
+  "main": "index.js",
+  "engines": {
+    "node": ">=22.13.1"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "swr": "latest"
+  },
+  "devDependencies": {
+    "eslint": "latest",
+    "eslint-config-next": "latest"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT"
+}

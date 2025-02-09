@@ -1,0 +1,174 @@
+/* mostly comes from https://iamkate.com/code/tree-views/ */
+
+.tree {
+  --spacing-unitless: 1.5;
+  --spacing: calc(var(--spacing-unitless) * 1em);
+  --line-vert-thickness: 2px;
+  --line-horiz-thickness: 2px;
+  --line-color: dimgray;
+  --node-radius: 10px;
+  --node-color: black;
+  --node-opacity: 1;
+
+  --lang-color-0: #2f2e7a;
+  --lang-color-1: #0b3577;
+  --lang-color-2: #143867;
+  --lang-color-3: #0d3d4d;
+  --lang-color-4: #06412c;
+  --lang-color-5: #004300;
+  --lang-color-6: #224000;
+  --lang-color-7: #493500;
+  --lang-color-8: #672001;
+  --lang-color-9: #740a16;
+  --lang-color-10: #740549;
+  --lang-color-11: #730138;
+  --lang-unrelated-color: #696969;
+
+  /* this line-height is not included in the example css in
+https://iamkate.com/code/tree-views/ but is required for proper alignment (it is
+included in that site's `site.css` as a rule on `html`) */
+  line-height: var(
+    --spacing-unitless
+  ); /* https://developer.mozilla.org/en-US/docs/Web/CSS/line-height#prefer_unitless_numbers_for_line-height_values */
+  -webkit-text-size-adjust: none;
+  padding-left: 1rem;
+}
+
+/* this is not included in the example css in
+https://iamkate.com/code/tree-views/ but is required for proper alignment (it is
+included in that site's `site.css` as a rule on `*, ::before, ::after`) */
+.tree *,
+.tree ::before,
+.tree ::after {
+  box-sizing: border-box;
+  margin: 0;
+}
+
+.tree li {
+  display: block;
+  position: relative;
+  padding-left: calc(
+    2 * var(--spacing) - var(--node-radius) - var(--line-vert-thickness)
+  );
+}
+
+.tree ul {
+  margin-left: calc(var(--node-radius) - var(--spacing));
+  padding-left: 0;
+}
+
+.tree ul li {
+  border-left: var(--line-vert-thickness) solid var(--line-color);
+}
+
+.tree ul li:last-child {
+  border-color: transparent;
+}
+
+.tree ul li::before {
+  content: "";
+  display: block;
+  position: absolute;
+  top: calc(var(--spacing) / -2);
+  left: calc(-1 * var(--line-vert-thickness));
+  width: calc(var(--spacing) + var(--line-vert-thickness));
+  height: calc(var(--spacing) + var(--line-horiz-thickness) / 2);
+  border: solid var(--line-color);
+  border-width: 0 0 var(--line-horiz-thickness) var(--line-vert-thickness);
+}
+
+.tree summary {
+  display: block;
+  cursor: pointer;
+}
+
+.tree summary::marker,
+.tree summary::-webkit-details-marker {
+  display: none;
+}
+
+.tree summary:focus {
+  outline: none;
+}
+
+.tree summary:focus-visible {
+  outline: 1px dotted #000;
+}
+
+.tree li::after,
+.tree summary::before {
+  content: "";
+  display: block;
+  position: absolute;
+  top: calc(var(--spacing) / 2 - var(--node-radius));
+  left: calc(
+    var(--spacing) - var(--node-radius) - var(--line-vert-thickness) / 2
+  );
+  width: calc(2 * var(--node-radius));
+  height: calc(2 * var(--node-radius));
+  border-radius: 50%;
+  background: var(--node-color);
+  opacity: var(--node-opacity);
+}
+
+.tree summary::before {
+  z-index: 1;
+  background: var(--node-color) url("expand-collapse.svg") 0 0;
+  opacity: var(--node-opacity);
+}
+
+.tree details[open] > summary::before {
+  background-position: calc(-2 * var(--node-radius)) 0;
+}
+
+.langUnrelated {
+  --node-color: var(--lang-unrelated-color);
+}
+
+.langDistance0 {
+  --node-color: var(--lang-color-0);
+}
+
+.langDistance1 {
+  --node-color: var(--lang-color-1);
+}
+
+.langDistance2 {
+  --node-color: var(--lang-color-2);
+}
+
+.langDistance3 {
+  --node-color: var(--lang-color-3);
+}
+
+.langDistance4 {
+  --node-color: var(--lang-color-4);
+}
+
+.langDistance5 {
+  --node-color: var(--lang-color-5);
+}
+
+.langDistance6 {
+  --node-color: var(--lang-color-6);
+}
+
+.langDistance7 {
+  --node-color: var(--lang-color-7);
+}
+
+.langDistance8 {
+  --node-color: var(--lang-color-8);
+}
+
+.langDistance9 {
+  --node-color: var(--lang-color-9);
+}
+
+.langDistance10 {
+  --node-color: var(--lang-color-10);
+}
+
+.langDistance11 {
+  --node-color: var(--lang-color-11);
+}
