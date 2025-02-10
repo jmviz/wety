@@ -1,4 +1,4 @@
-import "../src/styles/globals.css";
+import "../src/styles/site.css";
 import { SWRConfig } from "swr";
 
 function App({ Component, pageProps }) {

@@ -23,6 +23,7 @@
   --lang-color-10: #740549;
   --lang-color-11: #730138;
   --lang-unrelated-color: #696969;
+  --lang-color: black;
 
   /* this line-height is not included in the example css in
 https://iamkate.com/code/tree-views/ but is required for proper alignment (it is
@@ -75,6 +76,7 @@ included in that site's `site.css` as a rule on `*, ::before, ::after`) */
   height: calc(var(--spacing) + var(--line-horiz-thickness) / 2);
   border: solid var(--line-color);
   border-width: 0 0 var(--line-horiz-thickness) var(--line-vert-thickness);
+  border-bottom-left-radius: 15%;
 }
 
 .tree summary {
@@ -121,54 +123,83 @@ included in that site's `site.css` as a rule on `*, ::before, ::after`) */
   background-position: calc(-2 * var(--node-radius)) 0;
 }
 
+.lang {
+  font-size: 0.8em;
+  color: var(--lang-color);
+}
+
+.term {
+  /* font-weight: bold; */
+  color: #202122;
+  /* font-style: italic; */
+}
+
+.romanization {
+  font-size: 0.8em;
+  color: #202122;
+}
+
 .langUnrelated {
   --node-color: var(--lang-unrelated-color);
+  --lang-color: var(--lang-unrelated-color);
 }
 
 .langDistance0 {
   --node-color: var(--lang-color-0);
+  --lang-color: var(--lang-color-0);
 }
 
 .langDistance1 {
   --node-color: var(--lang-color-1);
+  --lang-color: var(--lang-color-1);
 }
 
 .langDistance2 {
   --node-color: var(--lang-color-2);
+  --lang-color: var(--lang-color-2);
 }
 
 .langDistance3 {
   --node-color: var(--lang-color-3);
+  --lang-color: var(--lang-color-3);
 }
 
 .langDistance4 {
   --node-color: var(--lang-color-4);
+  --lang-color: var(--lang-color-4);
 }
 
 .langDistance5 {
   --node-color: var(--lang-color-5);
+  --lang-color: var(--lang-color-5);
 }
 
 .langDistance6 {
   --node-color: var(--lang-color-6);
+  --lang-color: var(--lang-color-6);
 }
 
 .langDistance7 {
   --node-color: var(--lang-color-7);
+  --lang-color: var(--lang-color-7);
 }
 
 .langDistance8 {
   --node-color: var(--lang-color-8);
+  --lang-color: var(--lang-color-8);
 }
 
 .langDistance9 {
   --node-color: var(--lang-color-9);
+  --lang-color: var(--lang-color-9);
 }
 
 .langDistance10 {
   --node-color: var(--lang-color-10);
+  --lang-color: var(--lang-color-10);
 }
 
 .langDistance11 {
   --node-color: var(--lang-color-11);
+  --lang-color: var(--lang-color-11);
 }

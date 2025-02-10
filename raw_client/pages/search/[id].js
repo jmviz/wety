@@ -28,16 +28,7 @@ export default function SearchPage() {
 
   return (
     <div>
-      <div
-        style={{
-          position: "sticky",
-          top: 0,
-          background: "white",
-          padding: "1rem",
-        }}
-      >
-        <SearchBar initialValue={id} />
-      </div>
+      <SearchBar initialValue={id} />
       <div>
         {isLoading && <div>Loading...</div>}
         {error && <div>Error: {error.message}</div>}

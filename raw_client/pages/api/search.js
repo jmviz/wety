@@ -5,7 +5,8 @@ export default async function handler(req, res) {
   }
   try {
     const response = await fetch(
-      `https://api.wety.org/cognates/${id}?distLang=2048&descLang=2048`
+      // `https://api.wety.org/cognates/?distLang=2048&descLang=2048`
+      `https://api.wety.org/cognates/${id}?distLang=2048&descLang=2016&descLang=2204&descLang=6160`
     );
     const data = await response.json();
     res.status(200).json(data);

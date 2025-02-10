@@ -1,0 +1,25 @@
+.searchContainer {
+  position: sticky;
+  top: 0;
+  background: white;
+  padding: 1rem;
+  z-index: 100;
+}
+
+.searchForm {
+  /* padding: 5px; */
+  /* border: 15px solid transparent; */
+  border-image-source: url("../styles/lindisfarne-border.svg");
+  border-image-slice: 19.5;
+  border-image-width: 19.5px;
+  border-image-outset: 8px;
+  border-image-repeat: repeat;
+}
+
+.searchInput {
+  border: none;
+  outline: none;
+  font-size: 1em;
+  background: transparent;
+  min-width: 200px;
+}
