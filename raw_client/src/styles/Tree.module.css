@@ -5,9 +5,9 @@
   --spacing: calc(var(--spacing-unitless) * 1em);
   --line-vert-thickness: 2px;
   --line-horiz-thickness: 2px;
-  --line-color: dimgray;
+  --line-color: rgb(55, 43, 39);
   --node-radius: 10px;
-  --node-color: black;
+  --node-color: rgb(55, 43, 39);
   --node-opacity: 1;
 
   --lang-color-0: #2f2e7a;
@@ -76,7 +76,7 @@ included in that site's `site.css` as a rule on `*, ::before, ::after`) */
   height: calc(var(--spacing) + var(--line-horiz-thickness) / 2);
   border: solid var(--line-color);
   border-width: 0 0 var(--line-horiz-thickness) var(--line-vert-thickness);
-  border-bottom-left-radius: 15%;
+  border-bottom-left-radius: 0rem;
 }
 
 .tree summary {

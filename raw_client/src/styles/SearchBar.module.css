@@ -1,25 +1,35 @@
 .searchContainer {
   position: sticky;
-  top: 0;
+  top: 2rem;
   background: white;
-  padding: 1rem;
+  padding: 32px 42px 42px 42px;
   z-index: 100;
 }
 
 .searchForm {
-  /* padding: 5px; */
-  /* border: 15px solid transparent; */
   border-image-source: url("../styles/lindisfarne-border.svg");
-  border-image-slice: 19.5;
-  border-image-width: 19.5px;
-  border-image-outset: 8px;
-  border-image-repeat: repeat;
+  border-image-slice: 19;
+  border-image-width: 30px;
+  border-image-repeat: round;
+  border-image-outset: 32px 42px;
+  width: 10rem;
+  height: 1rem;
+  margin: 0;
 }
 
 .searchInput {
+  display: block;
+  margin: 0;
+  padding: 0;
   border: none;
   outline: none;
   font-size: 1em;
   background: transparent;
-  min-width: 200px;
+  width: 100%;
+  height: 100%;
+  font-family: "Brill", "Noto Serif", serif;
+  font-weight: 400;
+  font-size: clamp(18px, 100vw / var(--width), 20px);
+  font-feature-settings: "onum", "pnum";
+  line-height: 1.5;
 }
