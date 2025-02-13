@@ -130,13 +130,15 @@ included in that site's `site.css` as a rule on `*, ::before, ::after`) */
 
 .term {
   /* font-weight: bold; */
-  color: #202122;
+  /* color: #202122; */
+  color: rgb(46, 31, 34);
   /* font-style: italic; */
 }
 
 .romanization {
   font-size: 0.8em;
-  color: #202122;
+  /* color: #202122; */
+  color: rgb(46, 31, 34);
 }
 
 .langUnrelated {

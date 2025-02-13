@@ -1,7 +1,9 @@
+import { AppProps } from "next/app";
+import { FC } from "react";
 import "../src/styles/site.css";
 import { SWRConfig } from "swr";
 
-function App({ Component, pageProps }) {
+const App: FC<AppProps> = ({ Component, pageProps }) => {
   return (
     <SWRConfig
       value={{
@@ -20,6 +22,6 @@ function App({ Component, pageProps }) {
       <Component {...pageProps} />
     </SWRConfig>
   );
-}
+};
 
 export default App;

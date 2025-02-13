@@ -32,4 +32,5 @@
   font-size: clamp(18px, 100vw / var(--width), 20px);
   font-feature-settings: "onum", "pnum";
   line-height: 1.5;
+  color: var(--color-text);
 }

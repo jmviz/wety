@@ -1,5 +1,6 @@
 :root {
   --width: 34.5;
+  --color-text: rgb(46, 31, 34);
 }
 
 /* https://iamkate.com/code/border-box/ */
@@ -69,10 +70,20 @@ html {
   -webkit-text-size-adjust: none;
   text-size-adjust: none;
   background-color: #fff;
+  color: var(--color-text);
 }
 
 body {
   padding: 2rem;
   max-width: 1200px;
   margin: 0 auto;
+}
+
+::selection {
+  background-color: rgb(207, 180, 100, 0.7);
+}
+
+::placeholder {
+  color: rgb(55, 43, 39);
+  opacity: 0.7;
 }

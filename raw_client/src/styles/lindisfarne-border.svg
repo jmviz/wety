@@ -136,13 +136,12 @@
     <g>
         <!-- thin line just below dots-->
         <rect x="7.5" y="7.5" width="27" height="27" fill="none" stroke="rgb(134, 127, 91)"
-            stroke-width="1" rx="0" ry="0" />
+            stroke-width="1" />
         <!-- thick line -->
         <rect x="12.5" y="12.5" width="17" height="17" fill="none" stroke="rgb(55, 43, 39)"
-            stroke-width="5" rx="0" ry="0" />
+            stroke-width="5" />
         <!-- inner thin line -->
         <rect x="17.5" y="17.5" width="7" height="7" fill="none" stroke="rgb(134, 127, 91)"
-            stroke-width="1" rx="0" ry="0" />
-
+            stroke-width="1" />
     </g>
 </svg>

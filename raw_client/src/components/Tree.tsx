@@ -1,13 +1,19 @@
+import { FC } from "react";
 import styles from "../styles/Tree.module.css";
+import { TreeNodeData } from "../types";
 
-function getLangDistanceClass(distance) {
+function getLangDistanceClass(distance: number | null): string {
   if (distance === null) return styles.langUnrelated;
   if (distance < 0) return styles.langDistance0;
   if (distance > 11) return styles.langDistance11;
   return styles[`langDistance${distance}`];
 }
 
-const TreeNode = ({ data }) => {
+interface TreeNodeProps {
+  data: TreeNodeData;
+}
+
+const TreeNode: FC<TreeNodeProps> = ({ data }) => {
   const langDistanceClass = getLangDistanceClass(data.langDistance);
 
   return (
@@ -32,7 +38,11 @@ const TreeNode = ({ data }) => {
   );
 };
 
-const Tree = ({ data }) => {
+interface TreeProps {
+  data: TreeNodeData | null;
+}
+
+const Tree: FC<TreeProps> = ({ data }) => {
   return (
     <div id="tree-container">
       {data ? (
