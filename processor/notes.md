@@ -4,6 +4,20 @@
 
 - https://docs.unsloth.ai/
 
+## "production" model considerations
+
+Dedicated GPU(s) combined with a serving engine will be best:
+
+- https://docs.vllm.ai/en/latest/index.html (Python)
+- https://docs.sglang.ai/index.html (Python -- apparently faster)
+
+These all support structured output as well as prefix caching and continuous batching, which will greatly speed up this use case.
+
+Hosting:
+
+- https://vast.ai/
+- https://www.runpod.io/
+
 ## models for prototyping
 
 ### hf serverless
@@ -18,6 +32,8 @@
 
 ### structured generation
 
+- https://docs.sglang.ai/backend/structured_outputs.html
+- https://docs.vllm.ai/en/latest/features/structured_outputs.html
 - https://huggingface.co/learn/cookbook/en/structured_generation
 - https://cookbook.openai.com/examples/structured_outputs_intro
 
