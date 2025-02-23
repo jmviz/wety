@@ -1,10 +1,11 @@
 .env
 /target
+.venv
 .vscode/*
 !.vscode/launch.json
 /data/*
 !/data/scratch.ipynb
-!/data/html_llm.ipynb
+!/data/llm.ipynb
 
 
 
