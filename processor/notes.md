@@ -2,9 +2,16 @@
 
 ## fine-tuning and distillation
 
-- https://docs.unsloth.ai/
+- https://github.com/unslothai/unsloth
+  - phi-4: https://colab.research.google.com/github/unslothai/notebooks/blob/main/nb/Phi_4-Conversational.ipynb
 
 ## "production" model considerations
+
+### models
+
+- ?
+
+### serving
 
 Dedicated GPU(s) combined with a serving engine will be best:
 
@@ -19,6 +26,13 @@ Hosting:
 - https://www.runpod.io/
 
 ## models for prototyping
+
+### local (<=10 GB VRAM)
+
+- https://huggingface.co/microsoft/Phi-4-mini-instruct (?)
+- https://huggingface.co/ibm-granite/granite-3.2-2b-instruct (?)
+- https://huggingface.co/Qwen/Qwen2.5-7B-Instruct-GPTQ-Int8 (cf. https://qwen.readthedocs.io/en/latest/benchmark/speed_benchmark.html which gives VRAM, tokens/s, VLLM settings)
+-
 
 ### hf serverless
 
