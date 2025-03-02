@@ -1,0 +1,16 @@
+[project]
+name = "wety"
+version = "0.1.0"
+description = "Environment management for the Python bits of this project."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "vllm>=0.7.3",
+    "xgrammar>=0.1.11",
+]
+
+[dependency-groups]
+dev = [
+    "ipykernel>=6.29.5",
+    "uv>=0.6.3",
+]
