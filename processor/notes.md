@@ -9,18 +9,22 @@
 
 ### models
 
-- ?
+- https://huggingface.co/Qwen/QwQ-32B
+
+### system prompt
+
+- https://github.com/x1xhlol/v0-system-prompts/blob/main/v0.txt
 
 ### serving
 
 Dedicated GPU(s) combined with a serving engine will be best:
 
-- https://docs.vllm.ai/en/latest/index.html (Python)
-- https://docs.sglang.ai/index.html (Python -- apparently faster)
+- https://docs.vllm.ai/en/latest/index.html
+- https://docs.sglang.ai/index.html
 
 These all support structured output as well as prefix caching and continuous batching, which will greatly speed up this use case.
 
-Hosting:
+### hosting 
 
 - https://vast.ai/
 - https://www.runpod.io/
