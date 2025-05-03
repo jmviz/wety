@@ -5,8 +5,8 @@ description = "Environment management for the Python bits of this project."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "vllm>=0.7.3",
-    "xgrammar>=0.1.11",
+    "vllm>=0.8.5",
+    "xgrammar>=0.1.18",
 ]
 
 [dependency-groups]
