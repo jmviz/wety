@@ -33,6 +33,7 @@ These all support structured output as well as prefix caching and continuous bat
 
 ### local (<=10 GB VRAM)
 
+- https://qwenlm.github.io/blog/qwen3/
 - https://huggingface.co/microsoft/Phi-4-mini-instruct (?)
 - https://huggingface.co/ibm-granite/granite-3.2-2b-instruct (?)
 - https://huggingface.co/Qwen/Qwen2.5-7B-Instruct-GPTQ-Int8 (cf. https://qwen.readthedocs.io/en/latest/benchmark/speed_benchmark.html which gives VRAM, tokens/s, VLLM settings)
