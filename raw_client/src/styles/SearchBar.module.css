@@ -2,8 +2,12 @@
   position: sticky;
   top: 2rem;
   background: white;
-  padding: 32px 42px 42px 42px;
+  padding: 36px 42px 36px 42px;
   z-index: 100;
+  width: 10rem;
+  height: 1rem;
+  margin: 0 auto 2rem;
+  box-sizing: content-box;
 }
 
 .searchForm {
@@ -11,7 +15,7 @@
   border-image-slice: 19;
   border-image-width: 30px;
   border-image-repeat: round;
-  border-image-outset: 32px 42px;
+  border-image-outset: 36px 42px;
   width: 10rem;
   height: 1rem;
   margin: 0;

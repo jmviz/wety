@@ -31,7 +31,7 @@ const SearchPage: FC = () => {
   );
 
   return (
-    <div>
+    <div className="main-content">
       <SearchBar initialValue={id} />
       <div>
         {isLoading && <div>Loading...</div>}
