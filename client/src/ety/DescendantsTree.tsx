@@ -1,28 +1,27 @@
-import "./DescendantsTree.css";
+import "./Tree.css";
 import {
   Descendants,
   Etymology,
   InterLangDescendants,
   Item,
   Lang,
-  term,
   TreeRequest,
 } from "../search/types";
 import { xMinClusterLayout } from "./treeCluster";
-import DescendantsTooltip, {
-  setDescendantsTooltipListeners,
-} from "./DescendantsTooltip";
+import TreeTooltip from "./TreeTooltip";
 import { PositionKind, hideTooltip } from "./tooltip";
-import { BoundedHierarchyPointNode, langColor } from "./tree";
+import {
+  addSVGTextBackgrounds,
+  configureSVG,
+  renderTreeLinks,
+  renderTreeNodes,
+  setTooltipListeners,
+} from "./tree";
 import { TreeKind } from "../search/types";
 
-import { select, Selection } from "d3-selection";
-import { link, curveStepBefore } from "d3-shape";
-import {
-  hierarchy,
-  HierarchyPointLink,
-  HierarchyPointNode,
-} from "d3-hierarchy";
+import { curveStepBefore } from "d3-shape";
+import { hierarchy, HierarchyPointNode } from "d3-hierarchy";
+import { select } from "d3-selection";
 import {
   RefObject,
   useRef,
@@ -135,7 +134,8 @@ export default function DescendantsTree({
       {svgRefs.map((ref, index) => (
         <svg key={index} className="tree" ref={ref} />
       ))}
-      <DescendantsTooltip
+      <TreeTooltip
+        treeKind={TreeKind.Descendants}
         setSelectedLang={setSelectedLang}
         setSelectedItem={setSelectedItem}
         selectedDescLangs={selectedDescLangs}
@@ -143,7 +143,7 @@ export default function DescendantsTree({
         setSelectedTreeKind={setSelectedTreeKind}
         showTooltip={showTooltip}
         setShowTooltip={setShowTooltip}
-        treeNode={tooltipTreeNode}
+        treeNode={tooltipTreeNode as HierarchyPointNode<Etymology | InterLangDescendants> | null}
         svgElement={tooltipSVGElement}
         positionKind={tooltipPositionKind}
         divRef={tooltipRef}
@@ -166,11 +166,10 @@ function descendantsTreeSVG(
   ) => void,
   setTooltipSVGElement: (svg: SVGElement | null) => void,
   setTooltipPositionKind: (positionKind: PositionKind) => void,
-  tooltipRef: RefObject<HTMLDivElement>,
-  tooltipShowTimeout: RefObject<number | null>,
-  tooltipHideTimeout: RefObject<number | null>
+  tooltipRef: React.RefObject<HTMLDivElement>,
+  tooltipShowTimeout: React.RefObject<number | null>,
+  tooltipHideTimeout: React.RefObject<number | null>
 ) {
-  // https://github.com/d3/d3-hierarchy#hierarchy
   const root = hierarchy<InterLangDescendants>(
     tree,
     (d: InterLangDescendants) => d.children
@@ -180,7 +179,7 @@ function descendantsTreeSVG(
   const selectedItemNodeAncestors = selectedItemNode?.ancestors() ?? [];
 
   root
-    .count() // counts node leaves and assigns count to .value
+    .count()
     .sort(
       (a, b) =>
         +selectedItemNodeAncestors.includes(a) -
@@ -224,7 +223,6 @@ function descendantsTreeSVG(
 
   const pointRoot = layout(root);
 
-  // Center the tree vertically.
   let y0 = Infinity;
   let y1 = -y0;
   pointRoot.each((d) => {
@@ -232,106 +230,25 @@ function descendantsTreeSVG(
     if (d.x < y0) y0 = d.x;
   });
 
-  // root.height is the number of links between the root and the furthest leaf.
   const width = (root.height + 1) * dx;
   const height = y1 - y0 + dy * 4;
-
   const viewBox = [-dx / 2, y0 - dy * 2, width, height];
 
-  // crispEdges implementation quality varies from browser to browser. It
-  // generally seems to work well but for example Windows Firefox renders
-  // random lines with 2px instead of 1px. Consider this as a solution:
-  // https://github.com/engray/subpixelFix.
-  const svg = select(svgElement)
-    .attr("version", "1.1")
-    .attr("xmlns", "http://www.w3.org/2000/svg")
-    .attr("xmlns:xlink", "http://www.w3.org/1999/xlink")
-    .attr("xmlns:xhtml", "http://www.w3.org/1999/xhtml")
-    .attr("viewBox", viewBox)
-    .attr("width", width)
-    .attr("height", height)
-    .attr(
-      "style",
-      `min-width: ${width}px; max-width: ${width}px; height: auto; height: intrinsic;`
-    )
-    .attr("shape-rendering", "crispEdges")
-    .attr("vector-effect", "non-scaling-stroke")
-    .attr("text-anchor", "middle")
-    .attr("text-rendering", "optimizeLegibility")
-    // this noop event listener is to cajole mobile browsers (or, at least,
-    // ios webkit) into responding to touch events on svg elements, cf.
-    // https://stackoverflow.com/a/65777666/10658294
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    .on("touchstart", () => {});
+  const svg = configureSVG(svgElement, viewBox, width, height);
 
-  // the lines forming the tree
-  svg
-    .append("g")
-    .attr("fill", "none")
-    .attr("stroke", "#555")
-    .attr("stroke-opacity", 1.0)
-    .attr("stroke-linecap", "butt")
-    .attr("stroke-linejoin", "miter")
-    .attr("stroke-width", 1.0)
-    .selectAll("path")
-    .data(pointRoot.links())
-    .join("path")
-    .attr(
-      "d",
-      link<
-        HierarchyPointLink<InterLangDescendants>,
-        HierarchyPointNode<InterLangDescendants>
-      >(curveStepBefore)
-        .x((d) => d.y)
-        .y((d) => d.x)
-    );
+  renderTreeLinks(svg, pointRoot, curveStepBefore, {
+    x: (d) => d.y,
+    y: (d) => d.x,
+  });
 
-  const descendants: BoundedHierarchyPointNode<InterLangDescendants>[] =
-    pointRoot.descendants().map(function (d) {
-      return { node: d, bbox: new DOMRect(0, 0, 0, 0) };
-    });
+  const { node, nodeBackground } = renderTreeNodes(
+    svg,
+    pointRoot,
+    treeRootItem,
+    (n) => [n.y, n.x]
+  );
 
-  // placeholder rects for text backgrounds to be set in addSVGTextBackgrounds()
-  const nodeBackground = svg
-    .append("g")
-    .selectAll<SVGRectElement, unknown>("rect")
-    .data(descendants)
-    .join("rect")
-    .attr("fill", "white");
-
-  // the text nodes
-  const node = svg
-    .append("g")
-    .selectAll<SVGTextElement, unknown>("g")
-    .data(descendants)
-    .join("g")
-    .attr("font-weight", (d) =>
-      d.node.data.item.id === treeRootItem.id ? "bold" : null
-    )
-    .attr("transform", (d) => `translate(${d.node.y},${d.node.x})`);
-
-  node
-    .append("text")
-    .attr("class", "lang")
-    .attr("y", "-1em")
-    .attr("fill", (d) => langColor(d.node.data.langDistance))
-    .text((d) => d.node.data.item.lang.name);
-
-  node
-    .append("text")
-    .attr("class", "term")
-    .attr("y", "0.25em")
-    .text((d) => term(d.node.data.item));
-
-  node
-    .append("text")
-    .attr("class", "romanization")
-    .attr("y", "1.5em")
-    .text((d) =>
-      d.node.data.item.romanization ? `(${d.node.data.item.romanization})` : ""
-    );
-
-  setDescendantsTooltipListeners(
+  setTooltipListeners(
     node,
     setShowTooltip,
     setTooltipTreeNode,
@@ -342,7 +259,7 @@ function descendantsTreeSVG(
     tooltipHideTimeout
   );
 
-  addSVGTextBackgrounds(node, nodeBackground);
+  addSVGTextBackgrounds(node, nodeBackground, (d) => [d.node.y, d.node.x]);
 }
 
 function interLangDescendantsInner(
@@ -380,37 +297,4 @@ export function interLangDescendants(
   const root = fullRoot as InterLangDescendants;
   root.parent = null;
   return interLangDescendantsInner(root)[0];
-}
-
-function addSVGTextBackgrounds(
-  node: Selection<
-    SVGGElement | SVGTextElement,
-    BoundedHierarchyPointNode<InterLangDescendants>,
-    SVGGElement,
-    undefined
-  >,
-  nodeBackground: Selection<
-    SVGRectElement,
-    BoundedHierarchyPointNode<InterLangDescendants>,
-    SVGGElement,
-    undefined
-  >
-) {
-  node.each(function (d) {
-    d.bbox = this.getBBox();
-  });
-
-  const xMargin = 3;
-  const yMargin = 3;
-
-  nodeBackground
-    .attr("width", (d) => d.bbox.width + 2 * xMargin)
-    .attr("height", (d) => d.bbox.height + 2 * yMargin)
-    .attr("transform", function (d) {
-      const x = d.node.y - xMargin;
-      const y = d.node.x - yMargin;
-      return `translate(${x},${y})`;
-    })
-    .attr("x", (d) => d.bbox.x)
-    .attr("y", (d) => d.bbox.y);
 }

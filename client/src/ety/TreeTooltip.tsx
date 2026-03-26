@@ -8,7 +8,7 @@ import {
   TreeRequest,
   term,
 } from "../search/types";
-import { BoundedHierarchyPointNode, langColor } from "./tree";
+import { langColor } from "./tree";
 import { TreeKind } from "../search/types";
 import { interLangDescendants } from "./DescendantsTree";
 import {
@@ -19,7 +19,7 @@ import {
   positionTooltip,
 } from "./tooltip";
 
-import { HierarchyPointNode, Selection } from "d3";
+import { HierarchyPointNode } from "d3";
 import {
   MutableRefObject,
   RefObject,
@@ -31,7 +31,8 @@ import Button from "@mui/material/Button/Button";
 import { debounce } from "@mui/material/utils";
 import Stack from "@mui/material/Stack/Stack";
 
-interface DescendantsTooltipProps {
+interface TreeTooltipProps {
+  treeKind: TreeKind;
   setSelectedLang: (lang: Lang | null) => void;
   setSelectedItem: (item: Item | null) => void;
   selectedDescLangs: Lang[];
@@ -39,7 +40,7 @@ interface DescendantsTooltipProps {
   setTree: (tree: Etymology | InterLangDescendants[] | null) => void;
   showTooltip: boolean;
   setShowTooltip: (show: boolean) => void;
-  treeNode: HierarchyPointNode<InterLangDescendants> | null;
+  treeNode: HierarchyPointNode<Etymology | InterLangDescendants> | null;
   svgElement: SVGElement | null;
   positionKind: PositionKind;
   divRef: RefObject<HTMLDivElement>;
@@ -49,7 +50,8 @@ interface DescendantsTooltipProps {
   setLastRequest: (request: TreeRequest | null) => void;
 }
 
-export default function DescendantsTooltip({
+export default function TreeTooltip({
+  treeKind,
   setSelectedLang,
   setSelectedItem,
   selectedDescLangs,
@@ -65,7 +67,7 @@ export default function DescendantsTooltip({
   hideTimeout,
   lastRequest,
   setLastRequest,
-}: DescendantsTooltipProps) {
+}: TreeTooltipProps) {
   useEffect(() => {
     const tooltip = divRef.current;
     if (!tooltip) return;
@@ -225,7 +227,13 @@ export default function DescendantsTooltip({
           ))}
         </div>
       )}
-      {etyLine(treeNode)}
+      {treeKind === TreeKind.Etymology
+        ? etymologyEtyLine(
+            treeNode as HierarchyPointNode<Etymology>
+          )
+        : descendantsEtyLine(
+            treeNode as HierarchyPointNode<InterLangDescendants>
+          )}
       <Stack
         direction={{ xs: "column", sm: "row" }}
         justifyContent="flex-start"
@@ -234,9 +242,11 @@ export default function DescendantsTooltip({
         <Button size="small" onClick={() => getDescendants(item)}>
           Descendants
         </Button>
-        <Button size="small" onClick={() => getEtymology(item)}>
-          Etymology
-        </Button>
+        {treeKind !== TreeKind.Etymology && (
+          <Button size="small" onClick={() => getEtymology(item)}>
+            Etymology
+          </Button>
+        )}
       </Stack>
       {item.url && (
         <a
@@ -258,7 +268,60 @@ interface EtyParent {
   langDistance: number;
 }
 
-function etyLine(
+function etymologyEtyLine(
+  treeNode: HierarchyPointNode<Etymology>
+): JSX.Element | null {
+  const etyMode = treeNode.data.etyMode;
+  // Confusingly, the "children" with respect to the tree structure and d3 api
+  // are the parents with respect to the etymology.
+  const parents: EtyParent[] | null = treeNode.children
+    ? treeNode.children
+        .sort((a, b) => a.data.etyOrder - b.data.etyOrder)
+        .map((parentNode) => ({
+          lang: parentNode.data.item.lang.name,
+          term: term(parentNode.data.item),
+          langDistance: parentNode.data.langDistance,
+        }))
+    : null;
+
+  if (!etyMode || !parents) {
+    return null;
+  }
+
+  let parts = [];
+  for (let i = 0; i < parents.length; i++) {
+    const parent = parents[i];
+    if (i === 0 || parent.lang !== parents[i - 1].lang) {
+      parts.push(
+        <span
+          key={i}
+          className="ety-lang"
+          style={{ color: langColor(parent.langDistance) }}
+        >
+          {parent.lang}{" "}
+        </span>
+      );
+    }
+    parts.push(
+      <span key={i + parents.length} className="ety-term">
+        {parent.term}
+      </span>
+    );
+    if (i < parents.length - 1) {
+      parts.push(<span key={i + 2 * parents.length}>{" + "}</span>);
+    }
+  }
+
+  return (
+    <div className="ety-line">
+      <span className="ety-mode">{etyModeRep(etyMode)}</span>
+      <span className="ety-prep">{etyPrep(etyMode)}</span>
+      {parts}
+    </div>
+  );
+}
+
+function descendantsEtyLine(
   treeNode: HierarchyPointNode<InterLangDescendants>
 ): JSX.Element | null {
   if (!treeNode.parent || !treeNode.data.etyMode) {
@@ -321,67 +384,4 @@ function etyLine(
     ancestor = ancestor.ancestralLine;
   }
   return <div className="ety-line">{parts}</div>;
-}
-
-export function setDescendantsTooltipListeners(
-  node: Selection<
-    SVGGElement | SVGTextElement,
-    BoundedHierarchyPointNode<InterLangDescendants>,
-    SVGGElement,
-    undefined
-  >,
-  setShowTooltip: (show: boolean) => void,
-  setTooltipTreeNode: (
-    node: HierarchyPointNode<InterLangDescendants> | null
-  ) => void,
-  setTooltipSVGElement: (element: SVGElement | null) => void,
-  setTooltipPositionKind: (kind: PositionKind) => void,
-  tooltipRef: RefObject<HTMLDivElement>,
-  tooltipShowTimeout: MutableRefObject<number | null>,
-  tooltipHideTimeout: MutableRefObject<number | null>
-) {
-  // for non-mouse, show tooltip on pointerup
-  node.on(
-    "pointerup",
-    function (
-      event: PointerEvent,
-      d: BoundedHierarchyPointNode<InterLangDescendants>
-    ) {
-      if (event.pointerType !== "mouse") {
-        setShowTooltip(true);
-        setTooltipTreeNode(d.node);
-        setTooltipSVGElement(this);
-        setTooltipPositionKind(PositionKind.Fixed);
-      }
-    }
-  );
-
-  // for mouse, show tooltip on hover
-  node.on(
-    "pointerenter",
-    function (
-      event: PointerEvent,
-      d: BoundedHierarchyPointNode<InterLangDescendants>
-    ) {
-      if (event.pointerType === "mouse") {
-        window.clearTimeout(tooltipHideTimeout.current ?? undefined);
-        tooltipShowTimeout.current = window.setTimeout(() => {
-          setShowTooltip(true);
-          setTooltipTreeNode(d.node);
-          setTooltipSVGElement(this);
-          setTooltipPositionKind(PositionKind.Hover);
-        }, 100);
-      }
-    }
-  );
-
-  node.on("pointerleave", (event: PointerEvent) => {
-    if (event.pointerType === "mouse") {
-      window.clearTimeout(tooltipShowTimeout.current ?? undefined);
-      tooltipHideTimeout.current = window.setTimeout(
-        () => hideTooltip(tooltipRef, setShowTooltip),
-        100
-      );
-    }
-  });
 }
