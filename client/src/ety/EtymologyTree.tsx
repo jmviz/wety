@@ -79,6 +79,7 @@ export default function EtymologyTree({
     );
 
     return () => {
+      // clear the previous svg
       select(svg).selectAll("*").remove();
       hideTooltip(tooltipRef, setShowTooltip);
       setShowTooltip(false);
@@ -135,6 +136,7 @@ function etymologyTreeSVG(
   tooltipShowTimeout: React.MutableRefObject<number | null>,
   tooltipHideTimeout: React.MutableRefObject<number | null>
 ) {
+  // https://github.com/d3/d3-hierarchy#hierarchy
   const root = hierarchy<Etymology>(tree, (d: Etymology) => d.parents);
   root.sort((a, b) => b.data.etyOrder - a.data.etyOrder);
 
@@ -150,6 +152,7 @@ function etymologyTreeSVG(
 
   const pointRoot = layout(root);
 
+  // Center the tree horizontally.
   let x0 = Infinity;
   let x1 = -x0;
   pointRoot.each((d) => {

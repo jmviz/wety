@@ -170,6 +170,7 @@ function descendantsTreeSVG(
   tooltipShowTimeout: React.RefObject<number | null>,
   tooltipHideTimeout: React.RefObject<number | null>
 ) {
+  // https://github.com/d3/d3-hierarchy#hierarchy
   const root = hierarchy<InterLangDescendants>(
     tree,
     (d: InterLangDescendants) => d.children
@@ -179,7 +180,7 @@ function descendantsTreeSVG(
   const selectedItemNodeAncestors = selectedItemNode?.ancestors() ?? [];
 
   root
-    .count()
+    .count() // counts node leaves and assigns count to .value
     .sort(
       (a, b) =>
         +selectedItemNodeAncestors.includes(a) -
@@ -223,6 +224,7 @@ function descendantsTreeSVG(
 
   const pointRoot = layout(root);
 
+  // Center the tree vertically.
   let y0 = Infinity;
   let y1 = -y0;
   pointRoot.each((d) => {
@@ -230,6 +232,7 @@ function descendantsTreeSVG(
     if (d.x < y0) y0 = d.x;
   });
 
+  // root.height is the number of links between the root and the furthest leaf.
   const width = (root.height + 1) * dx;
   const height = y1 - y0 + dy * 4;
   const viewBox = [-dx / 2, y0 - dy * 2, width, height];
