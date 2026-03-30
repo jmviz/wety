@@ -82,23 +82,60 @@ export class TreeRequest {
     this.kind = kind;
   }
 
-  url(): string {
+  apiPath(): string {
     switch (this.kind) {
       case TreeKind.Cognates:
-        return `${process.env.REACT_APP_API_BASE_URL}/cognates/${
-          this.item.id
-        }?distLang=${this.item.lang.id}&${this.descLangs
-          .map((lang) => `descLang=${lang.id}`)
-          .join("&")}`;
+        return `/cognates/${this.item.id}?distLang=${
+          this.item.lang.id
+        }&${this.descLangs.map((lang) => `descLang=${lang.id}`).join("&")}`;
       case TreeKind.Etymology:
-        return `${process.env.REACT_APP_API_BASE_URL}/etymology/${this.item.id}`;
+        return `/etymology/${this.item.id}`;
       case TreeKind.Descendants:
-        return `${process.env.REACT_APP_API_BASE_URL}/descendants/${
-          this.item.id
-        }?distLang=${this.item.lang.id}&${this.descLangs
-          .map((lang) => `descLang=${lang.id}`)
-          .join("&")}`;
+        return `/descendants/${this.item.id}?distLang=${
+          this.item.lang.id
+        }&${this.descLangs.map((lang) => `descLang=${lang.id}`).join("&")}`;
     }
+  }
+
+  url(): string {
+    return `${process.env.REACT_APP_API_BASE_URL}/api${this.apiPath()}`;
+  }
+
+  static parsePath(
+    path: string
+  ): {
+    kind: TreeKind;
+    itemId: number;
+    distLangId: number;
+    descLangIds: number[];
+  } | null {
+    const qIdx = path.indexOf("?");
+    const pathname = qIdx >= 0 ? path.slice(0, qIdx) : path;
+    const search = qIdx >= 0 ? path.slice(qIdx) : "";
+    const parts = pathname.split("/").filter(Boolean);
+    if (parts.length < 2) return null;
+    const [kindStr, itemIdStr] = parts;
+    const itemId = parseInt(itemIdStr, 10);
+    if (isNaN(itemId)) return null;
+    let kind: TreeKind;
+    switch (kindStr) {
+      case "etymology":
+        kind = TreeKind.Etymology;
+        break;
+      case "cognates":
+        kind = TreeKind.Cognates;
+        break;
+      case "descendants":
+        kind = TreeKind.Descendants;
+        break;
+      default:
+        return null;
+    }
+    const params = new URLSearchParams(search);
+    const distLangStr = params.get("distLang");
+    const distLangId = distLangStr ? parseInt(distLangStr, 10) : 0;
+    const descLangIds = params.getAll("descLang").map((s) => parseInt(s, 10));
+    return { kind, itemId, distLangId, descLangIds };
   }
 
   equals(other: TreeRequest): boolean {
