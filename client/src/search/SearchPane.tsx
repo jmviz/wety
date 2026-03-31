@@ -2,13 +2,7 @@ import ItemSearch from "./ItemSearch";
 import LangSearch from "./LangSearch";
 import MultiLangSearch from "./MultiLangSearch";
 import EtyButton from "./EtyButton";
-import {
-  Etymology,
-  InterLangDescendants,
-  Lang,
-  Item,
-  TreeRequest,
-} from "./types";
+import { Lang, Item } from "./types";
 import TreeKindSelect from "./TreeKindSelect";
 import { TreeKind } from "./types";
 
@@ -25,9 +19,6 @@ interface SearchPaneProps {
   setSelectedDescLangs: (langs: Lang[]) => void;
   selectedTreeKind: TreeKind;
   setSelectedTreeKind: (treeKind: TreeKind) => void;
-  setTree: (tree: Etymology | InterLangDescendants[] | null) => void;
-  lastRequest: TreeRequest | null;
-  setLastRequest: (request: TreeRequest | null) => void;
 }
 
 export default function SearchPane({
@@ -39,9 +30,6 @@ export default function SearchPane({
   setSelectedDescLangs,
   selectedTreeKind,
   setSelectedTreeKind,
-  setTree,
-  lastRequest,
-  setLastRequest,
 }: SearchPaneProps) {
   const langSearchInputRef = useRef<HTMLInputElement>(null);
   const itemSearchInputRef = useRef<HTMLInputElement>(null);
@@ -90,9 +78,6 @@ export default function SearchPane({
           selectedDescLangs={selectedDescLangs}
           buttonRef={etyButtonRef}
           selectedTreeKind={selectedTreeKind}
-          setTree={setTree}
-          lastRequest={lastRequest}
-          setLastRequest={setLastRequest}
         />
       </Stack>
     </Container>
