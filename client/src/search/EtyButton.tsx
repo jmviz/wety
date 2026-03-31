@@ -1,18 +1,11 @@
-import {
-  Lang,
-  Item,
-  Etymology,
-  InterLangDescendants,
-  TreeRequest,
-  Descendants,
-} from "./types";
+import { Lang, Item, TreeRequest } from "./types";
 import { TreeKind } from "./types";
 
 import Button from "@mui/material/Button";
 import SearchIcon from "@mui/icons-material/Search";
 import { debounce } from "@mui/material/utils";
 import { RefObject, useMemo } from "react";
-import { interLangDescendants } from "../ety/DescendantsTree";
+import { useNavigate, useLocation } from "react-router-dom";
 
 interface EtyButtonProps {
   selectedLang: Lang | null;
@@ -20,9 +13,6 @@ interface EtyButtonProps {
   selectedDescLangs: Lang[];
   selectedTreeKind: TreeKind;
   buttonRef: RefObject<HTMLButtonElement>;
-  setTree: (tree: Etymology | InterLangDescendants[] | null) => void;
-  lastRequest: TreeRequest | null;
-  setLastRequest: (request: TreeRequest | null) => void;
 }
 
 export default function EtyButton({
@@ -30,14 +20,14 @@ export default function EtyButton({
   selectedItem,
   selectedDescLangs,
   buttonRef,
-  setTree,
   selectedTreeKind,
-  lastRequest,
-  setLastRequest,
 }: EtyButtonProps) {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const onClick = useMemo(
     () =>
-      debounce(async () => {
+      debounce(() => {
         buttonRef.current?.blur();
 
         if (!selectedLang || !selectedItem || selectedDescLangs.length === 0) {
@@ -50,35 +40,12 @@ export default function EtyButton({
           selectedDescLangs,
           selectedTreeKind
         );
-        if (lastRequest && request.equals(lastRequest)) {
+        const path = request.apiPath();
+        if (path === location.pathname + location.search) {
           return;
         }
 
-        try {
-          const response = await fetch(request.url());
-          const tree = (await response.json()) as
-            | Etymology
-            | Descendants
-            | Descendants[];
-          console.log(tree);
-          setLastRequest(request);
-          switch (selectedTreeKind) {
-            case TreeKind.Etymology:
-              setTree(tree as Etymology);
-              break;
-            case TreeKind.Descendants:
-              setTree([interLangDescendants(tree as Descendants)]);
-              break;
-            case TreeKind.Cognates:
-              const cognatesInterLangDescendants = (tree as Descendants[]).map(
-                (t) => interLangDescendants(t)
-              );
-              setTree(cognatesInterLangDescendants);
-              break;
-          }
-        } catch (error) {
-          console.log(error);
-        }
+        navigate(path);
       }, 0),
     [
       buttonRef,
@@ -86,9 +53,8 @@ export default function EtyButton({
       selectedItem,
       selectedDescLangs,
       selectedTreeKind,
-      lastRequest,
-      setLastRequest,
-      setTree,
+      navigate,
+      location,
     ]
   );
 
