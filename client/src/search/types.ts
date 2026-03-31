@@ -98,7 +98,7 @@ export class TreeRequest {
   }
 
   url(): string {
-    return `${process.env.REACT_APP_API_BASE_URL}/api${this.apiPath()}`;
+    return `${process.env.REACT_APP_API_BASE_URL}${this.apiPath()}`;
   }
 
   static parsePath(

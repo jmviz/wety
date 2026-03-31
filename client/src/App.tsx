@@ -14,6 +14,7 @@ import DescendantsTree, {
 } from "./ety/DescendantsTree";
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
 
 const theme = createTheme({
@@ -32,10 +33,14 @@ export default function App() {
   );
   const [lastRequest, setLastRequest] = useState<TreeRequest | null>(null);
 
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const cache = useRef<Map<string, Etymology | InterLangDescendants[]>>(
     new Map()
   );
   const isFromNavigation = useRef(false);
+  const isProgrammaticNav = useRef(false);
   const lastPushedPath = useRef<string | null>(null);
 
   const loadFromPath = useCallback(async (path: string) => {
@@ -43,11 +48,11 @@ export default function App() {
     if (!parsed) return;
 
     const makeRequest = (rootItem: Item, rootLang: Lang) => {
-      const dummyDescLangs: Lang[] = parsed.descLangIds.map((id) => ({
+      const descLangs: Lang[] = parsed.descLangIds.map((id) => ({
         id,
         name: "",
       }));
-      return new TreeRequest(rootLang, rootItem, dummyDescLangs, parsed.kind);
+      return new TreeRequest(rootLang, rootItem, descLangs, parsed.kind);
     };
 
     const cached = cache.current.get(path);
@@ -80,7 +85,7 @@ export default function App() {
     }
 
     try {
-      const apiUrl = `${process.env.REACT_APP_API_BASE_URL}/api${path}`;
+      const apiUrl = `${process.env.REACT_APP_API_BASE_URL}${path}`;
       const response = await fetch(apiUrl);
       const data = await response.json();
 
@@ -142,28 +147,20 @@ export default function App() {
     if (path === lastPushedPath.current) return;
     cache.current.set(path, tree);
     lastPushedPath.current = path;
-    window.history.pushState(null, "", "#" + path);
-  }, [lastRequest, tree]);
+    isProgrammaticNav.current = true;
+    navigate(path);
+  }, [lastRequest, tree, navigate]);
 
-  // Handle browser back/forward and initial URL.
+  // When location changes (back/forward or initial load), load the tree.
   useEffect(() => {
-    const handlePopstate = () => {
-      const hash = window.location.hash;
-      if (!hash || hash === "#") return;
-      loadFromPath(hash.slice(1));
-    };
-
-    window.addEventListener("popstate", handlePopstate);
-
-    const initialHash = window.location.hash;
-    if (initialHash && initialHash !== "#") {
-      loadFromPath(initialHash.slice(1));
+    if (isProgrammaticNav.current) {
+      isProgrammaticNav.current = false;
+      return;
     }
-
-    return () => {
-      window.removeEventListener("popstate", handlePopstate);
-    };
-  }, [loadFromPath]);
+    const path = location.pathname + location.search;
+    if (path === "/") return;
+    loadFromPath(path);
+  }, [location, loadFromPath]);
 
   return (
     <ThemeProvider theme={theme}>

@@ -50,11 +50,11 @@ async fn main() -> Result<()> {
     };
 
     let app = Router::new()
-        .route("/api/search/lang", get(lang_search_matches))
-        .route("/api/search/item/:lang", get(item_search_matches))
-        .route("/api/cognates/:item", get(item_cognates))
-        .route("/api/etymology/:item", get(item_etymology))
-        .route("/api/descendants/:item", get(item_descendants))
+        .route("/search/lang", get(lang_search_matches))
+        .route("/search/item/:lang", get(item_search_matches))
+        .route("/cognates/:item", get(item_cognates))
+        .route("/etymology/:item", get(item_etymology))
+        .route("/descendants/:item", get(item_descendants))
         .with_state(state)
         .layer(
             ServiceBuilder::new()
