@@ -34,11 +34,12 @@ async fn main() -> Result<()> {
 
     let origins: AllowOrigin = match environment {
         Environment::Development => tower_http::cors::Any.into(),
-        Environment::Production => vec![
-            "https://wety.org".parse::<HeaderValue>()?,
-            "https://www.wety.org".parse::<HeaderValue>()?,
-        ]
-        .into(),
+        Environment::Production => AllowOrigin::predicate(|origin: &HeaderValue, _| {
+            let origin = origin.as_bytes();
+            origin == b"https://wety.org"
+                || origin == b"https://www.wety.org"
+                || origin.ends_with(b".pages.dev")
+        }),
     };
 
     // $$$ make this configurable
