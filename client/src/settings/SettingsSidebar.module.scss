@@ -1,4 +1,4 @@
-.sidebar-toggle {
+.toggle {
   position: fixed;
   top: 8px;
   left: 8px;
@@ -12,13 +12,13 @@
   align-items: center;
   justify-content: center;
   color: #333;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.04);
+  }
 }
 
-.sidebar-toggle:hover {
-  background: rgba(0, 0, 0, 0.04);
-}
-
-.sidebar-overlay {
+.backdrop {
   position: fixed;
   top: 0;
   left: 0;
@@ -28,7 +28,7 @@
   z-index: 1299;
 }
 
-.sidebar-drawer {
+.drawer {
   position: fixed;
   top: 0;
   left: 0;
@@ -36,36 +36,30 @@
   width: 280px;
   background: #fff;
   z-index: 1300;
-  transform: translateX(-100%);
-  transition: transform 0.3s ease;
   overflow-y: auto;
 }
 
-.sidebar-drawer.open {
-  transform: translateX(0);
-}
-
-.sidebar-content {
+.content {
   padding: 16px 0;
 }
 
-.sidebar-title {
+.title {
   margin: 0 16px 8px;
   font-size: 1.25rem;
   font-weight: 500;
 }
 
-.sidebar-subtitle {
+.subtitle {
   margin: 0 16px 8px;
   font-size: 0.875rem;
   color: #666;
 }
 
-.mode-group {
+.modeGroup {
   margin-bottom: 8px;
 }
 
-.mode-group-header {
+.modeGroupHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -78,11 +72,11 @@
   color: #666;
 }
 
-.mode-group-label {
+.modeGroupLabel {
   font-weight: 500;
 }
 
-.mode-group-toggle {
+.modeGroupToggle {
   background: none;
   border: none;
   cursor: pointer;
@@ -91,58 +85,44 @@
   padding: 2px 4px;
 }
 
-.mode-item {
+.modeItem {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 2px 16px;
 }
 
-.mode-label {
+.modeLabel {
   font-size: 0.875rem;
 }
 
-.toggle-switch {
+.switchControl {
   position: relative;
   display: inline-block;
   width: 34px;
   height: 20px;
-}
-
-.toggle-switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.toggle-slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
   background: #ccc;
-  transition: 0.2s;
   border-radius: 20px;
+  transition: background 0.2s;
+  cursor: pointer;
+  border: none;
+
+  &[data-state="checked"] {
+    background: #1976d2;
+  }
 }
 
-.toggle-slider::before {
-  content: "";
+.switchThumb {
   position: absolute;
   height: 14px;
   width: 14px;
   left: 3px;
-  bottom: 3px;
+  top: 3px;
   background: #fff;
-  transition: 0.2s;
+  transition: transform 0.2s;
   border-radius: 50%;
-}
 
-.toggle-switch input:checked + .toggle-slider {
-  background: #1976d2;
-}
-
-.toggle-switch input:checked + .toggle-slider::before {
-  transform: translateX(14px);
+  [data-state="checked"] & {
+    transform: translateX(14px);
+  }
 }

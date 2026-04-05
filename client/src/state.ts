@@ -1,4 +1,4 @@
-import { signal, computed } from "@preact/signals";
+import { createSignal, createMemo } from "solid-js";
 import {
   Descendants,
   Etymology,
@@ -15,42 +15,38 @@ import {
 import { interLangDescendants } from "./ety/DescendantsTree";
 
 // Global application state
-export const selectedLang = signal<Lang | null>(null);
-export const selectedItem = signal<Item | null>(null);
-export const selectedDescLangs = signal<Lang[]>([]);
-export const selectedTreeKind = signal<TreeKind>(TreeKind.Cognates);
-export const tree = signal<Etymology | InterLangDescendants[] | null>(null);
-export const lastRequest = signal<TreeRequest | null>(null);
-export const disabledEtyModes = signal<Set<string>>(new Set());
+export const [selectedLang, setSelectedLang] = createSignal<Lang | null>(null);
+export const [selectedItem, setSelectedItem] = createSignal<Item | null>(null);
+export const [selectedDescLangs, setSelectedDescLangs] = createSignal<Lang[]>(
+  []
+);
+export const [selectedTreeKind, setSelectedTreeKind] = createSignal<TreeKind>(
+  TreeKind.Cognates
+);
+export const [tree, setTree] = createSignal<
+  Etymology | InterLangDescendants[] | null
+>(null);
+export const [lastRequest, setLastRequest] = createSignal<TreeRequest | null>(
+  null
+);
+export const [disabledEtyModes, setDisabledEtyModes] = createSignal<
+  Set<string>
+>(new Set());
 
 // Tree cache
 const treeCache = new Map<string, Etymology | InterLangDescendants[]>();
 
-// Filtered tree (computed from tree + disabledEtyModes)
-export const filteredTree = computed(() => {
-  const t = tree.value;
-  const disabled = disabledEtyModes.value;
+// Filtered tree (derived from tree + disabledEtyModes)
+export const filteredTree = createMemo(() => {
+  const t = tree();
+  const disabled = disabledEtyModes();
   if (t === null || disabled.size === 0) return t;
-  if (lastRequest.value?.kind === TreeKind.Etymology) {
+  if (lastRequest()?.kind === TreeKind.Etymology) {
     return filterEtymologyTree(t as Etymology, disabled);
   }
   return (t as InterLangDescendants[]).map((x) =>
     filterDescendantsTree(x, disabled)
   );
-});
-
-// Location / routing
-export const locationPath = signal(
-  window.location.pathname + window.location.search
-);
-
-export function navigate(path: string) {
-  window.history.pushState(null, "", path);
-  locationPath.value = path;
-}
-
-window.addEventListener("popstate", () => {
-  locationPath.value = window.location.pathname + window.location.search;
 });
 
 // Debounce utility
@@ -97,8 +93,8 @@ export async function loadFromPath(path: string) {
       parsed.kind === TreeKind.Etymology
         ? (cached as Etymology).item
         : (cached as InterLangDescendants[])[0]?.item ?? dummyItem();
-    tree.value = cached;
-    lastRequest.value = makeRequest(rootItem);
+    setTree(cached);
+    setLastRequest(makeRequest(rootItem));
     return;
   }
 
@@ -123,7 +119,9 @@ export async function loadFromPath(path: string) {
         break;
       }
       case TreeKind.Cognates: {
-        treeResult = (data as Descendants[]).map((t) => interLangDescendants(t));
+        treeResult = (data as Descendants[]).map((t) =>
+          interLangDescendants(t)
+        );
         rootItem =
           (treeResult as InterLangDescendants[])[0]?.item ?? dummyItem();
         break;
@@ -131,8 +129,8 @@ export async function loadFromPath(path: string) {
     }
 
     treeCache.set(path, treeResult);
-    tree.value = treeResult;
-    lastRequest.value = makeRequest(rootItem);
+    setTree(treeResult);
+    setLastRequest(makeRequest(rootItem));
   } catch (error) {
     console.log(error);
   }

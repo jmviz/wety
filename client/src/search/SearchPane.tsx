@@ -1,36 +1,39 @@
-import "./SearchPane.css";
+import styles from "./SearchPane.module.scss";
 import ItemSearch from "./ItemSearch";
 import LangSearch from "./LangSearch";
 import MultiLangSearch from "./MultiLangSearch";
 import EtyButton from "./EtyButton";
 import TreeKindSelect from "./TreeKindSelect";
 
-import { useRef } from "preact/hooks";
-
 export default function SearchPane() {
-  const langSearchInputRef = useRef<HTMLInputElement>(null);
-  const itemSearchInputRef = useRef<HTMLInputElement>(null);
-  const descLangsSearchInputRef = useRef<HTMLInputElement>(null);
-  const etyButtonRef = useRef<HTMLButtonElement>(null);
+  let langInputEl: HTMLInputElement | undefined;
+  let itemInputEl: HTMLInputElement | undefined;
+  let descLangsInputEl: HTMLInputElement | undefined;
+  let etyButtonEl: HTMLButtonElement | undefined;
 
   return (
-    <div class="search-container">
-      <div class="search-pane">
+    <div class={styles.container}>
+      <div class={styles.pane}>
         <LangSearch
-          inputRef={langSearchInputRef}
-          itemSearchInputRef={itemSearchInputRef}
+          setInputRef={(el) => (langInputEl = el)}
+          focusItemInput={() => itemInputEl?.focus()}
         />
         <ItemSearch
-          inputRef={itemSearchInputRef}
-          descLangsSearchInputRef={descLangsSearchInputRef}
-          etyButtonRef={etyButtonRef}
+          setInputRef={(el) => (itemInputEl = el)}
+          focusDescLangsInput={() => descLangsInputEl?.focus()}
+          focusEtyButton={() => {
+            if (etyButtonEl) {
+              etyButtonEl.disabled = false;
+              etyButtonEl.focus();
+            }
+          }}
         />
         <MultiLangSearch
           label="Descendant language(s)"
-          inputRef={descLangsSearchInputRef}
+          setInputRef={(el) => (descLangsInputEl = el)}
         />
         <TreeKindSelect />
-        <EtyButton buttonRef={etyButtonRef} />
+        <EtyButton setButtonRef={(el) => (etyButtonEl = el)} />
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import { Signal } from "@preact/signals";
+import { Setter } from "solid-js";
 
 export enum PositionKind {
   Hover,
@@ -95,16 +95,20 @@ export function positionTooltip(
   }
 }
 
+export interface TooltipRefs {
+  el: HTMLDivElement | undefined;
+  showTimeout: number | null;
+  hideTimeout: number | null;
+}
+
 export function hideTooltip(
-  tooltip: { current: HTMLDivElement | null },
-  showTooltip: Signal<boolean>
+  refs: TooltipRefs,
+  setShow: Setter<boolean>
 ) {
-  showTooltip.value = false;
-  if (tooltip.current === null) {
-    return;
-  }
-  tooltip.current.style.opacity = "0";
-  tooltip.current.style.zIndex = "-9000";
-  tooltip.current.style.top = "0px";
-  tooltip.current.style.left = "0px";
+  setShow(false);
+  if (!refs.el) return;
+  refs.el.style.opacity = "0";
+  refs.el.style.zIndex = "-9000";
+  refs.el.style.top = "0px";
+  refs.el.style.left = "0px";
 }

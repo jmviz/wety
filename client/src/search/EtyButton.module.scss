@@ -1,4 +1,4 @@
-.ety-button {
+.button {
   padding: 8px 16px;
   background: #1976d2;
   color: white;
@@ -8,15 +8,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  align-self: flex-end;
   min-height: 40px;
-}
 
-.ety-button:hover:not(:disabled) {
-  background: #1565c0;
-}
+  &:hover:not(:disabled) {
+    background: #1565c0;
+  }
 
-.ety-button:disabled {
-  background: #bdbdbd;
-  cursor: default;
+  &:disabled {
+    background: #bdbdbd;
+    cursor: default;
+  }
 }

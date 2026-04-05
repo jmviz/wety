@@ -1,5 +1,6 @@
-import "./index.css";
-import { render } from "preact";
-import App from "./App";
+import "./index.scss";
+import { render } from "solid-js/web";
+import { RouterProvider } from "@tanstack/solid-router";
+import { router } from "./router";
 
-render(<App />, document.getElementById("root")!);
+render(() => <RouterProvider router={router} />, document.getElementById("root")!);

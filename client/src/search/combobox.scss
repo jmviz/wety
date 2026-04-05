@@ -1,0 +1,147 @@
+// Ark UI Combobox styling
+[data-scope="combobox"] {
+  &[data-part="root"] {
+    position: relative;
+    width: 25ch;
+  }
+
+  &[data-part="label"] {
+    display: block;
+    font-size: 0.75rem;
+    color: #666;
+    margin-bottom: 4px;
+  }
+
+  &[data-part="control"] {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    align-items: center;
+  }
+
+  &[data-part="input"] {
+    width: 100%;
+    padding: 8px 12px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    outline: none;
+
+    &:focus {
+      border-color: #1976d2;
+      box-shadow: 0 0 0 1px #1976d2;
+    }
+  }
+
+  &[data-part="content"] {
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 1000;
+
+    &[data-state="closed"] {
+      display: none;
+    }
+  }
+
+  &[data-part="item"] {
+    padding: 8px 12px;
+    cursor: pointer;
+
+    &[data-highlighted] {
+      background: #e3f2fd;
+    }
+
+    &:hover {
+      background: #f5f5f5;
+    }
+
+    &[data-highlighted]:hover {
+      background: #e3f2fd;
+    }
+  }
+
+  &[data-part="tag"] {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    background: #e0e0e0;
+    border-radius: 16px;
+    padding: 2px 8px;
+    font-size: 0.85rem;
+  }
+
+  &[data-part="tag-remove"] {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.75rem;
+    color: #666;
+    padding: 0 2px;
+    line-height: 1;
+
+    &:hover {
+      color: #333;
+    }
+  }
+}
+
+// Ark UI Select styling
+[data-scope="select"] {
+  &[data-part="root"] {
+    position: relative;
+    min-width: 120px;
+  }
+
+  &[data-part="label"] {
+    display: block;
+    font-size: 0.75rem;
+    color: #666;
+    margin-bottom: 4px;
+  }
+
+  &[data-part="trigger"] {
+    width: 100%;
+    padding: 8px 12px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #fff;
+    cursor: pointer;
+    text-align: left;
+
+    &:focus {
+      border-color: #1976d2;
+      box-shadow: 0 0 0 1px #1976d2;
+      outline: none;
+    }
+  }
+
+  &[data-part="content"] {
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+
+    &[data-state="closed"] {
+      display: none;
+    }
+  }
+
+  &[data-part="item"] {
+    padding: 8px 12px;
+    cursor: pointer;
+
+    &[data-highlighted] {
+      background: #e3f2fd;
+    }
+
+    &[data-state="checked"] {
+      font-weight: bold;
+    }
+  }
+}

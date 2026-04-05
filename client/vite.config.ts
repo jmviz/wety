@@ -1,9 +1,14 @@
 import { defineConfig } from "vite";
-import preact from "@preact/preset-vite";
+import solid from "vite-plugin-solid";
 
 export default defineConfig({
-  plugins: [preact()],
+  plugins: [solid()],
   server: {
     port: 8000,
+  },
+  css: {
+    modules: {
+      localsConvention: "camelCaseOnly",
+    },
   },
 });

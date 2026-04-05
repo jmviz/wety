@@ -3,26 +3,30 @@ import { TreeKind } from "./search/types";
 import EtymologyTree from "./ety/EtymologyTree";
 import DescendantsTree from "./ety/DescendantsTree";
 import SettingsSidebar from "./settings/SettingsSidebar";
-import { filteredTree, lastRequest, loadFromPath, locationPath } from "./signals";
+import { filteredTree, lastRequest, loadFromPath } from "./state";
 
-import { useEffect } from "preact/hooks";
+import { Show, createEffect } from "solid-js";
+import { useLocation } from "@tanstack/solid-router";
 
 export default function App() {
-  useEffect(() => {
-    const path = locationPath.value;
+  const location = useLocation();
+
+  createEffect(() => {
+    const path = location().pathname + location().search;
     if (path === "/") return;
     loadFromPath(path);
-  }, [locationPath.value]);
+  });
 
   return (
     <>
       <SettingsSidebar />
       <SearchPane />
-      {lastRequest.value?.kind === TreeKind.Etymology ? (
-        <EtymologyTree tree={filteredTree.value} />
-      ) : (
-        <DescendantsTree tree={filteredTree.value} />
-      )}
+      <Show when={lastRequest()?.kind === TreeKind.Etymology}>
+        <EtymologyTree tree={filteredTree()} />
+      </Show>
+      <Show when={lastRequest() && lastRequest()?.kind !== TreeKind.Etymology}>
+        <DescendantsTree tree={filteredTree()} />
+      </Show>
     </>
   );
 }

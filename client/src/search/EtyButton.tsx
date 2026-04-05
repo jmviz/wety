@@ -1,57 +1,47 @@
-import "./EtyButton.css";
+import styles from "./EtyButton.module.scss";
 import { TreeRequest } from "./types";
 import {
   selectedLang,
   selectedItem,
   selectedDescLangs,
   selectedTreeKind,
-  locationPath,
-  navigate,
   debounce,
-} from "../signals";
+} from "../state";
 
-import { Ref } from "preact";
-import { useMemo } from "preact/hooks";
+import { useNavigate, useLocation } from "@tanstack/solid-router";
 
 interface EtyButtonProps {
-  buttonRef: Ref<HTMLButtonElement>;
+  setButtonRef: (el: HTMLButtonElement) => void;
 }
 
-export default function EtyButton({ buttonRef }: EtyButtonProps) {
-  const onClick = useMemo(
-    () =>
-      debounce(() => {
-        const btn = (buttonRef as { current: HTMLButtonElement | null })
-          .current;
-        btn?.blur();
+export default function EtyButton(props: EtyButtonProps) {
+  const navigate = useNavigate();
+  const location = useLocation();
 
-        const lang = selectedLang.value;
-        const item = selectedItem.value;
-        const descLangs = selectedDescLangs.value;
-        const treeKind = selectedTreeKind.value;
+  const onClick = debounce(() => {
+    const lang = selectedLang();
+    const item = selectedItem();
+    const descLangs = selectedDescLangs();
+    const treeKind = selectedTreeKind();
 
-        if (!lang || !item || descLangs.length === 0) return;
+    if (!lang || !item || descLangs.length === 0) return;
 
-        const request = new TreeRequest(lang, item, descLangs, treeKind);
-        const path = request.apiPath();
-        if (path === locationPath.value) return;
+    const request = new TreeRequest(lang, item, descLangs, treeKind);
+    const path = request.apiPath();
+    if (path === location().pathname + location().search) return;
 
-        navigate(path);
-      }, 0),
-    [buttonRef]
-  );
+    navigate({ to: path });
+  }, 0);
 
-  const disabled =
-    !selectedLang.value ||
-    !selectedItem.value ||
-    selectedDescLangs.value.length === 0;
+  const disabled = () =>
+    !selectedLang() || !selectedItem() || selectedDescLangs().length === 0;
 
   return (
     <button
-      ref={buttonRef}
-      class="ety-button"
+      ref={props.setButtonRef}
+      class={styles.button}
       aria-label="search"
-      disabled={disabled}
+      disabled={disabled()}
       onClick={onClick}
     >
       <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">

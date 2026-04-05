@@ -15,193 +15,201 @@ import {
   etyPrep,
   hideTooltip,
   positionTooltip,
+  TooltipRefs,
 } from "./tooltip";
 import { interLangDescendants } from "./DescendantsTree";
 import {
-  selectedLang,
-  selectedItem,
+  setSelectedLang,
+  setSelectedItem,
   selectedDescLangs,
-  selectedTreeKind,
-  tree,
+  setSelectedTreeKind,
+  setTree,
   lastRequest,
+  setLastRequest,
   debounce,
-} from "../signals";
+} from "../state";
 
-import { Signal } from "@preact/signals";
 import { HierarchyPointNode, Selection } from "d3";
-import { useEffect, useLayoutEffect, useMemo } from "preact/hooks";
-import { ComponentChildren } from "preact";
+import {
+  Accessor,
+  Setter,
+  Show,
+  For,
+  createEffect,
+  onMount,
+  onCleanup,
+  JSX,
+} from "solid-js";
 
 interface EtymologyTooltipProps {
-  showTooltip: Signal<boolean>;
-  treeNode: Signal<HierarchyPointNode<Etymology> | null>;
-  svgElement: Signal<SVGElement | null>;
-  positionKind: Signal<PositionKind>;
-  divRef: { current: HTMLDivElement | null };
-  showTimeout: { current: number | null };
-  hideTimeout: { current: number | null };
+  showTooltip: Accessor<boolean>;
+  setShowTooltip: Setter<boolean>;
+  treeNode: Accessor<HierarchyPointNode<Etymology> | null>;
+  svgElement: Accessor<SVGElement | null>;
+  positionKind: Accessor<PositionKind>;
+  tooltipRefs: TooltipRefs;
 }
 
-export default function EtymologyTooltip({
-  showTooltip,
-  treeNode,
-  svgElement,
-  positionKind,
-  divRef,
-  showTimeout,
-  hideTimeout,
-}: EtymologyTooltipProps) {
-  useEffect(() => {
-    const tooltip = divRef.current;
-    if (!tooltip) return;
+export default function EtymologyTooltip(props: EtymologyTooltipProps) {
+  onMount(() => {
+    // Set up after the element is available
+    setTimeout(() => {
+      const tooltip = props.tooltipRefs.el;
+      if (!tooltip) return;
 
-    const handleMouseEnter = (event: PointerEvent) => {
-      if (event.pointerType === "mouse") {
-        showTooltip.value = true;
-        window.clearTimeout(hideTimeout.current ?? undefined);
-      }
-    };
+      const handleMouseEnter = (event: PointerEvent) => {
+        if (event.pointerType === "mouse") {
+          props.setShowTooltip(true);
+          window.clearTimeout(props.tooltipRefs.hideTimeout ?? undefined);
+        }
+      };
 
-    const handleMouseLeave = (event: PointerEvent) => {
-      if (event.pointerType === "mouse") {
-        window.clearTimeout(showTimeout.current ?? undefined);
-        hideTimeout.current = window.setTimeout(
-          () => hideTooltip(divRef, showTooltip),
-          100
-        );
-      }
-    };
+      const handleMouseLeave = (event: PointerEvent) => {
+        if (event.pointerType === "mouse") {
+          window.clearTimeout(props.tooltipRefs.showTimeout ?? undefined);
+          props.tooltipRefs.hideTimeout = window.setTimeout(
+            () => hideTooltip(props.tooltipRefs, props.setShowTooltip),
+            100
+          );
+        }
+      };
 
-    tooltip.addEventListener("pointerenter", handleMouseEnter);
-    tooltip.addEventListener("pointerleave", handleMouseLeave);
+      tooltip.addEventListener("pointerenter", handleMouseEnter);
+      tooltip.addEventListener("pointerleave", handleMouseLeave);
 
-    return () => {
-      tooltip.removeEventListener("pointerenter", handleMouseEnter);
-      tooltip.removeEventListener("pointerleave", handleMouseLeave);
-    };
-  }, [divRef, showTooltip, showTimeout, hideTimeout]);
+      onCleanup(() => {
+        tooltip.removeEventListener("pointerenter", handleMouseEnter);
+        tooltip.removeEventListener("pointerleave", handleMouseLeave);
+      });
+    }, 0);
+  });
 
-  useLayoutEffect(() => {
-    const tooltip = divRef.current;
-    const node = treeNode.value;
-    const svg = svgElement.value;
-    if (!tooltip || !node || !svg || !showTooltip.value) return;
-    positionTooltip(svg, tooltip, positionKind.value);
+  createEffect(() => {
+    const tooltip = props.tooltipRefs.el;
+    const node = props.treeNode();
+    const svg = props.svgElement();
+    if (!tooltip || !node || !svg || !props.showTooltip()) return;
+    positionTooltip(svg, tooltip, props.positionKind());
     tooltip.style.zIndex = "9000";
     tooltip.style.opacity = "1";
-  }, [
-    divRef,
-    treeNode.value,
-    svgElement.value,
-    showTooltip.value,
-    positionKind.value,
-  ]);
+  });
 
-  const getDescendants = useMemo(
-    () =>
-      debounce(async (item: Item) => {
-        const request = new TreeRequest(
-          item.lang,
-          item,
-          selectedDescLangs.value,
-          TreeKind.Descendants
-        );
+  const getDescendants = debounce(async (item: Item) => {
+    const request = new TreeRequest(
+      item.lang,
+      item,
+      selectedDescLangs(),
+      TreeKind.Descendants
+    );
 
-        if (lastRequest.value && request.equals(lastRequest.value)) {
-          return;
-        }
+    const current = lastRequest();
+    if (current && request.equals(current)) return;
 
-        try {
-          const response = await fetch(request.url());
-          const data = (await response.json()) as Descendants;
-          console.log(data);
-          lastRequest.value = request;
-          selectedLang.value = item.lang;
-          selectedItem.value = item;
-          tree.value = [interLangDescendants(data)];
-          selectedTreeKind.value = TreeKind.Descendants;
-        } catch (error) {
-          console.log(error);
-        }
-      }, 0),
-    []
-  );
-
-  const node = treeNode.value;
-  const svg = svgElement.value;
-
-  if (node === null || svg === null) {
-    return <div ref={divRef} />;
-  }
-
-  const item = node.data.item;
-  const parents: EtyParent[] | null = node.children
-    ? node.children
-        .sort((a, b) => a.data.etyOrder - b.data.etyOrder)
-        .map((parentNode) => ({
-          lang: parentNode.data.item.lang.name,
-          term: term(parentNode.data.item),
-          langDistance: parentNode.data.langDistance,
-        }))
-    : null;
-
-  const posList = item.pos ?? [];
-  const glossList = item.gloss ?? [];
-  const etyMode = node.data.etyMode;
+    try {
+      const response = await fetch(request.url());
+      const data = (await response.json()) as Descendants;
+      console.log(data);
+      setLastRequest(request);
+      setSelectedLang(item.lang);
+      setSelectedItem(item);
+      setTree([interLangDescendants(data)]);
+      setSelectedTreeKind(TreeKind.Descendants);
+    } catch (error) {
+      console.log(error);
+    }
+  }, 0);
 
   return (
-    <div class="tooltip" ref={divRef}>
-      {positionKind.value === PositionKind.Fixed && (
-        <button
-          class="close-button"
-          onClick={() => hideTooltip(divRef, showTooltip)}
-        >
-          x
-        </button>
-      )}
-      <p
-        class="lang"
-        style={{ color: langColor(node.data.langDistance) }}
-      >
-        {item.lang.name}
-      </p>
-      <p>
-        <span class="term">{term(item)}</span>
-        {item.romanization && (
-          <span class="romanization"> ({item.romanization})</span>
-        )}
-      </p>
-      {item.imputed && (
-        <div class="pos-line">
-          <span class="imputed">(imputed)</span>
-        </div>
-      )}
-      {item.pos && item.gloss && item.pos.length === item.gloss.length && (
-        <div>
-          {posList.map((pos, i) => (
-            <div key={i} class="pos-line">
-              <span class="pos">{pos}</span>:{" "}
-              <span class="gloss">{glossList[i]}</span>
+    <div ref={(el) => (props.tooltipRefs.el = el)}>
+      <Show when={props.treeNode() && props.svgElement()}>
+        {(_) => {
+          const node = props.treeNode()!;
+          const item = node.data.item;
+          const posList = item.pos ?? [];
+          const glossList = item.gloss ?? [];
+          const etyMode = node.data.etyMode;
+          const parents: EtyParent[] | null = node.children
+            ? node.children
+                .sort((a, b) => a.data.etyOrder - b.data.etyOrder)
+                .map((parentNode) => ({
+                  lang: parentNode.data.item.lang.name,
+                  term: term(parentNode.data.item),
+                  langDistance: parentNode.data.langDistance,
+                }))
+            : null;
+
+          return (
+            <div class="tooltip">
+              <Show when={props.positionKind() === PositionKind.Fixed}>
+                <button
+                  class="close-button"
+                  onClick={() =>
+                    hideTooltip(props.tooltipRefs, props.setShowTooltip)
+                  }
+                >
+                  x
+                </button>
+              </Show>
+              <p
+                class="lang"
+                style={{ color: langColor(node.data.langDistance) }}
+              >
+                {item.lang.name}
+              </p>
+              <p>
+                <span class="term">{term(item)}</span>
+                <Show when={item.romanization}>
+                  <span class="romanization"> ({item.romanization})</span>
+                </Show>
+              </p>
+              <Show when={item.imputed}>
+                <div class="pos-line">
+                  <span class="imputed">(imputed)</span>
+                </div>
+              </Show>
+              <Show
+                when={
+                  item.pos &&
+                  item.gloss &&
+                  item.pos.length === item.gloss.length
+                }
+              >
+                <div>
+                  <For each={posList}>
+                    {(pos, i) => (
+                      <div class="pos-line">
+                        <span class="pos">{pos}</span>:{" "}
+                        <span class="gloss">{glossList[i()]}</span>
+                      </div>
+                    )}
+                  </For>
+                </div>
+              </Show>
+              <Show when={etyMode && parents}>
+                {etyLine(etyMode!, parents!)}
+              </Show>
+              <div class="tooltip-actions">
+                <button
+                  class="tooltip-btn"
+                  onClick={() => getDescendants(item)}
+                >
+                  Descendants
+                </button>
+              </div>
+              <Show when={item.url}>
+                <a
+                  href={item.url!}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="wiktionary-link"
+                >
+                  Wiktionary
+                </a>
+              </Show>
             </div>
-          ))}
-        </div>
-      )}
-      {etyMode && parents && etyLine(etyMode, parents)}
-      <div class="tooltip-actions">
-        <button class="tooltip-btn" onClick={() => getDescendants(item)}>
-          Descendants
-        </button>
-      </div>
-      {item.url && (
-        <a
-          href={item.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          class="wiktionary-link"
-        >
-          Wiktionary
-        </a>
-      )}
+          );
+        }}
+      </Show>
     </div>
   );
 }
@@ -212,14 +220,13 @@ interface EtyParent {
   langDistance: number;
 }
 
-function etyLine(etyMode: string, parents: EtyParent[]): ComponentChildren {
-  let parts: ComponentChildren[] = [];
+function etyLine(etyMode: string, parents: EtyParent[]): JSX.Element {
+  const parts: JSX.Element[] = [];
   for (let i = 0; i < parents.length; i++) {
     const parent = parents[i];
     if (i === 0 || parent.lang !== parents[i - 1].lang) {
       parts.push(
         <span
-          key={i}
           class="ety-lang"
           style={{ color: langColor(parent.langDistance) }}
         >
@@ -227,13 +234,9 @@ function etyLine(etyMode: string, parents: EtyParent[]): ComponentChildren {
         </span>
       );
     }
-    parts.push(
-      <span key={i + parents.length} class="ety-term">
-        {parent.term}
-      </span>
-    );
+    parts.push(<span class="ety-term">{parent.term}</span>);
     if (i < parents.length - 1) {
-      parts.push(<span key={i + 2 * parents.length}>{" + "}</span>);
+      parts.push(<span>{" + "}</span>);
     }
   }
 
@@ -253,22 +256,20 @@ export function setEtymologyTooltipListeners(
     SVGGElement,
     undefined
   >,
-  showTooltip: { value: boolean },
-  tooltipTreeNode: { value: HierarchyPointNode<Etymology> | null },
-  tooltipSVGElement: { value: SVGElement | null },
-  tooltipPositionKind: { value: PositionKind },
-  tooltipRef: { current: HTMLDivElement | null },
-  tooltipShowTimeout: { current: number | null },
-  tooltipHideTimeout: { current: number | null }
+  setShowTooltip: Setter<boolean>,
+  setTooltipTreeNode: Setter<HierarchyPointNode<Etymology> | null>,
+  setTooltipSVGElement: Setter<SVGElement | null>,
+  setTooltipPositionKind: Setter<PositionKind>,
+  tooltipRefs: TooltipRefs
 ) {
   node.on(
     "pointerup",
     function (event: PointerEvent, d: BoundedHierarchyPointNode<Etymology>) {
       if (event.pointerType !== "mouse") {
-        showTooltip.value = true;
-        tooltipTreeNode.value = d.node;
-        tooltipSVGElement.value = this;
-        tooltipPositionKind.value = PositionKind.Fixed;
+        setShowTooltip(true);
+        setTooltipTreeNode(() => d.node);
+        setTooltipSVGElement(this as unknown as SVGElement);
+        setTooltipPositionKind(PositionKind.Fixed);
       }
     }
   );
@@ -277,12 +278,13 @@ export function setEtymologyTooltipListeners(
     "pointerenter",
     function (event: PointerEvent, d: BoundedHierarchyPointNode<Etymology>) {
       if (event.pointerType === "mouse") {
-        window.clearTimeout(tooltipHideTimeout.current ?? undefined);
-        tooltipShowTimeout.current = window.setTimeout(() => {
-          showTooltip.value = true;
-          tooltipTreeNode.value = d.node;
-          tooltipSVGElement.value = this;
-          tooltipPositionKind.value = PositionKind.Hover;
+        const el = this as unknown as SVGElement;
+        window.clearTimeout(tooltipRefs.hideTimeout ?? undefined);
+        tooltipRefs.showTimeout = window.setTimeout(() => {
+          setShowTooltip(true);
+          setTooltipTreeNode(() => d.node);
+          setTooltipSVGElement(el);
+          setTooltipPositionKind(PositionKind.Hover);
         }, 100);
       }
     }
@@ -290,9 +292,9 @@ export function setEtymologyTooltipListeners(
 
   node.on("pointerleave", (event: PointerEvent) => {
     if (event.pointerType === "mouse") {
-      window.clearTimeout(tooltipShowTimeout.current ?? undefined);
-      tooltipHideTimeout.current = window.setTimeout(
-        () => hideTooltip(tooltipRef, showTooltip as Signal<boolean>),
+      window.clearTimeout(tooltipRefs.showTimeout ?? undefined);
+      tooltipRefs.hideTimeout = window.setTimeout(
+        () => hideTooltip(tooltipRefs, setShowTooltip),
         100
       );
     }
