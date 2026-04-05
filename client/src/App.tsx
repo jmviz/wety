@@ -12,8 +12,13 @@ import EtymologyTree from "./ety/EtymologyTree";
 import DescendantsTree, {
   interLangDescendants,
 } from "./ety/DescendantsTree";
+import SettingsSidebar from "./settings/SettingsSidebar";
+import {
+  filterEtymologyTree,
+  filterDescendantsTree,
+} from "./settings/filterTree";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
 
@@ -32,6 +37,9 @@ export default function App() {
     null
   );
   const [lastRequest, setLastRequest] = useState<TreeRequest | null>(null);
+  const [disabledEtyModes, setDisabledEtyModes] = useState<Set<string>>(
+    new Set()
+  );
 
   const location = useLocation();
   const cache = useRef<Map<string, Etymology | InterLangDescendants[]>>(
@@ -118,9 +126,23 @@ export default function App() {
     loadFromPath(path);
   }, [location, loadFromPath]);
 
+  const filteredTree = useMemo(() => {
+    if (tree === null || disabledEtyModes.size === 0) return tree;
+    if (lastRequest?.kind === TreeKind.Etymology) {
+      return filterEtymologyTree(tree as Etymology, disabledEtyModes);
+    }
+    return (tree as InterLangDescendants[]).map((t) =>
+      filterDescendantsTree(t, disabledEtyModes)
+    );
+  }, [tree, disabledEtyModes, lastRequest]);
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
+      <SettingsSidebar
+        disabledEtyModes={disabledEtyModes}
+        setDisabledEtyModes={setDisabledEtyModes}
+      />
       <SearchPane
         selectedLang={selectedLang}
         setSelectedLang={setSelectedLang}
@@ -137,7 +159,7 @@ export default function App() {
           setSelectedItem={setSelectedItem}
           selectedDescLangs={selectedDescLangs}
           setSelectedTreeKind={setSelectedTreeKind}
-          tree={tree}
+          tree={filteredTree}
           setTree={setTree}
           lastRequest={lastRequest}
           setLastRequest={setLastRequest}
@@ -148,7 +170,7 @@ export default function App() {
           setSelectedItem={setSelectedItem}
           selectedDescLangs={selectedDescLangs}
           setSelectedTreeKind={setSelectedTreeKind}
-          tree={tree}
+          tree={filteredTree}
           setTree={setTree}
           lastRequest={lastRequest}
           setLastRequest={setLastRequest}
