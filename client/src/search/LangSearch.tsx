@@ -1,40 +1,39 @@
 import { Item, Lang } from "./types";
+import Autocomplete from "./Autocomplete";
+import {
+  selectedLang,
+  selectedItem,
+  selectedDescLangs,
+  debounce,
+} from "../signals";
 
-import Autocomplete from "@mui/material/Autocomplete";
-import TextField from "@mui/material/TextField";
-import { debounce } from "@mui/material/utils";
-import { RefObject, useCallback, useEffect, useMemo, useState } from "react";
+import { useSignal } from "@preact/signals";
+import { Ref } from "preact";
+import { useEffect, useCallback, useMemo } from "preact/hooks";
 
 interface LangSearchProps {
-  selectedLang: Lang | null;
-  setSelectedLang: (lang: Lang | null) => void;
-  inputRef: RefObject<HTMLInputElement>;
-  setSelectedItem: (item: Item | null) => void;
-  itemSearchInputRef: RefObject<HTMLInputElement>;
-  selectedDescLangs: Lang[];
-  setSelectedDescLangs: (langs: Lang[]) => void;
+  inputRef: Ref<HTMLInputElement>;
+  itemSearchInputRef: Ref<HTMLInputElement>;
 }
 
 export default function LangSearch({
-  selectedLang,
-  setSelectedLang,
   inputRef,
-  setSelectedItem,
   itemSearchInputRef,
-  selectedDescLangs,
-  setSelectedDescLangs,
 }: LangSearchProps) {
+  const langOptions = useSignal<Lang[]>([]);
+
   const getStoredLastLang = useCallback(async () => {
     const lastLangStr = window.localStorage.getItem("lastLang");
+    const input = (inputRef as { current: HTMLInputElement | null }).current;
     if (lastLangStr === null) {
-      inputRef.current?.focus();
+      input?.focus();
       return;
     }
     try {
       const lastLang = JSON.parse(lastLangStr) as Lang;
       console.log(`Attempting to use stored last language ${lastLang.name}...`);
       const response = await fetch(
-        `${process.env.REACT_APP_API_BASE_URL}/search/lang?name=${lastLang.name}`
+        `${import.meta.env.VITE_API_BASE_URL}/search/lang?name=${lastLang.name}`
       );
       const options = (await response.json()) as Lang[];
       const lang = options[0];
@@ -45,111 +44,91 @@ export default function LangSearch({
         if (lang.id !== lastLang.id) {
           console.log(`The previous id for ${lang.name} was ${lastLang.id}.`);
         }
-        setSelectedLang(lang);
-        setSelectedDescLangs([lang]);
-        itemSearchInputRef.current?.focus();
+        selectedLang.value = lang;
+        selectedDescLangs.value = [lang];
+        if (input) input.value = lang.name;
+        const itemInput = (
+          itemSearchInputRef as { current: HTMLInputElement | null }
+        ).current;
+        itemInput?.focus();
         return;
       }
       throw new Error("Unable to use stored last language.");
     } catch (error) {
       console.log(error);
       window.localStorage.removeItem("lastLang");
-      inputRef.current?.focus();
+      input?.focus();
     }
-  }, [inputRef, setSelectedLang, itemSearchInputRef, setSelectedDescLangs]);
+  }, [inputRef, itemSearchInputRef]);
 
   useEffect(() => {
     getStoredLastLang();
   }, [getStoredLastLang]);
 
-  const [langOptions, setLangOptions] = useState<Lang[]>([]);
-
   const clearSelectedLangAndOptions = useCallback(() => {
-    setLangOptions([]);
-    setSelectedLang(null);
+    langOptions.value = [];
+    selectedLang.value = null;
     window.localStorage.removeItem("lastLang");
-    setSelectedItem(null);
-  }, [setSelectedLang, setSelectedItem]);
-
-  const setSelectedLangAndMaybeDescLangs = useCallback(
-    (lang: Lang | null) => {
-      setSelectedLang(lang);
-      setSelectedItem(null);
-      if (lang !== null) {
-        itemSearchInputRef.current?.focus();
-        if (selectedDescLangs.length === 0) {
-          setSelectedDescLangs([lang]);
-        }
-        window.localStorage.setItem("lastLang", JSON.stringify(lang));
-      }
-    },
-    [
-      setSelectedLang,
-      setSelectedItem,
-      itemSearchInputRef,
-      selectedDescLangs.length,
-      setSelectedDescLangs,
-    ]
-  );
+    selectedItem.value = null;
+  }, [langOptions]);
 
   const fetchLangs = useMemo(
     () =>
       debounce(async (input: string) => {
         try {
           const response = await fetch(
-            `${process.env.REACT_APP_API_BASE_URL}/search/lang?name=${input}`
+            `${import.meta.env.VITE_API_BASE_URL}/search/lang?name=${input}`
           );
           const newOptions = (await response.json()) as Lang[];
-          setLangOptions(newOptions);
+          langOptions.value = newOptions;
         } catch (error) {
           console.log(error);
           clearSelectedLangAndOptions();
         }
       }, 500),
-    [clearSelectedLangAndOptions]
+    [langOptions, clearSelectedLangAndOptions]
+  );
+
+  const handleSelect = useCallback(
+    (lang: Lang | null) => {
+      selectedLang.value = lang;
+      selectedItem.value = null;
+      if (lang !== null) {
+        const itemInput = (
+          itemSearchInputRef as { current: HTMLInputElement | null }
+        ).current;
+        itemInput?.focus();
+        if (selectedDescLangs.value.length === 0) {
+          selectedDescLangs.value = [lang];
+        }
+        window.localStorage.setItem("lastLang", JSON.stringify(lang));
+      }
+    },
+    [itemSearchInputRef]
+  );
+
+  const handleInputChange = useCallback(
+    (value: string) => {
+      if (value === "") {
+        clearSelectedLangAndOptions();
+        return;
+      }
+      fetchLangs(value);
+    },
+    [clearSelectedLangAndOptions, fetchLangs]
   );
 
   return (
     <Autocomplete
-      sx={{ width: "25ch" }}
-      freeSolo
-      value={selectedLang}
-      onChange={(event, newValue) => {
-        if (typeof newValue === "string") {
-          const match = langOptions.find(
-            (lo) => lo.name.toLowerCase() === newValue.trim().toLowerCase()
-          );
-          if (match) {
-            setSelectedLangAndMaybeDescLangs(match);
-            return;
-          }
-          clearSelectedLangAndOptions();
-          return;
-        }
-        setSelectedLangAndMaybeDescLangs(newValue);
-      }}
-      blurOnSelect
-      onInputChange={(event, newInputValue) => {
-        if (newInputValue === "") {
-          clearSelectedLangAndOptions();
-          return;
-        }
-        fetchLangs(newInputValue);
-      }}
-      renderInput={(params) => (
-        <TextField
-          {...params}
-          label="Language"
-          placeholder="Language..."
-          inputRef={inputRef}
-        />
-      )}
+      width="25ch"
+      label="Language"
+      placeholder="Language..."
       options={langOptions}
-      filterOptions={(x) => x}
-      getOptionLabel={(option) =>
-        typeof option === "string" ? option : option.name
-      }
-      isOptionEqualToValue={(option, value) => option.id === value.id}
+      onSelect={handleSelect}
+      onInputChange={handleInputChange}
+      getLabel={(lang) => lang.name}
+      isEqual={(a, b) => a.id === b.id}
+      inputRef={inputRef}
     />
   );
 }

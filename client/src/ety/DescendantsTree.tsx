@@ -4,9 +4,7 @@ import {
   Etymology,
   InterLangDescendants,
   Item,
-  Lang,
   term,
-  TreeRequest,
 } from "../search/types";
 import { xMinClusterLayout } from "./treeCluster";
 import DescendantsTooltip, {
@@ -14,7 +12,7 @@ import DescendantsTooltip, {
 } from "./DescendantsTooltip";
 import { PositionKind, hideTooltip } from "./tooltip";
 import { BoundedHierarchyPointNode, langColor } from "./tree";
-import { TreeKind } from "../search/types";
+import { lastRequest } from "../signals";
 
 import { select, Selection } from "d3-selection";
 import { link, curveStepBefore } from "d3-shape";
@@ -23,59 +21,30 @@ import {
   HierarchyPointLink,
   HierarchyPointNode,
 } from "d3-hierarchy";
-import {
-  RefObject,
-  useRef,
-  useEffect,
-  useMemo,
-  createRef,
-  useState,
-} from "react";
+import { useSignal } from "@preact/signals";
+import { useRef, useEffect, useMemo } from "preact/hooks";
 
 interface DescendantsTreeProps {
-  setSelectedLang: (lang: Lang | null) => void;
-  setSelectedItem: (item: Item | null) => void;
-  selectedDescLangs: Lang[];
-  setSelectedTreeKind: (treeKind: TreeKind) => void;
   tree: Etymology | InterLangDescendants[] | null;
-  setTree: (tree: Etymology | InterLangDescendants[] | null) => void;
-  lastRequest: TreeRequest | null;
-  setLastRequest: (request: TreeRequest | null) => void;
 }
 
-export default function DescendantsTree({
-  setSelectedLang,
-  setSelectedItem,
-  selectedDescLangs,
-  setSelectedTreeKind,
-  tree,
-  setTree,
-  lastRequest,
-  setLastRequest,
-}: DescendantsTreeProps) {
-  const [showTooltip, setShowTooltip] = useState(false);
-  const [tooltipTreeNode, setTooltipTreeNode] =
-    useState<HierarchyPointNode<InterLangDescendants> | null>(null);
-  const [tooltipSVGElement, setTooltipSVGElement] = useState<SVGElement | null>(
-    null
-  );
-  const [tooltipPositionKind, setTooltipPositionKind] = useState<PositionKind>(
-    PositionKind.Hover
-  );
+export default function DescendantsTree({ tree }: DescendantsTreeProps) {
+  const showTooltip = useSignal(false);
+  const tooltipTreeNode =
+    useSignal<HierarchyPointNode<InterLangDescendants> | null>(null);
+  const tooltipSVGElement = useSignal<SVGElement | null>(null);
+  const tooltipPositionKind = useSignal<PositionKind>(PositionKind.Hover);
   const tooltipRef = useRef<HTMLDivElement>(null);
   const tooltipShowTimeout = useRef<number | null>(null);
   const tooltipHideTimeout = useRef<number | null>(null);
+
+  const request = lastRequest.value;
 
   const svgRefs = useMemo(() => {
     if (!Array.isArray(tree)) {
       return [];
     }
-
-    const refs: RefObject<SVGSVGElement>[] = [];
-    for (let index = 0; index < tree.length; index++) {
-      refs.push(createRef<SVGSVGElement>());
-    }
-    return refs;
+    return tree.map(() => ({ current: null as SVGSVGElement | null }));
   }, [tree]);
 
   useEffect(() => {
@@ -89,18 +58,18 @@ export default function DescendantsTree({
       const svgRef = svgRefs[index];
       const svg = svgRef.current;
 
-      if (!svg || !tree[index] || !lastRequest) {
+      if (!svg || !tree[index] || !request) {
         return;
       }
 
       descendantsTreeSVG(
         svg,
         tree[index] as InterLangDescendants,
-        lastRequest.item,
-        setShowTooltip,
-        setTooltipTreeNode,
-        setTooltipSVGElement,
-        setTooltipPositionKind,
+        request.item,
+        showTooltip,
+        tooltipTreeNode,
+        tooltipSVGElement,
+        tooltipPositionKind,
         tooltipRef,
         tooltipShowTimeout,
         tooltipHideTimeout
@@ -111,46 +80,33 @@ export default function DescendantsTree({
 
     return () => {
       cleanupSVGs.forEach((cleanup) => cleanup());
-      hideTooltip(tooltipRef, setShowTooltip);
-      setShowTooltip(false);
-      setTooltipTreeNode(null);
-      setTooltipSVGElement(null);
-      setTooltipPositionKind(PositionKind.Hover);
+      hideTooltip(tooltipRef, showTooltip);
+      showTooltip.value = false;
+      tooltipTreeNode.value = null;
+      tooltipSVGElement.value = null;
+      tooltipPositionKind.value = PositionKind.Hover;
     };
-  }, [
-    tree,
-    lastRequest,
-    setShowTooltip,
-    setTooltipTreeNode,
-    setTooltipSVGElement,
-    setTooltipPositionKind,
-    tooltipRef,
-    tooltipShowTimeout,
-    tooltipHideTimeout,
-    svgRefs,
-  ]);
+  }, [tree, request, svgRefs]);
 
   return (
-    <div className="tree-container">
+    <div class="tree-container">
       {svgRefs.map((ref, index) => (
-        <svg key={index} className="tree" ref={ref} />
+        <svg
+          key={index}
+          class="tree"
+          ref={(el) => {
+            ref.current = el;
+          }}
+        />
       ))}
       <DescendantsTooltip
-        setSelectedLang={setSelectedLang}
-        setSelectedItem={setSelectedItem}
-        selectedDescLangs={selectedDescLangs}
-        setTree={setTree}
-        setSelectedTreeKind={setSelectedTreeKind}
         showTooltip={showTooltip}
-        setShowTooltip={setShowTooltip}
         treeNode={tooltipTreeNode}
         svgElement={tooltipSVGElement}
         positionKind={tooltipPositionKind}
         divRef={tooltipRef}
         showTimeout={tooltipShowTimeout}
         hideTimeout={tooltipHideTimeout}
-        lastRequest={lastRequest}
-        setLastRequest={setLastRequest}
       />
     </div>
   );
@@ -160,27 +116,28 @@ function descendantsTreeSVG(
   svgElement: SVGSVGElement,
   tree: InterLangDescendants,
   treeRootItem: Item,
-  setShowTooltip: (show: boolean) => void,
-  setTooltipTreeNode: (
-    node: HierarchyPointNode<InterLangDescendants> | null
-  ) => void,
-  setTooltipSVGElement: (svg: SVGElement | null) => void,
-  setTooltipPositionKind: (positionKind: PositionKind) => void,
-  tooltipRef: RefObject<HTMLDivElement>,
-  tooltipShowTimeout: RefObject<number | null>,
-  tooltipHideTimeout: RefObject<number | null>
+  showTooltip: { value: boolean },
+  tooltipTreeNode: {
+    value: HierarchyPointNode<InterLangDescendants> | null;
+  },
+  tooltipSVGElement: { value: SVGElement | null },
+  tooltipPositionKind: { value: PositionKind },
+  tooltipRef: { current: HTMLDivElement | null },
+  tooltipShowTimeout: { current: number | null },
+  tooltipHideTimeout: { current: number | null }
 ) {
-  // https://github.com/d3/d3-hierarchy#hierarchy
   const root = hierarchy<InterLangDescendants>(
     tree,
     (d: InterLangDescendants) => d.children
   );
 
-  const selectedItemNode = root.find((d) => d.data.item.id === treeRootItem.id);
+  const selectedItemNode = root.find(
+    (d) => d.data.item.id === treeRootItem.id
+  );
   const selectedItemNodeAncestors = selectedItemNode?.ancestors() ?? [];
 
   root
-    .count() // counts node leaves and assigns count to .value
+    .count()
     .sort(
       (a, b) =>
         +selectedItemNodeAncestors.includes(a) -
@@ -190,12 +147,6 @@ function descendantsTreeSVG(
         +(a.data.item.term < b.data.item.term) * 2 - 1
     );
 
-  // There is a confusion between "x" and "y" concepts in the below. The d3
-  // api assumes that the tree is oriented vertically, with the root at the
-  // top and the leaves at the bottom. But we are using a horizontal tree,
-  // with the root on the left and the leaves on the right. So variables
-  // defined by d3 like e.g. `root.height` and `d.x` correspond in our case to
-  // width and y.
   const fontSize = svgElement
     ? parseFloat(window.getComputedStyle(svgElement).fontSize)
     : 13;
@@ -224,7 +175,6 @@ function descendantsTreeSVG(
 
   const pointRoot = layout(root);
 
-  // Center the tree vertically.
   let y0 = Infinity;
   let y1 = -y0;
   pointRoot.each((d) => {
@@ -232,16 +182,11 @@ function descendantsTreeSVG(
     if (d.x < y0) y0 = d.x;
   });
 
-  // root.height is the number of links between the root and the furthest leaf.
   const width = (root.height + 1) * dx;
   const height = y1 - y0 + dy * 4;
 
   const viewBox = [-dx / 2, y0 - dy * 2, width, height];
 
-  // crispEdges implementation quality varies from browser to browser. It
-  // generally seems to work well but for example Windows Firefox renders
-  // random lines with 2px instead of 1px. Consider this as a solution:
-  // https://github.com/engray/subpixelFix.
   const svg = select(svgElement)
     .attr("version", "1.1")
     .attr("xmlns", "http://www.w3.org/2000/svg")
@@ -258,13 +203,8 @@ function descendantsTreeSVG(
     .attr("vector-effect", "non-scaling-stroke")
     .attr("text-anchor", "middle")
     .attr("text-rendering", "optimizeLegibility")
-    // this noop event listener is to cajole mobile browsers (or, at least,
-    // ios webkit) into responding to touch events on svg elements, cf.
-    // https://stackoverflow.com/a/65777666/10658294
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
     .on("touchstart", () => {});
 
-  // the lines forming the tree
   svg
     .append("g")
     .attr("fill", "none")
@@ -291,7 +231,6 @@ function descendantsTreeSVG(
       return { node: d, bbox: new DOMRect(0, 0, 0, 0) };
     });
 
-  // placeholder rects for text backgrounds to be set in addSVGTextBackgrounds()
   const nodeBackground = svg
     .append("g")
     .selectAll<SVGRectElement, unknown>("rect")
@@ -299,7 +238,6 @@ function descendantsTreeSVG(
     .join("rect")
     .attr("fill", "white");
 
-  // the text nodes
   const node = svg
     .append("g")
     .selectAll<SVGTextElement, unknown>("g")
@@ -328,15 +266,17 @@ function descendantsTreeSVG(
     .attr("class", "romanization")
     .attr("y", "1.5em")
     .text((d) =>
-      d.node.data.item.romanization ? `(${d.node.data.item.romanization})` : ""
+      d.node.data.item.romanization
+        ? `(${d.node.data.item.romanization})`
+        : ""
     );
 
   setDescendantsTooltipListeners(
     node,
-    setShowTooltip,
-    setTooltipTreeNode,
-    setTooltipSVGElement,
-    setTooltipPositionKind,
+    showTooltip,
+    tooltipTreeNode,
+    tooltipSVGElement,
+    tooltipPositionKind,
     tooltipRef,
     tooltipShowTimeout,
     tooltipHideTimeout

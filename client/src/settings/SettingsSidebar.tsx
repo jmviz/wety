@@ -1,44 +1,25 @@
+import "./SettingsSidebar.css";
 import { etyModeGroups } from "./etyModes";
+import { disabledEtyModes } from "../signals";
 
-import {
-  Drawer,
-  IconButton,
-  Typography,
-  List,
-  ListItem,
-  ListItemText,
-  ListSubheader,
-  Switch,
-  Box,
-  Button,
-} from "@mui/material";
-import MenuIcon from "@mui/icons-material/Menu";
-import { useState } from "react";
+import { useSignal } from "@preact/signals";
 
-interface SettingsSidebarProps {
-  disabledEtyModes: Set<string>;
-  setDisabledEtyModes: (modes: Set<string>) => void;
-}
-
-export default function SettingsSidebar({
-  disabledEtyModes,
-  setDisabledEtyModes,
-}: SettingsSidebarProps) {
-  const [open, setOpen] = useState(false);
+export default function SettingsSidebar() {
+  const open = useSignal(false);
 
   const toggleMode = (mode: string) => {
-    const next = new Set(disabledEtyModes);
+    const next = new Set(disabledEtyModes.value);
     if (next.has(mode)) {
       next.delete(mode);
     } else {
       next.add(mode);
     }
-    setDisabledEtyModes(next);
+    disabledEtyModes.value = next;
   };
 
   const toggleGroup = (modes: string[]) => {
-    const allDisabled = modes.every((m) => disabledEtyModes.has(m));
-    const next = new Set(disabledEtyModes);
+    const allDisabled = modes.every((m) => disabledEtyModes.value.has(m));
+    const next = new Set(disabledEtyModes.value);
     for (const m of modes) {
       if (allDisabled) {
         next.delete(m);
@@ -46,73 +27,72 @@ export default function SettingsSidebar({
         next.add(m);
       }
     }
-    setDisabledEtyModes(next);
+    disabledEtyModes.value = next;
   };
 
   return (
     <>
-      <IconButton
-        onClick={() => setOpen(true)}
-        sx={{ position: "fixed", top: 8, left: 8, zIndex: 1200 }}
+      <button
+        class="sidebar-toggle"
+        onClick={() => {
+          open.value = true;
+        }}
         aria-label="settings"
       >
-        <MenuIcon />
-      </IconButton>
-      <Drawer anchor="left" open={open} onClose={() => setOpen(false)}>
-        <Box sx={{ width: 280, pt: 2, pb: 2 }}>
-          <Typography variant="h6" sx={{ px: 2, pb: 1 }}>
-            Settings
-          </Typography>
-          <Typography variant="subtitle2" sx={{ px: 2, pb: 1, color: "text.secondary" }}>
-            Connection types
-          </Typography>
-          <List dense disablePadding>
-            {etyModeGroups.map((group) => {
-              const allDisabled = group.modes.every((m) =>
-                disabledEtyModes.has(m)
-              );
-              const someDisabled = group.modes.some((m) =>
-                disabledEtyModes.has(m)
-              );
-              return (
-                <Box key={group.label}>
-                  <ListSubheader
-                    sx={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      lineHeight: "36px",
-                    }}
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+          <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
+        </svg>
+      </button>
+
+      {open.value && (
+        <div class="sidebar-overlay" onClick={() => { open.value = false; }} />
+      )}
+
+      <div class={`sidebar-drawer ${open.value ? "open" : ""}`}>
+        <div class="sidebar-content">
+          <h3 class="sidebar-title">Settings</h3>
+          <p class="sidebar-subtitle">Connection types</p>
+
+          {etyModeGroups.map((group) => {
+            const allDisabled = group.modes.every((m) =>
+              disabledEtyModes.value.has(m)
+            );
+            const someDisabled = group.modes.some((m) =>
+              disabledEtyModes.value.has(m)
+            );
+            return (
+              <div key={group.label} class="mode-group">
+                <div class="mode-group-header">
+                  <span class="mode-group-label">{group.label}</span>
+                  <button
+                    class="mode-group-toggle"
+                    onClick={() => toggleGroup(group.modes)}
                   >
-                    {group.label}
-                    <Button
-                      size="small"
-                      onClick={() => toggleGroup(group.modes)}
-                      sx={{ minWidth: 0, textTransform: "none", fontSize: "0.75rem" }}
-                    >
-                      {allDisabled ? "enable all" : someDisabled ? "enable all" : "disable all"}
-                    </Button>
-                  </ListSubheader>
-                  {group.modes.map((mode) => (
-                    <ListItem key={mode} sx={{ py: 0 }}>
-                      <ListItemText
-                        primary={mode}
-                        primaryTypographyProps={{ variant: "body2" }}
-                      />
-                      <Switch
-                        edge="end"
-                        size="small"
-                        checked={!disabledEtyModes.has(mode)}
+                    {allDisabled
+                      ? "enable all"
+                      : someDisabled
+                      ? "enable all"
+                      : "disable all"}
+                  </button>
+                </div>
+                {group.modes.map((mode) => (
+                  <div key={mode} class="mode-item">
+                    <span class="mode-label">{mode}</span>
+                    <label class="toggle-switch">
+                      <input
+                        type="checkbox"
+                        checked={!disabledEtyModes.value.has(mode)}
                         onChange={() => toggleMode(mode)}
                       />
-                    </ListItem>
-                  ))}
-                </Box>
-              );
-            })}
-          </List>
-        </Box>
-      </Drawer>
+                      <span class="toggle-slider" />
+                    </label>
+                  </div>
+                ))}
+              </div>
+            );
+          })}
+        </div>
+      </div>
     </>
   );
 }

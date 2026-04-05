@@ -1,0 +1,20 @@
+.search-container {
+  display: flex;
+  justify-content: center;
+  padding: 16px;
+}
+
+.search-pane {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+@media (max-width: 600px) {
+  .search-pane {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

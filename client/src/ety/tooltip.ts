@@ -1,4 +1,4 @@
-import { RefObject } from "react";
+import { Signal } from "@preact/signals";
 
 export enum PositionKind {
   Hover,
@@ -41,16 +41,6 @@ export function etyPrep(etyMode: string): string {
     case "mention":
       return " from ";
     case "surface analysis":
-      // case "compound":
-      // case "univerbation":
-      // case "blend":
-      // case "transfix":
-      // case "suffix":
-      // case "prefix":
-      // case "infix":
-      // case "confix":
-      // case "circumfix":
-      // case "affix":
       return ": ";
     case "vṛddhi":
     case "vṛddhi-ya":
@@ -71,8 +61,6 @@ export function positionHoverTooltip(
   const tooltipRect = tooltip.getBoundingClientRect();
   const elementRect = element.getBoundingClientRect();
 
-  // Position the tooltip above the element. If there is not enough space,
-  // position it below the element.
   if (elementRect.top >= tooltipRect.height) {
     tooltip.style.top =
       elementRect.top + window.scrollY - tooltipRect.height + "px";
@@ -80,8 +68,6 @@ export function positionHoverTooltip(
     tooltip.style.top = elementRect.bottom + window.scrollY + "px";
   }
 
-  // Align the tooltip with the left side of the element. If there is not
-  // enough space, align it with the right side.
   if (elementRect.left + tooltipRect.width <= window.innerWidth) {
     tooltip.style.left = elementRect.left + window.scrollX + "px";
   } else {
@@ -110,10 +96,10 @@ export function positionTooltip(
 }
 
 export function hideTooltip(
-  tooltip: RefObject<HTMLDivElement>,
-  setShowTooltip: (showTooltip: boolean) => void
+  tooltip: { current: HTMLDivElement | null },
+  showTooltip: Signal<boolean>
 ) {
-  setShowTooltip(false);
+  showTooltip.value = false;
   if (tooltip.current === null) {
     return;
   }

@@ -1,20 +1,5 @@
 import "./index.css";
+import { render } from "preact";
 import App from "./App";
-import reportWebVitals from "./reportWebVitals";
 
-import React from "react";
-import ReactDOM from "react-dom/client";
-import { BrowserRouter } from "react-router-dom";
-
-const root = ReactDOM.createRoot(
-  document.getElementById("root") as HTMLElement
-);
-root.render(
-  <React.StrictMode>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
-  </React.StrictMode>
-);
-
-reportWebVitals(console.log);
+render(<App />, document.getElementById("root")!);

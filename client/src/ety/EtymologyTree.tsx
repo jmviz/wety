@@ -3,9 +3,7 @@ import {
   Etymology,
   InterLangDescendants,
   Item,
-  Lang,
   term,
-  TreeRequest,
 } from "../search/types";
 import { xMeanClusterLayout } from "./treeCluster";
 import EtymologyTooltip, {
@@ -13,7 +11,7 @@ import EtymologyTooltip, {
 } from "./EtymologyTooltip";
 import { PositionKind, hideTooltip } from "./tooltip";
 import { BoundedHierarchyPointNode, langColor } from "./tree";
-import { TreeKind } from "../search/types";
+import { lastRequest } from "../signals";
 
 import { select, Selection } from "d3-selection";
 import { link, curveStepAfter } from "d3-shape";
@@ -22,109 +20,67 @@ import {
   HierarchyPointLink,
   HierarchyPointNode,
 } from "d3-hierarchy";
-import {
-  RefObject,
-  useRef,
-  useEffect,
-  MutableRefObject,
-  useState,
-} from "react";
+import { useSignal } from "@preact/signals";
+import { useRef, useEffect } from "preact/hooks";
 
 interface EtymologyTreeProps {
-  setSelectedLang: (lang: Lang | null) => void;
-  setSelectedItem: (item: Item | null) => void;
-  selectedDescLangs: Lang[];
-  setSelectedTreeKind: (treeKind: TreeKind) => void;
   tree: Etymology | InterLangDescendants[] | null;
-  setTree: (tree: Etymology | InterLangDescendants[] | null) => void;
-  lastRequest: TreeRequest | null;
-  setLastRequest: (request: TreeRequest | null) => void;
 }
 
-export default function EtymologyTree({
-  setSelectedLang,
-  setSelectedItem,
-  selectedDescLangs,
-  setSelectedTreeKind,
-  tree,
-  setTree,
-  lastRequest,
-  setLastRequest,
-}: EtymologyTreeProps) {
-  const [showTooltip, setShowTooltip] = useState(false);
-  const [tooltipTreeNode, setTooltipTreeNode] =
-    useState<HierarchyPointNode<Etymology> | null>(null);
-  const [tooltipSVGElement, setTooltipSVGElement] = useState<SVGElement | null>(
-    null
-  );
-  const [tooltipPositionKind, setTooltipPositionKind] = useState<PositionKind>(
-    PositionKind.Hover
-  );
+export default function EtymologyTree({ tree }: EtymologyTreeProps) {
+  const showTooltip = useSignal(false);
+  const tooltipTreeNode =
+    useSignal<HierarchyPointNode<Etymology> | null>(null);
+  const tooltipSVGElement = useSignal<SVGElement | null>(null);
+  const tooltipPositionKind = useSignal<PositionKind>(PositionKind.Hover);
   const svgRef = useRef<SVGSVGElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
   const tooltipShowTimeout = useRef<number | null>(null);
   const tooltipHideTimeout = useRef<number | null>(null);
 
+  const request = lastRequest.value;
+
   useEffect(() => {
     const svg = svgRef.current;
 
-    if (svg === null || tree === null || lastRequest === null) {
+    if (svg === null || tree === null || request === null) {
       return;
     }
 
     etymologyTreeSVG(
       svg,
       tree as Etymology,
-      lastRequest.item,
-      setShowTooltip,
-      setTooltipTreeNode,
-      setTooltipSVGElement,
-      setTooltipPositionKind,
+      request.item,
+      showTooltip,
+      tooltipTreeNode,
+      tooltipSVGElement,
+      tooltipPositionKind,
       tooltipRef,
       tooltipShowTimeout,
       tooltipHideTimeout
     );
 
     return () => {
-      // clear the previous svg
       select(svg).selectAll("*").remove();
-      hideTooltip(tooltipRef, setShowTooltip);
-      setShowTooltip(false);
-      setTooltipTreeNode(null);
-      setTooltipSVGElement(null);
-      setTooltipPositionKind(PositionKind.Hover);
+      hideTooltip(tooltipRef, showTooltip);
+      showTooltip.value = false;
+      tooltipTreeNode.value = null;
+      tooltipSVGElement.value = null;
+      tooltipPositionKind.value = PositionKind.Hover;
     };
-  }, [
-    tree,
-    lastRequest,
-    setShowTooltip,
-    setTooltipTreeNode,
-    setTooltipSVGElement,
-    setTooltipPositionKind,
-    tooltipRef,
-    tooltipShowTimeout,
-    tooltipHideTimeout,
-  ]);
+  }, [tree, request]);
 
   return (
-    <div className="tree-container">
-      <svg className="tree" ref={svgRef} />
+    <div class="tree-container">
+      <svg class="tree" ref={svgRef} />
       <EtymologyTooltip
-        setSelectedLang={setSelectedLang}
-        setSelectedItem={setSelectedItem}
-        selectedDescLangs={selectedDescLangs}
-        setTree={setTree}
-        setSelectedTreeKind={setSelectedTreeKind}
         showTooltip={showTooltip}
-        setShowTooltip={setShowTooltip}
         treeNode={tooltipTreeNode}
         svgElement={tooltipSVGElement}
         positionKind={tooltipPositionKind}
         divRef={tooltipRef}
         showTimeout={tooltipShowTimeout}
         hideTimeout={tooltipHideTimeout}
-        lastRequest={lastRequest}
-        setLastRequest={setLastRequest}
       />
     </div>
   );
@@ -134,15 +90,14 @@ function etymologyTreeSVG(
   svgElement: SVGSVGElement,
   tree: Etymology,
   treeRootItem: Item,
-  setShowTooltip: (show: boolean) => void,
-  setTooltipTreeNode: (node: HierarchyPointNode<Etymology> | null) => void,
-  setTooltipSVGElement: (svg: SVGElement | null) => void,
-  setTooltipPositionKind: (positionKind: PositionKind) => void,
-  tooltipRef: RefObject<HTMLDivElement>,
-  tooltipShowTimeout: MutableRefObject<number | null>,
-  tooltipHideTimeout: MutableRefObject<number | null>
+  showTooltip: { value: boolean },
+  tooltipTreeNode: { value: HierarchyPointNode<Etymology> | null },
+  tooltipSVGElement: { value: SVGElement | null },
+  tooltipPositionKind: { value: PositionKind },
+  tooltipRef: { current: HTMLDivElement | null },
+  tooltipShowTimeout: { current: number | null },
+  tooltipHideTimeout: { current: number | null }
 ) {
-  // https://github.com/d3/d3-hierarchy#hierarchy
   const root = hierarchy<Etymology>(tree, (d: Etymology) => d.parents);
 
   root.sort((a, b) => b.data.etyOrder - a.data.etyOrder);
@@ -159,7 +114,6 @@ function etymologyTreeSVG(
 
   const pointRoot = layout(root);
 
-  // Center the tree horizontally.
   let x0 = Infinity;
   let x1 = -x0;
   pointRoot.each((d) => {
@@ -167,17 +121,11 @@ function etymologyTreeSVG(
     if (d.x < x0) x0 = d.x;
   });
 
-  // const nLeaves = root.leaves().length;
-  // const width = nLeaves * (dx + sep) - sep;
   const width = x1 - x0 + dx;
   const height = (root.height + 1) * dy;
 
   const viewBox = [x0 - dx / 2, -dy / 2, width, height];
 
-  // crispEdges implementation quality varies from browser to browser. It
-  // generally seems to work well but for example Windows Firefox renders
-  // random lines with 2px instead of 1px. Consider this as a solution:
-  // https://github.com/engray/subpixelFix.
   const svg = select(svgElement)
     .attr("version", "1.1")
     .attr("xmlns", "http://www.w3.org/2000/svg")
@@ -194,13 +142,8 @@ function etymologyTreeSVG(
     .attr("vector-effect", "non-scaling-stroke")
     .attr("text-anchor", "middle")
     .attr("text-rendering", "optimizeLegibility")
-    // this noop event listener is to cajole mobile browsers (or, at least,
-    // ios webkit) into responding to touch events on svg elements, cf.
-    // https://stackoverflow.com/a/65777666/10658294
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
     .on("touchstart", () => {});
 
-  // the lines forming the tree
   svg
     .append("g")
     .attr("fill", "none")
@@ -221,15 +164,12 @@ function etymologyTreeSVG(
         .y((d) => d.y)
     );
 
-  // Confusingly, with respect to the tree structure and d3 api, these are
-  // descendants. But with respect to the etymology, they are ancestors.
   const ancestors: BoundedHierarchyPointNode<Etymology>[] = pointRoot
     .descendants()
     .map(function (d) {
       return { node: d, bbox: new DOMRect(0, 0, 0, 0) };
     });
 
-  // placeholder rects for text backgrounds to be set in addSVGTextBackgrounds()
   const nodeBackground = svg
     .append("g")
     .selectAll<SVGRectElement, unknown>("rect")
@@ -237,7 +177,6 @@ function etymologyTreeSVG(
     .join("rect")
     .attr("fill", "white");
 
-  // the text nodes
   const node = svg
     .append("g")
     .selectAll<SVGTextElement, unknown>("g")
@@ -271,10 +210,10 @@ function etymologyTreeSVG(
 
   setEtymologyTooltipListeners(
     node,
-    setShowTooltip,
-    setTooltipTreeNode,
-    setTooltipSVGElement,
-    setTooltipPositionKind,
+    showTooltip,
+    tooltipTreeNode,
+    tooltipSVGElement,
+    tooltipPositionKind,
     tooltipRef,
     tooltipShowTimeout,
     tooltipHideTimeout

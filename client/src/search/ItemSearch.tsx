@@ -1,145 +1,115 @@
 import "./ItemSearch.css";
-import { Item, Lang, term } from "./types";
+import { Item, term } from "./types";
+import Autocomplete from "./Autocomplete";
+import {
+  selectedLang,
+  selectedItem,
+  selectedDescLangs,
+  debounce,
+} from "../signals";
 
-import Autocomplete from "@mui/material/Autocomplete";
-import TextField from "@mui/material/TextField";
-import { debounce } from "@mui/material/utils";
-import { useCallback, useMemo, useState, RefObject } from "react";
+import { useSignal } from "@preact/signals";
+import { Ref } from "preact";
+import { useCallback, useMemo } from "preact/hooks";
 
 interface ItemSearchProps {
-  selectedLang: Lang | null;
-  selectedItem: Item | null;
-  setSelectedItem: (item: Item | null) => void;
-  inputRef: RefObject<HTMLInputElement>;
-  selectedDescLangs: Lang[];
-  descLangsSearchInputRef: RefObject<HTMLInputElement>;
-  etyButtonRef: RefObject<HTMLButtonElement>;
+  inputRef: Ref<HTMLInputElement>;
+  descLangsSearchInputRef: Ref<HTMLInputElement>;
+  etyButtonRef: Ref<HTMLButtonElement>;
 }
 
 export default function ItemSearch({
-  selectedLang,
-  selectedItem,
-  setSelectedItem,
   inputRef,
-  selectedDescLangs,
   descLangsSearchInputRef,
   etyButtonRef,
 }: ItemSearchProps) {
-  const [itemOptions, setItemOptions] = useState<Item[]>([]);
+  const itemOptions = useSignal<Item[]>([]);
 
   const clearSelectedItemAndOptions = useCallback(() => {
-    setItemOptions([]);
-    setSelectedItem(null);
-  }, [setSelectedItem]);
-
-  const setSelectedItemAndMaybeFocus = useCallback(
-    (item: Item | null) => {
-      setSelectedItem(item);
-      if (selectedLang && item) {
-        if (selectedDescLangs.length > 0) {
-          if (etyButtonRef.current) {
-            etyButtonRef.current.disabled = false;
-            etyButtonRef.current.focus();
-          }
-        } else {
-          descLangsSearchInputRef.current?.focus();
-        }
-      }
-    },
-    [
-      setSelectedItem,
-      selectedLang,
-      selectedDescLangs.length,
-      descLangsSearchInputRef,
-      etyButtonRef,
-    ]
-  );
+    itemOptions.value = [];
+    selectedItem.value = null;
+  }, [itemOptions]);
 
   const fetchItems = useMemo(
     () =>
       debounce(async (input: string) => {
-        if (selectedLang === null) {
+        const lang = selectedLang.value;
+        if (lang === null) {
           clearSelectedItemAndOptions();
           return;
         }
         try {
           const response = await fetch(
-            `${process.env.REACT_APP_API_BASE_URL}/search/item/${selectedLang.id}?term=${input}`
+            `${import.meta.env.VITE_API_BASE_URL}/search/item/${lang.id}?term=${input}`
           );
           const newOptions = (await response.json()) as Item[];
-          setItemOptions(newOptions);
+          itemOptions.value = newOptions;
         } catch (error) {
           console.log(error);
           clearSelectedItemAndOptions();
         }
       }, 500),
-    [selectedLang, clearSelectedItemAndOptions]
+    [itemOptions, clearSelectedItemAndOptions]
+  );
+
+  const handleSelect = useCallback(
+    (item: Item | null) => {
+      selectedItem.value = item;
+      if (selectedLang.value && item) {
+        if (selectedDescLangs.value.length > 0) {
+          const btn = (etyButtonRef as { current: HTMLButtonElement | null })
+            .current;
+          if (btn) {
+            btn.disabled = false;
+            btn.focus();
+          }
+        } else {
+          const descInput = (
+            descLangsSearchInputRef as { current: HTMLInputElement | null }
+          ).current;
+          descInput?.focus();
+        }
+      }
+    },
+    [etyButtonRef, descLangsSearchInputRef]
+  );
+
+  const handleInputChange = useCallback(
+    (value: string) => {
+      const cleanValue = cleanSearchTerm(value);
+      if (cleanValue === "" || selectedLang.value === null) {
+        clearSelectedItemAndOptions();
+        return;
+      }
+      fetchItems(cleanValue);
+    },
+    [clearSelectedItemAndOptions, fetchItems]
   );
 
   return (
     <Autocomplete
-      sx={{
-        width: "30ch",
-      }}
-      ListboxProps={{
-        sx: {
-          ".MuiAutocomplete-option": {
-            display: "block",
-          },
-        },
-      }}
-      freeSolo
-      value={selectedItem}
-      onChange={(event, newValue) => {
-        if (typeof newValue === "string") {
-          const match = itemOptions.find(
-            (io) => io.term.toLowerCase() === cleanSearchTerm(newValue)
-          );
-          if (match) {
-            setSelectedItemAndMaybeFocus(match);
-            return;
-          }
-          clearSelectedItemAndOptions();
-          return;
-        }
-        setSelectedItemAndMaybeFocus(newValue);
-      }}
-      blurOnSelect
-      onInputChange={(event, newInputValue) => {
-        const cleanInputValue = cleanSearchTerm(newInputValue);
-        if (cleanInputValue === "" || selectedLang === null) {
-          clearSelectedItemAndOptions();
-          return;
-        }
-        fetchItems(cleanInputValue);
-      }}
-      renderInput={(params) => (
-        <TextField
-          {...params}
-          label="Term"
-          placeholder="Term..."
-          inputRef={inputRef}
-        />
-      )}
+      width="30ch"
+      label="Term"
+      placeholder="Term..."
       options={itemOptions}
-      filterOptions={(x) => x}
-      getOptionLabel={(option) =>
-        typeof option === "string" ? option : term(option)
-      }
-      isOptionEqualToValue={(option, value) => option.id === value.id}
-      renderOption={(props, option) => {
+      onSelect={handleSelect}
+      onInputChange={handleInputChange}
+      getLabel={(item) => term(item)}
+      isEqual={(a, b) => a.id === b.id}
+      inputRef={inputRef}
+      renderOption={(option) => {
         const pos = option.pos ?? [];
         const gloss = option.gloss ?? [];
         return (
-          <li {...props} key={option.id}>
-            <div className="term-line">{term(option)}</div>
+          <>
+            <div class="term-line">{term(option)}</div>
             {pos.map((p, i) => (
-              <div key={i} className="pos-line">
-                <span className="pos">{p}</span>:{" "}
-                <span className="gloss">{gloss[i]}</span>
+              <div key={i} class="pos-line">
+                <span class="pos">{p}</span>:{" "}
+                <span class="gloss">{gloss[i]}</span>
               </div>
             ))}
-          </li>
+          </>
         );
       }}
     />
