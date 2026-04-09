@@ -1,148 +1,113 @@
 import "./ItemSearch.css";
-import { Item, Lang, term } from "./types";
-
-import Autocomplete from "@mui/material/Autocomplete";
-import TextField from "@mui/material/TextField";
-import { debounce } from "@mui/material/utils";
-import { useCallback, useMemo, useState, RefObject } from "react";
-
-interface ItemSearchProps {
-  selectedLang: Lang | null;
-  selectedItem: Item | null;
-  setSelectedItem: (item: Item | null) => void;
-  inputRef: RefObject<HTMLInputElement>;
-  selectedDescLangs: Lang[];
-  descLangsSearchInputRef: RefObject<HTMLInputElement>;
-  etyButtonRef: RefObject<HTMLButtonElement>;
-}
-
-export default function ItemSearch({
+import { Item, term } from "./types";
+import {
   selectedLang,
   selectedItem,
   setSelectedItem,
-  inputRef,
   selectedDescLangs,
-  descLangsSearchInputRef,
-  etyButtonRef,
-}: ItemSearchProps) {
-  const [itemOptions, setItemOptions] = useState<Item[]>([]);
+  debounce,
+} from "../state";
 
-  const clearSelectedItemAndOptions = useCallback(() => {
-    setItemOptions([]);
-    setSelectedItem(null);
-  }, [setSelectedItem]);
+import { createSignal, createMemo, For } from "solid-js";
+import { Combobox, createListCollection } from "@ark-ui/solid";
 
-  const setSelectedItemAndMaybeFocus = useCallback(
-    (item: Item | null) => {
-      setSelectedItem(item);
-      if (selectedLang && item) {
-        if (selectedDescLangs.length > 0) {
-          if (etyButtonRef.current) {
-            etyButtonRef.current.disabled = false;
-            etyButtonRef.current.focus();
-          }
-        } else {
-          descLangsSearchInputRef.current?.focus();
-        }
-      }
-    },
-    [
-      setSelectedItem,
-      selectedLang,
-      selectedDescLangs.length,
-      descLangsSearchInputRef,
-      etyButtonRef,
-    ]
+interface ItemSearchProps {
+  setInputRef: (el: HTMLInputElement) => void;
+  focusDescLangsInput: () => void;
+  focusEtyButton: () => void;
+}
+
+export default function ItemSearch(props: ItemSearchProps) {
+  const [itemOptions, setItemOptions] = createSignal<Item[]>([]);
+
+  const collection = createMemo(() =>
+    createListCollection({
+      items: itemOptions(),
+      itemToString: (item) => term(item),
+      itemToValue: (item) => String(item.id),
+    })
   );
 
-  const fetchItems = useMemo(
-    () =>
-      debounce(async (input: string) => {
-        if (selectedLang === null) {
-          clearSelectedItemAndOptions();
-          return;
-        }
-        try {
-          const response = await fetch(
-            `${process.env.REACT_APP_API_BASE_URL}/search/item/${selectedLang.id}?term=${input}`
-          );
-          const newOptions = (await response.json()) as Item[];
-          setItemOptions(newOptions);
-        } catch (error) {
-          console.log(error);
-          clearSelectedItemAndOptions();
-        }
-      }, 500),
-    [selectedLang, clearSelectedItemAndOptions]
-  );
+  const fetchItems = debounce(async (input: string) => {
+    const lang = selectedLang();
+    if (lang === null) {
+      setItemOptions([]);
+      setSelectedItem(null);
+      return;
+    }
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/search/item/${lang.id}?term=${input}`
+      );
+      const options = (await response.json()) as Item[];
+      setItemOptions(options);
+    } catch (error) {
+      console.log(error);
+      setItemOptions([]);
+      setSelectedItem(null);
+    }
+  }, 150);
 
   return (
-    <Autocomplete
-      sx={{
-        width: "30ch",
-      }}
-      ListboxProps={{
-        sx: {
-          ".MuiAutocomplete-option": {
-            display: "block",
-          },
-        },
-      }}
-      freeSolo
-      value={selectedItem}
-      onChange={(event, newValue) => {
-        if (typeof newValue === "string") {
-          const match = itemOptions.find(
-            (io) => io.term.toLowerCase() === cleanSearchTerm(newValue)
-          );
-          if (match) {
-            setSelectedItemAndMaybeFocus(match);
-            return;
+    <Combobox.Root
+      collection={collection()}
+      openOnClick
+      allowCustomValue
+      inputBehavior="autohighlight"
+      onValueChange={(details) => {
+        const val = details.value[0];
+        if (!val) {
+          setSelectedItem(null);
+          return;
+        }
+        const item = itemOptions().find((i) => String(i.id) === val);
+        if (item) {
+          setSelectedItem(item);
+          if (selectedLang() && selectedDescLangs().length > 0) {
+            props.focusEtyButton();
+          } else {
+            props.focusDescLangsInput();
           }
-          clearSelectedItemAndOptions();
+        }
+      }}
+      onInputValueChange={(details) => {
+        const clean = cleanSearchTerm(details.inputValue);
+        if (clean === "" || selectedLang() === null) {
+          setItemOptions([]);
+          setSelectedItem(null);
           return;
         }
-        setSelectedItemAndMaybeFocus(newValue);
+        fetchItems(clean);
       }}
-      blurOnSelect
-      onInputChange={(event, newInputValue) => {
-        const cleanInputValue = cleanSearchTerm(newInputValue);
-        if (cleanInputValue === "" || selectedLang === null) {
-          clearSelectedItemAndOptions();
-          return;
-        }
-        fetchItems(cleanInputValue);
-      }}
-      renderInput={(params) => (
-        <TextField
-          {...params}
-          label="Term"
+    >
+      <Combobox.Label>Term</Combobox.Label>
+      <Combobox.Control>
+        <Combobox.Input
+          ref={props.setInputRef}
           placeholder="Term..."
-          inputRef={inputRef}
+          value={selectedItem() ? term(selectedItem()!) : ""}
         />
-      )}
-      options={itemOptions}
-      filterOptions={(x) => x}
-      getOptionLabel={(option) =>
-        typeof option === "string" ? option : term(option)
-      }
-      isOptionEqualToValue={(option, value) => option.id === value.id}
-      renderOption={(props, option) => {
-        const pos = option.pos ?? [];
-        const gloss = option.gloss ?? [];
-        return (
-          <li {...props} key={option.id}>
-            <div className="term-line">{term(option)}</div>
-            {pos.map((p, i) => (
-              <div key={i} className="pos-line">
-                <span className="pos">{p}</span>:{" "}
-                <span className="gloss">{gloss[i]}</span>
-              </div>
-            ))}
-          </li>
-        );
-      }}
-    />
+      </Combobox.Control>
+      <Combobox.Positioner>
+        <Combobox.Content>
+          <For each={collection().items}>
+            {(item) => (
+              <Combobox.Item item={item}>
+                <Combobox.ItemText>{term(item)}</Combobox.ItemText>
+                <For each={item.pos ?? []}>
+                  {(pos, i) => (
+                    <div class="pos-line">
+                      <span class="pos">{pos}</span>:{" "}
+                      <span class="gloss">{(item.gloss ?? [])[i()]}</span>
+                    </div>
+                  )}
+                </For>
+              </Combobox.Item>
+            )}
+          </For>
+        </Combobox.Content>
+      </Combobox.Positioner>
+    </Combobox.Root>
   );
 }
 

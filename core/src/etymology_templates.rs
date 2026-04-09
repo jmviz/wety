@@ -15,7 +15,7 @@ use strum::{AsRefStr, EnumString, IntoStaticStr};
     Deserialize,
 )]
 #[strum(use_phf)]
-pub(crate) enum EtyMode {
+pub enum EtyMode {
     // start derived-kind modes
     #[strum(
         to_string = "derived", // https://en.wiktionary.org/wiki/Template:derived
@@ -280,7 +280,7 @@ pub(crate) enum EtyMode {
 
 /// Used to determine how to handle an ety mode template within `process_json_ety_template`
 #[derive(PartialEq)]
-pub(crate) enum TemplateKind {
+pub enum TemplateKind {
     // Wiktionary etymology template names that will be considered to represent
     // the concept "derived from", in a broad sense. They have 3 main parameters:
     // "1": lang code of term being described
@@ -327,7 +327,8 @@ pub(crate) enum TemplateKind {
 }
 
 impl EtyMode {
-    pub(crate) fn template_kind(self) -> Option<TemplateKind> {
+    #[must_use]
+    pub fn template_kind(self) -> Option<TemplateKind> {
         match self {
             EtyMode::Derived
             | EtyMode::Inherited
@@ -377,14 +378,15 @@ impl EtyMode {
         }
     }
 
-    // pub(crate) fn has_ambiguous_head(self) -> bool {
+    // pub fn has_ambiguous_head(self) -> bool {
     //     matches!(
     //         self,
     //         EtyMode::Compound | EtyMode::Univerbation | EtyMode::SurfaceAnalysis | EtyMode::Blend
     //     )
     // }
 
-    pub(crate) fn as_str(self) -> &'static str {
+    #[must_use]
+    pub fn as_str(self) -> &'static str {
         self.into()
     }
 }

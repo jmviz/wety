@@ -1,4 +1,4 @@
-import { RefObject } from "react";
+import { Setter } from "solid-js";
 
 export enum PositionKind {
   Hover,
@@ -41,16 +41,6 @@ export function etyPrep(etyMode: string): string {
     case "mention":
       return " from ";
     case "surface analysis":
-      // case "compound":
-      // case "univerbation":
-      // case "blend":
-      // case "transfix":
-      // case "suffix":
-      // case "prefix":
-      // case "infix":
-      // case "confix":
-      // case "circumfix":
-      // case "affix":
       return ": ";
     case "vṛddhi":
     case "vṛddhi-ya":
@@ -71,8 +61,6 @@ export function positionHoverTooltip(
   const tooltipRect = tooltip.getBoundingClientRect();
   const elementRect = element.getBoundingClientRect();
 
-  // Position the tooltip above the element. If there is not enough space,
-  // position it below the element.
   if (elementRect.top >= tooltipRect.height) {
     tooltip.style.top =
       elementRect.top + window.scrollY - tooltipRect.height + "px";
@@ -80,8 +68,6 @@ export function positionHoverTooltip(
     tooltip.style.top = elementRect.bottom + window.scrollY + "px";
   }
 
-  // Align the tooltip with the left side of the element. If there is not
-  // enough space, align it with the right side.
   if (elementRect.left + tooltipRect.width <= window.innerWidth) {
     tooltip.style.left = elementRect.left + window.scrollX + "px";
   } else {
@@ -109,16 +95,20 @@ export function positionTooltip(
   }
 }
 
+export interface TooltipRefs {
+  el: HTMLDivElement | undefined;
+  showTimeout: number | null;
+  hideTimeout: number | null;
+}
+
 export function hideTooltip(
-  tooltip: RefObject<HTMLDivElement>,
-  setShowTooltip: (showTooltip: boolean) => void
+  refs: TooltipRefs,
+  setShow: Setter<boolean>
 ) {
-  setShowTooltip(false);
-  if (tooltip.current === null) {
-    return;
-  }
-  tooltip.current.style.opacity = "0";
-  tooltip.current.style.zIndex = "-9000";
-  tooltip.current.style.top = "0px";
-  tooltip.current.style.left = "0px";
+  setShow(false);
+  if (!refs.el) return;
+  refs.el.style.opacity = "0";
+  refs.el.style.zIndex = "-9000";
+  refs.el.style.top = "0px";
+  refs.el.style.left = "0px";
 }

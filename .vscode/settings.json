@@ -1,0 +1,13 @@
+{
+  "rust-analyzer.check.command": "clippy",
+  "rust-analyzer.check.overrideCommand": [
+    "cargo",
+    "clippy",
+    "--workspace",
+    "--message-format=json",
+    "--all-targets",
+    "--",
+    "--warn",
+    "clippy::pedantic"
+  ]
+}

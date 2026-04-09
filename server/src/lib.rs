@@ -1,6 +1,6 @@
 #![allow(clippy::unused_async)]
 
-use processor::{Data, ItemId, Lang, Search};
+use wety_core::{Data, ItemId, Lang, Search};
 use serde::Deserialize;
 
 use std::{str::FromStr, sync::Arc};

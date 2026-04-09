@@ -1,13 +1,12 @@
 use crate::{
+    HashMap, HashSet,
     ety_graph::{EtyEdgeAccess, EtyGraph, Progenitors},
     items::{Item, ItemId},
     languages::Lang,
     string_pool::StringPool,
-    HashMap, HashSet,
 };
 
 use std::{
-    collections::hash_map::Entry,
     fs::File,
     io::{BufReader, BufWriter, Read, Write},
     path::Path,
@@ -15,25 +14,24 @@ use std::{
 };
 
 use anyhow::{Ok, Result};
-use flate2::{read::GzDecoder, write::GzEncoder, Compression};
-use fuzzy_trie::{Collector, FuzzyTrie};
-use indicatif::HumanDuration;
+use flate2::{Compression, read::GzDecoder, write::GzEncoder};
 use itertools::Itertools;
 use ngrammatic::{Corpus, CorpusBuilder, Pad};
 use serde::{Deserialize, Serialize};
-use serde_json::{json, Value};
+use serde_json::{Value, json};
+use trie_rs::map::{Trie as TrieMap, TrieBuilder as TrieMapBuilder};
 
 #[derive(Serialize, Deserialize)]
 pub struct Data {
-    pub(crate) string_pool: StringPool,
-    pub(crate) graph: EtyGraph,
-    pub(crate) progenitors: HashMap<ItemId, Progenitors>,
-    descendant_langs: HashMap<ItemId, HashSet<Lang>>,
+    pub string_pool: StringPool,
+    pub graph: EtyGraph,
+    pub progenitors: HashMap<ItemId, Progenitors>,
+    pub descendant_langs: HashMap<ItemId, HashSet<Lang>>,
 }
 
-// methods for use within processor
 impl Data {
-    pub(crate) fn new(string_pool: StringPool, graph: EtyGraph) -> Self {
+    #[must_use]
+    pub fn new(string_pool: StringPool, graph: EtyGraph) -> Self {
         let progenitors = graph.all_progenitors();
         let descendant_langs = graph.all_descendant_langs();
         Self {
@@ -44,7 +42,10 @@ impl Data {
         }
     }
 
-    pub(crate) fn serialize(&self, path: &Path) -> Result<()> {
+    /// # Errors
+    ///
+    /// Returns an error if the output file cannot be created or written.
+    pub fn serialize(&self, path: &Path) -> Result<()> {
         let t = Instant::now();
         println!("Serializing processed data to {}...", path.display());
         let file = File::create(path)?;
@@ -55,7 +56,7 @@ impl Data {
             Box::new(BufWriter::new(file))
         };
         serde_json::to_writer(writer, &self)?;
-        println!("Finished. Took {}.", HumanDuration(t.elapsed()));
+        println!("Finished. Took {:.2?}.", t.elapsed());
         Ok(())
     }
 }
@@ -158,26 +159,8 @@ impl Data {
             .filter(|e| {
                 let child = e.child();
                 let child_lang = self.item(child).lang();
-                // Make sure that the request item is included in the tree, even
-                // if it would be disallowed otherwise.
                 req_item_ancestors_within_desc_langs.contains(&item_id)
-                // Include children that are in desc_langs, as long as they are
-                // not the same language as their parent (which would indicate
-                // an uninteresting derived term, like all the declensions of a
-                // greek noun).
                     || (desc_langs.contains(&child_lang) && child_lang != item_lang)
-                // Include children that are not themselves in desc_langs, but
-                // who have descendants that are, as long as one of those
-                // descendants is not the same language as item_lang. This
-                // avoids cases like English -> German -> Swedish -> English
-                // (where English is a requested desc_lang and German and
-                // Swedish are not, and the first English item has no
-                // descendants in any other desc_langs). The later English item
-                // WILL be included if German is also a desc_lang though, even
-                // though we don't really want this. How common are such
-                // circuitous routes? If they are too common, we could track a
-                // set of encountered_desc_langs for each call to this function
-                // and filter based on that instead.
                     || self.descendant_langs.get(&child).is_some_and(|cdl| {
                         desc_langs
                             .iter()
@@ -203,7 +186,7 @@ impl Data {
             .inspect(|e| {
                 ety_mode = Some(e.mode());
             })
-            .filter(|&e| !(item_parent_id.is_some_and(|id| id == e.parent())))
+            .filter(|&e| item_parent_id != Some(e.parent()))
             .map(|e| {
                 json!({
                     "item": self.item_json(e.parent()),
@@ -234,18 +217,20 @@ impl Data {
         self.progenitors.get(&item_id).map_or_else(
             || json!([]),
             |progenitors| {
-                json!(progenitors
-                    .items
-                    .iter()
-                    .map(|&p| {
-                        self.item_descendants_json(
-                            p,
-                            dist_lang,
-                            desc_langs,
-                            req_item_ancestors_within_desc_langs,
-                        )
-                    })
-                    .collect_vec())
+                json!(
+                    progenitors
+                        .items
+                        .iter()
+                        .map(|&p| {
+                            self.item_descendants_json(
+                                p,
+                                dist_lang,
+                                desc_langs,
+                                req_item_ancestors_within_desc_langs,
+                            )
+                        })
+                        .collect_vec()
+                )
             },
         )
     }
@@ -286,7 +271,7 @@ struct LangData {
 pub struct Search {
     normalized_langs: HashMap<String, LangData>,
     langs: Corpus,
-    terms: HashMap<Lang, FuzzyTrie<ItemId>>,
+    terms: HashMap<Lang, TrieMap<u8, Vec<ItemId>>>,
 }
 
 fn normalize_lang_name(name: &str) -> String {
@@ -310,19 +295,19 @@ impl Data {
             .pad_full(Pad::Auto)
             .key_trans(Box::new(normalize_lang_name))
             .finish();
-        let mut terms = HashMap::<Lang, FuzzyTrie<ItemId>>::default();
+        // Pre-aggregate items by (lang, lowered_term) since the map trie
+        // only stores one value per key.
+        let mut term_items = HashMap::<Lang, HashMap<String, Vec<ItemId>>>::default();
         for (item_id, item) in self.graph.iter().filter(|(_, item)| !item.is_imputed()) {
             let norm_lang = normalize_lang_name(item.lang().name());
             let term = item.term().resolve(&self.string_pool);
-            match terms.entry(item.lang()) {
-                Entry::Occupied(mut t) => {
-                    t.get_mut().insert(&term.to_lowercase()).insert(item_id);
-                }
-                Entry::Vacant(e) => {
-                    let t = e.insert(FuzzyTrie::new(0, false));
-                    t.insert(term).insert(item_id);
-                }
-            }
+            let lowered = term.to_lowercase();
+            term_items
+                .entry(item.lang())
+                .or_default()
+                .entry(lowered)
+                .or_default()
+                .push(item_id);
             if let Some(lang_data) = normalized_langs.get_mut(&norm_lang) {
                 lang_data.items += 1;
             } else {
@@ -335,6 +320,14 @@ impl Data {
                 );
                 langs.add_text(item.lang().name());
             }
+        }
+        let mut terms = HashMap::<Lang, TrieMap<u8, Vec<ItemId>>>::default();
+        for (lang, lang_terms) in term_items {
+            let mut builder = TrieMapBuilder::new();
+            for (term, ids) in lang_terms {
+                builder.push(term, ids);
+            }
+            terms.insert(lang, builder.build());
         }
         println!("Finished. Took {:#?}.", t.elapsed());
         Search {
@@ -373,80 +366,39 @@ impl Search {
     }
 }
 
-struct ItemMatch {
-    distance: u8,
-    item: ItemId,
-}
-
-impl ItemMatch {
-    fn json(&self, data: &Data) -> Value {
-        data.item_json(self.item)
-    }
-}
-
-#[derive(Default)]
-pub struct ItemMatches {
-    matches: Vec<ItemMatch>,
-}
-
-impl ItemMatches {
-    fn new() -> Self {
-        Self { matches: vec![] }
-    }
-
-    fn is_empty(&self) -> bool {
-        self.matches.is_empty()
-    }
-
-    fn sort(&mut self, data: &Data) {
-        self.matches.sort_unstable_by(|a, b| {
-            if a.distance == b.distance {
-                let a_term = data.term(a.item);
-                let b_term = data.term(b.item);
-                let a_len = a_term.chars().count();
-                let b_len = b_term.chars().count();
-                if a_len == b_len {
-                    if a_term == b_term {
-                        data.ety_num(a.item).cmp(&data.ety_num(b.item))
-                    } else {
-                        // we want words that start with a lowercase to appear
-                        // before words that start with an uppercase
-                        b_term.cmp(a_term)
-                    }
-                } else {
-                    a_len.cmp(&b_len)
-                }
-            } else {
-                a.distance.cmp(&b.distance)
-            }
-        });
-    }
-
-    fn json(&self, data: &Data) -> Value {
-        json!(self.matches.iter().map(|m| m.json(data)).collect_vec())
-    }
-}
-
-impl<'a> Collector<'a, ItemId> for ItemMatches {
-    fn push(&mut self, distance: u8, item: &'a ItemId) {
-        self.matches.push(ItemMatch {
-            distance,
-            item: *item,
-        });
-    }
-}
+const MAX_SEARCH_RESULTS: usize = 20;
 
 impl Search {
     #[must_use]
     pub fn items(&self, data: &Data, lang: Lang, term: &str) -> Value {
-        let mut matches = ItemMatches::new();
-        if let Some(lang_terms) = self.terms.get(&lang) {
-            lang_terms.fuzzy_search(term, &mut matches);
-            if matches.is_empty() && term.chars().count() > 5 {
-                lang_terms.prefix_fuzzy_search(term, &mut matches);
+        let lowered = term.to_lowercase();
+        let mut items: Vec<ItemId> = Vec::new();
+        if let Some(lang_trie) = self.terms.get(&lang) {
+            // predictive_search returns results in lexicographic byte order,
+            // so shorter terms come first. Break early once we have enough.
+            for (_, item_ids) in lang_trie.predictive_search::<String, _>(&lowered) {
+                items.extend(item_ids.iter().copied());
+                if items.len() >= MAX_SEARCH_RESULTS {
+                    break;
+                }
             }
         }
-        matches.sort(data);
-        matches.json(data)
+        items.sort_unstable_by(|&a, &b| {
+            let a_term = data.term(a);
+            let b_term = data.term(b);
+            let a_len = a_term.chars().count();
+            let b_len = b_term.chars().count();
+            if a_len == b_len {
+                if a_term == b_term {
+                    data.ety_num(a).cmp(&data.ety_num(b))
+                } else {
+                    b_term.cmp(a_term)
+                }
+            } else {
+                a_len.cmp(&b_len)
+            }
+        });
+        items.truncate(MAX_SEARCH_RESULTS);
+        json!(items.iter().map(|&id| data.item_json(id)).collect_vec())
     }
 }

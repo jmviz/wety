@@ -3,7 +3,7 @@ static ALLOC: snmalloc_rs::SnMalloc = snmalloc_rs::SnMalloc;
 
 use processor::{embeddings, process_wiktextract};
 
-use std::{env, path::PathBuf, time::Instant};
+use std::{path::PathBuf, time::Instant};
 
 use anyhow::Result;
 use clap::Parser;
@@ -39,7 +39,6 @@ pub struct Args {
 }
 
 fn main() -> Result<()> {
-    env::set_var("RUST_BACKTRACE", "1");
     let total_time = Instant::now();
     let args = Args::parse();
     let embeddings_config = embeddings::Config {

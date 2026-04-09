@@ -1,85 +1,40 @@
+import styles from "./SearchPane.module.scss";
 import ItemSearch from "./ItemSearch";
 import LangSearch from "./LangSearch";
 import MultiLangSearch from "./MultiLangSearch";
 import EtyButton from "./EtyButton";
-import { Lang, Item } from "./types";
 import TreeKindSelect from "./TreeKindSelect";
-import { TreeKind } from "./types";
 
-import Stack from "@mui/material/Stack";
-import { useRef } from "react";
-import { Container } from "@mui/material";
-
-interface SearchPaneProps {
-  selectedLang: Lang | null;
-  setSelectedLang: (lang: Lang | null) => void;
-  selectedItem: Item | null;
-  setSelectedItem: (item: Item | null) => void;
-  selectedDescLangs: Lang[];
-  setSelectedDescLangs: (langs: Lang[]) => void;
-  selectedTreeKind: TreeKind;
-  setSelectedTreeKind: (treeKind: TreeKind) => void;
-}
-
-export default function SearchPane({
-  selectedLang,
-  setSelectedLang,
-  selectedItem,
-  setSelectedItem,
-  selectedDescLangs,
-  setSelectedDescLangs,
-  selectedTreeKind,
-  setSelectedTreeKind,
-}: SearchPaneProps) {
-  const langSearchInputRef = useRef<HTMLInputElement>(null);
-  const itemSearchInputRef = useRef<HTMLInputElement>(null);
-  const descLangsSearchInputRef = useRef<HTMLInputElement>(null);
-  const etyButtonRef = useRef<HTMLButtonElement>(null);
+export default function SearchPane() {
+  let langInputEl: HTMLInputElement | undefined;
+  let itemInputEl: HTMLInputElement | undefined;
+  let descLangsInputEl: HTMLInputElement | undefined;
+  let etyButtonEl: HTMLButtonElement | undefined;
 
   return (
-    <Container>
-      <Stack
-        sx={{ padding: 2 }}
-        direction={{ xs: "column", sm: "row" }}
-        spacing={2}
-        justifyContent={"center"}
-      >
+    <div class={styles.container}>
+      <div class={styles.pane}>
         <LangSearch
-          selectedLang={selectedLang}
-          setSelectedLang={setSelectedLang}
-          inputRef={langSearchInputRef}
-          setSelectedItem={setSelectedItem}
-          itemSearchInputRef={itemSearchInputRef}
-          selectedDescLangs={selectedDescLangs}
-          setSelectedDescLangs={setSelectedDescLangs}
+          setInputRef={(el) => (langInputEl = el)}
+          focusItemInput={() => itemInputEl?.focus()}
         />
         <ItemSearch
-          selectedLang={selectedLang}
-          selectedItem={selectedItem}
-          setSelectedItem={setSelectedItem}
-          inputRef={itemSearchInputRef}
-          selectedDescLangs={selectedDescLangs}
-          descLangsSearchInputRef={descLangsSearchInputRef}
-          etyButtonRef={etyButtonRef}
+          setInputRef={(el) => (itemInputEl = el)}
+          focusDescLangsInput={() => descLangsInputEl?.focus()}
+          focusEtyButton={() => {
+            if (etyButtonEl) {
+              etyButtonEl.disabled = false;
+              etyButtonEl.focus();
+            }
+          }}
         />
         <MultiLangSearch
           label="Descendant language(s)"
-          selectedLangs={selectedDescLangs}
-          setSelectedLangs={setSelectedDescLangs}
-          inputRef={descLangsSearchInputRef}
+          setInputRef={(el) => (descLangsInputEl = el)}
         />
-        <TreeKindSelect
-          selectedTreeKind={selectedTreeKind}
-          setSelectedTreeKind={setSelectedTreeKind}
-        />
-        <EtyButton
-          selectedLang={selectedLang}
-          selectedItem={selectedItem}
-          selectedDescLangs={selectedDescLangs}
-          buttonRef={etyButtonRef}
-          selectedTreeKind={selectedTreeKind}
-        />
-      </Stack>
-    </Container>
+        <TreeKindSelect />
+        <EtyButton setButtonRef={(el) => (etyButtonEl = el)} />
+      </div>
+    </div>
   );
 }

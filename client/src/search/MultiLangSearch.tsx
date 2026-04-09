@@ -1,103 +1,108 @@
 import { Lang } from "./types";
+import { selectedDescLangs, setSelectedDescLangs, debounce } from "../state";
 
-import Autocomplete from "@mui/material/Autocomplete";
-import TextField from "@mui/material/TextField";
-import { debounce } from "@mui/material/utils";
-import { RefObject, useCallback, useMemo, useState } from "react";
+import { createSignal, createMemo, For } from "solid-js";
+import { Combobox, createListCollection } from "@ark-ui/solid";
 
 interface MultiLangSearchProps {
   label: string;
-  selectedLangs: Lang[];
-  setSelectedLangs: (langs: Lang[]) => void;
-  inputRef: RefObject<HTMLInputElement>;
+  setInputRef: (el: HTMLInputElement) => void;
 }
 
-function MultiLangSearch({
-  label,
-  selectedLangs,
-  setSelectedLangs,
-  inputRef,
-}: MultiLangSearchProps) {
-  const [Langs, setLangs] = useState<Lang[]>([]);
+export default function MultiLangSearch(props: MultiLangSearchProps) {
+  const [langOptions, setLangOptions] = createSignal<Lang[]>([]);
 
-  const clearSelectedLangAndOptions = useCallback(() => {
-    setLangs([]);
-    setSelectedLangs([]);
-  }, [setSelectedLangs]);
-
-  const fetchLangs = useMemo(
-    () =>
-      debounce(async (input: string) => {
-        try {
-          const response = await fetch(
-            `${process.env.REACT_APP_API_BASE_URL}/search/lang?name=${input}`
-          );
-          const newOptions = (await response.json()) as Lang[];
-          setLangs(newOptions);
-        } catch (error) {
-          console.log(error);
-          clearSelectedLangAndOptions();
-        }
-      }, 500),
-    [clearSelectedLangAndOptions]
+  const collection = createMemo(() =>
+    createListCollection({
+      items: langOptions(),
+      itemToString: (item) => item.name,
+      itemToValue: (item) => String(item.id),
+    })
   );
+
+  const fetchLangs = debounce(async (input: string) => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/search/lang?name=${input}`
+      );
+      const options = (await response.json()) as Lang[];
+      setLangOptions(options);
+    } catch (error) {
+      console.log(error);
+      setLangOptions([]);
+    }
+  }, 300);
 
   return (
-    <Autocomplete
-      sx={{ width: "35ch" }}
+    <Combobox.Root
+      collection={collection()}
       multiple
-      limitTags={1}
-      freeSolo
-      value={selectedLangs}
-      onChange={(event, newValue) => {
-        if (
-          newValue.length > 0 &&
-          typeof newValue[newValue.length - 1] === "string"
-        ) {
-          const match = Langs.find(
-            (lo) =>
-              lo.name.toLowerCase() ===
-              (newValue[newValue.length - 1] as string).trim().toLowerCase()
+      openOnClick
+      allowCustomValue
+      inputBehavior="autohighlight"
+      value={selectedDescLangs().map((l) => String(l.id))}
+      onValueChange={(details) => {
+        const newLangs: Lang[] = [];
+        for (const val of details.value) {
+          // Look up from current desc langs first, then from options
+          const existing = selectedDescLangs().find(
+            (l) => String(l.id) === val
           );
-          if (match) {
-            setSelectedLangs(
-              selectedLangs.concat([match]).reduce((acc, curr) => {
-                if (!acc.some((lo) => lo.id === curr.id)) {
-                  acc.push(curr);
-                }
-                return acc;
-              }, [] as Lang[])
+          if (existing) {
+            newLangs.push(existing);
+          } else {
+            const fromOpts = langOptions().find(
+              (l) => String(l.id) === val
             );
-            return;
+            if (fromOpts) newLangs.push(fromOpts);
           }
-          setSelectedLangs(selectedLangs);
+        }
+        setSelectedDescLangs(newLangs);
+      }}
+      onInputValueChange={(details) => {
+        if (details.inputValue === "") {
+          setLangOptions([]);
           return;
         }
-        setSelectedLangs(newValue as Lang[]);
+        fetchLangs(details.inputValue);
       }}
-      onInputChange={(event, newInputValue) => {
-        if (newInputValue === "") {
-          clearSelectedLangAndOptions();
-          return;
-        }
-        fetchLangs(newInputValue);
-      }}
-      renderInput={(params) => (
-        <TextField
-          {...params}
-          label={label}
+    >
+      <Combobox.Label>{props.label}</Combobox.Label>
+      <Combobox.Control>
+        <For each={selectedDescLangs()}>
+          {(lang) => (
+            <span data-scope="combobox" data-part="tag">
+              {lang.name}
+              <button
+                data-scope="combobox"
+                data-part="tag-remove"
+                onClick={() =>
+                  setSelectedDescLangs(
+                    selectedDescLangs().filter((l) => l.id !== lang.id)
+                  )
+                }
+              >
+                x
+              </button>
+            </span>
+          )}
+        </For>
+        <Combobox.Input
+          ref={props.setInputRef}
           placeholder="Language(s)..."
-          inputRef={inputRef}
         />
-      )}
-      options={Langs}
-      filterOptions={(x) => x}
-      getOptionLabel={(option) =>
-        typeof option === "string" ? option : option.name
-      }
-      isOptionEqualToValue={(option, value) => option.id === value.id}
-    />
+      </Combobox.Control>
+      <Combobox.Positioner>
+        <Combobox.Content>
+          <For each={collection().items}>
+            {(item) => (
+              <Combobox.Item item={item}>
+                <Combobox.ItemText>{item.name}</Combobox.ItemText>
+              </Combobox.Item>
+            )}
+          </For>
+        </Combobox.Content>
+      </Combobox.Positioner>
+    </Combobox.Root>
   );
 }
-
-export default MultiLangSearch;

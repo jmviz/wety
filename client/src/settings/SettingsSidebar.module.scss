@@ -1,0 +1,128 @@
+.toggle {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: 1200;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #333;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.04);
+  }
+}
+
+.backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1299;
+}
+
+.drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 280px;
+  background: #fff;
+  z-index: 1300;
+  overflow-y: auto;
+}
+
+.content {
+  padding: 16px 0;
+}
+
+.title {
+  margin: 0 16px 8px;
+  font-size: 1.25rem;
+  font-weight: 500;
+}
+
+.subtitle {
+  margin: 0 16px 8px;
+  font-size: 0.875rem;
+  color: #666;
+}
+
+.modeGroup {
+  margin-bottom: 8px;
+}
+
+.modeGroupHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 16px;
+  background: #fafafa;
+  position: sticky;
+  top: 0;
+  line-height: 36px;
+  font-size: 0.875rem;
+  color: #666;
+}
+
+.modeGroupLabel {
+  font-weight: 500;
+}
+
+.modeGroupToggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.75rem;
+  color: #1976d2;
+  padding: 2px 4px;
+}
+
+.modeItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2px 16px;
+}
+
+.modeLabel {
+  font-size: 0.875rem;
+}
+
+.switchControl {
+  position: relative;
+  display: inline-block;
+  width: 34px;
+  height: 20px;
+  background: #ccc;
+  border-radius: 20px;
+  transition: background 0.2s;
+  cursor: pointer;
+  border: none;
+
+  &[data-state="checked"] {
+    background: #1976d2;
+  }
+}
+
+.switchThumb {
+  position: absolute;
+  height: 14px;
+  width: 14px;
+  left: 3px;
+  top: 3px;
+  background: #fff;
+  transition: transform 0.2s;
+  border-radius: 50%;
+
+  [data-state="checked"] & {
+    transform: translateX(14px);
+  }
+}

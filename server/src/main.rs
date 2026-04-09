@@ -1,20 +1,15 @@
 use server::{
-    item_cognates, item_descendants, item_etymology, item_search_matches, lang_search_matches,
-    AppState, Environment,
+    AppState, Environment, item_cognates, item_descendants, item_etymology, item_search_matches,
+    lang_search_matches,
 };
 
 use std::{env, net::SocketAddr, path::Path, str::FromStr, sync::Arc};
 
 use anyhow::Result;
-use axum::{
-    error_handling::HandleErrorLayer,
-    http::{HeaderValue, Method},
-    routing::get,
-    BoxError, Router,
-};
+use axum::{BoxError, Router, error_handling::HandleErrorLayer, http::Method, routing::get};
 use axum_server::tls_rustls::RustlsConfig;
 use tower::ServiceBuilder;
-use tower_governor::{errors::display_error, GovernorLayer};
+use tower_governor::{GovernorLayer, errors::display_error};
 use tower_http::{
     compression::CompressionLayer,
     cors::{AllowOrigin, CorsLayer},
@@ -23,24 +18,25 @@ use tower_http::{
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    env::set_var("RUST_BACKTRACE", "1");
-
-    env::set_var("RUST_LOG", "tower_http=trace,tower_governor=trace");
-    tracing_subscriber::fmt::init();
+    tracing_subscriber::fmt()
+        .with_env_filter(
+            tracing_subscriber::EnvFilter::try_from_default_env()
+                .unwrap_or_else(|_| "tower_http=trace,tower_governor=trace".parse().unwrap()),
+        )
+        .init();
 
     let environment = Environment::from_str(
         &env::var("WETY_ENVIRONMENT").unwrap_or_else(|_| "development".to_string()),
     )?;
 
     let origins: AllowOrigin = match environment {
-        Environment::Development => tower_http::cors::Any.into(),
         // Environment::Production => AllowOrigin::predicate(|origin: &HeaderValue, _| {
         //     let origin = origin.as_bytes();
         //     origin == b"https://wety.org"
         //         || origin == b"https://www.wety.org"
         //         || origin.ends_with(b".pages.dev")
         // }),
-        Environment::Production => tower_http::cors::Any.into(),
+        Environment::Development | Environment::Production => tower_http::cors::Any.into(),
     };
 
     // $$$ make this configurable

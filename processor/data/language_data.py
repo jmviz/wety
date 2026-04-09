@@ -30,7 +30,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--languages",
         type=str,
-        default="languages.json",
+        default="../../core/data/languages.json",
         help="Language data output file path",
     )
     parser.add_argument(

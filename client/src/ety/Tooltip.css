@@ -1,6 +1,4 @@
 .tooltip {
-  opacity: 0;
-  z-index: -9000;
   width: max-content;
   max-width: 500px;
   text-align: left;
@@ -71,4 +69,26 @@
 .tooltip .wiktionary-link {
   color: #313639;
   text-decoration: underline;
+}
+
+.tooltip-actions {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.tooltip-btn {
+  background: none;
+  border: none;
+  color: #1976d2;
+  cursor: pointer;
+  font-size: 0.8125rem;
+  padding: 4px 5px;
+  text-transform: none;
+}
+
+.tooltip-btn:hover {
+  background: rgba(25, 118, 210, 0.04);
 }

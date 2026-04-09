@@ -1,13 +1,16 @@
 use crate::{
-    embeddings::Embeddings,
-    etymology_templates::{EtyMode, TemplateKind},
-    items::{ItemId, Items, Retrieval},
-    langterm::LangTerm,
-    languages::Lang,
+    embeddings::{self, Embeddings},
+    items::{Items, Retrieval},
     progress_bar,
-    string_pool::StringPool,
     wiktextract_json::{Affix, WiktextractJson, WiktextractJsonItem, WiktextractJsonValidStr},
     HashSet,
+};
+use wety_core::{
+    etymology_templates::{EtyMode, TemplateKind},
+    items::ItemId,
+    langterm::LangTerm,
+    languages::Lang,
+    string_pool::StringPool,
 };
 
 use std::{mem, str::FromStr};
@@ -506,13 +509,15 @@ impl Items {
                         confidences.push(confidence);
                     }
 
-                    self.graph.add_ety(
-                        current_item,
-                        template.mode,
-                        template.head,
-                        &ety_items,
-                        &confidences,
-                    );
+                    if confidences.iter().all(|&c| c >= embeddings::SIMILARITY_THRESHOLD) {
+                        self.graph.add_ety(
+                            current_item,
+                            template.mode,
+                            template.head,
+                            &ety_items,
+                            &confidences,
+                        );
+                    }
 
                     if !imputation_chain_in_progress {
                         return Ok(());

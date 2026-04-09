@@ -1,8 +1,5 @@
-use crate::{
-    items::{Item, ItemId},
-    wiktextract_json::WiktextractJson,
-    HashMap,
-};
+use crate::{HashMap, wiktextract_json::WiktextractJson};
+use wety_core::items::{Item, ItemId};
 
 use std::{mem, path::PathBuf, rc::Rc};
 
@@ -62,7 +59,9 @@ trait ToEmbedding {
 impl ToEmbedding for &[u8] {
     fn to_embedding(&self) -> Embedding {
         // the 4 here assumes Embedding elements are f32
-        self.array_chunks::<4>()
+        let (chunks, _) = self.as_chunks::<4>();
+        chunks
+            .iter()
             .map(|&bytes| f32::from_be_bytes(bytes))
             .collect()
     }
@@ -215,12 +214,12 @@ extern crate intel_mkl_src;
 extern crate accelerate_src;
 
 use candle_core::{
-    utils::{cuda_is_available, metal_is_available},
     Device, Tensor,
+    utils::{cuda_is_available, metal_is_available},
 };
 use candle_nn::VarBuilder;
-use candle_transformers::models::bert::{self, BertModel, HiddenAct, DTYPE};
-use hf_hub::{api::sync::Api, Repo, RepoType};
+use candle_transformers::models::bert::{self, BertModel, DTYPE, HiddenAct};
+use hf_hub::{Repo, RepoType, api::sync::Api};
 use tokenizers::{PaddingParams, Tokenizer};
 
 fn device() -> Result<Device> {
@@ -415,7 +414,7 @@ impl Embeddings {
                 }
             }
             if !glosses_text.is_empty() {
-                self.glosses.update(item_id, glosses_text.to_string())?;
+                self.glosses.update(item_id, glosses_text.clone())?;
             }
         }
         Ok(())
@@ -693,7 +692,7 @@ mod tests {
         let candidates_term = "mone";
         let right_json = json(
             "From Old English mōna. The sense of the word as silver is the result of its astrological association with the planet.",
-            "The celestial body closest to the Earth, considered to be a planet in the Ptolemic system as well as the boundary between the Earth and the heavens; the Moon. A white, precious metal; silver."
+            "The celestial body closest to the Earth, considered to be a planet in the Ptolemic system as well as the boundary between the Earth and the heavens; the Moon. A white, precious metal; silver.",
         );
         let wrong_json = json(
             "From Old English mān, from Proto-West Germanic *mainu, from Proto-Germanic *mainō.",

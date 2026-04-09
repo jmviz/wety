@@ -1,34 +1,33 @@
 use crate::{
-    embeddings,
+    HashMap, HashSet,
     etymology_templates::EtyMode,
     items::{Item, ItemId},
     languages::Lang,
-    HashMap, HashSet,
 };
 
 use std::collections::VecDeque;
 
 use anyhow::{Ok, Result};
-use itertools::{izip, Itertools};
+use itertools::{Itertools, izip};
 use petgraph::{
+    Direction,
     algo::greedy_feedback_arc_set,
     stable_graph::{EdgeIndex, EdgeReference, StableDiGraph},
     visit::{EdgeRef, IntoNodeReferences},
-    Direction,
 };
 use serde::{Deserialize, Serialize};
 
-pub(crate) type EtyEdge<'a> = EdgeReference<'a, EtyEdgeData>;
+pub type EtyEdge<'a> = EdgeReference<'a, EtyEdgeData>;
 
 #[derive(Serialize, Deserialize)]
-pub(crate) struct EtyEdgeData {
-    pub(crate) mode: EtyMode,
-    pub(crate) order: u8,
-    pub(crate) head: bool,
+pub struct EtyEdgeData {
+    pub mode: EtyMode,
+    pub order: u8,
+    pub head: bool,
     confidence: f32,
 }
 
-pub(crate) trait EtyEdgeAccess {
+pub trait EtyEdgeAccess {
     fn child(&self) -> ItemId;
     fn parent(&self) -> ItemId;
     fn order(&self) -> u8;
@@ -59,10 +58,10 @@ impl EtyEdgeAccess for EtyEdge<'_> {
 }
 
 // the parents of some item
-pub(crate) struct ImmediateEty {
-    pub(crate) items: Vec<ItemId>,
-    pub(crate) head: Option<u8>,
-    pub(crate) mode: EtyMode,
+pub struct ImmediateEty {
+    pub items: Vec<ItemId>,
+    pub head: Option<u8>,
+    pub mode: EtyMode,
 }
 
 impl ImmediateEty {
@@ -71,37 +70,45 @@ impl ImmediateEty {
     }
 }
 
-pub(crate) type ItemIndex = u32;
+pub type ItemIndex = u32;
 
 #[derive(Default, Serialize, Deserialize)]
-pub(crate) struct EtyGraph {
-    pub(crate) graph: StableDiGraph<Item, EtyEdgeData, ItemIndex>,
+pub struct EtyGraph {
+    pub graph: StableDiGraph<Item, EtyEdgeData, ItemIndex>,
 }
 
 impl EtyGraph {
-    pub(crate) fn add(&mut self, item: Item) -> ItemId {
+    pub fn add(&mut self, item: Item) -> ItemId {
         self.graph.add_node(item)
     }
 
     /// get previously added item
-    pub(crate) fn item(&self, id: ItemId) -> &Item {
+    #[must_use]
+    pub fn item(&self, id: ItemId) -> &Item {
         &self.graph[id]
     }
 
     /// get previously added item mutably
-    pub(crate) fn item_mut(&mut self, id: ItemId) -> &mut Item {
+    pub fn item_mut(&mut self, id: ItemId) -> &mut Item {
         &mut self.graph[id]
     }
 
-    pub(crate) fn iter(&self) -> impl Iterator<Item = (ItemId, &Item)> {
+    pub fn iter(&self) -> impl Iterator<Item = (ItemId, &Item)> {
         self.graph.node_references()
     }
 
-    pub(crate) fn len(&self) -> usize {
+    #[must_use]
+    pub fn len(&self) -> usize {
         self.graph.node_count()
     }
 
-    pub(crate) fn immediate_ety(&self, id: ItemId) -> Option<ImmediateEty> {
+    #[must_use]
+    pub fn is_empty(&self) -> bool {
+        self.graph.node_count() == 0
+    }
+
+    #[must_use]
+    pub fn immediate_ety(&self, id: ItemId) -> Option<ImmediateEty> {
         let mut parents = vec![];
         let mut order = vec![];
         // Next two lines are dummy assignments. If there are any parents in the
@@ -125,7 +132,10 @@ impl EtyGraph {
         })
     }
 
-    pub(crate) fn remove_cycles(&mut self) -> Result<()> {
+    /// # Errors
+    ///
+    /// Returns an error if cycle-detection internals fail unexpectedly.
+    pub fn remove_cycles(&mut self) -> Result<()> {
         print!("  Checking for ety link feedback arc set... ");
         let fas: Vec<EdgeIndex> = greedy_feedback_arc_set(&self.graph)
             .map(|e| e.id())
@@ -152,7 +162,10 @@ impl EtyGraph {
         Ok(())
     }
 
-    pub(crate) fn add_ety(
+    /// # Panics
+    ///
+    /// Panics if `confidences` is empty.
+    pub fn add_ety(
         &mut self,
         item: ItemId,
         mode: EtyMode,
@@ -160,22 +173,16 @@ impl EtyGraph {
         ety_items: &[ItemId],
         confidences: &[f32],
     ) {
-        // Don't add ety connection if the confidence is too low. This currently
-        // should never get applied, as items.get_or_impute_item() returns a min
-        // confidence of SIMILARITY_THRESHOLD
-        let min_new_confidence = confidences
-            .iter()
-            .min_by(|a, b| a.total_cmp(b))
-            .expect("at least one");
-        if min_new_confidence < &embeddings::SIMILARITY_THRESHOLD {
-            return;
-        }
         // StableGraph allows adding multiple parallel edges from one node to
         // another. So we have to be careful to check for any already existing
         // ety links. If there are some, we keep them and don't add any new
         // ones, unless the least confidence for the new ety links is greater
         // than the greatest confidence for the old ety links. In that case, we
         // delete all the old ones and add the new ones in their stead.
+        let min_new_confidence = confidences
+            .iter()
+            .min_by(|a, b| a.total_cmp(b))
+            .expect("at least one");
         let mut old_edges = self.graph.edges(item).peekable();
         if old_edges.peek().is_some() {
             let max_old_confidence = old_edges
@@ -185,10 +192,8 @@ impl EtyGraph {
             if min_new_confidence <= &max_old_confidence {
                 return;
             }
-            // println!("Replacing ety for item {item:?}");
             let old_edge_ids = self.graph.edges(item).map(|e| e.id()).collect_vec();
             for old_edge_id in old_edge_ids {
-                // println!("Removing edge {old_edge_id:?}");
                 self.graph.remove_edge(old_edge_id);
             }
         }
@@ -197,7 +202,7 @@ impl EtyGraph {
             let ety_link = EtyEdgeData {
                 mode,
                 order: i,
-                head: head.map_or(false, |head| head == i),
+                head: head.is_some_and(|head| head == i),
                 confidence,
             };
             self.graph.add_edge(item, ety_item, ety_link);
@@ -208,10 +213,9 @@ impl EtyGraph {
 /// all of the ultimate ancestors of some item, i.e. all of the leaf nodes on
 /// the ancestry tree rooted by the item
 #[derive(Serialize, Deserialize)]
-pub(crate) struct Progenitors {
-    pub(crate) items: Box<[ItemId]>,
-    // the source node reached by following the "head" parent at each step
-    pub(crate) head: Option<ItemId>,
+pub struct Progenitors {
+    pub items: Box<[ItemId]>,
+    pub head: Option<ItemId>,
 }
 
 impl Progenitors {
@@ -232,7 +236,8 @@ struct Tracker {
 }
 
 impl EtyGraph {
-    pub(crate) fn progenitors(&self, item: ItemId) -> Option<Progenitors> {
+    #[must_use]
+    pub fn progenitors(&self, item: ItemId) -> Option<Progenitors> {
         let immediate_ety = self.immediate_ety(item)?;
         let head = immediate_ety.head();
         let mut t = Tracker {
@@ -275,7 +280,8 @@ impl EtyGraph {
         }
     }
 
-    pub(crate) fn all_progenitors(&self) -> HashMap<ItemId, Progenitors> {
+    #[must_use]
+    pub fn all_progenitors(&self) -> HashMap<ItemId, Progenitors> {
         let mut progenitors = HashMap::default();
         for (item_id, _) in self.iter() {
             if let Some(prog) = self.progenitors(item_id) {
@@ -307,12 +313,12 @@ impl<'a> Iterator for DescendantEdgeIterator<'a> {
 
 impl EtyGraph {
     /// All of the edges connecting `item` to its children.
-    pub(crate) fn child_edges(&self, item: ItemId) -> impl Iterator<Item = EtyEdge<'_>> + '_ {
+    pub fn child_edges(&self, item: ItemId) -> impl Iterator<Item = EtyEdge<'_>> + '_ {
         self.graph.edges_directed(item, Direction::Incoming)
     }
 
     /// Iterate breadth-first over the edges connecting `item` and its descendants.
-    pub(crate) fn descendant_edges(&self, item: ItemId) -> impl Iterator<Item = EtyEdge<'_>> + '_ {
+    pub fn descendant_edges(&self, item: ItemId) -> impl Iterator<Item = EtyEdge<'_>> + '_ {
         DescendantEdgeIterator {
             graph: self,
             queue: VecDeque::from(self.child_edges(item).collect_vec()),
@@ -320,7 +326,8 @@ impl EtyGraph {
     }
 
     /// Get all langs that have at least one item that is descended from `item`.
-    pub(crate) fn descendant_langs(&self, item: ItemId) -> HashSet<Lang> {
+    #[must_use]
+    pub fn descendant_langs(&self, item: ItemId) -> HashSet<Lang> {
         let mut descendant_langs = HashSet::default();
         for descendant_edge in self.descendant_edges(item) {
             descendant_langs.insert(self.item(descendant_edge.child()).lang());
@@ -330,7 +337,8 @@ impl EtyGraph {
 
     /// For each item, get all langs that have at least one item that is
     /// descended from that item.
-    pub(crate) fn all_descendant_langs(&self) -> HashMap<ItemId, HashSet<Lang>> {
+    #[must_use]
+    pub fn all_descendant_langs(&self) -> HashMap<ItemId, HashSet<Lang>> {
         let mut descendant_langs = HashMap::default();
         for (item_id, _) in self.iter() {
             descendant_langs.insert(item_id, self.descendant_langs(item_id));
@@ -360,12 +368,12 @@ impl<'a> Iterator for AncestorEdgeIterator<'a> {
 
 impl EtyGraph {
     /// All of the edges connecting `item` to its parents.
-    pub(crate) fn parent_edges(&self, item: ItemId) -> impl Iterator<Item = EtyEdge<'_>> + '_ {
+    pub fn parent_edges(&self, item: ItemId) -> impl Iterator<Item = EtyEdge<'_>> + '_ {
         self.graph.edges_directed(item, Direction::Outgoing)
     }
 
     /// Iterate breadth-first over the edges connecting `item` and its ancestors.
-    pub(crate) fn ancestor_edges(&self, item: ItemId) -> impl Iterator<Item = EtyEdge<'_>> + '_ {
+    pub fn ancestor_edges(&self, item: ItemId) -> impl Iterator<Item = EtyEdge<'_>> + '_ {
         AncestorEdgeIterator {
             graph: self,
             queue: VecDeque::from(self.parent_edges(item).collect_vec()),
@@ -373,11 +381,11 @@ impl EtyGraph {
     }
 
     /// Get all ancestors of `item` within `langs`.
-    pub(crate) fn ancestors_in_langs<'a>(
+    pub fn ancestors_in_langs<'a>(
         &'a self,
         item: ItemId,
         langs: &'a [Lang],
-    ) -> impl Iterator<Item = ItemId> + '_ {
+    ) -> impl Iterator<Item = ItemId> + 'a {
         self.ancestor_edges(item)
             .filter(|e| langs.contains(&self.item(e.parent()).lang()))
             .map(|e| e.parent())

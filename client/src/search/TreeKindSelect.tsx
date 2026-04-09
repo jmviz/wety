@@ -1,36 +1,43 @@
 import { TreeKind } from "./types";
+import { selectedTreeKind, setSelectedTreeKind } from "../state";
 
-import Box from "@mui/material/Box";
-import InputLabel from "@mui/material/InputLabel";
-import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
-import Select, { SelectChangeEvent } from "@mui/material/Select";
+import { For } from "solid-js";
+import { Select, createListCollection } from "@ark-ui/solid";
 
-interface TreeKindSelectProps {
-  selectedTreeKind: TreeKind;
-  setSelectedTreeKind: (treeMode: TreeKind) => void;
-}
+const treeKindCollection = createListCollection({
+  items: Object.values(TreeKind),
+  itemToString: (item) => item,
+  itemToValue: (item) => item,
+});
 
-export default function TreeKindSelect({
-  selectedTreeKind,
-  setSelectedTreeKind,
-}: TreeKindSelectProps) {
-  const handleChange = (event: SelectChangeEvent) => {
-    setSelectedTreeKind(event.target.value as TreeKind);
-  };
-
+export default function TreeKindSelect() {
   return (
-    <Box sx={{ minWidth: 120 }}>
-      <FormControl fullWidth>
-        <InputLabel>Mode</InputLabel>
-        <Select value={selectedTreeKind} label="Mode" onChange={handleChange}>
-          {Object.values(TreeKind).map((kind) => (
-            <MenuItem key={kind} value={kind}>
-              {kind}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-    </Box>
+    <Select.Root
+      collection={treeKindCollection}
+      value={[selectedTreeKind()]}
+      onValueChange={(details) => {
+        if (details.value[0]) {
+          setSelectedTreeKind(details.value[0] as TreeKind);
+        }
+      }}
+    >
+      <Select.Label>Mode</Select.Label>
+      <Select.Control>
+        <Select.Trigger>
+          <Select.ValueText placeholder="Select mode" />
+        </Select.Trigger>
+      </Select.Control>
+      <Select.Positioner>
+        <Select.Content>
+          <For each={treeKindCollection.items}>
+            {(item) => (
+              <Select.Item item={item}>
+                <Select.ItemText>{item}</Select.ItemText>
+              </Select.Item>
+            )}
+          </For>
+        </Select.Content>
+      </Select.Positioner>
+    </Select.Root>
   );
 }

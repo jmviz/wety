@@ -1,156 +1,109 @@
-import "./DescendantsTree.css";
+import "./Tree.css";
 import {
   Descendants,
   Etymology,
   InterLangDescendants,
   Item,
-  Lang,
-  term,
-  TreeRequest,
+  TreeKind,
 } from "../search/types";
 import { xMinClusterLayout } from "./treeCluster";
-import DescendantsTooltip, {
-  setDescendantsTooltipListeners,
-} from "./DescendantsTooltip";
-import { PositionKind, hideTooltip } from "./tooltip";
-import { BoundedHierarchyPointNode, langColor } from "./tree";
-import { TreeKind } from "../search/types";
+import TreeTooltip from "./TreeTooltip";
+import { PositionKind, hideTooltip, TooltipRefs } from "./tooltip";
+import {
+  configureSVG,
+  renderTreeLinks,
+  renderTreeNodes,
+  addSVGTextBackgrounds,
+  setTooltipListeners,
+} from "./tree";
+import { lastRequest } from "../state";
 
-import { select, Selection } from "d3-selection";
-import { link, curveStepBefore } from "d3-shape";
-import {
-  hierarchy,
-  HierarchyPointLink,
-  HierarchyPointNode,
-} from "d3-hierarchy";
-import {
-  RefObject,
-  useRef,
-  useEffect,
-  useMemo,
-  createRef,
-  useState,
-} from "react";
+import { select } from "d3-selection";
+import { curveStepBefore } from "d3-shape";
+import { hierarchy, HierarchyPointNode } from "d3-hierarchy";
+import { createSignal, createEffect, createMemo, onCleanup, For, Setter } from "solid-js";
 
 interface DescendantsTreeProps {
-  setSelectedLang: (lang: Lang | null) => void;
-  setSelectedItem: (item: Item | null) => void;
-  selectedDescLangs: Lang[];
-  setSelectedTreeKind: (treeKind: TreeKind) => void;
   tree: Etymology | InterLangDescendants[] | null;
-  setTree: (tree: Etymology | InterLangDescendants[] | null) => void;
-  lastRequest: TreeRequest | null;
-  setLastRequest: (request: TreeRequest | null) => void;
 }
 
-export default function DescendantsTree({
-  setSelectedLang,
-  setSelectedItem,
-  selectedDescLangs,
-  setSelectedTreeKind,
-  tree,
-  setTree,
-  lastRequest,
-  setLastRequest,
-}: DescendantsTreeProps) {
-  const [showTooltip, setShowTooltip] = useState(false);
+export default function DescendantsTree(props: DescendantsTreeProps) {
+  const [showTooltip, setShowTooltip] = createSignal(false);
   const [tooltipTreeNode, setTooltipTreeNode] =
-    useState<HierarchyPointNode<InterLangDescendants> | null>(null);
-  const [tooltipSVGElement, setTooltipSVGElement] = useState<SVGElement | null>(
-    null
-  );
-  const [tooltipPositionKind, setTooltipPositionKind] = useState<PositionKind>(
-    PositionKind.Hover
-  );
-  const tooltipRef = useRef<HTMLDivElement>(null);
-  const tooltipShowTimeout = useRef<number | null>(null);
-  const tooltipHideTimeout = useRef<number | null>(null);
+    createSignal<HierarchyPointNode<InterLangDescendants> | null>(null);
+  const [tooltipSVGElement, setTooltipSVGElement] =
+    createSignal<SVGElement | null>(null);
+  const [tooltipPositionKind, setTooltipPositionKind] =
+    createSignal<PositionKind>(PositionKind.Hover);
 
-  const svgRefs = useMemo(() => {
-    if (!Array.isArray(tree)) {
-      return [];
-    }
+  const tooltipRefs: TooltipRefs = {
+    el: undefined,
+    showTimeout: null,
+    hideTimeout: null,
+  };
 
-    const refs: RefObject<SVGSVGElement>[] = [];
-    for (let index = 0; index < tree.length; index++) {
-      refs.push(createRef<SVGSVGElement>());
-    }
-    return refs;
-  }, [tree]);
+  const svgEls = createMemo(() => {
+    const t = props.tree;
+    if (!Array.isArray(t)) return [];
+    return t.map(() => ({ current: null as SVGSVGElement | null }));
+  });
 
-  useEffect(() => {
-    if (!Array.isArray(tree)) {
-      return;
-    }
+  createEffect(() => {
+    const t = props.tree;
+    const request = lastRequest();
+    const refs = svgEls();
+    if (!Array.isArray(t) || !request) return;
 
-    const cleanupSVGs: (() => void)[] = [];
+    const cleanupFns: (() => void)[] = [];
 
-    for (let index = 0; index < tree.length; index++) {
-      const svgRef = svgRefs[index];
-      const svg = svgRef.current;
-
-      if (!svg || !tree[index] || !lastRequest) {
-        return;
-      }
+    for (let index = 0; index < t.length; index++) {
+      const svg = refs[index]?.current;
+      if (!svg || !t[index]) return;
 
       descendantsTreeSVG(
         svg,
-        tree[index] as InterLangDescendants,
-        lastRequest.item,
+        t[index] as InterLangDescendants,
+        request.item,
         setShowTooltip,
         setTooltipTreeNode,
         setTooltipSVGElement,
         setTooltipPositionKind,
-        tooltipRef,
-        tooltipShowTimeout,
-        tooltipHideTimeout
+        tooltipRefs
       );
 
-      cleanupSVGs.push(() => select(svg).selectAll("*").remove());
+      cleanupFns.push(() => select(svg).selectAll("*").remove());
     }
 
-    return () => {
-      cleanupSVGs.forEach((cleanup) => cleanup());
-      hideTooltip(tooltipRef, setShowTooltip);
+    onCleanup(() => {
+      cleanupFns.forEach((fn) => fn());
+      hideTooltip(tooltipRefs, setShowTooltip);
       setShowTooltip(false);
       setTooltipTreeNode(null);
       setTooltipSVGElement(null);
       setTooltipPositionKind(PositionKind.Hover);
-    };
-  }, [
-    tree,
-    lastRequest,
-    setShowTooltip,
-    setTooltipTreeNode,
-    setTooltipSVGElement,
-    setTooltipPositionKind,
-    tooltipRef,
-    tooltipShowTimeout,
-    tooltipHideTimeout,
-    svgRefs,
-  ]);
+    });
+  });
 
   return (
-    <div className="tree-container">
-      {svgRefs.map((ref, index) => (
-        <svg key={index} className="tree" ref={ref} />
-      ))}
-      <DescendantsTooltip
-        setSelectedLang={setSelectedLang}
-        setSelectedItem={setSelectedItem}
-        selectedDescLangs={selectedDescLangs}
-        setTree={setTree}
-        setSelectedTreeKind={setSelectedTreeKind}
+    <div class="tree-container">
+      <For each={svgEls()}>
+        {(ref, index) => (
+          <svg
+            class="tree"
+            ref={(el) => {
+              ref.current = el;
+            }}
+          />
+        )}
+      </For>
+      <TreeTooltip
+        treeKind={TreeKind.Descendants}
         showTooltip={showTooltip}
         setShowTooltip={setShowTooltip}
         treeNode={tooltipTreeNode}
         svgElement={tooltipSVGElement}
         positionKind={tooltipPositionKind}
-        divRef={tooltipRef}
-        showTimeout={tooltipShowTimeout}
-        hideTimeout={tooltipHideTimeout}
-        lastRequest={lastRequest}
-        setLastRequest={setLastRequest}
+        tooltipRefs={tooltipRefs}
       />
     </div>
   );
@@ -160,27 +113,24 @@ function descendantsTreeSVG(
   svgElement: SVGSVGElement,
   tree: InterLangDescendants,
   treeRootItem: Item,
-  setShowTooltip: (show: boolean) => void,
-  setTooltipTreeNode: (
-    node: HierarchyPointNode<InterLangDescendants> | null
-  ) => void,
-  setTooltipSVGElement: (svg: SVGElement | null) => void,
-  setTooltipPositionKind: (positionKind: PositionKind) => void,
-  tooltipRef: RefObject<HTMLDivElement>,
-  tooltipShowTimeout: RefObject<number | null>,
-  tooltipHideTimeout: RefObject<number | null>
+  setShowTooltip: Setter<boolean>,
+  setTooltipTreeNode: Setter<HierarchyPointNode<InterLangDescendants> | null>,
+  setTooltipSVGElement: Setter<SVGElement | null>,
+  setTooltipPositionKind: Setter<PositionKind>,
+  tooltipRefs: TooltipRefs
 ) {
-  // https://github.com/d3/d3-hierarchy#hierarchy
   const root = hierarchy<InterLangDescendants>(
     tree,
     (d: InterLangDescendants) => d.children
   );
 
-  const selectedItemNode = root.find((d) => d.data.item.id === treeRootItem.id);
+  const selectedItemNode = root.find(
+    (d) => d.data.item.id === treeRootItem.id
+  );
   const selectedItemNodeAncestors = selectedItemNode?.ancestors() ?? [];
 
   root
-    .count() // counts node leaves and assigns count to .value
+    .count()
     .sort(
       (a, b) =>
         +selectedItemNodeAncestors.includes(a) -
@@ -190,12 +140,6 @@ function descendantsTreeSVG(
         +(a.data.item.term < b.data.item.term) * 2 - 1
     );
 
-  // There is a confusion between "x" and "y" concepts in the below. The d3
-  // api assumes that the tree is oriented vertically, with the root at the
-  // top and the leaves at the bottom. But we are using a horizontal tree,
-  // with the root on the left and the leaves on the right. So variables
-  // defined by d3 like e.g. `root.height` and `d.x` correspond in our case to
-  // width and y.
   const fontSize = svgElement
     ? parseFloat(window.getComputedStyle(svgElement).fontSize)
     : 13;
@@ -224,7 +168,6 @@ function descendantsTreeSVG(
 
   const pointRoot = layout(root);
 
-  // Center the tree vertically.
   let y0 = Infinity;
   let y1 = -y0;
   pointRoot.each((d) => {
@@ -232,117 +175,34 @@ function descendantsTreeSVG(
     if (d.x < y0) y0 = d.x;
   });
 
-  // root.height is the number of links between the root and the furthest leaf.
   const width = (root.height + 1) * dx;
   const height = y1 - y0 + dy * 4;
-
   const viewBox = [-dx / 2, y0 - dy * 2, width, height];
 
-  // crispEdges implementation quality varies from browser to browser. It
-  // generally seems to work well but for example Windows Firefox renders
-  // random lines with 2px instead of 1px. Consider this as a solution:
-  // https://github.com/engray/subpixelFix.
-  const svg = select(svgElement)
-    .attr("version", "1.1")
-    .attr("xmlns", "http://www.w3.org/2000/svg")
-    .attr("xmlns:xlink", "http://www.w3.org/1999/xlink")
-    .attr("xmlns:xhtml", "http://www.w3.org/1999/xhtml")
-    .attr("viewBox", viewBox)
-    .attr("width", width)
-    .attr("height", height)
-    .attr(
-      "style",
-      `min-width: ${width}px; max-width: ${width}px; height: auto; height: intrinsic;`
-    )
-    .attr("shape-rendering", "crispEdges")
-    .attr("vector-effect", "non-scaling-stroke")
-    .attr("text-anchor", "middle")
-    .attr("text-rendering", "optimizeLegibility")
-    // this noop event listener is to cajole mobile browsers (or, at least,
-    // ios webkit) into responding to touch events on svg elements, cf.
-    // https://stackoverflow.com/a/65777666/10658294
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    .on("touchstart", () => {});
+  const svg = configureSVG(svgElement, viewBox, width, height);
 
-  // the lines forming the tree
-  svg
-    .append("g")
-    .attr("fill", "none")
-    .attr("stroke", "#555")
-    .attr("stroke-opacity", 1.0)
-    .attr("stroke-linecap", "butt")
-    .attr("stroke-linejoin", "miter")
-    .attr("stroke-width", 1.0)
-    .selectAll("path")
-    .data(pointRoot.links())
-    .join("path")
-    .attr(
-      "d",
-      link<
-        HierarchyPointLink<InterLangDescendants>,
-        HierarchyPointNode<InterLangDescendants>
-      >(curveStepBefore)
-        .x((d) => d.y)
-        .y((d) => d.x)
-    );
+  renderTreeLinks(svg, pointRoot, curveStepBefore, {
+    x: (d) => d.y,
+    y: (d) => d.x,
+  });
 
-  const descendants: BoundedHierarchyPointNode<InterLangDescendants>[] =
-    pointRoot.descendants().map(function (d) {
-      return { node: d, bbox: new DOMRect(0, 0, 0, 0) };
-    });
+  const { node, nodeBackground } = renderTreeNodes(
+    svg,
+    pointRoot,
+    treeRootItem,
+    (d) => [d.node.y, d.node.x]
+  );
 
-  // placeholder rects for text backgrounds to be set in addSVGTextBackgrounds()
-  const nodeBackground = svg
-    .append("g")
-    .selectAll<SVGRectElement, unknown>("rect")
-    .data(descendants)
-    .join("rect")
-    .attr("fill", "white");
-
-  // the text nodes
-  const node = svg
-    .append("g")
-    .selectAll<SVGTextElement, unknown>("g")
-    .data(descendants)
-    .join("g")
-    .attr("font-weight", (d) =>
-      d.node.data.item.id === treeRootItem.id ? "bold" : null
-    )
-    .attr("transform", (d) => `translate(${d.node.y},${d.node.x})`);
-
-  node
-    .append("text")
-    .attr("class", "lang")
-    .attr("y", "-1em")
-    .attr("fill", (d) => langColor(d.node.data.langDistance))
-    .text((d) => d.node.data.item.lang.name);
-
-  node
-    .append("text")
-    .attr("class", "term")
-    .attr("y", "0.25em")
-    .text((d) => term(d.node.data.item));
-
-  node
-    .append("text")
-    .attr("class", "romanization")
-    .attr("y", "1.5em")
-    .text((d) =>
-      d.node.data.item.romanization ? `(${d.node.data.item.romanization})` : ""
-    );
-
-  setDescendantsTooltipListeners(
+  setTooltipListeners(
     node,
     setShowTooltip,
     setTooltipTreeNode,
     setTooltipSVGElement,
     setTooltipPositionKind,
-    tooltipRef,
-    tooltipShowTimeout,
-    tooltipHideTimeout
+    tooltipRefs
   );
 
-  addSVGTextBackgrounds(node, nodeBackground);
+  addSVGTextBackgrounds(node, nodeBackground, (d) => [d.node.y, d.node.x]);
 }
 
 function interLangDescendantsInner(
@@ -380,37 +240,4 @@ export function interLangDescendants(
   const root = fullRoot as InterLangDescendants;
   root.parent = null;
   return interLangDescendantsInner(root)[0];
-}
-
-function addSVGTextBackgrounds(
-  node: Selection<
-    SVGGElement | SVGTextElement,
-    BoundedHierarchyPointNode<InterLangDescendants>,
-    SVGGElement,
-    undefined
-  >,
-  nodeBackground: Selection<
-    SVGRectElement,
-    BoundedHierarchyPointNode<InterLangDescendants>,
-    SVGGElement,
-    undefined
-  >
-) {
-  node.each(function (d) {
-    d.bbox = this.getBBox();
-  });
-
-  const xMargin = 3;
-  const yMargin = 3;
-
-  nodeBackground
-    .attr("width", (d) => d.bbox.width + 2 * xMargin)
-    .attr("height", (d) => d.bbox.height + 2 * yMargin)
-    .attr("transform", function (d) {
-      const x = d.node.y - xMargin;
-      const y = d.node.x - yMargin;
-      return `translate(${x},${y})`;
-    })
-    .attr("x", (d) => d.bbox.x)
-    .attr("y", (d) => d.bbox.y);
 }

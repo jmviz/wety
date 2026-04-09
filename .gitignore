@@ -1,5 +1,8 @@
 /target
-.vscode/*
-!.vscode/launch.json
 /data/*
 !/data/scratch.ipynb
+.env
+.venv
+.claude
+.github
+rust_out

@@ -1,16 +1,15 @@
 [package]
 name = "server"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[dependencies.processor]
-path = "../processor"
+[dependencies.wety-core]
+path = "../core"
 
 [dependencies]
 anyhow = {workspace = true}
-flate2 = {workspace = true}
 serde = {workspace = true}
 serde_json = {workspace = true}
 axum = "0.6.12"
@@ -18,6 +17,6 @@ axum-server = {version = "0.5.1", features = ["tls-rustls"]}
 tokio = {version = "1.27.0", features = ["macros", "rt-multi-thread"]}
 tower = "0.4.13"
 tower-http = { version = "0.4.0", features = ["compression-br", "cors", "trace"] }
-tracing-subscriber = "0.3.17"
+tracing-subscriber = { version = "0.3.17", features = ["env-filter"] }
 tower_governor = { version = "0.0.4", features = ["tracing"] }
 axum-extra = { version = "0.7.5", features = ["query"] }

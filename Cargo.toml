@@ -3,6 +3,7 @@ debug = true
 
 [workspace]
 members = [
+    "core",
     "processor",
     "server",
 ]

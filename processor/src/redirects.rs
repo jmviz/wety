@@ -1,10 +1,12 @@
 use crate::{
     items::Items,
+    wiktextract_json::{WiktextractJson, WiktextractJsonValidStr},
+    HashMap,
+};
+use wety_core::{
     langterm::{LangTerm, Term},
     languages::Lang,
     string_pool::StringPool,
-    wiktextract_json::{WiktextractJson, WiktextractJsonValidStr},
-    HashMap,
 };
 
 use phf::{phf_set, Set};

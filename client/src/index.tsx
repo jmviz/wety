@@ -1,20 +1,6 @@
-import "./index.css";
-import App from "./App";
-import reportWebVitals from "./reportWebVitals";
+import "./index.scss";
+import { render } from "solid-js/web";
+import { RouterProvider } from "@tanstack/solid-router";
+import { router } from "./router";
 
-import React from "react";
-import ReactDOM from "react-dom/client";
-import { BrowserRouter } from "react-router-dom";
-
-const root = ReactDOM.createRoot(
-  document.getElementById("root") as HTMLElement
-);
-root.render(
-  <React.StrictMode>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
-  </React.StrictMode>
-);
-
-reportWebVitals(console.log);
+render(() => <RouterProvider router={router} />, document.getElementById("root")!);
