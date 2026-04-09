@@ -1,10 +1,12 @@
 import "./Tooltip.css";
 import {
   Etymology,
+  InterLangDescendants,
   Item,
+  TreeKind,
   term,
 } from "../search/types";
-import { BoundedHierarchyPointNode, langColor } from "./tree";
+import { langColor } from "./tree";
 import {
   PositionKind,
   etyModeRep,
@@ -21,7 +23,7 @@ import {
 } from "../state";
 
 import { useNavigate } from "@tanstack/solid-router";
-import { HierarchyPointNode, Selection } from "d3";
+import { HierarchyPointNode } from "d3";
 import {
   Accessor,
   Setter,
@@ -33,18 +35,19 @@ import {
   JSX,
 } from "solid-js";
 
-interface EtymologyTooltipProps {
+interface TreeTooltipProps {
+  treeKind: TreeKind;
   showTooltip: Accessor<boolean>;
   setShowTooltip: Setter<boolean>;
-  treeNode: Accessor<HierarchyPointNode<Etymology> | null>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  treeNode: Accessor<HierarchyPointNode<any> | null>;
   svgElement: Accessor<SVGElement | null>;
   positionKind: Accessor<PositionKind>;
   tooltipRefs: TooltipRefs;
 }
 
-export default function EtymologyTooltip(props: EtymologyTooltipProps) {
+export default function TreeTooltip(props: TreeTooltipProps) {
   onMount(() => {
-    // Set up after the element is available
     setTimeout(() => {
       const tooltip = props.tooltipRefs.el;
       if (!tooltip) return;
@@ -98,6 +101,12 @@ export default function EtymologyTooltip(props: EtymologyTooltipProps) {
     });
   }, 0);
 
+  const navigateToEtymology = debounce((item: Item) => {
+    setSelectedLang(item.lang);
+    setSelectedItem(item);
+    navigate({ to: `/etymology/${item.id}`, search: {} });
+  }, 0);
+
   return (
     <div ref={(el) => (props.tooltipRefs.el = el)}>
       <Show when={props.treeNode() && props.svgElement()}>
@@ -106,19 +115,6 @@ export default function EtymologyTooltip(props: EtymologyTooltipProps) {
           const item = () => node().data.item;
           const posList = () => item().pos ?? [];
           const glossList = () => item().gloss ?? [];
-          const etyMode = () => node().data.etyMode;
-          const parents = (): EtyParent[] | null =>
-            node().children
-              ? node()
-                  .children!.sort(
-                    (a, b) => a.data.etyOrder - b.data.etyOrder
-                  )
-                  .map((parentNode) => ({
-                    lang: parentNode.data.item.lang.name,
-                    term: term(parentNode.data.item),
-                    langDistance: parentNode.data.langDistance,
-                  }))
-              : null;
 
           return (
             <div class="tooltip">
@@ -167,8 +163,13 @@ export default function EtymologyTooltip(props: EtymologyTooltipProps) {
                   </For>
                 </div>
               </Show>
-              <Show when={etyMode() && parents()}>
-                {etyLine(etyMode()!, parents()!)}
+              <Show when={props.treeKind === TreeKind.Etymology}>
+                {etymologyEtyLine(node() as HierarchyPointNode<Etymology>)}
+              </Show>
+              <Show when={props.treeKind === TreeKind.Descendants}>
+                {descendantsEtyLine(
+                  node() as HierarchyPointNode<InterLangDescendants>
+                )}
               </Show>
               <div class="tooltip-actions">
                 <button
@@ -177,6 +178,14 @@ export default function EtymologyTooltip(props: EtymologyTooltipProps) {
                 >
                   Descendants
                 </button>
+                <Show when={props.treeKind === TreeKind.Descendants}>
+                  <button
+                    class="tooltip-btn"
+                    onClick={() => navigateToEtymology(item())}
+                  >
+                    Etymology
+                  </button>
+                </Show>
               </div>
               <Show when={item().url}>
                 <a
@@ -202,7 +211,20 @@ interface EtyParent {
   langDistance: number;
 }
 
-function etyLine(etyMode: string, parents: EtyParent[]): JSX.Element {
+function etymologyEtyLine(
+  node: HierarchyPointNode<Etymology>
+): JSX.Element | null {
+  const etyMode = node.data.etyMode;
+  if (!etyMode || !node.children) return null;
+
+  const parents: EtyParent[] = node.children
+    .sort((a, b) => a.data.etyOrder - b.data.etyOrder)
+    .map((parentNode) => ({
+      lang: parentNode.data.item.lang.name,
+      term: term(parentNode.data.item),
+      langDistance: parentNode.data.langDistance,
+    }));
+
   const parts: JSX.Element[] = [];
   for (let i = 0; i < parents.length; i++) {
     const parent = parents[i];
@@ -231,54 +253,58 @@ function etyLine(etyMode: string, parents: EtyParent[]): JSX.Element {
   );
 }
 
-export function setEtymologyTooltipListeners(
-  node: Selection<
-    SVGGElement | SVGTextElement,
-    BoundedHierarchyPointNode<Etymology>,
-    SVGGElement,
-    undefined
-  >,
-  setShowTooltip: Setter<boolean>,
-  setTooltipTreeNode: Setter<HierarchyPointNode<Etymology> | null>,
-  setTooltipSVGElement: Setter<SVGElement | null>,
-  setTooltipPositionKind: Setter<PositionKind>,
-  tooltipRefs: TooltipRefs
-) {
-  node.on(
-    "pointerup",
-    function (event: PointerEvent, d: BoundedHierarchyPointNode<Etymology>) {
-      if (event.pointerType !== "mouse") {
-        setShowTooltip(true);
-        setTooltipTreeNode(() => d.node);
-        setTooltipSVGElement(this as unknown as SVGElement);
-        setTooltipPositionKind(PositionKind.Fixed);
+function descendantsEtyLine(
+  treeNode: HierarchyPointNode<InterLangDescendants>
+): JSX.Element | null {
+  if (!treeNode.parent || !treeNode.data.etyMode) {
+    return null;
+  }
+
+  const parts: JSX.Element[] = [];
+  let prev_lang = "";
+  let ancestor = treeNode.data.parent;
+  while (ancestor && ancestor.etyMode) {
+    if (parts.length !== 0) {
+      parts.push(<span>{", "}</span>);
+    }
+    parts.push(
+      <span class="ety-mode">{etyModeRep(ancestor.etyMode)}</span>
+    );
+    parts.push(
+      <span class="ety-prep">{etyPrep(ancestor.etyMode)}</span>
+    );
+    const parents: EtyParent[] = ancestor.otherParents
+      .sort((a, b) => a.etyOrder - b.etyOrder)
+      .map((parent) => ({
+        lang: parent.item.lang.name,
+        term: term(parent.item),
+        langDistance: parent.langDistance,
+      }));
+    if (ancestor.etyOrder !== null) {
+      parents.splice(ancestor.etyOrder, 0, {
+        lang: ancestor.item.lang.name,
+        term: term(ancestor.item),
+        langDistance: ancestor.langDistance,
+      });
+    }
+    for (const parent of parents) {
+      if (parent.lang !== prev_lang) {
+        parts.push(
+          <span
+            class="ety-lang"
+            style={{ color: langColor(parent.langDistance) }}
+          >
+            {parent.lang}{" "}
+          </span>
+        );
+        prev_lang = parent.lang;
+      }
+      parts.push(<span class="ety-term">{parent.term}</span>);
+      if (parent !== parents[parents.length - 1]) {
+        parts.push(<span>{" + "}</span>);
       }
     }
-  );
-
-  node.on(
-    "pointerenter",
-    function (event: PointerEvent, d: BoundedHierarchyPointNode<Etymology>) {
-      if (event.pointerType === "mouse") {
-        const el = this as unknown as SVGElement;
-        window.clearTimeout(tooltipRefs.hideTimeout ?? undefined);
-        tooltipRefs.showTimeout = window.setTimeout(() => {
-          setShowTooltip(true);
-          setTooltipTreeNode(() => d.node);
-          setTooltipSVGElement(el);
-          setTooltipPositionKind(PositionKind.Hover);
-        }, 100);
-      }
-    }
-  );
-
-  node.on("pointerleave", (event: PointerEvent) => {
-    if (event.pointerType === "mouse") {
-      window.clearTimeout(tooltipRefs.showTimeout ?? undefined);
-      tooltipRefs.hideTimeout = window.setTimeout(
-        () => hideTooltip(tooltipRefs, setShowTooltip),
-        100
-      );
-    }
-  });
+    ancestor = ancestor.ancestralLine;
+  }
+  return <div class="ety-line">{parts}</div>;
 }

@@ -1,26 +1,26 @@
-import "./DescendantsTree.css";
+import "./Tree.css";
 import {
   Descendants,
   Etymology,
   InterLangDescendants,
   Item,
-  term,
+  TreeKind,
 } from "../search/types";
 import { xMinClusterLayout } from "./treeCluster";
-import DescendantsTooltip, {
-  setDescendantsTooltipListeners,
-} from "./DescendantsTooltip";
+import TreeTooltip from "./TreeTooltip";
 import { PositionKind, hideTooltip, TooltipRefs } from "./tooltip";
-import { BoundedHierarchyPointNode, langColor } from "./tree";
+import {
+  configureSVG,
+  renderTreeLinks,
+  renderTreeNodes,
+  addSVGTextBackgrounds,
+  setTooltipListeners,
+} from "./tree";
 import { lastRequest } from "../state";
 
-import { select, Selection } from "d3-selection";
-import { link, curveStepBefore } from "d3-shape";
-import {
-  hierarchy,
-  HierarchyPointLink,
-  HierarchyPointNode,
-} from "d3-hierarchy";
+import { select } from "d3-selection";
+import { curveStepBefore } from "d3-shape";
+import { hierarchy, HierarchyPointNode } from "d3-hierarchy";
 import { createSignal, createEffect, createMemo, onCleanup, For, Setter } from "solid-js";
 
 interface DescendantsTreeProps {
@@ -96,7 +96,8 @@ export default function DescendantsTree(props: DescendantsTreeProps) {
           />
         )}
       </For>
-      <DescendantsTooltip
+      <TreeTooltip
+        treeKind={TreeKind.Descendants}
         showTooltip={showTooltip}
         setShowTooltip={setShowTooltip}
         treeNode={tooltipTreeNode}
@@ -178,92 +179,21 @@ function descendantsTreeSVG(
   const height = y1 - y0 + dy * 4;
   const viewBox = [-dx / 2, y0 - dy * 2, width, height];
 
-  const svg = select(svgElement)
-    .attr("version", "1.1")
-    .attr("xmlns", "http://www.w3.org/2000/svg")
-    .attr("xmlns:xlink", "http://www.w3.org/1999/xlink")
-    .attr("xmlns:xhtml", "http://www.w3.org/1999/xhtml")
-    .attr("viewBox", viewBox)
-    .attr("width", width)
-    .attr("height", height)
-    .attr(
-      "style",
-      `min-width: ${width}px; max-width: ${width}px; height: auto; height: intrinsic;`
-    )
-    .attr("shape-rendering", "crispEdges")
-    .attr("vector-effect", "non-scaling-stroke")
-    .attr("text-anchor", "middle")
-    .attr("text-rendering", "optimizeLegibility")
-    .on("touchstart", () => {});
+  const svg = configureSVG(svgElement, viewBox, width, height);
 
-  svg
-    .append("g")
-    .attr("fill", "none")
-    .attr("stroke", "#555")
-    .attr("stroke-opacity", 1.0)
-    .attr("stroke-linecap", "butt")
-    .attr("stroke-linejoin", "miter")
-    .attr("stroke-width", 1.0)
-    .selectAll("path")
-    .data(pointRoot.links())
-    .join("path")
-    .attr(
-      "d",
-      link<
-        HierarchyPointLink<InterLangDescendants>,
-        HierarchyPointNode<InterLangDescendants>
-      >(curveStepBefore)
-        .x((d) => d.y)
-        .y((d) => d.x)
-    );
+  renderTreeLinks(svg, pointRoot, curveStepBefore, {
+    x: (d) => d.y,
+    y: (d) => d.x,
+  });
 
-  const descendants: BoundedHierarchyPointNode<InterLangDescendants>[] =
-    pointRoot.descendants().map((d) => ({
-      node: d,
-      bbox: new DOMRect(0, 0, 0, 0),
-    }));
+  const { node, nodeBackground } = renderTreeNodes(
+    svg,
+    pointRoot,
+    treeRootItem,
+    (d) => [d.node.y, d.node.x]
+  );
 
-  const nodeBackground = svg
-    .append("g")
-    .selectAll<SVGRectElement, unknown>("rect")
-    .data(descendants)
-    .join("rect")
-    .attr("fill", "white");
-
-  const node = svg
-    .append("g")
-    .selectAll<SVGTextElement, unknown>("g")
-    .data(descendants)
-    .join("g")
-    .attr("font-weight", (d) =>
-      d.node.data.item.id === treeRootItem.id ? "bold" : null
-    )
-    .attr("transform", (d) => `translate(${d.node.y},${d.node.x})`);
-
-  node
-    .append("text")
-    .attr("class", "lang")
-    .attr("y", "-1em")
-    .attr("fill", (d) => langColor(d.node.data.langDistance))
-    .text((d) => d.node.data.item.lang.name);
-
-  node
-    .append("text")
-    .attr("class", "term")
-    .attr("y", "0.25em")
-    .text((d) => term(d.node.data.item));
-
-  node
-    .append("text")
-    .attr("class", "romanization")
-    .attr("y", "1.5em")
-    .text((d) =>
-      d.node.data.item.romanization
-        ? `(${d.node.data.item.romanization})`
-        : ""
-    );
-
-  setDescendantsTooltipListeners(
+  setTooltipListeners(
     node,
     setShowTooltip,
     setTooltipTreeNode,
@@ -272,7 +202,7 @@ function descendantsTreeSVG(
     tooltipRefs
   );
 
-  addSVGTextBackgrounds(node, nodeBackground);
+  addSVGTextBackgrounds(node, nodeBackground, (d) => [d.node.y, d.node.x]);
 }
 
 function interLangDescendantsInner(
@@ -310,37 +240,4 @@ export function interLangDescendants(
   const root = fullRoot as InterLangDescendants;
   root.parent = null;
   return interLangDescendantsInner(root)[0];
-}
-
-function addSVGTextBackgrounds(
-  node: Selection<
-    SVGGElement | SVGTextElement,
-    BoundedHierarchyPointNode<InterLangDescendants>,
-    SVGGElement,
-    undefined
-  >,
-  nodeBackground: Selection<
-    SVGRectElement,
-    BoundedHierarchyPointNode<InterLangDescendants>,
-    SVGGElement,
-    undefined
-  >
-) {
-  node.each(function (d) {
-    d.bbox = this.getBBox();
-  });
-
-  const xMargin = 3;
-  const yMargin = 3;
-
-  nodeBackground
-    .attr("width", (d) => d.bbox.width + 2 * xMargin)
-    .attr("height", (d) => d.bbox.height + 2 * yMargin)
-    .attr("transform", (d) => {
-      const x = d.node.y - xMargin;
-      const y = d.node.x - yMargin;
-      return `translate(${x},${y})`;
-    })
-    .attr("x", (d) => d.bbox.x)
-    .attr("y", (d) => d.bbox.y);
 }

@@ -1,4 +1,4 @@
-import { createSignal, createMemo } from "solid-js";
+import { createSignal, createMemo, batch } from "solid-js";
 import {
   Descendants,
   Etymology,
@@ -133,11 +133,13 @@ export async function loadFromPath(path: string) {
         ? (cached as Etymology).item
         : (cached as InterLangDescendants[])[0]?.item ?? dummyItem();
     const descLangs = resolveDescLangs(parsed.descLangIds, cached, parsed.kind);
-    setTree(cached);
-    setLastRequest(
-      new TreeRequest(rootItem.lang, rootItem, descLangs, parsed.kind)
-    );
-    applySearchState(rootItem, descLangs, parsed.kind);
+    batch(() => {
+      setTree(cached);
+      setLastRequest(
+        new TreeRequest(rootItem.lang, rootItem, descLangs, parsed.kind)
+      );
+      applySearchState(rootItem, descLangs, parsed.kind);
+    });
     return;
   }
 
@@ -177,11 +179,13 @@ export async function loadFromPath(path: string) {
       parsed.kind
     );
     treeCache.set(path, treeResult);
-    setTree(treeResult);
-    setLastRequest(
-      new TreeRequest(rootItem.lang, rootItem, descLangs, parsed.kind)
-    );
-    applySearchState(rootItem, descLangs, parsed.kind);
+    batch(() => {
+      setTree(treeResult);
+      setLastRequest(
+        new TreeRequest(rootItem.lang, rootItem, descLangs, parsed.kind)
+      );
+      applySearchState(rootItem, descLangs, parsed.kind);
+    });
   } catch (error) {
     console.log(error);
   }
