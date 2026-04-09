@@ -1,10 +1,10 @@
 use serde::{Deserialize, Serialize};
 use string_interner::{
-    backend::StringBackend, symbol::SymbolU32, StringInterner, Symbol as SymbolTrait,
+    StringInterner, Symbol as SymbolTrait, backend::StringBackend, symbol::SymbolU32,
 };
 
 #[derive(Hash, Eq, PartialEq, Debug, Copy, Clone)]
-pub(crate) struct Symbol(SymbolU32);
+pub struct Symbol(SymbolU32);
 
 impl SymbolTrait for Symbol {
     fn try_from_usize(index: usize) -> Option<Self> {
@@ -37,7 +37,7 @@ impl<'de> Deserialize<'de> for Symbol {
 }
 
 #[derive(Serialize, Deserialize)]
-pub(crate) struct StringPool {
+pub struct StringPool {
     pool: StringInterner<StringBackend<Symbol>>,
 }
 
@@ -49,19 +49,24 @@ impl Default for StringPool {
 }
 
 impl StringPool {
-    pub(crate) fn new() -> Self {
+    #[must_use]
+    pub fn new() -> Self {
         Self {
             ..Default::default()
         }
     }
 
-    pub(crate) fn resolve(&self, symbol: Symbol) -> &str {
+    /// # Panics
+    ///
+    /// Panics if `symbol` does not exist in this pool.
+    #[must_use]
+    pub fn resolve(&self, symbol: Symbol) -> &str {
         self.pool
             .resolve(symbol)
             .expect("Resolve interned string from symbol")
     }
 
-    pub(crate) fn get_or_intern(&mut self, s: &str) -> Symbol {
+    pub fn get_or_intern(&mut self, s: &str) -> Symbol {
         self.pool.get_or_intern(s)
     }
 }

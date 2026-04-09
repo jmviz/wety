@@ -1,0 +1,19 @@
+[package]
+name = "wety-core"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+petgraph = {version = "0.6.2", features = ["serde-1"]}
+serde = {workspace = true}
+serde_json = {workspace = true}
+flate2 = {workspace = true}
+anyhow = {workspace = true}
+itertools = "0.10.5"
+ngrammatic = "0.4.0"
+fuzzy_prefix_search = "0.3"
+xxhash-rust = {version = "0.8.6", features = ["xxh3"]}
+phf = {version = "0.10", features = ["macros"]}
+urlencoding = "2.1.2"
+string-interner = "0.14.0"
+strum = {version = "0.24.1", features = ["derive", "phf"]}

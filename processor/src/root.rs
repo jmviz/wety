@@ -1,19 +1,23 @@
 use std::{mem, str::FromStr};
 
 use crate::{
-    embeddings::{Comparand, Embeddings, ItemEmbedding},
+    embeddings::{self, Comparand, Embeddings, ItemEmbedding},
     etymology::validate_ety_template_lang,
+    items::{Items, Retrieval},
+    progress_bar,
+    wiktextract_json::{WiktextractJson, WiktextractJsonItem, WiktextractJsonValidStr},
+};
+use wety_core::{
     etymology_templates::EtyMode,
-    items::{ItemId, Items, Retrieval},
+    items::ItemId,
     langterm::{LangTerm, Term},
     languages::Lang,
-    progress_bar,
     string_pool::{StringPool, Symbol},
-    wiktextract_json::{WiktextractJson, WiktextractJsonItem, WiktextractJsonValidStr},
 };
 
 use anyhow::{Ok, Result};
-use lazy_static::lazy_static;
+use std::sync::LazyLock;
+
 use regex::Regex;
 use simd_json::ValueAccess;
 
@@ -136,10 +140,9 @@ fn process_json_root_category(
     category: &str,
     lang: Lang,
 ) -> Option<RawRoot> {
-    lazy_static! {
-        static ref ROOT_CAT: Regex =
-            Regex::new(r"^(.+) terms derived from the (.+) root \*([^ ]+)(?: \((.+)\))?$").unwrap();
-    }
+    static ROOT_CAT: LazyLock<Regex> = LazyLock::new(|| {
+        Regex::new(r"^(.+) terms derived from the (.+) root \*([^ ]+)(?: \((.+)\))?$").unwrap()
+    });
     let caps = ROOT_CAT.captures(category)?;
     let cat_term_lang_name = caps.get(1).map(|m| m.as_str())?;
     let cat_term_lang = Lang::from_name(cat_term_lang_name).ok()?;
@@ -176,8 +179,9 @@ impl Items {
             None => {
                 let item = self.get(item_id);
                 let item_lang = item.lang();
-                if item_lang.strictly_descends_from(root_lang)
-                    || (item.is_imputed() && item_lang.descends_from(root_lang))
+                if (item_lang.strictly_descends_from(root_lang)
+                    || (item.is_imputed() && item_lang.descends_from(root_lang)))
+                    && confidence >= embeddings::SIMILARITY_THRESHOLD
                 {
                     self.graph.add_ety(
                         item_id,
@@ -200,13 +204,15 @@ impl Items {
                     let root_embedding = embeddings.get(self.get(root_item_id), root_item_id)?;
                     let hp_embedding = embeddings.get(head_progenitor, head_progenitor_id)?;
                     let similarity = hp_embedding.cosine_similarity(&root_embedding);
-                    self.graph.add_ety(
-                        head_progenitor_id,
-                        EtyMode::Root,
-                        Some(0u8),
-                        &[root_item_id],
-                        &[similarity],
-                    );
+                    if similarity >= embeddings::SIMILARITY_THRESHOLD {
+                        self.graph.add_ety(
+                            head_progenitor_id,
+                            EtyMode::Root,
+                            Some(0u8),
+                            &[root_item_id],
+                            &[similarity],
+                        );
+                    }
                 }
             }
         }
