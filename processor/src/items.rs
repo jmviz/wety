@@ -1,142 +1,25 @@
 use crate::{
     descendants::RawDescendants,
     embeddings::{self, Embeddings, ItemEmbedding},
-    ety_graph::{EtyGraph, ItemIndex},
     etymology::RawEtymology,
-    gloss::Gloss,
-    langterm::{LangTerm, Term},
-    languages::Lang,
-    pos::Pos,
     progress_bar,
     redirects::Redirects,
     root::RawRoot,
-    string_pool::StringPool,
     wiktextract_json::wiktextract_lines,
     HashMap, HashSet,
+};
+use wety_core::{
+    ety_graph::EtyGraph,
+    items::{ImputedItem, Item, ItemId, RealItem},
+    langterm::LangTerm,
+    pos::Pos,
+    string_pool::StringPool,
 };
 
 use std::{collections::hash_map::Entry, mem, path::Path};
 
 use anyhow::{Ok, Result};
-use petgraph::stable_graph::NodeIndex;
-use serde::{Deserialize, Serialize};
 use simd_json::to_borrowed_value;
-
-pub type ItemId = NodeIndex<ItemIndex>; // wiktionary has about ~10M items including imputations
-
-/// An etymologically distinct item, which may have multiple (pos, gloss)'s
-#[derive(Serialize, Deserialize)]
-pub(crate) struct RealItem {
-    pub(crate) ety_num: u8, // the nth numbered ety for this term-lang combo (1,2,...)
-    pub(crate) lang: Lang,
-    pub(crate) term: Term,
-    pub(crate) pos: Vec<Pos>, // e.g. "noun"
-    pub(crate) gloss: Vec<Gloss>,
-    pub(crate) page_term: Option<Term>, // i.e. the term stripped of diacritics etc. at the top of the page
-    pub(crate) romanization: Option<Term>,
-    pub(crate) is_reconstructed: bool,
-}
-
-impl RealItem {
-    pub(crate) fn url(&self, string_pool: &StringPool) -> String {
-        let page_term = self.page_term.unwrap_or(self.term);
-        let url_term = urlencoding::encode(page_term.resolve(string_pool));
-        let url_lang_name = self.lang.ety2non().url_name();
-        if self.is_reconstructed {
-            return format!(
-                "https://en.wiktionary.org/wiki/Reconstruction:{url_lang_name}/{url_term}"
-            );
-        }
-        format!("https://en.wiktionary.org/wiki/{url_term}#{url_lang_name}")
-    }
-}
-
-#[derive(Serialize, Deserialize)]
-pub(crate) struct ImputedItem {
-    pub(crate) ety_num: u8,
-    pub(crate) lang: Lang,
-    pub(crate) term: Term,
-    pub(crate) romanization: Option<Term>,
-    pub(crate) from: ItemId, // during the processing of which Item was this imputed?
-}
-
-#[derive(Serialize, Deserialize)]
-pub(crate) enum Item {
-    Real(RealItem),
-    Imputed(ImputedItem),
-}
-
-impl Item {
-    pub(crate) fn is_imputed(&self) -> bool {
-        match self {
-            Item::Real(_) => false,
-            Item::Imputed(_) => true,
-        }
-    }
-
-    pub(crate) fn ety_num(&self) -> u8 {
-        match self {
-            Item::Real(real_item) => real_item.ety_num,
-            Item::Imputed(imputed_item) => imputed_item.ety_num,
-        }
-    }
-
-    pub(crate) fn lang(&self) -> Lang {
-        match self {
-            Item::Real(real_item) => real_item.lang,
-            Item::Imputed(imputed_item) => imputed_item.lang,
-        }
-    }
-
-    pub(crate) fn term(&self) -> Term {
-        match self {
-            Item::Real(real_item) => real_item.term,
-            Item::Imputed(imputed_item) => imputed_item.term,
-        }
-    }
-
-    pub(crate) fn page_term(&self) -> Option<Term> {
-        match self {
-            Item::Real(real_item) => real_item.page_term,
-            Item::Imputed(_) => None,
-        }
-    }
-
-    pub(crate) fn pos(&self) -> Option<&Vec<Pos>> {
-        match self {
-            Item::Real(real_item) => Some(&real_item.pos),
-            Item::Imputed(_) => None,
-        }
-    }
-
-    pub(crate) fn gloss(&self) -> Option<&Vec<Gloss>> {
-        match self {
-            Item::Real(real_item) => Some(&real_item.gloss),
-            Item::Imputed(_) => None,
-        }
-    }
-
-    pub(crate) fn romanization(&self) -> Option<Term> {
-        match self {
-            Item::Real(real_item) => real_item.romanization,
-            Item::Imputed(imputed_item) => imputed_item.romanization,
-        }
-    }
-
-    pub(crate) fn url(&self, string_pool: &StringPool) -> Option<String> {
-        match self {
-            Item::Real(real_item) => Some(real_item.url(string_pool)),
-            Item::Imputed(_) => None,
-        }
-    }
-
-    pub(crate) fn is_reconstructed(&self) -> bool {
-        match self {
-            Item::Real(real_item) => real_item.is_reconstructed,
-            Item::Imputed(imputed_item) => imputed_item.lang.is_reconstructed(),
-        }
-    }
-}
 
 #[derive(Default)]
 pub(crate) struct RawTemplates {

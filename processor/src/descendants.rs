@@ -1,14 +1,17 @@
 use crate::{
-    embeddings::{Embeddings, ItemEmbedding},
+    HashSet,
+    embeddings::{self, Embeddings, ItemEmbedding},
+    items::{Items, Retrieval},
+    progress_bar,
+    wiktextract_json::{WiktextractJson, WiktextractJsonItem, WiktextractJsonValidStr},
+};
+use wety_core::{
     etymology_templates::EtyMode,
     gloss::Gloss,
-    items::{ItemId, Items, Retrieval},
+    items::ItemId,
     langterm::{LangTerm, Term},
     languages::Lang,
-    progress_bar,
     string_pool::StringPool,
-    wiktextract_json::{WiktextractJson, WiktextractJsonItem, WiktextractJsonValidStr},
-    HashSet,
 };
 
 use std::{mem, str::FromStr};
@@ -99,9 +102,12 @@ fn process_json_desc_line(
         return Some(RawDescLine { depth, kind });
     }
 
-    let is_derivation = desc_line.get_array("tags").map_or(false, |tags| {
-        tags.iter().any(|tag| tag.as_str() == Some("derived"))
-    });
+    let is_derivation = desc_line
+        .get_array("tags")
+        .is_some_and(|tags| tags.iter().any(|tag| tag.as_str() == Some("derived")));
+    // Next two lines are dummy assignments. If there are any templates in the
+    // descendants line that parse successfully, they will get overwritten with
+    // correct values. If no templates parse, they will not get returned.
     let mut lang = Lang::from_str("en").unwrap(); // dummy assignment
     let (mut langs, mut terms, mut modes) = (HashSet::default(), vec![], vec![]);
     for template in templates {
@@ -349,65 +355,63 @@ impl Items {
         let mut ancestors = Ancestors::new(&item);
         'lines: for line in &*raw_descendants.lines {
             let parent = ancestors.prune_and_get_parent(line.depth);
-            match &line.kind {
-                RawDescLineKind::Desc { desc } => {
-                    if desc.terms.is_empty() || desc.terms.len() != desc.modes.len() {
-                        continue;
+            // Might want to do something for the other line kinds in the
+            // future, e.g. impute placeholder "items" that have no info, or
+            // only lang info (perhaps by making Item an enum?), to indicate
+            // that there is a known missing step in the ety chain. Right now,
+            // we just skip them. So e.g. for a descendants snippet like on the
+            // page for PIE ḱerh₂-:
+            //
+            // * Unsorted formations: [BareText]
+            // ** {{desc|grk-pro|}} [BareLang]
+            // *** {{desc|grc|κάρυον}} [Desc]
+            //
+            // our resultant ety chain would just be  κάρυον -> ḱerh₂-.
+            if let RawDescLineKind::Desc { desc } = &line.kind {
+                if desc.terms.is_empty() || desc.terms.len() != desc.modes.len() {
+                    continue;
+                }
+                let (mut desc_items, mut confidences, mut modes) = (vec![], vec![], vec![]);
+                for (i, (&term, &mode)) in desc.terms.iter().zip(desc.modes.iter()).enumerate() {
+                    // Sometimes a within-language compound is listed as a
+                    // descendant. See e.g. PIE men- page, where compound of
+                    // men- and dʰeh₁- is listed, or PIE bʰer- page, where
+                    // compound of h₂ed and bʰer- is listed. We try to skip
+                    // these lines, as otherwise we would e.g. end up making
+                    // a connection from bʰer- to h₂éd, which will
+                    // completely screw up both of their total descendants
+                    // trees. $$ In general, we may need to end up doing
+                    // much smarter processing of descendants sections if
+                    // there is more such variation I am unaware of
+                    // (probable?).
+                    if desc.terms.len() > 1 && desc.lang == item_lang {
+                        continue 'lines;
                     }
-                    let (mut desc_items, mut confidences, mut modes) = (vec![], vec![], vec![]);
-                    for (i, (&term, &mode)) in desc.terms.iter().zip(desc.modes.iter()).enumerate()
-                    {
-                        // Sometimes a within-language compound is listed as a
-                        // descendant. See e.g. PIE men- page, where compound of
-                        // men- and dʰeh₁- is listed, or PIE bʰer- page, where
-                        // compound of h₂ed and bʰer- is listed. We try to skip
-                        // these lines, as otherwise we would e.g. end up making
-                        // a connection from bʰer- to h₂éd, which will
-                        // completely screw up both of their total descendants
-                        // trees. $$ In general, we may need to end up doing
-                        // much smarter processing of descendants sections if
-                        // there is more such variation I am unaware of
-                        // (probable?).
-                        if desc.terms.len() > 1 && desc.lang == item_lang {
-                            continue 'lines;
-                        }
-                        let langterm = LangTerm::new(desc.lang, term);
-                        let Retrieval {
-                            item_id: desc_item,
-                            confidence,
-                        } = self.get_or_impute_item(
-                            embeddings,
-                            &ancestors.embeddings(self, embeddings)?,
-                            item,
-                            langterm,
-                        )?;
-                        // Only use the first term in a multi-term desc line as
-                        // the ancestor for any deeper-nested lines below it.
-                        if i == 0 {
-                            ancestors.add(&desc_item, line.depth);
-                        }
-                        desc_items.push(desc_item);
-                        confidences.push(confidence);
-                        modes.push(mode);
+                    let langterm = LangTerm::new(desc.lang, term);
+                    let Retrieval {
+                        item_id: desc_item,
+                        confidence,
+                    } = self.get_or_impute_item(
+                        embeddings,
+                        &ancestors.embeddings(self, embeddings)?,
+                        item,
+                        langterm,
+                    )?;
+                    // Only use the first term in a multi-term desc line as
+                    // the ancestor for any deeper-nested lines below it.
+                    if i == 0 {
+                        ancestors.add(&desc_item, line.depth);
                     }
-                    for (desc_item, confidence, mode) in izip!(desc_items, confidences, modes) {
+                    desc_items.push(desc_item);
+                    confidences.push(confidence);
+                    modes.push(mode);
+                }
+                for (desc_item, confidence, mode) in izip!(desc_items, confidences, modes) {
+                    if confidence >= embeddings::SIMILARITY_THRESHOLD {
                         self.graph
                             .add_ety(desc_item, mode, Some(0), &[parent], &[confidence]);
                     }
                 }
-                // Might want to do something for the other cases in the future,
-                // e.g. impute placeholder "items" that have no info, or only
-                // lang info (perhaps by making Item an enum?), to indicate that
-                // there is a known missing step in the ety chain. Right now, we
-                // just skip them. So e.g. for a descendants snippet like on the
-                // page for PIE ḱerh₂-:
-                //
-                // * Unsorted formations: [BareText]
-                // ** {{desc|grk-pro|}} [BareLang]
-                // *** {{desc|grc|κάρυον}} [Desc]
-                //
-                // our resultant ety chain would just be  κάρυον -> ḱerh₂-.
-                _ => continue,
             }
         }
         Ok(())

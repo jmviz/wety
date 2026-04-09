@@ -1,11 +1,14 @@
 use crate::{
     descendants::RawDescendants,
+    items::Items,
+    redirects::WiktextractJsonRedirect,
+};
+use wety_core::{
     gloss::Gloss,
-    items::{Items, RealItem},
+    items::RealItem,
     langterm::Term,
     languages::Lang,
     pos::Pos,
-    redirects::WiktextractJsonRedirect,
     string_pool::StringPool,
 };
 
@@ -296,7 +299,7 @@ impl WiktextractJsonItem<'_> {
                     .get_array("tags")
                     .into_iter()
                     .flatten()
-                    .any(|tag| tag.as_str().map_or(false, |s| s == "reconstruction"))
+                    .any(|tag| tag.as_str().is_some_and(|s| s == "reconstruction"))
             })
     }
 }
@@ -336,7 +339,7 @@ fn clean_template_term(mut term: &str) -> &str {
 // e.g. affixes with -. Ignoring terms with any ascii whitespace is too
 // strict as well, as this would ignore e.g. circumfixes (e.g. "ver- -en").
 fn should_ignore_term(term: &str) -> bool {
-    term.contains(|c: char| c == ',')
+    term.contains(',')
 }
 
 fn should_ignore_pos(pos: &str) -> bool {

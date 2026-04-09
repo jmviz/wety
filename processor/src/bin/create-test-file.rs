@@ -11,15 +11,12 @@
 //
 // cargo run --release --bin create-test-file data/test/example.csv
 
-#![feature(let_chains)]
-
 #[global_allocator]
 static ALLOC: snmalloc_rs::SnMalloc = snmalloc_rs::SnMalloc;
 
 use processor::wiktextract_lines;
 
 use std::{
-    env,
     fs::File,
     io::{BufWriter, Write},
     path::PathBuf,
@@ -93,7 +90,6 @@ fn read_csv(path: &PathBuf) -> Result<RequestedItems> {
 }
 
 fn main() -> Result<()> {
-    env::set_var("RUST_BACKTRACE", "1");
     let t = Instant::now();
     let args = Args::parse();
 

@@ -1,30 +1,24 @@
 [package]
 name = "processor"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 
 [dependencies]
+wety-core = { path = "../core" }
 simd-json = "0.7.0"
 snmalloc-rs = {version = "0.3.0", features = ["native-cpu"]}
 bytelines = "2.4"
 flate2 = {workspace = true}
-string-interner = "0.14.0"
-phf = {version = "0.10", features = ["macros"]}
 anyhow = {workspace = true}
 indicatif = "0.17.0"
 clap = { version = "3.2.17", features = ["derive"] }
-petgraph = {version = "0.6.2", features = ["serde-1"]}
 regex = "1.7.1"
-lazy_static = "1.4.0"
-strum = {version = "0.24.1", features = ["derive", "phf"]}
-urlencoding = "2.1.2"
 itertools = "0.10.5"
 serde = {workspace = true}
 serde_json = {workspace = true}
 sled = "0.34.7"
 xxhash-rust = {version="0.8.6", features=["xxh3"]}
-fuzzy_trie = "1.2.0"
-ngrammatic = "0.4.0"
+phf = {version = "0.10", features = ["macros"]}
 csv = "1.2.2"
 hf-hub = "0.3.2"
 tokenizers = { version = "0.15.0", default-features = false, features = ["onig"] }

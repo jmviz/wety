@@ -5,11 +5,10 @@ use serde::{Deserialize, Serialize};
 
 use crate::pos_phf::POS;
 
-// PosId refers to an index in the POS OrderedSet
-pub(crate) type PosId = u8; // the set has ~50 elements
+pub type PosId = u8;
 
 #[derive(Hash, Eq, PartialEq, Debug, Copy, Clone, Serialize, Deserialize)]
-pub(crate) struct Pos {
+pub struct Pos {
     id: PosId,
 }
 
@@ -31,12 +30,20 @@ impl FromStr for Pos {
 }
 
 impl Pos {
-    pub(crate) fn name(self) -> &'static str {
+    /// # Panics
+    ///
+    /// Panics if this `Pos` holds an invalid internal index.
+    #[must_use]
+    pub fn name(self) -> &'static str {
         POS.index(self.id as usize)
             .expect("id cannot have been created without being a valid index")
     }
 
-    pub(crate) fn root_pos() -> Pos {
+    /// # Panics
+    ///
+    /// Panics if `"root"` is not present in the POS table.
+    #[must_use]
+    pub fn root_pos() -> Pos {
         "root".parse().expect("root pos must exist")
     }
 }
