@@ -1,6 +1,4 @@
 .tooltip {
-  opacity: 0;
-  z-index: -9000;
   width: max-content;
   max-width: 500px;
   text-align: left;

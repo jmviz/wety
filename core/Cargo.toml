@@ -11,7 +11,7 @@ flate2 = {workspace = true}
 anyhow = {workspace = true}
 itertools = "0.10.5"
 ngrammatic = "0.4.0"
-fuzzy_prefix_search = "0.3"
+trie-rs = "0.4"
 xxhash-rust = {version = "0.8.6", features = ["xxh3"]}
 phf = {version = "0.10", features = ["macros"]}
 urlencoding = "2.1.2"

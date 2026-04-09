@@ -12,7 +12,7 @@ export default function App() {
   const location = useLocation();
 
   createEffect(() => {
-    const path = location().pathname + location().search;
+    const path = location().pathname + location().searchStr;
     if (path === "/") return;
     loadFromPath(path);
   });

@@ -15,11 +15,11 @@ use std::{
 
 use anyhow::{Ok, Result};
 use flate2::{Compression, read::GzDecoder, write::GzEncoder};
-use fuzzy_prefix_search::Trie;
 use itertools::Itertools;
 use ngrammatic::{Corpus, CorpusBuilder, Pad};
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
+use trie_rs::map::{Trie as TrieMap, TrieBuilder as TrieMapBuilder};
 
 #[derive(Serialize, Deserialize)]
 pub struct Data {
@@ -271,7 +271,7 @@ struct LangData {
 pub struct Search {
     normalized_langs: HashMap<String, LangData>,
     langs: Corpus,
-    terms: HashMap<Lang, Trie<ItemId>>,
+    terms: HashMap<Lang, TrieMap<u8, Vec<ItemId>>>,
 }
 
 fn normalize_lang_name(name: &str) -> String {
@@ -295,15 +295,19 @@ impl Data {
             .pad_full(Pad::Auto)
             .key_trans(Box::new(normalize_lang_name))
             .finish();
-        let mut terms = HashMap::<Lang, Trie<ItemId>>::default();
+        // Pre-aggregate items by (lang, lowered_term) since the map trie
+        // only stores one value per key.
+        let mut term_items = HashMap::<Lang, HashMap<String, Vec<ItemId>>>::default();
         for (item_id, item) in self.graph.iter().filter(|(_, item)| !item.is_imputed()) {
             let norm_lang = normalize_lang_name(item.lang().name());
             let term = item.term().resolve(&self.string_pool);
             let lowered = term.to_lowercase();
-            terms
+            term_items
                 .entry(item.lang())
-                .or_insert_with(Trie::new)
-                .insert(&lowered, item_id);
+                .or_default()
+                .entry(lowered)
+                .or_default()
+                .push(item_id);
             if let Some(lang_data) = normalized_langs.get_mut(&norm_lang) {
                 lang_data.items += 1;
             } else {
@@ -316,6 +320,14 @@ impl Data {
                 );
                 langs.add_text(item.lang().name());
             }
+        }
+        let mut terms = HashMap::<Lang, TrieMap<u8, Vec<ItemId>>>::default();
+        for (lang, lang_terms) in term_items {
+            let mut builder = TrieMapBuilder::new();
+            for (term, ids) in lang_terms {
+                builder.push(term, ids);
+            }
+            terms.insert(lang, builder.build());
         }
         println!("Finished. Took {:#?}.", t.elapsed());
         Search {
@@ -354,88 +366,39 @@ impl Search {
     }
 }
 
-struct ItemMatch {
-    score: f32,
-    item: ItemId,
-}
-
-impl ItemMatch {
-    fn json(&self, data: &Data) -> Value {
-        data.item_json(self.item)
-    }
-}
-
-#[derive(Default)]
-pub struct ItemMatches {
-    matches: Vec<ItemMatch>,
-}
-
-impl ItemMatches {
-    fn new() -> Self {
-        Self { matches: vec![] }
-    }
-
-    fn is_empty(&self) -> bool {
-        self.matches.is_empty()
-    }
-
-    fn sort(&mut self, data: &Data) {
-        self.matches.sort_unstable_by(|a, b| {
-            if (a.score - b.score).abs() < f32::EPSILON {
-                let a_term = data.term(a.item);
-                let b_term = data.term(b.item);
-                let a_len = a_term.chars().count();
-                let b_len = b_term.chars().count();
-                if a_len == b_len {
-                    if a_term == b_term {
-                        data.ety_num(a.item).cmp(&data.ety_num(b.item))
-                    } else {
-                        b_term.cmp(a_term)
-                    }
-                } else {
-                    a_len.cmp(&b_len)
-                }
-            } else {
-                b.score
-                    .partial_cmp(&a.score)
-                    .unwrap_or(std::cmp::Ordering::Equal)
-            }
-        });
-    }
-
-    fn json(&self, data: &Data) -> Value {
-        json!(self.matches.iter().map(|m| m.json(data)).collect_vec())
-    }
-}
+const MAX_SEARCH_RESULTS: usize = 20;
 
 impl Search {
     #[must_use]
     pub fn items(&self, data: &Data, lang: Lang, term: &str) -> Value {
-        let mut matches = ItemMatches::new();
         let lowered = term.to_lowercase();
-        if let Some(lang_terms) = self.terms.get(&lang) {
-            let results = lang_terms.search_within_distance_scored(&lowered, 0);
-            for result in &results {
-                for item_id in &result.data {
-                    matches.matches.push(ItemMatch {
-                        score: result.score,
-                        item: *item_id,
-                    });
-                }
-            }
-            if matches.is_empty() && term.chars().count() > 5 {
-                let results = lang_terms.search_within_distance_scored(&lowered, 1);
-                for result in &results {
-                    for item_id in &result.data {
-                        matches.matches.push(ItemMatch {
-                            score: result.score,
-                            item: *item_id,
-                        });
-                    }
+        let mut items: Vec<ItemId> = Vec::new();
+        if let Some(lang_trie) = self.terms.get(&lang) {
+            // predictive_search returns results in lexicographic byte order,
+            // so shorter terms come first. Break early once we have enough.
+            for (_, item_ids) in lang_trie.predictive_search::<String, _>(&lowered) {
+                items.extend(item_ids.iter().copied());
+                if items.len() >= MAX_SEARCH_RESULTS {
+                    break;
                 }
             }
         }
-        matches.sort(data);
-        matches.json(data)
+        items.sort_unstable_by(|&a, &b| {
+            let a_term = data.term(a);
+            let b_term = data.term(b);
+            let a_len = a_term.chars().count();
+            let b_len = b_term.chars().count();
+            if a_len == b_len {
+                if a_term == b_term {
+                    data.ety_num(a).cmp(&data.ety_num(b))
+                } else {
+                    b_term.cmp(a_term)
+                }
+            } else {
+                a_len.cmp(&b_len)
+            }
+        });
+        items.truncate(MAX_SEARCH_RESULTS);
+        json!(items.iter().map(|&id| data.item_json(id)).collect_vec())
     }
 }

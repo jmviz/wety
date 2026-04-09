@@ -1,5 +1,5 @@
 import styles from "./EtyButton.module.scss";
-import { TreeRequest } from "./types";
+import { TreeKind } from "./types";
 import {
   selectedLang,
   selectedItem,
@@ -26,11 +26,15 @@ export default function EtyButton(props: EtyButtonProps) {
 
     if (!lang || !item || descLangs.length === 0) return;
 
-    const request = new TreeRequest(lang, item, descLangs, treeKind);
-    const path = request.apiPath();
-    if (path === location().pathname + location().search) return;
+    const kind = treeKind === TreeKind.Etymology ? "etymology"
+      : treeKind === TreeKind.Cognates ? "cognates" : "descendants";
+    const pathname = `/${kind}/${item.id}`;
+    const search: Record<string, unknown> =
+      treeKind === TreeKind.Etymology
+        ? {}
+        : { distLang: lang.id, descLang: descLangs.map((l) => l.id) };
 
-    navigate({ to: path });
+    navigate({ to: pathname, search });
   }, 0);
 
   const disabled = () =>

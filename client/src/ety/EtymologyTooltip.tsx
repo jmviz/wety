@@ -1,14 +1,10 @@
 import "./Tooltip.css";
 import {
-  Descendants,
   Etymology,
-  InterLangDescendants,
   Item,
-  TreeRequest,
   term,
 } from "../search/types";
 import { BoundedHierarchyPointNode, langColor } from "./tree";
-import { TreeKind } from "../search/types";
 import {
   PositionKind,
   etyModeRep,
@@ -17,18 +13,14 @@ import {
   positionTooltip,
   TooltipRefs,
 } from "./tooltip";
-import { interLangDescendants } from "./DescendantsTree";
 import {
+  selectedDescLangs,
   setSelectedLang,
   setSelectedItem,
-  selectedDescLangs,
-  setSelectedTreeKind,
-  setTree,
-  lastRequest,
-  setLastRequest,
   debounce,
 } from "../state";
 
+import { useNavigate } from "@tanstack/solid-router";
 import { HierarchyPointNode, Selection } from "d3";
 import {
   Accessor,
@@ -94,49 +86,39 @@ export default function EtymologyTooltip(props: EtymologyTooltipProps) {
     tooltip.style.opacity = "1";
   });
 
-  const getDescendants = debounce(async (item: Item) => {
-    const request = new TreeRequest(
-      item.lang,
-      item,
-      selectedDescLangs(),
-      TreeKind.Descendants
-    );
+  const navigate = useNavigate();
 
-    const current = lastRequest();
-    if (current && request.equals(current)) return;
-
-    try {
-      const response = await fetch(request.url());
-      const data = (await response.json()) as Descendants;
-      console.log(data);
-      setLastRequest(request);
-      setSelectedLang(item.lang);
-      setSelectedItem(item);
-      setTree([interLangDescendants(data)]);
-      setSelectedTreeKind(TreeKind.Descendants);
-    } catch (error) {
-      console.log(error);
-    }
+  const navigateToDescendants = debounce((item: Item) => {
+    const descLangs = selectedDescLangs();
+    setSelectedLang(item.lang);
+    setSelectedItem(item);
+    navigate({
+      to: `/descendants/${item.id}`,
+      search: { distLang: item.lang.id, descLang: descLangs.map((l) => l.id) },
+    });
   }, 0);
 
   return (
     <div ref={(el) => (props.tooltipRefs.el = el)}>
       <Show when={props.treeNode() && props.svgElement()}>
         {(_) => {
-          const node = props.treeNode()!;
-          const item = node.data.item;
-          const posList = item.pos ?? [];
-          const glossList = item.gloss ?? [];
-          const etyMode = node.data.etyMode;
-          const parents: EtyParent[] | null = node.children
-            ? node.children
-                .sort((a, b) => a.data.etyOrder - b.data.etyOrder)
-                .map((parentNode) => ({
-                  lang: parentNode.data.item.lang.name,
-                  term: term(parentNode.data.item),
-                  langDistance: parentNode.data.langDistance,
-                }))
-            : null;
+          const node = () => props.treeNode()!;
+          const item = () => node().data.item;
+          const posList = () => item().pos ?? [];
+          const glossList = () => item().gloss ?? [];
+          const etyMode = () => node().data.etyMode;
+          const parents = (): EtyParent[] | null =>
+            node().children
+              ? node()
+                  .children!.sort(
+                    (a, b) => a.data.etyOrder - b.data.etyOrder
+                  )
+                  .map((parentNode) => ({
+                    lang: parentNode.data.item.lang.name,
+                    term: term(parentNode.data.item),
+                    langDistance: parentNode.data.langDistance,
+                  }))
+              : null;
 
           return (
             <div class="tooltip">
@@ -152,53 +134,53 @@ export default function EtymologyTooltip(props: EtymologyTooltipProps) {
               </Show>
               <p
                 class="lang"
-                style={{ color: langColor(node.data.langDistance) }}
+                style={{ color: langColor(node().data.langDistance) }}
               >
-                {item.lang.name}
+                {item().lang.name}
               </p>
               <p>
-                <span class="term">{term(item)}</span>
-                <Show when={item.romanization}>
-                  <span class="romanization"> ({item.romanization})</span>
+                <span class="term">{term(item())}</span>
+                <Show when={item().romanization}>
+                  <span class="romanization"> ({item().romanization})</span>
                 </Show>
               </p>
-              <Show when={item.imputed}>
+              <Show when={item().imputed}>
                 <div class="pos-line">
                   <span class="imputed">(imputed)</span>
                 </div>
               </Show>
               <Show
                 when={
-                  item.pos &&
-                  item.gloss &&
-                  item.pos.length === item.gloss.length
+                  item().pos &&
+                  item().gloss &&
+                  item().pos!.length === item().gloss!.length
                 }
               >
                 <div>
-                  <For each={posList}>
+                  <For each={posList()}>
                     {(pos, i) => (
                       <div class="pos-line">
                         <span class="pos">{pos}</span>:{" "}
-                        <span class="gloss">{glossList[i()]}</span>
+                        <span class="gloss">{glossList()[i()]}</span>
                       </div>
                     )}
                   </For>
                 </div>
               </Show>
-              <Show when={etyMode && parents}>
-                {etyLine(etyMode!, parents!)}
+              <Show when={etyMode() && parents()}>
+                {etyLine(etyMode()!, parents()!)}
               </Show>
               <div class="tooltip-actions">
                 <button
                   class="tooltip-btn"
-                  onClick={() => getDescendants(item)}
+                  onClick={() => navigateToDescendants(item())}
                 >
                   Descendants
                 </button>
               </div>
-              <Show when={item.url}>
+              <Show when={item().url}>
                 <a
-                  href={item.url!}
+                  href={item().url!}
                   target="_blank"
                   rel="noopener noreferrer"
                   class="wiktionary-link"

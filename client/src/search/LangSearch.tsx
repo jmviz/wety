@@ -40,7 +40,7 @@ export default function LangSearch(props: LangSearchProps) {
       setSelectedLang(null);
       setSelectedItem(null);
     }
-  }, 500);
+  }, 300);
 
   onMount(async () => {
     const lastLangStr = window.localStorage.getItem("lastLang");

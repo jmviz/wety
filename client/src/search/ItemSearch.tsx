@@ -46,7 +46,7 @@ export default function ItemSearch(props: ItemSearchProps) {
       setItemOptions([]);
       setSelectedItem(null);
     }
-  }, 500);
+  }, 150);
 
   return (
     <Combobox.Root

@@ -31,7 +31,7 @@ export default function MultiLangSearch(props: MultiLangSearchProps) {
       console.log(error);
       setLangOptions([]);
     }
-  }, 500);
+  }, 300);
 
   return (
     <Combobox.Root

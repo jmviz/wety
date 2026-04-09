@@ -62,6 +62,33 @@ const routeTree = rootRoute.addChildren([
 export const router = createRouter({
   routeTree,
   defaultPreload: false,
+  stringifySearch: (search: Record<string, unknown>) => {
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(search)) {
+      if (Array.isArray(value)) {
+        for (const v of value) {
+          params.append(key, String(v));
+        }
+      } else if (value !== undefined && value !== null) {
+        params.set(key, String(value));
+      }
+    }
+    const str = params.toString();
+    return str ? `?${str}` : "";
+  },
+  parseSearch: (searchStr: string) => {
+    if (searchStr.startsWith("?")) searchStr = searchStr.substring(1);
+    const params = new URLSearchParams(searchStr);
+    const result: Record<string, unknown> = {};
+    const seen = new Set<string>();
+    for (const key of params.keys()) {
+      if (seen.has(key)) continue;
+      seen.add(key);
+      const all = params.getAll(key);
+      result[key] = all.length > 1 ? all : all[0];
+    }
+    return result;
+  },
 });
 
 declare module "@tanstack/solid-router" {
