@@ -220,6 +220,10 @@ export function setTooltipListeners<T>(
     "pointerenter",
     function (event: PointerEvent, d: BoundedHierarchyPointNode<T>) {
       if (event.pointerType === "mouse") {
+        if (tooltipRefs.justDismissed) {
+          tooltipRefs.justDismissed = false;
+          return;
+        }
         const el = this as unknown as SVGElement;
         window.clearTimeout(tooltipRefs.hideTimeout ?? undefined);
         tooltipRefs.showTimeout = window.setTimeout(() => {

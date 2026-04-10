@@ -40,6 +40,7 @@ export default function DescendantsTree(props: DescendantsTreeProps) {
     el: undefined,
     showTimeout: null,
     hideTimeout: null,
+    justDismissed: false,
   };
 
   const svgEls = createMemo(() => {

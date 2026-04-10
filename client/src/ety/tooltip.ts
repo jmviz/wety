@@ -99,6 +99,7 @@ export interface TooltipRefs {
   el: HTMLDivElement | undefined;
   showTimeout: number | null;
   hideTimeout: number | null;
+  justDismissed: boolean;
 }
 
 export function hideTooltip(

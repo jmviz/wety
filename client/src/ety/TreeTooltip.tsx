@@ -121,9 +121,10 @@ export default function TreeTooltip(props: TreeTooltipProps) {
               <Show when={props.positionKind() === PositionKind.Fixed}>
                 <button
                   class="close-button"
-                  onClick={() =>
-                    hideTooltip(props.tooltipRefs, props.setShowTooltip)
-                  }
+                  onClick={() => {
+                    props.tooltipRefs.justDismissed = true;
+                    hideTooltip(props.tooltipRefs, props.setShowTooltip);
+                  }}
                 >
                   x
                 </button>
