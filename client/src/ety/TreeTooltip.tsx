@@ -123,6 +123,9 @@ export default function TreeTooltip(props: TreeTooltipProps) {
                   class="close-button"
                   onClick={() => {
                     props.tooltipRefs.justDismissed = true;
+                    window.setTimeout(() => {
+                      props.tooltipRefs.justDismissed = false;
+                    }, 300);
                     hideTooltip(props.tooltipRefs, props.setShowTooltip);
                   }}
                 >
