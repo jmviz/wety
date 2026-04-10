@@ -40,6 +40,7 @@ export default function EtymologyTree(props: EtymologyTreeProps) {
     el: undefined,
     showTimeout: null,
     hideTimeout: null,
+    justDismissed: false,
   };
 
   createEffect(() => {
