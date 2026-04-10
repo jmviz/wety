@@ -61,6 +61,19 @@ export function debounce<T extends (...args: any[]) => any>(
   }) as unknown as T;
 }
 
+// Find an item by ID within an InterLangDescendants tree
+function findItemById(
+  nodes: InterLangDescendants[],
+  itemId: number
+): Item | null {
+  for (const node of nodes) {
+    if (node.item.id === itemId) return node.item;
+    const found = findItemById(node.children, itemId);
+    if (found) return found;
+  }
+  return null;
+}
+
 // Collect all langs from a tree (for resolving descLang IDs to names)
 function collectLangsFromEtymology(node: Etymology, out: Map<number, Lang>) {
   out.set(node.item.lang.id, node.item.lang);
@@ -131,7 +144,10 @@ export async function loadFromPath(path: string) {
     const rootItem =
       parsed.kind === TreeKind.Etymology
         ? (cached as Etymology).item
-        : (cached as InterLangDescendants[])[0]?.item ?? dummyItem();
+        : parsed.kind === TreeKind.Cognates
+          ? (findItemById(cached as InterLangDescendants[], parsed.itemId) ??
+            dummyItem())
+          : (cached as InterLangDescendants[])[0]?.item ?? dummyItem();
     const descLangs = resolveDescLangs(parsed.descLangIds, cached, parsed.kind);
     batch(() => {
       setTree(cached);
@@ -168,7 +184,8 @@ export async function loadFromPath(path: string) {
           interLangDescendants(t)
         );
         rootItem =
-          (treeResult as InterLangDescendants[])[0]?.item ?? dummyItem();
+          findItemById(treeResult as InterLangDescendants[], parsed.itemId) ??
+          dummyItem();
         break;
       }
     }
