@@ -61,6 +61,19 @@ export function debounce<T extends (...args: any[]) => any>(
   }) as unknown as T;
 }
 
+// Find an item by ID within an InterLangDescendants tree
+function findItemById(
+  nodes: InterLangDescendants[],
+  itemId: number
+): Item | null {
+  for (const node of nodes) {
+    if (node.item.id === itemId) return node.item;
+    const found = findItemById(node.children, itemId);
+    if (found) return found;
+  }
+  return null;
+}
+
 // Collect all langs from a tree (for resolving descLang IDs to names)
 function collectLangsFromEtymology(node: Etymology, out: Map<number, Lang>) {
   out.set(node.item.lang.id, node.item.lang);
@@ -98,12 +111,12 @@ function resolveDescLangs(
 
 // Apply search field state from loaded tree data (only fills empty fields)
 function applySearchState(
-  rootItem: Item,
+  itemFromResult: Item,
   descLangs: Lang[],
   kind: TreeKind
 ) {
-  if (!selectedLang()) setSelectedLang(rootItem.lang);
-  if (!selectedItem()) setSelectedItem(rootItem);
+  if (!selectedLang()) setSelectedLang(itemFromResult.lang);
+  if (!selectedItem()) setSelectedItem(itemFromResult);
   if (selectedDescLangs().length === 0) setSelectedDescLangs(descLangs);
   setSelectedTreeKind(kind);
 }
@@ -128,17 +141,20 @@ export async function loadFromPath(path: string) {
 
   const cached = treeCache.get(path);
   if (cached) {
-    const rootItem =
+    const itemFromResult =
       parsed.kind === TreeKind.Etymology
         ? (cached as Etymology).item
-        : (cached as InterLangDescendants[])[0]?.item ?? dummyItem();
+        : parsed.kind === TreeKind.Cognates
+          ? (findItemById(cached as InterLangDescendants[], parsed.itemId) ??
+            dummyItem())
+          : (cached as InterLangDescendants[])[0]?.item ?? dummyItem();
     const descLangs = resolveDescLangs(parsed.descLangIds, cached, parsed.kind);
     batch(() => {
       setTree(cached);
       setLastRequest(
-        new TreeRequest(rootItem.lang, rootItem, descLangs, parsed.kind)
+        new TreeRequest(itemFromResult.lang, itemFromResult, descLangs, parsed.kind)
       );
-      applySearchState(rootItem, descLangs, parsed.kind);
+      applySearchState(itemFromResult, descLangs, parsed.kind);
     });
     return;
   }
@@ -150,25 +166,26 @@ export async function loadFromPath(path: string) {
     const data = await response.json();
 
     let treeResult: Etymology | InterLangDescendants[];
-    let rootItem: Item;
+    let itemFromResult: Item;
 
     switch (parsed.kind) {
       case TreeKind.Etymology: {
         treeResult = data as Etymology;
-        rootItem = (treeResult as Etymology).item;
+        itemFromResult = (treeResult as Etymology).item;
         break;
       }
       case TreeKind.Descendants: {
         treeResult = [interLangDescendants(data as Descendants)];
-        rootItem = (treeResult as InterLangDescendants[])[0].item;
+        itemFromResult = (treeResult as InterLangDescendants[])[0].item;
         break;
       }
       case TreeKind.Cognates: {
         treeResult = (data as Descendants[]).map((t) =>
           interLangDescendants(t)
         );
-        rootItem =
-          (treeResult as InterLangDescendants[])[0]?.item ?? dummyItem();
+        itemFromResult =
+          findItemById(treeResult as InterLangDescendants[], parsed.itemId) ??
+          dummyItem();
         break;
       }
     }
@@ -182,9 +199,9 @@ export async function loadFromPath(path: string) {
     batch(() => {
       setTree(treeResult);
       setLastRequest(
-        new TreeRequest(rootItem.lang, rootItem, descLangs, parsed.kind)
+        new TreeRequest(itemFromResult.lang, itemFromResult, descLangs, parsed.kind)
       );
-      applySearchState(rootItem, descLangs, parsed.kind);
+      applySearchState(itemFromResult, descLangs, parsed.kind);
     });
   } catch (error) {
     console.log(error);
