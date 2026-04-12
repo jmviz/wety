@@ -107,13 +107,7 @@ export default function LangSearch(props: LangSearchProps) {
           ref={props.setInputRef}
           placeholder="Language..."
           value={selectedLang()?.name ?? ""}
-          onMouseDown={(e) => {
-            if (document.activeElement !== e.currentTarget) {
-              e.preventDefault();
-              e.currentTarget.focus();
-            }
-          }}
-          onFocus={(e) => e.currentTarget.select()}
+          onFocus={(e) => { const el = e.currentTarget; setTimeout(() => el.select(), 0); }}
         />
       </Combobox.Control>
       <Combobox.Positioner>
