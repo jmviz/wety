@@ -1,4 +1,4 @@
-# [wety](https://www.wety.org/)
+# [wety](https://www.wety.org/) · [GitHub](https://github.com/jmviz/wety)
 
 (w)iktionary (ety)mologies. `processor` uses [`wiktextract`](https://github.com/tatuylonen/wiktextract) data to generate an etymological graph of all words on wiktionary. `server` serves the data. `client` is the frontend.
 
