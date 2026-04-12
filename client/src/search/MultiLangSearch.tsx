@@ -90,7 +90,13 @@ export default function MultiLangSearch(props: MultiLangSearchProps) {
         <Combobox.Input
           ref={props.setInputRef}
           placeholder="Language(s)..."
-          onFocus={(e) => { const el = e.currentTarget; setTimeout(() => el.select(), 0); }}
+          onMouseDown={(e) => {
+            if (document.activeElement !== e.currentTarget) {
+              e.preventDefault();
+              e.currentTarget.focus();
+            }
+          }}
+          onFocus={(e) => e.currentTarget.select()}
         />
       </Combobox.Control>
       <Combobox.Positioner>
