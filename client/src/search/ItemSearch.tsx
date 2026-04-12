@@ -86,7 +86,7 @@ export default function ItemSearch(props: ItemSearchProps) {
           ref={props.setInputRef}
           placeholder="Term..."
           value={selectedItem() ? term(selectedItem()!) : ""}
-          onFocus={(e) => { const el = e.currentTarget; setTimeout(() => el.select(), 0); }}
+          onFocus={(e) => e.currentTarget.select()}
         />
       </Combobox.Control>
       <Combobox.Positioner>

@@ -107,7 +107,7 @@ export default function LangSearch(props: LangSearchProps) {
           ref={props.setInputRef}
           placeholder="Language..."
           value={selectedLang()?.name ?? ""}
-          onFocus={(e) => { const el = e.currentTarget; setTimeout(() => el.select(), 0); }}
+          onFocus={(e) => e.currentTarget.select()}
         />
       </Combobox.Control>
       <Combobox.Positioner>
