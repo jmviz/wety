@@ -90,7 +90,6 @@ export default function MultiLangSearch(props: MultiLangSearchProps) {
         <Combobox.Input
           ref={props.setInputRef}
           placeholder="Language(s)..."
-          onFocus={(e) => e.currentTarget.select()}
         />
       </Combobox.Control>
       <Combobox.Positioner>
