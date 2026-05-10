@@ -6,7 +6,7 @@
   --line-vert-thickness: 2px;
   --line-horiz-thickness: 2px;
   --line-color: rgb(55, 43, 39);
-  --node-radius: 10px;
+  --node-size: 10px; /* radius if circle, half side length if rect */
   --node-color: rgb(55, 43, 39);
   --node-opacity: 1;
 
@@ -49,12 +49,12 @@ included in that site's `site.css` as a rule on `*, ::before, ::after`) */
   display: block;
   position: relative;
   padding-left: calc(
-    2 * var(--spacing) - var(--node-radius) - var(--line-vert-thickness)
+    2 * var(--spacing) - var(--node-size) - var(--line-vert-thickness)
   );
 }
 
 .tree ul {
-  margin-left: calc(var(--node-radius) - var(--spacing));
+  margin-left: calc(var(--node-size) - var(--spacing));
   padding-left: 0;
 }
 
@@ -102,13 +102,13 @@ included in that site's `site.css` as a rule on `*, ::before, ::after`) */
   content: "";
   display: block;
   position: absolute;
-  top: calc(var(--spacing) / 2 - var(--node-radius));
+  top: calc(var(--spacing) / 2 - var(--node-size));
   left: calc(
-    var(--spacing) - var(--node-radius) - var(--line-vert-thickness) / 2
+    var(--spacing) - var(--node-size) - var(--line-vert-thickness) / 2
   );
-  width: calc(2 * var(--node-radius));
-  height: calc(2 * var(--node-radius));
-  border-radius: 50%;
+  width: calc(2 * var(--node-size));
+  height: calc(2 * var(--node-size));
+  /* border-radius: 50%; */
   background: var(--node-color);
   opacity: var(--node-opacity);
 }
@@ -120,23 +120,23 @@ included in that site's `site.css` as a rule on `*, ::before, ::after`) */
 }
 
 .tree details[open] > summary::before {
-  background-position: calc(-2 * var(--node-radius)) 0;
+  background-position: calc(-2 * var(--node-size)) 0;
 }
 
 .lang {
-  font-size: 0.8em;
+  /* font-size: 0.8em; */
   color: var(--lang-color);
 }
 
 .term {
-  /* font-weight: bold; */
+  font-weight: bold;
   /* color: #202122; */
   color: rgb(46, 31, 34);
   /* font-style: italic; */
 }
 
 .romanization {
-  font-size: 0.8em;
+  /* font-size: 0.8em; */
   /* color: #202122; */
   color: rgb(46, 31, 34);
 }
