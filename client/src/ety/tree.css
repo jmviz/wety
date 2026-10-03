@@ -1,0 +1,432 @@
+/* Shared tree typography ------------------------------------------------- */
+
+.tree-view {
+  --indent: 1.6em;
+  --indent-same: 1.05em;
+  --row-h: 1.5em;
+  --caret-w: 1em;
+  --line: 1px;
+
+  padding: 0 1rem;
+  width: 100%;
+}
+
+@media (max-width: 600px) {
+  .tree-view {
+    --indent: 1.25em;
+    --indent-same: 0.85em;
+    padding: 0 0.5rem;
+  }
+
+  .tree .badge-langs {
+    display: none;
+  }
+}
+
+.tree-view .lang {
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.03em;
+  color: var(--lang-color, var(--ink));
+}
+
+.tree-view .term {
+  font-weight: bold;
+}
+
+.tree-view .romanization {
+  color: var(--muted);
+}
+
+.tree-view .romanization::before {
+  content: "(";
+}
+.tree-view .romanization::after {
+  content: ")";
+}
+
+.tree-view .label {
+  all: unset;
+  cursor: pointer;
+  border-radius: 0.25em;
+  padding: 0 0.15em;
+  margin: 0 -0.15em;
+}
+
+.tree-view .label:hover .term,
+.tree-view .label.popover-anchor .term {
+  text-decoration: underline dotted var(--faint);
+  text-underline-offset: 0.18em;
+}
+
+.tree-view .label:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 1px;
+}
+
+.tree-view .mode {
+  color: var(--muted);
+  font-size: 0.82em;
+  font-style: italic;
+  white-space: nowrap;
+}
+
+.tree-view .mode::before {
+  content: "· ";
+  font-style: normal;
+  color: var(--faint);
+}
+
+.tree-view .mode .lang {
+  font-style: normal;
+}
+
+.tree-view .gloss {
+  display: inline-block;
+  vertical-align: baseline;
+  max-width: min(34em, 60vw);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--muted);
+  font-size: 0.85em;
+}
+
+.tree-view .gloss::before {
+  content: "— ";
+  color: var(--faint);
+}
+
+/* Toolbar --------------------------------------------------------------- */
+
+.tree-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4em 1em;
+  font-size: 0.85rem;
+  color: var(--muted);
+  padding: 0.2rem 0 0.9rem;
+}
+
+.tree-toolbar .tree-stats {
+  margin-right: auto;
+}
+
+.tree-toolbar button,
+.tree-toolbar select {
+  all: unset;
+  cursor: pointer;
+  color: var(--ink);
+  border-bottom: 1px dotted var(--faint);
+}
+
+.tree-toolbar button:hover,
+.tree-toolbar select:hover {
+  border-bottom-color: var(--ink);
+}
+
+.tree-toolbar button:focus-visible,
+.tree-toolbar select:focus-visible,
+.tree-toolbar input:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.tree-toolbar label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  cursor: pointer;
+}
+
+.tree-toolbar select {
+  max-width: 12em;
+}
+
+/* Outline (descendants / cognates) -------------------------------------- */
+
+.outline {
+  overflow-x: auto;
+}
+
+.tree,
+.tree ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.tree ul > li.node {
+  padding-left: var(--indent);
+}
+
+.tree li.node.same-lang {
+  --indent: var(--indent-same);
+}
+
+.tree li.node {
+  position: relative;
+}
+
+/* Off-screen subtrees are skipped by layout and paint; the size hint keeps
+   the scrollbar honest before they are first rendered. */
+.tree li.node.branch {
+  content-visibility: auto;
+  contain-intrinsic-size: auto calc(var(--rows, 1) * var(--row-h));
+}
+
+/* Connectors. The vertical rule runs down the group at the parent caret's
+   centre; each row gets a stub from it to its own caret. */
+.tree ul > li.node::before {
+  content: "";
+  position: absolute;
+  left: calc(var(--caret-w) / 2);
+  top: 0;
+  bottom: 0;
+  border-left: var(--line) solid var(--rule);
+}
+
+.tree ul > li.node:last-child::before {
+  bottom: auto;
+  height: calc(var(--row-h) / 2 + 0.05em);
+}
+
+.tree ul > li.node::after {
+  content: "";
+  position: absolute;
+  left: calc(var(--caret-w) / 2);
+  top: calc(var(--row-h) / 2 + 0.05em);
+  width: calc(var(--indent) - 0.2em);
+  border-top: var(--line) solid
+    color-mix(in srgb, var(--lang-color) 55%, var(--paper));
+}
+
+.tree ul > li.node.same-lang::after {
+  border-top-style: dotted;
+}
+
+.tree ul > li.node.hoisted::after {
+  border-top-style: dashed;
+}
+
+.tree details > summary {
+  list-style: none;
+  cursor: pointer;
+}
+
+.tree details > summary::-webkit-details-marker {
+  display: none;
+}
+
+.tree details > summary:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: -2px;
+  border-radius: 0.25em;
+}
+
+.tree .row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 0.4em;
+  min-height: var(--row-h);
+  padding: 0.05em 0;
+  padding-right: 0.5em;
+  position: relative;
+  z-index: 1;
+}
+
+.tree .caret {
+  flex: 0 0 var(--caret-w);
+  width: var(--caret-w);
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  align-self: center;
+  color: var(--muted);
+  font-size: 0.8em;
+  user-select: none;
+}
+
+.tree .branch > details > summary .caret::before {
+  content: "";
+  display: block;
+  width: 0;
+  height: 0;
+  border-left: 0.42em solid currentColor;
+  border-top: 0.32em solid transparent;
+  border-bottom: 0.32em solid transparent;
+  transition: transform 120ms ease;
+}
+
+.tree .branch > details[open] > summary .caret::before {
+  transform: rotate(90deg);
+}
+
+.tree .leaf .caret::before {
+  content: "";
+  display: block;
+  width: 0.32em;
+  height: 0.32em;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--lang-color) 55%, var(--paper));
+}
+
+/* Always in the DOM (toggling 1,000+ of them is measurable in Firefox); shown
+   only while the branch is closed. */
+.tree details[open] > summary .badge {
+  display: none;
+}
+
+.tree .badge {
+  font-size: 0.75em;
+  color: var(--muted);
+  background: #f3f0ea;
+  border-radius: 1em;
+  padding: 0 0.6em;
+  line-height: 1.6;
+  white-space: nowrap;
+  max-width: 24em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tree .badge-langs {
+  color: var(--faint);
+}
+
+.tree li.node.selected > details > summary,
+.tree li.node.selected > .row {
+  background: var(--highlight);
+  border-radius: 0.3em;
+}
+
+.tree li.node.on-path > details > summary .caret {
+  color: var(--ink);
+}
+
+/* Chart (etymology) ------------------------------------------------------ */
+
+.chart-scroll {
+  overflow-x: auto;
+  padding: 1.5em 0 1em;
+}
+
+.chart,
+.chart ul {
+  --gap: 1.3em;
+  --hgap: 0.5em;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  width: max-content;
+  min-width: 100%;
+}
+
+.chart ul {
+  position: relative;
+  padding-top: var(--gap);
+}
+
+.chart ul::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  height: var(--gap);
+  border-left: var(--line) solid var(--rule);
+}
+
+.chart li {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--gap) var(--hgap) 0;
+}
+
+.chart li::before,
+.chart li::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 50%;
+  width: 50%;
+  height: var(--gap);
+  border-top: var(--line) solid var(--rule);
+}
+
+.chart li::after {
+  right: auto;
+  left: 50%;
+  border-left: var(--line) solid var(--rule);
+}
+
+.chart li:only-child::before,
+.chart li:only-child::after {
+  display: none;
+}
+
+.chart li:only-child {
+  padding-top: 0;
+}
+
+.chart li:first-child::before,
+.chart li:last-child::after {
+  border: 0 none;
+}
+
+.chart li:last-child::before {
+  border-right: var(--line) solid var(--rule);
+  border-radius: 0 0.4em 0 0;
+}
+
+.chart li:first-child::after {
+  border-radius: 0.4em 0 0 0;
+}
+
+.chart > li {
+  padding-top: 0;
+}
+
+.chart > li::before,
+.chart > li::after {
+  display: none;
+}
+
+.chart-box {
+  border: var(--line) solid color-mix(in srgb, var(--lang-color) 40%, var(--paper));
+  border-radius: 0.4em;
+  background: var(--paper);
+  padding: 0.3em 0.7em 0.35em;
+  text-align: center;
+  max-width: 14em;
+}
+
+.chart li.selected > .chart-box {
+  background: var(--highlight);
+  border-color: color-mix(in srgb, var(--lang-color) 70%, var(--paper));
+}
+
+.chart-box .label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.3;
+}
+
+.chart-box .lang {
+  font-size: 0.85em;
+}
+
+.chart-mode {
+  font-size: 0.78em;
+  font-style: italic;
+  color: var(--muted);
+  line-height: 1;
+  padding-top: 0.35em;
+  min-height: 0.3em;
+}

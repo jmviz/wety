@@ -12,7 +12,9 @@ export interface Item {
   reconstructed: boolean;
   url: string | null;
   pos: string[] | null;
-  gloss: string[] | null;
+  // `undefined` when the tree was requested with `lean=true`; fetch lazily
+  // from `/item/:id` in that case.
+  gloss?: string[] | null;
   romanization: string | null;
 }
 
@@ -37,25 +39,8 @@ export interface OtherParent {
 export interface Descendants {
   item: Item;
   children: Descendants[];
-  langDistance: number;
-  etyMode: string | null;
-  otherParents: OtherParent[];
-  parentEtyOrder: number | null;
-}
-
-export interface AncestralLine {
-  item: Item;
-  ancestralLine: AncestralLine | null;
-  langDistance: number;
-  etyMode: string | null;
-  otherParents: OtherParent[];
-  etyOrder: number | null;
-}
-
-export interface InterLangDescendants {
-  item: Item;
-  parent: AncestralLine | null;
-  children: InterLangDescendants[];
+  // Sent by newer servers; the client fills it in when absent.
+  descendantCount?: number;
   langDistance: number;
   etyMode: string | null;
   otherParents: OtherParent[];

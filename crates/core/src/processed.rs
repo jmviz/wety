@@ -127,8 +127,14 @@ impl Data {
         self.graph.graph.contains_node(item)
     }
 
+    /// Full item payload, as served at `/item/:id`.
     #[must_use]
     pub fn item_json(&self, item_id: ItemId) -> ItemJson<'_> {
+        self.item_json_inner(item_id, false)
+    }
+
+    /// `lean` omits the glosses, by far the largest part of a node's payload.
+    fn item_json_inner(&self, item_id: ItemId, lean: bool) -> ItemJson<'_> {
         let item = self.item(item_id);
         ItemJson {
             id: item_id,
@@ -139,14 +145,16 @@ impl Data {
             reconstructed: item.is_reconstructed(),
             url: item.url(&self.string_pool),
             pos: item.pos().map(|pos| pos.iter().map(|p| p.name()).collect()),
-            gloss: item.gloss().map(|glosses| {
-                glosses
-                    .iter()
-                    .map(|gloss| GlossStr {
-                        gloss,
-                        string_pool: &self.string_pool,
-                    })
-                    .collect()
+            gloss: (!lean).then(|| {
+                item.gloss().map(|glosses| {
+                    glosses
+                        .iter()
+                        .map(|gloss| GlossStr {
+                            gloss,
+                            string_pool: &self.string_pool,
+                        })
+                        .collect()
+                })
             }),
             romanization: item.romanization().map(|r| r.resolve(&self.string_pool)),
         }
@@ -159,12 +167,14 @@ impl Data {
         dist_lang: Lang,
         desc_langs: &[Lang],
         req_item_ancestors_within_desc_langs: &[ItemId],
+        lean: bool,
     ) -> DescendantsJson<'_> {
         self.item_descendants_json_inner(
             item_id,
             dist_lang,
             desc_langs,
             req_item_ancestors_within_desc_langs,
+            lean,
             None,
             None,
         )
@@ -176,13 +186,14 @@ impl Data {
         dist_lang: Lang,
         desc_langs: &[Lang],
         req_item_ancestors_within_desc_langs: &[ItemId],
+        lean: bool,
         item_parent_id: Option<ItemId>,
         item_parent_ety_order: Option<u8>,
     ) -> DescendantsJson<'_> {
         let item = self.item(item_id);
         let item_lang = item.lang();
 
-        let children = self
+        let children: Vec<DescendantsJson<'_>> = self
             .graph
             .child_edges(item_id)
             .filter(|e| {
@@ -200,11 +211,13 @@ impl Data {
                     dist_lang,
                     desc_langs,
                     req_item_ancestors_within_desc_langs,
+                    lean,
                     Some(item_id),
                     Some(e.order()),
                 )
             })
             .collect();
+        let descendant_count = children.iter().map(|c| 1 + c.descendant_count).sum();
 
         let mut ety_mode = None;
         let other_parents = self
@@ -215,15 +228,16 @@ impl Data {
             })
             .filter(|&e| item_parent_id != Some(e.parent()))
             .map(|e| OtherParentJson {
-                item: self.item_json(e.parent()),
+                item: self.item_json_inner(e.parent(), lean),
                 ety_order: e.order(),
                 lang_distance: self.item(e.parent()).lang().distance_from(dist_lang),
             })
             .collect();
 
         DescendantsJson {
-            item: self.item_json(item_id),
+            item: self.item_json_inner(item_id, lean),
             children,
+            descendant_count,
             lang_distance: item_lang.distance_from(dist_lang),
             ety_mode: ety_mode.map(|m| m.as_str()),
             other_parents,
@@ -238,6 +252,7 @@ impl Data {
         dist_lang: Lang,
         desc_langs: &[Lang],
         req_item_ancestors_within_desc_langs: &[ItemId],
+        lean: bool,
     ) -> CognatesJson<'_> {
         self.progenitors
             .get(&item_id)
@@ -251,6 +266,7 @@ impl Data {
                             dist_lang,
                             desc_langs,
                             req_item_ancestors_within_desc_langs,
+                            lean,
                         )
                     })
                     .collect()

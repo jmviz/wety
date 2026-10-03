@@ -1,0 +1,134 @@
+/* The search box: a Lindisfarne-dotted frame around a language chip and a
+   term. The frame is a border-image drawn outside the form (outset), so the
+   wrapper reserves that room. */
+
+.search {
+  position: relative;
+  width: clamp(13rem, 38vw, 20rem);
+  margin: 2.6rem auto 2.4rem;
+  text-align: left;
+}
+
+@media (max-width: 600px) {
+  .search {
+    width: calc(100vw - 6.5rem);
+  }
+}
+
+.search-form {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45em;
+  height: 1.5em;
+  margin: 0;
+  cursor: text;
+  border-image-source: url("./lindisfarne-border.svg");
+  border-image-slice: 19;
+  border-image-width: 30px;
+  border-image-repeat: round;
+  border-image-outset: 36px 42px;
+}
+
+.search-form .chip {
+  cursor: pointer;
+  color: var(--muted);
+  flex: none;
+  padding: 0 0.15em;
+  margin-left: -0.15em;
+  border-radius: 0.2em;
+}
+
+.search-form .chip:hover,
+.search.editing-lang .search-form .chip {
+  color: var(--ink);
+  background: var(--wash);
+}
+
+.search.editing-lang .search-form .chip {
+  text-decoration: underline dotted var(--faint);
+  text-underline-offset: 0.2em;
+}
+
+.search-input {
+  flex: 1 1 auto;
+  min-width: 3em;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  font: inherit;
+  color: var(--ink);
+  height: 100%;
+}
+
+.search-menu {
+  top: calc(100% + 2.55rem);
+  left: 50%;
+  transform: translateX(-50%);
+  width: max(100%, min(30rem, calc(100vw - 2rem)));
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.search-menu li {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35em;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.search-menu .lang {
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.03em;
+  color: var(--muted);
+  flex: none;
+}
+
+.search-menu .term {
+  font-weight: bold;
+  flex: none;
+}
+
+.search-menu .romanization {
+  color: var(--muted);
+  flex: none;
+}
+
+.search-menu .romanization::before {
+  content: "(";
+}
+.search-menu .romanization::after {
+  content: ")";
+}
+
+.search-menu .gloss {
+  color: var(--muted);
+  font-size: 0.85em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-left: 0.3em;
+}
+
+.search-menu .gloss i {
+  color: var(--faint);
+}
+
+.search-menu .hint {
+  color: var(--faint);
+  font-size: 0.8em;
+  font-style: italic;
+  margin-left: auto;
+  padding-left: 1em;
+}
+
+.search-menu li.group-start {
+  border-top: 1px dotted var(--rule);
+  margin-top: 0.3em;
+  padding-top: 0.45em;
+}
+
+.search-menu .opt-lang .lang {
+  color: var(--ink);
+}

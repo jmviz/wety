@@ -1,0 +1,204 @@
+/* Word details popover. Uses the Popover API for the top layer and CSS anchor
+   positioning where available (JS places it otherwise); on coarse pointers it
+   becomes a bottom sheet. */
+
+.node-popover {
+  display: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid #d8d1c6;
+  border-radius: 0.5em;
+  background: #fff;
+  color: #2b2622;
+  box-shadow: 0 8px 28px rgba(40, 30, 20, 0.16);
+  font-family: var(--serif);
+  font-size: 0.95rem;
+  line-height: 1.45;
+  width: max-content;
+  max-width: min(30em, calc(100vw - 2em));
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+
+.node-popover:popover-open {
+  display: block;
+}
+
+.node-popover[data-open] {
+  display: block;
+  position: fixed;
+  z-index: 9000;
+}
+
+.node-popover[data-mode="float"] {
+  position: fixed;
+  inset: auto;
+  margin: 0.3em 0;
+  position-anchor: --wety-node;
+  position-area: block-start span-inline-end;
+  position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
+}
+
+.node-popover[data-mode="sheet"] {
+  position: fixed;
+  inset: auto 0 0 0;
+  width: auto;
+  max-width: none;
+  max-height: 70vh;
+  overflow-y: auto;
+  border-radius: 0.8em 0.8em 0 0;
+  border-bottom: 0;
+  padding-bottom: env(safe-area-inset-bottom);
+  font-size: 1rem;
+}
+
+.node-popover[data-mode="sheet"]::backdrop {
+  background: rgba(0, 0, 0, 0.15);
+}
+
+@starting-style {
+  .node-popover:popover-open {
+    opacity: 0;
+  }
+}
+
+.node-popover {
+  transition: opacity 90ms ease;
+}
+
+.popover-body {
+  position: relative;
+  padding: 0.6em 0.9em 0.7em;
+}
+
+.popover-close {
+  all: unset;
+  position: absolute;
+  top: 0.2em;
+  right: 0.45em;
+  cursor: pointer;
+  color: #b3aba1;
+  font-size: 1.3em;
+  line-height: 1;
+  padding: 0.1em 0.2em;
+}
+
+.popover-close:hover {
+  color: #2b2622;
+}
+
+.popover-lang {
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.04em;
+  font-size: 1.05em;
+}
+
+.popover-term {
+  font-size: 1.2em;
+  line-height: 1.25;
+  margin-bottom: 0.3em;
+}
+
+.popover-term .term {
+  font-weight: bold;
+}
+
+.popover-term .romanization {
+  color: #7d746a;
+  font-size: 0.85em;
+}
+
+.popover-term .romanization::before {
+  content: "(";
+}
+.popover-term .romanization::after {
+  content: ")";
+}
+
+.popover-term .imputed {
+  font-size: 0.7em;
+  font-style: italic;
+  color: #7d746a;
+  vertical-align: 0.15em;
+}
+
+.popover-glosses {
+  margin: 0.2em 0 0.4em;
+  padding-left: 1.4em;
+  font-size: 0.92em;
+}
+
+.popover-glosses li {
+  margin: 0.1em 0;
+}
+
+.popover-glosses .pos {
+  font-style: italic;
+  color: #7d746a;
+}
+
+.popover-ety {
+  font-size: 0.92em;
+  margin: 0.3em 0;
+  padding: 0.35em 0.6em;
+  background: #f7f4ee;
+  border-radius: 0.35em;
+}
+
+.popover-ety .ety-mode {
+  font-style: italic;
+}
+
+.popover-ety .ety-prep {
+  color: #7d746a;
+}
+
+.popover-ety .ety-lang {
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.03em;
+}
+
+.popover-ety .ety-term {
+  font-weight: bold;
+}
+
+.popover-ety .ety-plus {
+  color: #7d746a;
+}
+
+.popover-muted {
+  color: #7d746a;
+  font-size: 0.85em;
+}
+
+.popover-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2em 1em;
+  margin-top: 0.55em;
+  font-size: 0.9em;
+}
+
+.popover-actions button,
+.popover-actions a {
+  all: unset;
+  cursor: pointer;
+  color: var(--accent);
+  border-bottom: 1px dotted var(--faint);
+}
+
+.popover-actions button:hover,
+.popover-actions a:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+
+.popover-actions button:focus-visible,
+.popover-actions a:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.popover-actions a {
+  margin-left: auto;
+}

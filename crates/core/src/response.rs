@@ -48,7 +48,10 @@ pub struct ItemJson<'a> {
     pub reconstructed: bool,
     pub url: Option<String>,
     pub pos: Option<Vec<&'static str>>,
-    pub gloss: Option<Vec<GlossStr<'a>>>,
+    /// Outer `None` omits the field (lean trees; the client fetches the item
+    /// lazily); `Some(None)` is an item without glosses.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub gloss: Option<Option<Vec<GlossStr<'a>>>>,
     pub romanization: Option<&'a str>,
 }
 
@@ -65,6 +68,9 @@ pub struct OtherParentJson<'a> {
 pub struct DescendantsJson<'a> {
     pub item: ItemJson<'a>,
     pub children: Vec<DescendantsJson<'a>>,
+    /// Nodes strictly below this one in the returned (filtered) tree, so the
+    /// client can size collapsed subtrees without walking them.
+    pub descendant_count: u64,
     pub lang_distance: Option<usize>,
     pub ety_mode: Option<&'static str>,
     pub other_parents: Vec<OtherParentJson<'a>>,

@@ -4,13 +4,10 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@ark-ui/solid": "^5.0.0",
     "@tanstack/solid-router": "^1.120.0",
-    "d3": "^7.8.5",
     "solid-js": "^1.9.0"
   },
   "devDependencies": {
-    "@types/d3": "^7.4.0",
     "sass": "^1.80.0",
     "typescript": "^5.5.0",
     "vite": "^6.0.0",

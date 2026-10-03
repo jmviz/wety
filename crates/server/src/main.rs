@@ -1,6 +1,6 @@
 use server::{
-    AppState, Environment, item_cognates, item_descendants, item_etymology, item_search_matches,
-    lang_search_matches,
+    AppState, Environment, item, item_cognates, item_descendants, item_etymology,
+    item_search_matches, lang, lang_search_matches,
 };
 
 use std::{env, net::SocketAddr, path::Path, str::FromStr, sync::Arc};
@@ -55,6 +55,8 @@ async fn main() -> Result<()> {
     let app = Router::new()
         .route("/search/lang", get(lang_search_matches))
         .route("/search/item/:lang", get(item_search_matches))
+        .route("/item/:item", get(item))
+        .route("/lang/:lang", get(lang))
         .route("/cognates/:item", get(item_cognates))
         .route("/etymology/:item", get(item_etymology))
         .route("/descendants/:item", get(item_descendants))

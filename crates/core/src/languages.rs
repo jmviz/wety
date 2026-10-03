@@ -169,6 +169,12 @@ impl Lang {
         LANGUAGES.data(self)
     }
 
+    /// Whether this id names a language in the compiled table.
+    #[must_use]
+    pub fn exists(self) -> bool {
+        usize::from(self.id()) < LANGUAGES.data.len()
+    }
+
     #[must_use]
     pub fn code(self) -> &'static str {
         self.data().code

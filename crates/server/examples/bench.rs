@@ -174,7 +174,7 @@ fn main() {
             })
         });
         println!("cognates walk+filter only: {t_walk:?} ({walked} nodes)");
-        let (t_build, cog) = best(3, || data.item_cognates_json(item, lang, &desc_langs, &anc));
+        let (t_build, cog) = best(3, || data.item_cognates_json(item, lang, &desc_langs, &anc, false));
         let (t_ser, bytes) = best(3, || serde_json::to_vec(&cog).unwrap());
         let cog: Value = serde_json::from_slice(&bytes).unwrap();
         let nodes = count_nodes(&cog);
@@ -184,7 +184,7 @@ fn main() {
         );
         println!("serde_json::to_vec: {t_ser:?} ({} bytes)", bytes.len());
         let (t_both, _) = best(3, || {
-            serde_json::to_vec(&data.item_cognates_json(item, lang, &desc_langs, &anc)).unwrap()
+            serde_json::to_vec(&data.item_cognates_json(item, lang, &desc_langs, &anc, false)).unwrap()
         });
         println!("build + serialize (what a cache miss costs): {t_both:?}");
         for q in [11, 6, 4, 2] {
@@ -197,7 +197,7 @@ fn main() {
         }
 
         let (t_d, desc) = best(3, || {
-            serde_json::to_vec(&data.item_descendants_json(item, lang, &desc_langs, &anc)).unwrap()
+            serde_json::to_vec(&data.item_descendants_json(item, lang, &desc_langs, &anc, false)).unwrap()
         });
         println!(
             "descendants build + serialize: {t_d:?} ({} nodes, {} bytes)",

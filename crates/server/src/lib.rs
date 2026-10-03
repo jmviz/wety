@@ -44,11 +44,13 @@ pub enum TreeKey {
         dist_lang: Lang,
         /// sorted and deduplicated, so equivalent queries share an entry
         desc_langs: Vec<Lang>,
+        lean: bool,
     },
     Cognates {
         item: ItemId,
         dist_lang: Lang,
         desc_langs: Vec<Lang>,
+        lean: bool,
     },
 }
 
@@ -94,24 +96,26 @@ impl AppState {
                 item,
                 dist_lang,
                 desc_langs,
+                lean,
             } => {
                 let ancestors = self.data.ancestors_in_langs(*item, desc_langs);
                 serde_json::to_vec(
                     &self
                         .data
-                        .item_descendants_json(*item, *dist_lang, desc_langs, &ancestors),
+                        .item_descendants_json(*item, *dist_lang, desc_langs, &ancestors, *lean),
                 )?
             }
             TreeKey::Cognates {
                 item,
                 dist_lang,
                 desc_langs,
+                lean,
             } => {
                 let ancestors = self.data.ancestors_in_langs(*item, desc_langs);
                 serde_json::to_vec(
                     &self
                         .data
-                        .item_cognates_json(*item, *dist_lang, desc_langs, &ancestors),
+                        .item_cognates_json(*item, *dist_lang, desc_langs, &ancestors, *lean),
                 )?
             }
         };
@@ -175,6 +179,20 @@ pub async fn item_search_matches(
     Json(matches)
 }
 
+pub async fn lang(Path(lang): Path<Lang>) -> Response {
+    if !lang.exists() {
+        return StatusCode::NOT_FOUND.into_response();
+    }
+    Json(lang.json()).into_response()
+}
+
+pub async fn item(State(state): State<Arc<AppState>>, Path(item_id): Path<ItemId>) -> Response {
+    if !state.data.has_item(item_id) {
+        return StatusCode::NOT_FOUND.into_response();
+    }
+    Json(state.data.item_json(item_id)).into_response()
+}
+
 pub async fn item_etymology(
     State(state): State<Arc<AppState>>,
     Path(item_id): Path<ItemId>,
@@ -191,15 +209,19 @@ pub struct TreeQueries {
     desc_langs: Vec<Lang>,
     #[serde(rename = "distLang")]
     dist_lang: Option<Lang>,
+    /// Omit glosses from every node (they dominate payload size); fetch them
+    /// on demand from `/item/:id` instead.
+    #[serde(default)]
+    lean: bool,
 }
 
 impl TreeQueries {
-    /// `(dist_lang, desc_langs)` in canonical form for `TreeKey`.
-    fn canonical(mut self, data: &Data, item_id: ItemId) -> (Lang, Vec<Lang>) {
+    /// `(dist_lang, desc_langs, lean)` in canonical form for `TreeKey`.
+    fn canonical(mut self, data: &Data, item_id: ItemId) -> (Lang, Vec<Lang>, bool) {
         let dist_lang = self.dist_lang.unwrap_or(data.lang(item_id));
         self.desc_langs.sort_unstable_by_key(|l| l.id());
         self.desc_langs.dedup();
-        (dist_lang, self.desc_langs)
+        (dist_lang, self.desc_langs, self.lean)
     }
 }
 
@@ -211,13 +233,14 @@ pub async fn item_descendants(
     if !state.data.has_item(item_id) {
         return StatusCode::NOT_FOUND.into_response();
     }
-    let (dist_lang, desc_langs) = tree_queries.canonical(&state.data, item_id);
+    let (dist_lang, desc_langs, lean) = tree_queries.canonical(&state.data, item_id);
     tree_response(
         state,
         TreeKey::Descendants {
             item: item_id,
             dist_lang,
             desc_langs,
+            lean,
         },
     )
     .await
@@ -231,13 +254,14 @@ pub async fn item_cognates(
     if !state.data.has_item(item_id) {
         return StatusCode::NOT_FOUND.into_response();
     }
-    let (dist_lang, desc_langs) = tree_queries.canonical(&state.data, item_id);
+    let (dist_lang, desc_langs, lean) = tree_queries.canonical(&state.data, item_id);
     tree_response(
         state,
         TreeKey::Cognates {
             item: item_id,
             dist_lang,
             desc_langs,
+            lean,
         },
     )
     .await
