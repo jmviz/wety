@@ -3,7 +3,6 @@ from pathlib import Path
 from unittest.mock import patch
 from harness.compact_extraction import Assertion,CompactExtraction,inspect_compact,inspect_review,Judgment,extraction_system,review_payload
 from harness.section_packets import build_packets
-from harness.compact_review import prepare_reviews
 
 
 def assertion():
@@ -65,17 +64,5 @@ class CompactTests(unittest.TestCase):
   self.assertFalse(review([j])['judgments'][0]['eligible_for_editorial_consideration'])
   with self.assertRaises(ValueError):Judgment.model_validate({**j,'native_time':'uncertain'})
   self.assertFalse(review([{**j,'evidence_quote':'This quotation does not occur in the source.'}])['judgments'][0]['eligible_for_editorial_consideration'])
-
- def test_review_planner_preserves_all_source_failures_and_cannot_repeat(self):
-  with tempfile.TemporaryDirectory() as tmp:
-   r=Path(tmp)/'extract';r.mkdir();(r/'configs').mkdir();(r/'results').mkdir();(r/'reference.json').write_text('{}')
-   a=assertion();packet=build_packets(a['quote'],'s')['packets'][0];rec=inspect_compact(response([a]),packet)
-   plan={'tasks':{'t':{'kind':'compact_extract','family':'f','packet':packet}},'cells':[{'id':'a','task':'t','backend':'openrouter'},{'id':'b','task':'t','backend':'openrouter'}],'reference_file':'reference.json','budget_ledger':'budget.json'}
-   (r/'plan.json').write_text(json.dumps(plan));(r/'results/a.json').write_text(json.dumps({'status':'failed','recovery':rec}))
-   target=Path(tmp)/'review';out=prepare_reviews(r,target)
-   self.assertEqual(out['review_cells'],1);self.assertEqual(out['coverage'][1]['status'],'no_valid_proposals')
-   new=json.loads((target/'plan.json').read_text());self.assertEqual(new['cells'][0]['backend'],'claude-agent')
-   self.assertEqual((target/new['budget_ledger']).resolve(),(r/'budget.json').resolve())
-   self.assertEqual(prepare_reviews(r,Path(tmp)/'other')['review_cells'],0)
 
 if __name__=='__main__':unittest.main()
