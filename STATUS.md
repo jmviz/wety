@@ -27,35 +27,34 @@ in the `packages/dating` registry.
 
 - Pilot: one Astra run checked 20 codes in 1,017 s; review corrected 6 items. See the
   [run README](data/workspaces/dating/_research/period-pilot-2026-10-03/README.md).
-- Research caps removed: searches, acquisitions and tool actions are uncapped
-  (`null`); the time budget bounds runs. The model-turn cap is now 400; the OpenRouter
-  cost stop stays.
-- Research tools gained `find`: matching lines with exact offsets plus the table
-  header. The pilot spent 183 reads paging one CSV.
-- `harness.cli gc` (dry run by default) retires old generations. It keeps the
-  current one, the two most recent, and any named by a tracked file.
+- Research caps removed (time budget bounds runs; 400 model turns; OpenRouter cost
+  stop kept). Research tools gained `find` (matching lines with exact offsets).
+- Decisions bind to their subject's claims, sources and catalog record plus
+  `DECISION_RULES`, not the whole harness fingerprint (`harness.cli decision-digest`).
+  A later republish with new IE-CoR inputs left all 11 decisions valid.
+- Catalog: 19 reviewed scope relations from the pilot (`ang enm gmh goh sga grc got
+  akk hit och ltc ojp`). A code may hold several reviewed decisions; a scope relation
+  (narrower/broader) keeps the catalog lookup. Catalog and IE-CoR matches rebuilt.
+- `harness.cli gc` applied: 48 dating generations (2.1 GB) reduced to 5 (240 MB):
+  current, two most recent, and two named by tracked records. Removal log is in
+  `data/archive/dating/gc/`.
 
 ## Uncertainties
 
 - Most adopted sources are catalogs, not handbooks: the four handbooks were unreadable.
-- No usable period: `goh non got cu akk sa ojp ine-pro sla-pro`.
-- The `enm`/`ltc` mapping overrides live only in the claims' subjects. The catalog
-  layer has no reviewed scope relation for them, so the next run would redo them.
-- Every harness edit makes all decisions stale; they were re-recorded once today.
+- No usable period: `goh non got cu akk sa ojp ine-pro sla-pro`. The pilot left the
+  scope of `cu sa la non` unresolved; no catalog relation was recorded for them.
+- The review-to-packet step (registering sources, building claims) was a one-off
+  script in a scratchpad; the packet records its output, not the procedure.
 
 ## Next three actions
 
 1. PDF/handbook access route: a separate session (handoff written). Then retry the 9
    missing codes from this branch.
-2. Record the pilot's scope judgments as reviewed catalog relations (`equivalent`,
-   `source_narrower`) for `enm ltc goh cu sa ojp sga`. This needs a catalog rebuild.
-3. If approved, bind decisions to their evidence and a semantic rule version instead
-   of the whole harness fingerprint.
+2. Turn the review-to-packet integration into a harness command, so a reviewed run
+   imports reproducibly (`assertions.jsonl` + `review.json` -> packet).
+3. Resolve the scope of `cu sa la non` during the retry and record it in the catalog.
 
 ## Decisions needed from the maintainer
 
-- `gc --apply`: the dry run removes 33 of 43 generations (1.66 GB), keeping 10
-  (0.49 GB). Seven of the ten are kept only because the reorganization inventory
-  (`data/registry/migrations/`) lists them. Should that inventory count as a
-  reference?
-- Approve action 3 (fingerprint narrowing).
+- None open. Merging `dating-pilot` into `main` waits for the maintainer (it deploys).
