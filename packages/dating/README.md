@@ -71,14 +71,25 @@ the subject's evidence or catalog mapping does.
 New family research uses the [single frontier researcher](docs/single-frontier.md): one
 continuing, tool-enabled model session that discovers, retrieves, interprets and writes
 proposals, followed by a self-audit. Its output is a proposal dossier under
-`data/workspaces/dating/_research/`. Proposals enter the registry only through import:
+`data/workspaces/dating/_research/`. Proposals enter the registry only through import.
+A reviewer writes `<run>/coordinator-review/review.json`: a status and any corrections
+for every assertion, registry metadata for each source, and the editorial defaults to
+adopt (format in `harness/research_packet.py`; example: the
+[period pilot](../../data/workspaces/dating/_research/period-pilot-2026-10-03/README.md)).
+Then:
 
 ```sh
-uv run --frozen python -m harness.cli import-evidence reviewed-claims.json
-uv run --frozen python -m harness.cli decide reviewed-decision.json
+uv run --frozen python -m harness.cli build-packet RUN RUN/coordinator-review/review.json
+uv run --frozen python -m harness.cli import-evidence data/workspaces/dating/_research/packets/ID/claims.json
+uv run --frozen python -m harness.cli synthesize
+uv run --frozen python -m harness.cli adopt RUN/coordinator-review/review.json
 uv run --frozen python -m harness.cli synthesize
 uv run --frozen python -m harness.cli validate
+uv run --frozen python -m harness.cli export-periods
 ```
+
+`build-packet` registers the run's sources with their parsed-text hashes and copies
+the texts to the retrieved-text store. `decide FILE` records a single decision by hand.
 
 An import conforms to `schemas/claim.schema.json` and passes Pydantic and cross-record
 checks. Changed evidence needs a new ID referencing the previous assertion. A decision

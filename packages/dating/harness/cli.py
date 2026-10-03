@@ -14,6 +14,8 @@ dating validate                              check current generation, provenanc
 dating export-periods [--out PATH]           display periods from adopted decisions -> language_periods.json
 dating gc [--keep-recent N] [--apply]        retire old generations (dry run unless --apply)
 dating decision-digest SUBJECT               evidence digest a decision on SUBJECT (e.g. wikt:ang) must name
+dating build-packet RUN REVIEW               reviewed research run -> packet, registered sources and texts
+dating adopt REVIEW                          record the review's editorial defaults (after import + synthesize)
 dating report
 """
 
@@ -209,6 +211,19 @@ def cmd_decision_digest(args) -> None:
     print(bundle_decision_digest(build_bundle(), args.subject))
 
 
+def cmd_build_packet(args) -> None:
+    from .research_packet import build, write
+
+    review = json.loads(open(args.review).read())
+    print(json.dumps(write(build(args.run, review)), indent=2))
+
+
+def cmd_adopt(args) -> None:
+    from .research_packet import adopt
+
+    print(json.dumps(adopt(json.loads(open(args.review).read())), indent=2))
+
+
 def cmd_report(args) -> None:
     from .registry import current_bundle, report
 
@@ -289,6 +304,13 @@ def main() -> None:
     p = sub.add_parser("decision-digest")
     p.add_argument("subject")
     p.set_defaults(fn=cmd_decision_digest)
+    p = sub.add_parser("build-packet")
+    p.add_argument("run")
+    p.add_argument("review")
+    p.set_defaults(fn=cmd_build_packet)
+    p = sub.add_parser("adopt")
+    p.add_argument("review")
+    p.set_defaults(fn=cmd_adopt)
     p = sub.add_parser("report")
     p.set_defaults(fn=cmd_report)
     p = sub.add_parser("benchmark")
@@ -325,6 +347,8 @@ def main() -> None:
         "import-evidence",
         "decide",
         "gc",
+        "build-packet",
+        "adopt",
     }:
         with locked(DATA_DIR + "/_pipeline"):
             args.fn(args)

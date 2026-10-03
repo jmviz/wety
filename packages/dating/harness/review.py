@@ -64,9 +64,13 @@ def import_evidence(path):
 
 
 def decide(path):
-    bundle = build_bundle()
+    return decide_record(json.loads(Path(path).read_text()))
+
+
+def decide_record(raw, bundle=None):
+    bundle = bundle or build_bundle()
     by_id = {c["id"]: c for c in bundle["claims"]}
-    decision = Decision.model_validate(json.loads(Path(path).read_text()))
+    decision = Decision.model_validate(raw)
     if not decision.reviewer.strip() or not decision.rationale.strip():
         raise ValueError("reviewer and rationale required")
     c = by_id.get(decision.claim_id)
