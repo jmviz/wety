@@ -1,9 +1,5 @@
 use crate::{
-    ety_graph::ItemIndex,
-    gloss::Gloss,
-    langterm::Term,
-    languages::Lang,
-    pos::Pos,
+    ety_graph::ItemIndex, gloss::Gloss, langterm::Term, languages::Lang, pos::Pos,
     string_pool::StringPool,
 };
 

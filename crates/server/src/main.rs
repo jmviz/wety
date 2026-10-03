@@ -11,7 +11,7 @@ use axum_server::tls_rustls::RustlsConfig;
 use tower::ServiceBuilder;
 use tower_governor::{GovernorLayer, errors::display_error};
 use tower_http::{
-    compression::CompressionLayer,
+    compression::{CompressionLayer, CompressionLevel},
     cors::{AllowOrigin, CorsLayer},
     trace::TraceLayer,
 };
@@ -68,7 +68,8 @@ async fn main() -> Result<()> {
                 .layer(GovernorLayer {
                     config: Box::leak(Box::default()),
                 })
-                .layer(CompressionLayer::new())
+                // the default brotli quality (11) was a significant bottleneck on large trees
+                .layer(CompressionLayer::new().quality(CompressionLevel::Precise(4)))
                 .layer(
                     CorsLayer::new()
                         .allow_methods([Method::GET])
@@ -76,7 +77,8 @@ async fn main() -> Result<()> {
                 ),
         );
 
-    let addr = SocketAddr::from_str("0.0.0.0:3000")?;
+    let port = env::var("WETY_PORT").unwrap_or_else(|_| "3000".to_string());
+    let addr = SocketAddr::from_str(&format!("0.0.0.0:{port}"))?;
     println!("Running wety server at http://{addr}...");
 
     match environment {

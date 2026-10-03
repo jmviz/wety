@@ -1,5 +1,6 @@
 #![allow(clippy::redundant_closure_for_method_calls)]
 
+pub mod descendant_langs;
 pub mod ety_graph;
 pub mod etymology_templates;
 pub mod gloss;
@@ -9,6 +10,7 @@ pub mod languages;
 pub mod pos;
 mod pos_phf;
 pub mod processed;
+pub mod response;
 pub mod string_pool;
 
 pub use items::ItemId;

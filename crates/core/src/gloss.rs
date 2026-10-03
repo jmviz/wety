@@ -17,11 +17,14 @@ impl Gloss {
         Self { symbols }
     }
 
-    #[must_use]
-    pub fn to_string(&self, string_pool: &StringPool) -> String {
+    pub fn words<'a>(&'a self, string_pool: &'a StringPool) -> impl Iterator<Item = &'a str> + 'a {
         self.symbols
             .iter()
             .map(|&symbol| string_pool.resolve(symbol))
-            .join(" ")
+    }
+
+    #[must_use]
+    pub fn to_string(&self, string_pool: &StringPool) -> String {
+        self.words(string_pool).join(" ")
     }
 }

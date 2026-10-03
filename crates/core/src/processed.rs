@@ -1,14 +1,16 @@
 use crate::{
-    HashMap, HashSet,
+    HashMap,
+    descendant_langs::DescendantLangs,
     ety_graph::{EtyEdgeAccess, EtyGraph, Progenitors},
     items::{Item, ItemId},
     languages::Lang,
+    response::{CognatesJson, DescendantsJson, EtymologyJson, GlossStr, ItemJson, OtherParentJson},
     string_pool::StringPool,
 };
 
 use std::{
     fs::File,
-    io::{BufReader, BufWriter, Read, Write},
+    io::{BufReader, BufWriter, Write},
     path::Path,
     time::Instant,
 };
@@ -16,6 +18,7 @@ use std::{
 use anyhow::{Ok, Result};
 use flate2::{Compression, read::GzDecoder, write::GzEncoder};
 use itertools::Itertools;
+use memmap2::Mmap;
 use ngrammatic::{Corpus, CorpusBuilder, Pad};
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
@@ -28,7 +31,7 @@ pub struct Data {
     pub string_pool: StringPool,
     pub graph: EtyGraph,
     pub progenitors: HashMap<ItemId, Progenitors>,
-    pub descendant_langs: HashMap<ItemId, HashSet<Lang>>,
+    pub descendant_langs: DescendantLangs,
 }
 
 impl Data {
@@ -103,33 +106,50 @@ impl Data {
         let t = Instant::now();
         println!("Deserializing processed data {}...", path.display());
         let file = File::open(path)?;
-        let reader = BufReader::new(file);
         let is_gz_compressed = path.extension().is_some_and(|ext| ext == "gz");
-        let uncompressed: Box<dyn Read> = if is_gz_compressed {
-            Box::new(GzDecoder::new(reader))
+        let data: Self = if is_gz_compressed {
+            serde_json::from_reader(GzDecoder::new(BufReader::new(file)))?
         } else {
-            Box::new(reader)
+            // SAFETY: `Mmap::map` is only unsound if the file is modified while
+            // mapped; the processed data file is written once by `processor`
+            // and only read here.
+            let mmap = unsafe { Mmap::map(&file)? };
+            mmap.advise(memmap2::Advice::Sequential)?;
+            serde_json::from_slice(&mmap)?
         };
-        let data: Self = serde_json::from_reader(uncompressed)?;
         validate_reference_fingerprint(data.reference_fingerprint.as_deref(), allow_legacy)?;
         println!("Finished. Took {:#?}.", t.elapsed());
         Ok(data)
     }
 
-    fn item_json(&self, item_id: ItemId) -> Value {
+    #[must_use]
+    pub fn has_item(&self, item: ItemId) -> bool {
+        self.graph.graph.contains_node(item)
+    }
+
+    #[must_use]
+    pub fn item_json(&self, item_id: ItemId) -> ItemJson<'_> {
         let item = self.item(item_id);
-        json!({
-            "id": item_id,
-            "etyNum": item.ety_num(),
-            "lang": item.lang().json(),
-            "term": item.term().resolve(&self.string_pool),
-            "imputed": item.is_imputed(),
-            "reconstructed": item.is_reconstructed(),
-            "url": item.url(&self.string_pool),
-            "pos": item.pos().as_ref().map(|pos| pos.iter().map(|p| p.name()).collect_vec()),
-            "gloss": item.gloss().as_ref().map(|gloss| gloss.iter().map(|g| g.to_string(&self.string_pool)).collect_vec()),
-            "romanization": item.romanization().map(|r| r.resolve(&self.string_pool)),
-        })
+        ItemJson {
+            id: item_id,
+            ety_num: item.ety_num(),
+            lang: item.lang().info(),
+            term: item.term().resolve(&self.string_pool),
+            imputed: item.is_imputed(),
+            reconstructed: item.is_reconstructed(),
+            url: item.url(&self.string_pool),
+            pos: item.pos().map(|pos| pos.iter().map(|p| p.name()).collect()),
+            gloss: item.gloss().map(|glosses| {
+                glosses
+                    .iter()
+                    .map(|gloss| GlossStr {
+                        gloss,
+                        string_pool: &self.string_pool,
+                    })
+                    .collect()
+            }),
+            romanization: item.romanization().map(|r| r.resolve(&self.string_pool)),
+        }
     }
 
     #[must_use]
@@ -139,7 +159,7 @@ impl Data {
         dist_lang: Lang,
         desc_langs: &[Lang],
         req_item_ancestors_within_desc_langs: &[ItemId],
-    ) -> Value {
+    ) -> DescendantsJson<'_> {
         self.item_descendants_json_inner(
             item_id,
             dist_lang,
@@ -158,7 +178,7 @@ impl Data {
         req_item_ancestors_within_desc_langs: &[ItemId],
         item_parent_id: Option<ItemId>,
         item_parent_ety_order: Option<u8>,
-    ) -> Value {
+    ) -> DescendantsJson<'_> {
         let item = self.item(item_id);
         let item_lang = item.lang();
 
@@ -170,11 +190,9 @@ impl Data {
                 let child_lang = self.item(child).lang();
                 req_item_ancestors_within_desc_langs.contains(&item_id)
                     || (desc_langs.contains(&child_lang) && child_lang != item_lang)
-                    || self.descendant_langs.get(&child).is_some_and(|cdl| {
-                        desc_langs
-                            .iter()
-                            .any(|dl| dl != &item_lang && cdl.contains(dl))
-                    })
+                    || desc_langs
+                        .iter()
+                        .any(|&dl| dl != item_lang && self.descendant_langs.contains(child, dl))
             })
             .map(|e| {
                 self.item_descendants_json_inner(
@@ -186,7 +204,7 @@ impl Data {
                     Some(e.order()),
                 )
             })
-            .collect_vec();
+            .collect();
 
         let mut ety_mode = None;
         let other_parents = self
@@ -196,23 +214,21 @@ impl Data {
                 ety_mode = Some(e.mode());
             })
             .filter(|&e| item_parent_id != Some(e.parent()))
-            .map(|e| {
-                json!({
-                    "item": self.item_json(e.parent()),
-                    "etyOrder": e.order(),
-                    "langDistance": self.item(e.parent()).lang().distance_from(dist_lang),
-                })
+            .map(|e| OtherParentJson {
+                item: self.item_json(e.parent()),
+                ety_order: e.order(),
+                lang_distance: self.item(e.parent()).lang().distance_from(dist_lang),
             })
-            .collect_vec();
+            .collect();
 
-        json!({
-            "item": self.item_json(item_id),
-            "children": children,
-            "langDistance": item_lang.distance_from(dist_lang),
-            "etyMode": ety_mode.map(|m| m.as_str()),
-            "otherParents": other_parents,
-            "parentEtyOrder": item_parent_ety_order,
-        })
+        DescendantsJson {
+            item: self.item_json(item_id),
+            children,
+            lang_distance: item_lang.distance_from(dist_lang),
+            ety_mode: ety_mode.map(|m| m.as_str()),
+            other_parents,
+            parent_ety_order: item_parent_ety_order,
+        }
     }
 
     #[must_use]
@@ -222,26 +238,23 @@ impl Data {
         dist_lang: Lang,
         desc_langs: &[Lang],
         req_item_ancestors_within_desc_langs: &[ItemId],
-    ) -> Value {
-        self.progenitors.get(&item_id).map_or_else(
-            || json!([]),
-            |progenitors| {
-                json!(
-                    progenitors
-                        .items
-                        .iter()
-                        .map(|&p| {
-                            self.item_descendants_json(
-                                p,
-                                dist_lang,
-                                desc_langs,
-                                req_item_ancestors_within_desc_langs,
-                            )
-                        })
-                        .collect_vec()
-                )
-            },
-        )
+    ) -> CognatesJson<'_> {
+        self.progenitors
+            .get(&item_id)
+            .map_or_else(Vec::new, |progenitors| {
+                progenitors
+                    .items
+                    .iter()
+                    .map(|&p| {
+                        self.item_descendants_json(
+                            p,
+                            dist_lang,
+                            desc_langs,
+                            req_item_ancestors_within_desc_langs,
+                        )
+                    })
+                    .collect()
+            })
     }
 
     #[must_use]
@@ -250,7 +263,7 @@ impl Data {
         item_id: ItemId,
         item_ety_order: u8,
         req_lang: Lang,
-    ) -> Value {
+    ) -> EtymologyJson<'_> {
         let mut ety_mode = None;
         let parents = self
             .graph
@@ -259,15 +272,15 @@ impl Data {
                 ety_mode = Some(e.mode());
                 self.item_etymology_json(e.parent(), e.order(), req_lang)
             })
-            .collect_vec();
+            .collect();
 
-        json!({
-            "item": self.item_json(item_id),
-            "etyMode": ety_mode.map(|m| m.as_str()),
-            "etyOrder": item_ety_order,
-            "parents": parents,
-            "langDistance": self.item(item_id).lang().distance_from(req_lang),
-        })
+        EtymologyJson {
+            item: self.item_json(item_id),
+            ety_mode: ety_mode.map(|m| m.as_str()),
+            ety_order: item_ety_order,
+            parents,
+            lang_distance: self.item(item_id).lang().distance_from(req_lang),
+        }
     }
 }
 

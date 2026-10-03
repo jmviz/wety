@@ -14,7 +14,7 @@ and toolchain version with a deployment release.
 
 For the application's existing TLS mode, set `WETY_ENVIRONMENT=production`,
 `WETY_CERT_PATH`, and `WETY_KEY_PATH`. Certificates, domain routing, firewall policy
-and process supervision are deployment-specific. The service binds port 3000.
+and process supervision are deployment-specific. The service binds port 3000 unless `WETY_PORT` is set.
 The client is built/deployed separately from `client/`.
 
 The previous Oracle/PyTorch instructions are in git history

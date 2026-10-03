@@ -2,7 +2,7 @@
 
 #![allow(clippy::all)]
 
-use phf::{phf_ordered_set, OrderedSet};
+use phf::{OrderedSet, phf_ordered_set};
 
 pub(crate) static POS: OrderedSet<&'static str> = phf_ordered_set! {
     "counter",

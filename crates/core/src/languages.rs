@@ -2,11 +2,11 @@ use crate::HashMap;
 
 use std::{collections::BTreeMap, str::FromStr};
 
-use anyhow::{anyhow, Ok, Result};
+use anyhow::{Ok, Result, anyhow};
 use std::sync::LazyLock;
 
 use serde::{Deserialize, Serialize};
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
 #[derive(Hash, Eq, PartialEq, Debug, Copy, Clone, Serialize, Deserialize, Default)]
 #[serde(rename_all = "kebab-case")]
@@ -242,9 +242,13 @@ impl Lang {
 
     #[must_use]
     pub fn json(self) -> Value {
-        json!({
-            "id": self.id(),
-            "name": self.name(),
-        })
+        json!(self.info())
     }
+}
+
+/// What the client sees for a lang (`Lang` in `search/types.ts`).
+#[derive(Serialize)]
+pub struct LangInfo {
+    pub id: LangId,
+    pub name: &'static str,
 }

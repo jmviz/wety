@@ -78,5 +78,5 @@ WETY_ALLOW_LEGACY_GRAPH=1 cargo run --locked --release --bin server
 ```
 
 This accepts unverified numeric IDs; it does not validate or rewrite that graph.
-The server listens on port 3000. See [client development](client/README.md) and
+The server listens on port 3000 (set `WETY_PORT` to change it). See [client development](client/README.md) and
 [server deployment](crates/server/deployment.md).

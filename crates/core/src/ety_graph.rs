@@ -1,5 +1,6 @@
 use crate::{
     HashMap, HashSet,
+    descendant_langs::DescendantLangs,
     etymology_templates::EtyMode,
     items::{Item, ItemId},
     languages::Lang,
@@ -338,12 +339,17 @@ impl EtyGraph {
     /// For each item, get all langs that have at least one item that is
     /// descended from that item.
     #[must_use]
-    pub fn all_descendant_langs(&self) -> HashMap<ItemId, HashSet<Lang>> {
-        let mut descendant_langs = HashMap::default();
-        for (item_id, _) in self.iter() {
-            descendant_langs.insert(item_id, self.descendant_langs(item_id));
-        }
-        descendant_langs
+    pub fn all_descendant_langs(&self) -> DescendantLangs {
+        DescendantLangs::new(
+            self.iter()
+                .map(|(item_id, _)| {
+                    (
+                        item_id,
+                        self.descendant_langs(item_id).into_iter().collect(),
+                    )
+                })
+                .collect(),
+        )
     }
 }
 
