@@ -445,6 +445,11 @@
   margin-left: 0;
 }
 
+/* A long period line widens the box; keep the name and term centred. */
+.chart-box:has(.period) .label {
+  margin-inline: auto;
+}
+
 .tree-view .period .basis {
   font-size: 0.85em;
   font-variant-caps: all-small-caps;

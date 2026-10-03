@@ -73,8 +73,23 @@ export function toggleDates() {
     });
 }
 
-export const periodCount = () => periods().size;
-
 export function periodOf(langId: number): LangPeriod | undefined {
   return showDates() ? periods().get(langId) : undefined;
+}
+
+// Registry locators are either prose ("PDF page 15") or the researcher's
+// structured locator as JSON; show the human part (page, row, section).
+export function formatLocator(locator: string | null): string | null {
+  if (!locator?.startsWith("{")) return locator;
+  try {
+    const l = JSON.parse(locator) as Record<string, unknown>;
+    const parts = [
+      l.page !== undefined && `p. ${l.page}`,
+      l.table_row !== undefined && `row ${l.table_row}`,
+      typeof l.section === "string" && l.section,
+    ].filter(Boolean);
+    return parts.length ? parts.join(", ") : null;
+  } catch {
+    return locator;
+  }
 }

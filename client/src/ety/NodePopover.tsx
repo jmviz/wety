@@ -3,7 +3,7 @@ import { Item, TreeKind, term } from "../search/types";
 import { EtySource, sourcesOf } from "./model";
 import { langColor } from "./langColor";
 import { etyModeRep, etyPrep } from "./etyMode";
-import { BASIS_NAME, LangPeriod, PeriodEvidence, periodOf } from "./periods";
+import { BASIS_NAME, LangPeriod, PeriodEvidence, formatLocator, periodOf } from "./periods";
 import {
   popover,
   popoverEnter,
@@ -255,7 +255,7 @@ function PeriodSection(props: { period: LangPeriod }) {
           {e.source}
         </a>
       </Show>
-      <Show when={e.locator}>, {e.locator}</Show>
+      <Show when={formatLocator(e.locator)}>{(l) => <>, {l()}</>}</Show>
       <Show when={e.quote}>
         <q class="period-quote">{e.quote}</q>
       </Show>
