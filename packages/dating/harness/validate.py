@@ -35,7 +35,7 @@ def validate_all():
                 "code": v["code"],
                 "name": v["name"],
                 "display_status": v["display_status"],
-                "chronology_json": json.dumps(v["chronology"], ensure_ascii=False),
+                "chronology_json": json.dumps(v["chronology"], ensure_ascii=False, sort_keys=True),
             }
             for v in bundle["view"].values()
         ]

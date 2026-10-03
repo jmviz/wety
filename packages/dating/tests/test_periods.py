@@ -145,6 +145,48 @@ class PeriodExportTests(unittest.TestCase):
         self.assertEqual((pie["kind"], pie["basis"]), ("proto", "estimated"))
         self.assertEqual(pie["evidence"][0]["source"], "A et al. 2001")
 
+    def test_separately_stated_endpoints_keep_eras_and_uncertainty(self):
+        raw = {
+            "form": "duration",
+            "start": {
+                "earliest": {"value": 500, "unit": "BCE"},
+                "latest": {"value": 400, "unit": "BCE"},
+            },
+            "end": {
+                "earliest": {"value": 300, "unit": "BCE"},
+                "latest": {"value": 1, "unit": "CE"},
+            },
+            "approximate": True,
+        }
+        time = normalize_time(raw)
+        self.assertEqual(
+            (time.lower, time.upper, time.normalization), (-499, 1, "program_verified")
+        )
+        claims = [claim("g", "gem-pro", "conventional_period", "hypothesis", raw)]
+        (gem,) = export_periods(bundle(claims, ["g"], {"gem-pro": "reconstructed"}), "gen")[
+            "languages"
+        ]
+        self.assertEqual(gem["spoken"]["start"], {"earliest": -499, "latest": -399})
+        self.assertEqual(gem["spoken"]["end"], {"earliest": -299, "latest": 1})
+        self.assertEqual(gem["label"], "c. 500/400 BCE – 300 BCE/1 CE")
+        mixed = {
+            "form": "duration",
+            "start": {"value": 1200, "unit": "BCE"},
+            "end": {"value": 400, "unit": "CE"},
+        }
+        claims = [claim("o", "och", "documentary_sampling", "observation", mixed)]
+        (och,) = export_periods(bundle(claims, ["o"]), "gen")["languages"]
+        self.assertEqual(och["label"], "1200 BCE – 400 CE")
+        self.assertEqual(och["basis"], "attested")
+        for bad in (
+            {"form": "duration", "unit": "CE", "start": {"value": 1, "unit": "CE"}},
+            {"form": "point", "start": {"value": 1, "unit": "CE"}},
+            {"form": "duration", "start": {"value": 1}},
+            {"form": "duration", "start": {"value": 0, "unit": "BCE"}},
+        ):
+            with self.assertRaises(ValueError):
+                normalize_time(bad)
+
     def test_open_endpoints_and_family_splits(self):
         self.assertEqual(label(None, (900, 900)), "until 900 CE")
         self.assertEqual(label((1500, 1500), None, ongoing=True), "1500 CE–present")

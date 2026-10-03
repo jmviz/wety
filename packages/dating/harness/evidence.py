@@ -310,8 +310,53 @@ def convert_number(value: float, unit: str, present: int | None = None) -> int:
     raise ValueError("unknown time unit: " + unit)
 
 
+def endpoint_bounds(raw: dict) -> tuple[tuple[int, int] | None, tuple[int, int] | None]:
+    """(earliest, latest) astronomical years for each endpoint of a period whose
+    endpoints are stated separately: a period spanning eras ("1250 BC – AD 220") or
+    with uncertain boundaries ("~500/400 – 300 BC/AD 1"). Each endpoint is
+    {value, unit} or {earliest: {value, unit}, latest: {value, unit}}."""
+    from .time_interpretation import PERIOD_UNITS, period_bounds
+
+    def point(p):
+        if p["unit"] in PERIOD_UNITS:
+            return period_bounds(p["value"], p["unit"])
+        year = convert_number(p["value"], p["unit"])
+        return year, year
+
+    def bounds(ep):
+        if ep is None:
+            return None
+        if set(ep) == {"value", "unit"}:
+            return point(ep)
+        if set(ep) == {"earliest", "latest"}:
+            lo, hi = point(ep["earliest"])[0], point(ep["latest"])[1]
+            if lo > hi:
+                raise ValueError("endpoint earliest is after latest")
+            return lo, hi
+        raise ValueError("endpoint requires {value, unit} or {earliest, latest}")
+
+    return bounds(raw.get("start")), bounds(raw.get("end"))
+
+
 def normalize_time(raw: dict) -> Temporal:
     """Normalize extracted/source-native quantities; never trust converted LLM years."""
+    if "start" in raw or "end" in raw:
+        if raw.get("form") != "duration" or any(
+            raw.get(k) is not None for k in ("unit", "value", "lower", "upper")
+        ):
+            raise ValueError("separately stated endpoints belong to a duration without unit/bounds")
+        start, end = endpoint_bounds(raw)
+        if start is None and end is None:
+            raise ValueError("empty range")
+        return Temporal(
+            form="duration",
+            lower=start[0] if start else None,
+            upper=end[1] if end else None,
+            ongoing=raw.get("ongoing", False),
+            precision=raw.get("precision", "unknown"),
+            original=raw,
+            normalization="program_verified",
+        )
     if raw.get("form") == "unknown":
         if any(raw.get(k) is not None for k in ("value", "mean", "median", "lower", "upper")):
             raise ValueError("unknown native time cannot contain numeric assertions")

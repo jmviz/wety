@@ -12,6 +12,7 @@ from pathlib import Path
 
 from workflow_tools.paths import DATING_PRODUCT
 
+from .evidence import endpoint_bounds
 from .time_interpretation import PERIOD_UNITS, period_bounds
 
 SCHEMA_VERSION = 1
@@ -46,6 +47,8 @@ def ranges(claim):
     if form == "bound":
         point = (t["value"], t["value"])
         return (None, point) if t["relation"] in ("before", "by") else (point, None)
+    if "start" in o or "end" in o:
+        return endpoint_bounds(o)
     if o.get("unit") in PERIOD_UNITS and o.get("lower") is not None and o.get("upper") is not None:
         a, b = sorted((period_bounds(o["lower"], o["unit"]), period_bounds(o["upper"], o["unit"])))
         return a, b

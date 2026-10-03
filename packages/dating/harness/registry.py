@@ -758,7 +758,7 @@ def publish():
                     e["code"],
                     e["name"],
                     e["display_status"],
-                    json.dumps(e["chronology"], ensure_ascii=False),
+                    json.dumps(e["chronology"], ensure_ascii=False, sort_keys=True),
                 ]
             )
         atomic_text(out / "wiktionary_dates.csv", buf.getvalue())

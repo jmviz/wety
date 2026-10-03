@@ -1,0 +1,444 @@
+{
+  "family_splits": [],
+  "generation": "e9dbe15c83f5696462ac30c12157acdda61e8868f434767539728bb584bacb73",
+  "languages": [
+    {
+      "alternatives": [
+        {
+          "basis": "conventional",
+          "citation": "English Wikipedia, 'Old English', retrieved 2026-10-03.",
+          "claim_id": "ev_period_39ce37204417fdc5d2a0a390b61159dc1d4a99de",
+          "end": {
+            "earliest": 1101,
+            "latest": 1200
+          },
+          "event": "conventional_period",
+          "label": "5th–12th century CE",
+          "locator": "{\"start\": 6243, \"end\": 6746, \"section\": \"language infobox, Era\"}",
+          "quote": "Old English\nEnglisċ\nÆnglisċ\nA detail of the first page of the \nBeowulf\n manuscript, showing the words \nofer hron rade\n, translated as \"over the whale's road (sea)\", an example of an Old English stylistic device, the \nkenning\n.\nPronunciation\n[\nˈeŋɡliʃ\n]\nRegion\nEngland\n (except Cornwall and the extreme north-west), southern and eastern \nScotland\n, and some localities in the eastern fringes of modern \nWales\nEthnicity\nAnglo-Saxons\nEra\n5th century\n–\n12th century\n; mostly developed into \nMiddle English\n.",
+          "role": "convention",
+          "source": "Wikipedia: Old English",
+          "start": {
+            "earliest": 401,
+            "latest": 500
+          },
+          "url": "https://en.wikipedia.org/wiki/Old_English"
+        },
+        {
+          "basis": "attested",
+          "citation": "Hammarström, H., Forkel, R., Haspelmath, M. & Bank, S. Glottolog CLDF data, repository tag v5.3, cldf/languages.csv (First_/Last_Year_Of_Documentation). The tag's metadata cites 'Glottolog 5.2.1' (2025); version discrepancy unresolved.",
+          "claim_id": "ev_period_95528c73f597c3a36d6a062cea809e6b0afc7ec4",
+          "end": {
+            "earliest": 1100,
+            "latest": 1100
+          },
+          "event": "documentary_sampling",
+          "label": "450–1100 CE",
+          "locator": "{\"start\": 1626624, \"end\": 1626733, \"table_row\": \"olde1238\", \"columns\": \"First_Year_Of_Documentation, Last_Year_Of_Documentation\", \"header_offsets\": {\"start\": 0, \"end\": 185}}",
+          "quote": "olde1238,Old English (ca. 450-1100),Eurasia,51.06,-1.31,olde1238,ang,language,GB,indo1319,,ang,450,1100,false",
+          "role": "observation",
+          "source": "Hammarström et al.",
+          "start": {
+            "earliest": 450,
+            "latest": 450
+          },
+          "url": "https://raw.githubusercontent.com/glottolog/glottolog-cldf/v5.3/cldf/languages.csv"
+        }
+      ],
+      "basis": "conventional",
+      "code": "ang",
+      "evidence": [
+        {
+          "citation": "SIL International (ISO 639-3 Registration Authority). ISO 639-3 code set, iso-639-3.tab (reference names), retrieved 2026-10-03.",
+          "claim_id": "ev_period_615a4d2ea21e35b6fb06cf87ae7a56dbd1855245",
+          "event": "conventional_period",
+          "locator": "{\"start\": 5941, \"end\": 5985, \"table_row\": \"ang\"}",
+          "quote": "ang\tang\tang\t\tI\tH\tOld English (ca. 450-1100)\t",
+          "role": "convention",
+          "source": "ISO 639-3 code tables",
+          "url": "https://iso639-3.sil.org/sites/iso639-3/files/downloads/iso-639-3.tab"
+        }
+      ],
+      "kind": "stage",
+      "label": "c. 450–1100 CE",
+      "name": "Old English",
+      "spoken": {
+        "end": {
+          "earliest": 1100,
+          "latest": 1100
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 450,
+          "latest": 450
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "cel-pro",
+      "evidence": [
+        {
+          "citation": "Koch, J. T. 2020. Celto-Germanic: Later Prehistory and Post-Proto-Indo-European Vocabulary in the North and West. Aberystwyth: University of Wales Centre for Advanced Welsh and Celtic Studies. ISBN 978-1-907029-32-5.",
+          "claim_id": "ev_period_84dd1deda209404ba22c9ad379f02feb8926ee95",
+          "event": "conventional_period",
+          "locator": "{\"start\": 179651, \"end\": 179865, \"page\": 46}",
+          "quote": "As explained above a coherent Proto-Celtic probably broke up at \nthe Iberian Bronze–Iron Transition ~900 BC (Koch 2016). Thus, the \nProto-Celtic stage coincided more-or-less with the Late Bronze Age, \n~1200–900 BC.",
+          "role": "hypothesis",
+          "source": "Koch 2020",
+          "url": "https://repository.uwtsd.ac.uk/id/eprint/1543/1/JK4.pdf"
+        }
+      ],
+      "kind": "proto",
+      "label": "c. 1200–900 BCE",
+      "name": "Proto-Celtic",
+      "spoken": {
+        "end": {
+          "earliest": -899,
+          "latest": -899
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": -1199,
+          "latest": -1199
+        }
+      }
+    },
+    {
+      "alternatives": [
+        {
+          "basis": "attested",
+          "citation": "Hammarström, H., Forkel, R., Haspelmath, M. & Bank, S. Glottolog CLDF data, repository tag v5.3, cldf/languages.csv (First_/Last_Year_Of_Documentation). The tag's metadata cites 'Glottolog 5.2.1' (2025); version discrepancy unresolved.",
+          "claim_id": "ev_period_1d2d8fbf0d787b8ae1ce17afc28d8e357b123f0b",
+          "end": {
+            "earliest": 1500,
+            "latest": 1500
+          },
+          "event": "documentary_sampling",
+          "label": "1100–1500 CE",
+          "locator": "{\"start\": 1993458, \"end\": 1993556, \"table_row\": \"midd1317\", \"columns\": \"First_Year_Of_Documentation, Last_Year_Of_Documentation\", \"header_offsets\": {\"start\": 0, \"end\": 185}}",
+          "quote": "midd1317,Middle English,Eurasia,51.65,-1.11,midd1317,enm,language,GB,indo1319,,enm,1100,1500,false",
+          "role": "observation",
+          "source": "Hammarström et al.",
+          "start": {
+            "earliest": 1100,
+            "latest": 1100
+          },
+          "url": "https://raw.githubusercontent.com/glottolog/glottolog-cldf/v5.3/cldf/languages.csv"
+        }
+      ],
+      "basis": "conventional",
+      "code": "enm",
+      "evidence": [
+        {
+          "citation": "SIL International (ISO 639-3 Registration Authority). ISO 639-3 code set, iso-639-3.tab (reference names), retrieved 2026-10-03.",
+          "claim_id": "ev_period_86c45a4c1694232341f776c2941f34bc80d88dbf",
+          "event": "conventional_period",
+          "locator": "{\"start\": 41146, \"end\": 41190, \"table_row\": \"enm\"}",
+          "quote": "enm\tenm\tenm\t\tI\tH\tMiddle English (1100-1500)\t",
+          "role": "convention",
+          "source": "ISO 639-3 code tables",
+          "url": "https://iso639-3.sil.org/sites/iso639-3/files/downloads/iso-639-3.tab"
+        }
+      ],
+      "kind": "stage",
+      "label": "1100–1500 CE",
+      "name": "Middle English",
+      "spoken": {
+        "end": {
+          "earliest": 1500,
+          "latest": 1500
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 1100,
+          "latest": 1100
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "gem-pro",
+      "evidence": [
+        {
+          "citation": "Koch, J. T. 2020. Celto-Germanic: Later Prehistory and Post-Proto-Indo-European Vocabulary in the North and West. Aberystwyth: University of Wales Centre for Advanced Welsh and Celtic Studies. ISBN 978-1-907029-32-5.",
+          "claim_id": "ev_period_c5afa5d379b81b5bbee06c8c6a4fbd8cde2546b4",
+          "event": "conventional_period",
+          "locator": "{\"start\": 180214, \"end\": 180432, \"page\": 46}",
+          "quote": "Proto-Celtic and Proto-Germanic were not contemporary. Their \ndates probably did not even overlap. As explained above, Proto-\nGermanic is provisionally dated here to ~500/400–300 BC/AD 1 \nand Proto-Celtic ~1200–900 BC.",
+          "role": "hypothesis",
+          "source": "Koch 2020",
+          "url": "https://repository.uwtsd.ac.uk/id/eprint/1543/1/JK4.pdf"
+        }
+      ],
+      "kind": "proto",
+      "label": "c. 500/400 BCE – 300 BCE/1 CE",
+      "name": "Proto-Germanic",
+      "spoken": {
+        "end": {
+          "earliest": -299,
+          "latest": 1
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": -499,
+          "latest": -399
+        }
+      }
+    },
+    {
+      "alternatives": [
+        {
+          "basis": "attested",
+          "citation": "Hammarström, H., Forkel, R., Haspelmath, M. & Bank, S. Glottolog CLDF data, repository tag v5.3, cldf/languages.csv (First_/Last_Year_Of_Documentation). The tag's metadata cites 'Glottolog 5.2.1' (2025); version discrepancy unresolved.",
+          "claim_id": "ev_period_7ee8027e0e491bfd784e228432e5dc255f0fe7c6",
+          "end": {
+            "earliest": 1500,
+            "latest": 1500
+          },
+          "event": "documentary_sampling",
+          "label": "1050–1500 CE",
+          "locator": "{\"start\": 1625017, \"end\": 1625121, \"table_row\": \"midd1343\", \"columns\": \"First_Year_Of_Documentation, Last_Year_Of_Documentation\", \"header_offsets\": {\"start\": 0, \"end\": 185}}",
+          "quote": "midd1343,Middle High German,Eurasia,48.254,10.599,midd1343,gmh,language,DE,indo1319,,gmh,1050,1500,false",
+          "role": "observation",
+          "source": "Hammarström et al.",
+          "start": {
+            "earliest": 1050,
+            "latest": 1050
+          },
+          "url": "https://raw.githubusercontent.com/glottolog/glottolog-cldf/v5.3/cldf/languages.csv"
+        }
+      ],
+      "basis": "conventional",
+      "code": "gmh",
+      "evidence": [
+        {
+          "citation": "SIL International (ISO 639-3 Registration Authority). ISO 639-3 code set, iso-639-3.tab (reference names), retrieved 2026-10-03.",
+          "claim_id": "ev_period_7abb03ecb2b166c398f53e3b1a1b37b15bb54aa4",
+          "event": "conventional_period",
+          "locator": "{\"start\": 48579, \"end\": 48631, \"table_row\": \"gmh\"}",
+          "quote": "gmh\tgmh\tgmh\t\tI\tH\tMiddle High German (ca. 1050-1500)\t",
+          "role": "convention",
+          "source": "ISO 639-3 code tables",
+          "url": "https://iso639-3.sil.org/sites/iso639-3/files/downloads/iso-639-3.tab"
+        }
+      ],
+      "kind": "stage",
+      "label": "c. 1050–1500 CE",
+      "name": "Middle High German",
+      "spoken": {
+        "end": {
+          "earliest": 1500,
+          "latest": 1500
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 1050,
+          "latest": 1050
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "conventional",
+      "code": "grc",
+      "evidence": [
+        {
+          "citation": "SIL International (ISO 639-3 Registration Authority). ISO 639-3 code set, iso-639-3.tab (reference names), retrieved 2026-10-03.",
+          "claim_id": "ev_period_342562e516935dd46e7499fa0d0884cb81b34bc0",
+          "event": "conventional_period",
+          "locator": "{\"start\": 50025, \"end\": 50066, \"table_row\": \"grc\"}",
+          "quote": "grc\tgrc\tgrc\t\tI\tH\tAncient Greek (to 1453)\t",
+          "role": "convention",
+          "source": "ISO 639-3 code tables",
+          "url": "https://iso639-3.sil.org/sites/iso639-3/files/downloads/iso-639-3.tab"
+        }
+      ],
+      "kind": "stage",
+      "label": "until 1453 CE",
+      "name": "Ancient Greek",
+      "spoken": {
+        "end": {
+          "earliest": 1453,
+          "latest": 1453
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "attested",
+      "code": "hit",
+      "evidence": [
+        {
+          "citation": "Hammarström, H., Forkel, R., Haspelmath, M. & Bank, S. Glottolog CLDF data, repository tag v5.3, cldf/languages.csv (First_/Last_Year_Of_Documentation). The tag's metadata cites 'Glottolog 5.2.1' (2025); version discrepancy unresolved.",
+          "claim_id": "ev_period_565c22c4893903805be923f93f8da8eb598d85f7",
+          "event": "documentary_sampling",
+          "locator": "{\"start\": 270482, \"end\": 270573, \"table_row\": \"hitt1242\", \"columns\": \"First_Year_Of_Documentation, Last_Year_Of_Documentation\", \"header_offsets\": {\"start\": 0, \"end\": 185}}",
+          "quote": "hitt1242,Hittite,Eurasia,40.0,35.0,hitt1242,hit,language,TR,indo1319,,hit,-1650,-1180,false",
+          "role": "observation",
+          "source": "Hammarström et al.",
+          "url": "https://raw.githubusercontent.com/glottolog/glottolog-cldf/v5.3/cldf/languages.csv"
+        }
+      ],
+      "kind": "attested",
+      "label": "1650–1180 BCE",
+      "name": "Hittite",
+      "spoken": {
+        "end": {
+          "earliest": -1179,
+          "latest": -1179
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": -1649,
+          "latest": -1649
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "attested",
+      "code": "la",
+      "evidence": [
+        {
+          "citation": "Koch, J. T. 2020. Celto-Germanic: Later Prehistory and Post-Proto-Indo-European Vocabulary in the North and West. Aberystwyth: University of Wales Centre for Advanced Welsh and Celtic Studies. ISBN 978-1-907029-32-5.",
+          "claim_id": "ev_period_0a5b196e284771b93fddd3b636cfb91499cb25f8",
+          "event": "first_attestation",
+          "locator": "{\"start\": 198632, \"end\": 198655, \"page\": 50}",
+          "quote": "written Latin ~550 BC –",
+          "role": "observation",
+          "source": "Koch 2020",
+          "url": "https://repository.uwtsd.ac.uk/id/eprint/1543/1/JK4.pdf"
+        }
+      ],
+      "kind": "attested",
+      "label": "from c. 550 BCE",
+      "name": "Latin",
+      "spoken": {
+        "end": null,
+        "ongoing": false,
+        "start": {
+          "earliest": -549,
+          "latest": -549
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "attested",
+      "code": "ltc",
+      "evidence": [
+        {
+          "citation": "Hammarström, H., Forkel, R., Haspelmath, M. & Bank, S. Glottolog CLDF data, repository tag v5.3, cldf/languages.csv (First_/Last_Year_Of_Documentation). The tag's metadata cites 'Glottolog 5.2.1' (2025); version discrepancy unresolved.",
+          "claim_id": "ev_period_cf71a730d8644440daad5f328f9486c8981ba7c5",
+          "event": "documentary_sampling",
+          "locator": "{\"start\": 520650, \"end\": 520747, \"table_row\": \"midd1344\", \"columns\": \"First_Year_Of_Documentation, Last_Year_Of_Documentation\", \"header_offsets\": {\"start\": 0, \"end\": 185}}",
+          "quote": "midd1344,Middle Chinese,Eurasia,34.27,108.9,midd1344,ltc,language,CN,sino1245,,ltc,601,1150,false",
+          "role": "observation",
+          "source": "Hammarström et al.",
+          "url": "https://raw.githubusercontent.com/glottolog/glottolog-cldf/v5.3/cldf/languages.csv"
+        }
+      ],
+      "kind": "attested",
+      "label": "601–1150 CE",
+      "name": "Middle Chinese",
+      "spoken": {
+        "end": {
+          "earliest": 1150,
+          "latest": 1150
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 601,
+          "latest": 601
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "attested",
+      "code": "och",
+      "evidence": [
+        {
+          "citation": "Hammarström, H., Forkel, R., Haspelmath, M. & Bank, S. Glottolog CLDF data, repository tag v5.3, cldf/languages.csv (First_/Last_Year_Of_Documentation). The tag's metadata cites 'Glottolog 5.2.1' (2025); version discrepancy unresolved.",
+          "claim_id": "ev_period_3979e63e7cc7b96de16dc1766b427d7c54f788c4",
+          "event": "documentary_sampling",
+          "locator": "{\"start\": 197094, \"end\": 197190, \"table_row\": \"oldc1244\", \"columns\": \"First_Year_Of_Documentation, Last_Year_Of_Documentation\", \"header_offsets\": {\"start\": 0, \"end\": 185}}",
+          "quote": "oldc1244,Old Chinese,Eurasia,36.12,114.32,oldc1244,och,language,CN,sino1245,,och,-1200,400,false",
+          "role": "observation",
+          "source": "Hammarström et al.",
+          "url": "https://raw.githubusercontent.com/glottolog/glottolog-cldf/v5.3/cldf/languages.csv"
+        }
+      ],
+      "kind": "attested",
+      "label": "1200 BCE – 400 CE",
+      "name": "Old Chinese",
+      "spoken": {
+        "end": {
+          "earliest": 400,
+          "latest": 400
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": -1199,
+          "latest": -1199
+        }
+      }
+    },
+    {
+      "alternatives": [
+        {
+          "basis": "conventional",
+          "citation": "English Wikipedia, 'Old Irish', retrieved 2026-10-03.",
+          "claim_id": "ev_period_84eec53783314b9072c939ba91a8d09d39418195",
+          "end": {
+            "earliest": 901,
+            "latest": 1000
+          },
+          "event": "conventional_period",
+          "label": "6th–10th century CE",
+          "locator": "{\"start\": 4888, \"end\": 5094, \"section\": \"language infobox, Era\"}",
+          "quote": "Old Irish\nOld Gaelic\nGoídelc\nPronunciation\n[\nˈɡoːi̯ðʲelɡ\n]\nRegion\nIreland, \nIsle of Man\n, \nWales\n, \nScotland\n, \nDevon\n, \nCornwall\nEra\n6th–10th century; evolved into \nMiddle Irish\n by around the 10th century",
+          "role": "convention",
+          "source": "Wikipedia: Old Irish",
+          "start": {
+            "earliest": 501,
+            "latest": 600
+          },
+          "url": "https://en.wikipedia.org/wiki/Old_Irish"
+        }
+      ],
+      "basis": "conventional",
+      "code": "sga",
+      "evidence": [
+        {
+          "citation": "SIL International (ISO 639-3 Registration Authority). ISO 639-3 code set, iso-639-3.tab (reference names), retrieved 2026-10-03.",
+          "claim_id": "ev_period_0422090acbffe32e6970bf19225ef9a40b04616f",
+          "event": "conventional_period",
+          "locator": "{\"start\": 130532, \"end\": 130568, \"table_row\": \"sga\"}",
+          "quote": "sga\tsga\tsga\t\tI\tH\tOld Irish (to 900)\t",
+          "role": "convention",
+          "source": "ISO 639-3 code tables",
+          "url": "https://iso639-3.sil.org/sites/iso639-3/files/downloads/iso-639-3.tab"
+        }
+      ],
+      "kind": "stage",
+      "label": "until 900 CE",
+      "name": "Old Irish",
+      "spoken": {
+        "end": {
+          "earliest": 900,
+          "latest": 900
+        },
+        "ongoing": false,
+        "start": null
+      }
+    }
+  ],
+  "schema_version": 1,
+  "years": "astronomical (BCE n = 1 - n); labels use BCE/CE"
+}

@@ -208,9 +208,16 @@ class IntegrityTests(unittest.TestCase):
         self.assertTrue(all(v["spoken"] is None for v in self.bundle["view"].values()))
 
     def test_affected_codes_safe(self):
+        # A chronology comes only from reviewed evidence about the code itself,
+        # never from catalog or ancestor context.
+        claims = {c["id"]: c for c in self.bundle["claims"]}
         for code in ["zh", "ar", "la", "sa", "urj-pro"]:
-            if code in self.bundle["view"]:
-                self.assertFalse(self.bundle["view"][code]["chronology"])
+            view = self.bundle["view"].get(code)
+            for entry in view["chronology"] if view else []:
+                c = claims[entry["claim_id"]]
+                self.assertEqual(c["subject"]["id"], "wikt:" + code)
+                self.assertEqual((c["status"], c["subject"]["mapping"]), ("supported", "exact"))
+                self.assertNotIn(entry["claim_id"], view["catalog_context"] + view["ancestral_context"])
 
     def test_bundle_valid(self):
         self.assertEqual(validate_bundle(self.bundle), [])
