@@ -1,6 +1,6 @@
 # Status
 
-*Updated 2026-10-03. Local `main`; nothing pushed.*
+*Updated 2026-10-03. Branch `reorg-baseline`, pushed; not merged.*
 
 ## What the project promises
 
@@ -58,10 +58,9 @@ citations, derived from the evidence registry in `packages/dating`.
 
 ## Decisions needed from the maintainer
 
-- Push `main` to GitHub. Before pushing, confirm the Brill font licence permits
-  redistributing the `.woff2` files in `client/public/fonts` publicly.
-- Remove the merged and superseded worktrees: `rust-server-perf`, `wety-tree-viz`,
-  `upbeat-tharp`, `condescending-moore`. The perf worktree holds a 3.1 GB
-  converted graph in its ignored `data/`.
+- When to merge `reorg-baseline` (pushed) into `main`. Merging deploys the site, so
+  the host first needs the new server build and a graph. The legacy graph loads with
+  `WETY_ALLOW_LEGACY_GRAPH=1`; a converted copy is at
+  `data/workspaces/etymology_graph/wety-csr-converted-2026-09-19.json`.
 - Whether to narrow the dating fingerprint to the modules that affect evidence
   semantics.
