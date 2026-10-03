@@ -62,7 +62,8 @@ Source access. Only openly reachable HTTPS sources can be read. Useful starting 
 Book handbooks in the table (Baugh & Cable 2013, Schmidt 2013, Clackson & Horrocks 2007,
 Horrocks 2010) are probably not open. Try one route per book (an OpenAlex open-access
 location or publisher preview); if it fails, mark the claim unverifiable in this run.
-One acquisition can serve many codes (a registry table, a CLDF file): prefer those.
+One acquisition can serve many codes (a registry table, a CLDF file): prefer those,
+and use find to locate their rows instead of paging with read.
 Check status early and periodically; save partial files early; deliver partial work
 rather than exceeding limits.
 

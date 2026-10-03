@@ -160,16 +160,20 @@ allowance merely to force a rejection after useful work completes.
 
 ## Research tools and limits
 
-Default limits are 20 minutes acquisition/research plus 5 minutes delivery, 8 search
-calls, 12 acquisition attempts, 120 tool actions, and 64 model turns for Claude and
-OpenRouter. Codex has the shared action/time bounds, not a claimed native turn cap.
-Preparation supports explicit time overrides up to 45+15 minutes. Failed network
-attempts consume allowances. Avoid more than two alternate routes per blocked
-source; that per-source policy is in the prompt, whereas aggregate caps are enforced.
+The active-time budget bounds every run: by default 20 minutes acquisition/research
+plus 5 minutes delivery, with explicit overrides up to 45+15 minutes at preparation.
+Searches, acquisitions and tool actions are counted but uncapped (`null` in
+`single_researcher.limits`): the 2026-10-03 period pilot hit raised caps of 30
+acquisitions and 260 actions at a third of its time. A number in the configuration
+restores a cap. Claude and OpenRouter also stop at 400 model turns. Codex has no
+native turn cap. OpenRouter keeps its reported-cost stop. Avoid more than two
+alternate routes per blocked source; that per-source policy is in the prompt.
 
 The shared tool exposes Crossref, OpenAlex and Europe PMC discovery; exact-byte
 acquisition through the shared provenance utility; bounded text windows with
-character offsets; rendered retained PDF pages; four dossier outputs; and checks.
+character offsets; `find` for locating rows or terms in large retained texts (with
+exact offsets and the table header); rendered retained PDF pages; four dossier
+outputs; and checks.
 This is a scholarly-index search baseline, **not unrestricted web browsing**.
 Index access/rate limits can leave gaps. HTML figure images, OCR, archive extraction
 and arbitrary computation are not currently provided; report those needs explicitly.

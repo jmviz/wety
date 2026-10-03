@@ -20,6 +20,7 @@ DESCRIPTION = """One researcher tool. action and JSON arguments:
 search: {query, index: crossref|openalex|europepmc}; returns retained bibliographic results, not full-text evidence.
 acquire: {url}; retain HTTPS source bytes and parsed text; returns source_id, links and coverage limitations.
 read: {source_id, start:0, length:16000}; exact character offsets into retained text.
+find: {source_id, query, regex:false, max_matches:20}; case-insensitive search of retained text. Returns the first line (a table's header) and each matching line with exact offsets. Use it to locate rows or terms in large texts instead of paging with read.
 page: {source_id, page:1}; render a retained PDF page as an image for visual inspection.
 write: {name, content}; save report.md, sources.json, assertions.jsonl or self-check.json. Each assertion needs id, source_id, quote, subject, event, role, method, native_time, qualifications; optional compact field can contain an existing compact Assertion object. No universal spoken dates.
 check: {}; checks required deliverables, JSON, IDs and exact quotes, optional compact schema. Does not certify semantics.
@@ -81,7 +82,12 @@ class ResearchTools:
                 raise ValueError("run stopped")
             if time.time() > self.brief["deadline_unix"]:
                 raise ValueError("run deadline reached")
-            if state.get("tool_calls", 0) >= self.brief["limits"]["tool_calls"]:
+            limits = self.brief["limits"]
+            # A null limit is uncapped; the active-time budget still bounds the run.
+            if (
+                limits.get("tool_calls") is not None
+                and state.get("tool_calls", 0) >= limits["tool_calls"]
+            ):
                 raise ValueError("tool action limit reached")
             state["tool_calls"] = state.get("tool_calls", 0) + 1
             atomic_json(self.root / "tools-state.json", state)
@@ -89,7 +95,7 @@ class ResearchTools:
                 if time.time() > self.brief["research_deadline_unix"]:
                     raise ValueError("research period ended; save partial dossier and self-check")
                 counter = "searches" if action == "search" else "acquisitions"
-                if state[counter] >= self.brief["limits"][counter]:
+                if limits.get(counter) is not None and state[counter] >= limits[counter]:
                     raise ValueError(counter + " limit reached; deliver partial work")
                 state[counter] += 1  # Failed/uncertain network requests consume their reservation.
                 atomic_json(self.root / "tools-state.json", state)
@@ -289,6 +295,8 @@ class ResearchTools:
             )
             state["sources"][sid] = metadata
             return {**metadata, "preview": text[:1600]}
+        if action == "find":
+            return find(self.root, state["sources"][args["source_id"]], args)
         if action in ("read", "page"):
             source = state["sources"][args["source_id"]]
             if action == "read":
@@ -346,6 +354,46 @@ class ResearchTools:
         if action == "check":
             return check(self.root)
         raise ValueError("unknown action")
+
+
+def find(root, source, args):
+    """Matching lines of a retained text, with exact offsets, plus its first line."""
+    query = args.get("query")
+    limit = args.get("max_matches", 20)
+    if not isinstance(query, str) or not query or type(limit) is not int or not 1 <= limit <= 100:
+        raise ValueError("query string and max_matches 1..100 required")
+    path = Path(root) / "evidence" / source["text_file"]
+    if sha(path) != source["text_sha256"]:
+        raise ValueError("retained text hash changed")
+    text = path.read_text()
+    pattern = re.compile(query if args.get("regex") else re.escape(query), re.IGNORECASE)
+
+    def span(start, end):
+        return {"start": start, "end": end, "text": text[start:end]}
+
+    first = text.find("\n")
+    matches = []
+    truncated = False
+    for m in pattern.finditer(text):
+        start = text.rfind("\n", 0, m.start()) + 1
+        end = text.find("\n", m.end())
+        end = len(text) if end < 0 else end
+        if matches and matches[-1]["line_start"] == start:
+            continue
+        if len(matches) == limit:
+            truncated = True
+            break
+        # Very long lines (a PDF page without breaks) are clipped around the match.
+        clipped = span(max(start, m.start() - 1000), min(end, m.end() + 1000))
+        matches.append(
+            {"match_start": m.start(), "match_end": m.end(), "line_start": start, "line": clipped}
+        )
+    return {
+        "header": span(0, min(2000, len(text) if first < 0 else first)),
+        "matches": matches,
+        "truncated": truncated,
+        "total_characters": len(text),
+    }
 
 
 def check(root):

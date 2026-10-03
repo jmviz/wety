@@ -151,6 +151,46 @@ class FrontierTests(unittest.TestCase):
         (self.root / "assertions.jsonl").write_text(json.dumps(row))
         self.assertIn("unknown retained source", str(check(self.root)["errors"]))
 
+    def test_null_limits_are_uncapped(self):
+        self.tools.brief["limits"].update(searches=None, acquisitions=None, tool_calls=None)
+        with patch.object(self.tools, "fetch", side_effect=ValueError("unavailable")):
+            for _ in range(30):
+                with self.assertRaises(ValueError):
+                    self.tools.call("acquire", {"url": "https://example.org"})
+        state = self.tools.state()
+        self.assertEqual((state["acquisitions"], state["tool_calls"]), (30, 30))
+        # Deadlines still apply to uncapped runs.
+        self.tools.brief["research_deadline_unix"] = time.time() - 1
+        with self.assertRaisesRegex(ValueError, "period ended"):
+            self.tools.call("search", {"query": "x"})
+
+    def test_find_returns_rows_with_exact_offsets(self):
+        p = self.root / "evidence"
+        p.mkdir()
+        text = p / "t.txt"
+        rows = "ID,Name,First,Last\nolde1238,Old English (ca. 450-1100),450,1100\nmidd1317,Middle English,1100,1500\n"
+        text.write_text(rows + "x" * 5000 + "Old English again" + "y" * 5000)
+        (self.root / "tools-state.json").write_text(
+            json.dumps({"sources": {"s": {"text_file": "t.txt", "text_sha256": sha(text)}}})
+        )
+        found = self.tools.call("find", {"source_id": "s", "query": "old english"})
+        self.assertEqual(found["header"]["text"], "ID,Name,First,Last")
+        first, long = found["matches"]
+        self.assertEqual(first["line"]["text"], "olde1238,Old English (ca. 450-1100),450,1100")
+        full = text.read_text()
+        self.assertEqual(full[first["match_start"] : first["match_end"]], "Old English")
+        line = first["line"]
+        self.assertEqual(full[line["start"] : line["end"]], line["text"])
+        # A very long line is clipped around the match, offsets still exact.
+        self.assertLessEqual(len(long["line"]["text"]), 2000 + len("Old English again"))
+        self.assertEqual(full[long["line"]["start"] : long["line"]["end"]], long["line"]["text"])
+        found = self.tools.call("find", {"source_id": "s", "query": r"\d{4},1500", "regex": True})
+        self.assertEqual([m["line"]["text"][:8] for m in found["matches"]], ["midd1317"])
+        found = self.tools.call("find", {"source_id": "s", "query": "e", "max_matches": 1})
+        self.assertTrue(found["truncated"])
+        with self.assertRaises(ValueError):
+            self.tools.call("find", {"source_id": "s", "query": ""})
+
     def test_codex_is_subscription_tool_enabled_single_model(self):
         with patch("shutil.which", return_value="/bin/codex"):
             command = codex_command(self.root, self.brief)

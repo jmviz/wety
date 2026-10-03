@@ -15,10 +15,12 @@ The tool description lists exact arguments. All output stays in this new proposa
 workspace; do not publish, modify the harness or start another model run.
 
 Scope and stop conditions:
-- Aim for 3–6 substantive primary sources, not dates for every language. At most
-  8 searches, 12 total acquisitions and two extra routes per blocked central source.
+- Aim for 3–6 substantive primary sources, not dates for every language. Searches
+  and acquisitions are uncapped unless the frozen limits say otherwise; the time
+  budget is the bound. At most two extra routes per blocked central source.
   Crossref, OpenAlex and Europe PMC searches are available; follow original sources
-  and correction/supplement links with acquire. Failed requests consume the limits.
+  and correction/supplement links with acquire. Use find, not repeated reads, to
+  locate rows or terms in large retained texts.
 - Check status periodically. The default is 20 minutes research plus 5 for delivery;
   actual frozen limits prevail. Save partial deliverables early, before limits expire.
 - Prefer 10–25 useful assertions, never a quota. One self-check and one correction

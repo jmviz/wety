@@ -172,10 +172,10 @@
     "default_profile": "codex-astra",
     "validation_status": "Provisional single-agent profiles; high effort is a quality/cost hypothesis, not a measured optimum.",
     "limits": {
-      "searches": 8,
-      "acquisitions": 12,
-      "tool_calls": 120,
-      "model_turns": 64,
+      "searches": null,
+      "acquisitions": null,
+      "tool_calls": null,
+      "model_turns": 400,
       "openrouter_cost_stop_usd": 15
     },
     "profiles": {
@@ -213,6 +213,7 @@
           "data_collection": "deny"
         }
       }
-    }
+    },
+    "limits_note": "null = uncapped. The active-time budget (prepare --research-seconds/--delivery-seconds) bounds every run; model_turns bounds Claude and OpenRouter (Codex has no native turn cap); openrouter_cost_stop_usd bounds paid runs. Caps were removed after the 2026-10-03 period pilot hit raised limits (30 acquisitions, 250 tool actions) at a third of its time budget."
   }
 }

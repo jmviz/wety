@@ -12,6 +12,7 @@ dating costs                                 model spend and tokens from the log
 dating llm-synthesize FAMILY                 save a review proposal; never adopt model dates
 dating validate                              check current generation, provenance, dependencies and mirrors
 dating export-periods [--out PATH]           display periods from adopted decisions -> language_periods.json
+dating gc [--keep-recent N] [--apply]        retire old generations (dry run unless --apply)
 dating report
 """
 
@@ -183,6 +184,24 @@ def cmd_export_periods(args) -> None:
     print(json.dumps(write_periods(args.out), indent=2))
 
 
+def cmd_gc(args) -> None:
+    from .retention import apply, plan
+
+    result = plan(args.keep_recent)
+    summary = {
+        "keep": result["keep"],
+        "remove": len(result["remove"]),
+        "remove_gb": round(result["remove_bytes"] / 1e9, 2),
+        "keep_gb": round(result["keep_bytes"] / 1e9, 2),
+        "unknown_directories": result["unknown_directories"],
+    }
+    if args.apply:
+        summary["applied"] = apply(result)
+    else:
+        summary["dry_run"] = "nothing deleted; rerun with --apply"
+    print(json.dumps(summary, indent=2))
+
+
 def cmd_report(args) -> None:
     from .registry import current_bundle, report
 
@@ -256,6 +275,10 @@ def main() -> None:
     p = sub.add_parser("export-periods")
     p.add_argument("--out")
     p.set_defaults(fn=cmd_export_periods)
+    p = sub.add_parser("gc")
+    p.add_argument("--keep-recent", type=int, default=2)
+    p.add_argument("--apply", action="store_true")
+    p.set_defaults(fn=cmd_gc)
     p = sub.add_parser("report")
     p.set_defaults(fn=cmd_report)
     p = sub.add_parser("benchmark")
@@ -291,6 +314,7 @@ def main() -> None:
         "repair-pilot-sources",
         "import-evidence",
         "decide",
+        "gc",
     }:
         with locked(DATA_DIR + "/_pipeline"):
             args.fn(args)
