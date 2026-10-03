@@ -77,7 +77,7 @@ def prepare(root, family, profile_name=None, research_seconds=1200, delivery_sec
         raise ValueError("new dating research workspace required")
     root.mkdir(parents=True, exist_ok=False)
     prompt = (
-        (REPO / "packages/dating/docs/single-frontier-prompt.md")
+        (REPO / "packages/dating/prompts/single-frontier.md")
         .read_text()
         .split("```text\n", 1)[1]
         .split("\n```", 1)[0]

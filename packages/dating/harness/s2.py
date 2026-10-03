@@ -4,7 +4,7 @@ Rate limit: the key allows 1 request per second, cumulative across ALL
 endpoints and ALL processes using the key. Every request goes through a
 file-locked limiter (cache/s2.lock) so parallel harness runs share one clock.
 
-What we use it for (see docs/language-dating-plan.md §B3):
+What we use it for (see the v1 plan in git history, §B3):
   search_bulk      boolean-syntax search over title+abstract (up to 1000 hits/page), with
                    fieldsOfStudy / year / openAccessPdf filters
   enrich           POST /paper/batch: externalIds (DOI, PMCID, ArXiv), openAccessPdf, tldr,

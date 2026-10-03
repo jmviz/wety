@@ -24,7 +24,7 @@ Use a fresh session for a second source-based assessment where practical. A diff
 
 ## Operational decision
 
-Continue the IE and Sino-Tibetan packets now. Review can run alongside that work or follow it. Use the prepared [fresh-session handoff](model-review-prompt.md) for the Uralic audit when convenient. The task must produce its own annotations before seeing ours, then a source-based reconciliation, rather than merely reviewing this agent's conclusions.
+For a fresh-session review, use the [handoff prompt](../prompts/model-review.md). The reviewing session must produce its own annotations before seeing ours, then a source-based reconciliation, rather than merely reviewing this agent's conclusions.
 
 If a fresh session is unavailable, do a structured adversarial self-audit: rederive the material from the original source, test a competing account, check numerical and semantic invariants, and record what changed. This is the default fallback, not a request for user intervention. It is sufficient to continue bounded research. Do not mark a second or independent review as completed.
 

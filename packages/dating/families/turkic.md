@@ -1,4 +1,10 @@
-# Turkic single-researcher dossier
+# Turkic
+
+**Summary.** One single-researcher run (13 proposals, about 13 minutes) over Robbeets et al. 2021, Rama & Wichmann 2020 and Savelyev & Jeong 2020. Key distinctions: Turkic 2100 bp ±175 is a calibration *prior*; 6811 bp belongs to the proposed Proto-Altaic node, not Turkic; Rama & Wichmann's 3206/3414/2210 are separate method scenarios. Documentary anchors (Jie couplet setting 307–311 AD; Avar titles after 626 AD) date documents and institutions, not the language. The dedicated Turkic phylogeny (Savelyev & Robbeets, 10.1093/jole/lzz010) was not acquired. Proposals are unimported.
+
+Dossier: `data/workspaces/dating/_research/single-frontier-turkic-2026-09-21/`.
+
+## Turkic single-researcher dossier
 
 The Codex/Astra subscription run completed in **782.2 seconds (13.0 minutes)**,
 producing **13 proposals** from selected passages in three substantive articles.
@@ -8,7 +14,7 @@ is retained unchanged. The [coordinator review](../../../data/workspaces/dating/
 accepts it as useful partial research, with no material record corrections found
 within the checked scope. This is not historical validation or import approval.
 
-## Useful results
+### Useful results
 
 | Source | Retained distinction |
 | --- | --- |
@@ -21,7 +27,7 @@ No calendar projection is imposed where the numerical epoch remains unresolved.
 The packet neither selects a Turkic age nor supplies automatic etymological edge
 constraints. Repetition of one study in XML/PDF is not independent evidence.
 
-## Review and coverage
+### Review and coverage
 
 All **31 primary/supporting text spans** match their exact character offsets and
 retained source hashes. All 13 IDs have self-audit entries. The coordinator checked
@@ -42,42 +48,3 @@ The runner used all **8 searches and 12 acquisitions**, including failures, and
 **71 tool calls**. One failed book request consumed about 173.5 seconds. The
 researcher completed one self-audit/correction pass within the original allowance;
 the coordinator reviewed the final output without restarting the family.
-
-## Accounting and engineering disposition
-
-The terminal Codex receipt reports **1,946,884 input tokens**, including
-**1,792,768 cached**, and **17,665 output tokens**, including **2,889 reasoning**.
-Cached and reasoning counts are subsets, not additional tokens. Billing was the
-personal ChatGPT subscription; dollar cost and per-run allowance percentage are
-unknown. These totals exclude this coordinating task. They do not establish a
-cost/quality advantage over other backends.
-
-The run exercised the compact OpenAlex/status output changes. It did not exercise
-Claude's message-count fix. Six failures reached the model only as “Error executing
-tool”; the saved events cannot establish their causes. A post-run patch now returns
-safe error categories/HTTP status/timeout information through MCP and retains them
-in tool events. It adds no retry, fallback or allowance. Its benefit is regression-
-tested; no live recovery improvement is claimed, and the frozen run remains intact.
-
-## Next substantive action
-
-Recover the **dedicated Turkic phylogeny and its linked supplementary material**
-through a verified publisher/repository record. Use a separate, bounded evidence
-follow-up, not another full-family model run. Read the actual sampled root, ancient
-tips, calibration assumptions, clock/topology alternatives and reported uncertainties;
-append only the relevant source-specific claims. Stop with a precise gap if access
-still fails. This resolves the largest missing part of the dossier and tests useful
-incremental research rather than restarting an evaluation campaign.
-
-The reproducible original command was:
-
-```sh
-.venv/bin/python -m harness.frontier_research prepare \
-  data/workspaces/dating/_research/single-frontier-turkic-2026-09-21 \
-  --family Turkic --profile codex-astra --research-seconds 900 --delivery-seconds 300
-.venv/bin/python -m harness.frontier_research run \
-  data/workspaces/dating/_research/single-frontier-turkic-2026-09-21
-```
-
-That directory is completed and must not be redispatched. The review verification
-receipt records tests, publication reproduction and unchanged scientific hashes.

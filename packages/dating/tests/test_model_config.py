@@ -23,7 +23,7 @@ class Answer(BaseModel):
 class ModelConfigTests(unittest.TestCase):
     def setUp(self):
         self.old = json.loads(
-            (ROOT / "packages/dating/docs/archive/llm-config-2026-09-20.json").read_text()
+            (ROOT / "packages/dating/tests/fixtures/llm-config-2026-09-20.json").read_text()
         )
         self.cfg = migrate_config(self.old)
 

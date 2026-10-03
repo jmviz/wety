@@ -1,1 +1,1 @@
-"""wety language-dating harness. See docs/language-dating-plan.md and dating/README.md."""
+"""wety language-dating harness. See packages/dating/README.md."""

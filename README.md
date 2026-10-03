@@ -12,9 +12,9 @@ catalog and dating research. Workflows can invoke either stack through explicit 
 - `data/`: one home for artifacts, research workspaces, product selections, receipts, caches and archives.
 - `client/`: frontend. `experiments/`: exploratory notebooks.
 
-See [organization and ownership](docs/architecture/reorganization.md),
-[source acquisition and recovery](docs/architecture/provenance.md), and the
-[migration checklist](docs/architecture/migration-checklist.md).
+**Current state and next steps: [STATUS.md](STATUS.md).** Rules for agents:
+[AGENTS.md](AGENTS.md). See also [organization and ownership](docs/architecture/reorganization.md)
+and [source acquisition and recovery](docs/architecture/provenance.md).
 The scientific contracts remain in [catalogs](packages/catalogs/README.md) and
 [dating](packages/dating/README.md). Catalog correspondence never licenses automatic
 chronological transfer.

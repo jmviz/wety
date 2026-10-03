@@ -3,15 +3,11 @@
 This proposal-only variant uses one model in one continuing tool-enabled session.
 It does discovery, retrieval, interpretation, incremental writing and one self-audit.
 It does not call the old screen/extract/review workers or launch subagents. The
-shared [research brief](single-frontier-prompt.md) and tools are the same across
+shared [research brief](../prompts/single-frontier.md) and tools are the same across
 transports; native agent runtimes and context management still differ.
 
-For current results and source-level corrections, see the
-[21 September stocktake](stocktake-2026-09-21.md). The two original Japonic reports
-are retained model outputs; the [correction packet](../../../data/workspaces/dating/_research/japonic-stocktake-2026-09-21/README.md)
-qualifies their use. They are not ready-made imports.
-The subsequent [Turkic run](turkic-frontier.md) records the first expansion with the
-updated brief, its bounded coordinator review and a specific remaining access gap.
+Current results per family are in [`../families/`](../families/). Completed model output
+is a proposal, even when its self-check passes.
 
 ## Start from the repository root
 
@@ -198,89 +194,3 @@ Useful partial dossiers are valid research outcomes. A transport success or empt
 structural error list is not a measured improvement in historical-linguistic quality.
 Compare delivered evidence and later correction effort before adopting this mode
 for broad expansion. No human reviewer is required to finish a proposal dossier.
-
-## First live subscription run: 20 September 2026
-
-[The Japonic dossier](../../../data/workspaces/dating/_research/single-frontier-japonic-2026-09-20-v2/report.md)
-completed in **849.8 seconds (14.2 minutes)** using Codex/Astra high on the personal
-ChatGPT subscription. It produced 20 proposals from four substantive works, a
-source inventory and one correlated self-audit. Six searches, twelve acquisition
-attempts, fifteen text-window reads and five PDF-page inspections are retained.
-Three acquisition failures and metadata/empty responses are recorded as gaps.
-The final structural/quote checks pass, and the self-audit covers all twenty IDs
-and identifies the final assertion-file hash correctly.
-
-The run used **1,864,485 input tokens including 1,740,928 cache hits**, and **25,237
-output tokens including 4,841 reasoning tokens**. The illustrative standard API
-equivalent is **$4.24**, assuming short-context requests; aggregate Codex telemetry
-cannot establish every request's context tier. This is not an invoice or weekly
-allowance percentage, and excludes this coordinating/development task. The initial
-permission-blocked launch adds about **$0.14** equivalent and remains separately
-retained. A missing per-tool MCP permission setting was corrected before the
-successful run; no evidence was acquired in the blocked attempt. The explicit
-permission now covers only the bounded local research tool.
-
-[Accounting and output hashes](../../../data/workspaces/dating/_research/frontier-strategy-2026-09-20/single-frontier-result.json)
-bind the assessment to the completed files. The model-written report could not see
-terminal usage while it was running; `usage.json` is the authoritative later runtime
-record. Its generic frozen 64-turn field is not an enforced Codex turn limit.
-
-This demonstrates operational usefulness, not a measured accuracy advantage over
-the previous harness or a validated high-versus-medium comparison. The family,
-source set and flexible proposal output differ from earlier trials. Remaining
-source gaps, incomplete sampled-taxon lists, unknown epochs and scenario-specific
-outputs remain explicit; no claims are imported. Claude and OpenRouter transports
-have offline coverage, but were not newly live-tested in this continuation.
-
-Validation: **236 dating tests**, the managed rebuild and all three publication
-reproduction checks pass. All **3,575 claims and 8,625 code views remain byte-identical**,
-with `spoken` null throughout. Next use this mode for bounded proposal dossiers;
-resolve named evidence gaps locally and measure correction effort before making
-broader accuracy or effort-efficiency claims. Do not restart a family just to remove
-honest unknowns.
-
-## Live Claude limit test: halt and resume verified
-
-The first Claude-subscription Japonic run uses Opus 5/high, without Astra's dossier.
-The user reported 83% five-hour utilization before launch. SDK events subsequently
-reported 84%, 90% and a **rejected 102%** five-hour window. These are account-wide
-observations, not an attribution of every percentage point to this run.
-
-The runner halted after **401.9 active seconds**, retaining **22 unfinished proposals**
-and the exact SDK session. The SDK session was independently found in its local
-session store. At that point three deliverables and one quote correction remained
-pending, and no successful terminal usage had been received.
-
-The local `--wait-for-reset` process resumed the **same session** at **20 September
-2026, 14:40:15 America/New_York** (the reported reset plus 15 seconds), and completed
-at **14:46:46**. It retained 798.1 seconds of total active allowance and 498.1 seconds
-of research allowance, without replenishing the original budgets. Both attempts
-together used **793.5 active seconds (13.2 minutes)**; elapsed time including the
-wait was 86.5 minutes. No model calls occurred while waiting.
-
-All four deliverables are present. The final **22 proposals** pass structural and
-exact-quote checks, with a self-audit entry for each ID; the pending quote issue was
-corrected in the continued session. All checkpoint hashes and both publication
-baseline hashes match. These checks do not certify semantic accuracy or coverage.
-No proposals were imported. The resumed terminal SDK result reports a nominal
-**$3.43** estimate under subscription billing; missing first-attempt terminal usage
-and uncertain cumulative scope prevent treating it as a full-run cost or invoice.
-
-[Halt assessment](../../../data/workspaces/dating/_research/single-frontier-japonic-claude-2026-09-20-v2/halt-test-assessment.json),
-[run state](../../../data/workspaces/dating/_research/single-frontier-japonic-claude-2026-09-20-v2/run.json),
-and [wait state](../../../data/workspaces/dating/_research/single-frontier-japonic-claude-2026-09-20-v2/wait.json)
-retain the evidence. The [completion assessment](../../../data/workspaces/dating/_research/single-frontier-japonic-claude-2026-09-20-v2/completion-test-assessment.json)
-records the session continuity, remaining budgets, cumulative tool counters and
-output verification. Preserve the frozen implementation and attempt receipts.
-
-The frozen run reserved turns conservatively: multiple SDK assistant frames can
-represent one API message. Do not count those frames as separate billed requests.
-The 21 September driver now deduplicates stable assistant message IDs across frames
-and resumes; unidentified frames and terminal turn counts remain conservative.
-Regression tests cover the change. This completed experiment's frozen implementation
-and counters remain intact; its allowances were not retroactively replenished.
-
-All **242 dating tests** and the managed rebuild/reproduction checks pass; published
-claims and chronology views remain unchanged. The natural live continuation now
-also verifies the halt/resume path. A controlled accuracy comparison remains open;
-different source selections do not support ranking Claude against Astra.

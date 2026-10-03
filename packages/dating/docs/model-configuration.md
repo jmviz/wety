@@ -1,6 +1,6 @@
 # Dating model configuration and comparison policy
 
-The active configuration is [packages/dating/llm.config.json](../llm.config.json), schema version 2. It belongs to dating and is neutral about backend. The former repository-root `openrouter.config.json` has been removed from active use; its exact bytes are preserved in [the historical archive](archive/llm-config-2026-09-20.json). Model assignments, effort, transport policies and existing backend defaults were preserved during migration. This preservation establishes a baseline, not an endorsement.
+The active configuration is [packages/dating/llm.config.json](../llm.config.json), schema version 2. It belongs to dating and is neutral about backend. The former repository-root `openrouter.config.json` has been removed from active use; its bytes are kept as a test fixture in `tests/fixtures/llm-config-2026-09-20.json`. Model assignments, effort, transport policies and existing backend defaults were preserved during migration. This preservation establishes a baseline, not an endorsement.
 
 The structure separates three concerns:
 
@@ -22,13 +22,8 @@ OpenRouter responses now retain both the initial and local schema-repair request
 
 The Claude Agent adapter now uses a fresh temporary working directory for each attempt, with its existing tool and settings restrictions. This removes a stale pre-reorganization `dating/cache` path without exposing the repository as task context. The Codex subscription/auth isolation behavior is preserved and remains covered by its own regression tests.
 
-## Required live evaluation
+## Comparisons
 
-The [backend evaluation plan](../benchmarks/backend-evaluation-plan.json) requires **OpenRouter, Claude Agent SDK and Codex** across screening, extraction and synthesis. Include the direct Anthropic API as an additional comparison where accessible; report missing access explicitly. Test more than one appropriate capability/effort configuration per required backend rather than equating backend with model strength. A backend cannot be declared tested merely because another provider hosts a similarly named model.
-
-Treat every OpenRouter model/provider/settings choice as adjustable. Recheck current model availability, endpoint capabilities, account/privacy constraints and charges before selecting cells. Isolate model/effort and provider effects where possible; test operational routing/fallbacks separately. Existing price-sorted routing, quantization preferences, response-healing plugins, output caps and batch policy are hypotheses to evaluate, not fixed experimental facts.
-
-Use frozen complete inputs for role comparisons, then end-to-end family tasks for retrieval/context performance. Keep exposed pilot cases in development. Freeze configs, reference clusters, metrics, matching rules, repetitions, budgets and targets before the scored held-out run. Record actual missing/failed cells rather than substituting another backend silently. Capability probes, development agreement and held-out semantic performance must remain separately labeled. The plan is design work; no new live model evaluation has been run by this migration.
-
-
-The subsequent [live evaluation](live-evaluation.md) completed development comparisons and production-schema probes on all three required backends. Its complete frozen configurations are retained with each run. They explicitly disable fallback and pin tested OpenRouter endpoints; production defaults remain provisional. Baseline versus stronger settings did not establish a general upgrade benefit. Native-time schema repair, rather than model replacement, resolved the demonstrated production failure.
+Backend and model comparison campaigns are paused. The single frontier researcher
+([single-frontier.md](single-frontier.md)) is the default. A new comparison needs the
+maintainer's approval (see the repository `AGENTS.md`).
