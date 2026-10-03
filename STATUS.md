@@ -1,6 +1,6 @@
 # Status
 
-*Updated 2026-10-03. Branch `reorg-baseline`, pushed; not merged.*
+*Updated 2026-10-03. Branch `dating-pilot` (from `reorg-baseline`); pilot in progress.*
 
 ## What the project promises
 
@@ -20,18 +20,24 @@ citations, derived from the evidence registry in `packages/dating`.
   [packages/dating/families/](packages/dating/families/). All are proposals or
   context; none maps a sampled clade to a Wiktionary stage.
 
-## What changed in this checkpoint
+## Dating pilot in progress: 20 codes
 
-- The reorganization (`crates/`, `packages/`, `workflows/`, `data/`) is committed.
-  `data/` is ignored by default; only small records are tracked.
-- Retired the multi-role harness experiments (9 modules, 47 tests). All test
-  suites and `cargo check` pass.
-- Dating docs reduced from 31 files to the README, 5 reference docs and 5
-  family pages. Agent rules are in [AGENTS.md](AGENTS.md).
-- Integrated the server performance work (response cache, typed JSON,
-  compact descendant langs) and the redesigned client trees (HTML outline and
-  chart, lean payloads, `/item` and `/lang`). The selected legacy graph still
-  loads; both tree views were checked in a browser.
+Note: no existing claim has a `wikt:` subject. Candidate claims reach a code only through
+its Glottolog link, so the pilot checks the exact code mapping as part of source checking.
+
+- **Conventional stages** — `ang`, `enm`, `goh`, `gmh`, `non`, `sga`: medieval
+  periodizations with candidate handbook (Baugh & Cable, Schmidt) or Glottolog/Wikipedia
+  claims. They test whether conventional periods survive a source check.
+- **Attested languages** — `got`, `cu`, `akk`, `hit`: known from texts. Candidate
+  Glottolog documentation windows and Wikipedia periods. They test attestation versus
+  conventional basis.
+- **Classical languages** — `la`, `grc`, `sa`, `ltc`, `och`, `ojp`: Wiktionary files
+  later stages (Late/Medieval/New Latin, Koine/Byzantine Greek, Vedic/Classical Sanskrit,
+  Middle Japanese) under these codes. This tests whether a source's period maps
+  *exactly* to the Wiktionary code.
+- **Proto-languages** — `gem-pro`, `ine-pro`, `sla-pro`, `cel-pro`: no catalog link
+  and no candidate claims. They test whether dates cited for the proto stage itself
+  (never a family split) can be found.
 
 ## Known issues and uncertainties
 
@@ -46,15 +52,11 @@ citations, derived from the evidence registry in `packages/dating`.
 
 ## Next three actions
 
-1. **Display export schema.** Define the per-node record that both views need:
-   start/end as ranges, basis, citations, and family split estimates as separate
-   records. Produce it from the registry as `language_periods.json`.
-2. **Pilot of about 20 codes, end to end.** Mix of conventional stages, attested
-   languages and proto-languages. Path: source check, code mapping, adoption, export,
-   server endpoint, client toggle. Stop and report if the registry path cannot carry
-   them within one bounded session.
-3. **Retention.** `gc --dry-run` keeping the current generation, the previous two,
-   and anything referenced.
+1. Run the pilot above: source check (Astra), review, adoption, `language_periods.json`,
+   `/periods`, client toggle.
+2. Retention: `gc --dry-run` keeping the current generation, the previous two, and
+   anything referenced.
+3. Decide whether to narrow the dating fingerprint.
 
 ## Decisions needed from the maintainer
 

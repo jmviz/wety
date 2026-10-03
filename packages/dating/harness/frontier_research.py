@@ -60,7 +60,20 @@ def clean_env(backend):
     return env
 
 
-def prepare(root, family, profile_name=None, research_seconds=1200, delivery_seconds=300):
+def brief_template(path):
+    """The fenced ```text block of a brief document, or the whole file without one."""
+    text = Path(path).read_text()
+    return text.split("```text\n", 1)[1].split("\n```", 1)[0] if "```text\n" in text else text
+
+
+def prepare(
+    root,
+    family,
+    profile_name=None,
+    research_seconds=1200,
+    delivery_seconds=300,
+    brief_path=None,
+):
     cfg = load_config()
     settings = cfg["single_researcher"]
     profile_name = profile_name or settings["default_profile"]
@@ -76,16 +89,15 @@ def prepare(root, family, profile_name=None, research_seconds=1200, delivery_sec
     if not root.is_relative_to(allowed):
         raise ValueError("new dating research workspace required")
     root.mkdir(parents=True, exist_ok=False)
-    prompt = (
-        (REPO / "packages/dating/prompts/single-frontier.md")
-        .read_text()
-        .split("```text\n", 1)[1]
-        .split("\n```", 1)[0]
-    )
-    prompt = prompt.replace("{{FAMILY}}", family)
+    brief_path = Path(brief_path or REPO / "packages/dating/prompts/single-frontier.md").resolve()
+    prompt = brief_template(brief_path).replace("{{FAMILY}}", family)
     brief = {
         "version": 1,
         "family": family,
+        "brief_file": str(brief_path.relative_to(REPO))
+        if brief_path.is_relative_to(REPO)
+        else str(brief_path),
+        "brief_file_sha256": sha(brief_path),
         "profile_name": profile_name,
         "profile": profile,
         "research_seconds": research_seconds,
@@ -786,6 +798,11 @@ def main():
     prep.add_argument("--profile")
     prep.add_argument("--research-seconds", type=int, default=1200)
     prep.add_argument("--delivery-seconds", type=int, default=300)
+    prep.add_argument(
+        "--brief",
+        type=Path,
+        help="Research brief to use instead of prompts/single-frontier.md (its ```text block, or the whole file)",
+    )
     for name in ("run", "resume", "check", "_worker"):
         command = sub.add_parser(name)
         command.add_argument("root", type=Path)
@@ -800,7 +817,12 @@ def main():
     if args.command == "prepare":
         print(
             prepare(
-                args.root, args.family, args.profile, args.research_seconds, args.delivery_seconds
+                args.root,
+                args.family,
+                args.profile,
+                args.research_seconds,
+                args.delivery_seconds,
+                args.brief,
             )
         )
     elif args.command in ("run", "resume"):

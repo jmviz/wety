@@ -6,7 +6,7 @@ import unittest
 from unittest.mock import patch
 
 from harness.frontier_tools import ResearchTools, check, sha, tool_response
-from harness.frontier_research import clean_env, codex_command, router_run
+from harness.frontier_research import REPO, clean_env, codex_command, prepare, router_run
 
 
 class FrontierTests(unittest.TestCase):
@@ -327,6 +327,54 @@ class FrontierTests(unittest.TestCase):
                 router_run(self.root, self.brief)
         self.assertEqual(post.call_count, 1)
         self.assertFalse(json.loads((self.root / "usage.json").read_text())["cost_complete"])
+
+    def prepare_in(self, repo, name, **kwargs):
+        with patch("harness.frontier_research.REPO", repo):
+            return prepare(repo / "data/workspaces/dating/_research" / name, "Pilot", **kwargs)
+
+    def fake_repo(self):
+        repo = self.root.resolve() / "repo"
+        (repo / "data/workspaces/dating/_research").mkdir(parents=True)
+        (repo / "packages/dating/prompts").mkdir(parents=True)
+        for name in ("README.md", "prompts/single-frontier.md"):
+            (repo / "packages/dating" / name).write_text(
+                (REPO / "packages/dating" / name).read_text()
+            )
+        return repo
+
+    def test_brief_option_replaces_family_template_and_is_frozen(self):
+        repo = self.fake_repo()
+        brief = repo / "packages/dating/prompts/period.md"
+        brief.write_text("# Pilot\n\n```text\nVerify periods for {{FAMILY}}.\n```\nnotes\n")
+        root = self.prepare_in(repo, "custom", brief_path=brief)
+        prompt = (root / "prompt.txt").read_text()
+        self.assertTrue(prompt.startswith("Verify periods for Pilot.\n\nFrozen run settings:"))
+        self.assertNotIn("notes", prompt)
+        frozen = json.loads((root / "brief.json").read_text())
+        self.assertEqual(frozen["brief_file"], "packages/dating/prompts/period.md")
+        self.assertEqual(frozen["brief_file_sha256"], sha(brief))
+        # Tools, instructions and the run-time hash checks are those of a family run.
+        default = self.prepare_in(repo, "default")
+        self.assertIn(
+            "Research chronological evidence for Pilot", (default / "prompt.txt").read_text()
+        )
+        self.assertEqual(
+            (root / "instructions.txt").read_text(), (default / "instructions.txt").read_text()
+        )
+        self.assertEqual(
+            json.loads((root / "prepared.json").read_text())["implementation"],
+            json.loads((default / "prepared.json").read_text())["implementation"],
+        )
+
+    def test_brief_without_fence_is_used_whole(self):
+        repo = self.fake_repo()
+        brief = self.root / "plain.txt"
+        brief.write_text("Whole brief for {{FAMILY}}.")
+        root = self.prepare_in(repo, "plain", brief_path=brief)
+        self.assertTrue((root / "prompt.txt").read_text().startswith("Whole brief for Pilot."))
+        self.assertEqual(
+            json.loads((root / "brief.json").read_text())["brief_file"], str(brief.resolve())
+        )
 
     def test_mcp_wire_exposes_only_research_action(self):
         import asyncio, sys
