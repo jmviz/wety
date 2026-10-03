@@ -198,6 +198,11 @@ main {
   border-bottom-color: var(--faint);
 }
 
+.view-link.on {
+  color: var(--ink);
+  border-bottom: 1px solid var(--accent);
+}
+
 .view-link.current {
   color: var(--ink);
   font-weight: bold;

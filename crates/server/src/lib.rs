@@ -1,5 +1,8 @@
 #![allow(clippy::unused_async)]
 
+pub mod periods;
+
+use periods::Periods;
 use serde::{Deserialize, Serialize};
 use wety_core::{Data, ItemId, Lang, Search};
 
@@ -62,6 +65,7 @@ const TREE_CACHE_BYTES: u64 = 256 * 1024 * 1024;
 pub struct AppState {
     pub data: Data,
     pub search: Search,
+    pub periods: Periods,
     /// Serialized JSON for previously requested trees. Compression happens
     /// downstream in the `CompressionLayer`, so one entry serves every
     /// `Accept-Encoding`.
@@ -71,8 +75,18 @@ pub struct AppState {
 impl AppState {
     /// # Errors
     ///
-    /// Will return `Err` if deserializing the data file fails.
-    pub fn new(data_path: &std::path::Path) -> Result<Self> {
+    /// Will return `Err` if deserializing the data file fails, or if the
+    /// periods file exists but is invalid.
+    pub fn new(data_path: &std::path::Path, periods_path: &std::path::Path) -> Result<Self> {
+        let periods = Periods::load(periods_path)?;
+        println!(
+            "Loaded {} language periods from {}.",
+            periods.languages,
+            periods_path.display()
+        );
+        if !periods.unknown_codes.is_empty() {
+            tracing::warn!("periods for unknown lang codes ignored: {:?}", periods.unknown_codes);
+        }
         let data = Data::deserialize_with_legacy(data_path, std::env::var("WETY_ALLOW_LEGACY_GRAPH").as_deref() == Ok("1"))?;
         let search = data.build_search();
         let tree_cache = Cache::builder()
@@ -82,6 +96,7 @@ impl AppState {
         Ok(Self {
             data,
             search,
+            periods,
             tree_cache,
         })
     }
@@ -184,6 +199,16 @@ pub async fn lang(Path(lang): Path<Lang>) -> Response {
         return StatusCode::NOT_FOUND.into_response();
     }
     Json(lang.json()).into_response()
+}
+
+/// When each language was spoken, where the dating registry has adopted a
+/// cited period (`language_periods.json`). Empty when no export is present.
+pub async fn periods(State(state): State<Arc<AppState>>) -> Response {
+    (
+        [(header::CONTENT_TYPE, "application/json")],
+        state.periods.bytes.clone(),
+    )
+        .into_response()
 }
 
 pub async fn item(State(state): State<Arc<AppState>>, Path(item_id): Path<ItemId>) -> Response {

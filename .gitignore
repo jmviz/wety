@@ -24,6 +24,8 @@ __pycache__/
 !/data/registry/**
 !/data/products/*/CURRENT.json
 !/data/products/iecor/iecor_matches_receipt.json
+# Display periods exported from adopted dating decisions; the server loads it.
+!/data/products/dating/language_periods.json
 
 # Small reference inputs consumed by the Rust build.
 !/data/artifacts/wiktionary-export/legacy/files/*.json
@@ -40,6 +42,7 @@ __pycache__/
 !/data/workspaces/dating/_constraints/*.json
 !/data/workspaces/dating/_analyses/*.json
 !/data/workspaces/dating/_evidence/*.json
+!/data/workspaces/dating/_decisions/decisions.json
 
 # Research dossiers: the readable result, not the run machinery.
 !/data/workspaces/dating/_research/*/README.md

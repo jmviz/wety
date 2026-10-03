@@ -430,3 +430,31 @@
   padding-top: 0.35em;
   min-height: 0.3em;
 }
+
+/* Dates (behind the "dates" toggle) -------------------------------------- */
+
+.tree-view .period {
+  color: var(--muted);
+  font-size: 0.8em;
+  white-space: nowrap;
+  margin-left: 0.35em;
+}
+
+.chart-box .period {
+  display: block;
+  margin-left: 0;
+}
+
+.tree-view .period .basis {
+  font-size: 0.85em;
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.04em;
+  margin-left: 0.3em;
+  padding: 0 0.25em;
+  border: 1px solid var(--faint);
+  border-radius: 0.3em;
+}
+
+.tree-view .period .basis-estimated {
+  border-style: dashed;
+}

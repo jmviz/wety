@@ -3,6 +3,7 @@ import { TreeNode, outlineSources } from "./model";
 import { langColor } from "./langColor";
 import { etyModeShort, etyPrep } from "./etyMode";
 import { showGlosses } from "../state";
+import { BASIS_MARK, BASIS_NAME, periodOf } from "./periods";
 
 import { For, Show } from "solid-js";
 
@@ -46,6 +47,19 @@ export default function NodeLabel(props: NodeLabelProps) {
           <span class="romanization">{item().romanization}</span>
         </Show>
       </button>
+      <Show when={periodOf(item().lang.id)}>
+        {(p) => (
+          <span
+            class="period"
+            title={`${item().lang.name}: ${BASIS_NAME[p().basis]} (${p()
+              .evidence.map((e) => e.source)
+              .join("; ")})`}
+          >
+            {p().label}
+            <span class={`basis basis-${p().basis}`}>{BASIS_MARK[p().basis]}</span>
+          </span>
+        )}
+      </Show>
       <Show when={props.inlineMode && props.node.etyMode}>
         <span class="mode">
           <span class="mode-name">{etyModeShort(props.node.etyMode!)}</span>

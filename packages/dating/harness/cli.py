@@ -11,6 +11,7 @@ dating llm-check [BACKEND ...]               same structured probe through every
 dating costs                                 model spend and tokens from the logs
 dating llm-synthesize FAMILY                 save a review proposal; never adopt model dates
 dating validate                              check current generation, provenance, dependencies and mirrors
+dating export-periods [--out PATH]           display periods from adopted decisions -> language_periods.json
 dating report
 """
 
@@ -176,6 +177,12 @@ def cmd_validate(args) -> None:
         sys.exit(1)
 
 
+def cmd_export_periods(args) -> None:
+    from .periods import write_periods
+
+    print(json.dumps(write_periods(args.out), indent=2))
+
+
 def cmd_report(args) -> None:
     from .registry import current_bundle, report
 
@@ -246,6 +253,9 @@ def main() -> None:
     p.set_defaults(fn=cmd_llm_synthesize)
     p = sub.add_parser("validate")
     p.set_defaults(fn=cmd_validate)
+    p = sub.add_parser("export-periods")
+    p.add_argument("--out")
+    p.set_defaults(fn=cmd_export_periods)
     p = sub.add_parser("report")
     p.set_defaults(fn=cmd_report)
     p = sub.add_parser("benchmark")

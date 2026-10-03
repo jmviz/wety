@@ -1,0 +1,182 @@
+import unittest
+
+from harness.evidence import normalize_time
+from harness.periods import export_periods, label
+
+SOURCES = {
+    "src_bc": {"id": "src_bc", "authors": ["Baugh, Albert C.", "Cable, Thomas"], "year": 2013},
+    "src_iso": {
+        "id": "src_iso",
+        "title": "ISO 639-3 code tables",
+        "url": "https://iso639-3.sil.org",
+    },
+    "src_many": {"id": "src_many", "authors": ["A, a", "B, b", "C, c"], "year": 2001},
+}
+
+
+def claim(cid, code, event, role, raw, source="src_bc", status="supported", mapping="exact"):
+    return {
+        "id": cid,
+        "status": status,
+        "subject": {"id": "wikt:" + code, "name": code, "mapping": mapping},
+        "event": event,
+        "role": role,
+        "time": normalize_time(raw).model_dump(),
+        "source_id": source,
+        "spans": [{"quote": "q " + cid, "locator": "p. 1"}],
+        "analysis_id": None,
+    }
+
+
+def bundle(claims, adopted, kinds=None):
+    kinds = kinds or {}
+    codes = {c["subject"]["id"][5:] for c in claims}
+    view = {
+        code: {
+            "name": code.upper(),
+            "kind": kinds.get(code, "regular"),
+            "evidence_ids": [c["id"] for c in claims if c["subject"]["id"] == "wikt:" + code],
+        }
+        for code in codes
+    }
+    by_id = {c["id"]: c for c in claims}
+    decisions = [
+        {"subject_id": by_id[i]["subject"]["id"], "event": by_id[i]["event"], "claim_id": i}
+        for i in adopted
+    ]
+    return {"claims": claims, "sources": SOURCES, "view": view, "decisions": decisions}
+
+
+def years(lo, hi, unit="CE", **extra):
+    return {
+        "form": "duration",
+        "unit": unit,
+        "lower": lo,
+        "upper": hi,
+        "precision": "year",
+        **extra,
+    }
+
+
+class PeriodExportTests(unittest.TestCase):
+    def test_conventional_period_with_alternative_kept_separate(self):
+        claims = [
+            claim(
+                "a", "ang", "conventional_period", "convention", years(450, 1150, approximate=True)
+            ),
+            claim("b", "ang", "conventional_period", "convention", years(450, 1100), "src_iso"),
+        ]
+        out = export_periods(bundle(claims, ["a"]), "gen")
+        (ang,) = out["languages"]
+        self.assertEqual(ang["kind"], "stage")
+        self.assertEqual(ang["basis"], "conventional")
+        self.assertEqual(
+            ang["spoken"],
+            {
+                "start": {"earliest": 450, "latest": 450},
+                "end": {"earliest": 1150, "latest": 1150},
+                "ongoing": False,
+            },
+        )
+        self.assertEqual(ang["label"], "c. 450–1150 CE")
+        self.assertEqual(ang["evidence"][0]["source"], "Baugh & Cable 2013")
+        self.assertEqual(ang["evidence"][0]["quote"], "q a")
+        # The other source stays a separate alternative; nothing is averaged.
+        (alt,) = ang["alternatives"]
+        self.assertEqual((alt["claim_id"], alt["label"]), ("b", "450–1100 CE"))
+        self.assertEqual(alt["source"], "ISO 639-3 code tables")
+        self.assertEqual(out["generation"], "gen")
+
+    def test_only_adopted_supported_exact_evidence_is_displayed(self):
+        claims = [
+            claim("a", "enm", "conventional_period", "convention", years(1150, 1500)),
+            claim(
+                "c", "got", "conventional_period", "convention", years(350, 380), status="candidate"
+            ),
+            claim("s", "la", "conventional_period", "convention", years(1, 200), mapping="subset"),
+        ]
+        out = export_periods(bundle(claims, ["s"]), "gen")
+        self.assertEqual(out["languages"], [])
+        # Without a decision, a supported claim is not a period.
+        self.assertEqual(export_periods(bundle(claims, []), "gen")["languages"], [])
+
+    def test_bce_years_are_astronomical_and_labels_convert(self):
+        raw = years(500, 2600, unit="BCE", approximate=True)
+        claims = [claim("a", "akk", "conventional_period", "convention", raw)]
+        (akk,) = export_periods(bundle(claims, ["a"]), "gen")["languages"]
+        self.assertEqual(akk["spoken"]["start"], {"earliest": -2599, "latest": -2599})
+        self.assertEqual(akk["spoken"]["end"], {"earliest": -499, "latest": -499})
+        self.assertEqual(akk["label"], "c. 2600–500 BCE")
+
+    def test_century_endpoints_keep_their_width(self):
+        raw = {"form": "duration", "unit": "century_CE", "lower": 5, "upper": 12}
+        claims = [claim("a", "ang", "conventional_period", "convention", raw)]
+        (ang,) = export_periods(bundle(claims, ["a"]), "gen")["languages"]
+        self.assertEqual(ang["spoken"]["start"], {"earliest": 401, "latest": 500})
+        self.assertEqual(ang["spoken"]["end"], {"earliest": 1101, "latest": 1200})
+        self.assertEqual(ang["label"], "5th–12th century CE")
+
+    def test_attestation_window_from_two_events(self):
+        first = {
+            "form": "event_range",
+            "unit": "CE",
+            "lower": 350,
+            "upper": 380,
+            "precision": "decade",
+        }
+        last = {"form": "point", "unit": "CE", "value": 550, "precision": "year"}
+        claims = [
+            claim("f", "got", "first_attestation", "observation", first),
+            claim("l", "got", "last_attestation", "observation", last),
+        ]
+        (got,) = export_periods(bundle(claims, ["f", "l"]), "gen")["languages"]
+        self.assertEqual((got["kind"], got["basis"]), ("attested", "attested"))
+        self.assertEqual(got["spoken"]["start"], {"earliest": 350, "latest": 380})
+        self.assertEqual(got["spoken"]["end"], {"earliest": 550, "latest": 550})
+        self.assertEqual(got["label"], "350/380–550 CE")
+        self.assertEqual([e["claim_id"] for e in got["evidence"]], ["f", "l"])
+
+    def test_proto_is_always_estimated(self):
+        raw = years(2500, 4500, unit="BCE", approximate=True)
+        claims = [claim("p", "ine-pro", "conventional_period", "convention", raw, "src_many")]
+        (pie,) = export_periods(bundle(claims, ["p"], {"ine-pro": "reconstructed"}), "gen")[
+            "languages"
+        ]
+        self.assertEqual((pie["kind"], pie["basis"]), ("proto", "estimated"))
+        self.assertEqual(pie["evidence"][0]["source"], "A et al. 2001")
+
+    def test_open_endpoints_and_family_splits(self):
+        self.assertEqual(label(None, (900, 900)), "until 900 CE")
+        self.assertEqual(label((1500, 1500), None, ongoing=True), "1500 CE–present")
+        self.assertEqual(
+            label((-1249, -1249), (220, 220), approximate=True), "c. 1250 BCE – 220 CE"
+        )
+        split = {
+            **claim(
+                "x",
+                "ine",
+                "crown_divergence",
+                "posterior",
+                {
+                    "form": "distribution",
+                    "unit": "BP",
+                    "mean": 8120,
+                    "lower": 7000,
+                    "upper": 9000,
+                    "interval_type": "hpd",
+                    "probability": 0.95,
+                    "present": 1950,
+                },
+            ),
+            "analysis_id": "an1",
+        }
+        split["subject"] = {"id": "clade:ie", "name": "Indo-European", "mapping": "exact"}
+        out = export_periods(bundle([split], []), "gen")
+        self.assertEqual(out["languages"], [])
+        (s,) = out["family_splits"]
+        self.assertEqual((s["node"], s["analysis"], s["epoch"]), ("Indo-European", "an1", 1950))
+        self.assertEqual(s["estimate"]["interval_type"], "hpd")
+
+
+if __name__ == "__main__":
+    unittest.main()

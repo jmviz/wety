@@ -2,6 +2,7 @@ import { Lang, TreeKind } from "./types";
 import { searchLangs } from "./api";
 import { useGoTo } from "./navigate";
 import FiltersPanel from "../settings/FiltersPanel";
+import { showDates, toggleDates } from "../ety/periods";
 import {
   lastRequest,
   selectedDescLangs,
@@ -86,6 +87,16 @@ export default function ViewBar() {
                 <span class="count">{filterCount()}</span>
               </Show>
               <span class="disclosure" aria-hidden="true" />
+            </button>
+            <button
+              type="button"
+              class="view-link"
+              classList={{ on: showDates() }}
+              aria-pressed={showDates()}
+              title="Show when each language was spoken, where a cited period is available"
+              onClick={toggleDates}
+            >
+              dates
             </button>
           </nav>
           <Show when={panel() === "langs" && hasDescLangs()}>

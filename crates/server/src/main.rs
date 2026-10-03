@@ -1,6 +1,6 @@
 use server::{
     AppState, Environment, item, item_cognates, item_descendants, item_etymology,
-    item_search_matches, lang, lang_search_matches,
+    item_search_matches, lang, lang_search_matches, periods, periods::DEFAULT_PERIODS_PATH,
 };
 
 use std::{env, net::SocketAddr, path::Path, str::FromStr, sync::Arc};
@@ -50,7 +50,9 @@ async fn main() -> Result<()> {
             format!("{artifact}/files/{entrypoint}")
         }
     };
-    let state = Arc::new(AppState::new(Path::new(&data_path))?);
+    let periods_path =
+        env::var("WETY_PERIODS_PATH").unwrap_or_else(|_| DEFAULT_PERIODS_PATH.to_string());
+    let state = Arc::new(AppState::new(Path::new(&data_path), Path::new(&periods_path))?);
 
     let app = Router::new()
         .route("/search/lang", get(lang_search_matches))
@@ -60,6 +62,7 @@ async fn main() -> Result<()> {
         .route("/cognates/:item", get(item_cognates))
         .route("/etymology/:item", get(item_etymology))
         .route("/descendants/:item", get(item_descendants))
+        .route("/periods", get(periods))
         .with_state(state)
         .layer(
             ServiceBuilder::new()

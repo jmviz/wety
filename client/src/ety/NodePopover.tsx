@@ -3,6 +3,7 @@ import { Item, TreeKind, term } from "../search/types";
 import { EtySource, sourcesOf } from "./model";
 import { langColor } from "./langColor";
 import { etyModeRep, etyPrep } from "./etyMode";
+import { BASIS_NAME, LangPeriod, PeriodEvidence, periodOf } from "./periods";
 import {
   popover,
   popoverEnter,
@@ -187,6 +188,9 @@ export default function NodePopover() {
                   </ol>
                 )}
               </Show>
+              <Show when={periodOf(item().lang.id)}>
+                {(p) => <PeriodSection period={p()} />}
+              </Show>
               <Show when={node().etyMode && sourcesOf(forest()!, node()).length}>
                 <div class="popover-ety">{etyLine(node().etyMode!, sourcesOf(forest()!, node()))}</div>
               </Show>
@@ -238,5 +242,47 @@ export function etyLine(mode: string, sources: EtySource[]): JSX.Element {
       <span class="ety-prep">{etyPrep(mode)}</span>
       {parts}
     </>
+  );
+}
+
+// "Spoken c. 450–1150 CE · conventional period", then each citation and any
+// other sources' periods, kept separate.
+function PeriodSection(props: { period: LangPeriod }) {
+  const cite = (e: PeriodEvidence) => (
+    <>
+      <Show when={e.url} fallback={<span class="period-source">{e.source}</span>}>
+        <a class="period-source" href={e.url!} target="_blank" rel="noopener noreferrer">
+          {e.source}
+        </a>
+      </Show>
+      <Show when={e.locator}>, {e.locator}</Show>
+      <Show when={e.quote}>
+        <q class="period-quote">{e.quote}</q>
+      </Show>
+    </>
+  );
+  return (
+    <div class="popover-period">
+      <div>
+        <span class="period-head">{props.period.lang.name} spoken</span>{" "}
+        <span class="period-label">{props.period.label}</span>{" "}
+        <span class="period-basis">· {BASIS_NAME[props.period.basis]}</span>
+      </div>
+      <ul class="period-cites">
+        <For each={props.period.evidence}>{(e) => <li title={e.citation ?? undefined}>{cite(e)}</li>}</For>
+      </ul>
+      <Show when={props.period.alternatives.length}>
+        <div class="popover-muted">Other sources:</div>
+        <ul class="period-cites">
+          <For each={props.period.alternatives}>
+            {(a) => (
+              <li title={a.citation ?? undefined}>
+                <span class="period-label">{a.label}</span> · {cite(a)}
+              </li>
+            )}
+          </For>
+        </ul>
+      </Show>
+    </div>
   );
 }
