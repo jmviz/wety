@@ -27,34 +27,35 @@ in the `packages/dating` registry.
 
 - Pilot: one Astra run checked 20 codes in 1,017 s; review corrected 6 items. See the
   [run README](data/workspaces/dating/_research/period-pilot-2026-10-03/README.md).
-- Research caps removed (time budget bounds runs; 400 model turns; OpenRouter cost
-  stop kept). Research tools gained `find` (matching lines with exact offsets).
+- Research caps removed (time budget bounds runs); research tools gained `find`.
 - Decisions bind to their subject's claims, sources and catalog record plus
   `DECISION_RULES`, not the whole harness fingerprint (`harness.cli decision-digest`).
-  A later republish with new IE-CoR inputs left all 11 decisions valid.
-- Catalog: 19 reviewed scope relations from the pilot (`ang enm gmh goh sga grc got
-  akk hit och ltc ojp`). A code may hold several reviewed decisions; a scope relation
-  (narrower/broader) keeps the catalog lookup. Catalog and IE-CoR matches rebuilt.
-- `harness.cli gc` applied: 48 dating generations (2.1 GB) reduced to 5 (240 MB):
-  current, two most recent, and two named by tracked records. Removal log is in
-  `data/archive/dating/gc/`.
+- Catalog: 20 reviewed scope relations (`ang enm gmh goh sga grc got akk hit och ltc
+  ojp la`). A code may hold several reviewed decisions; a scope relation keeps the
+  catalog lookup. A scope run for `cu sa la non` settled only `la`.
+  See the [scope run README](data/workspaces/dating/_research/scope-check-2026-10-03/README.md).
+- `build-packet` / `adopt`: reproducible review-to-registry import (reproduces the
+  pilot packet byte for byte).
+- `harness.cli gc` applied: 48 dating generations (2.1 GB) reduced to 5 (240 MB).
 
 ## Uncertainties
 
 - Most adopted sources are catalogs, not handbooks: the four handbooks were unreadable.
-- No usable period: `goh non got cu akk sa ojp ine-pro sla-pro`. The pilot left the
-  scope of `cu sa la non` unresolved; no catalog relation was recorded for them.
-- The review-to-packet step (registering sources, building claims) was a one-off
-  script in a scratchpad; the packet records its output, not the procedure.
+- No usable period: `goh non got cu akk sa ojp ine-pro sla-pro`. Scope of `cu`, `sa`
+  (both catalogs) and ISO `lat`/`non` remains unresolved; it needs catalog
+  denotations that the sources read do not give.
+- The catalog's Wiktionary export is legacy, and current Wiktionary has drifted
+  (Old Gutnish split off `non`, Sanskrit stage codes renamed, more varieties under `la`).
 
 ## Next three actions
 
 1. PDF/handbook access route: a separate session (handoff written). Then retry the 9
-   missing codes from this branch.
-2. Turn the review-to-packet integration into a harness command, so a reviewed run
-   imports reproducibly (`assertions.jsonl` + `review.json` -> packet).
-3. Resolve the scope of `cu sa la non` during the retry and record it in the catalog.
+   missing codes from this branch with `build-packet`/`adopt`.
+2. Refresh the Wiktionary export behind the catalog (a source refresh: rebuild and
+   re-review stale catalog and dating decisions). Then record `non` as narrower.
+3. Settle `cu`/`sa` scope during the retry, where handbooks define the stages.
 
 ## Decisions needed from the maintainer
 
-- None open. Merging `dating-pilot` into `main` waits for the maintainer (it deploys).
+- Whether to refresh the Wiktionary export (action 2); it touches every consumer.
+- Merging `dating-pilot` into `main` waits for the maintainer (it deploys).

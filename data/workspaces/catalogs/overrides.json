@@ -285,6 +285,22 @@
           "data/workspaces/dating/_research/period-pilot-2026-10-03/README.md"
         ]
       }
+    ],
+    "wikt:lang:la": [
+      {
+        "target": "glottolog:lati1261",
+        "relation": "source_broader",
+        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's scope check, 2026-10-03",
+        "rationale": "Wiktionary files Old Latin (itc-ola) under la; Glottolog classifies Old Latin (oldl1238) as a separate language beside Latin (lati1261), whose children are Late, Medieval and Vulgar Latin.",
+        "references": [
+          "data/artifacts/wiktionary-export/legacy/files/languages.json#itc-ola",
+          "https://glottolog.org/resource/languoid/id/oldl1238.json",
+          "https://glottolog.org/resource/languoid/id/lati1261.json",
+          "data/workspaces/dating/_research/scope-check-2026-10-03/report.md"
+        ],
+        "source_snapshot": "ef06d08e444cab6740674fde5d036ab9425118349674598a22fe7859e471c151",
+        "purpose": "dating: whether a period a source states for the target applies to the whole Wiktionary code (including etymology-only varieties filed under it); no chronology transfer"
+      }
     ]
   }
 }
