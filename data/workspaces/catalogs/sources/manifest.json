@@ -1,0 +1,103 @@
+{
+  "files": {
+    "ISO-639-2_utf-8.txt": {
+      "bytes": 16010,
+      "retrieved": "2026-09-17T01:39:39+00:00",
+      "sha256": "42b71885e4dc885559fda5ad059fd81838cf4782cedb5fd08cc3431f7d067371",
+      "url": "https://www.loc.gov/standards/iso639-2/ISO-639-2_utf-8.txt"
+    },
+    "iso-639-3-macrolanguages.tab": {
+      "bytes": 4609,
+      "retrieved": "2026-09-17T01:39:39+00:00",
+      "sha256": "fb01a86376d9c1abfc96d16be1b6dcffb4776a1f52fa22338d4979e9ffe1822f",
+      "url": "https://iso639-3.sil.org/sites/iso639-3/files/downloads/iso-639-3-macrolanguages.tab"
+    },
+    "iso-639-3.tab": {
+      "bytes": 178280,
+      "retrieved": "2026-09-17T01:39:39+00:00",
+      "sha256": "7a5ac370703ea0897356a8c383f2147865caf479e41c1c7bd96cc4c5f65e6907",
+      "url": "https://iso639-3.sil.org/sites/iso639-3/files/downloads/iso-639-3.tab"
+    },
+    "iso-639-3_Retirements.tab": {
+      "bytes": 19046,
+      "retrieved": "2026-09-17T01:39:39+00:00",
+      "sha256": "c4c5105798541859ce6f0125572132dfcfaf6ab8485ed6a77ca9592404386cb8",
+      "url": "https://iso639-3.sil.org/sites/iso639-3/files/downloads/iso-639-3_Retirements.tab"
+    },
+    "iso639-5.tsv": {
+      "bytes": 10282,
+      "retrieved": "2026-09-17T01:39:39+00:00",
+      "sha256": "b048896af19441dab96d74285b1a4c6a32c752e960009b93bea5dcf8332be0bf",
+      "url": "https://id.loc.gov/vocabulary/iso639-5.tsv"
+    },
+    "wikidata_codes.json": {
+      "items": 11973,
+      "queries": [
+        {
+          "at": "2026-09-17T01:39:39+00:00",
+          "property": "P218",
+          "query": "SELECT ?item ?v WHERE { ?item wdt:P218 ?v . }",
+          "rows": 186
+        },
+        {
+          "at": "2026-09-17T01:39:40+00:00",
+          "property": "P219",
+          "query": "SELECT ?item ?v WHERE { ?item wdt:P219 ?v . }",
+          "rows": 507
+        },
+        {
+          "at": "2026-09-17T01:39:42+00:00",
+          "property": "P220",
+          "query": "SELECT ?item ?v WHERE { ?item wdt:P220 ?v . }",
+          "rows": 8275
+        },
+        {
+          "at": "2026-09-17T01:39:42+00:00",
+          "property": "P1798",
+          "query": "SELECT ?item ?v WHERE { ?item wdt:P1798 ?v . }",
+          "rows": 116
+        },
+        {
+          "at": "2026-09-17T01:39:43+00:00",
+          "property": "P1394",
+          "query": "SELECT ?item ?v WHERE { ?item wdt:P1394 ?v . }",
+          "rows": 11923
+        }
+      ],
+      "retrieved": "2026-09-17T01:39:43+00:00",
+      "sha256": "6d2e62596a9f57c41a17c27bba4e87c15d9eabf755a2954e7fffbba0596a3e65",
+      "url": "https://query.wikidata.org/sparql"
+    },
+    "wikidata_items.json": {
+      "batches": 29,
+      "inputs": {
+        "families.json": "5aaab792df6b89f3764209fc98518d88a2149bcbf019971b19b14ef8a1afa019",
+        "languages.json": "448da3df14bbe2d52cce6669143b4916ef3b5526eeb053ecc71b8e629944a7d6"
+      },
+      "properties": {
+        "P1232": "linguist_list",
+        "P1249": "earliest_written_record",
+        "P1394": "glottocode",
+        "P1627": "ethnologue",
+        "P1798": "iso639_5",
+        "P218": "iso639_1",
+        "P219": "iso639_2",
+        "P220": "iso639_3",
+        "P279": "subclass_of",
+        "P305": "ietf",
+        "P31": "instance_of",
+        "P424": "wikimedia_code",
+        "P571": "inception",
+        "P576": "dissolved",
+        "P580": "start_time",
+        "P582": "end_time"
+      },
+      "queried_items": 8603,
+      "redirected_items": 96,
+      "retrieved": "2026-09-17T01:40:37+00:00",
+      "sha256": "fb913b988c6fa5a13671f43603025a72f61b1b79f4f684b8e3346e6f2d5571df",
+      "url": "https://query.wikidata.org/sparql"
+    }
+  },
+  "last_run": "2026-09-17T01:40:37+00:00"
+}

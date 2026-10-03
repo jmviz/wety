@@ -1,0 +1,6 @@
+{
+  "schema_version": 1,
+  "artifact": "data/artifacts/etymology-graph/legacy",
+  "entrypoint": "wety.json",
+  "status": "legacy_unverified"
+}

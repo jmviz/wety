@@ -1,0 +1,8 @@
+{
+  "wiktionary_languages": "data/artifacts/wiktionary-export/legacy/files/languages.json",
+  "wiktionary_families": "data/artifacts/wiktionary-export/legacy/files/families.json",
+  "glottolog_cldf": "data/artifacts/glottolog/5.3/files/glottolog/cldf",
+  "iecor_languages": "data/artifacts/iecor/legacy/files/languages.csv",
+  "wiktextract": "data/artifacts/wiktextract/legacy/files/raw-wiktextract-data.jsonl.gz",
+  "legacy_graph": "data/artifacts/etymology-graph/legacy/files/wety.json"
+}

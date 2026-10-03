@@ -1,0 +1,9 @@
+{
+  "old_snapshot": "b7043a9c6be73c126dbc1323a69105919f284e19febcd192d9b1e89e05095958",
+  "new_snapshot": "ef06d08e444cab6740674fde5d036ab9425118349674598a22fe7859e471c151",
+  "verified": "Every input file SHA-256 unchanged; only physical provenance paths changed. Existing scope-limited review retained; no new equivalence approved.",
+  "subjects": [
+    "wikt:lang:nds"
+  ],
+  "identity_policy": "Source identity now hashes named input-file hashes, not physical paths; future relocations preserve it."
+}

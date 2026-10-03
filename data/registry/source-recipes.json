@@ -1,0 +1,112 @@
+{
+  "recipes": [
+    {
+      "command": [
+        "python",
+        "-m",
+        "source_tools.catalog_sources",
+        "--skip-wikidata"
+      ],
+      "id": "iso",
+      "policy": "Explicit refresh; source manifest locks exact bytes. Each HTTP response retained with acquisition receipt."
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "source_tools.catalog_sources",
+        "--skip-iso",
+        "--statement-details"
+      ],
+      "id": "wikidata",
+      "policy": "Query-defined snapshot, with raw responses and statement metadata. A later live query is a new snapshot."
+    },
+    {
+      "command": [
+        "wety-sources",
+        "glottolog",
+        "https://github.com/glottolog/glottolog-cldf/archive/{commit}.zip",
+        "--version",
+        "{commit}",
+        "--sha256",
+        "{archive_sha256}"
+      ],
+      "id": "glottolog",
+      "policy": "Select a release commit, retain ZIP and safe extraction. Lock content hashes; never choose by directory sort."
+    },
+    {
+      "command": [
+        "wety-sources",
+        "wiktionary-dump",
+        "{dated_dump_url}",
+        "--version",
+        "{dump_date}",
+        "--sha256",
+        "{sha256}"
+      ],
+      "id": "wiktionary-dump",
+      "policy": "Retain original dump and companion checksum/metadata files through the same acquirer."
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "source_tools.language_data",
+        "{dump_path}",
+        "--dump-url",
+        "{dated_dump_url}"
+      ],
+      "id": "wiktionary-export",
+      "policy": "Exports to a workspace; dump/Lua/exporter/dependency hashes recorded. Review and explicitly select a new immutable artifact before rebuilding consumers."
+    },
+    {
+      "command": [
+        "wety-sources",
+        "iecor",
+        "{immutable_deposit_or_commit_file_url}",
+        "--version",
+        "{deposit_or_commit}",
+        "--sha256",
+        "{sha256}"
+      ],
+      "id": "iecor",
+      "policy": "Source choice must identify the publication analysis and table; legacy CSV upstream identity unresolved."
+    },
+    {
+      "command": [
+        "wety-sources",
+        "wiktextract",
+        "https://kaikki.org/dictionary/raw-wiktextract-data.jsonl.gz",
+        "--sha256",
+        "{sha256}",
+        "--version",
+        "{dump_date_and_extractor_commits}"
+      ],
+      "id": "kaikki",
+      "policy": "Capture https://kaikki.org/dictionary/rawdata.html with the acquirer too. The live URL cannot promise historical redownload; keep original bytes."
+    },
+    {
+      "command": [
+        "dating",
+        "retrieve",
+        "{family}"
+      ],
+      "id": "research-deposits",
+      "policy": "Domain retrieval retains documents and datasets; new dataset HTTP responses use the same artifact acquirer. Bibliographic IDs do not establish file-level reproducibility."
+    },
+    {
+      "id": "embedding-model-files",
+      "command": [
+        "wety-sources",
+        "embedding-model-files",
+        "https://huggingface.co/{model}/resolve/{revision}/{filename}",
+        "--version",
+        "{revision}",
+        "--sha256",
+        "{file_sha256}"
+      ],
+      "policy": "Use the model, revision and per-file hashes in embedding-model.json. Retain downloaded artifacts and restore their source bytes to the matching Hugging Face snapshots/<revision>/<filename> path before graph execution. The workflow verifies all three files before processing."
+    }
+  ],
+  "schema_version": 1
+}

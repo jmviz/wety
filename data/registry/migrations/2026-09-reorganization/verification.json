@@ -1,0 +1,262 @@
+{
+  "preservation": {
+    "bytes": 25476626488,
+    "edited_without_separate_original": [],
+    "inventoried": 1975,
+    "missing": [],
+    "original_preserved": [
+      {
+        "original": "core/Cargo.toml",
+        "preserved_at": "data/archive/reorganization-originals/core/Cargo.toml"
+      },
+      {
+        "original": "core/data/iecor_matches_receipt.json",
+        "preserved_at": "data/archive/reorganization-originals/core/data/iecor_matches_receipt.json"
+      },
+      {
+        "original": "core/data/langcodes/CURRENT.json",
+        "preserved_at": "data/archive/reorganization-originals/core/data/langcodes/CURRENT.json"
+      },
+      {
+        "original": "core/data/langcodes/README.md",
+        "preserved_at": "data/archive/reorganization-originals/core/data/langcodes/README.md"
+      },
+      {
+        "original": "core/data/langcodes/build.py",
+        "preserved_at": "data/archive/reorganization-originals/core/data/langcodes/build.py"
+      },
+      {
+        "original": "core/data/langcodes/critique.md",
+        "preserved_at": "data/archive/reorganization-originals/core/data/langcodes/critique.md"
+      },
+      {
+        "original": "core/data/langcodes/fetch_sources.py",
+        "preserved_at": "data/archive/reorganization-originals/core/data/langcodes/fetch_sources.py"
+      },
+      {
+        "original": "core/data/langcodes/index_by_target.json",
+        "preserved_at": "data/artifacts/catalog-generations/0ee4d76f70be6b265302fbb6394a7e42b52437a1a74f00e04c61888adf3e80fa/index_by_target.json"
+      },
+      {
+        "original": "core/data/langcodes/overrides.json",
+        "preserved_at": "data/archive/reorganization-originals/core/data/langcodes/overrides.json"
+      },
+      {
+        "original": "core/data/langcodes/registry.py",
+        "preserved_at": "data/archive/reorganization-originals/core/data/langcodes/registry.py"
+      },
+      {
+        "original": "core/data/langcodes/report.md",
+        "preserved_at": "data/archive/reorganization-originals/core/data/langcodes/report.md"
+      },
+      {
+        "original": "core/data/langcodes/review-ledger.json",
+        "preserved_at": "data/archive/reorganization-originals/core/data/langcodes/review-ledger.json"
+      },
+      {
+        "original": "core/data/langcodes/review_queue.json",
+        "preserved_at": "data/artifacts/catalog-generations/0ee4d76f70be6b265302fbb6394a7e42b52437a1a74f00e04c61888adf3e80fa/review_queue.json"
+      },
+      {
+        "original": "core/data/langcodes/tests/test_registry.py",
+        "preserved_at": "data/archive/reorganization-originals/core/data/langcodes/tests/test_registry.py"
+      },
+      {
+        "original": "core/data/langcodes/wiktionary_families.csv",
+        "preserved_at": "data/artifacts/catalog-generations/0ee4d76f70be6b265302fbb6394a7e42b52437a1a74f00e04c61888adf3e80fa/wiktionary_families.csv"
+      },
+      {
+        "original": "core/data/langcodes/wiktionary_families.json",
+        "preserved_at": "data/artifacts/catalog-generations/0ee4d76f70be6b265302fbb6394a7e42b52437a1a74f00e04c61888adf3e80fa/wiktionary_families.json"
+      },
+      {
+        "original": "core/data/langcodes/wiktionary_langcodes.csv",
+        "preserved_at": "data/artifacts/catalog-generations/0ee4d76f70be6b265302fbb6394a7e42b52437a1a74f00e04c61888adf3e80fa/wiktionary_langcodes.csv"
+      },
+      {
+        "original": "core/data/langcodes/wiktionary_langcodes.json",
+        "preserved_at": "data/artifacts/catalog-generations/0ee4d76f70be6b265302fbb6394a7e42b52437a1a74f00e04c61888adf3e80fa/wiktionary_langcodes.json"
+      },
+      {
+        "original": "core/data/match_iecor_wiktionary.py",
+        "preserved_at": "data/archive/reorganization-originals/core/data/match_iecor_wiktionary.py"
+      },
+      {
+        "original": "core/src/languages.rs",
+        "preserved_at": "data/archive/reorganization-originals/core/src/languages.rs"
+      },
+      {
+        "original": "core/src/pos_phf.rs",
+        "preserved_at": "data/archive/reorganization-originals/core/src/pos_phf.rs"
+      },
+      {
+        "original": "core/src/processed.rs",
+        "preserved_at": "data/archive/reorganization-originals/core/src/processed.rs"
+      },
+      {
+        "original": "processor/data/language_data.py",
+        "preserved_at": "data/archive/reorganization-originals/processor/data/language_data.py"
+      },
+      {
+        "original": "processor/data/pos_data.py",
+        "preserved_at": "data/archive/reorganization-originals/processor/data/pos_data.py"
+      },
+      {
+        "original": "processor/src/bin/create-test-file.rs",
+        "preserved_at": "data/archive/reorganization-originals/processor/src/bin/create-test-file.rs"
+      },
+      {
+        "original": "processor/src/embeddings.rs",
+        "preserved_at": "data/archive/reorganization-originals/processor/src/embeddings.rs"
+      },
+      {
+        "original": "processor/src/main.rs",
+        "preserved_at": "data/archive/reorganization-originals/processor/src/main.rs"
+      },
+      {
+        "original": "server/deployment.md",
+        "preserved_at": "data/archive/reorganization-originals/server/deployment.md"
+      },
+      {
+        "original": "server/src/lib.rs",
+        "preserved_at": "data/archive/reorganization-originals/server/src/lib.rs"
+      },
+      {
+        "original": "server/src/main.rs",
+        "preserved_at": "data/archive/reorganization-originals/server/src/main.rs"
+      },
+      {
+        "original": "dating/README.md",
+        "preserved_at": "data/archive/reorganization-originals/dating/README.md"
+      },
+      {
+        "original": "dating/data/_derived/CURRENT.json",
+        "preserved_at": "data/archive/reorganization-originals/dating/data/_derived/CURRENT.json"
+      },
+      {
+        "original": "dating/data/_derived/report.md",
+        "preserved_at": "data/archive/reorganization-originals/dating/data/_derived/report.md"
+      },
+      {
+        "original": "dating/data/_derived/wiktionary_dates.json",
+        "preserved_at": "data/archive/reorganization-originals/dating/data/_derived/wiktionary_dates.json"
+      },
+      {
+        "original": "dating/docs/critique-review.md",
+        "preserved_at": "data/archive/reorganization-originals/dating/docs/critique-review.md"
+      },
+      {
+        "original": "dating/docs/overhaul.md",
+        "preserved_at": "data/archive/reorganization-originals/dating/docs/overhaul.md"
+      },
+      {
+        "original": "dating/harness/benchmark.py",
+        "preserved_at": "data/archive/reorganization-originals/dating/harness/benchmark.py"
+      },
+      {
+        "original": "dating/harness/bootstrap/asjp.py",
+        "preserved_at": "data/archive/reorganization-originals/dating/harness/bootstrap/asjp.py"
+      },
+      {
+        "original": "dating/harness/bootstrap/iecor.py",
+        "preserved_at": "data/archive/reorganization-originals/dating/harness/bootstrap/iecor.py"
+      },
+      {
+        "original": "dating/harness/bootstrap/wikidata.py",
+        "preserved_at": "data/archive/reorganization-originals/dating/harness/bootstrap/wikidata.py"
+      },
+      {
+        "original": "dating/harness/bootstrap/wikipedia.py",
+        "preserved_at": "data/archive/reorganization-originals/dating/harness/bootstrap/wikipedia.py"
+      },
+      {
+        "original": "dating/harness/config.py",
+        "preserved_at": "data/archive/reorganization-originals/dating/harness/config.py"
+      },
+      {
+        "original": "dating/harness/datasets.py",
+        "preserved_at": "data/archive/reorganization-originals/dating/harness/datasets.py"
+      },
+      {
+        "original": "dating/harness/glotto.py",
+        "preserved_at": "data/archive/reorganization-originals/dating/harness/glotto.py"
+      },
+      {
+        "original": "dating/harness/pilot_sources.py",
+        "preserved_at": "data/archive/reorganization-originals/dating/harness/pilot_sources.py"
+      },
+      {
+        "original": "dating/harness/registry.py",
+        "preserved_at": "data/archive/reorganization-originals/dating/harness/registry.py"
+      },
+      {
+        "original": "dating/harness/review.py",
+        "preserved_at": "data/archive/reorganization-originals/dating/harness/review.py"
+      },
+      {
+        "original": "dating/harness/schema.py",
+        "preserved_at": "data/archive/reorganization-originals/dating/harness/schema.py"
+      },
+      {
+        "original": "dating/harness/store.py",
+        "preserved_at": "data/archive/reorganization-originals/dating/harness/store.py"
+      },
+      {
+        "original": "dating/harness/tasks.py",
+        "preserved_at": "data/archive/reorganization-originals/dating/harness/tasks.py"
+      },
+      {
+        "original": "dating/harness/tree_ingest.py",
+        "preserved_at": "data/archive/reorganization-originals/dating/harness/tree_ingest.py"
+      },
+      {
+        "original": "dating/harness/validate.py",
+        "preserved_at": "data/archive/reorganization-originals/dating/harness/validate.py"
+      },
+      {
+        "original": "dating/tests/test_catalog_links.py",
+        "preserved_at": "data/archive/reorganization-originals/dating/tests/test_catalog_links.py"
+      },
+      {
+        "original": "dating/tests/test_contract.py",
+        "preserved_at": "data/archive/reorganization-originals/dating/tests/test_contract.py"
+      },
+      {
+        "original": "dating/tests/test_review_regressions.py",
+        "preserved_at": "data/archive/reorganization-originals/dating/tests/test_review_regressions.py"
+      }
+    ],
+    "unchanged": 1920
+  },
+  "semantics": {
+    "catalog_before": "0ee4d76f70be6b265302fbb6394a7e42b52437a1a74f00e04c61888adf3e80fa",
+    "checks": {
+      "all_spoken_unknown": true,
+      "catalog_families": true,
+      "catalog_glottolog": true,
+      "catalog_index_by_target": true,
+      "catalog_languages": true,
+      "catalog_review_queue": true,
+      "dating_claims": true,
+      "dating_pilot_coverage": true,
+      "dating_records": true,
+      "dating_research_graph": true,
+      "dating_review_queue": true,
+      "dating_view": true
+    },
+    "counts": {
+      "catalog_families": 887,
+      "catalog_languages": 8625,
+      "dating_claims": 3562,
+      "dating_codes": 8625
+    },
+    "dating_before": "0b74b59ea169c7ce03425e41d60c70b532427de80d7fd2d5ee59f2891a10d8f3",
+    "passed": true,
+    "provenance_only_changes": [
+      "source_snapshot",
+      "crossref_generation",
+      "link_id(s)",
+      "content-derived link id/order"
+    ]
+  }
+}

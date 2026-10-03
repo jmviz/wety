@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "steps": [
+    {
+      "id": "inventory",
+      "description": "Record original paths, hashes, Git state and published generations",
+      "status": "complete",
+      "evidence": [
+        "inventory-before.json",
+        "git-status-before.txt"
+      ]
+    },
+    {
+      "id": "layout",
+      "description": "Move code, source material, research workspaces, products and archives",
+      "status": "complete",
+      "evidence": [
+        "relocations.json"
+      ]
+    },
+    {
+      "id": "consumers",
+      "description": "Update Python/Rust consumers and portable path resolution",
+      "status": "complete",
+      "evidence": [
+        "verification.json",
+        "decision-relocation.json"
+      ]
+    },
+    {
+      "id": "provenance",
+      "description": "Add source recipes, artifact receipts and explicit legacy limitations",
+      "status": "complete",
+      "evidence": [
+        "../../artifacts.json",
+        "../../source-lock.json",
+        "../../source-recipes.json"
+      ]
+    },
+    {
+      "id": "workflows",
+      "description": "Add stack-neutral workflow entry points and execution receipts",
+      "status": "complete",
+      "evidence": [
+        "../../../../workflows/catalogs/workflow.json",
+        "../../../../workflows/dating/workflow.json",
+        "../../../../workflows/etymology_graph/smoke.json"
+      ]
+    },
+    {
+      "id": "verification",
+      "description": "Run offline regression suites, rebuild products and compare scientific content",
+      "status": "complete",
+      "evidence": [
+        "verification.json",
+        "checks.json"
+      ]
+    },
+    {
+      "id": "documentation",
+      "description": "Document ownership, recovery, commands and remaining provenance gaps",
+      "status": "complete",
+      "evidence": [
+        "../../../../docs/architecture/reorganization.md",
+        "../../../../docs/architecture/provenance.md",
+        "../../../../docs/architecture/migration-checklist.md",
+        "../../../../README.md"
+      ]
+    }
+  ],
+  "completed_at": "2026-09-19T22:39:18.743948+00:00",
+  "result": "All seven stages completed and verified; limitations recorded in checks.json."
+}

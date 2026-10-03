@@ -1,0 +1,10 @@
+{
+  "files": {
+    "config.json": "ae8eb28eeebfed037bc91d77a98b336ee3a215b04c21deff81388868b4321f97",
+    "pytorch_model.bin": "54609dea3ff88f3167f049eeadbfe780b1173a3117bfac862134ebcd8ce33661",
+    "tokenizer.json": "be50c3628f2bf5bb5e3a7f17b1f74611b2561a3a27eeab05e5aa30f411572037"
+  },
+  "model": "sentence-transformers/all-MiniLM-L12-v2",
+  "revision": "7b92c94edb86f18b2d52ed2797de0c5d474632ae",
+  "selection_basis": "Existing local Hugging Face cached revision; not a claim about previous graph builds"
+}

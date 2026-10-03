@@ -1,0 +1,14 @@
+{
+ "crossref_generation": "8d0532e699eb414ac2defc1ef87af0c2b49b7eb1becbf76f2e1b8ce8e6e2012d",
+ "files": {
+  "data/artifacts/iecor/legacy/files/languages.csv": "fe9669ee3535889612e64a2d57ce407a1dca488891abe26a31ba3871b956a33a",
+  "data/artifacts/wiktionary-export/legacy/files/languages.json": "448da3df14bbe2d52cce6669143b4916ef3b5526eeb053ecc71b8e629944a7d6",
+  "data/products/iecor/iecor_wiktionary_matches.json": "84a3fe2b9cf7ac4f4b95d74972dc672f7cbb978dd89907e7ad1820f8a3601c79",
+  "packages/catalogs/iecor.py": "7b607de5aa64c23b1804328f4f3a91fb1cca7f9323c241576b82e3653ab56070"
+ },
+ "limitations": [
+  "Names and source codes only generate proposals; no sample-to-stage equivalence has been adjudicated.",
+  "Original IE-CoR table download/revision receipt unavailable in legacy input."
+ ],
+ "schema_version": 2
+}

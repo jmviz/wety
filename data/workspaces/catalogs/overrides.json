@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "notes": "Scope-limited reviewed links; no arbitrary output-field patches.",
+  "decisions": {
+    "wikt:lang:nds": {
+      "target": "glottolog:lowg1239",
+      "relation": "catalog_correspondence",
+      "reviewer": "Codex bounded catalog review 2026-09-19",
+      "rationale": "Wiktionary nds is the broader Low German umbrella; the local Glottolog Low German family is a useful catalog context. This does not establish exact historical extension. nds-de and nds-nl are regular codes in this Wiktionary snapshot, not etymology-only codes.",
+      "references": [
+        "core/data/languages.json#nds",
+        "Glottolog 5.3 languages.csv#lowg1239",
+        "sources/wikidata_items.json#Q25433"
+      ],
+      "source_snapshot": "ef06d08e444cab6740674fde5d036ab9425118349674598a22fe7859e471c151",
+      "purpose": "catalog lookup; no chronology or sample identity transfer"
+    }
+  }
+}

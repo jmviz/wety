@@ -1,0 +1,53 @@
+{
+  "artifacts": [
+    {
+      "artifact_id": "sha256:5615b63117fc00c94c7fb27bff4acfb8e0ba8b2eda9c62b809816821f0915f75",
+      "collection": "catalog-source-snapshot",
+      "limitations": [
+        "Source URLs, retrieval dates, queries and hashes retained in files/manifest.json; raw HTTP bodies were not retained for legacy Wikidata aggregates."
+      ],
+      "path": "data/artifacts/catalog-source-snapshot/8f8d47a5d2f197f0b3e24da8dc67152f2931ff9b1ba0c2ef43c78e3de23a3b38"
+    },
+    {
+      "artifact_id": "sha256:70afce08f41c03e3015d115445db82a128ffb726eb3896ac13c6ec1db80fcf8f",
+      "collection": "wiktionary-export",
+      "limitations": [
+        "Original dump revision, download time and export environment unknown. Filename of an unrelated local dump is not provenance."
+      ],
+      "path": "data/artifacts/wiktionary-export/legacy"
+    },
+    {
+      "artifact_id": "sha256:6a607fe87ff2b18fa74b083b9febd32d7411b8408a3a21d9e9fb20bfae9dde4c",
+      "collection": "glottolog",
+      "limitations": [
+        "Release title and ZIP comment identify 5.3 / 072ca0d0410039fb8b779be8fc165bac575d2cda. Original acquisition time unknown."
+      ],
+      "path": "data/artifacts/glottolog/5.3"
+    },
+    {
+      "artifact_id": "sha256:b21993ca3a3581e9da7f8bbcd62f19880e727c80c02fac15bb28cb2a65a7f076",
+      "collection": "iecor",
+      "limitations": [
+        "Original table download URL, revision and acquisition date unknown; retain source sample IDs without asserting equivalence."
+      ],
+      "path": "data/artifacts/iecor/legacy"
+    },
+    {
+      "artifact_id": "sha256:da680aec5ffeb54d1e743e3a4de97b5f52d377c6608f8ebfc718d7089217d8a3",
+      "collection": "wiktextract",
+      "limitations": [
+        "Upstream dump date and wiktextract/wikitextprocessor commits unknown. Current Kaikki output is not a substitute for these exact bytes."
+      ],
+      "path": "data/artifacts/wiktextract/legacy"
+    },
+    {
+      "artifact_id": "sha256:0cf947f013bcefd612ddc074fb4583aabbd89817a2c1677e70b7525795279d76",
+      "collection": "etymology-graph",
+      "limitations": [
+        "Build inputs, model revision and numeric reference identity unverified; not a reproducible historical build."
+      ],
+      "path": "data/artifacts/etymology-graph/legacy"
+    }
+  ],
+  "schema_version": 1
+}

@@ -1,0 +1,12 @@
+ M processor/data/language_data.py
+?? core/data/.gitignore
+?? core/data/iecor_languages.csv
+?? core/data/iecor_matches_receipt.json
+?? core/data/iecor_wiktionary_matches.json
+?? core/data/iso639_1_and_2.csv
+?? core/data/iso639_1_to_3.csv
+?? core/data/langcodes/
+?? core/data/match_iecor_wiktionary.py
+?? dating/
+?? docs/
+?? openrouter.config.json

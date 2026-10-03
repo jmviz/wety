@@ -1,0 +1,65 @@
+{
+  "checked_at": "2026-09-19T22:39:18.743948+00:00",
+  "result": "passed",
+  "checks": [
+    {
+      "command": "python -m unittest discover -s packages/catalogs/tests -q",
+      "tests": 37,
+      "result": "passed"
+    },
+    {
+      "command": "python -m unittest discover -s packages/dating/tests -q",
+      "tests": 78,
+      "result": "passed"
+    },
+    {
+      "command": "python -m unittest discover -s packages/workflow_tools/tests -q",
+      "tests": 8,
+      "result": "passed"
+    },
+    {
+      "command": "cargo check --locked --offline --workspace --all-targets",
+      "result": "passed"
+    },
+    {
+      "command": "cargo test --locked --offline -p wety-core --lib",
+      "tests": 3,
+      "result": "passed"
+    },
+    {
+      "command": "python data/registry/migrations/2026-09-reorganization/exporter-smoke.py",
+      "result": "passed",
+      "scope": "Pinned optional imports, Lua invocation, JSON decoding; not full dump export"
+    },
+    {
+      "command": "python -m workflow_tools.migration",
+      "result": "passed",
+      "evidence": "verification.json"
+    },
+    {
+      "command": "python -m workflow_tools.cli verify-all",
+      "result": "passed",
+      "verified": 7,
+      "errors": {}
+    },
+    {
+      "command": "git diff --check",
+      "result": "passed"
+    }
+  ],
+  "workflow_receipts": {
+    "catalogs": "data/runs/1dc5990e55814a1e967f29a54a5f4c95/receipt.json",
+    "dating": "data/runs/a3fc94004e0e414a875850fc0868eae0/receipt.json",
+    "graph_smoke": "data/runs/cb4787b17ea648a3a10a38cdbcfea6d7/receipt.json"
+  },
+  "dating_reproduction_checks": {
+    "passed": 3,
+    "total": 3,
+    "scope": "Publication fidelity, not historical truth"
+  },
+  "limitations": [
+    "No full-corpus graph regeneration or full Wiktionary export.",
+    "No new historical provenance claimed for legacy inputs.",
+    "No deployment or service restart."
+  ]
+}
