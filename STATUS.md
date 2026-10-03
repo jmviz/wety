@@ -1,68 +1,66 @@
 # Status
 
-*Updated 2026-10-03. Branch `dating-pilot` (from `reorg-baseline`); pilot in progress.*
+*Updated 2026-10-03. Branch `dating-pilot` (from `reorg-baseline`), pushed; not merged.*
 
 ## What the project promises
 
-wety shows Wiktionary etymologies as trees. The dating work will let a user see when
-each language in a tree was spoken, optionally on etymology/descendant trees and on a
-separate language-family page. Each language node gets a time interval with
-uncertainty, its basis (conventional period, attestation, model estimate) and
-citations, derived from the evidence registry in `packages/dating`.
+wety shows Wiktionary etymologies as trees. Behind a toggle, language nodes show when
+the language was spoken: an interval, its basis and citations, from reviewed evidence
+in the `packages/dating` registry.
 
 ## What is usable today
 
-- **In the wety app: nothing yet.** No code in `crates/` or `client/` reads dating data.
-- Evidence registry: 3,575 claims (5 supported, 3,256 candidate, 314 quarantined);
-  0 of 8,625 Wiktionary codes have an exported chronology. Validation passes.
-- Reproduction of three deposited phylogenetic analyses (IE, Sino-Tibetan, Uralic).
-- Source-level dossiers for Uralic, Indo-European, Sino-Tibetan, Japonic and Turkic:
-  [packages/dating/families/](packages/dating/families/). All are proposals or
-  context; none maps a sampled clade to a Wiktionary stage.
+- **In the app:** a "dates" toggle on the view bar. **11 of the 20 pilot codes gained a
+  displayable, cited period.** Eight are full intervals: `ang enm gmh` (ISO 639-3
+  conventional periods), `hit och ltc` (Glottolog documentation windows, shown as
+  attestation), and `gem-pro cel-pro` (Koch 2020 estimates). Three are partial:
+  `sga` and `grc` (end only), `la` (first written record only). The node popover
+  shows quote, locator, link and other sources' periods. Checked in a browser on the
+  legacy graph (chart and outline).
+- `GET /periods` serves `data/products/dating/language_periods.json` (tracked;
+  `WETY_PERIODS_PATH` overrides; a missing file serves an empty list).
+- Registry: 3,614 claims (22 supported), 11 adopted decisions, 0 family splits (none
+  supported).
 
-## Dating pilot in progress: 20 codes
+## What changed
 
-Note: no existing claim has a `wikt:` subject. Candidate claims reach a code only through
-its Glottolog link, so the pilot checks the exact code mapping as part of source checking.
+- `prepare --brief FILE`; pilot brief in `packages/dating/prompts/period-verification.md`.
+- One Astra run (gpt-6-astra, high effort, Codex on ChatGPT): 1,017 s of 3,300 allowed;
+  2.09M input tokens (1.95M cached), 22k output. It used all 30 fetches and 250 of
+  260 tool actions (183 reads, mostly paging the Glottolog CSV). Of the 30 existing
+  candidate claims, it confirmed 2, corrected 22 and found 6 unverifiable.
+- My review corrected 6 items: two mappings set to exact (`enm`, `ltc`), two
+  "to N" ends re-encoded as open-start periods, one secondary report demoted, and an
+  implausible Akkadian value demoted. Details: [run README](data/workspaces/dating/_research/period-pilot-2026-10-03/README.md).
+- `harness.cli export-periods`; registry support for separately stated endpoints
+  (mixed eras, uncertain bounds); fixed CSV mirror validation.
 
-- **Conventional stages** — `ang`, `enm`, `goh`, `gmh`, `non`, `sga`: medieval
-  periodizations with candidate handbook (Baugh & Cable, Schmidt) or Glottolog/Wikipedia
-  claims. They test whether conventional periods survive a source check.
-- **Attested languages** — `got`, `cu`, `akk`, `hit`: known from texts. Candidate
-  Glottolog documentation windows and Wikipedia periods. They test attestation versus
-  conventional basis.
-- **Classical languages** — `la`, `grc`, `sa`, `ltc`, `och`, `ojp`: Wiktionary files
-  later stages (Late/Medieval/New Latin, Koine/Byzantine Greek, Vedic/Classical Sanskrit,
-  Middle Japanese) under these codes. This tests whether a source's period maps
-  *exactly* to the Wiktionary code.
-- **Proto-languages** — `gem-pro`, `ine-pro`, `sla-pro`, `cel-pro`: no catalog link
-  and no candidate claims. They test whether dates cited for the proto stage itself
-  (never a family split) can be found.
+## Uncertainties
 
-## Known issues and uncertainties
-
-- Accuracy of the single frontier researcher is unmeasured. The Japonic review
-  found 11 issues across 12 records in two runs that had passed self-checks.
-- Every harness code edit invalidates the dating generation fingerprint
-  (`registry.py` `context_hashes`). This forces a republish; nothing is lost, but
-  it churns decisions once they exist.
-- Dating, catalog and workflow tests read local data. In a fresh clone without the
-  backup, many fail rather than skip.
-- 37 dating generations (1.6 GB) are kept locally. There is no retention rule yet.
+- Most adopted sources are catalogs (ISO, Glottolog), not handbooks. The four
+  handbooks behind earlier claims were unreadable; their old "quotes" were from memory.
+- Glottolog windows are documentation metadata. Gothic's (350–380) was too narrow to
+  show.
+- No usable period: `goh non got cu akk sa ojp ine-pro sla-pro`. The causes are scope
+  mismatches (Wiktionary files later stages under `cu`, `sa`, `ojp`), missing sources,
+  or estimates not mapped to the Wiktionary entity (`ine-pro`).
+- Two model sessions reviewed; not independent corroboration.
+- The Codex CLI is not on PATH: the run used ChatGPT.app's bundled copy.
 
 ## Next three actions
 
-1. Run the pilot above: source check (Astra), review, adoption, `language_periods.json`,
-   `/periods`, client toggle.
-2. Retention: `gc --dry-run` keeping the current generation, the previous two, and
+1. Give Astra a handbook-access route (library PDFs supplied locally) so conventional
+   periods rest on scholarly sources. Retry the 9 missing codes.
+2. Add Glottolog-style table lookup to the research tools, so one table row no longer
+   costs dozens of reads.
+3. Retention: `gc --dry-run` keeping the current generation, the previous two, and
    anything referenced.
-3. Decide whether to narrow the dating fingerprint.
 
 ## Decisions needed from the maintainer
 
-- When to merge `reorg-baseline` (pushed) into `main`. Merging deploys the site, so
-  the host first needs the new server build and a graph. The legacy graph loads with
-  `WETY_ALLOW_LEGACY_GRAPH=1`; a converted copy is at
-  `data/workspaces/etymology_graph/wety-csr-converted-2026-09-19.json`.
-- Whether to narrow the dating fingerprint to the modules that affect evidence
-  semantics.
+- Whether ISO 639-3 names and Glottolog documentation windows are acceptable display
+  sources, or only as alternatives.
+- The two reviewer mapping overrides (`enm`, `ltc`).
+- When to merge `dating-pilot` into `main` (it deploys); the host needs the new server
+  build.
+- Whether to narrow the dating fingerprint: every harness edit invalidates decisions.
