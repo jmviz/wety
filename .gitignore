@@ -1,8 +1,57 @@
-/target
-/data/*
-!/data/scratch.ipynb
+/target/
 .env
-.venv
-.claude
-.github
-rust_out
+.venv/
+.claude/
+.github/
+.DS_Store
+__pycache__/
+*.pyc
+*.egg-info/
+
+# data/ is local by default and backed up outside git. Only small,
+# human-meaningful records are versioned; add a rule here deliberately
+# rather than removing the default.
+/data/**
+!/data/**/
+/data/archive/
+/data/cache/
+/data/runs/
+/data/artifacts/*/
+!/data/artifacts/wiktionary-export/
+!/data/artifacts/iecor/
+
+# Registry and product selections.
+!/data/registry/**
+!/data/products/*/CURRENT.json
+!/data/products/iecor/iecor_matches_receipt.json
+
+# Small reference inputs consumed by the Rust build.
+!/data/artifacts/wiktionary-export/legacy/files/*.json
+!/data/artifacts/iecor/legacy/files/*.csv
+
+# Curated catalog inputs.
+!/data/workspaces/catalogs/overrides.json
+!/data/workspaces/catalogs/sources/manifest.json
+
+# Dating evidence: assertions and source lists, not logs or candidates.
+!/data/workspaces/dating/*/claims.jsonl
+!/data/workspaces/dating/*/sources.json
+!/data/workspaces/dating/*/periods.json
+!/data/workspaces/dating/_constraints/*.json
+!/data/workspaces/dating/_analyses/*.json
+!/data/workspaces/dating/_evidence/*.json
+
+# Research dossiers: the readable result, not the run machinery.
+!/data/workspaces/dating/_research/*/README.md
+!/data/workspaces/dating/_research/*/report.md
+!/data/workspaces/dating/_research/*/assertions.jsonl
+!/data/workspaces/dating/_research/*/*revisions.jsonl
+
+# Lock files anywhere.
+*.json.lock
+*.jsonl.lock
+*.lock.lock
+.publish.lock
+.source.lock
+_pipeline.lock
+_registry.lock

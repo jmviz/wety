@@ -3,9 +3,9 @@ debug = true
 
 [workspace]
 members = [
-    "core",
-    "processor",
-    "server",
+    "crates/core",
+    "crates/processor",
+    "crates/server",
 ]
 resolver = "2"
 
