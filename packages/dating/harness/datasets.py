@@ -40,25 +40,42 @@ from .store import upsert_claims, upsert_source
 from .time_utils import from_bp
 
 DATA_CACHE = os.path.join(CACHE_DIR, "datasets")
-TEXT_EXT = {".csv", ".tsv", ".txt", ".md", ".json", ".bib", ".yaml", ".yml", ".tab", ".rst"}  # .log/.xml need bounded configuration/trace parsers; they contain methodological evidence
+TEXT_EXT = {
+    ".csv",
+    ".tsv",
+    ".txt",
+    ".md",
+    ".json",
+    ".bib",
+    ".yaml",
+    ".yml",
+    ".tab",
+    ".rst",
+}  # .log/.xml need bounded configuration/trace parsers; they contain methodological evidence
 TREE_EXT = {".nex", ".nexus", ".trees", ".tre", ".tree", ".newick", ".nwk", ".mcc", ".con.tre"}
 PDF_EXT = {".pdf"}
 ALLOWED = TEXT_EXT | TREE_EXT | PDF_EXT
-MAX_FILE = 25_000_000       # bytes per file
-MAX_ZIP = 80_000_000        # bytes per archive downloaded
-MAX_FILES = 200             # files kept per dataset
-MAX_TEXT_PER_FILE = 200_000 # chars attached per file
+MAX_FILE = 25_000_000  # bytes per file
+MAX_ZIP = 80_000_000  # bytes per archive downloaded
+MAX_FILES = 200  # files kept per dataset
+MAX_TEXT_PER_FILE = 200_000  # chars attached per file
 MAX_TEXT_PER_SOURCE = 400_000
 
 LINK_RES = [
     ("zenodo", re.compile(r"zenodo\.org/(?:records?|record)/(\d+)", re.I)),
     ("zenodo", re.compile(r"10\.5281/zenodo\.(\d+)", re.I)),
-    ("github", re.compile(r"github\.com/([A-Za-z0-9_.-]+)/([A-Za-z0-9_.-]+?)(?:[/\s).,;\"']|$)", re.I)),
+    (
+        "github",
+        re.compile(r"github\.com/([A-Za-z0-9_.-]+)/([A-Za-z0-9_.-]+?)(?:[/\s).,;\"']|$)", re.I),
+    ),
     ("osf", re.compile(r"osf\.io/([a-z0-9]{5})\b", re.I)),
     ("dryad", re.compile(r"10\.5061/dryad\.([A-Za-z0-9.]+)", re.I)),
     ("figshare", re.compile(r"figshare\.com/(?:articles|s)/[^\s\"')]+", re.I)),
 ]
-SUPPLEMENT_WORDS = re.compile(r"supplement|dataset|data and|results|material|replication|code|analys|calibrat|cognate|lexical|phylogen", re.I)
+SUPPLEMENT_WORDS = re.compile(
+    r"supplement|dataset|data and|results|material|replication|code|analys|calibrat|cognate|lexical|phylogen",
+    re.I,
+)
 
 
 def _get(url: str, binary: bool = False, headers: dict | None = None, timeout: int = 300):
@@ -66,7 +83,7 @@ def _get(url: str, binary: bool = False, headers: dict | None = None, timeout: i
     h = {"User-Agent": USER_AGENT, **(headers or {})}
     if "github.com" in url and os.environ.get("GITHUB_TOKEN"):
         h["Authorization"] = f"Bearer {os.environ['GITHUB_TOKEN']}"
-    data = fetch_bytes(url, 'research-http', headers=h)
+    data = fetch_bytes(url, "research-http", headers=h)
     return data if binary else json.loads(data.decode("utf-8"))
 
 
@@ -76,7 +93,16 @@ def find_links(text: str) -> list[dict]:
         for m in rx.finditer(text or ""):
             if kind == "github":
                 owner, repo = m.group(1), m.group(2).removesuffix(".git")
-                if owner.lower() in ("features", "topics", "site", "about", "settings", "orgs", "marketplace", "sponsors"):
+                if owner.lower() in (
+                    "features",
+                    "topics",
+                    "site",
+                    "about",
+                    "settings",
+                    "orgs",
+                    "marketplace",
+                    "sponsors",
+                ):
                     continue
                 key = ("github", f"{owner}/{repo}")
                 url = f"https://github.com/{owner}/{repo}"
@@ -85,8 +111,11 @@ def find_links(text: str) -> list[dict]:
                 url = "https://" + m.group(0)
             else:
                 key = (kind, m.group(1))
-                url = {"zenodo": f"https://zenodo.org/records/{m.group(1)}", "osf": f"https://osf.io/{m.group(1)}",
-                       "dryad": f"https://doi.org/10.5061/dryad.{m.group(1)}"}[kind]
+                url = {
+                    "zenodo": f"https://zenodo.org/records/{m.group(1)}",
+                    "osf": f"https://osf.io/{m.group(1)}",
+                    "dryad": f"https://doi.org/10.5061/dryad.{m.group(1)}",
+                }[kind]
             if key not in seen:
                 seen.add(key)
                 out.append({"kind": kind, "id": key[1], "url": url, "found": "text"})
@@ -108,17 +137,37 @@ def zenodo_search_by_doi(doi: str) -> list[dict]:
         files = h.get("files", []) or []
         title = m.get("title", "")
         has_data = any(os.path.splitext(f["key"])[1].lower() not in PDF_EXT for f in files)
-        rel = next((r.get("relation") for r in m.get("related_identifiers", []) if doi.lower() in (r.get("identifier") or "").lower()), None)
+        rel = next(
+            (
+                r.get("relation")
+                for r in m.get("related_identifiers", [])
+                if doi.lower() in (r.get("identifier") or "").lower()
+            ),
+            None,
+        )
         if rel in ("cites", "references", "isContinuedBy", "continues"):
             continue  # another work that cites the paper, not its data
-        if has_data or SUPPLEMENT_WORDS.search(title) or SUPPLEMENT_WORDS.search(m.get("description", "")[:400]):
-            out.append({"kind": "zenodo", "id": str(h["id"]), "url": f"https://zenodo.org/records/{h['id']}", "found": f"zenodo-search:{rel}", "title": title})
+        if (
+            has_data
+            or SUPPLEMENT_WORDS.search(title)
+            or SUPPLEMENT_WORDS.search(m.get("description", "")[:400])
+        ):
+            out.append(
+                {
+                    "kind": "zenodo",
+                    "id": str(h["id"]),
+                    "url": f"https://zenodo.org/records/{h['id']}",
+                    "found": f"zenodo-search:{rel}",
+                    "title": title,
+                }
+            )
     return out
 
 
 # --------------------------------------------------------------------------- #
 # retrieval
 # --------------------------------------------------------------------------- #
+
 
 def _keep(name: str) -> bool:
     n = name.lower()
@@ -127,12 +176,18 @@ def _keep(name: str) -> bool:
 
 def _store(dirpath: str, name: str, data: bytes) -> dict:
     safe = re.sub(r"[^A-Za-z0-9._/-]", "_", name).strip("/")
-    if any(part == '..' for part in Path(safe).parts):raise ValueError('unsafe dataset member '+name)
+    if any(part == ".." for part in Path(safe).parts):
+        raise ValueError("unsafe dataset member " + name)
     path = os.path.join(dirpath, safe)
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "wb") as f:
         f.write(data)
-    return {"name": name, "path": str(Path(path).resolve().relative_to(REPO)), "bytes": len(data), "sha256": hashlib.sha256(data).hexdigest()}
+    return {
+        "name": name,
+        "path": str(Path(path).resolve().relative_to(REPO)),
+        "bytes": len(data),
+        "sha256": hashlib.sha256(data).hexdigest(),
+    }
 
 
 def _expand_zip(dirpath: str, name: str, data: bytes) -> list[dict]:
@@ -156,13 +211,17 @@ def fetch_zenodo(rec_id: str, dirpath: str) -> dict:
     files_meta = d.get("files", []) or []
     kept, skipped = [], []
     # prefer the smallest archive when several are offered (Full / Light variants)
-    zips = sorted((f for f in files_meta if f["key"].lower().endswith(".zip")), key=lambda f: f["size"])
+    zips = sorted(
+        (f for f in files_meta if f["key"].lower().endswith(".zip")), key=lambda f: f["size"]
+    )
     for f in files_meta:
         name, size = f["key"], f["size"]
         url = f["links"]["self"]
         if name.lower().endswith(".zip"):
             if f is not (zips[0] if zips else None) or size > MAX_ZIP:
-                skipped.append({"name": name, "bytes": size, "why": "archive too large or a larger variant"})
+                skipped.append(
+                    {"name": name, "bytes": size, "why": "archive too large or a larger variant"}
+                )
                 continue
             kept += _expand_zip(dirpath, name, _get(url, binary=True, timeout=900))
         elif _keep(name) and size <= MAX_FILE:
@@ -170,11 +229,20 @@ def fetch_zenodo(rec_id: str, dirpath: str) -> dict:
         else:
             skipped.append({"name": name, "bytes": size, "why": "type or size"})
         time.sleep(0.3)
-    return {"title": m.get("title"), "doi": d.get("doi"), "license": (m.get("license") or {}).get("id"), "files": kept, "skipped": skipped,
-            "citation": f"{m.get('title')} ({m.get('publication_date', '')}). Zenodo. https://doi.org/{d.get('doi')}"}
+    return {
+        "title": m.get("title"),
+        "doi": d.get("doi"),
+        "license": (m.get("license") or {}).get("id"),
+        "files": kept,
+        "skipped": skipped,
+        "citation": f"{m.get('title')} ({m.get('publication_date', '')}). Zenodo. https://doi.org/{d.get('doi')}",
+    }
 
 
-LANGUAGE_WORDS = re.compile(r"\blanguage|linguist|cognate|lexic|phylogen|glotto|etymolog|dialect|proto-|wordlist|swadesh|cldf|lexibank", re.I)
+LANGUAGE_WORDS = re.compile(
+    r"\blanguage|linguist|cognate|lexic|phylogen|glotto|etymolog|dialect|proto-|wordlist|swadesh|cldf|lexibank",
+    re.I,
+)
 DATA_EXT = {".csv", ".tsv", ".tab", ".nex", ".nexus", ".trees", ".tre", ".tree", ".newick", ".nwk"}
 
 
@@ -187,7 +255,8 @@ def fetch_github(owner_repo: str, dirpath: str) -> dict:
     branch = meta.get("default_branch", "main")
     commit = _get(f"https://api.github.com/repos/{owner_repo}/commits/{branch}")["sha"]
     tree = _get(f"https://api.github.com/repos/{owner_repo}/git/trees/{commit}?recursive=1")
-    if tree.get("truncated"):raise ValueError("GitHub tree response truncated; refuse incomplete dataset")
+    if tree.get("truncated"):
+        raise ValueError("GitHub tree response truncated; refuse incomplete dataset")
     blobs = [it for it in tree.get("tree", []) if it.get("type") == "blob"]
     has_data = any(os.path.splitext(it["path"])[1].lower() in DATA_EXT for it in blobs)
     about = f"{meta.get('description') or ''} {meta.get('full_name')} {' '.join((meta.get('topics') or []))}"
@@ -195,16 +264,43 @@ def fetch_github(owner_repo: str, dirpath: str) -> dict:
     try:
         rd = _get(f"https://api.github.com/repos/{owner_repo}/readme?ref={commit}")
         import base64
+
         readme = base64.b64decode(rd.get("content", "")).decode("utf-8", errors="replace")[:5000]
     except Exception:  # noqa: BLE001
         pass
-    blurb = re.sub(r"programming language|language model|natural language processing", " ", about + " " + readme, flags=re.I)
+    blurb = re.sub(
+        r"programming language|language model|natural language processing",
+        " ",
+        about + " " + readme,
+        flags=re.I,
+    )
     # "phylogen" alone is genetics; require a word that is specifically about languages
-    relevant = len(LANGUAGE_WORDS.findall(blurb)) >= 2 and bool(re.search(r"\blanguages?\b|linguist|cognate|lexic|glotto|etymolog|dialect|wordlist|swadesh|cldf|lexibank", blurb, re.I))
-    base = {"title": meta.get("full_name"), "description": meta.get("description"), "license": (meta.get("license") or {}).get("spdx_id"),
-            "commit": commit, "tree_sha": tree.get("sha"), "citation": f"{meta.get('full_name')} (GitHub, {branch}@{commit[:10]}). https://github.com/{owner_repo}"}
+    relevant = len(LANGUAGE_WORDS.findall(blurb)) >= 2 and bool(
+        re.search(
+            r"\blanguages?\b|linguist|cognate|lexic|glotto|etymolog|dialect|wordlist|swadesh|cldf|lexibank",
+            blurb,
+            re.I,
+        )
+    )
+    base = {
+        "title": meta.get("full_name"),
+        "description": meta.get("description"),
+        "license": (meta.get("license") or {}).get("spdx_id"),
+        "commit": commit,
+        "tree_sha": tree.get("sha"),
+        "citation": f"{meta.get('full_name')} (GitHub, {branch}@{commit[:10]}). https://github.com/{owner_repo}",
+    }
     if not (relevant and has_data):
-        return {**base, "files": [], "skipped": [{"name": "*", "why": f"not a language dataset (relevant={relevant}, data files={has_data})"}]}
+        return {
+            **base,
+            "files": [],
+            "skipped": [
+                {
+                    "name": "*",
+                    "why": f"not a language dataset (relevant={relevant}, data files={has_data})",
+                }
+            ],
+        }
     kept, skipped = [], []
     for item in blobs:
         if len(kept) >= MAX_FILES:
@@ -212,7 +308,10 @@ def fetch_github(owner_repo: str, dirpath: str) -> dict:
             continue
         if not _keep(item["path"]) or (item.get("size") or 0) > MAX_FILE:
             continue
-        raw = _get(f"https://raw.githubusercontent.com/{owner_repo}/{commit}/{urllib.parse.quote(item['path'])}", binary=True)
+        raw = _get(
+            f"https://raw.githubusercontent.com/{owner_repo}/{commit}/{urllib.parse.quote(item['path'])}",
+            binary=True,
+        )
         kept.append(_store(dirpath, item["path"], raw))
         time.sleep(0.1)
     return {**base, "files": kept, "skipped": skipped}
@@ -223,8 +322,12 @@ def fetch_dryad(doi_suffix: str, dirpath: str) -> dict:
     meta = _get(f"https://datadryad.org/api/v2/datasets/{doi}")
     data = _get(f"https://datadryad.org/api/v2/datasets/{doi}/download", binary=True, timeout=900)
     kept = _expand_zip(dirpath, "dryad.zip", data) if len(data) <= MAX_ZIP else []
-    return {"title": meta.get("title"), "files": kept, "skipped": [] if kept else [{"name": "dryad.zip", "bytes": len(data), "why": "too large"}],
-            "citation": f"{meta.get('title')}. Dryad. https://doi.org/10.5061/dryad.{doi_suffix}"}
+    return {
+        "title": meta.get("title"),
+        "files": kept,
+        "skipped": [] if kept else [{"name": "dryad.zip", "bytes": len(data), "why": "too large"}],
+        "citation": f"{meta.get('title')}. Dryad. https://doi.org/10.5061/dryad.{doi_suffix}",
+    }
 
 
 def fetch_osf(node: str, dirpath: str) -> dict:
@@ -238,14 +341,24 @@ def fetch_osf(node: str, dirpath: str) -> dict:
         link = item.get("links", {}).get("download")
         if link:
             kept.append(_store(dirpath, name, _get(link, binary=True)))
-    return {"title": f"osf.io/{node}", "files": kept, "skipped": skipped, "citation": f"OSF project {node}. https://osf.io/{node}"}
+    return {
+        "title": f"osf.io/{node}",
+        "files": kept,
+        "skipped": skipped,
+        "citation": f"OSF project {node}. https://osf.io/{node}",
+    }
 
 
 def landing_page_links(doi: str) -> list[dict]:
     """Links on the publisher's page for the DOI (data availability statements,
     supplementary material links) — visible even when the article is paywalled."""
     try:
-        html = _get(f"https://doi.org/{urllib.parse.quote(doi)}", binary=True, headers={"Accept": "text/html"}, timeout=60).decode("utf-8", errors="replace")
+        html = _get(
+            f"https://doi.org/{urllib.parse.quote(doi)}",
+            binary=True,
+            headers={"Accept": "text/html"},
+            timeout=60,
+        ).decode("utf-8", errors="replace")
     except Exception:  # noqa: BLE001
         return []
     html = re.sub(r"<(script|style)[^>]*>.*?</\1>", " ", html, flags=re.S | re.I)
@@ -263,7 +376,14 @@ def crossref_relations(doi: str) -> list[dict]:
         return []
     out = []
     for rel, items in (d.get("message", {}).get("relation") or {}).items():
-        if rel in ("is-supplemented-by", "has-part", "is-referenced-by", "references", "has-version", "is-derived-from"):
+        if rel in (
+            "is-supplemented-by",
+            "has-part",
+            "is-referenced-by",
+            "references",
+            "has-version",
+            "is-derived-from",
+        ):
             for it in items:
                 if it.get("id-type") == "doi":
                     for l in find_links("https://doi.org/" + it["id"]):
@@ -291,14 +411,24 @@ def retrieve_datasets(cand: dict, text: str | None) -> list[dict]:
     if cand.get("doi"):
         add(landing_page_links(cand["doi"]))
         add(crossref_relations(cand["doi"]))
-        add(zenodo_search_by_doi(cand["doi"]))   # supplementary: records that name the DOI
+        add(zenodo_search_by_doi(cand["doi"]))  # supplementary: records that name the DOI
     done = {(d["kind"], d["id"]) for d in cand.get("datasets", [])}
     out = list(cand.get("datasets", []))
     for l in links:
         if (l["kind"], l["id"]) in done or l["kind"] == "figshare":
             continue
-        dirpath = os.path.join(DATA_CACHE, cand.get("source_id", "unknown"), f"{l['kind']}_{re.sub(r'[^A-Za-z0-9_.-]', '_', l['id'])}")
-        rec = {"kind": l["kind"], "id": l["id"], "url": l["url"], "found": l["found"], "retrieved": now()}
+        dirpath = os.path.join(
+            DATA_CACHE,
+            cand.get("source_id", "unknown"),
+            f"{l['kind']}_{re.sub(r'[^A-Za-z0-9_.-]', '_', l['id'])}",
+        )
+        rec = {
+            "kind": l["kind"],
+            "id": l["id"],
+            "url": l["url"],
+            "found": l["found"],
+            "retrieved": now(),
+        }
         try:
             if l["kind"] == "zenodo":
                 rec.update(fetch_zenodo(l["id"], dirpath))
@@ -319,10 +449,12 @@ def retrieve_datasets(cand: dict, text: str | None) -> list[dict]:
 # processing: text for extraction, trees for mechanical node ages
 # --------------------------------------------------------------------------- #
 
+
 def _read_text(path: str) -> str | None:
     ext = os.path.splitext(path)[1].lower()
     if ext in PDF_EXT:
         import pymupdf
+
         try:
             doc = pymupdf.open(path)
             return "\n".join(p.get_text() for p in doc)
@@ -344,11 +476,22 @@ def dataset_bundle(cand: dict) -> tuple[str, list[dict]]:
     parts, inventory, total = [], [], 0
     for ds in cand.get("datasets", []):
         for skipped in ds.get("skipped", []):
-            inventory.append({"dataset_url": ds.get("url"), **skipped,
-                              "status": "not_retrieved", "included_chars": 0})
+            inventory.append(
+                {
+                    "dataset_url": ds.get("url"),
+                    **skipped,
+                    "status": "not_retrieved",
+                    "included_chars": 0,
+                }
+            )
         for f in ds.get("files", []):
-            item = {"dataset_url": ds.get("url"), "name": f["name"], "path": f["path"],
-                    "declared_raw_sha256": f.get("sha256"), "included_chars": 0}
+            item = {
+                "dataset_url": ds.get("url"),
+                "name": f["name"],
+                "path": f["path"],
+                "declared_raw_sha256": f.get("sha256"),
+                "included_chars": 0,
+            }
             inventory.append(item)
             ext = os.path.splitext(f["name"])[1].lower()
             if ext in TREE_EXT:
@@ -358,11 +501,21 @@ def dataset_bundle(cand: dict) -> tuple[str, list[dict]]:
             if not t or not t.strip():
                 item["status"] = "unreadable_or_empty"
                 continue
-            item.update({"available_chars": len(t), "text_sha256": hashlib.sha256(t.encode()).hexdigest()})
+            item.update(
+                {"available_chars": len(t), "text_sha256": hashlib.sha256(t.encode()).hexdigest()}
+            )
             included = min(len(t), MAX_TEXT_PER_FILE, MAX_TEXT_PER_SOURCE - total)
-            item.update({"included_chars": included,
-                         "status": "included" if included == len(t) else "truncated" if included else "budget_omitted",
-                         "included_text_sha256": hashlib.sha256(t[:included].encode()).hexdigest()})
+            item.update(
+                {
+                    "included_chars": included,
+                    "status": "included"
+                    if included == len(t)
+                    else "truncated"
+                    if included
+                    else "budget_omitted",
+                    "included_text_sha256": hashlib.sha256(t[:included].encode()).hexdigest(),
+                }
+            )
             if not included:
                 continue
             t = t[:included]
@@ -376,7 +529,9 @@ def dataset_text(cand: dict) -> str:
     return dataset_bundle(cand)[0]
 
 
-def _taxon_map(files: list[dict], tips: list[str], g: glotto.Glottolog, subtree: set[str]) -> dict[str, str]:
+def _taxon_map(
+    files: list[dict], tips: list[str], g: glotto.Glottolog, subtree: set[str]
+) -> dict[str, str]:
     """Tip label -> glottocode: companion CSV with a Glottocode column, else names."""
     mapping: dict[str, str] = {}
     for f in files:
@@ -392,7 +547,16 @@ def _taxon_map(files: list[dict], tips: list[str], g: glotto.Glottolog, subtree:
             continue
         if not rows:
             continue
-        gcol = next((c for c in rows[0] if c and c.strip().lower() in ("glottocode", "glottolog", "glottolog_code", "glottolog_id")), None)
+        gcol = next(
+            (
+                c
+                for c in rows[0]
+                if c
+                and c.strip().lower()
+                in ("glottocode", "glottolog", "glottolog_code", "glottolog_id")
+            ),
+            None,
+        )
         if not gcol:
             continue
         for r in rows:
@@ -412,6 +576,7 @@ def _taxon_map(files: list[dict], tips: list[str], g: glotto.Glottolog, subtree:
             if len(words) == 2:
                 ks.append(words[1] + words[0])
             return ks
+
         names: dict[str, str] = {}
         for gid in subtree:
             for k in keys(g.rows[gid]["name"]):
@@ -431,4 +596,5 @@ def _taxon_map(files: list[dict], tips: list[str], g: glotto.Glottolog, subtree:
 def ingest_trees(family: str, cand: dict, run: str) -> dict:
     """Only explicitly described, hashed analyses may produce chronological claims."""
     from .tree_ingest import ingest_manifests
+
     return ingest_manifests(source_id=cand.get("source_id"), family=family)

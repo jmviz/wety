@@ -41,10 +41,12 @@ def run() -> dict:
     path = os.path.join(IECOR_DIR, "iecor_wiktionary_matches.json")
     with open(path, encoding="utf-8") as f:
         rows = json.load(f)
-    receipt=json.loads((Path(IECOR_DIR)/'iecor_matches_receipt.json').read_text())
-    for name,h in receipt['files'].items():
-        if hashlib.sha256((REPO/name).read_bytes()).hexdigest()!=h:raise ValueError('stale IE-CoR proposal receipt: '+name)
-    if receipt['crossref_generation']!=g.crossref_generation:raise ValueError('IE-CoR proposals need rebuilding')
+    receipt = json.loads((Path(IECOR_DIR) / "iecor_matches_receipt.json").read_text())
+    for name, h in receipt["files"].items():
+        if hashlib.sha256((REPO / name).read_bytes()).hexdigest() != h:
+            raise ValueError("stale IE-CoR proposal receipt: " + name)
+    if receipt["crossref_generation"] != g.crossref_generation:
+        raise ValueError("IE-CoR proposals need rebuilding")
     claims: list[Claim] = []
     for r in rows:
         ie = r["iecor"]
@@ -53,23 +55,43 @@ def run() -> dict:
         # A catalog code is a source assertion, not the documentary sample.
         gid = ie.get("Glottocode")
         if not gid or gid not in g.rows:
-            gid=None  # Keep an unplaced sample prior; the raw source code survives.
+            gid = None  # Keep an unplaced sample prior; the raw source code survives.
         if ie.get("normalMean"):
             prior = f"normal(mean={ie['normalMean']}, sd={ie.get('normalStDev')})"
         elif ie.get("logNormalMean"):
             prior = f"log-normal(mean={ie['logNormalMean']}, sd={ie.get('logNormalStDev')}, offset={ie.get('logNormalOffset')})"
         else:
             continue
-        t=TimeValue(unknown=True,precision="unknown",conversion="Native prior parameters retained; epoch and lognormal parameterization unverified")
-        claims.append(Claim(
-            id=claim_id(gid, SOURCE.id, ie["ID"]), languoid=gid, languoid_name=ie["Name"],
-            kind="expert_estimate", time=t, source=SOURCE.id,
-            locator=f"iecor_languages.csv ID={ie['ID']} ({ie['Name']})",
-            quote=ie.get("Description") or f"{ie['Name']}: {prior} years BP",
-            quote_verified=False,
-            extracted_by={"program": "harness.bootstrap.iecor", "run": "bootstrap"},
-            evidence={"role":"calibration_prior", "event":"documentary_sampling", "normalization":"unknown", "raw_prior":ie, "subject_type":"documentary_sample", "subject_id":"iecor:sample:"+ie["ID"], "catalog_mapping":"unresolved", "catalog_mapping_basis":"literal IE-CoR table code; never replaced by Wiktionary proposal", "limitation":"epoch and lognormal parameterization require source-specific verification"},
-            notes=f"tip-date prior on the sampled variety ({ie['Name']}): {prior} years BP",
-        ))
+        t = TimeValue(
+            unknown=True,
+            precision="unknown",
+            conversion="Native prior parameters retained; epoch and lognormal parameterization unverified",
+        )
+        claims.append(
+            Claim(
+                id=claim_id(gid, SOURCE.id, ie["ID"]),
+                languoid=gid,
+                languoid_name=ie["Name"],
+                kind="expert_estimate",
+                time=t,
+                source=SOURCE.id,
+                locator=f"iecor_languages.csv ID={ie['ID']} ({ie['Name']})",
+                quote=ie.get("Description") or f"{ie['Name']}: {prior} years BP",
+                quote_verified=False,
+                extracted_by={"program": "harness.bootstrap.iecor", "run": "bootstrap"},
+                evidence={
+                    "role": "calibration_prior",
+                    "event": "documentary_sampling",
+                    "normalization": "unknown",
+                    "raw_prior": ie,
+                    "subject_type": "documentary_sample",
+                    "subject_id": "iecor:sample:" + ie["ID"],
+                    "catalog_mapping": "unresolved",
+                    "catalog_mapping_basis": "literal IE-CoR table code; never replaced by Wiktionary proposal",
+                    "limitation": "epoch and lognormal parameterization require source-specific verification",
+                },
+                notes=f"tip-date prior on the sampled variety ({ie['Name']}): {prior} years BP",
+            )
+        )
     SOURCE.retrieved = now()
     return write_claims(g, SOURCE, claims)

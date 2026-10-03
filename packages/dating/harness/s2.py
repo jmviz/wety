@@ -33,9 +33,9 @@ from .config import CACHE_DIR, USER_AGENT, load_env
 GRAPH = "https://api.semanticscholar.org/graph/v1"
 RECS = "https://api.semanticscholar.org/recommendations/v1"
 LOCK = os.path.join(CACHE_DIR, "s2.lock")
-MIN_INTERVAL = 1.05          # seconds between requests, globally
+MIN_INTERVAL = 1.05  # seconds between requests, globally
 PAPER_FIELDS = "paperId,corpusId,externalIds,title,year,publicationDate,venue,publicationVenue,authors,abstract,citationCount,influentialCitationCount,isOpenAccess,openAccessPdf,publicationTypes,s2FieldsOfStudy"
-DETAIL_FIELDS = PAPER_FIELDS + ",tldr"   # tldr is not available on the bulk endpoint
+DETAIL_FIELDS = PAPER_FIELDS + ",tldr"  # tldr is not available on the bulk endpoint
 
 
 class S2Unavailable(RuntimeError):
@@ -70,11 +70,28 @@ def _throttle() -> None:
             fcntl.flock(f, fcntl.LOCK_UN)
 
 
-def request(path: str, params: dict | None = None, body: dict | None = None, base: str = GRAPH, retries: int = 5) -> dict | list:
+def request(
+    path: str,
+    params: dict | None = None,
+    body: dict | None = None,
+    base: str = GRAPH,
+    retries: int = 5,
+) -> dict | list:
     key = _key()
     if not key:
         raise S2Unavailable("S2_API_KEY is not set")
-    url = base + path + ("?" + urllib.parse.urlencode({k: v for k, v in (params or {}).items() if v is not None}, doseq=False) if params else "")
+    url = (
+        base
+        + path
+        + (
+            "?"
+            + urllib.parse.urlencode(
+                {k: v for k, v in (params or {}).items() if v is not None}, doseq=False
+            )
+            if params
+            else ""
+        )
+    )
     headers = {"User-Agent": USER_AGENT, "x-api-key": key}
     data = None
     if body is not None:
@@ -83,25 +100,30 @@ def request(path: str, params: dict | None = None, body: dict | None = None, bas
     for attempt in range(retries):
         _throttle()
         try:
-            req = urllib.request.Request(url, data=data, headers=headers, method="POST" if body is not None else "GET")
+            req = urllib.request.Request(
+                url, data=data, headers=headers, method="POST" if body is not None else "GET"
+            )
             with urllib.request.urlopen(req, timeout=120) as r:
                 return json.load(r)
         except urllib.error.HTTPError as e:
             if e.code == 404:
                 return {}
             if e.code in (429, 500, 502, 503, 504) and attempt < retries - 1:
-                time.sleep(2 ** attempt * 2)
+                time.sleep(2**attempt * 2)
                 continue
-            raise RuntimeError(f"S2 HTTP {e.code} {path}: {e.read().decode('utf-8', errors='replace')[:200]}") from e
+            raise RuntimeError(
+                f"S2 HTTP {e.code} {path}: {e.read().decode('utf-8', errors='replace')[:200]}"
+            ) from e
         except (urllib.error.URLError, TimeoutError):
             if attempt < retries - 1:
-                time.sleep(2 ** attempt * 2)
+                time.sleep(2**attempt * 2)
                 continue
             raise
     raise RuntimeError("unreachable")
 
 
 # ---- query syntax ----------------------------------------------------------- #
+
 
 def to_bulk_query(q: str) -> str:
     """OpenAlex-style 'A OR B' / 'A AND B' -> S2 bulk syntax ('|', '+', quotes kept)."""
@@ -112,22 +134,39 @@ def to_bulk_query(q: str) -> str:
 
 # ---- records ----------------------------------------------------------------- #
 
+
 def _record(w: dict) -> dict:
     ext = w.get("externalIds") or {}
     return {
-        "provider": "s2", "id": "s2:" + (w.get("paperId") or ""), "s2_id": w.get("paperId"), "corpus_id": w.get("corpusId"),
-        "doi": ext.get("DOI"), "pmcid": ext.get("PubMedCentral"), "arxiv": ext.get("ArXiv"),
-        "title": w.get("title"), "year": w.get("year"), "authors": [a["name"] for a in (w.get("authors") or [])[:6]],
-        "abstract": w.get("abstract"), "tldr": (w.get("tldr") or {}).get("text"),
-        "oa_url": (w.get("openAccessPdf") or {}).get("url"), "pdf_url": (w.get("openAccessPdf") or {}).get("url"),
+        "provider": "s2",
+        "id": "s2:" + (w.get("paperId") or ""),
+        "s2_id": w.get("paperId"),
+        "corpus_id": w.get("corpusId"),
+        "doi": ext.get("DOI"),
+        "pmcid": ext.get("PubMedCentral"),
+        "arxiv": ext.get("ArXiv"),
+        "title": w.get("title"),
+        "year": w.get("year"),
+        "authors": [a["name"] for a in (w.get("authors") or [])[:6]],
+        "abstract": w.get("abstract"),
+        "tldr": (w.get("tldr") or {}).get("text"),
+        "oa_url": (w.get("openAccessPdf") or {}).get("url"),
+        "pdf_url": (w.get("openAccessPdf") or {}).get("url"),
         "venue": w.get("venue") or ((w.get("publicationVenue") or {}).get("name")),
-        "cited_by": w.get("citationCount"), "influential_citations": w.get("influentialCitationCount"),
+        "cited_by": w.get("citationCount"),
+        "influential_citations": w.get("influentialCitationCount"),
         "type": ",".join(w.get("publicationTypes") or []) or None,
         "s2_fields": [f["category"] for f in (w.get("s2FieldsOfStudy") or [])],
     }
 
 
-def search_bulk(query: str, limit: int = 200, year: str | None = None, fields_of_study: str | None = None, open_access: bool = False) -> list[dict]:
+def search_bulk(
+    query: str,
+    limit: int = 200,
+    year: str | None = None,
+    fields_of_study: str | None = None,
+    open_access: bool = False,
+) -> list[dict]:
     params = {"query": to_bulk_query(query), "fields": PAPER_FIELDS, "sort": "citationCount:desc"}
     if year:
         params["year"] = year
@@ -174,15 +213,26 @@ def match_title(title: str) -> dict | None:
 
 def citations(paper_id: str, limit: int = 500, with_contexts: bool = True) -> list[dict]:
     """Papers citing `paper_id`, each with the contexts (sentences) of the citation."""
-    fields = "contexts,intents,isInfluential," + ",".join("citingPaper." + f for f in PAPER_FIELDS.split(","))
+    fields = "contexts,intents,isInfluential," + ",".join(
+        "citingPaper." + f for f in PAPER_FIELDS.split(",")
+    )
     out, offset = [], 0
     while offset < limit:
-        d = request(f"/paper/{paper_id}/citations", {"fields": fields, "offset": offset, "limit": min(500, limit - offset)})
-        for item in (d.get("data") or []):
+        d = request(
+            f"/paper/{paper_id}/citations",
+            {"fields": fields, "offset": offset, "limit": min(500, limit - offset)},
+        )
+        for item in d.get("data") or []:
             if not item.get("citingPaper") or not item["citingPaper"].get("paperId"):
                 continue
             rec = _record(item["citingPaper"])
-            rec.update({"contexts": item.get("contexts") or [], "intents": item.get("intents") or [], "is_influential": item.get("isInfluential")})
+            rec.update(
+                {
+                    "contexts": item.get("contexts") or [],
+                    "intents": item.get("intents") or [],
+                    "is_influential": item.get("isInfluential"),
+                }
+            )
             out.append(rec)
         if d.get("next") is None:
             break
@@ -191,15 +241,26 @@ def citations(paper_id: str, limit: int = 500, with_contexts: bool = True) -> li
 
 
 def references(paper_id: str, limit: int = 500) -> list[dict]:
-    fields = "contexts,intents,isInfluential," + ",".join("citedPaper." + f for f in PAPER_FIELDS.split(","))
+    fields = "contexts,intents,isInfluential," + ",".join(
+        "citedPaper." + f for f in PAPER_FIELDS.split(",")
+    )
     out, offset = [], 0
     while offset < limit:
-        d = request(f"/paper/{paper_id}/references", {"fields": fields, "offset": offset, "limit": min(500, limit - offset)})
-        for item in (d.get("data") or []):
+        d = request(
+            f"/paper/{paper_id}/references",
+            {"fields": fields, "offset": offset, "limit": min(500, limit - offset)},
+        )
+        for item in d.get("data") or []:
             if not item.get("citedPaper") or not item["citedPaper"].get("paperId"):
                 continue
             rec = _record(item["citedPaper"])
-            rec.update({"contexts": item.get("contexts") or [], "intents": item.get("intents") or [], "is_influential": item.get("isInfluential")})
+            rec.update(
+                {
+                    "contexts": item.get("contexts") or [],
+                    "intents": item.get("intents") or [],
+                    "is_influential": item.get("isInfluential"),
+                }
+            )
             out.append(rec)
         if d.get("next") is None:
             break
@@ -207,24 +268,48 @@ def references(paper_id: str, limit: int = 500) -> list[dict]:
     return out
 
 
-def snippets(query: str, limit: int = 20, paper_ids: list[str] | None = None, fields_of_study: str | None = None) -> list[dict]:
+def snippets(
+    query: str,
+    limit: int = 20,
+    paper_ids: list[str] | None = None,
+    fields_of_study: str | None = None,
+) -> list[dict]:
     """Body-text excerpts (~500 words) matching the query, best first; restrict to
     papers with paper_ids (DOI:..., CorpusId:..., sha) to read inside a specific paper."""
-    params = {"query": query, "limit": min(limit, 1000), "fields": "snippet.text,snippet.snippetKind,snippet.section,snippet.snippetOffset"}
+    params = {
+        "query": query,
+        "limit": min(limit, 1000),
+        "fields": "snippet.text,snippet.snippetKind,snippet.section,snippet.snippetOffset",
+    }
     if paper_ids:
         params["paperIds"] = ",".join(paper_ids[:100])
     if fields_of_study:
         params["fieldsOfStudy"] = fields_of_study
     d = request("/snippet/search", params)
     out = []
-    for item in (d.get("data") or []):
+    for item in d.get("data") or []:
         sn, paper = item.get("snippet") or {}, item.get("paper") or {}
-        out.append({"text": sn.get("text"), "kind": sn.get("snippetKind"), "section": sn.get("section"), "score": item.get("score"),
-                    "corpus_id": paper.get("corpusId"), "title": paper.get("title"), "open_access": paper.get("openAccessInfo")})
+        out.append(
+            {
+                "text": sn.get("text"),
+                "kind": sn.get("snippetKind"),
+                "section": sn.get("section"),
+                "score": item.get("score"),
+                "corpus_id": paper.get("corpusId"),
+                "title": paper.get("title"),
+                "open_access": paper.get("openAccessInfo"),
+            }
+        )
     return out
 
 
-def recommend(positive: list[str], negative: list[str] | None = None, limit: int = 100) -> list[dict]:
-    d = request("/papers/", {"fields": PAPER_FIELDS, "limit": min(limit, 500)},
-                body={"positivePaperIds": positive[:100], "negativePaperIds": (negative or [])[:100]}, base=RECS)
+def recommend(
+    positive: list[str], negative: list[str] | None = None, limit: int = 100
+) -> list[dict]:
+    d = request(
+        "/papers/",
+        {"fields": PAPER_FIELDS, "limit": min(limit, 500)},
+        body={"positivePaperIds": positive[:100], "negativePaperIds": (negative or [])[:100]},
+        base=RECS,
+    )
     return [_record(w) for w in (d.get("recommendedPapers") or [])]

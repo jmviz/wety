@@ -33,12 +33,23 @@ SOURCE = Source(
 )
 
 
-def fetch_wikitext(titles: list[str], cache: dict[str, str | None], redirects_out: dict[str, str]) -> None:
+def fetch_wikitext(
+    titles: list[str], cache: dict[str, str | None], redirects_out: dict[str, str]
+) -> None:
     todo = [t for t in titles if t not in cache or t not in redirects_out]
     for i in range(0, len(todo), 50):
         batch = todo[i : i + 50]
-        params = {"action": "query", "prop": "revisions", "rvprop": "content", "rvslots": "main",
-                  "titles": "|".join(batch), "redirects": 1, "format": "json", "formatversion": 2, "maxlag": 5}
+        params = {
+            "action": "query",
+            "prop": "revisions",
+            "rvprop": "content",
+            "rvslots": "main",
+            "titles": "|".join(batch),
+            "redirects": 1,
+            "format": "json",
+            "formatversion": 2,
+            "maxlag": 5,
+        }
         url = API + "?" + urllib.parse.urlencode(params)
         for attempt in range(5):
             try:
@@ -58,7 +69,9 @@ def fetch_wikitext(titles: list[str], cache: dict[str, str | None], redirects_ou
             key = redirects.get(key, key)
             redirects_out[t] = key
             p = pages.get(key)
-            cache[t] = p["revisions"][0]["slots"]["main"]["content"] if p and "revisions" in p else None
+            cache[t] = (
+                p["revisions"][0]["slots"]["main"]["content"] if p and "revisions" in p else None
+            )
         print(f"  wikipedia: {min(i + 50, len(todo))}/{len(todo)} fetched", flush=True)
         time.sleep(0.3)
 
@@ -67,7 +80,7 @@ def infobox_field(wikitext: str, field: str) -> str | None:
     m = re.search(r"\{\{\s*Infobox language\b", wikitext, re.I)
     if not m:
         return None
-    body = wikitext[m.end():]
+    body = wikitext[m.end() :]
     # take the field's value up to the next top-level '|' or the closing '}}'
     fm = re.search(rf"\n\s*\|\s*{field}\s*=\s*(.*?)(?=\n\s*\||\n\}}\}})", body, re.S)
     return fm.group(1).strip() if fm and fm.group(1).strip() else None
@@ -75,7 +88,7 @@ def infobox_field(wikitext: str, field: str) -> str | None:
 
 def run(limit: int | None = None) -> dict:
     g = glotto.load()
-    with open(selected('wiktionary_languages'), encoding="utf-8") as f:
+    with open(selected("wiktionary_languages"), encoding="utf-8") as f:
         wikt_raw = json.load(f)
     os.makedirs(CACHE_DIR, exist_ok=True)
     cache: dict[str, str | None] = {}
@@ -89,12 +102,14 @@ def run(limit: int | None = None) -> dict:
     # Article subjects remain separate from linked catalog concepts. A shared
     # article with incompatible destinations is not resolved by regular-first.
     from collections import defaultdict
-    contexts=defaultdict(set)
+
+    contexts = defaultdict(set)
     for e in wikt_raw.values():
-        rec=g.wikt.get(e['mainCode'],{})
-        art=(e.get('wikipediaArticle') or '').strip()
-        if art and '#' not in art and rec.get('glottocode'):contexts[art].add(rec['glottocode'])
-    title_to_g={t:next(iter(gs)) if len(gs)==1 else None for t,gs in contexts.items()}
+        rec = g.wikt.get(e["mainCode"], {})
+        art = (e.get("wikipediaArticle") or "").strip()
+        if art and "#" not in art and rec.get("glottocode"):
+            contexts[art].add(rec["glottocode"])
+    title_to_g = {t: next(iter(gs)) if len(gs) == 1 else None for t, gs in contexts.items()}
     titles = sorted(title_to_g)[:limit]
     try:
         fetch_wikitext(titles, cache, redirects)
@@ -115,37 +130,85 @@ def run(limit: int | None = None) -> dict:
         target = redirects.get(title, title)
         if target != title and target in title_to_g and title_to_g[target] != gid:
             skipped_redirects += 1
-            gid=None  # Preserve the article claim without choosing its catalog scope.
-        if target in done:continue
+            gid = None  # Preserve the article claim without choosing its catalog scope.
+        if target in done:
+            continue
         done.add(target)
         name = target
-        evidence={"subject_id":"enwiki:"+target,"subject_type":"unresolved","catalog_mapping":"unresolved","catalog_candidates":sorted(contexts.get(title,set()) | contexts.get(target,set())),"catalog_mapping_basis":"article link; no temporal scope equivalence"}
+        evidence = {
+            "subject_id": "enwiki:" + target,
+            "subject_type": "unresolved",
+            "catalog_mapping": "unresolved",
+            "catalog_candidates": sorted(contexts.get(title, set()) | contexts.get(target, set())),
+            "catalog_mapping_basis": "article link; no temporal scope equivalence",
+        }
         extracted = {"program": "harness.bootstrap.wikipedia", "run": "bootstrap"}
         era = infobox_field(wt, "era")
         if era:
             iv = parse_era(era)
             if iv and (iv.earliest is not None or iv.latest is not None):
-                t = {"earliest": iv.earliest, "latest": iv.latest, "precision": iv.precision, "open_end": iv.latest is None,
-                     "conversion": "parsed from infobox era text"}
-                claims.append(Claim(
-                    id=claim_id(gid, SOURCE.id, title+"_era"), languoid=gid, languoid_name=name, kind="conventional_period",
-                    time=t, source=SOURCE.id, evidence=evidence, locator=f"{title}: |era=", quote=era, quote_verified=True,
-                    extracted_by=extracted, notes="infobox era; a periodization convention, usually uncited in the infobox itself",
-                ))
+                t = {
+                    "earliest": iv.earliest,
+                    "latest": iv.latest,
+                    "precision": iv.precision,
+                    "open_end": iv.latest is None,
+                    "conversion": "parsed from infobox era text",
+                }
+                claims.append(
+                    Claim(
+                        id=claim_id(gid, SOURCE.id, title + "_era"),
+                        languoid=gid,
+                        languoid_name=name,
+                        kind="conventional_period",
+                        time=t,
+                        source=SOURCE.id,
+                        evidence=evidence,
+                        locator=f"{title}: |era=",
+                        quote=era,
+                        quote_verified=True,
+                        extracted_by=extracted,
+                        notes="infobox era; a periodization convention, usually uncited in the infobox itself",
+                    )
+                )
             else:
                 unparsed += 1
         ext = infobox_field(wt, "extinct")
         if ext:
             iv = parse_era(ext)
             if iv and iv.earliest is not None:
-                t = {"earliest": iv.earliest, "latest": iv.latest if iv.latest is not None else iv.earliest, "precision": iv.precision,
-                     "conversion": "parsed from infobox extinct text"}
-                claims.append(Claim(
-                    id=claim_id(gid, SOURCE.id, title+"_extinct"), languoid=gid, languoid_name=name, kind="extinction",
-                    time=t, source=SOURCE.id, evidence=evidence, locator=f"{title}: |extinct=", quote=ext, quote_verified=True, extracted_by=extracted,
-                ))
+                t = {
+                    "earliest": iv.earliest,
+                    "latest": iv.latest if iv.latest is not None else iv.earliest,
+                    "precision": iv.precision,
+                    "conversion": "parsed from infobox extinct text",
+                }
+                claims.append(
+                    Claim(
+                        id=claim_id(gid, SOURCE.id, title + "_extinct"),
+                        languoid=gid,
+                        languoid_name=name,
+                        kind="extinction",
+                        time=t,
+                        source=SOURCE.id,
+                        evidence=evidence,
+                        locator=f"{title}: |extinct=",
+                        quote=ext,
+                        quote_verified=True,
+                        extracted_by=extracted,
+                    )
+                )
             else:
                 unparsed += 1
     summary = write_claims(g, SOURCE, claims)
-    summary.update({"titles": len(titles), "with_wikitext": sum(1 for t in titles if cache.get(t)), "unparsed_fields": unparsed, "skipped_redirects_to_other_language": skipped_redirects, "ambiguous_article_contexts": {t:sorted(gs) for t,gs in contexts.items() if len(gs)>1}})
+    summary.update(
+        {
+            "titles": len(titles),
+            "with_wikitext": sum(1 for t in titles if cache.get(t)),
+            "unparsed_fields": unparsed,
+            "skipped_redirects_to_other_language": skipped_redirects,
+            "ambiguous_article_contexts": {
+                t: sorted(gs) for t, gs in contexts.items() if len(gs) > 1
+            },
+        }
+    )
     return summary

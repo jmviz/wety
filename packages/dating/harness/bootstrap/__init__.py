@@ -31,7 +31,9 @@ def bucket_for(g: glotto.Glottolog, languoid: str | None, default: str = "unclas
     return default
 
 
-def write_claims(g: glotto.Glottolog, source: Source, claims: list[Claim], replace: bool = True) -> dict:
+def write_claims(
+    g: glotto.Glottolog, source: Source, claims: list[Claim], replace: bool = True
+) -> dict:
     """Group claims by family bucket and write them; replace=True first removes
     this source's earlier claims so a re-run is idempotent."""
     upsert_source(source)
@@ -41,11 +43,15 @@ def write_claims(g: glotto.Glottolog, source: Source, claims: list[Claim], repla
     summary = {"source": source.id, "claims": len(claims), "families": len(by_fam), "at": now()}
     if replace:
         from ..store import families_on_disk, replace_source_claims, load_claims
-        old={f for f in families_on_disk() if any(c['source']==source.id for c in load_claims(f))}
-        for fam in sorted(old|set(by_fam)):
+
+        old = {
+            f for f in families_on_disk() if any(c["source"] == source.id for c in load_claims(f))
+        }
+        for fam in sorted(old | set(by_fam)):
             replace_source_claims(fam, source.id, by_fam.get(fam, []))
     else:
-        for fam, cs in by_fam.items(): upsert_claims(fam, cs)
+        for fam, cs in by_fam.items():
+            upsert_claims(fam, cs)
     return summary
 
 

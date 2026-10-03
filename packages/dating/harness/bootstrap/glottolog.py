@@ -39,16 +39,34 @@ def run() -> dict:
         extracted = {"program": "harness.bootstrap.glottolog", "run": "bootstrap"}
         quote = f"{r['name']}: First_Year_Of_Documentation={r['first_year'] or ''}, Last_Year_Of_Documentation={r['last_year'] or ''}"
         if a is not None:
-            claims.append(Claim(
-                id=claim_id(gid, SOURCE.id, "first"), languoid=gid, languoid_name=r["name"],
-                kind="attestation_first", time=point(a, "year", conversion="historical->astronomical"),
-                source=SOURCE.id, locator=f"languages.csv row {gid}", quote=quote, quote_verified=True, extracted_by=extracted,
-            ))
+            claims.append(
+                Claim(
+                    id=claim_id(gid, SOURCE.id, "first"),
+                    languoid=gid,
+                    languoid_name=r["name"],
+                    kind="attestation_first",
+                    time=point(a, "year", conversion="historical->astronomical"),
+                    source=SOURCE.id,
+                    locator=f"languages.csv row {gid}",
+                    quote=quote,
+                    quote_verified=True,
+                    extracted_by=extracted,
+                )
+            )
         if b is not None:
-            claims.append(Claim(
-                id=claim_id(gid, SOURCE.id, "last"), languoid=gid, languoid_name=r["name"],
-                kind="attestation_last", time=point(b, "year", conversion="historical->astronomical"),
-                source=SOURCE.id, locator=f"languages.csv row {gid}", quote=quote, quote_verified=True, extracted_by=extracted,
-            ))
+            claims.append(
+                Claim(
+                    id=claim_id(gid, SOURCE.id, "last"),
+                    languoid=gid,
+                    languoid_name=r["name"],
+                    kind="attestation_last",
+                    time=point(b, "year", conversion="historical->astronomical"),
+                    source=SOURCE.id,
+                    locator=f"languages.csv row {gid}",
+                    quote=quote,
+                    quote_verified=True,
+                    extracted_by=extracted,
+                )
+            )
     SOURCE.retrieved = now()
     return write_claims(g, SOURCE, claims)

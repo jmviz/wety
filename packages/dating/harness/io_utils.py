@@ -1,4 +1,5 @@
 """Atomic persistence and cross-process advisory locking (all writers cooperate)."""
+
 from contextlib import contextmanager
 import fcntl
 import hashlib
@@ -9,7 +10,9 @@ import tempfile
 
 
 def digest(value):
-    return hashlib.sha256(json.dumps(value, sort_keys=True, ensure_ascii=False, separators=(",", ":")).encode()).hexdigest()
+    return hashlib.sha256(
+        json.dumps(value, sort_keys=True, ensure_ascii=False, separators=(",", ":")).encode()
+    ).hexdigest()
 
 
 @contextmanager

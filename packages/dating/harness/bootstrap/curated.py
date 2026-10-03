@@ -29,13 +29,26 @@ def run() -> dict:
         if gid not in g.rows:
             print(f"  curated: unknown glottocode {gid}")
             continue
-        by_source[p["source"]].append(Claim(
-            id=claim_id(gid, p["source"], "period"), languoid=gid, languoid_name=g.rows[gid]["name"], kind="conventional_period",
-            time=TimeValue(earliest=p["earliest"], latest=p["latest"], open_end=p["latest"] is None, precision=p.get("precision", "century")),
-            source=p["source"], locator="periodization as summarized in the citation", quote=p["quote"], quote_verified=None,
-            extracted_by={"program": "harness.bootstrap.curated", "run": "bootstrap"},
-            notes=(f"curated: {p['name']}. " + (p.get("note") or "")).strip(),
-        ))
+        by_source[p["source"]].append(
+            Claim(
+                id=claim_id(gid, p["source"], "period"),
+                languoid=gid,
+                languoid_name=g.rows[gid]["name"],
+                kind="conventional_period",
+                time=TimeValue(
+                    earliest=p["earliest"],
+                    latest=p["latest"],
+                    open_end=p["latest"] is None,
+                    precision=p.get("precision", "century"),
+                ),
+                source=p["source"],
+                locator="periodization as summarized in the citation",
+                quote=p["quote"],
+                quote_verified=None,
+                extracted_by={"program": "harness.bootstrap.curated", "run": "bootstrap"},
+                notes=(f"curated: {p['name']}. " + (p.get("note") or "")).strip(),
+            )
+        )
     total = 0
     for sid, claims in by_source.items():
         s = write_claims(g, sources[sid], claims)

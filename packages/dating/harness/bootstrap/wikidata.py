@@ -19,6 +19,7 @@ import re
 from .. import glotto
 from ..config import now
 from workflow_tools.paths import CATALOG_WORKSPACE
+
 LANGCODES_DIR = str(CATALOG_WORKSPACE)
 from ..schema import Claim, Source
 from ..time_utils import historical_to_astronomical
@@ -49,7 +50,7 @@ def _year(ts: str) -> int | None:
 
 
 def _precision(y: int) -> str:
-    return "unknown" # source precision was not retained in this snapshot
+    return "unknown"  # source precision was not retained in this snapshot
 
 
 def run() -> dict:
@@ -63,13 +64,15 @@ def run() -> dict:
     # Catalog context only. Retain all conflicting destinations; never let
     # iteration order or a proto/family shortcut decide a QID's identity.
     from collections import defaultdict
-    contexts=defaultdict(set)
-    for q,d in codes.items():
-        contexts[q].update(x for x in d.get('glottocode',[]) if x in g.rows)
+
+    contexts = defaultdict(set)
+    for q, d in codes.items():
+        contexts[q].update(x for x in d.get("glottocode", []) if x in g.rows)
     for rec in g.wikt.values():
-        q=rec.get('wikidata_resolved') or rec.get('wikidata')
-        if q and rec.get('glottocode'):contexts[q].add(rec['glottocode'])
-    q_to_g={q:next(iter(gs)) for q,gs in contexts.items() if len(gs)==1}
+        q = rec.get("wikidata_resolved") or rec.get("wikidata")
+        if q and rec.get("glottocode"):
+            contexts[q].add(rec["glottocode"])
+    q_to_g = {q: next(iter(gs)) for q, gs in contexts.items() if len(gs) == 1}
 
     claims: list[Claim] = []
     for q, d in items.items():
@@ -86,12 +89,28 @@ def run() -> dict:
                     t.conversion = "historical->astronomical"
                 else:
                     t = point(y, prec, conversion="historical->astronomical")
-                claims.append(Claim(
-                    id=claim_id(gid, SOURCE.id, f"{q}_{prop}_{ts}"), languoid=gid, languoid_name=d.get("label",q),
-                    kind=kind, time=t, source=SOURCE.id,
-                    evidence={"subject_id":"wikidata:"+q,"subject_type":"unresolved","raw_statement":ts,"catalog_mapping":"unresolved","catalog_candidates":sorted(contexts.get(q,[])),"catalog_mapping_basis":"Wikidata/source catalog association only","source_precision":"not captured in input snapshot"}, locator=f"{q} {prop}",
-                    quote=f"{d.get('label', q)}: {prop} = {ts}", quote_verified=True,
-                    extracted_by={"program": "harness.bootstrap.wikidata", "run": "bootstrap"},
-                    notes=f"Wikidata {prop} ({key}); {'start' if is_start else 'end'} of the item's existence as Wikidata records it",
-                ))
+                claims.append(
+                    Claim(
+                        id=claim_id(gid, SOURCE.id, f"{q}_{prop}_{ts}"),
+                        languoid=gid,
+                        languoid_name=d.get("label", q),
+                        kind=kind,
+                        time=t,
+                        source=SOURCE.id,
+                        evidence={
+                            "subject_id": "wikidata:" + q,
+                            "subject_type": "unresolved",
+                            "raw_statement": ts,
+                            "catalog_mapping": "unresolved",
+                            "catalog_candidates": sorted(contexts.get(q, [])),
+                            "catalog_mapping_basis": "Wikidata/source catalog association only",
+                            "source_precision": "not captured in input snapshot",
+                        },
+                        locator=f"{q} {prop}",
+                        quote=f"{d.get('label', q)}: {prop} = {ts}",
+                        quote_verified=True,
+                        extracted_by={"program": "harness.bootstrap.wikidata", "run": "bootstrap"},
+                        notes=f"Wikidata {prop} ({key}); {'start' if is_start else 'end'} of the item's existence as Wikidata records it",
+                    )
+                )
     return write_claims(g, SOURCE, claims)

@@ -45,6 +45,7 @@ def _get(url: str) -> str:
 
 # ---- newick / nexus -------------------------------------------------------- #
 
+
 class Node:
     __slots__ = ("name", "length", "children", "parent", "annotations")
 
@@ -67,58 +68,95 @@ class Node:
 def parse_newick(s: str) -> Node:
     """Parse Newick without destroying BEAST node annotations."""
     import json
-    s=s.strip(); i=0
+
+    s = s.strip()
+    i = 0
+
     def space():
         nonlocal i
-        while i<len(s) and s[i].isspace(): i+=1
+        while i < len(s) and s[i].isspace():
+            i += 1
+
     def comments(n):
         nonlocal i
         space()
-        while i<len(s) and s[i]=='[':
-            j=s.index(']',i); raw=s[i+1:j].lstrip('&')
-            n.annotations.setdefault('_raw',[]).append(raw)
-            for m in re.finditer(r'([A-Za-z0-9_%]+)=({[^}]*}|[^,]+)',raw):
-                k,v=m.groups()
-                try: n.annotations[k]=[float(x) for x in v[1:-1].split(',')] if v.startswith('{') else float(v)
-                except ValueError: n.annotations[k]=v
-            i=j+1; space()
+        while i < len(s) and s[i] == "[":
+            j = s.index("]", i)
+            raw = s[i + 1 : j].lstrip("&")
+            n.annotations.setdefault("_raw", []).append(raw)
+            for m in re.finditer(r"([A-Za-z0-9_%]+)=({[^}]*}|[^,]+)", raw):
+                k, v = m.groups()
+                try:
+                    n.annotations[k] = (
+                        [float(x) for x in v[1:-1].split(",")] if v.startswith("{") else float(v)
+                    )
+                except ValueError:
+                    n.annotations[k] = v
+            i = j + 1
+            space()
+
     def label():
         nonlocal i
         space()
-        if i<len(s) and s[i]=="'":
-            i+=1; out=''
-            while i<len(s):
-                if s[i]=="'":
-                    i+=1
-                    if i<len(s) and s[i]=="'": out+="'"; i+=1; continue
+        if i < len(s) and s[i] == "'":
+            i += 1
+            out = ""
+            while i < len(s):
+                if s[i] == "'":
+                    i += 1
+                    if i < len(s) and s[i] == "'":
+                        out += "'"
+                        i += 1
+                        continue
                     return out
-                out+=s[i]; i+=1
-            raise ValueError('unterminated quoted label')
-        j=i
-        while i<len(s) and s[i] not in ',:;()[]': i+=1
+                out += s[i]
+                i += 1
+            raise ValueError("unterminated quoted label")
+        j = i
+        while i < len(s) and s[i] not in ",:;()[]":
+            i += 1
         return s[j:i].strip()
+
     def node():
         nonlocal i
-        space(); n=Node(); comments(n)
-        if i<len(s) and s[i]=='(':
-            i+=1
+        space()
+        n = Node()
+        comments(n)
+        if i < len(s) and s[i] == "(":
+            i += 1
             while True:
-                c=node(); c.parent=n; n.children.append(c); space()
-                if i>=len(s): raise ValueError('unclosed tree')
-                ch=s[i]; i+=1
-                if ch==')': break
-                if ch!=',': raise ValueError('invalid child separator')
-        n.name=label() or None; comments(n)
-        if i<len(s) and s[i]==':':
-            i+=1; j=i
-            while i<len(s) and s[i] not in ',;()[]': i+=1
-            n.length=float(s[j:i]); comments(n)
-            if n.length<0: raise ValueError('negative branch length')
+                c = node()
+                c.parent = n
+                n.children.append(c)
+                space()
+                if i >= len(s):
+                    raise ValueError("unclosed tree")
+                ch = s[i]
+                i += 1
+                if ch == ")":
+                    break
+                if ch != ",":
+                    raise ValueError("invalid child separator")
+        n.name = label() or None
+        comments(n)
+        if i < len(s) and s[i] == ":":
+            i += 1
+            j = i
+            while i < len(s) and s[i] not in ",;()[]":
+                i += 1
+            n.length = float(s[j:i])
+            comments(n)
+            if n.length < 0:
+                raise ValueError("negative branch length")
         return n
-    root=node(); space()
-    if i<len(s) and s[i]==';': i+=1
+
+    root = node()
     space()
-    if i!=len(s): raise ValueError('trailing unparsed tree content')
+    if i < len(s) and s[i] == ";":
+        i += 1
+    space()
+    if i != len(s):
+        raise ValueError("trailing unparsed tree content")
     return root
 
 
@@ -157,7 +195,10 @@ def node_ages(root: Node) -> dict[int, float]:
 
 # ---- mapping ----------------------------------------------------------------- #
 
-def map_tree(root: Node, taxa: dict[str, str], g: glotto.Glottolog, scale: float) -> tuple[list[dict], dict]:
+
+def map_tree(
+    root: Node, taxa: dict[str, str], g: glotto.Glottolog, scale: float
+) -> tuple[list[dict], dict]:
     ages = node_ages(root)
     tip_g = {id(t): taxa.get(t.name or "") for t in root.tips()}
     in_tree = {v for v in tip_g.values() if v}
@@ -167,7 +208,7 @@ def map_tree(root: Node, taxa: dict[str, str], g: glotto.Glottolog, scale: float
         if not n.children:
             continue
         stats["internal"] += 1
-        descendants=n.tips()
+        descendants = n.tips()
         # Unmapped descendants can change clade identity. Never silently prune them.
         if any(not tip_g.get(id(t)) for t in descendants):
             stats["inconsistent"] += 1
@@ -185,10 +226,19 @@ def map_tree(root: Node, taxa: dict[str, str], g: glotto.Glottolog, scale: float
             stats["inconsistent"] += 1
             continue
         age = ages[id(n)] * scale
-        rec = {"glottocode": mrca, "age_bp": age, "n_tips": len(set(tips)), "taxa": sorted(t.name for t in descendants), "annotations": n.annotations, "catalog_relation": "sampled_subset"}
+        rec = {
+            "glottocode": mrca,
+            "age_bp": age,
+            "n_tips": len(set(tips)),
+            "taxa": sorted(t.name for t in descendants),
+            "annotations": n.annotations,
+            "catalog_relation": "sampled_subset",
+        }
         if mrca in seen:
             stats["dup"] += 1
-            if len(set(tips)) < seen[mrca]["n_tips"] or (len(set(tips)) == seen[mrca]["n_tips"] and age >= seen[mrca]["age_bp"]):
+            if len(set(tips)) < seen[mrca]["n_tips"] or (
+                len(set(tips)) == seen[mrca]["n_tips"] and age >= seen[mrca]["age_bp"]
+            ):
                 continue
         seen[mrca] = rec
     stats["mapped"] = len(seen)
@@ -202,4 +252,5 @@ def run(only: list[str] | None = None) -> dict:
     does not establish its epoch, sampling model, or exact clade identity.
     """
     from ..tree_ingest import ingest_manifests
+
     return ingest_manifests(studies=only)

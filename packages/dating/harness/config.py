@@ -5,12 +5,24 @@ from __future__ import annotations
 import datetime as dt
 import os
 
-from workflow_tools.paths import (REPO, DATING_WORKSPACE, DATING_PRODUCT, DATING_GENERATIONS,
-    DATING_HISTORY, RETRIEVED, CATALOG_PRODUCT, CATALOG_SOURCES, IECOR_PRODUCT, selected, historical)
-DATING_DIR = str(REPO / 'packages/dating')
+from workflow_tools.paths import (
+    REPO,
+    DATING_WORKSPACE,
+    DATING_PRODUCT,
+    DATING_GENERATIONS,
+    DATING_HISTORY,
+    RETRIEVED,
+    CATALOG_PRODUCT,
+    CATALOG_SOURCES,
+    IECOR_PRODUCT,
+    selected,
+    historical,
+)
+
+DATING_DIR = str(REPO / "packages/dating")
 REPO_DIR = str(REPO)
 DATA_DIR = str(DATING_WORKSPACE)
-SCHEMA_DIR = os.path.join(DATING_DIR, 'schemas')
+SCHEMA_DIR = os.path.join(DATING_DIR, "schemas")
 # Historical name retained in the domain API; these are durable research inputs, not disposable.
 CACHE_DIR = str(RETRIEVED)
 LANGCODES_DIR = str(CATALOG_PRODUCT)
