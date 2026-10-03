@@ -1,41 +1,82 @@
 # [wety](https://www.wety.org/)
 
-(w)iktionary (ety)mologies. `processor` uses [`wiktextract`](https://github.com/tatuylonen/wiktextract) data to generate an etymological graph of all words on wiktionary. `server` serves the data. `client` is the frontend.
+Wiktionary etymologies, language catalog linking, and a provenance-rich registry of
+chronological claims. Rust builds and serves the etymological graph; Python manages
+catalog and dating research. Workflows can invoke either stack through explicit CLIs.
 
-## Installation
+## Layout
 
-Clone this repo.
+- `crates/{core,processor,server}`: Rust libraries, graph processor, API server.
+- `packages/{catalogs,dating,source_tools,workflow_tools}`: Python domain code and shared tooling.
+- `workflows/`: executable workflow definitions; algorithms stay in their packages/crates.
+- `data/`: one home for artifacts, research workspaces, product selections, receipts, caches and archives.
+- `client/`: frontend. `experiments/`: exploratory notebooks.
 
-If you do not have Rust installed, [install it](https://www.rust-lang.org/tools/install). This project uses `nightly` Rust and assumes you have a recent version. When you build the project, the `nightly` channel should automatically be selected. If compilation fails complaining about unstable features, you should update to a more recent version with `rustup update nightly`.
+See [organization and ownership](docs/architecture/reorganization.md),
+[source acquisition and recovery](docs/architecture/provenance.md), and the
+[migration checklist](docs/architecture/migration-checklist.md).
+The scientific contracts remain in [catalogs](packages/catalogs/README.md) and
+[dating](packages/dating/README.md). Catalog correspondence never licenses automatic
+chronological transfer.
 
-## `processor` usage
+## Setup and offline checks
 
-Make sure you are in the root directory of this repo. Download the latest `wiktextract` raw data from [https://kaikki.org/dictionary/rawdata.html](https://kaikki.org/dictionary/rawdata.html), namely [this file](https://kaikki.org/dictionary/raw-wiktextract-data.jsonl.gz), into `data/`. Run `processor` with:
+Run from the repository root. Python 3.12+ and `uv` are required. The root `uv.lock`
+is authoritative; Rust uses `Cargo.lock` and the dated `rust-toolchain.toml`.
 
-```bash
-cargo run --release --bin processor
+```sh
+uv sync --frozen
+uv run --frozen wety-data run catalogs
+uv run --frozen wety-data run dating
+uv run --frozen python -m unittest discover -s packages/catalogs/tests
+uv run --frozen python -m unittest discover -s packages/dating/tests
+uv run --frozen python -m unittest discover -s packages/workflow_tools/tests
+cargo check --locked --workspace
+cargo test --locked -p wety-core --lib
 ```
 
-It will take a while to compile, and even longer to run :). By default, it will process the raw wiktextract data and produce a gz-compressed JSON serialization of the data structure used by `server`. It also can generate a [Turtle](https://www.w3.org/TR/turtle/) file for loading into a graph database, e.g. [Oxigraph](https://github.com/oxigraph/oxigraph). See `cargo run --release --bin processor -- --help` for all options.
+Catalog/dating builds and tests use existing local source material and make no model
+calls. A fresh checkout needs the ignored source artifacts restored first; manifests
+and the migration inventory identify the required bytes. Run `wety-data verify-all`
+to check adopted artifacts. Source refresh is always a separate, deliberate command.
 
-`processor` uses an embeddings model for word sense disambiguation. Note that the first time this is run, the model files will be downloaded from Hugging Face and placed in `~/.cache/huggingface/hub`. On subsequent runs, the files will be read from this cache rather than redownloaded. Similarly, on the first run, embeddings will be generated for all items determined to need them. This will take the lion's share of processing time. On subsequent runs, embeddings will be read from the embeddings cache if previously embedded text is encountered, which will very significantly speed up processing. Depending on the beefiness of your machine and whether you are using GPU or CPU (much slower) for embeddings, an initial run generating all new embeddings may take anywhere from less than 10 minutes to more than 10 hours. Subsequent runs using cached embeddings should take about 1%-10% of that time. The CPU will be used by default. To utilize your GPU, run with `--features cuda` if you have a CUDA GPU or `--features metal` on an ARM-based Mac. For accelerated CPU processing, run with `--features mkl` or `--features accelerate` on macos.
+## Build an etymological graph
 
-The `wiktextract` raw data file will be automatically decompressed if the `--wiktextract-path` argument has the extension `.gz`, otherwise it will be read as a standard JSON Lines file. Similarly, if the `--serialization-path` argument ends in `.gz`, the output will be gzipped JSON; otherwise, it will be plain JSON.
-
-If you get a CUDA out of memory error, or if you are using CPU and the process gets killed due to RAM usage, try setting `--embeddings-batch-size` lower. The default value was set as the nearest round number that worked on a card with 10GB VRAM. Alternatively, if you have a better card, you could try setting the batch size higher to speed up the embeddings processing.
-
-**N.B.** If you have previously run `processor` and on a subsequent run decide to change the `embeddings-model`, be sure to delete `data/embeddings_cache` to remove the incompatible previously-cached embeddings.
-
-## `server` usage
-
-You must have run `processor` first, with the serialized processed data having been written to `data/wety.json.gz` or `data/wety.json` (the latter will load faster on server startup).
-
-Alternatively, if you don't want to spend time running `processor` yourself, you can download the current processed data that [wety.org](https://www.wety.org) is using from [data.wety.org](http://data.wety.org/). Download the file into `data/`, and decompress it if you wish (do not rename it in either case). It's possible that the format of the processed data at this link may become out of sync with the format expected by latest `main`, either because production is using an older version or because I have neglected to update the link. If you get a deserialization error running the below, please [ping me](mailto:jmviz@jmviz.dev) to update the link.
-
-To run the server:
-
-```bash
-cargo run --release --bin server
+```sh
+uv run --frozen wety-data run etymology_graph
 ```
 
-Requests to the server can be made at `127.0.0.1:3000`. For development in conjuction with the frontend, see the README in the `client` subdirectory for instructions on setting up and running the client locally.
+This invokes the Rust processor with the selected Wiktextract dump, writes to a run
+staging directory, validates the graph with matching compiled language/POS tables,
+then publishes an immutable artifact and `data/products/etymology_graph/CURRENT.json`.
+It can take hours on a full dump. Model files are cached by Hugging Face; the model
+revision and expected local file hashes are recorded in `data/registry/embedding-model.json`.
+The workflow command specifies CPU defaults. Rust features `metal`, `cuda`,
+`accelerate` and `mkl` remain available by explicitly changing the workflow command;
+that change becomes part of the run receipt.
+
+For direct development use, `cargo run --locked --release --bin processor -- --help`
+shows explicit input/output/model options. Direct CLI runs do not create a workflow
+receipt. Embedding revisions must be immutable commits; computed caches are separated
+by model revision and embedding implementation. The old unkeyed cache is preserved
+but is not reused automatically. A lower embedding batch size can reduce memory use.
+
+## Serve a graph
+
+```sh
+WETY_GRAPH_PATH=data/artifacts/etymology-graph/VERSION/files/wety.json.gz \
+  cargo run --locked --release --bin server
+```
+
+Use the artifact selected by `data/products/etymology_graph/CURRENT.json` in place of
+`VERSION`. New graphs are rejected if their language/POS fingerprint differs from
+the server binary. The preserved legacy graph is the default local path but has no
+verified reference fingerprint. To intentionally use that older graph:
+
+```sh
+WETY_ALLOW_LEGACY_GRAPH=1 cargo run --locked --release --bin server
+```
+
+This accepts unverified numeric IDs; it does not validate or rewrite that graph.
+The server listens on port 3000. See [client development](client/README.md) and
+[server deployment](crates/server/deployment.md).
