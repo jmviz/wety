@@ -46,6 +46,9 @@ __pycache__/
 !/data/workspaces/dating/_research/*/report.md
 !/data/workspaces/dating/_research/*/assertions.jsonl
 !/data/workspaces/dating/_research/*/*revisions.jsonl
+!/data/workspaces/dating/_research/packets/**
+!/data/workspaces/dating/_research/graph.json
+!/data/workspaces/dating/_research/pilot_sources.json
 
 # Lock files anywhere.
 *.json.lock
