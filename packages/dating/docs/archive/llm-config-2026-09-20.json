@@ -1,0 +1,242 @@
+{
+  "$comment": [
+    "Repo-level OpenRouter configuration, read by dating/harness/llm_backends.py.",
+    "Decisions and evidence are in the `rationale` block; re-review when models change (last_reviewed).",
+    "The account enforces Zero Data Retention: every request also sets provider.zdr=true and only ZDR endpoints are considered when choosing models.",
+    "`roles.<role>.claude` selects Anthropic/Claude Agent models; `roles.<role>.codex` selects Codex models and reasoning effort. All backends share prompts and schemas.",
+    "`roles.<role>.backend` selects the backend for that role (openrouter | anthropic | claude-agent | codex); DATING_LLM_BACKEND overrides all roles.",
+    "historical_selection_rationale_2026_09_17 and rationale.evidence are retained historical notes, not current dating-quality validation; see dating_evaluation_review."
+  ],
+  "last_reviewed": "2026-09-17",
+  "base_url": "https://openrouter.ai/api/v1",
+  "headers": {
+    "HTTP-Referer": "https://github.com/jmviz/wety",
+    "X-Title": "wety language dating"
+  },
+  "defaults": {
+    "provider": {
+      "zdr": true,
+      "require_parameters": true,
+      "allow_fallbacks": true,
+      "sort": "price",
+      "quantizations": [
+        "fp8",
+        "bf16",
+        "fp16",
+        "unknown"
+      ],
+      "data_collection": "deny"
+    },
+    "usage": {
+      "include": true
+    },
+    "session_id_from": "family",
+    "retries": {
+      "max": 5,
+      "backoff_seconds": 5,
+      "retry_on": [
+        408,
+        409,
+        425,
+        429,
+        500,
+        502,
+        503,
+        504
+      ]
+    },
+    "plugins": [
+      {
+        "id": "response-healing"
+      }
+    ]
+  },
+  "roles": {
+    "screen": {
+      "model": "z-ai/glm-5.3-flash",
+      "fallbacks": [
+        "openai/gpt-5.6-luna",
+        "deepseek/deepseek-v4.1-flash"
+      ],
+      "batch_model": "z-ai/glm-5.3-flash:batch",
+      "reasoning": {
+        "effort": "low"
+      },
+      "max_tokens": 1024,
+      "why": "Provisional inexpensive screening assignment. Validate relevant-source recall, especially corrections, critiques and sources without numeric dates, before accepting exclusions.",
+      "claude": {
+        "model": "claude-haiku-4-5",
+        "effort": null,
+        "why": "same role on the Anthropic API / Claude Agent SDK backends"
+      },
+      "codex": {
+        "model": "gpt-5.6-terra",
+        "effort": "low"
+      },
+      "historical_selection_rationale_2026_09_17": "thousands of ~500-token title+abstract calls; the cheapest model with a real reasoning score (AA 42, Arena 1475) on fp8 ZDR endpoints at $0.15/$0.50",
+      "validation_status": "provisional; dating role-specific accuracy not measured"
+    },
+    "extract": {
+      "model": "google/gemini-3.8-flash",
+      "fallbacks": [
+        "openai/gpt-5.6-sol",
+        "z-ai/glm-5.3"
+      ],
+      "batch_model": "google/gemini-3.8-flash:batch",
+      "reasoning": {
+        "effort": "medium"
+      },
+      "max_tokens": 32000,
+      "cache_system_prompt": true,
+      "why": "Provisional extraction assignment; model tier has not been validated on dating semantics. Quote matching does not verify event, entity, epoch, role, completeness or scenario attribution. Compare against a capable reasoning baseline on identical complete inputs before optimizing cost.",
+      "claude": {
+        "model": "claude-sonnet-5",
+        "effort": "medium",
+        "why": "same role on the Anthropic API / Claude Agent SDK backends; Sonnet 5 is the input-cost tier ($2/$10) with 1M context"
+      },
+      "codex": {
+        "model": "gpt-5.6-terra",
+        "effort": "medium"
+      },
+      "historical_selection_rationale_2026_09_17": "input-dominated (10k–200k tokens per paper); Arena 1493 / AA 41 at $0.75/$3.75 on Google ZDR endpoints with implicit caching and 1M context; quote verification by the harness catches extraction errors, so the flash tier is the right cost/quality point",
+      "validation_status": "provisional; dating role-specific accuracy not measured"
+    },
+    "synthesize": {
+      "model": "openai/gpt-6-astra",
+      "fallbacks": [
+        "openai/gpt-5.6-sol"
+      ],
+      "batch_model": "openai/gpt-6-astra:batch",
+      "reasoning": {
+        "effort": "high"
+      },
+      "max_tokens": 64000,
+      "cache_system_prompt": true,
+      "why": "Provisional reasoning-intensive review assignment; proposals cannot adopt evidence. Evaluate scenario/dependency fidelity and abstention separately from extraction. Effective backend and fallbacks must be recorded; role model name alone does not identify the executed model.",
+      "claude": {
+        "model": "claude-opus-5",
+        "effort": "high",
+        "why": "same role on the Anthropic API / Claude Agent SDK backends"
+      },
+      "codex": {
+        "model": "gpt-5.6-terra",
+        "effort": "high"
+      },
+      "backend": "claude-agent",
+      "historical_selection_rationale_2026_09_17": "one reasoning-heavy call per family over all claims. Default backend is the Claude Agent SDK (Opus 5, effort high, on the Claude subscription: Arena 1493, AA 48–51, no per-token cost). On OpenRouter the ZDR endpoints for Opus 5 (Vertex/Bedrock) do not support strict structured outputs, so the API path uses GPT-6 Astra (AA 53, Arena 1480, $10/$50 on Azure ZDR).",
+      "validation_status": "provisional; dating role-specific accuracy not measured"
+    }
+  },
+  "rationale": {
+    "constraints": [
+      "ZDR enforcement (account-wide) means only endpoints listed by GET /api/v1/endpoints/zdr are reachable: e.g. Anthropic models only via Vertex/Bedrock, OpenAI only via Azure, no anthropic/claude-fable-5.1, no qwen/qwen3.8-flash or -max, no meta/muse-spark-1.3.",
+      "Structured outputs are required (response_format json_schema strict); provider.require_parameters=true keeps routing on endpoints that honour it.",
+      "Open-weight models are served by many providers at different quantizations; fp4/int4 endpoints are excluded by provider.quantizations, remaining endpoints are sorted by price.",
+      "Do not send `temperature`: reasoning endpoints (Google Vertex, Azure OpenAI) do not list it in supported_parameters, and with provider.require_parameters=true that silently routes every request to the last fallback. Structured outputs + effort are the determinism levers instead.",
+      "Anthropic models on the ZDR endpoints (Vertex, Bedrock) list response_format but not structured_outputs, so strict json_schema requests cannot route to them; use the anthropic or claude-agent backends for Claude models."
+    ],
+    "evidence": {
+      "artificial_analysis_intelligence_index_2026_09": {
+        "claude-fable-5.1 (xhigh)": 53,
+        "gpt-6-astra (xhigh)": 53,
+        "gpt-6-astra (high)": 51,
+        "claude-opus-5 (max)": 51,
+        "claude-opus-5 (high)": 48,
+        "muse-spark-1.3 (max)": 48,
+        "gpt-5.6-sol (max)": 47,
+        "qwen3.8-max": 45,
+        "glm-5.3 (max)": 45,
+        "grok-4.6 (high)": 44,
+        "kimi-k3 (max)": 44,
+        "gpt-5.6-sol (high)": 42,
+        "glm-5.3-flash": 42,
+        "gemini-3.8-flash (high)": 41,
+        "deepseek-v4.1-flash (max)": 40,
+        "claude-sonnet-5 (max)": 38,
+        "gpt-5.6-luna (max)": 38,
+        "deepseek-v4-pro-0813 (max)": 36
+      },
+      "arena_text_2026_09": {
+        "claude-fable-5.1-max": 1498,
+        "muse-spark-1.3-max": 1493,
+        "gemini-3.8-flash-high": 1493,
+        "claude-opus-5-high": 1493,
+        "kimi-k3-max": 1485,
+        "gpt-5.6-sol-xhigh": 1483,
+        "glm-5.3-max": 1483,
+        "qwen3.8-max": 1481,
+        "gpt-6-astra-max": 1480,
+        "glm-5.3-flash": 1475
+      },
+      "openrouter_zdr_pricing_per_mtok_in_out": {
+        "z-ai/glm-5.3-flash (fp8)": [
+          0.15,
+          0.5
+        ],
+        "openai/gpt-5.6-luna (azure)": [
+          0.2,
+          1.2
+        ],
+        "deepseek/deepseek-v4.1-flash (fp8)": [
+          0.3,
+          1.2
+        ],
+        "google/gemini-3.8-flash": [
+          0.75,
+          3.75
+        ],
+        "z-ai/glm-5.3 (fp8)": [
+          1.26,
+          4.4
+        ],
+        "openai/gpt-5.6-sol (azure)": [
+          2.0,
+          10.0
+        ],
+        "anthropic/claude-sonnet-5 (vertex/bedrock global)": [
+          2.0,
+          10.0
+        ],
+        "anthropic/claude-opus-5 (vertex/bedrock global)": [
+          5.0,
+          25.0
+        ],
+        "openai/gpt-6-astra (azure)": [
+          10.0,
+          50.0
+        ]
+      },
+      "sources": [
+        "https://openrouter.ai/api/v1/models and /api/v1/models/{id}/endpoints and /api/v1/endpoints/zdr (fetched 2026-09-17)",
+        "https://artificialanalysis.ai/leaderboards/models (fetched 2026-09-17)",
+        "https://arena.ai/leaderboard/text (fetched 2026-09-17)",
+        "https://openrouter.ai/docs/features/prompt-caching, /provider-routing, /zdr, /structured-outputs, /batch-quickstart"
+      ]
+    },
+    "efficiency": [
+      "Caching: stable system prompt first, per-item content last; Anthropic models get an explicit cache_control breakpoint on the system message; Gemini/DeepSeek/GLM cache implicitly. session_id = family so sticky routing keeps a task on one endpoint (cache hits).",
+      "Batching: extraction and screening are latency-insensitive; `--batch` submits them to POST /api/beta/batches on the :batch model variant at 50% price with a 24h window, same request bodies.",
+      "Fallbacks: `models` lists the fallbacks so a 5xx/429 on the primary is retried on the next model without a round trip to us.",
+      "usage.include=true returns cost per request, logged next to every call for the reproducibility record."
+    ]
+  },
+  "claude_agent": {
+    "on_usage_limit": "wait",
+    "max_wait_seconds": 21600,
+    "max_attempts": 6,
+    "fallback_backend": "openrouter",
+    "why": "the Claude Agent SDK runs on a Claude subscription with 5-hour/weekly usage windows; on a `rejected` rate-limit event or a 429 result the backend waits until resets_at (capped) and retries — every stage writes progress as it goes, so an interrupted run resumes where it stopped. Set on_usage_limit to `fallback` to continue on OpenRouter (paid) instead, or `fail` to stop."
+  },
+  "codex": {
+    "executable": "codex",
+    "auth_credentials_store": "file",
+    "timeout_seconds": 600,
+    "why": "Opt-in ChatGPT subscription backend via codex exec. Run codex login first; API-key logins are rejected, environment API keys are excluded, and errors/usage limits fail without paid fallback. Role assignments are provisional and not dating-quality validated. Set auth_credentials_store to keyring or auto if that is where your Codex login is stored."
+  },
+  "dating_evaluation_review": {
+    "date": "2026-09-20",
+    "recommendations": "packages/dating/docs/harness-recommendations.md",
+    "models_changed": false,
+    "reason": "Observed pilot defects motivate role-specific evaluation, but are not an attributed model-error-rate comparison."
+  }
+}

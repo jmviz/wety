@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "mode": "artifact",
+  "collection": "graph-smoke",
+  "inputs": {
+    "wiktextract": "workflows/etymology_graph/fixtures/minimal.jsonl",
+    "languages": "data/artifacts/wiktionary-export/legacy/files/languages.json",
+    "pos": "crates/core/src/pos_phf.rs",
+    "model": "data/registry/embedding-model.json"
+  },
+  "commands": [
+    [
+      "{python}",
+      "-m",
+      "workflow_tools.model"
+    ],
+    [
+      "cargo",
+      "run",
+      "--locked",
+      "-p",
+      "processor",
+      "--bin",
+      "processor",
+      "--",
+      "--wiktextract-path",
+      "{input_wiktextract}",
+      "--serialization-path",
+      "{output}/wety.json.gz",
+      "--embeddings-model-revision",
+      "7b92c94edb86f18b2d52ed2797de0c5d474632ae",
+      "--embeddings-cache-path",
+      "{repo}/data/cache/embeddings/current"
+    ]
+  ],
+  "validation": [
+    [
+      "cargo",
+      "run",
+      "--locked",
+      "-p",
+      "wety-core",
+      "--example",
+      "validate_graph",
+      "--",
+      "{output}/wety.json.gz"
+    ]
+  ],
+  "required_outputs": [
+    "wety.json.gz"
+  ],
+  "entrypoint": "wety.json.gz"
+}

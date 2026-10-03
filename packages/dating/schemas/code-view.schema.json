@@ -1,0 +1,157 @@
+{
+  "$defs": {
+    "Decision": {
+      "additionalProperties": false,
+      "properties": {
+        "subject_id": {
+          "title": "Subject Id",
+          "type": "string"
+        },
+        "event": {
+          "title": "Event",
+          "type": "string"
+        },
+        "claim_id": {
+          "title": "Claim Id",
+          "type": "string"
+        },
+        "evidence_digest": {
+          "title": "Evidence Digest",
+          "type": "string"
+        },
+        "reviewer": {
+          "title": "Reviewer",
+          "type": "string"
+        },
+        "rationale": {
+          "title": "Rationale",
+          "type": "string"
+        },
+        "dependencies": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Dependencies",
+          "type": "array"
+        },
+        "kind": {
+          "const": "editorial_default",
+          "default": "editorial_default",
+          "title": "Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "subject_id",
+        "event",
+        "claim_id",
+        "evidence_digest",
+        "reviewer",
+        "rationale"
+      ],
+      "title": "Decision",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 2,
+      "default": 2,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "code": {
+      "title": "Code",
+      "type": "string"
+    },
+    "name": {
+      "title": "Name",
+      "type": "string"
+    },
+    "kind": {
+      "title": "Kind",
+      "type": "string"
+    },
+    "glottocode": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Glottocode"
+    },
+    "mapping": {
+      "additionalProperties": true,
+      "title": "Mapping",
+      "type": "object"
+    },
+    "spoken": {
+      "default": null,
+      "title": "Spoken",
+      "type": "null"
+    },
+    "chronology": {
+      "items": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Chronology",
+      "type": "array"
+    },
+    "evidence_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence Ids",
+      "type": "array"
+    },
+    "catalog_context": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Catalog Context",
+      "type": "array"
+    },
+    "ancestral_context": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Ancestral Context",
+      "type": "array"
+    },
+    "display_status": {
+      "enum": [
+        "documented_claims",
+        "no_verified_code_specific_chronology"
+      ],
+      "title": "Display Status",
+      "type": "string"
+    },
+    "defaults": {
+      "items": {
+        "$ref": "#/$defs/Decision"
+      },
+      "title": "Defaults",
+      "type": "array"
+    }
+  },
+  "required": [
+    "code",
+    "name",
+    "kind",
+    "glottocode",
+    "mapping",
+    "chronology",
+    "evidence_ids",
+    "catalog_context",
+    "ancestral_context",
+    "display_status",
+    "defaults"
+  ],
+  "title": "CodeView",
+  "type": "object"
+}

@@ -1,0 +1,164 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "form": {
+      "enum": [
+        "point",
+        "event_range",
+        "duration",
+        "bound",
+        "distribution",
+        "unknown"
+      ],
+      "title": "Form",
+      "type": "string"
+    },
+    "value": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Value"
+    },
+    "lower": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Lower"
+    },
+    "upper": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Upper"
+    },
+    "relation": {
+      "anyOf": [
+        {
+          "enum": [
+            "before",
+            "after",
+            "by",
+            "since"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Relation"
+    },
+    "mean": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Mean"
+    },
+    "median": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Median"
+    },
+    "interval_type": {
+      "anyOf": [
+        {
+          "enum": [
+            "hpd",
+            "equal_tailed",
+            "reported_range",
+            "unknown"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Interval Type"
+    },
+    "probability": {
+      "anyOf": [
+        {
+          "exclusiveMaximum": 1,
+          "exclusiveMinimum": 0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Probability"
+    },
+    "ongoing": {
+      "default": false,
+      "title": "Ongoing",
+      "type": "boolean"
+    },
+    "precision": {
+      "default": "unknown",
+      "enum": [
+        "year",
+        "decade",
+        "century",
+        "millennium",
+        "unknown"
+      ],
+      "title": "Precision",
+      "type": "string"
+    },
+    "original": {
+      "additionalProperties": true,
+      "title": "Original",
+      "type": "object"
+    },
+    "normalization": {
+      "default": "unknown",
+      "enum": [
+        "program_verified",
+        "legacy_unverified",
+        "unknown"
+      ],
+      "title": "Normalization",
+      "type": "string"
+    }
+  },
+  "required": [
+    "form"
+  ],
+  "title": "Temporal",
+  "type": "object"
+}

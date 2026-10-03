@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "mode": "managed",
+  "inputs": {
+    "catalog": "data/products/catalogs/CURRENT.json",
+    "iecor": "data/products/iecor/iecor_matches_receipt.json"
+  },
+  "commands": [
+    [
+      "{python}",
+      "-m",
+      "harness.cli",
+      "synthesize"
+    ]
+  ],
+  "validation": [
+    [
+      "{python}",
+      "-m",
+      "harness.cli",
+      "validate"
+    ],
+    [
+      "{python}",
+      "-m",
+      "harness.cli",
+      "benchmark"
+    ]
+  ],
+  "required_outputs": [
+    "data/products/dating/CURRENT.json",
+    "data/products/dating/benchmark.json"
+  ]
+}

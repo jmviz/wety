@@ -1,0 +1,47 @@
+[
+  {
+    "expected_taxa": 161,
+    "expected_years_bp": {
+      "lower": 6740,
+      "median": 8120,
+      "upper": 9610
+    },
+    "family": "indo1319",
+    "id": "heggarty2023_main_m3",
+    "interval_type": "hpd",
+    "manifest": "data/_analyses/heggarty2023_main_m3.json",
+    "reference_status": "publication-derived development fixture, not specialist-adjudicated truth",
+    "source_url": "https://doi.org/10.1126/science.abg0818",
+    "tolerance_years": 5
+  },
+  {
+    "expected_taxa": 50,
+    "expected_years_bp": {
+      "lower": 5093,
+      "mean": 7184,
+      "upper": 9568
+    },
+    "family": "sino1245",
+    "id": "sagart2019_relaxed_fbd",
+    "interval_type": "hpd",
+    "manifest": "data/_analyses/sagart2019_relaxed_fbd.json",
+    "reference_status": "publication-derived development fixture, not specialist-adjudicated truth",
+    "source_url": "https://doi.org/10.1073/pnas.1817972116",
+    "tolerance_years": 1
+  },
+  {
+    "expected_taxa": 17,
+    "expected_years_bp": {
+      "lower": 3330,
+      "mean": 5300,
+      "upper": 7503
+    },
+    "family": "ural1272",
+    "id": "honkola2013_beast",
+    "interval_type": "hpd",
+    "manifest": "data/_analyses/honkola2013_beast.json",
+    "reference_status": "publication-derived development fixture, not specialist-adjudicated truth",
+    "source_url": "https://doi.org/10.1111/jeb.12107",
+    "tolerance_years": 50
+  }
+]

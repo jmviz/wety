@@ -1,0 +1,45 @@
+{
+  "additionalProperties": false,
+  "description": "Relations between source-specific events, never whole-language lifespans.",
+  "properties": {
+    "before_event": {
+      "title": "Before Event",
+      "type": "string"
+    },
+    "after_event": {
+      "title": "After Event",
+      "type": "string"
+    },
+    "relation": {
+      "enum": [
+        "precedes",
+        "not_after",
+        "overlaps"
+      ],
+      "title": "Relation",
+      "type": "string"
+    },
+    "basis_claim_ids": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Basis Claim Ids",
+      "type": "array"
+    },
+    "rationale": {
+      "minLength": 1,
+      "title": "Rationale",
+      "type": "string"
+    }
+  },
+  "required": [
+    "before_event",
+    "after_event",
+    "relation",
+    "basis_claim_ids",
+    "rationale"
+  ],
+  "title": "RelativeConstraint",
+  "type": "object"
+}

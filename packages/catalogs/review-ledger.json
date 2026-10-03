@@ -1,0 +1,437 @@
+[
+  {
+    "id": "C01",
+    "finding": "Identifiers and source concepts are conflated with real-world language identity",
+    "status": "resolved_with_explicit_limits",
+    "resolution": "Namespaced source concepts, directional assertions, snapshot-specific semantics and alias index; no automatic equivalence or transitive composition.",
+    "checks": [
+      {
+        "suite": "packages/catalogs/tests/test_registry.py",
+        "test": "test_catalog_agreement_is_not_equivalence",
+        "result": "passed"
+      },
+      {
+        "suite": "packages/catalogs/tests/test_registry.py",
+        "test": "test_alias_namespace_collision_rejected",
+        "result": "passed"
+      }
+    ],
+    "remaining_work": "No worldwide concept-extension adjudication has been performed."
+  },
+  {
+    "id": "C02",
+    "finding": "Uncalibrated confidence and alleged independent corroboration",
+    "status": "resolved_with_explicit_limits",
+    "resolution": "Removed confidence rankings and independence claims from public outputs; route provenance and measured/unmeasured reporting replace them.",
+    "checks": [
+      {
+        "suite": "packages/catalogs/tests/test_registry.py",
+        "test": "test_catalog_agreement_is_not_equivalence",
+        "result": "passed"
+      },
+      {
+        "suite": "packages/catalogs/tests/test_registry.py",
+        "test": "test_coverage_is_not_confidence",
+        "result": "passed"
+      }
+    ],
+    "remaining_work": "Held-out linguistic mapping accuracy remains unmeasured."
+  },
+  {
+    "id": "C03",
+    "finding": "Conflicts and multiplicity still publish a preferred scalar",
+    "status": "resolved",
+    "resolution": "Withhold scalars on conflicting or multivalued observations, including ambiguous upstream ISO routes; retain alternatives.",
+    "checks": [
+      {
+        "suite": "packages/catalogs/tests/test_registry.py",
+        "test": "test_conflicting_identifiers_abstain",
+        "result": "passed"
+      },
+      {
+        "suite": "packages/catalogs/tests/test_registry.py",
+        "test": "test_multiple_values_abstain_even_with_agreement",
+        "result": "passed"
+      },
+      {
+        "suite": "packages/catalogs/tests/test_registry.py",
+        "test": "test_aramaic_conflict_not_preferred",
+        "result": "passed"
+      },
+      {
+        "suite": "packages/catalogs/tests/test_registry.py",
+        "test": "test_upstream_iso_conflict_cannot_create_glottocode",
+        "result": "passed"
+      }
+    ],
+    "remaining_work": null
+  },
+  {
+    "id": "C04",
+    "finding": "Ancestor/sibling relationships disguise granularity disagreements",
+    "status": "resolved_with_explicit_limits",
+    "resolution": "Catalog level/category remains visible; family scope and related targets cannot resolve identity.",
+    "checks": [
+      {
+        "suite": "packages/catalogs/tests/test_registry.py",
+        "test": "test_family_target_is_context_for_language",
+        "result": "passed"
+      },
+      {
+        "suite": "packages/catalogs/tests/test_registry.py",
+        "test": "test_umbrella_codes_not_forced_into_language_nodes",
+        "result": "passed"
+      }
+    ],
+    "remaining_work": "Specific narrower/broader/overlap judgments remain for scoped review."
+  },
+  {
+    "id": "C05",
+    "finding": "Parent inheritance copies stage identifiers, types and documentation dates",
+    "status": "resolved",
+    "resolution": "Removed inherited identifier, type and date copies; non-etymology-only associations are parent context.",
+    "checks": [
+      {
+        "suite": "packages/catalogs/tests/test_registry.py",
+        "test": "test_parent_scope_cannot_supply_child_identifier",
+        "result": "passed"
+      },
+      {
+        "suite": "packages/catalogs/tests/test_registry.py",
+        "test": "test_coverage_is_not_confidence",
+        "result": "passed"
+      }
+    ],
+    "remaining_work": null
+  },
+  {
+    "id": "C06",
+    "finding": "Proto-language, named family and phylogenetic crown are conflated",
+    "status": "resolved_with_explicit_limits",
+    "resolution": "Proto/family and P279 associations remain context; no fallback stage identity or crown date.",
+    "checks": [
+      {
+        "suite": "packages/catalogs/tests/test_registry.py",
+        "test": "test_proto_not_family_identity",
+        "result": "passed"
+      },
+      {
+        "suite": "packages/catalogs/tests/test_registry.py",
+        "test": "test_uralic_aliases_not_proto_dates",
+        "result": "passed"
+      },
+      {
+        "suite": "packages/dating/tests/test_catalog_links.py",
+        "test": "test_family_is_not_a_reconstructed_language",
+        "result": "passed"
+      },
+      {
+        "suite": "packages/dating/tests/test_catalog_links.py",
+        "test": "test_proto_associations_only_explicit_context",
+        "result": "passed"
+      }
+    ],
+    "remaining_work": "Reconstructed-stage boundaries require source-specific linguistic evidence."
+  },
+  {
+    "id": "C07",
+    "finding": "ISO namespaces, macrolanguages and retirement operations lose distinctions",
+    "status": "resolved",
+    "resolution": "Separated ISO namespaces, retained macro/member and retirement history, removed successor identity lookup.",
+    "checks": [
+      {
+        "suite": "packages/catalogs/tests/test_registry.py",
+        "test": "test_iso_parts_are_distinct_namespaces",
+        "result": "passed"
+      },
+      {
+        "suite": "packages/catalogs/tests/test_registry.py",
+        "test": "test_retirement_is_not_extinction_or_identity",
+        "result": "passed"
+      }
+    ],
+    "remaining_work": null
+  },
+  {
+    "id": "C08",
+    "finding": "Bookkeeping and non-genealogical categories can enter genetic reasoning",
+    "status": "resolved_with_explicit_limits",
+    "resolution": "Bookkeeping/non-genealogical contexts cannot become automatic lookup identity or genetic MRCA; all tips required.",
+    "checks": [
+      {
+        "suite": "packages/catalogs/tests/test_registry.py",
+        "test": "test_bookkeeping_never_projects",
+        "result": "passed"
+      },
+      {
+        "suite": "packages/dating/tests/test_catalog_links.py",
+        "test": "test_nongenealogical_bucket_is_not_a_family",
+        "result": "passed"
+      },
+      {
+        "suite": "packages/dating/tests/test_catalog_links.py",
+        "test": "test_unknown_tip_makes_mrca_unresolved",
+        "result": "passed"
+      },
+      {
+        "suite": "packages/catalogs/tests/test_registry.py",
+        "test": "test_classification_cycles_and_inconsistent_prefixes_fail",
+        "result": "passed"
+      }
+    ],
+    "remaining_work": "Additional sign/contact genealogies need reviewed graphs, not the broad catalog bucket."
+  },
+  {
+    "id": "C09",
+    "finding": "Names, suffixes and token overlaps are promoted to identity",
+    "status": "resolved",
+    "resolution": "Names are proposals only; removed suffix inheritance, token/regular-code selection and ancestor fallback; Unicode preserved.",
+    "checks": [
+      {
+        "suite": "packages/catalogs/tests/test_registry.py",
+        "test": "test_name_only_is_proposal",
+        "result": "passed"
+      },
+      {
+        "suite": "packages/catalogs/tests/test_registry.py",
+        "test": "test_unicode_names_do_not_collapse_to_empty",
+        "result": "passed"
+      },
+      {
+        "suite": "packages/catalogs/tests/test_registry.py",
+        "test": "test_unique_code_does_not_override_sample_name",
+        "result": "passed"
+      }
+    ],
+    "remaining_work": null
+  },
+  {
+    "id": "C10",
+    "finding": "Family guards are fallible classifications, with order-dependent pruning",
+    "status": "resolved_with_explicit_limits",
+    "resolution": "Removed family-name pruning and proto family backfill; classification disagreement remains an explicit issue; sorted publication.",
+    "checks": [
+      {
+        "suite": "packages/catalogs/tests/test_registry.py",
+        "test": "test_deterministic_link_order_and_fingerprint",
+        "result": "passed"
+      },
+      {
+        "suite": "packages/catalogs/tests/test_registry.py",
+        "test": "test_family_disagreement_does_not_delete_name_candidate",
+        "result": "passed"
+      }
+    ],
+    "remaining_work": "Source classifications remain competing catalog assertions."
+  },
+  {
+    "id": "C11",
+    "finding": "Overrides are unrestricted, stale and applied after dependent inference",
+    "status": "resolved",
+    "resolution": "Overrides require a typed scoped relation, purpose, reviewer, evidence references and current source digest, before index generation.",
+    "checks": [
+      {
+        "suite": "packages/catalogs/tests/test_registry.py",
+        "test": "test_stale_and_unrestricted_overrides_rejected",
+        "result": "passed"
+      },
+      {
+        "suite": "packages/catalogs/tests/test_registry.py",
+        "test": "test_low_german_review_is_bounded",
+        "result": "passed"
+      },
+      {
+        "suite": "packages/catalogs/tests/test_registry.py",
+        "test": "test_projection_clears_stale_scalar",
+        "result": "passed"
+      },
+      {
+        "suite": "packages/catalogs/tests/test_registry.py",
+        "test": "test_reviewed_abstention_overrides_automatic_lookup",
+        "result": "passed"
+      }
+    ],
+    "remaining_work": null
+  },
+  {
+    "id": "C12",
+    "finding": "Source versions and hashes are incomplete or unchecked",
+    "status": "resolved_with_explicit_limits",
+    "resolution": "Pinned and verified source manifest, input hashes and Glottolog release; reject stale targeted snapshots or ambiguous release selection.",
+    "checks": [
+      {
+        "suite": "packages/catalogs/tests/test_registry.py",
+        "test": "test_source_tampering_fails_before_mapping",
+        "result": "passed"
+      },
+      {
+        "suite": "packages/catalogs/tests/test_registry.py",
+        "test": "test_multiple_releases_require_explicit_selection",
+        "result": "passed"
+      }
+    ],
+    "remaining_work": "Legacy upstream revisions remain unknown; bytes are reproducible locally."
+  },
+  {
+    "id": "C13",
+    "finding": "Wikidata ranks, qualifiers, references and redirects are lost",
+    "status": "resolved_with_explicit_limits",
+    "resolution": "Full-statement fetch capability preserves complete entity evidence; legacy losses explicit; redirects resolved with cycle detection.",
+    "checks": [
+      {
+        "suite": "packages/catalogs/tests/test_registry.py",
+        "test": "test_full_statement_fetch_retains_evidence",
+        "result": "passed"
+      },
+      {
+        "suite": "packages/catalogs/tests/test_registry.py",
+        "test": "test_redirect_chain_and_cycle",
+        "result": "passed"
+      }
+    ],
+    "remaining_work": "Current legacy Wikidata provenance is unavailable, not retroactively repaired; fresh statements require deliberate refresh and review."
+  },
+  {
+    "id": "C14",
+    "finding": "Flat CSVs and reverse indexes erase relation, provenance and uncertainty",
+    "status": "resolved",
+    "resolution": "CSV preserves structured assertions; typed reverse index includes both schemes and every relation/status.",
+    "checks": [
+      {
+        "suite": "packages/catalogs/tests/test_registry.py",
+        "test": "test_csv_preserves_link_assertions",
+        "result": "passed"
+      },
+      {
+        "suite": "packages/catalogs/tests/test_registry.py",
+        "test": "test_reverse_index_includes_family_proposals",
+        "result": "passed"
+      }
+    ],
+    "remaining_work": null
+  },
+  {
+    "id": "C15",
+    "finding": "Publication is non-atomic and advertised determinism is false",
+    "status": "resolved_with_explicit_limits",
+    "resolution": "Staged retrieval and source lock; content-addressed catalog bundle and atomic commit pointer; mirrors verified.",
+    "checks": [
+      {
+        "suite": "packages/catalogs/tests/test_registry.py",
+        "test": "test_committed_bundle_and_mirrors",
+        "result": "passed"
+      },
+      {
+        "suite": "packages/catalogs/tests/test_registry.py",
+        "test": "test_deterministic_link_order_and_fingerprint",
+        "result": "passed"
+      }
+    ],
+    "remaining_work": "Mirrors are individually atomic; consistent readers must use the bundle. Real repeated-build digest comparison also performed."
+  },
+  {
+    "id": "C16",
+    "finding": "IE-CoR sample identity is replaced by a preferred catalog stage",
+    "status": "resolved_with_explicit_limits",
+    "resolution": "Preserved all IE-CoR sample identities and raw source codes; only unresolved candidate relations; receipt binds all inputs/output.",
+    "checks": [
+      {
+        "suite": "packages/catalogs/tests/test_registry.py",
+        "test": "test_unique_code_does_not_override_sample_name",
+        "result": "passed"
+      },
+      {
+        "suite": "packages/dating/tests/test_catalog_links.py",
+        "test": "test_source_samples_survive_proposals",
+        "result": "passed"
+      },
+      {
+        "suite": "packages/dating/tests/test_catalog_links.py",
+        "test": "test_importer_keeps_raw_sample_name_and_catalog_code",
+        "result": "passed"
+      },
+      {
+        "suite": "packages/dating/tests/test_catalog_links.py",
+        "test": "test_unknown_catalog_codes_do_not_drop_sample_priors",
+        "result": "passed"
+      }
+    ],
+    "remaining_work": "All 160 sample-to-stage relations remain unadjudicated; 153 have proposals and 7 have no current candidates."
+  },
+  {
+    "id": "C17",
+    "finding": "Dating consumers reintroduce identity, status and ancestry assumptions",
+    "status": "resolved_with_explicit_limits",
+    "resolution": "Dating loads validated generation, removes type/proto identity transfer, retains sample/article/item subjects and source codes.",
+    "checks": [
+      {
+        "suite": "packages/catalogs/tests/test_registry.py",
+        "test": "test_catalog_agreement_is_not_equivalence",
+        "result": "passed"
+      },
+      {
+        "suite": "packages/dating/tests/test_catalog_links.py",
+        "test": "test_importer_keeps_raw_sample_name_and_catalog_code",
+        "result": "passed"
+      },
+      {
+        "suite": "packages/dating/tests/test_catalog_links.py",
+        "test": "test_ambiguous_wikidata_context_preserves_unplaced_claim",
+        "result": "passed"
+      }
+    ],
+    "remaining_work": "Existing migrated chronological claims remain candidates/quarantined, not endorsed through these links."
+  },
+  {
+    "id": "C18",
+    "finding": "Wiktionary export lacks a reproducible dump/source receipt",
+    "status": "resolved_with_explicit_limits",
+    "resolution": "Fixed exporter paths, atomic outputs and final dump/code/dependency/output receipt; registry validates future receipts.",
+    "checks": [
+      {
+        "suite": "packages/catalogs/tests/test_registry.py",
+        "test": "test_exporter_paths_are_repository_relative",
+        "result": "passed"
+      }
+    ],
+    "remaining_work": "No original dump supplied; fresh extraction was not run and legacy revision provenance cannot be reconstructed here."
+  },
+  {
+    "id": "C19",
+    "finding": "Coverage is mistaken for accuracy; no meaningful regression/evaluation suite",
+    "status": "resolved_with_explicit_limits",
+    "resolution": "Added adversarial source/mapping tests, actual data regressions and eight dating integration checks; accuracy explicitly unmeasured.",
+    "checks": [
+      {
+        "suite": "packages/catalogs/tests/test_registry.py",
+        "test": "test_coverage_is_not_confidence",
+        "result": "passed"
+      },
+      {
+        "suite": "packages/catalogs/tests/test_registry.py",
+        "test": "test_source_tampering_fails_before_mapping",
+        "result": "passed"
+      }
+    ],
+    "remaining_work": "A separately annotated held-out mapping benchmark and specialist disagreement analysis remain research work."
+  },
+  {
+    "id": "C20",
+    "finding": "No explicit resolution/accountability mechanism or outstanding mapping queue",
+    "status": "resolved_with_explicit_limits",
+    "resolution": "Every finding has an explicit disposition and named checks; all unresolved/context records have prioritized review entries.",
+    "checks": [
+      {
+        "suite": "packages/catalogs/tests/test_registry.py",
+        "test": "test_all_context_or_proposal_records_are_queued",
+        "result": "passed"
+      },
+      {
+        "suite": "packages/catalogs/tests/test_registry.py",
+        "test": "test_resolution_ledger_covers_every_finding",
+        "result": "passed"
+      }
+    ],
+    "remaining_work": "Implementation closure is distinct from completion of per-concept linguistic review."
+  }
+]

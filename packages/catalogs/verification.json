@@ -1,0 +1,24 @@
+{
+  "date": "2026-09-19",
+  "catalog_generation": "0ee4d76f70be6b265302fbb6394a7e42b52437a1a74f00e04c61888adf3e80fa",
+  "dating_generation": "0b74b59ea169c7ce03425e41d60c70b532427de80d7fd2d5ee59f2891a10d8f3",
+  "checks": {
+    "catalog_tests": {
+      "passed": 36,
+      "failed": 0
+    },
+    "dating_tests": {
+      "passed": 78,
+      "failed": 0
+    },
+    "catalog_validation_errors": 0,
+    "dating_validation_errors": 0,
+    "successive_catalog_builds_identical": true,
+    "pre_v2_archive_files_hash_verified": 14,
+    "findings_with_dispositions": 20
+  },
+  "limits": [
+    "Tests verify implementation safety and reproduction, not linguistic mapping accuracy.",
+    "Individual equivalence decisions, fresh source provenance recovery and specialist evaluation remain explicitly scoped research work."
+  ]
+}

@@ -1,0 +1,583 @@
+{
+  "$defs": {
+    "Assessment": {
+      "additionalProperties": false,
+      "properties": {
+        "textual": {
+          "default": "unverified",
+          "enum": [
+            "exact_span",
+            "mechanical",
+            "paraphrase",
+            "unverified",
+            "failed"
+          ],
+          "title": "Textual",
+          "type": "string"
+        },
+        "semantic": {
+          "default": "pending",
+          "enum": [
+            "pending",
+            "checked",
+            "rejected"
+          ],
+          "title": "Semantic",
+          "type": "string"
+        },
+        "mapping": {
+          "default": "pending",
+          "enum": [
+            "pending",
+            "checked",
+            "rejected"
+          ],
+          "title": "Mapping",
+          "type": "string"
+        },
+        "limitations": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Limitations",
+          "type": "array"
+        },
+        "reviewer": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reviewer"
+        },
+        "rationale": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Rationale"
+        }
+      },
+      "title": "Assessment",
+      "type": "object"
+    },
+    "EvidenceSpan": {
+      "additionalProperties": false,
+      "properties": {
+        "text_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Text Sha256",
+          "type": "string"
+        },
+        "start": {
+          "minimum": 0,
+          "title": "Start",
+          "type": "integer"
+        },
+        "end": {
+          "exclusiveMinimum": 0,
+          "title": "End",
+          "type": "integer"
+        },
+        "quote": {
+          "title": "Quote",
+          "type": "string"
+        },
+        "locator": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Locator"
+        }
+      },
+      "required": [
+        "text_sha256",
+        "start",
+        "end",
+        "quote"
+      ],
+      "title": "EvidenceSpan",
+      "type": "object"
+    },
+    "Subject": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "catalog",
+            "wiktionary_stage",
+            "sampled_clade",
+            "documentary_sample",
+            "reconstructed_stage",
+            "population",
+            "unresolved"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "catalog_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Catalog Id"
+        },
+        "mapping": {
+          "default": "unresolved",
+          "enum": [
+            "exact",
+            "subset",
+            "superset",
+            "overlap",
+            "unresolved"
+          ],
+          "title": "Mapping",
+          "type": "string"
+        },
+        "mapping_basis": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Mapping Basis"
+        },
+        "taxa": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Taxa",
+          "type": "array"
+        },
+        "source_label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Label"
+        },
+        "catalog_mapping": {
+          "default": "unresolved",
+          "enum": [
+            "exact",
+            "subset",
+            "superset",
+            "overlap",
+            "unresolved"
+          ],
+          "title": "Catalog Mapping",
+          "type": "string"
+        },
+        "mapping_certainty": {
+          "default": "unresolved",
+          "enum": [
+            "checked",
+            "proposed",
+            "unresolved"
+          ],
+          "title": "Mapping Certainty",
+          "type": "string"
+        },
+        "geographic_scope": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Geographic Scope"
+        },
+        "identification_alternatives": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Identification Alternatives",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "type",
+        "name"
+      ],
+      "title": "Subject",
+      "type": "object"
+    },
+    "Temporal": {
+      "additionalProperties": false,
+      "properties": {
+        "form": {
+          "enum": [
+            "point",
+            "event_range",
+            "duration",
+            "bound",
+            "distribution",
+            "unknown"
+          ],
+          "title": "Form",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        },
+        "lower": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lower"
+        },
+        "upper": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Upper"
+        },
+        "relation": {
+          "anyOf": [
+            {
+              "enum": [
+                "before",
+                "after",
+                "by",
+                "since"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Relation"
+        },
+        "mean": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Mean"
+        },
+        "median": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Median"
+        },
+        "interval_type": {
+          "anyOf": [
+            {
+              "enum": [
+                "hpd",
+                "equal_tailed",
+                "reported_range",
+                "unknown"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Interval Type"
+        },
+        "probability": {
+          "anyOf": [
+            {
+              "exclusiveMaximum": 1,
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Probability"
+        },
+        "ongoing": {
+          "default": false,
+          "title": "Ongoing",
+          "type": "boolean"
+        },
+        "precision": {
+          "default": "unknown",
+          "enum": [
+            "year",
+            "decade",
+            "century",
+            "millennium",
+            "unknown"
+          ],
+          "title": "Precision",
+          "type": "string"
+        },
+        "original": {
+          "additionalProperties": true,
+          "title": "Original",
+          "type": "object"
+        },
+        "normalization": {
+          "default": "unknown",
+          "enum": [
+            "program_verified",
+            "legacy_unverified",
+            "unknown"
+          ],
+          "title": "Normalization",
+          "type": "string"
+        }
+      },
+      "required": [
+        "form"
+      ],
+      "title": "Temporal",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 2,
+      "default": 2,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "id": {
+      "title": "Id",
+      "type": "string"
+    },
+    "legacy_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Legacy Id"
+    },
+    "subject": {
+      "$ref": "#/$defs/Subject"
+    },
+    "event": {
+      "enum": [
+        "first_attestation",
+        "last_attestation",
+        "conventional_period",
+        "native_transmission_end",
+        "documentary_sampling",
+        "composition",
+        "manuscript_production",
+        "last_documentation",
+        "last_fluent_speaker_report",
+        "regional_language_shift",
+        "literary_use",
+        "crown_divergence",
+        "stem_divergence",
+        "model_lineage_span",
+        "linguistic_divergence",
+        "sound_change",
+        "formation",
+        "contact",
+        "population_event",
+        "relative_constraint",
+        "unspecified"
+      ],
+      "title": "Event",
+      "type": "string"
+    },
+    "role": {
+      "enum": [
+        "observation",
+        "convention",
+        "calibration_prior",
+        "posterior",
+        "secondary_report",
+        "hypothesis",
+        "editorial",
+        "unknown"
+      ],
+      "title": "Role",
+      "type": "string"
+    },
+    "method": {
+      "title": "Method",
+      "type": "string"
+    },
+    "time": {
+      "$ref": "#/$defs/Temporal"
+    },
+    "source_id": {
+      "title": "Source Id",
+      "type": "string"
+    },
+    "study_id": {
+      "title": "Study Id",
+      "type": "string"
+    },
+    "analysis_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Analysis Id"
+    },
+    "result_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Result Id"
+    },
+    "reported_from": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Reported From"
+    },
+    "spans": {
+      "items": {
+        "$ref": "#/$defs/EvidenceSpan"
+      },
+      "title": "Spans",
+      "type": "array"
+    },
+    "assessment": {
+      "$ref": "#/$defs/Assessment"
+    },
+    "dependencies": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Dependencies",
+      "type": "array"
+    },
+    "lineage_span_endpoints": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Lineage Span Endpoints",
+      "type": "array"
+    },
+    "provenance": {
+      "additionalProperties": true,
+      "title": "Provenance",
+      "type": "object"
+    },
+    "status": {
+      "default": "candidate",
+      "enum": [
+        "candidate",
+        "supported",
+        "quarantined",
+        "superseded"
+      ],
+      "title": "Status",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "subject",
+    "event",
+    "role",
+    "method",
+    "time",
+    "source_id",
+    "study_id"
+  ],
+  "title": "EvidenceClaim",
+  "type": "object"
+}

@@ -1,0 +1,66 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 2,
+      "default": 2,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "glottocode": {
+      "title": "Glottocode",
+      "type": "string"
+    },
+    "name": {
+      "title": "Name",
+      "type": "string"
+    },
+    "level": {
+      "title": "Level",
+      "type": "string"
+    },
+    "status": {
+      "title": "Status",
+      "type": "string"
+    },
+    "evidence_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence Ids",
+      "type": "array"
+    },
+    "study_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Study Ids",
+      "type": "array"
+    },
+    "chronology_policy": {
+      "title": "Chronology Policy",
+      "type": "string"
+    },
+    "review_state": {
+      "enum": [
+        "needs_review",
+        "supported_evidence",
+        "unknown"
+      ],
+      "title": "Review State",
+      "type": "string"
+    }
+  },
+  "required": [
+    "glottocode",
+    "name",
+    "level",
+    "status",
+    "evidence_ids",
+    "study_ids",
+    "chronology_policy",
+    "review_state"
+  ],
+  "title": "CatalogRecord",
+  "type": "object"
+}

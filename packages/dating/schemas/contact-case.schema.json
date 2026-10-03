@@ -1,0 +1,220 @@
+{
+  "$defs": {
+    "ConditionalOrder": {
+      "additionalProperties": false,
+      "properties": {
+        "after": {
+          "title": "After",
+          "type": "string"
+        },
+        "attribution": {
+          "enum": [
+            "editorial_conditional_inference",
+            "source_assertion"
+          ],
+          "title": "Attribution",
+          "type": "string"
+        },
+        "basis_findings": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Basis Findings",
+          "type": "array"
+        },
+        "before": {
+          "title": "Before",
+          "type": "string"
+        },
+        "reasoning": {
+          "minLength": 1,
+          "title": "Reasoning",
+          "type": "string"
+        }
+      },
+      "required": [
+        "before",
+        "after",
+        "basis_findings",
+        "reasoning",
+        "attribution"
+      ],
+      "title": "ConditionalOrder",
+      "type": "object"
+    },
+    "ContactEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "minLength": 1,
+          "title": "Description",
+          "type": "string"
+        },
+        "entity_scope": {
+          "minLength": 1,
+          "title": "Entity Scope",
+          "type": "string"
+        },
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "description",
+        "entity_scope"
+      ],
+      "title": "ContactEvent",
+      "type": "object"
+    },
+    "ContactScenario": {
+      "additionalProperties": false,
+      "properties": {
+        "basis_findings": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Basis Findings",
+          "type": "array"
+        },
+        "conditions": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Conditions",
+          "type": "array"
+        },
+        "description": {
+          "minLength": 1,
+          "title": "Description",
+          "type": "string"
+        },
+        "event_ids": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Event Ids",
+          "type": "array"
+        },
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "orders": {
+          "items": {
+            "$ref": "#/$defs/ConditionalOrder"
+          },
+          "title": "Orders",
+          "type": "array"
+        },
+        "unresolved": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Unresolved",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "description",
+        "event_ids",
+        "basis_findings",
+        "conditions",
+        "orders",
+        "unresolved"
+      ],
+      "title": "ContactScenario",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "alternatives_exhaustive": {
+      "const": false,
+      "title": "Alternatives Exhaustive",
+      "type": "boolean"
+    },
+    "alternatives_mutually_exclusive": {
+      "const": false,
+      "title": "Alternatives Mutually Exclusive",
+      "type": "boolean"
+    },
+    "evaluation_split": {
+      "const": "development",
+      "title": "Evaluation Split",
+      "type": "string"
+    },
+    "events": {
+      "items": {
+        "$ref": "#/$defs/ContactEvent"
+      },
+      "minItems": 1,
+      "title": "Events",
+      "type": "array"
+    },
+    "export_policy": {
+      "const": "local_scenarios_only",
+      "title": "Export Policy",
+      "type": "string"
+    },
+    "historical_adjudication": {
+      "const": "unresolved",
+      "title": "Historical Adjudication",
+      "type": "string"
+    },
+    "id": {
+      "title": "Id",
+      "type": "string"
+    },
+    "question": {
+      "minLength": 1,
+      "title": "Question",
+      "type": "string"
+    },
+    "scenarios": {
+      "items": {
+        "$ref": "#/$defs/ContactScenario"
+      },
+      "minItems": 2,
+      "title": "Scenarios",
+      "type": "array"
+    },
+    "schema_version": {
+      "const": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "shared_limits": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Shared Limits",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema_version",
+    "id",
+    "question",
+    "evaluation_split",
+    "historical_adjudication",
+    "export_policy",
+    "alternatives_exhaustive",
+    "alternatives_mutually_exclusive",
+    "events",
+    "scenarios",
+    "shared_limits"
+  ],
+  "title": "ContactCase",
+  "type": "object"
+}

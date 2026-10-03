@@ -1,0 +1,226 @@
+[
+  {
+    "id": "honkola-root",
+    "source": "https://doi.org/10.1111/jeb.12107",
+    "locator": "Results, Phylogeny and divergence times",
+    "input_paraphrase": "Proto-Uralic split approximately 5300 YBP, HPD 7503–3330 YBP, into the sampled Finno-Ugric and Samoyed clades.",
+    "expected": {
+      "event": "crown_divergence",
+      "role": "posterior",
+      "subject_type": "sampled_clade",
+      "calendar_epoch": null,
+      "interval_type": "hpd",
+      "language_lifespan": false
+    }
+  },
+  {
+    "id": "honkola-weak-ugric",
+    "source": "https://doi.org/10.1111/jeb.12107",
+    "locator": "Results, Phylogeny and divergence times",
+    "input_paraphrase": "Ugric branching near 3300 YBP has posterior probability below 0.5.",
+    "expected": {
+      "event": "crown_divergence",
+      "role": "posterior",
+      "subject_type": "sampled_clade",
+      "topology_caution": true,
+      "language_lifespan": false
+    }
+  },
+  {
+    "id": "sagart-mean",
+    "source": "https://doi.org/10.1073/pnas.1817972116",
+    "locator": "Results",
+    "input_paraphrase": "The relaxed-clock root mean is 7184 BP with 95% HPD 5093–9568 BP.",
+    "expected": {
+      "event": "crown_divergence",
+      "role": "posterior",
+      "statistic": "mean",
+      "interval_type": "hpd",
+      "language_lifespan": false
+    }
+  },
+  {
+    "id": "heggarty-median",
+    "source": "https://doi.org/10.1126/science.abg0818",
+    "locator": "Abstract and deposited main M3 tree",
+    "input_paraphrase": "The Indo-European sampled root has median age 8120 BP and 95% HPD 6740–9610 BP.",
+    "expected": {
+      "event": "crown_divergence",
+      "role": "posterior",
+      "statistic": "median",
+      "interval_type": "hpd",
+      "language_lifespan": false
+    }
+  },
+  {
+    "id": "iecor-tip-prior",
+    "source": "https://doi.org/10.1126/science.abg0818",
+    "locator": "IE-CoR language calibration table",
+    "input_paraphrase": "A historical lexical sample is assigned a normal tip-date prior.",
+    "expected": {
+      "event": "documentary_sampling",
+      "role": "calibration_prior",
+      "subject_type": "documentary_sample",
+      "first_attestation": false
+    }
+  },
+  {
+    "id": "maurits-sensitivity",
+    "source": "https://doi.org/10.1093/jole/lzz009",
+    "locator": "Uralic case study",
+    "input_paraphrase": "Alternative Uralic calibrations are used to demonstrate sensitivity to calibration construction.",
+    "expected": {
+      "role": "posterior",
+      "independent_study_confirmation": false,
+      "sensitivity_analysis": true
+    }
+  },
+  {
+    "id": "chang-epoch",
+    "source": "https://doi.org/10.1353/lan.2015.0005",
+    "locator": "Abbreviations footnote 1",
+    "input_paraphrase": "The paper defines BP relative to 2000 CE.",
+    "expected": {
+      "calendar_epoch": 2000,
+      "scope": "this_source"
+    }
+  },
+  {
+    "id": "grunthal-contact",
+    "source": "https://doi.org/10.1075/dia.20038.gru",
+    "locator": "Linguistic and archaeological argument",
+    "input_paraphrase": "Borrowing strata and historical contacts constrain Uralic dispersal scenarios.",
+    "expected": {
+      "role": "hypothesis",
+      "method": "relative_contact_chronology",
+      "automatic_calendar_date": false
+    }
+  },
+  {
+    "id": "sagart-corpus-not-first",
+    "source": "https://doi.org/10.1073/pnas.1817972116",
+    "locator": "Calibration discussion",
+    "input_paraphrase": "Old Chinese tip ages of 2800–2300 BP date the classical corpus used; older inscriptions are mentioned separately.",
+    "expected": {
+      "event": "documentary_sampling",
+      "role": "calibration_prior",
+      "first_attestation": false
+    }
+  },
+  {
+    "id": "sagart-basal-uncertainty",
+    "source": "https://doi.org/10.1073/pnas.1817972116",
+    "locator": "Results, rooting",
+    "input_paraphrase": "The most probable basal Sinitic split occurs in about 33 percent of posterior trees.",
+    "expected": {
+      "topology_caution": true,
+      "settled_basal_structure": false
+    }
+  },
+  {
+    "id": "zhang2020-root-comparison",
+    "source": "https://doi.org/10.1038/s41598-020-77404-4",
+    "locator": "Results; Figure S2–3",
+    "input_paraphrase": "With 131 varieties the root mean is 7983 BP; the paper reports nearly identical ages with and without the Sinitic constraint.",
+    "expected": {
+      "statistic": "mean",
+      "root_constraint_proven_cause_of_older_date": false,
+      "compare_complete_analyses": true
+    }
+  },
+  {
+    "id": "zhang2019-epoch",
+    "source": "https://doi.org/10.1038/s41586-019-1153-z",
+    "locator": "Source definition of BP (review-supplied; full text pending)",
+    "input_paraphrase": "This paper defines BP relative to AD 1950.",
+    "expected": {
+      "calendar_epoch": 1950,
+      "scope": "this_source"
+    }
+  },
+  {
+    "id": "zeng-population-association",
+    "source": "https://doi.org/10.1038/s41586-025-09189-3",
+    "locator": "Ancient-DNA/language association argument",
+    "input_paraphrase": "An ancient population expansion is associated by the authors with Uralic dispersal.",
+    "expected": {
+      "event": "population_event",
+      "subject_type": "population",
+      "language_crown": false,
+      "association_is_hypothesis": true
+    }
+  },
+  {
+    "id": "kassian-critique",
+    "source": "https://doi.org/10.1057/s41599-025-04986-7",
+    "locator": "Published critique (review-supplied; full text pending)",
+    "input_paraphrase": "Kassian and Starostin challenge Heggarty lexical coding and analysis; the objections themselves remain to be adjudicated.",
+    "expected": {
+      "relation": "critiques",
+      "independent_date_confirmation": false,
+      "established_refutation": false
+    }
+  },
+  {
+    "id": "snee-topology-not-calendar",
+    "source": "https://doi.org/10.1093/jole/lzag005",
+    "locator": "Abstract and study design",
+    "input_paraphrase": "Concept-translation differences change inferred phylogenetic groupings, particularly some lower clades.",
+    "expected": {
+      "outcome": "topology",
+      "calendar_error_quantified": false
+    }
+  },
+  {
+    "id": "lineage-span-not-stage",
+    "source": "https://doi.org/10.1093/jole/lzz009",
+    "locator": "Branching versus linguistic divergence; development hypothetical",
+    "input_paraphrase": "An analyst displays the branch between linked stem and crown events from one fitted model.",
+    "expected": {
+      "event": "model_lineage_span",
+      "proto_language_lifespan": false,
+      "same_joint_analysis_required": true
+    }
+  },
+  {
+    "id": "composition-not-manuscript",
+    "source": "project:semantic-development",
+    "locator": "Constructed negative control",
+    "input_paraphrase": "A surviving manuscript copied in 1200 transmits a composition conventionally dated to 900; linguistic attribution is disputed.",
+    "expected": {
+      "separate_events": true,
+      "manuscript_is_composition_date": false,
+      "identification_certain": false
+    }
+  },
+  {
+    "id": "regional-shift-not-extinction",
+    "source": "project:semantic-development",
+    "locator": "Constructed negative control",
+    "input_paraphrase": "Native use ends in one valley while the language remains transmitted in another.",
+    "expected": {
+      "event": "regional_language_shift",
+      "whole_language_extinction": false
+    }
+  },
+  {
+    "id": "ancestral-node-not-word",
+    "source": "project:semantic-development",
+    "locator": "Constructed negative control",
+    "input_paraphrase": "A remote ancestor diverged before the donor innovation relevant to a proposed loanword.",
+    "expected": {
+      "ancestor_dates_lexeme": false,
+      "word_specific_constraints_required": true
+    }
+  },
+  {
+    "id": "deposit-is-same-result",
+    "source": "https://github.com/phlorest/honkola_et_al2013",
+    "locator": "Pinned derived study representation",
+    "input_paraphrase": "A publication result reappears in a deposited tree and its Phlorest copy.",
+    "expected": {
+      "relation": "reports_result_of",
+      "independent_confirmations": 1
+    }
+  }
+]

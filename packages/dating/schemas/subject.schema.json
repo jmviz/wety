@@ -1,0 +1,129 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "title": "Id",
+      "type": "string"
+    },
+    "type": {
+      "enum": [
+        "catalog",
+        "wiktionary_stage",
+        "sampled_clade",
+        "documentary_sample",
+        "reconstructed_stage",
+        "population",
+        "unresolved"
+      ],
+      "title": "Type",
+      "type": "string"
+    },
+    "name": {
+      "title": "Name",
+      "type": "string"
+    },
+    "catalog_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Catalog Id"
+    },
+    "mapping": {
+      "default": "unresolved",
+      "enum": [
+        "exact",
+        "subset",
+        "superset",
+        "overlap",
+        "unresolved"
+      ],
+      "title": "Mapping",
+      "type": "string"
+    },
+    "mapping_basis": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Mapping Basis"
+    },
+    "taxa": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Taxa",
+      "type": "array"
+    },
+    "source_label": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Source Label"
+    },
+    "catalog_mapping": {
+      "default": "unresolved",
+      "enum": [
+        "exact",
+        "subset",
+        "superset",
+        "overlap",
+        "unresolved"
+      ],
+      "title": "Catalog Mapping",
+      "type": "string"
+    },
+    "mapping_certainty": {
+      "default": "unresolved",
+      "enum": [
+        "checked",
+        "proposed",
+        "unresolved"
+      ],
+      "title": "Mapping Certainty",
+      "type": "string"
+    },
+    "geographic_scope": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Geographic Scope"
+    },
+    "identification_alternatives": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Identification Alternatives",
+      "type": "array"
+    }
+  },
+  "required": [
+    "id",
+    "type",
+    "name"
+  ],
+  "title": "Subject",
+  "type": "object"
+}

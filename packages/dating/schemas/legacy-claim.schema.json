@@ -1,0 +1,376 @@
+{
+  "$defs": {
+    "MethodNotes": {
+      "properties": {
+        "calibrations": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Calibrations"
+        },
+        "clock": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Clock"
+        },
+        "data": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Data"
+        },
+        "taxa": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Taxa"
+        },
+        "code_available": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Code Available"
+        },
+        "other": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Other"
+        }
+      },
+      "title": "MethodNotes",
+      "type": "object"
+    },
+    "TimeValue": {
+      "description": "A dated claim's value. Exactly one of: a point (`value`), an interval\n(`earliest`/`latest`), or a distribution (`median`/`hpd95`). All years\nastronomical (0 = 1 BCE); `latest: null` with `open_end: true` = ongoing.",
+      "properties": {
+        "unknown": {
+          "default": false,
+          "title": "Unknown",
+          "type": "boolean"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        },
+        "earliest": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Earliest"
+        },
+        "latest": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Latest"
+        },
+        "open_end": {
+          "default": false,
+          "title": "Open End",
+          "type": "boolean"
+        },
+        "median": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Median"
+        },
+        "mean": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Mean"
+        },
+        "hpd95": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "integer"
+              },
+              "maxItems": 2,
+              "minItems": 2,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Hpd95"
+        },
+        "precision": {
+          "default": "year",
+          "enum": [
+            "year",
+            "decade",
+            "century",
+            "millennium",
+            "unknown"
+          ],
+          "title": "Precision",
+          "type": "string"
+        },
+        "present": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "the source's 'present' if it gave years BP",
+          "title": "Present"
+        },
+        "conversion": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "how the source's expression was converted",
+          "title": "Conversion"
+        }
+      },
+      "title": "TimeValue",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "id": {
+      "pattern": "^clm_[a-z0-9]{4}[0-9]{4}_[0-9a-z_]+$",
+      "title": "Id",
+      "type": "string"
+    },
+    "languoid": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "glottocode; absent when the claim could not be placed on a Glottolog node",
+      "title": "Languoid"
+    },
+    "languoid_name": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Languoid Name"
+    },
+    "kind": {
+      "enum": [
+        "attestation_first",
+        "attestation_last",
+        "extinction",
+        "conventional_period",
+        "phylo_node_age",
+        "archaeo_linguistic",
+        "lexicostatistic",
+        "expert_estimate",
+        "derived"
+      ],
+      "title": "Kind",
+      "type": "string"
+    },
+    "node_role": {
+      "anyOf": [
+        {
+          "enum": [
+            "crown",
+            "stem",
+            "interval"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "for node-level claims: crown = first internal split, stem = split from the sister clade, interval = the proto-language was spoken during this window (formation / existence windows; never a crown point)",
+      "title": "Node Role"
+    },
+    "time": {
+      "$ref": "#/$defs/TimeValue"
+    },
+    "source": {
+      "description": "id in sources.json",
+      "title": "Source",
+      "type": "string"
+    },
+    "locator": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "page, table, figure, row, or field",
+      "title": "Locator"
+    },
+    "quote": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "verbatim text supporting the claim",
+      "title": "Quote"
+    },
+    "quote_verified": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "set by the harness: quote found in the retrieved text",
+      "title": "Quote Verified"
+    },
+    "method_notes": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/MethodNotes"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "extracted_by": {
+      "additionalProperties": true,
+      "description": "model / program and run id",
+      "title": "Extracted By",
+      "type": "object"
+    },
+    "notes": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Notes"
+    },
+    "evidence": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Evidence"
+    }
+  },
+  "required": [
+    "id",
+    "kind",
+    "time",
+    "source"
+  ],
+  "title": "Claim",
+  "type": "object"
+}

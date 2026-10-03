@@ -1,0 +1,52 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "subject_id": {
+      "title": "Subject Id",
+      "type": "string"
+    },
+    "event": {
+      "title": "Event",
+      "type": "string"
+    },
+    "claim_id": {
+      "title": "Claim Id",
+      "type": "string"
+    },
+    "evidence_digest": {
+      "title": "Evidence Digest",
+      "type": "string"
+    },
+    "reviewer": {
+      "title": "Reviewer",
+      "type": "string"
+    },
+    "rationale": {
+      "title": "Rationale",
+      "type": "string"
+    },
+    "dependencies": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Dependencies",
+      "type": "array"
+    },
+    "kind": {
+      "const": "editorial_default",
+      "default": "editorial_default",
+      "title": "Kind",
+      "type": "string"
+    }
+  },
+  "required": [
+    "subject_id",
+    "event",
+    "claim_id",
+    "evidence_digest",
+    "reviewer",
+    "rationale"
+  ],
+  "title": "Decision",
+  "type": "object"
+}

@@ -1,0 +1,128 @@
+{
+  "$defs": {
+    "ResearchNode": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "study",
+            "analysis",
+            "dataset",
+            "calibration_set",
+            "result"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "scope": {
+          "default": "unassessed",
+          "enum": [
+            "substantive",
+            "methodological_demonstration",
+            "sensitivity",
+            "unassessed"
+          ],
+          "title": "Scope",
+          "type": "string"
+        },
+        "details": {
+          "additionalProperties": true,
+          "title": "Details",
+          "type": "object"
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "label"
+      ],
+      "title": "ResearchNode",
+      "type": "object"
+    },
+    "ResearchRelation": {
+      "additionalProperties": false,
+      "properties": {
+        "source": {
+          "title": "Source",
+          "type": "string"
+        },
+        "target": {
+          "title": "Target",
+          "type": "string"
+        },
+        "relation": {
+          "enum": [
+            "analysis_of",
+            "uses_dataset",
+            "uses_calibration_set",
+            "reports_result_of",
+            "uses_prior_from",
+            "derived_from",
+            "critiques",
+            "replies_to"
+          ],
+          "title": "Relation",
+          "type": "string"
+        },
+        "basis": {
+          "minLength": 1,
+          "title": "Basis",
+          "type": "string"
+        },
+        "references": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "References",
+          "type": "array"
+        },
+        "status": {
+          "default": "proposed",
+          "enum": [
+            "proposed",
+            "reviewed"
+          ],
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source",
+        "target",
+        "relation",
+        "basis",
+        "references"
+      ],
+      "title": "ResearchRelation",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "nodes": {
+      "items": {
+        "$ref": "#/$defs/ResearchNode"
+      },
+      "title": "Nodes",
+      "type": "array"
+    },
+    "relations": {
+      "items": {
+        "$ref": "#/$defs/ResearchRelation"
+      },
+      "title": "Relations",
+      "type": "array"
+    }
+  },
+  "title": "ResearchGraph",
+  "type": "object"
+}

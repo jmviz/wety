@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "mode": "managed",
+  "inputs": {
+    "iso639-5.tsv": "data/workspaces/catalogs/sources/iso639-5.tsv",
+    "iso-639-3_Retirements.tab": "data/workspaces/catalogs/sources/iso-639-3_Retirements.tab",
+    "wikidata_codes.json": "data/workspaces/catalogs/sources/wikidata_codes.json",
+    "iso-639-3.tab": "data/workspaces/catalogs/sources/iso-639-3.tab",
+    "manifest.json": "data/workspaces/catalogs/sources/manifest.json",
+    "wikidata_items.json": "data/workspaces/catalogs/sources/wikidata_items.json",
+    "ISO-639-2_utf-8.txt": "data/workspaces/catalogs/sources/ISO-639-2_utf-8.txt",
+    "iso-639-3-macrolanguages.tab": "data/workspaces/catalogs/sources/iso-639-3-macrolanguages.tab",
+    "wiktionary_languages": "data/artifacts/wiktionary-export/legacy/files/languages.json",
+    "wiktionary_families": "data/artifacts/wiktionary-export/legacy/files/families.json",
+    "iecor_languages": "data/artifacts/iecor/legacy/files/languages.csv",
+    "overrides": "data/workspaces/catalogs/overrides.json"
+  },
+  "commands": [
+    [
+      "{python}",
+      "-m",
+      "catalogs.build"
+    ],
+    [
+      "{python}",
+      "-m",
+      "catalogs.iecor"
+    ]
+  ],
+  "validation": [
+    [
+      "{python}",
+      "-m",
+      "catalogs.registry"
+    ]
+  ],
+  "required_outputs": [
+    "data/products/catalogs/CURRENT.json",
+    "data/products/iecor/iecor_matches_receipt.json"
+  ]
+}
