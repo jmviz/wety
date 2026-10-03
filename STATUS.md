@@ -1,6 +1,6 @@
 # Status
 
-*Updated 2026-10-03. Branch `reorg-baseline` (not yet merged or pushed).*
+*Updated 2026-10-03. Local `main`; nothing pushed.*
 
 ## What the project promises
 
@@ -24,10 +24,14 @@ citations, derived from the evidence registry in `packages/dating`.
 
 - The reorganization (`crates/`, `packages/`, `workflows/`, `data/`) is committed.
   `data/` is ignored by default; only small records are tracked.
-- Retired the multi-role harness experiments (9 modules, 47 tests). Dating
-  tests: 199 pass. Catalogs: 37 pass. Workflow tools: 8 pass. `cargo check` passes.
+- Retired the multi-role harness experiments (9 modules, 47 tests). All test
+  suites and `cargo check` pass.
 - Dating docs reduced from 31 files to the README, 5 reference docs and 5
   family pages. Agent rules are in [AGENTS.md](AGENTS.md).
+- Integrated the server performance work (response cache, typed JSON,
+  compact descendant langs) and the redesigned client trees (HTML outline and
+  chart, lean payloads, `/item` and `/lang`). The selected legacy graph still
+  loads; both tree views were checked in a browser.
 
 ## Known issues and uncertainties
 
@@ -54,10 +58,10 @@ citations, derived from the evidence registry in `packages/dating`.
 
 ## Decisions needed from the maintainer
 
-- Merge `reorg-baseline` into `main` (and push). `rust-server-perf` then rebases onto
-  `crates/`.
-- Triage the remaining worktrees. `upbeat-tharp` and `wety-tree-viz-comparison`
-  (near-identical tree-visualization changes) touch the tree components the dating
-  display will build on. `condescending-moore` is based on a January 2025 commit.
+- Push `main` to GitHub. Before pushing, confirm the Brill font licence permits
+  redistributing the `.woff2` files in `client/public/fonts` publicly.
+- Remove the merged and superseded worktrees: `rust-server-perf`, `wety-tree-viz`,
+  `upbeat-tharp`, `condescending-moore`. The perf worktree holds a 3.1 GB
+  converted graph in its ignored `data/`.
 - Whether to narrow the dating fingerprint to the modules that affect evidence
   semantics.
