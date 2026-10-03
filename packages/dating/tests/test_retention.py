@@ -34,7 +34,10 @@ class RetentionTests(unittest.TestCase):
         subprocess.run(["git", "init", "-q"], cwd=self.repo, check=True)
         (self.repo / "packet.json").write_text(json.dumps({"baseline_generation": digest(1)}))
         (self.repo / "untracked.json").write_text(digest(2))
-        subprocess.run(["git", "add", "packet.json"], cwd=self.repo, check=True)
+        inventory = self.repo / "data/registry/migrations/m"
+        inventory.mkdir(parents=True)
+        (inventory / "inventory.json").write_text(digest(4) + digest(2))
+        subprocess.run(["git", "add", "packet.json", "data"], cwd=self.repo, check=True)
 
     def plan(self, **kw):
         return plan(root=self.root, product=self.product, repo=self.repo, **kw)
@@ -52,6 +55,7 @@ class RetentionTests(unittest.TestCase):
 
     def test_dry_run_deletes_nothing_and_apply_logs(self):
         result = self.plan(keep_recent=0)
+        # The migration inventory names 2 and 4 but does not keep them.
         self.assertEqual(sorted(result["remove"]), [digest(2), digest(4), digest(5)])
         self.assertTrue((self.root / digest(2)).exists())
         applied = apply(result, root=self.root, history=self.history)

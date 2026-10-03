@@ -52,7 +52,9 @@ provenance machinery, new workflow infrastructure, and deleting anything under `
 - Run the relevant tests before committing (commands in the root README).
 - Editing `packages/dating/harness/` changes the dating generation fingerprint:
   republish (`uv run --frozen python -m harness.cli synthesize`) and validate in the
-  same change. Catalog generations likewise fingerprint `packages/catalogs`,
+  same change. Decisions survive code edits; they go stale only when their subject's
+  evidence or catalog mapping changes, or `DECISION_RULES` is bumped. Check
+  `rejected_decisions.json` after publishing. Catalog generations likewise fingerprint `packages/catalogs`,
   `packages/source_tools`, `packages/workflow_tools` and the root `pyproject.toml`;
   changing those requires a catalog rebuild, so avoid incidental edits there.
 

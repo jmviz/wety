@@ -89,6 +89,18 @@ class MappingPolicy(unittest.TestCase):
         decision={'target':'glottolog:aaaa1234','relation':'unresolved','reviewer':'test','rationale':'scope unclear','references':['fixture'],'source_snapshot':'snapshot','purpose':'historical stage lookup'}
         r.apply_decisions({x['id']:x},{x['id']:decision},'snapshot',gl,iso)
         self.assertNotIn('glottocode',r.project(x))
+    def test_scope_reviews_keep_lookup_and_allow_several_targets(self):
+        x=converted();_,_,iso,gl,_=inputs();iso['iso3']['aaa']={}
+        base={'reviewer':'test','rationale':'bounded test','references':['fixture'],'source_snapshot':'snapshot','purpose':'dating stage scope'}
+        decisions=[{**base,'target':'glottolog:aaaa1234','relation':'source_broader'},{**base,'target':'iso639-3:aaa','relation':'equivalent'}]
+        r.apply_decisions({x['id']:x},{x['id']:decisions},'snapshot',gl,iso)
+        r.project(x)
+        # The broader-scope review documents extension without withdrawing the lookup.
+        self.assertEqual((x['glottocode'],x['glottocode_route']),('aaaa1234','catalog_link'))
+        self.assertEqual((x['iso639_3'],x['iso639_3_route']),('aaa','reviewed'))
+        self.assertEqual({e['relation'] for e in x['links'] if e['status']=='reviewed'},{'source_broader','equivalent'})
+        self.assertEqual(x['equivalence_status'],'reviewed_for_purpose')
+        with self.assertRaisesRegex(ValueError,'duplicate'):r.apply_decisions({x['id']:x},{x['id']:[decisions[0],decisions[0]]},'snapshot',gl,iso)
     def test_family_disagreement_does_not_delete_name_candidate(self):
         _,raw,iso,gl,wd=inputs()
         raw.update(nonEtymologyOnly='x-stage',family='fam',wikidataItem=None)

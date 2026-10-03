@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 from .config import DATA_DIR
 from .evidence import EvidenceClaim, Decision
-from .registry import build_bundle, validate_span, default_scope_error
+from .registry import build_bundle, bundle_decision_digest, validate_span, default_scope_error
 from .io_utils import digest, atomic_json
 
 
@@ -70,8 +70,8 @@ def decide(path):
     if not decision.reviewer.strip() or not decision.rationale.strip():
         raise ValueError("reviewer and rationale required")
     c = by_id.get(decision.claim_id)
-    if decision.evidence_digest != bundle["input_digest"]:
-        raise ValueError("stale input digest")
+    if decision.evidence_digest != bundle_decision_digest(bundle, decision.subject_id):
+        raise ValueError("stale decision digest; run decision-digest for the subject")
     if (
         not c
         or c["status"] != "supported"

@@ -60,6 +60,11 @@ explicitly **not measured**.
 
 Code changes anywhere in `harness/` change the generation fingerprint, so republish
 (`python -m harness.cli synthesize`) after editing harness code, then validate.
+Editorial decisions bind to what they reviewed: the subject's claims, their sources
+and the code's catalog record (`python -m harness.cli decision-digest wikt:ang`), plus
+`DECISION_RULES` in `registry.py`. Bump that constant when adoption rules or evidence
+semantics change. Code edits elsewhere no longer make decisions stale; a change to
+the subject's evidence or catalog mapping does.
 
 ## Research
 

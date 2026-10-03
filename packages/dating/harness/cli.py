@@ -13,6 +13,7 @@ dating llm-synthesize FAMILY                 save a review proposal; never adopt
 dating validate                              check current generation, provenance, dependencies and mirrors
 dating export-periods [--out PATH]           display periods from adopted decisions -> language_periods.json
 dating gc [--keep-recent N] [--apply]        retire old generations (dry run unless --apply)
+dating decision-digest SUBJECT               evidence digest a decision on SUBJECT (e.g. wikt:ang) must name
 dating report
 """
 
@@ -202,6 +203,12 @@ def cmd_gc(args) -> None:
     print(json.dumps(summary, indent=2))
 
 
+def cmd_decision_digest(args) -> None:
+    from .registry import build_bundle, bundle_decision_digest
+
+    print(bundle_decision_digest(build_bundle(), args.subject))
+
+
 def cmd_report(args) -> None:
     from .registry import current_bundle, report
 
@@ -279,6 +286,9 @@ def main() -> None:
     p.add_argument("--keep-recent", type=int, default=2)
     p.add_argument("--apply", action="store_true")
     p.set_defaults(fn=cmd_gc)
+    p = sub.add_parser("decision-digest")
+    p.add_argument("subject")
+    p.set_defaults(fn=cmd_decision_digest)
     p = sub.add_parser("report")
     p.set_defaults(fn=cmd_report)
     p = sub.add_parser("benchmark")

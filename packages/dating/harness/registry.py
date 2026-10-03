@@ -30,6 +30,10 @@ from .store import all_claims, load_sources
 from . import glotto
 
 RULE_VERSION = "evidence-registry-2.1"
+# Bump deliberately when adoption eligibility or evidence semantics change in a way
+# the checks below would not catch. Every build re-checks each decision's eligibility
+# with current code, and validation re-normalizes every program-verified time.
+DECISION_RULES = 1
 EVENTS = {
     "attestation_first": "first_attestation",
     "attestation_last": "last_attestation",
@@ -506,6 +510,29 @@ def default_scope_error(claim, graph):
     return None
 
 
+def decision_digest(claims, sources, catalog_record, subject_id):
+    """What an editorial decision reviewed: every claim about the subject, their
+    registered sources and the code's catalog record (its mapping links). Tooling
+    edits elsewhere in the harness do not make a decision stale; a change to the
+    subject's evidence or mapping does."""
+    subject = sorted((c for c in claims if c["subject"]["id"] == subject_id), key=lambda c: c["id"])
+    return digest(
+        {
+            "rules": DECISION_RULES,
+            "subject_id": subject_id,
+            "claims": subject,
+            "sources": {c["source_id"]: sources.get(c["source_id"]) for c in subject},
+            "catalog": catalog_record,
+        }
+    )
+
+
+def bundle_decision_digest(bundle, subject_id, g=None):
+    g = g or glotto.load()
+    code = subject_id.removeprefix("wikt:")
+    return decision_digest(bundle["claims"], bundle["sources"], g.wikt.get(code), subject_id)
+
+
 def build_bundle():
     g = glotto.load()
     sources = load_sources()
@@ -543,8 +570,10 @@ def build_bundle():
         try:
             d = Decision.model_validate(raw)
             c = by_id[d.claim_id]
-            if d.evidence_digest != fingerprint:
-                raise ValueError("stale evidence/rules/taxonomy digest")
+            if d.evidence_digest != decision_digest(
+                claims, sources, g.wikt.get(d.subject_id.removeprefix("wikt:")), d.subject_id
+            ):
+                raise ValueError("stale decision: the subject's evidence or mapping changed")
             if (
                 c["subject"]["id"] != d.subject_id
                 or c["event"] != d.event

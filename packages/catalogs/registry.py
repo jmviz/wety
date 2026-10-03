@@ -160,9 +160,23 @@ def convert_record(rec,raw,is_family,iso,gl,wd,snapshot):
 import re
 
 
+SCOPE_RELATIONS={'source_narrower','source_broader','overlap'}
+
+
+def decision_list(entry):
+    """A subject's reviewed decisions: one object, or a list with one per target."""
+    return entry if isinstance(entry,list) else [entry] if entry else []
+
+
 def apply_decisions(records, decisions, snapshot, gl, iso):
     allowed={'target','relation','reviewer','rationale','references','source_snapshot','purpose'}
-    for sid,d in decisions.items():
+    for sid,entry in decisions.items():
+        targets=[d.get('target') for d in decision_list(entry)]
+        if len(set(targets))!=len(targets):raise ValueError('duplicate override target '+sid)
+        for d in decision_list(entry):apply_decision(records,sid,d,snapshot,gl,iso,allowed)
+
+
+def apply_decision(records, sid, d, snapshot, gl, iso, allowed):
         if sid not in records:raise ValueError('unknown override subject '+sid)
         if set(d)!=allowed:raise ValueError('override fields must be '+str(sorted(allowed)))
         if d['source_snapshot']!=snapshot:raise ValueError('stale mapping decision '+sid)
@@ -180,7 +194,8 @@ def apply_decisions(records, decisions, snapshot, gl, iso):
         metadata=next((e['target_metadata'] for e in rec['links'] if e['target']==d['target']),{})
         edge=link(sid,d['target'],d['relation'],'reviewed',d,snapshot,metadata)
         rec['links'].append(edge)
-        rec['equivalence_status']='reviewed_for_purpose' if d['relation']=='equivalent' else 'not_adjudicated'
+        if d['relation']=='equivalent' or rec.get('equivalence_status')!='reviewed_for_purpose':
+            rec['equivalence_status']='reviewed_for_purpose' if d['relation']=='equivalent' else 'not_adjudicated'
 
 
 def project(rec):
@@ -189,7 +204,10 @@ def project(rec):
     for field,namespace in [('glottocode','glottolog'),('iso639_3','iso639-3'),('iso639_5','iso639-5')]:
         es=[e for e in rec['links'] if e['target'].startswith(namespace+':')]
         reviewed=[e for e in es if e['status']=='reviewed' and e['relation'] in ('equivalent','catalog_correspondence')]
-        eligible=reviewed if any(e['status']=='reviewed' for e in es) else [e for e in es if e['status']=='catalog_link' and e['relation']=='catalog_correspondence']
+        # A reviewed scope relation (narrower/broader/overlap) documents extension; it
+        # does not withdraw the catalog lookup. Any other review replaces the lookup.
+        replaces=any(e['status']=='reviewed' and e['relation'] not in SCOPE_RELATIONS for e in es)
+        eligible=reviewed if replaces else [e for e in es if e['status']=='catalog_link' and e['relation']=='catalog_correspondence']
         targets={e['target'].split(':',1)[1] for e in eligible}
         if len(targets)==1:
             rec[field]=targets.pop();rec[field+'_route']='reviewed' if reviewed else 'catalog_link'
@@ -246,7 +264,7 @@ def validate_bundle(b):
             if r['kind']=='reconstructed' and e['status']=='catalog_link':errors.append('reconstructed stage catalog identity')
             if e['relation']=='equivalent' and e['status']!='reviewed':errors.append('unreviewed equivalence')
             if e['status']=='catalog_link' and (e['relation']!='catalog_correspondence' or not e['basis'].get('valid_target')):errors.append('invalid catalog link')
-            if e['status']=='reviewed' and b['decisions'].get(r['id'])!=e['basis']:errors.append('reviewed assertion lacks matching decision')
+            if e['status']=='reviewed' and e['basis'] not in decision_list(b['decisions'].get(r['id'])):errors.append('reviewed assertion lacks matching decision')
             if e['status'] in ('catalog_link','reviewed') and e['target_metadata'].get('category') in NON_GENEALOGICAL and e['relation'] in ('equivalent','catalog_correspondence'):errors.append('non-genealogical target promoted to lookup identity')
         projected=project({k:v for k,v in r.items() if k not in ('glottocode','iso639_3','iso639_5')})
         for key in ('glottocode','iso639_3','iso639_5'):

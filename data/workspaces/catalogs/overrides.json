@@ -14,6 +14,277 @@
       ],
       "source_snapshot": "ef06d08e444cab6740674fde5d036ab9425118349674598a22fe7859e471c151",
       "purpose": "catalog lookup; no chronology or sample identity transfer"
-    }
+    },
+    "wikt:lang:ang": [
+      {
+        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's source check, dating period pilot 2026-10-03",
+        "source_snapshot": "ef06d08e444cab6740674fde5d036ab9425118349674598a22fe7859e471c151",
+        "purpose": "dating: whether a period a source states for the target applies to the whole Wiktionary code (including etymology-only varieties filed under it); no chronology transfer",
+        "target": "iso639-3:ang",
+        "relation": "equivalent",
+        "rationale": "ISO 639-3 registers the same code and stage name; Wiktionary uses the ISO code. Anglian, Mercian and Northumbrian, filed under ang, are Old English dialects.",
+        "references": [
+          "data/artifacts/wiktionary-export/legacy/files/languages.json#ang",
+          "data/workspaces/dating/_research/packets/period-pilot-2026-10-03/claims.json#iso_ang",
+          "data/workspaces/dating/_research/period-pilot-2026-10-03/README.md"
+        ]
+      },
+      {
+        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's source check, dating period pilot 2026-10-03",
+        "source_snapshot": "ef06d08e444cab6740674fde5d036ab9425118349674598a22fe7859e471c151",
+        "purpose": "dating: whether a period a source states for the target applies to the whole Wiktionary code (including etymology-only varieties filed under it); no chronology transfer",
+        "target": "glottolog:olde1238",
+        "relation": "equivalent",
+        "rationale": "Glottolog Old English (ca. 450-1100), ISO ang; same stage and dialect scope as Wiktionary ang.",
+        "references": [
+          "data/artifacts/wiktionary-export/legacy/files/languages.json#ang",
+          "data/workspaces/dating/_research/packets/period-pilot-2026-10-03/claims.json#cldf_ang",
+          "data/workspaces/dating/_research/period-pilot-2026-10-03/README.md"
+        ]
+      }
+    ],
+    "wikt:lang:enm": [
+      {
+        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's source check, dating period pilot 2026-10-03",
+        "source_snapshot": "ef06d08e444cab6740674fde5d036ab9425118349674598a22fe7859e471c151",
+        "purpose": "dating: whether a period a source states for the target applies to the whole Wiktionary code (including etymology-only varieties filed under it); no chronology transfer",
+        "target": "iso639-3:enm",
+        "relation": "equivalent",
+        "rationale": "ISO 639-3 registers the same code and stage name; Wiktionary uses the ISO code. Wiktionary files Early Scots under enm, classing it as Middle English; ISO's 1100-1500 covers it.",
+        "references": [
+          "data/artifacts/wiktionary-export/legacy/files/languages.json#enm",
+          "data/workspaces/dating/_research/packets/period-pilot-2026-10-03/claims.json#iso_enm",
+          "data/workspaces/dating/_research/period-pilot-2026-10-03/README.md"
+        ]
+      },
+      {
+        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's source check, dating period pilot 2026-10-03",
+        "source_snapshot": "ef06d08e444cab6740674fde5d036ab9425118349674598a22fe7859e471c151",
+        "purpose": "dating: whether a period a source states for the target applies to the whole Wiktionary code (including etymology-only varieties filed under it); no chronology transfer",
+        "target": "glottolog:midd1317",
+        "relation": "equivalent",
+        "rationale": "Glottolog Middle English, ISO enm; same scope as Wiktionary enm including Early Scots, as for the ISO decision.",
+        "references": [
+          "data/artifacts/wiktionary-export/legacy/files/languages.json#enm",
+          "data/workspaces/dating/_research/packets/period-pilot-2026-10-03/claims.json#cldf_enm",
+          "data/workspaces/dating/_research/period-pilot-2026-10-03/README.md"
+        ]
+      }
+    ],
+    "wikt:lang:gmh": [
+      {
+        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's source check, dating period pilot 2026-10-03",
+        "source_snapshot": "ef06d08e444cab6740674fde5d036ab9425118349674598a22fe7859e471c151",
+        "purpose": "dating: whether a period a source states for the target applies to the whole Wiktionary code (including etymology-only varieties filed under it); no chronology transfer",
+        "target": "iso639-3:gmh",
+        "relation": "equivalent",
+        "rationale": "ISO 639-3 registers the same code and stage name; Wiktionary uses the ISO code. No etymology-only varieties are filed under gmh.",
+        "references": [
+          "data/artifacts/wiktionary-export/legacy/files/languages.json#gmh",
+          "data/workspaces/dating/_research/packets/period-pilot-2026-10-03/claims.json#iso_gmh",
+          "data/workspaces/dating/_research/period-pilot-2026-10-03/README.md"
+        ]
+      },
+      {
+        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's source check, dating period pilot 2026-10-03",
+        "source_snapshot": "ef06d08e444cab6740674fde5d036ab9425118349674598a22fe7859e471c151",
+        "purpose": "dating: whether a period a source states for the target applies to the whole Wiktionary code (including etymology-only varieties filed under it); no chronology transfer",
+        "target": "glottolog:midd1343",
+        "relation": "equivalent",
+        "rationale": "Glottolog Middle High German, ISO gmh; same scope.",
+        "references": [
+          "data/artifacts/wiktionary-export/legacy/files/languages.json#gmh",
+          "data/workspaces/dating/_research/packets/period-pilot-2026-10-03/claims.json#cldf_gmh",
+          "data/workspaces/dating/_research/period-pilot-2026-10-03/README.md"
+        ]
+      }
+    ],
+    "wikt:lang:goh": [
+      {
+        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's source check, dating period pilot 2026-10-03",
+        "source_snapshot": "ef06d08e444cab6740674fde5d036ab9425118349674598a22fe7859e471c151",
+        "purpose": "dating: whether a period a source states for the target applies to the whole Wiktionary code (including etymology-only varieties filed under it); no chronology transfer",
+        "target": "iso639-3:goh",
+        "relation": "source_broader",
+        "rationale": "Wiktionary files Lombardic under goh; ISO registers Langobardic separately (lng), so ISO goh is narrower.",
+        "references": [
+          "data/artifacts/wiktionary-export/legacy/files/languages.json#goh",
+          "data/workspaces/dating/_research/packets/period-pilot-2026-10-03/claims.json#iso_goh",
+          "data/workspaces/dating/_research/period-pilot-2026-10-03/README.md"
+        ]
+      },
+      {
+        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's source check, dating period pilot 2026-10-03",
+        "source_snapshot": "ef06d08e444cab6740674fde5d036ab9425118349674598a22fe7859e471c151",
+        "purpose": "dating: whether a period a source states for the target applies to the whole Wiktionary code (including etymology-only varieties filed under it); no chronology transfer",
+        "target": "glottolog:oldh1241",
+        "relation": "source_broader",
+        "rationale": "Glottolog Old High German excludes Lombardic, which Wiktionary files under goh.",
+        "references": [
+          "data/artifacts/wiktionary-export/legacy/files/languages.json#goh",
+          "data/workspaces/dating/_research/packets/period-pilot-2026-10-03/claims.json#cldf_goh",
+          "data/workspaces/dating/_research/period-pilot-2026-10-03/README.md"
+        ]
+      }
+    ],
+    "wikt:lang:sga": [
+      {
+        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's source check, dating period pilot 2026-10-03",
+        "source_snapshot": "ef06d08e444cab6740674fde5d036ab9425118349674598a22fe7859e471c151",
+        "purpose": "dating: whether a period a source states for the target applies to the whole Wiktionary code (including etymology-only varieties filed under it); no chronology transfer",
+        "target": "iso639-3:sga",
+        "relation": "equivalent",
+        "rationale": "ISO 639-3 registers the same code and stage name; Wiktionary uses the ISO code. Old Irish (to 900).",
+        "references": [
+          "data/artifacts/wiktionary-export/legacy/files/languages.json#sga",
+          "data/workspaces/dating/_research/packets/period-pilot-2026-10-03/claims.json#iso_sga",
+          "data/workspaces/dating/_research/period-pilot-2026-10-03/README.md"
+        ]
+      },
+      {
+        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's source check, dating period pilot 2026-10-03",
+        "source_snapshot": "ef06d08e444cab6740674fde5d036ab9425118349674598a22fe7859e471c151",
+        "purpose": "dating: whether a period a source states for the target applies to the whole Wiktionary code (including etymology-only varieties filed under it); no chronology transfer",
+        "target": "glottolog:oldi1245",
+        "relation": "source_narrower",
+        "rationale": "Glottolog oldi1245 is Early Irish, an umbrella including Primitive and Middle Irish; Wiktionary sga is Old Irish only.",
+        "references": [
+          "data/artifacts/wiktionary-export/legacy/files/languages.json#sga",
+          "data/workspaces/dating/_research/packets/period-pilot-2026-10-03/claims.json#cldf_sga",
+          "data/workspaces/dating/_research/period-pilot-2026-10-03/README.md"
+        ]
+      }
+    ],
+    "wikt:lang:grc": [
+      {
+        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's source check, dating period pilot 2026-10-03",
+        "source_snapshot": "ef06d08e444cab6740674fde5d036ab9425118349674598a22fe7859e471c151",
+        "purpose": "dating: whether a period a source states for the target applies to the whole Wiktionary code (including etymology-only varieties filed under it); no chronology transfer",
+        "target": "iso639-3:grc",
+        "relation": "equivalent",
+        "rationale": "ISO 639-3 registers the same code and stage name; Wiktionary uses the ISO code. ISO Ancient Greek runs to 1453, matching Wiktionary's grc, which files Koine and Byzantine Greek under it.",
+        "references": [
+          "data/artifacts/wiktionary-export/legacy/files/languages.json#grc",
+          "data/workspaces/dating/_research/packets/period-pilot-2026-10-03/claims.json#iso_grc",
+          "data/workspaces/dating/_research/period-pilot-2026-10-03/README.md"
+        ]
+      },
+      {
+        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's source check, dating period pilot 2026-10-03",
+        "source_snapshot": "ef06d08e444cab6740674fde5d036ab9425118349674598a22fe7859e471c151",
+        "purpose": "dating: whether a period a source states for the target applies to the whole Wiktionary code (including etymology-only varieties filed under it); no chronology transfer",
+        "target": "glottolog:anci1242",
+        "relation": "source_broader",
+        "rationale": "Glottolog anci1242 is Ionic-Attic Ancient Greek; Wiktionary grc also covers other dialects, Koine and Byzantine Greek.",
+        "references": [
+          "data/artifacts/wiktionary-export/legacy/files/languages.json#grc",
+          "data/workspaces/dating/_research/packets/period-pilot-2026-10-03/claims.json#cldf_grc",
+          "data/workspaces/dating/_research/period-pilot-2026-10-03/README.md"
+        ]
+      }
+    ],
+    "wikt:lang:got": [
+      {
+        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's source check, dating period pilot 2026-10-03",
+        "source_snapshot": "ef06d08e444cab6740674fde5d036ab9425118349674598a22fe7859e471c151",
+        "purpose": "dating: whether a period a source states for the target applies to the whole Wiktionary code (including etymology-only varieties filed under it); no chronology transfer",
+        "target": "glottolog:goth1244",
+        "relation": "equivalent",
+        "rationale": "Glottolog Gothic, ISO got; same language, no varieties filed under got.",
+        "references": [
+          "data/artifacts/wiktionary-export/legacy/files/languages.json#got",
+          "data/workspaces/dating/_research/packets/period-pilot-2026-10-03/claims.json#cldf_got",
+          "data/workspaces/dating/_research/period-pilot-2026-10-03/README.md"
+        ]
+      }
+    ],
+    "wikt:lang:akk": [
+      {
+        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's source check, dating period pilot 2026-10-03",
+        "source_snapshot": "ef06d08e444cab6740674fde5d036ab9425118349674598a22fe7859e471c151",
+        "purpose": "dating: whether a period a source states for the target applies to the whole Wiktionary code (including etymology-only varieties filed under it); no chronology transfer",
+        "target": "glottolog:akka1240",
+        "relation": "equivalent",
+        "rationale": "Glottolog Akkadian, ISO akk; Wiktionary files all Akkadian stages (Old Akkadian to Late Babylonian) under akk.",
+        "references": [
+          "data/artifacts/wiktionary-export/legacy/files/languages.json#akk",
+          "data/workspaces/dating/_research/packets/period-pilot-2026-10-03/claims.json#cldf_akk",
+          "data/workspaces/dating/_research/period-pilot-2026-10-03/README.md"
+        ]
+      }
+    ],
+    "wikt:lang:hit": [
+      {
+        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's source check, dating period pilot 2026-10-03",
+        "source_snapshot": "ef06d08e444cab6740674fde5d036ab9425118349674598a22fe7859e471c151",
+        "purpose": "dating: whether a period a source states for the target applies to the whole Wiktionary code (including etymology-only varieties filed under it); no chronology transfer",
+        "target": "glottolog:hitt1242",
+        "relation": "equivalent",
+        "rationale": "Glottolog Hittite, ISO hit; same language.",
+        "references": [
+          "data/artifacts/wiktionary-export/legacy/files/languages.json#hit",
+          "data/workspaces/dating/_research/packets/period-pilot-2026-10-03/claims.json#cldf_hit",
+          "data/workspaces/dating/_research/period-pilot-2026-10-03/README.md"
+        ]
+      }
+    ],
+    "wikt:lang:och": [
+      {
+        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's source check, dating period pilot 2026-10-03",
+        "source_snapshot": "ef06d08e444cab6740674fde5d036ab9425118349674598a22fe7859e471c151",
+        "purpose": "dating: whether a period a source states for the target applies to the whole Wiktionary code (including etymology-only varieties filed under it); no chronology transfer",
+        "target": "glottolog:oldc1244",
+        "relation": "equivalent",
+        "rationale": "Glottolog Old Chinese, ISO och; Wiktionary files Early and Late Old Chinese under och.",
+        "references": [
+          "data/artifacts/wiktionary-export/legacy/files/languages.json#och",
+          "data/workspaces/dating/_research/packets/period-pilot-2026-10-03/claims.json#cldf_och",
+          "data/workspaces/dating/_research/period-pilot-2026-10-03/README.md"
+        ]
+      }
+    ],
+    "wikt:lang:ltc": [
+      {
+        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's source check, dating period pilot 2026-10-03",
+        "source_snapshot": "ef06d08e444cab6740674fde5d036ab9425118349674598a22fe7859e471c151",
+        "purpose": "dating: whether a period a source states for the target applies to the whole Wiktionary code (including etymology-only varieties filed under it); no chronology transfer",
+        "target": "glottolog:midd1344",
+        "relation": "equivalent",
+        "rationale": "Glottolog midd1344 is Middle Chinese as a whole stage; Wiktionary ltc is Middle Chinese with Early and Late Middle Chinese filed under it.",
+        "references": [
+          "data/artifacts/wiktionary-export/legacy/files/languages.json#ltc",
+          "data/workspaces/dating/_research/packets/period-pilot-2026-10-03/claims.json#cldf_ltc",
+          "data/workspaces/dating/_research/period-pilot-2026-10-03/README.md"
+        ]
+      },
+      {
+        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's source check, dating period pilot 2026-10-03",
+        "source_snapshot": "ef06d08e444cab6740674fde5d036ab9425118349674598a22fe7859e471c151",
+        "purpose": "dating: whether a period a source states for the target applies to the whole Wiktionary code (including etymology-only varieties filed under it); no chronology transfer",
+        "target": "iso639-3:ltc",
+        "relation": "source_broader",
+        "rationale": "ISO's reference name for ltc is Late Middle Chinese; Wiktionary uses the code for Middle Chinese as a whole.",
+        "references": [
+          "data/artifacts/wiktionary-export/legacy/files/languages.json#ltc",
+          "data/workspaces/dating/_research/packets/period-pilot-2026-10-03/claims.json#cldf_ltc",
+          "data/workspaces/dating/_research/period-pilot-2026-10-03/README.md"
+        ]
+      }
+    ],
+    "wikt:lang:ojp": [
+      {
+        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's source check, dating period pilot 2026-10-03",
+        "source_snapshot": "ef06d08e444cab6740674fde5d036ab9425118349674598a22fe7859e471c151",
+        "purpose": "dating: whether a period a source states for the target applies to the whole Wiktionary code (including etymology-only varieties filed under it); no chronology transfer",
+        "target": "glottolog:oldj1239",
+        "relation": "source_broader",
+        "rationale": "Wiktionary files Middle Japanese (Early and Late) under ojp; Glottolog oldj1239 is Old Japanese only.",
+        "references": [
+          "data/artifacts/wiktionary-export/legacy/files/languages.json#ojp",
+          "data/workspaces/dating/_research/packets/period-pilot-2026-10-03/claims.json#cldf_ojp",
+          "data/workspaces/dating/_research/period-pilot-2026-10-03/README.md"
+        ]
+      }
+    ]
   }
 }

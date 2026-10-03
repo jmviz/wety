@@ -2,8 +2,9 @@
 
 Keep the current generation, the most recently published others (default two), and
 any generation a tracked file names by its digest (a packet's baseline, a run
-README). Everything else is reported for removal. Nothing is deleted without
-`apply`; a removal log is kept in the dating history.
+README). Migration inventories do not count as references. Everything else is
+reported for removal. Nothing is deleted without `apply`; a removal log is kept in the
+dating history.
 """
 
 import json
@@ -16,13 +17,15 @@ from pathlib import Path
 from workflow_tools.paths import DATING_GENERATIONS, DATING_HISTORY, DATING_PRODUCT, REPO
 
 DIGEST = re.compile(rb"[0-9a-f]{64}")
+# Migration inventories list every file that moved, not what depends on it.
+NOT_REFERENCES = ("data/registry/migrations/",)
 
 
 def size(path):
     return sum(p.stat().st_size for p in Path(path).rglob("*") if p.is_file())
 
 
-def tracked_references(generations, repo=REPO):
+def tracked_references(generations, repo=REPO, ignore=NOT_REFERENCES):
     """{generation: [tracked files naming it]}; reads every tracked file once."""
     files = subprocess.run(
         ["git", "ls-files", "-z"], cwd=repo, capture_output=True, check=True
@@ -30,6 +33,8 @@ def tracked_references(generations, repo=REPO):
     wanted = set(generations)
     refs = {}
     for name in filter(None, files):
+        if name.decode().startswith(ignore):
+            continue
         path = Path(repo) / name.decode()
         if not path.is_file():
             continue
