@@ -39,7 +39,7 @@ impl AppState {
     ///
     /// Will return `Err` if deserializing the data file fails.
     pub fn new(data_path: &std::path::Path) -> Result<Self> {
-        let data = Data::deserialize(data_path)?;
+        let data = Data::deserialize_with_legacy(data_path, std::env::var("WETY_ALLOW_LEGACY_GRAPH").as_deref() == Ok("1"))?;
         let search = data.build_search();
         Ok(Self { data, search })
     }

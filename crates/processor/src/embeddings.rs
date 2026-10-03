@@ -204,7 +204,7 @@ impl EmbeddingsMap {
 /// For speed, try sentence-transformers/paraphrase-MiniLM-L3-v2, which should be
 /// about 4x faster than sentence-transformers/all-MiniLM-L12-v2.
 pub const DEFAULT_MODEL: &str = "sentence-transformers/all-MiniLM-L12-v2";
-pub const DEFAULT_MODEL_REVISION: &str = "main";
+pub const DEFAULT_MODEL_REVISION: &str = "7b92c94edb86f18b2d52ed2797de0c5d474632ae";
 pub const DEFAULT_BATCH_SIZE: usize = 800;
 
 #[cfg(feature = "mkl")]
@@ -269,9 +269,17 @@ impl Model {
     fn new(model_name: String, revision: String) -> Result<Self> {
         let device = device()?;
 
+        // hf-hub 0.3 resolves cache entries through refs; a commit may have no ref
+        // even when its complete immutable snapshot is already present.
+        let snapshot = hf_hub::Cache::default().path()
+            .join(format!("models--{}", model_name.replace('/', "--")))
+            .join("snapshots").join(&revision);
         let repo = Repo::with_revision(model_name, RepoType::Model, revision);
 
-        let (config_filename, tokenizer_filename, weights_filename) = {
+        let (config_filename, tokenizer_filename, weights_filename) = if
+            ["config.json", "tokenizer.json", "pytorch_model.bin"].iter().all(|name| snapshot.join(name).is_file()) {
+            (snapshot.join("config.json"), snapshot.join("tokenizer.json"), snapshot.join("pytorch_model.bin"))
+        } else {
             let api = Api::new()?;
             let api = api.repo(repo);
             let config = api.get("config.json")?;
@@ -363,11 +371,14 @@ pub(crate) struct Embeddings {
 
 impl Embeddings {
     pub(crate) fn new(config: &Config) -> Result<Self> {
+        anyhow::ensure!(config.model_revision.len() == 40 && config.model_revision.bytes().all(|b| b.is_ascii_hexdigit()), "Embedding model revision must be an immutable 40-character commit");
+
         let model = Rc::from(Model::new(
             config.model_name.clone(),
             config.model_revision.clone(),
         )?);
-        let cache = Rc::from(sled::open(&config.cache_path)?);
+        let namespace = xxh3_64(format!("{}\0{}\0{}", config.model_name, config.model_revision, include_str!("embeddings.rs")).as_bytes());
+        let cache = Rc::from(sled::open(config.cache_path.join(format!("{namespace:016x}")))?);
         Ok(Self {
             ety: EmbeddingsMap::new(&model, config.batch_size, &cache),
             glosses: EmbeddingsMap::new(&model, config.batch_size, &cache),

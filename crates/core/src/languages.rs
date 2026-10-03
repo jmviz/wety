@@ -59,7 +59,7 @@ struct Languages {
 impl Languages {
     fn new() -> Self {
         let code2raw_data: BTreeMap<&'static str, RawLangData> = serde_json::from_str(
-            include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/data/languages.json")),
+            include_str!(env!("WETY_LANGUAGES_JSON")),
         )
         .expect("well-formed languages.json");
 

@@ -16,10 +16,10 @@
         }
       },
       "args": [
-        "--wiktextract-path=${workspaceFolder}/data/test/trans.jsonl",
-        "--serialization-path=${workspaceFolder}/data/test/trans_wety.json",
-        "--turtle-path=${workspaceFolder}/data/test/trans_wety.ttl",
-        "--embeddings-cache-path=${workspaceFolder}/data/test/embeddings-cache"
+        "--wiktextract-path=${workspaceFolder}/workflows/etymology_graph/fixtures/minimal.jsonl",
+        "--serialization-path=${workspaceFolder}/data/workspaces/etymology_graph/debug.json",
+        "--turtle-path=${workspaceFolder}/data/workspaces/etymology_graph/debug.ttl",
+        "--embeddings-cache-path=${workspaceFolder}/data/cache/embeddings/debug"
       ],
       "cwd": "${workspaceFolder}",
       "sourceLanguages": ["rust"]

@@ -39,7 +39,7 @@ pub struct Args {
     #[clap(
         short = 'f',
         long,
-        default_value = "data/raw-wiktextract-data.jsonl.gz",
+        default_value = "data/artifacts/wiktextract/legacy/files/raw-wiktextract-data.jsonl.gz",
         help = "Path to full wiktextract raw data file",
         value_parser
     )]

@@ -15,11 +15,11 @@ pub struct Args {
     #[clap(
         short = 'w',
         long,
-        default_value = "data/raw-wiktextract-data.jsonl.gz",
+        default_value = "data/artifacts/wiktextract/legacy/files/raw-wiktextract-data.jsonl.gz",
         value_parser
     )]
     wiktextract_path: PathBuf,
-    #[clap(short = 's', long, default_value = "data/wety.json.gz", value_parser)]
+    #[clap(short = 's', long, default_value = "data/workspaces/etymology_graph/wety.json.gz", value_parser)]
     serialization_path: PathBuf,
     #[clap(short = 't', long, value_parser)]
     turtle_path: Option<PathBuf>,
@@ -32,7 +32,7 @@ pub struct Args {
     #[clap(
         short = 'c',
         long,
-        default_value = "data/embeddings_cache",
+        default_value = "data/cache/embeddings/current",
         value_parser
     )]
     embeddings_cache_path: PathBuf,

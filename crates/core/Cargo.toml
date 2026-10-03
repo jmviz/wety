@@ -17,3 +17,7 @@ phf = {version = "0.10", features = ["macros"]}
 urlencoding = "2.1.2"
 string-interner = "0.14.0"
 strum = {version = "0.24.1", features = ["derive", "phf"]}
+
+[build-dependencies]
+sha2 = "0.10"
+serde_json = { workspace = true }

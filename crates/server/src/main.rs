@@ -39,13 +39,18 @@ async fn main() -> Result<()> {
         Environment::Development | Environment::Production => tower_http::cors::Any.into(),
     };
 
-    // $$$ make this configurable
-    let data_path = Path::new("data/wety.json");
-    let state = if data_path.exists() {
-        Arc::new(AppState::new(data_path)?)
-    } else {
-        Arc::new(AppState::new(Path::new("data/wety.json.gz"))?)
+    let data_path = match env::var("WETY_GRAPH_PATH") {
+        Ok(path) => path,
+        Err(_) => {
+            let pointer: serde_json::Value = serde_json::from_slice(&std::fs::read(
+                "data/products/etymology_graph/CURRENT.json"
+            )?)?;
+            let artifact = pointer["artifact"].as_str().ok_or_else(|| anyhow::anyhow!("missing graph artifact"))?;
+            let entrypoint = pointer["entrypoint"].as_str().ok_or_else(|| anyhow::anyhow!("missing graph entrypoint"))?;
+            format!("{artifact}/files/{entrypoint}")
+        }
     };
+    let state = Arc::new(AppState::new(Path::new(&data_path))?);
 
     let app = Router::new()
         .route("/search/lang", get(lang_search_matches))

@@ -23,6 +23,8 @@ use trie_rs::map::{Trie as TrieMap, TrieBuilder as TrieMapBuilder};
 
 #[derive(Serialize, Deserialize)]
 pub struct Data {
+    #[serde(default)]
+    pub reference_fingerprint: Option<String>,
     pub string_pool: StringPool,
     pub graph: EtyGraph,
     pub progenitors: HashMap<ItemId, Progenitors>,
@@ -35,6 +37,7 @@ impl Data {
         let progenitors = graph.all_progenitors();
         let descendant_langs = graph.all_descendant_langs();
         Self {
+            reference_fingerprint: Some(env!("WETY_REFERENCE_FINGERPRINT").to_owned()),
             string_pool,
             graph,
             progenitors,
@@ -48,6 +51,7 @@ impl Data {
     pub fn serialize(&self, path: &Path) -> Result<()> {
         let t = Instant::now();
         println!("Serializing processed data to {}...", path.display());
+        if let Some(parent) = path.parent() { std::fs::create_dir_all(parent)?; }
         let file = File::create(path)?;
         let should_gz_compress = path.extension().is_some_and(|ext| ext == "gz");
         let writer: Box<dyn Write> = if should_gz_compress {
@@ -92,6 +96,10 @@ impl Data {
     ///
     /// Will return `Err` if any unexpected issue arises in the deserialization.
     pub fn deserialize(path: &Path) -> Result<Self> {
+        Self::deserialize_with_legacy(path, false)
+    }
+
+    pub fn deserialize_with_legacy(path: &Path, allow_legacy: bool) -> Result<Self> {
         let t = Instant::now();
         println!("Deserializing processed data {}...", path.display());
         let file = File::open(path)?;
@@ -102,7 +110,8 @@ impl Data {
         } else {
             Box::new(reader)
         };
-        let data = serde_json::from_reader(uncompressed)?;
+        let data: Self = serde_json::from_reader(uncompressed)?;
+        validate_reference_fingerprint(data.reference_fingerprint.as_deref(), allow_legacy)?;
         println!("Finished. Took {:#?}.", t.elapsed());
         Ok(data)
     }
@@ -400,5 +409,26 @@ impl Search {
         });
         items.truncate(MAX_SEARCH_RESULTS);
         json!(items.iter().map(|&id| data.item_json(id)).collect_vec())
+    }
+}
+
+fn validate_reference_fingerprint(value: Option<&str>, allow_legacy: bool) -> Result<()> {
+    match value {
+        Some(value) if value == env!("WETY_REFERENCE_FINGERPRINT") => Ok(()),
+        Some(_) => anyhow::bail!("Graph language/POS tables differ from this binary; rebuild with the graph's pinned references"),
+        None if allow_legacy => { eprintln!("Loading legacy graph with unverified language/POS identity by explicit opt-in"); Ok(()) },
+        None => anyhow::bail!("Legacy graph has no reference fingerprint; use WETY_ALLOW_LEGACY_GRAPH=1 only after accepting unverified numeric IDs"),
+    }
+}
+
+#[cfg(test)]
+mod reference_tests {
+    use super::validate_reference_fingerprint;
+    #[test]
+    fn reject_mismatched_and_unidentified_tables() {
+        assert!(validate_reference_fingerprint(Some(env!("WETY_REFERENCE_FINGERPRINT")), false).is_ok());
+        assert!(validate_reference_fingerprint(Some("different"), true).is_err());
+        assert!(validate_reference_fingerprint(None, false).is_err());
+        assert!(validate_reference_fingerprint(None, true).is_ok());
     }
 }
