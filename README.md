@@ -31,6 +31,7 @@ uv run --frozen wety-data run dating
 uv run --frozen python -m unittest discover -s packages/catalogs/tests
 uv run --frozen python -m unittest discover -s packages/dating/tests
 uv run --frozen python -m unittest discover -s packages/workflow_tools/tests
+uv run --frozen python -m unittest discover -s packages/source_tools/tests
 cargo check --locked --workspace
 cargo test --locked -p wety-core --lib
 ```

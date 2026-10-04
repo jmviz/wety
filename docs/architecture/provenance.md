@@ -34,6 +34,10 @@ coverage and scholarly scope separately.
   adopted legacy artifact. The optional `extraction` dependency set pins `wiktextract` and `wikitextprocessor`
   Git revisions in the root lock. The original legacy exporter environment remains
   unknown; these dependencies support future exports, not a retroactive receipt.
+  With the Kaikki dump of the same date, `python -m source_tools.entry_names DUMP
+  WIKTEXTRACT LANGUAGES` exports the page titles (entry names) of the terms the dump
+  cites, by the dump's own `Language:stripDiacritics`; the graph processor uses them to
+  find entries cited with diacritics their titles lack.
 - IE-CoR: acquire the exact publication/deposit table, preserving its source IDs and
   analysis identity. `python -m catalogs.iecor` generates review proposals from the
   explicitly selected table. The old table's upstream revision remains unresolved.

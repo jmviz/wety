@@ -6,6 +6,7 @@
   "inputs": {
     "wiktextract": "data/artifacts/wiktextract/6da0ba5bf330650cba59911466da388d3f60c69519a50dc9ca71451b0bfba506/files/raw-wiktextract-data.jsonl.gz",
     "languages": "data/artifacts/wiktionary-export/2d98b7aa0c9965e1492db2e242ead832fe7e3c161e1f1a27c1d177135c6df2b7/files/languages.json",
+    "entry_names": "data/artifacts/wiktionary-entry-names/d582e4fa2711817b60516203d77f940045bb9bb150aab437d9e4825abd5e12c1/files/entry_names.json",
     "pos": "crates/core/src/pos_phf.rs",
     "model": "data/registry/embedding-model.json"
   },
@@ -29,6 +30,8 @@
       "{input_wiktextract}",
       "--serialization-path",
       "{output}/wety.json.gz",
+      "--entry-names",
+      "{input_entry_names}",
       "--embeddings-model-revision",
       "7b92c94edb86f18b2d52ed2797de0c5d474632ae",
       "--embeddings-cache-path",
