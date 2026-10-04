@@ -67,22 +67,14 @@ but is not reused automatically. A lower embedding batch size can reduce memory 
 ## Serve a graph
 
 ```sh
-WETY_GRAPH_PATH=data/artifacts/etymology-graph/VERSION/files/wety.json.gz \
-  cargo run --locked --release --bin server
+cargo run --locked --release --bin server
 ```
 
-Use the artifact selected by `data/products/etymology_graph/CURRENT.json` in place of
-`VERSION`. New graphs are rejected if their language/POS fingerprint differs from
-the server binary. The preserved legacy graph is the default local path but has no
-verified reference fingerprint. To intentionally use that older graph:
-
-```sh
-WETY_ALLOW_LEGACY_GRAPH=1 cargo run --locked --release --bin server
-```
-
-This accepts unverified numeric IDs; it does not validate or rewrite that graph.
-The server listens on port 3000 (set `WETY_PORT` to change it). See [client development](client/README.md) and
-[server deployment](crates/server/deployment.md).
+This serves the graph selected by `data/products/etymology_graph/CURRENT.json`; set
+`WETY_GRAPH_PATH` to serve another graph file. A graph whose language/POS fingerprint
+differs from the server binary's is rejected. The server listens on port 3000 (set
+`WETY_PORT` to change it). See [client development](client/README.md) and
+[deployment](deploy/README.md).
 
 ## Links
 

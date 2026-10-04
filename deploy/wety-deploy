@@ -1,0 +1,233 @@
+#!/usr/bin/env bash
+# Install and switch wety server releases on the host. Installed to
+# /usr/local/sbin/wety-deploy by deploy/bootstrap.sh; the GitHub deploy
+# workflow runs it over SSH as the `deploy` user (forced command + sudo).
+#
+#   wety-deploy deploy <commit>   fetch release <commit> from R2, switch, restart, check
+#   wety-deploy rollback          switch back to the previous release
+#   wety-deploy status            show what is serving
+#
+# Layout under /srv/wety:
+#   releases/<commit>/   server, language_periods.json, release.json, env
+#   graphs/<sha256>/     graph file named in release.json
+#   current, previous    symlinks to releases/<commit>
+set -euo pipefail
+umask 022
+
+ROOT=${WETY_ROOT:-/srv/wety}
+R2_ENV=${WETY_R2_ENV:-/etc/wety/r2.env}
+SERVICE=wety
+HEALTH_URL=${WETY_HEALTH_URL:-http://127.0.0.1:3000/periods}
+HEALTH_TIMEOUT=${WETY_HEALTH_TIMEOUT:-900}
+KEEP_RELEASES=3
+
+log() { printf 'wety-deploy: %s\n' "$*" >&2; }
+die() {
+    log "$*"
+    exit 1
+}
+
+link_target() {
+    if [ -L "$ROOT/$1" ]; then basename "$(readlink "$ROOT/$1")"; fi
+}
+
+load_r2() {
+    [ -r "$R2_ENV" ] || die "missing $R2_ENV (see deploy/README.md)"
+    set -a
+    # shellcheck source=/dev/null
+    . "$R2_ENV"
+    set +a
+    [ -n "${WETY_R2_BUCKET:-}" ] || die "WETY_R2_BUCKET is not set in $R2_ENV"
+}
+
+sha256_of() { sha256sum "$1" | cut -d' ' -f1; }
+
+# Download the graph a release names unless it is already present.
+fetch_graph() {
+    local manifest=$1 object sha file bytes gdir gtmp free_kb need_kb
+    object=$(jq -er '.graph.object' "$manifest")
+    sha=$(jq -er '.graph.sha256' "$manifest")
+    file=$(jq -er '.graph.file' "$manifest")
+    bytes=$(jq -er '.graph.bytes' "$manifest")
+    [[ $sha =~ ^[0-9a-f]{64}$ ]] || die "bad graph sha256 in release: $sha"
+    [[ $file =~ ^[A-Za-z0-9._-]+$ ]] || die "bad graph file name in release: $file"
+    gdir=$ROOT/graphs/$sha
+    if [ -f "$gdir/$file" ]; then
+        log "graph $sha already present"
+    else
+        free_kb=$(df -Pk "$ROOT/graphs" | awk 'NR == 2 { print $4 }')
+        need_kb=$((bytes / 1024 + 1048576))
+        [ "$free_kb" -ge "$need_kb" ] ||
+            die "not enough disk for graph: ${free_kb} KiB free, ${need_kb} KiB needed"
+        log "downloading graph $object ($bytes bytes)"
+        gtmp=$(mktemp -d "$ROOT/graphs/.tmp.XXXXXX")
+        rclone copyto "r2:$WETY_R2_BUCKET/$object" "$gtmp/$file"
+        [ "$(sha256_of "$gtmp/$file")" = "$sha" ] || die "graph checksum mismatch for $object"
+        chmod 755 "$gtmp"
+        rm -rf "$gdir"
+        mv "$gtmp" "$gdir"
+    fi
+    GRAPH_PATH=$gdir/$file
+}
+
+# Download and unpack a release, with its graph, unless it is already present.
+fetch_release() {
+    local commit=$1 dir tmp
+    dir=$ROOT/releases/$commit
+    if [ -f "$dir/.complete" ]; then
+        log "release $commit already present"
+        return
+    fi
+    log "downloading release $commit"
+    tmp=$(mktemp -d "$ROOT/releases/.tmp.XXXXXX")
+    rclone copy "r2:$WETY_R2_BUCKET/releases/$commit/" "$tmp"
+    [ -f "$tmp/release.json" ] || die "release $commit not found in R2"
+    [ "$(sha256_of "$tmp/bundle.tar.gz")" = "$(jq -er '.bundle.sha256' "$tmp/release.json")" ] ||
+        die "bundle checksum mismatch for $commit"
+    tar -xzf "$tmp/bundle.tar.gz" -C "$tmp"
+    rm "$tmp/bundle.tar.gz"
+    [ -x "$tmp/server" ] || die "release $commit has no server binary"
+    fetch_graph "$tmp/release.json"
+    {
+        echo "WETY_GRAPH_PATH=$GRAPH_PATH"
+        echo "WETY_PERIODS_PATH=$dir/language_periods.json"
+        if [ "$(jq -r '.graph.allow_legacy // false' "$tmp/release.json")" = true ]; then
+            echo "WETY_ALLOW_LEGACY_GRAPH=1"
+        fi
+    } >"$tmp/env"
+    chmod 755 "$tmp"
+    touch "$tmp/.complete"
+    rm -rf "$dir"
+    mv "$tmp" "$dir"
+}
+
+healthy() { curl -fsS -o /dev/null --max-time 10 "$HEALTH_URL"; }
+
+# Restart and wait until the server answers. Loading a large graph takes a
+# while; a crash (e.g. a graph built with other reference tables) fails fast.
+restart_and_check() {
+    local deadline restarts state
+    systemctl restart "$SERVICE"
+    deadline=$(($(date +%s) + HEALTH_TIMEOUT))
+    while ! healthy; do
+        restarts=$(systemctl show -p NRestarts --value "$SERVICE")
+        state=$(systemctl show -p ActiveState --value "$SERVICE")
+        if [ "${restarts:-0}" -gt 0 ] || [ "$state" = failed ]; then
+            log "server exited during startup"
+            return 1
+        fi
+        if [ "$(date +%s)" -ge "$deadline" ]; then
+            log "server did not answer within ${HEALTH_TIMEOUT}s"
+            return 1
+        fi
+        sleep 5
+    done
+}
+
+# Remove releases beyond the newest few (never current or previous), then
+# graphs no remaining release uses.
+prune() {
+    local keep used name path
+    keep=" $(link_target current) $(link_target previous) "
+    # shellcheck disable=SC2010,SC2012 # release names are hex commits
+    keep+="$(ls -1t "$ROOT/releases" | grep -E '^[0-9a-f]{40}$' | head -n "$KEEP_RELEASES" | tr '\n' ' ' || true)"
+    for path in "$ROOT"/releases/* "$ROOT"/releases/.tmp.*; do
+        [ -e "$path" ] || continue
+        name=$(basename "$path")
+        case $keep in *" $name "*) continue ;; esac
+        log "removing release $name"
+        rm -rf "$path"
+    done
+    used=" "
+    for path in "$ROOT"/releases/*/env; do
+        [ -f "$path" ] || continue
+        used+="$(basename "$(dirname "$(sed -n 's/^WETY_GRAPH_PATH=//p' "$path")")") "
+    done
+    for path in "$ROOT"/graphs/* "$ROOT"/graphs/.tmp.*; do
+        [ -e "$path" ] || continue
+        name=$(basename "$path")
+        case $used in *" $name "*) continue ;; esac
+        log "removing graph $name"
+        rm -rf "$path"
+    done
+}
+
+cmd_deploy() {
+    local commit=${1:-} current previous
+    [[ $commit =~ ^[0-9a-f]{40}$ ]] || die "usage: wety-deploy deploy <40-hex commit>"
+    load_r2
+    fetch_release "$commit"
+    current=$(link_target current)
+    previous=$(link_target previous)
+    if [ "$current" = "$commit" ] && healthy; then
+        log "already serving $commit"
+        return
+    fi
+    if [ -n "$current" ] && [ "$current" != "$commit" ]; then
+        ln -sfn "releases/$current" "$ROOT/previous"
+    fi
+    ln -sfn "releases/$commit" "$ROOT/current"
+    if restart_and_check; then
+        log "serving $commit"
+        prune
+        return
+    fi
+    journalctl -u "$SERVICE" -n 40 --no-pager >&2 || true
+    if [ -n "$current" ] && [ "$current" != "$commit" ]; then
+        log "rolling back to $current"
+        ln -sfn "releases/$current" "$ROOT/current"
+        if [ -n "$previous" ]; then ln -sfn "releases/$previous" "$ROOT/previous"; fi
+        if restart_and_check; then
+            log "rolled back; serving $current"
+        else
+            log "ROLLBACK FAILED: $current does not start either"
+        fi
+    fi
+    die "deploy of $commit failed"
+}
+
+cmd_rollback() {
+    local current previous
+    current=$(link_target current)
+    previous=$(link_target previous)
+    [ -n "$previous" ] || die "no previous release to roll back to"
+    ln -sfn "releases/$previous" "$ROOT/current"
+    if [ -n "$current" ]; then ln -sfn "releases/$current" "$ROOT/previous"; fi
+    restart_and_check || {
+        journalctl -u "$SERVICE" -n 40 --no-pager >&2 || true
+        die "rollback to $previous failed"
+    }
+    log "serving $previous"
+}
+
+cmd_status() {
+    local name commit
+    for name in current previous; do
+        commit=$(link_target "$name")
+        if [ -z "$commit" ]; then
+            echo "$name: none"
+            continue
+        fi
+        jq -r --arg name "$name" \
+            '"\($name): \(.commit) built \(.built_at), graph \(.graph.file) \(.graph.sha256[0:12])"' \
+            "$ROOT/releases/$commit/release.json"
+    done
+    echo "service: $(systemctl is-active "$SERVICE" || true)"
+}
+
+main() {
+    if [ -z "${WETY_ROOT:-}" ] && [ "$(id -u)" != 0 ]; then
+        die "run as root (sudo wety-deploy ...)"
+    fi
+    case ${1:-} in
+    deploy | rollback)
+        exec 9>"$ROOT/.lock"
+        flock -n 9 || die "another wety-deploy is running"
+        "cmd_$1" "${@:2}"
+        ;;
+    status) cmd_status ;;
+    *) die "usage: wety-deploy deploy <commit> | rollback | status" ;;
+    esac
+}
+
+main "$@"
