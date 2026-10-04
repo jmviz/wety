@@ -201,6 +201,8 @@ def interval(claims):
             # later copies: when composed is the best date, shown as its own basis.
             comp = by_event["composition"]
             start, end = ranges(comp)
+            if comp["time"]["form"] == "point":  # "took shape around 1500 BC"
+                end = start
             return {
                 "start": start,
                 "end": end,

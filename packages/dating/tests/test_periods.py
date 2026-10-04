@@ -150,6 +150,15 @@ class PeriodExportTests(unittest.TestCase):
         first = claim("f", "vsn", "first_attestation", "observation", years(1000, 1100))
         (vsn,) = export_periods(bundle([comp], ["v"]), "gen")["languages"]
         self.assertEqual((vsn["basis"], vsn["label"]), ("composition", "c. 1500–500 BCE"))
+        rig = claim(
+            "r",
+            "sa-rig",
+            "composition",
+            "hypothesis",
+            {"form": "point", "unit": "BCE", "value": 1500, "approximate": True},
+        )
+        (out,) = export_periods(bundle([rig], ["r"]), "gen")["languages"]
+        self.assertEqual(out["label"], "c. 1500 BCE")
         # An adopted attestation takes precedence; the composition stays visible.
         (vsn,) = export_periods(bundle([comp, first], ["v", "f"]), "gen")["languages"]
         self.assertEqual(vsn["basis"], "attested")

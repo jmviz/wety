@@ -1,7 +1,69 @@
 {
   "family_splits": [],
-  "generation": "d557d9e8c57e5cd1606e4ba1aef14201f214836723984ce4c906ae316dc932da",
+  "generation": "c044216ac55e10c931102c3fbf0b7e3557bcebe7dfa7e337e7d6128c33c1fdd5",
   "languages": [
+    {
+      "alternatives": [],
+      "basis": "composition",
+      "code": "ae-old",
+      "evidence": [
+        {
+          "citation": "Fortson, Benjamin W., IV. 2010. Indo-European Language and Culture: An Introduction. 2nd ed. Blackwell Textbooks in Linguistics 19. Chichester and Malden, MA: Wiley-Blackwell. (Supplied copy is a reflowed e-book without printed page numbers; cited by section.)",
+          "claim_id": "ev_period_08b338747dda778265d2307b4e805ae7feebc056",
+          "event": "composition",
+          "locator": "{\"page\": \"unpaginated electronic layout\", \"pdf_page\": 247, \"section\": \"11.11\"}",
+          "quote": "11.11.The linguistically oldest Avestan, called Old or Gathic Avestan, is confined mostly to\nthe core of the Yasna, namely Yasna 28-34, 43-51, and 53. These sections constitute the five\nGathas (or G th s; g θ ‘song’) traditionally ascribed to Zarathuštra himself. Also in Old\nAvestan is the prose ritual text called the Yasna Hapta h iti or ‘Yasna of the seven chapters’\n(Yasna 35.3-41), as well as four sacred formulas preserved in Yasna 27 and 54. Old Avestan, as\nmentioned in the preceding chapter, is grammatically comparable to the language of the Rig\nVeda. It is therefore usually assumed to be of about the same age, perhaps dating to the late\nsecond millennium BC.",
+          "role": "hypothesis",
+          "source": "Fortson 2010",
+          "url": null
+        }
+      ],
+      "kind": "stage",
+      "label": "c. 2nd millennium BCE",
+      "name": "Old Avestan",
+      "spoken": {
+        "end": {
+          "earliest": -1999,
+          "latest": -1000
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": -1999,
+          "latest": -1000
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "composition",
+      "code": "ae-yng",
+      "evidence": [
+        {
+          "citation": "Fortson, Benjamin W., IV. 2010. Indo-European Language and Culture: An Introduction. 2nd ed. Blackwell Textbooks in Linguistics 19. Chichester and Malden, MA: Wiley-Blackwell. (Supplied copy is a reflowed e-book without printed page numbers; cited by section.)",
+          "claim_id": "ev_period_538cc6e0023f85fb655f5433413e5351d319c837",
+          "event": "composition",
+          "locator": "{\"page\": \"unpaginated electronic layout\", \"pdf_page\": 247, \"section\": \"11.12\"}",
+          "quote": "11.12.The rest of the Avesta is written in Young Avestan. As Young Avestan is structurally\nmore archaic than our earliest Old Persian, it is probably several centuries older; a reasonable\nestimate puts it at the ninth or eighth century BC.",
+          "role": "hypothesis",
+          "source": "Fortson 2010",
+          "url": null
+        }
+      ],
+      "kind": "stage",
+      "label": "c. 9th–8th century BCE",
+      "name": "Younger Avestan",
+      "spoken": {
+        "end": {
+          "earliest": -799,
+          "latest": -700
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": -899,
+          "latest": -800
+        }
+      }
+    },
     {
       "alternatives": [
         {
@@ -2704,6 +2766,37 @@
       }
     },
     {
+      "alternatives": [],
+      "basis": "composition",
+      "code": "sa-rig",
+      "evidence": [
+        {
+          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Asia and the Americas. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "claim_id": "ev_period_7d219b456ace493de366ef03b1c4c7b40147bbdb",
+          "event": "composition",
+          "locator": "{\"page\": \"6\", \"pdf_page\": 28}",
+          "quote": "The oldest Veda is the \u0002Rgveda (Rig-veda), a compilation of 1,028 hymns which took shape\naround 1500 BC in northwest India, though the composition and collection of hymns clearly\noccupied several centuries.",
+          "role": "hypothesis",
+          "source": "Woodard 2008",
+          "url": null
+        }
+      ],
+      "kind": "stage",
+      "label": "c. 1500 BCE",
+      "name": "Rigvedic Sanskrit",
+      "spoken": {
+        "end": {
+          "earliest": -1499,
+          "latest": -1499
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": -1499,
+          "latest": -1499
+        }
+      }
+    },
+    {
       "alternatives": [
         {
           "basis": "attested",
@@ -2938,6 +3031,37 @@
         "start": {
           "earliest": -1299,
           "latest": -1299
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "composition",
+      "code": "vsn",
+      "evidence": [
+        {
+          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Asia and the Americas. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "claim_id": "ev_period_ee56e0f73cdde50a3d43b9eea511a11f13c3ba14",
+          "event": "composition",
+          "locator": "{\"page\": \"6\", \"pdf_page\": 28}",
+          "quote": "Though the composition of Vedic texts can be dated with fair conﬁdence to the period of\nc. 1500–500 BC, direct records of them are only found several millennia later. The “texts”\nwere transmitted orally, with minimal alteration, and even after they were also committed\nto writing, the manuscripts were perishable and less reliable than the oral tradition.",
+          "role": "hypothesis",
+          "source": "Woodard 2008",
+          "url": null
+        }
+      ],
+      "kind": "stage",
+      "label": "c. 1500–500 BCE",
+      "name": "Vedic Sanskrit",
+      "spoken": {
+        "end": {
+          "earliest": -499,
+          "latest": -499
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": -1499,
+          "latest": -1499
         }
       }
     },
