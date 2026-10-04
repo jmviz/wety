@@ -15,6 +15,7 @@ import {
   TreeRequest,
   WordLink,
   kindPath,
+  linkHref,
   parseWordHref,
   wordHref,
 } from "./search/types";
@@ -282,16 +283,17 @@ function sameLangs(a: Lang[], b: Lang[]): boolean {
 
 const treeCache = new Map<string, Etymology | Descendants[]>();
 
-// Load the view a URL names. Returns the word's canonical URL (current code
-// and displayed term) when it differs from `path`, for the caller to adopt.
+// Load the view a URL names. Returns the word's canonical URL (current code,
+// displayed term, ordered languages) when `path` names it differently, for
+// the caller to adopt.
 export async function loadFromPath(path: string): Promise<string | null> {
   const link = parseWordHref(path);
   if (!link) return null;
   // Never let a caller's tracking scope see the signal reads below.
-  return untrack(() => loadLink(path, link));
+  return untrack(() => loadLink(link));
 }
 
-async function loadLink(path: string, link: WordLink): Promise<string | null> {
+async function loadLink(link: WordLink): Promise<string | null> {
   let resolved: Resolved;
   try {
     resolved = await resolveLink(link);
@@ -344,8 +346,19 @@ async function loadLink(path: string, link: WordLink): Promise<string | null> {
     setLastRequest(request);
     applySearchState(item, descLangs, link.kind);
   });
-  const canonical = wordHref(link.kind, item, request.descLangs);
-  return canonical !== path ? canonical : null;
+  // Compared as links, not strings: the router may hand us `path` decoded.
+  const canonical = parseWordHref(wordHref(link.kind, item, request.descLangs))!;
+  return sameLink(canonical, link) ? null : linkHref(canonical);
+}
+
+function sameLink(a: WordLink, b: WordLink): boolean {
+  return (
+    a.kind === b.kind &&
+    a.lang === b.lang &&
+    a.term === b.term &&
+    a.ety === b.ety &&
+    a.descLangs.join(" ") === b.descLangs.join(" ")
+  );
 }
 
 // Lazily fetched full items (for nodes whose glosses were left out).
