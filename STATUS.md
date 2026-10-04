@@ -1,7 +1,7 @@
 # Status
 
-*Updated 2026-10-03. Branch `dating-pilot` (from `reorg-baseline`), pushed; not merged
-(maintainer: do not merge yet).*
+*Updated 2026-10-04. Branch `local-sources` (from `dating-pilot`), not pushed; nothing
+merged into `main`.*
 
 ## What the project promises
 
@@ -11,51 +11,49 @@ in the `packages/dating` registry.
 
 ## What is usable today
 
-- **In the app:** a "dates" toggle on the view bar. **11 of the 20 pilot codes have a
-  displayable, cited period.** Eight are full intervals: `ang enm gmh` (ISO 639-3
-  conventional periods), `hit och ltc` (Glottolog documentation windows, shown as
-  attestation) and `gem-pro cel-pro` (Koch 2020 estimates). Three are partial: `sga`
-  and `grc` (end only), `la` (first written record only). The popover shows quote,
-  locator, link and other sources' periods. Checked in a browser on the legacy graph.
-- `GET /periods` serves `data/products/dating/language_periods.json` (tracked;
-  `WETY_PERIODS_PATH` overrides; a missing file serves an empty list).
-- Registry: 3,614 claims (22 supported), 11 adopted decisions, 0 family splits.
-- ISO 639-3 names and Glottolog windows are accepted display sources when nothing
-  better is available (maintainer, 2026-10-03).
+- **In the app:** the "dates" toggle. **14 of the 20 pilot codes have a cited period**
+  (was 11). New: `akk` attested 26th c. BCE – 1st c. CE (Huehnergard), `goh` attested
+  from c. 600 (Fortson), `sla-pro` estimated until c. 800/1000 (Fortson). Changed:
+  `ang` 5th–11th century (Slocum & Lehmann) instead of ISO; `la` first inscriptions
+  mid-7th c. BCE (Wallace in Kapović) instead of Koch. Export checked, not viewed in a
+  browser this time (same schema).
+- **Supplied sources:** `dating holdings zotero KEY…` / `sync` retains a PDF from
+  Zotero with acquire's provenance (artifact, receipt, hashed text, OCR for scans).
+  Researchers read holdings with `library` and `open`, and ask for missing works with
+  `request`. Seven handbooks are ingested (`data/registry/holdings.json`).
+- **Acquisition queue:** `dating requests list|push`. Six works are open and filed in
+  Zotero under `wety/needs-fulltext` and `wety/dating/periods`, each with a note on what
+  it would settle (write access granted, verified in the live library).
+- Codex runs the pinned CLI from `openai-codex-cli-bin`; Claude the SDK-bundled CLI.
 
 ## What changed
 
-- Pilot: one Astra run checked 20 codes in 1,017 s; review corrected 6 items. See the
-  [run README](data/workspaces/dating/_research/period-pilot-2026-10-03/README.md).
-- Research caps removed (time budget bounds runs); research tools gained `find`.
-- Decisions bind to their subject's claims, sources and catalog record plus
-  `DECISION_RULES`, not the whole harness fingerprint (`harness.cli decision-digest`).
-- Catalog: 20 reviewed scope relations (`ang enm gmh goh sga grc got akk hit och ltc
-  ojp la`). A code may hold several reviewed decisions; a scope relation keeps the
-  catalog lookup. A scope run for `cu sa la non` settled only `la`.
-  See the [scope run README](data/workspaces/dating/_research/scope-check-2026-10-03/README.md).
-- `build-packet` / `adopt`: reproducible review-to-registry import (reproduces the
-  pilot packet byte for byte).
-- `harness.cli gc` applied: 48 dating generations (2.1 GB) reduced to 5 (240 MB).
+Holdings, requests and Zotero client (`harness/holdings.py`, `harness/zotero.py`);
+discovery adds Semantic Scholar, author homepages, Open Library and optional web search
+(codex-astra: cached); a handbook retry run, reviewed with page-image checks. See the
+[retry README](data/workspaces/dating/_research/period-retry-2026-10-04/README.md).
 
 ## Uncertainties
 
-- Most adopted sources are catalogs, not handbooks: the four handbooks were unreadable.
-- No usable period: `goh non got cu akk sa ojp ine-pro sla-pro`. Scope of `cu`, `sa`
-  (both catalogs) and ISO `lat`/`non` remains unresolved; it needs catalog
-  denotations that the sources read do not give.
-- The catalog's Wiktionary export is legacy, and current Wiktionary has drifted
-  (Old Gutnish split off `non`, Sanskrit stage codes renamed, more varieties under `la`).
+- The review was done by the session that built the route, not a separate one.
+- Still no period: `non got cu sa ojp ine-pro`. Several are scope gaps, not access
+  gaps (Frellesvig dates Old and Middle Japanese separately; Lunt's OCS excludes Middle
+  Bulgarian). Catalog scope for `cu`/`sa` stays unrecorded: handbooks define stage
+  names, not the ISO or Glottolog entities.
+- Zotero records can be wrong (Huehnergard's says Brill 2018; the file is Eisenbrauns
+  2011). The review reads title pages; holdings keep Zotero's metadata as is.
 
 ## Next three actions
 
-1. PDF/handbook access route: a separate session (handoff written). Then retry the 9
-   missing codes from this branch with `build-packet`/`adopt`.
-2. Refresh the Wiktionary export behind the catalog (a source refresh: rebuild and
-   re-review stale catalog and dating decisions). Then record `non` as narrower.
-3. Settle `cu`/`sa` scope during the retry, where handbooks define the stages.
+1. Supply the six queued works (attach PDFs to the Zotero items), then `dating holdings
+   sync` and a continuation run for `ang enm goh gmh la grc sa och ltc`.
+2. Refresh the Wiktionary export behind the catalog (pending since 2026-10-03).
+3. Record `cu`/`sa` catalog scope once a source states what ISO `chu`/`san` cover.
 
 ## Decisions needed from the maintainer
 
-- Whether to refresh the Wiktionary export (action 2); it touches every consumer.
-- Merging `dating-pilot` into `main` waits for the maintainer (it deploys).
+- `hit` has handbook attestation evidence (names 19th c. BCE, texts to c. 1200 BC) but
+  shows the Glottolog window: switching needs a way to withdraw a decision, which the
+  registry lacks. Add one?
+- `gmh`: keep ISO c. 1050–1500, or prefer Wright 1917 (1100–1500)? Kept ISO.
+- Merging into `main` (deploys) and the Wiktionary export refresh.

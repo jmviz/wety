@@ -39,7 +39,7 @@ class Zotero:
         # Never route localhost through a configured HTTP proxy.
         self.opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
 
-    def request(self, method, path, params=None, body=None, headers=None, write=False):
+    def request(self, method, path, params=None, body=None, headers=None, write=False, timeout=60):
         url = self.base + path + ("?" + urllib.parse.urlencode(params) if params else "")
         headers = dict(headers or {})
         data = None
@@ -51,7 +51,7 @@ class Zotero:
             headers["Zotero-Server-ID"] = self.server_id()
         req = urllib.request.Request(url, data=data, headers=headers, method=method)
         try:
-            with self.opener.open(req, timeout=60) as response:
+            with self.opener.open(req, timeout=timeout) as response:
                 raw = response.read()
                 return response.status, dict(response.headers), raw
         except urllib.error.HTTPError as exc:
@@ -64,6 +64,8 @@ class Zotero:
             return exc.code, dict(exc.headers), raw
         except urllib.error.URLError as exc:
             raise ZoteroError("Zotero is not running or unreachable at " + self.base) from exc
+        except TimeoutError:
+            raise ZoteroError(f"Zotero did not answer {method} {path} within {timeout}s") from None
 
     def get(self, path, **params):
         params.setdefault("format", "json")
@@ -140,6 +142,7 @@ class Zotero:
             "/local/authorize",
             body={"appName": APP_NAME},
             headers={"Zotero-Server-ID": self.server_id()},
+            timeout=600,  # the dialog waits for the maintainer
         )
         if status != 200:
             raise ZoteroError(f"Zotero write authorization refused (HTTP {status})")
