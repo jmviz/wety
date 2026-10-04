@@ -36,6 +36,25 @@ provenance machinery, new workflow infrastructure, and deleting anything under `
 - `data/` is ignored by default. To version a new kind of small, human-meaningful
   record, add an explicit rule to `.gitignore` in the same commit.
 
+## Worktrees and `data/`
+
+Most of `data/` is ignored, so a git worktree (or any fresh checkout) lacks the inputs,
+caches and artifacts. They live in the main checkout: the first entry of
+`git worktree list`. Until they are mirrored to object storage (planned: R2, keyed by
+manifest checksum, like `deploy/graph.json`), a session without that checkout cannot
+build graphs or catalogs: report it rather than re-acquiring sources.
+
+- Reading only: use the main checkout's files by absolute path.
+- Running a workflow from a worktree: the runner rejects inputs outside the repository,
+  symlinks included, so hard-link each file named in the workflow's `inputs` (`ln`, same
+  volume, no copy). Paths passed only as command arguments may be symlinks, e.g.
+  `data/cache/embeddings/current` (one graph build at a time may use it).
+- Commit first: the receipt records the revision and whether the tree was dirty.
+- Afterwards copy the run directory and artifact into the main checkout's `data/`
+  (`cp -Rc`, an APFS clone). The runner also rewrites the tracked
+  `data/products/*/CURRENT.json`; commit that only to adopt the output, else restore it.
+- Serving another graph: set `WETY_GRAPH_PATH` to its file; one graph needs about 5 GB.
+
 ## Documents
 
 - `STATUS.md` is overwritten at the end of each task, never appended to. Keep it under
