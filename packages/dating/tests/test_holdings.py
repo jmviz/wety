@@ -101,6 +101,13 @@ class ExtractTests(Sandbox):
         self.assertEqual((meta["kind"], meta["scan_text_layer"]["page_list"]), ("pdf_text", "1"))
         self.assertIn("page image", meta["coverage"])
 
+    def test_zotero_item_names(self):
+        item = holdings.zotero_item({"title": "T", "authors": ["Albert C. Baugh", "Cable, Thomas"]})
+        self.assertEqual(
+            [(c["lastName"], c["firstName"]) for c in item["creators"]],
+            [("Baugh", "Albert C."), ("Cable", "Thomas")],
+        )
+
     def test_compact_pages(self):
         self.assertEqual(holdings.compact_pages([1, 2, 3, 7, 9, 10]), "1-3,7,9-10")
         self.assertEqual(holdings.expand_pages("1-3,7"), [1, 2, 3, 7])
@@ -181,7 +188,12 @@ class HoldingTests(Sandbox):
         self.assertEqual((match["pdf_page"], match["page_label"]), (2, "12"))
         with patch("harness.frontier_tools.REPO", self.repo):
             page = tools.call("page", {"source_id": sid, "page": 2})
-        self.assertEqual(page["page_label"], "12")
+            self.assertEqual(page["page_label"], "12")
+            # OCR-derived text is still a PDF: its pages render.
+            state = json.loads((root / "tools-state.json").read_text())
+            state["sources"][sid]["kind"] = "pdf_ocr_text"
+            (root / "tools-state.json").write_text(json.dumps(state))
+            self.assertEqual(tools.call("page", {"source_id": sid, "page": 1})["page"], 1)
         row = {
             "id": "a1",
             "code": "goh",

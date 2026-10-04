@@ -665,7 +665,10 @@ def zotero_item(r):
     )
     creators = []
     for name in r.get("authors") or []:
-        last, _, first = name.partition(",")
+        if "," in name:  # "Last, First"
+            last, _, first = name.partition(",")
+        else:  # "First Last"
+            first, _, last = name.rpartition(" ")
         creators.append(
             {"creatorType": "author", "lastName": last.strip(), "firstName": first.strip()}
         )

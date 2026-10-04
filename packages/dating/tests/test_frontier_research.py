@@ -69,6 +69,35 @@ class FrontierTests(unittest.TestCase):
                 result = tool_response(self.tools, "status", {})
             self.assertEqual(result["error"], expected)
 
+    def test_rate_limited_hosts_are_paced_and_retried_once(self):
+        from urllib.error import HTTPError
+
+        calls = []
+
+        def fake(url, collection):
+            calls.append(time.time())
+            if len(calls) == 1:
+                raise HTTPError(url, 429, "slow down", None, None)
+            return self.root
+
+        with (
+            patch("source_tools.acquire.acquire", fake),
+            patch.dict("harness.frontier_tools.PACE", {"api.semanticscholar.org": 0.05}),
+        ):
+            self.tools.fetch("https://api.semanticscholar.org/graph/v1/paper/search?query=x")
+            self.tools.fetch("https://api.semanticscholar.org/graph/v1/paper/search?query=y")
+        self.assertEqual(len(calls), 3)
+        self.assertGreaterEqual(calls[1] - calls[0], 0.09)  # retry waits twice the pace
+        self.assertGreaterEqual(calls[2] - calls[1], 0.04)
+
+    def test_own_validation_messages_are_shown(self):
+        result = tool_response(self.tools, "read", {"source_id": "missing"})
+        self.assertEqual(result["error"]["type"], "KeyError")
+        result = tool_response(self.tools, "find", {"source_id": "x", "query": ""})
+        self.assertEqual(result["error"]["type"], "KeyError")
+        result = tool_response(self.tools, "write", {"name": "../x", "content": ""})
+        self.assertIn("only named dossier outputs", result["error"]["message"])
+
     def test_output_path_and_revisions(self):
         with self.assertRaises(ValueError):
             self.tools.call("write", {"name": "../README.md", "content": "bad"})
