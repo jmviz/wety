@@ -207,6 +207,11 @@ class FrontierTests(unittest.TestCase):
         ):
             self.assertIn(required, text)
         self.assertNotIn("--output-schema", command)
+        self.assertIn('web_search="disabled"', text)
+        # Discovery-only web search is a profile setting; quotes still need acquire/open.
+        self.brief["profile"]["web_search"] = "cached"
+        self.assertIn('web_search="cached"', " ".join(codex_command(self.root, self.brief)))
+        self.brief["profile"].pop("web_search")
         with patch.dict(
             "os.environ",
             {
@@ -319,6 +324,7 @@ class FrontierTests(unittest.TestCase):
             self.assertNotIn("ANTHROPIC_API_KEY", os.environ)
         options = captured[0]
         self.assertEqual(options.allowed_tools, ["mcp__research__research_action"])
+        self.assertIn("WebSearch", options.disallowed_tools)
         self.assertEqual(options.thinking, {"type": "adaptive"})
         self.assertIsNone(options.fallback_model)
         usage = json.loads((self.root / "usage.json").read_text())

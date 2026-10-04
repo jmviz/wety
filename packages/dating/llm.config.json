@@ -56,10 +56,10 @@
       "why": "the Claude Agent SDK runs on a Claude subscription with 5-hour/weekly usage windows; on a `rejected` rate-limit event or a 429 result the backend waits until resets_at (capped) and retries \u2014 every stage writes progress as it goes, so an interrupted run resumes where it stopped. Set on_usage_limit to `fallback` to continue on OpenRouter (paid) instead, or `fail` to stop."
     },
     "codex": {
-      "executable": "codex",
+      "executable": "bundled",
       "auth_credentials_store": "file",
       "timeout_seconds": 600,
-      "why": "Opt-in ChatGPT subscription backend via codex exec. Run codex login first; API-key logins are rejected, environment API keys are excluded, and errors/usage limits fail without paid fallback. Role assignments are provisional and not dating-quality validated. Set auth_credentials_store to keyring or auto if that is where your Codex login is stored."
+      "why": "Opt-in ChatGPT subscription backend via codex exec. executable \"bundled\" runs the version-pinned CLI of the openai-codex-cli-bin dependency (the Codex Python SDK's runtime); a command name or path overrides it. The SDK itself drives the experimental app-server, which cannot ignore the user's ~/.codex config, so exec stays the transport. Run codex login first; API-key logins are rejected, environment API keys are excluded, and errors/usage limits fail without paid fallback. Role assignments are provisional and not dating-quality validated. Set auth_credentials_store to keyring or auto if that is where your Codex login is stored."
     }
   },
   "roles": {
@@ -182,7 +182,8 @@
       "codex-astra": {
         "backend": "codex",
         "model": "gpt-6-astra",
-        "effort": "high"
+        "effort": "high",
+        "web_search": "cached"
       },
       "claude-opus": {
         "backend": "claude-agent",
@@ -214,6 +215,7 @@
         }
       }
     },
+    "web_search_note": "Profile web_search (disabled|cached|live) is discovery only: Codex's own search (cached = OpenAI's indexed copy) or Claude's WebSearch. Quotes must still come from a source retained with acquire or open; check enforces that. Enabled for codex-astra on 2026-10-04 so the researcher can find author pages and self-archived copies.",
     "limits_note": "null = uncapped. The active-time budget (prepare --research-seconds/--delivery-seconds) bounds every run; model_turns bounds Claude and OpenRouter (Codex has no native turn cap); openrouter_cost_stop_usd bounds paid runs. Caps were removed after the 2026-10-03 period pilot hit raised limits (30 acquisitions, 250 tool actions) at a third of its time budget."
   }
 }

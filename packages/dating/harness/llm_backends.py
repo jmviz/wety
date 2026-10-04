@@ -723,6 +723,35 @@ def _parse_reset(msg: str) -> int | None:
 # --------------------------------------------------------------------------- #
 
 
+def codex_executable(name="bundled"):
+    """The Codex CLI. "bundled" (the default) is the version-pinned binary of the
+    openai-codex-cli-bin dependency, so runs never depend on whichever `codex` is on
+    PATH; any other value is a command name or path. Login is shared (CODEX_HOME)."""
+    if name == "bundled":
+        try:
+            from codex_cli_bin import bundled_codex_path
+
+            return str(bundled_codex_path())
+        except (ImportError, FileNotFoundError):
+            raise RuntimeError(
+                "codex: the bundled CLI (openai-codex-cli-bin) is missing; run `uv sync`"
+            ) from None
+    found = shutil.which(name)
+    if not found:
+        raise RuntimeError(
+            f"codex: CLI {name!r} not found; use the bundled CLI or install @openai/codex, then run `codex login` with ChatGPT"
+        )
+    return found
+
+
+def claude_executable():
+    """The Claude Code CLI the Agent SDK bundles (the SDK runs it too), else PATH."""
+    import claude_agent_sdk
+
+    bundled = Path(claude_agent_sdk.__file__).parent / "_bundled" / "claude"
+    return str(bundled) if bundled.exists() else shutil.which("claude") or "claude"
+
+
 class CodexBackend:
     """Stateless structured calls through the supported `codex exec` interface.
 
@@ -736,12 +765,9 @@ class CodexBackend:
     def __init__(self, config: dict | None = None) -> None:
         load_env()
         self.cfg = config or load_config()
-        executable = backend_config(self.cfg, self.name).get("executable", "codex")
-        self.executable = shutil.which(executable)
-        if not self.executable:
-            raise RuntimeError(
-                "codex: CLI not found; install @openai/codex, then run `codex login` with ChatGPT"
-            )
+        self.executable = codex_executable(
+            backend_config(self.cfg, self.name).get("executable", "bundled")
+        )
 
     def complete(
         self,

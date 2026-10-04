@@ -194,11 +194,14 @@ class CodexBackendTests(unittest.TestCase):
         self.assertFalse(self.workdir.exists())
 
     def test_missing_binary_and_role_settings(self):
+        config = copy.deepcopy(self.config)
+        config["codex"]["executable"] = "codex"  # PATH lookup instead of the bundled CLI
         with (
             patch.object(llm_backends.shutil, "which", return_value=None),
-            self.assertRaisesRegex(RuntimeError, "CLI not found"),
+            self.assertRaisesRegex(RuntimeError, "not found"),
         ):
-            CodexBackend(self.config)
+            CodexBackend(config)
+        self.assertTrue(Path(CodexBackend(self.config).executable).name == "codex")
         self.backend.cfg["roles"]["screen"].pop("codex")
         with self.assertRaisesRegex(ValueError, "roles.screen.codex.model"):
             self.complete()

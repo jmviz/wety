@@ -22,7 +22,7 @@ from .config import load_env
 from .evaluation_runtime import run_process_group
 from .frontier_tools import DESCRIPTION, ResearchTools, check, sha
 from .io_utils import atomic_json, locked
-from .llm_backends import load_config
+from .llm_backends import claude_executable, codex_executable, load_config
 from workflow_tools.paths import REPO
 
 TOOL = {
@@ -169,9 +169,7 @@ def prepare(
 def codex_command(root, brief):
     profile = brief["profile"]
     transport = brief["transport"]
-    executable = shutil.which(transport.get("executable", "codex"))
-    if not executable:
-        raise ValueError("Codex CLI unavailable")
+    executable = codex_executable(transport.get("executable", "bundled"))
     store = transport.get("auth_credentials_store", "file")
     if store not in ("file", "keyring", "auto"):
         raise ValueError("invalid auth store")
@@ -224,6 +222,16 @@ def codex_command(root, brief):
     return command + ["-"]
 
 
+def cli_version(executable, env):
+    try:
+        out = subprocess.run(
+            [executable, "--version"], env=env, capture_output=True, text=True, timeout=30
+        )
+        return out.stdout.strip() or None
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+
+
 def codex_run(root, brief):
     cmd = codex_command(root, brief)
     env = clean_env("codex")
@@ -263,6 +271,7 @@ def codex_run(root, brief):
         "billing": "chatgpt_subscription",
         "model": brief["profile"]["model"],
         "model_source": "requested; serving version unreported",
+        "cli": cli_version(cmd[0], env),
         "thread_id": next(
             (e.get("thread_id") for e in events if e.get("type") == "thread.started"), None
         ),
@@ -302,7 +311,7 @@ async def claude_run(root, brief):
     env.pop("CLAUDE_CODE_SKIP_PROMPT_HISTORY", None)
     if not env.get("CLAUDE_CODE_OAUTH_TOKEN"):
         p = subprocess.run(
-            ["claude", "auth", "status", "--json"],
+            [claude_executable(), "auth", "status", "--json"],
             env=env,
             capture_output=True,
             text=True,

@@ -10,6 +10,8 @@ dependencies = [
     "pymupdf>=1.24",
     "claude-agent-sdk>=0.2.154",
     "keyring>=25.7.0",
+    # The Codex CLI the codex backend runs, pinned (the Python SDK's runtime package).
+    "openai-codex-cli-bin>=0.160.0",
 ]
 
 [project.scripts]

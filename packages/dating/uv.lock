@@ -525,6 +525,21 @@ wheels = [
 ]
 
 [[package]]
+name = "openai-codex-cli-bin"
+version = "0.160.0"
+source = { registry = "https://pypi.org/simple" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ed/83/9fb994efa9da1e21a44c4a610d9884e398168503b90ebe31f4edeb289370/openai_codex_cli_bin-0.160.0-py3-none-macosx_10_9_x86_64.whl", hash = "sha256:06571f34b99feee1f1116577f66b82b1b6d582993e07d2099e20e346c73de374", size = 132620323, upload-time = "2026-10-01T20:29:23.127Z" },
+    { url = "https://files.pythonhosted.org/packages/26/a1/105c05e179242f0a030cf4a2f7c2bcd574b1001e30379cb4959624294048/openai_codex_cli_bin-0.160.0-py3-none-macosx_11_0_arm64.whl", hash = "sha256:c9b472e8928d8f94f65e43ba4928e3ecac071ccf8680bbb8281334e32cec409b", size = 121753021, upload-time = "2026-10-01T20:29:28.164Z" },
+    { url = "https://files.pythonhosted.org/packages/a2/e5/4e93ad22c849636d26ca993e78eaa285d9ec035d3a8a0faa885cd4e3ef56/openai_codex_cli_bin-0.160.0-py3-none-manylinux_2_17_aarch64.whl", hash = "sha256:6543e1d7f9ffb3f84c61b0234b62fd95c1d5f896310392cc8b03605100293f32", size = 129958661, upload-time = "2026-10-01T20:29:35.52Z" },
+    { url = "https://files.pythonhosted.org/packages/82/36/a9d77dd01f0397f178d52ce3da543fec1e59cfa7b85bd4125b97a30957c2/openai_codex_cli_bin-0.160.0-py3-none-manylinux_2_17_x86_64.whl", hash = "sha256:b0664ef64a57f1d00ebac1b783089557b97a53872383bb7cbe288e4015769a15", size = 139465828, upload-time = "2026-10-01T20:29:40.242Z" },
+    { url = "https://files.pythonhosted.org/packages/97/e4/c48f8852739de583421ce5941d9e8df44f2bee3975fc5a1384c102ed2b04/openai_codex_cli_bin-0.160.0-py3-none-musllinux_1_1_aarch64.whl", hash = "sha256:448a9510d4dc7ab74eaefb0c3f9bad8f814a12c4d87f40d1e12bba7a9523df27", size = 150949941, upload-time = "2026-10-01T20:29:45.56Z" },
+    { url = "https://files.pythonhosted.org/packages/33/74/f82dcc0fb3e5ed95e25a67c5b4592bc4dd49ce9e511c15d6f4f8d99f56db/openai_codex_cli_bin-0.160.0-py3-none-musllinux_1_1_x86_64.whl", hash = "sha256:ae2f1c3fca1394046b301c108fd719c9be32f5fab999fc3dcf6002a5d32e03b7", size = 160746218, upload-time = "2026-10-01T20:29:50.814Z" },
+    { url = "https://files.pythonhosted.org/packages/60/3c/3d5936011336a6e88b03fbfe532afe50527d534eacba5cfd2d4c9ec35ada/openai_codex_cli_bin-0.160.0-py3-none-win_amd64.whl", hash = "sha256:a1245cc0c7d390d22af4920d512ceae8519dee2cf51d8eec56f3899861a8160a", size = 149416482, upload-time = "2026-10-01T20:29:56.283Z" },
+    { url = "https://files.pythonhosted.org/packages/7b/06/87c8137481a5ed334e2e61bf22859b99947f759182ce1c3b12d15e7515d2/openai_codex_cli_bin-0.160.0-py3-none-win_arm64.whl", hash = "sha256:64e9a3b64b92babd7cb3c35b5ee518a3983c891ce1fe839ce052eb4040307391", size = 138102109, upload-time = "2026-10-01T20:34:02.743Z" },
+]
+
+[[package]]
 name = "opentelemetry-api"
 version = "1.45.0"
 source = { registry = "https://pypi.org/simple" }
@@ -914,6 +929,7 @@ dependencies = [
     { name = "claude-agent-sdk" },
     { name = "jsonschema" },
     { name = "keyring" },
+    { name = "openai-codex-cli-bin" },
     { name = "pydantic" },
     { name = "pymupdf" },
 ]
@@ -924,6 +940,7 @@ requires-dist = [
     { name = "claude-agent-sdk", specifier = ">=0.2.154" },
     { name = "jsonschema", specifier = ">=4.0" },
     { name = "keyring", specifier = ">=25.7.0" },
+    { name = "openai-codex-cli-bin", specifier = ">=0.160.0" },
     { name = "pydantic", specifier = ">=2.0" },
     { name = "pymupdf", specifier = ">=1.24" },
 ]
