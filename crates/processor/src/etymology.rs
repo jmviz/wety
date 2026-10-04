@@ -10,6 +10,7 @@ use crate::{
     HashSet,
 };
 use wety_core::{
+    pos::Pos,
     etymology_templates::{EtyMode, TemplateKind},
     items::ItemId,
     langterm::LangTerm,
@@ -33,6 +34,11 @@ pub(crate) struct RawEtyTemplate {
     // template's single parent (an {{etymon}} inline etymology), rather than
     // only presumed to (the next classic template).
     pub(crate) continues: bool,
+    // For compound-kind templates, each part's affix type, and whether the
+    // mode was inferred from them (as for {{af}}), so that both can be
+    // revised once the parts are known items (see revise_affixes).
+    pub(crate) affixes: Box<[Affix]>,
+    pub(crate) refine_mode: bool,
     pub(crate) mode: EtyMode,              // e.g. Prefix
     pub(crate) head: Option<u8>,           // e.g. 1 (the index of "do")
 }
@@ -43,6 +49,8 @@ impl RawEtyTemplate {
             langterms: Box::from([langterm]),
             ids: Box::default(),
             continues: false,
+            affixes: Box::default(),
+            refine_mode: false,
             mode,
             head: Some(0),
         }
@@ -108,6 +116,8 @@ fn process_prefix_json_template(
         langterms: Box::new([ety_prefix, ety_term]),
         ids: Box::default(),
         continues: false,
+        affixes: Box::default(),
+        refine_mode: false,
         mode: EtyMode::Prefix,
         head: Some(1),
     })
@@ -126,6 +136,8 @@ fn process_suffix_json_template(
         langterms: Box::new([ety_term, ety_suffix]),
         ids: Box::default(),
         continues: false,
+        affixes: Box::default(),
+        refine_mode: false,
         mode: EtyMode::Suffix,
         head: Some(0),
     })
@@ -147,6 +159,8 @@ fn process_circumfix_json_template(
         langterms: Box::new([ety_term, ety_circumfix]),
         ids: Box::default(),
         continues: false,
+        affixes: Box::default(),
+        refine_mode: false,
         mode: EtyMode::Circumfix,
         head: Some(0),
     })
@@ -166,6 +180,8 @@ fn process_infix_json_template(
         langterms: Box::new([ety_term, ety_infix]),
         ids: Box::default(),
         continues: false,
+        affixes: Box::default(),
+        refine_mode: false,
         mode: EtyMode::Infix,
         head: Some(0),
     })
@@ -187,6 +203,8 @@ fn process_confix_json_template(
             langterms: Box::new([ety_prefix, ety_term, ety_suffix]),
             ids: Box::default(),
             continues: false,
+            affixes: Box::default(),
+            refine_mode: false,
             mode: EtyMode::Confix,
             head: Some(1),
         });
@@ -197,6 +215,8 @@ fn process_confix_json_template(
         langterms: Box::new([ety_prefix, ety_suffix]),
         ids: Box::default(),
         continues: false,
+        affixes: Box::default(),
+        refine_mode: false,
         mode: EtyMode::Confix,
         head: None, // no true head here
     })
@@ -298,6 +318,8 @@ fn process_compound_kind_json_template(
             langterms: ety_langterms.into_boxed_slice(),
             ids: Box::default(),
             continues: false,
+            refine_mode: mode == EtyMode::Affix,
+            affixes: affixes.clone().into_boxed_slice(),
             mode: if mode == EtyMode::Affix {
                 affixation_kind(&affixes, n_base_terms)
             } else {
@@ -594,8 +616,9 @@ impl Items {
                 ety_items.push(ety_item);
                 confidences.push(confidence);
             }
+            let (mode, head) = self.revise_affixes(template, &ety_items);
             if !confidences.iter().all(|&c| c >= embeddings::SIMILARITY_THRESHOLD)
-                || !self.set_own_ety(current_item, template, &ety_items, &confidences)
+                || !self.set_own_ety(current_item, mode, head, &ety_items, &confidences)
             {
                 return Ok(());
             }
@@ -634,7 +657,8 @@ impl Items {
     fn set_own_ety(
         &mut self,
         item: ItemId,
-        template: &RawEtyTemplate,
+        mode: EtyMode,
+        head: Option<u8>,
         ety_items: &[ItemId],
         confidences: &[f32],
     ) -> bool {
@@ -655,9 +679,53 @@ impl Items {
             }
             self.graph.remove_ety(item);
         }
-        self.graph
-            .add_ety(item, template.mode, template.head, ety_items, confidences);
+        self.graph.add_ety(item, mode, head, ety_items, confidences);
         true
+    }
+
+    // A part read as a prefix by its final hyphen may be a root (PIE *peh₂-
+    // in *ph₂tḗr = *peh₂- + *-tḗr), which is a base, not an affix. Module:etymon
+    // tells these apart by the part's entry; so do we, once parts are items.
+    fn revise_affixes(&self, template: &RawEtyTemplate, ety_items: &[ItemId]) -> (EtyMode, Option<u8>) {
+        let is_root = |item: ItemId| {
+            self.get(item)
+                .pos()
+                .is_some_and(|pos| pos.contains(&Pos::root_pos()))
+        };
+        if template.affixes.len() != ety_items.len()
+            || !template
+                .affixes
+                .iter()
+                .zip(ety_items)
+                .any(|(&affix, &item)| affix == Affix::Prefix && is_root(item))
+        {
+            return (template.mode, template.head);
+        }
+        let affixes: Vec<Affix> = template
+            .affixes
+            .iter()
+            .zip(ety_items)
+            .map(|(&affix, &item)| {
+                if affix == Affix::Prefix && is_root(item) {
+                    Affix::Base
+                } else {
+                    affix
+                }
+            })
+            .collect();
+        let bases: Vec<usize> = (0..affixes.len())
+            .filter(|&k| affixes[k] == Affix::Base)
+            .collect();
+        let mode = if template.refine_mode {
+            affixation_kind(&affixes, bases.len())
+        } else {
+            template.mode
+        };
+        let head = match bases[..] {
+            [k] => u8::try_from(k).ok(),
+            _ => None,
+        };
+        (mode, head)
     }
 
     // Whether `ancestor` is among `item`'s etymological ancestors.
@@ -975,6 +1043,21 @@ mod tests {
             assert_eq!(t.parent(mother), t.parent(motherly));
             // the first citation's chain is kept
             assert_eq!(t.parents(t.parent(motherly)), ["ang:mōdor"]);
+        }
+
+        #[test]
+        fn hyphenated_roots_are_bases() {
+            let mut t = Setup::new("roots");
+            let root = t.add("ine-pro", "peh₂-");
+            if let wety_core::items::Item::Real(r) = t.items.graph.item_mut(root) {
+                r.pos = vec![Pos::root_pos()];
+            }
+            t.add("ine-pro", "-tḗr");
+            let father = t.add("ine-pro", "ph₂tḗr");
+            t.process(father, r#"[{"name": "etymon", "args": {"1": "ine-pro", "2": ":af",
+                "3": "*peh₂-", "4": "*-tḗr"}}]"#);
+            let ety = t.items.graph.immediate_ety(father).unwrap();
+            assert_eq!((ety.mode, ety.head), (EtyMode::Suffix, Some(0)));
         }
 
         #[test]

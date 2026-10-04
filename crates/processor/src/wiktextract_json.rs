@@ -74,7 +74,7 @@ impl Items {
 pub(crate) type WiktextractJson<'a> = simd_json::value::borrowed::Value<'a>;
 
 /// The most common affix kinds.
-#[derive(PartialEq, Clone, Copy, Debug)]
+#[derive(PartialEq, Eq, Hash, Clone, Copy, Debug)]
 pub(crate) enum Affix {
     Prefix,
     Suffix,

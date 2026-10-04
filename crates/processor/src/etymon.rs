@@ -206,6 +206,8 @@ fn components_template(
         langterms: langterms.into_boxed_slice(),
         ids: ids.into_boxed_slice(),
         continues: false,
+        refine_mode: mode.is_none(),
+        affixes: affixes.clone().into_boxed_slice(),
         mode: mode.unwrap_or_else(|| affixation_kind(&affixes, n_base_terms)),
         // as for {{af}}, a head only when there is a single base term
         head: (n_base_terms == 1).then(|| u8::try_from(head).ok()).flatten(),
@@ -247,6 +249,8 @@ fn parse_params(
                 langterms: Box::new([etymons[0].lang.new_langterm(string_pool, term)]),
                 ids: Box::new([etymons[0].id.map(Box::from)]),
                 continues: false,
+                affixes: Box::default(),
+                refine_mode: false,
                 mode,
                 head: Some(0),
             }),
