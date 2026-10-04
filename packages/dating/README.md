@@ -91,6 +91,13 @@ uv run --frozen python -m harness.cli export-periods
 `build-packet` registers the run's sources with their parsed-text hashes and copies
 the texts to the retrieved-text store. `decide FILE` records a single decision by hand.
 
+Sources a researcher cannot reach (paywalled handbooks and papers) are supplied by the
+maintainer, usually through Zotero: `dating holdings zotero ITEMKEY...` retains the PDF
+and its parsed text with the same provenance as a download, and runs read it with the
+`library` and `open` tool actions. Researchers record what they still need with
+`request`; `dating requests list|push` shows the queue and files it in Zotero. See
+[supplied sources and requests](docs/single-frontier.md#supplied-sources-and-requests).
+
 An import conforms to `schemas/claim.schema.json` and passes Pydantic and cross-record
 checks. Changed evidence needs a new ID referencing the previous assertion. A decision
 conforms to `schemas/decision.schema.json`; it selects evidence and cannot change its
@@ -115,6 +122,8 @@ need their own evidence and are never inferred from the catalog tree.
 | `data/workspaces/dating/_research/packets/` | Editorial source packets: spans, provenance, importable claims (tracked) |
 | `data/workspaces/dating/_research/<run>/` | Research runs; only `report.md`, `assertions.jsonl`, revisions and `README.md` are tracked |
 | `data/workspaces/dating/retrieved/` | Retrieved source bytes and parsed text (local; never committed) |
+| `data/artifacts/dating-local-sources/<sha256>/` | Bytes of maintainer-supplied sources (local; never committed) |
+| `data/registry/holdings.json`, `source-requests.json` | Supplied sources and the acquisition queue: metadata only (tracked) |
 
 Use `harness.registry.current_bundle()` for consistent reads.
 

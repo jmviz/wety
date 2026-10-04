@@ -1,14 +1,18 @@
 # Period verification brief (dating pilot)
 
 Brief for `harness.frontier_research prepare --brief`. It replaces the family template
-for one bounded run that checks display periods for a fixed list of Wiktionary codes.
+for one bounded run that checks display periods for the pilot's Wiktionary codes.
 Tools, provenance, limits and `check` are those of the
 [single frontier researcher](single-frontier.md). Output is a proposal: Claude (a
 separate session) reviews it, re-checks every adopted quote against the retained text,
 and only then imports claims and records decisions.
 
-The code table was generated from the dating generation current on 2026-10-03
-(`catalog_context` of `wiktionary_dates.json`, Wiktionary export `languages.json`).
+This version (2026-10-04) is the retry after the maintainer supplied handbooks as
+holdings (`dating holdings list`). The code notes summarize the
+[period pilot](../../../data/workspaces/dating/_research/period-pilot-2026-10-03/README.md)
+and [scope check](../../../data/workspaces/dating/_research/scope-check-2026-10-03/README.md);
+Wiktionary scope is from the legacy export `languages.json`. The first version is in git
+history (used by the 2026-10-03 pilot run).
 
 ```text
 Verify when each of the Wiktionary language codes below was spoken, for display on wety's
@@ -20,50 +24,73 @@ years; a basis (conventional period, attestation window, or estimate); and citat
 You are checking the evidence for that interval, not writing it. spoken stays null in
 your records; the integrator derives display intervals only from reviewed claims.
 
+The main task: nine codes have no displayable period yet (goh non got cu akk sa ojp
+ine-pro sla-pro). Eleven have one, mostly from ISO 639-3 reference names or Glottolog
+documentation windows, which the maintainer accepts only when nothing better exists
+(ang enm gmh sga grc hit och ltc la gem-pro cel-pro). The maintainer has now supplied
+scholarly handbooks. For every code, find what those handbooks (and other readable
+scholarly sources) state about the period of the whole code.
+
 For each code:
-1. Verify the existing candidate claims listed for it against the actual source text.
-   Acquire the source, find the passage, and quote it exactly from retained text with a
-   locator (read offsets, page, table row). Verdict per existing claim: confirmed,
-   corrected (state what differs: numbers, event, era, scope), contradicted, or
-   unverifiable in this run (say why: not openly available, blocked, not found). Never
-   reproduce a quotation from memory. A recorded quote in the table below is NOT
-   evidence: several were written by an earlier model from memory.
-2. Confirm the subject mapping to the Wiktionary code. Wiktionary's scope for each code
-   is given below, including the etymology-only varieties it files under the code
-   (e.g. Wiktionary "la" also covers Late, Medieval, New Latin). Mapping is exact only if
-   the source's dated entity has the same scope as the Wiktionary code. Otherwise say
-   subset, superset or overlap and why. A period for Classical Latin is a subset of
-   "la", not its period. Catalog names and codes (ISO 639-3, Glottolog) are evidence
-   about identity, not automatically about dates.
-3. Where no usable claim exists, look for one: a conventional period from a scholarly
-   handbook, reference grammar, encyclopedia of languages or standards registry; or an
-   attestation window (first/last surviving texts) from a scholarly source.
-4. Flag conflicts between sources (e.g. Old English ends 1100 vs 1150). Do not average or
-   choose by recency; keep each source's period as a separate claim.
-5. Propose at most one default per code and event, with a rationale, and keep the
-   others as alternatives.
+1. Look for a scholarly statement of the period or attestation window of the entity the
+   code covers: a conventional period from a handbook or reference grammar, or the
+   first/last surviving texts. Quote it exactly from retained text with a locator
+   (printed page, and PDF page). Never reproduce a quotation from memory.
+2. Mapping. Wiktionary's scope for each code is given below, including the
+   etymology-only varieties it files under the code. A period is usable for display only
+   if the source's dated entity covers the whole code: mapping exact. Say subset,
+   superset or overlap otherwise, and why. A period for Classical Latin is a subset of
+   "la"; an Old Japanese period is a subset of "ojp", which also files Middle Japanese.
+   Never join several stage periods into one interval yourself (e.g. Old + Middle
+   Japanese): record each stage's period as its own subset claim, and say in the report
+   whether the source states one span for the whole. If no source covers the whole
+   code, that is a recorded gap, not a failure.
+3. Record conflicts between sources (e.g. Old English ends 1100 vs 1150) as separate
+   claims. Do not average or choose by recency.
+4. Propose at most one default per code and event, with a rationale, and keep the
+   others as alternatives. Prefer a scholarly handbook statement over ISO 639-3 names
+   and Glottolog documentation windows when both have exact scope.
+5. For cu and sa, also quote what a handbook says each stage covers (for cu: whether
+   Old Church Slavonic includes Middle Bulgarian or later Church Slavonic recensions;
+   for sa: whether Sanskrit includes Vedic, Buddhist Hybrid and later learned Sanskrit).
+   These quotes settle catalog scope (ISO 639-3 chu/san, Glottolog chur1257/sans1269),
+   so record them as scope assertions (see Deliverables).
 
 Proto-languages (gem-pro, ine-pro, sla-pro, cel-pro): use only dates a source gives for
-that proto stage itself (e.g. "Proto-Germanic was spoken c. ... "). Never use a family's
+that proto stage itself (e.g. "Proto-Slavic was spoken c. ... "). Never use a family's
 crown or stem divergence date, a phylogenetic split, a daughter's first attestation, or
 archaeological culture dates unless the source itself explicitly dates the proto stage
 with them. Such periods are always estimates (role hypothesis), even when stated
 confidently. Record competing proposals separately.
 
-Source access. Only openly reachable HTTPS sources can be read. Useful starting points:
-- the ISO 639-3 code tables from SIL (names carry date ranges, e.g. "Old English (ca.
-  450-1100)") and their code-to-name identity;
-- Glottolog languoid pages or its CLDF data (documentation windows; check whether a
-  value is first or last documentation, and whether its sign or era was inverted);
-- open-access handbook chapters, encyclopedia entries and articles found via search;
-- Wikipedia only to check the existing src_enwiki_infobox claims, or to locate the
-  scholarly works it cites. Wikipedia periods may be kept as alternatives, never as a
-  proposed default if a scholarly or standards source exists.
-Book handbooks in the table (Baugh & Cable 2013, Schmidt 2013, Clackson & Horrocks 2007,
-Horrocks 2010) are probably not open. Try one route per book (an OpenAlex open-access
-location or publisher preview); if it fails, mark the claim unverifiable in this run.
-One acquisition can serve many codes (a registry table, a CLDF file): prefer those,
-and use find to locate their rows instead of paging with read.
+Source access, in this order.
+1. Supplied sources first. Call library (no query lists everything). The maintainer has
+   supplied, among others: Barnes, A New Introduction to Old Norse (non); Fortson,
+   Indo-European Language and Culture (ine-pro and every IE branch); Frellesvig, A
+   History of the Japanese Language (ojp); Huehnergard, A Grammar of Akkadian (akk);
+   Kapović (ed.), The Indo-European Languages (ine-pro and branch chapters: Germanic,
+   Celtic, Italic, Greek, Indo-Iranian, Anatolian, Slavic); Lunt, Old Church Slavonic
+   Grammar (cu); Miller, The Oxford Gothic Grammar (got). Open a holding with open,
+   then use find (stage names with "century", "BC", "period", "attested", "spoken",
+   "dated") rather than paging through it with read. find gives the PDF page and the
+   printed page label; cite the printed page. Check the title page of each holding
+   you cite (identity and edition). Where find or page flags OCR or a scanned text layer,
+   view the page image with page before relying on the quote, and say so in
+   self-check.json.
+2. Openly reachable sources: the ISO 639-3 code tables and Glottolog CLDF (already in
+   the registry: use them only for a new question), open-access chapters and articles.
+   search indexes and web search (if enabled) give leads, never evidence: acquire a
+   source before quoting it.
+3. A work you need but cannot read: try distinct routes once each (publisher page,
+   open-access locations from openalex or semanticscholar, institutional repositories,
+   the author's homepage via s2author or web search, Open Library public scans). Do not
+   retry a blocked route. Then call request: say exactly what the work would settle, for
+   which codes, which part is needed, and the routes tried. Request only works that
+   would change a code's result, not every search hit. The maintainer obtains them
+   later; record the gap in the report. Book handbooks the earlier pilot could not read:
+   Baugh & Cable 2013 (ang, enm), Schmidt 2013 (goh, gmh), Clackson & Horrocks 2007
+   (la), Horrocks 2010 (grc); their recorded quotes were written from memory and are
+   not evidence.
 Check status early and periodically; save partial files early; deliver partial work
 rather than exceeding limits.
 
@@ -89,149 +116,98 @@ proto-stage dating. Attestation is not the spoken period: say so in qualificatio
 
 Deliverables (write via the write action; these four names only):
 1. assertions.jsonl, one JSON object per line, with: id; code (the Wiktionary code);
-   source_id (from acquire); quote (exact substring of the retained text, long enough to
-   include the dates and the entity name, no invented line breaks); locator (read
-   offsets start/end, page or table row); subject {"code", "source_label", "mapping":
+   source_id (from acquire or open); quote (exact substring of the retained text, long
+   enough to include the dates and the entity name, no invented line breaks); locator
+   ({"page": printed page label, "pdf_page": n} for books; read offsets or table row
+   otherwise); subject {"code", "source_label", "mapping":
    "exact|subset|superset|overlap|unresolved", "mapping_basis"}; event; role; method;
    native_time; qualifications (list); verifies (list of {"claim": existing claim id
-   prefix from the table, "verdict": "confirmed|corrected|contradicted", "note"}) or
-   [] for new evidence; proposed_status ("supported" only if quote, numbers, event and
-   exact mapping are all checked, else "candidate"); proposed_decision ({"default":
-   true, "rationale"} on at most one assertion per code and event, else null); citation
-   (full bibliographic citation of the source as published).
-2. report.md: a table with one row per code (existing-claim verdicts, proposed default,
-   alternatives, conflicts, mapping problems), then the unverifiable claims and the
-   remaining gaps.
-3. sources.json: source_id, citation, URL, what was read (body/table/page), access
+   prefix, "verdict": "confirmed|corrected|contradicted", "note"}) or [] for new
+   evidence; proposed_status ("supported" only if quote, numbers, event and exact
+   mapping are all checked, else "candidate"); proposed_decision ({"default": true,
+   "rationale"} on at most one assertion per code and event, else null); citation (full
+   bibliographic citation of the source as published, with edition).
+   Scope assertions (step 5) use the same fields with event "unspecified", role
+   "observation", method "scholarly_description", native_time {"form": "unknown"},
+   plus target (e.g. "iso639-3:chu", "glottolog:chur1257") and what_it_shows (one
+   sentence).
+2. report.md: a table with one row per code (best whole-code evidence, its mapping,
+   proposed default, alternatives, conflicts, remaining gap), then the cu/sa scope
+   findings, then sources requested from the maintainer and why.
+3. sources.json: source_id, citation, URL or holding, what was read (pages), access
    problems, and sources attempted but not read.
 4. self-check.json: per assertion, checks of quote, numbers and era, event/role,
-   mapping and the verdicts on existing claims, with any corrections made.
+   mapping, title-page identity of the source, and page-image checks for OCR text.
 Call check after saving, fix problems once, and finish. Passing check does not
 establish correctness. Finish with a short summary of what is verified per code.
 
-Codes and existing candidate claims (claim id prefix, method/event, years as recorded,
-registered source, recorded quote, which may be wrong):
+Codes. Wiktionary scope (legacy export), the period wety shows now, and what is open.
 
-### ang — Old English (Wiktionary kind: regular; family gmw; parents -)
-- Wiktionary aliases: Anglo-Saxon
-- Etymology-only varieties Wiktionary files under this code: Anglian Old English, Mercian Old English, Northumbrian Old English
-- Wikipedia article named by Wiktionary: Old English language; catalog link: olde1238
-- `ev_521568031e02a1bf` conventional_period/conventional_period 401 CE – 1200 CE; source src_enwiki_infobox (English Wikipedia, Infobox language `era` / `extinct` fields); recorded quote: "[[5th century]]–[[12th century]]; mostly developed into [[Middle English]]."
-- `ev_580d6417f41347f1` conventional_period/documentary_sampling 450 CE – 1100 CE; source src_glottolog_5_3 (Hammarström, Harald & Forkel, Robert & Haspelmath, Martin & Bank, Sebastian. 2026. Glottolog 5.3. Leipzig: Max Planck Institute for Evolutionary Anthropology.); recorded quote: "Old English (ca. 450-1100): First_Year_Of_Documentation=450, Last_Year_Of_Documentation=1100"
-- `ev_c643e784d5a65d79` conventional_period/conventional_period 450 CE – 1150 CE; source src_baugh_cable_2013 (Baugh, A. C. & Cable, T. 2013. A History of the English Language, 6th ed. Routledge. §§ 4, 8, 12 (periods: Old English 450–1150, Middle English 1150–1500, Modern English 1500–).); recorded quote: "Old English 450–1150; Middle English 1150–1500; Modern English 1500–"
+### Codes without a period
 
-### enm — Middle English (Wiktionary kind: regular; family gmw; parents ['ang'])
-- Wiktionary aliases: Medieval English, Mediaeval English
-- Etymology-only varieties Wiktionary files under this code: Early Scots, Northern Middle English
-- Wikipedia article named by Wiktionary: Middle English language; catalog link: midd1317
-- `ev_3bb84c8667a61df7` conventional_period/documentary_sampling 1100 CE – 1500 CE; source src_glottolog_5_3 (Hammarström, Harald & Forkel, Robert & Haspelmath, Martin & Bank, Sebastian. 2026. Glottolog 5.3. Leipzig: Max Planck Institute for Evolutionary Anthropology.); recorded quote: "Middle English: First_Year_Of_Documentation=1100, Last_Year_Of_Documentation=1500"
-- `ev_adeca71b18fb14fb` conventional_period/conventional_period 1150 CE – 1500 CE; source src_baugh_cable_2013 (Baugh, A. C. & Cable, T. 2013. A History of the English Language, 6th ed. Routledge. §§ 4, 8, 12 (periods: Old English 450–1150, Middle English 1150–1500, Modern English 1500–).); recorded quote: "Old English 450–1150; Middle English 1150–1500; Modern English 1500–"
+goh — Old High German. Filed under goh: Lombardic. Glottolog oldh1241, ISO goh.
+  Now: none. ISO "ca. 750-1050" and Glottolog 750–1050 are narrower than goh, which
+  also files Lombardic; ISO lists Lombardic separately (lng). Needed: a period stated for Old High German
+  that covers Lombardic, or a source saying Lombardic belongs to Old High German.
+non — Old Norse (aliases Old Icelandic, Old Norwegian). Filed under non: Old East
+  Norse, Old West Norse, Old Gutnish. Glottolog oldn1244, ISO non.
+  Now: none. Glottolog 800–1150 is a documentation window; Glottolog's Old Norse also
+  includes Old Norn and does not place Old Gutnish under it. Needed: a handbook period
+  for Old Norse in the broad sense (East and West Norse, ideally Gutnish).
+got — Gothic. Nothing filed under got. Glottolog goth1244, ISO got.
+  Now: none. Glottolog 350–380 covers only Wulfila's Bible; Wikipedia "attested 3rd–10th
+  century" is not scholarly. Needed: the attestation window of Gothic (Bible, Skeireins,
+  Bologna fragment, Crimean graffiti, runic inscriptions) and any statement of when
+  Gothic was spoken; Crimean Gothic is a related variety, say how the source treats it.
+cu — Old Church Slavonic. Filed under cu: Middle Bulgarian. Glottolog chur1257 "Church
+  Slavic", ISO chu "Church Slavic".
+  Now: none. An earlier source gave the OCS stage c. 850–1100 (the canon), which
+  excludes Middle Bulgarian. Needed: a period covering OCS and Middle Bulgarian, or a
+  recorded gap; and the scope quotes of step 5.
+akk — Akkadian. Filed under akk: Old Akkadian, Old/Middle/Neo-Assyrian, Old/Middle/
+  Neo-/Late Babylonian, Standard Babylonian. Glottolog akka1240, ISO akk.
+  Now: none. Glottolog's -2350 is a database field, likely an error. Needed: the
+  attestation span of Akkadian as a whole (first Old Akkadian texts to the last
+  Late Babylonian texts) and the conventional dialect periods.
+sa — Sanskrit. Filed under sa: Vedic, Brahmanic, Classical, Buddhist Hybrid, New
+  Sanskrit. Glottolog sans1269, ISO san.
+  Now: none. Wikipedia's 1500–600 BCE is Vedic only; Glottolog -1500 to -1100 is a
+  documentation window. Needed: a statement covering Sanskrit from Vedic onwards, or a
+  recorded gap; and the scope quotes of step 5.
+ojp — Old Japanese. Filed under ojp: Middle Japanese, Early and Late Middle Japanese.
+  Glottolog oldj1239, ISO ojp.
+  Now: none. Wikipedia "8th century" and Glottolog 712 cover Old Japanese only.
+  Needed: Frellesvig's periodization; whether any source states one span for Old and
+  Middle Japanese together; otherwise each stage as its own subset claim.
+ine-pro — Proto-Indo-European (reconstructed). Now: none. An earlier source gave two
+  date proposals for the last stage of Proto-Indo-Anatolian (c. 4400–4200 BCE; c.
+  43rd–40th century BCE), with mapping to Wiktionary's PIE unresolved (PIE with or
+  without Anatolian). Needed: dates Fortson or Kapović give for PIE itself, and which
+  PIE (with or without Anatolian) they date.
+sla-pro — Proto-Slavic (reconstructed; alias Common Slavic). Now: none; no eligible
+  date found so far. Needed: dates a source gives for Proto-Slavic or Common Slavic
+  itself (Kapović's Slavic chapter, Fortson's Balto-Slavic chapter), not migration or
+  loanword dates.
 
-### goh — Old High German (Wiktionary kind: regular; family gmw; parents -)
-- Etymology-only varieties Wiktionary files under this code: Lombardic
-- Wikipedia article named by Wiktionary: Old High German language; catalog link: oldh1241
-- `ev_912c1d9edfab44a7` conventional_period/conventional_period 750 CE – 1050 CE; source src_schmidt_2013 (Schmidt, W. 2013. Geschichte der deutschen Sprache, 11th ed. Hirzel. (Althochdeutsch 750–1050, Mittelhochdeutsch 1050–1350, Frühneuhochdeutsch 1350–1650, Neuhochdeutsch 1650–.)); recorded quote: "Althochdeutsch 750–1050, Mittelhochdeutsch 1050–1350, Frühneuhochdeutsch 1350–1650, Neuhochdeutsch 1650–"
-- `ev_ae476493becd4e77` conventional_period/documentary_sampling 750 CE – 1050 CE; source src_glottolog_5_3 (Hammarström, Harald & Forkel, Robert & Haspelmath, Martin & Bank, Sebastian. 2026. Glottolog 5.3. Leipzig: Max Planck Institute for Evolutionary Anthropology.); recorded quote: "Old High German (ca. 750-1050): First_Year_Of_Documentation=750, Last_Year_Of_Documentation=1050"
+### Codes with a period (look for a better or confirming source)
 
-### gmh — Middle High German (Wiktionary kind: regular; family gmw; parents ['goh'])
-- Etymology-only varieties Wiktionary files under this code: none
-- Wikipedia article named by Wiktionary: Middle High German language; catalog link: midd1343
-- `ev_5348068daf8753fb` conventional_period/documentary_sampling 1050 CE – 1500 CE; source src_glottolog_5_3 (Hammarström, Harald & Forkel, Robert & Haspelmath, Martin & Bank, Sebastian. 2026. Glottolog 5.3. Leipzig: Max Planck Institute for Evolutionary Anthropology.); recorded quote: "Middle High German: First_Year_Of_Documentation=1050, Last_Year_Of_Documentation=1500"
-- `ev_b706f429c07f65e1` conventional_period/conventional_period 1050 CE – 1350 CE; source src_schmidt_2013 (Schmidt, W. 2013. Geschichte der deutschen Sprache, 11th ed. Hirzel. (Althochdeutsch 750–1050, Mittelhochdeutsch 1050–1350, Frühneuhochdeutsch 1350–1650, Neuhochdeutsch 1650–.)); recorded quote: "Althochdeutsch 750–1050, Mittelhochdeutsch 1050–1350, Frühneuhochdeutsch 1350–1650, Neuhochdeutsch 1650–"
-
-### non — Old Norse (Wiktionary kind: regular; family gmq; parents -)
-- Wiktionary aliases: Old Icelandic, Old Norwegian
-- Etymology-only varieties Wiktionary files under this code: Old East Norse, Old Gutnish, Old West Norse
-- Wikipedia article named by Wiktionary: Old Norse language; catalog link: oldn1244
-- `ev_de5c44c425a4a55d` conventional_period/documentary_sampling 800 CE – 1150 CE; source src_glottolog_5_3 (Hammarström, Harald & Forkel, Robert & Haspelmath, Martin & Bank, Sebastian. 2026. Glottolog 5.3. Leipzig: Max Planck Institute for Evolutionary Anthropology.); recorded quote: "Old Norse: First_Year_Of_Documentation=800, Last_Year_Of_Documentation=1150"
-
-### sga — Old Irish (Wiktionary kind: regular; family cel-gae; parents ['pgl'])
-- Etymology-only varieties Wiktionary files under this code: none
-- Wikipedia article named by Wiktionary: Old Irish language; catalog link: oldi1245
-- `ev_517bac7ac6b1e7b7` conventional_period/documentary_sampling 500 CE – 900 CE; source src_glottolog_5_3 (Hammarström, Harald & Forkel, Robert & Haspelmath, Martin & Bank, Sebastian. 2026. Glottolog 5.3. Leipzig: Max Planck Institute for Evolutionary Anthropology.); recorded quote: "Early Irish: First_Year_Of_Documentation=500, Last_Year_Of_Documentation=900"
-- `ev_c1e044a89b175049` conventional_period/conventional_period 501 CE – 1000 CE; source src_enwiki_infobox (English Wikipedia, Infobox language `era` / `extinct` fields); recorded quote: "6th–10th century; evolved into [[Middle Irish]] by around the 10th century"
-
-### got — Gothic (Wiktionary kind: regular; family gme; parents -)
-- Etymology-only varieties Wiktionary files under this code: none
-- Wikipedia article named by Wiktionary: Gothic language; catalog link: goth1244
-- `ev_bfd6f252bd2d4583` conventional_period/documentary_sampling 350 CE – 380 CE; source src_glottolog_5_3 (Hammarström, Harald & Forkel, Robert & Haspelmath, Martin & Bank, Sebastian. 2026. Glottolog 5.3. Leipzig: Max Planck Institute for Evolutionary Anthropology.); recorded quote: "Gothic: First_Year_Of_Documentation=350, Last_Year_Of_Documentation=380"
-- `ev_d4334c6411f08ecd` conventional_period/conventional_period 201 CE – 1000 CE; source src_enwiki_infobox (English Wikipedia, Infobox language `era` / `extinct` fields); recorded quote: "Attested 3rd–10th century; [[Crimean Gothic|related dialects]] survived until 18th century in Crimea"
-
-### cu — Old Church Slavonic (Wiktionary kind: regular; family zls; parents -)
-- Wiktionary aliases: Old Church Slavic
-- Etymology-only varieties Wiktionary files under this code: Middle Bulgarian
-- Wikipedia article named by Wiktionary: Old Church Slavonic language; catalog link: chur1257
-- `ev_370d3c2790315987` conventional_period/documentary_sampling 900 CE – 1100 CE; source src_glottolog_5_3 (Hammarström, Harald & Forkel, Robert & Haspelmath, Martin & Bank, Sebastian. 2026. Glottolog 5.3. Leipzig: Max Planck Institute for Evolutionary Anthropology.); recorded quote: "Church Slavic: First_Year_Of_Documentation=900, Last_Year_Of_Documentation=1100"
-- `ev_62e4a83ac8b1276c` conventional_period/conventional_period 801 CE – 1100 CE; source src_enwiki_infobox (English Wikipedia, Infobox language `era` / `extinct` fields); recorded quote: "9th–11th centuries; then evolved into several variants of [[Church Slavonic]] including [[Middle Bulgarian]]"
-
-### akk — Akkadian (Wiktionary kind: regular; family sem-eas; parents -)
-- Etymology-only varieties Wiktionary files under this code: Late Babylonian, Middle Assyrian, Middle Babylonian, Neo-Assyrian, Neo-Babylonian, Old Akkadian, Old Assyrian, Old Babylonian, Standard Babylonian
-- Wikipedia article named by Wiktionary: Akkadian language; catalog link: akka1240
-- `ev_0ec32a9cdfb3f1ef` attestation_last/last_attestation 2350 BCE; source src_glottolog_5_3 (Hammarström, Harald & Forkel, Robert & Haspelmath, Martin & Bank, Sebastian. 2026. Glottolog 5.3. Leipzig: Max Planck Institute for Evolutionary Anthropology.); recorded quote: "Akkadian: First_Year_Of_Documentation=, Last_Year_Of_Documentation=-2350"
-- `ev_4081c68992951f14` conventional_period/conventional_period 2600 BCE – 500 BCE; source src_enwiki_infobox (English Wikipedia, Infobox language `era` / `extinct` fields); recorded quote: "{{circa|2600}}–500 BC; academic or liturgical use until AD 100<ref>{{cite web|url=http://multitree.org/codes/akk |archive-url=https://web.archive.org/web/201108"
-
-### hit — Hittite (Wiktionary kind: regular; family ine-ana; parents -)
-- Wiktionary aliases: Hettite, Kanesite, Kaneshite, Kanesian, Kaneshian, Nesian, Neshian, Nesite, Nessite, Neshite
-- Etymology-only varieties Wiktionary files under this code: none
-- Wikipedia article named by Wiktionary: Hittite language; catalog link: hitt1242
-- `ev_0a0e996a762a4472` conventional_period/documentary_sampling 1650 BCE – 1180 BCE; source src_glottolog_5_3 (Hammarström, Harald & Forkel, Robert & Haspelmath, Martin & Bank, Sebastian. 2026. Glottolog 5.3. Leipzig: Max Planck Institute for Evolutionary Anthropology.); recorded quote: "Hittite: First_Year_Of_Documentation=-1650, Last_Year_Of_Documentation=-1180"
-- `ev_aa009824b06685dc` conventional_period/conventional_period 1600 BCE – 1200 BCE; source src_enwiki_infobox (English Wikipedia, Infobox language `era` / `extinct` fields); recorded quote: "attested {{circa|1600|1200 BC}}"
-
-### la — Latin (Wiktionary kind: regular; family itc; parents ['itc-ola'])
-- Etymology-only varieties Wiktionary files under this code: Classical Latin, Ecclesiastical Latin, Late Latin, Medieval Latin, New Latin, Old Latin, Renaissance Latin, Vulgar Latin
-- Wikipedia article named by Wiktionary: Latin language; catalog link: lati1261
-- `ev_cca428e7df82845a` conventional_period/documentary_sampling 100 BCE – 100 CE; source src_glottolog_5_3 (Hammarström, Harald & Forkel, Robert & Haspelmath, Martin & Bank, Sebastian. 2026. Glottolog 5.3. Leipzig: Max Planck Institute for Evolutionary Anthropology.); recorded quote: "Latin: First_Year_Of_Documentation=-100, Last_Year_Of_Documentation=100"
-- `ev_deed12835fe90cd7` conventional_period/conventional_period 100 BCE – 200 CE; source src_clackson_horrocks_2007 (Clackson, J. & Horrocks, G. 2007. The Blackwell History of the Latin Language. Blackwell. (Archaic/Old Latin to c. 100 BCE; Classical Latin c. 100 BCE–c. 200 CE; Late Latin c. 200–c. 600.)); recorded quote: "Archaic/Old Latin to c. 100 BCE; Classical Latin c. 100 BCE–c. 200 CE; Late Latin c. 200–c. 600"
-
-### grc — Ancient Greek (Wiktionary kind: regular; family grk; parents -)
-- Wiktionary aliases: Classical Greek
-- Etymology-only varieties Wiktionary files under this code: Aeolic Greek, Arcadian Greek, Arcadocypriot Greek, Attic Greek, Boeotian Greek, Byzantine Greek, Cretan Ancient Greek, Doric Greek, Elean Greek, Epic Greek, Ionic Greek, Koine Greek, Opuntian Locrian, Ozolian Locrian, Pamphylian Greek, Thessalian Greek
-- Wikipedia article named by Wiktionary: Ancient Greek language; catalog link: anci1242
-- `ev_b9e352b67bb90fe0` conventional_period/documentary_sampling 500 BCE – 300 BCE; source src_glottolog_5_3 (Hammarström, Harald & Forkel, Robert & Haspelmath, Martin & Bank, Sebastian. 2026. Glottolog 5.3. Leipzig: Max Planck Institute for Evolutionary Anthropology.); recorded quote: "Ionic-Attic Ancient Greek: First_Year_Of_Documentation=-500, Last_Year_Of_Documentation=-300"
-- `ev_dcf2f6e2cd5234da` conventional_period/conventional_period 800 BCE – 300 BCE; source src_horrocks_2010 (Horrocks, G. 2010. Greek: A History of the Language and its Speakers, 2nd ed. Wiley-Blackwell. (Ancient Greek to c. 300 BCE; Koine c. 300 BCE–c. 600 CE; Medieval/Byzantine Greek c. 600–1453; Modern Greek 1453–.)); recorded quote: "Ancient Greek to c. 300 BCE; Koine c. 300 BCE–c. 600 CE; Medieval/Byzantine Greek c. 600–1453; Modern Greek 1453–"
-
-### sa — Sanskrit (Wiktionary kind: regular; family inc-old; parents -)
-- Etymology-only varieties Wiktionary files under this code: Brahmanic Sanskrit, Buddhist Hybrid Sanskrit, Classical Sanskrit, New Sanskrit, Vedic Sanskrit
-- Wikipedia article named by Wiktionary: Sanskrit language; catalog link: sans1269
-- `ev_29c9e0dd7a9e484e` conventional_period/conventional_period 1500 BCE – 600 BCE; source src_enwiki_infobox (English Wikipedia, Infobox language `era` / `extinct` fields); recorded quote: "{{circa}} 1500–600 BCE (Vedic Sanskrit);<ref>{{cite book|author=Uta Reinöhl |title=Grammaticalization and the Rise of Configurationality in Indo-Aryan |url=http"
-- `ev_f001d8212584ed7c` conventional_period/documentary_sampling 1500 BCE – 1100 BCE; source src_glottolog_5_3 (Hammarström, Harald & Forkel, Robert & Haspelmath, Martin & Bank, Sebastian. 2026. Glottolog 5.3. Leipzig: Max Planck Institute for Evolutionary Anthropology.); recorded quote: "Sanskrit: First_Year_Of_Documentation=-1500, Last_Year_Of_Documentation=-1100"
-
-### ltc — Middle Chinese (Wiktionary kind: regular; family zhx; parents ['och'])
-- Etymology-only varieties Wiktionary files under this code: Early Middle Chinese, Late Middle Chinese
-- Wikipedia article named by Wiktionary: Middle Chinese language; catalog link: midd1344
-- `ev_ef5248bf278e57a8` conventional_period/documentary_sampling 601 CE – 1150 CE; source src_glottolog_5_3 (Hammarström, Harald & Forkel, Robert & Haspelmath, Martin & Bank, Sebastian. 2026. Glottolog 5.3. Leipzig: Max Planck Institute for Evolutionary Anthropology.); recorded quote: "Middle Chinese: First_Year_Of_Documentation=601, Last_Year_Of_Documentation=1150"
-
-### och — Old Chinese (Wiktionary kind: regular; family zhx; parents -)
-- Etymology-only varieties Wiktionary files under this code: Early Old Chinese, Late Old Chinese
-- Wikipedia article named by Wiktionary: Old Chinese language; catalog link: oldc1244
-- `ev_a9c01e1cff158ae1` conventional_period/documentary_sampling 1200 BCE – 400 CE; source src_glottolog_5_3 (Hammarström, Harald & Forkel, Robert & Haspelmath, Martin & Bank, Sebastian. 2026. Glottolog 5.3. Leipzig: Max Planck Institute for Evolutionary Anthropology.); recorded quote: "Old Chinese: First_Year_Of_Documentation=-1200, Last_Year_Of_Documentation=400"
-
-### ojp — Old Japanese (Wiktionary kind: regular; family jpx; parents -)
-- Etymology-only varieties Wiktionary files under this code: Early Middle Japanese, Late Middle Japanese, Middle Japanese
-- Wikipedia article named by Wiktionary: Old Japanese language; catalog link: oldj1239
-- `ev_7180bd3fcb62e939` conventional_period/conventional_period 701 CE – 800 CE; source src_enwiki_infobox (English Wikipedia, Infobox language `era` / `extinct` fields); recorded quote: "8th century"
-- `ev_bcebe5432b93cd2a` attestation_last/last_attestation 712 CE; source src_glottolog_5_3 (Hammarström, Harald & Forkel, Robert & Haspelmath, Martin & Bank, Sebastian. 2026. Glottolog 5.3. Leipzig: Max Planck Institute for Evolutionary Anthropology.); recorded quote: "Old Japanese: First_Year_Of_Documentation=, Last_Year_Of_Documentation=712"
-
-### gem-pro — Proto-Germanic (Wiktionary kind: reconstructed; family gem; parents -)
-- Wiktionary aliases: Common Germanic
-- Etymology-only varieties Wiktionary files under this code: none
-- Wikipedia article named by Wiktionary: Proto-Germanic language; catalog link: none
-- Existing candidate claims: none (new sources needed)
-
-### ine-pro — Proto-Indo-European (Wiktionary kind: reconstructed; family ine; parents -)
-- Etymology-only varieties Wiktionary files under this code: none
-- Wikipedia article named by Wiktionary: Proto-Indo-European language; catalog link: none
-- Existing candidate claims: none (new sources needed)
-
-### sla-pro — Proto-Slavic (Wiktionary kind: reconstructed; family sla; parents -)
-- Wiktionary aliases: Common Slavic
-- Etymology-only varieties Wiktionary files under this code: none
-- Wikipedia article named by Wiktionary: Proto-Slavic language; catalog link: none
-- Existing candidate claims: none (new sources needed)
-
-### cel-pro — Proto-Celtic (Wiktionary kind: reconstructed; family cel; parents -)
-- Etymology-only varieties Wiktionary files under this code: none
-- Wikipedia article named by Wiktionary: Proto-Celtic language; catalog link: none
-- Existing candidate claims: none (new sources needed)
-
+ang — Old English. Filed: Anglian, Mercian, Northumbrian Old English. Shown: ISO 639-3
+  "Old English (ca. 450-1100)". Baugh & Cable's 450–1150 is unverified.
+enm — Middle English. Filed: Early Scots, Northern Middle English. Shown: ISO "Middle
+  English (1100-1500)".
+gmh — Middle High German. Shown: ISO "ca. 1050-1500". Schmidt's 1050–1350 unverified.
+sga — Old Irish. Shown: ISO "Old Irish (to 900)", end only.
+grc — Ancient Greek. Filed: all ancient dialects, Koine and Byzantine Greek. Shown: ISO
+  "Ancient Greek (to 1453)", end only. A period covering Koine and Byzantine is needed
+  for a start.
+hit — Hittite. Shown: Glottolog documentation window 1650–1180 BCE (as attestation).
+och — Old Chinese. Filed: Early and Late Old Chinese. Shown: Glottolog 1200 BCE – 400
+  CE (as attestation).
+ltc — Middle Chinese. Filed: Early and Late Middle Chinese. Shown: Glottolog 601–1150
+  (as attestation).
+la — Latin. Filed: Old, Classical, Late, Vulgar, Ecclesiastical, Medieval, Renaissance,
+  New Latin. Shown: first written record c. 550 BC (Koch 2020), no end.
+gem-pro — Proto-Germanic. Shown: Koch 2020 estimate (start c. 500/400 BC, end 300 BC –
+  AD 1).
+cel-pro — Proto-Celtic. Shown: Koch 2020 estimate c. 1200–900 BC.
 ```

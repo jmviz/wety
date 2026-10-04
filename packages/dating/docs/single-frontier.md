@@ -35,7 +35,7 @@ configuration. Select `--profile NAME` at preparation; legacy role overrides and
 
 | Profile | Access | Model | Initial effort |
 | --- | --- | --- | --- |
-| `codex-astra` **default** | Codex CLI, personal ChatGPT subscription | `gpt-6-astra` | `high`, standard service tier |
+| `codex-astra` **default** | Codex CLI (pinned, bundled), personal ChatGPT subscription | `gpt-6-astra` | `high`, standard service tier; cached web search for discovery |
 | `claude-opus` | Claude Agent SDK, personal Claude subscription | `claude-opus-5` | `high`, adaptive thinking |
 | `openrouter-astra` | Explicitly selected paid OpenRouter API | `openai/gpt-6-astra` | `high` |
 | `openrouter-opus` | Explicitly selected paid OpenRouter API | `anthropic/claude-opus-5` | `high` |
@@ -79,6 +79,11 @@ than assuming a low setting makes a repeated failed workflow cheap.
 
 ## Authentication and accounting
 
+Codex runs the CLI pinned by the `openai-codex-cli-bin` dependency (the Codex Python
+SDK's runtime package), not whatever `codex` is on PATH; `backends.codex.executable`
+overrides it. The SDK's own client is not used: it drives the experimental
+`app-server`, which cannot ignore the user's `~/.codex` configuration. Claude runs
+the CLI bundled with the Agent SDK. Both share their normal login.
 Codex requires `codex login status` to confirm ChatGPT authentication. API-key and
 endpoint overrides are removed, user/project configurations are ignored, and the
 OpenAI provider plus ChatGPT login method are explicit. No OpenRouter key is needed
@@ -169,15 +174,46 @@ restores a cap. Claude and OpenRouter also stop at 400 model turns. Codex has no
 native turn cap. OpenRouter keeps its reported-cost stop. Avoid more than two
 alternate routes per blocked source; that per-source policy is in the prompt.
 
-The shared tool exposes Crossref, OpenAlex and Europe PMC discovery; exact-byte
-acquisition through the shared provenance utility; bounded text windows with
-character offsets; `find` for locating rows or terms in large retained texts (with
-exact offsets and the table header); rendered retained PDF pages; four dossier
-outputs; and checks.
-This is a scholarly-index search baseline, **not unrestricted web browsing**.
-Index access/rate limits can leave gaps. HTML figure images, OCR, archive extraction
-and arbitrary computation are not currently provided; report those needs explicitly.
-PDF text extraction does not imply that figures, tables or supplements were inspected.
+The shared tool exposes Crossref, OpenAlex, Europe PMC, Semantic Scholar (papers with
+open-access PDFs; authors with homepages) and Open Library (public scans) discovery;
+exact-byte acquisition through the shared provenance utility; `library` and `open` for
+sources the maintainer supplied (below); `request` for asking the maintainer for a
+source; bounded text windows with character offsets; `find` for locating rows or terms
+in large retained texts (with exact offsets, the table header, and for PDFs the page and
+printed page label); rendered retained PDF pages; four dossier outputs; and checks.
+A profile's `web_search` (`disabled`, `cached`, `live`) adds the backend's own web
+search for discovery only; it is not evidence, and quotes must come from a source
+retained with `acquire` or `open`. Failed fetches are classified (`access_denied`,
+`bot_challenge`, `not_found`, `rate_limited`). Scanned PDF pages without a text layer
+are OCRed (tesseract, at most 40 pages per acquisition; larger scans should be
+requested). HTML figure images, archive extraction and arbitrary computation are not
+provided; report those needs explicitly. PDF text extraction does not imply that
+figures, tables or supplements were inspected.
+
+### Supplied sources and requests
+
+The maintainer can supply what the researcher cannot reach (library copies of
+handbooks, paywalled papers): `dating holdings zotero ITEMKEY...` (or `add FILE`, or
+`sync` for the `wety` Zotero collections) retains the PDF as an artifact with a receipt
+(origin `maintainer_supplied`, Zotero keys), stores its parsed text by hash, and records
+the holding in `data/registry/holdings.json`. Pages without text are OCRed
+(`--languages eng+deu+grc`); a scan with an existing text layer is flagged, and `find`
+marks quotes on such pages for checking against the page image. In a run, `library`
+lists holdings and `open` loads one as a source in `acquire`'s shape, so offsets,
+`check`, `build-packet` and the source registration (which records the origin) work
+unchanged. Zotero paths never become evidence.
+
+`request` records a work the researcher needed and could not read: which part, why,
+for which codes, and routes tried. After the run its requests merge into
+`data/registry/source-requests.json` (`dating requests list`). `dating requests push`
+files open requests in Zotero (collection `wety/dating/<topic>` and
+`wety/needs-fulltext`, tag `wety:needs-fulltext`, a note with the reasons), reusing a
+matching library item. Writes use Zotero's local API (Zotero 10+; enable it under
+Settings > Advanced, and choose "Always Allow" once; the key stays in the keychain).
+The client writes only below `wety`, adds only `wety:` tags and notes, and never edits
+or deletes other data. When the file is attached, `dating holdings sync` ingests it and
+marks the request supplied; a supplement request is closed only by hand
+(`dating requests set KEY supplied --holding ID`).
 
 Original HTTP bytes and acquisition receipts use the existing artifact registry.
 Parsed text and PDF renders retain hashes in the research workspace. Model output
