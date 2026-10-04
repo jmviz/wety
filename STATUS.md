@@ -1,7 +1,7 @@
 # Status
 
 *Updated 2026-10-04. Local `main` has `etymon-templates` merged; nothing pushed.
-Branch `canonical-forms` is ready but unmerged (needs a rebuild).*
+Branch `canonical-forms` is unmerged; its graph `cf09bd87…` is built and validated.*
 
 ## What the project promises
 
@@ -31,13 +31,15 @@ in the `packages/dating` registry.
 - `canonical-forms` (unmerged): a "canonical" form is used only if it has as many
   words as the page title, which drops Wiktextract headword junk such as Old French
   *octobre oblique singular or* (210k of 1.97M canonical forms; all sampled junk).
+  Its graph `etymology-graph/cf09bd87…` (copied into `data/`, not selected) shows
+  *octobre*, *frere*, *matrice* and Sanskrit stems cleanly.
 
 PIE descendant trees, English+Latin (nodes; extra parents in brackets):
 
-| Root | previous `bf5c28d2` | `7c39072a` | api.wety.org |
-|---|---|---|---|
-| *méh₂tēr* | 121 (21) | 179 (39) | 143 (30) |
-| *bʰer-* | 781 (79) | 915 (216) | 946 (187) |
+| Root | `bf5c28d2` | `7c39072a` | `cf09bd87` | api.wety.org |
+|---|---|---|---|---|
+| *méh₂tēr* | 121 (21) | 179 (39) | 179 (39) | 143 (30) |
+| *bʰer-* | 781 (79) | 915 (216) | 923 (214) | 946 (187) |
 
 ## Uncertainties
 
@@ -45,8 +47,11 @@ PIE descendant trees, English+Latin (nodes; extra parents in brackets):
   from it under their own-language base word (*broaden* under *broad*), which the
   descendants view does not expand; 16 no longer reach it, mostly former
   root-category shortcuts, several wrong (*Middlesex*, *mark*, *tell*).
-- `canonical-forms` changes item terms (and so some link URLs and embeddings); its
-  effect on trees is unmeasured until a rebuild.
+- Root imputation onto chain tops depends on processing order, which shifts when
+  terms change: *περιφέρω* and *fortūnātus* (no parsed etymology in either graph)
+  hang under *bʰer-* in `7c39072a` but other roots in `cf09bd87`.
+- References with length marks (`περῐ-`) miss entries titled without them (`περι-`),
+  dropping the whole compound.
 - PIE roots with a final hyphen in `:af` read as prefixes; family-code etymons are
   skipped; `id=` links override Descendants-derived links.
 - Host deployment setup not run; client 409 reload not exercised in a browser.
@@ -55,10 +60,10 @@ PIE descendant trees, English+Latin (nodes; extra parents in brackets):
 
 1. Maintainer: one-time deployment setup ([deploy/README.md](deploy/README.md)); its
    `publish-graph.sh` step uploads `7c39072a…` (600 MB).
-2. Rebuild from `canonical-forms`, compare, and adopt if trees do not shrink.
+2. Merge `canonical-forms` and select `cf09bd87…` (CURRENT.json, `deploy/graph.json`).
 3. Supply the six queued works in Zotero, then `dating holdings sync`.
 
 ## Decisions needed from the maintainer
 
-- Whether to rebuild and adopt `canonical-forms`, and whether to report the
+- Whether to adopt `canonical-forms`/`cf09bd87…`, and whether to report the
   `{{fro-noun}}` headword parse to Wiktextract.
