@@ -5,7 +5,8 @@ Zotero" (Settings > Advanced). Writes (Zotero 10+) need a key from Zotero's own
 authorization dialog; choose "Always Allow" and the key is kept in the system keyring,
 never in the repository. The key covers the whole library, so this client confines
 itself: it creates collections only under `wety`, creates items, and adds collections,
-`wety:` tags and child notes to items. On items it created it fills empty fields (and
+`wety:` tags and child notes to items; it removes only `wety:` tags and memberships of
+collections under `wety` (an item leaves `wety/needs-fulltext` once supplied). On items it created it fills empty fields (and
 its own placeholder creators) from resolved records; it never overwrites a value someone
 else set, never edits other items' fields, and never deletes anything.
 Every write is read back, because a reported success is not proof of a stored change.
@@ -283,6 +284,43 @@ class Zotero:
         )
         if status not in (200, 204):
             raise ZoteroError(f"update {key}: HTTP {status} {raw[:200]!r}")
+
+    def leave_collection(self, key, collection):
+        """Remove an item from one collection under `wety`; the item itself stays."""
+        if collection not in self.collection_tree():
+            raise ValueError("only collections under " + ROOT_COLLECTION + " are left")
+        item = self.item(key)
+        collections = [c for c in item["data"].get("collections", []) if c != collection]
+        if len(collections) == len(item["data"].get("collections", [])):
+            return
+        status, _, raw = self.request(
+            "PATCH",
+            f"{LIBRARY}/items/{key}",
+            body={"collections": collections},
+            headers={"If-Unmodified-Since-Version": str(item["version"])},
+            write=True,
+        )
+        if status not in (200, 204):
+            raise ZoteroError(f"update {key}: HTTP {status} {raw[:200]!r}")
+        if collection in self.item(key)["data"].get("collections", []):
+            raise ZoteroError(f"update {key} reported success but was not stored")
+
+    def find_collection(self, path):
+        """Key of the collection at path (a list of names), or None; creates nothing."""
+        existing = self.collections()
+        parent = False
+        for name in path:
+            parent = next(
+                (
+                    c["key"]
+                    for c in existing
+                    if c["data"]["name"] == name and c["data"].get("parentCollection") == parent
+                ),
+                None,
+            )
+            if parent is None:
+                return None
+        return parent
 
     def ensure_collection(self, path):
         """Key of the collection at path (a list of names under `wety`), creating it."""

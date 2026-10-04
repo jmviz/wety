@@ -881,13 +881,17 @@ def enrich_requests(keys=(), force=False):
 
 
 def untag_supplied(client):
-    """After ingest: swap the needs tag for wety:ingested on supplied requests' items."""
+    """After ingest: on supplied requests' items, swap the needs tag for wety:ingested
+    and leave wety/needs-fulltext (the wety/dating/<topic> collection stays)."""
+    queue = client.find_collection(["wety", "needs-fulltext"])
     done = []
     for r in load(REQUESTS, "requests")["requests"].values():
         if r["status"] == "supplied" and r.get("zotero"):
             for tag in (NEEDS_FULLTEXT, NEEDS_PART):
                 client.remove_tag(r["zotero"]["item_key"], tag)
             client.add_to_item(r["zotero"]["item_key"], tags=[SUPPLIED])
+            if queue:
+                client.leave_collection(r["zotero"]["item_key"], queue)
             done.append(r["key"])
     return done
 

@@ -521,10 +521,18 @@ class ZoteroTests(Sandbox):
         queue = holdings.load(holdings.REQUESTS, "requests")["requests"]
         self.assertEqual(queue["isbn:9780000000002"]["status"], "supplied")
         self.assertEqual(queue["doi:10.9/miss"]["status"], "filed")
+        queue_key = self.client.find_collection(["wety", "needs-fulltext"])
+        self.assertIn(queue_key, items["BOOK0001"]["data"]["collections"])
         holdings.untag_supplied(self.client)
         self.assertEqual(
             {t["tag"] for t in items["BOOK0001"]["data"]["tags"]}, {"mine", holdings.SUPPLIED}
         )
+        # Supplied: out of the needs-fulltext queue, still in its topic collection.
+        book_collections = items["BOOK0001"]["data"]["collections"]
+        self.assertNotIn(queue_key, book_collections)
+        self.assertIn(self.client.find_collection(["wety", "dating", "periods"]), book_collections)
+        with self.assertRaises(ValueError):
+            self.client.leave_collection("BOOK0001", "NOTWETY1")
 
     def test_push_uses_resolved_records_and_completes_its_own_items_only(self):
         root = self.repo / "data/workspaces/dating/_research/run"

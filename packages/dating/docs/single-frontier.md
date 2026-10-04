@@ -217,7 +217,8 @@ values still as wety first wrote them are filled; anything else is left alone. W
 Settings > Advanced, and choose "Always Allow" once; the key stays in the keychain).
 The client writes only below `wety`, adds only `wety:` tags and notes, and never edits
 or deletes other data. When the file is attached, `dating holdings sync` ingests it and
-marks the request supplied; a supplement request is closed only by hand
+marks the request supplied, retags the item `wety:ingested` and takes it out of
+`wety/needs-fulltext` (it stays in its topic collection); a supplement request is closed only by hand
 (`dating requests set KEY supplied --holding ID`).
 
 Original HTTP bytes and acquisition receipts use the existing artifact registry.
