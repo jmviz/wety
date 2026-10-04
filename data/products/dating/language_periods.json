@@ -1,9 +1,43 @@
 {
   "family_splits": [],
-  "generation": "a2b76ba147b167012b2916223d3bad8ff1c2b1a3392f2d2272643a19f8e46429",
+  "generation": "1d721e5c83e865a9d5fe1d08a6eeec86b82d991d20dcad9991be8548db1d3578",
   "languages": [
     {
       "alternatives": [
+        {
+          "basis": "attested",
+          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Mesopotamia, Egypt and Aksum. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Supplied copy is the 2010 reprint. Chapters cited by author in the locator.",
+          "claim_id": "ev_period_45a64b4ecdf182a293c3089376a1380c12a23995",
+          "end": null,
+          "event": "first_attestation",
+          "label": "from c. 2600 BCE",
+          "locator": "{\"page\": \"83\", \"pdf_page\": 51}",
+          "quote": "Akkadian personal names first appear in Sumerian texts dated to about \n2600 BC.",
+          "role": "observation",
+          "source": "Woodard 2008",
+          "start": {
+            "earliest": -2599,
+            "latest": -2599
+          },
+          "url": null
+        },
+        {
+          "basis": "attested",
+          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Mesopotamia, Egypt and Aksum. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Supplied copy is the 2010 reprint. Chapters cited by author in the locator.",
+          "claim_id": "ev_period_774beea04dafc7ff51659d5199ed4e2e44fa974e",
+          "end": {
+            "earliest": 1,
+            "latest": 100
+          },
+          "event": "last_attestation",
+          "label": "until 1st century CE",
+          "locator": "{\"page\": \"83\", \"pdf_page\": 51}",
+          "quote": "However, Akkadian continued in use as a liturgical and \nlearned language until the beginning ofthe current era; the latest positively dated Akkadian \ntext comes from the first century AD.",
+          "role": "observation",
+          "source": "Woodard 2008",
+          "start": null,
+          "url": null
+        },
         {
           "basis": "attested",
           "citation": "Huehnergard, John. 2011. A Grammar of Akkadian. 3rd ed., 2nd printing 2015. Harvard Semitic Studies 45. Winona Lake, IN: Eisenbrauns. (Copy supplied by the maintainer; its Zotero record says Brill 2018, the copy's title and copyright pages say Eisenbrauns 2011.)",
@@ -104,6 +138,26 @@
           "url": "https://iso639-3.sil.org/sites/iso639-3/files/downloads/iso-639-3.tab"
         },
         {
+          "basis": "conventional",
+          "citation": "Slocum, Jonathan & Winfred P. Lehmann. n.d. Old English Online: Series Introduction. Early Indo-European Online, Linguistics Research Center, University of Texas at Austin.",
+          "claim_id": "ev_period_90ae8e0d45d75db5caf89619729f2a78df7614d0",
+          "end": {
+            "earliest": 1001,
+            "latest": 1100
+          },
+          "event": "conventional_period",
+          "label": "5th–11th century CE",
+          "locator": "Series Introduction (lesson 0), first paragraph",
+          "quote": "Old English is the language of the Germanic inhabitants of England, dated from the time of their settlement in the 5th century to the end of the 11th century.",
+          "role": "convention",
+          "source": "Slocum & Lehmann",
+          "start": {
+            "earliest": 401,
+            "latest": 500
+          },
+          "url": "https://lrc.la.utexas.edu/eieol/engol/00"
+        },
+        {
           "basis": "attested",
           "citation": "Hammarström, H., Forkel, R., Haspelmath, M. & Bank, S. Glottolog CLDF data, repository tag v5.3, cldf/languages.csv (First_/Last_Year_Of_Documentation). The tag's metadata cites 'Glottolog 5.2.1' (2025); version discrepancy unresolved.",
           "claim_id": "ev_period_95528c73f597c3a36d6a062cea809e6b0afc7ec4",
@@ -128,28 +182,28 @@
       "code": "ang",
       "evidence": [
         {
-          "citation": "Slocum, Jonathan & Winfred P. Lehmann. n.d. Old English Online: Series Introduction. Early Indo-European Online, Linguistics Research Center, University of Texas at Austin.",
-          "claim_id": "ev_period_90ae8e0d45d75db5caf89619729f2a78df7614d0",
+          "citation": "Baugh, Albert C. & Thomas Cable. 2026. A History of the English Language. 7th ed. Abingdon and New York: Routledge. https://doi.org/10.4324/9781003584513",
+          "claim_id": "ev_period_1dfbdc5ffbae6a4b1b77531ce5240d0a6cf4c824",
           "event": "conventional_period",
-          "locator": "Series Introduction (lesson 0), first paragraph",
-          "quote": "Old English is the language of the Germanic inhabitants of England, dated from the time of their settlement in the 5th century to the end of the 11th century.",
+          "locator": "{\"page\": \"46\", \"pdf_page\": 65}",
+          "quote": "The period from 450 to 1150 is \nknown as Old English.",
           "role": "convention",
-          "source": "Slocum & Lehmann",
-          "url": "https://lrc.la.utexas.edu/eieol/engol/00"
+          "source": "Baugh & Cable 2026",
+          "url": "https://doi.org/10.4324/ 9781003584513"
         }
       ],
       "kind": "stage",
-      "label": "5th–11th century CE",
+      "label": "450–1150 CE",
       "name": "Old English",
       "spoken": {
         "end": {
-          "earliest": 1001,
-          "latest": 1100
+          "earliest": 1150,
+          "latest": 1150
         },
         "ongoing": false,
         "start": {
-          "earliest": 401,
-          "latest": 500
+          "earliest": 450,
+          "latest": 450
         }
       }
     },
@@ -205,24 +259,44 @@
             "latest": 1100
           },
           "url": "https://raw.githubusercontent.com/glottolog/glottolog-cldf/v5.3/cldf/languages.csv"
+        },
+        {
+          "basis": "conventional",
+          "citation": "SIL International (ISO 639-3 Registration Authority). ISO 639-3 code set, iso-639-3.tab (reference names), retrieved 2026-10-03.",
+          "claim_id": "ev_period_86c45a4c1694232341f776c2941f34bc80d88dbf",
+          "end": {
+            "earliest": 1500,
+            "latest": 1500
+          },
+          "event": "conventional_period",
+          "label": "1100–1500 CE",
+          "locator": "{\"start\": 41146, \"end\": 41190, \"table_row\": \"enm\"}",
+          "quote": "enm\tenm\tenm\t\tI\tH\tMiddle English (1100-1500)\t",
+          "role": "convention",
+          "source": "ISO 639-3 code tables",
+          "start": {
+            "earliest": 1100,
+            "latest": 1100
+          },
+          "url": "https://iso639-3.sil.org/sites/iso639-3/files/downloads/iso-639-3.tab"
         }
       ],
       "basis": "conventional",
       "code": "enm",
       "evidence": [
         {
-          "citation": "SIL International (ISO 639-3 Registration Authority). ISO 639-3 code set, iso-639-3.tab (reference names), retrieved 2026-10-03.",
-          "claim_id": "ev_period_86c45a4c1694232341f776c2941f34bc80d88dbf",
+          "citation": "Baugh, Albert C. & Thomas Cable. 2026. A History of the English Language. 7th ed. Abingdon and New York: Routledge. https://doi.org/10.4324/9781003584513",
+          "claim_id": "ev_period_1b716f7bcdf77af6dd339e5f76c31aaa86a9d865",
           "event": "conventional_period",
-          "locator": "{\"start\": 41146, \"end\": 41190, \"table_row\": \"enm\"}",
-          "quote": "enm\tenm\tenm\t\tI\tH\tMiddle English (1100-1500)\t",
+          "locator": "{\"page\": \"46\", \"pdf_page\": 65}",
+          "quote": "From 1150 to 1500 the language is \nknown as Middle English.",
           "role": "convention",
-          "source": "ISO 639-3 code tables",
-          "url": "https://iso639-3.sil.org/sites/iso639-3/files/downloads/iso-639-3.tab"
+          "source": "Baugh & Cable 2026",
+          "url": "https://doi.org/10.4324/ 9781003584513"
         }
       ],
       "kind": "stage",
-      "label": "1100–1500 CE",
+      "label": "1150–1500 CE",
       "name": "Middle English",
       "spoken": {
         "end": {
@@ -231,8 +305,8 @@
         },
         "ongoing": false,
         "start": {
-          "earliest": 1100,
-          "latest": 1100
+          "earliest": 1150,
+          "latest": 1150
         }
       }
     },
@@ -269,6 +343,26 @@
     },
     {
       "alternatives": [
+        {
+          "basis": "conventional",
+          "citation": "SIL International (ISO 639-3 Registration Authority). ISO 639-3 code set, iso-639-3.tab (reference names), retrieved 2026-10-03.",
+          "claim_id": "ev_period_7abb03ecb2b166c398f53e3b1a1b37b15bb54aa4",
+          "end": {
+            "earliest": 1500,
+            "latest": 1500
+          },
+          "event": "conventional_period",
+          "label": "c. 1050–1500 CE",
+          "locator": "{\"start\": 48579, \"end\": 48631, \"table_row\": \"gmh\"}",
+          "quote": "gmh\tgmh\tgmh\t\tI\tH\tMiddle High German (ca. 1050-1500)\t",
+          "role": "convention",
+          "source": "ISO 639-3 code tables",
+          "start": {
+            "earliest": 1050,
+            "latest": 1050
+          },
+          "url": "https://iso639-3.sil.org/sites/iso639-3/files/downloads/iso-639-3.tab"
+        },
         {
           "basis": "attested",
           "citation": "Hammarström, H., Forkel, R., Haspelmath, M. & Bank, S. Glottolog CLDF data, repository tag v5.3, cldf/languages.csv (First_/Last_Year_Of_Documentation). The tag's metadata cites 'Glottolog 5.2.1' (2025); version discrepancy unresolved.",
@@ -308,29 +402,49 @@
             "latest": 1100
           },
           "url": "https://www.gutenberg.org/cache/epub/22636/pg22636-images.html"
+        },
+        {
+          "basis": "conventional",
+          "citation": "Baugh, Albert C. & Thomas Cable. 2026. A History of the English Language. 7th ed. Abingdon and New York: Routledge. https://doi.org/10.4324/9781003584513",
+          "claim_id": "ev_period_ce0419dfbb8cee23104086af1aa51f261e41bbe8",
+          "end": {
+            "earliest": 1500,
+            "latest": 1500
+          },
+          "event": "conventional_period",
+          "label": "1100–1500 CE",
+          "locator": "{\"page\": \"27\", \"pdf_page\": 46}",
+          "quote": "Middle High German (1100–​1500)",
+          "role": "convention",
+          "source": "Baugh & Cable 2026",
+          "start": {
+            "earliest": 1100,
+            "latest": 1100
+          },
+          "url": "https://doi.org/10.4324/ 9781003584513"
         }
       ],
       "basis": "conventional",
       "code": "gmh",
       "evidence": [
         {
-          "citation": "SIL International (ISO 639-3 Registration Authority). ISO 639-3 code set, iso-639-3.tab (reference names), retrieved 2026-10-03.",
-          "claim_id": "ev_period_7abb03ecb2b166c398f53e3b1a1b37b15bb54aa4",
+          "citation": "Schmidt, Wilhelm. 2013. Geschichte der deutschen Sprache: Ein Lehrbuch für das germanistische Studium. Continued by Helmut Langner. 11th, improved and enlarged ed., ed. by Elisabeth Berner & Norbert Richard Wolf. Stuttgart: S. Hirzel.",
+          "claim_id": "ev_period_527e78f9e2f97912cd60fdf37d746bd96e259c58",
           "event": "conventional_period",
-          "locator": "{\"start\": 48579, \"end\": 48631, \"table_row\": \"gmh\"}",
-          "quote": "gmh\tgmh\tgmh\t\tI\tH\tMiddle High German (ca. 1050-1500)\t",
+          "locator": "{\"page\": \"23\", \"pdf_page\": 46}",
+          "quote": "Mittelhochdeutsch \n(1050–1350)",
           "role": "convention",
-          "source": "ISO 639-3 code tables",
-          "url": "https://iso639-3.sil.org/sites/iso639-3/files/downloads/iso-639-3.tab"
+          "source": "Schmidt 2013",
+          "url": null
         }
       ],
       "kind": "stage",
-      "label": "c. 1050–1500 CE",
+      "label": "1050–1350 CE",
       "name": "Middle High German",
       "spoken": {
         "end": {
-          "earliest": 1500,
-          "latest": 1500
+          "earliest": 1350,
+          "latest": 1350
         },
         "ongoing": false,
         "start": {
@@ -340,30 +454,51 @@
       }
     },
     {
-      "alternatives": [],
-      "basis": "attested",
-      "code": "goh",
-      "evidence": [
+      "alternatives": [
         {
+          "basis": "attested",
           "citation": "Fortson, Benjamin W., IV. 2010. Indo-European Language and Culture: An Introduction. 2nd ed. Blackwell Textbooks in Linguistics 19. Chichester and Malden, MA: Wiley-Blackwell. (Supplied copy is a reflowed e-book without printed page numbers; cited by section.)",
           "claim_id": "ev_period_38f012a2700f8ce21e1300148151a4d0ad7b538d",
+          "end": null,
           "event": "first_attestation",
+          "label": "from c. 600 CE",
           "locator": "§15.70 (e-book PDF p. 375); page image checked",
           "quote": "The language known as High German (loosely, German; it is called “High German”\nafter the relatively mountainous terrain of much of its early territory, to distinguish it from the\n“Low German” of the lowland country to the north) appears first in the form of runic\ninscriptions in Old High German dating back to 600 or so, most importantly on a spearhead\nfound in Wurmlingen near Tübingen in southwest Germany.",
           "role": "observation",
           "source": "Fortson 2010",
+          "start": {
+            "earliest": 600,
+            "latest": 600
+          },
           "url": null
         }
       ],
-      "kind": "attested",
-      "label": "from c. 600 CE",
+      "basis": "conventional",
+      "code": "goh",
+      "evidence": [
+        {
+          "citation": "Schmidt, Wilhelm. 2013. Geschichte der deutschen Sprache: Ein Lehrbuch für das germanistische Studium. Continued by Helmut Langner. 11th, improved and enlarged ed., ed. by Elisabeth Berner & Norbert Richard Wolf. Stuttgart: S. Hirzel.",
+          "claim_id": "ev_period_3cae0d5e093b64404e6eed9639e2c94aea23457e",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"23\", \"pdf_page\": 46}",
+          "quote": "Althochdeutsch\n(500–1050)",
+          "role": "convention",
+          "source": "Schmidt 2013",
+          "url": null
+        }
+      ],
+      "kind": "stage",
+      "label": "500–1050 CE",
       "name": "Old High German",
       "spoken": {
-        "end": null,
+        "end": {
+          "earliest": 1050,
+          "latest": 1050
+        },
         "ongoing": false,
         "start": {
-          "earliest": 600,
-          "latest": 600
+          "earliest": 500,
+          "latest": 500
         }
       }
     },
@@ -433,6 +568,40 @@
             "latest": -1500
           },
           "url": null
+        },
+        {
+          "basis": "attested",
+          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Asia Minor. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "claim_id": "ev_period_d8de3c646ee790eb0ccc7e968594025e23b2d4cc",
+          "end": {
+            "earliest": -1299,
+            "latest": -1200
+          },
+          "event": "last_attestation",
+          "label": "until 13th century BCE",
+          "locator": "{\"page\": \"7\", \"pdf_page\": 29}",
+          "quote": "The Hittite language is preserved for us on clay tablets written in a cuneiform syllabary,\nthe archives of the palace or central authority in the capital city of Hattusas (Bo˘gazk¨oy,\nnow Bo˘gazkale), and a few other urban centers like Mas¸at, Ortak¨oy, and Kus¸aklı, the tablets\nthemselves written over the period from the seventeenth/sixteenth to the end of the thir-\nteenth century.",
+          "role": "observation",
+          "source": "Woodard 2008",
+          "start": null,
+          "url": null
+        },
+        {
+          "basis": "attested",
+          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Asia Minor. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "claim_id": "ev_period_ee3e95601d2a1c5b5eec0955e7cc0d214f764cd7",
+          "end": null,
+          "event": "first_attestation",
+          "label": "from 1900/1701 BCE",
+          "locator": "{\"page\": \"6\", \"pdf_page\": 28}",
+          "quote": "The speakers of Hittite were in place in Central Anatolia by the nineteenth–eighteenth\ncentury BC, since a few words of the language (notably iˇsh˘iul- “contract”) appear in Old\nAssyrian documents from the merchant colonies like K¯arum Kaneˇs, Hittite Neˇsaˇs, modern\nK¨ultepe.",
+          "role": "observation",
+          "source": "Woodard 2008",
+          "start": {
+            "earliest": -1899,
+            "latest": -1700
+          },
+          "url": null
         }
       ],
       "basis": "attested",
@@ -492,6 +661,23 @@
             "latest": -549
           },
           "url": "https://repository.uwtsd.ac.uk/id/eprint/1543/1/JK4.pdf"
+        },
+        {
+          "basis": "attested",
+          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Europe. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "claim_id": "ev_period_9ca216e232c741a6dd03f827555343c6777ed9a8",
+          "end": null,
+          "event": "first_attestation",
+          "label": "from 7th century BCE",
+          "locator": "{\"page\": \"74\", \"pdf_page\": 97}",
+          "quote": "Latin has a long history. The earliest documents date from the seventh century BC, and\nthere is a continuous literary tradition from the third century BC through to the medieval\nperiod.Thefollowingchronologicalstagesofthelanguagearegenerallyrecognized,although\nthere is no clear agreement on exact dating:",
+          "role": "observation",
+          "source": "Woodard 2008",
+          "start": {
+            "earliest": -699,
+            "latest": -600
+          },
+          "url": null
         }
       ],
       "basis": "attested",
@@ -584,6 +770,40 @@
     },
     {
       "alternatives": [
+        {
+          "basis": "attested",
+          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Europe. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "claim_id": "ev_period_40780ebc5f9347029d225514dc81aa673f34ac8a",
+          "end": null,
+          "event": "first_attestation",
+          "label": "from c. 8th century CE",
+          "locator": "{\"page\": \"5\", \"pdf_page\": 27}",
+          "quote": "For such\ndescriptions of Insular Celtic, the linguist must await the appearance of Old Irish and Old\nWelsh manuscripts in about the eighth century AD (and hence Ogham Irish is not treated\nin the present volume).",
+          "role": "observation",
+          "source": "Woodard 2008",
+          "start": {
+            "earliest": 701,
+            "latest": 800
+          },
+          "url": null
+        },
+        {
+          "basis": "attested",
+          "citation": "Clackson, James & Geoffrey Horrocks. 2007. The Blackwell History of the Latin Language. Malden, MA and Oxford: Blackwell.",
+          "claim_id": "ev_period_5a9146156b174fcb64cb961d14700d4d8f405659",
+          "end": null,
+          "event": "first_attestation",
+          "label": "from 7th century CE",
+          "locator": "{\"page\": \"3\", \"pdf_page\": 11}",
+          "quote": "Extensive textual evidence for Celtic is much later, with the ﬁrst Old\nIrish glosses recorded in the seventh century AD.",
+          "role": "observation",
+          "source": "Clackson & Horrocks 2007",
+          "start": {
+            "earliest": 601,
+            "latest": 700
+          },
+          "url": null
+        },
         {
           "basis": "conventional",
           "citation": "English Wikipedia, 'Old Irish', retrieved 2026-10-03.",
