@@ -238,7 +238,7 @@ impl Items {
             if let RawDescLineKind::Desc { desc } = &line.kind {
                 for (i, &term) in desc.terms.iter().enumerate() {
                     let desc_langterm = LangTerm::new(desc.lang, term);
-                    if let Some(desc_items) = self.get_dupes(desc_langterm) {
+                    if let Some(desc_items) = self.candidates(desc_langterm) {
                         if i == 0 {
                             possible_ancestors.add(desc_items, line.depth);
                         }

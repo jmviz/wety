@@ -498,7 +498,7 @@ impl Items {
             let mut has_imputed_child = false;
             let mut next_parent_items = vec![];
             for &langterm in &*template.langterms {
-                if let Some(ety_items) = self.get_dupes(langterm) {
+                if let Some(ety_items) = self.candidates(langterm) {
                     if ety_items.len() > 1 {
                         // i.e. langterm is ambiguous
                         has_ambiguous_child = true;

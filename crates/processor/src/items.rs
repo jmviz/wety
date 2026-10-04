@@ -11,7 +11,8 @@ use crate::{
 use wety_core::{
     ety_graph::EtyGraph,
     items::{ImputedItem, Item, ItemId, RealItem},
-    langterm::LangTerm,
+    langterm::{LangTerm, Term},
+    languages::Lang,
     pos::Pos,
     string_pool::StringPool,
 };
@@ -25,12 +26,15 @@ use simd_json::to_borrowed_value;
 pub(crate) struct RawTemplates {
     pub(crate) ety: HashMap<ItemId, RawEtymology>,
     pub(crate) desc: HashMap<ItemId, RawDescendants>,
-    pub(crate) root: HashMap<ItemId, RawRoot>,
+    pub(crate) root: HashMap<ItemId, Box<[RawRoot]>>,
 }
 
 type Dupes = HashMap<LangTerm, Vec<ItemId>>;
 // (langterm, {{etymon}} id) -> item, e.g. (enm moder, "mother")
 type EtymonIds = HashMap<(LangTerm, Box<str>), ItemId>;
+// cited langterm -> the page title Wiktionary links it to, where different,
+// e.g. la mātrīx -> matrix
+pub(crate) type EntryNames = HashMap<LangTerm, Term>;
 type Lines = HashMap<usize, ItemId>;
 
 pub(crate) struct Items {
@@ -39,6 +43,7 @@ pub(crate) struct Items {
     pub(crate) page_term_dupes: Dupes,
     pub(crate) imputed_dupes: Dupes,
     pub(crate) etymon_ids: EtymonIds,
+    pub(crate) entry_names: EntryNames,
     pub(crate) redirects: Redirects,
     pub(crate) raw_templates: RawTemplates,
     pub(crate) lines: Lines,
@@ -53,6 +58,7 @@ impl Items {
             page_term_dupes: Dupes::default(),
             imputed_dupes: Dupes::default(),
             etymon_ids: EtymonIds::default(),
+            entry_names: EntryNames::default(),
             redirects: Redirects::default(),
             raw_templates: RawTemplates::default(),
             lines: Lines::default(),
@@ -62,6 +68,25 @@ impl Items {
 }
 
 impl Items {
+    // Read the entry names exported by packages/source_tools/entry_names.py:
+    // {lang code: {cited term: page title}}.
+    pub(crate) fn load_entry_names(&mut self, string_pool: &mut StringPool, path: &Path) -> Result<()> {
+        let file = std::io::BufReader::new(std::fs::File::open(path)?);
+        let entry_names: HashMap<String, HashMap<String, String>> = serde_json::from_reader(file)?;
+        for (code, titles) in entry_names {
+            let Some(lang) = code.parse::<Lang>().ok() else {
+                continue;
+            };
+            for (term, title) in titles {
+                self.entry_names.insert(
+                    lang.new_langterm(string_pool, &term),
+                    Term::new(string_pool, &title),
+                );
+            }
+        }
+        Ok(())
+    }
+
     pub(crate) fn len(&self) -> usize {
         self.graph.len()
     }
@@ -226,17 +251,40 @@ impl Items {
         }
     }
 
-    // The item that an {{etymon}} reference "lang:term<id:...>" names.
-    pub(crate) fn get_etymon_item(&self, langterm: LangTerm, id: &str) -> Option<ItemId> {
-        let lookup = |langterm| self.etymon_ids.get(&(langterm, Box::from(id))).copied();
-        lookup(langterm).or_else(|| lookup(self.redirects.rectify_langterm(langterm)))
+    // The langterms under which a cited langterm may be found, in order, as
+    // Wiktionary links it: as written (matching a canonical form or a page
+    // title), then under the page title its language's entry-name rules give
+    // (la mātrīx -> matrix), then through a redirect. Etymology-only languages
+    // are looked up under their full language.
+    fn lookup_langterms(&self, langterm: LangTerm) -> impl Iterator<Item = LangTerm> {
+        let lang = langterm.lang.ety2non();
+        let title = self
+            .entry_names
+            .get(&langterm)
+            .copied()
+            .unwrap_or(langterm.term);
+        let redirect = self.redirects.rectify_langterm(LangTerm::new(lang, title));
+        [
+            LangTerm::new(lang, langterm.term),
+            LangTerm::new(lang, title),
+            redirect,
+        ]
+        .into_iter()
     }
 
-    // returns all items that share the same lang and term
-    pub(crate) fn get_dupes(&self, langterm: LangTerm) -> Option<&Vec<ItemId>> {
-        self.dupes
-            .get(&langterm)
-            .or_else(|| self.page_term_dupes.get(&langterm))
+    // The item that an {{etymon}} reference "lang:term<id:...>" names.
+    pub(crate) fn get_etymon_item(&self, langterm: LangTerm, id: &str) -> Option<ItemId> {
+        self.lookup_langterms(langterm)
+            .find_map(|lt| self.etymon_ids.get(&(lt, Box::from(id))).copied())
+    }
+
+    // The items a cited langterm may name (several for homographs).
+    pub(crate) fn candidates(&self, langterm: LangTerm) -> Option<&Vec<ItemId>> {
+        self.lookup_langterms(langterm).find_map(|lt| {
+            self.dupes
+                .get(&lt)
+                .or_else(|| self.page_term_dupes.get(&lt))
+        })
     }
 
     fn get_max_similarity_candidate(
@@ -268,20 +316,12 @@ impl Items {
         embedding_comp: &impl embeddings::Comparand<ItemEmbedding>,
         langterm: LangTerm,
     ) -> Result<Option<(ItemId, f32)>> {
-        let langterm = self.redirects.rectify_langterm(langterm);
-        if let Some(candidates) = self.get_dupes(langterm)
-            && let Some((item_id, similarity)) =
-                self.get_max_similarity_candidate(embeddings, embedding_comp, candidates)?
-        {
-            return Ok(Some((item_id, similarity)));
+        match self.candidates(langterm) {
+            Some(candidates) => {
+                self.get_max_similarity_candidate(embeddings, embedding_comp, candidates)
+            }
+            None => Ok(None),
         }
-        if let Some(candidates) = self.page_term_dupes.get(&langterm)
-            && let Some((item_id, similarity)) =
-                self.get_max_similarity_candidate(embeddings, embedding_comp, candidates)?
-        {
-            return Ok(Some((item_id, similarity)));
-        }
-        Ok(None)
     }
 }
 
@@ -347,13 +387,12 @@ impl Items {
             items_needing_embedding
                 .extend(self.get_desc_items_needing_embedding(item_id, raw_descendants));
         }
-        if let Some(raw_root) = self.raw_templates.root.get(&item_id)
-            && let Some(root_items) = self.get_dupes(raw_root.langterm)
-            && root_items.len() > 1
-        {
-            items_needing_embedding.insert(item_id);
-            for &root_item in root_items {
-                items_needing_embedding.insert(root_item);
+        for raw_root in self.raw_templates.root.get(&item_id).into_iter().flatten() {
+            if let Some(root_items) = self.candidates(raw_root.langterm)
+                && root_items.len() > 1
+            {
+                items_needing_embedding.insert(item_id);
+                items_needing_embedding.extend(root_items);
             }
         }
         items_needing_embedding
@@ -417,5 +456,48 @@ impl Items {
         self.impute_root_etys(embeddings)?;
         self.graph.remove_cycles()?;
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::str::FromStr;
+    use wety_core::gloss::Gloss;
+
+    fn add(items: &mut Items, sp: &mut StringPool, lang: &str, term: &str, page: Option<&str>) -> ItemId {
+        let item = RealItem {
+            ety_num: 1,
+            ety_label: None,
+            lang: Lang::from_str(lang).unwrap(),
+            term: Term::new(sp, term),
+            pos: vec![Pos::from_str("noun").unwrap()],
+            gloss: vec![Gloss::new(sp, "x")],
+            page_term: page.map(|p| Term::new(sp, p)),
+            romanization: None,
+            is_reconstructed: false,
+        };
+        items.add_real(item).0
+    }
+
+    #[test]
+    fn candidates_follow_wiktionary_links() {
+        let mut sp = StringPool::new();
+        let mut items = Items::new().unwrap();
+        let la = Lang::from_str("la").unwrap();
+        let grc = Lang::from_str("grc").unwrap();
+        // Latin matrix, canonically mātrīx; Greek περι-, with no canonical form
+        let matrix = add(&mut items, &mut sp, "la", "mātrīx", Some("matrix"));
+        let peri = add(&mut items, &mut sp, "grc", "περι-", None);
+        let cited_peri = grc.new_langterm(&mut sp, "περῐ-");
+        assert_eq!(items.candidates(cited_peri), None);
+        items.entry_names.insert(cited_peri, Term::new(&mut sp, "περι-"));
+        assert_eq!(items.candidates(cited_peri), Some(&vec![peri]));
+        // as written, by canonical form or by page title
+        assert_eq!(items.candidates(la.new_langterm(&mut sp, "mātrīx")), Some(&vec![matrix]));
+        assert_eq!(items.candidates(la.new_langterm(&mut sp, "matrix")), Some(&vec![matrix]));
+        // an etymology-only language is looked up under its full language
+        let la_new = Lang::from_str("la-new").unwrap();
+        assert_eq!(items.candidates(la_new.new_langterm(&mut sp, "mātrīx")), Some(&vec![matrix]));
     }
 }

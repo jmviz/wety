@@ -174,8 +174,9 @@ impl Items {
                 // first in the wiktextract data. $$ This may be good enough or
                 // may require better handling in the future...
                 self.lines.insert(line_number, item_id);
-                if let Some(raw_root) = json_item.get_root(string_pool, lang) {
-                    self.raw_templates.root.insert(item_id, raw_root);
+                let raw_roots = json_item.get_roots(string_pool, lang);
+                if !raw_roots.is_empty() {
+                    self.raw_templates.root.insert(item_id, raw_roots.into_boxed_slice());
                 }
                 if let Some(id) = json_item.get_etymon_id(lang) {
                     self.add_etymon_id(item_id, id);

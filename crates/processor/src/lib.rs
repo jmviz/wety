@@ -44,6 +44,7 @@ pub fn process_wiktextract(
     wiktextract_path: &Path,
     serialization_path: &Path,
     turtle_path: Option<&Path>,
+    entry_names_path: Option<&Path>,
     embeddings_config: &embeddings::Config,
 ) -> Result<()> {
     let mut t = Instant::now();
@@ -53,6 +54,10 @@ pub fn process_wiktextract(
     );
     let mut string_pool = StringPool::new();
     let mut items = Items::new()?;
+    if let Some(entry_names_path) = entry_names_path {
+        items.load_entry_names(&mut string_pool, entry_names_path)?;
+        println!("Loaded {} entry names.", items.entry_names.len());
+    }
     items.process_wiktextract_lines(&mut string_pool, wiktextract_path)?;
     println!("Finished. Took {}.", HumanDuration(t.elapsed()));
     let embeddings =
