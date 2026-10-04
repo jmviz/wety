@@ -7,12 +7,14 @@ Tools, provenance, limits and `check` are those of the
 separate session) reviews it, re-checks every adopted quote against the retained text,
 and only then imports claims and records decisions.
 
-This version (2026-10-04) is the retry after the maintainer supplied handbooks as
-holdings (`dating holdings list`). The code notes summarize the
-[period pilot](../../../data/workspaces/dating/_research/period-pilot-2026-10-03/README.md)
-and [scope check](../../../data/workspaces/dating/_research/scope-check-2026-10-03/README.md);
-Wiktionary scope is from the legacy export `languages.json`. The first version is in git
-history (used by the 2026-10-03 pilot run).
+This version (2026-10-04, third round) follows the maintainer's supply of the six works
+the retry requested and five volumes of Woodard's *Ancient Languages* series
+(`dating holdings list`). The code notes summarize the
+[period pilot](../../../data/workspaces/dating/_research/period-pilot-2026-10-03/README.md),
+[scope check](../../../data/workspaces/dating/_research/scope-check-2026-10-03/README.md)
+and [retry](../../../data/workspaces/dating/_research/period-retry-2026-10-04/README.md);
+Wiktionary scope is from the legacy export `languages.json`. Earlier versions are in git
+history (the 2026-10-03 pilot and the 2026-10-04 retry).
 
 ```text
 Verify when each of the Wiktionary language codes below was spoken, for display on wety's
@@ -24,12 +26,16 @@ years; a basis (conventional period, attestation window, or estimate); and citat
 You are checking the evidence for that interval, not writing it. spoken stays null in
 your records; the integrator derives display intervals only from reviewed claims.
 
-The main task: nine codes have no displayable period yet (goh non got cu akk sa ojp
-ine-pro sla-pro). Eleven have one, mostly from ISO 639-3 reference names or Glottolog
+The main task: six codes have no displayable period yet (non got cu sa ojp ine-pro).
+Fourteen have one, but several rest on ISO 639-3 reference names or Glottolog
 documentation windows, which the maintainer accepts only when nothing better exists
-(ang enm gmh sga grc hit och ltc la gem-pro cel-pro). The maintainer has now supplied
-scholarly handbooks. For every code, find what those handbooks (and other readable
-scholarly sources) state about the period of the whole code.
+(enm gmh sga grc och ltc), and several give only a start or only an end (goh la sga grc
+sla-pro). A previous run (the retry) read Barnes, Fortson, Frellesvig, Huehnergard,
+Kapović, Lunt and Miller and requested six works; the maintainer has now supplied all
+six, plus five volumes of Woodard's Ancient Languages series. This run's task is to read
+the newly supplied works for every code they bear on, and to report what they state
+about the period of the whole code. Do not repeat the retry's searches of the earlier
+holdings except to resolve a conflict with a new source.
 
 For each code:
 1. Look for a scholarly statement of the period or attestation window of the entity the
@@ -64,13 +70,24 @@ with them. Such periods are always estimates (role hypothesis), even when stated
 confidently. Record competing proposals separately.
 
 Source access, in this order.
-1. Supplied sources first. Call library (no query lists everything). The maintainer has
-   supplied, among others: Barnes, A New Introduction to Old Norse (non); Fortson,
-   Indo-European Language and Culture (ine-pro and every IE branch); Frellesvig, A
-   History of the Japanese Language (ojp); Huehnergard, A Grammar of Akkadian (akk);
-   Kapović (ed.), The Indo-European Languages (ine-pro and branch chapters: Germanic,
-   Celtic, Italic, Greek, Indo-Iranian, Anatolian, Slavic); Lunt, Old Church Slavonic
-   Grammar (cu); Miller, The Oxford Gothic Grammar (got). Open a holding with open,
+1. Supplied sources first. Call library (no query lists everything). New in this round:
+   Baugh & Cable, A History of the English Language (ang, enm; the supplied file is a
+   later edition than the 6th requested: cite the edition its title and copyright pages
+   state); Schmidt, Geschichte der deutschen Sprache, 11th ed. 2013 (goh, gmh; German);
+   Clackson & Horrocks, The Blackwell History of the Latin Language (la); Horrocks,
+   Greek: A History of the Language and its Speakers, 2nd ed. (grc); Sun, Chinese: A
+   Linguistic Introduction (och, ltc); and Woodard (ed.), Cambridge 2008, five volumes
+   reprinting The Cambridge Encyclopedia of the World's Ancient Languages: The Ancient
+   Languages of Asia and the Americas (Jamison, Sanskrit: sa; Peyraube, Ancient Chinese:
+   och; Ringe, appendix on reconstructed languages: ine-pro and other proto-languages),
+   of Europe (Woodard, Attic Greek and Greek dialects: grc; Clackson, Latin: la; Eska,
+   Continental Celtic: cel-pro; Jasanoff, Gothic: got; Faarlund, Ancient Nordic: non;
+   appendix on Indo-European: ine-pro), of Asia Minor (Watkins, Hittite: hit), of
+   Mesopotamia, Egypt and Aksum (Huehnergard & Woods, Akkadian and Eblaite: akk; its
+   text layer is poor, so verify quotes against page images), and of Syria-Palestine
+   and Arabia (no pilot code). Supplied earlier and already read by the retry: Barnes
+   (non), Fortson (IE), Frellesvig (ojp), Huehnergard (akk), Kapović (ed.) (IE), Lunt
+   (cu) and Miller (got). Open a holding with open,
    then use find (stage names with "century", "BC", "period", "attested", "spoken",
    "dated") rather than paging through it with read. find gives the PDF page and the
    printed page label; cite the printed page. Check the title page of each holding
@@ -87,10 +104,9 @@ Source access, in this order.
    retry a blocked route. Then call request: say exactly what the work would settle, for
    which codes, which part is needed, and the routes tried. Request only works that
    would change a code's result, not every search hit. The maintainer obtains them
-   later; record the gap in the report. Book handbooks the earlier pilot could not read:
-   Baugh & Cable 2013 (ang, enm), Schmidt 2013 (goh, gmh), Clackson & Horrocks 2007
-   (la), Horrocks 2010 (grc); their recorded quotes were written from memory and are
-   not evidence.
+   later; record the gap in the report. The pilot's recorded quotes from Baugh & Cable,
+   Schmidt, Clackson & Horrocks and Horrocks were written from memory and are not
+   evidence; the supplied copies now let you check them.
 Check status early and periodically; save partial files early; deliver partial work
 rather than exceeding limits.
 
@@ -145,69 +161,80 @@ Codes. Wiktionary scope (legacy export), the period wety shows now, and what is 
 
 ### Codes without a period
 
-goh — Old High German. Filed under goh: Lombardic. Glottolog oldh1241, ISO goh.
-  Now: none. ISO "ca. 750-1050" and Glottolog 750–1050 are narrower than goh, which
-  also files Lombardic; ISO lists Lombardic separately (lng). Needed: a period stated for Old High German
-  that covers Lombardic, or a source saying Lombardic belongs to Old High German.
 non — Old Norse (aliases Old Icelandic, Old Norwegian). Filed under non: Old East
   Norse, Old West Norse, Old Gutnish. Glottolog oldn1244, ISO non.
-  Now: none. Glottolog 800–1150 is a documentation window; Glottolog's Old Norse also
-  includes Old Norn and does not place Old Gutnish under it. Needed: a handbook period
-  for Old Norse in the broad sense (East and West Norse, ideally Gutnish).
+  Now: none. Barnes p. 1 dates a broad Old Norse (c. 750–1050 and c. 1050–1350) that
+  may include colonial varieties beyond non; Glottolog 800–1150 is a documentation
+  window. New: Faarlund (Ancient Nordic) dates the runic predecessor; say whether it
+  bears on non's start, and look for any period of Old Norse as a whole.
 got — Gothic. Nothing filed under got. Glottolog goth1244, ISO got.
-  Now: none. Glottolog 350–380 covers only Wulfila's Bible; Wikipedia "attested 3rd–10th
-  century" is not scholarly. Needed: the attestation window of Gothic (Bible, Skeireins,
-  Bologna fragment, Crimean graffiti, runic inscriptions) and any statement of when
-  Gothic was spoken; Crimean Gothic is a related variety, say how the source treats it.
+  Now: none. Miller gives witness dates (Codex Argenteus c. 520, Bologna fragment,
+  Crimean graffiti 9th or 10th century) but no whole attestation or spoken span.
+  New: Jasanoff (Gothic). Needed: a stated attestation window or period of Gothic;
+  how the source treats Crimean Gothic.
 cu — Old Church Slavonic. Filed under cu: Middle Bulgarian. Glottolog chur1257 "Church
   Slavic", ISO chu "Church Slavic".
-  Now: none. An earlier source gave the OCS stage c. 850–1100 (the canon), which
-  excludes Middle Bulgarian. Needed: a period covering OCS and Middle Bulgarian, or a
-  recorded gap; and the scope quotes of step 5.
-akk — Akkadian. Filed under akk: Old Akkadian, Old/Middle/Neo-Assyrian, Old/Middle/
-  Neo-/Late Babylonian, Standard Babylonian. Glottolog akka1240, ISO akk.
-  Now: none. Glottolog's -2350 is a database field, likely an error. Needed: the
-  attestation span of Akkadian as a whole (first Old Akkadian texts to the last
-  Late Babylonian texts) and the conventional dialect periods.
+  Now: none. Lunt p. 4: an arbitrary pre-1100 canon that excludes Middle Bulgarian. No
+  new holding targets cu; record only what a new source states incidentally.
 sa — Sanskrit. Filed under sa: Vedic, Brahmanic, Classical, Buddhist Hybrid, New
   Sanskrit. Glottolog sans1269, ISO san.
-  Now: none. Wikipedia's 1500–600 BCE is Vedic only; Glottolog -1500 to -1100 is a
-  documentation window. Needed: a statement covering Sanskrit from Vedic onwards, or a
+  Now: none. Kulikov (in Kapović) allows Sanskrit as a cover term for Vedic and
+  post-Vedic; Buddhist Hybrid Sanskrit coverage is open. New: Jamison (Sanskrit; the
+  retry's request). Needed: a statement covering Sanskrit from Vedic onwards, or a
   recorded gap; and the scope quotes of step 5.
 ojp — Old Japanese. Filed under ojp: Middle Japanese, Early and Late Middle Japanese.
   Glottolog oldj1239, ISO ojp.
-  Now: none. Wikipedia "8th century" and Glottolog 712 cover Old Japanese only.
-  Needed: Frellesvig's periodization; whether any source states one span for Old and
-  Middle Japanese together; otherwise each stage as its own subset claim.
-ine-pro — Proto-Indo-European (reconstructed). Now: none. An earlier source gave two
-  date proposals for the last stage of Proto-Indo-Anatolian (c. 4400–4200 BCE; c.
-  43rd–40th century BCE), with mapping to Wiktionary's PIE unresolved (PIE with or
-  without Anatolian). Needed: dates Fortson or Kapović give for PIE itself, and which
-  PIE (with or without Anatolian) they date.
-sla-pro — Proto-Slavic (reconstructed; alias Common Slavic). Now: none; no eligible
-  date found so far. Needed: dates a source gives for Proto-Slavic or Common Slavic
-  itself (Kapović's Slavic chapter, Fortson's Balto-Slavic chapter), not migration or
-  loanword dates.
+  Now: none. Frellesvig p. 1 dates OJ 700–800, EMJ 800–1200, LMJ 1200–1600 separately,
+  with no one span. No new holding targets ojp.
+ine-pro — Proto-Indo-European (reconstructed). Now: none. Fortson §2.58 gives only a
+  lower bound (latest pre-breakup PIE not earlier than c. 3500–3400 BCE), with the
+  with-/without-Anatolian mapping open. New: Ringe's appendix on reconstructed
+  languages (Asia and the Americas) and the Indo-European appendix (Europe). Needed:
+  dates they give for PIE itself and which PIE they date.
 
 ### Codes with a period (look for a better or confirming source)
 
-ang — Old English. Filed: Anglian, Mercian, Northumbrian Old English. Shown: ISO 639-3
-  "Old English (ca. 450-1100)". Baugh & Cable's 450–1150 is unverified.
+goh — Old High German. Filed under goh: Lombardic. Glottolog oldh1241, ISO goh.
+  Shown: attested from c. 600 CE (Fortson §15.70; §15.71 counts Langobardic as OHG),
+  no end. ISO and Glottolog 750–1050 do not cover Lombardic. New: Schmidt (requested).
+  Needed: Schmidt's OHG period and its treatment of Langobardisch.
+ang — Old English. Filed: Anglian, Mercian, Northumbrian Old English. Shown: 5th–11th
+  century (Slocum & Lehmann, EIEOL). New: Baugh & Cable (requested). Needed: their
+  Old English period, checked against the pilot's unverified 450–1150.
 enm — Middle English. Filed: Early Scots, Northern Middle English. Shown: ISO "Middle
-  English (1100-1500)".
-gmh — Middle High German. Shown: ISO "ca. 1050-1500". Schmidt's 1050–1350 unverified.
-sga — Old Irish. Shown: ISO "Old Irish (to 900)", end only.
+  English (1100-1500)". New: Baugh & Cable. Needed: their Middle English period and
+  whether it covers early Scots / northern English.
+gmh — Middle High German. Shown: ISO "ca. 1050-1500" (the maintainer kept ISO over
+  Wright 1917's 1100–1500). New: Schmidt. Needed: Schmidt's MHG period (the pilot's
+  1050–1350 is unverified).
+sga — Old Irish. Shown: ISO "Old Irish (to 900)", end only (Sims-Williams: earliest
+  manuscripts 8th century, not adopted). Eska's Continental Celtic chapter is not
+  about Old Irish; record only what a new source states.
 grc — Ancient Greek. Filed: all ancient dialects, Koine and Byzantine Greek. Shown: ISO
-  "Ancient Greek (to 1453)", end only. A period covering Koine and Byzantine is needed
-  for a start.
-hit — Hittite. Shown: Glottolog documentation window 1650–1180 BCE (as attestation).
+  "Ancient Greek (to 1453)", end only. New: Horrocks (requested), Woodard's Attic
+  Greek and Greek dialects. Needed: a period covering Koine and Byzantine for a start,
+  or each stage as its own subset claim. Mycenaean has its own Wiktionary code (gmy).
+hit — Hittite. Shown: attested c. 19th century – 1200 BCE (Kapović p. 3 for names,
+  Fortson §9.17 for the end of text production). New: Watkins (Hittite). Confirm or
+  contradict.
 och — Old Chinese. Filed: Early and Late Old Chinese. Shown: Glottolog 1200 BCE – 400
-  CE (as attestation).
+  CE (as attestation). New: Sun (requested), Peyraube (Ancient Chinese). Needed: their
+  periodization of Old Chinese as a whole.
 ltc — Middle Chinese. Filed: Early and Late Middle Chinese. Shown: Glottolog 601–1150
-  (as attestation).
+  (as attestation). New: Sun, Peyraube. Needed: their Middle Chinese period.
 la — Latin. Filed: Old, Classical, Late, Vulgar, Ecclesiastical, Medieval, Renaissance,
-  New Latin. Shown: first written record c. 550 BC (Koch 2020), no end.
+  New Latin. Shown: attested from the mid-7th century BCE (Wallace in Kapović p. 322),
+  no end. New: Clackson & Horrocks (requested; chapter VIII on late antiquity and
+  beyond), Clackson's Latin chapter. Needed: whether either states a span or end for
+  Latin including its medieval and later learned use.
+akk — Akkadian. Filed: Old Akkadian, Old/Middle/Neo-Assyrian, Old/Middle/Neo-/Late
+  Babylonian, Standard Babylonian. Shown: attested 26th century BCE – 1st century CE
+  (Huehnergard 2011 pp. xxiii–xxiv). New: Huehnergard & Woods (Akkadian and Eblaite).
+  Confirm or contradict.
+sla-pro — Proto-Slavic (alias Common Slavic). Shown: estimated, until c. 800/1000 CE
+  (Fortson §18.29), no start. No new holding targets it.
 gem-pro — Proto-Germanic. Shown: Koch 2020 estimate (start c. 500/400 BC, end 300 BC –
-  AD 1).
-cel-pro — Proto-Celtic. Shown: Koch 2020 estimate c. 1200–900 BC.
+  AD 1). No new holding targets it.
+cel-pro — Proto-Celtic. Shown: Koch 2020 estimate c. 1200–900 BC. New: Eska
+  (Continental Celtic): any date for Proto-Celtic itself.
 ```
