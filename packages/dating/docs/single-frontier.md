@@ -208,7 +208,12 @@ for which codes, and routes tried. After the run its requests merge into
 `data/registry/source-requests.json` (`dating requests list`). `dating requests push`
 files open requests in Zotero (collection `wety/dating/<topic>` and
 `wety/needs-fulltext`, tag `wety:needs-fulltext`, a note with the reasons), reusing a
-matching library item. Writes use Zotero's local API (Zotero 10+; enable it under
+matching library item. Before filing, `dating requests enrich` (run by `push`) resolves
+each request to a full record, as Zotero's "Add Item by Identifier" would: DOIs through
+doi.org (Crossref, DataCite), books without one through K10plus by ISBN or by exact
+title, author and year (an edition is not interchangeable), with place, edition and
+pages filled from K10plus. Items wety created earlier are completed: empty fields and
+values still as wety first wrote them are filled; anything else is left alone. Writes use Zotero's local API (Zotero 10+; enable it under
 Settings > Advanced, and choose "Always Allow" once; the key stays in the keychain).
 The client writes only below `wety`, adds only `wety:` tags and notes, and never edits
 or deletes other data. When the file is attached, `dating holdings sync` ingests it and

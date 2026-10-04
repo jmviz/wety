@@ -356,6 +356,24 @@ class FakeZotero(BaseHTTPRequestHandler):
                 if parts[1] in i["data"].get("collections", []) and "parentItem" not in i["data"]
             ]
             return self.reply(200, items if "start=0" in self.path else [])
+        if path.startswith("/itemTypeFields"):
+            t = parse_qs(urlparse(self.path).query)["itemType"][0]
+            common = [
+                "title",
+                "date",
+                "publisher",
+                "place",
+                "edition",
+                "ISBN",
+                "DOI",
+                "url",
+                "numPages",
+            ]
+            extra = {
+                "bookSection": ["bookTitle", "pages"],
+                "journalArticle": ["publicationTitle", "pages"],
+            }
+            return self.reply(200, [{"field": f} for f in common + extra.get(t, [])])
         if parts == ["items", "top"]:
             q = parse_qs(urlparse(self.path).query).get("q", [""])[0]
             hits = [i for i in s["items"].values() if q and q in json.dumps(i["data"])]
@@ -507,6 +525,76 @@ class ZoteroTests(Sandbox):
         self.assertEqual(
             {t["tag"] for t in items["BOOK0001"]["data"]["tags"]}, {"mine", holdings.SUPPLIED}
         )
+
+    def test_push_uses_resolved_records_and_completes_its_own_items_only(self):
+        root = self.repo / "data/workspaces/dating/_research/run"
+        root.mkdir(parents=True)
+        (root / "requests.jsonl").write_text(
+            json.dumps(
+                {
+                    "title": "Missing Book",
+                    "authors": ["Ann Roe"],
+                    "year": 2020,
+                    "needed": "work",
+                    "why": "x",
+                    "codes": ["la"],
+                }
+            )
+            + "\n"
+        )
+        holdings.merge_requests(root)
+        record = {
+            "item_type": "book",
+            "fields": {
+                "title": "Missing Book: A Subtitle",
+                "publisher": "Press",
+                "place": "Leiden",
+                "ISBN": "9780000000019",
+                "edition": "2nd ed.",
+                "libraryCatalog": "K10plus",
+                "bogus": "x",
+            },
+            "creators": [
+                {"creatorType": "author", "lastName": "Roe", "firstName": "Ann"},
+                {"creatorType": "editor", "lastName": "Doe", "firstName": "Jo"},
+            ],
+            "sources": ["fixture"],
+        }
+        with patch("harness.bibliography.resolve", return_value=record):
+            holdings.enrich_requests()
+        [filed] = holdings.push_requests(self.client)["filed"]
+        item = FakeZotero.state["items"][filed["zotero_item"]]["data"]
+        self.assertEqual(
+            (item["title"], item["place"], item["ISBN"]),
+            ("Missing Book: A Subtitle", "Leiden", "9780000000019"),
+        )
+        self.assertNotIn("bogus", item)  # not a Zotero field for books
+        self.assertNotIn("libraryCatalog", item)
+        self.assertEqual(len(item["creators"]), 2)
+
+        # An item filed earlier with bare fields is completed; a value the maintainer
+        # set, and creators they edited, are kept.
+        queue = holdings.load(holdings.REQUESTS, "requests")
+        key = next(iter(queue["requests"]))
+        r = queue["requests"][key]
+        bare = holdings.basic_item(r)
+        old_key = self.client.create("items", [{**bare, "publisher": "Maintainer's Press"}])[0]
+        r["zotero"]["item_key"] = old_key
+        holdings.atomic_json(holdings.REQUESTS, queue)
+        result = holdings.push_requests(self.client)
+        [done] = result["completed"]
+        old = FakeZotero.state["items"][old_key]["data"]
+        self.assertEqual(old["publisher"], "Maintainer's Press")
+        self.assertEqual(old["title"], "Missing Book: A Subtitle")  # wety's placeholder upgraded
+        self.assertEqual((old["place"], len(old["creators"])), ("Leiden", 2))
+        self.assertNotIn("publisher", done["fields"])
+        FakeZotero.state["items"][old_key]["data"]["creators"] = [
+            {"creatorType": "author", "lastName": "Edited"}
+        ]
+        FakeZotero.state["items"][old_key]["data"]["place"] = ""
+        holdings.push_requests(self.client)
+        old = FakeZotero.state["items"][old_key]["data"]
+        self.assertEqual((old["creators"][0]["lastName"], old["place"]), ("Edited", "Leiden"))
 
     def test_writes_are_confined(self):
         with self.assertRaises(ValueError):

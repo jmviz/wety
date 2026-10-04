@@ -705,8 +705,22 @@ ITEM_TYPE_ALIASES = {
 }
 
 
-def zotero_item(r):
-    """A new Zotero item from a request's bibliographic fields."""
+def zotero_item(r, allowed=None):
+    """A new Zotero item for a request: the resolved record (`requests enrich`) when
+    there is one, else the request's own fields. allowed(item_type) gives the fields
+    Zotero accepts for a type; others are left out rather than rejected."""
+    meta = r.get("metadata") or {}
+    if meta.get("fields"):
+        item = {"itemType": meta["item_type"], **meta["fields"], "creators": meta["creators"]}
+        if allowed:
+            fields = allowed(item["itemType"])
+            item = {k: v for k, v in item.items() if k in ("itemType", "creators") or k in fields}
+        return item
+    return basic_item(r)
+
+
+def basic_item(r):
+    """A Zotero item from the request's bibliographic fields alone."""
     item_type = ITEM_TYPE_ALIASES.get(r.get("item_type"), r.get("item_type"))
     if item_type not in ZOTERO_TYPES:
         item_type = "journalArticle" if r.get("doi") else "book"
@@ -798,8 +812,10 @@ def push_requests(client, topic="periods"):
         for key, r in queue["requests"].items():
             if r["status"] != "open":
                 continue
-            existing = find_library_item(client, r)
-            item_key = existing or client.create("items", [zotero_item(r)])[0]
+            existing = find_library_item(client, identified(r))
+            item_key = (
+                existing or client.create("items", [zotero_item(r, client.item_type_fields)])[0]
+            )
             tag = NEEDS_PART if r["needed"] in ("supplement", "dataset") else NEEDS_FULLTEXT
             client.add_to_item(item_key, collections=[topic_key, queue_key], tags=[tag])
             client.create(
@@ -818,7 +834,50 @@ def push_requests(client, topic="periods"):
             )
             filed.append({"request": key, "zotero_item": item_key, "reused": bool(existing)})
             atomic_json(REQUESTS, queue)  # each filing survives a later failure
-    return {"filed": filed}
+        completed = []
+        for key, r in queue["requests"].items():
+            z = r.get("zotero") or {}
+            if (
+                r["status"] == "filed"
+                and not z.get("reused_existing_item")
+                and r.get("metadata", {}).get("fields")
+            ):
+                changed = client.fill_item(
+                    z["item_key"],
+                    zotero_item(r, client.item_type_fields),
+                    basic_item(r),
+                )
+                if changed:
+                    completed.append(
+                        {"request": key, "zotero_item": z["item_key"], "fields": changed}
+                    )
+    return {"filed": filed, "completed": completed}
+
+
+def identified(r):
+    """The request with identifiers from its resolved record, for matching."""
+    fields = (r.get("metadata") or {}).get("fields") or {}
+    return {
+        **r,
+        "doi": r.get("doi") or fields.get("DOI"),
+        "isbn": r.get("isbn") or fields.get("ISBN"),
+    }
+
+
+def enrich_requests(keys=(), force=False):
+    """Resolve requests to full records (DOI, ISBN, publisher, place, edition...)."""
+    from .bibliography import resolve
+
+    done = {}
+    with locked(REQUESTS):
+        queue = load(REQUESTS, "requests")
+        for key, r in queue["requests"].items():
+            if (keys and key not in keys) or (r.get("metadata") and not force):
+                continue
+            r["metadata"] = {**resolve(r), "resolved_at": now()}
+            done[key] = r["metadata"].get("unresolved") or ", ".join(r["metadata"]["sources"])
+            atomic_json(REQUESTS, queue)
+    return done
 
 
 def untag_supplied(client):
@@ -925,6 +984,9 @@ def requests_main(argv=None):
         "push", help="file open requests in Zotero (asks Zotero for write access once)"
     )
     s.add_argument("--topic", default="periods", help="collection under wety/dating")
+    e = sub.add_parser("enrich", help="resolve requests to full bibliographic records")
+    e.add_argument("keys", nargs="*")
+    e.add_argument("--force", action="store_true", help="resolve again")
     u = sub.add_parser("set", help="change a request's status")
     u.add_argument("key")
     u.add_argument("status", choices=REQUEST_STATUSES)
@@ -950,9 +1012,12 @@ def requests_main(argv=None):
         ]
     elif args.command == "merge":
         result = merge_requests(args.run)
+    elif args.command == "enrich":
+        result = enrich_requests(args.keys, args.force)
     elif args.command == "push":
         from .zotero import Zotero
 
+        enrich_requests()  # full records before filing
         result = push_requests(Zotero(), args.topic)
     else:
         result = update_request(args.key, args.status, args.note, args.holding)

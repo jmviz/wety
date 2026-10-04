@@ -5,7 +5,9 @@ Zotero" (Settings > Advanced). Writes (Zotero 10+) need a key from Zotero's own
 authorization dialog; choose "Always Allow" and the key is kept in the system keyring,
 never in the repository. The key covers the whole library, so this client confines
 itself: it creates collections only under `wety`, creates items, and adds collections,
-`wety:` tags and child notes to items. It never edits other fields or deletes anything.
+`wety:` tags and child notes to items. On items it created it fills empty fields (and
+its own placeholder creators) from resolved records; it never overwrites a value someone
+else set, never edits other items' fields, and never deletes anything.
 Every write is read back, because a reported success is not proof of a stored change.
 
 Zotero is the maintainer's interface, not evidence: files are copied into the holdings
@@ -14,6 +16,7 @@ store (holdings.py) and claims cite that retained text.
 
 import json
 import os
+import re
 from pathlib import Path
 import urllib.error
 import urllib.parse
@@ -29,6 +32,17 @@ APP_NAME = "wety dating research"
 
 class ZoteroError(RuntimeError):
     pass
+
+
+def same_value(field, stored, sent):
+    """Zotero normalizes some fields (it hyphenates ISBNs)."""
+    if field in ("ISBN", "ISSN", "DOI"):
+
+        def key(v):
+            return re.sub(r"[^0-9a-z]", "", (v or "").lower())
+
+        return key(stored) == key(sent)
+    return stored == sent
 
 
 class Zotero:
@@ -195,6 +209,63 @@ class Zotero:
         }:
             raise ZoteroError(f"update {key} reported success but was not stored")
         return after
+
+    def item_type_fields(self, item_type):
+        """Fields Zotero accepts for an item type (from the running Zotero's schema)."""
+        cache = self.__dict__.setdefault("_fields", {})
+        if item_type not in cache:
+            status, _, raw = self.request("GET", "/itemTypeFields", {"itemType": item_type})
+            if status != 200:
+                raise ZoteroError(f"item type fields for {item_type}: HTTP {status}")
+            cache[item_type] = {f["field"] for f in json.loads(raw)}
+        return cache[item_type]
+
+    def fill_item(self, key, data, original=None):
+        """Complete an item wety created: set fields that are empty or still hold what
+        wety first wrote (`original`, its placeholder item), including the creators.
+        Nothing set by someone else is overwritten. Returns the changed field names."""
+        original = original or {}
+        item = self.item(key)
+        current = item["data"]
+        allowed = self.item_type_fields(current["itemType"])
+        patch = {
+            k: v
+            for k, v in data.items()
+            if k in allowed
+            and v
+            and v != current.get(k)
+            and (not current.get(k) or current.get(k) == original.get(k))
+        }
+
+        def names(creators):
+            return [
+                (c.get("creatorType"), c.get("lastName") or c.get("name"), c.get("firstName", ""))
+                for c in creators
+            ]
+
+        if data.get("creators") and names(current.get("creators", [])) == names(
+            original.get("creators", [])
+        ):
+            if names(data["creators"]) != names(current.get("creators", [])):
+                patch["creators"] = data["creators"]
+        if not patch:
+            return []
+        status, _, raw = self.request(
+            "PATCH",
+            f"{LIBRARY}/items/{key}",
+            body=patch,
+            headers={"If-Unmodified-Since-Version": str(item["version"])},
+            write=True,
+        )
+        if status not in (200, 204):
+            raise ZoteroError(f"update {key}: HTTP {status} {raw[:200]!r}")
+        after = self.item(key)["data"]
+        missing = [
+            k for k in patch if k != "creators" and not same_value(k, after.get(k), patch[k])
+        ]
+        if missing:
+            raise ZoteroError(f"update {key} reported success but did not store {missing}")
+        return sorted(patch)
 
     def remove_tag(self, key, tag):
         if not tag.startswith(TAG_PREFIX):
