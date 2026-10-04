@@ -49,11 +49,14 @@ uv run --frozen wety-data run etymology_graph
 This invokes the Rust processor with the selected Wiktextract dump, writes to a run
 staging directory, validates the graph with matching compiled language/POS tables,
 then publishes an immutable artifact and `data/products/etymology_graph/CURRENT.json`.
-It can take hours on a full dump. Model files are cached by Hugging Face; the model
-revision and expected local file hashes are recorded in `data/registry/embedding-model.json`.
-The workflow command specifies CPU defaults. Rust features `metal`, `cuda`,
-`accelerate` and `mkl` remain available by explicitly changing the workflow command;
-that change becomes part of the run receipt.
+It takes hours on a full dump: about six on an M1 Pro for the 2026-09-01 Kaikki data
+(10.9M entries), almost all of it embedding. Model files are cached by Hugging Face; the
+model revision and expected local file hashes are recorded in
+`data/registry/embedding-model.json`. On macOS the embedding model runs on the GPU
+(Metal) automatically; elsewhere it runs on the CPU unless the workflow command adds the
+`cuda`, `accelerate` or `mkl` feature (that change becomes part of the run receipt).
+Texts are embedded in length-sorted sub-batches with masked mean pooling, so an
+embedding does not depend on the other texts in its batch.
 
 For direct development use, `cargo run --locked --release --bin processor -- --help`
 shows explicit input/output/model options. Direct CLI runs do not create a workflow
