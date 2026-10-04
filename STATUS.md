@@ -1,7 +1,8 @@
 # Status
 
-*Updated 2026-10-04. Local `main` has `etymon-templates` merged; nothing pushed.
-Branch `canonical-forms` is unmerged; its graph `cf09bd87…` is built and validated.*
+*Updated 2026-10-04. Local `main` has `etymon-templates` (graph `7c39072a…` selected).
+Branch `processor-review` (on top of `canonical-forms`) is unmerged; its graph
+`aeeabc6d…` is built, validated and copied into `data/`, not selected. Nothing pushed.*
 
 ## What the project promises
 
@@ -11,58 +12,52 @@ in the `packages/dating` registry.
 
 ## What is usable today
 
-- **Graph** `etymology-graph/7c39072a…` (2026-09-01 dump), selected for local use and
-  in `deploy/graph.json`: homographs are separate items, Descendants sections are read,
-  and `{{etymon}}`/`{{ety}}` etymologies are read. About 376k Wiktextract entries whose
-  only etymology templates are `{{etymon}}` (pl 64k, en 64k, es 40k, pt 27k, la 21k)
-  have a parseable parent; e.g. Latin *mātrīx* now derives from *māter* + *-trīx*.
-- **Stable links**, **deployment** via `main` → R2 → `production`
-  ([deploy/README.md](deploy/README.md), untested on the host), **dates** for 14 of 20
-  pilot codes.
+- **Graph** `7c39072a…` (2026-09-01 dump): homographs, Descendants sections and
+  `{{etymon}}` etymologies are read. Stable links; deployment via `main` → R2 →
+  `production` (host setup not yet run); dates for 14 of 20 pilot codes.
+- **Graph** `aeeabc6d…` (`processor-review`) adds, against `cf09bd87…`
+  (`canonical-forms`): 210,934 more entries with an etymology (8,105,359; English
+  1,060,370, +30,828), and 0.79M instead of 1.26M placeholder nodes for missing terms.
 
-## What changed
+## What changed on `processor-review`
 
-- The processor parses `{{etymon}}` per Module:etymon
-  ([etymon.rs](crates/processor/src/etymon.rs)); where an entry also has classic
-  templates, `{{etymon}}` gives the parent and the classic chain continues it.
-  `<id:…>` references resolve to the item with that `id=`.
-- The new graph is selected; `deploy/graph.json` names it but it is not yet in R2.
-- AGENTS.md says how to run workflows from a worktree without `data/`.
-- `canonical-forms` (unmerged): a "canonical" form is used only if it has as many
-  words as the page title, which drops Wiktextract headword junk such as Old French
-  *octobre oblique singular or* (210k of 1.97M canonical forms; all sampled junk).
-  Its graph `etymology-graph/cf09bd87…` (copied into `data/`, not selected) shows
-  *octobre*, *frere*, *matrice* and Sanskrit stems cleanly.
+- **Entry names:** cited terms are found as Wiktionary links them, via the page title
+  its own `stripDiacritics` gives (grc *περῐ-* → *περι-*). New export
+  `wiktionary-entry-names/d582e4fa…` (`source_tools.entry_names`, 302,900 titles),
+  a workflow input.
+- **`{{af}}` parts:** `lang1=`/`type1=` were read one part off; `grc:χρῶμα`,
+  `<lang:>`, `<type:>` and `[[lemma|form]]` parts were junk terms.
+- **Roots:** all roots of an entry are kept; root senses pick the homograph root by
+  its `{{etymon}}` id; chain tops take the root most items above them name;
+  deterministic. A hyphenated part that is a root entry is a base (*ph₂tḗr*).
+- **Chains:** borrowings from missing terms and compounds with missing parts were
+  dropped; now linked. An entry's own section beats a Descendants list unless the
+  list is more specific or the section gives only a mention/form-of. Citations of one
+  missing term share a node. Inline `<ety:>` chains cross borrowings.
 
-PIE descendant trees, English+Latin (nodes; extra parents in brackets):
+English+Latin descendant trees (nodes):
 
-| Root | `bf5c28d2` | `7c39072a` | `cf09bd87` | api.wety.org |
-|---|---|---|---|---|
-| *méh₂tēr* | 121 (21) | 179 (39) | 179 (39) | 143 (30) |
-| *bʰer-* | 781 (79) | 915 (216) | 923 (214) | 946 (187) |
+| Root | `bf5c28d2` | `7c39072a` | `cf09bd87` | `aeeabc6d` | api.wety.org |
+|---|---|---|---|---|---|
+| *méh₂tēr* | 121 | 179 | 179 | 196 | 143 |
+| *bʰer-* | 781 | 915 | 923 | 1,091 | 946 |
 
 ## Uncertainties
 
-- *bʰer-* lost 220 `bf5c28d2` nodes: of 40 sampled, 24 now sit under an unexpanded
-  same-language base word (*broaden* under *broad*); 16 were mostly wrong
-  root-category shortcuts (*Middlesex*, *mark*, *tell*).
-- Root imputation onto chain tops depends on processing order, which shifts when
-  terms change: *περιφέρω* and *fortūnātus* (no parsed etymology in either graph)
-  hang under *bʰer-* in `7c39072a` but other roots in `cf09bd87`.
-- References with length marks (`περῐ-`) miss entries titled without them (`περι-`),
-  dropping the whole compound.
-- PIE roots with a final hyphen in `:af` read as prefixes; family-code etymons are
-  skipped; `id=` links override Descendants-derived links.
-- Host deployment setup not run; client 409 reload not exercised in a browser.
+- Homographs are still chosen by gloss similarity where nothing else decides:
+  English *bairn* goes to Middle English *bern* "man" rather than *bern* "child".
+- Cycle removal drops all parents of an arbitrary item per cycle (~3,600 items).
+- An entry whose first template has no parent (`{{unk}}`) may take a later one.
+- Only spot checks and the two root trees were compared; no systematic accuracy sample.
 
 ## Next three actions
 
-1. Maintainer: one-time deployment setup ([deploy/README.md](deploy/README.md)); its
-   `publish-graph.sh` step uploads `7c39072a…` (600 MB).
-2. Merge `canonical-forms` and select `cf09bd87…` (CURRENT.json, `deploy/graph.json`).
+1. Maintainer: review `canonical-forms` and `processor-review`; if accepted, merge and
+   select `aeeabc6d…` (CURRENT.json, `deploy/graph.json`).
+2. Maintainer: one-time deployment setup ([deploy/README.md](deploy/README.md)).
 3. Supply the six queued works in Zotero, then `dating holdings sync`.
 
 ## Decisions needed from the maintainer
 
-- Whether to adopt `canonical-forms`/`cf09bd87…`, and whether to report the
-  `{{fro-noun}}` headword parse to Wiktextract.
+- Whether to adopt `aeeabc6d…`, and whether to report the `{{fro-noun}}` headword
+  parse to Wiktextract.
