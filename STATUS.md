@@ -43,10 +43,9 @@ PIE descendant trees, English+Latin (nodes; extra parents in brackets):
 
 ## Uncertainties
 
-- *bʰer-* lost 220 earlier nodes. Of 40 sampled English/Latin ones, 24 still descend
-  from it under their own-language base word (*broaden* under *broad*), which the
-  descendants view does not expand; 16 no longer reach it, mostly former
-  root-category shortcuts, several wrong (*Middlesex*, *mark*, *tell*).
+- *bʰer-* lost 220 `bf5c28d2` nodes: of 40 sampled, 24 now sit under an unexpanded
+  same-language base word (*broaden* under *broad*); 16 were mostly wrong
+  root-category shortcuts (*Middlesex*, *mark*, *tell*).
 - Root imputation onto chain tops depends on processing order, which shifts when
   terms change: *περιφέρω* and *fortūnātus* (no parsed etymology in either graph)
   hang under *bʰer-* in `7c39072a` but other roots in `cf09bd87`.
