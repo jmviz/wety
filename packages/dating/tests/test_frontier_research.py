@@ -90,6 +90,31 @@ class FrontierTests(unittest.TestCase):
         self.assertGreaterEqual(calls[1] - calls[0], 0.09)  # retry waits twice the pace
         self.assertGreaterEqual(calls[2] - calls[1], 0.04)
 
+    def test_offsets_and_quotes_use_the_exact_stored_text(self):
+        p = self.root / "evidence"
+        p.mkdir()
+        text = p / "t.txt"
+        text.write_bytes("line one\r\nOld English 450\r\n".encode())
+        (self.root / "tools-state.json").write_text(
+            json.dumps({"sources": {"s": {"text_file": "t.txt", "text_sha256": sha(text)}}})
+        )
+        found = self.tools.call("find", {"source_id": "s", "query": "Old English"})["matches"][0]
+        self.assertEqual(found["match_start"], 10)
+        window = self.tools.call("read", {"source_id": "s", "start": 0, "length": 20})["text"]
+        self.assertIn("\r\n", window)
+        for name in ("report.md", "sources.json", "self-check.json"):
+            (self.root / name).write_text("{}")
+        row = {k: [] for k in ("qualifications",)}
+        row.update(
+            id="a", source_id="s", subject={}, event="e", role="r", method="m", native_time={}
+        )
+        (self.root / "assertions.jsonl").write_text(json.dumps({**row, "quote": "one\nOld"}) + "\n")
+        self.assertIn("row 0: quote not exact", check(self.root)["errors"])
+        (self.root / "assertions.jsonl").write_text(
+            json.dumps({**row, "quote": "one\r\nOld"}) + "\n"
+        )
+        self.assertEqual(check(self.root)["errors"], [])
+
     def test_own_validation_messages_are_shown(self):
         result = tool_response(self.tools, "read", {"source_id": "missing"})
         self.assertEqual(result["error"]["type"], "KeyError")

@@ -1,7 +1,66 @@
 {
   "family_splits": [],
-  "generation": "f1914e8aa692455d6932147842dbb477f911c02156ade04d71753079064285b2",
+  "generation": "9a8c4e77af3d98ece124a57351823f47d5a9577071a43feb5ee24391e770cf8a",
   "languages": [
+    {
+      "alternatives": [
+        {
+          "basis": "attested",
+          "citation": "Huehnergard, John. 2011. A Grammar of Akkadian. 3rd ed., 2nd printing 2015. Harvard Semitic Studies 45. Winona Lake, IN: Eisenbrauns. (Copy supplied by the maintainer; its Zotero record says Brill 2018, the copy's title and copyright pages say Eisenbrauns 2011.)",
+          "claim_id": "ev_period_aecf7fdd624e61816facabe5d66f73514e2f57fc",
+          "end": null,
+          "event": "first_attestation",
+          "label": "from 24th century BCE",
+          "locator": "Introduction, p. xxiii (PDF p. 23); page image checked",
+          "quote": "It is not certain when speakers of Akkadian or its linguistic pre-\ndecessor(s) first arrived in Mesopotamia. The first written evidence of the \nlanguage is found in names in texts from the 26th century BCE, while \nconnected texts begin to appear in the 24th century.",
+          "role": "observation",
+          "source": "Huehnergard 2011",
+          "start": {
+            "earliest": -2399,
+            "latest": -2300
+          },
+          "url": null
+        }
+      ],
+      "basis": "attested",
+      "code": "akk",
+      "evidence": [
+        {
+          "citation": "Huehnergard, John. 2011. A Grammar of Akkadian. 3rd ed., 2nd printing 2015. Harvard Semitic Studies 45. Winona Lake, IN: Eisenbrauns. (Copy supplied by the maintainer; its Zotero record says Brill 2018, the copy's title and copyright pages say Eisenbrauns 2011.)",
+          "claim_id": "ev_period_e4061be5f78888c407766e2fc772d73139584805",
+          "event": "first_attestation",
+          "locator": "Introduction, p. xxiii (PDF p. 23); page image checked",
+          "quote": "It is not certain when speakers of Akkadian or its linguistic pre-\ndecessor(s) first arrived in Mesopotamia. The first written evidence of the \nlanguage is found in names in texts from the 26th century BCE, while \nconnected texts begin to appear in the 24th century.",
+          "role": "observation",
+          "source": "Huehnergard 2011",
+          "url": null
+        },
+        {
+          "citation": "Huehnergard, John. 2011. A Grammar of Akkadian. 3rd ed., 2nd printing 2015. Harvard Semitic Studies 45. Winona Lake, IN: Eisenbrauns. (Copy supplied by the maintainer; its Zotero record says Brill 2018, the copy's title and copyright pages say Eisenbrauns 2011.)",
+          "claim_id": "ev_period_21c3be723b92edf012311d56c7b773f24bee2c57",
+          "event": "last_attestation",
+          "locator": "Introduction, p. xxiv (PDF p. 24); page image checked",
+          "quote": "when Akkadian ceased to be a spoken language -\nprobably during the \nmid-first millennium BCE, having been replaced over a number of cen-\nturies by Aramaic -\nbut it continued to be used as a written medium of \nliterature and scholarship until the first century CE.",
+          "role": "observation",
+          "source": "Huehnergard 2011",
+          "url": null
+        }
+      ],
+      "kind": "attested",
+      "label": "26th century BCE – 1st century CE",
+      "name": "Akkadian",
+      "spoken": {
+        "end": {
+          "earliest": 1,
+          "latest": 100
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": -2599,
+          "latest": -2500
+        }
+      }
+    },
     {
       "alternatives": [
         {
@@ -23,6 +82,26 @@
             "latest": 500
           },
           "url": "https://en.wikipedia.org/wiki/Old_English"
+        },
+        {
+          "basis": "conventional",
+          "citation": "Slocum, Jonathan & Winfred P. Lehmann. n.d. Old English Online: Series Introduction. Early Indo-European Online, Linguistics Research Center, University of Texas at Austin.",
+          "claim_id": "ev_period_90ae8e0d45d75db5caf89619729f2a78df7614d0",
+          "end": {
+            "earliest": 1001,
+            "latest": 1100
+          },
+          "event": "conventional_period",
+          "label": "5th–11th century CE",
+          "locator": "Series Introduction (lesson 0), first paragraph",
+          "quote": "Old English is the language of the Germanic inhabitants of England, dated from the time of their settlement in the 5th century to the end of the 11th century.",
+          "role": "convention",
+          "source": "Slocum & Lehmann",
+          "start": {
+            "earliest": 401,
+            "latest": 500
+          },
+          "url": "https://lrc.la.utexas.edu/eieol/engol/00"
         },
         {
           "basis": "attested",
@@ -209,6 +288,26 @@
             "latest": 1050
           },
           "url": "https://raw.githubusercontent.com/glottolog/glottolog-cldf/v5.3/cldf/languages.csv"
+        },
+        {
+          "basis": "conventional",
+          "citation": "Wright, Joseph. 1917. A Middle High German Primer. 3rd ed., rewritten and enlarged. Oxford: Clarendon Press. Project Gutenberg eBook 22636 (proofread transcription).",
+          "claim_id": "ev_period_bcadb4c4d1accaac0710b80a4a02a787a45d9692",
+          "end": {
+            "earliest": 1500,
+            "latest": 1500
+          },
+          "event": "conventional_period",
+          "label": "c. 1100–1500 CE",
+          "locator": "Introduction, §1, p. 1",
+          "quote": "Middle High German\n (MHG.) embraces\r\nthe High German language from about the year 1100 to 1500.",
+          "role": "convention",
+          "source": "Wright 1917",
+          "start": {
+            "earliest": 1100,
+            "latest": 1100
+          },
+          "url": "https://www.gutenberg.org/cache/epub/22636/pg22636-images.html"
         }
       ],
       "basis": "conventional",
@@ -242,6 +341,34 @@
     },
     {
       "alternatives": [],
+      "basis": "attested",
+      "code": "goh",
+      "evidence": [
+        {
+          "citation": "Fortson, Benjamin W., IV. 2010. Indo-European Language and Culture: An Introduction. 2nd ed. Blackwell Textbooks in Linguistics 19. Chichester and Malden, MA: Wiley-Blackwell. (Supplied copy is a reflowed e-book without printed page numbers; cited by section.)",
+          "claim_id": "ev_period_38f012a2700f8ce21e1300148151a4d0ad7b538d",
+          "event": "first_attestation",
+          "locator": "§15.70 (e-book PDF p. 375); page image checked",
+          "quote": "The language known as High German (loosely, German; it is called “High German”\nafter the relatively mountainous terrain of much of its early territory, to distinguish it from the\n“Low German” of the lowland country to the north) appears first in the form of runic\ninscriptions in Old High German dating back to 600 or so, most importantly on a spearhead\nfound in Wurmlingen near Tübingen in southwest Germany.",
+          "role": "observation",
+          "source": "Fortson 2010",
+          "url": null
+        }
+      ],
+      "kind": "attested",
+      "label": "from c. 600 CE",
+      "name": "Old High German",
+      "spoken": {
+        "end": null,
+        "ongoing": false,
+        "start": {
+          "earliest": 600,
+          "latest": 600
+        }
+      }
+    },
+    {
+      "alternatives": [],
       "basis": "conventional",
       "code": "grc",
       "evidence": [
@@ -269,7 +396,59 @@
       }
     },
     {
-      "alternatives": [],
+      "alternatives": [
+        {
+          "basis": "attested",
+          "citation": "Fortson, Benjamin W., IV. 2010. Indo-European Language and Culture: An Introduction. 2nd ed. Blackwell Textbooks in Linguistics 19. Chichester and Malden, MA: Wiley-Blackwell. (Supplied copy is a reflowed e-book without printed page numbers; cited by section.)",
+          "claim_id": "ev_period_a8480a68cb829b84c28e661f3566186644c5e964",
+          "end": {
+            "earliest": -1199,
+            "latest": -1199
+          },
+          "event": "last_attestation",
+          "label": "until c. 1200 BCE",
+          "locator": "§9.17 (e-book PDF p. 196); page image checked",
+          "quote": "Eventually, though, it fell victim to invasions\nfrom the north, ending with the destruction of Hattusas around 1200 BC. While this did not\nspell the end of Hittite civilization, it did terminate the production of Hittite texts, since\nHattusas had been the center of the Hittite scribal chancelleries.",
+          "role": "observation",
+          "source": "Fortson 2010",
+          "start": null,
+          "url": null
+        },
+        {
+          "basis": "attested",
+          "citation": "Kapović, Mate (ed.). 2017. The Indo-European Languages. 2nd ed. Routledge Language Family Series. Abingdon and New York: Routledge (paperback issue 2019). Chapters cited by author in the locator.",
+          "claim_id": "ev_period_b0994713b8e48be59d494bab312c98f31cc1a5d2",
+          "end": null,
+          "event": "first_attestation",
+          "label": "from 19th century BCE",
+          "locator": "Mate Kapović, 'Indo-European languages – introduction', p. 3 (PDF p. 24); page image checked",
+          "quote": "Hittite is attested from around the 16th century, but a \nfew names and loanwords are found already in the 19th century BCE in Old Assyrian \ntexts.",
+          "role": "observation",
+          "source": "Kapović 2017",
+          "start": {
+            "earliest": -1899,
+            "latest": -1800
+          },
+          "url": null
+        },
+        {
+          "basis": "attested",
+          "citation": "Kapović, Mate (ed.). 2017. The Indo-European Languages. 2nd ed. Routledge Language Family Series. Abingdon and New York: Routledge (paperback issue 2019). Chapters cited by author in the locator.",
+          "claim_id": "ev_period_c7991c4d1cd461a4f0743a1ae50d7227f32350d6",
+          "end": null,
+          "event": "first_attestation",
+          "label": "from c. 16th century BCE",
+          "locator": "Mate Kapović, 'Indo-European languages – introduction', p. 3 (PDF p. 24); page image checked",
+          "quote": "Hittite is attested from around the 16th century, but a \nfew names and loanwords are found already in the 19th century BCE in Old Assyrian \ntexts.",
+          "role": "observation",
+          "source": "Kapović 2017",
+          "start": {
+            "earliest": -1599,
+            "latest": -1500
+          },
+          "url": null
+        }
+      ],
       "basis": "attested",
       "code": "hit",
       "evidence": [
@@ -300,7 +479,25 @@
       }
     },
     {
-      "alternatives": [],
+      "alternatives": [
+        {
+          "basis": "attested",
+          "citation": "Kapović, Mate (ed.). 2017. The Indo-European Languages. 2nd ed. Routledge Language Family Series. Abingdon and New York: Routledge (paperback issue 2019). Chapters cited by author in the locator.",
+          "claim_id": "ev_period_f1e86916783e999faaa9bca8806fefeca703ec54",
+          "end": null,
+          "event": "first_attestation",
+          "label": "from 7th century BCE",
+          "locator": "Rex Wallace, 'Italic', p. 322 (PDF p. 343); page image checked",
+          "quote": "Although it is impossible to say when Latin and the other Italic languages began to \ndiverge, we can pinpoint the date of the earliest inscriptions. They go back to the middle \nof the 7th century BCE.",
+          "role": "observation",
+          "source": "Kapović 2017",
+          "start": {
+            "earliest": -699,
+            "latest": -600
+          },
+          "url": null
+        }
+      ],
       "basis": "attested",
       "code": "la",
       "evidence": [
@@ -410,6 +607,23 @@
             "latest": 600
           },
           "url": "https://en.wikipedia.org/wiki/Old_Irish"
+        },
+        {
+          "basis": "attested",
+          "citation": "Kapović, Mate (ed.). 2017. The Indo-European Languages. 2nd ed. Routledge Language Family Series. Abingdon and New York: Routledge (paperback issue 2019). Chapters cited by author in the locator.",
+          "claim_id": "ev_period_cdee37886b6aee18bc5d5d9eb522ecedf2debc0f",
+          "end": null,
+          "event": "first_attestation",
+          "label": "from 8th century CE",
+          "locator": "Patrick Sims-Williams, 'Celtic', p. 361 (PDF p. 382)",
+          "quote": "The earliest extant manuscripts containing Old \nIrish (glosses and short texts) are eighth century, but it is probable that some texts extant \nin late manuscripts were written down towards the end of the sixth century.",
+          "role": "observation",
+          "source": "Kapović 2017",
+          "start": {
+            "earliest": 701,
+            "latest": 800
+          },
+          "url": null
         }
       ],
       "basis": "conventional",
@@ -433,6 +647,34 @@
         "end": {
           "earliest": 900,
           "latest": 900
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "sla-pro",
+      "evidence": [
+        {
+          "citation": "Fortson, Benjamin W., IV. 2010. Indo-European Language and Culture: An Introduction. 2nd ed. Blackwell Textbooks in Linguistics 19. Chichester and Malden, MA: Wiley-Blackwell. (Supplied copy is a reflowed e-book without printed page numbers; cited by section.)",
+          "claim_id": "ev_period_408efd22ce16f5dbed723dc9cb1f948a951add7f",
+          "event": "conventional_period",
+          "locator": "§18.29 (e-book PDF p. 430)",
+          "quote": "18.29. The yers are still preserved in Old Church Slavonic, but around the end of the\nCommon Slavic period (c. AD 800–1000), they began to be lost as a category: certain ones\nweakened and disappeared, while others strengthened and became full mid or low vowels.",
+          "role": "hypothesis",
+          "source": "Fortson 2010",
+          "url": null
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 800/1000 CE",
+      "name": "Proto-Slavic",
+      "spoken": {
+        "end": {
+          "earliest": 800,
+          "latest": 1000
         },
         "ongoing": false,
         "start": null

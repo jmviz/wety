@@ -12,7 +12,8 @@ review.json:
   sources: {run source_id: registry metadata (id, title, authors, year, doi, ...)}
   claims: [{assertion, status, rationale?, correct?, mapping?, mapping_basis?,
             corrections?, limitations?, quote?, start?, locator?}]
-  adopt: {code: {assertion, rationale, reviewer?}}, decision_reviewer
+  adopt: {code: {assertion, rationale, reviewer?} or a list of them, one per event
+         (e.g. first and last attestation)}, decision_reviewer
 Every assertion of the run must appear in `claims`: rejecting one is a recorded
 status (candidate), never a silent omission.
 """
@@ -151,7 +152,11 @@ def build(run_dir, review, languages=None, texts_dir=None):
                 }
             ],
         }
-        cid = review["claim_prefix"] + digest(body)[:40]
+        # Scope evidence quoted once per catalog target is one claim per target.
+        cid = (
+            review["claim_prefix"]
+            + digest({**body, "catalog_target": row["target"]} if row.get("target") else body)[:40]
+        )
         claims.append(
             EvidenceClaim.model_validate(
                 {
@@ -173,6 +178,7 @@ def build(run_dir, review, languages=None, texts_dir=None):
                         "assertion_id": row["id"],
                         "research_run": run_path,
                         "verifies": row.get("verifies", []),
+                        **({"catalog_target": row["target"]} if row.get("target") else {}),
                         "review_corrections": item.get("corrections", []),
                         "review_findings": [],
                     },
@@ -253,7 +259,10 @@ def write(result, packet_dir=None, texts_dir=None):
 
 
 def adopt(review):
-    """Record the review's editorial defaults against current decision digests."""
+    """Record the review's editorial defaults against current decision digests.
+
+    A code takes one choice, or a list of choices with distinct events (e.g. first and
+    last attestation); results are keyed by code, or code/event for a list."""
     from .registry import build_bundle, bundle_decision_digest
     from .review import decide_record
 
@@ -265,25 +274,30 @@ def adopt(review):
     }
     current = {(d["subject_id"], d["event"]): d for d in bundle["decisions"]}
     results = {}
-    for code, choice in review.get("adopt", {}).items():
-        claim = by_assertion.get(choice["assertion"])
-        if not claim:
-            raise ValueError("adopted assertion not imported: " + choice["assertion"])
-        if claim["subject"]["id"] != "wikt:" + code:
-            raise ValueError("adopted claim is about another code: " + code)
-        decision = {
-            "subject_id": claim["subject"]["id"],
-            "event": claim["event"],
-            "claim_id": claim["id"],
-            "evidence_digest": bundle_decision_digest(bundle, claim["subject"]["id"]),
-            "reviewer": choice.get("reviewer") or review["decision_reviewer"],
-            "rationale": choice["rationale"],
-            "dependencies": [],
-        }
-        existing = current.get((decision["subject_id"], decision["event"]))
-        if existing and {**existing, "kind": None} == {**decision, "kind": None}:
-            results[code] = "unchanged"
-            continue
-        decide_record(decision, bundle)
-        results[code] = claim["id"]
+    for code, choices in review.get("adopt", {}).items():
+        listed = isinstance(choices, list)
+        for choice in choices if listed else [choices]:
+            claim = by_assertion.get(choice["assertion"])
+            if not claim:
+                raise ValueError("adopted assertion not imported: " + choice["assertion"])
+            if claim["subject"]["id"] != "wikt:" + code:
+                raise ValueError("adopted claim is about another code: " + code)
+            key = f"{code}/{claim['event']}" if listed else code
+            if key in results:
+                raise ValueError("one adopted claim per code and event: " + key)
+            decision = {
+                "subject_id": claim["subject"]["id"],
+                "event": claim["event"],
+                "claim_id": claim["id"],
+                "evidence_digest": bundle_decision_digest(bundle, claim["subject"]["id"]),
+                "reviewer": choice.get("reviewer") or review["decision_reviewer"],
+                "rationale": choice["rationale"],
+                "dependencies": [],
+            }
+            existing = current.get((decision["subject_id"], decision["event"]))
+            if existing and {**existing, "kind": None} == {**decision, "kind": None}:
+                results[key] = "unchanged"
+                continue
+            decide_record(decision, bundle)
+            results[key] = claim["id"]
     return results

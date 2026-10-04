@@ -564,7 +564,12 @@ def request_key(r):
     title = re.sub(r"\W+", " ", (r.get("title") or "").lower()).strip()
     if not title:
         raise ValueError("a request needs a title, DOI or ISBN")
-    return "title:" + title[:120]
+    # Without an identifier: first author's surname, year and title ("Sanskrit" alone
+    # names many works).
+    first = (r.get("authors") or [""])[0]
+    surname = first.split(",")[0] if "," in first else first.split(" ")[-1]
+    parts = [re.sub(r"\W+", "", surname.lower()), str(r.get("year") or ""), title[:100]]
+    return "work:" + "|".join(parts)
 
 
 def validate_request(r):
@@ -656,13 +661,18 @@ def merge_requests(run_dir):
 ZOTERO_TYPES = {"book", "bookSection", "journalArticle", "thesis", "report", "dataset", "webpage"}
 
 
+ITEM_TYPE_ALIASES = {
+    "chapter": "bookSection",
+    "article": "journalArticle",
+    "paper": "journalArticle",
+}
+
+
 def zotero_item(r):
     """A new Zotero item from a request's bibliographic fields."""
-    item_type = (
-        r.get("item_type")
-        if r.get("item_type") in ZOTERO_TYPES
-        else ("journalArticle" if r.get("doi") else "book")
-    )
+    item_type = ITEM_TYPE_ALIASES.get(r.get("item_type"), r.get("item_type"))
+    if item_type not in ZOTERO_TYPES:
+        item_type = "journalArticle" if r.get("doi") else "book"
     creators = []
     for name in r.get("authors") or []:
         if "," in name:  # "Last, First"

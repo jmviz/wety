@@ -101,8 +101,20 @@ class ExtractTests(Sandbox):
         self.assertEqual((meta["kind"], meta["scan_text_layer"]["page_list"]), ("pdf_text", "1"))
         self.assertIn("page image", meta["coverage"])
 
+    def test_request_keys(self):
+        self.assertEqual(holdings.request_key({"doi": "https://doi.org/10.1/AB"}), "doi:10.1/ab")
+        self.assertEqual(
+            holdings.request_key(
+                {"title": "Sanskrit", "authors": ["Stephanie W. Jamison"], "year": 2008}
+            ),
+            "work:jamison|2008|sanskrit",
+        )
+
     def test_zotero_item_names(self):
         item = holdings.zotero_item({"title": "T", "authors": ["Albert C. Baugh", "Cable, Thomas"]})
+        self.assertEqual(
+            holdings.zotero_item({"title": "S", "item_type": "chapter"})["itemType"], "bookSection"
+        )
         self.assertEqual(
             [(c["lastName"], c["firstName"]) for c in item["creators"]],
             [("Baugh", "Albert C."), ("Cable", "Thomas")],
