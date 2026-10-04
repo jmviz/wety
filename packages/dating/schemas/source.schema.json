@@ -173,6 +173,20 @@
       ],
       "default": null,
       "title": "Retrieval Quality"
+    },
+    "acquisition": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "how the text was obtained when not downloaded: origin (maintainer_supplied), holding, extent, Zotero keys",
+      "title": "Acquisition"
     }
   },
   "required": [

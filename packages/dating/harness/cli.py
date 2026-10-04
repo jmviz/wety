@@ -16,6 +16,8 @@ dating gc [--keep-recent N] [--apply]        retire old generations (dry run unl
 dating decision-digest SUBJECT               evidence digest a decision on SUBJECT (e.g. wikt:ang) must name
 dating build-packet RUN REVIEW               reviewed research run -> packet, registered sources and texts
 dating adopt REVIEW                          record the review's editorial defaults (after import + synthesize)
+dating holdings add|zotero|sync|list         maintainer-supplied sources (library PDFs, via Zotero): retain, hash, parse
+dating requests list|merge|push|set          the source acquisition queue (files requests in Zotero)
 dating report
 """
 
@@ -246,6 +248,11 @@ def cmd_repair_pilots(args) -> None:
 
 
 def main() -> None:
+    if len(sys.argv) > 1 and sys.argv[1] in ("holdings", "requests"):
+        from . import holdings
+
+        (holdings.main if sys.argv[1] == "holdings" else holdings.requests_main)(sys.argv[2:])
+        return
     ap = argparse.ArgumentParser(
         prog="dating", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )

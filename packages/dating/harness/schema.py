@@ -119,6 +119,10 @@ class Source(BaseModel):
     analysis_id: str | None = None
     raw_sha256: str | None = None
     retrieval_quality: str | None = None
+    acquisition: dict | None = Field(
+        default=None,
+        description="how the text was obtained when not downloaded: origin (maintainer_supplied), holding, extent, Zotero keys",
+    )
 
 
 class Adopted(BaseModel):

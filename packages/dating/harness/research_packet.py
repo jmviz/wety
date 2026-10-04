@@ -108,6 +108,16 @@ def build(run_dir, review, languages=None, texts_dir=None):
             "retrieval_quality": "fulltext_candidate",
             "retrieved": item.get("retrieved") or review["retrieved"],
         }
+        if src.get("holding"):
+            # A maintainer-supplied file: say so; never imply a download history.
+            h = src["holding"]
+            registrations[reg_id]["acquisition"] = {
+                "origin": h["origin"],
+                "holding": h["id"],
+                "extent": h["extent"],
+                "zotero": h.get("zotero"),
+                "text_kind": src["kind"],
+            }
         texts[tsha] = text_path
         lang = languages[row["code"]]
         status = item["status"]

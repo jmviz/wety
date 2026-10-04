@@ -45,7 +45,9 @@ class FrontierTests(unittest.TestCase):
         error = HTTPError("https://example.org", 403, "private response body", None, None)
         with patch.object(self.tools, "fetch", side_effect=error):
             result = tool_response(self.tools, "acquire", {"url": "https://example.org"})
-        self.assertEqual(result["error"], {"type": "HTTPError", "http_status": 403})
+        self.assertEqual(
+            result["error"], {"type": "HTTPError", "http_status": 403, "likely": "access_denied"}
+        )
         self.assertNotIn("private response", json.dumps(result))
         self.assertEqual(self.tools.state()["acquisitions"], 1)
         event = json.loads((self.root / "tool-events.jsonl").read_text().splitlines()[-1])
