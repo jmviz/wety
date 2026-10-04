@@ -58,6 +58,15 @@ def years(lo, hi, unit="CE", **extra):
     }
 
 
+class LabelTests(unittest.TestCase):
+    def test_millennia_and_single_units(self):
+        third = (-2999, -2000)
+        self.assertEqual(label(third, third, approximate=True), "c. 3rd millennium BCE")
+        self.assertEqual(label((-2999, -2000), (-1999, -1000)), "3rd–2nd millennium BCE")
+        self.assertEqual(label((-2999, -2000), (-1200, -1200)), "3rd millennium – 1201 BCE")
+        self.assertEqual(label((401, 500), (1101, 1200)), "5th–12th century CE")
+
+
 class PeriodExportTests(unittest.TestCase):
     def test_conventional_period_with_alternative_kept_separate(self):
         claims = [

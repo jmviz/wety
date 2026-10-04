@@ -181,7 +181,7 @@ class FrontierTests(unittest.TestCase):
             "source_id": "s",
             "quote": "5000 BP",
             "subject": "root",
-            "event": "split",
+            "event": "crown_divergence",
             "role": "posterior",
             "method": "model",
             "native_time": {"form": "unknown"},
@@ -200,6 +200,9 @@ class FrontierTests(unittest.TestCase):
             bad = {**row, "native_time": native, "proposed_status": "supported"}
             (self.root / "assertions.jsonl").write_text(json.dumps(bad))
             self.assertIn(message, str(check(self.root)["errors"]))
+        bad = {**row, "event": "spoken_language_end"}
+        (self.root / "assertions.jsonl").write_text(json.dumps(bad))
+        self.assertIn("event 'spoken_language_end'", str(check(self.root)["errors"]))
         fixed = {"form": "event_range", "unit": "century_CE", "lower": 7, "upper": 7}
         (self.root / "assertions.jsonl").write_text(json.dumps({**row, "native_time": fixed}))
         self.assertEqual(check(self.root)["errors"], [])

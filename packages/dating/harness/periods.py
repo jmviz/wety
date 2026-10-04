@@ -109,6 +109,10 @@ def describe(r):
         return era_year(hi if lo is None else lo)
     if lo == hi:
         return era_year(lo)
+    if hi - lo == 999 and (lo - 1) % 1000 == 0 and lo > 0:
+        return ordinal(hi // 1000) + " millennium", "CE"
+    if hi - lo == 999 and hi % 1000 == 0 and hi <= 0:
+        return ordinal((1 - lo) // 1000) + " millennium", "BCE"
     if hi - lo == 99 and (lo - 1) % 100 == 0 and lo > 0:
         return ordinal(hi // 100) + " century", "CE"
     if hi - lo == 99 and hi % 100 == 0 and hi <= 0:
@@ -127,12 +131,16 @@ def label(start, end, ongoing=False, approximate=False):
     if start is None:
         text, era = describe(end)
         return f"until {c}{text} {era}"
+    if start == end:  # one stated unit, e.g. "the 3rd millennium"
+        text, era = describe(start)
+        return f"{c}{text} {era}"
     (a, era_a), (b, era_b) = describe(start), describe(end)
-    if era_a == era_b and "century" not in a + b:
+    for unit in (" century", " millennium"):
+        if era_a == era_b and a.endswith(unit) and b.endswith(unit):
+            return f"{c}{a.removesuffix(unit)}–{b} {era_b}"
+    if era_a == era_b and "century" not in a + b and "millennium" not in a + b:
         return f"{c}{a}–{b} {era_b}"
-    if era_a == era_b and a.endswith(" century") and b.endswith(" century"):
-        return f"{c}{a.removesuffix(' century')}–{b} {era_b}"
-    if era_a == era_b and "century" in a:  # a century and a year: "19th century – 1200 BCE"
+    if era_a == era_b and ("century" in a or "millennium" in a):  # "19th century – 1200 BCE"
         return f"{c}{a} – {b} {era_b}"
     return f"{c}{a} {era_a} – {b} {era_b}"
 

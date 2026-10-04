@@ -596,6 +596,14 @@ def check(root):
             errors.append(f"row {i}: quote not exact")
         if row.get("spoken") is not None:
             errors.append(f"row {i}: spoken must be null")
+        from typing import get_args
+
+        from .evidence import EvidenceClaim
+
+        for key in ("event", "role"):
+            allowed = get_args(EvidenceClaim.model_fields[key].annotation)
+            if key in row and row[key] not in allowed:
+                errors.append(f"row {i}: {key} {row[key]!r} is not one of {', '.join(allowed)}")
         if isinstance(row.get("native_time"), dict):
             # The registry's own normalization, as at import: a century or millennium
             # is a range or bound, endpoints are {value, unit}. Numbers never change.
