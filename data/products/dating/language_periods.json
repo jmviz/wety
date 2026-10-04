@@ -1,6 +1,6 @@
 {
   "family_splits": [],
-  "generation": "532d0f80c5fe5a7e87e425759caebe0b8545aec83887b2ec885a16173058f482",
+  "generation": "3fb019fb166d1f7719778801801806bb51517fa91f89036baa5359475fda6005",
   "languages": [
     {
       "alternatives": [],
@@ -683,6 +683,34 @@
     },
     {
       "alternatives": [],
+      "basis": "attested",
+      "code": "axm",
+      "evidence": [
+        {
+          "citation": "Budak, Samet, and Michael Pifer. 2024. “Learning Middle Armenian at the Court of Meḥmed II: Language, Knowledge, and Power Before the Imperial Rise of Ottoman Turkish.” Al-ʿUṣūr al-Wusṭā 32:250–339. doi:10.52214/uw.v32i.11961.",
+          "claim_id": "ev_period_34979bafa8adf33d31f3e4c9b251ed1bc50ffcb5",
+          "event": "first_attestation",
+          "locator": "{\"page\": \"254\", \"pdf_page\": 5}",
+          "quote": "According to the linguist Hrač‘ya Ačaṙyan, the oldest \nextant text in Middle Armenian is a prescription for the treatment of the inflammation of \nthe liver, prescribed by a physician named Busayid in the city of Mufarghin (in the region of \nDiyarbakır), which dates to 1037.",
+          "role": "observation",
+          "source": "Budak & Pifer 2024",
+          "url": "https://journals.library.columbia.edu/index.php/alusur/article/download/uw32budakpifer/uw32budakpifer"
+        }
+      ],
+      "kind": "attested",
+      "label": "from 1037 CE",
+      "name": "Middle Armenian",
+      "spoken": {
+        "end": null,
+        "ongoing": false,
+        "start": {
+          "earliest": 1037,
+          "latest": 1037
+        }
+      }
+    },
+    {
+      "alternatives": [],
       "basis": "estimated",
       "code": "cel-pro",
       "evidence": [
@@ -869,6 +897,75 @@
         "start": {
           "earliest": 850,
           "latest": 850
+        }
+      }
+    },
+    {
+      "alternatives": [
+        {
+          "basis": "conventional",
+          "citation": "Olbertz, Hella, and Wim Honselaar. 2017. “The grammaticalization of Dutch moeten: Modal and post-modal meanings.” In Kees Hengeveld, Heiko Narrog, and Hella Olbertz (eds.), The Grammaticalization of Tense, Aspect, Modality and Evidentiality: A Functional Perspective, 273–300. Trends in Linguistics: Studies and Monographs 311. Berlin/Boston: De Gruyter Mouton. doi:10.1515/9783110519389-011.",
+          "claim_id": "ev_period_87d1af1e3a5e67d2d0920807a21a03b766ec4c00",
+          "end": {
+            "earliest": 1550,
+            "latest": 1550
+          },
+          "event": "conventional_period",
+          "label": "c. 1200–1550 CE",
+          "locator": "{\"page\": \"283\", \"pdf_page\": 12}",
+          "quote": "This meaning of moeten can still be found in Middle Dutch (approx. 1200–1550):",
+          "role": "convention",
+          "source": "Olbertz & Honselaar 2017",
+          "start": {
+            "earliest": 1200,
+            "latest": 1200
+          },
+          "url": "https://pure.uva.nl/ws/files/67575549/10.1515_9783110519389_011.pdf"
+        },
+        {
+          "basis": "conventional",
+          "citation": "Pijnenburg, W. J. J., with K. H. van Dalen-Oskam, K. A. C. Depuydt, T. H. Schoonheim, and syntax by J. M. van der Horst. 1997. “Vroegmiddelnederlands (circa 1200–1350),” §3.1.1, p. 69. In M. C. van den Toorn, W. Pijnenburg, J. A. van Leuvensteijn, and J. M. van der Horst (eds.), Geschiedenis van de Nederlandse taal. Amsterdam: Amsterdam University Press, 1997. DBNL digital reproduction.",
+          "claim_id": "ev_period_9ca045a378aef67574782a5457682f59e1f72b34",
+          "end": null,
+          "event": "conventional_period",
+          "label": "from c. 1150 CE",
+          "locator": "{\"page\": \"69\", \"pdf_page\": 60}",
+          "quote": "Het Middelnederlands begint waar het Oudnederlands ophoudt. De eindgrens van​\nde oudste fase van de verschillende moderne Germaanse talen wordt algemeen​\nrond 1150 gelegd. Dit geldt ook voor de Oudnederlandse periode, zodat ipso facto​\nvoor het Middelnederlands de begingrens gelegd is bij circa 1150, hoewel ons uit​\ndie tijd (en eigenlijk uit heel de twaalfde eeuw) geen doorlopende teksten zijn​\novergeleverd.​",
+          "role": "convention",
+          "source": "Quak 1997",
+          "start": {
+            "earliest": 1150,
+            "latest": 1150
+          },
+          "url": "https://www.dbnl.org/tekst/toor004gesc01_01/toor004gesc01_01.pdf"
+        }
+      ],
+      "basis": "conventional",
+      "code": "dum",
+      "evidence": [
+        {
+          "citation": "Breitbarth, Anne. 2013. “Negation in the history of Low German and Dutch.” In David Willis, Christopher Lucas, and Anne Breitbarth (eds.), The History of Negation in the Languages of Europe and the Mediterranean, vol. I: Case Studies, 190–238. Oxford: Oxford University Press. doi:10.1093/acprof:oso/9780199602537.003.0006. Cited copy: institutional accepted manuscript, numbered pp. 342–420.",
+          "claim_id": "ev_period_349b3409ef1fe128cecc6399b2a35d8750ae3730",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"344 (accepted manuscript)\", \"pdf_page\": 3}",
+          "quote": "The Middle Dutch period (1150–1500/1600) is much more richly attested.",
+          "role": "convention",
+          "source": "Breitbarth 2013",
+          "url": "https://biblio.ugent.be/publication/4121292/file/6802098.pdf"
+        }
+      ],
+      "kind": "stage",
+      "label": "1150–1500/1600 CE",
+      "name": "Middle Dutch",
+      "spoken": {
+        "end": {
+          "earliest": 1500,
+          "latest": 1600
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 1150,
+          "latest": 1150
         }
       }
     },
@@ -1327,6 +1424,68 @@
     },
     {
       "alternatives": [],
+      "basis": "conventional",
+      "code": "frm",
+      "evidence": [
+        {
+          "citation": "Regnault, Mathilde, Sophie Prévost, and Eric Villemonte de la Clergerie. 2019. “Challenges of language change and variation: towards an extended treebank of Medieval French.” In Proceedings of the 18th International Workshop on Treebanks and Linguistic Theories (TLT, SyntaxFest 2019), 144–150. Paris: Association for Computational Linguistics. doi:10.18653/v1/W19-7816.",
+          "claim_id": "ev_period_1dae7be16d0e569d0d46a0150da3e8a1e7c16097",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"144 (publication pagination; individual PDF unnumbered)\", \"pdf_page\": 1}",
+          "quote": "In particular, we want to add texts of Middle French, the next stage in the\nevolution of French (14th-15th c.), as well as new texts of Old French.",
+          "role": "convention",
+          "source": "Regnault et al. 2019",
+          "url": "https://aclanthology.org/W19-7816.pdf"
+        }
+      ],
+      "kind": "stage",
+      "label": "14th–15th century CE",
+      "name": "Middle French",
+      "spoken": {
+        "end": {
+          "earliest": 1401,
+          "latest": 1500
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 1301,
+          "latest": 1400
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "conventional",
+      "code": "fro",
+      "evidence": [
+        {
+          "citation": "Regnault, Mathilde, Sophie Prévost, and Eric Villemonte de la Clergerie. 2019. “Challenges of language change and variation: towards an extended treebank of Medieval French.” In Proceedings of the 18th International Workshop on Treebanks and Linguistic Theories (TLT, SyntaxFest 2019), 144–150. Paris: Association for Computational Linguistics. doi:10.18653/v1/W19-7816.",
+          "claim_id": "ev_period_3a3b1c03fede4468f1bdacaedc5a89d6d47ea36f",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"144 (publication pagination; individual PDF unnumbered)\", \"pdf_page\": 1}",
+          "quote": "In order to automatically extend a treebank of Old French (9th-13th c.) with new texts in Old and\nMiddle French (14th-15th c.), we need to adapt tools for syntactic annotation.",
+          "role": "convention",
+          "source": "Regnault et al. 2019",
+          "url": "https://aclanthology.org/W19-7816.pdf"
+        }
+      ],
+      "kind": "stage",
+      "label": "9th–13th century CE",
+      "name": "Old French",
+      "spoken": {
+        "end": {
+          "earliest": 1201,
+          "latest": 1300
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 801,
+          "latest": 900
+        }
+      }
+    },
+    {
+      "alternatives": [],
       "basis": "estimated",
       "code": "gem-pro",
       "evidence": [
@@ -1496,6 +1655,58 @@
         "start": {
           "earliest": 1050,
           "latest": 1050
+        }
+      }
+    },
+    {
+      "alternatives": [
+        {
+          "basis": "conventional",
+          "citation": "Schmidt, Wilhelm. 2013. Geschichte der deutschen Sprache: Ein Lehrbuch für das germanistische Studium. Continued by Helmut Langner. 11th, improved and enlarged ed., ed. by Elisabeth Berner & Norbert Richard Wolf. Stuttgart: S. Hirzel.",
+          "claim_id": "ev_period_d198974781d9d79cea094590cfe62d4243e2022b",
+          "end": {
+            "earliest": 1600,
+            "latest": 1650
+          },
+          "event": "conventional_period",
+          "label": "1150/1200–1600/1650 CE",
+          "locator": "{\"page\": \"23\", \"pdf_page\": 46}",
+          "quote": "Mittelniederdeutsch \n(1150/1200–1600/1650)",
+          "role": "convention",
+          "source": "Schmidt 2013",
+          "start": {
+            "earliest": 1150,
+            "latest": 1200
+          },
+          "url": null
+        }
+      ],
+      "basis": "conventional",
+      "code": "gml",
+      "evidence": [
+        {
+          "citation": "Breitbarth, Anne. 2013. “Negation in the history of Low German and Dutch.” In David Willis, Christopher Lucas, and Anne Breitbarth (eds.), The History of Negation in the Languages of Europe and the Mediterranean, vol. I: Case Studies, 190–238. Oxford: Oxford University Press. doi:10.1093/acprof:oso/9780199602537.003.0006. Cited copy: institutional accepted manuscript, numbered pp. 342–420.",
+          "claim_id": "ev_period_5ff831b9bf09c77f3cd6cb2aa3b88b216bce4af8",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"343 (accepted manuscript)\", \"pdf_page\": 2}",
+          "quote": "Middle Low German refers to the dialects spoken in northern Germany \nbetween 1200 and 1650 (Stellmacher 1990: 39, Peters 2000b: 1482).",
+          "role": "convention",
+          "source": "Breitbarth 2013",
+          "url": "https://biblio.ugent.be/publication/4121292/file/6802098.pdf"
+        }
+      ],
+      "kind": "stage",
+      "label": "1200–1650 CE",
+      "name": "Middle Low German",
+      "spoken": {
+        "end": {
+          "earliest": 1650,
+          "latest": 1650
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 1200,
+          "latest": 1200
         }
       }
     },
@@ -2455,6 +2666,37 @@
     {
       "alternatives": [],
       "basis": "conventional",
+      "code": "mga",
+      "evidence": [
+        {
+          "citation": "Fortson, Benjamin W., IV. 2010. Indo-European Language and Culture: An Introduction. 2nd ed. Blackwell Textbooks in Linguistics 19. Chichester and Malden, MA: Wiley-Blackwell. (Supplied copy is a reflowed e-book without printed page numbers; cited by section.)",
+          "claim_id": "ev_period_631f6c5e30ba837c0d2368e2dfa878b3ab1d9244",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"unpaginated supplied electronic copy, §14.30\", \"pdf_page\": 333}",
+          "quote": "Lasting from the tenth to the thirteenth centuries was Middle Irish, which saw\nchanges to the morphological system that were as far-reaching as the phonological changes of\nthe Primitive Irish period.",
+          "role": "convention",
+          "source": "Fortson 2010",
+          "url": null
+        }
+      ],
+      "kind": "stage",
+      "label": "10th–13th century CE",
+      "name": "Middle Irish",
+      "spoken": {
+        "end": {
+          "earliest": 1201,
+          "latest": 1300
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 901,
+          "latest": 1000
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "conventional",
       "code": "nci",
       "evidence": [
         {
@@ -2480,6 +2722,37 @@
         "start": {
           "earliest": 1501,
           "latest": 1600
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "conventional",
+      "code": "non",
+      "evidence": [
+        {
+          "citation": "Barnes, Michael P. 2008. A New Introduction to Old Norse. Part I: Grammar. 3rd ed. London: Viking Society for Northern Research, University College London.",
+          "claim_id": "ev_period_578fdf7fb70080487146344e7a641356c74a2d95",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"1\", \"pdf_page\": 13}",
+          "quote": "The term ‘Old Norse’ has been used in various ways. For some it is a\nbroad concept covering the language of Denmark, Norway and Swe-\nden, as well as Iceland and the other Scandinavian colonies, through-\nout the Viking Age (c. 750–1050) and the early and high Middle Ages\n(c. 1050–1350).",
+          "role": "convention",
+          "source": "Barnes 2008",
+          "url": null
+        }
+      ],
+      "kind": "stage",
+      "label": "c. 750–1350 CE",
+      "name": "Old Norse",
+      "spoken": {
+        "end": {
+          "earliest": 1350,
+          "latest": 1350
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 750,
+          "latest": 750
         }
       }
     },
@@ -2511,6 +2784,104 @@
         "start": {
           "earliest": -1199,
           "latest": -1199
+        }
+      }
+    },
+    {
+      "alternatives": [
+        {
+          "basis": "conventional",
+          "citation": "Pijnenburg, W. J. J., with K. H. van Dalen-Oskam, K. A. C. Depuydt, T. H. Schoonheim, and syntax by J. M. van der Horst. 1997. “Vroegmiddelnederlands (circa 1200–1350),” §3.1.1, p. 69. In M. C. van den Toorn, W. Pijnenburg, J. A. van Leuvensteijn, and J. M. van der Horst (eds.), Geschiedenis van de Nederlandse taal. Amsterdam: Amsterdam University Press, 1997. DBNL digital reproduction.",
+          "claim_id": "ev_period_1b826933a696c5a270ce4c44dac0021f49e1f90c",
+          "end": {
+            "earliest": 1200,
+            "latest": 1200
+          },
+          "event": "conventional_period",
+          "label": "until 1200 CE",
+          "locator": "{\"page\": \"37\", \"pdf_page\": 26}",
+          "quote": "De term Oudnederlands (vanuit een ander perspectief ook wel Oudnederfrankisch​\ngenoemd) wordt gebruikt voor de verzameling van verwante dialecten in de Lage​\nLanden vóór 1200.",
+          "role": "convention",
+          "source": "Quak 1997",
+          "start": null,
+          "url": "https://www.dbnl.org/tekst/toor004gesc01_01/toor004gesc01_01.pdf"
+        }
+      ],
+      "basis": "conventional",
+      "code": "odt",
+      "evidence": [
+        {
+          "citation": "Breitbarth, Anne. 2013. “Negation in the history of Low German and Dutch.” In David Willis, Christopher Lucas, and Anne Breitbarth (eds.), The History of Negation in the Languages of Europe and the Mediterranean, vol. I: Case Studies, 190–238. Oxford: Oxford University Press. doi:10.1093/acprof:oso/9780199602537.003.0006. Cited copy: institutional accepted manuscript, numbered pp. 342–420.",
+          "claim_id": "ev_period_08bc5064de2afea0686d6f0a79c67c5324fb86cf",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"344 (accepted manuscript)\", \"pdf_page\": 3}",
+          "quote": "The Old Dutch period is usually assumed to have lasted from c. 700–1150, although \nexact delimitation is impossible due to the extremely poor textual attestation.",
+          "role": "convention",
+          "source": "Breitbarth 2013",
+          "url": "https://biblio.ugent.be/publication/4121292/file/6802098.pdf"
+        }
+      ],
+      "kind": "stage",
+      "label": "c. 700–1150 CE",
+      "name": "Old Dutch",
+      "spoken": {
+        "end": {
+          "earliest": 1150,
+          "latest": 1150
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 700,
+          "latest": 700
+        }
+      }
+    },
+    {
+      "alternatives": [
+        {
+          "basis": "attested",
+          "citation": "Fortson, Benjamin W., IV. 2010. Indo-European Language and Culture: An Introduction. 2nd ed. Blackwell Textbooks in Linguistics 19. Chichester and Malden, MA: Wiley-Blackwell. (Supplied copy is a reflowed e-book without printed page numbers; cited by section.)",
+          "claim_id": "ev_period_9831d1d3927a628121f446287971869b4efe1b77",
+          "end": null,
+          "event": "first_attestation",
+          "label": "from 13th century CE",
+          "locator": "{\"page\": \"unpaginated supplied electronic copy, §15.88\", \"pdf_page\": 381}",
+          "quote": "Its first records, in Old Frisian, date only to the thirteenth century,\nalthough some scattered runic remains from the sixth through the ninth centuries have been\nclaimed (doubtfully, at least in part) to be in an earlier form of the language.",
+          "role": "observation",
+          "source": "Fortson 2010",
+          "start": {
+            "earliest": 1201,
+            "latest": 1300
+          },
+          "url": null
+        }
+      ],
+      "basis": "attested",
+      "code": "ofs",
+      "evidence": [
+        {
+          "citation": "Bremmer, Rolf H., Jr. 2021. “Taking Stock of Old Frisian Studies: 1992–2021.” Us Wurk 70: 1–28. doi:10.21827/5fb7c91ed9fba.",
+          "claim_id": "ev_period_a56e1a10be8008ce81be38d1ce4ac01c1f31c41b",
+          "event": "documentary_sampling",
+          "locator": "{\"page\": \"13\", \"pdf_page\": 13}",
+          "quote": "Hence, Old Frisian, recorded between ca. \n1250 and ca. 1550, is used for the period that adjacent languages are \npredicated with ‗middle‘, e.g. Middle Dutch, Middle Low German, Middle \nHigh German and Middle English.",
+          "role": "observation",
+          "source": "Bremmer 2021",
+          "url": "https://ugp.rug.nl/uswurk/article/download/37711/35303"
+        }
+      ],
+      "kind": "attested",
+      "label": "c. 1250–1550 CE",
+      "name": "Old Frisian",
+      "spoken": {
+        "end": {
+          "earliest": 1550,
+          "latest": 1550
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 1250,
+          "latest": 1250
         }
       }
     },
@@ -2672,6 +3043,58 @@
         "start": {
           "earliest": -599,
           "latest": -500
+        }
+      }
+    },
+    {
+      "alternatives": [
+        {
+          "basis": "conventional",
+          "citation": "Schmidt, Wilhelm. 2013. Geschichte der deutschen Sprache: Ein Lehrbuch für das germanistische Studium. Continued by Helmut Langner. 11th, improved and enlarged ed., ed. by Elisabeth Berner & Norbert Richard Wolf. Stuttgart: S. Hirzel.",
+          "claim_id": "ev_period_bfeca1a97b9f429e3d694b1719127f1b7e6abe10",
+          "end": {
+            "earliest": 1150,
+            "latest": 1200
+          },
+          "event": "conventional_period",
+          "label": "800–1150/1200 CE",
+          "locator": "{\"page\": \"23\", \"pdf_page\": 46}",
+          "quote": "Altsächsisch/\nAltniederdeutsch\n(800–1150/1200)",
+          "role": "convention",
+          "source": "Schmidt 2013",
+          "start": {
+            "earliest": 800,
+            "latest": 800
+          },
+          "url": null
+        }
+      ],
+      "basis": "conventional",
+      "code": "osx",
+      "evidence": [
+        {
+          "citation": "Breitbarth, Anne. 2013. “Negation in the history of Low German and Dutch.” In David Willis, Christopher Lucas, and Anne Breitbarth (eds.), The History of Negation in the Languages of Europe and the Mediterranean, vol. I: Case Studies, 190–238. Oxford: Oxford University Press. doi:10.1093/acprof:oso/9780199602537.003.0006. Cited copy: institutional accepted manuscript, numbered pp. 342–420.",
+          "claim_id": "ev_period_b0d9d081f49e1a84592e7a683723408af3d9f7e6",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"342 (accepted manuscript)\", \"pdf_page\": 1}",
+          "quote": "Old Low German (Old Saxon) is the language spoken by a group of Germanic tribes \ncalling themselves Saxons and living in what is now northwestern Germany and parts \nof what are now the Netherlands from c. 800 to 1200",
+          "role": "convention",
+          "source": "Breitbarth 2013",
+          "url": "https://biblio.ugent.be/publication/4121292/file/6802098.pdf"
+        }
+      ],
+      "kind": "stage",
+      "label": "c. 800–1200 CE",
+      "name": "Old Saxon",
+      "spoken": {
+        "end": {
+          "earliest": 1200,
+          "latest": 1200
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 800,
+          "latest": 800
         }
       }
     },
@@ -3302,6 +3725,37 @@
         "start": {
           "earliest": -1499,
           "latest": -1499
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "conventional",
+      "code": "wlm",
+      "evidence": [
+        {
+          "citation": "Fortson, Benjamin W., IV. 2010. Indo-European Language and Culture: An Introduction. 2nd ed. Blackwell Textbooks in Linguistics 19. Chichester and Malden, MA: Wiley-Blackwell. (Supplied copy is a reflowed e-book without printed page numbers; cited by section.)",
+          "claim_id": "ev_period_9bf1c12fa02d343eaef98f22a8cc2c208401cc80",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"unpaginated supplied electronic copy, §14.59\", \"pdf_page\": 342}",
+          "quote": "By contrast, we have very copious literature in\nMiddle Welsh, dated from the mid-twelfth century to the end of the fourteenth.",
+          "role": "convention",
+          "source": "Fortson 2010",
+          "url": null
+        }
+      ],
+      "kind": "stage",
+      "label": "12th–14th century CE",
+      "name": "Middle Welsh",
+      "spoken": {
+        "end": {
+          "earliest": 1301,
+          "latest": 1400
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 1101,
+          "latest": 1200
         }
       }
     },
