@@ -128,7 +128,11 @@ class PublishedRegression(unittest.TestCase):
     def setUpClass(cls):cls.bundle=r.current_bundle()
     def test_committed_bundle_and_mirrors(self):self.assertEqual(r.validate_current(),[])
     def test_coverage_is_not_confidence(self):
-        self.assertEqual(len(self.bundle['languages']),8625)
+        import json
+        from workflow_tools.paths import selected
+        languages=json.loads(selected('wiktionary_languages').read_text())
+        # One catalog row per Wiktionary main code (aliases resolve to their main code).
+        self.assertEqual(len(self.bundle['languages']),sum(1 for c,e in languages.items() if e['mainCode']==c))
         for row in self.bundle['languages'].values():
             self.assertNotIn('confidence',row);self.assertNotIn('glottolog_first_year',row);self.assertNotIn('inherited_from',row)
             self.assertFalse(row['temporal_transfer_allowed'])

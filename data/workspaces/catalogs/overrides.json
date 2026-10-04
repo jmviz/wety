@@ -5,20 +5,20 @@
     "wikt:lang:nds": {
       "target": "glottolog:lowg1239",
       "relation": "catalog_correspondence",
-      "reviewer": "Codex bounded catalog review 2026-09-19",
+      "reviewer": "Codex bounded catalog review 2026-09-19 Re-reviewed 2026-10-04 against the 2026-09-01 Wiktionary export (Claude Opus 5.5): Low German now files Dutch and German Low Saxon varieties as etymology-only codes; the decision is catalog lookup only and still holds.",
       "rationale": "Wiktionary nds is the broader Low German umbrella; the local Glottolog Low German family is a useful catalog context. This does not establish exact historical extension. nds-de and nds-nl are regular codes in this Wiktionary snapshot, not etymology-only codes.",
       "references": [
         "core/data/languages.json#nds",
         "Glottolog 5.3 languages.csv#lowg1239",
         "sources/wikidata_items.json#Q25433"
       ],
-      "source_snapshot": "ef06d08e444cab6740674fde5d036ab9425118349674598a22fe7859e471c151",
+      "source_snapshot": "dcccc25df4984bf84e72c0f8096610de1697c9ca5fd986c4b4aae5f527248de3",
       "purpose": "catalog lookup; no chronology or sample identity transfer"
     },
     "wikt:lang:ang": [
       {
-        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's source check, dating period pilot 2026-10-03",
-        "source_snapshot": "ef06d08e444cab6740674fde5d036ab9425118349674598a22fe7859e471c151",
+        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's source check, dating period pilot 2026-10-03 Re-reviewed 2026-10-04 against the 2026-09-01 Wiktionary export (Claude Opus 5.5): ang also files Kentish and West Saxon now, both Old English dialects; unchanged.",
+        "source_snapshot": "dcccc25df4984bf84e72c0f8096610de1697c9ca5fd986c4b4aae5f527248de3",
         "purpose": "dating: whether a period a source states for the target applies to the whole Wiktionary code (including etymology-only varieties filed under it); no chronology transfer",
         "target": "iso639-3:ang",
         "relation": "equivalent",
@@ -30,8 +30,8 @@
         ]
       },
       {
-        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's source check, dating period pilot 2026-10-03",
-        "source_snapshot": "ef06d08e444cab6740674fde5d036ab9425118349674598a22fe7859e471c151",
+        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's source check, dating period pilot 2026-10-03 Re-reviewed 2026-10-04 against the 2026-09-01 Wiktionary export (Claude Opus 5.5): ang also files Kentish and West Saxon now, both Old English dialects; unchanged.",
+        "source_snapshot": "dcccc25df4984bf84e72c0f8096610de1697c9ca5fd986c4b4aae5f527248de3",
         "purpose": "dating: whether a period a source states for the target applies to the whole Wiktionary code (including etymology-only varieties filed under it); no chronology transfer",
         "target": "glottolog:olde1238",
         "relation": "equivalent",
@@ -45,8 +45,8 @@
     ],
     "wikt:lang:enm": [
       {
-        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's source check, dating period pilot 2026-10-03",
-        "source_snapshot": "ef06d08e444cab6740674fde5d036ab9425118349674598a22fe7859e471c151",
+        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's source check, dating period pilot 2026-10-03 Re-reviewed 2026-10-04 against the 2026-09-01 Wiktionary export (Claude Opus 5.5): enm also files East/West Midland, Kentish and Southern ME, and Early Scots as enm-esc; unchanged.",
+        "source_snapshot": "dcccc25df4984bf84e72c0f8096610de1697c9ca5fd986c4b4aae5f527248de3",
         "purpose": "dating: whether a period a source states for the target applies to the whole Wiktionary code (including etymology-only varieties filed under it); no chronology transfer",
         "target": "iso639-3:enm",
         "relation": "equivalent",
@@ -58,8 +58,8 @@
         ]
       },
       {
-        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's source check, dating period pilot 2026-10-03",
-        "source_snapshot": "ef06d08e444cab6740674fde5d036ab9425118349674598a22fe7859e471c151",
+        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's source check, dating period pilot 2026-10-03 Re-reviewed 2026-10-04 against the 2026-09-01 Wiktionary export (Claude Opus 5.5): enm also files East/West Midland, Kentish and Southern ME, and Early Scots as enm-esc; unchanged.",
+        "source_snapshot": "dcccc25df4984bf84e72c0f8096610de1697c9ca5fd986c4b4aae5f527248de3",
         "purpose": "dating: whether a period a source states for the target applies to the whole Wiktionary code (including etymology-only varieties filed under it); no chronology transfer",
         "target": "glottolog:midd1317",
         "relation": "equivalent",
@@ -73,8 +73,8 @@
     ],
     "wikt:lang:gmh": [
       {
-        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's source check, dating period pilot 2026-10-03",
-        "source_snapshot": "ef06d08e444cab6740674fde5d036ab9425118349674598a22fe7859e471c151",
+        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's source check, dating period pilot 2026-10-03 Re-reviewed 2026-10-04 against the 2026-09-01 Wiktionary export (Claude Opus 5.5): filings unchanged.",
+        "source_snapshot": "dcccc25df4984bf84e72c0f8096610de1697c9ca5fd986c4b4aae5f527248de3",
         "purpose": "dating: whether a period a source states for the target applies to the whole Wiktionary code (including etymology-only varieties filed under it); no chronology transfer",
         "target": "iso639-3:gmh",
         "relation": "equivalent",
@@ -86,8 +86,8 @@
         ]
       },
       {
-        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's source check, dating period pilot 2026-10-03",
-        "source_snapshot": "ef06d08e444cab6740674fde5d036ab9425118349674598a22fe7859e471c151",
+        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's source check, dating period pilot 2026-10-03 Re-reviewed 2026-10-04 against the 2026-09-01 Wiktionary export (Claude Opus 5.5): filings unchanged.",
+        "source_snapshot": "dcccc25df4984bf84e72c0f8096610de1697c9ca5fd986c4b4aae5f527248de3",
         "purpose": "dating: whether a period a source states for the target applies to the whole Wiktionary code (including etymology-only varieties filed under it); no chronology transfer",
         "target": "glottolog:midd1343",
         "relation": "equivalent",
@@ -101,8 +101,8 @@
     ],
     "wikt:lang:goh": [
       {
-        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's source check, dating period pilot 2026-10-03",
-        "source_snapshot": "ef06d08e444cab6740674fde5d036ab9425118349674598a22fe7859e471c151",
+        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's source check, dating period pilot 2026-10-03 Re-reviewed 2026-10-04 against the 2026-09-01 Wiktionary export (Claude Opus 5.5): Lombardic (lng) is still filed under goh; unchanged.",
+        "source_snapshot": "dcccc25df4984bf84e72c0f8096610de1697c9ca5fd986c4b4aae5f527248de3",
         "purpose": "dating: whether a period a source states for the target applies to the whole Wiktionary code (including etymology-only varieties filed under it); no chronology transfer",
         "target": "iso639-3:goh",
         "relation": "source_broader",
@@ -114,8 +114,8 @@
         ]
       },
       {
-        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's source check, dating period pilot 2026-10-03",
-        "source_snapshot": "ef06d08e444cab6740674fde5d036ab9425118349674598a22fe7859e471c151",
+        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's source check, dating period pilot 2026-10-03 Re-reviewed 2026-10-04 against the 2026-09-01 Wiktionary export (Claude Opus 5.5): Lombardic (lng) is still filed under goh; unchanged.",
+        "source_snapshot": "dcccc25df4984bf84e72c0f8096610de1697c9ca5fd986c4b4aae5f527248de3",
         "purpose": "dating: whether a period a source states for the target applies to the whole Wiktionary code (including etymology-only varieties filed under it); no chronology transfer",
         "target": "glottolog:oldh1241",
         "relation": "source_broader",
@@ -129,8 +129,8 @@
     ],
     "wikt:lang:sga": [
       {
-        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's source check, dating period pilot 2026-10-03",
-        "source_snapshot": "ef06d08e444cab6740674fde5d036ab9425118349674598a22fe7859e471c151",
+        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's source check, dating period pilot 2026-10-03 Re-reviewed 2026-10-04 against the 2026-09-01 Wiktionary export (Claude Opus 5.5): filings unchanged.",
+        "source_snapshot": "dcccc25df4984bf84e72c0f8096610de1697c9ca5fd986c4b4aae5f527248de3",
         "purpose": "dating: whether a period a source states for the target applies to the whole Wiktionary code (including etymology-only varieties filed under it); no chronology transfer",
         "target": "iso639-3:sga",
         "relation": "equivalent",
@@ -142,8 +142,8 @@
         ]
       },
       {
-        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's source check, dating period pilot 2026-10-03",
-        "source_snapshot": "ef06d08e444cab6740674fde5d036ab9425118349674598a22fe7859e471c151",
+        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's source check, dating period pilot 2026-10-03 Re-reviewed 2026-10-04 against the 2026-09-01 Wiktionary export (Claude Opus 5.5): filings unchanged.",
+        "source_snapshot": "dcccc25df4984bf84e72c0f8096610de1697c9ca5fd986c4b4aae5f527248de3",
         "purpose": "dating: whether a period a source states for the target applies to the whole Wiktionary code (including etymology-only varieties filed under it); no chronology transfer",
         "target": "glottolog:oldi1245",
         "relation": "source_narrower",
@@ -157,8 +157,8 @@
     ],
     "wikt:lang:grc": [
       {
-        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's source check, dating period pilot 2026-10-03",
-        "source_snapshot": "ef06d08e444cab6740674fde5d036ab9425118349674598a22fe7859e471c151",
+        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's source check, dating period pilot 2026-10-03 Re-reviewed 2026-10-04 against the 2026-09-01 Wiktionary export (Claude Opus 5.5): grc files the same stages (dialect codes renamed: grc-epi, grc-opl, grc-ozl; Cypriot added); unchanged.",
+        "source_snapshot": "dcccc25df4984bf84e72c0f8096610de1697c9ca5fd986c4b4aae5f527248de3",
         "purpose": "dating: whether a period a source states for the target applies to the whole Wiktionary code (including etymology-only varieties filed under it); no chronology transfer",
         "target": "iso639-3:grc",
         "relation": "equivalent",
@@ -170,8 +170,8 @@
         ]
       },
       {
-        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's source check, dating period pilot 2026-10-03",
-        "source_snapshot": "ef06d08e444cab6740674fde5d036ab9425118349674598a22fe7859e471c151",
+        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's source check, dating period pilot 2026-10-03 Re-reviewed 2026-10-04 against the 2026-09-01 Wiktionary export (Claude Opus 5.5): grc files the same stages (dialect codes renamed: grc-epi, grc-opl, grc-ozl; Cypriot added); unchanged.",
+        "source_snapshot": "dcccc25df4984bf84e72c0f8096610de1697c9ca5fd986c4b4aae5f527248de3",
         "purpose": "dating: whether a period a source states for the target applies to the whole Wiktionary code (including etymology-only varieties filed under it); no chronology transfer",
         "target": "glottolog:anci1242",
         "relation": "source_broader",
@@ -185,8 +185,8 @@
     ],
     "wikt:lang:got": [
       {
-        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's source check, dating period pilot 2026-10-03",
-        "source_snapshot": "ef06d08e444cab6740674fde5d036ab9425118349674598a22fe7859e471c151",
+        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's source check, dating period pilot 2026-10-03 Re-reviewed 2026-10-04 against the 2026-09-01 Wiktionary export (Claude Opus 5.5): filings unchanged.",
+        "source_snapshot": "dcccc25df4984bf84e72c0f8096610de1697c9ca5fd986c4b4aae5f527248de3",
         "purpose": "dating: whether a period a source states for the target applies to the whole Wiktionary code (including etymology-only varieties filed under it); no chronology transfer",
         "target": "glottolog:goth1244",
         "relation": "equivalent",
@@ -200,8 +200,8 @@
     ],
     "wikt:lang:akk": [
       {
-        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's source check, dating period pilot 2026-10-03",
-        "source_snapshot": "ef06d08e444cab6740674fde5d036ab9425118349674598a22fe7859e471c151",
+        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's source check, dating period pilot 2026-10-03 Re-reviewed 2026-10-04 against the 2026-09-01 Wiktionary export (Claude Opus 5.5): filings unchanged.",
+        "source_snapshot": "dcccc25df4984bf84e72c0f8096610de1697c9ca5fd986c4b4aae5f527248de3",
         "purpose": "dating: whether a period a source states for the target applies to the whole Wiktionary code (including etymology-only varieties filed under it); no chronology transfer",
         "target": "glottolog:akka1240",
         "relation": "equivalent",
@@ -215,8 +215,8 @@
     ],
     "wikt:lang:hit": [
       {
-        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's source check, dating period pilot 2026-10-03",
-        "source_snapshot": "ef06d08e444cab6740674fde5d036ab9425118349674598a22fe7859e471c151",
+        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's source check, dating period pilot 2026-10-03 Re-reviewed 2026-10-04 against the 2026-09-01 Wiktionary export (Claude Opus 5.5): filings unchanged.",
+        "source_snapshot": "dcccc25df4984bf84e72c0f8096610de1697c9ca5fd986c4b4aae5f527248de3",
         "purpose": "dating: whether a period a source states for the target applies to the whole Wiktionary code (including etymology-only varieties filed under it); no chronology transfer",
         "target": "glottolog:hitt1242",
         "relation": "equivalent",
@@ -230,8 +230,8 @@
     ],
     "wikt:lang:och": [
       {
-        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's source check, dating period pilot 2026-10-03",
-        "source_snapshot": "ef06d08e444cab6740674fde5d036ab9425118349674598a22fe7859e471c151",
+        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's source check, dating period pilot 2026-10-03 Re-reviewed 2026-10-04 against the 2026-09-01 Wiktionary export (Claude Opus 5.5): filings unchanged.",
+        "source_snapshot": "dcccc25df4984bf84e72c0f8096610de1697c9ca5fd986c4b4aae5f527248de3",
         "purpose": "dating: whether a period a source states for the target applies to the whole Wiktionary code (including etymology-only varieties filed under it); no chronology transfer",
         "target": "glottolog:oldc1244",
         "relation": "equivalent",
@@ -245,8 +245,8 @@
     ],
     "wikt:lang:ltc": [
       {
-        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's source check, dating period pilot 2026-10-03",
-        "source_snapshot": "ef06d08e444cab6740674fde5d036ab9425118349674598a22fe7859e471c151",
+        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's source check, dating period pilot 2026-10-03 Re-reviewed 2026-10-04 against the 2026-09-01 Wiktionary export (Claude Opus 5.5): filings unchanged.",
+        "source_snapshot": "dcccc25df4984bf84e72c0f8096610de1697c9ca5fd986c4b4aae5f527248de3",
         "purpose": "dating: whether a period a source states for the target applies to the whole Wiktionary code (including etymology-only varieties filed under it); no chronology transfer",
         "target": "glottolog:midd1344",
         "relation": "equivalent",
@@ -258,8 +258,8 @@
         ]
       },
       {
-        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's source check, dating period pilot 2026-10-03",
-        "source_snapshot": "ef06d08e444cab6740674fde5d036ab9425118349674598a22fe7859e471c151",
+        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's source check, dating period pilot 2026-10-03 Re-reviewed 2026-10-04 against the 2026-09-01 Wiktionary export (Claude Opus 5.5): filings unchanged.",
+        "source_snapshot": "dcccc25df4984bf84e72c0f8096610de1697c9ca5fd986c4b4aae5f527248de3",
         "purpose": "dating: whether a period a source states for the target applies to the whole Wiktionary code (including etymology-only varieties filed under it); no chronology transfer",
         "target": "iso639-3:ltc",
         "relation": "source_broader",
@@ -273,8 +273,8 @@
     ],
     "wikt:lang:ojp": [
       {
-        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's source check, dating period pilot 2026-10-03",
-        "source_snapshot": "ef06d08e444cab6740674fde5d036ab9425118349674598a22fe7859e471c151",
+        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's source check, dating period pilot 2026-10-03 Re-reviewed 2026-10-04 against the 2026-09-01 Wiktionary export (Claude Opus 5.5): ojp also files Eastern Old Japanese; unchanged.",
+        "source_snapshot": "dcccc25df4984bf84e72c0f8096610de1697c9ca5fd986c4b4aae5f527248de3",
         "purpose": "dating: whether a period a source states for the target applies to the whole Wiktionary code (including etymology-only varieties filed under it); no chronology transfer",
         "target": "glottolog:oldj1239",
         "relation": "source_broader",
@@ -290,7 +290,7 @@
       {
         "target": "glottolog:lati1261",
         "relation": "source_broader",
-        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's scope check, 2026-10-03",
+        "reviewer": "Claude Opus 5.5 (Claude Code) reviewing Astra's scope check, 2026-10-03 Re-reviewed 2026-10-04 against the 2026-09-01 Wiktionary export (Claude Opus 5.5): la now also files Archaic and Praenestine Latin, African and later Latin, and Proto-Romance (roa-pro), which only widens it beyond Glottolog Latin.",
         "rationale": "Wiktionary files Old Latin (itc-ola) under la; Glottolog classifies Old Latin (oldl1238) as a separate language beside Latin (lati1261), whose children are Late, Medieval and Vulgar Latin.",
         "references": [
           "data/artifacts/wiktionary-export/legacy/files/languages.json#itc-ola",
@@ -298,7 +298,7 @@
           "https://glottolog.org/resource/languoid/id/lati1261.json",
           "data/workspaces/dating/_research/scope-check-2026-10-03/report.md"
         ],
-        "source_snapshot": "ef06d08e444cab6740674fde5d036ab9425118349674598a22fe7859e471c151",
+        "source_snapshot": "dcccc25df4984bf84e72c0f8096610de1697c9ca5fd986c4b4aae5f527248de3",
         "purpose": "dating: whether a period a source states for the target applies to the whole Wiktionary code (including etymology-only varieties filed under it); no chronology transfer"
       }
     ],
@@ -306,8 +306,8 @@
       {
         "target": "iso639-3:chu",
         "relation": "source_narrower",
-        "reviewer": "Claude Opus 5.5 (Claude Code), from catalog-pinned ISO 639 and Glottolog 5.3 data and the 2026-10-04 period retry, 2026-10-04",
-        "source_snapshot": "ef06d08e444cab6740674fde5d036ab9425118349674598a22fe7859e471c151",
+        "reviewer": "Claude Opus 5.5 (Claude Code), from catalog-pinned ISO 639 and Glottolog 5.3 data and the 2026-10-04 period retry, 2026-10-04 Re-reviewed 2026-10-04 against the 2026-09-01 Wiktionary export (Claude Opus 5.5): filings unchanged (Middle Bulgarian).",
+        "source_snapshot": "dcccc25df4984bf84e72c0f8096610de1697c9ca5fd986c4b4aae5f527248de3",
         "purpose": "dating: whether a period a source states for the target applies to the whole Wiktionary code (including etymology-only varieties filed under it); no chronology transfer",
         "rationale": "ISO chu names the whole tradition: 'Church Slavic; Old Slavonic; Church Slavonic; Old Bulgarian; Old Church Slavonic' (ISO 639-2 names). Church Slavonic is the post-1100 Macedonian, Bulgarian, Serbian and Russian recensions (Lunt 1974, p. 4), of which Middle Bulgarian is the Bulgarian one. Wiktionary cu files only Old Church Slavonic and Middle Bulgarian, both inside chu.",
         "references": [
@@ -321,8 +321,8 @@
       {
         "target": "glottolog:chur1257",
         "relation": "source_narrower",
-        "reviewer": "Claude Opus 5.5 (Claude Code), from catalog-pinned ISO 639 and Glottolog 5.3 data and the 2026-10-04 period retry, 2026-10-04",
-        "source_snapshot": "ef06d08e444cab6740674fde5d036ab9425118349674598a22fe7859e471c151",
+        "reviewer": "Claude Opus 5.5 (Claude Code), from catalog-pinned ISO 639 and Glottolog 5.3 data and the 2026-10-04 period retry, 2026-10-04 Re-reviewed 2026-10-04 against the 2026-09-01 Wiktionary export (Claude Opus 5.5): filings unchanged (Middle Bulgarian).",
+        "source_snapshot": "dcccc25df4984bf84e72c0f8096610de1697c9ca5fd986c4b4aae5f527248de3",
         "purpose": "dating: whether a period a source states for the target applies to the whole Wiktionary code (including etymology-only varieties filed under it); no chronology transfer",
         "rationale": "Glottolog's Church Slavic is one languoid without dialects for the whole tradition: its endangerment status ('Second language only') describes present liturgical use, and its grammars include the 1591 Adelphotes (a Church Slavonic grammar) beside Old Church Slavonic grammars. Wiktionary cu files only Old Church Slavonic and Middle Bulgarian.",
         "references": [
@@ -338,8 +338,8 @@
       {
         "target": "iso639-3:san",
         "relation": "source_broader",
-        "reviewer": "Claude Opus 5.5 (Claude Code), from catalog-pinned ISO 639 and Glottolog 5.3 data and the 2026-10-04 period retry, 2026-10-04",
-        "source_snapshot": "ef06d08e444cab6740674fde5d036ab9425118349674598a22fe7859e471c151",
+        "reviewer": "Claude Opus 5.5 (Claude Code), from catalog-pinned ISO 639 and Glottolog 5.3 data and the 2026-10-04 period retry, 2026-10-04 Re-reviewed 2026-10-04 against the 2026-09-01 Wiktionary export (Claude Opus 5.5): Vedic and Classical Sanskrit are now filed as vsn and cls; Buddhist Hybrid Sanskrit (sa-bhs) is still filed; unchanged.",
+        "source_snapshot": "dcccc25df4984bf84e72c0f8096610de1697c9ca5fd986c4b4aae5f527248de3",
         "purpose": "dating: whether a period a source states for the target applies to the whole Wiktionary code (including etymology-only varieties filed under it); no chronology transfer",
         "rationale": "ISO san is a macrolanguage whose members are Vedic Sanskrit (vsn) and Classical Sanskrit (cls) (change request 2011-041, adopted 2023-12-15). Wiktionary sa also files Buddhist Hybrid Sanskrit (sa-bhs), which is neither: a Sanskritization of an early Middle Indo-Aryan Prakrit (Hock 2024).",
         "references": [
@@ -353,8 +353,8 @@
       {
         "target": "glottolog:sans1269",
         "relation": "source_broader",
-        "reviewer": "Claude Opus 5.5 (Claude Code), from catalog-pinned ISO 639 and Glottolog 5.3 data and the 2026-10-04 period retry, 2026-10-04",
-        "source_snapshot": "ef06d08e444cab6740674fde5d036ab9425118349674598a22fe7859e471c151",
+        "reviewer": "Claude Opus 5.5 (Claude Code), from catalog-pinned ISO 639 and Glottolog 5.3 data and the 2026-10-04 period retry, 2026-10-04 Re-reviewed 2026-10-04 against the 2026-09-01 Wiktionary export (Claude Opus 5.5): Vedic and Classical Sanskrit are now filed as vsn and cls; Buddhist Hybrid Sanskrit (sa-bhs) is still filed; unchanged.",
+        "source_snapshot": "dcccc25df4984bf84e72c0f8096610de1697c9ca5fd986c4b4aae5f527248de3",
         "purpose": "dating: whether a period a source states for the target applies to the whole Wiktionary code (including etymology-only varieties filed under it); no chronology transfer",
         "rationale": "Glottolog Sanskrit has two dialects, Classical Sanskrit (clas1258) and Vedic Sanskrit (vedi1234), and classifies Buddhist Hybrid Sanskrit (budd1234) as a dialect of Pali (pali1273). Wiktionary sa files Buddhist Hybrid Sanskrit as well.",
         "references": [
@@ -364,6 +364,22 @@
           "data/artifacts/glottolog/5.3/files/glottolog/cldf/languages.csv#budd1234",
           "data/artifacts/wiktionary-export/legacy/files/languages.json#sa-bhs"
         ]
+      }
+    ],
+    "wikt:lang:non": [
+      {
+        "target": "glottolog:oldn1244",
+        "relation": "source_narrower",
+        "reviewer": "Claude Opus 5.5 (Claude Code), from Glottolog 5.3 and the 2026-09-01 Wiktionary export, 2026-10-04",
+        "rationale": "Glottolog Old Norse has three dialects: Old East Norse, Old West Norse and Old Norn (oldn1246, ISO nrn). Wiktionary non files Old East Norse, Old West Norse and Greenlandic Norse (a West Norse colonial variety); Norn is a separate Wiktionary language, and Old Gutnish left non (gmq-ogt) in this export. So Wiktionary non covers less than Glottolog Old Norse.",
+        "references": [
+          "data/artifacts/glottolog/5.3/files/glottolog/cldf/values.csv#oldn1244-subclassification",
+          "data/artifacts/glottolog/5.3/files/glottolog/cldf/languages.csv#oldn1246",
+          "data/artifacts/wiktionary-export/2d98b7aa0c9965e1492db2e242ead832fe7e3c161e1f1a27c1d177135c6df2b7/files/languages.json#non",
+          "data/workspaces/dating/_research/scope-check-2026-10-03/README.md"
+        ],
+        "source_snapshot": "dcccc25df4984bf84e72c0f8096610de1697c9ca5fd986c4b4aae5f527248de3",
+        "purpose": "dating: whether a period a source states for the target applies to the whole Wiktionary code (including etymology-only varieties filed under it); no chronology transfer"
       }
     ]
   }

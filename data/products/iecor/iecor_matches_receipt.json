@@ -1,9 +1,9 @@
 {
- "crossref_generation": "7cbac1131ace7ca723e65e5bf48f3cb317d0698f94e3465ee665c2e016c09627",
+ "crossref_generation": "94fb4909c233a4262a321bf71439883f2ad53094df934a0a72be2978ee166d86",
  "files": {
   "data/artifacts/iecor/legacy/files/languages.csv": "fe9669ee3535889612e64a2d57ce407a1dca488891abe26a31ba3871b956a33a",
-  "data/artifacts/wiktionary-export/legacy/files/languages.json": "448da3df14bbe2d52cce6669143b4916ef3b5526eeb053ecc71b8e629944a7d6",
-  "data/products/iecor/iecor_wiktionary_matches.json": "84a3fe2b9cf7ac4f4b95d74972dc672f7cbb978dd89907e7ad1820f8a3601c79",
+  "data/artifacts/wiktionary-export/2d98b7aa0c9965e1492db2e242ead832fe7e3c161e1f1a27c1d177135c6df2b7/files/languages.json": "97596c9de4ea77aa141454c1da57a4ac4e257544e4a0594f2dfc8eb82e52266f",
+  "data/products/iecor/iecor_wiktionary_matches.json": "1ecc8c79b7215e176828806b7c33c05923a0ecd6f081e08a2dc05162474f866d",
   "packages/catalogs/iecor.py": "7b607de5aa64c23b1804328f4f3a91fb1cca7f9323c241576b82e3653ab56070"
  },
  "limitations": [
