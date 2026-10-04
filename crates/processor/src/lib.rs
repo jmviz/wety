@@ -59,6 +59,7 @@ pub fn process_wiktextract(
     t = Instant::now();
     println!("Generating ety graph...");
     items.generate_ety_graph(&embeddings)?;
+    items.renumber_imputed_dupes(&string_pool);
     println!("Finished. Took {}.", HumanDuration(t.elapsed()));
     let data = Data::new(string_pool, items.graph);
     if let Some(turtle_path) = turtle_path {

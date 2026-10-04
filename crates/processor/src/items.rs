@@ -92,12 +92,14 @@ impl Items {
         // If we've seen this langterm before...
         if let Some(dupes) = self.dupes.get(&langterm) {
             let mut max_ety = 0;
+            let mut ety_num_taken = false;
             let mut same_ety_id = None;
             for &id in dupes {
                 let other = self.graph.item(id);
-                if other.ety_num() == item.ety_num {
+                if other.ety_label() == item.ety_label.as_deref() {
                     same_ety_id = Some(id);
                 }
+                ety_num_taken |= other.ety_num() == item.ety_num;
                 max_ety = other.ety_num().max(max_ety);
             }
             // If it shares an ety with an already stored real item...
@@ -110,8 +112,8 @@ impl Items {
                 // another "root", then we need to make a new item for this.
                 // This to handle the special but important case of PIE root
                 // pages where there are several "Root" sections with no
-                // Etymology sections (and hence here they will all have ety_num
-                // == 1 in the raw_item), but they really are etymologically
+                // Etymology sections (and hence here they will all have no
+                // ety_label in the raw_item), but they really are etymologically
                 // distinct items.
                 //
                 // Otherwise, we simply append this pos and gloss to the
@@ -120,8 +122,11 @@ impl Items {
                 same_ety.gloss.push(mem::take(&mut item.gloss[0]));
                 return (same_ety_id, false);
             }
-            // A new ety_num for an already seen langterm
-            item.ety_num = max_ety + 1;
+            // A new ety for an already seen langterm: keep Wiktionary's number
+            // where it is free, so that it usually matches the page.
+            if ety_num_taken {
+                item.ety_num = max_ety.saturating_add(1);
+            }
             let id = self.add(Item::Real(item));
             self.dupes
                 .get_mut(&langterm)
@@ -150,7 +155,7 @@ impl Items {
                 .map(|&id| self.get(id).ety_num())
                 .max()
                 .expect("at least one")
-                + 1;
+                .saturating_add(1);
 
             let id = self.add(Item::Imputed(item));
             self.imputed_dupes
@@ -163,6 +168,39 @@ impl Items {
         let id = self.add(Item::Imputed(item));
         self.imputed_dupes.insert(langterm, vec![id]);
         id
+    }
+
+    // Imputed items sharing a (lang, term) are numbered in the order they
+    // were imputed, which follows hash-map iteration and so differs between
+    // builds. Renumber them by the item that cited them, so that a link to one
+    // keeps naming the same imputation while its citing item persists.
+    pub(crate) fn renumber_imputed_dupes(&mut self, string_pool: &StringPool) {
+        let groups: Vec<Vec<ItemId>> = self
+            .imputed_dupes
+            .values()
+            .filter(|ids| ids.len() > 1)
+            .cloned()
+            .collect();
+        for mut ids in groups {
+            ids.sort_by_cached_key(|&id| {
+                let item = self.get(id);
+                let Item::Imputed(imputed) = item else {
+                    unreachable!("imputed_dupes holds imputed items")
+                };
+                let from = self.get(imputed.from);
+                (
+                    from.lang().code(),
+                    from.term().resolve(string_pool).to_owned(),
+                    from.ety_num(),
+                    item.ety_num(),
+                )
+            });
+            for (n, id) in ids.into_iter().enumerate() {
+                if let Item::Imputed(imputed) = self.graph.item_mut(id) {
+                    imputed.ety_num = u8::try_from(n + 1).unwrap_or(u8::MAX);
+                }
+            }
+        }
     }
 
     // returns all items that share the same lang and term

@@ -11,7 +11,13 @@ pub type ItemId = NodeIndex<ItemIndex>;
 /// An etymologically distinct item, which may have multiple (pos, gloss)'s
 #[derive(Serialize, Deserialize)]
 pub struct RealItem {
+    /// Distinguishes items sharing a (lang, term); the Wiktionary etymology
+    /// number where that is a plain number and unused, otherwise the next free.
     pub ety_num: u8,
+    /// Wiktionary's own etymology number as written ("3", "1.1"), present when
+    /// the page numbers its etymologies.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub ety_label: Option<Box<str>>,
     pub lang: Lang,
     pub term: Term,
     pub pos: Vec<Pos>,
@@ -65,6 +71,14 @@ impl Item {
         match self {
             Item::Real(real_item) => real_item.ety_num,
             Item::Imputed(imputed_item) => imputed_item.ety_num,
+        }
+    }
+
+    #[must_use]
+    pub fn ety_label(&self) -> Option<&str> {
+        match self {
+            Item::Real(real_item) => real_item.ety_label.as_deref(),
+            Item::Imputed(_) => None,
         }
     }
 

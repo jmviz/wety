@@ -152,8 +152,13 @@ impl Items {
             && let Some(pos) = json_item.get_pos()
             && let Some(gloss) = json_item.get_gloss(string_pool)
         {
+            let ety_label = json_item.get_ety_label();
             let item = RealItem {
-                ety_num: json_item.get_ety_num(),
+                ety_num: ety_label
+                    .as_deref()
+                    .and_then(|label| label.parse().ok())
+                    .unwrap_or(1),
+                ety_label,
                 lang,
                 term,
                 pos: vec![pos],
@@ -250,16 +255,19 @@ impl WiktextractJsonItem<'_> {
         None
     }
 
-    fn get_ety_num(&self) -> u8 {
-        // if langterm has multiple ety's, then 'etymology_number' is present
-        // with range 1,2,... Otherwise, this key is missing. If it is missing,
-        // then most likely there is a single unnumbered "Etymology" section.
-        // Or, there could be no ety sections at all (e.g. in a PIE root page
-        // where there are multiple "Root" sections, e.g. see "men-"). Or, there
-        // could be multiple unnumbered ety sections (very rare defective page).
-        // Whatever number is returned here might get changed in items.add()
-        // When the item is compared with its dupes and potentially gets merged.
-        self.json.get_u8("etymology_number").unwrap_or(1)
+    fn get_ety_label(&self) -> Option<Box<str>> {
+        // If langterm has multiple ety's, then 'etymology_number' is present:
+        // "1", "2", ... or, on some Semitic pages, "1.1", "1.2", ... (older
+        // dumps gave plain integers). Otherwise this key is missing: most
+        // likely there is a single unnumbered "Etymology" section, or none at
+        // all (e.g. a PIE root page with several "Root" sections, see "men-"),
+        // or several unnumbered ones (very rare defective page).
+        let value = self.json.get("etymology_number")?;
+        let label = match value.as_str() {
+            Some(s) => s.trim().into(),
+            None => value.as_u64()?.to_string().into_boxed_str(),
+        };
+        (!label.is_empty()).then_some(label)
     }
 
     fn get_gloss(&self, string_pool: &mut StringPool) -> Option<Gloss> {
@@ -349,6 +357,20 @@ fn should_ignore_pos(pos: &str) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn ety_label(json: &str) -> Option<Box<str>> {
+        let mut bytes = json.as_bytes().to_vec();
+        let json = to_borrowed_value(&mut bytes).unwrap();
+        WiktextractJsonItem { json }.get_ety_label()
+    }
+
+    #[test]
+    fn ety_labels() {
+        assert_eq!(ety_label(r#"{"etymology_number": "3"}"#).as_deref(), Some("3"));
+        assert_eq!(ety_label(r#"{"etymology_number": 2}"#).as_deref(), Some("2"));
+        assert_eq!(ety_label(r#"{"etymology_number": "1.1"}"#).as_deref(), Some("1.1"));
+        assert_eq!(ety_label(r#"{"word": "lime"}"#), None);
+    }
 
     #[test]
     fn clean_template_terms() {
