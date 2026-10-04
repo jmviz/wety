@@ -25,7 +25,8 @@ env:
   # Everything that goes into a server release.
   SERVER_PATHS: >-
     crates/core crates/server Cargo.toml Cargo.lock rust-toolchain.toml .cargo
-    data/registry/inputs.json data/artifacts/wiktionary-export
+    data/registry/inputs.json data/registry/retired-language-codes.json
+    data/artifacts/wiktionary-export
     data/products/dating/language_periods.json deploy/graph.json
     .github/workflows/deploy.yml
 

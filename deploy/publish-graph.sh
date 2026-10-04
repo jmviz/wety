@@ -31,7 +31,6 @@ manifest=$artifact/manifest.json
 file=$(jq -er '.files | keys[0]' "$manifest")
 sha=$(jq -er --arg f "$file" '.files[$f].sha256' "$manifest")
 bytes=$(jq -er --arg f "$file" '.files[$f].bytes' "$manifest")
-legacy=$(jq '.provenance.status == "legacy_adoption"' "$manifest")
 object=graphs/$sha/$file
 
 echo "checking $artifact/files/$file against its manifest"
@@ -48,7 +47,7 @@ else
 fi
 
 jq -n --arg artifact_id "$(jq -er '.artifact_id' "$manifest")" --arg object "$object" \
-    --arg file "$file" --arg sha "$sha" --argjson bytes "$bytes" --argjson legacy "$legacy" \
+    --arg file "$file" --arg sha "$sha" --argjson bytes "$bytes" \
     '{schema_version: 1, artifact_id: $artifact_id, object: $object, file: $file,
-      sha256: $sha, bytes: $bytes, allow_legacy: $legacy}' >"$repo/deploy/graph.json"
+      sha256: $sha, bytes: $bytes}' >"$repo/deploy/graph.json"
 echo "wrote deploy/graph.json; commit it to deploy this graph"

@@ -28,7 +28,10 @@ run receipt.
 
 ## One-time setup
 
-Steps 1–4 do not touch the running site. The site is down from step 5 until step 6
+The first deployment moves the site to the current graph, server and website at once:
+links now name words rather than numeric IDs, and the new website needs the new API
+(`/resolve`, language codes). Steps 1–5 do not touch the running site; step 4 makes
+sure of that by holding the website back. The site is down from step 6 until step 7
 is done, probably 30–60 minutes. `<ip>` is the instance's public IP.
 
 ### 1. R2: bucket, tokens, graph upload
@@ -42,7 +45,7 @@ is done, probably 30–60 minutes. `<ip>` is the instance's public IP.
    times, each scoped to the `wety` bucket only. Each token's secret is shown once, so
    copy both values each time:
    - `wety-ci`: **Object Read & Write**. Goes to GitHub (step 3).
-   - `wety-host`: **Object Read**. Goes to the host (step 5).
+   - `wety-host`: **Object Read**. Goes to the host (step 6).
    - `wety-laptop`: **Object Read & Write**. Used for graph uploads from your machine.
 5. On your machine, install rclone and add a remote named `r2` with the `wety-laptop`
    token. The command line puts the secret in shell history; run `rclone config`
@@ -56,11 +59,12 @@ is done, probably 30–60 minutes. `<ip>` is the instance's public IP.
    rclone config create r2 s3 provider=Cloudflare no_check_bucket=true access_key_id=<KEY_ID> secret_access_key=<SECRET> endpoint=https://<ACCOUNT_ID>.r2.cloudflarestorage.com
    ```
 
-6. Upload the graph that is serving today, the legacy graph, from this checkout. The
-   graph lives in the main checkout's `data/`. Expect a 3.2 GB upload.
+6. Upload the selected graph (the artifact named in
+   `data/products/etymology_graph/CURRENT.json`) from the main checkout, where `data/`
+   lives. Expect a 560 MB upload.
 
    ```bash
-   deploy/publish-graph.sh /Users/jm/fun/philology/wety/data/artifacts/etymology-graph/legacy
+   deploy/publish-graph.sh
    ```
 
    `git diff deploy/graph.json` should then show no change: the committed file already
@@ -75,9 +79,9 @@ The tunnel needs `wety.org`'s DNS on Cloudflare. Check **wety.org** → **DNS** 
    name it `wety-api`, and create it.
 2. The next page shows install commands for an operating system. Do not run them.
    Copy the token: the long string after `cloudflared service install`. You need it in
-   step 5.
-3. Do not add a route yet. Adding it replaces the `api` DNS record, so it happens in
    step 6.
+3. Do not add a route yet. Adding it replaces the `api` DNS record, so it happens in
+   step 7.
 
 ### 3. GitHub
 
@@ -117,20 +121,46 @@ The tunnel needs `wety.org`'s DNS on Cloudflare. Check **wety.org** → **DNS** 
    gh variable set DEPLOY_HOST --env production --body <ip>
    ```
 
-   The R2 values are those of the `wety-ci` token. `DEPLOY_KNOWN_HOSTS` follows in step 5.
+   The R2 values are those of the `wety-ci` token. `DEPLOY_KNOWN_HOSTS` follows in step 6.
 
-### 4. Build the first release
+### 4. Hold the website back
 
-Merge this work into `main` and push. The workflow builds the server and uploads the
-release to R2. Its **Deploy** step then fails, because the host is not set up yet;
-that is expected, and nothing changes on the old host. Pages still builds from `main`,
-which is fine. Note the run id:
+Pages builds the website from `main` today. Point it at a `production` branch that
+names what is live now, so that pushing `main` in step 5 does not put the new website
+in front of the old API. From now on the workflow moves `production` once the server
+it needs is up.
+
+1. Create `production` at the commit that is live:
+
+   ```bash
+   git fetch origin
+   ```
+
+   ```bash
+   git push origin origin/main:refs/heads/production
+   ```
+
+2. Pages project → **Settings** → **Builds & deployments** → **Configure Production
+   deployments**: set the production branch to `production`. Pages rebuilds the same
+   website.
+3. Optionally set automatic **preview** deployments to **None**. Otherwise every push
+   to `main` also builds a preview, which talks to the production API.
+
+### 5. Build the first release
+
+Push `main`. The workflow builds the server and uploads the release to R2. Its
+**Deploy** step then fails, because the host is not set up yet; that is expected, and
+nothing changes on the old host or the website. Note the run id:
+
+```bash
+git push origin main
+```
 
 ```bash
 gh run list --workflow deploy.yml --limit 1
 ```
 
-### 5. Rebuild the host on Ubuntu 24.04 (site down from here)
+### 6. Rebuild the host on Ubuntu 24.04 (site down from here)
 
 The current image is Ubuntu 22.04, whose standard support ends in 2027. Replacing the
 boot volume keeps the instance, its shape and its IP; creating a new A1 instance
@@ -217,8 +247,8 @@ instead risks "out of capacity" errors.
    ssh -i ~/.ssh/wety_deploy deploy@<ip> bash
    ```
 
-10. Deploy the release from step 4 on the host. It downloads the 3.2 GB graph and
-    loads it, which takes a few minutes. `<commit>` is the `main` commit that step 4
+10. Deploy the release from step 5 on the host. It downloads the 560 MB graph and
+    loads it, which takes a few minutes. `<commit>` is the `main` commit that step 5
     built (`git rev-parse origin/main` on your machine).
 
     ```bash
@@ -230,34 +260,31 @@ instead risks "out of capacity" errors.
     ```
 
 11. On your machine, rerun the failed job. It finds the release already serving,
-    then creates the `production` branch:
+    then moves `production` to it, and Pages builds the new website:
 
     ```bash
     gh run rerun <run-id> --failed
     ```
 
-### 6. Point api.wety.org at the tunnel (site back up)
+### 7. Point api.wety.org at the tunnel (site back up)
 
 1. **wety.org** → **DNS** → **Records**: delete the `api` A record.
 2. **Networking** → **Tunnels** → `wety-api` → **Routes** → **Add route** →
    **Published application**: subdomain `api`, domain `wety.org`, service URL
    `http://127.0.0.1:3000`. Add the route.
-3. Check, then load https://wety.org:
+3. Check, then load a word, e.g. https://wety.org/etymology/en/lime?ety=3 (a browser
+   tab still holding the old website may need a reload):
 
    ```bash
-   curl -s https://api.wety.org/periods | head -c 300
+   curl -s 'https://api.wety.org/resolve?lang=en&term=lime&ety=3' | head -c 300
    ```
 
-### 7. Build the website from `production`
+### 8. Check the website follows `production`
 
-1. Pages project → **Settings** → **Builds & deployments** → **Configure Production
-   deployments**: set the production branch to `production`.
-2. Optionally set automatic **preview** deployments to **None**. Otherwise every push
-   to `main` also builds a preview.
-3. Check with the next push to `main`: the workflow's `promote` job moves `production`,
-   and Pages starts a production build of that commit.
+With the next push to `main`, the workflow's `promote` job moves `production`, and
+Pages starts a production build of that commit.
 
-### 8. Clean up
+### 9. Clean up
 
 - OCI → **Networking** → the VCN → the subnet's security list: delete the ingress rules
   for ports 80 and 443. Keep 22.
@@ -280,6 +307,9 @@ instead risks "out of capacity" errors.
   `deploy/publish-graph.sh` (default: the artifact in `CURRENT.json`), commit
   `deploy/graph.json`, merge into `main`. The server checks that the graph's
   language/POS tables match its own; if they do not, the deploy rolls back and fails.
+  If the graph comes with a new Wiktionary language export, record the codes it
+  retired first (root README, "Links"). Shared links name words, so they survive a new
+  graph; open tabs notice it (the API answers 409) and reload.
 - **Roll back:** run the command below on the host. It swaps `current` and `previous`.
   `production` still names the newer commit, so fix or revert on `main` next.
 
@@ -301,8 +331,7 @@ instead risks "out of capacity" errors.
 Host layout (`/srv/wety`):
 
 - `releases/<commit>/` holds `server`, `language_periods.json`, `release.json` and `env`.
-  `env` sets `WETY_GRAPH_PATH`, `WETY_PERIODS_PATH` and, for the legacy graph,
-  `WETY_ALLOW_LEGACY_GRAPH`.
+  `env` sets `WETY_GRAPH_PATH` and `WETY_PERIODS_PATH`.
 - `graphs/<sha256>/` holds a graph file.
 - `current` and `previous` are symlinks to releases. Deploys keep these two plus the
   three newest releases, and the graphs those use.
@@ -316,14 +345,14 @@ Server environment:
 | --- | --- |
 | `WETY_GRAPH_PATH` | graph file to serve |
 | `WETY_PERIODS_PATH` | language periods file (default `data/products/dating/language_periods.json`) |
-| `WETY_ALLOW_LEGACY_GRAPH=1` | accept a graph without a reference fingerprint |
 | `WETY_HOST`, `WETY_PORT` | listen address, default `0.0.0.0:3000` |
 | `WETY_CLIENT_IP_HEADER` | rate-limit by this header's IP, falling back to the peer address. Set it only when a proxy overwrites the header and is the only way in. |
 | `WETY_ENVIRONMENT=production` | in-process TLS with `WETY_CERT_PATH`/`WETY_KEY_PATH`. Unused behind the tunnel. |
 
 Release builds use `RUSTFLAGS="-C target-cpu=neoverse-n1"`. The host's Ampere Altra is
 a Neoverse N1, while `.cargo/config.toml`'s `target-cpu=native` would target the build
-machine. The legacy graph (3.2 GB JSON) loaded in 39 s on an M-series laptop; the host
-is slower. `wety-deploy` waits up to 15 minutes (`WETY_HEALTH_TIMEOUT`).
+machine. The current graph (560 MB gzipped JSON) takes about two minutes to load and
+index on an M1 Pro and about 5 GB of memory once loaded; the host is slower.
+`wety-deploy` waits up to 15 minutes (`WETY_HEALTH_TIMEOUT`).
 The old PyTorch-era instructions are in git history
 (`git show c472620:server/deployment.md`).

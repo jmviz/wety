@@ -91,9 +91,6 @@ fetch_release() {
     {
         echo "WETY_GRAPH_PATH=$GRAPH_PATH"
         echo "WETY_PERIODS_PATH=$dir/language_periods.json"
-        if [ "$(jq -r '.graph.allow_legacy // false' "$tmp/release.json")" = true ]; then
-            echo "WETY_ALLOW_LEGACY_GRAPH=1"
-        fi
     } >"$tmp/env"
     chmod 755 "$tmp"
     touch "$tmp/.complete"

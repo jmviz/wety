@@ -9,8 +9,7 @@ Wants=network-online.target
 User=wety
 Group=wety
 WorkingDirectory=/srv/wety/current
-# Per release: WETY_GRAPH_PATH, WETY_PERIODS_PATH and, for the legacy graph,
-# WETY_ALLOW_LEGACY_GRAPH. Written by wety-deploy.
+# Per release: WETY_GRAPH_PATH and WETY_PERIODS_PATH. Written by wety-deploy.
 EnvironmentFile=/srv/wety/current/env
 # Only cloudflared, on this host, connects; it sets the visitor's IP header.
 Environment=WETY_HOST=127.0.0.1
