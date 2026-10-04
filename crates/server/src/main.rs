@@ -1,15 +1,20 @@
 use server::{
-    AppState, Environment, item, item_cognates, item_descendants, item_etymology,
+    AppState, Environment, client_ip::ClientIpKeyExtractor, item, item_cognates, item_descendants, item_etymology,
     item_search_matches, lang, lang_search_matches, periods, periods::DEFAULT_PERIODS_PATH,
 };
 
 use std::{env, net::SocketAddr, path::Path, str::FromStr, sync::Arc};
 
 use anyhow::Result;
-use axum::{BoxError, Router, error_handling::HandleErrorLayer, http::Method, routing::get};
+use axum::{
+    BoxError, Router,
+    error_handling::HandleErrorLayer,
+    http::{HeaderName, Method},
+    routing::get,
+};
 use axum_server::tls_rustls::RustlsConfig;
 use tower::ServiceBuilder;
-use tower_governor::{GovernorLayer, errors::display_error};
+use tower_governor::{GovernorLayer, errors::display_error, governor::GovernorConfigBuilder};
 use tower_http::{
     compression::{CompressionLayer, CompressionLevel},
     cors::{AllowOrigin, CorsLayer},
@@ -54,6 +59,19 @@ async fn main() -> Result<()> {
         env::var("WETY_PERIODS_PATH").unwrap_or_else(|_| DEFAULT_PERIODS_PATH.to_string());
     let state = Arc::new(AppState::new(Path::new(&data_path), Path::new(&periods_path))?);
 
+    // Behind a proxy every peer address is the proxy's, so the rate limiter
+    // must key on the client IP header the proxy sets.
+    let client_ip_header = match env::var("WETY_CLIENT_IP_HEADER") {
+        Ok(name) => Some(HeaderName::from_str(&name)?),
+        Err(_) => None,
+    };
+    let governor = Box::leak(Box::new(
+        GovernorConfigBuilder::default()
+            .key_extractor(ClientIpKeyExtractor::new(client_ip_header))
+            .finish()
+            .ok_or_else(|| anyhow::anyhow!("invalid rate limiter configuration"))?,
+    ));
+
     let app = Router::new()
         .route("/search/lang", get(lang_search_matches))
         .route("/search/item/:lang", get(item_search_matches))
@@ -70,9 +88,7 @@ async fn main() -> Result<()> {
                 .layer(HandleErrorLayer::new(|e: BoxError| async move {
                     display_error(e)
                 }))
-                .layer(GovernorLayer {
-                    config: Box::leak(Box::default()),
-                })
+                .layer(GovernorLayer { config: governor })
                 // the default brotli quality (11) was a significant bottleneck on large trees
                 .layer(CompressionLayer::new().quality(CompressionLevel::Precise(4)))
                 .layer(
@@ -82,8 +98,9 @@ async fn main() -> Result<()> {
                 ),
         );
 
+    let host = env::var("WETY_HOST").unwrap_or_else(|_| "0.0.0.0".to_string());
     let port = env::var("WETY_PORT").unwrap_or_else(|_| "3000".to_string());
-    let addr = SocketAddr::from_str(&format!("0.0.0.0:{port}"))?;
+    let addr = SocketAddr::new(host.parse()?, port.parse()?);
     println!("Running wety server at http://{addr}...");
 
     match environment {

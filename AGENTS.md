@@ -26,8 +26,9 @@ provenance machinery, new workflow infrastructure, and deleting anything under `
 ## Git
 
 - Work on a branch, never directly on `main`. Do not push or open PRs unless asked.
-- `main` deploys the website automatically (Cloudflare). Never merge into or push
-  `main`; the maintainer does that after updating the host server.
+- Pushing `main` deploys the API server and then the website
+  ([deploy/README.md](deploy/README.md)). Never merge into or push `main` or
+  `production`; the maintainer does that.
 - Commit at coherent checkpoints and always before ending a session. Leave no
   uncommitted work behind in the main checkout or a worktree.
 - Stage specific paths and inspect what is staged; never commit source PDFs or other

@@ -1,5 +1,6 @@
 #![allow(clippy::unused_async)]
 
+pub mod client_ip;
 pub mod periods;
 
 use periods::Periods;

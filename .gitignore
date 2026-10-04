@@ -2,7 +2,8 @@
 .env
 .venv/
 .claude/
-.github/
+.github/*
+!.github/workflows/
 .DS_Store
 __pycache__/
 *.pyc

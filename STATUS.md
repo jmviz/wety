@@ -1,7 +1,7 @@
 # Status
 
-*Updated 2026-10-03. Branch `dating-pilot` (from `reorg-baseline`), pushed; not merged
-(maintainer: do not merge yet).*
+*Updated 2026-10-03. Dating: branch `dating-pilot`, not merged (do not merge yet).
+Deployment: branch `claude/server-deployment-automation-950d54`, not merged.*
 
 ## What the project promises
 
@@ -36,7 +36,8 @@ in the `packages/dating` registry.
   See the [scope run README](data/workspaces/dating/_research/scope-check-2026-10-03/README.md).
 - `build-packet` / `adopt`: reproducible review-to-registry import (reproduces the
   pilot packet byte for byte).
-- `harness.cli gc` applied: 48 dating generations (2.1 GB) reduced to 5 (240 MB).
+- Deployment: pushing `main` deploys the server (CI build, R2, health check, rollback),
+  then the website. One-time manual setup, untested on the host: [deploy/README.md](deploy/README.md).
 
 ## Uncertainties
 

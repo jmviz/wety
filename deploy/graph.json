@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "artifact_id": "sha256:0cf947f013bcefd612ddc074fb4583aabbd89817a2c1677e70b7525795279d76",
+  "object": "graphs/f67b37e6231d860e85372ce7aabb43e3050057903971d539ce3051c527d570a6/wety.json",
+  "file": "wety.json",
+  "sha256": "f67b37e6231d860e85372ce7aabb43e3050057903971d539ce3051c527d570a6",
+  "bytes": 3164435409,
+  "allow_legacy": true
+}

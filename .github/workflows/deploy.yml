@@ -1,0 +1,137 @@
+# Deploys main: the API server first, then the website. See deploy/README.md.
+#
+# The `production` branch records what is deployed. Cloudflare Pages builds the
+# website from it, so the website only moves once the server it talks to is up.
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      force_server:
+        description: Rebuild and redeploy the server even if its inputs did not change
+        type: boolean
+        default: false
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  # Everything that goes into a server release.
+  SERVER_PATHS: >-
+    crates/core crates/server Cargo.toml Cargo.lock rust-toolchain.toml .cargo
+    data/registry/inputs.json data/artifacts/wiktionary-export
+    data/products/dating/language_periods.json deploy/graph.json
+    .github/workflows/deploy.yml
+
+jobs:
+  plan:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    outputs:
+      server: ${{ steps.changes.outputs.server }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - id: changes
+        env:
+          FORCE: ${{ inputs.force_server }}
+        run: |
+          if [ "$FORCE" = true ]; then
+            echo "server: forced"; echo server=true >>"$GITHUB_OUTPUT"
+          elif ! git rev-parse -q --verify origin/production >/dev/null; then
+            echo "server: first deploy"; echo server=true >>"$GITHUB_OUTPUT"
+          elif git diff --quiet origin/production HEAD -- $SERVER_PATHS; then
+            echo "server: unchanged since production"; echo server=false >>"$GITHUB_OUTPUT"
+          else
+            git diff --stat origin/production HEAD -- $SERVER_PATHS
+            echo server=true >>"$GITHUB_OUTPUT"
+          fi
+
+  server:
+    needs: plan
+    if: needs.plan.outputs.server == 'true'
+    # Native aarch64, like the Oracle A1 host.
+    runs-on: ubuntu-24.04-arm
+    environment: production
+    timeout-minutes: 90
+    env:
+      # Overrides .cargo/config.toml's target-cpu=native: the runner's CPU is
+      # newer than the host's Ampere Altra (Neoverse N1).
+      RUSTFLAGS: -C target-cpu=neoverse-n1
+      RCLONE_CONFIG_R2_TYPE: s3
+      RCLONE_CONFIG_R2_PROVIDER: Cloudflare
+      RCLONE_CONFIG_R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      RCLONE_CONFIG_R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+      RCLONE_CONFIG_R2_ENDPOINT: ${{ vars.R2_ENDPOINT }}
+      RCLONE_CONFIG_R2_NO_CHECK_BUCKET: "true"
+      R2_BUCKET: ${{ vars.R2_BUCKET }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install toolchain
+        run: |
+          if ! command -v rustup >/dev/null; then
+            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain none
+            echo "$HOME/.cargo/bin" >>"$GITHUB_PATH"
+            export PATH="$HOME/.cargo/bin:$PATH"
+          fi
+          toolchain=$(sed -n 's/^channel = "\(.*\)"/\1/p' rust-toolchain.toml)
+          rustup toolchain install "$toolchain" --profile minimal
+          echo "TOOLCHAIN=$toolchain" >>"$GITHUB_ENV"
+          sudo apt-get update -q && sudo apt-get install -y -q rclone
+      - uses: Swatinem/rust-cache@v2
+      - name: Test
+        run: cargo test --locked -p server
+      - name: Build
+        run: cargo build --locked --release -p server
+      - name: Package
+        run: |
+          mkdir -p out/bundle
+          cp target/release/server data/products/dating/language_periods.json out/bundle/
+          tar -C out/bundle -czf out/bundle.tar.gz .
+          jq -n \
+            --arg commit "$GITHUB_SHA" \
+            --arg built_at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --arg run "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" \
+            --arg toolchain "$TOOLCHAIN" \
+            --arg rustflags "$RUSTFLAGS" \
+            --arg sha256 "$(sha256sum out/bundle.tar.gz | cut -d' ' -f1)" \
+            --slurpfile graph deploy/graph.json \
+            '{schema_version: 1, commit: $commit, built_at: $built_at, run: $run,
+              toolchain: $toolchain, rustflags: $rustflags, features: [],
+              bundle: {file: "bundle.tar.gz", sha256: $sha256}, graph: $graph[0]}' \
+            >out/release.json
+          cat out/release.json
+      - name: Upload release
+        run: rclone copy out/release.json out/bundle.tar.gz "r2:$R2_BUCKET/releases/$GITHUB_SHA/"
+      - name: Deploy
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+          DEPLOY_HOST: ${{ vars.DEPLOY_HOST }}
+        run: |
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" >~/.ssh/deploy
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" >~/.ssh/known_hosts
+          chmod 600 ~/.ssh/deploy
+          ssh -i ~/.ssh/deploy -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
+            -o ServerAliveInterval=30 "deploy@$DEPLOY_HOST" deploy "$GITHUB_SHA"
+
+  promote:
+    needs: [plan, server]
+    if: >-
+      always() && needs.plan.result == 'success' &&
+      (needs.server.result == 'success' || needs.server.result == 'skipped')
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+      - name: Point production at this commit
+        run: git push --force origin "$GITHUB_SHA:refs/heads/production"

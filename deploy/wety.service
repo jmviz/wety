@@ -1,0 +1,34 @@
+# Installed to /etc/systemd/system/wety.service by deploy/bootstrap.sh.
+# Serves the release that /srv/wety/current points to; wety-deploy switches it.
+[Unit]
+Description=wety API server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=wety
+Group=wety
+WorkingDirectory=/srv/wety/current
+# Per release: WETY_GRAPH_PATH, WETY_PERIODS_PATH and, for the legacy graph,
+# WETY_ALLOW_LEGACY_GRAPH. Written by wety-deploy.
+EnvironmentFile=/srv/wety/current/env
+# Only cloudflared, on this host, connects; it sets the visitor's IP header.
+Environment=WETY_HOST=127.0.0.1
+Environment=WETY_PORT=3000
+Environment=WETY_CLIENT_IP_HEADER=cf-connecting-ip
+ExecStart=/srv/wety/current/server
+Restart=on-failure
+RestartSec=5
+
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+
+[Install]
+WantedBy=multi-user.target
