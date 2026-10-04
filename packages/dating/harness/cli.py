@@ -16,6 +16,7 @@ dating gc [--keep-recent N] [--apply]        retire old generations (dry run unl
 dating decision-digest SUBJECT               evidence digest a decision on SUBJECT (e.g. wikt:ang) must name
 dating build-packet RUN REVIEW               reviewed research run -> packet, registered sources and texts
 dating adopt REVIEW                          record the review's editorial defaults (after import + synthesize)
+dating withdraw SUBJECT EVENT --reviewer R --rationale TEXT   remove a decision, kept in withdrawals.json
 dating holdings add|zotero|sync|list         maintainer-supplied sources (library PDFs, via Zotero): retain, hash, parse
 dating requests list|merge|push|set          the source acquisition queue (files requests in Zotero)
 dating report
@@ -226,6 +227,12 @@ def cmd_adopt(args) -> None:
     print(json.dumps(adopt(json.loads(open(args.review).read())), indent=2))
 
 
+def cmd_withdraw(args) -> None:
+    from .review import withdraw
+
+    print(json.dumps(withdraw(args.subject, args.event, args.reviewer, args.rationale), indent=2))
+
+
 def cmd_report(args) -> None:
     from .registry import current_bundle, report
 
@@ -318,6 +325,12 @@ def main() -> None:
     p = sub.add_parser("adopt")
     p.add_argument("review")
     p.set_defaults(fn=cmd_adopt)
+    p = sub.add_parser("withdraw")
+    p.add_argument("subject")
+    p.add_argument("event")
+    p.add_argument("--reviewer", required=True)
+    p.add_argument("--rationale", required=True)
+    p.set_defaults(fn=cmd_withdraw)
     p = sub.add_parser("report")
     p.set_defaults(fn=cmd_report)
     p = sub.add_parser("benchmark")
@@ -356,6 +369,7 @@ def main() -> None:
         "gc",
         "build-packet",
         "adopt",
+        "withdraw",
     }:
         with locked(DATA_DIR + "/_pipeline"):
             args.fn(args)

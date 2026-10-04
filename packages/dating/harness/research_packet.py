@@ -14,6 +14,8 @@ review.json:
             corrections?, limitations?, quote?, start?, locator?}]
   adopt: {code: {assertion, rationale, reviewer?} or a list of them, one per event
          (e.g. first and last attestation)}, decision_reviewer
+  withdraw: [{code, event, rationale, reviewer?}]: decisions removed before adopting
+            (e.g. a database window, so an attestation window can be shown)
 Every assertion of the run must appear in `claims`: rejecting one is a recorded
 status (candidate), never a silent omission.
 """
@@ -266,6 +268,23 @@ def adopt(review):
     from .registry import build_bundle, bundle_decision_digest
     from .review import decide_record
 
+    from .review import withdraw
+
+    results = {}
+    for w in review.get("withdraw", []):
+        key = f"{w['code']}/{w['event']} withdrawn"
+        try:
+            withdraw(
+                "wikt:" + w["code"],
+                w["event"],
+                w.get("reviewer") or review["decision_reviewer"],
+                w["rationale"],
+            )
+            results[key] = "withdrawn"
+        except ValueError as exc:
+            if "no decision" not in str(exc):
+                raise
+            results[key] = "unchanged"  # already withdrawn
     bundle = build_bundle()
     by_assertion = {
         c["provenance"].get("assertion_id"): c
@@ -273,7 +292,6 @@ def adopt(review):
         if c["provenance"].get("packet_id") == review["packet_id"]
     }
     current = {(d["subject_id"], d["event"]): d for d in bundle["decisions"]}
-    results = {}
     for code, choices in review.get("adopt", {}).items():
         listed = isinstance(choices, list)
         for choice in choices if listed else [choices]:

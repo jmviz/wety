@@ -43,6 +43,7 @@ __pycache__/
 !/data/workspaces/dating/_analyses/*.json
 !/data/workspaces/dating/_evidence/*.json
 !/data/workspaces/dating/_decisions/decisions.json
+!/data/workspaces/dating/_decisions/withdrawals.json
 
 # Research dossiers: the readable result, not the run machinery.
 !/data/workspaces/dating/_research/*/README.md

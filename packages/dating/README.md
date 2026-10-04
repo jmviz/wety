@@ -89,7 +89,10 @@ uv run --frozen python -m harness.cli export-periods
 ```
 
 `build-packet` registers the run's sources with their parsed-text hashes and copies
-the texts to the retrieved-text store. `decide FILE` records a single decision by hand.
+the texts to the retrieved-text store. `decide FILE` records a single decision by hand;
+`withdraw SUBJECT EVENT --reviewer R --rationale TEXT` (or a review's `withdraw` list)
+removes one, keeping it with the reason in `_decisions/withdrawals.json`, e.g. so an
+attestation window can replace a database documentation window in the display.
 
 Sources a researcher cannot reach (paywalled handbooks and papers) are supplied by the
 maintainer, usually through Zotero: `dating holdings zotero ITEMKEY...` retains the PDF

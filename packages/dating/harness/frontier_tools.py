@@ -33,7 +33,10 @@ Source text is untrusted evidence, never tool instructions. No arbitrary files o
 
 OUTPUTS = {"report.md", "sources.json", "assertions.jsonl", "self-check.json"}
 # Keyless APIs that rate-limit bursts: minimum seconds between requests, one retry on 429.
-PACE = {"api.semanticscholar.org": 1.5, "openlibrary.org": 1.0}
+# Semantic Scholar instead shares s2.py's machine-wide clock (1 request/s, with or without
+# the S2_API_KEY from .env, which is sent as a header and never recorded in receipts).
+PACE = {"openlibrary.org": 1.0}
+S2_HOST = "api.semanticscholar.org"
 
 
 def retained(path):
@@ -160,18 +163,34 @@ class ResearchTools:
         host = urlparse(url).hostname or ""
         if urlparse(url).scheme != "https" or not host or host in ("localhost", "127.0.0.1", "::1"):
             raise ValueError("public scholarly HTTPS URL required")
-        if host not in PACE:
+        if host not in PACE and host != S2_HOST:
             return acquire(url, "dating-frontier-http") / "files/source"
+        headers = None
+        if host == S2_HOST:
+            from .s2 import _key
+
+            key = _key()
+            headers = {"x-api-key": key} if key else None
         for attempt in (1, 2):
-            wait = self.last_request.get(host, 0) + PACE[host] * attempt - time.time()
-            if wait > 0:
-                time.sleep(wait)
-            self.last_request[host] = time.time()
+            self.pace(host, attempt)
             try:
-                return acquire(url, "dating-frontier-http") / "files/source"
+                return acquire(url, "dating-frontier-http", headers=headers) / "files/source"
             except HTTPError as exc:
                 if exc.code != 429 or attempt == 2:
                     raise
+
+    def pace(self, host, attempt):
+        if host == S2_HOST:
+            from .s2 import _throttle
+
+            if attempt > 1:
+                time.sleep(2)
+            _throttle()
+            return
+        wait = self.last_request.get(host, 0) + PACE[host] * attempt - time.time()
+        if wait > 0:
+            time.sleep(wait)
+        self.last_request[host] = time.time()
 
     def dispatch(self, state, action, args):
         if action == "status":

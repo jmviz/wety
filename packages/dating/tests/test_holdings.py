@@ -157,6 +157,17 @@ class HoldingTests(Sandbox):
         self.assertNotIn(str(self.repo), index)
         # Same bytes and settings: nothing is re-ingested.
         self.assertEqual(self.ingest(zotero=h["zotero"])["ingested_at"], h["ingested_at"])
+        # Corrected metadata for the same bytes replaces the old, which is kept.
+        path = self.files / "book.pdf"
+        fixed = holdings.ingest(
+            path, {"title": "A Test Handbook of Germanic", "year": 2002}, zotero=h["zotero"]
+        )
+        self.assertEqual((fixed["year"], fixed["text"]["sha256"]), (2002, h["text"]["sha256"]))
+        self.assertNotIn("authors", fixed)
+        self.assertEqual(fixed["metadata_history"][0]["replaced"]["year"], 2001)
+        self.assertEqual(
+            holdings.load(holdings.HOLDINGS, "holdings")["holdings"][h["id"]]["year"], 2002
+        )
         # Different OCR settings: a new text version, the old one kept in history,
         # and no second receipt for the same retained bytes.
         again = self.ingest(ocr="off")

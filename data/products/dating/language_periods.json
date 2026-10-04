@@ -1,6 +1,6 @@
 {
   "family_splits": [],
-  "generation": "d7cc4dd8acf50794da4bb2b71f3319a66d30ab7ed99be3075d4967cb3222f92e",
+  "generation": "9f0087772e1e9c221bc0538c267a0349bf4756d5bb2fd6557e32bc4a5da87172",
   "languages": [
     {
       "alternatives": [
@@ -85,23 +85,23 @@
         },
         {
           "basis": "conventional",
-          "citation": "Slocum, Jonathan & Winfred P. Lehmann. n.d. Old English Online: Series Introduction. Early Indo-European Online, Linguistics Research Center, University of Texas at Austin.",
-          "claim_id": "ev_period_90ae8e0d45d75db5caf89619729f2a78df7614d0",
+          "citation": "SIL International (ISO 639-3 Registration Authority). ISO 639-3 code set, iso-639-3.tab (reference names), retrieved 2026-10-03.",
+          "claim_id": "ev_period_615a4d2ea21e35b6fb06cf87ae7a56dbd1855245",
           "end": {
-            "earliest": 1001,
+            "earliest": 1100,
             "latest": 1100
           },
           "event": "conventional_period",
-          "label": "5th–11th century CE",
-          "locator": "Series Introduction (lesson 0), first paragraph",
-          "quote": "Old English is the language of the Germanic inhabitants of England, dated from the time of their settlement in the 5th century to the end of the 11th century.",
+          "label": "c. 450–1100 CE",
+          "locator": "{\"start\": 5941, \"end\": 5985, \"table_row\": \"ang\"}",
+          "quote": "ang\tang\tang\t\tI\tH\tOld English (ca. 450-1100)\t",
           "role": "convention",
-          "source": "Slocum & Lehmann",
+          "source": "ISO 639-3 code tables",
           "start": {
-            "earliest": 401,
-            "latest": 500
+            "earliest": 450,
+            "latest": 450
           },
-          "url": "https://lrc.la.utexas.edu/eieol/engol/00"
+          "url": "https://iso639-3.sil.org/sites/iso639-3/files/downloads/iso-639-3.tab"
         },
         {
           "basis": "attested",
@@ -128,28 +128,28 @@
       "code": "ang",
       "evidence": [
         {
-          "citation": "SIL International (ISO 639-3 Registration Authority). ISO 639-3 code set, iso-639-3.tab (reference names), retrieved 2026-10-03.",
-          "claim_id": "ev_period_615a4d2ea21e35b6fb06cf87ae7a56dbd1855245",
+          "citation": "Slocum, Jonathan & Winfred P. Lehmann. n.d. Old English Online: Series Introduction. Early Indo-European Online, Linguistics Research Center, University of Texas at Austin.",
+          "claim_id": "ev_period_90ae8e0d45d75db5caf89619729f2a78df7614d0",
           "event": "conventional_period",
-          "locator": "{\"start\": 5941, \"end\": 5985, \"table_row\": \"ang\"}",
-          "quote": "ang\tang\tang\t\tI\tH\tOld English (ca. 450-1100)\t",
+          "locator": "Series Introduction (lesson 0), first paragraph",
+          "quote": "Old English is the language of the Germanic inhabitants of England, dated from the time of their settlement in the 5th century to the end of the 11th century.",
           "role": "convention",
-          "source": "ISO 639-3 code tables",
-          "url": "https://iso639-3.sil.org/sites/iso639-3/files/downloads/iso-639-3.tab"
+          "source": "Slocum & Lehmann",
+          "url": "https://lrc.la.utexas.edu/eieol/engol/00"
         }
       ],
       "kind": "stage",
-      "label": "c. 450–1100 CE",
+      "label": "5th–11th century CE",
       "name": "Old English",
       "spoken": {
         "end": {
-          "earliest": 1100,
+          "earliest": 1001,
           "latest": 1100
         },
         "ongoing": false,
         "start": {
-          "earliest": 450,
-          "latest": 450
+          "earliest": 401,
+          "latest": 500
         }
       }
     },
@@ -399,37 +399,23 @@
       "alternatives": [
         {
           "basis": "attested",
-          "citation": "Fortson, Benjamin W., IV. 2010. Indo-European Language and Culture: An Introduction. 2nd ed. Blackwell Textbooks in Linguistics 19. Chichester and Malden, MA: Wiley-Blackwell. (Supplied copy is a reflowed e-book without printed page numbers; cited by section.)",
-          "claim_id": "ev_period_a8480a68cb829b84c28e661f3566186644c5e964",
+          "citation": "Hammarström, H., Forkel, R., Haspelmath, M. & Bank, S. Glottolog CLDF data, repository tag v5.3, cldf/languages.csv (First_/Last_Year_Of_Documentation). The tag's metadata cites 'Glottolog 5.2.1' (2025); version discrepancy unresolved.",
+          "claim_id": "ev_period_565c22c4893903805be923f93f8da8eb598d85f7",
           "end": {
-            "earliest": -1199,
-            "latest": -1199
+            "earliest": -1179,
+            "latest": -1179
           },
-          "event": "last_attestation",
-          "label": "until c. 1200 BCE",
-          "locator": "§9.17 (e-book PDF p. 196); page image checked",
-          "quote": "Eventually, though, it fell victim to invasions\nfrom the north, ending with the destruction of Hattusas around 1200 BC. While this did not\nspell the end of Hittite civilization, it did terminate the production of Hittite texts, since\nHattusas had been the center of the Hittite scribal chancelleries.",
+          "event": "documentary_sampling",
+          "label": "1650–1180 BCE",
+          "locator": "{\"start\": 270482, \"end\": 270573, \"table_row\": \"hitt1242\", \"columns\": \"First_Year_Of_Documentation, Last_Year_Of_Documentation\", \"header_offsets\": {\"start\": 0, \"end\": 185}}",
+          "quote": "hitt1242,Hittite,Eurasia,40.0,35.0,hitt1242,hit,language,TR,indo1319,,hit,-1650,-1180,false",
           "role": "observation",
-          "source": "Fortson 2010",
-          "start": null,
-          "url": null
-        },
-        {
-          "basis": "attested",
-          "citation": "Kapović, Mate (ed.). 2017. The Indo-European Languages. 2nd ed. Routledge Language Family Series. Abingdon and New York: Routledge (paperback issue 2019). Chapters cited by author in the locator.",
-          "claim_id": "ev_period_b0994713b8e48be59d494bab312c98f31cc1a5d2",
-          "end": null,
-          "event": "first_attestation",
-          "label": "from 19th century BCE",
-          "locator": "Mate Kapović, 'Indo-European languages – introduction', p. 3 (PDF p. 24); page image checked",
-          "quote": "Hittite is attested from around the 16th century, but a \nfew names and loanwords are found already in the 19th century BCE in Old Assyrian \ntexts.",
-          "role": "observation",
-          "source": "Kapović 2017",
+          "source": "Hammarström et al.",
           "start": {
-            "earliest": -1899,
-            "latest": -1800
+            "earliest": -1649,
+            "latest": -1649
           },
-          "url": null
+          "url": "https://raw.githubusercontent.com/glottolog/glottolog-cldf/v5.3/cldf/languages.csv"
         },
         {
           "basis": "attested",
@@ -453,28 +439,38 @@
       "code": "hit",
       "evidence": [
         {
-          "citation": "Hammarström, H., Forkel, R., Haspelmath, M. & Bank, S. Glottolog CLDF data, repository tag v5.3, cldf/languages.csv (First_/Last_Year_Of_Documentation). The tag's metadata cites 'Glottolog 5.2.1' (2025); version discrepancy unresolved.",
-          "claim_id": "ev_period_565c22c4893903805be923f93f8da8eb598d85f7",
-          "event": "documentary_sampling",
-          "locator": "{\"start\": 270482, \"end\": 270573, \"table_row\": \"hitt1242\", \"columns\": \"First_Year_Of_Documentation, Last_Year_Of_Documentation\", \"header_offsets\": {\"start\": 0, \"end\": 185}}",
-          "quote": "hitt1242,Hittite,Eurasia,40.0,35.0,hitt1242,hit,language,TR,indo1319,,hit,-1650,-1180,false",
+          "citation": "Kapović, Mate (ed.). 2017. The Indo-European Languages. 2nd ed. Routledge Language Family Series. Abingdon and New York: Routledge (paperback issue 2019). Chapters cited by author in the locator.",
+          "claim_id": "ev_period_b0994713b8e48be59d494bab312c98f31cc1a5d2",
+          "event": "first_attestation",
+          "locator": "Mate Kapović, 'Indo-European languages – introduction', p. 3 (PDF p. 24); page image checked",
+          "quote": "Hittite is attested from around the 16th century, but a \nfew names and loanwords are found already in the 19th century BCE in Old Assyrian \ntexts.",
           "role": "observation",
-          "source": "Hammarström et al.",
-          "url": "https://raw.githubusercontent.com/glottolog/glottolog-cldf/v5.3/cldf/languages.csv"
+          "source": "Kapović 2017",
+          "url": null
+        },
+        {
+          "citation": "Fortson, Benjamin W., IV. 2010. Indo-European Language and Culture: An Introduction. 2nd ed. Blackwell Textbooks in Linguistics 19. Chichester and Malden, MA: Wiley-Blackwell. (Supplied copy is a reflowed e-book without printed page numbers; cited by section.)",
+          "claim_id": "ev_period_a8480a68cb829b84c28e661f3566186644c5e964",
+          "event": "last_attestation",
+          "locator": "§9.17 (e-book PDF p. 196); page image checked",
+          "quote": "Eventually, though, it fell victim to invasions\nfrom the north, ending with the destruction of Hattusas around 1200 BC. While this did not\nspell the end of Hittite civilization, it did terminate the production of Hittite texts, since\nHattusas had been the center of the Hittite scribal chancelleries.",
+          "role": "observation",
+          "source": "Fortson 2010",
+          "url": null
         }
       ],
       "kind": "attested",
-      "label": "1650–1180 BCE",
+      "label": "c. 19th century – 1200 BCE",
       "name": "Hittite",
       "spoken": {
         "end": {
-          "earliest": -1179,
-          "latest": -1179
+          "earliest": -1199,
+          "latest": -1199
         },
         "ongoing": false,
         "start": {
-          "earliest": -1649,
-          "latest": -1649
+          "earliest": -1899,
+          "latest": -1800
         }
       }
     },
@@ -482,45 +478,45 @@
       "alternatives": [
         {
           "basis": "attested",
-          "citation": "Kapović, Mate (ed.). 2017. The Indo-European Languages. 2nd ed. Routledge Language Family Series. Abingdon and New York: Routledge (paperback issue 2019). Chapters cited by author in the locator.",
-          "claim_id": "ev_period_f1e86916783e999faaa9bca8806fefeca703ec54",
+          "citation": "Koch, J. T. 2020. Celto-Germanic: Later Prehistory and Post-Proto-Indo-European Vocabulary in the North and West. Aberystwyth: University of Wales Centre for Advanced Welsh and Celtic Studies. ISBN 978-1-907029-32-5.",
+          "claim_id": "ev_period_0a5b196e284771b93fddd3b636cfb91499cb25f8",
           "end": null,
           "event": "first_attestation",
-          "label": "from 7th century BCE",
-          "locator": "Rex Wallace, 'Italic', p. 322 (PDF p. 343); page image checked",
-          "quote": "Although it is impossible to say when Latin and the other Italic languages began to \ndiverge, we can pinpoint the date of the earliest inscriptions. They go back to the middle \nof the 7th century BCE.",
+          "label": "from c. 550 BCE",
+          "locator": "{\"start\": 198632, \"end\": 198655, \"page\": 50}",
+          "quote": "written Latin ~550 BC –",
           "role": "observation",
-          "source": "Kapović 2017",
+          "source": "Koch 2020",
           "start": {
-            "earliest": -699,
-            "latest": -600
+            "earliest": -549,
+            "latest": -549
           },
-          "url": null
+          "url": "https://repository.uwtsd.ac.uk/id/eprint/1543/1/JK4.pdf"
         }
       ],
       "basis": "attested",
       "code": "la",
       "evidence": [
         {
-          "citation": "Koch, J. T. 2020. Celto-Germanic: Later Prehistory and Post-Proto-Indo-European Vocabulary in the North and West. Aberystwyth: University of Wales Centre for Advanced Welsh and Celtic Studies. ISBN 978-1-907029-32-5.",
-          "claim_id": "ev_period_0a5b196e284771b93fddd3b636cfb91499cb25f8",
+          "citation": "Kapović, Mate (ed.). 2017. The Indo-European Languages. 2nd ed. Routledge Language Family Series. Abingdon and New York: Routledge (paperback issue 2019). Chapters cited by author in the locator.",
+          "claim_id": "ev_period_f1e86916783e999faaa9bca8806fefeca703ec54",
           "event": "first_attestation",
-          "locator": "{\"start\": 198632, \"end\": 198655, \"page\": 50}",
-          "quote": "written Latin ~550 BC –",
+          "locator": "Rex Wallace, 'Italic', p. 322 (PDF p. 343); page image checked",
+          "quote": "Although it is impossible to say when Latin and the other Italic languages began to \ndiverge, we can pinpoint the date of the earliest inscriptions. They go back to the middle \nof the 7th century BCE.",
           "role": "observation",
-          "source": "Koch 2020",
-          "url": "https://repository.uwtsd.ac.uk/id/eprint/1543/1/JK4.pdf"
+          "source": "Kapović 2017",
+          "url": null
         }
       ],
       "kind": "attested",
-      "label": "from c. 550 BCE",
+      "label": "from 7th century BCE",
       "name": "Latin",
       "spoken": {
         "end": null,
         "ongoing": false,
         "start": {
-          "earliest": -549,
-          "latest": -549
+          "earliest": -699,
+          "latest": -600
         }
       }
     },

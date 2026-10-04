@@ -193,6 +193,11 @@ class PeriodExportTests(unittest.TestCase):
         self.assertEqual(
             label((-1249, -1249), (220, 220), approximate=True), "c. 1250 BCE – 220 CE"
         )
+        # A century start and a year end in one era (Hittite: 19th century – c. 1200 BCE).
+        self.assertEqual(
+            label((-1899, -1800), (-1199, -1199), approximate=True), "c. 19th century – 1200 BCE"
+        )
+        self.assertEqual(label((-1899, -1800), (-1599, -1500)), "19th–16th century BCE")
         split = {
             **claim(
                 "x",

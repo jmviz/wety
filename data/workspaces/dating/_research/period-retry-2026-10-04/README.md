@@ -55,11 +55,18 @@ Adopted:
 | ang | 5th–11th century CE | Slocum & Lehmann, EIEOL Old English | ISO 639-3 c. 450–1100 |
 | la | attested from mid-7th c. BCE | Wallace in Kapović 2017, p. 322 | Koch 2020 c. 550 BC |
 
-Supported but not adopted: Wright 1917 for gmh (1100–1500; a 1917 primer is not
-preferred over the current ISO period), Kapović and Fortson attestation for hit (the
-Glottolog window stays until a decision can be withdrawn), Sims-Williams for sga
-(eighth-century manuscripts; the end-only ISO period stays). Seven decisions went
-stale with the new evidence and were re-adopted after review, each with a note.
+| hit | attested c. 19th century – 1200 BCE | Kapović 2017 p. 3 (names), Fortson 2010 §9.17 (end of text production) | Glottolog window 1650–1180 BCE (withdrawn) |
+
+`hit` was added by an amendment to the review after the maintainer approved decision
+withdrawal (the review's `withdraw` list). Supported but not adopted: Wright 1917 for
+gmh (1100–1500; maintainer agreed to keep ISO), Sims-Williams for sga (eighth-century
+manuscripts; the end-only ISO period stays). Six decisions went stale with the new
+evidence and were re-adopted after review, each with a note.
+
+Incident: the pilot reproduction test called the live `adopt`, and a test run after
+this import silently reverted `ang` and `la` to the pilot's choices and dropped the
+re-adoption notes; commits `2489e6a` and `2a4919c` recorded that reverted state. The
+test no longer writes, and the decisions were restored in the next commit.
 
 Still without a period: `non` (Barnes's broad Old Norse includes the colonies, so is
 broader than `non`), `got` (witness dates only), `cu` (Lunt's OCS canon excludes

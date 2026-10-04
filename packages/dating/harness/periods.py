@@ -110,8 +110,10 @@ def label(start, end, ongoing=False, approximate=False):
     (a, era_a), (b, era_b) = describe(start), describe(end)
     if era_a == era_b and "century" not in a + b:
         return f"{c}{a}–{b} {era_b}"
-    if era_a == era_b:
+    if era_a == era_b and a.endswith(" century") and b.endswith(" century"):
         return f"{c}{a.removesuffix(' century')}–{b} {era_b}"
+    if era_a == era_b and "century" in a:  # a century and a year: "19th century – 1200 BCE"
+        return f"{c}{a} – {b} {era_b}"
     return f"{c}{a} {era_a} – {b} {era_b}"
 
 

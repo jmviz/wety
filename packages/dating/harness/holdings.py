@@ -266,8 +266,11 @@ def ingest(path, bibliography, *, zotero=None, extent=None, ocr="auto", language
             and old["text"]["settings"] == settings
             and (texts_dir() / (old["text"]["sha256"] + ".txt")).exists()
         ):
+            changed = refresh_bibliography(old, bibliography)
             if zotero and old.get("zotero") != zotero:
                 old["zotero"] = zotero
+                changed = True
+            if changed:
                 atomic_json(HOLDINGS, holdings)
             return old
         artifact = DATA / "artifacts" / COLLECTION / raw_sha
@@ -313,6 +316,40 @@ def ingest(path, bibliography, *, zotero=None, extent=None, ocr="auto", language
         atomic_json(HOLDINGS, holdings)
     mark_supplied(holding)
     return holding
+
+
+BIB_FIELDS = (
+    "item_type",
+    "title",
+    "authors",
+    "editors",
+    "year",
+    "edition",
+    "publisher",
+    "place",
+    "series",
+    "container",
+    "doi",
+    "isbn",
+    "url",
+    "citation",
+)
+
+
+def refresh_bibliography(holding, bibliography):
+    """Take corrected metadata (e.g. edited in Zotero) for unchanged bytes; the replaced
+    values stay in metadata_history. Registered sources keep their own reviewed metadata."""
+    old = {k: holding.get(k) for k in BIB_FIELDS if holding.get(k) is not None}
+    new = {k: v for k, v in bibliography.items() if k in BIB_FIELDS}
+    if old == new:
+        return False
+    for k in BIB_FIELDS:
+        holding.pop(k, None)
+    holding.update(new)
+    holding.setdefault("metadata_history", []).append({"replaced": old, "at": now()})
+    stored = texts_dir() / (holding["text"]["sha256"] + ".txt")
+    holding["identity_hint"] = identity_hint(stored.read_bytes().decode(), new.get("title"))
+    return True
 
 
 # Zotero

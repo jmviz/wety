@@ -159,8 +159,29 @@ class PilotReproduction(unittest.TestCase):
         result = build(PILOT, review)
         self.assertEqual(result["claims_bytes"], (PILOT_PACKET / "claims.json").read_bytes())
         self.assertEqual(result["packet"], json.loads((PILOT_PACKET / "packet.json").read_text()))
-        # The recorded decisions are exactly the review's adoptions; nothing is rewritten.
-        self.assertEqual(set(adopt(review).values()), {"unchanged"})
+        # The pilot's adoptions are recorded unchanged unless a later review superseded
+        # them. This test must never write: it runs against the live registry.
+        from harness.registry import build_bundle
+
+        bundle = build_bundle()
+        current = {d["subject_id"][5:]: d for d in bundle["decisions"]}
+        claims = {c["id"]: c for c in bundle["claims"]}
+        superseded = {
+            code
+            for code, choice in review["adopt"].items()
+            if code not in current
+            or claims[current[code]["claim_id"]]["provenance"].get("assertion_id")
+            != choice["assertion"]
+            or current[code]["rationale"] != choice["rationale"]
+        }
+        written = []
+        with (
+            patch("harness.review.decide_record", lambda d, b=None: written.append(d)),
+            patch("harness.review.withdraw", side_effect=AssertionError("no writes")),
+        ):
+            results = adopt(review)
+        self.assertEqual({k for k, v in results.items() if v != "unchanged"}, superseded)
+        self.assertEqual({d["subject_id"][5:] for d in written}, superseded)
 
 
 if __name__ == "__main__":

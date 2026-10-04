@@ -15,8 +15,11 @@ in the `packages/dating` registry.
   (was 11). New: `akk` attested 26th c. BCE – 1st c. CE (Huehnergard), `goh` attested
   from c. 600 (Fortson), `sla-pro` estimated until c. 800/1000 (Fortson). Changed:
   `ang` 5th–11th century (Slocum & Lehmann) instead of ISO; `la` first inscriptions
-  mid-7th c. BCE (Wallace in Kapović) instead of Koch. Export checked, not viewed in a
-  browser this time (same schema).
+  mid-7th c. BCE (Wallace in Kapović) instead of Koch; `hit` attested c. 19th century –
+  1200 BCE (Kapović, Fortson) instead of the Glottolog window. Export checked, not
+  viewed in a browser this time (same schema).
+- Decisions can be withdrawn (`dating withdraw`, or a review's `withdraw` list), kept
+  with the reason in `_decisions/withdrawals.json`.
 - **Supplied sources:** `dating holdings zotero KEY…` / `sync` retains a PDF from
   Zotero with acquire's provenance (artifact, receipt, hashed text, OCR for scans).
   Researchers read holdings with `library` and `open`, and ask for missing works with
@@ -25,6 +28,8 @@ in the `packages/dating` registry.
   Zotero under `wety/needs-fulltext` and `wety/dating/periods`, each with a note on what
   it would settle (write access granted, verified in the live library).
 - Codex runs the pinned CLI from `openai-codex-cli-bin`; Claude the SDK-bundled CLI.
+  Research searches on Semantic Scholar now send `S2_API_KEY` and share `s2.py`'s
+  machine-wide 1 request/s clock.
 
 ## What changed
 
@@ -36,12 +41,15 @@ discovery adds Semantic Scholar, author homepages, Open Library and optional web
 ## Uncertainties
 
 - The review was done by the session that built the route, not a separate one.
+- A test called the live `adopt` and silently reverted `ang`/`la` after the retry
+  import; two commits recorded that state. Fixed (the test no longer writes) and
+  restored; see the retry README.
 - Still no period: `non got cu sa ojp ine-pro`. Several are scope gaps, not access
   gaps (Frellesvig dates Old and Middle Japanese separately; Lunt's OCS excludes Middle
   Bulgarian). Catalog scope for `cu`/`sa` stays unrecorded: handbooks define stage
   names, not the ISO or Glottolog entities.
-- Zotero records can be wrong (Huehnergard's says Brill 2018; the file is Eisenbrauns
-  2011). The review reads title pages; holdings keep Zotero's metadata as is.
+- Zotero records can be wrong; reviews cite title pages. Corrected records refresh a
+  holding's metadata on the next `holdings zotero`/`sync`.
 
 ## Next three actions
 
@@ -52,8 +60,5 @@ discovery adds Semantic Scholar, author homepages, Open Library and optional web
 
 ## Decisions needed from the maintainer
 
-- `hit` has handbook attestation evidence (names 19th c. BCE, texts to c. 1200 BC) but
-  shows the Glottolog window: switching needs a way to withdraw a decision, which the
-  registry lacks. Add one?
-- `gmh`: keep ISO c. 1050–1500, or prefer Wright 1917 (1100–1500)? Kept ISO.
-- Merging into `main` (deploys) and the Wiktionary export refresh.
+- Merging into `main` (deploys).
+- The Wiktionary export refresh stays pending (maintainer, 2026-10-04).

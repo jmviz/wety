@@ -98,3 +98,37 @@ def decide_record(raw, bundle=None):
     )
     atomic_json(dest, updated)
     return {"adopted_claim": decision.claim_id, "publish_required": True}
+
+
+def withdraw(subject_id, event, reviewer, rationale):
+    """Remove an editorial decision, keeping it with the reason in withdrawals.json.
+
+    A decision is withdrawn when better evidence of another event should be shown
+    instead (a period decision otherwise takes precedence in the display). Its claim
+    and evidence are untouched; adopting it again is an ordinary decision."""
+    from datetime import datetime, timezone
+
+    if not reviewer.strip() or not rationale.strip():
+        raise ValueError("reviewer and rationale required")
+    folder = Path(DATA_DIR) / "_decisions"
+    dest = folder / "decisions.json"
+    old = json.loads(dest.read_text()) if dest.exists() else []
+    match = [d for d in old if (d["subject_id"], d["event"]) == (subject_id, event)]
+    if not match:
+        raise ValueError(f"no decision for {subject_id} {event}")
+    updated = [d for d in old if d not in match]
+    record = {
+        "decision": match[0],
+        "reviewer": reviewer,
+        "rationale": rationale,
+        "withdrawn_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+    }
+    log = folder / "withdrawals.json"
+    withdrawals = json.loads(log.read_text()) if log.exists() else []
+    atomic_json(
+        Path(DATING_HISTORY) / "decisions" / (digest({"old": old, "new": updated}) + ".json"),
+        {"old": old, "new": updated, "withdrawal": record},
+    )
+    atomic_json(log, withdrawals + [record])
+    atomic_json(dest, updated)
+    return {"withdrawn_claim": match[0]["claim_id"], "publish_required": True}

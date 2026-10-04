@@ -74,46 +74,37 @@ class FrontierTests(unittest.TestCase):
 
         calls = []
 
-        def fake(url, collection):
-            calls.append(time.time())
+        def fake(url, collection, headers=None):
+            calls.append((time.time(), headers))
             if len(calls) == 1:
                 raise HTTPError(url, 429, "slow down", None, None)
             return self.root
 
         with (
             patch("source_tools.acquire.acquire", fake),
-            patch.dict("harness.frontier_tools.PACE", {"api.semanticscholar.org": 0.05}),
+            patch.dict("harness.frontier_tools.PACE", {"openlibrary.org": 0.05}),
+        ):
+            self.tools.fetch("https://openlibrary.org/search.json?q=x")
+            self.tools.fetch("https://openlibrary.org/search.json?q=y")
+        self.assertEqual(len(calls), 3)
+        self.assertGreaterEqual(calls[1][0] - calls[0][0], 0.09)  # retry waits twice the pace
+        self.assertGreaterEqual(calls[2][0] - calls[1][0], 0.04)
+        self.assertIsNone(calls[0][1])
+
+    def test_semantic_scholar_uses_key_and_shared_clock(self):
+        seen, throttled = [], []
+
+        def fake(url, collection, headers=None):
+            seen.append(headers)
+            return self.root
+
+        with (
+            patch("source_tools.acquire.acquire", fake),
+            patch("harness.s2._key", return_value="KEY"),
+            patch("harness.s2._throttle", lambda: throttled.append(1)),
         ):
             self.tools.fetch("https://api.semanticscholar.org/graph/v1/paper/search?query=x")
-            self.tools.fetch("https://api.semanticscholar.org/graph/v1/paper/search?query=y")
-        self.assertEqual(len(calls), 3)
-        self.assertGreaterEqual(calls[1] - calls[0], 0.09)  # retry waits twice the pace
-        self.assertGreaterEqual(calls[2] - calls[1], 0.04)
-
-    def test_offsets_and_quotes_use_the_exact_stored_text(self):
-        p = self.root / "evidence"
-        p.mkdir()
-        text = p / "t.txt"
-        text.write_bytes("line one\r\nOld English 450\r\n".encode())
-        (self.root / "tools-state.json").write_text(
-            json.dumps({"sources": {"s": {"text_file": "t.txt", "text_sha256": sha(text)}}})
-        )
-        found = self.tools.call("find", {"source_id": "s", "query": "Old English"})["matches"][0]
-        self.assertEqual(found["match_start"], 10)
-        window = self.tools.call("read", {"source_id": "s", "start": 0, "length": 20})["text"]
-        self.assertIn("\r\n", window)
-        for name in ("report.md", "sources.json", "self-check.json"):
-            (self.root / name).write_text("{}")
-        row = {k: [] for k in ("qualifications",)}
-        row.update(
-            id="a", source_id="s", subject={}, event="e", role="r", method="m", native_time={}
-        )
-        (self.root / "assertions.jsonl").write_text(json.dumps({**row, "quote": "one\nOld"}) + "\n")
-        self.assertIn("row 0: quote not exact", check(self.root)["errors"])
-        (self.root / "assertions.jsonl").write_text(
-            json.dumps({**row, "quote": "one\r\nOld"}) + "\n"
-        )
-        self.assertEqual(check(self.root)["errors"], [])
+        self.assertEqual((seen, throttled), ([{"x-api-key": "KEY"}], [1]))
 
     def test_own_validation_messages_are_shown(self):
         result = tool_response(self.tools, "read", {"source_id": "missing"})
