@@ -3,7 +3,10 @@ use crate::{
     etymon,
     items::{Items, Retrieval},
     progress_bar,
-    wiktextract_json::{Affix, WiktextractJson, WiktextractJsonItem, WiktextractJsonValidStr},
+    wiktextract_json::{
+        Affix, WiktextractJson, WiktextractJsonItem, WiktextractJsonValidStr, affix_by_hyphens,
+        affix_type, clean_template_term, modifier, split_lang_prefix, split_modifiers,
+    },
     HashSet,
 };
 use wety_core::{
@@ -228,45 +231,56 @@ pub(crate) fn affixation_kind(affixes: &[Affix], n_base_terms: usize) -> EtyMode
     }
 }
 
+// The parts of compound-kind templates take per-part params numbered from 1
+// (lang1=, type1= for arg "2"), or the same as inline modifiers (<lang:>,
+// <type:>), and may be prefixed with a language code (grc:χρῶμα). See
+// https://en.wiktionary.org/wiki/Template:affix.
 fn process_compound_kind_json_template(
     string_pool: &mut StringPool,
     args: &WiktextractJson,
     mode: EtyMode,
     lang: Lang,
 ) -> Option<RawEtyTemplate> {
-    let mut n = 2;
     let mut ety_langterms = vec![];
     let mut affixes = vec![];
     let mut head = 0;
     let mut n_base_terms = 0; // terms that aren't x-, -x, etc.
-    while let Some(ety_term) = args.get_valid_term(n.to_string().as_str()) {
+    for part in 1.. {
+        let Some(arg) = args.get_valid_str((part + 1).to_string().as_str()) else {
+            break;
+        };
+        let (arg, modifiers) = split_modifiers(arg);
+        let (prefix_lang, arg) = match split_lang_prefix(arg)
+            .and_then(|(code, term)| Some((Lang::from_str(code).ok()?, term)))
+        {
+            Some((prefix_lang, term)) => (Some(prefix_lang), term),
+            None => (None, arg),
+        };
+        let ety_term = clean_template_term(arg);
+        if ety_term.is_empty() || ety_term == "-" {
+            break;
+        }
+        let part_lang = match modifier(&modifiers, "lang")
+            .or_else(|| args.get_valid_str(format!("lang{part}").as_str()))
+        {
+            Some(code) => Lang::from_str(code).ok()?,
+            None => prefix_lang.unwrap_or(lang),
+        };
         // These compound-kind templates often have no true head (affix is the
         // most common of these templates, see that). We will take a head only
         // in the case where there is a single base (non-affix) term. So e.g.
         // {{af|en|pre-|date}} will have date as head, but
         // {{af|en|volley|ball}} will not have a head.
-        affixes.push(if ety_term.starts_with('-') {
-            if ety_term.ends_with('-') {
-                Affix::Infix
-            } else {
-                Affix::Suffix
-            }
-        } else if ety_term.ends_with('-') {
-            Affix::Prefix
-        } else {
+        let affix = modifier(&modifiers, "type")
+            .or_else(|| args.get_valid_str(format!("type{part}").as_str()))
+            .and_then(affix_type)
+            .unwrap_or_else(|| affix_by_hyphens(ety_term));
+        if affix == Affix::Base {
             n_base_terms += 1;
-            head = n - 2;
-            Affix::Base
-        });
-        if let Some(ety_lang) = args.get_valid_str(format!("lang{n}").as_str()) {
-            let ety_lang = Lang::from_str(ety_lang).ok()?;
-            let ety_langterm = ety_lang.new_langterm(string_pool, ety_term);
-            ety_langterms.push(ety_langterm);
-        } else {
-            let ety_langterm = lang.new_langterm(string_pool, ety_term);
-            ety_langterms.push(ety_langterm);
+            head = ety_langterms.len();
         }
-        n += 1;
+        affixes.push(affix);
+        ety_langterms.push(part_lang.new_langterm(string_pool, ety_term));
     }
     if !ety_langterms.is_empty() {
         return Some(RawEtyTemplate {
@@ -277,7 +291,8 @@ fn process_compound_kind_json_template(
             } else {
                 mode
             },
-            head: (n_base_terms == 1).then_some(head), // see above
+            // see above
+            head: (n_base_terms == 1).then(|| u8::try_from(head).ok()).flatten(),
         });
     }
     None
@@ -622,10 +637,19 @@ mod tests {
 
     // (mode, [term]) for each template in the chain; None for a skipped one
     fn chain(json: &str) -> Vec<Option<(EtyMode, Vec<String>)>> {
+        chain_with("en", json, false)
+    }
+
+    // as chain(), with each term prefixed by its language code
+    fn chain_in(lang: &str, json: &str) -> Vec<Option<(EtyMode, Vec<String>)>> {
+        chain_with(lang, json, true)
+    }
+
+    fn chain_with(lang: &str, json: &str, codes: bool) -> Vec<Option<(EtyMode, Vec<String>)>> {
         let mut bytes = json.as_bytes().to_vec();
         let json = to_borrowed_value(&mut bytes).unwrap();
         let mut string_pool = StringPool::new();
-        let lang = Lang::from_str("en").unwrap();
+        let lang = Lang::from_str(lang).unwrap();
         WiktextractJsonItem { json }
             .get_etymology(&mut string_pool, lang)
             .map_or_else(Vec::new, |ety| Vec::from(ety.templates))
@@ -635,7 +659,14 @@ mod tests {
                     t.mode,
                     t.langterms
                         .iter()
-                        .map(|lt| lt.term.resolve(&string_pool).to_owned())
+                        .map(|lt| {
+                            let term = lt.term.resolve(&string_pool);
+                            if codes && lt.lang != lang {
+                                format!("{}:{term}", lt.lang.code())
+                            } else {
+                                term.to_owned()
+                            }
+                        })
                         .collect(),
                 )),
                 ParsedRawEtyTemplate::Skipped => None,
@@ -698,5 +729,40 @@ mod tests {
             ]}"#,
         );
         assert_eq!(got, [None, step(EtyMode::Inherited, "moder")]);
+    }
+
+    fn parts(lang: &str, args: &str) -> Option<(EtyMode, Vec<String>)> {
+        let json = format!(r#"{{"etymology_templates": [{{"name": "af", "args": {args}}}]}}"#);
+        chain_in(lang, &json).into_iter().next().flatten()
+    }
+
+    #[test]
+    fn affix_parts() {
+        let strs = |v: &[&str]| v.iter().map(|s| (*s).to_owned()).collect::<Vec<_>>();
+        // language prefixes and inline modifiers
+        assert_eq!(
+            parts("pt", r#"{"1": "pt", "2": "a-<id:privative>", "3": "grc:χρῶμα<t:color>", "4": "-ia"}"#),
+            Some((EtyMode::Affix, strs(&["a-", "grc:χρῶμα", "-ia"])))
+        );
+        // a link to the lemma
+        assert_eq!(
+            parts("it", r#"{"1": "it", "2": "la:[[lītus|lītoris]]<t:shore>", "3": "-aneo"}"#),
+            Some((EtyMode::Suffix, strs(&["la:lītus", "-aneo"])))
+        );
+        // langN= and typeN= count parts from 1
+        assert_eq!(
+            parts("en", r#"{"1": "en", "2": "vexillum", "3": "-ology", "lang1": "la"}"#),
+            Some((EtyMode::Suffix, strs(&["la:vexillum", "-ology"])))
+        );
+        assert_eq!(
+            parts("tl", r#"{"1": "tl", "2": "sa-", "3": "ibabaw", "4": "-um-<type:infix>"}"#)
+                .map(|(mode, _)| mode),
+            Some(EtyMode::Affix)
+        );
+        assert_eq!(
+            parts("en", r#"{"1": "en", "2": "bʰer-", "3": "-tis", "type1": "root"}"#)
+                .map(|(mode, _)| mode),
+            Some(EtyMode::Suffix)
+        );
     }
 }

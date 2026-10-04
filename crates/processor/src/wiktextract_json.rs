@@ -74,7 +74,7 @@ impl Items {
 pub(crate) type WiktextractJson<'a> = simd_json::value::borrowed::Value<'a>;
 
 /// The most common affix kinds.
-#[derive(PartialEq)]
+#[derive(PartialEq, Clone, Copy, Debug)]
 pub(crate) enum Affix {
     Prefix,
     Suffix,
@@ -318,8 +318,84 @@ impl WiktextractJsonItem<'_> {
     }
 }
 
+/// Split `text<a:1><b<c>>` into `text` and the contents of its top-level
+/// angle-bracket groups (`a:1`, `b<c>`). An unbalanced tail is dropped.
+pub(crate) fn split_modifiers(s: &str) -> (&str, Vec<&str>) {
+    let Some(start) = s.find('<') else {
+        return (s, vec![]);
+    };
+    let mut modifiers = vec![];
+    let mut depth = 0usize;
+    let mut open = start;
+    for (i, c) in s.char_indices().skip_while(|&(i, _)| i < start) {
+        match c {
+            '<' => {
+                if depth == 0 {
+                    open = i;
+                }
+                depth += 1;
+            }
+            '>' if depth > 0 => {
+                depth -= 1;
+                if depth == 0 {
+                    modifiers.push(&s[open + 1..i]);
+                }
+            }
+            _ => {}
+        }
+    }
+    (&s[..start], modifiers)
+}
+
+pub(crate) fn modifier<'a>(modifiers: &[&'a str], name: &str) -> Option<&'a str> {
+    modifiers.iter().find_map(|m| {
+        m.strip_prefix(name)
+            .and_then(|rest| rest.strip_prefix(':'))
+            .map(str::trim)
+    })
+}
+
+/// Split a `lang:term` prefix off a term arg, as Module:links and Module:affix
+/// accept it (e.g. {{af|pt|a-|grc:χρῶμα|-ia}}). Only checks the syntax of the
+/// code; callers decide what an unknown code means.
+pub(crate) fn split_lang_prefix(s: &str) -> Option<(&str, &str)> {
+    let (code, term) = s.split_once(':')?;
+    (code.starts_with(|c: char| c.is_ascii_alphabetic())
+        && code
+            .chars()
+            .all(|c| c.is_ascii_alphanumeric() || matches!(c, '.' | '_' | '-')))
+    .then_some((code, term))
+}
+
+/// An explicit affix type, as given by {{af}}'s typeN=/<type:> or
+/// {{etymon}}'s <aftype:>.
+pub(crate) fn affix_type(name: &str) -> Option<Affix> {
+    Some(match name {
+        "prefix" | "pre" => Affix::Prefix,
+        "suffix" | "suf" => Affix::Suffix,
+        "infix" | "in" | "interfix" | "inter" => Affix::Infix,
+        "non-affix" | "naf" | "root" => Affix::Base,
+        _ => return None,
+    })
+}
+
+/// The affix type implied by hyphens, as {{af}} infers it.
+pub(crate) fn affix_by_hyphens(term: &str) -> Affix {
+    match (term.starts_with('-'), term.ends_with('-')) {
+        (true, true) => Affix::Infix,
+        (true, false) => Affix::Suffix,
+        (false, true) => Affix::Prefix,
+        (false, false) => Affix::Base,
+    }
+}
+
 /// Clean a term that appears as a template arg
 pub(crate) fn clean_template_term(mut term: &str) -> &str {
+    // A term may be a link whose target is the lemma, e.g.
+    // {{af|it|la:[[lītus|lītoris]]|-aneo}}.
+    if let Some(link) = term.strip_prefix("[[") {
+        term = link.split(['|', ']']).next().unwrap_or(link);
+    }
     // Reconstructed terms (e.g. PIE) are supposed to start with "*" when cited
     // in etymologies but their entry titles (and hence wiktextract "word"
     // field) do not. This is done by
@@ -426,5 +502,7 @@ mod tests {
         assert_eq!("twig", clean_template_term("twig#Etymology_2"));
         assert_eq!("līber", clean_template_term("līber<id:free>"));
         assert_eq!("non-", clean_template_term("non-<id:not><t:no>"));
+        assert_eq!("lītus", clean_template_term("[[lītus|lītoris]]"));
+        assert_eq!("lītus", clean_template_term("[[lītus]]"));
     }
 }

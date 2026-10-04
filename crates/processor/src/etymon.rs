@@ -19,7 +19,10 @@
 
 use crate::{
     etymology::{ParsedRawEtyTemplate, RawEtyTemplate, affixation_kind},
-    wiktextract_json::{Affix, WiktextractJson, WiktextractJsonValidStr, clean_template_term},
+    wiktextract_json::{
+        Affix, WiktextractJson, WiktextractJsonValidStr, affix_by_hyphens, affix_type,
+        clean_template_term, modifier, split_lang_prefix, split_modifiers,
+    },
 };
 use wety_core::{etymology_templates::EtyMode, languages::Lang, string_pool::StringPool};
 
@@ -98,43 +101,6 @@ fn top_level_param(arg: &str) -> Param<'_> {
     }
 }
 
-/// Split `text<a:1><b<c>>` into `text` and the contents of its top-level
-/// angle-bracket groups (`a:1`, `b<c>`). An unbalanced tail is dropped.
-fn split_modifiers(s: &str) -> (&str, Vec<&str>) {
-    let Some(start) = s.find('<') else {
-        return (s, vec![]);
-    };
-    let mut modifiers = vec![];
-    let mut depth = 0usize;
-    let mut open = start;
-    for (i, c) in s.char_indices().skip_while(|&(i, _)| i < start) {
-        match c {
-            '<' => {
-                if depth == 0 {
-                    open = i;
-                }
-                depth += 1;
-            }
-            '>' if depth > 0 => {
-                depth -= 1;
-                if depth == 0 {
-                    modifiers.push(&s[open + 1..i]);
-                }
-            }
-            _ => {}
-        }
-    }
-    (&s[..start], modifiers)
-}
-
-fn modifier<'a>(modifiers: &[&'a str], name: &str) -> Option<&'a str> {
-    modifiers.iter().find_map(|m| {
-        m.strip_prefix(name)
-            .and_then(|rest| rest.strip_prefix(':'))
-            .map(str::trim)
-    })
-}
-
 /// The params of an inline etymology `keyword<<kwmod>><etymon><etymon>:keyword2<etymon>`.
 fn inline_params(s: &str) -> Vec<Param<'_>> {
     let (keyword, _) = split_modifiers(s);
@@ -191,16 +157,9 @@ pub(crate) struct Etymon<'a> {
 /// language code we know (e.g. a family code).
 pub(crate) fn parse_etymon(param: &str, context_lang: Lang) -> Option<Etymon<'_>> {
     let (head, modifiers) = split_modifiers(param);
-    let (lang, term) = match head.split_once(':') {
-        Some((code, term))
-            if code.starts_with(|c: char| c.is_ascii_alphabetic())
-                && code
-                    .chars()
-                    .all(|c| c.is_ascii_alphanumeric() || matches!(c, '.' | '_' | '-')) =>
-        {
-            (Lang::from_str(code).ok()?, term)
-        }
-        _ => (context_lang, head),
+    let (lang, term) = match split_lang_prefix(head) {
+        Some((code, term)) => (Lang::from_str(code).ok()?, term),
+        None => (context_lang, head),
     };
     let term = clean_template_term(term.trim());
     let term = (!matches!(term, "" | "+" | "-")).then_some(term);
@@ -216,18 +175,10 @@ pub(crate) fn parse_etymon(param: &str, context_lang: Lang) -> Option<Etymon<'_>
 }
 
 fn affix_kind(etymon: &Etymon, term: &str) -> Affix {
-    match etymon.aftype {
-        Some("prefix" | "pre") => Affix::Prefix,
-        Some("suffix" | "suf") => Affix::Suffix,
-        Some("infix" | "in" | "interfix" | "inter") => Affix::Infix,
-        Some("non-affix" | "naf" | "root") => Affix::Base,
-        _ => match (term.starts_with('-'), term.ends_with('-')) {
-            (true, true) => Affix::Infix,
-            (true, false) => Affix::Suffix,
-            (false, true) => Affix::Prefix,
-            (false, false) => Affix::Base,
-        },
-    }
+    etymon
+        .aftype
+        .and_then(affix_type)
+        .unwrap_or_else(|| affix_by_hyphens(term))
 }
 
 fn components_template(
@@ -529,7 +480,7 @@ mod tests {
     #[test]
     fn modifier_splitting() {
         assert_eq!(
-            split_modifiers("a<id:x><ety:inh<b<t:c>>>"),
+            crate::wiktextract_json::split_modifiers("a<id:x><ety:inh<b<t:c>>>"),
             ("a", vec!["id:x", "ety:inh<b<t:c>>"])
         );
         assert_eq!(
