@@ -1,7 +1,7 @@
 # Status
 
-*Updated 2026-10-04. `wiktionary-refresh` fast-forwarded into local `main` (not
-pushed); branch `stable-links` from it, not pushed.*
+*Updated 2026-10-04. Branch `stable-links`, from local `main` (which has
+`wiktionary-refresh` fast-forwarded in); nothing pushed.*
 
 ## What the project promises
 
@@ -11,51 +11,42 @@ in the `packages/dating` registry.
 
 ## What is usable today
 
-- **Production** (`api.wety.org`) serves the preserved legacy graph; its numeric IDs
-  match `data/artifacts/etymology-graph/legacy` and the legacy language table.
-- **Refreshed graph** (`etymology-graph/18a9fa26…`, 2026-09-01 dump) loads and
-  validates but is **not fit to deploy** (see Uncertainties).
-- **Dates:** 14 of 20 pilot codes have a cited period. Supplied sources and requests
-  as before (`dating holdings`, `dating requests`).
+- **Rebuilt graph** (`etymology-graph/bf5c28d2…`, 2026-09-01 dump, selected):
+  homographs are separate items again (`en lime` has its five etymologies) and
+  Descendants sections are read again. Checked in a browser.
+- **Stable links:** URLs name a word, e.g. `/cognates/en/lime?ety=3&lang=la`, and
+  survive rebuilds. `/resolve` finds the word; a link naming several etymologies
+  without a number offers a chooser; a line under the view bar switches between
+  them. Numeric IDs stay inside a session and carry the graph version; a stale
+  tab reloads (409). Language codes replace numeric language IDs throughout.
+- **Dates:** 14 of 20 pilot codes have a cited period.
 
 ## What changed
 
-Investigated stable shared links (findings from `experiments/stable_links/`, run on
-the legacy and 2026-09-01 dumps):
-
-- 1.6% of language sections (1.2% English) have several etymologies.
-- Over the interval between the dumps, 99.1% of numbered etymologies kept their
-  number; 0.4% of those with etymology text now carry a number that names another
-  etymology (e.g. `en kid` 2 → 3 after an insertion).
-- Wiktionary's own etymology IDs are too sparse to key on: `{{etymon|id=}}` covers
-  1.3% of etymologies on multi-etymology pages, senseids 1.8%.
-- 172 of 8,625 main language codes were retired (108 recoverable by name); 212 kept
-  codes changed names.
+- Processor reads string etymology numbers (`"3"`, `"1.1"`) and nested
+  descendants; imputed duplicates are numbered by their citing item.
+- Core/server: `keys` (resolution), `Lang::from_code` with retired codes
+  (`data/registry/retired-language-codes.json`, empty until the next language
+  refresh), `/resolve`, codes in the API. Client rebuilt around word links.
 
 ## Uncertainties
 
-- The refreshed graph merges homographs: Wiktextract now emits `etymology_number`
-  as a string (`"3"`, also `"1.1"`), the processor reads an integer, so all of
-  `en lime`'s five etymologies are one item.
-- Descendants sections are ignored: both available dumps use nested descendants
-  without `depth`/`templates`, which the processor requires. Trees shrink (PIE
-  *méh₂tēr, English+Latin: 173 nodes in production, 84 refreshed).
-- `{{etymon}}` is still not parsed.
-- Legacy dump date is unknown (file dated 2026-04-08), so drift per month is approximate.
+- Trees are still smaller than production in places (PIE *méh₂tēr, English+Latin:
+  142 nodes vs 173; *bʰer-: 831 vs 1,079; *pénkʷe: 249 vs 186). About 380k entries
+  (64k English, 22k Latin) give their etymology only in `{{ety}}`/`{{etymon}}`,
+  which the processor does not parse, e.g. Latin *mātrīx*.
+- The client's reload on 409 was not exercised in a browser (the server's 409 was).
+- Term matching is exact apart from Unicode normalization and page titles;
+  Wiktionary renumbering can still move a link to a sibling homograph.
 
 ## Next three actions
 
-1. Processor: read string etymology numbers, parse nested descendants; rebuild and
-   compare trees against production.
-2. Stable links, server: resolve `language code + term + optional Wiktionary
-   etymology number`; codes in all URLs; translate production's numeric links from the
-   legacy graph.
-3. Stable links, client: key-based URLs and a homograph switcher; deploy together with
-   the rebuilt graph.
+1. Parse `{{ety}}` and `{{etymon}}` in the processor; rebuild and compare with
+   production.
+2. Maintainer: deploy the server with the rebuilt graph, then merge (the client
+   needs `/resolve`; see `crates/server/deployment.md`).
+3. Supply the six queued works in Zotero, then `dating holdings sync`.
 
 ## Decisions needed from the maintainer
 
-- Approve the stable-link design (URL form, legacy-link translation) before
-  implementation.
-- Do not deploy the refreshed graph until action 1 is done; whether local `main`
-  should be reset until then (it now contains the refresh).
+- Deploy now, or after action 1 (some trees are smaller than production's).
