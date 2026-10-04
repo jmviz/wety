@@ -234,9 +234,12 @@ impl WiktextractJsonItem<'_> {
                     let mut t = 0;
                     while let Some(tag) = tags.get(t).as_str() {
                         if tag == "canonical" {
-                            // There are some
                             if let Some(term) = form.get_valid_term("form")
                                 && !should_ignore_term(term)
+                                && self
+                                    .json
+                                    .get_valid_term("word")
+                                    .is_some_and(|word| is_respelling(term, word))
                             {
                                 return Some(Term::new(string_pool, term));
                             }
@@ -342,6 +345,16 @@ pub(crate) fn clean_template_term(mut term: &str) -> &str {
     term
 }
 
+/// Whether a "canonical" form plausibly respells the page title (adding
+/// diacritics, niqqud, Old Irish "·", etc.): it must have the same number of
+/// words. Wiktextract sometimes takes headword-line labels or articles into
+/// the canonical form, e.g. "octobre oblique singular or" for Old French
+/// octobre ({{fro-noun}}), "the pond", "a abate 3rd conjugation" or
+/// "kun # second-person singular imperative of kien".
+fn is_respelling(canonical: &str, title: &str) -> bool {
+    canonical.split_whitespace().count() == title.split_whitespace().count()
+}
+
 // $$ These two functions needs revisiting depending on results.
 
 // We would generally like to ignore phrases, and potentially other things.
@@ -377,6 +390,33 @@ mod tests {
         assert_eq!(ety_label(r#"{"etymology_number": 2}"#).as_deref(), Some("2"));
         assert_eq!(ety_label(r#"{"etymology_number": "1.1"}"#).as_deref(), Some("1.1"));
         assert_eq!(ety_label(r#"{"word": "lime"}"#), None);
+    }
+
+    fn canonical_term(json: &str) -> String {
+        let mut bytes = json.as_bytes().to_vec();
+        let json = to_borrowed_value(&mut bytes).unwrap();
+        let mut string_pool = StringPool::new();
+        WiktextractJsonItem { json }
+            .get_canonical_term(&mut string_pool)
+            .unwrap()
+            .resolve(&string_pool)
+            .to_owned()
+    }
+
+    #[test]
+    fn canonical_terms() {
+        let form = |word: &str, canonical: &str| {
+            canonical_term(&format!(
+                r#"{{"word": "{word}", "forms": [{{"form": "{canonical}", "tags": ["canonical"]}}]}}"#
+            ))
+        };
+        assert_eq!(form("matrix", "mātrīx"), "mātrīx");
+        assert_eq!(form("מילה", "מִלָּה"), "מִלָּה");
+        assert_eq!(form("dorat", "do·rat"), "do·rat");
+        assert_eq!(form("qui docet", "quī docet"), "quī docet");
+        assert_eq!(form("octobre", "octobre oblique singular or"), "octobre");
+        assert_eq!(form("pond", "the pond"), "pond");
+        assert_eq!(form("abate", "a abate 3rd conjugation"), "abate");
     }
 
     #[test]
