@@ -22,17 +22,16 @@ in the `packages/dating` registry.
   R2 with a health check and rollback, then moves `production`, from which Pages
   builds the website. One-time setup, going straight to the new graph and website:
   [deploy/README.md](deploy/README.md). Untested on the host.
-- **Dates:** 14 of 20 pilot codes have a cited period. Old and Middle English now
-  come from Baugh & Cable (450–1150, 1150–1500), Old and Middle High German from
-  Schmidt (500–1050, 1050–1350), replacing ISO names and a start-only attestation.
+- **Dates:** 14 of 20 pilot codes have a cited period; `ang enm` now from Baugh &
+  Cable, `goh gmh` from Schmidt.
 
 ## What changed
 
 - The six requested works and five Woodard *Ancient Languages* volumes are holdings;
-  all requests are closed.
-- A third period run read them (41 assertions, 13 supported, every quote page
-  checked). Adopted: `ang enm goh gmh`; nine older decisions re-adopted unchanged.
-  [Run README](data/workspaces/dating/_research/period-holdings-2026-10-04/README.md).
+  all requests are closed, and sync now also takes supplied items out of Zotero's
+  `wety/needs-fulltext`.
+- A third period run read them; adopted `ang enm goh gmh`
+  ([run README](data/workspaces/dating/_research/period-holdings-2026-10-04/README.md)).
 
 ## Uncertainties
 
@@ -41,12 +40,14 @@ in the `packages/dating` registry.
 - Trees are still smaller than production in places (PIE *méh₂tēr, English+Latin:
   142 nodes vs 173). About 380k entries (64k English) give their etymology only in
   `{{ety}}`/`{{etymon}}`, which the processor does not parse.
-- The client's reload on 409 was not exercised in a browser.
-- `gmh`: Schmidt's 1050–1350 replaces the ISO period you had kept over Wright (ISO's
-  runs into Early New High German, filed under `de`).
-- `non got cu sa ojp ine-pro` still lack a whole-code source (only stages, witnesses
-  or bounds are dated). Nothing further is requested.
-- Dating in a worktree needs main's ignored `data/`; cloned in, new bytes copied back.
+- The client's 409 reload is untested in a browser.
+- `gmh`: Schmidt's 1050–1350 replaced the ISO period you had kept over Wright.
+- `non got cu sa ojp ine-pro` lack a whole-code source. For `ojp` and `sa` this is the
+  whole-code rule: Wiktionary files stages under them as variety codes (`ja-mid-ear`,
+  `vsn`…; 716 varieties under 177 codes), so Frellesvig's OJ 700–800 is a subset.
+- Proto-language dating from phylogenetic articles (family pages) stopped at
+  reproduced analyses: no rule yet maps a clade estimate to a `*-pro` code.
+- Worktrees lack main's ignored `data/`; dating work cloned it in.
 
 ## Next three actions
 
@@ -54,14 +55,13 @@ in the `packages/dating` registry.
    including the first push of `main`.
 2. Parse `{{ety}}` and `{{etymon}}`; rebuild; publish the graph with
    `deploy/publish-graph.sh`.
-3. Dating: decide how the six remaining codes may be shown (below), or leave them
-   without a period.
+3. Dating, after the decisions below: varieties as subjects, a clade-to-proto rule,
+   automatic re-adoption; then family-batch runs (Woodard first).
 
 ## Decisions needed from the maintainer
 
 - Running the deployment.
-- For `ojp` (Old + Middle Japanese) and `sa` (Vedic to learned Sanskrit), sources give
-  only per-stage dates. Show nothing, or allow a display built from stated stage
-  periods (a rule change to `DECISION_RULES`)?
-- Use the Woodard volumes for codes beyond the 20 pilot codes (a new research
-  direction)?
+- Varieties: date variety codes directly; judge a parent against its own core (code
+  minus its varieties); export a derived span over core and varieties. Approve?
+- Proto-languages: may a crown age over sampled descendants date a `*-pro` stage's
+  end (estimate) when the taxa cover the family?
