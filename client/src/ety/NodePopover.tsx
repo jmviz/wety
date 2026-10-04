@@ -258,15 +258,11 @@ function PeriodSection(props: { period: LangPeriod }) {
       <Show when={props.period.span}>
         {(span) => (
           <>
-            <Show when={props.period.basis !== "span"}>
-              <div class="popover-muted">
+            <div class="popover-muted">
+              <Show when={!span().partial} fallback={<>Dated varieties (not all are dated):</>}>
                 With its varieties: <span class="period-label">{span().label}</span>
-                {span().partial ? " (partial)" : ""}
-              </div>
-            </Show>
-            <Show when={props.period.basis === "span" && span().partial}>
-              <div class="popover-muted">Partial: not every variety is dated.</div>
-            </Show>
+              </Show>
+            </div>
             <ul class="period-cites">
               <For each={span().components.filter((c) => !c.own)}>
                 {(c) => (

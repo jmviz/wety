@@ -1,6 +1,6 @@
 {
   "family_splits": [],
-  "generation": "d91decfe1beb254c6031b342c225e75f807af2f1bc899d5338986a22322a2eb1",
+  "generation": "d557d9e8c57e5cd1606e4ba1aef14201f214836723984ce4c906ae316dc932da",
   "languages": [
     {
       "alternatives": [
@@ -559,65 +559,6 @@
     },
     {
       "alternatives": [],
-      "basis": "span",
-      "code": "arc",
-      "evidence": [],
-      "kind": "stage",
-      "label": "950–200 BCE",
-      "name": "Aramaic",
-      "span": {
-        "components": [
-          {
-            "basis": "conventional",
-            "code": "arc-imp",
-            "label": "600–200 BCE",
-            "name": "Imperial Aramaic",
-            "own": false
-          },
-          {
-            "basis": "conventional",
-            "code": "arc-old",
-            "label": "950–600 BCE",
-            "name": "Old Aramaic",
-            "own": false
-          }
-        ],
-        "end": {
-          "earliest": -199,
-          "latest": -199
-        },
-        "label": "950–200 BCE",
-        "ongoing": false,
-        "partial": true,
-        "start": {
-          "earliest": -949,
-          "latest": -949
-        },
-        "undated": [
-          "arc-bib",
-          "arc-cpa",
-          "arc-hat",
-          "arc-jla",
-          "arc-nab",
-          "arc-pal",
-          "jpa",
-          "tmr"
-        ]
-      },
-      "spoken": {
-        "end": {
-          "earliest": -199,
-          "latest": -199
-        },
-        "ongoing": false,
-        "start": {
-          "earliest": -949,
-          "latest": -949
-        }
-      }
-    },
-    {
-      "alternatives": [],
       "basis": "conventional",
       "code": "arc-imp",
       "evidence": [
@@ -680,45 +621,6 @@
     },
     {
       "alternatives": [],
-      "basis": "span",
-      "code": "cel-gau",
-      "evidence": [],
-      "kind": "stage",
-      "label": "from 3rd century BCE",
-      "name": "Gaulish",
-      "span": {
-        "components": [
-          {
-            "basis": "attested",
-            "code": "xtg",
-            "label": "from 3rd century BCE",
-            "name": "Transalpine Gaulish",
-            "own": false
-          }
-        ],
-        "end": null,
-        "label": "from 3rd century BCE",
-        "ongoing": false,
-        "partial": true,
-        "start": {
-          "earliest": -299,
-          "latest": -200
-        },
-        "undated": [
-          "xcg"
-        ]
-      },
-      "spoken": {
-        "end": null,
-        "ongoing": false,
-        "start": {
-          "earliest": -299,
-          "latest": -200
-        }
-      }
-    },
-    {
-      "alternatives": [],
       "basis": "estimated",
       "code": "cel-pro",
       "evidence": [
@@ -745,6 +647,52 @@
         "start": {
           "earliest": -1199,
           "latest": -1199
+        }
+      }
+    },
+    {
+      "alternatives": [
+        {
+          "basis": "estimated",
+          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Asia and the Americas. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "claim_id": "ev_period_ad45f77b91f012b64ec12708eef6711488518107",
+          "end": null,
+          "event": "formation",
+          "label": "from c. 500 BCE",
+          "locator": "{\"page\": \"6\", \"pdf_page\": 28}",
+          "quote": "Around 500 BC the Sanskrit then current among cultivated\nspeakers received a magniﬁcent description by the grammarian P¯an. ini in his treatise, the\nAs.t.¯adhy¯ay¯ı (“[Work] consisting of eight chapters”), whose level of detail and theoretical\nsophistication has not been equaled to this day.",
+          "role": "hypothesis",
+          "source": "Woodard 2008",
+          "start": {
+            "earliest": -499,
+            "latest": -499
+          },
+          "url": null
+        }
+      ],
+      "basis": "conventional",
+      "code": "cls",
+      "evidence": [
+        {
+          "citation": "Fortson, Benjamin W., IV. 2010. Indo-European Language and Culture: An Introduction. 2nd ed. Blackwell Textbooks in Linguistics 19. Chichester and Malden, MA: Wiley-Blackwell. (Supplied copy is a reflowed e-book without printed page numbers; cited by section.)",
+          "claim_id": "ev_period_053c91676920ee1c9558cc7449e5ac8ab7d40113",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"unpaginated electronic layout\", \"pdf_page\": 227, \"section\": \"10.26–10.27\"}",
+          "quote": "10.26. In the fifth century BC or thereabouts, a grammarian named P ini codified a set of rules\nfor Sanskrit in a work called the A\ndhy y . This was the culmination of a long grammatical\ntradition that is one of the intellectual wonders of the ancient world: it is a highly precise and\nthorough description of the structure of Sanskrit somewhat resembling modern generative\ngrammar. Roots were set up together with rules for deriving words from them, and the\npronunciation of sounds was described in detail. While the analyses are often different from\nthose of modern western linguistics, the work of P ini is very valuable and remained the most\nadvanced linguistic analysis of any kind until the twentieth century.\nClassical Sanskrit\n10.27. In practical terms, P ini’s codification fossilized the written language; thus was born\nClassical Sanskrit, a language that became a vehicle for scholarly, religious, and literary\ndiscourse, and which is still used today to a certain extent.",
+          "role": "convention",
+          "source": "Fortson 2010",
+          "url": null
+        }
+      ],
+      "kind": "stage",
+      "label": "from c. 5th century BCE",
+      "name": "Classical Sanskrit",
+      "spoken": {
+        "end": null,
+        "ongoing": false,
+        "start": {
+          "earliest": -499,
+          "latest": -400
         }
       }
     },
@@ -838,59 +786,6 @@
         "start": {
           "earliest": -699,
           "latest": -600
-        }
-      }
-    },
-    {
-      "alternatives": [],
-      "basis": "span",
-      "code": "egy",
-      "evidence": [],
-      "kind": "stage",
-      "label": "3000–700 BCE",
-      "name": "Egyptian",
-      "span": {
-        "components": [
-          {
-            "basis": "conventional",
-            "code": "egy-lat",
-            "label": "1300–700 BCE",
-            "name": "Late Egyptian",
-            "own": false
-          },
-          {
-            "basis": "conventional",
-            "code": "egy-old",
-            "label": "3000–2000 BCE",
-            "name": "Old Egyptian",
-            "own": false
-          }
-        ],
-        "end": {
-          "earliest": -699,
-          "latest": -699
-        },
-        "label": "3000–700 BCE",
-        "ongoing": false,
-        "partial": true,
-        "start": {
-          "earliest": -2999,
-          "latest": -2999
-        },
-        "undated": [
-          "egy-mid",
-          "egy-nmi"
-        ]
-      },
-      "spoken": {
-        "end": {
-          "earliest": -699,
-          "latest": -699
-        },
-        "ongoing": false,
-        "start": {
-          "earliest": -2999,
-          "latest": -2999
         }
       }
     },
@@ -1760,53 +1655,6 @@
       }
     },
     {
-      "alternatives": [],
-      "basis": "span",
-      "code": "he",
-      "evidence": [],
-      "kind": "stage",
-      "label": "c. 10th–6th century BCE",
-      "name": "Hebrew",
-      "span": {
-        "components": [
-          {
-            "basis": "conventional",
-            "code": "hbo",
-            "label": "c. 10th–6th century BCE",
-            "name": "Biblical Hebrew",
-            "own": false
-          }
-        ],
-        "end": {
-          "earliest": -599,
-          "latest": -500
-        },
-        "label": "c. 10th–6th century BCE",
-        "ongoing": false,
-        "partial": true,
-        "start": {
-          "earliest": -999,
-          "latest": -900
-        },
-        "undated": [
-          "he-IL",
-          "he-med",
-          "he-mis"
-        ]
-      },
-      "spoken": {
-        "end": {
-          "earliest": -599,
-          "latest": -500
-        },
-        "ongoing": false,
-        "start": {
-          "earliest": -999,
-          "latest": -900
-        }
-      }
-    },
-    {
       "alternatives": [
         {
           "basis": "attested",
@@ -2080,49 +1928,6 @@
         "ongoing": false,
         "start": {
           "earliest": 1200,
-          "latest": 1200
-        }
-      }
-    },
-    {
-      "alternatives": [],
-      "basis": "span",
-      "code": "ka",
-      "evidence": [],
-      "kind": "stage",
-      "label": "12th–18th century CE",
-      "name": "Georgian",
-      "span": {
-        "components": [
-          {
-            "basis": "conventional",
-            "code": "ka-mid",
-            "label": "12th–18th century CE",
-            "name": "Middle Georgian",
-            "own": false
-          }
-        ],
-        "end": {
-          "earliest": 1701,
-          "latest": 1800
-        },
-        "label": "12th–18th century CE",
-        "ongoing": false,
-        "partial": false,
-        "start": {
-          "earliest": 1101,
-          "latest": 1200
-        },
-        "undated": []
-      },
-      "spoken": {
-        "end": {
-          "earliest": 1701,
-          "latest": 1800
-        },
-        "ongoing": false,
-        "start": {
-          "earliest": 1101,
           "latest": 1200
         }
       }
@@ -2406,6 +2211,38 @@
       "kind": "attested",
       "label": "601–1150 CE",
       "name": "Middle Chinese",
+      "span": {
+        "components": [
+          {
+            "basis": "attested",
+            "code": "ltc",
+            "label": "601–1150 CE",
+            "name": "Middle Chinese",
+            "own": true
+          },
+          {
+            "basis": "conventional",
+            "code": "ltc-ear",
+            "label": "6th century CE",
+            "name": "Early Middle Chinese",
+            "own": false
+          }
+        ],
+        "end": {
+          "earliest": 1150,
+          "latest": 1150
+        },
+        "label": "6th century – 1150 CE",
+        "ongoing": false,
+        "partial": true,
+        "start": {
+          "earliest": 501,
+          "latest": 600
+        },
+        "undated": [
+          "ltc-lat"
+        ]
+      },
       "spoken": {
         "end": {
           "earliest": 1150,
@@ -2415,6 +2252,58 @@
         "start": {
           "earliest": 601,
           "latest": 601
+        }
+      }
+    },
+    {
+      "alternatives": [
+        {
+          "basis": "conventional",
+          "citation": "Ferlus, Michel. What were the four divisions of Middle Chinese? Updated 2017 manuscript (HAL halshs-01581138) of Diachronica 26(2): 184–213 (2009); not asserted identical to the published version.",
+          "claim_id": "ev_period_c88ef546ef80351f8c3ccbb26a5c9622c245ff0e",
+          "end": {
+            "earliest": 601,
+            "latest": 700
+          },
+          "event": "conventional_period",
+          "label": "7th century CE",
+          "locator": "{\"page\": \"3 (updated manuscript pagination)\", \"pdf_page\": 4, \"section\": \"1.2\"}",
+          "quote": "The top cell indicates the \ncharacteristics of initials, which can be restituted as *p- *pʰ- *b- *m- for the Early \nMiddle Chinese stage (i.e. the time of the Qièyùn: 7th century).",
+          "role": "convention",
+          "source": "Ferlus 2017",
+          "start": {
+            "earliest": 601,
+            "latest": 700
+          },
+          "url": "https://shs.hal.science/halshs-01581138/document"
+        }
+      ],
+      "basis": "conventional",
+      "code": "ltc-ear",
+      "evidence": [
+        {
+          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Asia and the Americas. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "claim_id": "ev_period_1ed21068f976d119ba4583c12423802115921d0e",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"137\", \"pdf_page\": 159}",
+          "quote": "(ii) Early Middle Chinese (replacing\nKarlgren’s “Ancient Chinese”), which represents the literary pronunciation of the sixth cen-\ntury AD;",
+          "role": "convention",
+          "source": "Woodard 2008",
+          "url": null
+        }
+      ],
+      "kind": "stage",
+      "label": "6th century CE",
+      "name": "Early Middle Chinese",
+      "spoken": {
+        "end": {
+          "earliest": 501,
+          "latest": 600
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 501,
+          "latest": 600
         }
       }
     },
@@ -2558,6 +2447,190 @@
         "start": {
           "earliest": -599,
           "latest": -500
+        }
+      }
+    },
+    {
+      "alternatives": [
+        {
+          "basis": "conventional",
+          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Asia and the Americas. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "claim_id": "ev_period_bf7f787451dcf9743339d8fb5f605be2e1a9e194",
+          "end": {
+            "earliest": 601,
+            "latest": 700
+          },
+          "event": "conventional_period",
+          "label": "until c. 7th century CE",
+          "locator": "{\"page\": \"50\", \"pdf_page\": 72}",
+          "quote": "The era of Old Tamil extends until roughly the seventh century AD, a period of transition\nto Medieval Tamil.",
+          "role": "convention",
+          "source": "Woodard 2008",
+          "start": null,
+          "url": null
+        }
+      ],
+      "basis": "attested",
+      "code": "oty",
+      "evidence": [
+        {
+          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Asia and the Americas. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "claim_id": "ev_period_cc55e3ab84ae56d6fc0fa3cbff79d2315ba86915",
+          "event": "first_attestation",
+          "locator": "{\"page\": \"50\", \"pdf_page\": 72}",
+          "quote": "Old Tamil stands alongside Sanskrit as one of India’s two classical languages. First attested\nabout 254 BC, Old Tamil is the oldest recorded member of the Dravidian languages, a\nfamily which today encompasses twenty-four distinct languages.",
+          "role": "observation",
+          "source": "Woodard 2008",
+          "url": null
+        }
+      ],
+      "kind": "attested",
+      "label": "from c. 254 BCE",
+      "name": "Old Tamil",
+      "spoken": {
+        "end": null,
+        "ongoing": false,
+        "start": {
+          "earliest": -253,
+          "latest": -253
+        }
+      }
+    },
+    {
+      "alternatives": [
+        {
+          "basis": "attested",
+          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Asia and the Americas. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "claim_id": "ev_period_9a7df863bbc6892503a4a6fc7b5c5ea46e88321a",
+          "end": null,
+          "event": "first_attestation",
+          "label": "from 522/486 BCE",
+          "locator": "{\"page\": \"76\", \"pdf_page\": 98}",
+          "quote": "The only direct and authentic sources available for the Old Persian language are the\ncuneiform inscriptions on durable objects (rock, stone, metal, rarely clay tablets) ranging\nover the period from Darius I (522–486 BC) to Artaxerxes III (359/8–338/7 BC), but dating\nin the main from the reigns of Darius I and Xerxes I (486–465 BC).",
+          "role": "observation",
+          "source": "Woodard 2008",
+          "start": {
+            "earliest": -521,
+            "latest": -485
+          },
+          "url": null
+        }
+      ],
+      "basis": "attested",
+      "code": "peo",
+      "evidence": [
+        {
+          "citation": "Kapović, Mate (ed.). 2017. The Indo-European Languages. 2nd ed. Routledge Language Family Series. Abingdon and New York: Routledge (paperback issue 2019). Chapters cited by author in the locator.",
+          "claim_id": "ev_period_42f105a1d9a2ac266e41023528e1953654eb84fb",
+          "event": "documentary_sampling",
+          "locator": "{\"page\": \"266\", \"pdf_page\": 287}",
+          "quote": "Old Persian, which is known from inscriptions of the Achaemenian period (sixth to \nfourth centuries B.C.E.), represents a later stage of linguistic development as well as \na different dialect from the language of the Avesta.",
+          "role": "observation",
+          "source": "Kapović 2017",
+          "url": null
+        }
+      ],
+      "kind": "attested",
+      "label": "6th–4th century BCE",
+      "name": "Old Persian",
+      "spoken": {
+        "end": {
+          "earliest": -399,
+          "latest": -300
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": -599,
+          "latest": -500
+        }
+      }
+    },
+    {
+      "alternatives": [
+        {
+          "basis": "attested",
+          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Asia and the Americas. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "claim_id": "ev_period_7a96dbbdfa2b9f1486551c13782b885bb78f31f1",
+          "end": {
+            "earliest": 1,
+            "latest": 100
+          },
+          "event": "manuscript_production",
+          "label": "c. 1st century CE",
+          "locator": "{\"page\": \"34\", \"pdf_page\": 56}",
+          "quote": "Figure 3.1 Part of\nscroll manuscript of the\nAnuvatapta-gatha or\n‘‘Songs of Lake\nAnavatapta’’ in Gandhari\nPrakrit,c.firstcentury AD",
+          "role": "observation",
+          "source": "Woodard 2008",
+          "start": {
+            "earliest": 1,
+            "latest": 100
+          },
+          "url": null
+        },
+        {
+          "basis": "attested",
+          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Asia and the Americas. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "claim_id": "ev_period_bffd35f99154fd30f11d96befee85983de9bc9c5",
+          "end": {
+            "earliest": 201,
+            "latest": 300
+          },
+          "event": "manuscript_production",
+          "label": "3rd century CE",
+          "locator": "{\"page\": \"34\", \"pdf_page\": 56}",
+          "quote": "Post-A´sokan Kharos.t.h¯ı inscriptions of the Northwest ﬁnd, to some degree, their linguistic\ncontinuation in a large cache of third-century AD documents on wood, paper, and leather,\ndiscovered in Niya in Central Asia (the so-called Niya Documents), and in a fragmentary\nmanuscript of the Dharmapada also found in Central Asia. The language of these texts\nhas been denominated G¯andh¯ar¯ı, and recently announced ﬁnds of Buddhist texts appear\nto document its use at an earlier date than heretofore known.",
+          "role": "observation",
+          "source": "Woodard 2008",
+          "start": {
+            "earliest": 201,
+            "latest": 300
+          },
+          "url": null
+        },
+        {
+          "basis": "attested",
+          "citation": "Fortson, Benjamin W., IV. 2010. Indo-European Language and Culture: An Introduction. 2nd ed. Blackwell Textbooks in Linguistics 19. Chichester and Malden, MA: Wiley-Blackwell. (Supplied copy is a reflowed e-book without printed page numbers; cited by section.)",
+          "claim_id": "ev_period_c286ece32c3b30af1fb79319eaee32b65edd0d99",
+          "end": null,
+          "event": "first_attestation",
+          "label": "from c. 3rd century BCE",
+          "locator": "{\"page\": \"unpaginated electronic layout\", \"pdf_page\": 237, \"section\": \"10.54\"}",
+          "quote": "10.54. Our first datable written connected texts in an Indic language are a set of royal rock\ninscriptions set up in northwest, central, and northeast India by the emperor A oka probably\naround the mid-third century BC. A oka was the third emperor of the Maurya dynasty (c. 325–\n183 BC), under whose rule India was unified for the first time. The inscriptions are all identical\nin content but evince regional linguistic differences that are valuable for the comparative study\nof early Middle Indic dialects. Two inscriptions in the extreme northwest are written in a\nsubstantially different dialect, called G ndh r .",
+          "role": "observation",
+          "source": "Fortson 2010",
+          "start": {
+            "earliest": -299,
+            "latest": -200
+          },
+          "url": null
+        }
+      ],
+      "basis": "attested",
+      "code": "pgd",
+      "evidence": [
+        {
+          "citation": "Baums, Stefan & Andrew Glass (eds.). n.d. Gāndhārī Language and Literature. Gandhari.org, scholarly reference project. https://gandhari.org/ (retrieved 2026-10-04).",
+          "claim_id": "ev_period_f55f2dac5c944a058cdbf7d7b1b3e8b2075a701a",
+          "event": "documentary_sampling",
+          "locator": "{\"start\": 163, \"end\": 358, \"section\": \"opening paragraph\"}",
+          "quote": "Gāndhārī is a northwestern Middle Indo‐Aryan\n            language closely related to Sanskrit and Pali,\n            attested in use from the third century BCE to the\n            fifth century CE.",
+          "role": "observation",
+          "source": "Baums & Glass",
+          "url": "https://gandhari.org/"
+        }
+      ],
+      "kind": "attested",
+      "label": "3rd century BCE – 5th century CE",
+      "name": "Gandhari",
+      "spoken": {
+        "end": {
+          "earliest": 401,
+          "latest": 500
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": -299,
+          "latest": -200
         }
       }
     },
@@ -3016,6 +3089,34 @@
         "start": {
           "earliest": -2999,
           "latest": -2000
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "attested",
+      "code": "xep",
+      "evidence": [
+        {
+          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Asia and the Americas. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "claim_id": "ev_period_44dfae3b921e2ed4b1dc0713cf0c9e2c9332bc41",
+          "event": "first_attestation",
+          "locator": "{\"page\": \"193\", \"pdf_page\": 215}",
+          "quote": "The Epi-Olmec language is the most ancient attested member of the Mije-Sokean family\n(c. 300 BCE to at least 533 CE).",
+          "role": "observation",
+          "source": "Woodard 2008",
+          "url": null
+        }
+      ],
+      "kind": "attested",
+      "label": "from c. 300 BCE",
+      "name": "Epi-Olmec",
+      "spoken": {
+        "end": null,
+        "ongoing": false,
+        "start": {
+          "earliest": -299,
+          "latest": -299
         }
       }
     },

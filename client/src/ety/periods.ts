@@ -1,14 +1,13 @@
 // When each language was spoken (`/periods`), shown on tree nodes behind the
 // "dates" toggle. Fetched once, the first time the toggle is switched on.
 // Periods are keyed by exact language: an etymology-only variety (e.g. Late
-// Latin) has no period of its own unless the server sends one. A language with
-// dated varieties also has a derived span over them; one with no period of its
-// own is shown by that span (basis "span").
+// Latin) has no period of its own unless the server sends one. A language with a
+// period and dated varieties also has a derived span over them.
 
 import { createSignal } from "solid-js";
 import { Lang } from "../search/types";
 
-export type Basis = "conventional" | "attested" | "estimated" | "span";
+export type Basis = "conventional" | "attested" | "estimated";
 
 export interface YearRange {
   earliest: number | null;
@@ -62,14 +61,12 @@ export const BASIS_MARK: Record<Basis, string> = {
   conventional: "conv",
   attested: "att",
   estimated: "est",
-  span: "span",
 };
 
 export const BASIS_NAME: Record<Basis, string> = {
   conventional: "conventional period",
   attested: "attestation window",
   estimated: "scholarly estimate",
-  span: "span of its dated varieties",
 };
 
 const [showDates, setShowDates] = createSignal(false);

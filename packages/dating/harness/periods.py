@@ -9,9 +9,10 @@ separate records and never become a language's period.
 A code with Wiktionary varieties (etymology-only codes such as Early Middle Japanese
 under Old Japanese) also gets a `span`: from the earliest start to the latest end of
 its own period and its varieties' periods, listing each component. The span is
-derived here, never stored as evidence; a code with no period of its own but dated
-varieties is shown by its span (basis "span"). `partial` marks a span with undated
-varieties or unstated endpoints, so it may be wider than shown.
+derived here, never stored as evidence, and shown only beside a code's own period: a
+span cannot tell a living parent (Georgian) from a historical one, so it never stands
+in for a missing period. `partial` marks a span with undated varieties or unstated
+endpoints, which may be wider than shown.
 """
 
 import json
@@ -323,28 +324,8 @@ def add_spans(languages, view):
         if not dated or parent not in view:
             continue
         own = records.get(parent)
-        derived = span(own, dated, [c for c in codes if c not in records])
         if own:
-            own["span"] = derived
-            continue
-        reconstructed = view[parent].get("kind") == "reconstructed"
-        languages.append(
-            {
-                "code": parent,
-                "name": view[parent].get("name"),
-                "kind": "proto" if reconstructed else "stage",
-                "spoken": {
-                    "start": derived["start"],
-                    "end": derived["end"],
-                    "ongoing": derived["ongoing"],
-                },
-                "basis": "span",
-                "label": derived["label"],
-                "evidence": [],
-                "alternatives": [],
-                "span": derived,
-            }
-        )
+            own["span"] = span(own, dated, [c for c in codes if c not in records])
     languages.sort(key=lambda r: r["code"])
 
 

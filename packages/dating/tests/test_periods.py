@@ -134,12 +134,10 @@ class PeriodExportTests(unittest.TestCase):
         )
         self.assertEqual(ojp["span"]["undated"], ["ojp-eas"])
         self.assertTrue(ojp["span"]["partial"])
-        # No period of its own: shown by the span of its varieties.
-        sa = out["sa"]
-        self.assertEqual((sa["basis"], sa["evidence"]), ("span", []))
-        self.assertEqual(sa["label"], "c. 1500 BCE–present")
-        self.assertTrue(sa["spoken"]["ongoing"])
-        self.assertFalse(sa["span"]["partial"])
+        # A span never stands in for a missing period: sa is not shown, its dated
+        # varieties are.
+        self.assertNotIn("sa", out)
+        self.assertEqual(out["cls"]["label"], "400 BCE–present")
 
     def test_crown_age_dates_a_proto_languages_end(self):
         crown = {

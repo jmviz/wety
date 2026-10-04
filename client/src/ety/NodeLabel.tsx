@@ -51,10 +51,9 @@ export default function NodeLabel(props: NodeLabelProps) {
         {(p) => (
           <span
             class="period"
-            title={`${item().lang.name}: ${BASIS_NAME[p().basis]} (${(p().evidence.length
-              ? p().evidence.map((e) => e.source)
-              : (p().span?.components ?? []).map((c) => `${c.name} ${c.label}`)
-            ).join("; ")})`}
+            title={`${item().lang.name}: ${BASIS_NAME[p().basis]} (${p()
+              .evidence.map((e) => e.source)
+              .join("; ")})`}
           >
             {p().label}
             <span class={`basis basis-${p().basis}`}>{BASIS_MARK[p().basis]}</span>
