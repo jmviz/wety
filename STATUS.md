@@ -1,7 +1,7 @@
 # Status
 
-*Updated 2026-10-04. Branch `local-sources` (from `dating-pilot`), not pushed; nothing
-merged into `main`.*
+*Updated 2026-10-04. Branch `wiktionary-refresh` (from `local-sources`, from
+`dating-pilot`), not pushed; nothing merged into `main`.*
 
 ## What the project promises
 
@@ -11,54 +11,44 @@ in the `packages/dating` registry.
 
 ## What is usable today
 
-- **In the app:** the "dates" toggle. **14 of the 20 pilot codes have a cited period**
-  (was 11). New: `akk` attested 26th c. BCE – 1st c. CE (Huehnergard), `goh` attested
-  from c. 600 (Fortson), `sla-pro` estimated until c. 800/1000 (Fortson). Changed:
-  `ang` 5th–11th century (Slocum & Lehmann) instead of ISO; `la` first inscriptions
-  mid-7th c. BCE (Wallace in Kapović) instead of Koch; `hit` attested c. 19th century –
-  1200 BCE (Kapović, Fortson) instead of the Glottolog window. Export checked, not
-  viewed in a browser this time (same schema).
-- Decisions can be withdrawn (`dating withdraw`, or a review's `withdraw` list), kept
-  with the reason in `_decisions/withdrawals.json`.
-- **Supplied sources:** `dating holdings zotero KEY…` / `sync` retains a PDF from
-  Zotero with acquire's provenance (artifact, receipt, hashed text, OCR for scans).
-  Researchers read holdings with `library` and `open`, and ask for missing works with
-  `request`. Seven handbooks are ingested (`data/registry/holdings.json`).
-- **Acquisition queue:** `dating requests list|enrich|push`. Six works are open and
-  filed in Zotero under `wety/needs-fulltext` and `wety/dating/periods`, with full
-  records (DOI via Crossref, books via K10plus: publisher, place, edition, ISBN, pages,
-  editors) and a note on what each would settle.
-- Codex runs the pinned CLI from `openai-codex-cli-bin`; Claude the SDK-bundled CLI.
-  Research searches on Semantic Scholar now send `S2_API_KEY` and share `s2.py`'s
-  machine-wide 1 request/s clock.
+- **Refreshed data:** graph, catalog and dating now come from Wiktionary's 2026-09-01
+  dump (Kaikki Wiktextract data plus our language export; 8,959 languages, 1,242
+  families), retained with receipts. The new graph
+  (`etymology-graph/18a9fa26…`) validates and was checked in a browser: search,
+  etymology and cognate trees, and the dates toggle.
+- **Dates:** 14 of 20 pilot codes have a cited period, unchanged by the refresh (all
+  decisions re-reviewed). Catalog scope: `cu` narrower, `sa` broader, `non` narrower
+  (Glottolog). Decisions can be withdrawn (`dating withdraw`).
+- **Supplied sources and requests:** `dating holdings zotero|sync` ingests PDFs from
+  Zotero; researchers use `library`, `open`, `request`; six works are queued in Zotero
+  with full records (`dating requests list|enrich|push`).
+- Graph builds use Metal on macOS (about 75 minutes on an M1 Pro).
 
 ## What changed
 
-Holdings, requests, Zotero client and bibliographic lookup (`harness/holdings.py`,
-`zotero.py`, `bibliography.py`); broader discovery; a handbook retry run. See the
-[retry README](data/workspaces/dating/_research/period-retry-2026-10-04/README.md).
+Inputs refreshed and selected; language exporter updated for 2026 Wiktionary
+modules; processor on candle 0.11 with batch-independent embeddings; catalog and
+dating rebuilt; client re-resolves remembered languages by name. See git log.
 
 ## Uncertainties
 
-- The review was done by the session that built the route, not a separate one.
-- Still no period: `non got cu sa ojp ine-pro`. Several are scope gaps, not access
-  gaps (Frellesvig dates Old and Middle Japanese separately; Lunt's OCS excludes Middle
-  Bulgarian). Catalog scope is now recorded: `cu` narrower than ISO `chu`/Glottolog
-  `chur1257`, `sa` broader than `san`/`sans1269`.
-- Zotero records can be wrong; reviews cite title pages. Corrected records refresh a
-  holding's metadata on the next `holdings zotero`/`sync`.
+- Language and item IDs are positions in compiled tables: links shared before the
+  refresh (`/etymology/ID?distLang=…`) point elsewhere after deployment.
+- Wiktionary's `{{etymon}}` template is not parsed (as before); its use is growing,
+  e.g. "father" shows only its root. A follow-up task is suggested.
+- Embeddings changed (new pooling and candle version), so ambiguous etymology links
+  may resolve differently from the legacy graph.
+- Still no period: `non got cu sa ojp ine-pro`, mostly scope gaps.
 
 ## Next three actions
 
-1. Supply the six queued works (attach PDFs to the Zotero items), then `dating holdings
-   sync` and a continuation run for `ang enm goh gmh la grc sa och ltc`.
-2. Wiktionary refresh, if approved: retain Kaikki's raw data (2026-09-02 dump) and the
-   matching 20260901 Wiktionary dump before either rotates out; export language data;
-   review code changes; rebuild catalogs, dating and the graph.
-3. Re-check `non` scope against the refreshed export (Old Gutnish now has its own code).
+1. Maintainer: update the host server with the new graph and server binary, then
+   merge (deploys the client fix with it).
+2. Parse `{{etymon}}` in the processor and rebuild the graph.
+3. Supply the six queued works in Zotero, then `dating holdings sync` and a
+   continuation run.
 
 ## Decisions needed from the maintainer
 
-- Merging into `main` (deploys).
-- Whether to acquire the refresh inputs now (about 4.3 GB) and run the coordinated
-  refresh (graph rebuild and server update included).
+- Deployment and merge of `wiktionary-refresh` (graph, server and client together).
+- Whether to make shared links stable (IDs by code and term rather than position).

@@ -1,6 +1,6 @@
 {
-  "schema_version": 1,
-  "artifact": "data/artifacts/etymology-graph/legacy",
-  "entrypoint": "wety.json",
-  "status": "legacy_unverified"
+  "artifact": "data/artifacts/etymology-graph/18a9fa267257408814039ff61b273226f1a778c189b217da7033125728a05ef2",
+  "entrypoint": "wety.json.gz",
+  "run_id": "1a81f12a0a8f43baa2d665b063115ba7",
+  "schema_version": 1
 }

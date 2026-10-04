@@ -55,11 +55,41 @@ if (firstVisit) {
         const exact = langs.find((l) => l.name.toLowerCase() === name.toLowerCase());
         // Only if nothing has set the language in the meantime (a loaded
         // URL, or the user).
-        if (exact && selectedItem() === null && selectedLang().id === ENGLISH.id)
+        if (exact && selectedItem() === null && selectedLang().name === ENGLISH.name)
           setSelectedLang(exact);
       })
       .catch(() => {});
   }
+}
+// Language ids are positions in the server's compiled language table, so they
+// change when the Wiktionary data is refreshed; names are stable. Remembered
+// languages (and the English fallback) are re-resolved by name on load.
+async function resolveByName(lang: Lang): Promise<Lang | null> {
+  try {
+    const r = await fetch(
+      `${import.meta.env.VITE_API_BASE_URL}/search/lang?name=${encodeURIComponent(lang.name)}`
+    );
+    const langs = (await r.json()) as Lang[];
+    return langs.find((l) => l.name.toLowerCase() === lang.name.toLowerCase()) ?? null;
+  } catch {
+    return null;
+  }
+}
+{
+  const initial = selectedLang();
+  resolveByName(initial).then((lang) => {
+    // Only if nothing has set the language in the meantime.
+    if (lang && lang.id !== initial.id && selectedLang().id === initial.id)
+      setSelectedLang(lang);
+  });
+  const initialDesc = selectedDescLangs();
+  if (initialDesc.length)
+    Promise.all(initialDesc.map(resolveByName)).then((langs) => {
+      if (selectedDescLangs() !== initialDesc) return;
+      const resolved = langs.filter((l): l is Lang => l !== null);
+      if (resolved.some((l, i) => l.id !== initialDesc[i]?.id) || resolved.length !== initialDesc.length)
+        setSelectedDescLangs(resolved);
+    });
 }
 createRoot(() => {
   createEffect(() => saveLang(selectedLang()));

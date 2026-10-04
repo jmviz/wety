@@ -31,7 +31,8 @@ function write(patch: Prefs) {
 // take it from the browser's UI language (e.g. "de-CH" → "German") and let
 // the caller resolve that name against the API; English is only the last
 // resort.
-export const ENGLISH: Lang = { id: 2048, name: "English" };
+// Its id is a placeholder until state.ts resolves "English" against the server.
+export const ENGLISH: Lang = { id: -1, name: "English" };
 
 export function browserLangName(): string | null {
   try {

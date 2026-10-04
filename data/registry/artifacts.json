@@ -47,6 +47,54 @@
         "Build inputs, model revision and numeric reference identity unverified; not a reproducible historical build."
       ],
       "path": "data/artifacts/etymology-graph/legacy"
+    },
+    {
+      "artifact_id": "sha256:93f9d3bf46598c87f5d8f0f3144c136f6f7b709b3ec37d77b3f85ab50dfb9803",
+      "collection": "wiktionary-dump",
+      "limitations": [
+        "enwiktionary 20260901 pages-articles (completed 2026-09-02); SHA-1 matches Wikimedia's dumpstatus.json. Retained for the language export; acquisition receipt in data/registry/acquisitions."
+      ],
+      "path": "data/artifacts/wiktionary-dump/06acca8138eacb3e8ae9c1d6232f836e37c3bf9b6d582a86693731fe0d336c20"
+    },
+    {
+      "artifact_id": "sha256:cdc0b4257540efda26957a8f1ebfc8199344d3de6f63f21c92c98d4b4c3a44c8",
+      "collection": "wiktextract",
+      "limitations": [
+        "Kaikki raw Wiktextract data as downloaded (files/source), built by Kaikki from the same dump with wiktextract 1a05e46 and wikitextprocessor e3d6d4e (as Kaikki states); not reproduced locally."
+      ],
+      "path": "data/artifacts/wiktextract/504d55e7053c742ffe24b49a6ebd0c8261a1cd4b352702a1940547088829f5e1"
+    },
+    {
+      "artifact_id": "sha256:6da0ba5bf330650cba59911466da388d3f60c69519a50dc9ca71451b0bfba506",
+      "collection": "wiktextract",
+      "limitations": [
+        "The same bytes as the Kaikki acquisition, named raw-wiktextract-data.jsonl.gz for the processor (gzip by extension)."
+      ],
+      "path": "data/artifacts/wiktextract/6da0ba5bf330650cba59911466da388d3f60c69519a50dc9ca71451b0bfba506"
+    },
+    {
+      "artifact_id": "sha256:2d98b7aa0c9965e1492db2e242ead832fe7e3c161e1f1a27c1d177135c6df2b7",
+      "collection": "wiktionary-export",
+      "limitations": [
+        "Exported from the 20260901 dump; per-module revision IDs not recorded. Receipt in files/wiktionary_export_receipt.json."
+      ],
+      "path": "data/artifacts/wiktionary-export/2d98b7aa0c9965e1492db2e242ead832fe7e3c161e1f1a27c1d177135c6df2b7"
+    },
+    {
+      "artifact_id": "sha256:5478da00c42df6db8c43b66be2c52f2f682338e44a3e65860f3bce93f701744d",
+      "collection": "catalog-source-snapshot",
+      "limitations": [
+        "Wikidata re-queried 2026-10-04 for the refreshed language file; ISO tables unchanged from the previous snapshot."
+      ],
+      "path": "data/artifacts/catalog-source-snapshot/5478da00c42df6db8c43b66be2c52f2f682338e44a3e65860f3bce93f701744d"
+    },
+    {
+      "artifact_id": "sha256:18a9fa267257408814039ff61b273226f1a778c189b217da7033125728a05ef2",
+      "collection": "etymology-graph",
+      "limitations": [
+        "Built 2026-10-04 by the etymology_graph workflow (run 1a81f12a0a8f43baa2d665b063115ba7) from the Kaikki data; Wiktionary {{etymon}} templates are not parsed (as in the legacy graph)."
+      ],
+      "path": "data/artifacts/etymology-graph/18a9fa267257408814039ff61b273226f1a778c189b217da7033125728a05ef2"
     }
   ],
   "schema_version": 1
