@@ -163,6 +163,14 @@ impl EtyGraph {
         Ok(())
     }
 
+    /// Remove an item's ety (its edges to its parents).
+    pub fn remove_ety(&mut self, item: ItemId) {
+        let edge_ids = self.graph.edges(item).map(|e| e.id()).collect_vec();
+        for edge_id in edge_ids {
+            self.graph.remove_edge(edge_id);
+        }
+    }
+
     /// # Panics
     ///
     /// Panics if `confidences` is empty.

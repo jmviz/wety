@@ -29,6 +29,10 @@ pub(crate) struct RawEtyTemplate {
     // The {{etymon}} ids naming each langterm's etymology, e.g. "mother" in
     // "enm:moder<id:mother>". Empty for the classic templates.
     pub(crate) ids: Box<[Option<Box<str>>]>,
+    // Whether this template is known to give the etymology of the previous
+    // template's single parent (an {{etymon}} inline etymology), rather than
+    // only presumed to (the next classic template).
+    pub(crate) continues: bool,
     pub(crate) mode: EtyMode,              // e.g. Prefix
     pub(crate) head: Option<u8>,           // e.g. 1 (the index of "do")
 }
@@ -38,6 +42,7 @@ impl RawEtyTemplate {
         Self {
             langterms: Box::from([langterm]),
             ids: Box::default(),
+            continues: false,
             mode,
             head: Some(0),
         }
@@ -102,6 +107,7 @@ fn process_prefix_json_template(
     Some(RawEtyTemplate {
         langterms: Box::new([ety_prefix, ety_term]),
         ids: Box::default(),
+        continues: false,
         mode: EtyMode::Prefix,
         head: Some(1),
     })
@@ -119,6 +125,7 @@ fn process_suffix_json_template(
     Some(RawEtyTemplate {
         langterms: Box::new([ety_term, ety_suffix]),
         ids: Box::default(),
+        continues: false,
         mode: EtyMode::Suffix,
         head: Some(0),
     })
@@ -139,6 +146,7 @@ fn process_circumfix_json_template(
     Some(RawEtyTemplate {
         langterms: Box::new([ety_term, ety_circumfix]),
         ids: Box::default(),
+        continues: false,
         mode: EtyMode::Circumfix,
         head: Some(0),
     })
@@ -157,6 +165,7 @@ fn process_infix_json_template(
     Some(RawEtyTemplate {
         langterms: Box::new([ety_term, ety_infix]),
         ids: Box::default(),
+        continues: false,
         mode: EtyMode::Infix,
         head: Some(0),
     })
@@ -177,6 +186,7 @@ fn process_confix_json_template(
         return Some(RawEtyTemplate {
             langterms: Box::new([ety_prefix, ety_term, ety_suffix]),
             ids: Box::default(),
+            continues: false,
             mode: EtyMode::Confix,
             head: Some(1),
         });
@@ -186,6 +196,7 @@ fn process_confix_json_template(
     Some(RawEtyTemplate {
         langterms: Box::new([ety_prefix, ety_suffix]),
         ids: Box::default(),
+        continues: false,
         mode: EtyMode::Confix,
         head: None, // no true head here
     })
@@ -286,6 +297,7 @@ fn process_compound_kind_json_template(
         return Some(RawEtyTemplate {
             langterms: ety_langterms.into_boxed_slice(),
             ids: Box::default(),
+            continues: false,
             mode: if mode == EtyMode::Affix {
                 affixation_kind(&affixes, n_base_terms)
             } else {
@@ -523,104 +535,150 @@ impl Items {
         items_needing_embedding
     }
 
-    // For now we'll just take the first template, unless imputation is requred,
-    // in which case we impute a chain of relations until the first known item
-    // is hit. But cf. notes.md. Only to be called once all json items have been
-    // processed into items.
+    // The first parsed template gives the item's parent(s). If that is a
+    // single parent missing from the data (and so imputed), the next template
+    // is taken to give the imputed parent's own parent, and so on, as long as
+    // it is known to (an {{etymon}} inline etymology) or the chain stays within
+    // one line of descent (e.g. en < enm < ang). $$ Language dates would allow
+    // the latter for e.g. Middle English < Latin too. Leading templates that
+    // could not be parsed are passed over.
     fn process_item_raw_etymology(
         &mut self,
         embeddings: &Embeddings,
         item: ItemId,
         raw_etymology: &RawEtymology,
     ) -> Result<()> {
-        let mut current_item = item; // for tracking possibly imputed items
-        let mut next_item = item; // for tracking possibly imputed items
+        let templates = &*raw_etymology.templates;
+        let mut current_item = item;
         let mut item_embeddings = vec![];
-        let mut imputation_chain_in_progress = false;
-        for template in &*raw_etymology.templates {
-            match template {
-                ParsedRawEtyTemplate::Parsed(template) => {
-                    item_embeddings.push(embeddings.get(self.get(current_item), current_item)?);
-                    let mut ety_items = Vec::with_capacity(template.langterms.len());
-                    let mut confidences = Vec::with_capacity(template.langterms.len());
-                    for (i, &ety_langterm) in template.langterms.iter().enumerate() {
-                        let etymon_id = template.ids.get(i).and_then(Option::as_deref);
-                        let Retrieval {
-                            item_id: ety_item,
-                            confidence,
-                        } = match etymon_id.and_then(|id| self.get_etymon_item(ety_langterm, id)) {
-                            // named by its {{etymon}} id: no need to disambiguate
-                            Some(item_id) => Retrieval {
-                                item_id,
-                                confidence: 1.0,
-                            },
-                            None => self.get_or_impute_item(
-                                embeddings,
-                                &item_embeddings,
-                                item,
-                                ety_langterm,
-                            )?,
-                        };
-                        if self.get(ety_item).is_imputed() {
-                            if template.langterms.len() == 1
-                            // $$$ It would be better to have language timespan data and
-                            // only impute connection if parent timespan precedes child
-                            // timespan. Going based on genetic descent makes us miss
-                            // out on common connections like e.g. Middle English <
-                            // Latin.
-                            && self
+        let mut first = templates
+            .iter()
+            .position(|t| matches!(t, ParsedRawEtyTemplate::Parsed(_)));
+        while let Some(i) = first {
+            let ParsedRawEtyTemplate::Parsed(template) = &templates[i] else {
+                break;
+            };
+            item_embeddings.push(embeddings.get(self.get(current_item), current_item)?);
+            // A parent already given by a Descendants list that the template
+            // also names settles which homograph is meant.
+            let existing = self
+                .graph
+                .immediate_ety(current_item)
+                .map(|ety| ety.items)
+                .unwrap_or_default();
+            let mut ety_items = Vec::with_capacity(template.langterms.len());
+            let mut confidences = Vec::with_capacity(template.langterms.len());
+            for (n, &ety_langterm) in template.langterms.iter().enumerate() {
+                let etymon_id = template.ids.get(n).and_then(Option::as_deref);
+                let named = etymon_id
+                    .and_then(|id| self.get_etymon_item(ety_langterm, id))
+                    .or_else(|| {
+                        self.candidates(ety_langterm)
+                            .and_then(|c| c.iter().find(|c| existing.contains(c)).copied())
+                    });
+                let Retrieval {
+                    item_id: ety_item,
+                    confidence,
+                } = match named {
+                    Some(item_id) => Retrieval {
+                        item_id,
+                        confidence: 1.0,
+                    },
+                    None => self.get_or_impute_item(
+                        embeddings,
+                        &item_embeddings,
+                        item,
+                        ety_langterm,
+                    )?,
+                };
+                ety_items.push(ety_item);
+                confidences.push(confidence);
+            }
+            if !confidences.iter().all(|&c| c >= embeddings::SIMILARITY_THRESHOLD)
+                || !self.set_own_ety(current_item, template, &ety_items, &confidences)
+            {
+                return Ok(());
+            }
+            // Continue with an imputed single parent's own etymology?
+            let [parent] = ety_items[..] else {
+                return Ok(());
+            };
+            let next = i + 1;
+            let continues = self.get(parent).is_imputed()
+                && match templates.get(next) {
+                    Some(ParsedRawEtyTemplate::Parsed(next)) => {
+                        next.continues
+                            || self
                                 .get(current_item)
                                 .lang()
-                                .descends_from(self.get(ety_item).lang())
-                            {
-                                // This is an imputed term in a non-compound-kind template.
-                                // We will use this imputed item as the item for the next
-                                // template in the outer loop.
-                                imputation_chain_in_progress = true;
-                                next_item = ety_item;
-                            } else {
-                                // This is an imputed item for a term in a
-                                // compound-kind template. We won't bother trying to do
-                                // convoluted ety link imputations for such cases at the
-                                // moment. So we stop processing templates here.
-                                return Ok(());
-                            }
-                        } else {
-                            imputation_chain_in_progress = false;
-                        }
-                        ety_items.push(ety_item);
-                        confidences.push(confidence);
+                                .descends_from(self.get(parent).lang())
                     }
+                    _ => false,
+                };
+            if !continues {
+                return Ok(());
+            }
+            current_item = parent;
+            first = Some(next);
+        }
+        Ok(())
+    }
 
-                    if confidences.iter().all(|&c| c >= embeddings::SIMILARITY_THRESHOLD) {
-                        self.graph.add_ety(
-                            current_item,
-                            template.mode,
-                            template.head,
-                            &ety_items,
-                            &confidences,
-                        );
-                    }
+    // Set an item's ety from its own etymology section. A Descendants list
+    // may already have given it a parent; the item's own section is preferred,
+    // except where that parent is more specific (it descends from the parent
+    // named here, e.g. Old French between Latin and English) or where the item
+    // would trade an entry for a term missing from the data. Returns whether
+    // the ety was set.
+    fn set_own_ety(
+        &mut self,
+        item: ItemId,
+        template: &RawEtyTemplate,
+        ety_items: &[ItemId],
+        confidences: &[f32],
+    ) -> bool {
+        if let Some(existing) = self.graph.immediate_ety(item) {
+            let more_specific = match (&existing.items[..], ety_items) {
+                ([old], [new]) => old != new && self.is_ancestor(*new, *old),
+                _ => false,
+            };
+            let loses_entry = ety_items.iter().any(|&e| self.get(e).is_imputed())
+                && existing.items.iter().all(|&e| !self.get(e).is_imputed());
+            if more_specific || loses_entry {
+                return false;
+            }
+            self.graph.remove_ety(item);
+        }
+        self.graph
+            .add_ety(item, template.mode, template.head, ety_items, confidences);
+        true
+    }
 
-                    if !imputation_chain_in_progress {
-                        return Ok(());
+    // Whether `ancestor` is among `item`'s etymological ancestors.
+    fn is_ancestor(&self, ancestor: ItemId, item: ItemId) -> bool {
+        let mut seen = HashSet::default();
+        let mut stack = vec![item];
+        while let Some(i) = stack.pop() {
+            if let Some(ety) = self.graph.immediate_ety(i) {
+                for parent in ety.items {
+                    if parent == ancestor {
+                        return true;
                     }
-                    current_item = next_item;
-                }
-                ParsedRawEtyTemplate::Skipped => {
-                    if imputation_chain_in_progress {
-                        return Ok(());
+                    if seen.insert(parent) {
+                        stack.push(parent);
                     }
                 }
             }
         }
-        Ok(())
+        false
     }
 
     pub(crate) fn process_raw_etymologies(&mut self, embeddings: &Embeddings) -> Result<()> {
         let n = self.raw_templates.ety.len();
         let pb = progress_bar(n, "Processing etymologies")?;
-        let raw_templates_ety = mem::take(&mut self.raw_templates.ety);
+        // in id order, so that the result does not depend on hash-map order
+        let mut raw_templates_ety: Vec<_> = mem::take(&mut self.raw_templates.ety).into_iter().collect();
+        raw_templates_ety.sort_unstable_by_key(|(item_id, _)| *item_id);
         for (item_id, ety) in raw_templates_ety {
             self.process_item_raw_etymology(embeddings, item_id, &ety)?;
             pb.inc(1);
@@ -764,5 +822,149 @@ mod tests {
                 .map(|(mode, _)| mode),
             Some(EtyMode::Suffix)
         );
+    }
+
+    mod chains {
+        use super::*;
+        use crate::embeddings::{self, Config};
+        use wety_core::{gloss::Gloss, items::RealItem, langterm::Term, pos::Pos};
+
+        struct Setup {
+            sp: StringPool,
+            items: Items,
+            embeddings: Embeddings,
+        }
+
+        impl Setup {
+            fn new(name: &str) -> Self {
+                let config = Config {
+                    model_name: embeddings::DEFAULT_MODEL.to_string(),
+                    model_revision: embeddings::DEFAULT_MODEL_REVISION.to_string(),
+                    batch_size: 1,
+                    cache_path: std::env::temp_dir().join(format!("wety-chain-tests-{name}")),
+                };
+                Self {
+                    sp: StringPool::new(),
+                    items: Items::new().unwrap(),
+                    embeddings: Embeddings::new(&config).unwrap(),
+                }
+            }
+
+            fn add(&mut self, lang: &str, term: &str) -> ItemId {
+                let item = RealItem {
+                    ety_num: 1,
+                    ety_label: None,
+                    lang: Lang::from_str(lang).unwrap(),
+                    term: Term::new(&mut self.sp, term),
+                    pos: vec![Pos::from_str("noun").unwrap()],
+                    gloss: vec![Gloss::new(&mut self.sp, "x")],
+                    page_term: None,
+                    romanization: None,
+                    is_reconstructed: false,
+                };
+                self.items.add_real(item).0
+            }
+
+            fn process(&mut self, item: ItemId, templates: &str) {
+                let lang = self.items.get(item).lang();
+                let json = format!(r#"{{"etymology_templates": {templates}}}"#);
+                let mut bytes = json.into_bytes();
+                let json = to_borrowed_value(&mut bytes).unwrap();
+                let ety = WiktextractJsonItem { json }
+                    .get_etymology(&mut self.sp, lang)
+                    .unwrap();
+                self.items
+                    .process_item_raw_etymology(&self.embeddings, item, &ety)
+                    .unwrap();
+            }
+
+            // parents as "lang:term" (with "?" for an imputed one)
+            fn parents(&self, item: ItemId) -> Vec<String> {
+                let ety = self.items.graph.immediate_ety(item);
+                ety.map(|e| e.items).unwrap_or_default()
+                    .into_iter()
+                    .map(|p| {
+                        let p = self.items.get(p);
+                        let imputed = if p.is_imputed() { "?" } else { "" };
+                        format!("{}:{}{imputed}", p.lang().code(), p.term().resolve(&self.sp))
+                    })
+                    .collect()
+            }
+
+            fn parent(&self, item: ItemId) -> ItemId {
+                self.items.graph.immediate_ety(item).unwrap().items[0]
+            }
+        }
+
+        #[test]
+        fn missing_parents_are_linked() {
+            let mut t = Setup::new("missing");
+            // a borrowing from a term missing from the data (was dropped)
+            let rendezvous = t.add("en", "rendezvous");
+            t.process(rendezvous, r#"[{"name": "bor", "args": {"1": "en", "2": "fr", "3": "rendez-vous"}}]"#);
+            assert_eq!(t.parents(rendezvous), ["fr:rendez-vous?"]);
+            // a compound with a missing part (was dropped)
+            t.add("en", "tooth");
+            let toothbrush = t.add("en", "toothbrush");
+            t.process(toothbrush, r#"[{"name": "af", "args": {"1": "en", "2": "tooth", "3": "brusch"}}]"#);
+            assert_eq!(t.parents(toothbrush), ["en:tooth", "en:brusch?"]);
+        }
+
+        #[test]
+        fn chains_through_missing_parents() {
+            let mut t = Setup::new("chains");
+            t.add("ang", "mōdor");
+            t.add("la", "muttum");
+            // within one line of descent
+            let mother = t.add("en", "mother");
+            t.process(mother, r#"[{"name": "inh", "args": {"1": "en", "2": "enm", "3": "moder"}},
+                {"name": "inh", "args": {"1": "en", "2": "ang", "3": "mōdor"}}]"#);
+            assert_eq!(t.parents(mother), ["enm:moder?"]);
+            assert_eq!(t.parents(t.parent(mother)), ["ang:mōdor"]);
+            // not across a borrowing, unless {{etymon}} says so
+            let mot = t.add("en", "mot");
+            t.process(mot, r#"[{"name": "bor", "args": {"1": "en", "2": "fro", "3": "mot"}},
+                {"name": "der", "args": {"1": "en", "2": "la", "3": "muttum"}}]"#);
+            assert!(t.parents(t.parent(mot)).is_empty());
+            let word = t.add("en", "motword");
+            t.process(word, r#"[{"name": "etymon", "args": {"1": "en", "2": ":bor",
+                "3": "fro:mot<ety:inh<la:muttum>>"}}]"#);
+            assert_eq!(t.parents(t.parent(word)), ["la:muttum"]);
+        }
+
+        #[test]
+        fn own_etymology_and_descendants_lists() {
+            let mut t = Setup::new("own");
+            let octo = t.add("la", "Octōber");
+            let octobre = t.add("fro", "octobre");
+            let october = t.add("en", "October");
+            t.items.graph.add_ety(octobre, EtyMode::Inherited, Some(0), &[octo], &[0.5]);
+            // a Descendants list gave the more specific parent: kept
+            t.items.graph.add_ety(october, EtyMode::Borrowed, Some(0), &[octobre], &[0.5]);
+            t.process(october, r#"[{"name": "der", "args": {"1": "en", "2": "la", "3": "Octōber"}}]"#);
+            assert_eq!(t.parents(october), ["fro:octobre"]);
+            // a different parent: the item's own section wins
+            let enm = t.add("enm", "Octobre");
+            let october2 = t.add("en", "Octobre");
+            t.items.graph.add_ety(october2, EtyMode::Borrowed, Some(0), &[octo], &[0.9]);
+            t.process(october2, r#"[{"name": "inh", "args": {"1": "en", "2": "enm", "3": "Octobre"}}]"#);
+            assert_eq!(t.parents(october2), ["enm:Octobre"]);
+            // but not for a term missing from the data
+            t.items.graph.remove_ety(october2);
+            t.items.graph.add_ety(october2, EtyMode::Inherited, Some(0), &[enm], &[0.5]);
+            t.process(october2, r#"[{"name": "inh", "args": {"1": "en", "2": "enm", "3": "Octobere"}}]"#);
+            assert_eq!(t.parents(october2), ["enm:Octobre"]);
+        }
+
+        #[test]
+        fn descendants_lists_settle_homographs() {
+            let mut t = Setup::new("homographs");
+            let _lime1 = t.add("en", "lime");
+            let lime2 = t.add("en", "lime");
+            let limey = t.add("en", "limey");
+            t.items.graph.add_ety(limey, EtyMode::MorphologicalDerivation, Some(0), &[lime2], &[0.1]);
+            t.process(limey, r#"[{"name": "af", "args": {"1": "en", "2": "lime", "3": "-y"}}]"#);
+            assert_eq!(t.items.graph.immediate_ety(limey).unwrap().items[0], lime2);
+        }
     }
 }

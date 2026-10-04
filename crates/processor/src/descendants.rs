@@ -266,7 +266,10 @@ impl Items {
     pub(crate) fn process_raw_descendants(&mut self, embeddings: &Embeddings) -> Result<()> {
         let n = self.raw_templates.desc.len();
         let pb = progress_bar(n, "Processing descendants")?;
-        let raw_templates_desc = mem::take(&mut self.raw_templates.desc);
+        // in id order, so that the result does not depend on hash-map order
+        let mut raw_templates_desc: Vec<_> =
+            mem::take(&mut self.raw_templates.desc).into_iter().collect();
+        raw_templates_desc.sort_unstable_by_key(|(item_id, _)| *item_id);
         for (item_id, desc) in raw_templates_desc {
             self.process_item_raw_descendants(embeddings, item_id, &desc)?;
             pb.inc(1);
@@ -337,7 +340,15 @@ impl Items {
                     confidences.push(confidence);
                     modes.push(mode);
                 }
-                for (desc_item, confidence, mode) in izip!(desc_items, confidences, modes) {
+                for (desc_item, confidence, mut mode) in izip!(desc_items, confidences, modes) {
+                    // Inheritance is from another language: an untagged
+                    // same-language line is a derivation (e.g. a derived
+                    // term listed under its base word).
+                    if mode == EtyMode::Inherited
+                        && self.get(desc_item).lang() == self.get(parent).lang()
+                    {
+                        mode = EtyMode::MorphologicalDerivation;
+                    }
                     if confidence >= embeddings::SIMILARITY_THRESHOLD {
                         self.graph
                             .add_ety(desc_item, mode, Some(0), &[parent], &[confidence]);
