@@ -14,42 +14,22 @@ const indexRoute = createRoute({
   path: "/",
 });
 
+// `/<view>/<lang code>/<term>`; the term is a splat because it may contain
+// "/". App reads the location itself (see `parseWordHref`), so these routes
+// only need to match.
 const etymologyRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: "/etymology/$itemId",
+  path: "/etymology/$lang/$",
 });
-
-type TreeSearchParams = {
-  distLang: number;
-  descLang: number[];
-};
-
-function validateTreeSearch(search: Record<string, unknown>): TreeSearchParams {
-  const raw = search.descLang;
-  let descLang: number[];
-  if (Array.isArray(raw)) {
-    descLang = raw.map(Number);
-  } else if (raw !== undefined && raw !== null) {
-    descLang = [Number(raw)];
-  } else {
-    descLang = [];
-  }
-  return {
-    distLang: Number(search.distLang) || 0,
-    descLang,
-  };
-}
 
 const descendantsRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: "/descendants/$itemId",
-  validateSearch: validateTreeSearch,
+  path: "/descendants/$lang/$",
 });
 
 const cognatesRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: "/cognates/$itemId",
-  validateSearch: validateTreeSearch,
+  path: "/cognates/$lang/$",
 });
 
 const routeTree = rootRoute.addChildren([

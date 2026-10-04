@@ -462,3 +462,39 @@ main {
   font-variant-caps: all-small-caps;
   letter-spacing: 0.05em;
 }
+
+// Homographs: the word's other etymologies --------------------------------
+
+.homographs {
+  font-size: 0.85rem;
+}
+
+.ety-label {
+  font-variant-numeric: oldstyle-nums;
+  color: var(--accent);
+}
+
+.choose {
+  max-width: 36rem;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.choose ul {
+  list-style: none;
+  padding: 0;
+}
+
+.choose li {
+  margin: 0.5rem 0;
+}
+
+.choose a {
+  color: var(--ink);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--faint);
+}
+
+.choose a:hover {
+  border-bottom-color: var(--ink);
+}

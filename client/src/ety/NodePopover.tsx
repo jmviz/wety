@@ -11,15 +11,8 @@ import {
   close,
   isFinePointer,
 } from "./popover";
-import {
-  forest,
-  fetchItem,
-  selectedDescLangs,
-  setSelectedLang,
-  setSelectedItem,
-} from "../state";
-
-import { useNavigate } from "@tanstack/solid-router";
+import { forest, fetchItem, selectedDescLangs } from "../state";
+import { useGoTo } from "../search/navigate";
 import {
   For,
   JSX,
@@ -36,7 +29,7 @@ const supportsAnchor =
 export default function NodePopover() {
   let el!: HTMLDivElement;
   let lastAnchor: HTMLElement | null = null;
-  const navigate = useNavigate();
+  const goTo = useGoTo();
 
   const show = () => {
     if (typeof el.showPopover === "function") {
@@ -110,22 +103,13 @@ export default function NodePopover() {
 
   const go = (kind: "descendants" | "etymology" | "cognates", item: Item) => {
     close();
-    setSelectedLang(item.lang);
-    setSelectedItem(item);
-    if (kind === "etymology") {
-      navigate({ to: `/etymology/${item.id}`, search: {} });
-      return;
-    }
+    const treeKind = {
+      etymology: TreeKind.Etymology,
+      descendants: TreeKind.Descendants,
+      cognates: TreeKind.Cognates,
+    }[kind];
     const descLangs = selectedDescLangs();
-    navigate({
-      to: `/${kind}/${item.id}`,
-      search: {
-        distLang: item.lang.id,
-        descLang: descLangs.length
-          ? descLangs.map((l) => l.id)
-          : [item.lang.id],
-      },
-    });
+    goTo(treeKind, item, descLangs.length ? descLangs : [item.lang]);
   };
 
   return (

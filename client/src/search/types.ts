@@ -1,11 +1,17 @@
+// `id` is a position in the server's current graph build: fine within a
+// session, never in a URL. Links use `code`.
 export interface Lang {
   id: number;
+  code: string;
   name: string;
 }
 
 export interface Item {
   id: number;
   etyNum: number;
+  // Tells this item apart from others of the same lang and term in a link:
+  // Wiktionary's etymology number (absent when nothing needs telling apart).
+  ety?: string;
   lang: Lang;
   term: string;
   imputed: boolean;
@@ -53,6 +59,69 @@ export enum TreeKind {
   Descendants = "Descendants",
 }
 
+export const kindPath: Record<TreeKind, string> = {
+  [TreeKind.Etymology]: "etymology",
+  [TreeKind.Descendants]: "descendants",
+  [TreeKind.Cognates]: "cognates",
+};
+
+// Spaces are written as underscores, as Wiktionary does (its titles cannot
+// contain "_").
+export const encodeTerm = (term: string) => encodeURIComponent(term.replace(/ /g, "_"));
+export const decodeTerm = (s: string) => decodeURIComponent(s).replace(/_/g, " ");
+
+// What a URL names: `/<view>/<lang code>/<term>?ety=…&lang=…`, where `lang`
+// lists the descendant languages (codes).
+export interface WordLink {
+  kind: TreeKind;
+  lang: string;
+  term: string;
+  ety: string | null;
+  descLangs: string[];
+}
+
+export function linkHref(link: WordLink): string {
+  const params = new URLSearchParams();
+  if (link.ety) params.set("ety", link.ety);
+  if (link.kind !== TreeKind.Etymology) for (const c of link.descLangs) params.append("lang", c);
+  const search = params.toString();
+  return `/${kindPath[link.kind]}/${link.lang}/${encodeTerm(link.term)}${search ? `?${search}` : ""}`;
+}
+
+export function wordHref(kind: TreeKind, item: Item, descLangs: Lang[] = []): string {
+  return linkHref({
+    kind,
+    lang: item.lang.code,
+    term: item.term,
+    ety: item.ety ?? null,
+    descLangs: descLangs.map((l) => l.code),
+  });
+}
+
+export function parseWordHref(href: string): WordLink | null {
+  const qIdx = href.indexOf("?");
+  const pathname = qIdx >= 0 ? href.slice(0, qIdx) : href;
+  const params = new URLSearchParams(qIdx >= 0 ? href.slice(qIdx) : "");
+  const [kindStr, lang, ...rest] = pathname.split("/").filter(Boolean);
+  const kind = (Object.keys(kindPath) as TreeKind[]).find((k) => kindPath[k] === kindStr);
+  if (!kind || !lang || rest.length === 0) return null;
+  let term: string;
+  try {
+    term = decodeTerm(rest.join("/"));
+  } catch {
+    return null;
+  }
+  return {
+    kind,
+    lang,
+    term,
+    ety: params.get("ety"),
+    descLangs: kind === TreeKind.Etymology ? [] : params.getAll("lang"),
+  };
+}
+
+// A loaded view: the word, its descendant languages, and the graph build
+// its numeric ids belong to.
 export class TreeRequest {
   lang: Lang;
   item: Item;
@@ -67,69 +136,10 @@ export class TreeRequest {
     this.kind = kind;
   }
 
-  apiPath(): string {
-    switch (this.kind) {
-      case TreeKind.Cognates:
-        return `/cognates/${this.item.id}?distLang=${
-          this.item.lang.id
-        }&${this.descLangs.map((lang) => `descLang=${lang.id}`).join("&")}`;
-      case TreeKind.Etymology:
-        return `/etymology/${this.item.id}`;
-      case TreeKind.Descendants:
-        return `/descendants/${this.item.id}?distLang=${
-          this.item.lang.id
-        }&${this.descLangs.map((lang) => `descLang=${lang.id}`).join("&")}`;
-    }
-  }
-
-  url(): string {
-    return `${import.meta.env.VITE_API_BASE_URL}${this.apiPath()}`;
-  }
-
-  static parsePath(
-    path: string
-  ): {
-    kind: TreeKind;
-    itemId: number;
-    distLangId: number;
-    descLangIds: number[];
-  } | null {
-    const qIdx = path.indexOf("?");
-    const pathname = qIdx >= 0 ? path.slice(0, qIdx) : path;
-    const search = qIdx >= 0 ? path.slice(qIdx) : "";
-    const parts = pathname.split("/").filter(Boolean);
-    if (parts.length < 2) return null;
-    const [kindStr, itemIdStr] = parts;
-    const itemId = parseInt(itemIdStr, 10);
-    if (isNaN(itemId)) return null;
-    let kind: TreeKind;
-    switch (kindStr) {
-      case "etymology":
-        kind = TreeKind.Etymology;
-        break;
-      case "cognates":
-        kind = TreeKind.Cognates;
-        break;
-      case "descendants":
-        kind = TreeKind.Descendants;
-        break;
-      default:
-        return null;
-    }
-    const params = new URLSearchParams(search);
-    const distLangStr = params.get("distLang");
-    const distLangId = distLangStr ? parseInt(distLangStr, 10) : 0;
-    const descLangIds = params.getAll("descLang").map((s) => parseInt(s, 10));
-    return { kind, itemId, distLangId, descLangIds };
-  }
-
-  equals(other: TreeRequest): boolean {
-    return (
-      this.lang.id === other.lang.id &&
-      this.item.id === other.item.id &&
-      this.descLangs.length === other.descLangs.length &&
-      this.descLangs.every((lang, i) => lang.id === other.descLangs[i].id) &&
-      this.kind === other.kind
-    );
+  apiPath(graph: string): string {
+    const params = new URLSearchParams({ graph });
+    if (this.kind !== TreeKind.Etymology)
+      for (const l of this.descLangs) params.append("descLang", l.code);
+    return `/${kindPath[this.kind]}/${this.item.id}?${params}`;
   }
 }

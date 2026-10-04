@@ -1,5 +1,6 @@
 import SearchBox from "./search/SearchBox";
 import ViewBar from "./search/ViewBar";
+import { HomographBar, Unresolved } from "./search/Homographs";
 import { TreeKind } from "./search/types";
 import OutlineTree from "./ety/OutlineTree";
 import ChartTree from "./ety/ChartTree";
@@ -7,10 +8,11 @@ import NodePopover from "./ety/NodePopover";
 import { forest, lastRequest, loadFromPath } from "./state";
 
 import { Show, createEffect, on } from "solid-js";
-import { Link, useLocation } from "@tanstack/solid-router";
+import { Link, useLocation, useRouter } from "@tanstack/solid-router";
 
 export default function App() {
   const location = useLocation();
+  const router = useRouter();
 
   // `on` keeps the loader untracked: it reads other signals synchronously
   // (e.g. the descendant-language set) and later writes them, which would
@@ -20,7 +22,12 @@ export default function App() {
       () => location().pathname + location().searchStr,
       (path) => {
         if (path === "/") return;
-        loadFromPath(path);
+        // Adopt the word's canonical URL (current language code, displayed
+        // term) without adding a history entry.
+        loadFromPath(path).then((canonical) => {
+          if (canonical && location().pathname + location().searchStr === path)
+            router.history.replace(canonical);
+        });
       }
     )
   );
@@ -44,6 +51,7 @@ export default function App() {
           </p>
         </Show>
         <ViewBar />
+        <HomographBar />
       </header>
       <main>
         <Show when={forest()} keyed>
@@ -55,6 +63,7 @@ export default function App() {
             )
           }
         </Show>
+        <Unresolved />
         <Show when={lastRequest() && !forest()}>
           <p class="empty">Nothing to show for this word.</p>
         </Show>

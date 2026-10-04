@@ -19,9 +19,11 @@ Both tree kinds are plain HTML; there is no SVG or layout library.
 - `src/ety/model.ts` turns the API's JSON into the display model: stable keys, subtree counts and language summaries, display order (the searched item's ancestry first, then closest languages, then largest subtrees), the default collapse policy (path to the searched item plus a visible-row budget), and the client-side filters (connection types, hidden languages) from the settings drawer. Filters never re-fetch.
 - Word details open in a popover (`src/ety/NodePopover.tsx`) on hover or click; on touch devices it is a bottom sheet. It uses the Popover API and CSS anchor positioning, with JS placement as a fallback.
 
-## API
+## Links and API
 
-The client reads the tree endpoints of the `wety` server unchanged. Newer servers also send `descendantCount` per node, accept `lean=true` on the tree endpoints to omit glosses, and serve `/item/:id` and `/lang/:id`; the client fetches an item lazily when its glosses are absent, and a language name when a link names one that doesn't occur in the tree.
+URLs name a word, not a position in the server's data: `/<view>/<language code>/<term>`, plus `?ety=N` when Wiktionary numbers the word's etymologies and `lang=<code>` for each descendant language (spaces in terms are written as underscores, as on Wiktionary). `src/search/types.ts` builds and parses them; `src/state.ts` loads one by asking the server's `/resolve` for the word and its homographs, then fetching the tree by the word's numeric ID. Numeric IDs only mean something within one graph build, so the client sends the build's version (`graph=`) along with them; if the server answers 409, it has been redeployed and the page reloads, which resolves the URL afresh. When a word has several etymologies, a line under the view bar switches between them (`src/search/Homographs.tsx`); a link that names several without a number shows a chooser.
+
+The client fetches an item lazily (`/item/:id`) when its glosses are absent, and a language (`/lang/:code`) when a link names one that doesn't occur in the tree.
 
 ## Local development
 

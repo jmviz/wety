@@ -9,7 +9,7 @@ export async function searchLangs(name: string): Promise<Lang[]> {
 
 export async function searchItems(lang: Lang, term: string): Promise<Item[]> {
   const r = await fetch(
-    `${base()}/search/item/${lang.id}?term=${encodeURIComponent(term)}`
+    `${base()}/search/item/${encodeURIComponent(lang.code)}?term=${encodeURIComponent(term)}`
   );
   return r.json();
 }

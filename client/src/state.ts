@@ -13,6 +13,10 @@ import {
   Lang,
   TreeKind,
   TreeRequest,
+  WordLink,
+  kindPath,
+  parseWordHref,
+  wordHref,
 } from "./search/types";
 import {
   Forest,
@@ -33,6 +37,21 @@ import {
   saveLang,
 } from "./prefs";
 
+const API = import.meta.env.VITE_API_BASE_URL;
+
+// Declared before anything below calls it at load time.
+const langCache = new Map<string, Promise<Lang | null>>();
+export function fetchLang(code: string): Promise<Lang | null> {
+  let p = langCache.get(code);
+  if (!p) {
+    p = fetch(`${API}/lang/${encodeURIComponent(code)}`)
+      .then((r) => (r.ok ? (r.json() as Promise<Lang>) : null))
+      .catch(() => null);
+    langCache.set(code, p);
+  }
+  return p;
+}
+
 // Global application state. The language chip, descendant-language set and
 // view are remembered per browser.
 export const [selectedLang, setSelectedLang] = createSignal<Lang>(loadLang());
@@ -49,7 +68,7 @@ const firstVisit = !hasStoredLang();
 if (firstVisit) {
   const name = browserLangName();
   if (name && name !== "English") {
-    fetch(`${import.meta.env.VITE_API_BASE_URL}/search/lang?name=${encodeURIComponent(name)}`)
+    fetch(`${API}/search/lang?name=${encodeURIComponent(name)}`)
       .then((r) => r.json() as Promise<Lang[]>)
       .then((langs) => {
         const exact = langs.find((l) => l.name.toLowerCase() === name.toLowerCase());
@@ -62,13 +81,13 @@ if (firstVisit) {
   }
 }
 // Language ids are positions in the server's compiled language table, so they
-// change when the Wiktionary data is refreshed; names are stable. Remembered
-// languages (and the English fallback) are re-resolved by name on load.
-async function resolveByName(lang: Lang): Promise<Lang | null> {
+// change when the Wiktionary data is refreshed; codes are stable. Remembered
+// languages (and the English fallback) are re-resolved on load, by code (or by
+// name, for languages remembered before codes were).
+async function resolveStoredLang(lang: Lang): Promise<Lang | null> {
   try {
-    const r = await fetch(
-      `${import.meta.env.VITE_API_BASE_URL}/search/lang?name=${encodeURIComponent(lang.name)}`
-    );
+    if (lang.code) return await fetchLang(lang.code);
+    const r = await fetch(`${API}/search/lang?name=${encodeURIComponent(lang.name)}`);
     const langs = (await r.json()) as Lang[];
     return langs.find((l) => l.name.toLowerCase() === lang.name.toLowerCase()) ?? null;
   } catch {
@@ -77,14 +96,14 @@ async function resolveByName(lang: Lang): Promise<Lang | null> {
 }
 {
   const initial = selectedLang();
-  resolveByName(initial).then((lang) => {
+  resolveStoredLang(initial).then((lang) => {
     // Only if nothing has set the language in the meantime.
     if (lang && lang.id !== initial.id && selectedLang().id === initial.id)
       setSelectedLang(lang);
   });
   const initialDesc = selectedDescLangs();
   if (initialDesc.length)
-    Promise.all(initialDesc.map(resolveByName)).then((langs) => {
+    Promise.all(initialDesc.map(resolveStoredLang)).then((langs) => {
       if (selectedDescLangs() !== initialDesc) return;
       const resolved = langs.filter((l): l is Lang => l !== null);
       if (resolved.some((l, i) => l.id !== initialDesc[i]?.id) || resolved.length !== initialDesc.length)
@@ -102,6 +121,15 @@ export const [tree, setTree] = createSignal<Etymology | Descendants[] | null>(
 export const [lastRequest, setLastRequest] = createSignal<TreeRequest | null>(
   null
 );
+// Every item sharing the shown word's language and term (Wiktionary's
+// numbered etymologies), for switching between them.
+export const [homographs, setHomographs] = createSignal<Item[]>([]);
+// A URL that names no single word: several homographs and no number to pick
+// one ("ambiguous"), or nothing at all ("missing").
+export const [unresolved, setUnresolved] = createSignal<{
+  link: WordLink;
+  reason: "ambiguous" | "missing";
+} | null>(null);
 
 // Display settings (all applied client-side, never re-fetch)
 export const [disabledEtyModes, setDisabledEtyModes] = createSignal<
@@ -111,9 +139,6 @@ export const [hiddenLangs, setHiddenLangs] = createSignal<Set<number>>(
   new Set()
 );
 export const [showGlosses, setShowGlosses] = createSignal(false);
-
-// Tree cache
-const treeCache = new Map<string, Etymology | Descendants[]>();
 
 // The display forest: the fetched tree with filters applied. When only a
 // filter changes, open/closed state is carried over; a new tree gets the
@@ -178,70 +203,73 @@ export function debounce<T extends (...args: any[]) => any>(
   }) as unknown as T;
 }
 
-// Find an item by ID within a Descendants forest
-function findItemById(nodes: Descendants[], itemId: number): Item | null {
-  for (const node of nodes) {
-    if (node.item.id === itemId) return node.item;
-    const found = findItemById(node.children, itemId);
-    if (found) return found;
+// The graph build the server is serving, as of the last resolve. Numeric ids
+// are only sent along with it; if the server has moved on (a deploy while the
+// tab was open), reloading re-resolves the URL, which names words, not ids.
+let graph = "";
+function staleGraph(): never {
+  window.location.reload();
+  throw new Error("graph changed; reloading");
+}
+
+async function fetchJson(url: string): Promise<{ status: number; body: any }> {
+  const r = await fetch(url);
+  if (r.status === 409) staleGraph();
+  return { status: r.status, body: await r.json().catch(() => null) };
+}
+
+interface Resolved {
+  graph: string;
+  item: Item | null;
+  homographs: Item[];
+}
+
+const resolveCache = new Map<string, Promise<Resolved>>();
+function resolveLink(link: WordLink): Promise<Resolved> {
+  const params = new URLSearchParams({ lang: link.lang, term: link.term });
+  if (link.ety) params.set("ety", link.ety);
+  const key = params.toString();
+  let p = resolveCache.get(key);
+  if (!p) {
+    p = fetchJson(`${API}/resolve?${key}`).then(({ body }) => body as Resolved);
+    p.catch(() => resolveCache.delete(key));
+    resolveCache.set(key, p);
   }
-  return null;
+  return p;
 }
 
-// Collect all langs from a tree (for resolving descLang IDs to names)
-function collectLangsFromEtymology(node: Etymology, out: Map<number, Lang>) {
-  out.set(node.item.lang.id, node.item.lang);
-  for (const p of node.parents) collectLangsFromEtymology(p, out);
+function langsOfTree(t: Etymology | Descendants[], out: Map<string, Lang>) {
+  const visitE = (e: Etymology) => {
+    out.set(e.item.lang.code, e.item.lang);
+    e.parents.forEach(visitE);
+  };
+  const visitD = (d: Descendants) => {
+    out.set(d.item.lang.code, d.item.lang);
+    d.children.forEach(visitD);
+  };
+  if (Array.isArray(t)) t.forEach(visitD);
+  else visitE(t);
 }
 
-function collectLangsFromDescendants(
-  nodes: Descendants[],
-  out: Map<number, Lang>
-) {
-  for (const node of nodes) {
-    out.set(node.item.lang.id, node.item.lang);
-    collectLangsFromDescendants(node.children, out);
-  }
-}
-
-// Names for the URL's descendant-language ids: from the current selection
-// first, then the tree, then the server for anything left
-// (a cold-loaded link naming a language that doesn't occur in the tree).
+// The URL's descendant-language codes as languages: from the tree and the
+// current selection where possible, else from the server. Unknown codes drop.
 async function resolveDescLangs(
-  descLangIds: number[],
-  treeResult: Etymology | Descendants[],
-  kind: TreeKind
+  codes: string[],
+  treeResult: Etymology | Descendants[]
 ): Promise<Lang[]> {
-  const langMap = new Map<number, Lang>();
-  if (kind === TreeKind.Etymology) {
-    collectLangsFromEtymology(treeResult as Etymology, langMap);
-  } else {
-    collectLangsFromDescendants(treeResult as Descendants[], langMap);
-  }
-  for (const l of [...selectedDescLangs(), selectedLang()])
-    langMap.set(l.id, l);
-  return Promise.all(
-    descLangIds.map(
-      async (id) =>
-        langMap.get(id) ??
-        (await fetch(`${import.meta.env.VITE_API_BASE_URL}/lang/${id}`)
-          .then((r) => (r.ok ? (r.json() as Promise<Lang>) : null))
-          .catch(() => null)) ??
-        { id, name: `#${id}` }
-    )
-  );
+  const known = new Map<string, Lang>();
+  langsOfTree(treeResult, known);
+  for (const l of [...selectedDescLangs(), selectedLang()]) if (l.code) known.set(l.code, l);
+  const langs = await Promise.all(codes.map(async (c) => known.get(c) ?? (await fetchLang(c))));
+  return langs.filter((l): l is Lang => l !== null);
 }
 
 // The URL is the truth: reflect the loaded request in the search box and
 // view line. Etymology URLs carry no descendant languages, so those keep
 // the current set.
-function applySearchState(
-  itemFromResult: Item,
-  descLangs: Lang[],
-  kind: TreeKind
-) {
-  setSelectedLang(itemFromResult.lang);
-  setSelectedItem(itemFromResult);
+function applySearchState(item: Item, descLangs: Lang[], kind: TreeKind) {
+  setSelectedLang(item.lang);
+  setSelectedItem(item);
   // Keep the array identity when nothing changed, so dependents don't churn.
   if (descLangs.length > 0 && !sameLangs(descLangs, selectedDescLangs()))
     setSelectedDescLangs(descLangs);
@@ -252,96 +280,80 @@ function sameLangs(a: Lang[], b: Lang[]): boolean {
   return a.length === b.length && a.every((l, i) => l.id === b[i].id);
 }
 
-function itemFromTree(
-  parsed: { kind: TreeKind; itemId: number; distLangId: number },
-  treeResult: Etymology | Descendants[]
-): Item {
-  const dummyItem = (): Item => ({
-    id: parsed.itemId,
-    etyNum: 0,
-    lang: { id: parsed.distLangId, name: "" },
-    term: "",
-    imputed: false,
-    reconstructed: false,
-    url: null,
-    pos: null,
-    gloss: null,
-    romanization: null,
-  });
-  switch (parsed.kind) {
-    case TreeKind.Etymology:
-      return (treeResult as Etymology).item;
-    case TreeKind.Descendants:
-      return (treeResult as Descendants[])[0]?.item ?? dummyItem();
-    case TreeKind.Cognates:
-      return (
-        findItemById(treeResult as Descendants[], parsed.itemId) ?? dummyItem()
-      );
-  }
-}
+const treeCache = new Map<string, Etymology | Descendants[]>();
 
-// Load tree data from a URL path
-export async function loadFromPath(path: string) {
-  const parsed = TreeRequest.parsePath(path);
-  if (!parsed) return;
+// Load the view a URL names. Returns the word's canonical URL (current code
+// and displayed term) when it differs from `path`, for the caller to adopt.
+export async function loadFromPath(path: string): Promise<string | null> {
+  const link = parseWordHref(path);
+  if (!link) return null;
   // Never let a caller's tracking scope see the signal reads below.
-  return untrack(() => loadFromPathInner(path, parsed));
+  return untrack(() => loadLink(path, link));
 }
 
-async function loadFromPathInner(
-  path: string,
-  parsed: NonNullable<ReturnType<typeof TreeRequest.parsePath>>
-) {
+async function loadLink(path: string, link: WordLink): Promise<string | null> {
+  let resolved: Resolved;
+  try {
+    resolved = await resolveLink(link);
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+  graph = resolved.graph;
+  const item = resolved.item;
+  if (!item) {
+    batch(() => {
+      setTree(null);
+      setLastRequest(null);
+      setHomographs(resolved.homographs);
+      setUnresolved({ link, reason: resolved.homographs.length ? "ambiguous" : "missing" });
+      if (resolved.homographs[0]) setSelectedLang(resolved.homographs[0].lang);
+      setSelectedTreeKind(link.kind);
+    });
+    return null;
+  }
 
-  let treeResult = treeCache.get(path);
+  const codes = [...new Set(link.descLangs)].sort();
+  const params = new URLSearchParams({ graph });
+  for (const c of codes) params.append("descLang", c);
+  const apiPath = `/${kindPath[link.kind]}/${item.id}?${params}`;
+  let treeResult = treeCache.get(apiPath);
   if (!treeResult) {
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}${path}`
-      );
-      const data = await response.json();
+      const { body } = await fetchJson(`${API}${apiPath}`);
       treeResult =
-        parsed.kind === TreeKind.Etymology
-          ? (data as Etymology)
-          : parsed.kind === TreeKind.Descendants
-            ? [data as Descendants]
-            : (data as Descendants[]);
-      treeCache.set(path, treeResult);
+        link.kind === TreeKind.Etymology
+          ? (body as Etymology)
+          : link.kind === TreeKind.Descendants
+            ? [body as Descendants]
+            : (body as Descendants[]);
+      treeCache.set(apiPath, treeResult);
     } catch (error) {
       console.log(error);
-      return;
+      return null;
     }
   }
 
-  const itemFromResult = itemFromTree(parsed, treeResult);
-  const descLangs = await resolveDescLangs(
-    parsed.descLangIds,
-    treeResult,
-    parsed.kind
-  );
+  const descLangs = await resolveDescLangs(codes, treeResult);
   const result = treeResult;
+  const request = new TreeRequest(item.lang, item, descLangs, link.kind);
   batch(() => {
+    setUnresolved(null);
+    setHomographs(resolved.homographs);
     setTree(result);
-    setLastRequest(
-      new TreeRequest(
-        itemFromResult.lang,
-        itemFromResult,
-        descLangs,
-        parsed.kind
-      )
-    );
-    applySearchState(itemFromResult, descLangs, parsed.kind);
+    setLastRequest(request);
+    applySearchState(item, descLangs, link.kind);
   });
+  const canonical = wordHref(link.kind, item, request.descLangs);
+  return canonical !== path ? canonical : null;
 }
 
-// Lazily fetched full items (for trees requested with `lean=true`).
+// Lazily fetched full items (for nodes whose glosses were left out).
 const itemCache = new Map<number, Promise<Item>>();
 export function fetchItem(id: number): Promise<Item> {
   let p = itemCache.get(id);
   if (!p) {
-    p = fetch(`${import.meta.env.VITE_API_BASE_URL}/item/${id}`).then((r) =>
-      r.json()
-    );
+    p = fetchJson(`${API}/item/${id}?graph=${graph}`).then(({ body }) => body as Item);
     itemCache.set(id, p);
   }
   return p;
