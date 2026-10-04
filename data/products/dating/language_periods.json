@@ -1,6 +1,6 @@
 {
   "family_splits": [],
-  "generation": "c044216ac55e10c931102c3fbf0b7e3557bcebe7dfa7e337e7d6128c33c1fdd5",
+  "generation": "532d0f80c5fe5a7e87e425759caebe0b8545aec83887b2ec885a16173058f482",
   "languages": [
     {
       "alternatives": [],
@@ -715,6 +715,58 @@
     {
       "alternatives": [
         {
+          "basis": "conventional",
+          "citation": "Eraslan, Kemal. 1993. “Çağatay Edebiyatı.” TDV İslâm Ansiklopedisi 8: 168–176. İstanbul: Türkiye Diyanet Vakfı.",
+          "claim_id": "ev_period_7e259ed8479f9fa52682c187af74ae96429b2a38",
+          "end": {
+            "earliest": 1901,
+            "latest": 2000
+          },
+          "event": "conventional_period",
+          "label": "15th–20th century CE",
+          "locator": "{\"section\": \"Devreler\", \"start\": 10959, \"end\": 11071, \"page\": \"169\", \"pdf_page\": 2, \"parallel_pdf_source_id\": \"4ae74c885d57f666\"}",
+          "quote": "Çağatayca (XV-XX. yüzyıllar). XX. yüzyılın başından itibaren Çağatay edebî dilinin yerini Özbek edebî dili alır.",
+          "role": "convention",
+          "source": "Eraslan 1993",
+          "start": {
+            "earliest": 1401,
+            "latest": 1500
+          },
+          "url": "https://islamansiklopedisi.org.tr/cagatay-edebiyati"
+        }
+      ],
+      "basis": "conventional",
+      "code": "chg",
+      "evidence": [
+        {
+          "citation": "Doerfer, Gerhard. 1991. “Chaghatay Dynasty ii. Language and Literature.” Encyclopaedia Iranica V/4: 339–343. Online version updated June 30, 2016. doi:10.1163/2330-4804_EIRO_COM_7651.",
+          "claim_id": "ev_period_d2140ac53c8b9e641747433c040090929033dc5c",
+          "event": "conventional_period",
+          "locator": "{\"section\": \"Development of Chaghatay\", \"start\": 1007, \"end\": 1067}",
+          "quote": "Classical and Late Chaghatay (9th­-13th/15th-19th centuries)",
+          "role": "convention",
+          "source": "Doerfer 1991",
+          "url": "https://www.iranicaonline.org/articles/chaghatay-language-and-literature/"
+        }
+      ],
+      "kind": "stage",
+      "label": "15th–19th century CE",
+      "name": "Chagatai",
+      "spoken": {
+        "end": {
+          "earliest": 1801,
+          "latest": 1900
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 1401,
+          "latest": 1500
+        }
+      }
+    },
+    {
+      "alternatives": [
+        {
           "basis": "estimated",
           "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Asia and the Americas. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
           "claim_id": "ev_period_ad45f77b91f012b64ec12708eef6711488518107",
@@ -1239,6 +1291,37 @@
         "start": {
           "earliest": -699,
           "latest": -699
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "conventional",
+      "code": "fa-ear",
+      "evidence": [
+        {
+          "citation": "Paul, Ludwig. “Persian Language i. Early New Persian.” Encyclopaedia Iranica, online edition. Published January 1, 2000; updated November 21, 2013 (dates stated on retained page). doi:10.1163/2330-4804_EIRO_COM_11377.",
+          "claim_id": "ev_period_d511ff3c31f50fb13ed663ff3e99ff3e001bc6f1",
+          "event": "conventional_period",
+          "locator": "{\"start\": 1630, \"end\": 2159, \"section\": \"Introduction — Definitions\"}",
+          "quote": "There is no clear linguistic break, either, between Early New Persian and later stages of Persian. The definition of ENP followed here corresponds to the one implicitly given by Lazard (1963, pp. 18, 24), saying that from the 13th century onwards, dialectal features were declining in Persian documents and a dialectally homogeneous standard of the language was more or less reached. Following this definition, ENP would span the stages of New Persian from its beginning, the 8th century, to approximately the early 13th century.",
+          "role": "convention",
+          "source": "Paul 2013",
+          "url": "https://www.iranicaonline.org/articles/persian-language-1-early-new-persian/"
+        }
+      ],
+      "kind": "stage",
+      "label": "c. 8th–13th century CE",
+      "name": "Early New Persian",
+      "spoken": {
+        "end": {
+          "earliest": 1201,
+          "latest": 1300
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 701,
+          "latest": 800
         }
       }
     },
@@ -2371,6 +2454,37 @@
     },
     {
       "alternatives": [],
+      "basis": "conventional",
+      "code": "nci",
+      "evidence": [
+        {
+          "citation": "Sasaki, Mitsuya. 2012. “Patient-noun Formation in Classical Nahuatl.” 東京大学言語学論集 (Tokyo University Linguistic Papers) 32: 277–303. doi:10.15083/00027532.",
+          "claim_id": "ev_period_95c99a382fbe1197ef7a6e4a5c86fd3c4e67804c",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"278\", \"pdf_page\": 2, \"start\": 3818, \"end\": 3989}",
+          "quote": "Classical Nahuatl (Classical Aztec, nahuatl cldsico) refers to a Uto-Aztecan language \nwhich was spoken in the Valley of Mexico in the sixteenth and seventeenth centuries.",
+          "role": "convention",
+          "source": "Sasaki 2012",
+          "url": "https://repository.dl.itc.u-tokyo.ac.jp/record/27541/files/ggr032010.pdf"
+        }
+      ],
+      "kind": "stage",
+      "label": "16th–17th century CE",
+      "name": "Classical Nahuatl",
+      "spoken": {
+        "end": {
+          "earliest": 1601,
+          "latest": 1700
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 1501,
+          "latest": 1600
+        }
+      }
+    },
+    {
+      "alternatives": [],
       "basis": "attested",
       "code": "och",
       "evidence": [
@@ -2468,6 +2582,55 @@
         "start": {
           "earliest": 700,
           "latest": 700
+        }
+      }
+    },
+    {
+      "alternatives": [
+        {
+          "basis": "attested",
+          "citation": "Tulpule, Shankar Gopal, and Anne Feldhaus. 1999. A Dictionary of Old Marathi. Mumbai: Popular Prakashan. Introduction, p. xii. Digital South Asia Library electronic front matter.",
+          "claim_id": "ev_period_2499b966390ba30a4f66845fd6f745ccbadc314b",
+          "end": null,
+          "event": "first_attestation",
+          "label": "from 1012 CE",
+          "locator": "{\"page\": \"xii\", \"start\": 13795, \"end\": 13928}",
+          "quote": "The stone inscriptions that have been\nused include the older one from Akṣī, which is the\nearliest record in Marathi, dated A.D. 1012;",
+          "role": "observation",
+          "source": "Tulpule & Feldhaus 1999",
+          "start": {
+            "earliest": 1012,
+            "latest": 1012
+          },
+          "url": "https://dsal.uchicago.edu/dictionaries/tulpule/new_frontmatter.html"
+        }
+      ],
+      "basis": "conventional",
+      "code": "omr",
+      "evidence": [
+        {
+          "citation": "Tulpule, Shankar Gopal, and Anne Feldhaus. 1999. A Dictionary of Old Marathi. Mumbai: Popular Prakashan. Introduction, p. xii. Digital South Asia Library electronic front matter.",
+          "claim_id": "ev_period_9b2fc361d159155c376048ce9de99be27f2478ec",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"xi\", \"start\": 8306, \"end\": 8424}",
+          "quote": "The earliest stage, Old Marathi, began in the eighth\ncentury and continued until the middle of the fourteenth\ncentury.",
+          "role": "convention",
+          "source": "Tulpule & Feldhaus 1999",
+          "url": "https://dsal.uchicago.edu/dictionaries/tulpule/new_frontmatter.html"
+        }
+      ],
+      "kind": "stage",
+      "label": "8th–14th century CE",
+      "name": "Old Marathi",
+      "spoken": {
+        "end": {
+          "earliest": 1301,
+          "latest": 1400
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 701,
+          "latest": 800
         }
       }
     },
@@ -2990,6 +3153,83 @@
         "start": {
           "earliest": -3199,
           "latest": -3199
+        }
+      }
+    },
+    {
+      "alternatives": [
+        {
+          "basis": "attested",
+          "citation": "Younansardaroud, Helen. 2019. Classical Syriac Course Book. Translated by Graham Wetherall. Second, revised edition. Berlin: Universitätsbibliothek der Freien Universität. ISBN 978-3-96110-233-4. doi:10.17169/refubium-2261.",
+          "claim_id": "ev_period_99350507b238a5376311d8db022af6f55cfa6146",
+          "end": {
+            "earliest": 1201,
+            "latest": 1300
+          },
+          "event": "literary_use",
+          "label": "until 13th century CE",
+          "locator": "{\"page\": \"unnumbered opening of Lesson 1 (listed as p. 1 in contents)\", \"pdf_page\": 10, \"start\": 31607, \"end\": 31825}",
+          "quote": "Beginning in the 7th century, Syriac was increasingly supplanted by Arabic as a spoken language. Nonetheless, it \nremained in wide usage in the church and amongst scholars until the Mongol invasion of the 13th century.",
+          "role": "convention",
+          "source": "Younansardaroud 2019",
+          "start": null,
+          "url": "https://refubium.fu-berlin.de/bitstream/handle/fub188/24490/Classical_Syriac_Course_Book_3-2019.pdf?sequence=3&isAllowed=y"
+        }
+      ],
+      "basis": "attested",
+      "code": "syc",
+      "evidence": [
+        {
+          "citation": "Younansardaroud, Helen. 2019. Classical Syriac Course Book. Translated by Graham Wetherall. Second, revised edition. Berlin: Universitätsbibliothek der Freien Universität. ISBN 978-3-96110-233-4. doi:10.17169/refubium-2261.",
+          "claim_id": "ev_period_08dc4d0eaf02dfaa3bd038c2cc28966d3def5f1b",
+          "event": "first_attestation",
+          "locator": "{\"page\": \"unnumbered opening of Lesson 1 (listed as p. 1 in contents)\", \"pdf_page\": 10, \"start\": 30872, \"end\": 31144}",
+          "quote": "Syriac is an offshoot of the local Eastern Aramaic dialect of the city of Edessa, which is fairly closely related to Jewish \nBabylonian Aramaic on the one hand, and Mandaic on the other. The oldest evidence of the language are inscriptions \ndating from the 1st century AD.",
+          "role": "observation",
+          "source": "Younansardaroud 2019",
+          "url": "https://refubium.fu-berlin.de/bitstream/handle/fub188/24490/Classical_Syriac_Course_Book_3-2019.pdf?sequence=3&isAllowed=y"
+        }
+      ],
+      "kind": "attested",
+      "label": "from 1st century CE",
+      "name": "Classical Syriac",
+      "spoken": {
+        "end": null,
+        "ongoing": false,
+        "start": {
+          "earliest": 1,
+          "latest": 100
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "attested",
+      "code": "txb",
+      "evidence": [
+        {
+          "citation": "Peyrot, Michaël. 2015. “Tocharian Language.” Encyclopaedia Iranica, online edition, published 27 July 2015, updated 29 July 2015. DOI: 10.1163/2330-4804_EIRO_COM_11716.",
+          "claim_id": "ev_period_4bce8fa9efb93300f4d2f121e4c91541f6d2c197",
+          "event": "documentary_sampling",
+          "locator": "{\"start\": 624, \"end\": 763}",
+          "quote": "The Tocharian B fragments probably date from the 5th to the 10th centuries CE, and those in Tocharian A from the 7th to the 10th centuries.",
+          "role": "observation",
+          "source": "Peyrot 2015",
+          "url": "https://www.iranicaonline.org/articles/tocharian-language/"
+        }
+      ],
+      "kind": "attested",
+      "label": "c. 5th–10th century CE",
+      "name": "Tocharian B",
+      "spoken": {
+        "end": {
+          "earliest": 901,
+          "latest": 1000
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 401,
+          "latest": 500
         }
       }
     },
@@ -3627,6 +3867,37 @@
       }
     },
     {
+      "alternatives": [],
+      "basis": "attested",
+      "code": "xto",
+      "evidence": [
+        {
+          "citation": "Peyrot, Michaël. 2015. “Tocharian Language.” Encyclopaedia Iranica, online edition, published 27 July 2015, updated 29 July 2015. DOI: 10.1163/2330-4804_EIRO_COM_11716.",
+          "claim_id": "ev_period_532c598b636a6d6b9b8fb747cf7b5bc09374d92a",
+          "event": "documentary_sampling",
+          "locator": "{\"start\": 624, \"end\": 763}",
+          "quote": "The Tocharian B fragments probably date from the 5th to the 10th centuries CE, and those in Tocharian A from the 7th to the 10th centuries.",
+          "role": "observation",
+          "source": "Peyrot 2015",
+          "url": "https://www.iranicaonline.org/articles/tocharian-language/"
+        }
+      ],
+      "kind": "attested",
+      "label": "c. 7th–10th century CE",
+      "name": "Tocharian A",
+      "spoken": {
+        "end": {
+          "earliest": 901,
+          "latest": 1000
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 601,
+          "latest": 700
+        }
+      }
+    },
+    {
       "alternatives": [
         {
           "basis": "attested",
@@ -3751,6 +4022,37 @@
         "start": {
           "earliest": -599,
           "latest": -500
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "conventional",
+      "code": "zkh",
+      "evidence": [
+        {
+          "citation": "Doerfer, Gerhard. 1991. “Chaghatay Dynasty ii. Language and Literature.” Encyclopaedia Iranica V/4: 339–343. Online version updated June 30, 2016. doi:10.1163/2330-4804_EIRO_COM_7651.",
+          "claim_id": "ev_period_9bcf777c3d7f271b09a0fc81da2481d09e7ac47a",
+          "event": "conventional_period",
+          "locator": "{\"section\": \"Development of Chaghatay\", \"start\": 931, \"end\": 1005}",
+          "quote": "Ḵᵛārazm (Choresm) Turkish or Early Chaghatay (7th-8th/13th-14th centuries)",
+          "role": "convention",
+          "source": "Doerfer 1991",
+          "url": "https://www.iranicaonline.org/articles/chaghatay-language-and-literature/"
+        }
+      ],
+      "kind": "stage",
+      "label": "13th–14th century CE",
+      "name": "Khorezmian Turkic",
+      "spoken": {
+        "end": {
+          "earliest": 1301,
+          "latest": 1400
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 1201,
+          "latest": 1300
         }
       }
     }
