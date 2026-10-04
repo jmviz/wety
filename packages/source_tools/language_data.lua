@@ -1,14 +1,47 @@
 local export = {}
 
-function export.languages()
+-- mw.loadData tables are read-only proxies that cannot be serialized; copy them.
+-- (Module:table's deepcopy was removed from Wiktionary in 2026.)
+local function deepcopy(value)
+    if type(value) ~= "table" then return value end
+    local copy = {}
+    for k, v in pairs(value) do copy[k] = deepcopy(v) end
+    return copy
+end
+
+-- Exports run one code prefix at a time ({{#invoke:...|languages|ab}}): a single
+-- invoke is limited to 60 s. Prefix "~" selects codes not starting with a-z.
+local function selected(code, prefix)
+    if prefix == nil or prefix == "" then return true end
+    if prefix == "~" then return not code:sub(1, 1):match("[a-z]") end
+    return code:sub(1, #prefix) == prefix
+end
+
+function export.languages_count()
+    local n = 0
+    for _ in pairs(mw.loadData("Module:languages/data/all")) do n = n + 1 end
+    for _ in pairs(mw.loadData("Module:etymology languages/data")) do n = n + 1 end
+    return tostring(n)
+end
+
+function export.families_count()
+    local n = 0
+    for _ in pairs(mw.loadData("Module:families/data")) do n = n + 1 end
+    return tostring(n)
+end
+
+function export.languages(frame)
+    local prefix = frame and frame.args[1]
     -- https://en.wiktionary.org/wiki/Module:languages
     local m_languages = require("Module:languages")
 
     local function getData(code, data, kind)
         local lang = m_languages.getByCode(code, nil, true)
+        -- Oldest first. getAncestorChain became a tree in 2026; getAncestorChainOld
+        -- keeps the earlier single-line walk, nearest ancestor first.
         local ancestors = {}
-        for _, ancestor in ipairs(lang:getAncestorChain()) do
-            table.insert(ancestors, ancestor:getCode())
+        for _, ancestor in ipairs(lang:getAncestorChainOld()) do
+            table.insert(ancestors, 1, ancestor:getCode())
         end
         local ret = {
             mainCode = lang:getCode(),
@@ -16,14 +49,15 @@ function export.languages()
             family = lang:getFamilyCode(),
             ---- To get other names, aliases and varieties in one list:
             -- otherNames = lang:getOtherNames(),
-            otherNames = lang:getOtherNames(true),
+            otherNames = lang:getOtherNames(),
             aliases = lang:getAliases(),
             varieties = lang:getVarieties(),
             scripts = lang:getScriptCodes(),
-            -- The nearest language that is not an etymology-only language. E.g.
+            -- The nearest language that is not an etymology-only language (Wiktionary's
+            -- "full" language; getNonEtymologicalCode before 2026). E.g.
             -- for both "VL." (Vulgar Latin) and "ita-ola" (Old Latin) it is
             -- "la". For a regular language it is its own code.
-            nonEtymologyOnly = lang:getNonEtymologicalCode(),
+            nonEtymologyOnly = lang:getFullCode(),
             wikidataItem = lang:getWikidataItem(),
             wikipediaArticle = lang:getWikipediaArticle(),
             -- The immediate parent(s) of the language. This will usually be
@@ -47,22 +81,40 @@ function export.languages()
     -- https://en.wiktionary.org/wiki/Module:languages/data/exceptional
     local allData = mw.loadData("Module:languages/data/all")
     for code, data in pairs(allData) do
-        ret[code] = getData(code, data, "regular")
+        if selected(code, prefix) then
+            ret[code] = getData(code, data, "regular")
+        end
     end
 
     -- https://en.wiktionary.org/wiki/Module:etymology_languages/data
     local etyData = mw.loadData("Module:etymology languages/data")
     for code, data in pairs(etyData) do
-        ret[code] = getData(code, data, "etymology-only")
+        if selected(code, prefix) then
+            ret[code] = getData(code, data, "etymology-only")
+        end
     end
     
-    ret = require("Module:table").deepcopy(ret)
+    ret = deepcopy(ret)
 
-    return require("Module:JSON").toJSON(ret)
+    return mw.text.jsonEncode(ret)
 
 end
 
-function export.families()
+local function otherFamilyNames(fam)
+    local names, seen = {}, {}
+    for _, list in ipairs({fam:getOtherNames(), fam:getAliases(), fam:getVarieties(true)}) do
+        for _, name in ipairs(list or {}) do
+            if type(name) == "string" and not seen[name] then
+                seen[name] = true
+                table.insert(names, name)
+            end
+        end
+    end
+    return names
+end
+
+function export.families(frame)
+    local prefix = frame and frame.args[1]
     -- https://en.wiktionary.org/wiki/Module:families
     local m_families = require("Module:families")
 
@@ -98,21 +150,27 @@ function export.families()
     local ret = {}
 
     for code, data in pairs(famData) do
+      if selected(code, prefix) then
         local fam = m_families.getByCode(code)
         ret[code] = {
             mainCode = fam:getCode(),
             canonicalName = fam:getCanonicalName(),
             protoLanguage = fam:getProtoLanguageCode(),
             superfamilies = getSuperfamilies(fam),
-            otherNames = fam:getOtherNames(),
+            -- Families' alternative names moved from otherNames to aliases and
+            -- varieties in 2026; keep otherNames as all of them, as before.
+            otherNames = otherFamilyNames(fam),
+            aliases = fam:getAliases(),
+            varieties = fam:getVarieties(true),
             wikidataItem = fam:getWikidataItem(),
             wikipediaArticle = fam:getWikipediaArticle(),
         }
+      end
     end
     
-    ret = require("Module:table").deepcopy(ret)
+    ret = deepcopy(ret)
 
-    return require("Module:JSON").toJSON(ret)
+    return mw.text.jsonEncode(ret)
 
 end
 

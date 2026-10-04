@@ -220,7 +220,7 @@ use candle_core::{
 use candle_nn::VarBuilder;
 use candle_transformers::models::bert::{self, BertModel, DTYPE, HiddenAct};
 use hf_hub::{Repo, RepoType, api::sync::Api};
-use tokenizers::{PaddingParams, Tokenizer};
+use tokenizers::Tokenizer;
 
 fn device() -> Result<Device> {
     if cuda_is_available() {
@@ -288,16 +288,10 @@ impl Model {
             (config, tokenizer, weights)
         };
 
+        // No tokenizer padding: encode() pads each length-sorted sub-batch itself.
+        // The tokenizer's own truncation (128 tokens for this model) stays.
         let mut tokenizer = Tokenizer::from_file(tokenizer_filename).map_err(Error::msg)?;
-        if let Some(pp) = tokenizer.get_padding_mut() {
-            pp.strategy = tokenizers::PaddingStrategy::BatchLongest;
-        } else {
-            let pp = PaddingParams {
-                strategy: tokenizers::PaddingStrategy::BatchLongest,
-                ..Default::default()
-            };
-            tokenizer.with_padding(Some(pp));
-        }
+        tokenizer.with_padding(None);
 
         let vb = VarBuilder::from_pth(&weights_filename, DTYPE, &device)?;
 
@@ -314,41 +308,52 @@ impl Model {
         })
     }
 
+    /// Embeds texts, in input order. Texts are encoded in sub-batches of similar
+    /// length, each padded only to its own longest text, and token outputs are
+    /// mean-pooled over real tokens (attention mask): an embedding does not depend
+    /// on which other texts share its batch, and short texts cost little.
     fn encode(&self, texts: Vec<String>) -> Result<Tensor> {
-        let tokens = self
+        const SUB_BATCH: usize = 64;
+        let n = texts.len();
+        let encodings = self
             .tokenizer
             .encode_batch(texts, true)
             .map_err(Error::msg)?;
-        let token_ids = tokens
-            .iter()
-            .map(|tokens| {
-                let tokens = tokens.get_ids().to_vec();
-                Ok(Tensor::new(tokens.as_slice(), &self.device)?)
-            })
-            .collect::<Result<Vec<_>>>()?;
-        let token_ids = Tensor::stack(&token_ids, 0)?;
-        let token_type_ids = token_ids.zeros_like()?;
-        let embeddings = self.inner.forward(&token_ids, &token_type_ids)?;
-        // Apply some avg-pooling by taking the mean embedding value for all tokens (including padding)
-        let (_n_sentence, n_tokens, _hidden_size) = embeddings.dims3()?;
-        #[allow(clippy::cast_precision_loss)]
-        let embeddings = (embeddings.sum(1)? / (n_tokens as f64))?;
-        let embeddings = normalize_l2(&embeddings)?;
-        Ok(embeddings)
-
-        // let mut similarities = vec![];
-        // for i in 0..n_texts {
-        //     let e_i = embeddings.get(i)?;
-        //     for j in (i + 1)..n_texts {
-        //         let e_j = embeddings.get(j)?;
-        //         let sum_ij = (&e_i * &e_j)?.sum_all()?.to_scalar::<f32>()?;
-        //         let sum_i2 = (&e_i * &e_i)?.sum_all()?.to_scalar::<f32>()?;
-        //         let sum_j2 = (&e_j * &e_j)?.sum_all()?.to_scalar::<f32>()?;
-        //         let cosine_similarity = sum_ij / (sum_i2 * sum_j2).sqrt();
-        //         similarities.push((cosine_similarity, i, j))
-        //     }
-        // }
-        // similarities.sort_by(|u, v| v.0.total_cmp(&u.0));
+        let mut order: Vec<usize> = (0..n).collect();
+        order.sort_by_key(|&i| encodings[i].get_ids().len());
+        let mut rows: Vec<Option<Vec<f32>>> = vec![None; n];
+        for chunk in order.chunks(SUB_BATCH) {
+            let width = chunk
+                .iter()
+                .map(|&i| encodings[i].get_ids().len())
+                .max()
+                .unwrap_or(1)
+                .max(1);
+            let mut ids = Vec::with_capacity(chunk.len() * width);
+            let mut mask = Vec::with_capacity(chunk.len() * width);
+            for &i in chunk {
+                let tokens = encodings[i].get_ids();
+                ids.extend_from_slice(tokens);
+                ids.extend(std::iter::repeat_n(0u32, width - tokens.len()));
+                mask.extend(std::iter::repeat_n(1u32, tokens.len()));
+                mask.extend(std::iter::repeat_n(0u32, width - tokens.len()));
+            }
+            let ids = Tensor::from_vec(ids, (chunk.len(), width), &self.device)?;
+            let mask = Tensor::from_vec(mask, (chunk.len(), width), &self.device)?;
+            let token_type_ids = ids.zeros_like()?;
+            let hidden = self.inner.forward(&ids, &token_type_ids, Some(&mask))?;
+            let weights = mask.to_dtype(hidden.dtype())?.unsqueeze(2)?;
+            let pooled = hidden
+                .broadcast_mul(&weights)?
+                .sum(1)?
+                .broadcast_div(&weights.sum(1)?)?;
+            for (&i, row) in chunk.iter().zip(normalize_l2(&pooled)?.to_vec2::<f32>()?) {
+                rows[i] = Some(row);
+            }
+        }
+        let width = rows.first().and_then(|r| r.as_ref()).map_or(0, Vec::len);
+        let flat: Vec<f32> = rows.into_iter().flatten().flatten().collect();
+        Ok(Tensor::from_vec(flat, (n, width), &Device::Cpu)?)
     }
 }
 

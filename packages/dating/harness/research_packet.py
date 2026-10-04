@@ -25,13 +25,12 @@ import json
 import shutil
 from pathlib import Path
 
-from workflow_tools.paths import REPO
+from workflow_tools.paths import REPO, selected
 
 from .config import CACHE_DIR, DATA_DIR
 from .evidence import EvidenceClaim, normalize_time
 from .io_utils import atomic_json, digest
 
-LANGUAGES = REPO / "data/artifacts/wiktionary-export/legacy/files/languages.json"
 COMPLETENESS = "Only the passages cited by the claims were checked; not an exhaustive reading."
 
 
@@ -70,7 +69,7 @@ def build(run_dir, review, languages=None, texts_dir=None):
     """Pure: the packet, its claims and the source records to register."""
     run_dir = Path(run_dir)
     texts_dir = Path(texts_dir or Path(CACHE_DIR) / "texts")
-    languages = languages or json.loads(LANGUAGES.read_text())
+    languages = languages or json.loads(selected("wiktionary_languages").read_text())
     rows = {
         r["id"]: r
         for r in (

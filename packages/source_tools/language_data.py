@@ -31,9 +31,31 @@ def atomic_json(path,data):
     os.replace(tmp,path)
 
 
+PREFIXES='abcdefghijklmnopqrstuvwxyz'
+
+
+def invoke(wxr,kind,prefix=''):
+    wxr.wtp.start_page(f'{kind} data export {prefix}')
+    text=wxr.wtp.expand('{{#invoke:lang-data-export|'+kind+'|'+prefix+'}}')
+    try:return json.loads(text)
+    except ValueError:return None  # Lua error, usually the per-invoke time limit
+
+
 def extract(wxr,kind):
-    wxr.wtp.start_page(f'{kind} data export')
-    return json.loads(wxr.wtp.expand('{{#invoke:lang-data-export|'+kind+'}}'))
+    """All entries, a code prefix at a time: one #invoke may run at most 60 s. A prefix
+    that still times out is split further; codes outside a-z come with prefix '~'."""
+    result={};todo=[*PREFIXES,'~']
+    while todo:
+        prefix=todo.pop(0);part=invoke(wxr,kind,prefix)
+        if part is None:
+            if prefix=='~' or len(prefix)>3:raise ValueError(f'{kind} export failed for prefix {prefix!r}')
+            todo=[prefix+c for c in PREFIXES+'-']+todo;continue
+        if part==[]:part={}  # an empty Lua table serializes as a JSON array
+        overlap=set(result)&set(part)
+        if overlap:raise ValueError(f'{kind} export: codes exported twice: {sorted(overlap)[:5]}')
+        result.update(part)
+    if invoke(wxr,kind+'_count')!=len(result):raise ValueError(kind+' export incomplete')
+    return result
 
 
 def main():

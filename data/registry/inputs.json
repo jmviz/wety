@@ -1,8 +1,8 @@
 {
-  "wiktionary_languages": "data/artifacts/wiktionary-export/legacy/files/languages.json",
-  "wiktionary_families": "data/artifacts/wiktionary-export/legacy/files/families.json",
+  "wiktionary_languages": "data/artifacts/wiktionary-export/2d98b7aa0c9965e1492db2e242ead832fe7e3c161e1f1a27c1d177135c6df2b7/files/languages.json",
+  "wiktionary_families": "data/artifacts/wiktionary-export/2d98b7aa0c9965e1492db2e242ead832fe7e3c161e1f1a27c1d177135c6df2b7/files/families.json",
   "glottolog_cldf": "data/artifacts/glottolog/5.3/files/glottolog/cldf",
   "iecor_languages": "data/artifacts/iecor/legacy/files/languages.csv",
-  "wiktextract": "data/artifacts/wiktextract/legacy/files/raw-wiktextract-data.jsonl.gz",
+  "wiktextract": "data/artifacts/wiktextract/6da0ba5bf330650cba59911466da388d3f60c69519a50dc9ca71451b0bfba506/files/raw-wiktextract-data.jsonl.gz",
   "legacy_graph": "data/artifacts/etymology-graph/legacy/files/wety.json"
 }

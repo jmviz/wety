@@ -22,15 +22,22 @@ phf = {version = "0.10", features = ["macros"]}
 csv = "1.2.2"
 hf-hub = "0.3.2"
 tokenizers = { version = "0.15.0", default-features = false, features = ["onig"] }
-candle-core = { version = "0.3.2"}
-candle-transformers = { version = "0.3.2"}
-candle-nn = { version = "0.3.2"}
+candle-core = { version = "0.11.0"}
+candle-transformers = { version = "0.11.0"}
+candle-nn = { version = "0.11.0"}
 accelerate-src = { version = "0.3.2", optional = true }
 intel-mkl-src = { version = "0.8.1", optional = true }
+
+# Apple GPUs: Metal for the embedding model, enabled automatically on macOS (the CPU
+# path was about 5x slower). Other platforms opt into cuda/mkl/accelerate below.
+[target.'cfg(target_os = "macos")'.dependencies]
+candle-core = { version = "0.11.0", features = ["metal"] }
+candle-nn = { version = "0.11.0", features = ["metal"] }
+candle-transformers = { version = "0.11.0", features = ["metal"] }
 
 [features]
 default = []
 cuda = ["candle-core/cuda", "candle-nn/cuda", "candle-transformers/cuda"]
-metal = ["candle-core/metal", "candle-nn/metal"]
+metal = ["candle-core/metal", "candle-nn/metal", "candle-transformers/metal"]
 accelerate = ["dep:accelerate-src", "candle-core/accelerate", "candle-nn/accelerate", "candle-transformers/accelerate"]
 mkl = ["dep:intel-mkl-src", "candle-core/mkl", "candle-nn/mkl", "candle-transformers/mkl"]

@@ -10,8 +10,8 @@
     "wikidata_items.json": "data/workspaces/catalogs/sources/wikidata_items.json",
     "ISO-639-2_utf-8.txt": "data/workspaces/catalogs/sources/ISO-639-2_utf-8.txt",
     "iso-639-3-macrolanguages.tab": "data/workspaces/catalogs/sources/iso-639-3-macrolanguages.tab",
-    "wiktionary_languages": "data/artifacts/wiktionary-export/legacy/files/languages.json",
-    "wiktionary_families": "data/artifacts/wiktionary-export/legacy/files/families.json",
+    "wiktionary_languages": "data/artifacts/wiktionary-export/2d98b7aa0c9965e1492db2e242ead832fe7e3c161e1f1a27c1d177135c6df2b7/files/languages.json",
+    "wiktionary_families": "data/artifacts/wiktionary-export/2d98b7aa0c9965e1492db2e242ead832fe7e3c161e1f1a27c1d177135c6df2b7/files/families.json",
     "iecor_languages": "data/artifacts/iecor/legacy/files/languages.csv",
     "overrides": "data/workspaces/catalogs/overrides.json"
   },

@@ -29,6 +29,7 @@ __pycache__/
 
 # Small reference inputs consumed by the Rust build.
 !/data/artifacts/wiktionary-export/legacy/files/*.json
+!/data/artifacts/wiktionary-export/*/files/*.json
 !/data/artifacts/iecor/legacy/files/*.csv
 
 # Curated catalog inputs.
