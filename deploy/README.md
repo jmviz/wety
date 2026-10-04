@@ -61,7 +61,7 @@ is done, probably 30–60 minutes. `<ip>` is the instance's public IP.
 
 6. Upload the selected graph (the artifact named in
    `data/products/etymology_graph/CURRENT.json`) from the main checkout, where `data/`
-   lives. Expect a 560 MB upload.
+   lives. Expect a 600 MB upload.
 
    ```bash
    deploy/publish-graph.sh
@@ -247,7 +247,7 @@ instead risks "out of capacity" errors.
    ssh -i ~/.ssh/wety_deploy deploy@<ip> bash
    ```
 
-10. Deploy the release from step 5 on the host. It downloads the 560 MB graph and
+10. Deploy the release from step 5 on the host. It downloads the 600 MB graph and
     loads it, which takes a few minutes. `<commit>` is the `main` commit that step 5
     built (`git rev-parse origin/main` on your machine).
 
@@ -351,7 +351,7 @@ Server environment:
 
 Release builds use `RUSTFLAGS="-C target-cpu=neoverse-n1"`. The host's Ampere Altra is
 a Neoverse N1, while `.cargo/config.toml`'s `target-cpu=native` would target the build
-machine. The current graph (560 MB gzipped JSON) takes about two minutes to load and
+machine. The current graph (600 MB gzipped JSON) takes about two minutes to load and
 index on an M1 Pro and about 5 GB of memory once loaded; the host is slower.
 `wety-deploy` waits up to 15 minutes (`WETY_HEALTH_TIMEOUT`).
 The old PyTorch-era instructions are in git history
