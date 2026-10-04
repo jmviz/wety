@@ -651,9 +651,10 @@ impl Items {
     // item, from the section of an item citing it). A Descendants list
     // may already have given it a parent; the item's own section is preferred,
     // except where that parent is more specific (it descends from the parent
-    // named here, e.g. Old French between Latin and English) or where the item
-    // would trade an entry for a term missing from the data. Returns whether
-    // the ety was set.
+    // named here, e.g. Old French between Latin and English), where the item
+    // would trade an entry for a term missing from the data, or where the
+    // section gives only a mention or a form-of link. Returns whether the ety
+    // was set.
     fn set_own_ety(
         &mut self,
         item: ItemId,
@@ -674,7 +675,10 @@ impl Items {
             };
             let loses_entry = ety_items.iter().any(|&e| self.get(e).is_imputed())
                 && existing.items.iter().all(|&e| !self.get(e).is_imputed());
-            if more_specific || loses_entry {
+            // a lone {{m}} or a form-of sense, used when there is no
+            // etymology proper, is weaker evidence than a Descendants list
+            let weak = matches!(mode, EtyMode::Mention | EtyMode::Form);
+            if more_specific || loses_entry || weak {
                 return false;
             }
             self.graph.remove_ety(item);
