@@ -70,6 +70,11 @@ the subject's evidence or catalog mapping does.
 
 ## Research
 
+`dating period-targets` lists the codes that name past stages (proto-languages,
+varieties, ISO historical or extinct languages), ranked by how many items of the
+selected graph use them, with their current period and evidence counts
+(`data/products/dating/period_targets.json`); research batches are chosen from it.
+
 New family research uses the [single frontier researcher](docs/single-frontier.md): one
 continuing, tool-enabled model session that discovers, retrieves, interprets and writes
 proposals, followed by a self-audit. Its output is a proposal dossier under

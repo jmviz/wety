@@ -12,6 +12,7 @@ dating costs                                 model spend and tokens from the log
 dating llm-synthesize FAMILY                 save a review proposal; never adopt model dates
 dating validate                              check current generation, provenance, dependencies and mirrors
 dating export-periods [--out PATH]           display periods from adopted decisions -> language_periods.json
+dating period-targets [--graph PATH]        undated past-stage codes ranked by graph items -> period_targets.json
 dating gc [--keep-recent N] [--apply]        retire old generations (dry run unless --apply)
 dating decision-digest SUBJECT               evidence digest a decision on SUBJECT (e.g. wikt:ang) must name
 dating build-packet RUN REVIEW               reviewed research run -> packet, registered sources and texts
@@ -191,6 +192,12 @@ def cmd_export_periods(args) -> None:
     print(json.dumps(write_periods(args.out), indent=2))
 
 
+def cmd_period_targets(args) -> None:
+    from .targets import write_targets
+
+    print(json.dumps(write_targets(args.out, args.graph), indent=2, ensure_ascii=False))
+
+
 def cmd_gc(args) -> None:
     from .retention import apply, plan
 
@@ -319,6 +326,10 @@ def main() -> None:
     p = sub.add_parser("export-periods")
     p.add_argument("--out")
     p.set_defaults(fn=cmd_export_periods)
+    p = sub.add_parser("period-targets")
+    p.add_argument("--out")
+    p.add_argument("--graph", help="wety.json.gz (default: the graph in deploy/graph.json)")
+    p.set_defaults(fn=cmd_period_targets)
     p = sub.add_parser("gc")
     p.add_argument("--keep-recent", type=int, default=2)
     p.add_argument("--apply", action="store_true")
