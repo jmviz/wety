@@ -99,9 +99,15 @@ a supported assertion needs a stated time.
 
 Events and roles: conventional_period (role convention) for a named stage's
 periodization; first_attestation / last_attestation (role observation) for dated
-surviving texts; documentary_sampling (role observation) for a database documentation
-window; conventional_period with role hypothesis and method expert_estimate for a
-proto-stage dating. Attestation is not the spoken period: say so in qualifications.
+surviving texts; documentary_sampling (role observation) for an attestation window
+stated as one span ("attested from the 3rd c. BCE to the 5th c. CE") or a database
+documentation window; conventional_period with role hypothesis and method expert_estimate for a
+proto-stage dating; composition (role hypothesis) for when texts transmitted orally or
+known only from much later copies were composed (the Vedas, the Avesta), and
+manuscript_production for the date of a surviving copy; native_transmission_end
+(role hypothesis) for when a language stopped being spoken natively; literary_use for
+a written or learned register. Attestation is not the spoken period: say so in
+qualifications. Use only these event names; check rejects others.
 
 Deliverables (write via the write action; these four names only):
 1. assertions.jsonl, one JSON object per line, with: id; code (the Wiktionary code);
@@ -133,7 +139,8 @@ establish correctness. Finish with a short summary of what is verified per code.
 
 Codes (most-used in wety's trees first). Each note gives the Wiktionary name and kind,
 the parent a variety is filed under or the varieties filed under a code, what wety
-shows now, and where to look.
+shows now, and where to look. Dates in a note's pointer are unverified leads, not
+evidence: verify them in a source or leave them out.
 
 {{CODES}}
 ```

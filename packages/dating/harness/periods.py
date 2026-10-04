@@ -4,7 +4,9 @@ Only adopted editorial decisions on supported, exact `wikt:<code>` evidence prod
 period. Other supported exact claims for the same code are listed as alternatives,
 each with its own source; nothing is averaged or merged across sources. Years are
 astronomical (BCE n = 1 - n) and converted only for labels. Family split estimates are
-separate records and never become a language's period.
+separate records and never become a language's period. A composition window (texts
+transmitted orally, known from much later copies) is shown, basis "composition", only
+when no period or attestation is adopted.
 
 A code with Wiktionary varieties (etymology-only codes such as Early Middle Japanese
 under Old Japanese) also gets a `span`: from the earliest start to the latest end of
@@ -147,6 +149,8 @@ def label(start, end, ongoing=False, approximate=False):
 
 
 def basis(claims, reconstructed):
+    if not reconstructed and all(c["event"] == "composition" for c in claims):
+        return "composition"
     if reconstructed or any(c["role"] in ("hypothesis", "posterior") for c in claims):
         return "estimated"
     if all(c["event"] == "conventional_period" for c in claims):
@@ -192,6 +196,18 @@ def interval(claims):
     else:
         first, last = (by_event.get(e) for e in ATTESTATION_EVENTS)
         used = [c for c in (first, last) if c]
+        if not used and "composition" in by_event:
+            # Texts transmitted orally (the Vedas, the Avesta) survive only in much
+            # later copies: when composed is the best date, shown as its own basis.
+            comp = by_event["composition"]
+            start, end = ranges(comp)
+            return {
+                "start": start,
+                "end": end,
+                "ongoing": False,
+                "approximate": bool(comp["time"].get("original", {}).get("approximate")),
+                "claims": [comp],
+            }
         if not used:
             return None
         start = event_range(first) if first else None

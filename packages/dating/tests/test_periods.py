@@ -139,6 +139,22 @@ class PeriodExportTests(unittest.TestCase):
         self.assertNotIn("sa", out)
         self.assertEqual(out["cls"]["label"], "400 BCE–present")
 
+    def test_composition_window_when_nothing_else_is_adopted(self):
+        comp = claim(
+            "v",
+            "vsn",
+            "composition",
+            "hypothesis",
+            years(500, 1500, "BCE", approximate=True),
+        )
+        first = claim("f", "vsn", "first_attestation", "observation", years(1000, 1100))
+        (vsn,) = export_periods(bundle([comp], ["v"]), "gen")["languages"]
+        self.assertEqual((vsn["basis"], vsn["label"]), ("composition", "c. 1500–500 BCE"))
+        # An adopted attestation takes precedence; the composition stays visible.
+        (vsn,) = export_periods(bundle([comp, first], ["v", "f"]), "gen")["languages"]
+        self.assertEqual(vsn["basis"], "attested")
+        self.assertEqual(vsn["alternatives"][0]["basis"], "composition")
+
     def test_crown_age_dates_a_proto_languages_end(self):
         crown = {
             "id": "k",

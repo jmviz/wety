@@ -463,3 +463,7 @@
 .tree-view .period .basis-estimated {
   border-style: dashed;
 }
+
+.tree-view .period .basis-composition {
+  border-style: dotted;
+}
