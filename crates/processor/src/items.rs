@@ -44,6 +44,10 @@ pub(crate) struct Items {
     pub(crate) imputed_dupes: Dupes,
     pub(crate) etymon_ids: EtymonIds,
     pub(crate) entry_names: EntryNames,
+    // (lang, page title) -> the imputed item standing for a term missing from
+    // the data. As on Wiktionary, where all citations of a term link to the
+    // same (missing) page, all citations share it.
+    pub(crate) imputed_titles: HashMap<LangTerm, ItemId>,
     pub(crate) redirects: Redirects,
     pub(crate) raw_templates: RawTemplates,
     pub(crate) lines: Lines,
@@ -59,6 +63,7 @@ impl Items {
             imputed_dupes: Dupes::default(),
             etymon_ids: EtymonIds::default(),
             entry_names: EntryNames::default(),
+            imputed_titles: HashMap::default(),
             redirects: Redirects::default(),
             raw_templates: RawTemplates::default(),
             lines: Lines::default(),
@@ -348,14 +353,27 @@ impl Items {
                 // is_newly_imputed: false,
             });
         }
-        let imputed = ImputedItem {
-            ety_num: 1, // may get changed in add_imputed
-            lang: langterm.lang,
-            term: langterm.term,
-            romanization: None, // $$ implement getting this from template
-            from: from_item,
+        let title = self
+            .entry_names
+            .get(&langterm)
+            .copied()
+            .unwrap_or(langterm.term);
+        let key = LangTerm::new(langterm.lang, title);
+        let item_id = match self.imputed_titles.get(&key) {
+            Some(&item_id) => item_id,
+            None => {
+                let imputed = ImputedItem {
+                    ety_num: 1, // may get changed in add_imputed
+                    lang: langterm.lang,
+                    term: langterm.term,
+                    romanization: None, // $$ implement getting this from template
+                    from: from_item,
+                };
+                let item_id = self.add_imputed(imputed);
+                self.imputed_titles.insert(key, item_id);
+                item_id
+            }
         };
-        let item_id = self.add_imputed(imputed);
         Ok(Retrieval {
             item_id,
             confidence: embeddings::SIMILARITY_THRESHOLD,

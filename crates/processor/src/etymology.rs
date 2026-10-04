@@ -624,7 +624,8 @@ impl Items {
         Ok(())
     }
 
-    // Set an item's ety from its own etymology section. A Descendants list
+    // Set an item's ety from its own etymology section (or, for an imputed
+    // item, from the section of an item citing it). A Descendants list
     // may already have given it a parent; the item's own section is preferred,
     // except where that parent is more specific (it descends from the parent
     // named here, e.g. Old French between Latin and English) or where the item
@@ -638,6 +639,11 @@ impl Items {
         confidences: &[f32],
     ) -> bool {
         if let Some(existing) = self.graph.immediate_ety(item) {
+            // An imputed item is shared by all citations of its term; the first
+            // to give it an ety keeps it.
+            if self.get(item).is_imputed() {
+                return false;
+            }
             let more_specific = match (&existing.items[..], ety_items) {
                 ([old], [new]) => old != new && self.is_ancestor(*new, *old),
                 _ => false,
@@ -954,6 +960,21 @@ mod tests {
             t.items.graph.add_ety(october2, EtyMode::Inherited, Some(0), &[enm], &[0.5]);
             t.process(october2, r#"[{"name": "inh", "args": {"1": "en", "2": "enm", "3": "Octobere"}}]"#);
             assert_eq!(t.parents(october2), ["enm:Octobre"]);
+        }
+
+        #[test]
+        fn citations_of_a_missing_term_share_it() {
+            let mut t = Setup::new("shared");
+            t.add("ang", "mōdor");
+            let mother = t.add("en", "mother");
+            let motherly = t.add("en", "motherly");
+            t.process(mother, r#"[{"name": "inh", "args": {"1": "en", "2": "enm", "3": "moder"}},
+                {"name": "inh", "args": {"1": "en", "2": "ang", "3": "mōdor"}}]"#);
+            t.process(motherly, r#"[{"name": "inh", "args": {"1": "en", "2": "enm", "3": "moder"}},
+                {"name": "inh", "args": {"1": "en", "2": "ang", "3": "modor"}}]"#);
+            assert_eq!(t.parent(mother), t.parent(motherly));
+            // the first citation's chain is kept
+            assert_eq!(t.parents(t.parent(motherly)), ["ang:mōdor"]);
         }
 
         #[test]
