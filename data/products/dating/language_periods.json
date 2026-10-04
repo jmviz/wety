@@ -1,6 +1,6 @@
 {
   "family_splits": [],
-  "generation": "b99e8e60fe588ffcca53002fdd11bc207ff2188a08a38a33cce3870e633fb1bc",
+  "generation": "2790404c63e0282a4478bd4be0ba698edc446728476089009f2792dec0ef8a86",
   "languages": [
     {
       "alternatives": [
@@ -83,6 +83,81 @@
       "kind": "attested",
       "label": "26th century BCE – 1st century CE",
       "name": "Akkadian",
+      "span": {
+        "components": [
+          {
+            "basis": "attested",
+            "code": "akk",
+            "label": "26th century BCE – 1st century CE",
+            "name": "Akkadian",
+            "own": true
+          },
+          {
+            "basis": "conventional",
+            "code": "akk-lbb",
+            "label": "c. 600 BCE – 100 CE",
+            "name": "Late Babylonian",
+            "own": false
+          },
+          {
+            "basis": "conventional",
+            "code": "akk-mas",
+            "label": "c. 1500–1000 BCE",
+            "name": "Middle Assyrian",
+            "own": false
+          },
+          {
+            "basis": "conventional",
+            "code": "akk-mbb",
+            "label": "c. 1500–1000 BCE",
+            "name": "Middle Babylonian",
+            "own": false
+          },
+          {
+            "basis": "conventional",
+            "code": "akk-nas",
+            "label": "c. 1000–600 BCE",
+            "name": "Neo-Assyrian",
+            "own": false
+          },
+          {
+            "basis": "conventional",
+            "code": "akk-nbb",
+            "label": "c. 1000–600 BCE",
+            "name": "Neo-Babylonian",
+            "own": false
+          },
+          {
+            "basis": "conventional",
+            "code": "akk-oas",
+            "label": "c. 2000–1500 BCE",
+            "name": "Old Assyrian",
+            "own": false
+          },
+          {
+            "basis": "conventional",
+            "code": "akk-obb",
+            "label": "c. 2000–1500 BCE",
+            "name": "Old Babylonian",
+            "own": false
+          }
+        ],
+        "end": {
+          "earliest": 100,
+          "latest": 100
+        },
+        "label": "c. 26th century BCE – 100 CE",
+        "ongoing": false,
+        "partial": true,
+        "start": {
+          "earliest": -2599,
+          "latest": -2500
+        },
+        "undated": [
+          "akk-old",
+          "akk-stb"
+        ]
+      },
       "spoken": {
         "end": {
           "earliest": 1,
@@ -92,6 +167,223 @@
         "start": {
           "earliest": -2599,
           "latest": -2500
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "conventional",
+      "code": "akk-lbb",
+      "evidence": [
+        {
+          "citation": "Huehnergard, John. 2011. A Grammar of Akkadian. 3rd ed., 2nd printing 2015. Harvard Semitic Studies 45. Winona Lake, IN: Eisenbrauns. (Copy supplied by the maintainer; its Zotero record says Brill 2018, the copy's title and copyright pages say Eisenbrauns 2011.)",
+          "claim_id": "ev_period_43094dd18f840d74ba6eb6a090c371e57e79859d",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"xxv\", \"pdf_page\": 25}",
+          "quote": "Old Akkadian (OAkk), mid-3rd to end of 3rd millennium \nOld Assyrian (OA) \nMiddle Assyrian (MA) \nNeo-Assyrian (NA) \n2000-1500 \n1500-1000 \n1000-600 \n600-100 CE \nThese may be reviewed briefly in turn. \nOld Babylonian (OB) \nMiddle Babylonian (MB) \nNeo-Babylonian (NB) \nLate Babylonian (LB)",
+          "role": "convention",
+          "source": "Huehnergard 2011",
+          "url": null
+        }
+      ],
+      "kind": "stage",
+      "label": "c. 600 BCE – 100 CE",
+      "name": "Late Babylonian",
+      "spoken": {
+        "end": {
+          "earliest": 100,
+          "latest": 100
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": -599,
+          "latest": -599
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "conventional",
+      "code": "akk-mas",
+      "evidence": [
+        {
+          "citation": "Huehnergard, John. 2011. A Grammar of Akkadian. 3rd ed., 2nd printing 2015. Harvard Semitic Studies 45. Winona Lake, IN: Eisenbrauns. (Copy supplied by the maintainer; its Zotero record says Brill 2018, the copy's title and copyright pages say Eisenbrauns 2011.)",
+          "claim_id": "ev_period_018747cd510809d698a8da4da8335140264a0679",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"xxv\", \"pdf_page\": 25}",
+          "quote": "Old Akkadian (OAkk), mid-3rd to end of 3rd millennium \nOld Assyrian (OA) \nMiddle Assyrian (MA) \nNeo-Assyrian (NA) \n2000-1500 \n1500-1000 \n1000-600 \n600-100 CE \nThese may be reviewed briefly in turn. \nOld Babylonian (OB) \nMiddle Babylonian (MB) \nNeo-Babylonian (NB) \nLate Babylonian (LB)",
+          "role": "convention",
+          "source": "Huehnergard 2011",
+          "url": null
+        }
+      ],
+      "kind": "stage",
+      "label": "c. 1500–1000 BCE",
+      "name": "Middle Assyrian",
+      "spoken": {
+        "end": {
+          "earliest": -999,
+          "latest": -999
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": -1499,
+          "latest": -1499
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "conventional",
+      "code": "akk-mbb",
+      "evidence": [
+        {
+          "citation": "Huehnergard, John. 2011. A Grammar of Akkadian. 3rd ed., 2nd printing 2015. Harvard Semitic Studies 45. Winona Lake, IN: Eisenbrauns. (Copy supplied by the maintainer; its Zotero record says Brill 2018, the copy's title and copyright pages say Eisenbrauns 2011.)",
+          "claim_id": "ev_period_71a815f41ccc15c2ef8e632de47ebc3d63ec3515",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"xxv\", \"pdf_page\": 25}",
+          "quote": "Old Akkadian (OAkk), mid-3rd to end of 3rd millennium \nOld Assyrian (OA) \nMiddle Assyrian (MA) \nNeo-Assyrian (NA) \n2000-1500 \n1500-1000 \n1000-600 \n600-100 CE \nThese may be reviewed briefly in turn. \nOld Babylonian (OB) \nMiddle Babylonian (MB) \nNeo-Babylonian (NB) \nLate Babylonian (LB)",
+          "role": "convention",
+          "source": "Huehnergard 2011",
+          "url": null
+        }
+      ],
+      "kind": "stage",
+      "label": "c. 1500–1000 BCE",
+      "name": "Middle Babylonian",
+      "spoken": {
+        "end": {
+          "earliest": -999,
+          "latest": -999
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": -1499,
+          "latest": -1499
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "conventional",
+      "code": "akk-nas",
+      "evidence": [
+        {
+          "citation": "Huehnergard, John. 2011. A Grammar of Akkadian. 3rd ed., 2nd printing 2015. Harvard Semitic Studies 45. Winona Lake, IN: Eisenbrauns. (Copy supplied by the maintainer; its Zotero record says Brill 2018, the copy's title and copyright pages say Eisenbrauns 2011.)",
+          "claim_id": "ev_period_301f516b04339b4b32eca8ebb2af46c88a8d3bd9",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"xxv\", \"pdf_page\": 25}",
+          "quote": "Old Akkadian (OAkk), mid-3rd to end of 3rd millennium \nOld Assyrian (OA) \nMiddle Assyrian (MA) \nNeo-Assyrian (NA) \n2000-1500 \n1500-1000 \n1000-600 \n600-100 CE \nThese may be reviewed briefly in turn. \nOld Babylonian (OB) \nMiddle Babylonian (MB) \nNeo-Babylonian (NB) \nLate Babylonian (LB)",
+          "role": "convention",
+          "source": "Huehnergard 2011",
+          "url": null
+        }
+      ],
+      "kind": "stage",
+      "label": "c. 1000–600 BCE",
+      "name": "Neo-Assyrian",
+      "spoken": {
+        "end": {
+          "earliest": -599,
+          "latest": -599
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": -999,
+          "latest": -999
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "conventional",
+      "code": "akk-nbb",
+      "evidence": [
+        {
+          "citation": "Huehnergard, John. 2011. A Grammar of Akkadian. 3rd ed., 2nd printing 2015. Harvard Semitic Studies 45. Winona Lake, IN: Eisenbrauns. (Copy supplied by the maintainer; its Zotero record says Brill 2018, the copy's title and copyright pages say Eisenbrauns 2011.)",
+          "claim_id": "ev_period_0157aadc9836ff0dc4992e4b2b07b16c809b2d71",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"xxv\", \"pdf_page\": 25}",
+          "quote": "Old Akkadian (OAkk), mid-3rd to end of 3rd millennium \nOld Assyrian (OA) \nMiddle Assyrian (MA) \nNeo-Assyrian (NA) \n2000-1500 \n1500-1000 \n1000-600 \n600-100 CE \nThese may be reviewed briefly in turn. \nOld Babylonian (OB) \nMiddle Babylonian (MB) \nNeo-Babylonian (NB) \nLate Babylonian (LB)",
+          "role": "convention",
+          "source": "Huehnergard 2011",
+          "url": null
+        }
+      ],
+      "kind": "stage",
+      "label": "c. 1000–600 BCE",
+      "name": "Neo-Babylonian",
+      "spoken": {
+        "end": {
+          "earliest": -599,
+          "latest": -599
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": -999,
+          "latest": -999
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "conventional",
+      "code": "akk-oas",
+      "evidence": [
+        {
+          "citation": "Huehnergard, John. 2011. A Grammar of Akkadian. 3rd ed., 2nd printing 2015. Harvard Semitic Studies 45. Winona Lake, IN: Eisenbrauns. (Copy supplied by the maintainer; its Zotero record says Brill 2018, the copy's title and copyright pages say Eisenbrauns 2011.)",
+          "claim_id": "ev_period_82ed396bc350c69e4b6ebdda7659857078d6f604",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"xxv\", \"pdf_page\": 25}",
+          "quote": "Old Akkadian (OAkk), mid-3rd to end of 3rd millennium \nOld Assyrian (OA) \nMiddle Assyrian (MA) \nNeo-Assyrian (NA) \n2000-1500 \n1500-1000 \n1000-600 \n600-100 CE \nThese may be reviewed briefly in turn. \nOld Babylonian (OB) \nMiddle Babylonian (MB) \nNeo-Babylonian (NB) \nLate Babylonian (LB)",
+          "role": "convention",
+          "source": "Huehnergard 2011",
+          "url": null
+        }
+      ],
+      "kind": "stage",
+      "label": "c. 2000–1500 BCE",
+      "name": "Old Assyrian",
+      "spoken": {
+        "end": {
+          "earliest": -1499,
+          "latest": -1499
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": -1999,
+          "latest": -1999
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "conventional",
+      "code": "akk-obb",
+      "evidence": [
+        {
+          "citation": "Huehnergard, John. 2011. A Grammar of Akkadian. 3rd ed., 2nd printing 2015. Harvard Semitic Studies 45. Winona Lake, IN: Eisenbrauns. (Copy supplied by the maintainer; its Zotero record says Brill 2018, the copy's title and copyright pages say Eisenbrauns 2011.)",
+          "claim_id": "ev_period_a092954bb222d611e0dfef223d14793486680f1f",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"xxv\", \"pdf_page\": 25}",
+          "quote": "Old Akkadian (OAkk), mid-3rd to end of 3rd millennium \nOld Assyrian (OA) \nMiddle Assyrian (MA) \nNeo-Assyrian (NA) \n2000-1500 \n1500-1000 \n1000-600 \n600-100 CE \nThese may be reviewed briefly in turn. \nOld Babylonian (OB) \nMiddle Babylonian (MB) \nNeo-Babylonian (NB) \nLate Babylonian (LB)",
+          "role": "convention",
+          "source": "Huehnergard 2011",
+          "url": null
+        }
+      ],
+      "kind": "stage",
+      "label": "c. 2000–1500 BCE",
+      "name": "Old Babylonian",
+      "spoken": {
+        "end": {
+          "earliest": -1499,
+          "latest": -1499
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": -1999,
+          "latest": -1999
         }
       }
     },
@@ -239,6 +531,37 @@
       }
     },
     {
+      "alternatives": [],
+      "basis": "conventional",
+      "code": "cu",
+      "evidence": [
+        {
+          "citation": "Krause, T. B. & Slocum, J. Old Church Slavonic Online: Series Introduction. Linguistics Research Center, University of Texas at Austin.",
+          "claim_id": "ev_period_5534b7a7913aef070ec4cf6e4ae69e4caee9b855",
+          "event": "conventional_period",
+          "locator": "{\"start\": 10966, \"end\": 11737}",
+          "quote": "There are no clear-cut events or finds that identify the period of \nOld\n Church Slavonic. Linguists and historians, however, have for the most part settled upon a convention. The earliest date for the OCS period is given by our estimation of the missions of Cyril and Methodius in the middle of the ninth century. The latest date for OCS is given as roughly 1100, after which it seems that manuscripts have more linguistic variation than they did before. Thus one may speak of the OCS period as extending from ca. 850 - 1100 AD. This is certainly an oversimplification, since the language spoken by Cyril and Methodius must have been in use for quite some time prior to their work, and there are later texts that show definite affinity with the OCS discussed in grammars.",
+          "role": "convention",
+          "source": "Krause & Slocum",
+          "url": "https://lrc.la.utexas.edu/eieol/ocsol"
+        }
+      ],
+      "kind": "stage",
+      "label": "c. 850–1100 CE",
+      "name": "Old Church Slavonic",
+      "spoken": {
+        "end": {
+          "earliest": 1100,
+          "latest": 1100
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 850,
+          "latest": 850
+        }
+      }
+    },
+    {
       "alternatives": [
         {
           "basis": "attested",
@@ -338,6 +661,37 @@
         "start": {
           "earliest": -499,
           "latest": -399
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "conventional",
+      "code": "gkm",
+      "evidence": [
+        {
+          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Europe. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "claim_id": "ev_period_05b8b5e148aff3f9b75ce62ecc41aa33cd1a2264",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"14\", \"pdf_page\": 36}",
+          "quote": "The ﬁnal phase of Greek in antiquity is that of the\nByzantine era, stretching from the fourth to the fourteenth century AD.",
+          "role": "convention",
+          "source": "Woodard 2008",
+          "url": null
+        }
+      ],
+      "kind": "stage",
+      "label": "4th–14th century CE",
+      "name": "Byzantine Greek",
+      "spoken": {
+        "end": {
+          "earliest": 1301,
+          "latest": 1400
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 301,
+          "latest": 400
         }
       }
     },
@@ -521,6 +875,59 @@
       "kind": "stage",
       "label": "until 1453 CE",
       "name": "Ancient Greek",
+      "span": {
+        "components": [
+          {
+            "basis": "conventional",
+            "code": "grc",
+            "label": "until 1453 CE",
+            "name": "Ancient Greek",
+            "own": true
+          },
+          {
+            "basis": "conventional",
+            "code": "gkm",
+            "label": "4th–14th century CE",
+            "name": "Byzantine Greek",
+            "own": false
+          },
+          {
+            "basis": "conventional",
+            "code": "grc-koi",
+            "label": "4th century BCE – 4th century CE",
+            "name": "Koine Greek",
+            "own": false
+          }
+        ],
+        "end": {
+          "earliest": 1453,
+          "latest": 1453
+        },
+        "label": "4th century BCE – 1453 CE",
+        "ongoing": false,
+        "partial": true,
+        "start": {
+          "earliest": -399,
+          "latest": -300
+        },
+        "undated": [
+          "grc-aeo",
+          "grc-arc",
+          "grc-arp",
+          "grc-att",
+          "grc-boi",
+          "grc-cyp",
+          "grc-dor",
+          "grc-ela",
+          "grc-epi",
+          "grc-ion",
+          "grc-kre",
+          "grc-opl",
+          "grc-ozl",
+          "grc-pam",
+          "grc-ths"
+        ]
+      },
       "spoken": {
         "end": {
           "earliest": 1453,
@@ -528,6 +935,37 @@
         },
         "ongoing": false,
         "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "conventional",
+      "code": "grc-koi",
+      "evidence": [
+        {
+          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Europe. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "claim_id": "ev_period_5a4b9bc582e3434039f899ecf1f1747108fa01f1",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"14\", \"pdf_page\": 36}",
+          "quote": "With the expansion of Hellenic culture under\nPhilip of Macedon in the middle of the fourth century BC, the Attic dialect begins to\nspread geographically, developing into a Hellenistic Koine. This Hellenistic period of Greek\ncontinues until the fourth century AD.",
+          "role": "convention",
+          "source": "Woodard 2008",
+          "url": null
+        }
+      ],
+      "kind": "stage",
+      "label": "4th century BCE – 4th century CE",
+      "name": "Koine Greek",
+      "spoken": {
+        "end": {
+          "earliest": 301,
+          "latest": 400
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": -399,
+          "latest": -300
+        }
       }
     },
     {
@@ -644,6 +1082,130 @@
       }
     },
     {
+      "alternatives": [],
+      "basis": "conventional",
+      "code": "itc-ala",
+      "evidence": [
+        {
+          "citation": "Kapović, Mate (ed.). 2017. The Indo-European Languages. 2nd ed. Routledge Language Family Series. Abingdon and New York: Routledge (paperback issue 2019). Chapters cited by author in the locator.",
+          "claim_id": "ev_period_1bb897911ae30674e524c4d34049d40a7e649811",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"322\", \"pdf_page\": 343}",
+          "quote": "Very Old Latin (VOLat.), ca. 650–400 BCE",
+          "role": "convention",
+          "source": "Kapović 2017",
+          "url": null
+        }
+      ],
+      "kind": "stage",
+      "label": "c. 650–400 BCE",
+      "name": "Archaic Latin",
+      "spoken": {
+        "end": {
+          "earliest": -399,
+          "latest": -399
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": -649,
+          "latest": -649
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "conventional",
+      "code": "itc-ola",
+      "evidence": [
+        {
+          "citation": "Kapović, Mate (ed.). 2017. The Indo-European Languages. 2nd ed. Routledge Language Family Series. Abingdon and New York: Routledge (paperback issue 2019). Chapters cited by author in the locator.",
+          "claim_id": "ev_period_304bdafc04ff3f61637f34e9e49723ca97ffcdd3",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"322\", \"pdf_page\": 343}",
+          "quote": "Old Latin (OLat.), ca. 400–100 BCE",
+          "role": "convention",
+          "source": "Kapović 2017",
+          "url": null
+        }
+      ],
+      "kind": "stage",
+      "label": "c. 400–100 BCE",
+      "name": "Old Latin",
+      "spoken": {
+        "end": {
+          "earliest": -99,
+          "latest": -99
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": -399,
+          "latest": -399
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "conventional",
+      "code": "ja-mid-ear",
+      "evidence": [
+        {
+          "citation": "Frellesvig, Bjarke. 2010. A History of the Japanese Language. Cambridge: Cambridge University Press.",
+          "claim_id": "ev_period_4509d444ed8e03deb3c0229379f0e979f486c3ba",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"1\", \"pdf_page\": 27}",
+          "quote": "Early Middle Japanese \n800-1200 \n(EMJ)",
+          "role": "convention",
+          "source": "Frellesvig 2010",
+          "url": "https://doi.org/10.1017/CBO9780511778322"
+        }
+      ],
+      "kind": "stage",
+      "label": "800–1200 CE",
+      "name": "Early Middle Japanese",
+      "spoken": {
+        "end": {
+          "earliest": 1200,
+          "latest": 1200
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 800,
+          "latest": 800
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "conventional",
+      "code": "ja-mid-lat",
+      "evidence": [
+        {
+          "citation": "Frellesvig, Bjarke. 2010. A History of the Japanese Language. Cambridge: Cambridge University Press.",
+          "claim_id": "ev_period_c089a67bdb76432f02231b77abd14f34f3d56b43",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"1\", \"pdf_page\": 27}",
+          "quote": "Late Middle Japanese \n1200-1600 \n(LMJ)",
+          "role": "convention",
+          "source": "Frellesvig 2010",
+          "url": "https://doi.org/10.1017/CBO9780511778322"
+        }
+      ],
+      "kind": "stage",
+      "label": "1200–1600 CE",
+      "name": "Late Middle Japanese",
+      "spoken": {
+        "end": {
+          "earliest": 1600,
+          "latest": 1600
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 1200,
+          "latest": 1200
+        }
+      }
+    },
+    {
       "alternatives": [
         {
           "basis": "attested",
@@ -697,12 +1259,158 @@
       "kind": "attested",
       "label": "from 7th century BCE",
       "name": "Latin",
+      "span": {
+        "components": [
+          {
+            "basis": "attested",
+            "code": "la",
+            "label": "from 7th century BCE",
+            "name": "Latin",
+            "own": true
+          },
+          {
+            "basis": "conventional",
+            "code": "itc-ala",
+            "label": "c. 650–400 BCE",
+            "name": "Archaic Latin",
+            "own": false
+          },
+          {
+            "basis": "conventional",
+            "code": "itc-ola",
+            "label": "c. 400–100 BCE",
+            "name": "Old Latin",
+            "own": false
+          },
+          {
+            "basis": "conventional",
+            "code": "la-cla",
+            "label": "c. 100 BCE – 200 CE",
+            "name": "Classical Latin",
+            "own": false
+          },
+          {
+            "basis": "conventional",
+            "code": "la-lat",
+            "label": "c. 200–600 CE",
+            "name": "Late Latin",
+            "own": false
+          }
+        ],
+        "end": {
+          "earliest": 600,
+          "latest": 600
+        },
+        "label": "c. 700/650 BCE – 600 CE",
+        "ongoing": false,
+        "partial": true,
+        "start": {
+          "earliest": -699,
+          "latest": -649
+        },
+        "undated": [
+          "itc-lan",
+          "itc-pra",
+          "la-afr",
+          "la-con",
+          "la-ecc",
+          "la-eme",
+          "la-med",
+          "la-new",
+          "la-ren",
+          "la-vul",
+          "roa-pro"
+        ]
+      },
       "spoken": {
         "end": null,
         "ongoing": false,
         "start": {
           "earliest": -699,
           "latest": -600
+        }
+      }
+    },
+    {
+      "alternatives": [
+        {
+          "basis": "conventional",
+          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Europe. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "claim_id": "ev_period_513c34176f4edcc09d1fb7e81ddcd3fed1305d8f",
+          "end": {
+            "earliest": 14,
+            "latest": 14
+          },
+          "event": "conventional_period",
+          "label": "c. 100 BCE – 14 CE",
+          "locator": "{\"page\": \"74\", \"pdf_page\": 97}",
+          "quote": "Classical Latin: The language of ofﬁcial inscriptions and literature from c. 100 BC to\nc. AD 14.",
+          "role": "convention",
+          "source": "Woodard 2008",
+          "start": {
+            "earliest": -99,
+            "latest": -99
+          },
+          "url": null
+        }
+      ],
+      "basis": "conventional",
+      "code": "la-cla",
+      "evidence": [
+        {
+          "citation": "Kapović, Mate (ed.). 2017. The Indo-European Languages. 2nd ed. Routledge Language Family Series. Abingdon and New York: Routledge (paperback issue 2019). Chapters cited by author in the locator.",
+          "claim_id": "ev_period_abc766d85ee6b2ef78deda7ece44d3b30eb2601e",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"322\", \"pdf_page\": 343}",
+          "quote": "Classical Latin (Class. Lat.), ca. 100 BCE–200 CE",
+          "role": "convention",
+          "source": "Kapović 2017",
+          "url": null
+        }
+      ],
+      "kind": "stage",
+      "label": "c. 100 BCE – 200 CE",
+      "name": "Classical Latin",
+      "spoken": {
+        "end": {
+          "earliest": 200,
+          "latest": 200
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": -99,
+          "latest": -99
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "conventional",
+      "code": "la-lat",
+      "evidence": [
+        {
+          "citation": "Kapović, Mate (ed.). 2017. The Indo-European Languages. 2nd ed. Routledge Language Family Series. Abingdon and New York: Routledge (paperback issue 2019). Chapters cited by author in the locator.",
+          "claim_id": "ev_period_b01dcb8bfbd08a7da2511e631884c183ce7e4c05",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"322\", \"pdf_page\": 343}",
+          "quote": "Late Latin (Late Lat.), ca. 200–600 CE",
+          "role": "convention",
+          "source": "Kapović 2017",
+          "url": null
+        }
+      ],
+      "kind": "stage",
+      "label": "c. 200–600 CE",
+      "name": "Late Latin",
+      "spoken": {
+        "end": {
+          "earliest": 600,
+          "latest": 600
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 200,
+          "latest": 200
         }
       }
     },
@@ -765,6 +1473,77 @@
         "start": {
           "earliest": -1199,
           "latest": -1199
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "conventional",
+      "code": "ojp",
+      "evidence": [
+        {
+          "citation": "Frellesvig, Bjarke. 2010. A History of the Japanese Language. Cambridge: Cambridge University Press.",
+          "claim_id": "ev_period_336d15c741895628892001f1d203594ef5c9ca54",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"1\", \"pdf_page\": 27}",
+          "quote": "Old Japanese (OJ) \n700-800",
+          "role": "convention",
+          "source": "Frellesvig 2010",
+          "url": "https://doi.org/10.1017/CBO9780511778322"
+        }
+      ],
+      "kind": "stage",
+      "label": "700–800 CE",
+      "name": "Old Japanese",
+      "span": {
+        "components": [
+          {
+            "basis": "conventional",
+            "code": "ojp",
+            "label": "700–800 CE",
+            "name": "Old Japanese",
+            "own": true
+          },
+          {
+            "basis": "conventional",
+            "code": "ja-mid-ear",
+            "label": "800–1200 CE",
+            "name": "Early Middle Japanese",
+            "own": false
+          },
+          {
+            "basis": "conventional",
+            "code": "ja-mid-lat",
+            "label": "1200–1600 CE",
+            "name": "Late Middle Japanese",
+            "own": false
+          }
+        ],
+        "end": {
+          "earliest": 1600,
+          "latest": 1600
+        },
+        "label": "700–1600 CE",
+        "ongoing": false,
+        "partial": true,
+        "start": {
+          "earliest": 700,
+          "latest": 700
+        },
+        "undated": [
+          "ja-mid",
+          "ojp-eas"
+        ]
+      },
+      "spoken": {
+        "end": {
+          "earliest": 800,
+          "latest": 800
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 700,
+          "latest": 700
         }
       }
     },

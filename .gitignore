@@ -54,6 +54,7 @@ __pycache__/
 !/data/workspaces/dating/_research/*/*revisions.jsonl
 !/data/workspaces/dating/_research/*/review.json
 !/data/workspaces/dating/_research/*/coordinator-review/review.json
+!/data/workspaces/dating/_research/*/coordinator-review/revision-*.json
 !/data/workspaces/dating/_research/packets/**
 !/data/workspaces/dating/_research/graph.json
 !/data/workspaces/dating/_research/pilot_sources.json
