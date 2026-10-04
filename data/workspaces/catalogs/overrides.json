@@ -301,6 +301,70 @@
         "source_snapshot": "ef06d08e444cab6740674fde5d036ab9425118349674598a22fe7859e471c151",
         "purpose": "dating: whether a period a source states for the target applies to the whole Wiktionary code (including etymology-only varieties filed under it); no chronology transfer"
       }
+    ],
+    "wikt:lang:cu": [
+      {
+        "target": "iso639-3:chu",
+        "relation": "source_narrower",
+        "reviewer": "Claude Opus 5.5 (Claude Code), from catalog-pinned ISO 639 and Glottolog 5.3 data and the 2026-10-04 period retry, 2026-10-04",
+        "source_snapshot": "ef06d08e444cab6740674fde5d036ab9425118349674598a22fe7859e471c151",
+        "purpose": "dating: whether a period a source states for the target applies to the whole Wiktionary code (including etymology-only varieties filed under it); no chronology transfer",
+        "rationale": "ISO chu names the whole tradition: 'Church Slavic; Old Slavonic; Church Slavonic; Old Bulgarian; Old Church Slavonic' (ISO 639-2 names). Church Slavonic is the post-1100 Macedonian, Bulgarian, Serbian and Russian recensions (Lunt 1974, p. 4), of which Middle Bulgarian is the Bulgarian one. Wiktionary cu files only Old Church Slavonic and Middle Bulgarian, both inside chu.",
+        "references": [
+          "data/workspaces/catalogs/sources/ISO-639-2_utf-8.txt#chu",
+          "data/artifacts/wiktionary-export/legacy/files/languages.json#cu",
+          "data/artifacts/wiktionary-export/legacy/files/languages.json#cu-bgm",
+          "data/workspaces/dating/_research/packets/period-retry-2026-10-04/claims.json#cu-lunt-scope-iso639-3",
+          "data/workspaces/dating/_research/period-retry-2026-10-04/README.md"
+        ]
+      },
+      {
+        "target": "glottolog:chur1257",
+        "relation": "source_narrower",
+        "reviewer": "Claude Opus 5.5 (Claude Code), from catalog-pinned ISO 639 and Glottolog 5.3 data and the 2026-10-04 period retry, 2026-10-04",
+        "source_snapshot": "ef06d08e444cab6740674fde5d036ab9425118349674598a22fe7859e471c151",
+        "purpose": "dating: whether a period a source states for the target applies to the whole Wiktionary code (including etymology-only varieties filed under it); no chronology transfer",
+        "rationale": "Glottolog's Church Slavic is one languoid without dialects for the whole tradition: its endangerment status ('Second language only') describes present liturgical use, and its grammars include the 1591 Adelphotes (a Church Slavonic grammar) beside Old Church Slavonic grammars. Wiktionary cu files only Old Church Slavonic and Middle Bulgarian.",
+        "references": [
+          "data/artifacts/glottolog/5.3/files/glottolog/cldf/values.csv#chur1257-aes",
+          "data/artifacts/glottolog/5.3/files/glottolog/cldf/values.csv#chur1257-medovertime",
+          "data/artifacts/glottolog/5.3/files/glottolog/cldf/languages.csv#chur1257",
+          "data/artifacts/wiktionary-export/legacy/files/languages.json#cu",
+          "data/workspaces/dating/_research/packets/period-retry-2026-10-04/claims.json#cu-lunt-scope-iso639-3"
+        ]
+      }
+    ],
+    "wikt:lang:sa": [
+      {
+        "target": "iso639-3:san",
+        "relation": "source_broader",
+        "reviewer": "Claude Opus 5.5 (Claude Code), from catalog-pinned ISO 639 and Glottolog 5.3 data and the 2026-10-04 period retry, 2026-10-04",
+        "source_snapshot": "ef06d08e444cab6740674fde5d036ab9425118349674598a22fe7859e471c151",
+        "purpose": "dating: whether a period a source states for the target applies to the whole Wiktionary code (including etymology-only varieties filed under it); no chronology transfer",
+        "rationale": "ISO san is a macrolanguage whose members are Vedic Sanskrit (vsn) and Classical Sanskrit (cls) (change request 2011-041, adopted 2023-12-15). Wiktionary sa also files Buddhist Hybrid Sanskrit (sa-bhs), which is neither: a Sanskritization of an early Middle Indo-Aryan Prakrit (Hock 2024).",
+        "references": [
+          "data/workspaces/catalogs/sources/iso-639-3-macrolanguages.tab#san",
+          "data/workspaces/catalogs/sources/iso-639-3.tab#san",
+          "https://iso639-3.sil.org/code/san",
+          "data/artifacts/wiktionary-export/legacy/files/languages.json#sa-bhs",
+          "data/workspaces/dating/_research/packets/period-retry-2026-10-04/claims.json#sa-hock-hybrid-scope-iso639-3"
+        ]
+      },
+      {
+        "target": "glottolog:sans1269",
+        "relation": "source_broader",
+        "reviewer": "Claude Opus 5.5 (Claude Code), from catalog-pinned ISO 639 and Glottolog 5.3 data and the 2026-10-04 period retry, 2026-10-04",
+        "source_snapshot": "ef06d08e444cab6740674fde5d036ab9425118349674598a22fe7859e471c151",
+        "purpose": "dating: whether a period a source states for the target applies to the whole Wiktionary code (including etymology-only varieties filed under it); no chronology transfer",
+        "rationale": "Glottolog Sanskrit has two dialects, Classical Sanskrit (clas1258) and Vedic Sanskrit (vedi1234), and classifies Buddhist Hybrid Sanskrit (budd1234) as a dialect of Pali (pali1273). Wiktionary sa files Buddhist Hybrid Sanskrit as well.",
+        "references": [
+          "data/artifacts/glottolog/5.3/files/glottolog/cldf/languages.csv#sans1269",
+          "data/artifacts/glottolog/5.3/files/glottolog/cldf/languages.csv#clas1258",
+          "data/artifacts/glottolog/5.3/files/glottolog/cldf/languages.csv#vedi1234",
+          "data/artifacts/glottolog/5.3/files/glottolog/cldf/languages.csv#budd1234",
+          "data/artifacts/wiktionary-export/legacy/files/languages.json#sa-bhs"
+        ]
+      }
     ]
   }
 }
