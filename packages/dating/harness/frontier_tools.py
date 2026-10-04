@@ -596,6 +596,18 @@ def check(root):
             errors.append(f"row {i}: quote not exact")
         if row.get("spoken") is not None:
             errors.append(f"row {i}: spoken must be null")
+        if isinstance(row.get("native_time"), dict):
+            # The registry's own normalization, as at import: a century or millennium
+            # is a range or bound, endpoints are {value, unit}. Numbers never change.
+            from .evidence import normalize_time
+            from .research_packet import registry_raw
+
+            try:
+                t = normalize_time(registry_raw(row["native_time"]))
+                if row.get("proposed_status") == "supported" and t.form == "unknown":
+                    errors.append(f"row {i}: a supported assertion needs a stated time")
+            except (ValueError, KeyError, TypeError) as exc:
+                errors.append(f"row {i}: native_time: {str(exc)[:200]}")
         if "compact" in row:
             from .compact_extraction import Assertion
 

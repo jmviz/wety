@@ -6,7 +6,13 @@ import json
 from pathlib import Path
 from .config import DATA_DIR
 from .evidence import EvidenceClaim, Decision
-from .registry import build_bundle, bundle_decision_digest, validate_span, default_scope_error
+from .registry import (
+    build_bundle,
+    bundle_decision_digest,
+    decision_claim_error,
+    default_scope_error,
+    validate_span,
+)
 from .io_utils import digest, atomic_json
 
 
@@ -76,13 +82,12 @@ def decide_record(raw, bundle=None):
     c = by_id.get(decision.claim_id)
     if decision.evidence_digest != bundle_decision_digest(bundle, decision.subject_id):
         raise ValueError("stale decision digest; run decision-digest for the subject")
-    if (
-        not c
-        or c["status"] != "supported"
-        or c["subject"]["id"] != decision.subject_id
-        or c["event"] != decision.event
-    ):
-        raise ValueError("claim not eligible for this subject and event")
+    kind = (bundle["view"].get(decision.subject_id.removeprefix("wikt:")) or {}).get("kind")
+    if not c or decision_claim_error(decision.model_dump(), c, kind):
+        reason = decision_claim_error(decision.model_dump(), c, kind) if c else None
+        raise ValueError(
+            "claim not eligible for this subject and event" + (": " + reason if reason else "")
+        )
     if reason := default_scope_error(c, bundle["research_graph"]):
         raise ValueError(reason)
     if any(i not in by_id or by_id[i]["status"] != "supported" for i in decision.dependencies):
@@ -132,3 +137,36 @@ def withdraw(subject_id, event, reviewer, rationale):
     atomic_json(log, withdrawals + [record])
     atomic_json(dest, updated)
     return {"withdrawn_claim": match[0]["claim_id"], "publish_required": True}
+
+
+def readopt(reviewer, note, subjects=None):
+    """Re-adopt stale decisions unchanged, with `note` appended to their rationale.
+
+    A decision goes stale when its subject's evidence, catalog mapping or
+    DECISION_RULES change. When a reviewer has seen that change and keeps the choice,
+    the same claim is recorded again against the current digest. Only decisions
+    whose claim is still eligible are re-adopted; the others are returned unchanged
+    for a new decision. `subjects` limits it to those subject ids."""
+    if not reviewer.strip() or not note.strip():
+        raise ValueError("reviewer and note required")
+    bundle = build_bundle()
+    done, left = [], []
+    for r in bundle["rejected_decisions"]:
+        d = r["decision"]
+        if subjects is not None and d["subject_id"] not in subjects:
+            continue
+        if not r["reason"].startswith("stale decision"):
+            left.append({"subject_id": d["subject_id"], "event": d["event"], "reason": r["reason"]})
+            continue
+        raw = {
+            **{k: v for k, v in d.items() if k != "kind"},
+            "evidence_digest": bundle_decision_digest(bundle, d["subject_id"]),
+            "reviewer": reviewer,
+            "rationale": d["rationale"] + " " + note,
+        }
+        try:
+            decide_record(raw, bundle)
+            done.append(f"{d['subject_id']}/{d['event']}")
+        except ValueError as e:
+            left.append({"subject_id": d["subject_id"], "event": d["event"], "reason": str(e)})
+    return {"readopted": done, "needs_decision": left}

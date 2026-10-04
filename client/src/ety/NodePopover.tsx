@@ -255,6 +255,31 @@ function PeriodSection(props: { period: LangPeriod }) {
       <ul class="period-cites">
         <For each={props.period.evidence}>{(e) => <li title={e.citation ?? undefined}>{cite(e)}</li>}</For>
       </ul>
+      <Show when={props.period.span}>
+        {(span) => (
+          <>
+            <Show when={props.period.basis !== "span"}>
+              <div class="popover-muted">
+                With its varieties: <span class="period-label">{span().label}</span>
+                {span().partial ? " (partial)" : ""}
+              </div>
+            </Show>
+            <Show when={props.period.basis === "span" && span().partial}>
+              <div class="popover-muted">Partial: not every variety is dated.</div>
+            </Show>
+            <ul class="period-cites">
+              <For each={span().components.filter((c) => !c.own)}>
+                {(c) => (
+                  <li>
+                    {c.name} <span class="period-label">{c.label}</span> ·{" "}
+                    {BASIS_NAME[c.basis]}
+                  </li>
+                )}
+              </For>
+            </ul>
+          </>
+        )}
+      </Show>
       <Show when={props.period.alternatives.length}>
         <div class="popover-muted">Other sources:</div>
         <ul class="period-cites">

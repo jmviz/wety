@@ -281,6 +281,9 @@ class Decision(StrictModel):
     rationale: str
     dependencies: list[str] = Field(default_factory=list)
     kind: Literal["editorial_default"] = "editorial_default"
+    # Only for event crown_divergence on a proto-language code: why the selected
+    # clade's sampled taxa cover the family whose ancestor the code names.
+    proto_mapping: str | None = None
 
 
 def evidence_digest(claims, context):

@@ -5,6 +5,13 @@ period. Other supported exact claims for the same code are listed as alternative
 each with its own source; nothing is averaged or merged across sources. Years are
 astronomical (BCE n = 1 - n) and converted only for labels. Family split estimates are
 separate records and never become a language's period.
+
+A code with Wiktionary varieties (etymology-only codes such as Early Middle Japanese
+under Old Japanese) also gets a `span`: from the earliest start to the latest end of
+its own period and its varieties' periods, listing each component. The span is
+derived here, never stored as evidence; a code with no period of its own but dated
+varieties is shown by its span (basis "span"). `partial` marks a span with undated
+varieties or unstated endpoints, so it may be wider than shown.
 """
 
 import json
@@ -13,6 +20,7 @@ from pathlib import Path
 from workflow_tools.paths import DATING_PRODUCT
 
 from .evidence import endpoint_bounds
+from .registry import decision_claim_error
 from .time_interpretation import PERIOD_UNITS, period_bounds
 
 SCHEMA_VERSION = 1
@@ -65,6 +73,18 @@ def event_range(claim):
     if t["form"] == "bound":
         return (None, t["value"]) if t["relation"] in ("before", "by") else (t["value"], None)
     return (t["lower"], t["upper"])
+
+
+def crown_end(claim):
+    """A proto-language ends when its sampled descendants split: the crown age's
+    interval (or its central value) is the uncertain end; no start is implied."""
+    t = claim["time"]
+    if t["form"] != "distribution":
+        return event_range(claim)
+    if t.get("lower") is not None and t.get("upper") is not None:
+        return (t["lower"], t["upper"])
+    mid = t.get("median") if t.get("median") is not None else t.get("mean")
+    return (mid, mid)
 
 
 def endpoint(r):
@@ -137,6 +157,11 @@ def evidence_entry(claim, sources):
         "url": source.get("url"),
         "quote": span.get("quote"),
         "locator": span.get("locator"),
+        **(
+            {"node": claim["subject"]["name"], "proto_mapping": claim["proto_mapping"]}
+            if claim.get("proto_mapping")
+            else {}
+        ),
     }
 
 
@@ -149,6 +174,12 @@ def interval(claims):
         used = [period]
         ongoing = period["time"]["ongoing"]
         approximate = bool(period["time"].get("original", {}).get("approximate"))
+    elif "crown_divergence" in by_event:
+        crown = by_event["crown_divergence"]
+        start, end = None, crown_end(crown)
+        used = [crown]
+        ongoing = False
+        approximate = True
     else:
         first, last = (by_event.get(e) for e in ATTESTATION_EVENTS)
         used = [c for c in (first, last) if c]
@@ -191,7 +222,12 @@ def period_record(code, claims, alternatives, view, sources):
         "basis": b,
         "label": label(spoken["start"], spoken["end"], spoken["ongoing"], spoken["approximate"]),
         "evidence": [evidence_entry(c, sources) for c in spoken["claims"]],
-        "alternatives": [alternative(c, reconstructed, sources) for c in alternatives],
+        # An adopted claim not used for the display (a crown age beside a stated
+        # period) is still shown, as an alternative.
+        "alternatives": [
+            alternative(c, reconstructed, sources)
+            for c in [c for c in claims if c not in spoken["claims"]] + alternatives
+        ],
     }
 
 
@@ -199,6 +235,8 @@ def alternative(claim, reconstructed, sources):
     if claim["event"] in ATTESTATION_EVENTS:
         r = event_range(claim)
         start, end = (r, None) if claim["event"] == "first_attestation" else (None, r)
+    elif claim["event"] == "crown_divergence":
+        start, end = None, crown_end(claim)
     else:
         start, end = ranges(claim)
     approximate = bool(claim["time"].get("original", {}).get("approximate"))
@@ -209,6 +247,97 @@ def alternative(claim, reconstructed, sources):
         "end": endpoint(end),
         "label": label(start, end, claim["time"]["ongoing"], approximate),
     }
+
+
+def varieties_by_parent(view):
+    """Wiktionary varieties (etymology-only codes) of each code, from the catalog's
+    parent links. Not genetic ancestry: the code its entries are filed under."""
+    out = {}
+    for code, v in view.items():
+        for link in (v.get("mapping") or {}).get("links", []):
+            target = link.get("target", "")
+            if link.get("relation") == "parent_context" and target.startswith("wikt:lang:"):
+                out.setdefault(target.removeprefix("wikt:lang:"), []).append(code)
+    return {k: sorted(v) for k, v in out.items()}
+
+
+def span(own, varieties, undated):
+    """Earliest start to latest end over a code's own record and its dated varieties."""
+    parts = ([own] if own else []) + varieties
+    starts = [p["spoken"]["start"] for p in parts]
+    ends = [p["spoken"]["end"] for p in parts]
+    ongoing = any(p["spoken"]["ongoing"] for p in parts)
+    known_starts = [s for s in starts if s]
+    known_ends = [e for e in ends if e]
+
+    def lowest(rs, key):
+        vals = [r[key] for r in rs if r[key] is not None]
+        return min(vals) if vals else None
+
+    def highest(rs, key):
+        vals = [r[key] for r in rs if r[key] is not None]
+        return max(vals) if vals else None
+
+    start = (
+        (lowest(known_starts, "earliest"), lowest(known_starts, "latest")) if known_starts else None
+    )
+    end = (
+        None
+        if ongoing or not known_ends
+        else (highest(known_ends, "earliest"), highest(known_ends, "latest"))
+    )
+    approximate = any(p["label"].startswith("c. ") for p in parts)
+    partial = bool(undated) or None in starts or (not ongoing and None in ends)
+    return {
+        "start": endpoint(start),
+        "end": endpoint(end),
+        "ongoing": ongoing,
+        "label": label(start, end, ongoing, approximate),
+        "partial": partial,
+        "components": [
+            {
+                "code": p["code"],
+                "name": p["name"],
+                "label": p["label"],
+                "basis": p["basis"],
+                "own": p is own,
+            }
+            for p in parts
+        ],
+        "undated": undated,
+    }
+
+
+def add_spans(languages, view):
+    records = {r["code"]: r for r in languages}
+    for parent, codes in sorted(varieties_by_parent(view).items()):
+        dated = [records[c] for c in codes if c in records and "span" not in records[c]]
+        if not dated or parent not in view:
+            continue
+        own = records.get(parent)
+        derived = span(own, dated, [c for c in codes if c not in records])
+        if own:
+            own["span"] = derived
+            continue
+        reconstructed = view[parent].get("kind") == "reconstructed"
+        languages.append(
+            {
+                "code": parent,
+                "name": view[parent].get("name"),
+                "kind": "proto" if reconstructed else "stage",
+                "spoken": {
+                    "start": derived["start"],
+                    "end": derived["end"],
+                    "ongoing": derived["ongoing"],
+                },
+                "basis": "span",
+                "label": derived["label"],
+                "evidence": [],
+                "alternatives": [],
+                "span": derived,
+            }
+        )
+    languages.sort(key=lambda r: r["code"])
 
 
 def family_split(claim, sources):
@@ -237,13 +366,15 @@ def export_periods(bundle, generation=None):
         c = claims[d["claim_id"]]
         # The registry rejects ineligible decisions at build time; re-check the
         # display preconditions so this export can never widen them.
+        view = bundle["view"].get(d["subject_id"].removeprefix("wikt:")) or {}
         if (
             not d["subject_id"].startswith("wikt:")
-            or c["status"] != "supported"
-            or c["subject"]["id"] != d["subject_id"]
             or c["subject"]["mapping"] != "exact"
+            or decision_claim_error(d, c, view.get("kind"))
         ):
             continue
+        if d["event"] == "crown_divergence":
+            c = {**c, "proto_mapping": d["proto_mapping"]}
         adopted.setdefault(d["subject_id"][5:], []).append(c)
     languages = []
     for code in sorted(adopted):
@@ -261,6 +392,7 @@ def export_periods(bundle, generation=None):
         record = period_record(code, adopted[code], others, view, sources)
         if record:
             languages.append(record)
+    add_spans(languages, bundle["view"])
     splits = [
         family_split(c, sources)
         for c in bundle["claims"]

@@ -39,6 +39,18 @@
           "default": "editorial_default",
           "title": "Kind",
           "type": "string"
+        },
+        "proto_mapping": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Proto Mapping"
         }
       },
       "required": [

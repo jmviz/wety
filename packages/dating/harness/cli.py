@@ -17,6 +17,7 @@ dating decision-digest SUBJECT               evidence digest a decision on SUBJE
 dating build-packet RUN REVIEW               reviewed research run -> packet, registered sources and texts
 dating adopt REVIEW                          record the review's editorial defaults (after import + synthesize)
 dating withdraw SUBJECT EVENT --reviewer R --rationale TEXT   remove a decision, kept in withdrawals.json
+dating readopt [SUBJECT...] --reviewer R --note TEXT   re-adopt stale decisions unchanged (e.g. after a rules bump)
 dating holdings add|zotero|sync|list         maintainer-supplied sources (library PDFs, via Zotero): retain, hash, parse
 dating requests list|merge|push|set          the source acquisition queue (files requests in Zotero)
 dating report
@@ -227,6 +228,13 @@ def cmd_adopt(args) -> None:
     print(json.dumps(adopt(json.loads(open(args.review).read())), indent=2))
 
 
+def cmd_readopt(args) -> None:
+    from .review import readopt
+
+    subjects = set(args.subjects) if args.subjects else None
+    print(json.dumps(readopt(args.reviewer, args.note, subjects), indent=2))
+
+
 def cmd_withdraw(args) -> None:
     from .review import withdraw
 
@@ -325,6 +333,11 @@ def main() -> None:
     p = sub.add_parser("adopt")
     p.add_argument("review")
     p.set_defaults(fn=cmd_adopt)
+    p = sub.add_parser("readopt")
+    p.add_argument("subjects", nargs="*", help="subject ids, e.g. wikt:ang (default: all)")
+    p.add_argument("--reviewer", required=True)
+    p.add_argument("--note", required=True, help="why the choice still holds")
+    p.set_defaults(fn=cmd_readopt)
     p = sub.add_parser("withdraw")
     p.add_argument("subject")
     p.add_argument("event")

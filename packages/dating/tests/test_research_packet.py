@@ -123,6 +123,30 @@ class SyntheticRun(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "does not match"):
             self.build()
 
+    def test_revision_retargets_selected_assertions(self):
+        first = self.build()["claims"]
+        self.review.update(
+            packet_id="test-revision",
+            revises="test-packet",
+            claims=[
+                {
+                    "assertion": "a",
+                    "status": "supported",
+                    "correct": {"code": "hit"},
+                    "rationale": "re-targeted",
+                }
+            ],
+        )
+        (claim,) = self.build()["claims"]
+        self.assertEqual(claim["subject"]["id"], "wikt:hit")
+        self.assertNotIn(claim["id"], {c["id"] for c in first})
+        self.assertEqual(
+            claim["provenance"]["revises"], {"packet_id": "test-packet", "assertion_id": "a"}
+        )
+        self.review["claims"][0]["assertion"] = "missing"
+        with self.assertRaisesRegex(ValueError, "does not have"):
+            self.build()
+
     def test_write_registers_sources_and_texts_once(self):
         sources = self.base / "sources.json"
         with patch("harness.store.SOURCES_PATH", str(sources)):
@@ -180,8 +204,17 @@ class PilotReproduction(unittest.TestCase):
             patch("harness.review.withdraw", side_effect=AssertionError("no writes")),
         ):
             results = adopt(review)
-        self.assertEqual({k for k, v in results.items() if v != "unchanged"}, superseded)
-        self.assertEqual({d["subject_id"][5:] for d in written}, superseded)
+        # Choices the pilot review did not replace are kept (re-recorded when stale);
+        # this test is about the pilot's own adoptions.
+        adopted = {k for k, v in results.items() if not k.endswith(" kept")}
+        self.assertEqual(
+            {k for k in adopted if results[k] != "unchanged"} - {"needs_decision"}, superseded
+        )
+        kept = {k.split("/")[0] for k in results if k.endswith(" kept")}
+        self.assertEqual(
+            {d["subject_id"] for d in written if d["subject_id"] not in kept},
+            {"wikt:" + c for c in superseded},
+        )
 
 
 if __name__ == "__main__":

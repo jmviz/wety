@@ -87,6 +87,106 @@ class PeriodExportTests(unittest.TestCase):
         self.assertEqual(alt["source"], "ISO 639-3 code tables")
         self.assertEqual(out["generation"], "gen")
 
+    def test_varieties_give_a_derived_span(self):
+        cp = ("conventional_period", "convention")
+        claims = [
+            claim("oj", "ojp", *cp, years(700, 800)),
+            claim("emj", "ja-mid-ear", *cp, years(800, 1200)),
+            claim("lmj", "ja-mid-lat", *cp, years(1200, 1600)),
+            claim("ved", "vsn", *cp, years(500, 1500, "BCE", approximate=True)),
+            claim(
+                "cls",
+                "cls",
+                *cp,
+                {"form": "duration", "start": {"value": 400, "unit": "BCE"}, "ongoing": True},
+            ),
+        ]
+        b = bundle(claims, ["oj", "emj", "lmj", "ved", "cls"])
+        parent = {
+            "ja-mid-ear": "ojp",
+            "ja-mid-lat": "ojp",
+            "ojp-eas": "ojp",
+            "vsn": "sa",
+            "cls": "sa",
+        }
+        for code in ("ojp-eas", "sa"):
+            b["view"][code] = {"name": code.upper(), "kind": "regular", "evidence_ids": []}
+        for code, p in parent.items():
+            b["view"][code]["mapping"] = {
+                "links": [{"relation": "parent_context", "target": "wikt:lang:" + p}]
+            }
+        out = {r["code"]: r for r in export_periods(b, "gen")["languages"]}
+        ojp = out["ojp"]
+        # The code's own period is unchanged; the span is separate and derived.
+        self.assertEqual(ojp["label"], "700–800 CE")
+        self.assertEqual(ojp["span"]["label"], "700–1600 CE")
+        self.assertEqual(
+            [c["code"] for c in ojp["span"]["components"]], ["ojp", "ja-mid-ear", "ja-mid-lat"]
+        )
+        self.assertEqual(ojp["span"]["undated"], ["ojp-eas"])
+        self.assertTrue(ojp["span"]["partial"])
+        # No period of its own: shown by the span of its varieties.
+        sa = out["sa"]
+        self.assertEqual((sa["basis"], sa["evidence"]), ("span", []))
+        self.assertEqual(sa["label"], "c. 1500 BCE–present")
+        self.assertTrue(sa["spoken"]["ongoing"])
+        self.assertFalse(sa["span"]["partial"])
+
+    def test_crown_age_dates_a_proto_languages_end(self):
+        crown = {
+            "id": "k",
+            "status": "supported",
+            "subject": {
+                "id": "clade:ie",
+                "name": "Indo-European (sampled)",
+                "type": "sampled_clade",
+                "taxa": ["hit", "sa", "la"],
+                "mapping": "exact",
+            },
+            "event": "crown_divergence",
+            "role": "posterior",
+            "time": {
+                "form": "distribution",
+                "mean": None,
+                "median": -6119,
+                "lower": -7999,
+                "upper": -4399,
+                "interval_type": "hpd",
+                "probability": 0.95,
+                "ongoing": False,
+                "original": {},
+            },
+            "source_id": "src_many",
+            "spans": [{"quote": "q k", "locator": "Table 1"}],
+            "analysis_id": "a1",
+        }
+        b = {
+            "claims": [crown],
+            "sources": SOURCES,
+            "view": {"ine-pro": {"name": "PIE", "kind": "reconstructed", "evidence_ids": []}},
+            "decisions": [
+                {
+                    "subject_id": "wikt:ine-pro",
+                    "event": "crown_divergence",
+                    "claim_id": "k",
+                    "proto_mapping": "Taxa include Anatolian, Indo-Iranian and Italic.",
+                }
+            ],
+        }
+        (pie,) = export_periods(b, "gen")["languages"]
+        self.assertEqual((pie["kind"], pie["basis"]), ("proto", "estimated"))
+        self.assertIsNone(pie["spoken"]["start"])
+        self.assertEqual(pie["spoken"]["end"], {"earliest": -7999, "latest": -4399})
+        self.assertEqual(pie["label"], "until c. 8000/4400 BCE")
+        self.assertEqual(pie["evidence"][0]["node"], "Indo-European (sampled)")
+        # Without the stated correspondence, or for a code that is not a proto
+        # language, the crown age is not displayed.
+        del b["decisions"][0]["proto_mapping"]
+        self.assertEqual(export_periods(b, "gen")["languages"], [])
+        b["decisions"][0]["proto_mapping"] = "x"
+        b["view"]["ine-pro"]["kind"] = "regular"
+        self.assertEqual(export_periods(b, "gen")["languages"], [])
+
     def test_only_adopted_supported_exact_evidence_is_displayed(self):
         claims = [
             claim("a", "enm", "conventional_period", "convention", years(1150, 1500)),

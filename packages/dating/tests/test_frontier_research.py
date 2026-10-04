@@ -184,13 +184,24 @@ class FrontierTests(unittest.TestCase):
             "event": "split",
             "role": "posterior",
             "method": "model",
-            "native_time": {},
+            "native_time": {"form": "unknown"},
             "qualifications": [],
         }
         for name in ("sources.json", "self-check.json"):
             (self.root / name).write_text("[]")
         (self.root / "report.md").write_text("partial")
         (self.root / "assertions.jsonl").write_text(json.dumps(row))
+        self.assertEqual(check(self.root)["errors"], [])
+        # Times are normalized as at import: a century is a range, not a point.
+        for native, message in (
+            ({"form": "point", "unit": "century_CE", "value": 7}, "range or bound"),
+            ({"form": "unknown"}, "needs a stated time"),
+        ):
+            bad = {**row, "native_time": native, "proposed_status": "supported"}
+            (self.root / "assertions.jsonl").write_text(json.dumps(bad))
+            self.assertIn(message, str(check(self.root)["errors"]))
+        fixed = {"form": "event_range", "unit": "century_CE", "lower": 7, "upper": 7}
+        (self.root / "assertions.jsonl").write_text(json.dumps({**row, "native_time": fixed}))
         self.assertEqual(check(self.root)["errors"], [])
         text.write_text("changed")
         self.assertIn("changed text", str(check(self.root)["errors"]))

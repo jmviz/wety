@@ -42,15 +42,14 @@ For each code:
    code covers: a conventional period from a handbook or reference grammar, or the
    first/last surviving texts. Quote it exactly from retained text with a locator
    (printed page, and PDF page). Never reproduce a quotation from memory.
-2. Mapping. Wiktionary's scope for each code is given below, including the
-   etymology-only varieties it files under the code. A period is usable for display only
-   if the source's dated entity covers the whole code: mapping exact. Say subset,
-   superset or overlap otherwise, and why. A period for Classical Latin is a subset of
-   "la"; an Old Japanese period is a subset of "ojp", which also files Middle Japanese.
-   Never join several stage periods into one interval yourself (e.g. Old + Middle
-   Japanese): record each stage's period as its own subset claim, and say in the report
-   whether the source states one span for the whole. If no source covers the whole
-   code, that is a recorded gap, not a failure.
+2. Mapping. Map each dated entity to the most specific Wiktionary code. Varieties
+   (etymology-only codes) are codes of their own: Classical Latin is exact for "la-cla",
+   Early Middle Japanese for "ja-mid-ear". A parent code is matched against the stage
+   it names, not the union of its varieties: Old Japanese 700–800 is exact for "ojp"
+   even though Middle Japanese is filed under it. Say subset, superset or overlap
+   otherwise, and why. Never join several stage periods into one interval yourself
+   (e.g. Old + Middle Japanese); the integrator derives spans over varieties. If no
+   source dates a code, that is a recorded gap, not a failure.
 3. Record conflicts between sources (e.g. Old English ends 1100 vs 1150) as separate
    claims. Do not average or choose by recency.
 4. Propose at most one default per code and event, with a rationale, and keep the

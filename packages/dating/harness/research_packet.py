@@ -17,7 +17,11 @@ review.json:
   withdraw: [{code, event, rationale, reviewer?}]: decisions removed before adopting
             (e.g. a database window, so an attestation window can be shown)
 Every assertion of the run must appear in `claims`: rejecting one is a recorded
-status (candidate), never a silent omission.
+status (candidate), never a silent omission. A revision review (`revises`: the packet
+id of the run's first review) instead covers only the assertions it changes, e.g.
+re-targeting a stage period from a parent code to its variety code with
+`correct: {"code": ...}`; each claim records the packet and assertion it revises. The
+earlier claims stay as they were reviewed.
 """
 
 import hashlib
@@ -79,7 +83,12 @@ def build(run_dir, review, languages=None, texts_dir=None):
         )
     }
     reviewed = [item["assertion"] for item in review["claims"]]
-    if len(set(reviewed)) != len(reviewed) or set(reviewed) != set(rows):
+    if len(set(reviewed)) != len(reviewed):
+        raise ValueError("review must cover every run assertion exactly once")
+    if review.get("revises"):
+        if not set(reviewed) <= set(rows):
+            raise ValueError("revision names assertions the run does not have")
+    elif set(reviewed) != set(rows):
         raise ValueError("review must cover every run assertion exactly once")
     state = json.loads((run_dir / "tools-state.json").read_text())
     meta = review["sources"]
@@ -180,6 +189,11 @@ def build(run_dir, review, languages=None, texts_dir=None):
                         "research_run": run_path,
                         "verifies": row.get("verifies", []),
                         **({"catalog_target": row["target"]} if row.get("target") else {}),
+                        **(
+                            {"revises": {"packet_id": review["revises"], "assertion_id": row["id"]}}
+                            if review.get("revises")
+                            else {}
+                        ),
                         "review_corrections": item.get("corrections", []),
                         "review_findings": [],
                     },
@@ -317,4 +331,18 @@ def adopt(review):
                 continue
             decide_record(decision, bundle)
             results[key] = claim["id"]
+    # The review covered every new claim of its codes: a code's earlier choice that
+    # it did not replace is kept, recorded again against the new evidence.
+    from .review import readopt
+
+    touched = {c["subject"]["id"] for c in by_assertion.values()}
+    kept = readopt(
+        review["decision_reviewer"],
+        f"Kept by review {review['packet_id']}: its new evidence for this code was reviewed"
+        " and not preferred (see the review's claim rationales).",
+        touched,
+    )
+    results.update({k + " kept": "readopted" for k in kept["readopted"]})
+    if kept["needs_decision"]:
+        results["needs_decision"] = kept["needs_decision"]
     return results

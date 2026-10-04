@@ -33,7 +33,9 @@ RULE_VERSION = "evidence-registry-2.1"
 # Bump deliberately when adoption eligibility or evidence semantics change in a way
 # the checks below would not catch. Every build re-checks each decision's eligibility
 # with current code, and validation re-normalizes every program-verified time.
-DECISION_RULES = 1
+DECISION_RULES = 2
+# 2 (2026-10-04): a parent code is matched against the stage it names, its Wiktionary
+# varieties being dated as their own codes; a proto code's end may be a crown age.
 EVENTS = {
     "attestation_first": "first_attestation",
     "attestation_last": "last_attestation",
@@ -510,6 +512,33 @@ def default_scope_error(claim, graph):
     return None
 
 
+def decision_claim_error(decision, claim, subject_kind):
+    """Why `claim` cannot be the default for `decision`, or None.
+
+    A decision selects a supported claim about its own subject and event, with one
+    exception: the end of a proto-language (a reconstructed code) may be the crown
+    age of a sampled clade, the split of its sampled descendants, when the decision
+    says in `proto_mapping` why those taxa cover the family. The clade claim stays
+    about the clade; the decision records the correspondence."""
+    if claim["status"] != "supported":
+        return "claim not supported"
+    if decision["event"] == "crown_divergence":
+        if subject_kind != "reconstructed":
+            return "a crown age can date only a proto-language (reconstructed) code"
+        if (
+            claim["event"] != "crown_divergence"
+            or claim["subject"]["type"] != "sampled_clade"
+            or len(set(claim["subject"]["taxa"])) < 2
+        ):
+            return "a proto-language's end needs the crown age of a sampled clade"
+        if not (decision.get("proto_mapping") or "").strip():
+            return "proto_mapping must say why the sampled taxa cover the family"
+        return None
+    if claim["subject"]["id"] != decision["subject_id"] or claim["event"] != decision["event"]:
+        return "ineligible claim or subject/event mismatch"
+    return None
+
+
 def decision_digest(claims, sources, catalog_record, subject_id):
     """What an editorial decision reviewed: every claim about the subject, their
     registered sources and the code's catalog record (its mapping links). Tooling
@@ -574,12 +603,9 @@ def build_bundle():
                 claims, sources, g.wikt.get(d.subject_id.removeprefix("wikt:")), d.subject_id
             ):
                 raise ValueError("stale decision: the subject's evidence or mapping changed")
-            if (
-                c["subject"]["id"] != d.subject_id
-                or c["event"] != d.event
-                or c["status"] != "supported"
-            ):
-                raise ValueError("ineligible claim or subject/event mismatch")
+            kind = (g.wikt.get(d.subject_id.removeprefix("wikt:")) or {}).get("kind")
+            if reason := decision_claim_error(d.model_dump(), c, kind):
+                raise ValueError(reason)
             if reason := default_scope_error(c, research_graph):
                 raise ValueError(reason)
             if any(x not in by_id or by_id[x]["status"] != "supported" for x in d.dependencies):

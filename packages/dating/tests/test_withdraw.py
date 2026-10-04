@@ -43,5 +43,49 @@ class WithdrawTests(unittest.TestCase):
             review.withdraw("wikt:hit", "first_attestation", "Reviewer", " ")
 
 
+class ReadoptTests(unittest.TestCase):
+    def test_stale_decisions_are_recorded_again_with_a_note(self):
+        stale = {
+            "subject_id": "wikt:ang",
+            "event": "conventional_period",
+            "claim_id": "c1",
+            "evidence_digest": "old",
+            "reviewer": "R0",
+            "rationale": "Chosen.",
+            "dependencies": [],
+            "kind": "editorial_default",
+        }
+        gone = {**stale, "subject_id": "wikt:hit", "claim_id": "c2"}
+        other = {**stale, "subject_id": "wikt:la"}
+        bundle = {
+            "rejected_decisions": [
+                {"decision": stale, "reason": "stale decision: the subject's evidence changed"},
+                {"decision": gone, "reason": "stale decision: the subject's evidence changed"},
+                {"decision": other, "reason": "stale decision: the subject's evidence changed"},
+            ]
+        }
+        recorded = []
+
+        def decide(raw, _bundle):
+            if raw["claim_id"] == "c2":
+                raise ValueError("claim not eligible for this subject and event")
+            recorded.append(raw)
+
+        with (
+            patch.object(review, "build_bundle", return_value=bundle),
+            patch.object(review, "bundle_decision_digest", return_value="new"),
+            patch.object(review, "decide_record", side_effect=decide),
+        ):
+            result = review.readopt("R1", "Still holds.", {"wikt:ang", "wikt:hit"})
+        self.assertEqual(result["readopted"], ["wikt:ang/conventional_period"])
+        self.assertEqual(result["needs_decision"][0]["subject_id"], "wikt:hit")
+        [raw] = recorded
+        self.assertEqual(
+            (raw["evidence_digest"], raw["reviewer"], raw["rationale"]),
+            ("new", "R1", "Chosen. Still holds."),
+        )
+        self.assertNotIn("kind", raw)
+
+
 if __name__ == "__main__":
     unittest.main()

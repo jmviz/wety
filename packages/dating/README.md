@@ -29,6 +29,8 @@ Current state and next steps: [STATUS.md](../../STATUS.md). Per-family results:
 * `assessment` separates textual fidelity, semantic interpretation and entity mapping. “Supported” means the recorded assertion satisfies those checks, **not that the historical hypothesis is true**.
 * New model extraction is a proposal. Verbatim spans, source-native numbers, immutable run histories and content digests make it auditable. A model review cannot overwrite dates. An explicit editorial decision names an eligible claim, reviewer, rationale and current evidence digest.
 * Only supported, exact `wikt:<code>` evidence enters that code's `chronology`. Catalog and ancestor evidence are contextual references, never fallback lifespans. Unknown is a valid result. (`spoken` in the compatibility view is `null` until the display export described in STATUS exists.)
+* Wiktionary varieties (etymology-only codes such as `ja-mid-ear` under `ojp`, `vsn` and `cls` under `sa`) are subjects of their own. A parent code is matched against the stage it names: Old Japanese 700–800 is exact for `ojp`, Early Middle Japanese for `ja-mid-ear`. The display export adds a derived `span` from a code's own period and its varieties' periods, listing each component; it is never evidence, and a code with only dated varieties is shown by it (basis `span`, marked `partial` while varieties are undated). Researchers still never join stage periods into one claim.
+* A proto-language (reconstructed code) may end at a crown age: a decision on `wikt:<code>-pro` with event `crown_divergence` may select a supported crown claim of a sampled clade (two or more taxa) when its `proto_mapping` says why the sampled taxa cover the family. The clade claim stays about the clade; the export shows the crown interval as the proto stage's estimated end, never as its start or as a daughter's beginning.
 
 The [catalog cross-reference audit](../catalogs/critique.md) covers the identity layer. Catalog correspondence never licenses automatic chronological transfer.
 
@@ -93,6 +95,11 @@ the texts to the retrieved-text store. `decide FILE` records a single decision b
 `withdraw SUBJECT EVENT --reviewer R --rationale TEXT` (or a review's `withdraw` list)
 removes one, keeping it with the reason in `_decisions/withdrawals.json`, e.g. so an
 attestation window can replace a database documentation window in the display.
+`adopt` also records again, unchanged, any choice of a code the review touched but did
+not replace (new evidence makes it stale); `readopt [SUBJECT...] --reviewer R --note
+TEXT` does this after a `DECISION_RULES` bump. A revision review (`revises`: an earlier
+packet id) covers only the assertions it changes, e.g. moving a stage period from a
+parent code to its variety code with `correct: {"code": ...}`.
 
 Sources a researcher cannot reach (paywalled handbooks and papers) are supplied by the
 maintainer, usually through Zotero: `dating holdings zotero ITEMKEY...` retains the PDF
