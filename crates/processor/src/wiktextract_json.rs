@@ -177,6 +177,9 @@ impl Items {
                 if let Some(raw_root) = json_item.get_root(string_pool, lang) {
                     self.raw_templates.root.insert(item_id, raw_root);
                 }
+                if let Some(id) = json_item.get_etymon_id(lang) {
+                    self.add_etymon_id(item_id, id);
+                }
                 if let Some(raw_etymology) = json_item.get_etymology(string_pool, lang) {
                     self.raw_templates.ety.insert(item_id, raw_etymology);
                 }
@@ -313,7 +316,7 @@ impl WiktextractJsonItem<'_> {
 }
 
 /// Clean a term that appears as a template arg
-fn clean_template_term(mut term: &str) -> &str {
+pub(crate) fn clean_template_term(mut term: &str) -> &str {
     // Reconstructed terms (e.g. PIE) are supposed to start with "*" when cited
     // in etymologies but their entry titles (and hence wiktextract "word"
     // field) do not. This is done by
@@ -323,6 +326,10 @@ fn clean_template_term(mut term: &str) -> &str {
     // terms that actually start with *, but there are almost none of these, and
     // none of them are particularly relevant for our purposes AFAIK ($$).
     term = term.strip_prefix('*').unwrap_or(term);
+    // Terms in templates may carry inline modifiers, e.g.
+    // {{af|en|non-<id:not>|sense}} or {{slbor|fro|la|līber<id:free>}}. Page
+    // titles cannot contain "<", so we cut there.
+    term = term.split_once('<').map_or(term, |(t, _)| t);
     // Occasionally a term is linked in an ety or descendants section like e.g.
     // on page tuig: {{desc|bor=1|en|twig#Etymology_2}}. Or even more rarely,
     // using #X to link to some other subsection (e.g. language). We just take
@@ -377,5 +384,7 @@ mod tests {
         assert_eq!("gaberaną", clean_template_term("*gaberaną"));
         assert_eq!("bʰel-", clean_template_term("*bʰel- (shiny)"));
         assert_eq!("twig", clean_template_term("twig#Etymology_2"));
+        assert_eq!("līber", clean_template_term("līber<id:free>"));
+        assert_eq!("non-", clean_template_term("non-<id:not><t:no>"));
     }
 }

@@ -29,6 +29,8 @@ pub(crate) struct RawTemplates {
 }
 
 type Dupes = HashMap<LangTerm, Vec<ItemId>>;
+// (langterm, {{etymon}} id) -> item, e.g. (enm moder, "mother")
+type EtymonIds = HashMap<(LangTerm, Box<str>), ItemId>;
 type Lines = HashMap<usize, ItemId>;
 
 pub(crate) struct Items {
@@ -36,6 +38,7 @@ pub(crate) struct Items {
     pub(crate) dupes: Dupes,
     pub(crate) page_term_dupes: Dupes,
     pub(crate) imputed_dupes: Dupes,
+    pub(crate) etymon_ids: EtymonIds,
     pub(crate) redirects: Redirects,
     pub(crate) raw_templates: RawTemplates,
     pub(crate) lines: Lines,
@@ -49,6 +52,7 @@ impl Items {
             dupes: Dupes::default(),
             page_term_dupes: Dupes::default(),
             imputed_dupes: Dupes::default(),
+            etymon_ids: EtymonIds::default(),
             redirects: Redirects::default(),
             raw_templates: RawTemplates::default(),
             lines: Lines::default(),
@@ -201,6 +205,31 @@ impl Items {
                 }
             }
         }
+    }
+
+    // Record the id that an item's {{etymon}} gives its etymology, under both
+    // its canonical and its page term. If two items claim the same id (a
+    // Wiktionary error), the first is kept.
+    pub(crate) fn add_etymon_id(&mut self, item_id: ItemId, id: &str) {
+        let item = self.get(item_id);
+        let lang = item.lang();
+        let mut terms = vec![item.term()];
+        if let Item::Real(real) = item
+            && let Some(page_term) = real.page_term
+        {
+            terms.push(page_term);
+        }
+        for term in terms {
+            self.etymon_ids
+                .entry((LangTerm::new(lang, term), Box::from(id)))
+                .or_insert(item_id);
+        }
+    }
+
+    // The item that an {{etymon}} reference "lang:term<id:...>" names.
+    pub(crate) fn get_etymon_item(&self, langterm: LangTerm, id: &str) -> Option<ItemId> {
+        let lookup = |langterm| self.etymon_ids.get(&(langterm, Box::from(id))).copied();
+        lookup(langterm).or_else(|| lookup(self.redirects.rectify_langterm(langterm)))
     }
 
     // returns all items that share the same lang and term

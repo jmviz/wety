@@ -5,6 +5,7 @@
 mod descendants;
 pub mod embeddings;
 mod etymology;
+mod etymon;
 mod items;
 mod redirects;
 mod root;

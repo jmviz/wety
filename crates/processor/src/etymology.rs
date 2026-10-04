@@ -1,5 +1,6 @@
 use crate::{
     embeddings::{self, Embeddings},
+    etymon,
     items::{Items, Retrieval},
     progress_bar,
     wiktextract_json::{Affix, WiktextractJson, WiktextractJsonItem, WiktextractJsonValidStr},
@@ -22,6 +23,9 @@ use simd_json::ValueAccess;
 #[derive(Hash, Eq, PartialEq, Debug)]
 pub(crate) struct RawEtyTemplate {
     pub(crate) langterms: Box<[LangTerm]>, // e.g. "en" "re-", "en" "do"
+    // The {{etymon}} ids naming each langterm's etymology, e.g. "mother" in
+    // "enm:moder<id:mother>". Empty for the classic templates.
+    pub(crate) ids: Box<[Option<Box<str>>]>,
     pub(crate) mode: EtyMode,              // e.g. Prefix
     pub(crate) head: Option<u8>,           // e.g. 1 (the index of "do")
 }
@@ -30,6 +34,7 @@ impl RawEtyTemplate {
     fn new(langterm: LangTerm, mode: EtyMode) -> Self {
         Self {
             langterms: Box::from([langterm]),
+            ids: Box::default(),
             mode,
             head: Some(0),
         }
@@ -93,6 +98,7 @@ fn process_prefix_json_template(
     let ety_term = lang.new_langterm(string_pool, ety_term);
     Some(RawEtyTemplate {
         langterms: Box::new([ety_prefix, ety_term]),
+        ids: Box::default(),
         mode: EtyMode::Prefix,
         head: Some(1),
     })
@@ -109,6 +115,7 @@ fn process_suffix_json_template(
     let ety_suffix = lang.new_langterm(string_pool, &ety_suffix);
     Some(RawEtyTemplate {
         langterms: Box::new([ety_term, ety_suffix]),
+        ids: Box::default(),
         mode: EtyMode::Suffix,
         head: Some(0),
     })
@@ -128,6 +135,7 @@ fn process_circumfix_json_template(
     let ety_circumfix = lang.new_langterm(string_pool, &ety_circumfix);
     Some(RawEtyTemplate {
         langterms: Box::new([ety_term, ety_circumfix]),
+        ids: Box::default(),
         mode: EtyMode::Circumfix,
         head: Some(0),
     })
@@ -145,6 +153,7 @@ fn process_infix_json_template(
     let ety_infix = lang.new_langterm(string_pool, &ety_infix);
     Some(RawEtyTemplate {
         langterms: Box::new([ety_term, ety_infix]),
+        ids: Box::default(),
         mode: EtyMode::Infix,
         head: Some(0),
     })
@@ -164,6 +173,7 @@ fn process_confix_json_template(
         let ety_suffix = lang.new_langterm(string_pool, &ety_suffix);
         return Some(RawEtyTemplate {
             langterms: Box::new([ety_prefix, ety_term, ety_suffix]),
+            ids: Box::default(),
             mode: EtyMode::Confix,
             head: Some(1),
         });
@@ -172,6 +182,7 @@ fn process_confix_json_template(
     let ety_suffix = lang.new_langterm(string_pool, &ety_suffix);
     Some(RawEtyTemplate {
         langterms: Box::new([ety_prefix, ety_suffix]),
+        ids: Box::default(),
         mode: EtyMode::Confix,
         head: None, // no true head here
     })
@@ -179,7 +190,7 @@ fn process_confix_json_template(
 
 /// {{affix}} is a very general template. We try to narrow down to the specific
 /// type of affixation.
-fn affixation_kind(affixes: &[Affix], n_base_terms: usize) -> EtyMode {
+pub(crate) fn affixation_kind(affixes: &[Affix], n_base_terms: usize) -> EtyMode {
     let n = affixes.len();
     if n_base_terms == n {
         // This is to handle the case of e.g. {{af|en|volley|ball}}.
@@ -260,6 +271,7 @@ fn process_compound_kind_json_template(
     if !ety_langterms.is_empty() {
         return Some(RawEtyTemplate {
             langterms: ety_langterms.into_boxed_slice(),
+            ids: Box::default(),
             mode: if mode == EtyMode::Affix {
                 affixation_kind(&affixes, n_base_terms)
             } else {
@@ -328,6 +340,53 @@ fn process_json_ety_template(
 }
 
 impl WiktextractJsonItem<'_> {
+    // The args of the entry's {{etymon}} (or {{ety}}) template for its own
+    // language. A page section rarely has more than one; we take the first.
+    fn get_etymon_args(&self, lang: Lang) -> Option<&WiktextractJson<'_>> {
+        self.json
+            .get_array("etymology_templates")?
+            .iter()
+            .filter(|t| t.get_valid_str("name").is_some_and(|n| matches!(n, "etymon" | "ety")))
+            .filter_map(|t| t.get("args"))
+            .find(|args| validate_ety_template_lang(args, lang).is_ok())
+    }
+
+    /// The id naming this entry's etymology in its {{etymon}} template.
+    pub(crate) fn get_etymon_id(&self, lang: Lang) -> Option<&str> {
+        self.get_etymon_args(lang)?.get_valid_str("id")
+    }
+
+    // An entry may give its etymology in {{etymon}}, in the classic templates
+    // ({{inh}}, {{bor}}, {{af}}, ...) or in both, usually as an etymology tree
+    // atop a prose etymology. {{etymon}} is preferred: it names the immediate
+    // parent(s) explicitly, while the first classic template is only usually
+    // the parent. When it names a single parent and gives no inline etymology
+    // for it, the classic templates after the one naming that same parent
+    // continue the chain (used if the parent has to be imputed). If {{etymon}}
+    // has no usable parent (e.g. only an id, a tree or a :root), the classic
+    // templates are used as before.
+    fn get_etymon_ety(&self, string_pool: &mut StringPool, lang: Lang) -> Option<RawEtymology> {
+        let args = self.get_etymon_args(lang)?;
+        let mut templates = etymon::parse_etymon_args(string_pool, args, lang);
+        if templates.is_empty() {
+            return None;
+        }
+        if let [ParsedRawEtyTemplate::Parsed(parent)] = templates.as_slice()
+            && parent.langterms.len() == 1
+            && let Some(standard) = self.get_standard_ety(string_pool, lang)
+        {
+            let parent = parent.langterms[0];
+            let continuation = Vec::from(standard.templates)
+                .into_iter()
+                .skip_while(|t| {
+                    !matches!(t, ParsedRawEtyTemplate::Parsed(c) if *c.langterms == [parent])
+                })
+                .skip(1);
+            templates.extend(continuation);
+        }
+        Some(templates.into())
+    }
+
     // Many ety sections contain a single {{m}} template and no others, and
     // consist only of "From {{m..." (or similar). This is to handle this case.
     fn get_single_mention_ety(&self, string_pool: &mut StringPool) -> Option<RawEtymology> {
@@ -400,7 +459,8 @@ impl WiktextractJsonItem<'_> {
         string_pool: &mut StringPool,
         lang: Lang,
     ) -> Option<RawEtymology> {
-        self.get_single_mention_ety(string_pool)
+        self.get_etymon_ety(string_pool, lang)
+            .or_else(|| self.get_single_mention_ety(string_pool))
             .or_else(|| self.get_standard_ety(string_pool, lang))
             .or_else(|| self.get_form_ety(string_pool, lang))
     }
@@ -468,16 +528,24 @@ impl Items {
                     item_embeddings.push(embeddings.get(self.get(current_item), current_item)?);
                     let mut ety_items = Vec::with_capacity(template.langterms.len());
                     let mut confidences = Vec::with_capacity(template.langterms.len());
-                    for &ety_langterm in &*template.langterms {
+                    for (i, &ety_langterm) in template.langterms.iter().enumerate() {
+                        let etymon_id = template.ids.get(i).and_then(Option::as_deref);
                         let Retrieval {
                             item_id: ety_item,
                             confidence,
-                        } = self.get_or_impute_item(
-                            embeddings,
-                            &item_embeddings,
-                            item,
-                            ety_langterm,
-                        )?;
+                        } = match etymon_id.and_then(|id| self.get_etymon_item(ety_langterm, id)) {
+                            // named by its {{etymon}} id: no need to disambiguate
+                            Some(item_id) => Retrieval {
+                                item_id,
+                                confidence: 1.0,
+                            },
+                            None => self.get_or_impute_item(
+                                embeddings,
+                                &item_embeddings,
+                                item,
+                                ety_langterm,
+                            )?,
+                        };
                         if self.get(ety_item).is_imputed() {
                             if template.langterms.len() == 1
                             // $$$ It would be better to have language timespan data and
@@ -544,5 +612,91 @@ impl Items {
         }
         pb.finish();
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use simd_json::to_borrowed_value;
+
+    // (mode, [term]) for each template in the chain; None for a skipped one
+    fn chain(json: &str) -> Vec<Option<(EtyMode, Vec<String>)>> {
+        let mut bytes = json.as_bytes().to_vec();
+        let json = to_borrowed_value(&mut bytes).unwrap();
+        let mut string_pool = StringPool::new();
+        let lang = Lang::from_str("en").unwrap();
+        WiktextractJsonItem { json }
+            .get_etymology(&mut string_pool, lang)
+            .map_or_else(Vec::new, |ety| Vec::from(ety.templates))
+            .into_iter()
+            .map(|t| match t {
+                ParsedRawEtyTemplate::Parsed(t) => Some((
+                    t.mode,
+                    t.langterms
+                        .iter()
+                        .map(|lt| lt.term.resolve(&string_pool).to_owned())
+                        .collect(),
+                )),
+                ParsedRawEtyTemplate::Skipped => None,
+            })
+            .collect()
+    }
+
+    fn step(mode: EtyMode, term: &str) -> Option<(EtyMode, Vec<String>)> {
+        Some((mode, vec![term.to_owned()]))
+    }
+
+    #[test]
+    fn etymon_is_continued_by_the_classic_chain_after_its_parent() {
+        // en "free"
+        let got = chain(
+            r#"{"etymology_templates": [
+                {"name": "etymon", "args": {"1": "en", "id": "adjective", "2": ":inh", "3": "enm:fre", "tree": "1"}},
+                {"name": "inh", "args": {"1": "en", "2": "enm", "3": "fre"}},
+                {"name": "inh", "args": {"1": "en", "2": "ang", "3": "frēo"}},
+                {"name": "inh", "args": {"1": "en", "2": "gmw-pro", "3": "*frī"}},
+                {"name": "cog", "args": {"1": "sco", "2": "fre"}}
+            ]}"#,
+        );
+        assert_eq!(
+            got,
+            [
+                step(EtyMode::Inherited, "fre"),
+                step(EtyMode::Inherited, "frēo"),
+                step(EtyMode::Inherited, "frī"),
+                None,
+            ]
+        );
+    }
+
+    #[test]
+    fn etymon_wins_over_disagreeing_classic_templates() {
+        let got = chain(
+            r#"{"etymology_templates": [
+                {"name": "etymon", "args": {"1": "en", "2": ":lbor", "3": "la-new:encyclopaedīa<id:encyclopedia>"}},
+                {"name": "der", "args": {"1": "en", "2": "grc-koi", "3": "ἐγκύκλιος παιδείᾱ"}}
+            ]}"#,
+        );
+        assert_eq!(got, [step(EtyMode::LearnedBorrowing, "encyclopaedīa")]);
+    }
+
+    #[test]
+    fn classic_templates_without_usable_etymon() {
+        let got = chain(
+            r#"{"etymology_templates": [
+                {"name": "etymon", "args": {"1": "en", "id": "female parent", "tree": "1"}},
+                {"name": "inh", "args": {"1": "en", "2": "enm", "3": "moder"}}
+            ]}"#,
+        );
+        assert_eq!(got, [None, step(EtyMode::Inherited, "moder")]);
+        // an {{etymon}} for another language is not the entry's
+        let got = chain(
+            r#"{"etymology_templates": [
+                {"name": "etymon", "args": {"1": "enm", "2": ":inh", "3": "ang:mōdor"}},
+                {"name": "inh", "args": {"1": "en", "2": "enm", "3": "moder"}}
+            ]}"#,
+        );
+        assert_eq!(got, [None, step(EtyMode::Inherited, "moder")]);
     }
 }
