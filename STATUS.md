@@ -24,30 +24,27 @@ in the `packages/dating` registry.
   Zotero with acquire's provenance (artifact, receipt, hashed text, OCR for scans).
   Researchers read holdings with `library` and `open`, and ask for missing works with
   `request`. Seven handbooks are ingested (`data/registry/holdings.json`).
-- **Acquisition queue:** `dating requests list|push`. Six works are open and filed in
-  Zotero under `wety/needs-fulltext` and `wety/dating/periods`, each with a note on what
-  it would settle (write access granted, verified in the live library).
+- **Acquisition queue:** `dating requests list|enrich|push`. Six works are open and
+  filed in Zotero under `wety/needs-fulltext` and `wety/dating/periods`, with full
+  records (DOI via Crossref, books via K10plus: publisher, place, edition, ISBN, pages,
+  editors) and a note on what each would settle.
 - Codex runs the pinned CLI from `openai-codex-cli-bin`; Claude the SDK-bundled CLI.
   Research searches on Semantic Scholar now send `S2_API_KEY` and share `s2.py`'s
   machine-wide 1 request/s clock.
 
 ## What changed
 
-Holdings, requests and Zotero client (`harness/holdings.py`, `harness/zotero.py`);
-discovery adds Semantic Scholar, author homepages, Open Library and optional web search
-(codex-astra: cached); a handbook retry run, reviewed with page-image checks. See the
+Holdings, requests, Zotero client and bibliographic lookup (`harness/holdings.py`,
+`zotero.py`, `bibliography.py`); broader discovery; a handbook retry run. See the
 [retry README](data/workspaces/dating/_research/period-retry-2026-10-04/README.md).
 
 ## Uncertainties
 
 - The review was done by the session that built the route, not a separate one.
-- A test called the live `adopt` and silently reverted `ang`/`la` after the retry
-  import; two commits recorded that state. Fixed (the test no longer writes) and
-  restored; see the retry README.
 - Still no period: `non got cu sa ojp ine-pro`. Several are scope gaps, not access
   gaps (Frellesvig dates Old and Middle Japanese separately; Lunt's OCS excludes Middle
-  Bulgarian). Catalog scope for `cu`/`sa` stays unrecorded: handbooks define stage
-  names, not the ISO or Glottolog entities.
+  Bulgarian). Catalog scope is now recorded: `cu` narrower than ISO `chu`/Glottolog
+  `chur1257`, `sa` broader than `san`/`sans1269`.
 - Zotero records can be wrong; reviews cite title pages. Corrected records refresh a
   holding's metadata on the next `holdings zotero`/`sync`.
 
@@ -55,10 +52,13 @@ discovery adds Semantic Scholar, author homepages, Open Library and optional web
 
 1. Supply the six queued works (attach PDFs to the Zotero items), then `dating holdings
    sync` and a continuation run for `ang enm goh gmh la grc sa och ltc`.
-2. Refresh the Wiktionary export behind the catalog (pending since 2026-10-03).
-3. Record `cu`/`sa` catalog scope once a source states what ISO `chu`/`san` cover.
+2. Wiktionary refresh, if approved: retain Kaikki's raw data (2026-09-02 dump) and the
+   matching 20260901 Wiktionary dump before either rotates out; export language data;
+   review code changes; rebuild catalogs, dating and the graph.
+3. Re-check `non` scope against the refreshed export (Old Gutnish now has its own code).
 
 ## Decisions needed from the maintainer
 
 - Merging into `main` (deploys).
-- The Wiktionary export refresh stays pending (maintainer, 2026-10-04).
+- Whether to acquire the refresh inputs now (about 4.3 GB) and run the coordinated
+  refresh (graph rebuild and server update included).
