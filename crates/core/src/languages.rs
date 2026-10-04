@@ -54,6 +54,8 @@ struct Languages {
     data: Vec<LangData>,
     code2id: HashMap<&'static str, Lang>,
     name2id: HashMap<&'static str, Lang>,
+    /// retired code -> its successor, for links made before a refresh
+    retired2id: HashMap<&'static str, Lang>,
 }
 
 impl Languages {
@@ -116,10 +118,21 @@ impl Languages {
             data[id as usize] = lang_data;
         }
 
+        let retired: BTreeMap<&'static str, &'static str> = serde_json::from_str(include_str!(
+            env!("WETY_RETIRED_LANGUAGE_CODES_JSON")
+        ))
+        .expect("well-formed retired-language-codes.json");
+        let retired2id = retired
+            .into_iter()
+            .filter(|(old, _)| !code2id.contains_key(old))
+            .filter_map(|(old, new)| Some((old, *code2id.get(new)?)))
+            .collect();
+
         Self {
             data,
             code2id,
             name2id,
+            retired2id,
         }
     }
 
@@ -133,6 +146,10 @@ impl Languages {
 
     fn name2lang(&self, name: &str) -> Option<Lang> {
         self.name2id.get(name).copied()
+    }
+
+    fn retired2lang(&self, code: &str) -> Option<Lang> {
+        self.retired2id.get(code).copied()
     }
 }
 
@@ -150,6 +167,16 @@ impl FromStr for Lang {
 }
 
 impl Lang {
+    /// Like `from_str`, but also accepts codes Wiktionary has retired (see
+    /// `data/registry/retired-language-codes.json`). For codes from links.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if `code` is neither a current nor a retired code.
+    pub fn from_code(code: &str) -> Result<Self> {
+        Self::from_str(code).or_else(|e| LANGUAGES.retired2lang(code).ok_or(e))
+    }
+
     /// # Errors
     ///
     /// Returns an error if `name` is not a known canonical language name.
@@ -256,5 +283,6 @@ impl Lang {
 #[derive(Serialize)]
 pub struct LangInfo {
     pub id: LangId,
+    pub code: &'static str,
     pub name: &'static str,
 }

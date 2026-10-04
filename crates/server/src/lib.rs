@@ -3,8 +3,12 @@
 pub mod periods;
 
 use periods::Periods;
-use serde::{Deserialize, Serialize};
-use wety_core::{Data, ItemId, Lang, Search};
+use serde::{Deserialize, Deserializer, de::Error as _};
+use wety_core::{
+    Data, ItemId, Lang, Search,
+    keys::{Keys, Resolution},
+    processed::graph_version,
+};
 
 use std::{str::FromStr, sync::Arc};
 
@@ -17,7 +21,7 @@ use axum::{
 use axum_extra::extract::Query as ExtraQuery;
 use bytes::Bytes;
 use moka::sync::Cache;
-use serde_json::Value;
+use serde_json::{Value, json};
 
 pub enum Environment {
     Development,
@@ -65,7 +69,10 @@ const TREE_CACHE_BYTES: u64 = 256 * 1024 * 1024;
 pub struct AppState {
     pub data: Data,
     pub search: Search,
+    pub keys: Keys,
     pub periods: Periods,
+    /// Identity of the loaded graph; clients send it back with numeric ids.
+    pub graph: String,
     /// Serialized JSON for previously requested trees. Compression happens
     /// downstream in the `CompressionLayer`, so one entry serves every
     /// `Accept-Encoding`.
@@ -88,7 +95,9 @@ impl AppState {
             tracing::warn!("periods for unknown lang codes ignored: {:?}", periods.unknown_codes);
         }
         let data = Data::deserialize_with_legacy(data_path, std::env::var("WETY_ALLOW_LEGACY_GRAPH").as_deref() == Ok("1"))?;
+        let graph = graph_version(data_path)?;
         let search = data.build_search();
+        let keys = data.build_keys();
         let tree_cache = Cache::builder()
             .weigher(|_: &TreeKey, bytes: &Bytes| u32::try_from(bytes.len()).unwrap_or(u32::MAX))
             .max_capacity(TREE_CACHE_BYTES)
@@ -96,7 +105,9 @@ impl AppState {
         Ok(Self {
             data,
             search,
+            keys,
             periods,
+            graph,
             tree_cache,
         })
     }
@@ -167,6 +178,60 @@ async fn tree_response(state: Arc<AppState>, key: TreeKey) -> Response {
     ([(header::CONTENT_TYPE, "application/json")], bytes).into_response()
 }
 
+/// A language named by its Wiktionary code in a URL. Retired codes are
+/// accepted and mapped to their successors.
+#[derive(Clone, Copy)]
+pub struct LangCode(Lang);
+
+impl<'de> Deserialize<'de> for LangCode {
+    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let code = String::deserialize(deserializer)?;
+        Lang::from_code(&code).map(LangCode).map_err(D::Error::custom)
+    }
+}
+
+/// The graph a client's numeric ids came from, if it says.
+#[derive(Deserialize)]
+pub struct GraphQuery {
+    graph: Option<String>,
+}
+
+/// Numeric ids from another graph would name other items: refuse them, so
+/// the client re-resolves its URL instead of showing the wrong word.
+fn stale_graph(state: &AppState, graph: Option<&str>) -> Option<Response> {
+    graph.filter(|&g| g != state.graph).map(|_| {
+        (StatusCode::CONFLICT, Json(json!({ "graph": state.graph }))).into_response()
+    })
+}
+
+#[derive(Deserialize)]
+pub struct ResolveQuery {
+    lang: LangCode,
+    term: String,
+    ety: Option<String>,
+}
+
+/// What a link names: `{graph, item, homographs}`. `item` is null when
+/// several items share the name and none is singled out; 404 when none has it.
+pub async fn resolve(
+    State(state): State<Arc<AppState>>,
+    Query(query): Query<ResolveQuery>,
+) -> Response {
+    let data = &state.data;
+    let (status, item, homographs) =
+        match data.resolve(&state.keys, query.lang.0, &query.term, query.ety.as_deref()) {
+            Resolution::Found(item, all) => (StatusCode::OK, Some(item), all),
+            Resolution::Ambiguous(all) => (StatusCode::OK, None, all),
+            Resolution::NotFound => (StatusCode::NOT_FOUND, None, vec![]),
+        };
+    let body = json!({
+        "graph": state.graph,
+        "item": item.map(|id| data.item_json(id)),
+        "homographs": homographs.iter().map(|&id| data.item_json(id)).collect::<Vec<_>>(),
+    });
+    (status, Json(body)).into_response()
+}
+
 #[derive(Deserialize)]
 pub struct LangSearch {
     name: String,
@@ -187,17 +252,14 @@ pub struct ItemSearch {
 
 pub async fn item_search_matches(
     State(state): State<Arc<AppState>>,
-    Path(lang): Path<Lang>,
+    Path(LangCode(lang)): Path<LangCode>,
     Query(item_search): Query<ItemSearch>,
 ) -> Json<Value> {
     let matches = state.search.items(&state.data, lang, &item_search.term);
     Json(matches)
 }
 
-pub async fn lang(Path(lang): Path<Lang>) -> Response {
-    if !lang.exists() {
-        return StatusCode::NOT_FOUND.into_response();
-    }
+pub async fn lang(Path(LangCode(lang)): Path<LangCode>) -> Response {
     Json(lang.json()).into_response()
 }
 
@@ -211,7 +273,14 @@ pub async fn periods(State(state): State<Arc<AppState>>) -> Response {
         .into_response()
 }
 
-pub async fn item(State(state): State<Arc<AppState>>, Path(item_id): Path<ItemId>) -> Response {
+pub async fn item(
+    State(state): State<Arc<AppState>>,
+    Path(item_id): Path<ItemId>,
+    Query(query): Query<GraphQuery>,
+) -> Response {
+    if let Some(stale) = stale_graph(&state, query.graph.as_deref()) {
+        return stale;
+    }
     if !state.data.has_item(item_id) {
         return StatusCode::NOT_FOUND.into_response();
     }
@@ -221,19 +290,24 @@ pub async fn item(State(state): State<Arc<AppState>>, Path(item_id): Path<ItemId
 pub async fn item_etymology(
     State(state): State<Arc<AppState>>,
     Path(item_id): Path<ItemId>,
+    Query(query): Query<GraphQuery>,
 ) -> Response {
+    if let Some(stale) = stale_graph(&state, query.graph.as_deref()) {
+        return stale;
+    }
     if !state.data.has_item(item_id) {
         return StatusCode::NOT_FOUND.into_response();
     }
     tree_response(state, TreeKey::Etymology { item: item_id }).await
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize)]
 pub struct TreeQueries {
-    #[serde(rename = "descLang")]
-    desc_langs: Vec<Lang>,
+    #[serde(rename = "descLang", default)]
+    desc_langs: Vec<LangCode>,
     #[serde(rename = "distLang")]
-    dist_lang: Option<Lang>,
+    dist_lang: Option<LangCode>,
+    graph: Option<String>,
     /// Omit glosses from every node (they dominate payload size); fetch them
     /// on demand from `/item/:id` instead.
     #[serde(default)]
@@ -242,11 +316,12 @@ pub struct TreeQueries {
 
 impl TreeQueries {
     /// `(dist_lang, desc_langs, lean)` in canonical form for `TreeKey`.
-    fn canonical(mut self, data: &Data, item_id: ItemId) -> (Lang, Vec<Lang>, bool) {
-        let dist_lang = self.dist_lang.unwrap_or(data.lang(item_id));
-        self.desc_langs.sort_unstable_by_key(|l| l.id());
-        self.desc_langs.dedup();
-        (dist_lang, self.desc_langs, self.lean)
+    fn canonical(self, data: &Data, item_id: ItemId) -> (Lang, Vec<Lang>, bool) {
+        let dist_lang = self.dist_lang.map_or(data.lang(item_id), |l| l.0);
+        let mut desc_langs: Vec<Lang> = self.desc_langs.into_iter().map(|l| l.0).collect();
+        desc_langs.sort_unstable_by_key(|l| l.id());
+        desc_langs.dedup();
+        (dist_lang, desc_langs, self.lean)
     }
 }
 
@@ -255,6 +330,9 @@ pub async fn item_descendants(
     Path(item_id): Path<ItemId>,
     ExtraQuery(tree_queries): ExtraQuery<TreeQueries>,
 ) -> Response {
+    if let Some(stale) = stale_graph(&state, tree_queries.graph.as_deref()) {
+        return stale;
+    }
     if !state.data.has_item(item_id) {
         return StatusCode::NOT_FOUND.into_response();
     }
@@ -276,6 +354,9 @@ pub async fn item_cognates(
     Path(item_id): Path<ItemId>,
     ExtraQuery(tree_queries): ExtraQuery<TreeQueries>,
 ) -> Response {
+    if let Some(stale) = stale_graph(&state, tree_queries.graph.as_deref()) {
+        return stale;
+    }
     if !state.data.has_item(item_id) {
         return StatusCode::NOT_FOUND.into_response();
     }

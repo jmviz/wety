@@ -10,7 +10,7 @@ use crate::{
 
 use std::{
     fs::File,
-    io::{BufReader, BufWriter, Write},
+    io::{BufReader, BufWriter, Read, Write},
     path::Path,
     time::Instant,
 };
@@ -66,6 +66,26 @@ impl Data {
         println!("Finished. Took {:.2?}.", t.elapsed());
         Ok(())
     }
+}
+
+/// A short identity for a graph file. Clients send it back with numeric item
+/// ids, which only mean something within one graph.
+///
+/// # Errors
+///
+/// Returns an error if the file cannot be read.
+pub fn graph_version(path: &Path) -> Result<String> {
+    let mut hasher = xxhash_rust::xxh3::Xxh3::new();
+    let mut file = File::open(path)?;
+    let mut buf = vec![0; 1 << 20];
+    loop {
+        let n = file.read(&mut buf)?;
+        if n == 0 {
+            break;
+        }
+        hasher.update(&buf[..n]);
+    }
+    Ok(format!("{:016x}", hasher.digest()))
 }
 
 // private methods for use within pub methods below
@@ -139,6 +159,7 @@ impl Data {
         ItemJson {
             id: item_id,
             ety_num: item.ety_num(),
+            ety: item.link_ety(),
             lang: item.lang().info(),
             term: item.term().resolve(&self.string_pool),
             imputed: item.is_imputed(),

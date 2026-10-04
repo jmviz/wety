@@ -18,6 +18,7 @@ urlencoding = "2.1.2"
 string-interner = "0.14.0"
 memmap2 = "0.9"
 strum = {version = "0.24.1", features = ["derive", "phf"]}
+unicode-normalization = "0.1.22"
 
 [build-dependencies]
 sha2 = "0.10"

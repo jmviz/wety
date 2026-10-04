@@ -66,6 +66,12 @@ impl StringPool {
             .expect("Resolve interned string from symbol")
     }
 
+    /// The symbol for `s`, if it was interned.
+    #[must_use]
+    pub fn get(&self, s: &str) -> Option<Symbol> {
+        self.pool.get(s)
+    }
+
     pub fn get_or_intern(&mut self, s: &str) -> Symbol {
         self.pool.get_or_intern(s)
     }

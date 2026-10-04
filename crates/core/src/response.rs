@@ -8,7 +8,7 @@ use crate::{
     string_pool::StringPool,
 };
 
-use std::fmt;
+use std::{borrow::Cow, fmt};
 
 use serde::{Serialize, Serializer};
 
@@ -42,6 +42,10 @@ impl Serialize for GlossStr<'_> {
 pub struct ItemJson<'a> {
     pub id: ItemId,
     pub ety_num: u8,
+    /// What tells this item apart from others of the same lang and term in a
+    /// link (see `keys`); absent when nothing needs to.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub ety: Option<Cow<'a, str>>,
     pub lang: LangInfo,
     pub term: &'a str,
     pub imputed: bool,
@@ -95,6 +99,7 @@ impl Lang {
     pub fn info(self) -> LangInfo {
         LangInfo {
             id: self.id(),
+            code: self.code(),
             name: self.name(),
         }
     }

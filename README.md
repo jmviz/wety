@@ -83,3 +83,20 @@ WETY_ALLOW_LEGACY_GRAPH=1 cargo run --locked --release --bin server
 This accepts unverified numeric IDs; it does not validate or rewrite that graph.
 The server listens on port 3000 (set `WETY_PORT` to change it). See [client development](client/README.md) and
 [server deployment](crates/server/deployment.md).
+
+## Links
+
+Shared links name a word by language code, term and, when Wiktionary numbers the
+page's etymologies, that number: `/etymology/en/lime?ety=3`,
+`/cognates/en/lime?ety=3&lang=la&lang=grc`. The client resolves them with
+`/resolve?lang=en&term=lime&ety=3`, which also lists the word's homographs. Numeric
+item and language IDs are positions in one build and never appear in shared links;
+the client sends the graph version (`graph=`) with numeric item IDs, and the server
+answers 409 if they belong to another graph. When a new Wiktionary language export
+is selected, record the codes it retired so links naming them keep working:
+
+```sh
+cargo run --locked -p wety-core --example retired_language_codes -- PREVIOUS/files/languages.json
+```
+
+This updates `data/registry/retired-language-codes.json`.

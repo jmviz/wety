@@ -1,6 +1,6 @@
 //! Stage-by-stage timing of the tree endpoints, without HTTP.
 //!
-//! Usage: cargo run --release --example bench -- <item_id>... [--desc-lang <id>]...
+//! Usage: cargo run --release --example bench -- <item_id>... [--desc-lang <code>]...
 use std::{
     io::Write,
     path::Path,
@@ -99,7 +99,7 @@ fn main() {
     let mut args = std::env::args().skip(1);
     while let Some(a) = args.next() {
         if a == "--desc-lang" {
-            desc_langs.push(Lang::from(args.next().unwrap().parse::<u16>().unwrap()));
+            desc_langs.push(Lang::from_code(&args.next().unwrap()).unwrap());
         } else if a == "--worst" {
             worst = true;
         } else {
@@ -107,7 +107,7 @@ fn main() {
         }
     }
     if desc_langs.is_empty() {
-        desc_langs.push(Lang::from(2048));
+        desc_langs.push(Lang::from_code("en").unwrap());
     }
 
     let data = Data::deserialize(Path::new("data/wety.json")).unwrap();

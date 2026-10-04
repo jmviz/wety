@@ -33,6 +33,10 @@ impl<'a> Term {
     pub fn resolve(self, string_pool: &'a StringPool) -> &'a str {
         string_pool.resolve(self.symbol)
     }
+
+    pub(crate) fn symbol(self) -> Symbol {
+        self.symbol
+    }
 }
 
 #[derive(Hash, Eq, PartialEq, Debug, Copy, Clone)]

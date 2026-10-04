@@ -5,6 +5,7 @@ pub mod ety_graph;
 pub mod etymology_templates;
 pub mod gloss;
 pub mod items;
+pub mod keys;
 pub mod langterm;
 pub mod languages;
 pub mod pos;

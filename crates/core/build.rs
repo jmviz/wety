@@ -17,7 +17,12 @@ fn main() {
     hash.update(fs::read(&pos_path).unwrap());
     println!("cargo:rustc-env=WETY_REFERENCE_FINGERPRINT={:x}", hash.finalize());
     println!("cargo:rustc-env=WETY_LANGUAGES_JSON={}", language_path.display());
-    for path in [&selection_path, &language_path, &pos_path] {
+    // Codes Wiktionary has retired, mapped to their successors, so that links
+    // naming them keep working. Not part of the fingerprint: it does not
+    // change any numeric id.
+    let retired_path = repo.join("data/registry/retired-language-codes.json").canonicalize().unwrap();
+    println!("cargo:rustc-env=WETY_RETIRED_LANGUAGE_CODES_JSON={}", retired_path.display());
+    for path in [&selection_path, &language_path, &pos_path, &retired_path] {
         println!("cargo:rerun-if-changed={}", path.display());
     }
 }
