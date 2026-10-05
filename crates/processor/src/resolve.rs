@@ -50,6 +50,31 @@ pub(crate) struct Citation<'a> {
     pub(crate) relation: Relation,
 }
 
+// How citations were resolved, for the build log: counts by deciding
+// evidence, and a sample of the terms judged missing despite homographs.
+#[derive(Default)]
+pub(crate) struct ResolutionStats {
+    counts: std::cell::RefCell<std::collections::BTreeMap<&'static str, u64>>,
+    missing_sample: std::cell::RefCell<Vec<String>>,
+}
+
+impl ResolutionStats {
+    fn count(&self, how: &'static str) {
+        *self.counts.borrow_mut().entry(how).or_default() += 1;
+    }
+
+    pub(crate) fn report(&self) {
+        for (how, n) in self.counts.borrow().iter() {
+            println!("  citations resolved by {how}: {n}");
+        }
+        for line in self.missing_sample.borrow().iter() {
+            println!("  missing: {line}");
+        }
+        self.counts.borrow_mut().clear();
+        self.missing_sample.borrow_mut().clear();
+    }
+}
+
 pub(crate) enum Resolution {
     Found { item: ItemId, confidence: f32 },
     // no item is the term meant
@@ -279,12 +304,14 @@ impl Items {
         if let Some(id) = citation.id
             && let Some(item) = self.get_id_item(citation.langterm, id)
         {
+            self.resolution_stats.count("id");
             return Ok(Resolution::Found {
                 item,
                 confidence: 1.0,
             });
         }
         let Some(real) = self.candidates(citation.langterm) else {
+            self.resolution_stats.count("none found");
             return Ok(Resolution::Missing);
         };
         // A term found missing for an earlier citation (though homographs
@@ -302,6 +329,7 @@ impl Items {
         if candidates.len() == 1
             && !matches!(citation.relation, Relation::Parent { next: Some(_) })
         {
+            self.resolution_stats.count("single candidate");
             let best = self.best_candidate(string_pool, embeddings, embedding_comp, candidates, None)?;
             return Ok(best.map_or(Resolution::Missing, |(item, confidence)| Resolution::Found {
                 item,
@@ -315,6 +343,7 @@ impl Items {
             .filter(|&c| self.agrees(c, citation, &citer_keys))
             .collect();
         if !agreeing.is_empty() {
+            self.resolution_stats.count("agreement");
             let best = self.best_candidate(string_pool, embeddings, embedding_comp, &agreeing, citation.gloss)?;
             return Ok(best.map_or(Resolution::Missing, |(item, _)| Resolution::Found {
                 item,
@@ -337,11 +366,32 @@ impl Items {
         };
         let pool = match (&citation.relation, open.is_empty()) {
             // every candidate is some other word: the one meant is missing
-            (Relation::Parent { .. }, true) => return Ok(Resolution::Missing),
+            (Relation::Parent { .. }, true) => {
+                self.resolution_stats.count("missing (all contradicted)");
+                // a deterministic sample for review
+                let citer = self.get(citation.citer);
+                let line = format!(
+                    "{} {} cites {} {} (from {:?})",
+                    citer.lang().code(),
+                    citer.term().resolve(string_pool),
+                    citation.langterm.lang.code(),
+                    citation.langterm.term.resolve(string_pool),
+                    expected.map(|e| format!("{} {}", e.lang.code(), e.term.resolve(string_pool))),
+                );
+                if xxhash_rust::xxh3::xxh3_64(line.as_bytes()) % 200 == 0 {
+                    self.resolution_stats.missing_sample.borrow_mut().push(line);
+                }
+                return Ok(Resolution::Missing);
+            }
             // Descendants lists often skip steps; keep to the list
             (Relation::Child, true) => candidates,
             _ => &open,
         };
+        self.resolution_stats.count(match (pool.len(), open.len() < candidates.len()) {
+            (1, true) => "contradiction of the others",
+            (1, false) => "single candidate",
+            _ => "gloss or embedding",
+        });
         let best = self.best_candidate(string_pool, embeddings, embedding_comp, pool, citation.gloss)?;
         Ok(best.map_or(Resolution::Missing, |(item, confidence)| Resolution::Found {
             item,

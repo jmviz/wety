@@ -57,6 +57,7 @@ pub(crate) struct Items {
     // Descendants list or a root imputation
     pub(crate) own_ety: HashSet<ItemId>,
     pub(crate) mentions: crate::resolve::Mentions,
+    pub(crate) resolution_stats: crate::resolve::ResolutionStats,
     pub(crate) redirects: Redirects,
     pub(crate) raw_templates: RawTemplates,
     pub(crate) lines: Lines,
@@ -75,6 +76,7 @@ impl Items {
             imputed_titles: HashMap::default(),
             own_ety: HashSet::default(),
             mentions: crate::resolve::Mentions::default(),
+            resolution_stats: crate::resolve::ResolutionStats::default(),
             redirects: Redirects::default(),
             raw_templates: RawTemplates::default(),
             lines: Lines::default(),
@@ -488,8 +490,12 @@ impl Items {
     ) -> Result<()> {
         self.index_mentions();
         self.process_raw_descendants(string_pool, embeddings)?;
+        println!("  Descendants lines:");
+        self.resolution_stats.report();
         self.break_cycles();
         self.process_raw_etymologies(string_pool, embeddings)?;
+        println!("  Etymologies:");
+        self.resolution_stats.report();
         self.break_cycles();
         self.impute_root_etys(embeddings)?;
         self.break_cycles();
