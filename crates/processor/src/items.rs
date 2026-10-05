@@ -28,6 +28,8 @@ pub(crate) struct RawTemplates {
     pub(crate) ety: HashMap<ItemId, RawEtymology>,
     pub(crate) desc: HashMap<ItemId, RawDescendants>,
     pub(crate) root: HashMap<ItemId, Box<[RawRoot]>>,
+    // an item's "Derived terms", as langterms
+    pub(crate) derived: HashMap<ItemId, Vec<LangTerm>>,
 }
 
 type Dupes = HashMap<LangTerm, Vec<ItemId>>;

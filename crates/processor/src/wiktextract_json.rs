@@ -5,7 +5,7 @@ use crate::{
 };
 use wety_core::{
     gloss::Gloss,
-    items::RealItem,
+    items::{ItemId, RealItem},
     langterm::Term,
     languages::Lang,
     pos::Pos,
@@ -187,22 +187,52 @@ impl Items {
                 if let Some(raw_descendants) = json_item.get_descendants(string_pool) {
                     self.raw_templates.desc.insert(item_id, raw_descendants);
                 }
+                self.add_derived(string_pool, item_id, json_item, lang);
                 return;
             }
-            // This was a new pos of an existing item. 
-            if let Some(mut raw_descendants) = json_item.get_descendants(string_pool) {
+            // This was a new pos of an existing item.
+            self.add_derived(string_pool, item_id, json_item, lang);
+            if let Some(raw_descendants) = json_item.get_descendants(string_pool) {
                 // Sometimes multiple pos's under the same ety have different
                 // Descendants sections. This handles that by simply joining the
-                // lists into one. $$ This does assume that each list uses the
-                // same base level of indentation though...
-                if let Some(existing) = self.raw_templates.desc.get_mut(&item_id) {
-                    let mut ex_lines = Vec::from(mem::take(&mut existing.lines));
-                    let new_lines = Vec::from(mem::take(&mut raw_descendants.lines));
-                    ex_lines.extend(new_lines);
-                    let full = RawDescendants::from(ex_lines);
-                    self.raw_templates.desc.insert(item_id, full);
+                // lists into one (a repeated list is kept once). $$ This does
+                // assume that each list uses the same base level of
+                // indentation though... (The joined list was overwritten by
+                // the later one's emptied lines, losing both.)
+                match self.raw_templates.desc.get_mut(&item_id) {
+                    Some(existing) if *existing == raw_descendants => {}
+                    Some(existing) => {
+                        let mut lines = Vec::from(mem::take(&mut existing.lines));
+                        lines.extend(Vec::from(raw_descendants.lines));
+                        *existing = RawDescendants::from(lines);
+                    }
+                    None => {
+                        self.raw_templates.desc.insert(item_id, raw_descendants);
+                    }
                 }
-                self.raw_templates.desc.insert(item_id, raw_descendants);
+            }
+        }
+    }
+}
+
+impl Items {
+    // The entry's "Derived terms" (same language), which name the item's
+    // derivatives as a Descendants section names its descendants.
+    fn add_derived(
+        &mut self,
+        string_pool: &mut StringPool,
+        item_id: ItemId,
+        json_item: &WiktextractJsonItem,
+        lang: Lang,
+    ) {
+        for derived in json_item.json.get_array("derived").into_iter().flatten() {
+            if let Some(word) = derived.get_valid_term("word") {
+                let langterm = lang.new_langterm(string_pool, word);
+                self.raw_templates
+                    .derived
+                    .entry(item_id)
+                    .or_default()
+                    .push(langterm);
             }
         }
     }
@@ -478,6 +508,30 @@ mod tests {
             .unwrap()
             .resolve(&string_pool)
             .to_owned()
+    }
+
+    #[test]
+    fn descendants_of_several_parts_of_speech_are_joined() {
+        let mut sp = StringPool::new();
+        let mut items = Items::new().unwrap();
+        let entry = |pos: &str, desc: &str| {
+            format!(
+                r#"{{"word": "māter", "lang_code": "la", "pos": "{pos}",
+                    "senses": [{{"glosses": ["mother"]}}],
+                    "descendants": [{{"lang_code": "{desc}", "word": "x"}}],
+                    "derived": [{{"word": "māternus"}}]}}"#
+            )
+        };
+        for (n, json) in [entry("noun", "it"), entry("noun", "it"), entry("verb", "fr")].iter().enumerate() {
+            let mut bytes = json.as_bytes().to_vec();
+            let json = to_borrowed_value(&mut bytes).unwrap();
+            items.process_item(&mut sp, &WiktextractJsonItem { json }, n);
+        }
+        let (_, desc) = items.raw_templates.desc.iter().next().unwrap();
+        // the repeated list once, then the other
+        assert_eq!(desc.langterms().count(), 2);
+        let (_, derived) = items.raw_templates.derived.iter().next().unwrap();
+        assert_eq!(derived.len(), 3);
     }
 
     #[test]

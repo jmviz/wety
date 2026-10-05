@@ -7,8 +7,8 @@
 //! similarity, we weigh what the data says about the citation:
 //!
 //! - an id the citation gives for its term, declared by one of the items;
-//! - agreement: the candidate's Descendants section lists the citing item, or
-//!   its own etymology names (or leads to) what the citing etymology gives as
+//! - agreement: the candidate's Descendants section or Derived terms list the
+//!   citing item, or its own etymology names (or leads to) what the citing etymology gives as
 //!   the cited term's own source (the continuation, "from enm m, from ang o");
 //!   for a Descendants line, the candidate's etymology names (or leads to) the
 //!   item whose list it is on;
@@ -118,12 +118,19 @@ impl Items {
                 mentions.ety.insert(item, keys.into_boxed_slice());
             }
         }
-        for (&item, desc) in &self.raw_templates.desc {
-            let keys = desc.langterms().map(|lt| self.key(lt)).collect::<Vec<_>>();
-            if !keys.is_empty() {
-                mentions.desc.insert(item, keys.into_boxed_slice());
-            }
+        // Descendants sections and "Derived terms" lists
+        let mut desc: crate::HashMap<ItemId, Vec<LangTerm>> = crate::HashMap::default();
+        for (&item, raw) in &self.raw_templates.desc {
+            desc.entry(item).or_default().extend(raw.langterms().map(|lt| self.key(lt)));
         }
+        for (&item, derived) in &self.raw_templates.derived {
+            desc.entry(item).or_default().extend(derived.iter().map(|&lt| self.key(lt)));
+        }
+        mentions.desc = desc
+            .into_iter()
+            .filter(|(_, keys)| !keys.is_empty())
+            .map(|(item, keys)| (item, keys.into_boxed_slice()))
+            .collect();
         self.mentions = mentions;
     }
 

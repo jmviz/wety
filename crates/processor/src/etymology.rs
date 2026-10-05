@@ -1258,6 +1258,20 @@ mod tests {
         }
 
         #[test]
+        fn derived_terms_lists_pick_the_homograph() {
+            let mut t = Setup::new("derived");
+            let _fruit = t.add_glossed("en", "lime", "a citrus fruit");
+            let mineral = t.add_glossed("en", "lime", "calcium oxide");
+            let en = Lang::from_str("en").unwrap();
+            let kiln = en.new_langterm(&mut t.sp, "limekiln");
+            t.items.raw_templates.derived.insert(mineral, vec![kiln]);
+            t.items.index_mentions();
+            let limekiln = t.add("en", "limekiln");
+            t.process(limekiln, r#"[{"name": "af", "args": {"1": "en", "2": "lime", "3": "kiln"}}]"#);
+            assert_eq!(t.parent(limekiln), mineral);
+        }
+
+        #[test]
         fn descendants_lists_settle_homographs() {
             let mut t = Setup::new("homographs");
             let _lime1 = t.add("en", "lime");
