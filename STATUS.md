@@ -18,10 +18,10 @@ in the `packages/dating` registry.
   rebuilds; language codes replace numeric IDs.
 - **Deployment:** pushing `main` deploys the server, then the website
   ([deploy/README.md](deploy/README.md)). Untested on the host.
-- **Dates:** 100 codes show a cited period (14 before this branch), e.g. Gothic, Old
-  Norse, Old French, Middle Dutch, Sumerian, the Egyptian stages, Old and Middle
-  Japanese, Tocharian, and varieties such as Classical Latin; Vedic and Avestan by
-  composition. `dating period-targets` ranks 1,763 past-stage codes by tree use: 99
+- **Dates:** 108 codes show a cited period (14 before this branch), e.g. Gothic, Old
+  Norse, Old French, Sumerian, Old and Middle Japanese, Classical Latin; Vedic and
+  Avestan by composition; ten IE proto-languages end at Heggarty et al.'s crown ages
+  (PIE until 7614–4736 BCE). `dating period-targets` ranks 1,763 past-stage codes by tree use: 99
   dated, 988 undated ones appear in trees.
 
 ## What changed
@@ -43,15 +43,16 @@ in the `packages/dating` registry.
   paper's passing statement until Rickard 1989 arrives.
 - `period-targets` uses ISO's historical/extinct types, so non-ISO stages (Gaulish,
   Proto-Norse) are missed unless added by hand.
-- About 1,000 crown-age claims (IE, Sino-Tibetan, Austronesian…) are all candidates;
-  no proto code is dated by the new rule yet.
+- IE proto ends rest on one analysis (Heggarty M3), conditional on its constraints;
+  Chang et al. 2015 is unreviewed. Sino-Tibetan, Uralic and other crown ages remain
+  candidates.
 - The server needs ~5 GB; ~380k entries' `{{ety}}`/`{{etymon}}` are not parsed.
 
 ## Next three actions
 
 1. Maintainer: one-time deployment setup ([deploy/README.md](deploy/README.md)).
-2. Proto-language family review, Indo-European first: promote reproduced crown ages
-   (analysis, result, taxa) and adopt `ine-pro` and branch ends.
+2. Proto-language reviews: Chang et al. 2015 as an IE alternative; Sino-Tibetan and
+   Uralic (deposits reproduced) next; a rule for non-"reconstructed" proto codes.
 3. Supply the 16 filed requests (`holdings sync`), then the next batches from
    `period-targets` (Ottoman Turkish, Old East Slavic, Old Spanish, proto-languages).
 

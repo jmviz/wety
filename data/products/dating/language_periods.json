@@ -1,6 +1,2887 @@
 {
-  "family_splits": [],
-  "generation": "3fb019fb166d1f7719778801801806bb51517fa91f89036baa5359475fda6005",
+  "family_splits": [
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_02aaa4768f70c6d0186227a8f2e5d2746a87a498db751c77302f301c9689029f",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -504,
+        "mean": -100,
+        "median": -78,
+        "probability": 0.95,
+        "upper": 281
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Danish, Dutch, Elfdalian, English, Faroese, Flemish, Frisian, German, GermanBernese, Icelandic, Luxembourgish, MiddleDutch, MiddleHighGerman, NorwegianBokmal, NorwegianNynorsk, OldEnglish, OldFrisian, OldHighGerman, OldIcelandic, OldSaxon, OldSwedish, Swedish)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:02aaa4768f70c6d0"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_034b511ce4ed0135b198bd29268795399c2ad089bf4d2825beb58d5789c05089",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 538,
+        "mean": 779,
+        "median": 798,
+        "probability": 0.95,
+        "upper": 982
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(English, OldEnglish)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:034b511ce4ed0135"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_0626035c3d4a1e2f171772360748f3027bd06d88357d1c429731f1fe82133ee7",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -591,
+        "mean": -213,
+        "median": -209,
+        "probability": 0.95,
+        "upper": 138
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Bakhtiari, BalochiSistani, Delvari, Hawrami, Kumzari, KurdishCJafi, KurdishNBahdini, KurdishSElami, KurdishSQorveh, Lari, Mazanderani, MiddlePersian, PersianTehran, RajiBarzoki, Tati)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:0626035c3d4a1e2f"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_076a4d05be1df6a53309ae21bd6f6aaf90e6d0314c5bbfa12abeef1ec1fb784f",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -1613,
+        "mean": -900,
+        "median": -922,
+        "probability": 0.95,
+        "upper": -137
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Bactrian, Khotanese)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:076a4d05be1df6a5"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_0a607cc58f10e3f42fefa2ad8362e9680cac8275aa04649f567c525691c93bbc",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 815,
+        "mean": 1004,
+        "median": 1013,
+        "probability": 0.95,
+        "upper": 1174
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Czech, Kashubian, OldCzech, OldPolish, Polabian, Polish, Slovak, SorbianLower, SorbianUpper)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:0a607cc58f10e3f4"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_0cde9d3a535f4c13dec571abea485cbdb8d915df984d17beb0cd6463f5b0003f",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -315,
+        "mean": 138,
+        "median": 174,
+        "probability": 0.95,
+        "upper": 505
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(TocharianA, TocharianB)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:0cde9d3a535f4c13"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_0cec207111f1b8280bab19745f53f9eebb6bae5db7a0e9a5206607a7fd7c6039",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 530,
+        "mean": 677,
+        "median": 690,
+        "probability": 0.95,
+        "upper": 795
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Dutch, Flemish, Frisian, German, GermanBernese, Luxembourgish, MiddleDutch, MiddleHighGerman, OldFrisian, OldHighGerman)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:0cec207111f1b828"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_0ea96baaa0127c338a702cf9757c497bfd46ccf4346b32bccd65aed85fd5aab1",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 946,
+        "mean": 1120,
+        "median": 1127,
+        "probability": 0.95,
+        "upper": 1282
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Kashubian, OldPolish, Polabian, Polish, SorbianLower, SorbianUpper)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:0ea96baaa0127c33"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_0fb351b42cf11fa05211295435da587f80ad3d6a68f280379a742cb5f3cd12c2",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1070,
+        "mean": 1406,
+        "median": 1416,
+        "probability": 0.95,
+        "upper": 1714
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Mazanderani, Tati)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:0fb351b42cf11fa0"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_114f4fff88bc6785cda89913003e9cfee37bd2097be170164c1cba2eeac0ac17",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 713,
+        "mean": 1082,
+        "median": 1085,
+        "probability": 0.95,
+        "upper": 1439
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(DalmatianVegliote, Ladin)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:114f4fff88bc6785"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_133e604e77d2fd0c4b53bb5a74b417be930dc11f26135f4a4652dbb52f4f11b9",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1335,
+        "mean": 1571,
+        "median": 1582,
+        "probability": 0.95,
+        "upper": 1783
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Belarusian, Russian, Ukrainian)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:133e604e77d2fd0c"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_149fef507d7911accf22cd46643c824e75c9c565de33b0149acff1ca8834f778",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -4796,
+        "mean": -3576,
+        "median": -3520,
+        "probability": 0.95,
+        "upper": -2535
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Assamese, AvestanYounger, Bactrian, Bakhtiari, BalochiSistani, Bengali, Bhojpuri, Delvari, Gawarbati, Gawri, Hawrami, Hindi, KalasalaNiseigram, Kamviri, Kashmiri, KatavariEastern, KatavariKtivi, Khotanese, Khowar, Khwarazmian, Kumzari, KurdishCJafi, KurdishNBahdini, KurdishSElami, KurdishSQorveh, Lari, Magahi, Maithili, Marathi, Mazanderani, MiddlePersian, Nepali, OldPersian, OsseticDigor, OsseticIron, Pali, Palula, Parthian, PashaiNorthWest, Pashto, PersianTehran, Punjabi, RajiBarzoki, SanuviriWama, Sarikoli, Sinhalese, Sogdian, Tati, Urdu, VasiVariPaski, VedicEarly, Wakhi, Yaghnobi)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:149fef507d7911ac"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_1616d08cbf4e87a9bac73d7862e5506654e52b2358ff38b2486af86672122a32",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 39,
+        "mean": 532,
+        "median": 551,
+        "probability": 0.95,
+        "upper": 989
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Assamese, Bengali, Bhojpuri, Hindi, Magahi, Maithili, Nepali, Punjabi, Urdu)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:1616d08cbf4e87a9"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_17c5457efa959b8e02bd91923d4c2baad2269743b50d0ddfd93ac007acad1a1d",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1342,
+        "mean": 1584,
+        "median": 1598,
+        "probability": 0.95,
+        "upper": 1823
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Bulgarian, Macedonian)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:17c5457efa959b8e"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_1a71c064df9384162372a876d8a1d5810952c7d654380704f1dfcd73e2068ca5",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 979,
+        "mean": 1289,
+        "median": 1299,
+        "probability": 0.95,
+        "upper": 1584
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Delvari, Lari, PersianTehran)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:1a71c064df938416"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_1bf009fd8da68cce4de5b39d337d720ed3614da5b9055ad225e068707a5854f2",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 727,
+        "mean": 917,
+        "median": 928,
+        "probability": 0.95,
+        "upper": 1084
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Faroese, Icelandic, OldIcelandic)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:1bf009fd8da68cce"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_1c9fc39f430614173333f37ad9a2951e3bc10e81c16110bd2a74c2e962809366",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -289,
+        "mean": 265,
+        "median": 283,
+        "probability": 0.95,
+        "upper": 787
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Assamese, Bengali, Bhojpuri, Hindi, Magahi, Maithili, Marathi, Nepali, Punjabi, Urdu)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:1c9fc39f43061417"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_1f086d4ce87252112bcae8a1fac943ed05d514d3b1b7679a5995f761af346701",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -980,
+        "mean": -424,
+        "median": -420,
+        "probability": 0.95,
+        "upper": 121
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Khwarazmian, Sogdian, Yaghnobi)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:1f086d4ce8725211"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_1f3c880cf275f1582cd2875698697156484c3746b0df3c7a6c58aeffc49611d2",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 27,
+        "mean": 400,
+        "median": 430,
+        "probability": 0.95,
+        "upper": 703
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(GaelicIrish, GaelicManx, GaelicScottish, OldIrish)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:1f3c880cf275f158"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_210ca7d3c4650dc2e0061a7b4a06a62f9306fa9bf4aae2b7ea56d68b03785d41",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1432,
+        "mean": 1684,
+        "median": 1704,
+        "probability": 0.95,
+        "upper": 1903
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Italian, Milanese)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:210ca7d3c4650dc2"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_21b81502be56ab55ad29367123bc2d223b0353878865ac7dd20d64c309ee0abd",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -2024,
+        "mean": -1299,
+        "median": -1278,
+        "probability": 0.95,
+        "upper": -642
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Assamese, Bengali, Bhojpuri, Gawarbati, Gawri, Hindi, KalasalaNiseigram, Kamviri, Kashmiri, KatavariEastern, KatavariKtivi, Khowar, Magahi, Maithili, Marathi, Nepali, Palula, PashaiNorthWest, Punjabi, SanuviriWama, Sinhalese, Urdu, VasiVariPaski)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:21b81502be56ab55"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_2372ccc1d6088023505ff07b7ba8514ce2eed715035a43beda1b25b6bd2cb3a8",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -1609,
+        "mean": -1384,
+        "median": -1364,
+        "probability": 0.95,
+        "upper": -1218
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(AncientGreek, Greek, GreekCappodocian, GreekCypriot, GreekItaliot, GreekPontic, MycenaeanGreek, NTGreek, TsakonianPeloponnese, TsakonianPropontis)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:2372ccc1d6088023"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_24087d7367953ad2153598c149e1443e85417ef40889434839c9872d0b375571",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1519,
+        "mean": 1747,
+        "median": 1768,
+        "probability": 0.95,
+        "upper": 1925
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(OsseticDigor, OsseticIron)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:24087d7367953ad2"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_27d7539fac2e7225eb80f090cd9f3269cb19d39bc6a8bd1b944feb52c716cb9d",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -1144,
+        "mean": -812,
+        "median": -794,
+        "probability": 0.95,
+        "upper": -514
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Bakhtiari, BalochiSistani, Delvari, Hawrami, Kumzari, KurdishCJafi, KurdishNBahdini, KurdishSElami, KurdishSQorveh, Lari, Mazanderani, MiddlePersian, OldPersian, Parthian, PersianTehran, RajiBarzoki, Tati)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:27d7539fac2e7225"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_28912cd2765a54c508216ce3ba78d1afb598c7cd41510450831af459f6ba75b7",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 215,
+        "mean": 477,
+        "median": 486,
+        "probability": 0.95,
+        "upper": 729
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(AngloNorman, Catalan, DalmatianVegliote, FrancoProvencal, French, Friulian, Italian, Ladin, Milanese, Neapolitan, OldCatalan, OldOccitan, OldSpanish, Portuguese, PortugueseBrazilian, Spanish, Walloon)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:28912cd2765a54c5"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_2a3e3f373822ab5c79c287a2a757734e50c8fc5093d888d766d4a8ad45181740",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 948,
+        "mean": 1285,
+        "median": 1297,
+        "probability": 0.95,
+        "upper": 1606
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Friulian, Italian, Milanese, Neapolitan)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:2a3e3f373822ab5c"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_2b6c0398ef55a91ce0fc6705664227e1404635ecab4107cf6b05e1f5a35c7d51",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1386,
+        "mean": 1608,
+        "median": 1620,
+        "probability": 0.95,
+        "upper": 1809
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(TsakonianPeloponnese, TsakonianPropontis)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:2b6c0398ef55a91c"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_2d2e4ca00b80a5a8b2eecc99a947b84e970fa635e8bb90621ab8719b5d346adc",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1295,
+        "mean": 1533,
+        "median": 1540,
+        "probability": 0.95,
+        "upper": 1759
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Dutch, Flemish, Frisian)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:2d2e4ca00b80a5a8"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_2ea563ecd3c0bac1a197e7c4f4b7ef5f3279ab431cbc2c583595e4810a1f0ad2",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -2286,
+        "mean": -1477,
+        "median": -1431,
+        "probability": 0.95,
+        "upper": -771
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(AngloNorman, Catalan, DalmatianVegliote, FrancoProvencal, French, Friulian, Italian, Ladin, Latin, MeglenoRomanian, Milanese, Neapolitan, OldCatalan, OldOccitan, OldSpanish, Oscan, Portuguese, PortugueseBrazilian, Romanian, SardinianLogudoro, SardinianNuoro, Spanish, Umbrian, Walloon)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:2ea563ecd3c0bac1"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_32efad89345bee353fa6e9926c5f3438bb13299ccebccc537a124231ad1916d0",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 476,
+        "mean": 811,
+        "median": 822,
+        "probability": 0.95,
+        "upper": 1139
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Bakhtiari, Delvari, Kumzari, Lari, Mazanderani, PersianTehran, RajiBarzoki, Tati)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:32efad89345bee35"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_3481854129789b69f15768f7221370329b1541a83bd730c8dba37bb6694f6c8e",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 108,
+        "mean": 778,
+        "median": 803,
+        "probability": 0.95,
+        "upper": 1391
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Gawri, Palula)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:3481854129789b69"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_376b45e4a1aa831dc4995c633ccc7a344c1009feb8f276fc3bc7887991955d62",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 260,
+        "mean": 723,
+        "median": 743,
+        "probability": 0.95,
+        "upper": 1144
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Bhojpuri, Hindi, Magahi, Maithili, Nepali, Punjabi, Urdu)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:376b45e4a1aa831d"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_379ec4004b6ec2d24d8c7fad612c2ca1ec7e7321aa7ed7ef105bbbf13f76259e",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -1323,
+        "mean": -793,
+        "median": -789,
+        "probability": 0.95,
+        "upper": -266
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Khwarazmian, Pashto, Sarikoli, Sogdian, Wakhi, Yaghnobi)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:379ec4004b6ec2d2"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_38b005f371d8c1c4c132c8d5e3e56351d775a19c032865c6e94410dc3174d544",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 999,
+        "mean": 1173,
+        "median": 1177,
+        "probability": 0.95,
+        "upper": 1349
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(OldSpanish, Spanish)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:38b005f371d8c1c4"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_3ac5c1f25d2472fdc8f557fc1ba37503bd31ed9def40fe50c792d0f6e63e8d60",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 949,
+        "mean": 1340,
+        "median": 1359,
+        "probability": 0.95,
+        "upper": 1705
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(KalasalaNiseigram, SanuviriWama)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:3ac5c1f25d2472fd"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_3ca9099a55c932bbd6bc1c484a2defb434659f3d3fe38180a725f0f17861d2fe",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 503,
+        "mean": 756,
+        "median": 768,
+        "probability": 0.95,
+        "upper": 993
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Belarusian, Czech, Kashubian, OldCzech, OldNovgorod, OldPolish, Polabian, Polish, Russian, Rusyn, Slovak, SorbianLower, SorbianUpper, Ukrainian)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:3ca9099a55c932bb"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_3d388707d641c5082ee885d47f188ef2c7bd338deb4f66115c2615e311ab3a25",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -7613,
+        "mean": -6116,
+        "median": -6120,
+        "probability": 0.95,
+        "upper": -4735
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(AlbanianArberesh, AlbanianGheg, AlbanianStandard, AncientGreek, AngloNorman, ArmenianEastern, ArmenianWestern, Assamese, AvestanYounger, Bactrian, Bakhtiari, BalochiSistani, Belarusian, Bengali, Bhojpuri, BretonGwened, BretonTreger, Bulgarian, Catalan, ClassicalArmenian, Czech, DalmatianVegliote, Danish, Delvari, Dutch, Elfdalian, English, Faroese, Flemish, FrancoProvencal, French, Frisian, Friulian, GaelicIrish, GaelicManx, GaelicScottish, Gaulish, Gawarbati, Gawri, German, GermanBernese, Gothic, Greek, GreekCappodocian, GreekCypriot, GreekItaliot, GreekPontic, Hawrami, Hindi, Hittite, Icelandic, Italian, KalasalaNiseigram, Kamviri, Kashmiri, Kashubian, KatavariEastern, KatavariKtivi, Khotanese, Khowar, Khwarazmian, Kumzari, KurdishCJafi, KurdishNBahdini, KurdishSElami, KurdishSQorveh, Ladin, Lari, LateCornish, Latgalian, Latin, Latvian, Lithuanian, Luvian, Luxembourgish, Macedonian, MacedonianSuho, MacedonianVisoka, Magahi, Maithili, Marathi, Mazanderani, MeglenoRomanian, MiddleBreton, MiddleCornish, MiddleDutch, MiddleHighGerman, MiddlePersian, MiddleWelsh, Milanese, MycenaeanGreek, NTGreek, Neapolitan, Nepali, NorwegianBokmal, NorwegianNynorsk, OldBreton, OldCatalan, OldChurchSlavonic, OldCzech, OldEnglish, OldFrisian, OldHighGerman, OldIcelandic, OldIrish, OldNovgorod, OldOccitan, OldPersian, OldPolish, OldPrussian, OldSaxon, OldSpanish, OldSwedish, OldWelsh, Oscan, OsseticDigor, OsseticIron, Pali, Palula, Parthian, PashaiNorthWest, Pashto, PersianTehran, Polabian, Polish, Portuguese, PortugueseBrazilian, Punjabi, RajiBarzoki, Romanian, Russian, Rusyn, SanuviriWama, SardinianLogudoro, SardinianNuoro, Sarikoli, SerboCroatian, Sinhalese, Slovak, Slovene, SloveneEarlyModern, SloveneKostel, Sogdian, SorbianLower, SorbianUpper, Spanish, Swedish, Tati, TocharianA, TocharianB, TsakonianPeloponnese, TsakonianPropontis, Ukrainian, Umbrian, Urdu, VasiVariPaski, VedicEarly, Wakhi, Walloon, WelshNorth, Yaghnobi)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:3d388707d641c508"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_3e14bf78b247e457ba3c9e84db39e25e6f22dd39b390facd9d856d74bbb02cf3",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 540,
+        "mean": 791,
+        "median": 803,
+        "probability": 0.95,
+        "upper": 1017
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(MiddleWelsh, OldWelsh, WelshNorth)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:3e14bf78b247e457"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_3f3142a6d5984d7f2d507ad80eaf5876f64086c3f6267b9fd3d28be34f914ac0",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1232,
+        "mean": 1509,
+        "median": 1522,
+        "probability": 0.95,
+        "upper": 1776
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Delvari, Lari)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:3f3142a6d5984d7f"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_40c2c59750aab255e05d19faa366ffdfd8ac863c2fd44c28022a05de229304d4",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1101,
+        "mean": 1395,
+        "median": 1394,
+        "probability": 0.95,
+        "upper": 1698
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(FrancoProvencal, French, Walloon)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:40c2c59750aab255"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_432e4945f6099847e2ed6585890ba444b503d1eb975e877ed02dd26679f404be",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -1484,
+        "mean": -480,
+        "median": -439,
+        "probability": 0.95,
+        "upper": 474
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Latgalian, Latvian, Lithuanian, OldPrussian)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:432e4945f6099847"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_4421539369cff4bb5756318008ab9117cecd2c3c9ea09233a4bf990033bc7c73",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 149,
+        "mean": 380,
+        "median": 422,
+        "probability": 0.95,
+        "upper": 515
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(ArmenianEastern, ArmenianWestern, ClassicalArmenian)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:4421539369cff4bb"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_44d5d6ee4b94bc737097f06c00737c9e6d82a25751e89699389510ca33f25d89",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1334,
+        "mean": 1648,
+        "median": 1675,
+        "probability": 0.95,
+        "upper": 1907
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Czech, Slovak)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:44d5d6ee4b94bc73"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_4507857078c2aedb5133c5b180c18b66d81c4519b2c35b388f44e179422bfbde",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -873,
+        "mean": -87,
+        "median": -85,
+        "probability": 0.95,
+        "upper": 650
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Khowar, PashaiNorthWest)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:4507857078c2aedb"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_468ad24ae1becfdaeebb312489cf2697e7ff924b97442d947b76b3dfd2967c2b",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -1258,
+        "mean": -718,
+        "median": -671,
+        "probability": 0.95,
+        "upper": -263
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Oscan, Umbrian)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:468ad24ae1becfda"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_48a37950a8416e9a37e4cd60a4a388f3bcc96601fb0b4d64b01fa02c9e670e11",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 594,
+        "mean": 1011,
+        "median": 1024,
+        "probability": 0.95,
+        "upper": 1410
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(GaelicIrish, GaelicManx, GaelicScottish)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:48a37950a8416e9a"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_4fab52192bb6564ef602527bc42fe92cde2cabc6ea256c645db56a9ea543283c",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -6613,
+        "mean": -4976,
+        "median": -4932,
+        "probability": 0.95,
+        "upper": -3403
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Hittite, Luvian, TocharianA, TocharianB)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:4fab52192bb6564e"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_52425ec9e3e1fbc27a4c3f086c07193f89b4c6087bf476a35b1172f050041353",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -3620,
+        "mean": -2681,
+        "median": -2617,
+        "probability": 0.95,
+        "upper": -1857
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Hittite, Luvian)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:52425ec9e3e1fbc2"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_524edf0c642d0ec30cb9a026bcd8cd6c18b33874c07490caaced436ea848e187",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -900,
+        "mean": -567,
+        "median": -560,
+        "probability": 0.95,
+        "upper": -251
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Bakhtiari, BalochiSistani, Delvari, Hawrami, Kumzari, KurdishCJafi, KurdishNBahdini, KurdishSElami, KurdishSQorveh, Lari, Mazanderani, MiddlePersian, Parthian, PersianTehran, RajiBarzoki, Tati)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:524edf0c642d0ec3"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_52ca5078f284007f857f4c2cb9f1e13ce37336b540ccb7a15d1c51499038a258",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -662,
+        "mean": -461,
+        "median": -438,
+        "probability": 0.95,
+        "upper": -328
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(AncientGreek, Greek, GreekCappodocian, GreekCypriot, GreekItaliot, GreekPontic, NTGreek, TsakonianPeloponnese, TsakonianPropontis)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:52ca5078f284007f"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_538baf378a5c696f412b60b349d7ab043fd1206b1f13d3ccbeff1e46e370c6bf",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 904,
+        "mean": 1148,
+        "median": 1155,
+        "probability": 0.95,
+        "upper": 1373
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(LateCornish, MiddleCornish)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:538baf378a5c696f"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_57aa48e9b8e974d48381f802d20f7bcbc23eddf8b49ab5fe8cd215c9318f6da4",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1918,
+        "mean": 1964,
+        "median": 1970,
+        "probability": 0.95,
+        "upper": 1996
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(NorwegianBokmal, NorwegianNynorsk)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:57aa48e9b8e974d4"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_58aa406869ce5a63c6e03bed2e0318f404250f1ed8492c69598cabd3f739ca6f",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1028,
+        "mean": 1181,
+        "median": 1189,
+        "probability": 0.95,
+        "upper": 1320
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Czech, OldCzech, Slovak)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:58aa406869ce5a63"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_5958525a34ee16276f9948f5583ac4e9d6a5a685066679ab26021fe614378a44",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 865,
+        "mean": 1181,
+        "median": 1192,
+        "probability": 0.95,
+        "upper": 1464
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(GreekCappodocian, GreekItaliot, GreekPontic)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:5958525a34ee1627"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_5960fdcfe406a98828a448bfc7119b952545be6dacfbc21e213b9ab4e5ec370b",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 169,
+        "mean": 516,
+        "median": 534,
+        "probability": 0.95,
+        "upper": 811
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(BretonGwened, BretonTreger, LateCornish, MiddleBreton, MiddleCornish, OldBreton)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:5960fdcfe406a988"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_5c8ed6cc3c0ddfb2046522d84bcc8dc1364ccca494ec06f56dfe4f6aaa146432",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 895,
+        "mean": 1084,
+        "median": 1092,
+        "probability": 0.95,
+        "upper": 1268
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(FrancoProvencal, French, OldOccitan, Walloon)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:5c8ed6cc3c0ddfb2"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_5dc69b8be1e24fa266534b97e51ee579f07d22baee01cdeb9f857033ad40d418",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -1045,
+        "mean": -554,
+        "median": -522,
+        "probability": 0.95,
+        "upper": -129
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(AngloNorman, Catalan, DalmatianVegliote, FrancoProvencal, French, Friulian, Italian, Ladin, Latin, MeglenoRomanian, Milanese, Neapolitan, OldCatalan, OldOccitan, OldSpanish, Portuguese, PortugueseBrazilian, Romanian, SardinianLogudoro, SardinianNuoro, Spanish, Walloon)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:5dc69b8be1e24fa2"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_5f369219b9149d816defab0bc4de9546954dbc4b217824f98c6a6c6d6343c58d",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1446,
+        "mean": 1708,
+        "median": 1733,
+        "probability": 0.95,
+        "upper": 1916
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(AlbanianGheg, AlbanianStandard)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:5f369219b9149d81"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_5fc597e47cb80069891c91a630eac200c2a4fcd74ed0354fa8cc246809c03c5a",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1836,
+        "mean": 1918,
+        "median": 1926,
+        "probability": 0.95,
+        "upper": 1983
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(KatavariEastern, KatavariKtivi)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:5fc597e47cb80069"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_616f5855d10d75e97969179881b71274c5661c0515272be9b0da8f38aa7d3818",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -1526,
+        "mean": -808,
+        "median": -796,
+        "probability": 0.95,
+        "upper": -120
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Assamese, Bengali, Bhojpuri, Hindi, Kashmiri, Magahi, Maithili, Marathi, Nepali, Punjabi, Sinhalese, Urdu)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:616f5855d10d75e9"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_61bf1f93c6986bbc49c106c4b965fe596ac919362c2afacbf64df072de467e41",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -4930,
+        "mean": -3410,
+        "median": -3310,
+        "probability": 0.95,
+        "upper": -1999
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(AncientGreek, ArmenianEastern, ArmenianWestern, ClassicalArmenian, Greek, GreekCappodocian, GreekCypriot, GreekItaliot, GreekPontic, MycenaeanGreek, NTGreek, TsakonianPeloponnese, TsakonianPropontis)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:61bf1f93c6986bbc"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_67808474b9b71a8df289a527c851d2cf5783ccb20f87d1245f4af42e4aa39a7d",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 118,
+        "mean": 876,
+        "median": 933,
+        "probability": 0.95,
+        "upper": 1532
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(AlbanianArberesh, AlbanianGheg, AlbanianStandard)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:67808474b9b71a8d"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_6c26fef544b151fd6b7bb4fefde34c015d72af4d967e7649bb992f2118305327",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 860,
+        "mean": 1197,
+        "median": 1206,
+        "probability": 0.95,
+        "upper": 1527
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Bulgarian, Macedonian, MacedonianSuho, MacedonianVisoka, SerboCroatian)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:6c26fef544b151fd"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_6e1234736797b566000bf6d7d112de970acef453bcfcd054df5ccc0e4cb22fcf",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -1350,
+        "mean": -759,
+        "median": -727,
+        "probability": 0.95,
+        "upper": -216
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(BretonGwened, BretonTreger, Gaulish, LateCornish, MiddleBreton, MiddleCornish, MiddleWelsh, OldBreton, OldWelsh, WelshNorth)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:6e1234736797b566"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_71aa07a9496ae57d56032eae720f16707f50158e09567129682408a3bdaea6ad",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1390,
+        "mean": 1627,
+        "median": 1632,
+        "probability": 0.95,
+        "upper": 1854
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Kashubian, Polish)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:71aa07a9496ae57d"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_7206ee5b4b015c102167b8e0dbb0f159f17b7a80c9d1f12533d8022c6b49a2a6",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1437,
+        "mean": 1689,
+        "median": 1710,
+        "probability": 0.95,
+        "upper": 1899
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Latgalian, Latvian)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:7206ee5b4b015c10"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_7344092402be13772b48f1cb1a3d0f854d1f7e035a8383e10542fb0006258c4a",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1664,
+        "mean": 1822,
+        "median": 1836,
+        "probability": 0.95,
+        "upper": 1955
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(German, GermanBernese)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:7344092402be1377"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_75a7ca1ea06ee11eb6b88ac79b9292e4074200862d012a08fd34e37540840deb",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -1963,
+        "mean": -1231,
+        "median": -1205,
+        "probability": 0.95,
+        "upper": -515
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(BretonGwened, BretonTreger, GaelicIrish, GaelicManx, GaelicScottish, Gaulish, LateCornish, MiddleBreton, MiddleCornish, MiddleWelsh, OldBreton, OldIrish, OldWelsh, WelshNorth)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:75a7ca1ea06ee11e"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_76144513f4090f34afa0a4baadc03a24b5fc79bf2b989f41ac017fb0b76b3037",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1208,
+        "mean": 1478,
+        "median": 1490,
+        "probability": 0.95,
+        "upper": 1719
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Bulgarian, Macedonian, MacedonianSuho, MacedonianVisoka)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:76144513f4090f34"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_76418dd91875e0c3a1b9a1f8442d793121395bb53abc07daecdca94ad1893de8",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1621,
+        "mean": 1778,
+        "median": 1790,
+        "probability": 0.95,
+        "upper": 1918
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Hindi, Urdu)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:76418dd91875e0c3"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_764cb44339c09ee46c075585f8a8ddb290680359e67397967272f22d5d16fb19",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 717,
+        "mean": 885,
+        "median": 888,
+        "probability": 0.95,
+        "upper": 1050
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Dutch, Flemish, Frisian, German, GermanBernese, Luxembourgish, MiddleDutch, MiddleHighGerman, OldFrisian)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:764cb44339c09ee4"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_772ca038eade6e6205a83555804fc0bcbc39023d719a2deec813cc1164465c4b",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -87,
+        "mean": 633,
+        "median": 673,
+        "probability": 0.95,
+        "upper": 1296
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Latgalian, Latvian, Lithuanian)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:772ca038eade6e62"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_7a5b49fd10c2a15a73513a3b5362aea87bff530d3eec46eaa348e6b384560ded",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1559,
+        "mean": 1751,
+        "median": 1765,
+        "probability": 0.95,
+        "upper": 1914
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(SorbianLower, SorbianUpper)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:7a5b49fd10c2a15a"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_7d7f554e873300438d43743a7acd8327d0666bf0b1feaf9871a2767198d99f22",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -6395,
+        "mean": -5015,
+        "median": -4981,
+        "probability": 0.95,
+        "upper": -3645
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(AngloNorman, Assamese, AvestanYounger, Bactrian, Bakhtiari, BalochiSistani, Belarusian, Bengali, Bhojpuri, BretonGwened, BretonTreger, Bulgarian, Catalan, Czech, DalmatianVegliote, Danish, Delvari, Dutch, Elfdalian, English, Faroese, Flemish, FrancoProvencal, French, Frisian, Friulian, GaelicIrish, GaelicManx, GaelicScottish, Gaulish, Gawarbati, Gawri, German, GermanBernese, Gothic, Hawrami, Hindi, Icelandic, Italian, KalasalaNiseigram, Kamviri, Kashmiri, Kashubian, KatavariEastern, KatavariKtivi, Khotanese, Khowar, Khwarazmian, Kumzari, KurdishCJafi, KurdishNBahdini, KurdishSElami, KurdishSQorveh, Ladin, Lari, LateCornish, Latgalian, Latin, Latvian, Lithuanian, Luxembourgish, Macedonian, MacedonianSuho, MacedonianVisoka, Magahi, Maithili, Marathi, Mazanderani, MeglenoRomanian, MiddleBreton, MiddleCornish, MiddleDutch, MiddleHighGerman, MiddlePersian, MiddleWelsh, Milanese, Neapolitan, Nepali, NorwegianBokmal, NorwegianNynorsk, OldBreton, OldCatalan, OldChurchSlavonic, OldCzech, OldEnglish, OldFrisian, OldHighGerman, OldIcelandic, OldIrish, OldNovgorod, OldOccitan, OldPersian, OldPolish, OldPrussian, OldSaxon, OldSpanish, OldSwedish, OldWelsh, Oscan, OsseticDigor, OsseticIron, Pali, Palula, Parthian, PashaiNorthWest, Pashto, PersianTehran, Polabian, Polish, Portuguese, PortugueseBrazilian, Punjabi, RajiBarzoki, Romanian, Russian, Rusyn, SanuviriWama, SardinianLogudoro, SardinianNuoro, Sarikoli, SerboCroatian, Sinhalese, Slovak, Slovene, SloveneEarlyModern, SloveneKostel, Sogdian, SorbianLower, SorbianUpper, Spanish, Swedish, Tati, Ukrainian, Umbrian, Urdu, VasiVariPaski, VedicEarly, Wakhi, Walloon, WelshNorth, Yaghnobi)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:7d7f554e87330043"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_7f278a4f4cc3bba8083d287d98dc7a4896f586334d4aeaf76d8f25e6be7ef1be",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1017,
+        "mean": 1439,
+        "median": 1468,
+        "probability": 0.95,
+        "upper": 1806
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(SardinianLogudoro, SardinianNuoro)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:7f278a4f4cc3bba8"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_7f97774375bb431d21503fa33bf319975c67269f2fb08fedf9232fcc775bcd43",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1318,
+        "mean": 1515,
+        "median": 1536,
+        "probability": 0.95,
+        "upper": 1671
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Slovene, SloveneEarlyModern, SloveneKostel)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:7f97774375bb431d"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_802e7d6ce37d58a8ec63b1ceb712ac8eabc14cf3585d9e4e9f784015ded5d7c9",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -243,
+        "mean": 465,
+        "median": 476,
+        "probability": 0.95,
+        "upper": 1122
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Sarikoli, Wakhi)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:802e7d6ce37d58a8"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_805452c15427fe0d4e388a61cba8d081465762fc92fee72b9c444c61d959a023",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1105,
+        "mean": 1366,
+        "median": 1377,
+        "probability": 0.95,
+        "upper": 1608
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Greek, GreekCypriot, TsakonianPeloponnese, TsakonianPropontis)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:805452c15427fe0d"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_853e71fd02a1ea1f49b3379c98cb055b3ebbfaf518b1e0b47ec2105d9598ad9b",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1382,
+        "mean": 1599,
+        "median": 1610,
+        "probability": 0.95,
+        "upper": 1792
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Hindi, Punjabi, Urdu)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:853e71fd02a1ea1f"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_857159e745ff331a98963c6bfc6c6d2e783020b01c26526cab87e8b5d92a190f",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1388,
+        "mean": 1665,
+        "median": 1684,
+        "probability": 0.95,
+        "upper": 1887
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(FrancoProvencal, French)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:857159e745ff331a"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_86cb086f48205db690cabe00747aedc8fda1a96272b401e77f71f0b712bbfa10",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 163,
+        "mean": 489,
+        "median": 507,
+        "probability": 0.95,
+        "upper": 778
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Belarusian, Bulgarian, Czech, Kashubian, Macedonian, MacedonianSuho, MacedonianVisoka, OldChurchSlavonic, OldCzech, OldNovgorod, OldPolish, Polabian, Polish, Russian, Rusyn, SerboCroatian, Slovak, Slovene, SloveneEarlyModern, SloveneKostel, SorbianLower, SorbianUpper, Ukrainian)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:86cb086f48205db6"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_88263215240f1c60fd5941e8aeee5f8d892a8eda1852a0a609c0302d577921c7",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -3253,
+        "mean": -2404,
+        "median": -2366,
+        "probability": 0.95,
+        "upper": -1640
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Assamese, Bengali, Bhojpuri, Gawarbati, Gawri, Hindi, KalasalaNiseigram, Kamviri, Kashmiri, KatavariEastern, KatavariKtivi, Khowar, Magahi, Maithili, Marathi, Nepali, Pali, Palula, PashaiNorthWest, Punjabi, SanuviriWama, Sinhalese, Urdu, VasiVariPaski, VedicEarly)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:88263215240f1c60"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_88fecc38bca0c0a07a64b152cf608a47ca0c59376e2ea11b22c4fb232b848007",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1813,
+        "mean": 1902,
+        "median": 1910,
+        "probability": 0.95,
+        "upper": 1973
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(MacedonianSuho, MacedonianVisoka)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:88fecc38bca0c0a0"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_895a30e8dc36edf450cf00f4220ad25e33d5ef5250598b073c07528f1bbb144e",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -606,
+        "mean": 95,
+        "median": 104,
+        "probability": 0.95,
+        "upper": 820
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Gawarbati, Gawri, Palula)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:895a30e8dc36edf4"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_89d20be2a3380d81c46a259b99f761df31caf264a71e0868a91e2b7a1a51f985",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1035,
+        "mean": 1371,
+        "median": 1391,
+        "probability": 0.95,
+        "upper": 1662
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(GaelicManx, GaelicScottish)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:89d20be2a3380d81"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_89dfae0f7fa1f05cfc94919553bf756658ae1f13d1ff111d153e2db109562464",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 90,
+        "mean": 388,
+        "median": 399,
+        "probability": 0.95,
+        "upper": 669
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(AngloNorman, Catalan, DalmatianVegliote, FrancoProvencal, French, Friulian, Italian, Ladin, Milanese, Neapolitan, OldCatalan, OldOccitan, OldSpanish, Portuguese, PortugueseBrazilian, SardinianLogudoro, SardinianNuoro, Spanish, Walloon)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:89dfae0f7fa1f05c"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_8b5e5964c43db670cc7a5e867426cad0a353e5952e8c5228e843cb3bb9e5435a",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1171,
+        "mean": 1490,
+        "median": 1506,
+        "probability": 0.95,
+        "upper": 1778
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Elfdalian, Swedish)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:8b5e5964c43db670"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_8d47226ac646ee6e33f3ca974b566729d2166175b9856f607d8b9ce12e28217d",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -146,
+        "mean": 411,
+        "median": 427,
+        "probability": 0.95,
+        "upper": 945
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(KalasalaNiseigram, Kamviri, KatavariEastern, KatavariKtivi, SanuviriWama, VasiVariPaski)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:8d47226ac646ee6e"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_8e50f6b476ce7cf8a54dc7d11323559cdecdc7a1b63a1dbfe1f48dae223e7049",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 474,
+        "mean": 721,
+        "median": 733,
+        "probability": 0.95,
+        "upper": 950
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Danish, Elfdalian, Faroese, Icelandic, NorwegianBokmal, NorwegianNynorsk, OldIcelandic, OldSwedish, Swedish)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:8e50f6b476ce7cf8"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_8f19632646ba42fea86cef391c66b62a9d13f21c878fd6795214b6c361ecb2b4",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1467,
+        "mean": 1694,
+        "median": 1706,
+        "probability": 0.95,
+        "upper": 1892
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Dutch, Flemish)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:8f19632646ba42fe"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_94172a5fff205a0d36606b8ea60b4f98a6ac7cd3b35e14cca13cc3f84d17ccf1",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 523,
+        "mean": 898,
+        "median": 900,
+        "probability": 0.95,
+        "upper": 1266
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(DalmatianVegliote, Friulian, Italian, Ladin, Milanese, Neapolitan)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:94172a5fff205a0d"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_95f3066eb89f29ebc4ededbfa055895725c2d91851bd025436a73e67f498851e",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 860,
+        "mean": 1069,
+        "median": 1075,
+        "probability": 0.95,
+        "upper": 1270
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(OldSpanish, Portuguese, PortugueseBrazilian, Spanish)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:95f3066eb89f29eb"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_9802d5cd621a3bbac1faa6494c1bcaa48e96f30c68ca80e3e98e81f2cebcc80f",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1185,
+        "mean": 1447,
+        "median": 1460,
+        "probability": 0.95,
+        "upper": 1682
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Bhojpuri, Hindi, Punjabi, Urdu)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:9802d5cd621a3bba"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_982d4a614fe68a4bffb8e604d3a279d1cab97ab09394eee1f7e584264102efbd",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 625,
+        "mean": 1130,
+        "median": 1150,
+        "probability": 0.95,
+        "upper": 1630
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(MeglenoRomanian, Romanian)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:982d4a614fe68a4b"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_9ace764bc9fee23ca11e227140caffb6877e38da6774317c66c238fe17bab83d",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 654,
+        "mean": 989,
+        "median": 998,
+        "probability": 0.95,
+        "upper": 1308
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Bakhtiari, Delvari, Kumzari, Lari, PersianTehran)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:9ace764bc9fee23c"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_9b23d758a78a797f234e65b0198c1c29cf2057327d510ee3fd3d097d2bb6c20b",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 890,
+        "mean": 1248,
+        "median": 1257,
+        "probability": 0.95,
+        "upper": 1573
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(GreekCappodocian, GreekItaliot)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:9b23d758a78a797f"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_9ce02fa2d82451a04edc24fa4012927e503d9775865000f57873ee5106705059",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -247,
+        "mean": 149,
+        "median": 162,
+        "probability": 0.95,
+        "upper": 527
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(AngloNorman, Catalan, DalmatianVegliote, FrancoProvencal, French, Friulian, Italian, Ladin, MeglenoRomanian, Milanese, Neapolitan, OldCatalan, OldOccitan, OldSpanish, Portuguese, PortugueseBrazilian, Romanian, SardinianLogudoro, SardinianNuoro, Spanish, Walloon)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:9ce02fa2d82451a0"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_9d67d650d8cc262adab9e4847b4deed7543d3f9f47b483e66def0f450657e8d2",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1610,
+        "mean": 1798,
+        "median": 1815,
+        "probability": 0.95,
+        "upper": 1955
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Slovene, SloveneKostel)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:9d67d650d8cc262a"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_9ea1fd8d8f83dbca529d8a2b2743848e507b9b770103b78c67fb48c001f63477",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1197,
+        "mean": 1325,
+        "median": 1329,
+        "probability": 0.95,
+        "upper": 1453
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Kashubian, OldPolish, Polish)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:9ea1fd8d8f83dbca"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_9fe14d2b1b52b1b3a61b5d7a340f48eba8188568155148ce38a3099a1b2108d1",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 929,
+        "mean": 1059,
+        "median": 1067,
+        "probability": 0.95,
+        "upper": 1172
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Dutch, Flemish, Frisian, German, GermanBernese, Luxembourgish, MiddleDutch)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:9fe14d2b1b52b1b3"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_9ff873f338acf5f20f53d6dd99400a77a74f99132cf286942a0e142f73294f26",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -5882,
+        "mean": -4186,
+        "median": -4135,
+        "probability": 0.95,
+        "upper": -2540
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(AlbanianArberesh, AlbanianGheg, AlbanianStandard, AncientGreek, ArmenianEastern, ArmenianWestern, ClassicalArmenian, Greek, GreekCappodocian, GreekCypriot, GreekItaliot, GreekPontic, MycenaeanGreek, NTGreek, TsakonianPeloponnese, TsakonianPropontis)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:9ff873f338acf5f2"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_a102cc893fe0ab97c898c1af6b5c08fbf1ce20d59aa6409c5238ad557a0b07fd",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1089,
+        "mean": 1282,
+        "median": 1277,
+        "probability": 0.95,
+        "upper": 1482
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Dutch, Flemish, Frisian, German, GermanBernese, Luxembourgish)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:a102cc893fe0ab97"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_a35a39b2dbb136a195f4ea5a9703075b94cb4d224237adb1d1cd7007290e3c3c",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -132,
+        "mean": 252,
+        "median": 272,
+        "probability": 0.95,
+        "upper": 610
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(BretonGwened, BretonTreger, LateCornish, MiddleBreton, MiddleCornish, MiddleWelsh, OldBreton, OldWelsh, WelshNorth)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:a35a39b2dbb136a1"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_a463c25539261c96d94ab14e53acaa611f938506486f99e0e67659058c2f9585",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1797,
+        "mean": 1900,
+        "median": 1911,
+        "probability": 0.95,
+        "upper": 1980
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Portuguese, PortugueseBrazilian)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:a463c25539261c96"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_a86a15b40deb796391494f4ae2812e748672e1569f7e3704f3f5e43161509c9f",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 564,
+        "mean": 1011,
+        "median": 1031,
+        "probability": 0.95,
+        "upper": 1421
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(KalasalaNiseigram, Kamviri, KatavariEastern, KatavariKtivi, SanuviriWama)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:a86a15b40deb7963"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_a945d6d5015c552fdde1450b77419cab59e466fbe528a717c3b3371beaa359c1",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -2532,
+        "mean": -1766,
+        "median": -1737,
+        "probability": 0.95,
+        "upper": -1078
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Assamese, Bengali, Bhojpuri, Gawarbati, Gawri, Hindi, KalasalaNiseigram, Kamviri, Kashmiri, KatavariEastern, KatavariKtivi, Khowar, Magahi, Maithili, Marathi, Nepali, Pali, Palula, PashaiNorthWest, Punjabi, SanuviriWama, Sinhalese, Urdu, VasiVariPaski)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:a945d6d5015c552f"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_aa7f6852509e2844766d04ae0ed1eddce77d688009f7f6b16c3de327d58911d1",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 704,
+        "mean": 913,
+        "median": 923,
+        "probability": 0.95,
+        "upper": 1106
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Belarusian, Czech, Kashubian, OldCzech, OldPolish, Polabian, Polish, Russian, Rusyn, Slovak, SorbianLower, SorbianUpper, Ukrainian)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:aa7f6852509e2844"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_ac17fe201423840647cda213e3786c5611412506374a66b5a55d92bb6a873b45",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 842,
+        "mean": 1169,
+        "median": 1186,
+        "probability": 0.95,
+        "upper": 1476
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Bhojpuri, Hindi, Magahi, Maithili, Punjabi, Urdu)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:ac17fe2014238406"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_adae2190ab228ae73a7f426b6d56b0ac908a2d3032b2f2fbf9c51c7781c92e44",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 567,
+        "mean": 789,
+        "median": 798,
+        "probability": 0.95,
+        "upper": 993
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Catalan, OldCatalan, OldSpanish, Portuguese, PortugueseBrazilian, Spanish)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:adae2190ab228ae7"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_aef5a5f958de1e95919eb57c5511bab3772b8a0a84ef715b60719d8465381a13",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 612,
+        "mean": 880,
+        "median": 886,
+        "probability": 0.95,
+        "upper": 1150
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Danish, Elfdalian, NorwegianBokmal, NorwegianNynorsk, OldSwedish, Swedish)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:aef5a5f958de1e95"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_b052d745941115869b759af9e045e560b1c3b3499da250721b54750ca8d9378e",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 991,
+        "mean": 1130,
+        "median": 1140,
+        "probability": 0.95,
+        "upper": 1249
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Catalan, OldCatalan)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:b052d74594111586"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_b27e995ea96365b298f8333eca5d57150b2396d215a2c9504377759b1600430c",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -34,
+        "mean": 257,
+        "median": 273,
+        "probability": 0.95,
+        "upper": 528
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Dutch, English, Flemish, Frisian, German, GermanBernese, Luxembourgish, MiddleDutch, MiddleHighGerman, OldEnglish, OldFrisian, OldHighGerman, OldSaxon)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:b27e995ea96365b2"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_b378370d9eaa7e97aaba1188d7e79f59cef7e254be6ac37b08205b5bffb15edb",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1142,
+        "mean": 1327,
+        "median": 1332,
+        "probability": 0.95,
+        "upper": 1505
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Polabian, SorbianLower, SorbianUpper)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:b378370d9eaa7e97"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_b48fb497f0ab2a1ab148fd73bdb0106f910f325aa3fa1aab0e9ce5313b86c332",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 909,
+        "mean": 1328,
+        "median": 1353,
+        "probability": 0.95,
+        "upper": 1714
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Assamese, Bengali)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:b48fb497f0ab2a1a"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_b63664727a83c2e333d2b8dc710b80bde0800d0d67c2f154c50c37d85c647bc5",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1246,
+        "mean": 1597,
+        "median": 1628,
+        "probability": 0.95,
+        "upper": 1877
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(ArmenianEastern, ArmenianWestern)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:b63664727a83c2e3"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_b85bf247325d6d8570611ac6fe0be66e68d066c4b6f5cf7314ef254e2314786b",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1302,
+        "mean": 1594,
+        "median": 1613,
+        "probability": 0.95,
+        "upper": 1846
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Danish, NorwegianBokmal, NorwegianNynorsk)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:b85bf247325d6d85"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_bd20881fee0c0da5562a4934dfca329cef4db0fce02e4d28bbba4f08ec7d2382",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1637,
+        "mean": 1795,
+        "median": 1807,
+        "probability": 0.95,
+        "upper": 1934
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Belarusian, Ukrainian)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:bd20881fee0c0da5"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_bd9accc8e6d99091d708e131451b27ebfed22b6c19ec9e7db8bbb0fbef252857",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -1942,
+        "mean": -1420,
+        "median": -1401,
+        "probability": 0.95,
+        "upper": -960
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Bactrian, Bakhtiari, BalochiSistani, Delvari, Hawrami, Khotanese, Khwarazmian, Kumzari, KurdishCJafi, KurdishNBahdini, KurdishSElami, KurdishSQorveh, Lari, Mazanderani, MiddlePersian, OldPersian, Parthian, Pashto, PersianTehran, RajiBarzoki, Sarikoli, Sogdian, Tati, Wakhi, Yaghnobi)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:bd9accc8e6d99091"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_be973828f8645b72be1fc1cd3ea99490f21e58820082895ede42b6eef071eab6",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1185,
+        "mean": 1491,
+        "median": 1506,
+        "probability": 0.95,
+        "upper": 1766
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Hawrami, KurdishCJafi)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:be973828f8645b72"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_c2a04d7c904538caef7e8f521d1c1c027269cdc78a6935e6085d9f1977f3f37b",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -4984,
+        "mean": -3612,
+        "median": -3564,
+        "probability": 0.95,
+        "upper": -2231
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(AngloNorman, BretonGwened, BretonTreger, Catalan, DalmatianVegliote, Danish, Dutch, Elfdalian, English, Faroese, Flemish, FrancoProvencal, French, Frisian, Friulian, GaelicIrish, GaelicManx, GaelicScottish, Gaulish, German, GermanBernese, Gothic, Icelandic, Italian, Ladin, LateCornish, Latin, Luxembourgish, MeglenoRomanian, MiddleBreton, MiddleCornish, MiddleDutch, MiddleHighGerman, MiddleWelsh, Milanese, Neapolitan, NorwegianBokmal, NorwegianNynorsk, OldBreton, OldCatalan, OldEnglish, OldFrisian, OldHighGerman, OldIcelandic, OldIrish, OldOccitan, OldSaxon, OldSpanish, OldSwedish, OldWelsh, Oscan, Portuguese, PortugueseBrazilian, Romanian, SardinianLogudoro, SardinianNuoro, Spanish, Swedish, Umbrian, Walloon, WelshNorth)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:c2a04d7c904538ca"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_c339e270c5d88678c5abe9d045cce716aa38f96ed038eb59f387adc2c0152331",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -2894,
+        "mean": -2141,
+        "median": -2110,
+        "probability": 0.95,
+        "upper": -1464
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(AvestanYounger, Bactrian, Bakhtiari, BalochiSistani, Delvari, Hawrami, Khotanese, Khwarazmian, Kumzari, KurdishCJafi, KurdishNBahdini, KurdishSElami, KurdishSQorveh, Lari, Mazanderani, MiddlePersian, OldPersian, OsseticDigor, OsseticIron, Parthian, Pashto, PersianTehran, RajiBarzoki, Sarikoli, Sogdian, Tati, Wakhi, Yaghnobi)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:c339e270c5d88678"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_c56c5934cc5d90257696db04c2e358727f13bab572347d111b1989970165fd45",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -6652,
+        "mean": -5325,
+        "median": -5292,
+        "probability": 0.95,
+        "upper": -3949
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(AlbanianArberesh, AlbanianGheg, AlbanianStandard, AncientGreek, AngloNorman, ArmenianEastern, ArmenianWestern, Assamese, AvestanYounger, Bactrian, Bakhtiari, BalochiSistani, Belarusian, Bengali, Bhojpuri, BretonGwened, BretonTreger, Bulgarian, Catalan, ClassicalArmenian, Czech, DalmatianVegliote, Danish, Delvari, Dutch, Elfdalian, English, Faroese, Flemish, FrancoProvencal, French, Frisian, Friulian, GaelicIrish, GaelicManx, GaelicScottish, Gaulish, Gawarbati, Gawri, German, GermanBernese, Gothic, Greek, GreekCappodocian, GreekCypriot, GreekItaliot, GreekPontic, Hawrami, Hindi, Icelandic, Italian, KalasalaNiseigram, Kamviri, Kashmiri, Kashubian, KatavariEastern, KatavariKtivi, Khotanese, Khowar, Khwarazmian, Kumzari, KurdishCJafi, KurdishNBahdini, KurdishSElami, KurdishSQorveh, Ladin, Lari, LateCornish, Latgalian, Latin, Latvian, Lithuanian, Luxembourgish, Macedonian, MacedonianSuho, MacedonianVisoka, Magahi, Maithili, Marathi, Mazanderani, MeglenoRomanian, MiddleBreton, MiddleCornish, MiddleDutch, MiddleHighGerman, MiddlePersian, MiddleWelsh, Milanese, MycenaeanGreek, NTGreek, Neapolitan, Nepali, NorwegianBokmal, NorwegianNynorsk, OldBreton, OldCatalan, OldChurchSlavonic, OldCzech, OldEnglish, OldFrisian, OldHighGerman, OldIcelandic, OldIrish, OldNovgorod, OldOccitan, OldPersian, OldPolish, OldPrussian, OldSaxon, OldSpanish, OldSwedish, OldWelsh, Oscan, OsseticDigor, OsseticIron, Pali, Palula, Parthian, PashaiNorthWest, Pashto, PersianTehran, Polabian, Polish, Portuguese, PortugueseBrazilian, Punjabi, RajiBarzoki, Romanian, Russian, Rusyn, SanuviriWama, SardinianLogudoro, SardinianNuoro, Sarikoli, SerboCroatian, Sinhalese, Slovak, Slovene, SloveneEarlyModern, SloveneKostel, Sogdian, SorbianLower, SorbianUpper, Spanish, Swedish, Tati, TsakonianPeloponnese, TsakonianPropontis, Ukrainian, Umbrian, Urdu, VasiVariPaski, VedicEarly, Wakhi, Walloon, WelshNorth, Yaghnobi)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:c56c5934cc5d9025"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_c644ebf06cd002af6c36814628e6c800a02e86dcea8b69d07b69d64ef3536574",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 455,
+        "mean": 727,
+        "median": 745,
+        "probability": 0.95,
+        "upper": 963
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(OldChurchSlavonic, Slovene, SloveneEarlyModern, SloveneKostel)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:c644ebf06cd002af"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_c97531c293766c3e2ba17ae36c11cc725c858aa52d94882aa1b611df24062d1f",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -4193,
+        "mean": -2937,
+        "median": -2889,
+        "probability": 0.95,
+        "upper": -1718
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(BretonGwened, BretonTreger, Danish, Dutch, Elfdalian, English, Faroese, Flemish, Frisian, GaelicIrish, GaelicManx, GaelicScottish, Gaulish, German, GermanBernese, Gothic, Icelandic, LateCornish, Luxembourgish, MiddleBreton, MiddleCornish, MiddleDutch, MiddleHighGerman, MiddleWelsh, NorwegianBokmal, NorwegianNynorsk, OldBreton, OldEnglish, OldFrisian, OldHighGerman, OldIcelandic, OldIrish, OldSaxon, OldSwedish, OldWelsh, Swedish, WelshNorth)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:c97531c293766c3e"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_ca28fafc172b661234deb2022ceb3ae322bb780641f52824a03eb1548f5b82cd",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 361,
+        "mean": 631,
+        "median": 642,
+        "probability": 0.95,
+        "upper": 874
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Belarusian, Bulgarian, Czech, Kashubian, Macedonian, MacedonianSuho, MacedonianVisoka, OldCzech, OldNovgorod, OldPolish, Polabian, Polish, Russian, Rusyn, SerboCroatian, Slovak, SorbianLower, SorbianUpper, Ukrainian)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:ca28fafc172b6612"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_cf7d7084526d77e3dc1d3d0364c69c0918640df2c297aba858f5c7c832bb3736",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1701,
+        "mean": 1831,
+        "median": 1842,
+        "probability": 0.95,
+        "upper": 1939
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Kamviri, KatavariEastern, KatavariKtivi)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:cf7d7084526d77e3"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_d29ac8d244e1946502580a96e975999c82789fe30658d6c2b84f02ccbd4825e0",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1356,
+        "mean": 1600,
+        "median": 1608,
+        "probability": 0.95,
+        "upper": 1824
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(BretonGwened, BretonTreger)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:d29ac8d244e19465"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_d41f21a59842ff24503f94879acecb1a82592aeb7a0123daf79aecd46c4de936",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 351,
+        "mean": 684,
+        "median": 692,
+        "probability": 0.95,
+        "upper": 999
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Bakhtiari, Delvari, Hawrami, Kumzari, KurdishCJafi, KurdishSElami, KurdishSQorveh, Lari, Mazanderani, PersianTehran, RajiBarzoki, Tati)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:d41f21a59842ff24"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_d4502df97896f927220a2c44ab2d0869d9722551fc46e2508d63dbc94e605c97",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -1553,
+        "mean": -1144,
+        "median": -1127,
+        "probability": 0.95,
+        "upper": -774
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Bakhtiari, BalochiSistani, Delvari, Hawrami, Khwarazmian, Kumzari, KurdishCJafi, KurdishNBahdini, KurdishSElami, KurdishSQorveh, Lari, Mazanderani, MiddlePersian, OldPersian, Parthian, Pashto, PersianTehran, RajiBarzoki, Sarikoli, Sogdian, Tati, Wakhi, Yaghnobi)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:d4502df97896f927"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_d4f1e300db55f04dac14135925427267c410050c3d66158f97780bb18faf62d0",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1110,
+        "mean": 1338,
+        "median": 1353,
+        "probability": 0.95,
+        "upper": 1537
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(BretonGwened, BretonTreger, MiddleBreton)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:d4f1e300db55f04d"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_d796340062d6bb45985d0fd0ce182db4e7ec12aa854b9556606d2b4df95aa88f",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 765,
+        "mean": 1119,
+        "median": 1129,
+        "probability": 0.95,
+        "upper": 1436
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Hawrami, KurdishCJafi, KurdishSElami, KurdishSQorveh)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:d796340062d6bb45"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_d7c8554110df9af78586b8861df1b93bcaedba84153b916300c74bfea4cadbe7",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -2139,
+        "mean": -1537,
+        "median": -1512,
+        "probability": 0.95,
+        "upper": -986
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Bactrian, Bakhtiari, BalochiSistani, Delvari, Hawrami, Khotanese, Khwarazmian, Kumzari, KurdishCJafi, KurdishNBahdini, KurdishSElami, KurdishSQorveh, Lari, Mazanderani, MiddlePersian, OldPersian, OsseticDigor, OsseticIron, Parthian, Pashto, PersianTehran, RajiBarzoki, Sarikoli, Sogdian, Tati, Wakhi, Yaghnobi)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:d7c8554110df9af7"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_d91eb4f73127599ec3999fe30405b626a41d2693ae1fd021c1093112b18fef67",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -1076,
+        "mean": -446,
+        "median": -431,
+        "probability": 0.95,
+        "upper": 178
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(KalasalaNiseigram, Kamviri, KatavariEastern, KatavariKtivi, Khowar, PashaiNorthWest, SanuviriWama, VasiVariPaski)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:d91eb4f73127599e"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_d994690beec6586dea6607d0c7cf61af232d012c8bb82f11556af7c5047c3c89",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 992,
+        "mean": 1347,
+        "median": 1362,
+        "probability": 0.95,
+        "upper": 1674
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Italian, Milanese, Neapolitan)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:d994690beec6586d"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_dae243bf1c63a8a03848553b96542a0dbdb1c8cd05ec21d19e1b086a099dabb4",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1364,
+        "mean": 1601,
+        "median": 1613,
+        "probability": 0.95,
+        "upper": 1811
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(German, GermanBernese, Luxembourgish)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:dae243bf1c63a8a0"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_dc12434be2de97a4ef58fe8b20ab0dff2337c0bfc4ee3bfba7e07c44c59af208",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1240,
+        "mean": 1514,
+        "median": 1522,
+        "probability": 0.95,
+        "upper": 1766
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Greek, GreekCypriot)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:dc12434be2de97a4"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_dcfdea1224f9bd44d9139d1b5ba2f61abe2c9c101e551329de0ddba4ce24eb28",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -865,
+        "mean": -368,
+        "median": -337,
+        "probability": 0.95,
+        "upper": 69
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Danish, Dutch, Elfdalian, English, Faroese, Flemish, Frisian, German, GermanBernese, Gothic, Icelandic, Luxembourgish, MiddleDutch, MiddleHighGerman, NorwegianBokmal, NorwegianNynorsk, OldEnglish, OldFrisian, OldHighGerman, OldIcelandic, OldSaxon, OldSwedish, Swedish)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:dcfdea1224f9bd44"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_dd96e574386f411db017c0e7bcb9afc2911f63507ee3cd144bdca948562ca541",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 897,
+        "mean": 1039,
+        "median": 1050,
+        "probability": 0.95,
+        "upper": 1163
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Icelandic, OldIcelandic)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:dd96e574386f411d"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_de06cf52e7b8c472d94762ff74bd0f6b34add96527aeb34d93e43a702e227790",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -5944,
+        "mean": -4495,
+        "median": -4465,
+        "probability": 0.95,
+        "upper": -3036
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(AngloNorman, Belarusian, BretonGwened, BretonTreger, Bulgarian, Catalan, Czech, DalmatianVegliote, Danish, Dutch, Elfdalian, English, Faroese, Flemish, FrancoProvencal, French, Frisian, Friulian, GaelicIrish, GaelicManx, GaelicScottish, Gaulish, German, GermanBernese, Gothic, Icelandic, Italian, Kashubian, Ladin, LateCornish, Latgalian, Latin, Latvian, Lithuanian, Luxembourgish, Macedonian, MacedonianSuho, MacedonianVisoka, MeglenoRomanian, MiddleBreton, MiddleCornish, MiddleDutch, MiddleHighGerman, MiddleWelsh, Milanese, Neapolitan, NorwegianBokmal, NorwegianNynorsk, OldBreton, OldCatalan, OldChurchSlavonic, OldCzech, OldEnglish, OldFrisian, OldHighGerman, OldIcelandic, OldIrish, OldNovgorod, OldOccitan, OldPolish, OldPrussian, OldSaxon, OldSpanish, OldSwedish, OldWelsh, Oscan, Polabian, Polish, Portuguese, PortugueseBrazilian, Romanian, Russian, Rusyn, SardinianLogudoro, SardinianNuoro, SerboCroatian, Slovak, Slovene, SloveneEarlyModern, SloveneKostel, SorbianLower, SorbianUpper, Spanish, Swedish, Ukrainian, Umbrian, Walloon, WelshNorth)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:de06cf52e7b8c472"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_de7a7c0be3b26ce49e4bedbd66ed76fa79d9b415862268a6d2d84ee744317cea",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 887,
+        "mean": 1227,
+        "median": 1236,
+        "probability": 0.95,
+        "upper": 1563
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Mazanderani, RajiBarzoki, Tati)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:de7a7c0be3b26ce4"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_e0b330176751bcc89adfec7833747f2de897caf4c162f5d77824159ab8817aea",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 276,
+        "mean": 488,
+        "median": 502,
+        "probability": 0.95,
+        "upper": 675
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Dutch, Flemish, Frisian, German, GermanBernese, Luxembourgish, MiddleDutch, MiddleHighGerman, OldFrisian, OldHighGerman, OldSaxon)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:e0b330176751bcc8"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_e2c2f7ede8c00ff657f2a179d6453f25f1bc1dcb2fba278a0a3f6f4b44fe8233",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -1169,
+        "mean": -491,
+        "median": -481,
+        "probability": 0.95,
+        "upper": 142
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Assamese, Bengali, Bhojpuri, Hindi, Kashmiri, Magahi, Maithili, Marathi, Nepali, Punjabi, Urdu)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:e2c2f7ede8c00ff6"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_e4536f4c35ae595acef8fa095f379b287f39380ac7fe3ce6193406fc891c2e1f",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -1338,
+        "mean": -712,
+        "median": -697,
+        "probability": 0.95,
+        "upper": -77
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Gawarbati, Gawri, KalasalaNiseigram, Kamviri, KatavariEastern, KatavariKtivi, Khowar, Palula, PashaiNorthWest, SanuviriWama, VasiVariPaski)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:e4536f4c35ae595a"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_e4db5f6c47f538eb708309c4e7c20b2f9985da100e6f2675c30f0fadf0761d48",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -278,
+        "mean": 13,
+        "median": 64,
+        "probability": 0.95,
+        "upper": 146
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Greek, GreekCappodocian, GreekCypriot, GreekItaliot, GreekPontic, NTGreek, TsakonianPeloponnese, TsakonianPropontis)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:e4db5f6c47f538eb"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_e90ae03ddb65354bb0cbbae6a597c096abb95a54d17333c6b92794adcef676fd",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -61,
+        "mean": 354,
+        "median": 360,
+        "probability": 0.95,
+        "upper": 763
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Bakhtiari, BalochiSistani, Delvari, Hawrami, Kumzari, KurdishCJafi, KurdishNBahdini, KurdishSElami, KurdishSQorveh, Lari, Mazanderani, PersianTehran, RajiBarzoki, Tati)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:e90ae03ddb65354b"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_e9a227c32ba40b186c7cdf817e7006c2e76cf16d839dcbbade1ff7fda95ec2f6",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 795,
+        "mean": 951,
+        "median": 958,
+        "probability": 0.95,
+        "upper": 1096
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Dutch, Flemish, Frisian, German, GermanBernese, Luxembourgish, MiddleDutch, MiddleHighGerman)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:e9a227c32ba40b18"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_ea461eccd604a9edf5991c93e88df493904c12cdbf0ad7bc3d1dcdffc77e0b3f",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1019,
+        "mean": 1302,
+        "median": 1306,
+        "probability": 0.95,
+        "upper": 1589
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Belarusian, Russian, Rusyn, Ukrainian)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:ea461eccd604a9ed"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_eacaa7e1393ccda704c87e08d06ae56e9faec66ef65b04e3c8173f3ed7f3df2d",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -3034,
+        "mean": -1728,
+        "median": -1663,
+        "probability": 0.95,
+        "upper": -531
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Belarusian, Bulgarian, Czech, Kashubian, Latgalian, Latvian, Lithuanian, Macedonian, MacedonianSuho, MacedonianVisoka, OldChurchSlavonic, OldCzech, OldNovgorod, OldPolish, OldPrussian, Polabian, Polish, Russian, Rusyn, SerboCroatian, Slovak, Slovene, SloveneEarlyModern, SloveneKostel, SorbianLower, SorbianUpper, Ukrainian)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:eacaa7e1393ccda7"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_f0974aae9ac733ed554c5e936d3193a98daf22603b2aab309126bb2c27bbe17e",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 854,
+        "mean": 1170,
+        "median": 1179,
+        "probability": 0.95,
+        "upper": 1475
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Bakhtiari, Delvari, Lari, PersianTehran)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:f0974aae9ac733ed"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_f18d33ac1395ada854fe4e021df588e70545b7657947fc6ac66118c41899ce16",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 349,
+        "mean": 593,
+        "median": 602,
+        "probability": 0.95,
+        "upper": 829
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(AngloNorman, Catalan, FrancoProvencal, French, OldCatalan, OldOccitan, OldSpanish, Portuguese, PortugueseBrazilian, Spanish, Walloon)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:f18d33ac1395ada8"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_f42569ce6e9d9bc77ca6ac7c6559c87b4d1aee1327b7d919078d0721596d8796",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1020,
+        "mean": 1304,
+        "median": 1319,
+        "probability": 0.95,
+        "upper": 1581
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Bhojpuri, Hindi, Magahi, Punjabi, Urdu)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:f42569ce6e9d9bc7"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_f4eba3c80e1a85ccacd109215bde313f6d7f6015a582aeb2000ed6684c072d2e",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1032,
+        "mean": 1335,
+        "median": 1348,
+        "probability": 0.95,
+        "upper": 1625
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Hawrami, KurdishCJafi, KurdishSQorveh)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:f4eba3c80e1a85cc"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_f7d3c5e17f1befb5f70cee5421de0be4efebba345b1c8e97c1b2c401a28edfcc",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 594,
+        "mean": 828,
+        "median": 835,
+        "probability": 0.95,
+        "upper": 1049
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(AngloNorman, FrancoProvencal, French, OldOccitan, Walloon)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:f7d3c5e17f1befb5"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_fb51cac2b04e4417876dd64f6ff96460e146045707314e06c182ed191fd7d91a",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -1067,
+        "mean": -408,
+        "median": -413,
+        "probability": 0.95,
+        "upper": 222
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Pashto, Sarikoli, Wakhi)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:fb51cac2b04e4417"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_fb55145d51b00fd574abef4cbfefa1d17c1325e9a69665329e21611858750a6b",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 716,
+        "mean": 1046,
+        "median": 1057,
+        "probability": 0.95,
+        "upper": 1363
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Greek, GreekCappodocian, GreekCypriot, GreekItaliot, GreekPontic, TsakonianPeloponnese, TsakonianPropontis)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:fb55145d51b00fd5"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_fbd44ba25ec0b987784634a11a4eb53e12517535d7d19227b85c66d6e6772c35",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -313,
+        "mean": 193,
+        "median": 218,
+        "probability": 0.95,
+        "upper": 657
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Sogdian, Yaghnobi)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:fbd44ba25ec0b987"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_fcdab79c24ac67af7459b826cc4a5bba06f5a23c379c55681f81bf7cac021ce3",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 807,
+        "mean": 1100,
+        "median": 1115,
+        "probability": 0.95,
+        "upper": 1368
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(MiddleWelsh, WelshNorth)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:fcdab79c24ac67af"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_fce8749f9c396153301c058713be55f32abd3dfaa6c7765724b3ee1ae1c6c7f7",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 853,
+        "mean": 1184,
+        "median": 1193,
+        "probability": 0.95,
+        "upper": 1512
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Danish, Elfdalian, NorwegianBokmal, NorwegianNynorsk, Swedish)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:fce8749f9c396153"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_fdb87311daec1b74680aff155d4d58915b31233bae2078a419628aa5dca69447",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 555,
+        "mean": 847,
+        "median": 857,
+        "probability": 0.95,
+        "upper": 1113
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(BretonGwened, BretonTreger, LateCornish, MiddleBreton, MiddleCornish)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:fdb87311daec1b74"
+    },
+    {
+      "analysis": "heggarty2023_main_m3",
+      "claim_id": "ev_tree_fef8d007b0a4d3f6ca2348e491a1b94803d1cc5950c50329e4f09f8d2cd42e6f",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 159,
+        "mean": 538,
+        "median": 548,
+        "probability": 0.95,
+        "upper": 907
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Bakhtiari, BalochiSistani, Delvari, Hawrami, Kumzari, KurdishCJafi, KurdishSElami, KurdishSQorveh, Lari, Mazanderani, PersianTehran, RajiBarzoki, Tati)",
+      "role": "posterior",
+      "source": "Paul Heggarty et al. 2023",
+      "subject_id": "heggarty2023_main_m3:clade:fef8d007b0a4d3f6"
+    }
+  ],
+  "generation": "0c766cf804784d673313a5a7ccd7406eaa62de61cdf1425e2341991e046ecb9b",
   "languages": [
     {
       "alternatives": [],
@@ -1485,7 +4366,27 @@
       }
     },
     {
-      "alternatives": [],
+      "alternatives": [
+        {
+          "basis": "estimated",
+          "citation": "Language trees with sampled ancestors support a hybrid model for the origin of Indo-European languages",
+          "claim_id": "ev_tree_dcfdea1224f9bd44d9139d1b5ba2f61abe2c9c101e551329de0ddba4ce24eb28",
+          "end": {
+            "earliest": -865,
+            "latest": 69
+          },
+          "event": "crown_divergence",
+          "label": "until c. 866 BCE/69 CE",
+          "locator": null,
+          "node": "MRCA(Danish, Dutch, Elfdalian, English, Faroese, Flemish, Frisian, German, GermanBernese, Gothic, Icelandic, Luxembourgish, MiddleDutch, MiddleHighGerman, NorwegianBokmal, NorwegianNynorsk, OldEnglish, OldFrisian, OldHighGerman, OldIcelandic, OldSaxon, OldSwedish, Swedish)",
+          "proto_mapping": "The Germanic clade includes Gothic (East), Old Icelandic and the other North Germanic and Old English and the other West Germanic varieties: all three branches.",
+          "quote": null,
+          "role": "posterior",
+          "source": "Paul Heggarty et al. 2023",
+          "start": null,
+          "url": "http://urn.kb.se/resolve?urn=urn:nbn:se:su:diva-220000"
+        }
+      ],
       "basis": "estimated",
       "code": "gem-pro",
       "evidence": [
@@ -2125,6 +5026,174 @@
     },
     {
       "alternatives": [],
+      "basis": "estimated",
+      "code": "iir-pro",
+      "evidence": [
+        {
+          "citation": "Language trees with sampled ancestors support a hybrid model for the origin of Indo-European languages",
+          "claim_id": "ev_tree_149fef507d7911accf22cd46643c824e75c9c565de33b0149acff1ca8834f778",
+          "event": "crown_divergence",
+          "locator": null,
+          "node": "MRCA(Assamese, AvestanYounger, Bactrian, Bakhtiari, BalochiSistani, Bengali, Bhojpuri, Delvari, Gawarbati, Gawri, Hawrami, Hindi, KalasalaNiseigram, Kamviri, Kashmiri, KatavariEastern, KatavariKtivi, Khotanese, Khowar, Khwarazmian, Kumzari, KurdishCJafi, KurdishNBahdini, KurdishSElami, KurdishSQorveh, Lari, Magahi, Maithili, Marathi, Mazanderani, MiddlePersian, Nepali, OldPersian, OsseticDigor, OsseticIron, Pali, Palula, Parthian, PashaiNorthWest, Pashto, PersianTehran, Punjabi, RajiBarzoki, SanuviriWama, Sarikoli, Sinhalese, Sogdian, Tati, Urdu, VasiVariPaski, VedicEarly, Wakhi, Yaghnobi)",
+          "proto_mapping": "The clade contains Indo-Aryan (Early Vedic and modern languages), Iranian (Younger Avestan, Old Persian and modern) and Nuristani (Kamviri, Kati).",
+          "quote": null,
+          "role": "posterior",
+          "source": "Paul Heggarty et al. 2023",
+          "url": "http://urn.kb.se/resolve?urn=urn:nbn:se:su:diva-220000"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 4797/2536 BCE",
+      "name": "Proto-Indo-Iranian",
+      "spoken": {
+        "end": {
+          "earliest": -4796,
+          "latest": -2535
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "ine-ana-pro",
+      "evidence": [
+        {
+          "citation": "Language trees with sampled ancestors support a hybrid model for the origin of Indo-European languages",
+          "claim_id": "ev_tree_52425ec9e3e1fbc27a4c3f086c07193f89b4c6087bf476a35b1172f050041353",
+          "event": "crown_divergence",
+          "locator": null,
+          "node": "MRCA(Hittite, Luvian)",
+          "proto_mapping": "The clade contains Hittite and Luvian, the two sides of the first Anatolian split (Hittite vs. the rest); Palaic, Lycian and Lydian are not sampled.",
+          "quote": null,
+          "role": "posterior",
+          "source": "Paul Heggarty et al. 2023",
+          "url": "http://urn.kb.se/resolve?urn=urn:nbn:se:su:diva-220000"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 3621/1858 BCE",
+      "name": "Proto-Anatolian",
+      "spoken": {
+        "end": {
+          "earliest": -3620,
+          "latest": -1857
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "ine-bsl-pro",
+      "evidence": [
+        {
+          "citation": "Language trees with sampled ancestors support a hybrid model for the origin of Indo-European languages",
+          "claim_id": "ev_tree_eacaa7e1393ccda704c87e08d06ae56e9faec66ef65b04e3c8173f3ed7f3df2d",
+          "event": "crown_divergence",
+          "locator": null,
+          "node": "MRCA(Belarusian, Bulgarian, Czech, Kashubian, Latgalian, Latvian, Lithuanian, Macedonian, MacedonianSuho, MacedonianVisoka, OldChurchSlavonic, OldCzech, OldNovgorod, OldPolish, OldPrussian, Polabian, Polish, Russian, Rusyn, SerboCroatian, Slovak, Slovene, SloveneEarlyModern, SloveneKostel, SorbianLower, SorbianUpper, Ukrainian)",
+          "proto_mapping": "The clade contains Old Prussian, Latvian, Latgalian, Lithuanian (Baltic) and the Slavic languages incl. Old Church Slavonic.",
+          "quote": null,
+          "role": "posterior",
+          "source": "Paul Heggarty et al. 2023",
+          "url": "http://urn.kb.se/resolve?urn=urn:nbn:se:su:diva-220000"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 3035/532 BCE",
+      "name": "Proto-Balto-Slavic",
+      "spoken": {
+        "end": {
+          "earliest": -3034,
+          "latest": -531
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [
+        {
+          "basis": "estimated",
+          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Europe. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "claim_id": "ev_period_c3fc127327d342c311ad05d418d02dbced283f11",
+          "end": {
+            "earliest": -4999,
+            "latest": -4999
+          },
+          "event": "conventional_period",
+          "label": "until c. 5000 BCE",
+          "locator": "{\"page\": \"231\", \"pdf_page\": 255}",
+          "quote": "Proto-Indo-European (PIE) may well have been spoken somewhere in the Black Sea area\nbefore the middle of the ﬁfth millennium BC.",
+          "role": "hypothesis",
+          "source": "Woodard 2008",
+          "start": null,
+          "url": null
+        }
+      ],
+      "basis": "estimated",
+      "code": "ine-pro",
+      "evidence": [
+        {
+          "citation": "Language trees with sampled ancestors support a hybrid model for the origin of Indo-European languages",
+          "claim_id": "ev_tree_3d388707d641c5082ee885d47f188ef2c7bd338deb4f66115c2615e311ab3a25",
+          "event": "crown_divergence",
+          "locator": null,
+          "node": "MRCA(AlbanianArberesh, AlbanianGheg, AlbanianStandard, AncientGreek, AngloNorman, ArmenianEastern, ArmenianWestern, Assamese, AvestanYounger, Bactrian, Bakhtiari, BalochiSistani, Belarusian, Bengali, Bhojpuri, BretonGwened, BretonTreger, Bulgarian, Catalan, ClassicalArmenian, Czech, DalmatianVegliote, Danish, Delvari, Dutch, Elfdalian, English, Faroese, Flemish, FrancoProvencal, French, Frisian, Friulian, GaelicIrish, GaelicManx, GaelicScottish, Gaulish, Gawarbati, Gawri, German, GermanBernese, Gothic, Greek, GreekCappodocian, GreekCypriot, GreekItaliot, GreekPontic, Hawrami, Hindi, Hittite, Icelandic, Italian, KalasalaNiseigram, Kamviri, Kashmiri, Kashubian, KatavariEastern, KatavariKtivi, Khotanese, Khowar, Khwarazmian, Kumzari, KurdishCJafi, KurdishNBahdini, KurdishSElami, KurdishSQorveh, Ladin, Lari, LateCornish, Latgalian, Latin, Latvian, Lithuanian, Luvian, Luxembourgish, Macedonian, MacedonianSuho, MacedonianVisoka, Magahi, Maithili, Marathi, Mazanderani, MeglenoRomanian, MiddleBreton, MiddleCornish, MiddleDutch, MiddleHighGerman, MiddlePersian, MiddleWelsh, Milanese, MycenaeanGreek, NTGreek, Neapolitan, Nepali, NorwegianBokmal, NorwegianNynorsk, OldBreton, OldCatalan, OldChurchSlavonic, OldCzech, OldEnglish, OldFrisian, OldHighGerman, OldIcelandic, OldIrish, OldNovgorod, OldOccitan, OldPersian, OldPolish, OldPrussian, OldSaxon, OldSpanish, OldSwedish, OldWelsh, Oscan, OsseticDigor, OsseticIron, Pali, Palula, Parthian, PashaiNorthWest, Pashto, PersianTehran, Polabian, Polish, Portuguese, PortugueseBrazilian, Punjabi, RajiBarzoki, Romanian, Russian, Rusyn, SanuviriWama, SardinianLogudoro, SardinianNuoro, Sarikoli, SerboCroatian, Sinhalese, Slovak, Slovene, SloveneEarlyModern, SloveneKostel, Sogdian, SorbianLower, SorbianUpper, Spanish, Swedish, Tati, TocharianA, TocharianB, TsakonianPeloponnese, TsakonianPropontis, Ukrainian, Umbrian, Urdu, VasiVariPaski, VedicEarly, Wakhi, Walloon, WelshNorth, Yaghnobi)",
+          "proto_mapping": "The root of the M3 tree: its sampled descendants include Anatolian (Hittite, Luvian), Tocharian and every other branch, so its crown is the split of the ancestor Wiktionary reconstructs as ine-pro (Wiktionary files Proto-Anatolian under it).",
+          "quote": null,
+          "role": "posterior",
+          "source": "Paul Heggarty et al. 2023",
+          "url": "http://urn.kb.se/resolve?urn=urn:nbn:se:su:diva-220000"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 7614/4736 BCE",
+      "name": "Proto-Indo-European",
+      "spoken": {
+        "end": {
+          "earliest": -7613,
+          "latest": -4735
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "ine-toc-pro",
+      "evidence": [
+        {
+          "citation": "Language trees with sampled ancestors support a hybrid model for the origin of Indo-European languages",
+          "claim_id": "ev_tree_0cde9d3a535f4c13dec571abea485cbdb8d915df984d17beb0cd6463f5b0003f",
+          "event": "crown_divergence",
+          "locator": null,
+          "node": "MRCA(TocharianA, TocharianB)",
+          "proto_mapping": "The clade contains Tocharian A and B, the whole branch.",
+          "quote": null,
+          "role": "posterior",
+          "source": "Paul Heggarty et al. 2023",
+          "url": "http://urn.kb.se/resolve?urn=urn:nbn:se:su:diva-220000"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 316 BCE/505 CE",
+      "name": "Proto-Tocharian",
+      "spoken": {
+        "end": {
+          "earliest": -315,
+          "latest": 505
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
       "basis": "attested",
       "code": "inm",
       "evidence": [
@@ -2162,6 +5231,36 @@
           "earliest": -799,
           "latest": -700
         }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "ira-pro",
+      "evidence": [
+        {
+          "citation": "Language trees with sampled ancestors support a hybrid model for the origin of Indo-European languages",
+          "claim_id": "ev_tree_c339e270c5d88678c5abe9d045cce716aa38f96ed038eb59f387adc2c0152331",
+          "event": "crown_divergence",
+          "locator": null,
+          "node": "MRCA(AvestanYounger, Bactrian, Bakhtiari, BalochiSistani, Delvari, Hawrami, Khotanese, Khwarazmian, Kumzari, KurdishCJafi, KurdishNBahdini, KurdishSElami, KurdishSQorveh, Lari, Mazanderani, MiddlePersian, OldPersian, OsseticDigor, OsseticIron, Parthian, Pashto, PersianTehran, RajiBarzoki, Sarikoli, Sogdian, Tati, Wakhi, Yaghnobi)",
+          "proto_mapping": "The clade contains Younger Avestan, Old and Middle Persian, Parthian and modern West Iranian, and East Iranian (Sogdian, Khotanese, Bactrian, Ossetic, Pashto, Wakhi).",
+          "quote": null,
+          "role": "posterior",
+          "source": "Paul Heggarty et al. 2023",
+          "url": "http://urn.kb.se/resolve?urn=urn:nbn:se:su:diva-220000"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 2895/1465 BCE",
+      "name": "Proto-Iranian",
+      "spoken": {
+        "end": {
+          "earliest": -2894,
+          "latest": -1464
+        },
+        "ongoing": false,
+        "start": null
       }
     },
     {
@@ -2224,6 +5323,36 @@
           "earliest": -399,
           "latest": -399
         }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "itc-pro",
+      "evidence": [
+        {
+          "citation": "Language trees with sampled ancestors support a hybrid model for the origin of Indo-European languages",
+          "claim_id": "ev_tree_2ea563ecd3c0bac1a197e7c4f4b7ef5f3279ab431cbc2c583595e4810a1f0ad2",
+          "event": "crown_divergence",
+          "locator": null,
+          "node": "MRCA(AngloNorman, Catalan, DalmatianVegliote, FrancoProvencal, French, Friulian, Italian, Ladin, Latin, MeglenoRomanian, Milanese, Neapolitan, OldCatalan, OldOccitan, OldSpanish, Oscan, Portuguese, PortugueseBrazilian, Romanian, SardinianLogudoro, SardinianNuoro, Spanish, Umbrian, Walloon)",
+          "proto_mapping": "The clade contains Latin and the Romance languages and Oscan and Umbrian: both Latino-Faliscan and Sabellic.",
+          "quote": null,
+          "role": "posterior",
+          "source": "Paul Heggarty et al. 2023",
+          "url": "http://urn.kb.se/resolve?urn=urn:nbn:se:su:diva-220000"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 2287/772 BCE",
+      "name": "Proto-Italic",
+      "spoken": {
+        "end": {
+          "earliest": -2286,
+          "latest": -771
+        },
+        "ongoing": false,
+        "start": null
       }
     },
     {
@@ -3483,7 +6612,27 @@
       }
     },
     {
-      "alternatives": [],
+      "alternatives": [
+        {
+          "basis": "estimated",
+          "citation": "Language trees with sampled ancestors support a hybrid model for the origin of Indo-European languages",
+          "claim_id": "ev_tree_86cb086f48205db690cabe00747aedc8fda1a96272b401e77f71f0b712bbfa10",
+          "end": {
+            "earliest": 163,
+            "latest": 778
+          },
+          "event": "crown_divergence",
+          "label": "until c. 163/778 CE",
+          "locator": null,
+          "node": "MRCA(Belarusian, Bulgarian, Czech, Kashubian, Macedonian, MacedonianSuho, MacedonianVisoka, OldChurchSlavonic, OldCzech, OldNovgorod, OldPolish, Polabian, Polish, Russian, Rusyn, SerboCroatian, Slovak, Slovene, SloveneEarlyModern, SloveneKostel, SorbianLower, SorbianUpper, Ukrainian)",
+          "proto_mapping": "The clade contains East (Russian, Old Novgorod), West (Polish, Czech, Sorbian) and South Slavic (Old Church Slavonic, Serbo-Croatian, Bulgarian, Slovene).",
+          "quote": null,
+          "role": "posterior",
+          "source": "Paul Heggarty et al. 2023",
+          "start": null,
+          "url": "http://urn.kb.se/resolve?urn=urn:nbn:se:su:diva-220000"
+        }
+      ],
       "basis": "estimated",
       "code": "sla-pro",
       "evidence": [
@@ -3549,6 +6698,36 @@
           "earliest": -599,
           "latest": -500
         }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "sqj-pro",
+      "evidence": [
+        {
+          "citation": "Language trees with sampled ancestors support a hybrid model for the origin of Indo-European languages",
+          "claim_id": "ev_tree_67808474b9b71a8df289a527c851d2cf5783ccb20f87d1245f4af42e4aa39a7d",
+          "event": "crown_divergence",
+          "locator": null,
+          "node": "MRCA(AlbanianArberesh, AlbanianGheg, AlbanianStandard)",
+          "proto_mapping": "The clade contains Gheg, Standard Albanian (Tosk-based) and Arbëresh: the Gheg–Tosk split that ends Proto-Albanian.",
+          "quote": null,
+          "role": "posterior",
+          "source": "Paul Heggarty et al. 2023",
+          "url": "http://urn.kb.se/resolve?urn=urn:nbn:se:su:diva-220000"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 118/1532 CE",
+      "name": "Proto-Albanian",
+      "spoken": {
+        "end": {
+          "earliest": 118,
+          "latest": 1532
+        },
+        "ongoing": false,
+        "start": null
       }
     },
     {

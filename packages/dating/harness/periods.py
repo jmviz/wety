@@ -266,7 +266,9 @@ def alternative(claim, reconstructed, sources):
         start, end = None, crown_end(claim)
     else:
         start, end = ranges(claim)
-    approximate = bool(claim["time"].get("original", {}).get("approximate"))
+    approximate = claim["event"] == "crown_divergence" or bool(
+        claim["time"].get("original", {}).get("approximate")
+    )
     return {
         **evidence_entry(claim, sources),
         "basis": basis([claim], reconstructed),

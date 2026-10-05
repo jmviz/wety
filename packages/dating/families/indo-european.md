@@ -4,6 +4,34 @@
 
 Packet: `data/workspaces/dating/_research/packets/indo-european-2026-09-20`.
 
+**Shown in wety (2026-10-04).** Under the crown-age rule (dating rules 2), ten proto
+codes end at a clade age from Heggarty et al. 2023's main analysis M3 (deposited MCC
+tree, reproduced by hash; epoch 2000 CE as the article states, now set in the
+`heggarty2023_main_m3` manifest, which makes its 160 clade claims supported). Each
+decision's `proto_mapping` says why the sampled taxa cover the branch; 95% HPD shown:
+
+| Code | Clade (sampled) | End, 95% HPD |
+|---|---|---|
+| `ine-pro` | root, incl. Hittite, Luvian, Tocharian | 7614–4736 BCE (median 8120 BP) |
+| `iir-pro` | Indo-Aryan + Iranian + Nuristani | 4797–2536 BCE |
+| `ine-ana-pro` | Hittite + Luvian | 3621–1858 BCE |
+| `ine-bsl-pro` | Baltic + Slavic | 3035–532 BCE |
+| `ira-pro` | Avestan, West and East Iranian | 2895–1465 BCE |
+| `itc-pro` | Latin/Romance + Oscan + Umbrian | 2287–772 BCE |
+| `ine-toc-pro` | Tocharian A + B | 316 BCE – 505 CE |
+| `sqj-pro` | Gheg, Standard (Tosk), Arbëresh | 118–1532 CE |
+| `gem-pro` | incl. Gothic (alternative; Koch 2020 shown) | 866 BCE – 69 CE |
+| `sla-pro` | East, West, South incl. OCS (alternative; Fortson shown) | 163–778 CE |
+
+Not adopted: Celtic (Celtiberian, probably the first split, is unsampled), Indo-Aryan
+(M3 nests Nuristani in it), Armenian (the crown is the modern dialect split), Greek
+(the crown, 1609–1218 BCE, is bounded by the Mycenaean tip, so it would end
+Proto-Greek after Mycenaean is attested), and Proto-West Germanic, Proto-Norse,
+Proto-Baltic and Proto-Romance (not reconstructed codes in Wiktionary). All clades
+have support 1.0, which reflects M3's constraints. These are conditional on M3: SA8
+moves the root from 8629 to 4997 BP when Chang et al.'s data get eight ancestry
+constraints, and Chang et al. 2015 is not yet reviewed as an alternative.
+
 ## Indo-European: source and scenario packet
 
 The [packet](../../../data/workspaces/dating/_research/packets/indo-european-2026-09-20/packet.json) records 23 source findings across Chang, Heggarty, the deposited results guide, and Kassian & Starostin. It advances the pilot comparison without importing a new date or selecting a historical default. This is development annotation with adversarial self-audit; the completed separate-session Uralic review does not count as a second review of this packet.
