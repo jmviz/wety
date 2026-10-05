@@ -191,6 +191,7 @@ impl Items {
                 return;
             }
             // This was a new pos of an existing item.
+            self.lines.insert(line_number, item_id);
             self.add_derived(string_pool, item_id, json_item, lang);
             if let Some(raw_descendants) = json_item.get_descendants(string_pool) {
                 // Sometimes multiple pos's under the same ety have different
@@ -410,6 +411,31 @@ pub(crate) fn affix_type(name: &str) -> Option<Affix> {
     })
 }
 
+/// A part of speech as templates name it (pos=, <pos:...>), e.g. "verb",
+/// "adjective", "diminutive suffix" (the last word naming one).
+pub(crate) fn parse_pos(text: &str) -> Option<Pos> {
+    text.split(|c: char| !c.is_alphabetic())
+        .rev()
+        .find_map(|word| {
+            let code = match word.to_lowercase().as_str() {
+                "noun" | "substantive" => "noun",
+                "verb" => "verb",
+                "adjective" | "adj" => "adj",
+                "adverb" | "adv" => "adv",
+                "pronoun" => "pron",
+                "numeral" => "num",
+                "name" => "name",
+                "prefix" => "prefix",
+                "suffix" => "suffix",
+                "infix" => "infix",
+                "interfix" => "interfix",
+                "root" => "root",
+                _ => return None,
+            };
+            code.parse().ok()
+        })
+}
+
 /// The affix type implied by hyphens, as {{af}} infers it.
 pub(crate) fn affix_by_hyphens(term: &str) -> Affix {
     match (term.starts_with('-'), term.ends_with('-')) {
@@ -559,5 +585,8 @@ mod tests {
         assert_eq!("non-", clean_template_term("non-<id:not><t:no>"));
         assert_eq!("lītus", clean_template_term("[[lītus|lītoris]]"));
         assert_eq!("lītus", clean_template_term("[[lītus]]"));
+        assert_eq!(parse_pos("augmentative suffix").map(Pos::name), Some("suffix"));
+        assert_eq!(parse_pos("adjective").map(Pos::name), Some("adj"));
+        assert_eq!(parse_pos("feminine of {{m|pt|novo}}"), None);
     }
 }

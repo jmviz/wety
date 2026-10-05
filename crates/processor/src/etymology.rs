@@ -1,12 +1,12 @@
 use crate::{
-    embeddings::{self, Embeddings},
+    embeddings::Embeddings,
     etymon,
-    items::Items,
+    items::{EmbeddingNeeds, Items},
     resolve::{Citation, Relation, Resolution},
     progress_bar,
     wiktextract_json::{
         Affix, WiktextractJson, WiktextractJsonItem, WiktextractJsonValidStr, affix_by_hyphens,
-        affix_type, clean_template_term, modifier, split_lang_prefix, split_modifiers,
+        affix_type, clean_template_term, modifier, parse_pos, split_lang_prefix, split_modifiers,
     },
     HashSet,
 };
@@ -28,12 +28,8 @@ use simd_json::ValueAccess;
 #[derive(Hash, Eq, PartialEq, Debug)]
 pub(crate) struct RawEtyTemplate {
     pub(crate) langterms: Box<[LangTerm]>, // e.g. "en" "re-", "en" "do"
-    // The {{etymon}} ids naming each langterm's etymology, e.g. "mother" in
-    // "enm:moder<id:mother>". Empty for the classic templates.
-    pub(crate) ids: Box<[Option<Box<str>>]>,
-    // The gloss given for each langterm (t=, <t:...>), where given: it glosses
-    // the cited term itself, unlike the citing item's own glosses.
-    pub(crate) glosses: Box<[Option<Box<str>>]>,
+    // What the template says of each langterm besides the term (or nothing)
+    pub(crate) parts: Box<[Part]>,
     // Whether this template is known to give the etymology of the previous
     // template's single parent (an {{etymon}} inline etymology), rather than
     // only presumed to (the next classic template).
@@ -47,18 +43,27 @@ pub(crate) struct RawEtyTemplate {
     pub(crate) head: Option<u8>,           // e.g. 1 (the index of "do")
 }
 
+// What a template says of a cited term besides the term: an id naming its
+// etymology or sense (id=, <id:...>; e.g. "mother" in "enm:moder<id:mother>"),
+// its gloss (t=, <t:...>), which glosses the cited term itself, unlike the
+// citing item's own glosses, and its part of speech (pos=, <pos:...>).
+#[derive(Hash, Eq, PartialEq, Debug, Default, Clone)]
+pub(crate) struct Part {
+    pub(crate) id: Option<Box<str>>,
+    pub(crate) gloss: Option<Box<str>>,
+    pub(crate) pos: Option<Pos>,
+}
+
 impl RawEtyTemplate {
-    fn with_id_and_gloss(mut self, id: Option<&str>, gloss: Option<&str>) -> Self {
-        self.ids = Box::new([id.map(Box::from)]);
-        self.glosses = Box::new([gloss.map(Box::from)]);
+    fn with_part(mut self, part: Part) -> Self {
+        self.parts = Box::new([part]);
         self
     }
 
     fn new(langterm: LangTerm, mode: EtyMode) -> Self {
         Self {
             langterms: Box::from([langterm]),
-            ids: Box::default(),
-            glosses: Box::default(),
+            parts: Box::default(),
             continues: false,
             affixes: Box::default(),
             refine_mode: false,
@@ -100,23 +105,23 @@ fn process_derived_kind_json_template(
     let ety_lang = Lang::from_str(ety_lang).ok()?;
     let ety_term = args.get_valid_term("3")?;
     let ety_langterm = ety_lang.new_langterm(string_pool, ety_term);
-    let (id, gloss) = term_id_and_gloss(args, "3", &["t", "gloss", "5"]);
-    Some(RawEtyTemplate::new(ety_langterm, mode).with_id_and_gloss(id, gloss))
+    let part = term_part(args, "3", &["t", "gloss", "5"]);
+    Some(RawEtyTemplate::new(ety_langterm, mode).with_part(part))
 }
 
-// The id (id=, <id:...>) and gloss (t= etc., <t:...>) a template gives for
-// the term in arg `key`.
-fn term_id_and_gloss<'a>(
-    args: &'a WiktextractJson,
-    key: &str,
-    gloss_keys: &[&str],
-) -> (Option<&'a str>, Option<&'a str>) {
+// What a template gives for the term in arg `key` (see Part).
+fn term_part(args: &WiktextractJson, key: &str, gloss_keys: &[&str]) -> Part {
     let modifiers = args.get_str(key).map(|arg| split_modifiers(arg).1).unwrap_or_default();
     let id = modifier(&modifiers, "id").or_else(|| args.get_valid_str("id"));
     let gloss = modifier(&modifiers, "t")
         .or_else(|| modifier(&modifiers, "gloss"))
         .or_else(|| gloss_keys.iter().find_map(|k| args.get_valid_str(k)));
-    (id.filter(|s| !s.is_empty()), gloss.filter(|s| !s.is_empty()))
+    let pos = modifier(&modifiers, "pos").or_else(|| args.get_valid_str("pos"));
+    Part {
+        id: id.filter(|s| !s.is_empty()).map(Box::from),
+        gloss: gloss.filter(|s| !s.is_empty()).map(Box::from),
+        pos: pos.and_then(parse_pos),
+    }
 }
 
 fn process_abbrev_kind_json_template(
@@ -127,8 +132,8 @@ fn process_abbrev_kind_json_template(
 ) -> Option<RawEtyTemplate> {
     let ety_term = args.get_valid_term("2")?;
     let ety_langterm = lang.new_langterm(string_pool, ety_term);
-    let (id, gloss) = term_id_and_gloss(args, "2", &["t", "gloss", "4"]);
-    Some(RawEtyTemplate::new(ety_langterm, mode).with_id_and_gloss(id, gloss))
+    let part = term_part(args, "2", &["t", "gloss", "4"]);
+    Some(RawEtyTemplate::new(ety_langterm, mode).with_part(part))
 }
 
 fn process_prefix_json_template(
@@ -142,8 +147,7 @@ fn process_prefix_json_template(
     let ety_term = lang.new_langterm(string_pool, ety_term);
     Some(RawEtyTemplate {
         langterms: Box::new([ety_prefix, ety_term]),
-        ids: Box::default(),
-        glosses: Box::default(),
+        parts: Box::default(),
         continues: false,
         affixes: Box::default(),
         refine_mode: false,
@@ -163,8 +167,7 @@ fn process_suffix_json_template(
     let ety_suffix = lang.new_langterm(string_pool, &ety_suffix);
     Some(RawEtyTemplate {
         langterms: Box::new([ety_term, ety_suffix]),
-        ids: Box::default(),
-        glosses: Box::default(),
+        parts: Box::default(),
         continues: false,
         affixes: Box::default(),
         refine_mode: false,
@@ -187,8 +190,7 @@ fn process_circumfix_json_template(
     let ety_circumfix = lang.new_langterm(string_pool, &ety_circumfix);
     Some(RawEtyTemplate {
         langterms: Box::new([ety_term, ety_circumfix]),
-        ids: Box::default(),
-        glosses: Box::default(),
+        parts: Box::default(),
         continues: false,
         affixes: Box::default(),
         refine_mode: false,
@@ -209,8 +211,7 @@ fn process_infix_json_template(
     let ety_infix = lang.new_langterm(string_pool, &ety_infix);
     Some(RawEtyTemplate {
         langterms: Box::new([ety_term, ety_infix]),
-        ids: Box::default(),
-        glosses: Box::default(),
+        parts: Box::default(),
         continues: false,
         affixes: Box::default(),
         refine_mode: false,
@@ -233,8 +234,7 @@ fn process_confix_json_template(
         let ety_suffix = lang.new_langterm(string_pool, &ety_suffix);
         return Some(RawEtyTemplate {
             langterms: Box::new([ety_prefix, ety_term, ety_suffix]),
-            ids: Box::default(),
-            glosses: Box::default(),
+            parts: Box::default(),
             continues: false,
             affixes: Box::default(),
             refine_mode: false,
@@ -246,8 +246,7 @@ fn process_confix_json_template(
     let ety_suffix = lang.new_langterm(string_pool, &ety_suffix);
     Some(RawEtyTemplate {
         langterms: Box::new([ety_prefix, ety_suffix]),
-        ids: Box::default(),
-        glosses: Box::default(),
+        parts: Box::default(),
         continues: false,
         affixes: Box::default(),
         refine_mode: false,
@@ -307,8 +306,7 @@ fn process_compound_kind_json_template(
     lang: Lang,
 ) -> Option<RawEtyTemplate> {
     let mut ety_langterms = vec![];
-    let mut ids = vec![];
-    let mut glosses = vec![];
+    let mut parts = vec![];
     let mut affixes = vec![];
     let mut head = 0;
     let mut n_base_terms = 0; // terms that aren't x-, -x, etc.
@@ -354,14 +352,16 @@ fn process_compound_kind_json_template(
                 .filter(|s| !s.is_empty())
                 .map(Box::from)
         };
-        ids.push(part_param("id"));
-        glosses.push(part_param("t").or_else(|| part_param("gloss")));
+        parts.push(Part {
+            id: part_param("id"),
+            gloss: part_param("t").or_else(|| part_param("gloss")),
+            pos: part_param("pos").as_deref().and_then(parse_pos),
+        });
     }
     if !ety_langterms.is_empty() {
         return Some(RawEtyTemplate {
             langterms: ety_langterms.into_boxed_slice(),
-            ids: ids.into_boxed_slice(),
-            glosses: glosses.into_boxed_slice(),
+            parts: parts.into_boxed_slice(),
             continues: false,
             refine_mode: mode == EtyMode::Affix,
             affixes: affixes.clone().into_boxed_slice(),
@@ -600,45 +600,30 @@ impl WiktextractJsonItem<'_> {
 }
 
 impl Items {
-    pub(crate) fn get_ety_items_needing_embedding(
+    pub(crate) fn get_ety_embedding_needs(
         &self,
         item: ItemId,
         raw_etymology: &RawEtymology,
-    ) -> HashSet<ItemId> {
-        let mut items_needing_embedding = HashSet::default();
-        let mut parent_items = vec![item];
-
+        needs: &mut EmbeddingNeeds,
+    ) {
+        // The citing item is the item, or an imputed item of its chain, which
+        // borrows the item's embeddings.
         for template in raw_etymology.templates.iter().filter_map(|t| match t {
             ParsedRawEtyTemplate::Parsed(template) => Some(template),
             ParsedRawEtyTemplate::Skipped => None,
         }) {
-            let mut has_ambiguous_child = false;
-            let mut has_imputed_child = false;
-            let mut next_parent_items = vec![];
-            for &langterm in &*template.langterms {
-                if let Some(ety_items) = self.candidates(langterm) {
-                    if ety_items.len() > 1 {
-                        // i.e. langterm is ambiguous
-                        has_ambiguous_child = true;
-                        for &ety_item in ety_items {
-                            items_needing_embedding.insert(ety_item);
-                        }
+            for (n, &langterm) in template.langterms.iter().enumerate() {
+                if let Some(candidates) = self.candidates(langterm)
+                    && candidates.len() > 1
+                {
+                    needs.items.insert(item);
+                    needs.items.extend(candidates);
+                    if let Some(gloss) = template.parts.get(n).and_then(|p| p.gloss.clone()) {
+                        needs.texts.insert(gloss);
                     }
-                    for &ety_item in ety_items {
-                        next_parent_items.push(ety_item);
-                    }
-                } else {
-                    has_imputed_child = true;
                 }
             }
-            if has_ambiguous_child || has_imputed_child {
-                for &parent_item in &parent_items {
-                    items_needing_embedding.insert(parent_item);
-                }
-            }
-            parent_items = next_parent_items;
         }
-        items_needing_embedding
     }
 
     // The first parsed template gives the item's parent(s). If that is a
@@ -657,7 +642,6 @@ impl Items {
     ) -> Result<()> {
         let templates = &*raw_etymology.templates;
         let mut current_item = item;
-        let mut item_embeddings = vec![];
         let mut first = templates
             .iter()
             .position(|t| matches!(t, ParsedRawEtyTemplate::Parsed(_)));
@@ -665,7 +649,6 @@ impl Items {
             let ParsedRawEtyTemplate::Parsed(template) = &templates[i] else {
                 break;
             };
-            item_embeddings.push(embeddings.get(self.get(current_item), current_item)?);
             // What the etymology gives as a single parent's own source: the next
             // template, if it is known to continue the chain, or if both are
             // derived-kind ({{inh}}, {{bor}}, {{der}}, ...) and the next is in
@@ -695,25 +678,29 @@ impl Items {
             for (n, &ety_langterm) in template.langterms.iter().enumerate() {
                 let citation = Citation {
                     langterm: ety_langterm,
-                    id: template.ids.get(n).and_then(Option::as_deref),
-                    gloss: template.glosses.get(n).and_then(Option::as_deref),
+                    id: template.parts.get(n).and_then(|p| p.id.as_deref()),
+                    gloss: template.parts.get(n).and_then(|p| p.gloss.as_deref()),
+                    // given, or implied by the derivation (a deverbal's source
+                    // is a verb)
+                    pos: template.parts.get(n).and_then(|p| p.pos).or_else(|| {
+                        (template.mode == EtyMode::Deverbal).then(|| Pos::from_str("verb").ok()).flatten()
+                    }),
                     citer: current_item,
                     relation: Relation::Parent { next },
                 };
                 let (ety_item, confidence) =
-                    match self.resolve(string_pool, embeddings, &item_embeddings, &citation)? {
+                    match self.resolve(string_pool, embeddings, &citation)? {
                         Resolution::Found { item, confidence } => (item, confidence),
                         Resolution::Missing => (
                             self.impute_item(ety_langterm, item),
-                            embeddings::SIMILARITY_THRESHOLD,
+                            0.0,
                         ),
                     };
                 ety_items.push(ety_item);
                 confidences.push(confidence);
             }
             let (mode, head) = self.revise_affixes(template, &ety_items);
-            if !confidences.iter().all(|&c| c >= embeddings::SIMILARITY_THRESHOLD)
-                || !self.set_own_ety(current_item, mode, head, &ety_items, &confidences)
+            if !self.set_own_ety(current_item, mode, head, &ety_items, &confidences)
             {
                 return Ok(());
             }

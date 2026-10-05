@@ -17,18 +17,18 @@
 //!   unrelated to it.
 //!
 //! An agreeing candidate is taken; contradicted candidates are dropped; among
-//! the rest, a gloss the citation gives for its term (t=) decides by shared
-//! words, else gloss embeddings. If every candidate of an etymology's citation
+//! the rest, embeddings decide (see embeddings::citation_score), using a gloss
+//! the citation gives for its term (t=) where it gives one. If every candidate of an etymology's citation
 //! is contradicted, the term meant is taken to be missing from the data.
 
 use crate::{
     HashSet,
-    embeddings::{self, Embeddings, ItemEmbedding},
+    embeddings::{self, Embeddings},
     etymology::ParsedRawEtyTemplate,
     items::Items,
 };
 use wety_core::{
-    etymology_templates::EtyMode, items::Item, items::ItemId, langterm::LangTerm,
+    etymology_templates::EtyMode, items::Item, items::ItemId, langterm::LangTerm, pos::Pos,
     string_pool::StringPool,
 };
 
@@ -36,6 +36,12 @@ use anyhow::{Ok, Result};
 
 // how many etymology steps to follow when relating two terms
 const DEPTH: usize = 3;
+
+// the confidence of a link to the only candidate, where nothing was weighed
+const SINGLE_CANDIDATE_CONFIDENCE: f32 = 0.5;
+// added to the score of a candidate of the part of speech the citation gives
+// the term, or else of the citing item's
+const SAME_POS_BONUS: f32 = 0.05;
 
 pub(crate) enum Relation {
     // the cited term is the citing item's parent; `next` is what the citing
@@ -49,6 +55,8 @@ pub(crate) struct Citation<'a> {
     pub(crate) langterm: LangTerm,
     pub(crate) id: Option<&'a str>,
     pub(crate) gloss: Option<&'a str>,
+    // the cited term's part of speech, where the citation gives it
+    pub(crate) pos: Option<Pos>,
     pub(crate) citer: ItemId,
     pub(crate) relation: Relation,
 }
@@ -306,50 +314,48 @@ impl Items {
         }
     }
 
-    fn gloss_score(&self, string_pool: &StringPool, item: ItemId, words: &HashSet<String>) -> usize {
-        let Item::Real(real) = self.get(item) else {
-            return 0;
-        };
-        let item_words = gloss_words(real.gloss.iter().flat_map(|g| g.words(string_pool)));
-        words.intersection(&item_words).count()
-    }
-
-    // Among candidates, the one whose glosses share most words with the
-    // citation's gloss, if one does uniquely; else the one most similar by
-    // gloss embeddings.
+    // Among candidates, the one that fits the citation best by meaning
+    // (embeddings::citation_score), preferring one of the citing item's part of
+    // speech. A single candidate is taken without comparison.
     fn best_candidate(
         &self,
-        string_pool: &StringPool,
         embeddings: &Embeddings,
-        embedding_comp: &impl embeddings::Comparand<ItemEmbedding>,
+        citation: &Citation,
         candidates: &[ItemId],
-        gloss: Option<&str>,
     ) -> Result<Option<(ItemId, f32)>> {
         if let [only] = candidates {
-            let similarity = self
-                .get_max_similarity_candidate(embeddings, embedding_comp, candidates)?
-                .map_or(embeddings::SIMILARITY_THRESHOLD, |(_, s)| s);
-            return Ok(Some((*only, similarity)));
+            return Ok(Some((*only, SINGLE_CANDIDATE_CONFIDENCE)));
         }
-        if let Some(gloss) = gloss {
-            let words = gloss_words(std::iter::once(gloss));
-            let mut scores: Vec<(usize, ItemId)> = candidates
-                .iter()
-                .map(|&c| (self.gloss_score(string_pool, c, &words), c))
-                .collect();
-            scores.sort_unstable_by(|a, b| b.0.cmp(&a.0));
-            if scores[0].0 > 0 && scores[0].0 > scores[1].0 {
-                return Ok(Some((scores[0].1, 0.9)));
+        let citer = embeddings.get(self.get(citation.citer), citation.citer)?;
+        let gloss = match citation.gloss {
+            Some(gloss) => embeddings.text(gloss)?,
+            None => None,
+        };
+        let citer_is_child = matches!(citation.relation, Relation::Parent { .. });
+        let citer_pos = self.get(citation.citer).pos();
+        let mut best: Option<(ItemId, f32)> = None;
+        for &candidate in candidates {
+            let embedding = embeddings.get(self.get(candidate), candidate)?;
+            let candidate_pos = self.get(candidate).pos();
+            let same_pos = match citation.pos {
+                Some(pos) => candidate_pos.is_some_and(|c| c.contains(&pos)),
+                None => citer_pos
+                    .zip(candidate_pos)
+                    .is_some_and(|(a, b)| a.iter().any(|p| b.contains(p))),
+            };
+            let score = embeddings::citation_score(&citer, &embedding, citer_is_child, gloss.as_ref())
+                + if same_pos { SAME_POS_BONUS } else { 0.0 };
+            if best.is_none_or(|(_, s)| score > s) {
+                best = Some((candidate, score));
             }
         }
-        self.get_max_similarity_candidate(embeddings, embedding_comp, candidates)
+        Ok(best)
     }
 
     pub(crate) fn resolve(
         &self,
         string_pool: &StringPool,
         embeddings: &Embeddings,
-        embedding_comp: &impl embeddings::Comparand<ItemEmbedding>,
         citation: &Citation,
     ) -> Result<Resolution> {
         if let Some(id) = citation.id
@@ -381,7 +387,7 @@ impl Items {
             && !matches!(citation.relation, Relation::Parent { next: Some(_) })
         {
             self.resolution_stats.count("single candidate");
-            let best = self.best_candidate(string_pool, embeddings, embedding_comp, candidates, None)?;
+            let best = self.best_candidate(embeddings, citation, candidates)?;
             return Ok(best.map_or(Resolution::Missing, |(item, confidence)| Resolution::Found {
                 item,
                 confidence,
@@ -395,7 +401,7 @@ impl Items {
             .collect();
         if !agreeing.is_empty() {
             self.resolution_stats.count("agreement");
-            let best = self.best_candidate(string_pool, embeddings, embedding_comp, &agreeing, citation.gloss)?;
+            let best = self.best_candidate(embeddings, citation, &agreeing)?;
             return Ok(best.map_or(Resolution::Missing, |(item, _)| Resolution::Found {
                 item,
                 confidence: 1.0,
@@ -443,7 +449,7 @@ impl Items {
             (1, false) => "single candidate",
             _ => "gloss or embedding",
         });
-        let best = self.best_candidate(string_pool, embeddings, embedding_comp, pool, citation.gloss)?;
+        let best = self.best_candidate(embeddings, citation, pool)?;
         Ok(best.map_or(Resolution::Missing, |(item, confidence)| Resolution::Found {
             item,
             confidence,

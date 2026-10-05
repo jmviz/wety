@@ -1,6 +1,6 @@
 use crate::{
     HashSet,
-    embeddings::{self, Embeddings, ItemEmbedding},
+    embeddings::Embeddings,
     items::Items,
     resolve::{Citation, Relation, Resolution},
     progress_bar,
@@ -228,16 +228,6 @@ impl<T: Clone> Ancestors<T> {
     }
 }
 
-impl Ancestors<ItemId> {
-    fn embeddings(&self, items: &Items, embeddings: &Embeddings) -> Result<Vec<ItemEmbedding>> {
-        let mut item_embeddings = Vec::with_capacity(self.ancestors.len());
-        for &ancestor in &self.ancestors {
-            item_embeddings.push(embeddings.get(items.get(ancestor), ancestor)?);
-        }
-        Ok(item_embeddings)
-    }
-}
-
 impl Items {
     pub(crate) fn get_desc_items_needing_embedding(
         &self,
@@ -249,7 +239,6 @@ impl Items {
         for line in &*raw_descendants.lines {
             let possible_parents = possible_ancestors.prune_and_get_parent(line.depth);
             let mut has_ambiguous_child = false;
-            let mut has_imputed_child = false;
             if let RawDescLineKind::Desc { desc } = &line.kind {
                 for (i, &term) in desc.terms.iter().enumerate() {
                     let desc_langterm = LangTerm::new(desc.lang, term);
@@ -264,11 +253,9 @@ impl Items {
                                 items_needing_embedding.insert(desc_item);
                             }
                         }
-                    } else {
-                        has_imputed_child = true;
                     }
                 }
-                if has_ambiguous_child || has_imputed_child {
+                if has_ambiguous_child {
                     for possible_parent in possible_parents {
                         items_needing_embedding.insert(possible_parent);
                     }
@@ -346,17 +333,14 @@ impl Items {
                         langterm,
                         id: None,
                         gloss: None,
+                        pos: None,
                         citer: parent,
                         relation: Relation::Child,
                     };
-                    let comp = ancestors.embeddings(self, embeddings)?;
                     let (desc_item, confidence) =
-                        match self.resolve(string_pool, embeddings, &comp, &citation)? {
+                        match self.resolve(string_pool, embeddings, &citation)? {
                             Resolution::Found { item, confidence } => (item, confidence),
-                            Resolution::Missing => (
-                                self.impute_item(langterm, item),
-                                embeddings::SIMILARITY_THRESHOLD,
-                            ),
+                            Resolution::Missing => (self.impute_item(langterm, item), 0.0),
                         };
                     // Only use the first term in a multi-term desc line as
                     // the ancestor for any deeper-nested lines below it.
@@ -376,7 +360,7 @@ impl Items {
                     {
                         mode = EtyMode::MorphologicalDerivation;
                     }
-                    if confidence >= embeddings::SIMILARITY_THRESHOLD {
+                    {
                         self.graph
                             .add_ety(desc_item, mode, Some(0), &[parent], &[confidence]);
                     }

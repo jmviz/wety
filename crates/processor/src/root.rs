@@ -2,9 +2,9 @@ use std::{collections::BTreeMap, mem, str::FromStr};
 
 use crate::{
     HashMap,
-    embeddings::{self, Comparand, Embeddings, ItemEmbedding},
+    embeddings::{self, Embeddings},
     etymology::validate_ety_template_lang,
-    items::{Items, Retrieval},
+    items::Items,
     progress_bar,
     wiktextract_json::{
         WiktextractJson, WiktextractJsonItem, WiktextractJsonValidStr, clean_template_term,
@@ -177,11 +177,12 @@ fn process_json_root_category(
 
 impl Items {
     // The item a root names: by its sense id where that is some root entry's
-    // {{etymon}} id, else by gloss similarity among homographs.
+    // {{etymon}} id, else among homographs the one that best fits the item by
+    // meaning (embeddings::citation_score).
     fn find_root(
         &self,
         embeddings: &Embeddings,
-        embedding: &ItemEmbedding,
+        item: ItemId,
         root: &RawRoot,
     ) -> Result<Option<(ItemId, f32)>> {
         if let Some(sense_id) = &root.sense_id
@@ -189,7 +190,22 @@ impl Items {
         {
             return Ok(Some((root_item, 1.0)));
         }
-        self.get_disambiguated_item_id(embeddings, embedding, root.langterm)
+        let Some(candidates) = self.candidates(root.langterm) else {
+            return Ok(None);
+        };
+        if let [only] = candidates[..] {
+            return Ok(Some((only, 0.5)));
+        }
+        let embedding = embeddings.get(self.get(item), item)?;
+        let mut best: Option<(ItemId, f32)> = None;
+        for &candidate in candidates {
+            let candidate_embedding = embeddings.get(self.get(candidate), candidate)?;
+            let score = embeddings::citation_score(&embedding, &candidate_embedding, true, None);
+            if best.is_none_or(|(_, s)| score > s) {
+                best = Some((candidate, score));
+            }
+        }
+        Ok(best)
     }
 
     // Whether a root may be imputed as an item's ety: the item's language must
@@ -222,21 +238,13 @@ impl Items {
             if self.graph.immediate_ety(item_id).is_some() {
                 continue;
             }
-            let embedding = embeddings.get(self.get(item_id), item_id)?;
             let (mut root_items, mut confidences) = (vec![], vec![]);
             for root in roots {
-                let Retrieval {
-                    item_id: root_item,
-                    confidence,
-                } = match self.find_root(embeddings, &embedding, root)? {
-                    Some((item, confidence)) => Retrieval {
-                        item_id: item,
-                        confidence,
-                    },
-                    None => self.get_or_impute_item(embeddings, &embedding, item_id, root.langterm)?,
+                let (root_item, confidence) = match self.find_root(embeddings, item_id, root)? {
+                    Some(found) => found,
+                    None => (self.impute_item(root.langterm, item_id), 0.0),
                 };
                 if self.may_descend_from_root(item_id, root_item)
-                    && confidence >= embeddings::SIMILARITY_THRESHOLD
                     && !root_items.contains(&root_item)
                 {
                     root_items.push(root_item);
@@ -260,10 +268,9 @@ impl Items {
             let Some(head_progenitor) = progenitors.head else {
                 continue;
             };
-            let embedding = embeddings.get(self.get(item_id), item_id)?;
             let mut unreached = vec![];
             for root in roots {
-                if let Some((root_item, _)) = self.find_root(embeddings, &embedding, root)?
+                if let Some((root_item, _)) = self.find_root(embeddings, item_id, root)?
                     && !progenitors.items.contains(&root_item)
                     && head_progenitor != root_item
                     && self.may_descend_from_root(head_progenitor, root_item)
@@ -292,15 +299,15 @@ impl Items {
             }) else {
                 continue;
             };
-            let root_embedding = embeddings.get(self.get(root_item), root_item)?;
-            let progenitor_embedding = embeddings.get(self.get(progenitor), progenitor)?;
-            let similarity = progenitor_embedding.cosine_similarity(&root_embedding);
+            // a confidence from the share of the votes
+            let (votes, _) = roots[&root_item];
+            let total: f32 = roots.values().map(|(v, _)| v).sum();
             self.graph.add_ety(
                 progenitor,
                 EtyMode::Root,
                 Some(0u8),
                 &[root_item],
-                &[similarity.max(embeddings::SIMILARITY_THRESHOLD)],
+                &[votes / total],
             );
         }
         pb.finish();

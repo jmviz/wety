@@ -1,6 +1,6 @@
 use crate::{
     descendants::RawDescendants,
-    embeddings::{self, Embeddings, ItemEmbedding},
+    embeddings::{self, Embeddings},
     etymology::RawEtymology,
     progress_bar,
     redirects::Redirects,
@@ -21,7 +21,7 @@ use wety_core::{
 use std::{collections::hash_map::Entry, mem, path::Path};
 
 use anyhow::{Ok, Result};
-use simd_json::to_borrowed_value;
+use simd_json::{ValueAccess, to_borrowed_value};
 
 #[derive(Default)]
 pub(crate) struct RawTemplates {
@@ -39,7 +39,14 @@ type Ids = HashMap<(LangTerm, Box<str>), ItemId>;
 // cited langterm -> the page title Wiktionary links it to, where different,
 // e.g. la mātrīx -> matrix
 pub(crate) type EntryNames = HashMap<LangTerm, Term>;
+// wiktextract line -> the item it is (a part of speech) of
 type Lines = HashMap<usize, ItemId>;
+
+#[derive(Default)]
+pub(crate) struct EmbeddingNeeds {
+    pub(crate) items: HashSet<ItemId>,
+    pub(crate) texts: HashSet<Box<str>>,
+}
 
 pub(crate) struct Items {
     pub(crate) graph: EtyGraph,
@@ -305,75 +312,9 @@ impl Items {
         })
     }
 
-    pub(crate) fn get_max_similarity_candidate(
-        &self,
-        embeddings: &Embeddings,
-        embedding_comp: &impl embeddings::Comparand<ItemEmbedding>,
-        candidates: &[ItemId],
-    ) -> Result<Option<(ItemId, f32)>> {
-        let mut max_similarity = 0f32;
-        let mut best_candidate = 0usize;
-        for (i, &candidate) in candidates.iter().enumerate() {
-            let candidate_embedding = embeddings.get(self.get(candidate), candidate)?;
-            let similarity = embedding_comp.cosine_similarity(&candidate_embedding);
-            let old_max_similarity = max_similarity;
-            max_similarity = max_similarity.max(similarity);
-            if max_similarity > old_max_similarity {
-                best_candidate = i;
-            }
-        }
-        if max_similarity >= embeddings::SIMILARITY_THRESHOLD {
-            return Ok(Some((candidates[best_candidate], max_similarity)));
-        }
-        Ok(None)
-    }
-
-    pub(crate) fn get_disambiguated_item_id(
-        &self,
-        embeddings: &Embeddings,
-        embedding_comp: &impl embeddings::Comparand<ItemEmbedding>,
-        langterm: LangTerm,
-    ) -> Result<Option<(ItemId, f32)>> {
-        match self.candidates(langterm) {
-            Some(candidates) => {
-                self.get_max_similarity_candidate(embeddings, embedding_comp, candidates)
-            }
-            None => Ok(None),
-        }
-    }
-}
-
-pub(crate) struct Retrieval {
-    pub(crate) item_id: ItemId,
-    pub(crate) confidence: f32,
-    // pub(crate) is_newly_imputed: bool,
 }
 
 impl Items {
-    pub(crate) fn get_or_impute_item(
-        &mut self,
-        embeddings: &Embeddings,
-        embedding_comp: &impl embeddings::Comparand<ItemEmbedding>,
-        from_item: ItemId,
-        langterm: LangTerm,
-    ) -> Result<Retrieval> {
-        if let Some((item_id, confidence)) =
-            self.get_disambiguated_item_id(embeddings, embedding_comp, langterm)?
-        {
-            return Ok(Retrieval {
-                item_id,
-                confidence,
-                // is_newly_imputed: false,
-            });
-        }
-        let item_id = self.impute_item(langterm, from_item);
-        Ok(Retrieval {
-            item_id,
-            confidence: embeddings::SIMILARITY_THRESHOLD,
-            // is_newly_imputed: true,
-        })
-    }
-
     // The imputed item standing for a cited term missing from the data,
     // shared by all citations of its page title.
     pub(crate) fn impute_item(&mut self, langterm: LangTerm, from_item: ItemId) -> ItemId {
@@ -412,43 +353,32 @@ impl Items {
     // inflections of a main item, which have no raw_* and are extremely
     // unlikely to appear in any other item's raw_*. Our method will thus
     // disclude all these.
-    fn get_items_needing_embedding(&self, item_id: ItemId) -> HashSet<ItemId> {
-        let mut items_needing_embedding = HashSet::default();
+    // What a citation of this item's needs embedded: where a cited term has
+    // several candidates, the citing item, the candidates and any gloss the
+    // citation gives for the term. Single candidates are taken without
+    // comparison.
+    fn get_embedding_needs(&self, item_id: ItemId, needs: &mut EmbeddingNeeds) {
         if let Some(raw_etymology) = self.raw_templates.ety.get(&item_id) {
-            items_needing_embedding
-                .extend(self.get_ety_items_needing_embedding(item_id, raw_etymology));
+            self.get_ety_embedding_needs(item_id, raw_etymology, needs);
         }
         if let Some(raw_descendants) = self.raw_templates.desc.get(&item_id) {
-            items_needing_embedding
+            needs
+                .items
                 .extend(self.get_desc_items_needing_embedding(item_id, raw_descendants));
         }
         for raw_root in self.raw_templates.root.get(&item_id).into_iter().flatten() {
             if let Some(root_items) = self.candidates(raw_root.langterm)
                 && root_items.len() > 1
             {
-                items_needing_embedding.insert(item_id);
-                items_needing_embedding.extend(root_items);
+                needs.items.insert(item_id);
+                needs.items.extend(root_items);
             }
         }
-        items_needing_embedding
     }
 
-    fn get_all_items_needing_embedding(&self) -> Result<HashSet<ItemId>> {
-        let pb = progress_bar(self.len(), "Determining which items need embeddings")?;
-        let mut items_needing_embedding = HashSet::default();
-        for (item_id, _) in self.iter() {
-            let items_to_embed = self.get_items_needing_embedding(item_id);
-            for &item_to_embed in &items_to_embed {
-                items_needing_embedding.insert(item_to_embed);
-            }
-            pb.inc(1);
-        }
-        pb.finish();
-        Ok(items_needing_embedding)
-    }
-
-    // We go through the wiktextract file again, generating embeddings for all
-    // ambiguous terms we found the first time.
+    // We go through the wiktextract file again, embedding the texts of the
+    // items that need it (from all their parts of speech) and the citations'
+    // glosses.
     pub(crate) fn generate_embeddings(
         &self,
         string_pool: &StringPool,
@@ -456,27 +386,58 @@ impl Items {
         embeddings_config: &embeddings::Config,
     ) -> Result<Embeddings> {
         let mut embeddings = Embeddings::new(embeddings_config)?;
-        let mut added = 0;
-        let items_needing_embedding = self.get_all_items_needing_embedding()?;
-        let pb = progress_bar(items_needing_embedding.len(), "Generating embeddings")?;
-        let update_interval = embeddings_config.batch_size;
-        pb.inc(0);
+        let mut needs = EmbeddingNeeds::default();
+        let pb = progress_bar(self.len(), "Determining which items need embeddings")?;
+        for (item_id, _) in self.iter() {
+            self.get_embedding_needs(item_id, &mut needs);
+            pb.inc(1);
+        }
+        pb.finish();
+        println!(
+            "  Embedding {} items and {} citation glosses.",
+            needs.items.len(),
+            needs.texts.len()
+        );
+        // each item's etymology text and glosses, from all its lines
+        let mut texts: HashMap<ItemId, (Option<String>, Vec<String>)> = HashMap::default();
         for (line_number, mut line) in wiktextract_lines(wiktextract_path)?.enumerate() {
-            // Items were only inserted into the line map if they were added to
-            // the term_map in process_json_item.
             if let Some(&item_id) = self.lines.get(&line_number)
-                && items_needing_embedding.contains(&item_id)
+                && needs.items.contains(&item_id)
             {
                 let json_item = to_borrowed_value(&mut line)?;
-                let item = self.get(item_id);
-                let lang_name = item.lang().name();
-                let term = item.term().resolve(string_pool);
-                embeddings.add(&json_item, lang_name, term, item_id)?;
-                added += 1;
-                if added % update_interval == 0 {
-                    pb.inc(update_interval as u64);
+                let (ety, glosses) = texts.entry(item_id).or_default();
+                if ety.is_none() {
+                    *ety = json_item
+                        .get_str("etymology_text")
+                        .filter(|t| !t.is_empty())
+                        .map(str::to_owned);
                 }
+                glosses.extend(
+                    json_item
+                        .get_array("senses")
+                        .into_iter()
+                        .flatten()
+                        .filter_map(|sense| sense.get_array("glosses")?.first()?.as_str())
+                        .filter(|gloss| !gloss.is_empty())
+                        .map(str::to_owned),
+                );
             }
+        }
+        let mut items: Vec<_> = texts.into_iter().collect();
+        items.sort_unstable_by_key(|(item_id, _)| *item_id);
+        let pb = progress_bar(items.len() + needs.texts.len(), "Generating embeddings")?;
+        for (item_id, (ety, glosses)) in items {
+            let item = self.get(item_id);
+            let lang_name = item.lang().name();
+            let term = item.term().resolve(string_pool);
+            embeddings.add(item_id, lang_name, term, ety.as_deref(), &glosses)?;
+            pb.inc(1);
+        }
+        let mut glosses: Vec<_> = needs.texts.into_iter().collect();
+        glosses.sort_unstable();
+        for gloss in glosses {
+            embeddings.add_text(&gloss)?;
+            pb.inc(1);
         }
         embeddings.flush()?;
         pb.finish();

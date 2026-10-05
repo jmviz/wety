@@ -21,7 +21,7 @@ xxhash-rust = {version="0.8.6", features=["xxh3"]}
 phf = {version = "0.10", features = ["macros"]}
 csv = "1.2.2"
 hf-hub = "0.3.2"
-tokenizers = { version = "0.15.0", default-features = false, features = ["onig"] }
+tokenizers = { version = "0.22.2", default-features = false, features = ["onig"] }
 candle-core = { version = "0.11.0"}
 candle-transformers = { version = "0.11.0"}
 candle-nn = { version = "0.11.0"}

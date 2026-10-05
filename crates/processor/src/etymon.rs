@@ -18,10 +18,10 @@
 //! just as we take the first classic template.
 
 use crate::{
-    etymology::{ParsedRawEtyTemplate, RawEtyTemplate, affixation_kind},
+    etymology::{ParsedRawEtyTemplate, Part, RawEtyTemplate, affixation_kind},
     wiktextract_json::{
         Affix, WiktextractJson, WiktextractJsonValidStr, affix_by_hyphens, affix_type,
-        clean_template_term, modifier, split_lang_prefix, split_modifiers,
+        clean_template_term, modifier, parse_pos, split_lang_prefix, split_modifiers,
     },
 };
 use wety_core::{etymology_templates::EtyMode, languages::Lang, string_pool::StringPool};
@@ -150,6 +150,7 @@ pub(crate) struct Etymon<'a> {
     pub(crate) term: Option<&'a str>,
     pub(crate) id: Option<&'a str>,
     gloss: Option<&'a str>,
+    pos: Option<&'a str>,
     aftype: Option<&'a str>,
     ety: Option<&'a str>,
 }
@@ -171,9 +172,20 @@ pub(crate) fn parse_etymon(param: &str, context_lang: Lang) -> Option<Etymon<'_>
             .map(|id| id.trim_start_matches('!'))
             .filter(|id| !id.is_empty()),
         gloss: modifier(&modifiers, "t").filter(|t| !t.is_empty()),
+        pos: modifier(&modifiers, "pos"),
         aftype: modifier(&modifiers, "aftype"),
         ety: modifier(&modifiers, "ety").filter(|ety| !ety.is_empty()),
     })
+}
+
+impl Etymon<'_> {
+    fn part(&self) -> Part {
+        Part {
+            id: self.id.map(Box::from),
+            gloss: self.gloss.map(Box::from),
+            pos: self.pos.and_then(parse_pos),
+        }
+    }
 }
 
 fn affix_kind(etymon: &Etymon, term: &str) -> Affix {
@@ -189,8 +201,7 @@ fn components_template(
     mode: Option<EtyMode>,
 ) -> Option<RawEtyTemplate> {
     let mut langterms = Vec::with_capacity(etymons.len());
-    let mut ids = Vec::with_capacity(etymons.len());
-    let mut glosses = Vec::with_capacity(etymons.len());
+    let mut parts = Vec::with_capacity(etymons.len());
     let mut affixes = Vec::with_capacity(etymons.len());
     let mut head = 0;
     let mut n_base_terms = 0;
@@ -203,13 +214,11 @@ fn components_template(
         }
         affixes.push(affix);
         langterms.push(etymon.lang.new_langterm(string_pool, term));
-        ids.push(etymon.id.map(Box::from));
-        glosses.push(etymon.gloss.map(Box::from));
+        parts.push(etymon.part());
     }
     (!langterms.is_empty()).then(|| RawEtyTemplate {
         langterms: langterms.into_boxed_slice(),
-        ids: ids.into_boxed_slice(),
-        glosses: glosses.into_boxed_slice(),
+        parts: parts.into_boxed_slice(),
         continues: false,
         refine_mode: mode.is_none(),
         affixes: affixes.clone().into_boxed_slice(),
@@ -252,8 +261,7 @@ fn parse_params(
         let parsed = match keyword {
             Keyword::Single(mode) => etymons[0].term.map(|term| RawEtyTemplate {
                 langterms: Box::new([etymons[0].lang.new_langterm(string_pool, term)]),
-                ids: Box::new([etymons[0].id.map(Box::from)]),
-                glosses: Box::new([etymons[0].gloss.map(Box::from)]),
+                parts: Box::new([etymons[0].part()]),
                 continues: false,
                 affixes: Box::default(),
                 refine_mode: false,
@@ -331,12 +339,12 @@ mod tests {
                     t.head,
                     t.langterms
                         .iter()
-                        .zip(t.ids.iter())
-                        .map(|(lt, id)| {
+                        .zip(t.parts.iter())
+                        .map(|(lt, part)| {
                             (
                                 lt.lang.code().to_owned(),
                                 lt.term.resolve(&string_pool).to_owned(),
-                                id.as_deref().map(str::to_owned),
+                                part.id.as_deref().map(str::to_owned),
                             )
                         })
                         .collect(),

@@ -27,8 +27,10 @@
       "{input_wiktextract}",
       "--serialization-path",
       "{output}/wety.json.gz",
+      "--embeddings-model",
+      "ibm-granite/granite-embedding-small-english-r2",
       "--embeddings-model-revision",
-      "7b92c94edb86f18b2d52ed2797de0c5d474632ae",
+      "2ab6fa8ea2d674564defd37171ae19079b864b33",
       "--embeddings-cache-path",
       "{repo}/data/cache/embeddings/current"
     ]
