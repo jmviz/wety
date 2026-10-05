@@ -8,12 +8,10 @@ use crate::{
 
 use std::collections::VecDeque;
 
-use anyhow::{Ok, Result};
 use itertools::{Itertools, izip};
 use petgraph::{
     Direction,
-    algo::greedy_feedback_arc_set,
-    stable_graph::{EdgeIndex, EdgeReference, StableDiGraph},
+    stable_graph::{EdgeReference, StableDiGraph},
     visit::{EdgeRef, IntoNodeReferences},
 };
 use serde::{Deserialize, Serialize};
@@ -133,34 +131,75 @@ impl EtyGraph {
         })
     }
 
-    /// # Errors
-    ///
-    /// Returns an error if cycle-detection internals fail unexpectedly.
-    pub fn remove_cycles(&mut self) -> Result<()> {
-        print!("  Checking for ety link feedback arc set... ");
-        let fas: Vec<EdgeIndex> = greedy_feedback_arc_set(&self.graph)
-            .map(|e| e.id())
-            .collect();
-        if fas.is_empty() {
-            println!("Found none.");
-        } else {
-            println!("Found set of size {}. Removing.", fas.len());
-            for edge in fas {
-                if let Some((source, _)) = self.graph.edge_endpoints(edge) {
-                    // We take not only the edges forming the fas, but all edges
-                    // that share the same source of any of the fas edges (recall:
-                    // the edge source is a child and the edge target is an
-                    // etymological parent). This is to ensure there are no
-                    // degenerate etys in the graph once we remove the edges.
-                    let edges_from_source: Vec<EdgeIndex> =
-                        self.graph.edges(source).map(|e| e.id()).collect();
-                    for e in edges_from_source {
-                        self.graph.remove_edge(e);
+    /// Break every cycle at its weakest link: in each cycle, remove the ety of
+    /// the member that `weakness` ranks greatest. Returns the number of etys
+    /// removed.
+    pub fn break_cycles<K: Ord>(&mut self, weakness: impl Fn(&Self, ItemId) -> K) -> usize {
+        let mut removed = 0;
+        for scc in petgraph::algo::tarjan_scc(&self.graph) {
+            if scc.len() == 1 && !self.graph.contains_edge(scc[0], scc[0]) {
+                continue;
+            }
+            let mut scc = scc;
+            scc.sort_unstable(); // a deterministic search order
+            let members: HashSet<ItemId> = scc.iter().copied().collect();
+            while let Some(cycle) = self.find_cycle(&scc, &members) {
+                let weakest = cycle
+                    .into_iter()
+                    .max_by_key(|&item| (weakness(self, item), item))
+                    .expect("a cycle has members");
+                self.remove_ety(weakest);
+                removed += 1;
+            }
+        }
+        removed
+    }
+
+    // A cycle among `members` (following edges from child to parent), as the
+    // list of its members, if there is one.
+    fn find_cycle(&self, order: &[ItemId], members: &HashSet<ItemId>) -> Option<Vec<ItemId>> {
+        #[derive(Clone, Copy, PartialEq)]
+        enum State {
+            OnPath,
+            Done,
+        }
+        let mut state: HashMap<ItemId, State> = HashMap::default();
+        for &start in order {
+            if state.contains_key(&start) {
+                continue;
+            }
+            // (item, its parents within members, next parent to visit)
+            let mut path: Vec<(ItemId, Vec<ItemId>, usize)> = vec![];
+            let parents = |item: ItemId| -> Vec<ItemId> {
+                self.graph
+                    .edges(item)
+                    .map(|e| e.target())
+                    .filter(|p| members.contains(p))
+                    .collect()
+            };
+            state.insert(start, State::OnPath);
+            path.push((start, parents(start), 0));
+            while let Some((item, item_parents, next)) = path.last_mut() {
+                if let Some(&parent) = item_parents.get(*next) {
+                    *next += 1;
+                    match state.get(&parent) {
+                        Some(State::OnPath) => {
+                            let from = path.iter().position(|(i, _, _)| *i == parent)?;
+                            return Some(path[from..].iter().map(|(i, _, _)| *i).collect());
+                        }
+                        Some(State::Done) => {}
+                        None => {
+                            state.insert(parent, State::OnPath);
+                            path.push((parent, parents(parent), 0));
+                        }
                     }
+                } else {
+                    state.insert(*item, State::Done);
+                    path.pop();
                 }
             }
         }
-        Ok(())
+        None
     }
 
     /// Remove an item's ety (its edges to its parents).
@@ -403,5 +442,41 @@ impl EtyGraph {
         self.ancestor_edges(item)
             .filter(|e| langs.contains(&self.item(e.parent()).lang()))
             .map(|e| e.parent())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{items::ImputedItem, langterm::Term, languages::Lang, string_pool::StringPool};
+    use std::str::FromStr;
+
+    #[test]
+    fn cycles_break_at_their_weakest_link() {
+        let mut sp = StringPool::new();
+        let mut graph = EtyGraph::default();
+        let lang = Lang::from_str("en").unwrap();
+        let mut add = |graph: &mut EtyGraph, term: &str| {
+            graph.add(Item::Imputed(ImputedItem {
+                ety_num: 1,
+                lang,
+                term: Term::new(&mut sp, term),
+                romanization: None,
+                from: ItemId::from(0),
+            }))
+        };
+        let [a, b, c, d] = ["a", "b", "c", "d"].map(|t| add(&mut graph, t));
+        // a -> b -> c -> a, and c -> d outside the cycle
+        graph.add_ety(a, EtyMode::Inherited, Some(0), &[b], &[0.9]);
+        graph.add_ety(b, EtyMode::Inherited, Some(0), &[c], &[0.2]);
+        graph.add_ety(c, EtyMode::Compound, None, &[a, d], &[0.9, 0.9]);
+        // lower confidence is weaker
+        let removed = graph.break_cycles(|g, item| {
+            let confidence = g.graph.edges(item).map(|e| e.confidence()).fold(1.0, f32::min);
+            std::cmp::Reverse((confidence * 100.0) as u32)
+        });
+        assert_eq!(removed, 1);
+        assert!(graph.immediate_ety(b).is_none());
+        assert!(graph.immediate_ety(a).is_some() && graph.immediate_ety(c).is_some());
     }
 }

@@ -684,6 +684,7 @@ impl Items {
             self.graph.remove_ety(item);
         }
         self.graph.add_ety(item, mode, head, ety_items, confidences);
+        self.own_ety.insert(item);
         true
     }
 

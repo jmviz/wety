@@ -9,7 +9,8 @@ use crate::{
     HashMap, HashSet,
 };
 use wety_core::{
-    ety_graph::EtyGraph,
+    ety_graph::{EtyEdgeAccess, EtyGraph},
+    etymology_templates::EtyMode,
     items::{ImputedItem, Item, ItemId, RealItem},
     langterm::{LangTerm, Term},
     languages::Lang,
@@ -48,6 +49,10 @@ pub(crate) struct Items {
     // the data. As on Wiktionary, where all citations of a term link to the
     // same (missing) page, all citations share it.
     pub(crate) imputed_titles: HashMap<LangTerm, ItemId>,
+    // items whose ety comes from their own etymology section (or, for an
+    // imputed item, that of an item citing it), as opposed to another page's
+    // Descendants list or a root imputation
+    pub(crate) own_ety: HashSet<ItemId>,
     pub(crate) redirects: Redirects,
     pub(crate) raw_templates: RawTemplates,
     pub(crate) lines: Lines,
@@ -64,6 +69,7 @@ impl Items {
             etymon_ids: EtymonIds::default(),
             entry_names: EntryNames::default(),
             imputed_titles: HashMap::default(),
+            own_ety: HashSet::default(),
             redirects: Redirects::default(),
             raw_templates: RawTemplates::default(),
             lines: Lines::default(),
@@ -468,12 +474,39 @@ impl Items {
 
     pub(crate) fn generate_ety_graph(&mut self, embeddings: &Embeddings) -> Result<()> {
         self.process_raw_descendants(embeddings)?;
-        self.graph.remove_cycles()?;
+        self.break_cycles();
         self.process_raw_etymologies(embeddings)?;
-        self.graph.remove_cycles()?;
+        self.break_cycles();
         self.impute_root_etys(embeddings)?;
-        self.graph.remove_cycles()?;
+        self.break_cycles();
         Ok(())
+    }
+
+    // Break each cycle at its weakest ety: weakest a root imputation, then a
+    // link from another page's Descendants list, then a mention or form-of
+    // link, then an item's own etymology; among equals, the least confident.
+    fn break_cycles(&mut self) {
+        let own_ety = &self.own_ety;
+        let removed = self.graph.break_cycles(|graph, item| {
+            let Some(ety) = graph.immediate_ety(item) else {
+                return (0, 0);
+            };
+            let rank = match ety.mode {
+                EtyMode::Root => 3,
+                _ if !own_ety.contains(&item) => 2,
+                EtyMode::Form | EtyMode::Mention => 1,
+                _ => 0,
+            };
+            let confidence = graph
+                .graph
+                .edges(item)
+                .map(|e| e.confidence())
+                .fold(1.0f32, f32::min);
+            #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+            let weakness = ((1.0 - confidence.clamp(-1.0, 1.0)) * 1000.0) as u32;
+            (rank, weakness)
+        });
+        println!("  Broke cycles by removing {removed} etys.");
     }
 }
 
