@@ -138,6 +138,18 @@ impl Items {
         self.mentions.ety.get(&item).map_or(&[], |m| m)
     }
 
+    // The terms an item is said to come from: those its etymology names and
+    // its parents so far (e.g. an imputed item's, given by a citing chain).
+    fn source_keys(&self, item: ItemId) -> Vec<LangTerm> {
+        let mut keys = self.ety_mentions(item).to_vec();
+        if let Some(ety) = self.graph.immediate_ety(item) {
+            for parent in ety.items {
+                keys.extend(self.item_keys(parent));
+            }
+        }
+        keys
+    }
+
     // Whether the etymologies of the items `from` may name lead to `to`
     // within `depth` steps.
     fn reaches(&self, from: LangTerm, to: LangTerm, depth: usize) -> bool {
@@ -176,9 +188,8 @@ impl Items {
     // language of `expected`, all of them existing and unrelated to it.
     fn contradicts(&self, candidate: ItemId, expected: LangTerm) -> bool {
         let same_lang: Vec<LangTerm> = self
-            .ety_mentions(candidate)
-            .iter()
-            .copied()
+            .source_keys(candidate)
+            .into_iter()
             .filter(|m| m.lang == expected.lang)
             .collect();
         !same_lang.is_empty()
@@ -203,14 +214,14 @@ impl Items {
                         .is_some_and(|desc| desc.iter().any(|k| citer_keys.contains(k)))
                     || next.is_some_and(|next| {
                         let next = self.key(next);
-                        self.ety_mentions(candidate)
-                            .iter()
-                            .any(|&m| self.related(m, next))
+                        self.source_keys(candidate)
+                            .into_iter()
+                            .any(|m| self.related(m, next))
                     })
             }
             Relation::Child => {
                 linked(candidate, citation.citer)
-                    || self.ety_mentions(candidate).iter().any(|&m| {
+                    || self.source_keys(candidate).into_iter().any(|m| {
                         citer_keys
                             .iter()
                             .any(|&k| m == k || self.reaches(m, k, DEPTH))
@@ -273,9 +284,19 @@ impl Items {
                 confidence: 1.0,
             });
         }
-        let Some(candidates) = self.candidates(citation.langterm) else {
+        let Some(real) = self.candidates(citation.langterm) else {
             return Ok(Resolution::Missing);
         };
+        // A term found missing for an earlier citation (though homographs
+        // exist) is a candidate too.
+        let mut candidates = real.clone();
+        if let Some(&imputed) = self.imputed_titles.get(&LangTerm::new(
+            citation.langterm.lang,
+            self.key(citation.langterm).term,
+        )) {
+            candidates.push(imputed);
+        }
+        let candidates = &candidates;
         // A single candidate can only be rejected for an etymology citation
         // with a continuation to check it against.
         if candidates.len() == 1
@@ -312,7 +333,7 @@ impl Items {
                 .copied()
                 .filter(|&c| !self.contradicts(c, expected))
                 .collect(),
-            None => candidates.clone(),
+            None => candidates.to_vec(),
         };
         let pool = match (&citation.relation, open.is_empty()) {
             // every candidate is some other word: the one meant is missing
