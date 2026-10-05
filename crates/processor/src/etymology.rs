@@ -667,13 +667,22 @@ impl Items {
             };
             item_embeddings.push(embeddings.get(self.get(current_item), current_item)?);
             // What the etymology gives as a single parent's own source: the next
-            // template, if it is known to continue the chain or stays in the
-            // parent's line of descent (not e.g. "from French X or Spanish Y").
+            // template, if it is known to continue the chain, or if both are
+            // derived-kind ({{inh}}, {{bor}}, {{der}}, ...) and the next is in
+            // an earlier stage of the parent's line of descent ("from enm m,
+            // from ang o"; not "from French X or Spanish Y", nor parts of a
+            // word listed one by one).
+            let derived = |t: &RawEtyTemplate| t.mode.template_kind() == Some(TemplateKind::Derived);
             let next = match (&template.langterms[..], templates.get(i + 1)) {
                 ([parent], Some(ParsedRawEtyTemplate::Parsed(next))) => match &next.langterms[..] {
                     [source]
                         if next.continues
-                            || parent.lang.ety2non().descends_from(source.lang.ety2non()) =>
+                            || (derived(template)
+                                && derived(next)
+                                && parent
+                                    .lang
+                                    .ety2non()
+                                    .strictly_descends_from(source.lang.ety2non())) =>
                     {
                         Some(*source)
                     }
@@ -1229,6 +1238,15 @@ mod tests {
                 {"name": "der", "args": {"1": "en", "2": "ang", "3": "bearn"}}]"#);
             assert_eq!(t.parents(bairn), ["enm:bern?"]);
             assert_eq!(t.parents(t.parent(bairn)), ["ang:bearn"]);
+            // a part of a word is not checked against the next template
+            t.add("la", "re-");
+            t.add("la", "pullus");
+            let re = t.add("gl", "re-");
+            t.record(re, r#"[{"name": "inh", "args": {"1": "gl", "2": "la", "3": "re-"}}]"#);
+            let repolo = t.add("gl", "repolo");
+            t.process(repolo, r#"[{"name": "affix", "args": {"1": "gl", "2": "re-"}},
+                {"name": "inh", "args": {"1": "gl", "2": "la", "3": "pullus"}}]"#);
+            assert_eq!(t.parents(repolo), ["gl:re-"]);
             // a spelling variant of the source is not a contradiction
             let mut t = Setup::new("variant");
             let freo = t.add("ang", "frēo");

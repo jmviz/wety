@@ -378,7 +378,7 @@ impl Items {
                     citation.langterm.term.resolve(string_pool),
                     expected.map(|e| format!("{} {}", e.lang.code(), e.term.resolve(string_pool))),
                 );
-                if xxhash_rust::xxh3::xxh3_64(line.as_bytes()) % 200 == 0 {
+                if xxhash_rust::xxh3::xxh3_64(line.as_bytes()) % 20 == 0 {
                     self.resolution_stats.missing_sample.borrow_mut().push(line);
                 }
                 return Ok(Resolution::Missing);
