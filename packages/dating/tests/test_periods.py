@@ -195,7 +195,13 @@ class PeriodExportTests(unittest.TestCase):
         b = {
             "claims": [crown],
             "sources": SOURCES,
-            "view": {"ine-pro": {"name": "PIE", "kind": "reconstructed", "evidence_ids": []}},
+            "view": {
+                "ine-pro": {
+                    "name": "Proto-Indo-European",
+                    "kind": "reconstructed",
+                    "evidence_ids": [],
+                }
+            },
             "decisions": [
                 {
                     "subject_id": "wikt:ine-pro",
@@ -216,7 +222,10 @@ class PeriodExportTests(unittest.TestCase):
         del b["decisions"][0]["proto_mapping"]
         self.assertEqual(export_periods(b, "gen")["languages"], [])
         b["decisions"][0]["proto_mapping"] = "x"
+        # Wiktionary's kind does not decide it: Proto-Norse is filed as a regular code.
         b["view"]["ine-pro"]["kind"] = "regular"
+        self.assertEqual(len(export_periods(b, "gen")["languages"]), 1)
+        b["view"]["ine-pro"]["name"] = "Latin"
         self.assertEqual(export_periods(b, "gen")["languages"], [])
 
     def test_only_adopted_supported_exact_evidence_is_displayed(self):

@@ -23,7 +23,7 @@ from pathlib import Path
 from workflow_tools.paths import DATING_PRODUCT
 
 from .evidence import endpoint_bounds
-from .registry import decision_claim_error
+from .registry import decision_claim_error, is_proto_language
 from .time_interpretation import PERIOD_UNITS, period_bounds
 
 SCHEMA_VERSION = 1
@@ -226,7 +226,7 @@ def interval(claims):
 
 
 def period_record(code, claims, alternatives, view, sources):
-    reconstructed = view.get("kind") == "reconstructed"
+    reconstructed = view.get("kind") == "reconstructed" or is_proto_language(view)
     spoken = interval(claims)
     if spoken is None:
         return None
@@ -379,7 +379,7 @@ def export_periods(bundle, generation=None):
         if (
             not d["subject_id"].startswith("wikt:")
             or c["subject"]["mapping"] != "exact"
-            or decision_claim_error(d, c, view.get("kind"))
+            or decision_claim_error(d, c, view)
         ):
             continue
         if d["event"] == "crown_divergence":

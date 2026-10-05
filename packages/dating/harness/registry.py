@@ -512,19 +512,28 @@ def default_scope_error(claim, graph):
     return None
 
 
-def decision_claim_error(decision, claim, subject_kind):
+def is_proto_language(record):
+    """A proto-language is a reconstructed common ancestor, whether Wiktionary files it
+    as a reconstructed code (Proto-Germanic), an attested one (Proto-Norse, known from
+    runic inscriptions) or a variety (Proto-Romance). Wiktionary names them all
+    "Proto-…"; its `kind` only says how a code's entries are filed, and its family
+    data names attested ancestors such as Latin, whose end a crown age must not date."""
+    return (record or {}).get("name", "").startswith("Proto-")
+
+
+def decision_claim_error(decision, claim, subject):
     """Why `claim` cannot be the default for `decision`, or None.
 
     A decision selects a supported claim about its own subject and event, with one
-    exception: the end of a proto-language (a reconstructed code) may be the crown
+    exception: the end of a proto-language (`is_proto_language`) may be the crown
     age of a sampled clade, the split of its sampled descendants, when the decision
     says in `proto_mapping` why those taxa cover the family. The clade claim stays
     about the clade; the decision records the correspondence."""
     if claim["status"] != "supported":
         return "claim not supported"
     if decision["event"] == "crown_divergence":
-        if subject_kind != "reconstructed":
-            return "a crown age can date only a proto-language (reconstructed) code"
+        if not is_proto_language(subject):
+            return "a crown age can date only a proto-language (a code named Proto-…)"
         if (
             claim["event"] != "crown_divergence"
             or claim["subject"]["type"] != "sampled_clade"
@@ -603,8 +612,8 @@ def build_bundle():
                 claims, sources, g.wikt.get(d.subject_id.removeprefix("wikt:")), d.subject_id
             ):
                 raise ValueError("stale decision: the subject's evidence or mapping changed")
-            kind = (g.wikt.get(d.subject_id.removeprefix("wikt:")) or {}).get("kind")
-            if reason := decision_claim_error(d.model_dump(), c, kind):
+            subject = g.wikt.get(d.subject_id.removeprefix("wikt:"))
+            if reason := decision_claim_error(d.model_dump(), c, subject):
                 raise ValueError(reason)
             if reason := default_scope_error(c, research_graph):
                 raise ValueError(reason)

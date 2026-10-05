@@ -82,9 +82,9 @@ def decide_record(raw, bundle=None):
     c = by_id.get(decision.claim_id)
     if decision.evidence_digest != bundle_decision_digest(bundle, decision.subject_id):
         raise ValueError("stale decision digest; run decision-digest for the subject")
-    kind = (bundle["view"].get(decision.subject_id.removeprefix("wikt:")) or {}).get("kind")
-    if not c or decision_claim_error(decision.model_dump(), c, kind):
-        reason = decision_claim_error(decision.model_dump(), c, kind) if c else None
+    subject = bundle["view"].get(decision.subject_id.removeprefix("wikt:"))
+    if not c or decision_claim_error(decision.model_dump(), c, subject):
+        reason = decision_claim_error(decision.model_dump(), c, subject) if c else None
         raise ValueError(
             "claim not eligible for this subject and event" + (": " + reason if reason else "")
         )

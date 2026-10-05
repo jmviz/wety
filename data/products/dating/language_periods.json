@@ -2881,7 +2881,7 @@
       "subject_id": "heggarty2023_main_m3:clade:fef8d007b0a4d3f6"
     }
   ],
-  "generation": "0c766cf804784d673313a5a7ccd7406eaa62de61cdf1425e2341991e046ecb9b",
+  "generation": "b3db229ba05ddf07ab6eaa184d3f5187ddf637a0c16204ed0fe47bcda012135b",
   "languages": [
     {
       "alternatives": [],
@@ -3588,6 +3588,36 @@
           "earliest": 1037,
           "latest": 1037
         }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "bat-pro",
+      "evidence": [
+        {
+          "citation": "Language trees with sampled ancestors support a hybrid model for the origin of Indo-European languages",
+          "claim_id": "ev_tree_432e4945f6099847e2ed6585890ba444b503d1eb975e877ed02dd26679f404be",
+          "event": "crown_divergence",
+          "locator": null,
+          "node": "MRCA(Latgalian, Latvian, Lithuanian, OldPrussian)",
+          "proto_mapping": "The clade contains Old Prussian (West Baltic) and Lithuanian, Latvian and Latgalian (East Baltic). Posterior support 0.999.",
+          "quote": null,
+          "role": "posterior",
+          "source": "Paul Heggarty et al. 2023",
+          "url": "http://urn.kb.se/resolve?urn=urn:nbn:se:su:diva-220000"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 1485 BCE/474 CE",
+      "name": "Proto-Baltic",
+      "spoken": {
+        "end": {
+          "earliest": -1484,
+          "latest": 474
+        },
+        "ongoing": false,
+        "start": null
       }
     },
     {
@@ -4612,6 +4642,66 @@
       }
     },
     {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "gmq-pro",
+      "evidence": [
+        {
+          "citation": "Language trees with sampled ancestors support a hybrid model for the origin of Indo-European languages",
+          "claim_id": "ev_tree_8e50f6b476ce7cf8a54dc7d11323559cdecdc7a1b63a1dbfe1f48dae223e7049",
+          "event": "crown_divergence",
+          "locator": null,
+          "node": "MRCA(Danish, Elfdalian, Faroese, Icelandic, NorwegianBokmal, NorwegianNynorsk, OldIcelandic, OldSwedish, Swedish)",
+          "proto_mapping": "The clade contains Old Icelandic, Faroese and Norwegian (West Norse) and Old Swedish, Swedish, Danish and Elfdalian (East Norse). Proto-Norse is attested in runic inscriptions; its end is the East–West Norse split. Old Gutnish is not sampled.",
+          "quote": null,
+          "role": "posterior",
+          "source": "Paul Heggarty et al. 2023",
+          "url": "http://urn.kb.se/resolve?urn=urn:nbn:se:su:diva-220000"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 474/950 CE",
+      "name": "Proto-Norse",
+      "spoken": {
+        "end": {
+          "earliest": 474,
+          "latest": 950
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "gmw-pro",
+      "evidence": [
+        {
+          "citation": "Language trees with sampled ancestors support a hybrid model for the origin of Indo-European languages",
+          "claim_id": "ev_tree_b27e995ea96365b298f8333eca5d57150b2396d215a2c9504377759b1600430c",
+          "event": "crown_divergence",
+          "locator": null,
+          "node": "MRCA(Dutch, English, Flemish, Frisian, German, GermanBernese, Luxembourgish, MiddleDutch, MiddleHighGerman, OldEnglish, OldFrisian, OldHighGerman, OldSaxon)",
+          "proto_mapping": "The clade contains Old English, Old Frisian, Old Saxon, Old High German, Middle Dutch and their modern descendants: Anglo-Frisian and continental West Germanic.",
+          "quote": null,
+          "role": "posterior",
+          "source": "Paul Heggarty et al. 2023",
+          "url": "http://urn.kb.se/resolve?urn=urn:nbn:se:su:diva-220000"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 35 BCE/528 CE",
+      "name": "Proto-West Germanic",
+      "spoken": {
+        "end": {
+          "earliest": -34,
+          "latest": 528
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
       "alternatives": [
         {
           "basis": "attested",
@@ -5105,6 +5195,36 @@
       "kind": "proto",
       "label": "until c. 3035/532 BCE",
       "name": "Proto-Balto-Slavic",
+      "span": {
+        "components": [
+          {
+            "basis": "estimated",
+            "code": "ine-bsl-pro",
+            "label": "until c. 3035/532 BCE",
+            "name": "Proto-Balto-Slavic",
+            "own": true
+          },
+          {
+            "basis": "estimated",
+            "code": "bat-pro",
+            "label": "until c. 1485 BCE/474 CE",
+            "name": "Proto-Baltic",
+            "own": false
+          }
+        ],
+        "end": {
+          "earliest": -1484,
+          "latest": 474
+        },
+        "label": "until 1485 BCE/474 CE",
+        "ongoing": false,
+        "partial": true,
+        "start": null,
+        "undated": [
+          "bat-dni",
+          "bat-gol"
+        ]
+      },
       "spoken": {
         "end": {
           "earliest": -3034,
@@ -5538,6 +5658,13 @@
             "label": "c. 200–600 CE",
             "name": "Late Latin",
             "own": false
+          },
+          {
+            "basis": "estimated",
+            "code": "roa-pro",
+            "label": "until c. 248 BCE/527 CE",
+            "name": "Proto-Romance",
+            "own": false
           }
         ],
         "end": {
@@ -5561,8 +5688,7 @@
           "la-med",
           "la-new",
           "la-ren",
-          "la-vul",
-          "roa-pro"
+          "la-vul"
         ]
       },
       "spoken": {
@@ -6478,6 +6604,36 @@
           "earliest": -1599,
           "latest": -1500
         }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "roa-pro",
+      "evidence": [
+        {
+          "citation": "Language trees with sampled ancestors support a hybrid model for the origin of Indo-European languages",
+          "claim_id": "ev_tree_9ce02fa2d82451a04edc24fa4012927e503d9775865000f57873ee5106705059",
+          "event": "crown_divergence",
+          "locator": null,
+          "node": "MRCA(AngloNorman, Catalan, DalmatianVegliote, FrancoProvencal, French, Friulian, Italian, Ladin, MeglenoRomanian, Milanese, Neapolitan, OldCatalan, OldOccitan, OldSpanish, Portuguese, PortugueseBrazilian, Romanian, SardinianLogudoro, SardinianNuoro, Spanish, Walloon)",
+          "proto_mapping": "The clade contains the Romance languages without Latin: Sardinian, Romanian and Megleno-Romanian, Dalmatian, and the Italo-Western languages, so its crown is the breakup of their common ancestor, Proto-Romance (filed as a variety of Latin; the crown does not date Latin).",
+          "quote": null,
+          "role": "posterior",
+          "source": "Paul Heggarty et al. 2023",
+          "url": "http://urn.kb.se/resolve?urn=urn:nbn:se:su:diva-220000"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 248 BCE/527 CE",
+      "name": "Proto-Romance",
+      "spoken": {
+        "end": {
+          "earliest": -247,
+          "latest": 527
+        },
+        "ongoing": false,
+        "start": null
       }
     },
     {

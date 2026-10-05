@@ -4,7 +4,7 @@
 
 Packet: `data/workspaces/dating/_research/packets/indo-european-2026-09-20`.
 
-**Shown in wety (2026-10-04).** Under the crown-age rule (dating rules 2), ten proto
+**Shown in wety (2026-10-04).** Under the crown-age rule (dating rules 2), 14 proto
 codes end at a clade age from Heggarty et al. 2023's main analysis M3 (deposited MCC
 tree, reproduced by hash; epoch 2000 CE as the article states, now set in the
 `heggarty2023_main_m3` manifest, which makes its 160 clade claims supported). Each
@@ -20,14 +20,19 @@ decision's `proto_mapping` says why the sampled taxa cover the branch; 95% HPD s
 | `itc-pro` | Latin/Romance + Oscan + Umbrian | 2287–772 BCE |
 | `ine-toc-pro` | Tocharian A + B | 316 BCE – 505 CE |
 | `sqj-pro` | Gheg, Standard (Tosk), Arbëresh | 118–1532 CE |
+| `bat-pro` | Old Prussian + East Baltic | 1485 BCE – 474 CE |
+| `roa-pro` | Romance without Latin (Sardinian, Romanian, Dalmatian, Italo-Western) | 248 BCE – 527 CE |
+| `gmw-pro` | Old English, Old Frisian, Old Saxon, OHG and descendants | 35 BCE – 528 CE |
+| `gmq-pro` | West and East Norse (Old Gutnish unsampled) | 474–950 CE |
 | `gem-pro` | incl. Gothic (alternative; Koch 2020 shown) | 866 BCE – 69 CE |
 | `sla-pro` | East, West, South incl. OCS (alternative; Fortson shown) | 163–778 CE |
 
 Not adopted: Celtic (Celtiberian, probably the first split, is unsampled), Indo-Aryan
 (M3 nests Nuristani in it), Armenian (the crown is the modern dialect split), Greek
 (the crown, 1609–1218 BCE, is bounded by the Mycenaean tip, so it would end
-Proto-Greek after Mycenaean is attested), and Proto-West Germanic, Proto-Norse,
-Proto-Baltic and Proto-Romance (not reconstructed codes in Wiktionary). All clades
+Proto-Greek after Mycenaean is attested). A proto-language is any code Wiktionary
+names "Proto-…", whatever its `kind`: Proto-Norse is filed as attested, Proto-Baltic and
+Proto-Romance as varieties. All clades
 have support 1.0, which reflects M3's constraints. These are conditional on M3: SA8
 moves the root from 8629 to 4997 BP when Chang et al.'s data get eight ancestry
 constraints, and Chang et al. 2015 is not yet reviewed as an alternative.

@@ -18,9 +18,9 @@ in the `packages/dating` registry.
   rebuilds; language codes replace numeric IDs.
 - **Deployment:** pushing `main` deploys the server, then the website
   ([deploy/README.md](deploy/README.md)). Untested on the host.
-- **Dates:** 108 codes show a cited period (14 before this branch), e.g. Gothic, Old
+- **Dates:** 112 codes show a cited period (14 before this branch), e.g. Gothic, Old
   Norse, Old French, Sumerian, Old and Middle Japanese, Classical Latin; Vedic and
-  Avestan by composition; ten IE proto-languages end at Heggarty et al.'s crown ages
+  Avestan by composition; 14 IE proto-languages end at Heggarty et al.'s crown ages
   (PIE until 7614–4736 BCE). `dating period-targets` ranks 1,763 past-stage codes by tree use: 99
   dated, 988 undated ones appear in trees.
 
@@ -52,7 +52,7 @@ in the `packages/dating` registry.
 
 1. Maintainer: one-time deployment setup ([deploy/README.md](deploy/README.md)).
 2. Proto-language reviews: Chang et al. 2015 as an IE alternative; Sino-Tibetan and
-   Uralic (deposits reproduced) next; a rule for non-"reconstructed" proto codes.
+   Uralic (deposits reproduced) next.
 3. Supply the 16 filed requests (`holdings sync`), then the next batches from
    `period-targets` (Ottoman Turkish, Old East Slavic, Old Spanish, proto-languages).
 
