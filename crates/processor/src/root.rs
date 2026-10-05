@@ -185,7 +185,7 @@ impl Items {
         root: &RawRoot,
     ) -> Result<Option<(ItemId, f32)>> {
         if let Some(sense_id) = &root.sense_id
-            && let Some(root_item) = self.get_etymon_item(root.langterm, sense_id)
+            && let Some(root_item) = self.get_id_item(root.langterm, sense_id)
         {
             return Ok(Some((root_item, 1.0)));
         }

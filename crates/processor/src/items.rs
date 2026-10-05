@@ -31,8 +31,9 @@ pub(crate) struct RawTemplates {
 }
 
 type Dupes = HashMap<LangTerm, Vec<ItemId>>;
-// (langterm, {{etymon}} id) -> item, e.g. (enm moder, "mother")
-type EtymonIds = HashMap<(LangTerm, Box<str>), ItemId>;
+// (langterm, id) -> item, for the ids an item declares: its {{etymon}} id=,
+// {{etymid}} ids and sense ids, e.g. (enm moder, "mother")
+type Ids = HashMap<(LangTerm, Box<str>), ItemId>;
 // cited langterm -> the page title Wiktionary links it to, where different,
 // e.g. la mātrīx -> matrix
 pub(crate) type EntryNames = HashMap<LangTerm, Term>;
@@ -43,7 +44,7 @@ pub(crate) struct Items {
     pub(crate) dupes: Dupes,
     pub(crate) page_term_dupes: Dupes,
     pub(crate) imputed_dupes: Dupes,
-    pub(crate) etymon_ids: EtymonIds,
+    pub(crate) ids: Ids,
     pub(crate) entry_names: EntryNames,
     // (lang, page title) -> the imputed item standing for a term missing from
     // the data. As on Wiktionary, where all citations of a term link to the
@@ -53,6 +54,7 @@ pub(crate) struct Items {
     // imputed item, that of an item citing it), as opposed to another page's
     // Descendants list or a root imputation
     pub(crate) own_ety: HashSet<ItemId>,
+    pub(crate) mentions: crate::resolve::Mentions,
     pub(crate) redirects: Redirects,
     pub(crate) raw_templates: RawTemplates,
     pub(crate) lines: Lines,
@@ -66,10 +68,11 @@ impl Items {
             dupes: Dupes::default(),
             page_term_dupes: Dupes::default(),
             imputed_dupes: Dupes::default(),
-            etymon_ids: EtymonIds::default(),
+            ids: Ids::default(),
             entry_names: EntryNames::default(),
             imputed_titles: HashMap::default(),
             own_ety: HashSet::default(),
+            mentions: crate::resolve::Mentions::default(),
             redirects: Redirects::default(),
             raw_templates: RawTemplates::default(),
             lines: Lines::default(),
@@ -243,10 +246,10 @@ impl Items {
         }
     }
 
-    // Record the id that an item's {{etymon}} gives its etymology, under both
+    // Record an id that an item declares (see Ids), under both
     // its canonical and its page term. If two items claim the same id (a
     // Wiktionary error), the first is kept.
-    pub(crate) fn add_etymon_id(&mut self, item_id: ItemId, id: &str) {
+    pub(crate) fn add_id(&mut self, item_id: ItemId, id: &str) {
         let item = self.get(item_id);
         let lang = item.lang();
         let mut terms = vec![item.term()];
@@ -256,7 +259,7 @@ impl Items {
             terms.push(page_term);
         }
         for term in terms {
-            self.etymon_ids
+            self.ids
                 .entry((LangTerm::new(lang, term), Box::from(id)))
                 .or_insert(item_id);
         }
@@ -283,10 +286,10 @@ impl Items {
         .into_iter()
     }
 
-    // The item that an {{etymon}} reference "lang:term<id:...>" names.
-    pub(crate) fn get_etymon_item(&self, langterm: LangTerm, id: &str) -> Option<ItemId> {
+    // The item that a reference "lang:term<id:...>" (or id=) names.
+    pub(crate) fn get_id_item(&self, langterm: LangTerm, id: &str) -> Option<ItemId> {
         self.lookup_langterms(langterm)
-            .find_map(|lt| self.etymon_ids.get(&(lt, Box::from(id))).copied())
+            .find_map(|lt| self.ids.get(&(lt, Box::from(id))).copied())
     }
 
     // The items a cited langterm may name (several for homographs).
@@ -298,7 +301,7 @@ impl Items {
         })
     }
 
-    fn get_max_similarity_candidate(
+    pub(crate) fn get_max_similarity_candidate(
         &self,
         embeddings: &Embeddings,
         embedding_comp: &impl embeddings::Comparand<ItemEmbedding>,
@@ -359,32 +362,36 @@ impl Items {
                 // is_newly_imputed: false,
             });
         }
+        let item_id = self.impute_item(langterm, from_item);
+        Ok(Retrieval {
+            item_id,
+            confidence: embeddings::SIMILARITY_THRESHOLD,
+            // is_newly_imputed: true,
+        })
+    }
+
+    // The imputed item standing for a cited term missing from the data,
+    // shared by all citations of its page title.
+    pub(crate) fn impute_item(&mut self, langterm: LangTerm, from_item: ItemId) -> ItemId {
         let title = self
             .entry_names
             .get(&langterm)
             .copied()
             .unwrap_or(langterm.term);
         let key = LangTerm::new(langterm.lang, title);
-        let item_id = match self.imputed_titles.get(&key) {
-            Some(&item_id) => item_id,
-            None => {
-                let imputed = ImputedItem {
-                    ety_num: 1, // may get changed in add_imputed
-                    lang: langterm.lang,
-                    term: langterm.term,
-                    romanization: None, // $$ implement getting this from template
-                    from: from_item,
-                };
-                let item_id = self.add_imputed(imputed);
-                self.imputed_titles.insert(key, item_id);
-                item_id
-            }
+        if let Some(&item_id) = self.imputed_titles.get(&key) {
+            return item_id;
+        }
+        let imputed = ImputedItem {
+            ety_num: 1, // may get changed in add_imputed
+            lang: langterm.lang,
+            term: langterm.term,
+            romanization: None, // $$ implement getting this from template
+            from: from_item,
         };
-        Ok(Retrieval {
-            item_id,
-            confidence: embeddings::SIMILARITY_THRESHOLD,
-            // is_newly_imputed: true,
-        })
+        let item_id = self.add_imputed(imputed);
+        self.imputed_titles.insert(key, item_id);
+        item_id
     }
 
     // We determine that an item needs an embedding if it has any
@@ -472,10 +479,15 @@ impl Items {
         Ok(embeddings)
     }
 
-    pub(crate) fn generate_ety_graph(&mut self, embeddings: &Embeddings) -> Result<()> {
-        self.process_raw_descendants(embeddings)?;
+    pub(crate) fn generate_ety_graph(
+        &mut self,
+        string_pool: &StringPool,
+        embeddings: &Embeddings,
+    ) -> Result<()> {
+        self.index_mentions();
+        self.process_raw_descendants(string_pool, embeddings)?;
         self.break_cycles();
-        self.process_raw_etymologies(embeddings)?;
+        self.process_raw_etymologies(string_pool, embeddings)?;
         self.break_cycles();
         self.impute_root_etys(embeddings)?;
         self.break_cycles();

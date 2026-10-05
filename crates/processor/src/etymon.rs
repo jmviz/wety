@@ -149,6 +149,7 @@ pub(crate) struct Etymon<'a> {
     // None for an unknown ("", "+") or suppressed ("-") term
     pub(crate) term: Option<&'a str>,
     pub(crate) id: Option<&'a str>,
+    gloss: Option<&'a str>,
     aftype: Option<&'a str>,
     ety: Option<&'a str>,
 }
@@ -169,6 +170,7 @@ pub(crate) fn parse_etymon(param: &str, context_lang: Lang) -> Option<Etymon<'_>
         id: modifier(&modifiers, "id")
             .map(|id| id.trim_start_matches('!'))
             .filter(|id| !id.is_empty()),
+        gloss: modifier(&modifiers, "t").filter(|t| !t.is_empty()),
         aftype: modifier(&modifiers, "aftype"),
         ety: modifier(&modifiers, "ety").filter(|ety| !ety.is_empty()),
     })
@@ -188,6 +190,7 @@ fn components_template(
 ) -> Option<RawEtyTemplate> {
     let mut langterms = Vec::with_capacity(etymons.len());
     let mut ids = Vec::with_capacity(etymons.len());
+    let mut glosses = Vec::with_capacity(etymons.len());
     let mut affixes = Vec::with_capacity(etymons.len());
     let mut head = 0;
     let mut n_base_terms = 0;
@@ -201,10 +204,12 @@ fn components_template(
         affixes.push(affix);
         langterms.push(etymon.lang.new_langterm(string_pool, term));
         ids.push(etymon.id.map(Box::from));
+        glosses.push(etymon.gloss.map(Box::from));
     }
     (!langterms.is_empty()).then(|| RawEtyTemplate {
         langterms: langterms.into_boxed_slice(),
         ids: ids.into_boxed_slice(),
+        glosses: glosses.into_boxed_slice(),
         continues: false,
         refine_mode: mode.is_none(),
         affixes: affixes.clone().into_boxed_slice(),
@@ -248,6 +253,7 @@ fn parse_params(
             Keyword::Single(mode) => etymons[0].term.map(|term| RawEtyTemplate {
                 langterms: Box::new([etymons[0].lang.new_langterm(string_pool, term)]),
                 ids: Box::new([etymons[0].id.map(Box::from)]),
+                glosses: Box::new([etymons[0].gloss.map(Box::from)]),
                 continues: false,
                 affixes: Box::default(),
                 refine_mode: false,

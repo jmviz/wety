@@ -168,6 +168,9 @@ impl Items {
                 is_reconstructed: json_item.is_reconstructed(),
             };
             let (item_id, is_new_ety) = self.add_real(item);
+            for id in json_item.get_ids(lang) {
+                self.add_id(item_id, id);
+            }
             if is_new_ety { // a new item was added
                 // This means that the glosses embedding for a multi-pos item
                 // will be based on the glosses for whichever pos happens to
@@ -177,9 +180,6 @@ impl Items {
                 let raw_roots = json_item.get_roots(string_pool, lang);
                 if !raw_roots.is_empty() {
                     self.raw_templates.root.insert(item_id, raw_roots.into_boxed_slice());
-                }
-                if let Some(id) = json_item.get_etymon_id(lang) {
-                    self.add_etymon_id(item_id, id);
                 }
                 if let Some(raw_etymology) = json_item.get_etymology(string_pool, lang) {
                     self.raw_templates.ety.insert(item_id, raw_etymology);

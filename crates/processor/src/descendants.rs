@@ -1,7 +1,8 @@
 use crate::{
     HashSet,
     embeddings::{self, Embeddings, ItemEmbedding},
-    items::{Items, Retrieval},
+    items::Items,
+    resolve::{Citation, Relation, Resolution},
     progress_bar,
     wiktextract_json::{WiktextractJson, WiktextractJsonItem, WiktextractJsonValidStr},
 };
@@ -23,6 +24,20 @@ use simd_json::ValueAccess;
 #[derive(Hash, Eq, PartialEq, Debug)]
 pub(crate) struct RawDescendants {
     pub(crate) lines: Box<[RawDescLine]>,
+}
+
+impl RawDescendants {
+    // the langterms the section lists
+    pub(crate) fn langterms(&self) -> impl Iterator<Item = LangTerm> + '_ {
+        self.lines.iter().flat_map(|line| match &line.kind {
+            RawDescLineKind::Desc { desc } => desc
+                .terms
+                .iter()
+                .map(|&term| LangTerm::new(desc.lang, term))
+                .collect::<Vec<_>>(),
+            _ => vec![],
+        })
+    }
 }
 
 impl From<Vec<RawDescLine>> for RawDescendants {
@@ -263,7 +278,11 @@ impl Items {
         items_needing_embedding
     }
 
-    pub(crate) fn process_raw_descendants(&mut self, embeddings: &Embeddings) -> Result<()> {
+    pub(crate) fn process_raw_descendants(
+        &mut self,
+        string_pool: &StringPool,
+        embeddings: &Embeddings,
+    ) -> Result<()> {
         let n = self.raw_templates.desc.len();
         let pb = progress_bar(n, "Processing descendants")?;
         // in id order, so that the result does not depend on hash-map order
@@ -271,7 +290,7 @@ impl Items {
             mem::take(&mut self.raw_templates.desc).into_iter().collect();
         raw_templates_desc.sort_unstable_by_key(|(item_id, _)| *item_id);
         for (item_id, desc) in raw_templates_desc {
-            self.process_item_raw_descendants(embeddings, item_id, &desc)?;
+            self.process_item_raw_descendants(string_pool, embeddings, item_id, &desc)?;
             pb.inc(1);
         }
 
@@ -281,6 +300,7 @@ impl Items {
 
     pub(crate) fn process_item_raw_descendants(
         &mut self,
+        string_pool: &StringPool,
         embeddings: &Embeddings,
         item: ItemId,
         raw_descendants: &RawDescendants,
@@ -322,15 +342,22 @@ impl Items {
                         continue 'lines;
                     }
                     let langterm = LangTerm::new(desc.lang, term);
-                    let Retrieval {
-                        item_id: desc_item,
-                        confidence,
-                    } = self.get_or_impute_item(
-                        embeddings,
-                        &ancestors.embeddings(self, embeddings)?,
-                        item,
+                    let citation = Citation {
                         langterm,
-                    )?;
+                        id: None,
+                        gloss: None,
+                        citer: parent,
+                        relation: Relation::Child,
+                    };
+                    let comp = ancestors.embeddings(self, embeddings)?;
+                    let (desc_item, confidence) =
+                        match self.resolve(string_pool, embeddings, &comp, &citation)? {
+                            Resolution::Found { item, confidence } => (item, confidence),
+                            Resolution::Missing => (
+                                self.impute_item(langterm, item),
+                                embeddings::SIMILARITY_THRESHOLD,
+                            ),
+                        };
                     // Only use the first term in a multi-term desc line as
                     // the ancestor for any deeper-nested lines below it.
                     if i == 0 {
