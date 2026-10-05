@@ -473,6 +473,18 @@ impl WiktextractJsonItem<'_> {
         let templates = self.json.get_array("etymology_templates")?;
         let mut raw_ety_templates = Vec::with_capacity(templates.len());
         for template in templates {
+            // An etymology that opens as unknown or uncertain ({{unk}},
+            // {{unc}}) goes on to conjecture or compare ("Perhaps from ...",
+            // "Compare ..."): no template after it names the parent.
+            if template
+                .get_valid_str("name")
+                .is_some_and(|name| matches!(name, "unk" | "unknown" | "unc" | "uncertain"))
+                && !raw_ety_templates
+                    .iter()
+                    .any(|t| matches!(t, ParsedRawEtyTemplate::Parsed(_)))
+            {
+                break;
+            }
             if let Some(raw_ety_template) = process_json_ety_template(string_pool, template, lang) {
                 raw_ety_templates.push(ParsedRawEtyTemplate::Parsed(raw_ety_template));
             } else {
@@ -866,6 +878,25 @@ mod tests {
             ]}"#,
         );
         assert_eq!(got, [None, step(EtyMode::Inherited, "moder")]);
+    }
+
+    #[test]
+    fn unknown_origin_ends_the_etymology() {
+        let got = chain(
+            r#"{"etymology_templates": [
+                {"name": "unk", "args": {"1": "abs"}},
+                {"name": "bor", "args": {"1": "en", "2": "nl", "3": "smuilen"}}
+            ]}"#,
+        );
+        assert!(got.is_empty());
+        // but not when it qualifies a later part
+        let got = chain(
+            r#"{"etymology_templates": [
+                {"name": "inh", "args": {"1": "en", "2": "enm", "3": "foo"}},
+                {"name": "unk", "args": {"1": "en"}}
+            ]}"#,
+        );
+        assert_eq!(got, [step(EtyMode::Inherited, "foo"), None]);
     }
 
     fn parts(lang: &str, args: &str) -> Option<(EtyMode, Vec<String>)> {
