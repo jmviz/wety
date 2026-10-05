@@ -27,7 +27,10 @@ use crate::{
     etymology::ParsedRawEtyTemplate,
     items::Items,
 };
-use wety_core::{items::Item, items::ItemId, langterm::LangTerm, string_pool::StringPool};
+use wety_core::{
+    etymology_templates::EtyMode, items::Item, items::ItemId, langterm::LangTerm,
+    string_pool::StringPool,
+};
 
 use anyhow::{Ok, Result};
 
@@ -201,17 +204,61 @@ impl Items {
         })
     }
 
+    // A key and, where it names an inflected or alternative form, its lemma.
+    fn with_lemmas(&self, key: LangTerm) -> Vec<LangTerm> {
+        let mut keys = vec![key];
+        for &item in self.candidates(key).into_iter().flatten() {
+            if let Some(ety) = self.graph.immediate_ety(item)
+                && ety.mode == EtyMode::Form
+            {
+                for lemma in ety.items {
+                    keys.extend(self.item_keys(lemma));
+                }
+            }
+        }
+        keys
+    }
+
     // Whether two keys may name the same word or one comes from the other.
     fn related(&self, a: LangTerm, b: LangTerm) -> bool {
-        a == b
-            || self.candidates(a).zip(self.candidates(b)).is_some_and(|(x, y)| x.iter().any(|i| y.contains(i)))
-            || self.reaches(a, b, DEPTH)
-            || self.reaches(b, a, DEPTH)
+        let (a_keys, b_keys) = (self.with_lemmas(a), self.with_lemmas(b));
+        a_keys.iter().any(|&a| {
+            b_keys.iter().any(|&b| {
+                a == b
+                    || self
+                        .candidates(a)
+                        .zip(self.candidates(b))
+                        .is_some_and(|(x, y)| x.iter().any(|i| y.contains(i)))
+                    || self.reaches(a, b, DEPTH)
+                    || self.reaches(b, a, DEPTH)
+            })
+        })
+    }
+
+    // Whether the items two keys name share a gloss word, as spelling
+    // variants with separate entries do (e.g. Old English amānsumian and
+    // amænsumian, both "to excommunicate").
+    fn alike(&self, string_pool: &StringPool, a: LangTerm, b: LangTerm) -> bool {
+        let words = |key: LangTerm| {
+            gloss_words(
+                self.candidates(key)
+                    .into_iter()
+                    .flatten()
+                    .filter_map(|&item| match self.get(item) {
+                        Item::Real(real) => Some(real.gloss.iter()),
+                        Item::Imputed(_) => None,
+                    })
+                    .flatten()
+                    .flat_map(|g| g.words(string_pool)),
+            )
+        };
+        !words(a).is_disjoint(&words(b))
     }
 
     // A candidate contradicts the citation if its etymology names terms in the
-    // language of `expected`, all of them existing and unrelated to it.
-    fn contradicts(&self, candidate: ItemId, expected: LangTerm) -> bool {
+    // language of `expected`, all of them existing, unrelated to it and unlike
+    // it in meaning.
+    fn contradicts(&self, string_pool: &StringPool, candidate: ItemId, expected: LangTerm) -> bool {
         let same_lang: Vec<LangTerm> = self
             .source_keys(candidate)
             .into_iter()
@@ -220,7 +267,11 @@ impl Items {
         !same_lang.is_empty()
             && same_lang
                 .iter()
-                .all(|&m| self.candidates(m).is_some() && !self.related(m, expected))
+                .all(|&m| {
+                    self.candidates(m).is_some()
+                        && !self.related(m, expected)
+                        && !self.alike(string_pool, m, expected)
+                })
     }
 
     fn agrees(&self, candidate: ItemId, citation: &Citation, citer_keys: &[LangTerm]) -> bool {
@@ -360,7 +411,7 @@ impl Items {
             Some(expected) => candidates
                 .iter()
                 .copied()
-                .filter(|&c| !self.contradicts(c, expected))
+                .filter(|&c| !self.contradicts(string_pool, c, expected))
                 .collect(),
             None => candidates.to_vec(),
         };

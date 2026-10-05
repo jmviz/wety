@@ -1238,6 +1238,15 @@ mod tests {
                 {"name": "der", "args": {"1": "en", "2": "ang", "3": "bearn"}}]"#);
             assert_eq!(t.parents(bairn), ["enm:bern?"]);
             assert_eq!(t.parents(t.parent(bairn)), ["ang:bearn"]);
+            // nor is one alike in meaning (a variant with its own entry)
+            t.add_glossed("ang", "amǣnsumian", "to excommunicate");
+            t.add_glossed("ang", "amānsumian", "to excommunicate");
+            let amansen = t.add("enm", "amansen");
+            t.record(amansen, r#"[{"name": "inh", "args": {"1": "enm", "2": "ang", "3": "amānsumian"}}]"#);
+            let amanse = t.add("en", "amanse");
+            t.process(amanse, r#"[{"name": "inh", "args": {"1": "en", "2": "enm", "3": "amansen"}},
+                {"name": "inh", "args": {"1": "en", "2": "ang", "3": "amǣnsumian"}}]"#);
+            assert_eq!(t.parent(amanse), amansen);
             // a part of a word is not checked against the next template
             t.add("la", "re-");
             t.add("la", "pullus");
