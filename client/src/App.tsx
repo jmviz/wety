@@ -1,11 +1,12 @@
 import SearchBox from "./search/SearchBox";
 import ViewBar from "./search/ViewBar";
 import { HomographBar, Unresolved } from "./search/Homographs";
-import { TreeKind } from "./search/types";
+import { TreeKind, term } from "./search/types";
+import { useGoTo } from "./search/navigate";
 import OutlineTree from "./ety/OutlineTree";
 import ChartTree from "./ety/ChartTree";
 import NodePopover from "./ety/NodePopover";
-import { forest, lastRequest, loadFromPath } from "./state";
+import { clearView, forest, lastRequest, loadFromPath, tree } from "./state";
 
 import { Show, createEffect, on } from "solid-js";
 import { Link, useLocation, useRouter } from "@tanstack/solid-router";
@@ -21,7 +22,7 @@ export default function App() {
     on(
       () => location().pathname + location().searchStr,
       (path) => {
-        if (path === "/") return;
+        if (path === "/") return clearView();
         // Adopt the word's canonical URL (current language code, displayed
         // term) without adding a history entry.
         loadFromPath(path).then((canonical) => {
@@ -56,7 +57,9 @@ export default function App() {
       <main>
         <Show when={forest()} keyed>
           {(f) =>
-            f.kind === TreeKind.Etymology ? (
+            f.roots.length === 0 ? (
+              <EmptyTree />
+            ) : f.kind === TreeKind.Etymology ? (
               <ChartTree forest={f} />
             ) : (
               <OutlineTree forest={f} />
@@ -70,5 +73,31 @@ export default function App() {
       </main>
       <NodePopover />
     </>
+  );
+}
+
+// A tree with nothing to draw: cognates of a word with no recorded ancestor
+// (the server finds none), or filters that hide every word.
+function EmptyTree() {
+  const goTo = useGoTo();
+  const request = lastRequest()!;
+  const t = tree();
+  return (
+    <Show
+      when={Array.isArray(t) && t.length === 0}
+      fallback={<p class="empty">The filters hide every word in this tree.</p>}
+    >
+      <p class="empty">
+        wety knows no ancestor of <span class="term">{term(request.item)}</span>, so it has no
+        cognates to show.{" "}
+        <button
+          type="button"
+          class="link"
+          onClick={() => goTo(TreeKind.Descendants, request.item)}
+        >
+          Show its descendants
+        </button>
+      </p>
+    </Show>
   );
 }

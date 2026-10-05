@@ -100,7 +100,11 @@ export default function ViewBar() {
             </button>
           </nav>
           <Show when={panel() === "langs" && hasDescLangs()}>
-            <LangSetEditor value={selectedDescLangs()} onChange={applyDescLangs} />
+            <LangSetEditor
+              value={selectedDescLangs()}
+              own={r().item.lang}
+              onChange={applyDescLangs}
+            />
           </Show>
           <Show when={panel() === "filters"}>
             <FiltersPanel />
@@ -112,7 +116,7 @@ export default function ViewBar() {
 }
 
 // Chips for the descendant-language set plus a small language search.
-function LangSetEditor(props: { value: Lang[]; onChange: (v: Lang[]) => void }) {
+function LangSetEditor(props: { value: Lang[]; own: Lang; onChange: (v: Lang[]) => void }) {
   let inputEl!: HTMLInputElement;
   const [text, setText] = createSignal("");
   const [found, setFound] = createSignal<Lang[]>([]);
@@ -144,14 +148,17 @@ function LangSetEditor(props: { value: Lang[]; onChange: (v: Lang[]) => void }) 
           {(lang) => (
             <span class="chip removable">
               {lang.name}
-              <button
-                type="button"
-                class="chip-remove"
-                aria-label={`remove ${lang.name}`}
-                onClick={() => remove(lang)}
-              >
-                ×
-              </button>
+              {/* The word's own language is always included. */}
+              <Show when={lang.id !== props.own.id}>
+                <button
+                  type="button"
+                  class="chip-remove"
+                  aria-label={`remove ${lang.name}`}
+                  onClick={() => remove(lang)}
+                >
+                  ×
+                </button>
+              </Show>
             </span>
           )}
         </For>

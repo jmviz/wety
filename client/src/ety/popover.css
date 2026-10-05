@@ -218,6 +218,16 @@
   color: #7d746a;
 }
 
+.popover-period a.period-source {
+  color: inherit;
+  text-decoration: underline dotted #b3aba1;
+  text-underline-offset: 0.18em;
+}
+
+.popover-period a.period-source:hover {
+  text-decoration-color: currentColor;
+}
+
 .popover-period .period-cites {
   margin: 0.2em 0 0;
   padding-left: 1.1em;

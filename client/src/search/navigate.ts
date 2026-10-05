@@ -21,6 +21,11 @@ export function useGoTo() {
     setSelectedLang(item.lang);
     setSelectedItem(item);
     setSelectedTreeKind(kind);
-    router.history.push(wordHref(kind, item, withOwnLang(descLangs, item.lang)));
+    const href = wordHref(kind, item, withOwnLang(descLangs, item.lang));
+    // Already there (e.g. the set lost only the word's own language, which
+    // comes straight back): no duplicate history entry.
+    const here = router.history.location;
+    if (here.pathname + here.search === href) return;
+    router.history.push(href);
   };
 }

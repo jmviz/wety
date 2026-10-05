@@ -40,6 +40,11 @@ in the `packages/dating` registry.
 - Deleted the pushed `dating-pilot` and `reorg-baseline` branches, which carried the
   pilot's research data.
 
+## Client fixes (`claude/client-ui-ux-review-3d08c7`, on `processor-review`)
+
+Filters no longer blank the tree; wide charts open centred on the word; home clears
+the last word; empty cognates explain themselves; wrapped rows align.
+
 ## Uncertainties
 
 - Reviews are model reviews (Sol or Astra research, Claude review).

@@ -7,6 +7,7 @@ import {
   setSelectedLang,
   selectedItem,
   selectedTreeKind,
+  unresolved,
   debounce,
 } from "../state";
 
@@ -58,11 +59,18 @@ export default function SearchBox() {
     ];
   };
 
+  // The word the URL names: the loaded one, or the term of a link that names
+  // no single word; nothing at home.
+  const shownTerm = () => {
+    const it = selectedItem();
+    return it ? term(it) : unresolved()?.link.term ?? "";
+  };
+
   // Show the current word when a tree is loaded from a URL.
   createEffect(
-    on(selectedItem, (it) => {
-      if (it && document.activeElement !== inputEl) {
-        setText(term(it));
+    on([selectedItem, unresolved], () => {
+      if (document.activeElement !== inputEl) {
+        setText(shownTerm());
         setEditingLang(false);
       }
     })
@@ -160,7 +168,7 @@ export default function SearchBox() {
       case "Escape":
         if (editingLang()) {
           setEditingLang(false);
-          setText(selectedItem() ? term(selectedItem()!) : "");
+          setText(shownTerm());
         }
         setOpen(false);
         break;
@@ -252,8 +260,7 @@ export default function SearchBox() {
                   "opt-item": opt.kind === "item",
                   "opt-lang": opt.kind === "lang",
                   "group-start":
-                    opt.kind === "lang" &&
-                    (i() === 0 || options()[i() - 1].kind === "item"),
+                    opt.kind === "lang" && i() > 0 && options()[i() - 1].kind === "item",
                 }}
                 onPointerEnter={() => setActive(i())}
                 onPointerDown={(e) => e.preventDefault()}

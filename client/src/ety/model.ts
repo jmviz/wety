@@ -116,17 +116,27 @@ function rawFromEtymology(e: Etymology): RawNode {
 
 // Drop edges whose mode is disabled (the whole subtree goes with them, as
 // before) and splice out nodes in hidden languages, hoisting their children.
-function applyFilters(nodes: RawNode[], filters: TreeFilters): RawNode[] {
+// An outline node's mode is the edge from its tree parent; a root's is the
+// edge to parents outside the tree, so it never drops the root. A chart
+// node's mode is the edge to its sources, which are its children.
+function applyFilters(
+  nodes: RawNode[],
+  filters: TreeFilters,
+  kind: TreeKind,
+  roots = true
+): RawNode[] {
+  const disabled = (n: RawNode) => n.etyMode !== null && filters.disabledEtyModes.has(n.etyMode);
   const out: RawNode[] = [];
   for (const n of nodes) {
-    if (n.etyMode && filters.disabledEtyModes.has(n.etyMode)) continue;
+    if (kind !== TreeKind.Etymology && !roots && disabled(n)) continue;
+    const children = kind === TreeKind.Etymology && disabled(n) ? [] : n.children;
     if (filters.hiddenLangs.has(n.item.lang.id)) {
-      for (const c of applyFilters(n.children, filters)) {
+      for (const c of applyFilters(children, filters, kind, false)) {
         c.hoisted = true;
         out.push(c);
       }
     } else {
-      n.children = applyFilters(n.children, filters);
+      n.children = applyFilters(children, filters, kind, false);
       out.push(n);
     }
   }
@@ -156,7 +166,8 @@ export function buildForest(
     Array.isArray(tree)
       ? tree.map(rawFromDescendants)
       : [rawFromEtymology(tree)],
-    filters
+    filters,
+    kind
   );
 
   const byKey = new Map<number, TreeNode>();

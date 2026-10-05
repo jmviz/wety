@@ -5,7 +5,7 @@ import { langColor } from "./langColor";
 import { etyModeRep } from "./etyMode";
 import { hoverEnter, hoverLeave, pin } from "./popover";
 
-import { For, Show } from "solid-js";
+import { For, Show, onMount } from "solid-js";
 
 interface ChartTreeProps {
   forest: Forest;
@@ -23,6 +23,18 @@ export default function ChartTree(props: ChartTreeProps) {
     const node = props.forest.byKey.get(Number(label.dataset.key));
     return node ? [node, label] : null;
   };
+
+  // A chart wider than the screen would open at its left edge; centre the
+  // searched word (the top of the chart) instead.
+  onMount(() => {
+    requestAnimationFrame(() => {
+      const box = rootEl.querySelector<HTMLElement>(".chart-node.selected > .chart-box");
+      if (!box || rootEl.scrollWidth <= rootEl.clientWidth) return;
+      const view = rootEl.getBoundingClientRect();
+      const r = box.getBoundingClientRect();
+      rootEl.scrollLeft += r.left + r.width / 2 - (view.left + view.width / 2);
+    });
+  });
 
   return (
     <div class="tree-view">

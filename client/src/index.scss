@@ -321,6 +321,11 @@ main {
   line-height: 1.55;
 }
 
+// The word's own language has no remove button.
+.chip.removable:not(:has(.chip-remove)) {
+  padding-right: 0.6em;
+}
+
 .chip-remove {
   all: unset;
   cursor: pointer;
@@ -487,6 +492,17 @@ main {
 
 .choose li {
   margin: 0.5rem 0;
+}
+
+.choose .lang {
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.03em;
+}
+
+.choose .term,
+.empty .term {
+  font-weight: bold;
+  font-style: normal;
 }
 
 .choose a {

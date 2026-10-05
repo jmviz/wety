@@ -283,6 +283,22 @@ function sameLangs(a: Lang[], b: Lang[]): boolean {
 
 const treeCache = new Map<string, Etymology | Descendants[]>();
 
+// Each load (and each return home) supersedes the ones before it, so a slow
+// response for an earlier URL never replaces what the current one shows.
+let loadSeq = 0;
+
+// The home page: no word, no tree.
+export function clearView() {
+  loadSeq++;
+  batch(() => {
+    setTree(null);
+    setLastRequest(null);
+    setUnresolved(null);
+    setHomographs([]);
+    setSelectedItem(null);
+  });
+}
+
 // Load the view a URL names. Returns the word's canonical URL (current code,
 // displayed term, ordered languages) when `path` names it differently, for
 // the caller to adopt.
@@ -290,10 +306,10 @@ export async function loadFromPath(path: string): Promise<string | null> {
   const link = parseWordHref(path);
   if (!link) return null;
   // Never let a caller's tracking scope see the signal reads below.
-  return untrack(() => loadLink(link));
+  return untrack(() => loadLink(link, ++loadSeq));
 }
 
-async function loadLink(link: WordLink): Promise<string | null> {
+async function loadLink(link: WordLink, seq: number): Promise<string | null> {
   let resolved: Resolved;
   try {
     resolved = await resolveLink(link);
@@ -301,6 +317,7 @@ async function loadLink(link: WordLink): Promise<string | null> {
     console.log(error);
     return null;
   }
+  if (seq !== loadSeq) return null;
   graph = resolved.graph;
   const item = resolved.item;
   if (!item) {
@@ -309,6 +326,7 @@ async function loadLink(link: WordLink): Promise<string | null> {
       setLastRequest(null);
       setHomographs(resolved.homographs);
       setUnresolved({ link, reason: resolved.homographs.length ? "ambiguous" : "missing" });
+      setSelectedItem(null);
       if (resolved.homographs[0]) setSelectedLang(resolved.homographs[0].lang);
       setSelectedTreeKind(link.kind);
     });
@@ -337,6 +355,7 @@ async function loadLink(link: WordLink): Promise<string | null> {
   }
 
   const descLangs = await resolveDescLangs(codes, treeResult);
+  if (seq !== loadSeq) return null;
   const result = treeResult;
   const request = new TreeRequest(item.lang, item, descLangs, link.kind);
   batch(() => {
