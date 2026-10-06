@@ -2,8 +2,8 @@
 
 *Updated 2026-10-06. Local `main` has `wiktionary-refresh`, `stable-links` and the
 server deployment automation merged; nothing pushed. Branch
-`claude/language-dating-period-9aa9ac` adds dating rules 2, eight period batches and
-crown ages from deposited trees.*
+`claude/language-dating-period-9aa9ac` adds dating rules 2, regional period batches and
+published proto-language estimates.*
 
 ## What the project promises
 
@@ -19,42 +19,41 @@ in the `packages/dating` registry.
   rebuilds; language codes replace numeric IDs.
 - **Deployment:** pushing `main` deploys the server, then the website
   ([deploy/README.md](deploy/README.md)). Untested on the host.
-- **Dates:** 182 codes show a cited period (14 before this branch). New: Old East
-  Slavic, Old Korean, Old Spanish, Ottoman Turkish (16th c. – 1928), Old and Middle
-  Georgian, Bactrian, Khotanese, Andalusi Arabic; Sirenik, Ubykh, Norn, Kamassian and
-  Akkala Sámi end with their last speakers. 37 proto-languages end at reproduced
-  crown ages, now also Dravidian, Turkic, Semitic, Japonic, Bantu, Pama-Nyungan,
-  Kra-Dai and Tai, Uto-Aztecan, Tupí-Guaraní ([families/](packages/dating/families/)).
-  Checked in the browser: labels, popover evidence, dated varieties and alternatives.
+- **Dates:** 274 codes show a cited period (14 before this branch); 93% of the tree
+  items in past-stage languages are dated. 103 proto-languages carry an estimated
+  end, each labeled with its method: 40 Bayesian phylogenies (deposited trees, or
+  article node ages with the sample listed), 52 ASJP family ages, 11 expert
+  estimates (e.g. Kallio's table of Uralic division dates). Checked in the browser.
 - **Sources:** holdings carry tables of contents, also as Zotero child notes tagged
-  `wety:contents`, so Zotero's search finds chapters for any project.
+  `wety:contents`.
 
 ## What changed
 
-- Ten analysis manifests from deposited trees; Koile 2022 as a Proto-Bantu
-  alternative. Calibrated nodes whose posteriors restate their priors are left out.
-  Summary nodes without heights yield no claim.
-- Labels round only years computed from an age; printed years stay as printed. A
-  statement imported by two runs is listed once.
-- 13 source requests filed in Zotero (e.g. Gray 2009, Bouckaert 2012 and 2018
-  supplements, Janhunen's Mongolic Languages, Vajda's Yeniseian, a Pāli handbook).
+- A published family age can date a proto-language; an article's Bayesian node age
+  becomes a claim about its sampled clade; the popover shows each estimate's method.
+- Regional batches: European stages, Coptic and Aramaic, East and Southeast Asia,
+  fragmentary ancient languages, the Americas, Australia and the Andamans.
+- Labels: printed years stay as printed; a lower-bound-only end prints "after"; one
+  dated record is not a start.
 
 ## Uncertainties
 
-- Reviews are model reviews (Astra researches, Claude reviews). Crown ends rest on
-  one analysis each; several nodes are bounded by the authors' calibrations (Bantu
-  4,000–5,000 B.P., Dravidian South I and North). Epochs: Turkic stated; Dravidian and
-  Japonic from their own calibrations (approved); the rest a labeled 1950 convention.
+- Reviews are model reviews (Astra researches, Claude reviews). ASJP points carry
+  large errors (Proto-Mayan c. 221 BCE); better-argued estimates replace them as
+  defaults when found. Epochs: stated, from a source's own calibrations (approved),
+  or a labeled 1950 convention.
+- Wide posteriors read oddly as bare intervals (Proto-Kartvelian until 16680 BCE/781 CE).
 - The server needs ~5 GB; ~380k entries' `{{ety}}`/`{{etymon}}` are not parsed.
 
 ## Next three actions
 
-1. Maintainer: one-time deployment setup ([deploy/README.md](deploy/README.md)).
-2. Supply the Zotero requests (`wety:needs-fulltext`), then `dating holdings sync`
-   and a batch on what they settle (Pali, Proto-Mongolic, Old Uyghur).
-3. Next undated targets need sources rather than runs: Sanskrit and Egyptian as
-   wholes, Vulgar and New Latin, Proto-Indo-Aryan, Proto-Hellenic.
+1. Review the running proto runs (phylogenies and lexicostatistics, second round;
+   Indo-European subgroups).
+2. Supply the Zotero requests (`wety:needs-fulltext`), then `dating holdings sync`.
+3. Maintainer: one-time deployment setup ([deploy/README.md](deploy/README.md)).
 
 ## Decisions needed from the maintainer
 
-- None.
+- Revived languages (Yurok, Mohegan, Dharug, Wathawurrung): end at the last native
+  speaker, or show that date only as an alternative?
+- Show a central value in proto labels ("until c. 5690 BCE, 95%: …")?
