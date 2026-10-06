@@ -73,6 +73,24 @@
       "subject_id": "wikt:urj-prm-pro"
     },
     {
+      "analysis": "sumbatova-pc-dargwa",
+      "claim_id": "ev_period_0c0d45621ab5926ee906161f811f3d89f6b7c90e",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Dargwa",
+      "role": "hypothesis",
+      "source": "Diana Forker 2020",
+      "subject_id": "wikt:cau-drg-pro"
+    },
+    {
       "analysis": "nagaraja2013-beast174-ctmc-strict",
       "claim_id": "ev_period_0fc84bc0b69d666e9bac74503a96b93da2f9c15e",
       "epoch": 1950,
@@ -1583,6 +1601,24 @@
       "role": "hypothesis",
       "source": "Eric W. Holman et al. 2011",
       "subject_id": "wikt:myn-pro"
+    },
+    {
+      "analysis": "nichols2003-expert-family-age",
+      "claim_id": "ev_period_a66b41139815a6c97a947bf4068039c979d917c1",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Northeast Caucasian",
+      "role": "hypothesis",
+      "source": "Johanna Nichols 2003",
+      "subject_id": "wikt:cau-nec-pro"
     },
     {
       "analysis": "kaufman-current-glottochronology",
@@ -36397,7 +36433,7 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:fff5df92fe6ca543"
     }
   ],
-  "generation": "5f17830f0c16e20e5502e1520f6ca8dbfb5666d8a880e2df980baf48e6bc2403",
+  "generation": "be3bf9eea5d037a1489f66006690e06fbf95fcc6051417e484d1364b5f0ff275",
   "languages": [
     {
       "alternatives": [],
@@ -38364,27 +38400,75 @@
     {
       "alternatives": [],
       "basis": "estimated",
-      "code": "cau-nec-pro",
+      "code": "cau-drg-pro",
       "evidence": [
         {
+          "citation": "Forker, Diana. 2020. A grammar of Sanzhi Dargwa. Languages of the Caucasus 2. Berlin: Language Science Press, p. 9. DOI: 10.5281/zenodo.3339225.",
+          "claim_id": "ev_period_0c0d45621ab5926ee906161f811f3d89f6b7c90e",
+          "event": "crown_divergence",
+          "locator": "{\"pdf_page\": 29, \"printed_page\": \"9\", \"section\": \"1.4\", \"text_hint\": \"The break-up of the\"}",
+          "method": "expert_estimate",
+          "quote": "The break-up of the\nProto-Dargwa language can be estimated to have occurred about two millennia ago\n(Sumbatova, p.c.).",
+          "role": "hypothesis",
+          "source": "Diana Forker 2020",
+          "url": "https://langsci-press.org/catalog/view/250/2031/1789-1"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 51 BCE",
+      "name": "Proto-Dargwa",
+      "spoken": {
+        "end": {
+          "earliest": -50,
+          "latest": -50
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [
+        {
+          "basis": "estimated",
           "citation": "Automated dating of the world's language families based on lexical similarity",
           "claim_id": "ev_period_d270317b6df11c55a3a792d04c27da82577fdae5",
+          "end": {
+            "earliest": -1907,
+            "latest": -1907
+          },
           "event": "crown_divergence",
+          "label": "until c. 1910 BCE",
           "locator": "{\"table\": \"Table 4\", \"row\": \"East Caucasian\", \"page\": 854, \"pdf_page\": 15, \"character_start\": 61177, \"character_end\": 61211, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
           "method": "lexicostatistic",
           "quote": "East Caucasian\n391\n7 (7)\n7.06\n3907",
           "role": "hypothesis",
           "source": "Eric W. Holman et al. 2011",
+          "start": null,
           "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
         }
       ],
+      "basis": "estimated",
+      "code": "cau-nec-pro",
+      "evidence": [
+        {
+          "citation": "Nichols, Johanna. 2003. A Bipartite Verb Stem Outlier in Eurasia: Nakh-Daghestanian. Proceedings of the 29th Annual Meeting of the Berkeley Linguistics Society, 321–334, p. 321. DOI: 10.3765/bls.v29i1.967.",
+          "claim_id": "ev_period_a66b41139815a6c97a947bf4068039c979d917c1",
+          "event": "crown_divergence",
+          "locator": "{\"pdf_page\": 2, \"printed_page\": \"321\", \"section\": \"1. Bipartite stems\", \"page_image_sha256\": \"6ae055c8582d4d868aead5b694f4eba6b151a4bb7e93b5f3a4cf19b5f85379ae\"}",
+          "method": "expert_estimate",
+          "quote": "A tree for the Nakh-Daghestanian (or East Caucasian) family, which is\nabout 8000 years old, is in (1).",
+          "role": "hypothesis",
+          "source": "Johanna Nichols 2003",
+          "url": "https://journals.linguisticsociety.org/proceedings/index.php/BLS/article/viewFile/967/747"
+        }
+      ],
       "kind": "proto",
-      "label": "until c. 1910 BCE",
+      "label": "until c. 6050 BCE",
       "name": "Proto-Northeast Caucasian",
       "spoken": {
         "end": {
-          "earliest": -1907,
-          "latest": -1907
+          "earliest": -6050,
+          "latest": -6050
         },
         "ongoing": false,
         "start": null
