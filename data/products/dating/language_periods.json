@@ -8461,7 +8461,7 @@
       "subject_id": "zhang2019_relaxed_covarion:clade:ff9f137507695c91"
     }
   ],
-  "generation": "44e4a948cb3b73095e5582d0ebbb363c2cac77f221cdbc3acebcafd58ce6bb49",
+  "generation": "694477bfbbafde69a5d3c497ed8deae2b3ea2783f17bd6036276bf3e6a2b58a3",
   "languages": [
     {
       "alternatives": [],
@@ -9525,6 +9525,37 @@
     {
       "alternatives": [],
       "basis": "conventional",
+      "code": "egy-mid",
+      "evidence": [
+        {
+          "citation": "Loprieno, Antonio. 1995. Ancient Egyptian: A Linguistic Introduction. Cambridge: Cambridge University Press. Supplied copy digitally printed 2004. https://doi.org/10.1017/CBO9780511611865.",
+          "claim_id": "ev_period_42d3504b8d9a0f00f4fea82345a57754c86c3a3a",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"5\", \"pdf_page\": 21}",
+          "quote": "Middle Egyptian, also termed Classical Egyptian, from the Middle\nKingdom to the end of Dyn. XVIII (2000-1300 BCE).",
+          "role": "convention",
+          "source": "Loprieno 1995",
+          "url": "https://doi.org/10.1017/cbo9780511611865"
+        }
+      ],
+      "kind": "stage",
+      "label": "2000–1300 BCE",
+      "name": "Middle Egyptian",
+      "spoken": {
+        "end": {
+          "earliest": -1299,
+          "latest": -1299
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": -1999,
+          "latest": -1999
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "conventional",
       "code": "egy-old",
       "evidence": [
         {
@@ -9770,6 +9801,37 @@
       }
     },
     {
+      "alternatives": [],
+      "basis": "attested",
+      "code": "emy",
+      "evidence": [
+        {
+          "citation": "Houston, Stephen, John Robertson, and David Stuart. 2000. “The Language of Classic Maya Inscriptions.” Current Anthropology 41(3): 321–356. https://doi.org/10.1086/300142.",
+          "claim_id": "ev_period_40e9985cdb34b40f9aa648a83a7144a291e03bcc",
+          "event": "documentary_sampling",
+          "locator": "{\"page\": \"321\", \"pdf_page\": 2}",
+          "quote": "Recent decipherments of Classic Maya hieroglyphs (ca. a.d. 250\nto 850) reveal phonological and morphological patterns that,\nthrough epigraphic and historical analyses, isolate a single, co-\nherent prestige language with unique and widespread features in\nscript. We term this language “Classic Ch’olti’an” and present\nthe evidence for its explicable historical conﬁguration and ances-\ntral afﬁliation with Eastern Ch’olan languages (Ch’olti’ and its\nstill-viable descendant, Ch’orti’).",
+          "role": "observation",
+          "source": "Houston et al. 2000",
+          "url": "https://doi.org/10.1086/300142"
+        }
+      ],
+      "kind": "attested",
+      "label": "c. 250–850 CE",
+      "name": "Epigraphic Mayan",
+      "spoken": {
+        "end": {
+          "earliest": 850,
+          "latest": 850
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 250,
+          "latest": 250
+        }
+      }
+    },
+    {
       "alternatives": [
         {
           "basis": "attested",
@@ -9885,6 +9947,37 @@
     {
       "alternatives": [],
       "basis": "conventional",
+      "code": "fa-cls",
+      "evidence": [
+        {
+          "citation": "Windfuhr, Gernot, and John R. Perry. 2009. “Persian and Tajik.” In Gernot Windfuhr (ed.), The Iranian Languages, 416–544. London and New York: Routledge.",
+          "claim_id": "ev_period_c0c276115f9a9d0e652c7be20ac941b98e191451",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"533\", \"pdf_page\": 608}",
+          "quote": "700-900 \n900-1 100 \nl lOQ.-1300 \n1300-1600 \n1600-1900 \n1900-present \nTransition from Middle Persian \nEarliest NP, Ghaznavids; Shahname of Ferdowsi of Tus \nENP, Mongols: in twelfth century: relative dialectal homogeneity \nand standardization, Persian international language in Eastern \nCaliphate \n\"Classical Persian\", Turko-Mongols to Safavids: considerable \nstandard reached; earlier features may occur in emulation of \n\"Classical\" style - thereafter slower shifts",
+          "role": "convention",
+          "source": "Windfuhr 2009",
+          "url": null
+        }
+      ],
+      "kind": "stage",
+      "label": "1300–1600 CE",
+      "name": "Classical Persian",
+      "spoken": {
+        "end": {
+          "earliest": 1600,
+          "latest": 1600
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 1300,
+          "latest": 1300
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "conventional",
       "code": "fa-ear",
       "evidence": [
         {
@@ -9914,28 +10007,49 @@
       }
     },
     {
-      "alternatives": [],
-      "basis": "conventional",
-      "code": "frm",
-      "evidence": [
+      "alternatives": [
         {
+          "basis": "conventional",
           "citation": "Regnault, Mathilde, Sophie Prévost, and Eric Villemonte de la Clergerie. 2019. “Challenges of language change and variation: towards an extended treebank of Medieval French.” In Proceedings of the 18th International Workshop on Treebanks and Linguistic Theories (TLT, SyntaxFest 2019), 144–150. Paris: Association for Computational Linguistics. doi:10.18653/v1/W19-7816.",
           "claim_id": "ev_period_1dae7be16d0e569d0d46a0150da3e8a1e7c16097",
+          "end": {
+            "earliest": 1401,
+            "latest": 1500
+          },
           "event": "conventional_period",
+          "label": "14th–15th century CE",
           "locator": "{\"page\": \"144 (publication pagination; individual PDF unnumbered)\", \"pdf_page\": 1}",
           "quote": "In particular, we want to add texts of Middle French, the next stage in the\nevolution of French (14th-15th c.), as well as new texts of Old French.",
           "role": "convention",
           "source": "Regnault et al. 2019",
+          "start": {
+            "earliest": 1301,
+            "latest": 1400
+          },
           "url": "https://aclanthology.org/W19-7816.pdf"
         }
       ],
+      "basis": "conventional",
+      "code": "frm",
+      "evidence": [
+        {
+          "citation": "Rickard, Peter. 1989. A History of the French Language. 2nd ed. London and New York: Routledge. Supplied Taylor & Francis e-Library edition, 2003.",
+          "claim_id": "ev_period_d01f2a072072b4d1a38625539db382ada85ea269",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"61\", \"pdf_page\": 74}",
+          "quote": "The dates and duration of the Mid.F. period are as arbitrary as\nthe term ‘Middle French’ itself. A consensus makes it begin in\nthe first half of the fourteenth century and end in the first half of\nthe seventeenth, on the grounds that by the early fourteenth\ncentury significant changes were beginning to manifest\nthemselves while others, already complete, were seriously\nundermining the system as it had operated previously, and on\nthe grounds that by the early seventeenth century we are already\nbeginning to find French which, in all its essentials, is strikingly\nmodern.",
+          "role": "convention",
+          "source": "Rickard 2003",
+          "url": null
+        }
+      ],
       "kind": "stage",
-      "label": "14th–15th century CE",
+      "label": "14th–17th century CE",
       "name": "Middle French",
       "spoken": {
         "end": {
-          "earliest": 1401,
-          "latest": 1500
+          "earliest": 1601,
+          "latest": 1700
         },
         "ongoing": false,
         "start": {
@@ -9945,7 +10059,25 @@
       }
     },
     {
-      "alternatives": [],
+      "alternatives": [
+        {
+          "basis": "attested",
+          "citation": "Rickard, Peter. 1989. A History of the French Language. 2nd ed. London and New York: Routledge. Supplied Taylor & Francis e-Library edition, 2003.",
+          "claim_id": "ev_period_48b3205ee837e391807c81c846cd68a79cc90723",
+          "end": null,
+          "event": "first_attestation",
+          "label": "from 842 CE",
+          "locator": "{\"page\": \"20\", \"pdf_page\": 33}",
+          "quote": "It was to cement this alliance that the two brothers and their\nfollowers took solemn oaths in Strasbourg on 14 February 842. The\ntexts of these oaths have come down to us, for they are quoted, in\nthe original romana lingua and theotisca lingua, in the middle of a\nLatin chronicle by Nithardus entitled The History of the sons of\nLouis the Pious. Nithardus was a contemporary of the events, but\nthe manuscript (Bibliothèque nationale lat. 9768, fol. 13) belongs to\nthe end of the tenth cenCury. As it was important that each army\nshould hear the form of words pronounced by the leader of the other\nin a language they could understand, Louis the German took the\noath in Romance, while Charles the Bald, normally Romance-\nspeaking, pronounced the German version of the oath. After the\nleaders had each taken the oath, their followers also took a different\noath, each in his own language, and we are given the text of this too,\nin Romance and in German.\nThe Romance text of the Strasbourg Oaths is the earliest document\nin the French language.",
+          "role": "observation",
+          "source": "Rickard 2003",
+          "start": {
+            "earliest": 842,
+            "latest": 842
+          },
+          "url": null
+        }
+      ],
       "basis": "conventional",
       "code": "fro",
       "evidence": [
@@ -10643,7 +10775,7 @@
           "claim_id": "ev_period_ee3e95601d2a1c5b5eec0955e7cc0d214f764cd7",
           "end": null,
           "event": "first_attestation",
-          "label": "from 1900/1701 BCE",
+          "label": "from 19th/18th century BCE",
           "locator": "{\"page\": \"6\", \"pdf_page\": 28}",
           "quote": "The speakers of Hittite were in place in Central Anatolia by the nineteenth–eighteenth\ncentury BC, since a few words of the language (notably iˇsh˘iul- “contract”) appear in Old\nAssyrian documents from the merchant colonies like K¯arum Kaneˇs, Hittite Neˇsaˇs, modern\nK¨ultepe.",
           "role": "observation",
@@ -11189,6 +11321,34 @@
       }
     },
     {
+      "alternatives": [],
+      "basis": "attested",
+      "code": "kaw",
+      "evidence": [
+        {
+          "citation": "Griffiths, Arlo, Titi Surti Nastiti, and Wayan Jarrah Sastrawan. 2025. “The earliest documents in Old Javanese.” Wacana, Journal of the Humanities of Indonesia 26(3): 333–343. https://doi.org/10.17510/wacana.v26i3.2102.",
+          "claim_id": "ev_period_2f78d43e4602dc8332c309061858e53960b5c030",
+          "event": "first_attestation",
+          "locator": "{\"page\": \"333\", \"pdf_page\": 2}",
+          "quote": "This short contribution presents two recently discovered inscriptions from Central Java \nthat are among the oldest documents in the Old Javanese language, namely a dated \nstone from Kesongo (685 Śaka/743 CE) and the Disunuh inscription (709 Śaka/787 \nCE).",
+          "role": "observation",
+          "source": "The earliest documents in Old Javanese 2025",
+          "url": "https://doi.org/10.17510/wacana.v26i3.2102"
+        }
+      ],
+      "kind": "attested",
+      "label": "from 787 CE",
+      "name": "Old Javanese",
+      "spoken": {
+        "end": null,
+        "ongoing": false,
+        "start": {
+          "earliest": 787,
+          "latest": 787
+        }
+      }
+    },
+    {
       "alternatives": [
         {
           "basis": "attested",
@@ -11280,6 +11440,13 @@
             "own": false
           },
           {
+            "basis": "conventional",
+            "code": "la-med",
+            "label": "c. 500–1500 CE",
+            "name": "Medieval Latin",
+            "own": false
+          },
+          {
             "basis": "estimated",
             "code": "roa-pro",
             "label": "until c. 248 BCE/527 CE",
@@ -11288,10 +11455,10 @@
           }
         ],
         "end": {
-          "earliest": 600,
-          "latest": 600
+          "earliest": 1500,
+          "latest": 1500
         },
-        "label": "c. 700/650 BCE – 600 CE",
+        "label": "c. 700/650 BCE – 1500 CE",
         "ongoing": false,
         "partial": true,
         "start": {
@@ -11305,7 +11472,6 @@
           "la-con",
           "la-ecc",
           "la-eme",
-          "la-med",
           "la-new",
           "la-ren",
           "la-vul"
@@ -11420,6 +11586,37 @@
         "start": {
           "earliest": 200,
           "latest": 200
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "conventional",
+      "code": "la-med",
+      "evidence": [
+        {
+          "citation": "Cardelle de Hartmann, Carmen, and Dario Binotto. 2023. “Medieval Latin.” Oxford Bibliographies in Classics. New York: Oxford University Press. ABSTRACT ONLY, supplied from maintainer’s Zotero abstract field. https://doi.org/10.1093/obo/9780195389661-0399.",
+          "claim_id": "ev_period_5e373531deebd7d8ded9d7bad1d4b62aaeea3fa7",
+          "event": "conventional_period",
+          "locator": "{\"start\": 64, \"end\": 344, \"section\": \"maintainer-supplied abstract, opening two sentences\"}",
+          "quote": "The term Medieval Latin refers to Latin from c. 500 until c. 1500 ce. In the first few centuries, Medieval Latin defines texts which contrive to follow the rules of formal literary language, in contrast to Vulgar Latin, which describes the non-formal registers of spoken language.",
+          "role": "convention",
+          "source": "Cardelle de Hartmann & Binotto 2023",
+          "url": "https://doi.org/10.1093/obo/9780195389661-0399"
+        }
+      ],
+      "kind": "stage",
+      "label": "c. 500–1500 CE",
+      "name": "Medieval Latin",
+      "spoken": {
+        "end": {
+          "earliest": 1500,
+          "latest": 1500
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 500,
+          "latest": 500
         }
       }
     },
@@ -12020,6 +12217,34 @@
       }
     },
     {
+      "alternatives": [],
+      "basis": "attested",
+      "code": "pal",
+      "evidence": [
+        {
+          "citation": "Windfuhr, Gernot, and John R. Perry. 2009. “Persian and Tajik.” In Gernot Windfuhr (ed.), The Iranian Languages, 416–544. London and New York: Routledge.",
+          "claim_id": "ev_period_6648401d78469039c3becf8ebca6782edc09b87b",
+          "event": "first_attestation",
+          "locator": "{\"page\": \"47\", \"pdf_page\": 122}",
+          "quote": "(sixth-fourth centuries) was already about to change to 'proto-Middle Persian', the pre­\ndecessor of Middle Persian as known from the first century BeE on, as we can see from the \nlate inscriptions, in which 'wrong' orthography, especially endings, are common (Skjcerv0 \n1999: 1 58-61).",
+          "role": "observation",
+          "source": "Windfuhr 2009",
+          "url": null
+        }
+      ],
+      "kind": "attested",
+      "label": "from 1st century BCE",
+      "name": "Middle Persian",
+      "spoken": {
+        "end": null,
+        "ongoing": false,
+        "start": {
+          "earliest": -99,
+          "latest": 0
+        }
+      }
+    },
+    {
       "alternatives": [
         {
           "basis": "attested",
@@ -12174,7 +12399,7 @@
         }
       ],
       "kind": "attested",
-      "label": "from 1000/801 BCE",
+      "label": "from 10th/9th century BCE",
       "name": "Phoenician",
       "spoken": {
         "end": null,
@@ -13155,6 +13380,63 @@
         {
           "basis": "attested",
           "citation": "Clackson, James & Geoffrey Horrocks. 2007. The Blackwell History of the Latin Language. Malden, MA and Oxford: Blackwell.",
+          "claim_id": "ev_period_b40342c0782e5421efc06ef36b205802b176a1f0",
+          "end": {
+            "earliest": -299,
+            "latest": -200
+          },
+          "event": "documentary_sampling",
+          "label": "7th–3rd century BCE",
+          "locator": "{\"page\": \"39\", \"pdf_page\": 47}",
+          "quote": "Faliscan, the language of Italy which has the closest\nafﬁnity to Latin, was also spoken in Etruria in the towns of Falerii and\nCapena 45 km and 30 km north of Rome with texts surviving from the\nseventh to the third century BC.",
+          "role": "observation",
+          "source": "Clackson & Horrocks 2007",
+          "start": {
+            "earliest": -699,
+            "latest": -600
+          },
+          "url": null
+        },
+        {
+          "basis": "attested",
+          "citation": "Clackson, James & Geoffrey Horrocks. 2007. The Blackwell History of the Latin Language. Malden, MA and Oxford: Blackwell.",
+          "claim_id": "ev_period_ca17189c7e6938139ce5a0c7562b872022e92d6c",
+          "end": null,
+          "event": "first_attestation",
+          "label": "from 7th century BCE",
+          "locator": "{\"page\": \"39\", \"pdf_page\": 47}",
+          "quote": "Faliscan, the language of Italy which has the closest\nafﬁnity to Latin, was also spoken in Etruria in the towns of Falerii and\nCapena 45 km and 30 km north of Rome with texts surviving from the\nseventh to the third century BC.",
+          "role": "observation",
+          "source": "Clackson & Horrocks 2007",
+          "start": {
+            "earliest": -699,
+            "latest": -600
+          },
+          "url": null
+        },
+        {
+          "basis": "attested",
+          "citation": "Fortson, Benjamin W., IV. 2010. Indo-European Language and Culture: An Introduction. 2nd ed. Blackwell Textbooks in Linguistics 19. Chichester and Malden, MA: Wiley-Blackwell. (Supplied copy is a reflowed e-book without printed page numbers; cited by section.)",
+          "claim_id": "ev_period_e0b21e63bf22e10eaa2fd2c02d10e9500632f9d4",
+          "end": {
+            "earliest": -199,
+            "latest": -100
+          },
+          "event": "documentary_sampling",
+          "label": "7th–2nd century BCE",
+          "locator": "{\"page\": \"unpaginated electronic layout, §13.54\", \"pdf_page\": 308}",
+          "quote": "Faliscan was spoken by a people known in ancient times as the Falisci, in and around\nthe city of Falerii (nowadays Cività Castellana), about 60 km north of Rome in southern\nEtruria. It is known from about 300 inscriptions from the seventh to the second centuries BC.",
+          "role": "observation",
+          "source": "Fortson 2010",
+          "start": {
+            "earliest": -699,
+            "latest": -600
+          },
+          "url": null
+        },
+        {
+          "basis": "attested",
+          "citation": "Clackson, James & Geoffrey Horrocks. 2007. The Blackwell History of the Latin Language. Malden, MA and Oxford: Blackwell.",
           "claim_id": "ev_period_efbc3d07caec0ef81c55d21087d4b8add1cc5099",
           "end": {
             "earliest": -299,
@@ -13191,25 +13473,28 @@
       "code": "xfa",
       "evidence": [
         {
-          "citation": "Clackson, James & Geoffrey Horrocks. 2007. The Blackwell History of the Latin Language. Malden, MA and Oxford: Blackwell.",
-          "claim_id": "ev_period_ca17189c7e6938139ce5a0c7562b872022e92d6c",
-          "event": "first_attestation",
-          "locator": "{\"page\": \"39\", \"pdf_page\": 47}",
-          "quote": "Faliscan, the language of Italy which has the closest\nafﬁnity to Latin, was also spoken in Etruria in the towns of Falerii and\nCapena 45 km and 30 km north of Rome with texts surviving from the\nseventh to the third century BC.",
+          "citation": "Bakkum, Gabriël C. L. M. 2009. The Latin Dialect of the Ager Faliscus: 150 Years of Scholarship. Parts I–II. Amsterdam: Vossiuspers UvA / Amsterdam University Press. https://doi.org/10.5117/9789056295622.",
+          "claim_id": "ev_period_0efae330736113be8772e1285946b941106aa224",
+          "event": "documentary_sampling",
+          "locator": "{\"page\": \"11\", \"pdf_page\": 70}",
+          "quote": "The Faliscan inscriptions span a period from the late\nseventh or early sixth century to the middle of the second century BCE.",
           "role": "observation",
-          "source": "Clackson & Horrocks 2007",
-          "url": null
+          "source": "Bakkum 2008",
+          "url": "https://doi.org/10.5117/9789056295622"
         }
       ],
       "kind": "attested",
-      "label": "from 7th century BCE",
+      "label": "7th/6th–2nd century BCE",
       "name": "Faliscan",
       "spoken": {
-        "end": null,
+        "end": {
+          "earliest": -199,
+          "latest": -100
+        },
         "ongoing": false,
         "start": {
           "earliest": -699,
-          "latest": -600
+          "latest": -500
         }
       }
     },
@@ -13230,7 +13515,7 @@
         }
       ],
       "kind": "attested",
-      "label": "from 2300/2101 BCE",
+      "label": "from 23rd/22nd century BCE",
       "name": "Hurrian",
       "spoken": {
         "end": null,
@@ -13268,7 +13553,7 @@
         }
       ],
       "kind": "attested",
-      "label": "800/601 BCE – 3rd century BCE",
+      "label": "8th/7th–3rd century BCE",
       "name": "Lydian",
       "spoken": {
         "end": {
@@ -13391,7 +13676,7 @@
         }
       ],
       "kind": "attested",
-      "label": "6th century BCE – 301/500 CE",
+      "label": "6th century BCE – 4th/5th century CE",
       "name": "Punic",
       "spoken": {
         "end": {
@@ -13402,6 +13687,37 @@
         "start": {
           "earliest": -599,
           "latest": -500
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "attested",
+      "code": "xqa",
+      "evidence": [
+        {
+          "citation": "Kerslake, Celia. 2022. “Ottoman Turkish.” In Lars Johanson and Éva Á. Csató (eds.), The Turkic Languages, 2nd ed., 174–194. London and New York: Routledge. https://doi.org/10.4324/9781003243809.",
+          "claim_id": "ev_period_26f3de1f2326f3f7717642238061763c1ed0d380",
+          "event": "documentary_sampling",
+          "locator": "{\"page\": \"132\", \"pdf_page\": 157}",
+          "quote": "Eleventh-century texts from the Karakhanid state, mostly written in Arabic script.",
+          "role": "observation",
+          "source": "Johanson & Csató 2021",
+          "url": "https://doi.org/10.4324/9781003243809"
+        }
+      ],
+      "kind": "attested",
+      "label": "11th century CE",
+      "name": "Karakhanid",
+      "spoken": {
+        "end": {
+          "earliest": 1001,
+          "latest": 1100
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 1001,
+          "latest": 1100
         }
       }
     },

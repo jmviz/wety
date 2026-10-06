@@ -116,6 +116,10 @@ def describe(r):
         return ordinal(hi // 1000) + " millennium", "CE"
     if hi - lo == 999 and hi % 1000 == 0 and hi <= 0:
         return ordinal((1 - lo) // 1000) + " millennium", "BCE"
+    if hi - lo == 199 and (lo - 1) % 100 == 0 and lo > 0:  # "the 6th or 7th century"
+        return f"{ordinal(hi // 100 - 1)}/{ordinal(hi // 100)} century", "CE"
+    if hi - lo == 199 and hi % 100 == 0 and hi <= 0:
+        return f"{ordinal((1 - lo) // 100)}/{ordinal((1 - lo) // 100 - 1)} century", "BCE"
     if hi - lo == 99 and (lo - 1) % 100 == 0 and lo > 0:
         return ordinal(hi // 100) + " century", "CE"
     if hi - lo == 99 and hi % 100 == 0 and hi <= 0:
