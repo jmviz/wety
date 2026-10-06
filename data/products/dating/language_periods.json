@@ -35389,7 +35389,7 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:fff5df92fe6ca543"
     }
   ],
-  "generation": "6bfc26ccd2c498248df5107c7bfc5f5b0b4142b77222605c907d5861e0835434",
+  "generation": "5e48ab530ed061d8c8b25e68058e4cc82ad3eaafc95e75402d371a33eea90081",
   "languages": [
     {
       "alternatives": [],
@@ -35679,6 +35679,35 @@
         "end": {
           "earliest": -4016,
           "latest": -4016
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "last_speaker",
+      "code": "aho",
+      "evidence": [
+        {
+          "citation": "Morey, Stephen. 2015. “Metadata and endangered archives: lessons from the Ahom Manuscripts Project.” In Maja Kominko (ed.), From Dust to Digital: Ten Years of the Endangered Archives Programme, 31–66. Cambridge, UK: Open Book Publishers. First edition. DOI 10.11647/OBP.0052.02.",
+          "claim_id": "ev_period_c0484b2ad2970c3b6ca230cfc2e9edc0e0f33213",
+          "event": "native_transmission_end",
+          "locator": "{\"page\": \"35\", \"pdf_page\": 104}",
+          "method": "expert_estimate",
+          "quote": "The Ahom Kingdom ruled in Northeast India until the early nineteenth \ncentury, but over time the Ahom community assimilated with the Assamese \nspeaking majority, and the Tai Ahom language was lost as a mother tongue \nby about 1800.",
+          "role": "hypothesis",
+          "source": "Morey 2015",
+          "url": "https://archive.org/download/5bf6450f-99a7-4375-ad94-d5bde1b0282c/5bf6450f-99a7-4375-ad94-d5bde1b0282c.pdf"
+        }
+      ],
+      "kind": "stage",
+      "label": "until c. 1800 CE",
+      "name": "Ahom",
+      "spoken": {
+        "end": {
+          "earliest": null,
+          "latest": 1800
         },
         "ongoing": false,
         "start": null
@@ -41346,6 +41375,38 @@
       }
     },
     {
+      "alternatives": [],
+      "basis": "conventional",
+      "code": "obr",
+      "evidence": [
+        {
+          "citation": "Nishi, Yoshio. 2016 [1974]. “The Proto-Lolo-Burmese and Old Burmese Sources of Written Burmese -ac.” Journal of the Southeast Asian Linguistics Society 9: 97–129. English translation prepared by Ulatus, with editorial notes by Nathan W. Hill, of “Birumabungo no -ac ni tsuite,” Tōyō gakuhō 56.1 (1974): 01–43.",
+          "claim_id": "ev_period_ebe186bccd6846e93c497f21a6a9a2272dffe803",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"113\", \"pdf_page\": 17}",
+          "method": "scholarly_periodization",
+          "quote": "OB and WrB: By general convention, OB refers to the form of Burmese mainly recorded in inscriptions dating to the \nPagan Dynasty (approximately late 11th‒late 13th C).",
+          "role": "convention",
+          "source": "Nishi 2016",
+          "url": "https://digitalcollections.anu.edu.au/bitstream/1885/107171/5/Nishi2016WrittenBurmese-ac.pdf"
+        }
+      ],
+      "kind": "stage",
+      "label": "c. 11th–13th century CE",
+      "name": "Old Burmese",
+      "spoken": {
+        "end": {
+          "earliest": 1201,
+          "latest": 1300
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 1001,
+          "latest": 1100
+        }
+      }
+    },
+    {
       "alternatives": [
         {
           "basis": "attested",
@@ -41787,6 +41848,92 @@
       }
     },
     {
+      "alternatives": [
+        {
+          "basis": "conventional",
+          "citation": "Ferlus, Michel. 1992. “Essai de phonétique historique du khmer (du milieu du premier millénaire de notre ère à l’époque actuelle).” Mon-Khmer Studies 21: 57–89. HAL halshs-00927221v2 (2014 deposit of the 1992 article).",
+          "claim_id": "ev_period_637c99d33f5742658299760e05534e3d881377a9",
+          "end": {
+            "earliest": 1201,
+            "latest": 1300
+          },
+          "event": "conventional_period",
+          "label": "9th–13th century CE",
+          "locator": "{\"page\": \"58\", \"pdf_page\": 3}",
+          "method": "scholarly_periodization",
+          "quote": "Traditionnellement, on groupe les textes épigraphiques en vieux khmer \npréangkorien (VIIe-VIIIe), vieux khmer angkorien (IXe-XIIIe) et khmer moyen \n(XIVe-XVIIIe).",
+          "role": "convention",
+          "source": "Ferlus 1992",
+          "start": {
+            "earliest": 801,
+            "latest": 900
+          },
+          "url": "https://halshs.archives-ouvertes.fr/halshs-00927221v2/document"
+        }
+      ],
+      "basis": "conventional",
+      "code": "okz-ang",
+      "evidence": [
+        {
+          "citation": "Jenner, Philip N. 2009. A Dictionary of Angkorian Khmer. Edited by Doug Cooper. Pacific Linguistics 598. Canberra: Australian National University. First edition. DOI 10.15144/PL-598.",
+          "claim_id": "ev_period_47b3450a87264a6606ac452150377f375ec5dcb1",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"ix (Introduction; page number supplied by contents)\", \"pdf_page\": 10}",
+          "method": "scholarly_periodization",
+          "quote": "The present dictionary describes the lexicon of Old Khmer as a living language \nduring the Angkorian period.  This period encompasses the five centuries \nconventionally dated from A.D. 802 to the abandonment of Angkor in or around \n1431.",
+          "role": "convention",
+          "source": "Jenner 2009",
+          "url": "https://openresearch-repository.anu.edu.au/bitstreams/7969050b-1ebc-4f1e-8125-9942742eb332/download"
+        }
+      ],
+      "kind": "stage",
+      "label": "c. 802–1431 CE",
+      "name": "Angkorian Old Khmer",
+      "spoken": {
+        "end": {
+          "earliest": 1431,
+          "latest": 1431
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 802,
+          "latest": 802
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "conventional",
+      "code": "okz-pre",
+      "evidence": [
+        {
+          "citation": "Ferlus, Michel. 1992. “Essai de phonétique historique du khmer (du milieu du premier millénaire de notre ère à l’époque actuelle).” Mon-Khmer Studies 21: 57–89. HAL halshs-00927221v2 (2014 deposit of the 1992 article).",
+          "claim_id": "ev_period_5e14e5ab0fa60890002e606789b88568da871c10",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"58\", \"pdf_page\": 3}",
+          "method": "scholarly_periodization",
+          "quote": "Traditionnellement, on groupe les textes épigraphiques en vieux khmer \npréangkorien (VIIe-VIIIe), vieux khmer angkorien (IXe-XIIIe) et khmer moyen \n(XIVe-XVIIIe).",
+          "role": "convention",
+          "source": "Ferlus 1992",
+          "url": "https://halshs.archives-ouvertes.fr/halshs-00927221v2/document"
+        }
+      ],
+      "kind": "stage",
+      "label": "7th–8th century CE",
+      "name": "Pre-Angkorian Old Khmer",
+      "spoken": {
+        "end": {
+          "earliest": 701,
+          "latest": 800
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 601,
+          "latest": 700
+        }
+      }
+    },
+    {
       "alternatives": [],
       "basis": "conventional",
       "code": "olt",
@@ -42057,6 +42204,57 @@
         "start": {
           "earliest": -599,
           "latest": -500
+        }
+      }
+    },
+    {
+      "alternatives": [
+        {
+          "basis": "attested",
+          "citation": "Gunawan, Aditia, and Arlo Griffiths. 2021. “Old Sundanese Inscriptions: Renewing the Philological Approach.” Archipel 101: 131–208. https://doi.org/10.4000/archipel.2365.",
+          "claim_id": "ev_period_0e8b445e481cc8b602ad594d9331b42f4f2aa800",
+          "end": null,
+          "event": "first_attestation",
+          "label": "from c. 14th century CE",
+          "locator": "{\"page\": \"132\", \"pdf_page\": 6}",
+          "method": "philological_documentary_dating",
+          "quote": "At the same time, it should \nbe noted that, by comparison with the other mentioned languages, the Old \nSundanese material is several centuries younger, as the oldest dated manuscript \nwas copied in 1518 ce, while the oldest inscription may date to the 14th century.",
+          "role": "observation",
+          "source": "Gunawan 2021",
+          "start": {
+            "earliest": 1301,
+            "latest": 1400
+          },
+          "url": "https://journals.openedition.org/archipel/pdf/2365"
+        }
+      ],
+      "basis": "attested",
+      "code": "osn",
+      "evidence": [
+        {
+          "citation": "Gunawan, Aditia, and Arlo Griffiths. 2021. “Old Sundanese Inscriptions: Renewing the Philological Approach.” Archipel 101: 131–208. https://doi.org/10.4000/archipel.2365.",
+          "claim_id": "ev_period_ade1553229e3765f7423084c41ac72369ebdcba4",
+          "event": "documentary_sampling",
+          "locator": "{\"page\": \"137\", \"pdf_page\": 11}",
+          "method": "philological_documentary_dating",
+          "quote": "When comparing Old Sundanese inscriptions and manuscripts, it becomes \nclear that all these documents deploy what is basically a single writing system \nand follow the same patterns of spelling — this fact probably reflects their \nproduction roughly during the same period, about the 14th through 16th \ncenturies, and by the same scribal milieux.",
+          "role": "observation",
+          "source": "Gunawan 2021",
+          "url": "https://journals.openedition.org/archipel/pdf/2365"
+        }
+      ],
+      "kind": "attested",
+      "label": "c. 14th–16th century CE",
+      "name": "Old Sundanese",
+      "spoken": {
+        "end": {
+          "earliest": 1501,
+          "latest": 1600
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 1301,
+          "latest": 1400
         }
       }
     },
@@ -45214,6 +45412,38 @@
     },
     {
       "alternatives": [],
+      "basis": "conventional",
+      "code": "xct",
+      "evidence": [
+        {
+          "citation": "Almogi, Orna, Lena Dankin, Nachum Dershowitz, and Lior Wolf. 2019. “A Hackathon for Classical Tibetan.” Journal of Data Mining and Digital Humanities, special issue Computer-Aided Processing of Intertextuality in Ancient Languages, article 2047. DOI 10.46298/jdmdh.2047. Retained HAL version 3.",
+          "claim_id": "ev_period_6ccc2cc8dc4726b5317d2587a98ddc1cfc4ece95",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"7\", \"pdf_page\": 8}",
+          "method": "scholarly_periodization",
+          "quote": "the period in which a text was composed, viz. Old Tibetan (7–11th c.), Classical Tibetan I \n(11–14th c.), or Classical Tibetan II (15–20th c.);",
+          "role": "convention",
+          "source": "Almogi 2019",
+          "url": "https://hal.science/hal-01371751/document"
+        }
+      ],
+      "kind": "stage",
+      "label": "11th–20th century CE",
+      "name": "Classical Tibetan",
+      "spoken": {
+        "end": {
+          "earliest": 1901,
+          "latest": 2000
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 1001,
+          "latest": 1100
+        }
+      }
+    },
+    {
+      "alternatives": [],
       "basis": "attested",
       "code": "xdm",
       "evidence": [
@@ -45501,6 +45731,57 @@
         },
         "ongoing": false,
         "start": null
+      }
+    },
+    {
+      "alternatives": [
+        {
+          "basis": "conventional",
+          "citation": "Ferlus, Michel. 1992. “Essai de phonétique historique du khmer (du milieu du premier millénaire de notre ère à l’époque actuelle).” Mon-Khmer Studies 21: 57–89. HAL halshs-00927221v2 (2014 deposit of the 1992 article).",
+          "claim_id": "ev_period_9c49c1fb1936ec81b03600e12b9a9f943ba5b6c2",
+          "end": null,
+          "event": "conventional_period",
+          "label": "from 1501 CE",
+          "locator": "{\"page\": \"58\", \"pdf_page\": 3}",
+          "method": "phonological_periodization",
+          "quote": "Pour nous, d’un \npoint de vue de phonétique historique et dans les limites de cette étude, le khmer \nmoyen commence avec le XVIe siècle.",
+          "role": "convention",
+          "source": "Ferlus 1992",
+          "start": {
+            "earliest": 1501,
+            "latest": 1501
+          },
+          "url": "https://halshs.archives-ouvertes.fr/halshs-00927221v2/document"
+        }
+      ],
+      "basis": "conventional",
+      "code": "xhm",
+      "evidence": [
+        {
+          "citation": "Ferlus, Michel. 1992. “Essai de phonétique historique du khmer (du milieu du premier millénaire de notre ère à l’époque actuelle).” Mon-Khmer Studies 21: 57–89. HAL halshs-00927221v2 (2014 deposit of the 1992 article).",
+          "claim_id": "ev_period_5363b69ffcf0f5b6bb1f81db8304b935ea251148",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"58\", \"pdf_page\": 3}",
+          "method": "scholarly_periodization",
+          "quote": "Traditionnellement, on groupe les textes épigraphiques en vieux khmer \npréangkorien (VIIe-VIIIe), vieux khmer angkorien (IXe-XIIIe) et khmer moyen \n(XIVe-XVIIIe).",
+          "role": "convention",
+          "source": "Ferlus 1992",
+          "url": "https://halshs.archives-ouvertes.fr/halshs-00927221v2/document"
+        }
+      ],
+      "kind": "stage",
+      "label": "14th–18th century CE",
+      "name": "Middle Khmer",
+      "spoken": {
+        "end": {
+          "earliest": 1701,
+          "latest": 1800
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 1301,
+          "latest": 1400
+        }
       }
     },
     {
