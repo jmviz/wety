@@ -147,6 +147,22 @@ class SyntheticRun(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "does not have"):
             self.build()
 
+    def test_a_reported_node_age_is_about_its_sampled_clade(self):
+        # A node age an article reports: the reviewer lists the sampled descendants
+        # the source names, and the claim is about that clade, not the proto code.
+        self.review["claims"][1].update(
+            correct={"event": "crown_divergence", "role": "hypothesis"},
+            taxa=["Luvian", "Hittite"],
+            taxa_basis="the article's sample",
+        )
+        hit = self.build()["claims"][1]
+        self.assertEqual(hit["subject"]["type"], "sampled_clade")
+        self.assertEqual(hit["subject"]["taxa"], ["Hittite", "Luvian"])
+        self.assertIn(":clade:", hit["subject"]["id"])
+        self.review["claims"][1]["correct"] = {}
+        with self.assertRaisesRegex(ValueError, "sampled clade"):
+            self.build()
+
     def test_write_registers_sources_and_texts_once(self):
         sources = self.base / "sources.json"
         with patch("harness.store.SOURCES_PATH", str(sources)):

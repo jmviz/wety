@@ -144,6 +144,23 @@ def build(run_dir, review, languages=None, texts_dir=None):
             "source_label": row["subject"].get("source_label"),
             "mapping_certainty": "checked" if status == "supported" else "proposed",
         }
+        if item.get("taxa"):
+            # A node age an article reports (no deposited tree): the claim is about the
+            # sampled clade, named by the descendants the source lists; a decision maps
+            # it to the proto code with proto_mapping, as for a parsed tree's clade.
+            taxa = sorted(set(item["taxa"]))
+            if row["event"] not in ("crown_divergence", "stem_divergence") or len(taxa) < 2:
+                raise ValueError("taxa name a sampled clade's divergence: " + item["assertion"])
+            subject = {
+                "id": f"{row.get('analysis_id') or reg_id}:clade:{digest(taxa)[:16]}",
+                "type": "sampled_clade",
+                "name": "MRCA(" + ", ".join(taxa) + ")",
+                "mapping": "exact",
+                "taxa": taxa,
+                "mapping_basis": item.get("taxa_basis") or "descendants the source names",
+                "source_label": row["subject"].get("source_label"),
+                "mapping_certainty": "checked" if status == "supported" else "proposed",
+            }
         locator = item.get("locator") or json.dumps(row.get("locator"), ensure_ascii=False)
         body = {
             "subject": subject,
@@ -320,19 +337,24 @@ def adopt(review):
             claim = by_assertion.get(choice["assertion"])
             if not claim:
                 raise ValueError("adopted assertion not imported: " + choice["assertion"])
-            if claim["subject"]["id"] != "wikt:" + code:
+            clade = claim["subject"]["type"] == "sampled_clade"
+            if clade and not choice.get("proto_mapping"):
+                raise ValueError("a sampled clade's age needs proto_mapping: " + code)
+            if not clade and claim["subject"]["id"] != "wikt:" + code:
                 raise ValueError("adopted claim is about another code: " + code)
             key = f"{code}/{claim['event']}" if listed else code
             if key in results:
                 raise ValueError("one adopted claim per code and event: " + key)
+            subject_id = "wikt:" + code
             decision = {
-                "subject_id": claim["subject"]["id"],
+                "subject_id": subject_id,
                 "event": claim["event"],
                 "claim_id": claim["id"],
-                "evidence_digest": bundle_decision_digest(bundle, claim["subject"]["id"]),
+                "evidence_digest": bundle_decision_digest(bundle, subject_id),
                 "reviewer": choice.get("reviewer") or review["decision_reviewer"],
                 "rationale": choice["rationale"],
                 "dependencies": [],
+                **({"proto_mapping": choice["proto_mapping"]} if clade else {}),
             }
             existing = current.get((decision["subject_id"], decision["event"]))
             if existing and {**existing, "kind": None} == {**decision, "kind": None}:

@@ -1,6 +1,24 @@
 {
   "family_splits": [
     {
+      "analysis": "gavashelishvili2023-binary-covarion-relaxed-clock",
+      "claim_id": "ev_period_02de5914bd5ac676dbebdac85da56826fa7b3eb9",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -16676,
+        "mean": -5691,
+        "median": null,
+        "probability": 0.95,
+        "upper": 781
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Georgian, Laz, Megrelian, Old Georgian, Svan)",
+      "role": "posterior",
+      "source": "Alexander Gavashelishvili et al. 2023",
+      "subject_id": "gavashelishvili2023-binary-covarion-relaxed-clock:clade:6558ed876fe3f1d9"
+    },
+    {
       "analysis": "holman2011-asjp-ethnologue16-s092-r072",
       "claim_id": "ev_period_0a47643bec0819d764e2bd3f594e6ed9ee07c1f2",
       "epoch": 2000,
@@ -17,6 +35,24 @@
       "role": "hypothesis",
       "source": "Eric W. Holman et al. 2011",
       "subject_id": "wikt:urj-prm-pro"
+    },
+    {
+      "analysis": "dunn2013-covarion-relaxed-clock-rrw-root-prior-removed",
+      "claim_id": "ev_period_1258a0a0246e7f7a461941f1e6ca7311a13298e4",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -4620,
+        "mean": null,
+        "median": null,
+        "probability": 0.95,
+        "upper": -993
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Central Aslian, Jah Hut, Northern Aslian, Southern Aslian)",
+      "role": "posterior",
+      "source": "Michael Dunn et al. 2013",
+      "subject_id": "dunn2013-covarion-relaxed-clock-rrw-root-prior-removed:clade:d00a61eb9ec8cb3c"
     },
     {
       "analysis": "holman2011-asjp-ethnologue16-s092-r072",
@@ -665,6 +701,24 @@
       "role": "hypothesis",
       "source": "Eric W. Holman et al. 2011",
       "subject_id": "wikt:poz-ssw-pro"
+    },
+    {
+      "analysis": "gavashelishvili2023-binary-covarion-relaxed-clock",
+      "claim_id": "ev_period_beaccdc9cb02b979d30a21c7d08d9a917b412bca",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -2373,
+        "mean": -667,
+        "median": null,
+        "probability": 0.95,
+        "upper": 772
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Georgian, Laz, Megrelian, Old Georgian)",
+      "role": "posterior",
+      "source": "Alexander Gavashelishvili et al. 2023",
+      "subject_id": "gavashelishvili2023-binary-covarion-relaxed-clock:clade:79155cac3e2ad4f3"
     },
     {
       "analysis": "holman2011-asjp-ethnologue16-s092-r072",
@@ -35065,7 +35119,7 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:fff5df92fe6ca543"
     }
   ],
-  "generation": "7138bdc833d296f8dd8a56e0567abaa9fe191c22b57084f9526d9f8d67b3952b",
+  "generation": "cdf900c3ef2a49e7b89ea5cc2096b139c57e05bfb1c97d84d82c31fedf09088c",
   "languages": [
     {
       "alternatives": [],
@@ -36533,27 +36587,79 @@
     {
       "alternatives": [],
       "basis": "estimated",
-      "code": "ccs-pro",
+      "code": "ccs-gzn-pro",
       "evidence": [
         {
+          "citation": "Gavashelishvili, Alexander, et al. 2023. The time and place of origin of South Caucasian languages: insights into past human societies, ecosystems and human population genetics. Scientific Reports 13. https://doi.org/10.1038/s41598-023-45500-w (Europe PMC full text PMC10689496).",
+          "claim_id": "ev_period_beaccdc9cb02b979d30a21c7d08d9a917b412bca",
+          "event": "crown_divergence",
+          "locator": "{\"section\": \"Results\", \"figure\": \"2\", \"text_offset\": 28554}",
+          "method": "bayesian_phylogenetic",
+          "node": "MRCA(Georgian, Laz, Megrelian, Old Georgian)",
+          "proto_mapping": "Georgian (with Old Georgian) against Zan (Megrelian, Laz), both branches of Georgian-Zan, so its crown is the breakup of Proto-Georgian-Zan.",
+          "quote": "The mean age for the split between Georgian and Zan was estimated at 2617 BP (95% HPD: 4323–1178 BP).",
+          "role": "posterior",
+          "source": "Alexander Gavashelishvili et al. 2023",
+          "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC10689496/fullTextXML"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 2370 BCE/772 CE",
+      "name": "Proto-Georgian-Zan",
+      "spoken": {
+        "end": {
+          "earliest": -2373,
+          "latest": 772
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [
+        {
+          "basis": "estimated",
           "citation": "Automated dating of the world's language families based on lexical similarity",
           "claim_id": "ev_period_e8d182b27bc2f39e45d9cc697b2301307aa77742",
+          "end": {
+            "earliest": -999,
+            "latest": -999
+          },
           "event": "crown_divergence",
+          "label": "until c. 1000 BCE",
           "locator": "{\"table\": \"Table 4\", \"row\": \"Kartvelian\", \"page\": 854, \"pdf_page\": 15, \"character_start\": 61090, \"character_end\": 61119, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
           "method": "lexicostatistic",
           "quote": "Kartvelian\n5\n3 (3)\n12.82\n2999",
           "role": "hypothesis",
           "source": "Eric W. Holman et al. 2011",
+          "start": null,
           "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
         }
       ],
+      "basis": "estimated",
+      "code": "ccs-pro",
+      "evidence": [
+        {
+          "citation": "Gavashelishvili, Alexander, et al. 2023. The time and place of origin of South Caucasian languages: insights into past human societies, ecosystems and human population genetics. Scientific Reports 13. https://doi.org/10.1038/s41598-023-45500-w (Europe PMC full text PMC10689496).",
+          "claim_id": "ev_period_02de5914bd5ac676dbebdac85da56826fa7b3eb9",
+          "event": "crown_divergence",
+          "locator": "{\"section\": \"Results\", \"figure\": \"2\", \"text_offset\": 28554}",
+          "method": "bayesian_phylogenetic",
+          "node": "MRCA(Georgian, Laz, Megrelian, Old Georgian, Svan)",
+          "proto_mapping": "The root: Svan against Karto-Zan (Georgian, Old Georgian, Megrelian, Laz), all Kartvelian branches, so its crown is the breakup of Proto-Kartvelian.",
+          "quote": "our best-fit model estimated the mean root age to be 7641 BP (95% highest posterior density (HPD): 18,626–1169 BP) for the split between Svan and Karto-Zan.",
+          "role": "posterior",
+          "source": "Alexander Gavashelishvili et al. 2023",
+          "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC10689496/fullTextXML"
+        }
+      ],
       "kind": "proto",
-      "label": "until c. 1000 BCE",
+      "label": "until c. 16680 BCE/781 CE",
       "name": "Proto-Kartvelian",
       "spoken": {
         "end": {
-          "earliest": -999,
-          "latest": -999
+          "earliest": -16676,
+          "latest": 781
         },
         "ongoing": false,
         "start": null
@@ -40544,29 +40650,50 @@
       }
     },
     {
-      "alternatives": [],
-      "basis": "estimated",
-      "code": "mkh-asl-pro",
-      "evidence": [
+      "alternatives": [
         {
+          "basis": "estimated",
           "citation": "Automated dating of the world's language families based on lexical similarity",
           "claim_id": "ev_period_3981951117d985fe95a7d37031f0661487b16f0a",
+          "end": {
+            "earliest": -80,
+            "latest": -80
+          },
           "event": "crown_divergence",
+          "label": "until c. 81 BCE",
           "locator": "{\"table\": \"Table 4\", \"row\": \"Aslian\", \"page\": 854, \"pdf_page\": 15, \"character_start\": 60000, \"character_end\": 60026, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
           "method": "lexicostatistic",
           "quote": "Aslian\n29\n4 (4)\n23.46\n2080",
           "role": "hypothesis",
           "source": "Eric W. Holman et al. 2011",
+          "start": null,
           "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
         }
       ],
+      "basis": "estimated",
+      "code": "mkh-asl-pro",
+      "evidence": [
+        {
+          "citation": "Dunn, Michael, Niclas Burenhult, Nicole Kruspe, Sylvia Tufvesson & Neele Becker. 2013. Aslian linguistic prehistory: a case study in computational phylogenetics. Diachronica 28(3) (MPG PuRe copy).",
+          "claim_id": "ev_period_1258a0a0246e7f7a461941f1e6ca7311a13298e4",
+          "event": "crown_divergence",
+          "locator": "{\"page\": 392, \"pdf_page\": 10, \"section\": \"Proto-Aslian\"}",
+          "method": "bayesian_phylogenetic",
+          "node": "MRCA(Central Aslian, Jah Hut, Northern Aslian, Southern Aslian)",
+          "proto_mapping": "All four Aslian branches (Northern, Central, Southern Aslian and Jah Hut) are sampled, so the root is the breakup of Proto-Aslian.",
+          "quote": "gives a distribution of dates for Proto-Aslian with a maximum probability density \nat 4,305 BP and a 95% highest probability density range of 2,943–6,570 BP.",
+          "role": "posterior",
+          "source": "Michael Dunn et al. 2013",
+          "url": "https://pure.mpg.de/rest/items/item_1582917_7/component/file_1868200/content"
+        }
+      ],
       "kind": "proto",
-      "label": "until c. 81 BCE",
+      "label": "until c. 4620/994 BCE",
       "name": "Proto-Aslian",
       "spoken": {
         "end": {
-          "earliest": -80,
-          "latest": -80
+          "earliest": -4620,
+          "latest": -993
         },
         "ongoing": false,
         "start": null
