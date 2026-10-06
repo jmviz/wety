@@ -300,10 +300,11 @@ def period_record(code, claims, alternatives, view, sources):
 
 
 def distinct(alternatives):
-    """One entry per source, page and date: two runs may import the same statement."""
+    """One entry per source, page, date and quoted passage: two runs may import the same
+    statement (one quoting more of it); different rows of one table stay separate."""
     seen, out = set(), []
     for a in alternatives:
-        key = (a["source"], a["locator"], a["label"], a["basis"])
+        key = (a["source"], a["locator"], a["label"], a["basis"], (a["quote"] or "")[:40])
         if key not in seen:
             seen.add(key)
             out.append(a)

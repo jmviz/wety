@@ -301,6 +301,7 @@ class PeriodExportTests(unittest.TestCase):
             claim("b2", "enm", "conventional_period", "convention", years(1100, 1500)),
             claim("c", "enm", "conventional_period", "convention", years(1100, 1450)),
         ]
+        claims[2]["spans"] = claims[1]["spans"]  # the same passage, imported again
         (enm,) = export_periods(bundle(claims, ["a"]), "gen")["languages"]
         self.assertEqual([a["claim_id"] for a in enm["alternatives"]], ["b", "c"])
 

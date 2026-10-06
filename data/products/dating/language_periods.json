@@ -19,6 +19,24 @@
       "subject_id": "gavashelishvili2023-binary-covarion-relaxed-clock:clade:6558ed876fe3f1d9"
     },
     {
+      "analysis": "toivonen_1953_chronology_reported_kallio2006",
+      "claim_id": "ev_period_09ac6a969258f7c68792ea76302b91b4622a6b9d",
+      "epoch": null,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Finno-Permic",
+      "role": "hypothesis",
+      "source": "Petri Kallio 2006",
+      "subject_id": "wikt:urj-fpr-pro"
+    },
+    {
       "analysis": "holman2011-asjp-ethnologue16-s092-r072",
       "claim_id": "ev_period_0a47643bec0819d764e2bd3f594e6ed9ee07c1f2",
       "epoch": 2000,
@@ -145,6 +163,78 @@
       "subject_id": "wikt:tbq-pro"
     },
     {
+      "analysis": "hajdu_1975_chronology_reported_kallio2006",
+      "claim_id": "ev_period_261363fee65c42bac353b3b9afb25b4240487739",
+      "epoch": null,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Finno-Ugric",
+      "role": "hypothesis",
+      "source": "Petri Kallio 2006",
+      "subject_id": "wikt:fiu-pro"
+    },
+    {
+      "analysis": "kettunen_vaula_1938_chronology_reported_kallio2006",
+      "claim_id": "ev_period_2e15264aaa85c4ffd26d15350bc42dc01aa5a5cf",
+      "epoch": null,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Finno-Permic",
+      "role": "hypothesis",
+      "source": "Petri Kallio 2006",
+      "subject_id": "wikt:urj-fpr-pro"
+    },
+    {
+      "analysis": "janhunen1998_expert_chronology",
+      "claim_id": "ev_period_2eab079550fbfdea2bcd8c828a29cf3e4adf1f79",
+      "epoch": null,
+      "estimate": {
+        "interval_type": null,
+        "lower": -99,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": 0
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Samoyedic",
+      "role": "hypothesis",
+      "source": "Jaakko Häkkinen 2009",
+      "subject_id": "wikt:syd-pro"
+    },
+    {
+      "analysis": "korhonen_1981_chronology_reported_kallio2006",
+      "claim_id": "ev_period_35d66fffa53efab278f2e0437d9b63779439a316",
+      "epoch": null,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Finno-Ugric",
+      "role": "hypothesis",
+      "source": "Petri Kallio 2006",
+      "subject_id": "wikt:fiu-pro"
+    },
+    {
       "analysis": "holman2011-asjp-ethnologue16-s092-r072",
       "claim_id": "ev_period_363d17ad02160d6a2abd1558f8f1877931f73d5c",
       "epoch": 2000,
@@ -233,6 +323,42 @@
       "role": "hypothesis",
       "source": "Eric W. Holman et al. 2011",
       "subject_id": "wikt:syd-pro"
+    },
+    {
+      "analysis": "gld_nakh_fixed_rate_default_tutorial",
+      "claim_id": "ev_period_406f7baa6d9b4cf6016db68772980bd99bb8bb9a",
+      "epoch": null,
+      "estimate": {
+        "interval_type": null,
+        "lower": 1,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": 100
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Nakh",
+      "role": "hypothesis",
+      "source": "Global Lexicostatistical Database",
+      "subject_id": "wikt:cau-nkh-pro"
+    },
+    {
+      "analysis": "hajdu_1975_chronology_reported_kallio2006",
+      "claim_id": "ev_period_4436e3c99e28776c63166e791ce6dc6dd6cf8d02",
+      "epoch": null,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Finno-Permic",
+      "role": "hypothesis",
+      "source": "Petri Kallio 2006",
+      "subject_id": "wikt:urj-fpr-pro"
     },
     {
       "analysis": "holman2011-asjp-ethnologue16-s092-r072",
@@ -343,6 +469,24 @@
       "subject_id": "wikt:xgn-pro"
     },
     {
+      "analysis": "toivonen_1953_chronology_reported_kallio2006",
+      "claim_id": "ev_period_508e56ffc2ce6f350718098f26ea6e0526bc5a46",
+      "epoch": null,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Finno-Ugric",
+      "role": "hypothesis",
+      "source": "Petri Kallio 2006",
+      "subject_id": "wikt:fiu-pro"
+    },
+    {
       "analysis": "holman2011-asjp-ethnologue16-s092-r072",
       "claim_id": "ev_period_50dd37adc672fba9d74c496677c973c645673fab",
       "epoch": 2000,
@@ -377,6 +521,24 @@
       "role": "hypothesis",
       "source": "Eric W. Holman et al. 2011",
       "subject_id": "wikt:urj-mdv-pro"
+    },
+    {
+      "analysis": "kettunen_vaula_1938_chronology_reported_kallio2006",
+      "claim_id": "ev_period_553adb8f38ffdf85cdc4edb000197aa5cdef28eb",
+      "epoch": null,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Finno-Ugric",
+      "role": "hypothesis",
+      "source": "Petri Kallio 2006",
+      "subject_id": "wikt:fiu-pro"
     },
     {
       "analysis": "holman2011-asjp-ethnologue16-s092-r072",
@@ -469,6 +631,24 @@
       "subject_id": "wikt:sal-pro"
     },
     {
+      "analysis": "taagepera_1994_chronology_reported_kallio2006",
+      "claim_id": "ev_period_6b74b7da0cc1cb88deec68725b61327487515ec0",
+      "epoch": null,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Finno-Permic",
+      "role": "hypothesis",
+      "source": "Petri Kallio 2006",
+      "subject_id": "wikt:urj-fpr-pro"
+    },
+    {
       "analysis": "holman2011-asjp-ethnologue16-s092-r072",
       "claim_id": "ev_period_79f20f354753c0d3eb24e89329a0e7c8294a0340",
       "epoch": 2000,
@@ -559,6 +739,24 @@
       "subject_id": "wikt:mkh-pro"
     },
     {
+      "analysis": "decsy_1965_chronology_reported_kallio2006",
+      "claim_id": "ev_period_8bad8aafcb3536191461526395d7b9f1765dfcae",
+      "epoch": null,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Finno-Permic",
+      "role": "hypothesis",
+      "source": "Petri Kallio 2006",
+      "subject_id": "wikt:urj-fpr-pro"
+    },
+    {
       "analysis": "holman2011-asjp-ethnologue16-s092-r072",
       "claim_id": "ev_period_9145d2d047903a7b7697e267823fc02f87201b88",
       "epoch": 2000,
@@ -593,6 +791,42 @@
       "role": "hypothesis",
       "source": "Eric W. Holman et al. 2011",
       "subject_id": "wikt:aav-pro"
+    },
+    {
+      "analysis": "schulze2017_comparative_synthesis",
+      "claim_id": "ev_period_954ef788de005a147da611867a630aabe3850b05",
+      "epoch": null,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Kartvelian",
+      "role": "hypothesis",
+      "source": "Klein et al. 2017",
+      "subject_id": "wikt:ccs-pro"
+    },
+    {
+      "analysis": "korhonen_1981_chronology_reported_kallio2006",
+      "claim_id": "ev_period_96afdcf9e4cc055ff42829c1808b5f56a868edc8",
+      "epoch": null,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Finno-Permic",
+      "role": "hypothesis",
+      "source": "Petri Kallio 2006",
+      "subject_id": "wikt:urj-fpr-pro"
     },
     {
       "analysis": "holman2011-asjp-ethnologue16-s092-r072",
@@ -649,6 +883,24 @@
       "subject_id": "wikt:esx-inu-pro"
     },
     {
+      "analysis": "decsy_1965_chronology_reported_kallio2006",
+      "claim_id": "ev_period_a966b20070a9d3e93831450654ac5f2baa5f11fd",
+      "epoch": null,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Finno-Ugric",
+      "role": "hypothesis",
+      "source": "Petri Kallio 2006",
+      "subject_id": "wikt:fiu-pro"
+    },
+    {
       "analysis": "holman2011-asjp-ethnologue16-s092-r072",
       "claim_id": "ev_period_ad1f4b2f8a6853ba4a34d14e75b4b3d5fe3e797b",
       "epoch": 2000,
@@ -665,6 +917,24 @@
       "role": "hypothesis",
       "source": "Eric W. Holman et al. 2011",
       "subject_id": "wikt:phi-pro"
+    },
+    {
+      "analysis": "taagepera_1994_chronology_reported_kallio2006",
+      "claim_id": "ev_period_b630bbc2abfcd6ada83bfe0b4ef1363d3fb7b891",
+      "epoch": null,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Finno-Ugric",
+      "role": "hypothesis",
+      "source": "Petri Kallio 2006",
+      "subject_id": "wikt:fiu-pro"
     },
     {
       "analysis": "holman2011-asjp-ethnologue16-s092-r072",
@@ -35119,7 +35389,7 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:fff5df92fe6ca543"
     }
   ],
-  "generation": "cdf900c3ef2a49e7b89ea5cc2096b139c57e05bfb1c97d84d82c31fedf09088c",
+  "generation": "6bfc26ccd2c498248df5107c7bfc5f5b0b4142b77222605c907d5861e0835434",
   "languages": [
     {
       "alternatives": [],
@@ -36558,6 +36828,35 @@
     {
       "alternatives": [],
       "basis": "estimated",
+      "code": "cau-nkh-pro",
+      "evidence": [
+        {
+          "citation": "Global Lexicostatistical Database (StarlingDB), tutorial page, https://starlingdb.org/new100/Tutorial.htm.",
+          "claim_id": "ev_period_406f7baa6d9b4cf6016db68772980bd99bb8bb9a",
+          "event": "crown_divergence",
+          "locator": "{\"section\": \"3.1 Basic tree-building options\"}",
+          "method": "lexicostatistic",
+          "quote": "splits in two branches, Batsbi and\r\nChechen-Ingush, approximately at the very beginning of the 1st millennium A.D.\r\n(= 0.00)",
+          "role": "hypothesis",
+          "source": "Global Lexicostatistical Database",
+          "url": "https://starlingdb.org/new100/Tutorial.htm"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 1st century CE",
+      "name": "Proto-Nakh",
+      "spoken": {
+        "end": {
+          "earliest": 1,
+          "latest": 100
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
       "code": "cau-nwc-pro",
       "evidence": [
         {
@@ -36617,6 +36916,24 @@
     },
     {
       "alternatives": [
+        {
+          "basis": "estimated",
+          "citation": "Klein, Jared S. (ed.); Joseph, Brian D. (ed.); Fritz, Matthias (ed.) (2017) Handbook of comparative and historical Indo-European linguistics. Vol. 1. Berlin ; Boston, De Gruyter Mouton.",
+          "claim_id": "ev_period_954ef788de005a147da611867a630aabe3850b05",
+          "end": {
+            "earliest": -1999,
+            "latest": -1999
+          },
+          "event": "crown_divergence",
+          "label": "until c. 2000 BCE",
+          "locator": "{\"pdf_page\": 119, \"printed_page\": \"107\", \"chapter\": \"11. The comparative method in Caucasian linguistics\"}",
+          "method": "comparative_reconstruction",
+          "quote": "The picture emerging\nfrom these studies suggests that Svan was the first dialect to split off from Common\nKartvelian at roughly 2000 BCE.",
+          "role": "hypothesis",
+          "source": "Klein et al. 2017",
+          "start": null,
+          "url": null
+        },
         {
           "basis": "estimated",
           "citation": "Automated dating of the world's language families based on lexical similarity",
@@ -38270,6 +38587,126 @@
           "earliest": 701,
           "latest": 800
         }
+      }
+    },
+    {
+      "alternatives": [
+        {
+          "basis": "estimated",
+          "citation": "Kallio, Petri. 2006. Suomen kantakielten absoluuttista kronologiaa. Virittäjä 110(1): 2–25.",
+          "claim_id": "ev_period_261363fee65c42bac353b3b9afb25b4240487739",
+          "end": {
+            "earliest": -1999,
+            "latest": -1999
+          },
+          "event": "crown_divergence",
+          "label": "until c. 2000 BCE",
+          "locator": "{\"pdf_page\": 1, \"printed_page\": \"2\", \"table\": \"1\", \"column\": \"Sm.-ugr. (Finno-Ugrian)\", \"visual_checked\": true}",
+          "method": "expert_estimate",
+          "quote": "Hajdú 1975\n4000 eKr. 2000 eKr. 1500 eKr.\n  500 eKr.\n      1 jKr.",
+          "role": "hypothesis",
+          "source": "Petri Kallio 2006",
+          "start": null,
+          "url": "https://www.kotikielenseura.fi/virittaja/hakemistot/jutut/2006_2.pdf"
+        },
+        {
+          "basis": "estimated",
+          "citation": "Kallio, Petri. 2006. Suomen kantakielten absoluuttista kronologiaa. Virittäjä 110(1): 2–25.",
+          "claim_id": "ev_period_508e56ffc2ce6f350718098f26ea6e0526bc5a46",
+          "end": {
+            "earliest": -2499,
+            "latest": -2499
+          },
+          "event": "crown_divergence",
+          "label": "until c. 2500 BCE",
+          "locator": "{\"pdf_page\": 1, \"printed_page\": \"2\", \"table\": \"1\", \"column\": \"Sm.-ugr. (Finno-Ugrian)\", \"visual_checked\": true}",
+          "method": "expert_estimate",
+          "quote": "Toivonen 1953\n3500 eKr. 2500 eKr. 1500 eKr.\n1000 eKr.  500 eKr.",
+          "role": "hypothesis",
+          "source": "Petri Kallio 2006",
+          "start": null,
+          "url": "https://www.kotikielenseura.fi/virittaja/hakemistot/jutut/2006_2.pdf"
+        },
+        {
+          "basis": "estimated",
+          "citation": "Kallio, Petri. 2006. Suomen kantakielten absoluuttista kronologiaa. Virittäjä 110(1): 2–25.",
+          "claim_id": "ev_period_553adb8f38ffdf85cdc4edb000197aa5cdef28eb",
+          "end": {
+            "earliest": -2499,
+            "latest": -2499
+          },
+          "event": "crown_divergence",
+          "label": "until c. 2500 BCE",
+          "locator": "{\"pdf_page\": 1, \"printed_page\": \"2\", \"table\": \"1\", \"column\": \"Sm.-ugr. (Finno-Ugrian)\", \"visual_checked\": true}",
+          "method": "expert_estimate",
+          "quote": "Kettunen ja\n4000 eKr. 2500 eKr. 1000 eKr.\n200 eKr.\nVaula 1938",
+          "role": "hypothesis",
+          "source": "Petri Kallio 2006",
+          "start": null,
+          "url": "https://www.kotikielenseura.fi/virittaja/hakemistot/jutut/2006_2.pdf"
+        },
+        {
+          "basis": "estimated",
+          "citation": "Kallio, Petri. 2006. Suomen kantakielten absoluuttista kronologiaa. Virittäjä 110(1): 2–25.",
+          "claim_id": "ev_period_a966b20070a9d3e93831450654ac5f2baa5f11fd",
+          "end": {
+            "earliest": -2499,
+            "latest": -2499
+          },
+          "event": "crown_divergence",
+          "label": "until c. 2500 BCE",
+          "locator": "{\"pdf_page\": 1, \"printed_page\": \"2\", \"table\": \"1\", \"column\": \"Sm.-ugr. (Finno-Ugrian)\", \"visual_checked\": true}",
+          "method": "expert_estimate",
+          "quote": "Décsy 1965\n4000 eKr. 2500 eKr. 1500 eKr.\n  400 eKr.      1 jKr. 1000 jKr.",
+          "role": "hypothesis",
+          "source": "Petri Kallio 2006",
+          "start": null,
+          "url": "https://www.kotikielenseura.fi/virittaja/hakemistot/jutut/2006_2.pdf"
+        },
+        {
+          "basis": "estimated",
+          "citation": "Kallio, Petri. 2006. Suomen kantakielten absoluuttista kronologiaa. Virittäjä 110(1): 2–25.",
+          "claim_id": "ev_period_b630bbc2abfcd6ada83bfe0b4ef1363d3fb7b891",
+          "end": {
+            "earliest": -2099,
+            "latest": -2099
+          },
+          "event": "crown_divergence",
+          "label": "until c. 2100 BCE",
+          "locator": "{\"pdf_page\": 1, \"printed_page\": \"2\", \"table\": \"1\", \"column\": \"Sm.-ugr. (Finno-Ugrian)\", \"visual_checked\": true}",
+          "method": "lexicostatistic",
+          "quote": "Taagepera 1994 4000 eKr. 2100 eKr. 1500 eKr.\n1300 eKr. 1000 eKr.",
+          "role": "hypothesis",
+          "source": "Petri Kallio 2006",
+          "start": null,
+          "url": "https://www.kotikielenseura.fi/virittaja/hakemistot/jutut/2006_2.pdf"
+        }
+      ],
+      "basis": "estimated",
+      "code": "fiu-pro",
+      "evidence": [
+        {
+          "citation": "Kallio, Petri. 2006. Suomen kantakielten absoluuttista kronologiaa. Virittäjä 110(1): 2–25.",
+          "claim_id": "ev_period_35d66fffa53efab278f2e0437d9b63779439a316",
+          "event": "crown_divergence",
+          "locator": "{\"pdf_page\": 1, \"printed_page\": \"2\", \"table\": \"1\", \"column\": \"Sm.-ugr. (Finno-Ugrian)\", \"visual_checked\": true}",
+          "method": "expert_estimate",
+          "quote": "Korhonen 1981 4000 eKr. 3000 eKr. 2000 eKr.\n1500 eKr. 1000 eKr.      1 jKr.",
+          "role": "hypothesis",
+          "source": "Petri Kallio 2006",
+          "url": "https://www.kotikielenseura.fi/virittaja/hakemistot/jutut/2006_2.pdf"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 3000 BCE",
+      "name": "Proto-Finno-Ugric",
+      "spoken": {
+        "end": {
+          "earliest": -2999,
+          "latest": -2999
+        },
+        "ongoing": false,
+        "start": null
       }
     },
     {
@@ -43528,29 +43965,48 @@
       }
     },
     {
-      "alternatives": [],
-      "basis": "estimated",
-      "code": "syd-pro",
-      "evidence": [
+      "alternatives": [
         {
+          "basis": "estimated",
           "citation": "Automated dating of the world's language families based on lexical similarity",
           "claim_id": "ev_period_3e89b5312b95c346870073c3ffc739aab23ce4c0",
+          "end": {
+            "earliest": -850,
+            "latest": -850
+          },
           "event": "crown_divergence",
+          "label": "until c. 851 BCE",
           "locator": "{\"table\": \"Table 4\", \"row\": \"Samoyed\", \"page\": 855, \"pdf_page\": 16, \"character_start\": 62047, \"character_end\": 62073, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
           "method": "lexicostatistic",
           "quote": "Samoyed\n1\n2 (5)\n14.14\n2850",
           "role": "hypothesis",
           "source": "Eric W. Holman et al. 2011",
+          "start": null,
           "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
         }
       ],
+      "basis": "estimated",
+      "code": "syd-pro",
+      "evidence": [
+        {
+          "citation": "Häkkinen, Jaakko. 2009. Kantauralin ajoitus ja paikannus: perustelut puntarissa. Suomalais-Ugrilaisen Seuran Aikakauskirja 92: 9–56.",
+          "claim_id": "ev_period_2eab079550fbfdea2bcd8c828a29cf3e4adf1f79",
+          "event": "crown_divergence",
+          "locator": "{\"pdf_page\": 24, \"printed_page\": \"32\", \"cited_page\": \"Janhunen 1998: 476\", \"visual_checked\": true}",
+          "method": "expert_estimate",
+          "quote": "(kantasamojedin hajoaminen ajoitetaan karkeasti hieman ajanlaskun alkua varhaisem-\nmaksi; Janhunen 1998: 476).",
+          "role": "hypothesis",
+          "source": "Jaakko Häkkinen 2009",
+          "url": "https://journal.fi/susa/article/download/82020/41214"
+        }
+      ],
       "kind": "proto",
-      "label": "until c. 851 BCE",
+      "label": "until c. 1st century BCE",
       "name": "Proto-Samoyedic",
       "spoken": {
         "end": {
-          "earliest": -850,
-          "latest": -850
+          "earliest": -99,
+          "latest": 0
         },
         "ongoing": false,
         "start": null
@@ -44144,6 +44600,126 @@
       }
     },
     {
+      "alternatives": [
+        {
+          "basis": "estimated",
+          "citation": "Kallio, Petri. 2006. Suomen kantakielten absoluuttista kronologiaa. Virittäjä 110(1): 2–25.",
+          "claim_id": "ev_period_09ac6a969258f7c68792ea76302b91b4622a6b9d",
+          "end": {
+            "earliest": -1499,
+            "latest": -1499
+          },
+          "event": "crown_divergence",
+          "label": "until c. 1500 BCE",
+          "locator": "{\"pdf_page\": 1, \"printed_page\": \"2\", \"table\": \"1\", \"column\": \"Sm.-perm. (Finno-Permic)\", \"visual_checked\": true}",
+          "method": "expert_estimate",
+          "quote": "Toivonen 1953\n3500 eKr. 2500 eKr. 1500 eKr.\n1000 eKr.  500 eKr.",
+          "role": "hypothesis",
+          "source": "Petri Kallio 2006",
+          "start": null,
+          "url": "https://www.kotikielenseura.fi/virittaja/hakemistot/jutut/2006_2.pdf"
+        },
+        {
+          "basis": "estimated",
+          "citation": "Kallio, Petri. 2006. Suomen kantakielten absoluuttista kronologiaa. Virittäjä 110(1): 2–25.",
+          "claim_id": "ev_period_2e15264aaa85c4ffd26d15350bc42dc01aa5a5cf",
+          "end": {
+            "earliest": -999,
+            "latest": -999
+          },
+          "event": "crown_divergence",
+          "label": "until c. 1000 BCE",
+          "locator": "{\"pdf_page\": 1, \"printed_page\": \"2\", \"table\": \"1\", \"column\": \"Sm.-perm. (Finno-Permic)\", \"visual_checked\": true}",
+          "method": "expert_estimate",
+          "quote": "Kettunen ja\n4000 eKr. 2500 eKr. 1000 eKr.\n200 eKr.\nVaula 1938",
+          "role": "hypothesis",
+          "source": "Petri Kallio 2006",
+          "start": null,
+          "url": "https://www.kotikielenseura.fi/virittaja/hakemistot/jutut/2006_2.pdf"
+        },
+        {
+          "basis": "estimated",
+          "citation": "Kallio, Petri. 2006. Suomen kantakielten absoluuttista kronologiaa. Virittäjä 110(1): 2–25.",
+          "claim_id": "ev_period_4436e3c99e28776c63166e791ce6dc6dd6cf8d02",
+          "end": {
+            "earliest": -1499,
+            "latest": -1499
+          },
+          "event": "crown_divergence",
+          "label": "until c. 1500 BCE",
+          "locator": "{\"pdf_page\": 1, \"printed_page\": \"2\", \"table\": \"1\", \"column\": \"Sm.-perm. (Finno-Permic)\", \"visual_checked\": true}",
+          "method": "expert_estimate",
+          "quote": "Hajdú 1975\n4000 eKr. 2000 eKr. 1500 eKr.\n  500 eKr.\n      1 jKr.",
+          "role": "hypothesis",
+          "source": "Petri Kallio 2006",
+          "start": null,
+          "url": "https://www.kotikielenseura.fi/virittaja/hakemistot/jutut/2006_2.pdf"
+        },
+        {
+          "basis": "estimated",
+          "citation": "Kallio, Petri. 2006. Suomen kantakielten absoluuttista kronologiaa. Virittäjä 110(1): 2–25.",
+          "claim_id": "ev_period_6b74b7da0cc1cb88deec68725b61327487515ec0",
+          "end": {
+            "earliest": -1499,
+            "latest": -1499
+          },
+          "event": "crown_divergence",
+          "label": "until c. 1500 BCE",
+          "locator": "{\"pdf_page\": 1, \"printed_page\": \"2\", \"table\": \"1\", \"column\": \"Sm.-perm. (Finno-Permic)\", \"visual_checked\": true}",
+          "method": "lexicostatistic",
+          "quote": "Taagepera 1994 4000 eKr. 2100 eKr. 1500 eKr.\n1300 eKr. 1000 eKr.",
+          "role": "hypothesis",
+          "source": "Petri Kallio 2006",
+          "start": null,
+          "url": "https://www.kotikielenseura.fi/virittaja/hakemistot/jutut/2006_2.pdf"
+        },
+        {
+          "basis": "estimated",
+          "citation": "Kallio, Petri. 2006. Suomen kantakielten absoluuttista kronologiaa. Virittäjä 110(1): 2–25.",
+          "claim_id": "ev_period_8bad8aafcb3536191461526395d7b9f1765dfcae",
+          "end": {
+            "earliest": -1499,
+            "latest": -1499
+          },
+          "event": "crown_divergence",
+          "label": "until c. 1500 BCE",
+          "locator": "{\"pdf_page\": 1, \"printed_page\": \"2\", \"table\": \"1\", \"column\": \"Sm.-perm. (Finno-Permic)\", \"visual_checked\": true}",
+          "method": "expert_estimate",
+          "quote": "Décsy 1965\n4000 eKr. 2500 eKr. 1500 eKr.\n  400 eKr.      1 jKr. 1000 jKr.",
+          "role": "hypothesis",
+          "source": "Petri Kallio 2006",
+          "start": null,
+          "url": "https://www.kotikielenseura.fi/virittaja/hakemistot/jutut/2006_2.pdf"
+        }
+      ],
+      "basis": "estimated",
+      "code": "urj-fpr-pro",
+      "evidence": [
+        {
+          "citation": "Kallio, Petri. 2006. Suomen kantakielten absoluuttista kronologiaa. Virittäjä 110(1): 2–25.",
+          "claim_id": "ev_period_96afdcf9e4cc055ff42829c1808b5f56a868edc8",
+          "event": "crown_divergence",
+          "locator": "{\"pdf_page\": 1, \"printed_page\": \"2\", \"table\": \"1\", \"column\": \"Sm.-perm. (Finno-Permic)\", \"visual_checked\": true}",
+          "method": "expert_estimate",
+          "quote": "Korhonen 1981 4000 eKr. 3000 eKr. 2000 eKr.\n1500 eKr. 1000 eKr.      1 jKr.",
+          "role": "hypothesis",
+          "source": "Petri Kallio 2006",
+          "url": "https://www.kotikielenseura.fi/virittaja/hakemistot/jutut/2006_2.pdf"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 2000 BCE",
+      "name": "Proto-Finno-Permic",
+      "spoken": {
+        "end": {
+          "earliest": -1999,
+          "latest": -1999
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
       "alternatives": [],
       "basis": "estimated",
       "code": "urj-mdv-pro",
@@ -44223,6 +44799,40 @@
       "kind": "proto",
       "label": "until c. 5550/1380 BCE",
       "name": "Proto-Uralic",
+      "span": {
+        "components": [
+          {
+            "basis": "estimated",
+            "code": "urj-pro",
+            "label": "until c. 5550/1380 BCE",
+            "name": "Proto-Uralic",
+            "own": true
+          },
+          {
+            "basis": "estimated",
+            "code": "fiu-pro",
+            "label": "until c. 3000 BCE",
+            "name": "Proto-Finno-Ugric",
+            "own": false
+          },
+          {
+            "basis": "estimated",
+            "code": "urj-fpr-pro",
+            "label": "until c. 2000 BCE",
+            "name": "Proto-Finno-Permic",
+            "own": false
+          }
+        ],
+        "end": {
+          "earliest": -1999,
+          "latest": -1380
+        },
+        "label": "until c. 2000/1380 BCE",
+        "ongoing": false,
+        "partial": true,
+        "start": null,
+        "undated": []
+      },
       "spoken": {
         "end": {
           "earliest": -5553,
