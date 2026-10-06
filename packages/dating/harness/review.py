@@ -11,6 +11,7 @@ from .registry import (
     bundle_decision_digest,
     decision_claim_error,
     default_scope_error,
+    proto_alternative_error,
     validate_span,
 )
 from .io_utils import digest, atomic_json
@@ -89,6 +90,8 @@ def decide_record(raw, bundle=None):
             "claim not eligible for this subject and event" + (": " + reason if reason else "")
         )
     if reason := default_scope_error(c, bundle["research_graph"]):
+        raise ValueError(reason)
+    if reason := proto_alternative_error(decision.model_dump(), by_id):
         raise ValueError(reason)
     if any(i not in by_id or by_id[i]["status"] != "supported" for i in decision.dependencies):
         raise ValueError("unsupported dependency")

@@ -33,9 +33,14 @@ Not adopted: Celtic (Celtiberian, probably the first split, is unsampled), Indo-
 Proto-Greek after Mycenaean is attested). A proto-language is any code Wiktionary
 names "Proto-…", whatever its `kind`: Proto-Norse is filed as attested, Proto-Baltic and
 Proto-Romance as varieties. All clades
-have support 1.0, which reflects M3's constraints. These are conditional on M3: SA8
-moves the root from 8629 to 4997 BP when Chang et al.'s data get eight ancestry
-constraints, and Chang et al. 2015 is not yet reviewed as an alternative.
+have support 1.0, which reflects M3's constraints. These are conditional on M3. For
+`ine-pro` the display also lists two reviewed alternatives, Heggarty et al.'s
+sensitivity runs on Chang et al. 2015's broad dataset (manifests
+`heggarty2023_sa8a_chang_broad`, `heggarty2023_sa8b_chang_broad_ancestry`; medians
+reproduce 8629 and 4997 BP): without ancestry constraints until 7814–5301 BCE, with
+Chang's eight ancestry constraints until 3817–2289 BCE, the steppe-compatible
+scenario. Chang et al.'s own posterior trees are not available in reproducible form
+(D-PLACE's copy has no HPDs or scenario label).
 
 ## Indo-European: source and scenario packet
 

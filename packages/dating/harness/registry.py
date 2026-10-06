@@ -548,6 +548,27 @@ def decision_claim_error(decision, claim, subject):
     return None
 
 
+def proto_alternative_error(decision, by_id):
+    """Why a crown decision's listed alternatives cannot be shown, or None. They may be
+    sensitivity or other analyses (contextual results are shown, never defaults)."""
+    alternatives = decision.get("proto_alternatives") or []
+    if alternatives and decision["event"] != "crown_divergence":
+        return "only a proto-language's crown decision lists alternatives"
+    for alt in alternatives:
+        claim = by_id.get(alt["claim_id"])
+        if (
+            not claim
+            or claim["status"] != "supported"
+            or claim["event"] != "crown_divergence"
+            or claim["subject"]["type"] != "sampled_clade"
+            or len(set(claim["subject"]["taxa"])) < 2
+        ):
+            return "alternative is not a supported crown age of a sampled clade: " + alt["claim_id"]
+        if not (alt.get("proto_mapping") or "").strip():
+            return "an alternative needs its own proto_mapping"
+    return None
+
+
 def decision_digest(claims, sources, catalog_record, subject_id):
     """What an editorial decision reviewed: every claim about the subject, their
     registered sources and the code's catalog record (its mapping links). Tooling
@@ -614,6 +635,8 @@ def build_bundle():
                 raise ValueError("stale decision: the subject's evidence or mapping changed")
             subject = g.wikt.get(d.subject_id.removeprefix("wikt:"))
             if reason := decision_claim_error(d.model_dump(), c, subject):
+                raise ValueError(reason)
+            if reason := proto_alternative_error(d.model_dump(), by_id):
                 raise ValueError(reason)
             if reason := default_scope_error(c, research_graph):
                 raise ValueError(reason)

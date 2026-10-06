@@ -284,6 +284,18 @@ class Decision(StrictModel):
     # Only for event crown_divergence on a proto-language code: why the selected
     # clade's sampled taxa cover the family whose ancestor the code names.
     proto_mapping: str | None = None
+    # Reviewed alternative crown ages for the same proto-language (other analyses or
+    # scenarios), shown beside the default; each says why its taxa cover the family.
+    proto_alternatives: list["ProtoAlternative"] = Field(default_factory=list)
+
+
+class ProtoAlternative(StrictModel):
+    claim_id: str
+    proto_mapping: str
+    note: str | None = None
+
+
+Decision.model_rebuild()
 
 
 def evidence_digest(claims, context):

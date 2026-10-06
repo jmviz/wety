@@ -51,6 +51,13 @@
           ],
           "default": null,
           "title": "Proto Mapping"
+        },
+        "proto_alternatives": {
+          "items": {
+            "$ref": "#/$defs/ProtoAlternative"
+          },
+          "title": "Proto Alternatives",
+          "type": "array"
         }
       },
       "required": [
@@ -62,6 +69,37 @@
         "rationale"
       ],
       "title": "Decision",
+      "type": "object"
+    },
+    "ProtoAlternative": {
+      "additionalProperties": false,
+      "properties": {
+        "claim_id": {
+          "title": "Claim Id",
+          "type": "string"
+        },
+        "proto_mapping": {
+          "title": "Proto Mapping",
+          "type": "string"
+        },
+        "note": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Note"
+        }
+      },
+      "required": [
+        "claim_id",
+        "proto_mapping"
+      ],
+      "title": "ProtoAlternative",
       "type": "object"
     }
   },

@@ -23,6 +23,7 @@ export interface PeriodEvidence {
   url: string | null;
   quote: string | null;
   locator: string | null;
+  note?: string;
 }
 
 export interface Alternative extends PeriodEvidence {

@@ -171,7 +171,11 @@ def evidence_entry(claim, sources):
         "quote": span.get("quote"),
         "locator": span.get("locator"),
         **(
-            {"node": claim["subject"]["name"], "proto_mapping": claim["proto_mapping"]}
+            {
+                "node": claim["subject"]["name"],
+                "proto_mapping": claim["proto_mapping"],
+                **({"note": claim["proto_note"]} if claim.get("proto_note") else {}),
+            }
             if claim.get("proto_mapping")
             else {}
         ),
@@ -371,6 +375,7 @@ def export_periods(bundle, generation=None):
     claims = {c["id"]: c for c in bundle["claims"]}
     sources = bundle["sources"]
     adopted = {}
+    extra = {}  # reviewed alternative crown ages, shown beside a proto default
     for d in bundle["decisions"]:
         c = claims[d["claim_id"]]
         # The registry rejects ineligible decisions at build time; re-check the
@@ -384,6 +389,13 @@ def export_periods(bundle, generation=None):
             continue
         if d["event"] == "crown_divergence":
             c = {**c, "proto_mapping": d["proto_mapping"]}
+            for alt in d.get("proto_alternatives") or []:
+                a = claims.get(alt["claim_id"])
+                if a and a["status"] == "supported" and a["event"] == "crown_divergence":
+                    shown = {**a, "proto_mapping": alt["proto_mapping"]}
+                    if alt.get("note"):
+                        shown["proto_note"] = alt["note"]
+                    extra.setdefault(d["subject_id"][5:], []).append(shown)
         adopted.setdefault(d["subject_id"][5:], []).append(c)
     languages = []
     for code in sorted(adopted):
@@ -398,7 +410,7 @@ def export_periods(bundle, generation=None):
             and claims[i]["status"] == "supported"
             and claims[i]["subject"]["mapping"] == "exact"
         ]
-        record = period_record(code, adopted[code], others, view, sources)
+        record = period_record(code, adopted[code], extra.get(code, []) + others, view, sources)
         if record:
             languages.append(record)
     add_spans(languages, bundle["view"])

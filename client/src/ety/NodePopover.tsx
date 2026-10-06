@@ -283,6 +283,9 @@ function PeriodSection(props: { period: LangPeriod }) {
             {(a) => (
               <li title={a.citation ?? undefined}>
                 <span class="period-label">{a.label}</span> · {cite(a)}
+                <Show when={a.note}>
+                  <div class="popover-muted">{a.note}</div>
+                </Show>
               </li>
             )}
           </For>
