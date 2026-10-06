@@ -191,6 +191,28 @@ class TreeTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             summarize(m)
 
+    def test_unannotated_clade_skipped(self):
+        # TreeAnnotator leaves low-support clades without heights: no claim for them,
+        # but a tree whose root has no heights is undated.
+        def run(newick):
+            with tempfile.TemporaryDirectory(dir=DATING_DIR) as d:
+                path = Path(d) / "t.tre"
+                path.write_text(newick)
+                m = self.manifest()
+                m.update(
+                    path=str(path),
+                    sha256=hashlib.sha256(path.read_bytes()).hexdigest(),
+                    taxa=["A", "B", "C"],
+                    unit="BP",
+                    height_statistic="median",
+                )
+                return summarize(m)
+
+        claims = run("((A:1,B:1)[&posterior=0.2]:1,C:2)[&height_median=200,posterior=1.0];")
+        self.assertEqual([len(c["subject"]["taxa"]) for c in claims], [3])
+        with self.assertRaises(ValueError):
+            run("((A:1,B:1)[&height_median=100]:1,C:2)[&posterior=1.0];")
+
     def test_native_hpd_retained(self):
         m = self.manifest()
         root = max(summarize(m), key=lambda c: len(c["subject"]["taxa"]))

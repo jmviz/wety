@@ -136,7 +136,11 @@ def summarize(manifest):
                 )
             else:
                 if "height_median" not in n.annotations and "height" not in n.annotations:
-                    raise ValueError("summary node lacks height annotations")
+                    # TreeAnnotator leaves clades below its posterior limit unannotated;
+                    # those yield no claim. An unannotated root means an undated tree.
+                    if n is root:
+                        raise ValueError("summary root lacks height annotations")
+                    continue
                 values[key] = [n.annotations.get("height_median", n.annotations.get("height"))]
     out = []
     for taxa_key, xs in sorted(values.items()):

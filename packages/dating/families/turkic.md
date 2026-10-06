@@ -1,6 +1,14 @@
 # Turkic
 
-**Summary.** One single-researcher run (13 proposals, about 13 minutes) over Robbeets et al. 2021, Rama & Wichmann 2020 and Savelyev & Jeong 2020. Key distinctions: Turkic 2100 bp ±175 is a calibration *prior*; 6811 bp belongs to the proposed Proto-Altaic node, not Turkic; Rama & Wichmann's 3206/3414/2210 are separate method scenarios. Documentary anchors (Jie couplet setting 307–311 AD; Avar titles after 626 AD) date documents and institutions, not the language. The dedicated Turkic phylogeny (Savelyev & Robbeets, 10.1093/jole/lzz010) was not acquired. Proposals are unimported.
+**Summary.** One single-researcher run (13 proposals, about 13 minutes) over Robbeets et al. 2021, Rama & Wichmann 2020 and Savelyev & Jeong 2020. Key distinctions: Turkic 2100 bp ±175 is a calibration *prior*; 6811 bp belongs to the proposed Proto-Altaic node, not Turkic; Rama & Wichmann's 3206/3414/2210 are separate method scenarios. Documentary anchors (Jie couplet setting 307–311 AD; Avar titles after 626 AD) date documents and institutions, not the language. The dedicated Turkic phylogeny (Savelyev & Robbeets 2020) is now read; see below.
+
+**Shown in wety (2026-10-06).** Savelyev & Robbeets 2020's main covarion strict-clock
+analysis (32 varieties incl. Old Turkic and Cuman), annotated tree from Zenodo 3556954
+(manifest `savelyev_robbeets2020_covarion_strict`), reproduces the article: root median
+2,066 BP, 1,517–2,755, heights in thousands of years before AD 2000 as stated.
+`trk-pro` ends at the root (Chuvash against Common Turkic), 756 BCE – 483 CE;
+`trk-cmn-pro` at the Common Turkic crown (support 0.998), 7–809 CE. Robbeets et al.
+2021's 2100 bp ±175 remains a prior, not further evidence.
 
 Dossier: `data/workspaces/dating/_research/single-frontier-turkic-2026-09-21/`.
 
