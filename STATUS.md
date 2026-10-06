@@ -1,7 +1,7 @@
 # Status
 
 *Updated 2026-10-05. Local `main` has `etymon-templates` (graph `7c39072a…` selected).
-Branch `processor-review` (on `canonical-forms`) is unmerged; its graph `deb28401…`
+Branch `processor-review` (on `canonical-forms`) is unmerged; its graph `dab06f67…`
 is built, validated and copied into `data/`, not selected. Nothing pushed.*
 
 ## What the project promises
@@ -15,52 +15,55 @@ in the `packages/dating` registry.
 - **Graph** `7c39072a…` (2026-09-01 dump): homographs, Descendants sections and
   `{{etymon}}` are read. Stable links; deployment via `main` → R2 → `production`
   (host setup not yet run); dates for 14 of 20 pilot codes.
-- **Graph** `deb28401…` (`processor-review`): 8,102,248 entries with an etymology
-  (English 1,060,015), against 7,894,425 in `cf09bd87…` (`canonical-forms`).
+- **Graph** `dab06f67…` (`processor-review`): 8,101,979 entries with an etymology
+  (English 1,059,987), against 7,894,425 in `cf09bd87…` (`canonical-forms`).
 
 ## What changed on `processor-review`
 
-- Cited terms are found by Wiktionary's own entry names (new export
-  `wiktionary-entry-names/d582e4fa…`); `{{af}}` parts read correctly; roots imputed
-  deterministically, by vote, with homograph roots by sense id; missing parents and
-  parts are linked, not dropped; one placeholder per missing term.
-- **Homographs** ([resolve.rs](crates/processor/src/resolve.rs)): ids (`{{etymon}}`,
-  `{{etymid}}`, sense ids), then agreement (the candidate's Descendants or Derived
-  terms name the citing word, or its etymology fits the citation's next step), then
-  contradiction, then the template's `t=` gloss, then gloss embeddings.
-- **Missing homographs:** when every candidate's own etymology names an unrelated
-  source, the cited word is taken as missing (278 citations).
-- Cycles are broken at their weakest link; an etymology opening with `{{unk}}`/`{{unc}}`
-  takes no parent from the conjectures after it; joined Descendants sections of
-  several parts of speech were being lost.
+- Entry names from Wiktionary's Lua; `{{af}}` parts; deterministic root votes;
+  one placeholder per missing term; cycles broken at their weakest link.
+- **Homographs** ([resolve.rs](crates/processor/src/resolve.rs)): ids, then agreement
+  (Descendants/Derived lists, the citation's next step), then contradiction, then meaning.
+- **Meaning** ([embeddings.rs](crates/processor/src/embeddings.rs)): Granite small
+  English R2 (48M parameters; replaces MiniLM), comparing senses one by one, using the
+  template's `t=` gloss, an "alternative form of" sense's gloss, and part of speech.
+  Offline, on 2,000 ambiguous citations with a known answer: 72.9% → 84.6% right.
+  Larger models that fit in 16 GB (EmbeddingGemma 300M, Qwen3 0.6B, Granite R2 149M)
+  scored lower here and were 3–11× slower.
+- **Every homograph on the cited page** is a candidate: Middle Dutch *dië* (on page
+  *die*) had been invisible.
+- **Missing homographs** (the meant word lacks an entry): 159 citations, down from 274;
+  only an entry's own etymology counts against it, spelling variants do not, and a
+  cited root does not.
 
-Homograph choice on two samples of 100 ambiguous citations whose answer is known:
+Server check, two samples of 100 ambiguous citations with known answers:
 
-| Answer known by | `aeeabc6d` | `deb28401` |
-|---|---|---|
-| id | 92 right, 6 wrong | 96 right, 1 wrong |
-| the candidate's Descendants list | 86 right, 3 wrong | 89 right, 1 wrong |
+| Answer known by | `aeeabc6d` | `deb28401` | `dab06f67` |
+|---|---|---|---|
+| id | 92 right, 6 wrong | 96 / 1 | 94 / 1 |
+| the candidate's Descendants list | 86 / 3 | 89 / 1 | 87 / 1 |
 
-Trees, English+Latin nodes: *méh₂tēr* 183 (production 143), *bʰer-* 1,144 (946).
-English *bairn* now reaches *bʰer-* through Middle English *bern* "child".
+The rest have intermediate-language parents. Trees, English+Latin nodes:
+*méh₂tēr* 184 (production 143), *bʰer-* 1,121 (946). *bairn* < *bern* "child" <
+Old English *bearn* again (it had followed *barn* "barn" in `abf64f81…`).
 
 ## Uncertainties
 
-- "Missing" verdicts: about two-thirds right in a sample of 15; false ones are
-  related words with unlinked entries (*Alemania* < *Alamanni*).
-- The second sample's answer key is a signal the resolver uses; samples are small.
-- 549k citations are still decided by gloss embeddings; part-of-speech hints are unused.
-- Speculative etymologies after `{{unk}}` (e.g. *Madrid* < *mātrīx*) are no longer
-  linked, by design.
+- "Missing" verdicts: 6 of 8 sampled right; false ones are related words that no
+  template links (*szenzitív* < *sensitif* < *sentire*).
+- 566k citations are decided by meaning alone; offline accuracy is about 85%.
+- Wrong Wiktionary-side links persist (French *genre* < English *gender*; Tatar *бүре*
+  "wolf" under *bürgä* "flea" via a Descendants list).
+- Builds take 25 minutes with a warm embedding cache, 3–4 hours cold.
 
 ## Next three actions
 
 1. Maintainer: review `canonical-forms` and `processor-review`; if accepted, merge and
-   select `deb28401…` (CURRENT.json, `deploy/graph.json`).
+   select `dab06f67…` (CURRENT.json, `deploy/graph.json`).
 2. Maintainer: one-time deployment setup ([deploy/README.md](deploy/README.md)).
 3. Supply the six queued works in Zotero, then `dating holdings sync`.
 
 ## Decisions needed from the maintainer
 
-- Whether to adopt `deb28401…`, including the unknown-origin and missing-homograph
-  policies.
+- Whether to adopt `dab06f67…`, including the unknown-origin and missing-homograph
+  policies and the new embedding model.
