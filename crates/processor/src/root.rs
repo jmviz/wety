@@ -210,11 +210,15 @@ impl Items {
 
     // Whether a root may be imputed as an item's ety: the item's language must
     // descend from the root's (an imputed item's may be the root's own).
-    fn may_descend_from_root(&self, item: ItemId, root_item: ItemId) -> bool {
+    // An imputed item may be a derivative in its root's own language (*bʰor-no-m
+    // < *bʰer-), unless it is a root or affix itself (*bʰor-).
+    fn may_descend_from_root(&self, string_pool: &StringPool, item: ItemId, root_item: ItemId) -> bool {
         let item = self.get(item);
         let root_lang = self.get(root_item).lang();
         item.lang().strictly_descends_from(root_lang)
-            || (item.is_imputed() && item.lang().descends_from(root_lang))
+            || (item.is_imputed()
+                && item.lang().descends_from(root_lang)
+                && !item.term().resolve(string_pool).ends_with('-'))
     }
 
     // Root etys are imputed in two passes, each over items in id order so that
@@ -228,7 +232,11 @@ impl Items {
     //    not always alike (their categories also cover other parts of their
     //    ancestry), so each progenitor gets the root most of them name, an item
     //    naming n unreached roots giving each 1/n of a vote.
-    pub(crate) fn impute_root_etys(&mut self, embeddings: &Embeddings) -> Result<()> {
+    pub(crate) fn impute_root_etys(
+        &mut self,
+        string_pool: &StringPool,
+        embeddings: &Embeddings,
+    ) -> Result<()> {
         let raw_roots: BTreeMap<ItemId, Box<[RawRoot]>> =
             mem::take(&mut self.raw_templates.root).into_iter().collect();
         let pb = progress_bar(raw_roots.len() * 2, "Imputing root etys")?;
@@ -244,7 +252,7 @@ impl Items {
                     Some(found) => found,
                     None => (self.impute_item(root.langterm, item_id), 0.0),
                 };
-                if self.may_descend_from_root(item_id, root_item)
+                if self.may_descend_from_root(string_pool, item_id, root_item)
                     && !root_items.contains(&root_item)
                 {
                     root_items.push(root_item);
@@ -273,7 +281,7 @@ impl Items {
                 if let Some((root_item, _)) = self.find_root(embeddings, item_id, root)?
                     && !progenitors.items.contains(&root_item)
                     && head_progenitor != root_item
-                    && self.may_descend_from_root(head_progenitor, root_item)
+                    && self.may_descend_from_root(string_pool, head_progenitor, root_item)
                     && !unreached.contains(&root_item)
                 {
                     unreached.push(root_item);

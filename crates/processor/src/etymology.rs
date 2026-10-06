@@ -1201,6 +1201,22 @@ mod tests {
         }
 
         #[test]
+        fn a_root_takes_no_root() {
+            // sla-pro *bȍrъ < (missing) *bʰor-; its root categories name
+            // *dʰeh₁- as well, which *bʰor-, a root itself, does not descend from
+            let mut t = Setup::new("root-of-root");
+            let dheh = t.add("ine-pro", "dʰeh₁-");
+            let bor = t.add("sla-pro", "bȍrъ");
+            t.process(bor, r#"[{"name": "inh", "args": {"1": "sla-pro", "2": "ine-pro", "3": "*bʰor-"}}]"#);
+            let bhor = t.parent(bor);
+            assert!(t.items.get(bhor).is_imputed());
+            let langterm = t.items.get(dheh).lang().new_langterm(&mut t.sp, "dʰeh₁-");
+            t.items.raw_templates.root.insert(bor, Box::new([crate::root::RawRoot { langterm, sense_id: None }]));
+            t.items.impute_root_etys(&t.sp, &t.embeddings).unwrap();
+            assert!(t.items.graph.immediate_ety(bhor).is_none());
+        }
+
+        #[test]
         fn the_continuation_picks_the_homograph() {
             // en bairn < enm bern < ang bearn; enm "bern" has three entries
             let mut t = Setup::new("bairn");

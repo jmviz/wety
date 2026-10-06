@@ -458,7 +458,7 @@ impl Items {
         println!("  Etymologies:");
         self.resolution_stats.report();
         self.break_cycles();
-        self.impute_root_etys(embeddings)?;
+        self.impute_root_etys(string_pool, embeddings)?;
         self.break_cycles();
         Ok(())
     }
