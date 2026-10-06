@@ -114,8 +114,11 @@ documentation window; conventional_period with role hypothesis and method expert
 proto-stage dating; composition (role hypothesis) for when texts transmitted orally or
 known only from much later copies were composed (the Vedas, the Avesta), and
 manuscript_production for the date of a surviving copy; native_transmission_end
-(role hypothesis) for when a language stopped being spoken natively; literary_use for
-a written or learned register. Attestation is not the spoken period: say so in
+(role hypothesis) for when a language stopped being spoken natively (a revived
+language too: the end is that of native transmission); revitalization (role
+observation) for a dated statement that a language is being revived (a programme's
+start, new speakers, or a year it is reported ongoing); literary_use for a written or
+learned register. Attestation is not the spoken period: say so in
 qualifications. Use only these event names; check rejects others.
 
 Deliverables (write via the write action; these four names only):
