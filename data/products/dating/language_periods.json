@@ -35389,7 +35389,7 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:fff5df92fe6ca543"
     }
   ],
-  "generation": "5e48ab530ed061d8c8b25e68058e4cc82ad3eaafc95e75402d371a33eea90081",
+  "generation": "94dbd8abea93962f9d99a53be5150b39bda5ad64523f8c64f1346c63ab79ea62",
   "languages": [
     {
       "alternatives": [],
@@ -42722,6 +42722,75 @@
       }
     },
     {
+      "alternatives": [
+        {
+          "basis": "attested",
+          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Europe. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "claim_id": "ev_period_9ac7a6aad792e018ab4233c0f35831d14b5c851c",
+          "end": null,
+          "event": "first_attestation",
+          "label": "from c. 2nd century CE",
+          "locator": "{\"page\": \"5\", \"pdf_page\": 27}",
+          "method": "scholarly_synthesis",
+          "quote": "The Ogham inscriptions, which date as\nearly as the fourth century AD (and perhaps as early as the second century), can be read\n(owing to our knowledge of later Irish) but consist largely of personal names and provide\nlittle data on which can be constructed a linguistic description of Ogham Irish.",
+          "role": "observation",
+          "source": "Woodard 2008",
+          "start": {
+            "earliest": 101,
+            "latest": 200
+          },
+          "url": null
+        },
+        {
+          "basis": "attested",
+          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Europe. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "claim_id": "ev_period_b74bf3896bc0f84912a30cfa60ec5d844eed09c2",
+          "end": null,
+          "event": "first_attestation",
+          "label": "from 4th century CE",
+          "locator": "{\"page\": \"5\", \"pdf_page\": 27}",
+          "method": "scholarly_synthesis",
+          "quote": "The Ogham inscriptions, which date as\nearly as the fourth century AD (and perhaps as early as the second century), can be read\n(owing to our knowledge of later Irish) but consist largely of personal names and provide\nlittle data on which can be constructed a linguistic description of Ogham Irish.",
+          "role": "observation",
+          "source": "Woodard 2008",
+          "start": {
+            "earliest": 301,
+            "latest": 400
+          },
+          "url": null
+        }
+      ],
+      "basis": "attested",
+      "code": "pgl",
+      "evidence": [
+        {
+          "citation": "Fortson, Benjamin W., IV. 2010. Indo-European Language and Culture: An Introduction. 2nd ed. Blackwell Textbooks in Linguistics 19. Chichester and Malden, MA: Wiley-Blackwell. (Supplied copy is a reflowed e-book without printed page numbers; cited by section.)",
+          "claim_id": "ev_period_d35cbb0aebdefd8a74070a0df8e2be1aee4b2ef3",
+          "event": "documentary_sampling",
+          "locator": "{\"page\": \"unnumbered in supplied rendering; §14.28\", \"pdf_page\": 332}",
+          "method": "scholarly_synthesis",
+          "quote": "The origin of the Ogam\nscript is not known for certain; the inscriptions hail mostly from southern Ireland and date\nfrom about the fourth to the seventh centuries AD, with the bulk of them coming from the fifth\nand sixth. The stage of Irish at this time is called Primitive Irish (or Ogam Irish).",
+          "role": "observation",
+          "source": "Fortson 2010",
+          "url": null
+        }
+      ],
+      "kind": "attested",
+      "label": "c. 4th–7th century CE",
+      "name": "Primitive Irish",
+      "spoken": {
+        "end": {
+          "earliest": 601,
+          "latest": 700
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 301,
+          "latest": 400
+        }
+      }
+    },
+    {
       "alternatives": [],
       "basis": "estimated",
       "code": "phi-pro",
@@ -45412,6 +45481,35 @@
     },
     {
       "alternatives": [],
+      "basis": "last_speaker",
+      "code": "xco",
+      "evidence": [
+        {
+          "citation": "Windfuhr, Gernot, and John R. Perry. 2009. “Persian and Tajik.” In Gernot Windfuhr (ed.), The Iranian Languages, 416–544. London and New York: Routledge.",
+          "claim_id": "ev_period_85205daeb53157e17e8610f9862e185d7302ff64",
+          "event": "native_transmission_end",
+          "locator": "{\"page\": \"336\", \"pdf_page\": 411}",
+          "method": "expert_estimate",
+          "quote": "The sources date from the pre-Sasanian period (some of those in Khwarezmian script) \nto the Islamic period when, sometime after the fourteenth century CE, the language died \nout.",
+          "role": "hypothesis",
+          "source": "Windfuhr 2009",
+          "url": null
+        }
+      ],
+      "kind": "stage",
+      "label": "until after 1400 CE",
+      "name": "Khwarezmian",
+      "spoken": {
+        "end": {
+          "earliest": 1400,
+          "latest": null
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
       "basis": "conventional",
       "code": "xct",
       "evidence": [
@@ -45816,6 +45914,49 @@
     {
       "alternatives": [],
       "basis": "attested",
+      "code": "xib",
+      "evidence": [
+        {
+          "citation": "Moncunill Martí, Noemí, and Javier Velaza Frías. 2020. “Iberian / Ibérico.” Palaeohispanica 20: 591–629. https://doi.org/10.36707/palaeohispanica.v0i20.370.",
+          "claim_id": "ev_period_6bbffb86669c752ada1fc2685d810f70aeddc5e4",
+          "event": "first_attestation",
+          "locator": "{\"page\": \"593\", \"pdf_page\": 3}",
+          "method": "archaeological_epigraphic_dating",
+          "quote": "Iberian inscriptions are found in an extensive area along the Mediter-\nranean coast, from the River Hérault in Languedoc (France) to the north as \nfar as the province of Almería (Spain) to the south, with a certain degree of \npenetration towards the hinterland, which is particularly intense in the River \nEbro valley (fig. 1). \nRegarding the chronology of the inscriptions, the oldest that can be dated \nfrom their archaeological context or the material they are written on date back \nto the end of the 5th century BCE.",
+          "role": "observation",
+          "source": "Moncunill Martí 2020",
+          "url": "https://ifc-ojs.es/index.php/palaeohispanica/article/download/370/380"
+        },
+        {
+          "citation": "Moncunill Martí, Noemí, and Javier Velaza Frías. 2020. “Iberian / Ibérico.” Palaeohispanica 20: 591–629. https://doi.org/10.36707/palaeohispanica.v0i20.370.",
+          "claim_id": "ev_period_a9a08bedaa1a4fdae40f118f83796f1f331106a1",
+          "event": "last_attestation",
+          "locator": "{\"page\": \"611\", \"pdf_page\": 21}",
+          "method": "scholarly_synthesis",
+          "quote": "Progressively, however, the same elites who had adapted the Roman \nepigraphic habit to the local language and culture began to use mainly Latin \nas their vehicular language, as shown by the fact that people bearing Iberian \ncognomina are mentioned in Latin funerary, votive and even honorific inscrip-\ntions. In this context, the public use of the Iberian script did not last beyond \nthe end of the first century BCE and the early first century CE: the bilingual \ninscription on an architrave from Saguntum and the one found in the theatre \nof the same city, perhaps one of the subsellia from the cavea, can be considered \nas some of the latest examples of that kind. In the first century CE the Latin \nlanguage and writing would be finally adopted as the only means of epigraph-\nic expression in all Iberian lands, in an irreversible process that would lead to \nthe death of the local language and the full Latinization of its native speakers.",
+          "role": "observation",
+          "source": "Moncunill Martí 2020",
+          "url": "https://ifc-ojs.es/index.php/palaeohispanica/article/download/370/380"
+        }
+      ],
+      "kind": "attested",
+      "label": "5th century BCE – 1st century CE",
+      "name": "Iberian",
+      "spoken": {
+        "end": {
+          "earliest": 1,
+          "latest": 100
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": -499,
+          "latest": -400
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "attested",
       "code": "xld",
       "evidence": [
         {
@@ -46040,6 +46181,38 @@
     },
     {
       "alternatives": [],
+      "basis": "conventional",
+      "code": "xpi",
+      "evidence": [
+        {
+          "citation": "James, Alan G. 2025. The Brittonic Language in the Old North: A Guide to the Place-Name Evidence. Volume 1: Introduction, Bibliography etc. November 2025 edition (title dated 1.11.2025). Scottish Place-Name Society.",
+          "claim_id": "ev_period_da7d59e797687d2541b49512d213d7c6c1d5106a",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"12\", \"pdf_page\": 12}",
+          "method": "scholarly_periodization",
+          "quote": "'Pictish' to \nrefer more specifically to the form of P-Celtic spoken in historical Pictland in the sixth to \nninth centuries.",
+          "role": "convention",
+          "source": "James 2025",
+          "url": "https://spns.org.uk/wp-content/uploads/2025/11/Alan_James_Brittonic_Language_in_the_Old_North_BLITON_Volume_I_Introduction_Bibliography_etc._Nov_2025_edition.pdf"
+        }
+      ],
+      "kind": "stage",
+      "label": "6th–9th century CE",
+      "name": "Pictish",
+      "spoken": {
+        "end": {
+          "earliest": 801,
+          "latest": 900
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 501,
+          "latest": 600
+        }
+      }
+    },
+    {
+      "alternatives": [],
       "basis": "attested",
       "code": "xpu",
       "evidence": [
@@ -46226,6 +46399,35 @@
           "earliest": -799,
           "latest": -700
         }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "last_speaker",
+      "code": "xsv",
+      "evidence": [
+        {
+          "citation": "Klein, Jared S. (ed.); Joseph, Brian D. (ed.); Fritz, Matthias (ed.) (2017) Handbook of comparative and historical Indo-European linguistics. Vol. 3. Berlin ; Boston, De Gruyter Mouton.",
+          "claim_id": "ev_period_6ad1953531f643239f5247ad8b7d877fbfb81bb3",
+          "event": "native_transmission_end",
+          "locator": "{\"page\": \"1699\", \"pdf_page\": 313}",
+          "method": "expert_estimate",
+          "quote": "Yotvingian, sometimes treated as a\ndialect of OPr. (Schmid 1976: 16R), became extinct at the end of the 16th c.",
+          "role": "hypothesis",
+          "source": "Klein et al. 2017",
+          "url": null
+        }
+      ],
+      "kind": "stage",
+      "label": "until 16th century CE",
+      "name": "Sudovian",
+      "spoken": {
+        "end": {
+          "earliest": 1501,
+          "latest": 1600
+        },
+        "ongoing": false,
+        "start": null
       }
     },
     {

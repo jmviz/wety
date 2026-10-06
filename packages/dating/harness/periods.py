@@ -124,8 +124,11 @@ def ordinal(n):
 def describe(r, rounded=False):
     """(text, era) for an endpoint range: a year, a century, or a year span."""
     lo, hi = r
-    if lo is None or hi is None:
-        return era_year(hi if lo is None else lo, rounded)
+    if hi is None:  # only a lower bound: "the language died out after the 14th century"
+        text, era = era_year(lo, rounded)
+        return "after " + text, era
+    if lo is None:
+        return era_year(hi, rounded)
     if lo == hi:
         return era_year(lo, rounded)
     if hi - lo == 999 and (lo - 1) % 1000 == 0 and lo > 0:
