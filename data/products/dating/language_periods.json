@@ -35641,7 +35641,7 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:fff5df92fe6ca543"
     }
   ],
-  "generation": "33817b242bf8f2fc97f80fbed2e9a2c019b6483c9db7f1406f30a3236dbf8860",
+  "generation": "571d8fd22162de8be37ba6dffb9aa7d65ceae06a73259836d4a1acc1eeef71cc",
   "languages": [
     {
       "alternatives": [],
@@ -39233,6 +39233,35 @@
       }
     },
     {
+      "alternatives": [],
+      "basis": "last_speaker",
+      "code": "fos",
+      "evidence": [
+        {
+          "citation": "Li, Paul Jen-kuei. 2009. “Linguistic differences among Siraya, Taivuan and Makatau.” In Alexander Adelaar and Andrew Pawley (eds.), Austronesian Historical Linguistics and Culture History: A Festschrift for Robert Blust, 399–409. Pacific Linguistics 601. Canberra: Pacific Linguistics, The Australian National University. First edition. https://doi.org/10.15144/PL-601.",
+          "claim_id": "ev_period_fc10fdba6d251ad500e1b62b225d9b5436aec1dd",
+          "event": "native_transmission_end",
+          "locator": "{\"page\": \"399\", \"pdf_page\": 412}",
+          "method": "expert_estimate",
+          "quote": "Siraya, Taivuan and Makatau were the Formosan languages or dialects formerly spoken \nin the southwestern plains of Taiwan.1 Roughly speaking, Siraya was spoken in the coastal \narea of Tainan Plain and Taivuan mostly in the inland of Tainan Plain to the north, while \nMakatao was spoken in Kaohsiung and Pingtung prefectures to the south. The languages or \ndialects probably became extinct in the first half of the 19th century (Li 2002).",
+          "role": "hypothesis",
+          "source": "Li 2009",
+          "url": "https://openresearch-repository.anu.edu.au/bitstreams/94b39dcb-0809-4b05-9f42-15cafab6e756/download"
+        }
+      ],
+      "kind": "stage",
+      "label": "until c. 19th century CE",
+      "name": "Siraya",
+      "spoken": {
+        "end": {
+          "earliest": 1801,
+          "latest": 1900
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
       "alternatives": [
         {
           "basis": "conventional",
@@ -41982,6 +42011,49 @@
         },
         "ongoing": false,
         "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "last_speaker",
+      "code": "ntw",
+      "evidence": [
+        {
+          "citation": "Rountree, Helen C. 2020. “Languages and Interpreters in Early Virginia Indian Society.” Encyclopedia Virginia. Virginia Humanities, 7 December 2020; retained page marked last updated 12 May 2026. https://encyclopediavirginia.org/entries/languages-and-interpreters-in-early-virginia-indian-society/.",
+          "claim_id": "ev_period_6b962c90f60f6f62df0f61a75b3d2c8566e2cc0f",
+          "event": "first_attestation",
+          "locator": "{\"start\": 9138, \"end\": 9301, \"section\": \"Iroquoian and Siouan\"}",
+          "method": "scholarly_description",
+          "quote": "The Nottoway language, on the other hand, went unrecorded until 1820, at which point the tribe claimed only about twenty-seven people living in Southampton County.",
+          "role": "observation",
+          "source": "Rountree 2020",
+          "url": "https://www.encyclopediavirginia.org/Languages_and_Interpreters_in_Early_Virginia_Indian_Society"
+        },
+        {
+          "citation": "Rountree, Helen C. 2020. “Languages and Interpreters in Early Virginia Indian Society.” Encyclopedia Virginia. Virginia Humanities, 7 December 2020; retained page marked last updated 12 May 2026. https://encyclopediavirginia.org/entries/languages-and-interpreters-in-early-virginia-indian-society/.",
+          "claim_id": "ev_period_d4b01fbc1206023a2bd5080e5f822c8c09ef7491",
+          "event": "native_transmission_end",
+          "locator": "{\"start\": 17013, \"end\": 17293, \"section\": \"Death and Survival\"}",
+          "method": "expert_estimate",
+          "quote": "The term “extinct,” controversial among some modern-day Indian tribes who recognize how much cultural legacy is contained in a language, is defined by linguists to mean that there are no native speakers left. When Edie Turner died in 1838, she took the Nottoway language with her.",
+          "role": "hypothesis",
+          "source": "Rountree 2020",
+          "url": "https://www.encyclopediavirginia.org/Languages_and_Interpreters_in_Early_Virginia_Indian_Society"
+        }
+      ],
+      "kind": "stage",
+      "label": "1820–1838 CE",
+      "name": "Nottoway",
+      "spoken": {
+        "end": {
+          "earliest": 1838,
+          "latest": 1838
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 1820,
+          "latest": 1820
+        }
       }
     },
     {
@@ -45677,6 +45749,35 @@
         "end": {
           "earliest": -736,
           "latest": 1154
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "last_speaker",
+      "code": "tvx",
+      "evidence": [
+        {
+          "citation": "Li, Paul Jen-kuei. 2009. “Linguistic differences among Siraya, Taivuan and Makatau.” In Alexander Adelaar and Andrew Pawley (eds.), Austronesian Historical Linguistics and Culture History: A Festschrift for Robert Blust, 399–409. Pacific Linguistics 601. Canberra: Pacific Linguistics, The Australian National University. First edition. https://doi.org/10.15144/PL-601.",
+          "claim_id": "ev_period_35c998bf105991785475e10beaded636ebf7f642",
+          "event": "native_transmission_end",
+          "locator": "{\"page\": \"399\", \"pdf_page\": 412}",
+          "method": "expert_estimate",
+          "quote": "Siraya, Taivuan and Makatau were the Formosan languages or dialects formerly spoken \nin the southwestern plains of Taiwan.1 Roughly speaking, Siraya was spoken in the coastal \narea of Tainan Plain and Taivuan mostly in the inland of Tainan Plain to the north, while \nMakatao was spoken in Kaohsiung and Pingtung prefectures to the south. The languages or \ndialects probably became extinct in the first half of the 19th century (Li 2002).",
+          "role": "hypothesis",
+          "source": "Li 2009",
+          "url": "https://openresearch-repository.anu.edu.au/bitstreams/94b39dcb-0809-4b05-9f42-15cafab6e756/download"
+        }
+      ],
+      "kind": "stage",
+      "label": "until c. 19th century CE",
+      "name": "Taivoan",
+      "spoken": {
+        "end": {
+          "earliest": 1801,
+          "latest": 1900
         },
         "ongoing": false,
         "start": null
