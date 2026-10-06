@@ -109,6 +109,42 @@
       "subject_id": "wikt:omq-zap-pro"
     },
     {
+      "analysis": "goddard1978-age-reported1991",
+      "claim_id": "ev_period_1cb75ae154d972aa10a88eba7ff70f96ea6403c1",
+      "epoch": null,
+      "estimate": {
+        "interval_type": null,
+        "lower": -999,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": -499
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Algonquian",
+      "role": "hypothesis",
+      "source": "J. Peter Denny 1991",
+      "subject_id": "wikt:alg-pro"
+    },
+    {
+      "analysis": "gstarostin2014-recalibrated-glottochronology",
+      "claim_id": "ev_period_1da28a1a88dfd165605c146baf99df6f3ee3c6aa",
+      "epoch": null,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Ketic",
+      "role": "hypothesis",
+      "source": "Václav Blažek 2019",
+      "subject_id": "wikt:qfa-yke-pro"
+    },
+    {
       "analysis": "wu2022-tibet-arunachal-covarion-relaxed-bdss",
       "claim_id": "ev_period_1ebca6a70246521c5afc05cfb9ff3b71defa9bc7",
       "epoch": 1950,
@@ -125,6 +161,24 @@
       "role": "posterior",
       "source": "Mei-Shin Wu et al. 2022",
       "subject_id": "wu2022-tibet-arunachal-covarion-relaxed-bdss:clade:7ddc99e4b8a7f446"
+    },
+    {
+      "analysis": "robbeets2015-reported2022",
+      "claim_id": "ev_period_2060f7bb5ca468d21eb936037aae082040801efb",
+      "epoch": null,
+      "estimate": {
+        "interval_type": null,
+        "lower": -205,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": 220
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Tungusic",
+      "role": "hypothesis",
+      "source": "Martine Robbeets & Sofia Oskolskaya 2022",
+      "subject_id": "wikt:tuw-pro"
     },
     {
       "analysis": "holman2011-asjp-ethnologue16-s092-r072",
@@ -233,6 +287,42 @@
       "role": "hypothesis",
       "source": "Petri Kallio 2006",
       "subject_id": "wikt:fiu-pro"
+    },
+    {
+      "analysis": "robbeets-oskolskaya2022-qualitative-calibration-bias-correction",
+      "claim_id": "ev_period_2760f1cee989faa6b57a43f6e87cbec1c92c46b1",
+      "epoch": null,
+      "estimate": {
+        "interval_type": null,
+        "lower": 1,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": 200
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Tungusic",
+      "role": "hypothesis",
+      "source": "Martine Robbeets & Sofia Oskolskaya 2022",
+      "subject_id": "wikt:tuw-pro"
+    },
+    {
+      "analysis": "peiros1998-austroasiatic-sixteen-language",
+      "claim_id": "ev_period_2d402e95001478588c8a7748e58d3d2dd2f70b0e",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Austroasiatic",
+      "role": "hypothesis",
+      "source": "Ilia Peiros 1998",
+      "subject_id": "wikt:aav-pro"
     },
     {
       "analysis": "kettunen_vaula_1938_chronology_reported_kallio2006",
@@ -469,6 +559,24 @@
       "subject_id": "wikt:poz-msa-pro"
     },
     {
+      "analysis": "peiros1998-miaoyao-six-language",
+      "claim_id": "ev_period_493d2b47e70ec4c3ee3473326b0122c578e9a7f8",
+      "epoch": null,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Hmong-Mien",
+      "role": "hypothesis",
+      "source": "Ilia Peiros 1998",
+      "subject_id": "wikt:hmx-pro"
+    },
+    {
       "analysis": "holman2011-asjp-ethnologue16-s092-r072",
       "claim_id": "ev_period_4c341058bee11150512fcc299d88c10ac84ccb6a",
       "epoch": 2000,
@@ -703,6 +811,24 @@
       "subject_id": "wikt:urj-fpr-pro"
     },
     {
+      "analysis": "robbeetsetal2020-reported2022",
+      "claim_id": "ev_period_74a875678620549df02dbc00c86a139e1e2d9482",
+      "epoch": null,
+      "estimate": {
+        "interval_type": null,
+        "lower": -599,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": 200
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Tungusic",
+      "role": "hypothesis",
+      "source": "Martine Robbeets & Sofia Oskolskaya 2022",
+      "subject_id": "wikt:tuw-pro"
+    },
+    {
       "analysis": "holman2011-asjp-ethnologue16-s092-r072",
       "claim_id": "ev_period_79f20f354753c0d3eb24e89329a0e7c8294a0340",
       "epoch": 2000,
@@ -901,6 +1027,24 @@
       "subject_id": "wikt:kar-pro"
     },
     {
+      "analysis": "gstarostin2014-recalibrated-glottochronology",
+      "claim_id": "ev_period_a19c4d84910b66c6fd6384e64ce06769ab1d756f",
+      "epoch": null,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Yeniseian",
+      "role": "hypothesis",
+      "source": "Václav Blažek 2019",
+      "subject_id": "wikt:qfa-yen-pro"
+    },
+    {
       "analysis": "holman2011-asjp-ethnologue16-s092-r072",
       "claim_id": "ev_period_a2b7a713db185774bd6c484c1629cc65049a73cd",
       "epoch": 2000,
@@ -935,6 +1079,24 @@
       "role": "hypothesis",
       "source": "Eric W. Holman et al. 2011",
       "subject_id": "wikt:esx-inu-pro"
+    },
+    {
+      "analysis": "janhunen2012-reported2022",
+      "claim_id": "ev_period_a8c05276a48617e002893c8aeb1dfe37a3e85b6f",
+      "epoch": null,
+      "estimate": {
+        "interval_type": null,
+        "lower": -499,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": 500
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Tungusic",
+      "role": "hypothesis",
+      "source": "Martine Robbeets & Sofia Oskolskaya 2022",
+      "subject_id": "wikt:tuw-pro"
     },
     {
       "analysis": "decsy_1965_chronology_reported_kallio2006",
@@ -1295,6 +1457,24 @@
       "role": "hypothesis",
       "source": "Eric W. Holman et al. 2011",
       "subject_id": "wikt:ccs-pro"
+    },
+    {
+      "analysis": "ehl2014-50item-broader",
+      "claim_id": "ev_period_ee53e161d55070aacdf95c007e3ff7f4885afcac",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": null,
+        "lower": -10050,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": -8050
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Afroasiatic",
+      "role": "hypothesis",
+      "source": "Evolution of Human Languages project 2014",
+      "subject_id": "wikt:afa-pro"
     },
     {
       "analysis": "holman2011-asjp-ethnologue16-s092-r072",
@@ -35461,7 +35641,7 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:fff5df92fe6ca543"
     }
   ],
-  "generation": "01c3474b6c3df86545c6fa4e7f385beaf39d6c0d77540298c2872b85f02e7086",
+  "generation": "e7863ad40923c2fe8997a1e500592eb30817a37b23db2a1b72186cad0027e8f9",
   "languages": [
     {
       "alternatives": [],
@@ -35495,29 +35675,69 @@
       }
     },
     {
-      "alternatives": [],
-      "basis": "estimated",
-      "code": "aav-pro",
-      "evidence": [
+      "alternatives": [
         {
+          "basis": "estimated",
+          "citation": "Peiros, Ilia. 1998. Comparative Linguistics in Southeast Asia. Canberra: Pacific Linguistics C-142.",
+          "claim_id": "ev_period_73ee8992b71502e67f7621ab85e71bcbe8c69eb9",
+          "end": {
+            "earliest": -5050,
+            "latest": -5050
+          },
+          "event": "conventional_period",
+          "label": "c. 5550–5050 BCE",
+          "locator": "{\"page\": \"219\", \"pdf_page\": 229}",
+          "method": "expert_estimate",
+          "quote": "Blust believes that Proto Austroasiatic was probably \nspoken 7000-7500 BP",
+          "role": "hypothesis",
+          "source": "Ilia Peiros 1998",
+          "start": {
+            "earliest": -5550,
+            "latest": -5550
+          },
+          "url": "https://openresearch-repository.anu.edu.au/bitstreams/0d12b064-200b-40a2-b8da-674d2b56f0f1/download"
+        },
+        {
+          "basis": "estimated",
           "citation": "Automated dating of the world's language families based on lexical similarity",
           "claim_id": "ev_period_9421d3e1872db2ab55c0b8ea9c5a30cccb615b89",
+          "end": {
+            "earliest": -1635,
+            "latest": -1635
+          },
           "event": "crown_divergence",
+          "label": "until c. 1640 BCE",
           "locator": "{\"table\": \"Table 4\", \"row\": \"Austro-Asiatic\", \"page\": 854, \"pdf_page\": 15, \"character_start\": 59931, \"character_end\": 59967, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
           "method": "lexicostatistic",
           "quote": "Austro-Asiatic\n1,843\n2 (2)\n8.45\n3635",
           "role": "hypothesis",
           "source": "Eric W. Holman et al. 2011",
+          "start": null,
           "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
         }
       ],
+      "basis": "estimated",
+      "code": "aav-pro",
+      "evidence": [
+        {
+          "citation": "Peiros, Ilia. 1998. Comparative Linguistics in Southeast Asia. Canberra: Pacific Linguistics C-142.",
+          "claim_id": "ev_period_2d402e95001478588c8a7748e58d3d2dd2f70b0e",
+          "event": "crown_divergence",
+          "locator": "{\"page\": \"114\", \"pdf_page\": 124}",
+          "method": "lexicostatistic",
+          "quote": "Glottochronology suggests that the disintegration of Proto Austroasiatic started around \n6000 BP.",
+          "role": "hypothesis",
+          "source": "Ilia Peiros 1998",
+          "url": "https://openresearch-repository.anu.edu.au/bitstreams/0d12b064-200b-40a2-b8da-674d2b56f0f1/download"
+        }
+      ],
       "kind": "proto",
-      "label": "until c. 1640 BCE",
+      "label": "until c. 4050 BCE",
       "name": "Proto-Austroasiatic",
       "spoken": {
         "end": {
-          "earliest": -1635,
-          "latest": -1635
+          "earliest": -4050,
+          "latest": -4050
         },
         "ongoing": false,
         "start": null
@@ -35788,7 +36008,26 @@
       }
     },
     {
-      "alternatives": [],
+      "alternatives": [
+        {
+          "basis": "estimated",
+          "citation": "Evolution of Human Languages (EHL) project, Santa Fe Institute. Current state of affairs, https://ehl.santafe.edu/EhlforWeb.pdf.",
+          "claim_id": "ev_period_ee53e161d55070aacdf95c007e3ff7f4885afcac",
+          "end": {
+            "earliest": -10050,
+            "latest": -8050
+          },
+          "event": "crown_divergence",
+          "label": "until c. 10050/8050 BCE",
+          "locator": "{\"pdf_page\": 11, \"page\": \"11\", \"section\": \"IV.A(3)\"}",
+          "method": "lexicostatistic",
+          "quote": "This «broader» version of Afro-Asiatic, like the \nbroader Eurasiatic, is tentatively dated to around 12,000-10,000 BP.",
+          "role": "hypothesis",
+          "source": "Evolution of Human Languages project 2014",
+          "start": null,
+          "url": "https://ehl.santafe.edu/EhlforWeb.pdf"
+        }
+      ],
       "basis": "estimated",
       "code": "afa-pro",
       "evidence": [
@@ -36303,29 +36542,48 @@
       }
     },
     {
-      "alternatives": [],
-      "basis": "estimated",
-      "code": "alg-pro",
-      "evidence": [
+      "alternatives": [
         {
+          "basis": "estimated",
           "citation": "Automated dating of the world's language families based on lexical similarity",
           "claim_id": "ev_period_59329ff4d741b838cd3f4e6e1657d1f55fc2000d",
+          "end": {
+            "earliest": -1343,
+            "latest": -1343
+          },
           "event": "crown_divergence",
+          "label": "until c. 1340 BCE",
           "locator": "{\"table\": \"Table 6\", \"row\": \"Algonquian\", \"page\": 859, \"pdf_page\": 20, \"character_start\": 73365, \"character_end\": 73396, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
           "method": "lexicostatistic",
           "quote": "Algonquian\n180\n4 (7)\n10.23\n3343",
           "role": "hypothesis",
           "source": "Eric W. Holman et al. 2011",
+          "start": null,
           "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
         }
       ],
+      "basis": "estimated",
+      "code": "alg-pro",
+      "evidence": [
+        {
+          "citation": "Denny, J. Peter. 1991. Papers of the Algonquian Conference (Carleton University OJS), citing Goddard 1978.",
+          "claim_id": "ev_period_1cb75ae154d972aa10a88eba7ff70f96ea6403c1",
+          "event": "crown_divergence",
+          "locator": "{\"page\": \"106\", \"pdf_page\": 4, \"footnotes\": \"3–4\"}",
+          "method": "expert_estimate",
+          "quote": "which Proto-Algonquian was diversifying into its daughter languages, about \n1000 to 500 B.C. (Goddard 1978a)",
+          "role": "hypothesis",
+          "source": "J. Peter Denny 1991",
+          "url": "https://ojs.library.carleton.ca/index.php/ALGQP/article/download/1049/932"
+        }
+      ],
       "kind": "proto",
-      "label": "until c. 1340 BCE",
+      "label": "until c. 1000/500 BCE",
       "name": "Proto-Algonquian",
       "spoken": {
         "end": {
-          "earliest": -1343,
-          "latest": -1343
+          "earliest": -999,
+          "latest": -499
         },
         "ongoing": false,
         "start": null
@@ -39880,29 +40138,48 @@
       }
     },
     {
-      "alternatives": [],
-      "basis": "estimated",
-      "code": "hmx-pro",
-      "evidence": [
+      "alternatives": [
         {
+          "basis": "estimated",
           "citation": "Automated dating of the world's language families based on lexical similarity",
           "claim_id": "ev_period_d2d82ee420ceb699f7fe1051aa60e4ab14d4c062",
+          "end": {
+            "earliest": -2243,
+            "latest": -2243
+          },
           "event": "crown_divergence",
+          "label": "until c. 2240 BCE",
           "locator": "{\"table\": \"Table 4\", \"row\": \"Hmong-Mien\", \"page\": 854, \"pdf_page\": 15, \"character_start\": 60513, \"character_end\": 60542, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
           "method": "lexicostatistic",
           "quote": "Hmong-Mien\n49\n3 (3)\n5.66\n4243",
           "role": "hypothesis",
           "source": "Eric W. Holman et al. 2011",
+          "start": null,
           "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
         }
       ],
+      "basis": "estimated",
+      "code": "hmx-pro",
+      "evidence": [
+        {
+          "citation": "Peiros, Ilia. 1998. Comparative Linguistics in Southeast Asia. Canberra: Pacific Linguistics C-142.",
+          "claim_id": "ev_period_493d2b47e70ec4c3ee3473326b0122c578e9a7f8",
+          "event": "crown_divergence",
+          "locator": "{\"page\": \"116\", \"pdf_page\": 126}",
+          "method": "lexicostatistic",
+          "quote": "800 BC \nProto Miao-Y ao",
+          "role": "hypothesis",
+          "source": "Ilia Peiros 1998",
+          "url": "https://openresearch-repository.anu.edu.au/bitstreams/0d12b064-200b-40a2-b8da-674d2b56f0f1/download"
+        }
+      ],
       "kind": "proto",
-      "label": "until c. 2240 BCE",
+      "label": "until c. 800 BCE",
       "name": "Proto-Hmong-Mien",
       "spoken": {
         "end": {
-          "earliest": -2243,
-          "latest": -2243
+          "earliest": -799,
+          "latest": -799
         },
         "ongoing": false,
         "start": null
@@ -43594,47 +43871,66 @@
       }
     },
     {
-      "alternatives": [],
-      "basis": "estimated",
-      "code": "qfa-yen-pro",
-      "evidence": [
+      "alternatives": [
         {
+          "basis": "estimated",
           "citation": "Automated dating of the world's language families based on lexical similarity",
           "claim_id": "ev_period_d8f617057fe9c11c149583f452eb352e2bb62839",
+          "end": {
+            "earliest": -661,
+            "latest": -661
+          },
           "event": "crown_divergence",
+          "label": "until c. 662 BCE",
           "locator": "{\"table\": \"Table 4\", \"row\": \"Yeniseian\", \"page\": 855, \"pdf_page\": 16, \"character_start\": 62074, \"character_end\": 62106, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
           "method": "lexicostatistic",
           "quote": "Yeniseian\n12\n1 (1) \u00012\n16.01\n2661",
           "role": "hypothesis",
           "source": "Eric W. Holman et al. 2011",
+          "start": null,
           "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
         }
       ],
+      "basis": "estimated",
+      "code": "qfa-yen-pro",
+      "evidence": [
+        {
+          "citation": "Blažek, Václav. 2019. Conference paper (starling.rinet.ru/confer/Blazhek-2019.pdf), reporting G. Starostin 2014 (p.c.).",
+          "claim_id": "ev_period_a19c4d84910b66c6fd6384e64ce06769ab1d756f",
+          "event": "crown_divergence",
+          "locator": "{\"page\": \"2\", \"pdf_page\": 2, \"figure\": \"second tree\"}",
+          "method": "lexicostatistic",
+          "quote": "In the most recent classification model (G. Starostin 2014, p.c.), based on recalibrated glottochronology, \nthe position of Pumpokol is closer to the Ket-Yugh branch than to the Kott-Arin branch, in contrast to \nVerner´s model above: \n \n \n \n \n \n \n \n \n \n \n \n \n-1000 \n0 \n+1000 \n+2000 \n \n \n \n \n \n \n \n \n \n \nKet \n \n \n \n1300 \n \n \n \n \n \n \n \n \n \n \nYugh [† 1990] \n \n \n-500 \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \nPumpokol [† 1750] \nYeniseian \n \n \n \n \n \n \n \n \n-830 \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \nArin [† 1800] \n \n \n-200 \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \nKott [† 1850] \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n& Assan [† 1800]",
+          "role": "hypothesis",
+          "source": "Václav Blažek 2019",
+          "url": "https://starling.rinet.ru/confer/Blazhek-2019.pdf"
+        }
+      ],
       "kind": "proto",
-      "label": "until c. 662 BCE",
+      "label": "until c. 830 BCE",
       "name": "Proto-Yeniseian",
       "span": {
         "components": [
           {
             "basis": "estimated",
             "code": "qfa-yen-pro",
-            "label": "until c. 662 BCE",
+            "label": "until c. 830 BCE",
             "name": "Proto-Yeniseian",
             "own": true
           },
           {
             "basis": "estimated",
             "code": "qfa-yke-pro",
-            "label": "until c. 1030 CE",
+            "label": "until c. 1300 CE",
             "name": "Proto-Ketic",
             "own": false
           }
         ],
         "end": {
-          "earliest": 1030,
-          "latest": 1030
+          "earliest": 1300,
+          "latest": 1300
         },
-        "label": "until c. 1030 CE",
+        "label": "until c. 1300 CE",
         "ongoing": false,
         "partial": true,
         "start": null,
@@ -43646,37 +43942,56 @@
       },
       "spoken": {
         "end": {
-          "earliest": -661,
-          "latest": -661
+          "earliest": -829,
+          "latest": -829
         },
         "ongoing": false,
         "start": null
       }
     },
     {
-      "alternatives": [],
-      "basis": "estimated",
-      "code": "qfa-yke-pro",
-      "evidence": [
+      "alternatives": [
         {
+          "basis": "estimated",
           "citation": "Automated dating of the world's language families based on lexical similarity",
           "claim_id": "ev_period_86602f136bc760c2846e2e83e1e369dd224fbbe1",
+          "end": {
+            "earliest": 1030,
+            "latest": 1030
+          },
           "event": "crown_divergence",
+          "label": "until c. 1030 CE",
           "locator": "{\"table\": \"Table 4\", \"row\": \"Ket-Yugh\", \"page\": 855, \"pdf_page\": 16, \"character_start\": 62163, \"character_end\": 62189, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
           "method": "lexicostatistic",
           "quote": "Ket-Yugh\n1\n2 (2)\n48.65\n970",
           "role": "hypothesis",
           "source": "Eric W. Holman et al. 2011",
+          "start": null,
           "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
         }
       ],
+      "basis": "estimated",
+      "code": "qfa-yke-pro",
+      "evidence": [
+        {
+          "citation": "Blažek, Václav. 2019. Conference paper (starling.rinet.ru/confer/Blazhek-2019.pdf), reporting G. Starostin 2014 (p.c.).",
+          "claim_id": "ev_period_1da28a1a88dfd165605c146baf99df6f3ee3c6aa",
+          "event": "crown_divergence",
+          "locator": "{\"page\": \"2\", \"pdf_page\": 2, \"figure\": \"second tree\"}",
+          "method": "lexicostatistic",
+          "quote": "In the most recent classification model (G. Starostin 2014, p.c.), based on recalibrated glottochronology, \nthe position of Pumpokol is closer to the Ket-Yugh branch than to the Kott-Arin branch, in contrast to \nVerner´s model above: \n \n \n \n \n \n \n \n \n \n \n \n \n-1000 \n0 \n+1000 \n+2000 \n \n \n \n \n \n \n \n \n \n \nKet \n \n \n \n1300 \n \n \n \n \n \n \n \n \n \n \nYugh [† 1990] \n \n \n-500 \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \nPumpokol [† 1750] \nYeniseian \n \n \n \n \n \n \n \n \n-830 \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \nArin [† 1800] \n \n \n-200 \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \nKott [† 1850] \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n& Assan [† 1800]",
+          "role": "hypothesis",
+          "source": "Václav Blažek 2019",
+          "url": "https://starling.rinet.ru/confer/Blazhek-2019.pdf"
+        }
+      ],
       "kind": "proto",
-      "label": "until c. 1030 CE",
+      "label": "until c. 1300 CE",
       "name": "Proto-Ketic",
       "spoken": {
         "end": {
-          "earliest": 1030,
-          "latest": 1030
+          "earliest": 1300,
+          "latest": 1300
         },
         "ongoing": false,
         "start": null
@@ -45019,6 +45334,60 @@
       "alternatives": [
         {
           "basis": "estimated",
+          "citation": "Robbeets, Martine & Sofia Oskolskaya. 2022. Proto-Tungusic in time and space. In Andreas Hölzl & Thomas E. Payne (eds.), Tungusic languages: past and present. Berlin: Language Science Press (Zenodo 7025328).",
+          "claim_id": "ev_period_2060f7bb5ca468d21eb936037aae082040801efb",
+          "end": {
+            "earliest": -205,
+            "latest": 220
+          },
+          "event": "crown_divergence",
+          "label": "until c. 206 BCE/220 CE",
+          "locator": "{\"page\": \"270\", \"pdf_page\": 280, \"table\": \"1\"}",
+          "method": "expert_estimate",
+          "quote": "Ethnonym shift\nRobbeets 2015\n206 BC–AD 220",
+          "role": "hypothesis",
+          "source": "Martine Robbeets & Sofia Oskolskaya 2022",
+          "start": null,
+          "url": "https://zenodo.org/record/7025328/files/355-H%C3%B6lzlPayne-2022.pdf?download=1"
+        },
+        {
+          "basis": "estimated",
+          "citation": "Robbeets, Martine & Sofia Oskolskaya. 2022. Proto-Tungusic in time and space. In Andreas Hölzl & Thomas E. Payne (eds.), Tungusic languages: past and present. Berlin: Language Science Press (Zenodo 7025328).",
+          "claim_id": "ev_period_2760f1cee989faa6b57a43f6e87cbec1c92c46b1",
+          "end": {
+            "earliest": 1,
+            "latest": 200
+          },
+          "event": "crown_divergence",
+          "label": "until c. 1st/2nd century CE",
+          "locator": "{\"page\": \"271\", \"pdf_page\": 281}",
+          "method": "expert_estimate",
+          "quote": "Therefore, it is probable that the actual\nbreak-up of Proto-Tungusic took place several centuries before the inferred date\nof AD 450, probably in the beginning of the first millennium AD",
+          "role": "hypothesis",
+          "source": "Martine Robbeets & Sofia Oskolskaya 2022",
+          "start": null,
+          "url": "https://zenodo.org/record/7025328/files/355-H%C3%B6lzlPayne-2022.pdf?download=1"
+        },
+        {
+          "basis": "estimated",
+          "citation": "Robbeets, Martine & Sofia Oskolskaya. 2022. Proto-Tungusic in time and space. In Andreas Hölzl & Thomas E. Payne (eds.), Tungusic languages: past and present. Berlin: Language Science Press (Zenodo 7025328).",
+          "claim_id": "ev_period_74a875678620549df02dbc00c86a139e1e2d9482",
+          "end": {
+            "earliest": -599,
+            "latest": 200
+          },
+          "event": "crown_divergence",
+          "label": "until c. 600 BCE/200 CE",
+          "locator": "{\"page\": \"270\", \"pdf_page\": 280, \"table\": \"1\"}",
+          "method": "comparative_reconstruction",
+          "quote": "Contact linguistics\nRobbeets et al. 2020\n600 BC–AD 200",
+          "role": "hypothesis",
+          "source": "Martine Robbeets & Sofia Oskolskaya 2022",
+          "start": null,
+          "url": "https://zenodo.org/record/7025328/files/355-H%C3%B6lzlPayne-2022.pdf?download=1"
+        },
+        {
+          "basis": "estimated",
           "citation": "Automated dating of the world's language families based on lexical similarity",
           "claim_id": "ev_period_83655662c21096137dc78bf5ccd4f8d963bd663b",
           "end": {
@@ -45034,6 +45403,24 @@
           "source": "Eric W. Holman et al. 2011",
           "start": null,
           "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        },
+        {
+          "basis": "estimated",
+          "citation": "Robbeets, Martine & Sofia Oskolskaya. 2022. Proto-Tungusic in time and space. In Andreas Hölzl & Thomas E. Payne (eds.), Tungusic languages: past and present. Berlin: Language Science Press (Zenodo 7025328).",
+          "claim_id": "ev_period_a8c05276a48617e002893c8aeb1dfe37a3e85b6f",
+          "end": {
+            "earliest": -499,
+            "latest": 500
+          },
+          "event": "crown_divergence",
+          "label": "until c. 500 BCE/500 CE",
+          "locator": "{\"page\": \"270\", \"pdf_page\": 280, \"table\": \"1\"}",
+          "method": "comparative_reconstruction",
+          "quote": "Cultural reconstruction\nJanhunen 2012\n500 BC–AD 500",
+          "role": "hypothesis",
+          "source": "Martine Robbeets & Sofia Oskolskaya 2022",
+          "start": null,
+          "url": "https://zenodo.org/record/7025328/files/355-H%C3%B6lzlPayne-2022.pdf?download=1"
         }
       ],
       "basis": "estimated",
