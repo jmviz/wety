@@ -35641,7 +35641,7 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:fff5df92fe6ca543"
     }
   ],
-  "generation": "e7863ad40923c2fe8997a1e500592eb30817a37b23db2a1b72186cad0027e8f9",
+  "generation": "33817b242bf8f2fc97f80fbed2e9a2c019b6483c9db7f1406f30a3236dbf8860",
   "languages": [
     {
       "alternatives": [],
@@ -37681,6 +37681,78 @@
         },
         "ongoing": false,
         "start": null
+      }
+    },
+    {
+      "alternatives": [
+        {
+          "basis": "attested",
+          "citation": "Fortson, Benjamin W., IV. 2010. Indo-European Language and Culture: An Introduction. 2nd ed. Blackwell Textbooks in Linguistics 19. Chichester and Malden, MA: Wiley-Blackwell. (Supplied copy is a reflowed e-book without printed page numbers; cited by section.)",
+          "claim_id": "ev_period_0f695b6edb0fb1b7d002a2f936d66201e9968b08",
+          "end": {
+            "earliest": -99,
+            "latest": 0
+          },
+          "event": "documentary_sampling",
+          "label": "6th–1st century BCE",
+          "locator": "{\"page\": \"unpaginated electronic rendering; §20.21\", \"pdf_page\": 471}",
+          "method": "philological_attestation",
+          "quote": "20.21. Messapic is known from close to 300 inscriptions from southeast Italy in Calabria and\nApulia and dating from the sixth to the first centuries BC.",
+          "role": "observation",
+          "source": "Fortson 2010",
+          "start": {
+            "earliest": -599,
+            "latest": -500
+          },
+          "url": null
+        },
+        {
+          "basis": "attested",
+          "citation": "Klein, Jared S. (ed.); Joseph, Brian D. (ed.); Fritz, Matthias (ed.) (2017) Handbook of comparative and historical Indo-European linguistics. Vol. 3. Berlin ; Boston, De Gruyter Mouton.",
+          "claim_id": "ev_period_91b70b1dde60b37c81e498b80b49e6ae2a4132de",
+          "end": null,
+          "event": "first_attestation",
+          "label": "from c. 6th century BCE",
+          "locator": "{\"page\": \"1839\", \"pdf_page\": 453, \"section\": \"1. History and diffusion\"}",
+          "method": "philological_attestation",
+          "quote": "The name “Messapic” traditionally designates the pre-Roman language of the 2nd Augus-\ntan region, Apulia et Calabria. But, according to the current state of our knowledge, this\nname (“Messapic language”) is better confined to the inscriptions of the actual Salento\npeninsula, i.e. south of a hypothetical line connecting Brindisi-Taranto: only in this re-\ngion is the name of the Messapians (Messāpii, Mεσσάπιοι: the “genuine” Messapians;\ncf. de Simone 1984 on the Daunia) found in ancient sources (Krahe 1937: 20−27, 1955:\n14−15; de Simone 1979; Lombardo 1991: 52−53; on the sources in general: Lombardo\n[ed.] 1992), and indigenous inscriptions (about 600 texts of differing lengths) are attested\nhere since about the middle of the 6th century BCE (cf. now MLM I−II; Marchesini\n1999).",
+          "role": "observation",
+          "source": "Klein et al. 2017",
+          "start": {
+            "earliest": -599,
+            "latest": -500
+          },
+          "url": null
+        }
+      ],
+      "basis": "attested",
+      "code": "cms",
+      "evidence": [
+        {
+          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Europe. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "claim_id": "ev_period_0d986bec197f802207fd6c8afddafb4443418130",
+          "event": "documentary_sampling",
+          "locator": "{\"page\": \"11\", \"pdf_page\": 33, \"section\": \"7. Messapic\"}",
+          "method": "philological_attestation",
+          "quote": "Messapic survives in a large number of inscriptions, recording chieﬂy proper names,\ndating from about the sixth to the ﬁrst century BC (the most abundantly attested ancient\nlanguage not to receive individual treatment in this volume), including many recent ﬁnds\nfrom a grotto in Lecce (see Santoro 1983–1984).",
+          "role": "observation",
+          "source": "Woodard 2008",
+          "url": null
+        }
+      ],
+      "kind": "attested",
+      "label": "c. 6th–1st century BCE",
+      "name": "Messapic",
+      "spoken": {
+        "end": {
+          "earliest": -99,
+          "latest": 0
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": -599,
+          "latest": -500
+        }
       }
     },
     {
@@ -39780,6 +39852,36 @@
       "kind": "stage",
       "label": "500–1050 CE",
       "name": "Old High German",
+      "span": {
+        "components": [
+          {
+            "basis": "conventional",
+            "code": "goh",
+            "label": "500–1050 CE",
+            "name": "Old High German",
+            "own": true
+          },
+          {
+            "basis": "attested",
+            "code": "lng",
+            "label": "6th–10th century CE",
+            "name": "Lombardic",
+            "own": false
+          }
+        ],
+        "end": {
+          "earliest": 1050,
+          "latest": 1050
+        },
+        "label": "500–1050 CE",
+        "ongoing": false,
+        "partial": false,
+        "start": {
+          "earliest": 500,
+          "latest": 500
+        },
+        "undated": []
+      },
       "spoken": {
         "end": {
           "earliest": 1050,
@@ -41358,6 +41460,38 @@
     {
       "alternatives": [],
       "basis": "attested",
+      "code": "lng",
+      "evidence": [
+        {
+          "citation": "Klein, Jared S. (ed.); Joseph, Brian D. (ed.); Fritz, Matthias (ed.) (2017) Handbook of comparative and historical Indo-European linguistics. Vol. 2. Berlin ; Boston, De Gruyter Mouton.",
+          "claim_id": "ev_period_c183b32ff2f1794ad61e16a5fa6cb969df4f9cf8",
+          "event": "documentary_sampling",
+          "locator": "{\"page\": \"883\", \"pdf_page\": 163, \"section\": \"4.6 Minor WGmc. languages\"}",
+          "method": "philological_attestation",
+          "quote": "Langobardic is a Trümmersprache: except for three 6th c. runic inscriptions, the only\nextant material consists of vernacular appellatives and names in Nebenüberlieferung\n(6th−10th c.; cf. Francovich Onesti 1999).",
+          "role": "observation",
+          "source": "Klein et al. 2017",
+          "url": null
+        }
+      ],
+      "kind": "attested",
+      "label": "6th–10th century CE",
+      "name": "Lombardic",
+      "spoken": {
+        "end": {
+          "earliest": 901,
+          "latest": 1000
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 501,
+          "latest": 600
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "attested",
       "code": "ltc",
       "evidence": [
         {
@@ -41848,6 +41982,38 @@
         },
         "ongoing": false,
         "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "attested",
+      "code": "nwc",
+      "evidence": [
+        {
+          "citation": "Malla, Kamal P. (ed.), with the Nepal Bhasa Dictionary Committee. 2000. A Dictionary of Classical Newari: Compiled from Manuscript Sources. Kathmandu: Nepal Bhasa Dictionary Committee / Cwasā Pāsā. Introduction, p. viii. Digital South Asia Library, University of Chicago, frontmatter facsimile.",
+          "claim_id": "ev_period_f70f62e238b3316ca545407750b9da70577573ae",
+          "event": "documentary_sampling",
+          "locator": "{\"page\": \"viii\", \"pdf_page\": 12, \"section\": \"Introduction\"}",
+          "method": "philological_attestation",
+          "quote": "However, the term \"Classical Newari\" is only a convenient one to describe \"the older forms of the\nlanguage used in the manuscripts.\" As the chronological span of the manuscripts ranges from AD 1115 to 1900 - no\nlanguage stays the same or static for nine hundred years.",
+          "role": "observation",
+          "source": "Malla 2000",
+          "url": "https://dsal.uchicago.edu/dictionaries/malla/frontmatter/frontmatter.pdf"
+        }
+      ],
+      "kind": "attested",
+      "label": "1115–1900 CE",
+      "name": "Classical Newar",
+      "spoken": {
+        "end": {
+          "earliest": 1900,
+          "latest": 1900
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 1115,
+          "latest": 1115
+        }
       }
     },
     {
@@ -44028,6 +44194,70 @@
     },
     {
       "alternatives": [],
+      "basis": "attested",
+      "code": "qwm-arm",
+      "evidence": [
+        {
+          "citation": "Kerslake, Celia. 2022. “Ottoman Turkish.” In Lars Johanson and Éva Á. Csató (eds.), The Turkic Languages, 2nd ed., 174–194. London and New York: Routledge. https://doi.org/10.4324/9781003243809.",
+          "claim_id": "ev_period_278275d8b431a1da650dd05748376d0c20be5bc7",
+          "event": "documentary_sampling",
+          "locator": "{\"page\": \"152\", \"pdf_page\": 177}",
+          "method": "philological_attestation",
+          "quote": "Kipchak texts in Armenian script mostly date from the sixteenth and seventeenth cen­\nturies and belong to descendants of a Crimean Armenian community that had adopted \nthe Kipchak language and migrated to the territories of Ukraine and Poland.",
+          "role": "observation",
+          "source": "Johanson & Csató 2021",
+          "url": "https://doi.org/10.4324/9781003243809"
+        }
+      ],
+      "kind": "attested",
+      "label": "16th–17th century CE",
+      "name": "Armeno-Kipchak",
+      "spoken": {
+        "end": {
+          "earliest": 1601,
+          "latest": 1700
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 1501,
+          "latest": 1600
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "attested",
+      "code": "qwm-mam",
+      "evidence": [
+        {
+          "citation": "Kerslake, Celia. 2022. “Ottoman Turkish.” In Lars Johanson and Éva Á. Csató (eds.), The Turkic Languages, 2nd ed., 174–194. London and New York: Routledge. https://doi.org/10.4324/9781003243809.",
+          "claim_id": "ev_period_251ed674d5b7352889c5d21e38fedc36325622eb",
+          "event": "documentary_sampling",
+          "locator": "{\"page\": \"152\", \"pdf_page\": 177}",
+          "method": "philological_attestation",
+          "quote": "Several Mamluk sources in Arabic script are descriptions of the Kipchak language: \ndictionaries and grammars, written in the fourteenth and fifteenth centuries in Egypt \nand Syria under the Mamluk dynasty.",
+          "role": "observation",
+          "source": "Johanson & Csató 2021",
+          "url": "https://doi.org/10.4324/9781003243809"
+        }
+      ],
+      "kind": "attested",
+      "label": "14th–15th century CE",
+      "name": "Mamluk-Kipchak",
+      "spoken": {
+        "end": {
+          "earliest": 1401,
+          "latest": 1500
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 1301,
+          "latest": 1400
+        }
+      }
+    },
+    {
+      "alternatives": [],
       "basis": "conventional",
       "code": "roa-oit",
       "evidence": [
@@ -46125,6 +46355,67 @@
         "start": {
           "earliest": 1100,
           "latest": 1100
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "last_speaker",
+      "code": "xbo-dan",
+      "evidence": [
+        {
+          "citation": "Kerslake, Celia. 2022. “Ottoman Turkish.” In Lars Johanson and Éva Á. Csató (eds.), The Turkic Languages, 2nd ed., 174–194. London and New York: Routledge. https://doi.org/10.4324/9781003243809.",
+          "claim_id": "ev_period_89a03abbd265f43d46b4993610e91c5eac068be0",
+          "event": "native_transmission_end",
+          "locator": "{\"page\": \"460\", \"pdf_page\": 485}",
+          "method": "expert_estimate",
+          "quote": "Its closest and most certainly identifiable relative besides the dialect of the \nVolga Bulghar inscriptions was Danube Bulghar. The latter, which may have been related \nto Khazar, died out by the tenth century.",
+          "role": "hypothesis",
+          "source": "Johanson & Csató 2021",
+          "url": "https://doi.org/10.4324/9781003243809"
+        }
+      ],
+      "kind": "stage",
+      "label": "until 1000 CE",
+      "name": "Danube Bulgar",
+      "spoken": {
+        "end": {
+          "earliest": null,
+          "latest": 1000
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "attested",
+      "code": "xbo-vol",
+      "evidence": [
+        {
+          "citation": "Kerslake, Celia. 2022. “Ottoman Turkish.” In Lars Johanson and Éva Á. Csató (eds.), The Turkic Languages, 2nd ed., 174–194. London and New York: Routledge. https://doi.org/10.4324/9781003243809.",
+          "claim_id": "ev_period_ac1a5e4c07f69609e712abf441997e8cf4d69bc7",
+          "event": "documentary_sampling",
+          "locator": "{\"page\": \"145\", \"pdf_page\": 170}",
+          "method": "philological_attestation",
+          "quote": "The Volga Bulghar inscriptions from the thirteenth to the fourteenth century represent \na Middle Turkic language of the Chuvash type.",
+          "role": "observation",
+          "source": "Johanson & Csató 2021",
+          "url": "https://doi.org/10.4324/9781003243809"
+        }
+      ],
+      "kind": "attested",
+      "label": "13th–14th century CE",
+      "name": "Volga Bulgar",
+      "spoken": {
+        "end": {
+          "earliest": 1301,
+          "latest": 1400
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 1201,
+          "latest": 1300
         }
       }
     },
