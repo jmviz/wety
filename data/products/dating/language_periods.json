@@ -8461,10 +8461,134 @@
       "subject_id": "zhang2019_relaxed_covarion:clade:ff9f137507695c91"
     }
   ],
-  "generation": "694477bfbbafde69a5d3c497ed8deae2b3ea2783f17bd6036276bf3e6a2b58a3",
+  "generation": "aca3fc8e1d9d516f5cdb4a142827684805f3346b84ef6c8d6305c86bd8c357a7",
   "languages": [
     {
-      "alternatives": [],
+      "alternatives": [
+        {
+          "basis": "attested",
+          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Asia and the Americas. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "claim_id": "ev_period_332ce8288e4c1f235aede3d1cec11f5a1510f30f",
+          "end": null,
+          "event": "manuscript_production",
+          "label": "from 1278 CE",
+          "locator": "{\"page\": \"101\", \"pdf_page\": 123}",
+          "quote": "There are uncertainties regarding both the dating and the geographical provenance of the\nsurviving Avestan texts. The oldest manuscript is quite young (manuscript K7a, dating from\nAD 1278) and therefore of little assistance in resolving these matters.",
+          "role": "observation",
+          "source": "Woodard 2008",
+          "start": {
+            "earliest": 1278,
+            "latest": 1278
+          },
+          "url": null
+        },
+        {
+          "basis": "attested",
+          "citation": "Fortson, Benjamin W., IV. 2010. Indo-European Language and Culture: An Introduction. 2nd ed. Blackwell Textbooks in Linguistics 19. Chichester and Malden, MA: Wiley-Blackwell. (Supplied copy is a reflowed e-book without printed page numbers; cited by section.)",
+          "claim_id": "ev_period_5828170174d39359722d2d995c1494b7fd3037b0",
+          "end": null,
+          "event": "manuscript_production",
+          "label": "from 1288 CE",
+          "locator": "{\"page\": \"unpaginated electronic layout\", \"pdf_page\": 247, \"section\": \"11.13\"}",
+          "quote": "The earliest preserved Avestan manuscript dates only to the year 1288, and some of the most\nimportant other manuscripts were not produced until the 1600s and 1700s.",
+          "role": "observation",
+          "source": "Fortson 2010",
+          "start": {
+            "earliest": 1288,
+            "latest": 1288
+          },
+          "url": null
+        }
+      ],
+      "basis": "composition",
+      "code": "ae",
+      "evidence": [
+        {
+          "citation": "Klein, Jared S. (ed.); Joseph, Brian D. (ed.); Fritz, Matthias (ed.) (2017) Handbook of comparative and historical Indo-European linguistics. Vol. 1. Berlin ; Boston, De Gruyter Mouton.",
+          "claim_id": "ev_period_36d4a58af06f1814d86db772bb6fed449e077b2d",
+          "event": "composition",
+          "locator": "{\"page\": \"472\", \"pdf_page\": 484}",
+          "quote": "The Avestan languages are known from the Avesta, the sacred book of the Zoroastrians,\na collection of mostly ritual texts presumably orally composed in the 2nd and 1st millen-\nnia BCE.",
+          "role": "hypothesis",
+          "source": "Klein et al. 2017",
+          "url": null
+        }
+      ],
+      "kind": "stage",
+      "label": "2nd–1st millennium BCE",
+      "name": "Avestan",
+      "span": {
+        "components": [
+          {
+            "basis": "composition",
+            "code": "ae",
+            "label": "2nd–1st millennium BCE",
+            "name": "Avestan",
+            "own": true
+          },
+          {
+            "basis": "composition",
+            "code": "ae-old",
+            "label": "c. 2nd millennium BCE",
+            "name": "Old Avestan",
+            "own": false
+          },
+          {
+            "basis": "composition",
+            "code": "ae-yng",
+            "label": "c. 9th–8th century BCE",
+            "name": "Younger Avestan",
+            "own": false
+          }
+        ],
+        "end": {
+          "earliest": -799,
+          "latest": 0
+        },
+        "label": "c. 2nd millennium – 800/1 BCE",
+        "ongoing": false,
+        "partial": false,
+        "start": {
+          "earliest": -1999,
+          "latest": -1000
+        },
+        "undated": []
+      },
+      "spoken": {
+        "end": {
+          "earliest": -999,
+          "latest": 0
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": -1999,
+          "latest": -1000
+        }
+      }
+    },
+    {
+      "alternatives": [
+        {
+          "basis": "composition",
+          "citation": "Klein, Jared S. (ed.); Joseph, Brian D. (ed.); Fritz, Matthias (ed.) (2017) Handbook of comparative and historical Indo-European linguistics. Vol. 1. Berlin ; Boston, De Gruyter Mouton.",
+          "claim_id": "ev_period_34bb1e7adfac33334318e3b894de7115a0242cbc",
+          "end": {
+            "earliest": -1999,
+            "latest": -1000
+          },
+          "event": "composition",
+          "label": "c. 2nd millennium BCE",
+          "locator": "{\"page\": \"473\", \"pdf_page\": 485}",
+          "quote": "Old Avestan, linguistically close to Old Indic (Rigvedic), should probably be dated\nto the late 2nd millennium BCE, and Young Avestan, closer to Old Persian, to the early\n1st millennium.",
+          "role": "hypothesis",
+          "source": "Klein et al. 2017",
+          "start": {
+            "earliest": -1999,
+            "latest": -1000
+          },
+          "url": null
+        }
+      ],
       "basis": "composition",
       "code": "ae-old",
       "evidence": [
@@ -8495,7 +8619,48 @@
       }
     },
     {
-      "alternatives": [],
+      "alternatives": [
+        {
+          "basis": "composition",
+          "citation": "Fortson, Benjamin W., IV. 2010. Indo-European Language and Culture: An Introduction. 2nd ed. Blackwell Textbooks in Linguistics 19. Chichester and Malden, MA: Wiley-Blackwell. (Supplied copy is a reflowed e-book without printed page numbers; cited by section.)",
+          "claim_id": "ev_period_10271c20910dccab66017285079441b6a8239519",
+          "end": {
+            "earliest": -799,
+            "latest": -700
+          },
+          "event": "composition",
+          "label": "c. 9th–8th century BCE",
+          "locator": "{\"page\": null, \"pdf_page\": 247, \"section\": \"11.12\", \"page_note\": \"No printed pagination in supplied reflowed PDF.\"}",
+          "quote": "The rest of the Avesta is written in Young Avestan. As Young Avestan is structurally\nmore archaic than our earliest Old Persian, it is probably several centuries older; a reasonable\nestimate puts it at the ninth or eighth century BC.",
+          "role": "hypothesis",
+          "source": "Fortson 2010",
+          "start": {
+            "earliest": -899,
+            "latest": -800
+          },
+          "url": null
+        },
+        {
+          "basis": "composition",
+          "citation": "Klein, Jared S. (ed.); Joseph, Brian D. (ed.); Fritz, Matthias (ed.) (2017) Handbook of comparative and historical Indo-European linguistics. Vol. 1. Berlin ; Boston, De Gruyter Mouton.",
+          "claim_id": "ev_period_aca9516fc2170bf7535bb6817c5eda7baedec3f8",
+          "end": {
+            "earliest": -999,
+            "latest": 0
+          },
+          "event": "composition",
+          "label": "c. 1st millennium BCE",
+          "locator": "{\"page\": \"473\", \"pdf_page\": 485}",
+          "quote": "Old Avestan, linguistically close to Old Indic (Rigvedic), should probably be dated\nto the late 2nd millennium BCE, and Young Avestan, closer to Old Persian, to the early\n1st millennium.",
+          "role": "hypothesis",
+          "source": "Klein et al. 2017",
+          "start": {
+            "earliest": -999,
+            "latest": 0
+          },
+          "url": null
+        }
+      ],
       "basis": "composition",
       "code": "ae-yng",
       "evidence": [
@@ -9331,6 +9496,37 @@
     },
     {
       "alternatives": [],
+      "basis": "attested",
+      "code": "cnx",
+      "evidence": [
+        {
+          "citation": "Fortson, Benjamin W., IV. 2010. Indo-European Language and Culture: An Introduction. 2nd ed. Blackwell Textbooks in Linguistics 19. Chichester and Malden, MA: Wiley-Blackwell. (Supplied copy is a reflowed e-book without printed page numbers; cited by section.)",
+          "claim_id": "ev_period_9699833ac4d98a8beb1052040f8b5edeb654d6c0",
+          "event": "documentary_sampling",
+          "locator": "{\"page\": null, \"pdf_page\": 346, \"section\": \"14.70\", \"page_note\": \"Supplied reflowed PDF has no printed page number.\"}",
+          "quote": "From the fourteenth to the sixteenth centuries are preserved close to 10,000 lines of\nMiddle Cornish, largely in the form of miracle plays translated from English;these represent\nthe bulk of our entire Cornish corpus.",
+          "role": "observation",
+          "source": "Fortson 2010",
+          "url": null
+        }
+      ],
+      "kind": "attested",
+      "label": "14th–16th century CE",
+      "name": "Middle Cornish",
+      "spoken": {
+        "end": {
+          "earliest": 1501,
+          "latest": 1600
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 1301,
+          "latest": 1400
+        }
+      }
+    },
+    {
+      "alternatives": [],
       "basis": "conventional",
       "code": "cop",
       "evidence": [
@@ -10095,6 +10291,41 @@
       "kind": "stage",
       "label": "9th–13th century CE",
       "name": "Old French",
+      "span": {
+        "components": [
+          {
+            "basis": "conventional",
+            "code": "fro",
+            "label": "9th–13th century CE",
+            "name": "Old French",
+            "own": true
+          },
+          {
+            "basis": "conventional",
+            "code": "xno",
+            "label": "1066 CE – 15th century CE",
+            "name": "Anglo-Norman",
+            "own": false
+          }
+        ],
+        "end": {
+          "earliest": 1401,
+          "latest": 1500
+        },
+        "label": "9th–15th century CE",
+        "ongoing": false,
+        "partial": true,
+        "start": {
+          "earliest": 801,
+          "latest": 900
+        },
+        "undated": [
+          "fro-nor",
+          "fro-pic",
+          "xno-law",
+          "zrp"
+        ]
+      },
       "spoken": {
         "end": {
           "earliest": 1201,
@@ -11829,6 +12060,52 @@
       }
     },
     {
+      "alternatives": [
+        {
+          "basis": "attested",
+          "citation": "Fortson, Benjamin W., IV. 2010. Indo-European Language and Culture: An Introduction. 2nd ed. Blackwell Textbooks in Linguistics 19. Chichester and Malden, MA: Wiley-Blackwell. (Supplied copy is a reflowed e-book without printed page numbers; cited by section.)",
+          "claim_id": "ev_period_2946cff2217b5e2da3b1d80854f4147d44a776bb",
+          "end": null,
+          "event": "first_attestation",
+          "label": "from c. 9th century CE",
+          "locator": "{\"page\": null, \"pdf_page\": 344, \"section\": \"14.63\", \"page_note\": \"Supplied reflowed PDF has no printed page number.\"}",
+          "quote": "Breton appears to have had its greatest geographical extent in the ninth century, from\nabout the middle of which we have our first specimens of Old Breton in the form of glosses.",
+          "role": "observation",
+          "source": "Fortson 2010",
+          "start": {
+            "earliest": 801,
+            "latest": 900
+          },
+          "url": null
+        }
+      ],
+      "basis": "attested",
+      "code": "obt",
+      "evidence": [
+        {
+          "citation": "Klein, Jared S. (ed.); Joseph, Brian D. (ed.); Fritz, Matthias (ed.) (2017) Handbook of comparative and historical Indo-European linguistics. Vol. 2. Berlin ; Boston, De Gruyter Mouton.",
+          "claim_id": "ev_period_56c01f21f6fc7fe7a75b00c9ef85d4c0efef2937",
+          "event": "first_attestation",
+          "locator": "{\"page\": \"1179\", \"pdf_page\": 459}",
+          "quote": "The earliest surviving manuscript containing instances of\nOld Breton is the Leiden Leechbook (cf. Falileyev and Owen 2005) from the end of the\n8th century.",
+          "role": "observation",
+          "source": "Klein et al. 2017",
+          "url": null
+        }
+      ],
+      "kind": "attested",
+      "label": "from 8th century CE",
+      "name": "Old Breton",
+      "spoken": {
+        "end": null,
+        "ongoing": false,
+        "start": {
+          "earliest": 701,
+          "latest": 800
+        }
+      }
+    },
+    {
       "alternatives": [],
       "basis": "attested",
       "code": "och",
@@ -11856,6 +12133,34 @@
         "start": {
           "earliest": -1199,
           "latest": -1199
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "attested",
+      "code": "oco",
+      "evidence": [
+        {
+          "citation": "Fortson, Benjamin W., IV. 2010. Indo-European Language and Culture: An Introduction. 2nd ed. Blackwell Textbooks in Linguistics 19. Chichester and Malden, MA: Wiley-Blackwell. (Supplied copy is a reflowed e-book without printed page numbers; cited by section.)",
+          "claim_id": "ev_period_f38952f2e1d1981da7dbed0f25f1d24d28a90b04",
+          "event": "first_attestation",
+          "locator": "{\"page\": null, \"pdf_page\": 346, \"section\": \"14.69\", \"page_note\": \"Supplied reflowed PDF has no printed page number.\"}",
+          "quote": "Our first documents in Old Cornish are some glosses from the late ninth or\nearly tenth century, which are followed around the year 1100 by our largest Cornish text from\nthis period, the Vocabularium Cornicum or Cornish Vocabulary, a Cornish version of a Latin–\nAnglo-Saxon glossary compiled a century earlier by the English monk Ælfric at Cerne in\nDorset.",
+          "role": "observation",
+          "source": "Fortson 2010",
+          "url": null
+        }
+      ],
+      "kind": "attested",
+      "label": "from 9th/10th century CE",
+      "name": "Old Cornish",
+      "spoken": {
+        "end": null,
+        "ongoing": false,
+        "start": {
+          "earliest": 801,
+          "latest": 1000
         }
       }
     },
@@ -12217,6 +12522,69 @@
       }
     },
     {
+      "alternatives": [
+        {
+          "basis": "attested",
+          "citation": "Fortson, Benjamin W., IV. 2010. Indo-European Language and Culture: An Introduction. 2nd ed. Blackwell Textbooks in Linguistics 19. Chichester and Malden, MA: Wiley-Blackwell. (Supplied copy is a reflowed e-book without printed page numbers; cited by section.)",
+          "claim_id": "ev_period_800b77c2ff68b39234e5e334b20e0feca576df39",
+          "end": null,
+          "event": "first_attestation",
+          "label": "from c. 8th century CE",
+          "locator": "{\"page\": null, \"pdf_page\": 342, \"section\": \"14.59\", \"page_note\": \"Supplied reflowed PDF has no printed page number.\"}",
+          "quote": "The earliest piece of connected text is the so-called Surexit-memorandum in Old\nWelsh, a short Welsh and Latin text concerning a lawsuit, dating probably to the end of the\neighth century. Though the Old Welsh period lasted until the beginning of the twelfth century,\nit has left us with only a few other short texts.",
+          "role": "observation",
+          "source": "Fortson 2010",
+          "start": {
+            "earliest": 701,
+            "latest": 800
+          },
+          "url": null
+        },
+        {
+          "basis": "attested",
+          "citation": "Klein, Jared S. (ed.); Joseph, Brian D. (ed.); Fritz, Matthias (ed.) (2017) Handbook of comparative and historical Indo-European linguistics. Vol. 2. Berlin ; Boston, De Gruyter Mouton.",
+          "claim_id": "ev_period_d11275d86cf5c705c3ce30d0d1f080dec3a8b29e",
+          "end": null,
+          "event": "first_attestation",
+          "label": "from 9th century CE",
+          "locator": "{\"page\": \"1178\", \"pdf_page\": 458}",
+          "quote": "From that time on Old Welsh glosses are attested in\nseveral Latin manuscripts (cf. Falileyev 2008; Huws 2000), the oldest of these, the so-\ncalled “surexit”-memorandum, is from the beginning or the first half of the 9th c. and\ncontains words like tutri ‘king of peoples’ (cf. Gaul. Toutorix, Falileyev 2008, 91).",
+          "role": "observation",
+          "source": "Klein et al. 2017",
+          "start": {
+            "earliest": 801,
+            "latest": 900
+          },
+          "url": null
+        }
+      ],
+      "basis": "conventional",
+      "code": "owl",
+      "evidence": [
+        {
+          "citation": "Fortson, Benjamin W., IV. 2010. Indo-European Language and Culture: An Introduction. 2nd ed. Blackwell Textbooks in Linguistics 19. Chichester and Malden, MA: Wiley-Blackwell. (Supplied copy is a reflowed e-book without printed page numbers; cited by section.)",
+          "claim_id": "ev_period_bb080a83f013de4f6cf86a9b84fb65965b625316",
+          "event": "conventional_period",
+          "locator": "{\"page\": null, \"pdf_page\": 342, \"section\": \"14.59\", \"page_note\": \"Supplied reflowed PDF has no printed page number.\"}",
+          "quote": "The earliest piece of connected text is the so-called Surexit-memorandum in Old\nWelsh, a short Welsh and Latin text concerning a lawsuit, dating probably to the end of the\neighth century. Though the Old Welsh period lasted until the beginning of the twelfth century,\nit has left us with only a few other short texts.",
+          "role": "convention",
+          "source": "Fortson 2010",
+          "url": null
+        }
+      ],
+      "kind": "stage",
+      "label": "until 12th century CE",
+      "name": "Old Welsh",
+      "spoken": {
+        "end": {
+          "earliest": 1101,
+          "latest": 1200
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
       "alternatives": [],
       "basis": "attested",
       "code": "pal",
@@ -12448,6 +12816,86 @@
         "start": {
           "earliest": -1599,
           "latest": -1500
+        }
+      }
+    },
+    {
+      "alternatives": [
+        {
+          "basis": "estimated",
+          "citation": "Klein, Jared S. (ed.); Joseph, Brian D. (ed.); Fritz, Matthias (ed.) (2017) Handbook of comparative and historical Indo-European linguistics. Vol. 3. Berlin ; Boston, De Gruyter Mouton.",
+          "claim_id": "ev_period_708ec8206644b5274228301cfb9f2009ddef8983",
+          "end": {
+            "earliest": 1701,
+            "latest": 1800
+          },
+          "event": "native_transmission_end",
+          "label": "18th century CE",
+          "locator": "{\"page\": \"1407\", \"pdf_page\": 21}",
+          "quote": "Polabian died out in\nthe first half of the 18th century and is attested only fragmentarily, mostly in lists of\nwords and phrases that were collected when the language was already moribund (see\nPolański 1993).",
+          "role": "hypothesis",
+          "source": "Klein et al. 2017",
+          "start": {
+            "earliest": 1701,
+            "latest": 1800
+          },
+          "url": null
+        }
+      ],
+      "basis": "attested",
+      "code": "pox",
+      "evidence": [
+        {
+          "citation": "Fortson, Benjamin W., IV. 2010. Indo-European Language and Culture: An Introduction. 2nd ed. Blackwell Textbooks in Linguistics 19. Chichester and Malden, MA: Wiley-Blackwell. (Supplied copy is a reflowed e-book without printed page numbers; cited by section.)",
+          "claim_id": "ev_period_c60ac7297b65d43046e7129845d29d04d16bf8ad",
+          "event": "documentary_sampling",
+          "locator": "{\"page\": null, \"pdf_page\": 437, \"section\": \"18.48\", \"page_note\": \"Supplied reflowed PDF has no printed page number.\"}",
+          "quote": "A second extinct West Slavic language, Polabian, known from a very few\nwritings in the late sixteenth and seventeenth centuries, was spoken along the Elbe River in\nwhat is now Germany.",
+          "role": "observation",
+          "source": "Fortson 2010",
+          "url": null
+        }
+      ],
+      "kind": "attested",
+      "label": "16th–17th century CE",
+      "name": "Polabian",
+      "spoken": {
+        "end": {
+          "earliest": 1601,
+          "latest": 1700
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 1501,
+          "latest": 1600
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "attested",
+      "code": "pro",
+      "evidence": [
+        {
+          "citation": "Rickard, Peter. 1989. A History of the French Language. 2nd ed. London and New York: Routledge. Supplied Taylor & Francis e-Library edition, 2003.",
+          "claim_id": "ev_period_746f237f5cca5d9d5a84bd9bd62069d4ce401daf",
+          "event": "first_attestation",
+          "locator": "{\"page\": \"35\", \"pdf_page\": 48}",
+          "quote": "The earliest Occitan\ntexts at least deserve a brief mention here: Boecis (‘Boethius’), a poem\nof 257 decasyllables, belonging to the early eleventh century, and\nthe Life of Saint Foi of Agen, which probably belongs to the middle\nof the same century.",
+          "role": "observation",
+          "source": "Rickard 2003",
+          "url": null
+        }
+      ],
+      "kind": "attested",
+      "label": "from 11th century CE",
+      "name": "Old Occitan",
+      "spoken": {
+        "end": null,
+        "ongoing": false,
+        "start": {
+          "earliest": 1001,
+          "latest": 1100
         }
       }
     },
@@ -12745,6 +13193,34 @@
         "end": {
           "earliest": 632,
           "latest": 1592
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "attested",
+      "code": "sog",
+      "evidence": [
+        {
+          "citation": "Yoshida, Yutaka. 2016. “Sogdian Language i. Description.” Encyclopædia Iranica, online edition, published 11 November 2016, updated 18 November 2016. https://www.iranicaonline.org/articles/sogdian-language-01 (accessed 5 October 2026).",
+          "claim_id": "ev_period_a47756ad11102e72e2401021b66042cf7900f216",
+          "event": "last_attestation",
+          "locator": "{\"start\": 4768, \"end\": 5245, \"section\": \"Materials and publications\"}",
+          "quote": "Apart from the so-called Ancient Letters of the early 4th century, inscriptions discovered in Kultobe in Kazakhstan (see Sims-Williams et al., 2007; 1st-2nd century CE?) and in the Upper Indus valleys (see Sims-Williams, 1989/1992 and 2000, Yoshida, 2013; 5th century?), the bulk of Sogdian materials dates back to the 7th to early 11th centuries. The latest datable material is the inscription of 1026 CE discovered in Kyrgyzstan (Livshits, 2008, p. 379, idem, 2015, p. 290).",
+          "role": "observation",
+          "source": "Yoshida, Yutaka. 2016. “Sogdian Language i. Description.” Encyclopædia Iranica, online edition, published 11 November 20",
+          "url": "https://www.iranicaonline.org/articles/sogdian-language-01"
+        }
+      ],
+      "kind": "attested",
+      "label": "until 1026 CE",
+      "name": "Sogdian",
+      "spoken": {
+        "end": {
+          "earliest": 1026,
+          "latest": 1026
         },
         "ongoing": false,
         "start": null
@@ -13176,6 +13652,37 @@
         "start": {
           "earliest": 1101,
           "latest": 1200
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "conventional",
+      "code": "xbm",
+      "evidence": [
+        {
+          "citation": "Fortson, Benjamin W., IV. 2010. Indo-European Language and Culture: An Introduction. 2nd ed. Blackwell Textbooks in Linguistics 19. Chichester and Malden, MA: Wiley-Blackwell. (Supplied copy is a reflowed e-book without printed page numbers; cited by section.)",
+          "claim_id": "ev_period_fbba1842585bcbfc0ad680612858f585cba31e0d",
+          "event": "conventional_period",
+          "locator": "{\"page\": null, \"pdf_page\": 344, \"section\": \"14.64\", \"page_note\": \"No printed page number in this supplied reflowed electronic PDF; section is the source-native locator.\"}",
+          "quote": "We have many literary\nworks in Middle Breton (c. 1100–1659, the year of the publication of the first grammar and\ndictionary), most of which date to after 1450 and comprise religious texts and plays that are\ntranslations of French and Latin originals.",
+          "role": "convention",
+          "source": "Fortson 2010",
+          "url": null
+        }
+      ],
+      "kind": "stage",
+      "label": "c. 1100–1659 CE",
+      "name": "Middle Breton",
+      "spoken": {
+        "end": {
+          "earliest": 1659,
+          "latest": 1659
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 1100,
+          "latest": 1100
         }
       }
     },
@@ -13646,6 +14153,37 @@
         "start": {
           "earliest": -799,
           "latest": -700
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "conventional",
+      "code": "xno",
+      "evidence": [
+        {
+          "citation": "Rothwell, William. 2006. “Anglo-French and the Anglo-Norman Dictionary.” General Editor's prefatory material for the Anglo-Norman Dictionary, 2nd edition, A–E; online republication, Anglo-Norman Dictionary, Aberystwyth University, with 2017 editorial note. https://anglo-norman.net/anglo-french/ (accessed 5 October 2026).",
+          "claim_id": "ev_period_b417af4eae8d2aed968dc5132b4183647c39fc47",
+          "event": "conventional_period",
+          "locator": "{\"start\": 1356, \"end\": 1491, \"section\": \"Opening definition\"}",
+          "quote": "Anglo-Norman is the term commonly used for the variety of French used in Britain between 1066 and the middle of the fifteenth century.",
+          "role": "convention",
+          "source": "Rothwell, William. 2006. “Anglo-French and the Anglo-Norman Dictionary.” General Editor's prefatory material for the Ang",
+          "url": "https://anglo-norman.net/anglo-french/"
+        }
+      ],
+      "kind": "stage",
+      "label": "1066 CE – 15th century CE",
+      "name": "Anglo-Norman",
+      "spoken": {
+        "end": {
+          "earliest": 1401,
+          "latest": 1500
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 1066,
+          "latest": 1066
         }
       }
     },
