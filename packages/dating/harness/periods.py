@@ -188,6 +188,7 @@ def evidence_entry(claim, sources):
         "source": short_source(source),
         "role": claim["role"],
         "event": claim["event"],
+        "method": claim.get("method"),
         "citation": source.get("citation") or source.get("title"),
         "url": source.get("url"),
         "quote": span.get("quote"),
@@ -437,7 +438,7 @@ def export_periods(bundle, generation=None):
             or decision_claim_error(d, c, view)
         ):
             continue
-        if d["event"] == "crown_divergence":
+        if d["event"] == "crown_divergence" and c["subject"].get("type") == "sampled_clade":
             c = {**c, "proto_mapping": d["proto_mapping"]}
             for alt in d.get("proto_alternatives") or []:
                 a = claims.get(alt["claim_id"])

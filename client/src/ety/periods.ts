@@ -19,6 +19,7 @@ export interface PeriodEvidence {
   source: string;
   role: string;
   event: string;
+  method: string;
   citation: string | null;
   url: string | null;
   quote: string | null;
@@ -72,6 +73,18 @@ export const BASIS_NAME: Record<Basis, string> = {
   estimated: "scholarly estimate",
   composition: "composition of its texts",
   last_speaker: "attested, until its last native speakers",
+};
+
+// How an estimate was made, for proto-language dates; attestation methods are
+// not labeled (the basis already says it).
+export const METHOD_NAME: Record<string, string> = {
+  phylogenetic: "Bayesian phylogeny",
+  bayesian_phylogenetic: "Bayesian phylogeny",
+  lexical_phylogenetics: "Bayesian phylogeny",
+  lexicostatistic: "lexicostatistics",
+  comparative_reconstruction: "comparative reconstruction",
+  archaeological_correlation: "archaeological correlation",
+  expert_estimate: "expert estimate",
 };
 
 const [showDates, setShowDates] = createSignal(false);

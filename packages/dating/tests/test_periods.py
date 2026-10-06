@@ -264,6 +264,23 @@ class PeriodExportTests(unittest.TestCase):
         b["view"]["ine-pro"]["name"] = "Latin"
         self.assertEqual(export_periods(b, "gen")["languages"], [])
 
+    def test_a_family_age_dates_its_proto_language(self):
+        # A source dating the family's breakup itself (lexicostatistics, an article's
+        # node age) is a crown claim about the proto code: no sampled clade needed.
+        age = claim(
+            "f",
+            "urj-pro",
+            "crown_divergence",
+            "hypothesis",
+            {"form": "event_range", "unit": "BCE", "lower": 3000, "upper": 4000},
+        )
+        age["method"] = "lexicostatistic"
+        b = bundle([age], ["f"], {"urj-pro": "reconstructed"})
+        b["view"]["urj-pro"]["name"] = "Proto-Uralic"
+        (pu,) = export_periods(b, "gen")["languages"]
+        self.assertEqual((pu["basis"], pu["label"]), ("estimated", "until c. 4000/3000 BCE"))
+        self.assertEqual(pu["evidence"][0]["method"], "lexicostatistic")
+
     def test_only_adopted_supported_exact_evidence_is_displayed(self):
         claims = [
             claim("a", "enm", "conventional_period", "convention", years(1150, 1500)),

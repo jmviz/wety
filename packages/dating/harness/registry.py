@@ -528,12 +528,19 @@ def decision_claim_error(decision, claim, subject):
     exception: the end of a proto-language (`is_proto_language`) may be the crown
     age of a sampled clade, the split of its sampled descendants, when the decision
     says in `proto_mapping` why those taxa cover the family. The clade claim stays
-    about the clade; the decision records the correspondence."""
+    about the clade; the decision records the correspondence. A source that dates the
+    family's breakup itself (a family age from lexicostatistics, an article's node age
+    for a named family) gives a crown claim about the proto code, mapped by review."""
     if claim["status"] != "supported":
         return "claim not supported"
     if decision["event"] == "crown_divergence":
         if not is_proto_language(subject):
             return "a crown age can date only a proto-language (a code named Proto-…)"
+        if (
+            claim["event"] == "crown_divergence"
+            and claim["subject"]["id"] == decision["subject_id"]
+        ):
+            return None
         if (
             claim["event"] != "crown_divergence"
             or claim["subject"]["type"] != "sampled_clade"

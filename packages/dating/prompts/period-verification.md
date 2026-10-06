@@ -48,13 +48,20 @@ For each code:
    others as alternatives. Prefer a scholarly handbook statement over ISO 639-3 names
    and Glottolog documentation windows when both have exact scope.
 
-Proto-languages and reconstructed codes: use only dates a source gives for that proto
-stage itself (e.g. "Proto-Slavic was spoken c. ..."). Never use a family's crown or
-stem divergence date, a phylogenetic split, a daughter's first attestation, or
-archaeological culture dates unless the source itself explicitly dates the proto stage
-with them. Such periods are always estimates (role hypothesis), even when stated
-confidently. Record competing proposals separately. (Phylogenetic crown ages are
-handled by separate family research, not this brief.)
+Proto-languages and reconstructed codes: record every published estimate of when the
+proto stage was spoken or broke up, each as its own claim with its method; never merge
+them. A date for the stage itself ("Proto-Slavic was spoken c. ...") is a
+conventional_period or bound with role hypothesis. A family's age or breakup date (a
+family age from ASJP or glottochronology, a node age an article reports for a named
+family or subgroup) is event crown_divergence about the proto code, role posterior for
+a Bayesian analysis and hypothesis otherwise; give the source's name for the family and
+its sample (which subgroups) in source_label and mapping_basis, and map it exact only if
+the sample spans the family's first split. Set method to one of bayesian_phylogenetic,
+lexicostatistic (incl. ASJP and glottochronology), comparative_reconstruction (dated
+from reconstructed vocabulary, loans or sound changes), archaeological_correlation,
+expert_estimate. Keep a calibration prior apart from a posterior. Never use a
+daughter's first attestation or an archaeological culture's dates as the proto
+stage's date unless the source itself dates the stage with them.
 
 Source access, in this order.
 1. Supplied sources first. Call library (no query lists everything). For this batch:
