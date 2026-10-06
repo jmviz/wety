@@ -505,6 +505,24 @@
       "subject_id": "wikt:afa-pro"
     },
     {
+      "analysis": "walworth-2012-short-chronology-societies-homeland",
+      "claim_id": "ev_period_36c91343bf9ec46b912f72e89c7e3667d4bd16ea",
+      "epoch": null,
+      "estimate": {
+        "interval_type": null,
+        "lower": 1190,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": 1293
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Eastern Polynesian",
+      "role": "hypothesis",
+      "source": "Mary Walworth 2012",
+      "subject_id": "wikt:poz-pep-pro"
+    },
+    {
       "analysis": "mari-loan-chronology",
       "claim_id": "ev_period_3861c08c8ca5ba65334fb0b265a7de5de9005311",
       "epoch": null,
@@ -755,6 +773,24 @@
       "role": "hypothesis",
       "source": "Eric W. Holman et al. 2011",
       "subject_id": "wikt:paa-nha-pro"
+    },
+    {
+      "analysis": "vydrin-2009-starling-maximalist",
+      "claim_id": "ev_period_4e72d821696220423bcd7ba01c775300fcef90f5",
+      "epoch": null,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Western Mande",
+      "role": "hypothesis",
+      "source": "Valentin Vydrin 2009",
+      "subject_id": "wikt:dmn-mdw-pro"
     },
     {
       "analysis": "holman2011-asjp-ethnologue16-s092-r072",
@@ -1169,6 +1205,24 @@
       "role": "hypothesis",
       "source": "Petri Kallio 2006",
       "subject_id": "wikt:urj-fpr-pro"
+    },
+    {
+      "analysis": "vydrin-2009-northern-homeland-correlation",
+      "claim_id": "ev_period_8e8d081b27eba5b19cd51c85dca2e6a698833eba",
+      "epoch": null,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Western Mande",
+      "role": "hypothesis",
+      "source": "Valentin Vydrin 2009",
+      "subject_id": "wikt:dmn-mdw-pro"
     },
     {
       "analysis": "holman2011-asjp-ethnologue16-s092-r072",
@@ -1961,6 +2015,24 @@
       "role": "hypothesis",
       "source": "Eric W. Holman et al. 2011",
       "subject_id": "wikt:sai-car-pro"
+    },
+    {
+      "analysis": "starostin-2020-nubian-starlingnj",
+      "claim_id": "ev_period_fb705af8abc5d76661852507bbdb2e4ffa2a5803",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": null,
+        "lower": -1550,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": -1050
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Nubian",
+      "role": "hypothesis",
+      "source": "George Starostin 2020",
+      "subject_id": "wikt:nub-pro"
     },
     {
       "analysis": "holman2011-asjp-ethnologue16-s092-r072",
@@ -36073,7 +36145,7 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:fff5df92fe6ca543"
     }
   ],
-  "generation": "a7b3114dd68c8f7e2745858cc30c2baa3510ca00b733c56f20709ea52a37e18e",
+  "generation": "fd6a8858efa37c738ffc59cf7f93e1350cd24c798a1d01b064a563de03b2e721",
   "languages": [
     {
       "alternatives": [],
@@ -38918,6 +38990,54 @@
         "end": {
           "earliest": 1898,
           "latest": 1898
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [
+        {
+          "basis": "estimated",
+          "citation": "Vydrin, Valentin. 2009. On the Problem of the Proto-Mande Homeland. Journal of Language Relationship 1:107–142, with inserts. https://www.jolr.ru/files/(10)jlr2009-1(107-142).pdf",
+          "claim_id": "ev_period_8e8d081b27eba5b19cd51c85dca2e6a698833eba",
+          "end": {
+            "earliest": -2199,
+            "latest": -2199
+          },
+          "event": "crown_divergence",
+          "label": "until c. 2200 BCE",
+          "locator": "{\"pdf_page\": 10, \"printed_page\": \"116\", \"section\": \"The Northern Hypothesis\", \"start\": 38112, \"end\": 38368}",
+          "method": "archaeological_correlation",
+          "quote": "The \u0001orthern Hypothesis: Proto-Mande speakers lived in Southern Sahara. The Western/South-\nEastern split was probably triggered by the arid episode of ca. 3500 \u0001, and the arid crisis of ca. 2200 \u0001\nbrought forth the further divisions of Proto-Western Mande.",
+          "role": "hypothesis",
+          "source": "Valentin Vydrin 2009",
+          "start": null,
+          "url": "https://www.jolr.ru/files/(10)jlr2009-1(107-142).pdf"
+        }
+      ],
+      "basis": "estimated",
+      "code": "dmn-mdw-pro",
+      "evidence": [
+        {
+          "citation": "Vydrin, Valentin. 2009. On the Problem of the Proto-Mande Homeland. Journal of Language Relationship 1:107–142, with inserts. https://www.jolr.ru/files/(10)jlr2009-1(107-142).pdf",
+          "claim_id": "ev_period_4e72d821696220423bcd7ba01c775300fcef90f5",
+          "event": "crown_divergence",
+          "locator": "{\"pdf_page\": 9, \"printed_page\": \"115\", \"section\": \"Chronology chart, Linguistics column, 3000–2000 BC row\", \"start\": 34126, \"end\": 34250}",
+          "method": "lexicostatistic",
+          "quote": "About 2100 and afterwards: Division of West-\nern Mande into Proto-Soninke-Bozo, Proto-\nBobo, Proto-Samogo and Proto-Central.",
+          "role": "hypothesis",
+          "source": "Valentin Vydrin 2009",
+          "url": "https://www.jolr.ru/files/(10)jlr2009-1(107-142).pdf"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 2100 BCE",
+      "name": "Proto-Western Mande",
+      "spoken": {
+        "end": {
+          "earliest": -2099,
+          "latest": -2099
         },
         "ongoing": false,
         "start": null
@@ -43069,6 +43189,35 @@
     },
     {
       "alternatives": [],
+      "basis": "estimated",
+      "code": "nub-pro",
+      "evidence": [
+        {
+          "citation": "Starostin, George. 2020. Restoring “Nile-Nubian”: How to Balance Lexicostatistics and Etymology in Historical Research on Nubian Languages. Dotawo 7:233–268. https://doi.org/10.5070/D67052249",
+          "claim_id": "ev_period_fb705af8abc5d76661852507bbdb2e4ffa2a5803",
+          "event": "crown_divergence",
+          "locator": "{\"pdf_page\": 258, \"printed_page\": \"252\", \"section\": \"Figure 2 and following paragraph\", \"start\": 452101, \"end\": 452388}",
+          "method": "lexicostatistic",
+          "quote": "If we take the glottochronological figures at face value, they imply the original\nseparation of Proto-Nile-Nubian around three to three and a half thousand years\nago, and then a further split between the ancestors of modern Nobiin and K/D\naround two to two and a half thousand years ago.",
+          "role": "hypothesis",
+          "source": "George Starostin 2020",
+          "url": "https://books.punctumbooks.com/10.21983/p3.0350.1.00.pdf"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 1550/1050 BCE",
+      "name": "Proto-Nubian",
+      "spoken": {
+        "end": {
+          "earliest": -1550,
+          "latest": -1050
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
       "basis": "attested",
       "code": "nwc",
       "evidence": [
@@ -44835,29 +44984,48 @@
       }
     },
     {
-      "alternatives": [],
-      "basis": "estimated",
-      "code": "poz-pep-pro",
-      "evidence": [
+      "alternatives": [
         {
+          "basis": "estimated",
           "citation": "Automated dating of the world's language families based on lexical similarity",
           "claim_id": "ev_period_c30e7151f299a253523fd2d390eacbb269fd5306",
+          "end": {
+            "earliest": 1021,
+            "latest": 1021
+          },
           "event": "crown_divergence",
+          "label": "until c. 1020 CE",
           "locator": "{\"table\": \"Table 1\", \"row\": \"East Polynesian\", \"page\": 851, \"pdf_page\": 12, \"character_start\": 48299, \"character_end\": 48332, \"columns\": [\"Language group\", \"Calibration date\", \"ASJP date\", \"Difference (%)\"]}",
           "method": "lexicostatistic",
           "quote": "East Polynesian\n1050\n979\n\u000271 (\u00027)",
           "role": "hypothesis",
           "source": "Eric W. Holman et al. 2011",
+          "start": null,
           "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
         }
       ],
+      "basis": "estimated",
+      "code": "poz-pep-pro",
+      "evidence": [
+        {
+          "citation": "Walworth, Mary. 2012. Eastern Polynesian: The Linguistic Evidence Revisited. University of Hawai‘i at Mānoa Working Papers in Linguistics 43(5). Section 3.1. https://hdl.handle.net/10125/73243",
+          "claim_id": "ev_period_36c91343bf9ec46b912f72e89c7e3667d4bd16ea",
+          "event": "crown_divergence",
+          "locator": "{\"pdf_page\": 5, \"printed_page\": \"3 (inferred from pagination; page itself unnumbered)\", \"section\": \"3.1 The PEP homeland\", \"start\": 10489, \"end\": 10766}",
+          "method": "archaeological_correlation",
+          "quote": "However, if the PEP homeland was in the Societies, the innovations that distinguish PEP from PNP must \nhave taken place between arrival somewhere around 1025–1120 A.D, and dispersal to the outer east \nPolynesian islands between A.D. 1190 and 1293 (Wilmshurst et al. 2010:1816).",
+          "role": "hypothesis",
+          "source": "Mary Walworth 2012",
+          "url": "https://scholarspace.manoa.hawaii.edu/bitstreams/b2aeb54c-f3c5-445f-9fdf-92117b36519a/download"
+        }
+      ],
       "kind": "proto",
-      "label": "until c. 1020 CE",
+      "label": "until c. 1190/1293 CE",
       "name": "Proto-Eastern Polynesian",
       "spoken": {
         "end": {
-          "earliest": 1021,
-          "latest": 1021
+          "earliest": 1190,
+          "latest": 1293
         },
         "ongoing": false,
         "start": null

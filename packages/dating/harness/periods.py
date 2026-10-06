@@ -135,10 +135,8 @@ def era_year(y, rounded=False):
 
 
 def counted_back(claim):
-    """Whether a claim's years are computed from an age (BP, years ago, a crown age),
+    """Whether a claim's years are computed from an age (BP, years ago; deposited trees),
     so that labels round them, rather than printed by the source (Ottoman to 1928)."""
-    if claim["event"] == "crown_divergence":
-        return True
     return bool(
         re.search(r'"unit": "[^"]*(BP|ago)"', json.dumps(claim["time"].get("original", {})))
     )
