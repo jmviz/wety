@@ -36379,7 +36379,7 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:fff5df92fe6ca543"
     }
   ],
-  "generation": "75452cd3589ec51dbaba3c11ca7eeab5aaa224b70de61753d5b45973aec9a224",
+  "generation": "fe50509fdbe9e1f277302508aaa1f6b2d45cfb09d2c8184d059fe3bf483a67b3",
   "languages": [
     {
       "alternatives": [],
@@ -36529,6 +36529,35 @@
         "end": {
           "earliest": null,
           "latest": 1930
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "last_speaker",
+      "code": "aci",
+      "evidence": [
+        {
+          "citation": "Abbi, Anvita. 2020. “The Pandemic Also Threatens Endangered Languages.” Scientific American, Voices (opinion), 20 April 2020.",
+          "claim_id": "ev_period_696b82221c5e14615fe0ba0e616ae0a4ef9e4d41",
+          "event": "native_transmission_end",
+          "locator": "{\"start\": 897, \"end\": 1259}",
+          "method": "expert_estimate",
+          "quote": "On April 4, Licho, one of the four last speakers of the Great Andamanese language family, died of tuberculosis and heart disease in Port Blair on South Andaman Island in the Bay of Bengal. I received the news with a profound sense of loss. I had worked with Licho for two decades to document the Sare language, which died with her: she was the very last speaker.",
+          "role": "hypothesis",
+          "source": "Anvita Abbi 2020",
+          "url": "https://blogs.scientificamerican.com/voices/the-pandemic-also-threatens-endangered-languages/"
+        }
+      ],
+      "kind": "stage",
+      "label": "until 2020 CE",
+      "name": "Aka-Cari",
+      "spoken": {
+        "end": {
+          "earliest": 2020,
+          "latest": 2020
         },
         "ongoing": false,
         "start": null
@@ -38221,6 +38250,35 @@
       }
     },
     {
+      "alternatives": [],
+      "basis": "last_speaker",
+      "code": "bll",
+      "evidence": [
+        {
+          "citation": "Kaufman, David V. 2008. “Focality and Topicality Marking in Biloxi.” Kansas Working Papers in Linguistics 30: 150–158. https://doi.org/10.17161/KWPL.1808.3911.",
+          "claim_id": "ev_period_f6948d3fb1a67fc2b4903ce5fb7662fabc5cc0eb",
+          "event": "native_transmission_end",
+          "locator": "{\"page\": \"150\", \"pdf_page\": 1}",
+          "method": "expert_estimate",
+          "quote": "The last known native semi-speaker of Biloxi, Emma Jackson, died in 1934.",
+          "role": "hypothesis",
+          "source": "David V Kaufman 2008",
+          "url": "https://journals.ku.edu/kwpl/article/download/17822/16074"
+        }
+      ],
+      "kind": "stage",
+      "label": "until 1934 CE",
+      "name": "Biloxi",
+      "spoken": {
+        "end": {
+          "earliest": 1934,
+          "latest": 1934
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
       "alternatives": [
         {
           "basis": "estimated",
@@ -38653,6 +38711,49 @@
         "end": {
           "earliest": 1701,
           "latest": 1800
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "last_speaker",
+      "code": "chc",
+      "evidence": [
+        {
+          "citation": "Catawba Nation Archives. n.d. “Catawba Language.” Catawba Cultural Preservation Project, Catawba Indian Nation. Web archival reference page, accessed 6 October 2026.",
+          "claim_id": "ev_period_a0be30f6931835afe2be2d024ab7dc672099d6ba",
+          "event": "native_transmission_end",
+          "locator": "{\"start\": 3041, \"end\": 3265}",
+          "method": "expert_estimate",
+          "quote": "by the mid-20th century only a very few fluent speakers of Catawba remained. Indeed, the last fluent, native speaker, Chief Samuel Taylor Blue, died in 1959, the same year that the tribe’s federal recognition was terminated.",
+          "role": "hypothesis",
+          "source": "Catawba Nation Archives",
+          "url": "https://catawba.maxarchiveservices.co.uk/language/"
+        }
+      ],
+      "kind": "stage",
+      "label": "until 1959 CE",
+      "name": "Catawba",
+      "revival": [
+        {
+          "citation": "Catawba Nation Archives. n.d. “Catawba Language.” Catawba Cultural Preservation Project, Catawba Indian Nation. Web archival reference page, accessed 6 October 2026.",
+          "claim_id": "ev_period_0223d4ca6c75b5f0aacae07d8198a76877f7e1b5",
+          "event": "revitalization",
+          "label": "1989 CE–present",
+          "locator": "{\"start\": 3791, \"end\": 3940}",
+          "method": "documentary_record",
+          "quote": "When the Catawba Cultural Preservation Project was launched in 1989, the efforts to preserve and revitalize the Catawba language entered a new phase.",
+          "role": "observation",
+          "source": "Catawba Nation Archives",
+          "url": "https://catawba.maxarchiveservices.co.uk/language/"
+        }
+      ],
+      "spoken": {
+        "end": {
+          "earliest": 1959,
+          "latest": 1959
         },
         "ongoing": false,
         "start": null
@@ -43645,6 +43746,49 @@
         "start": {
           "earliest": 1501,
           "latest": 1600
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "attested",
+      "code": "nnr",
+      "evidence": [
+        {
+          "citation": "Eira, Christina, with the Narungga Aboriginal Progress Association. 2010. Fragments of Budderer’s Waddy: A New Narungga Grammar. Pacific Linguistics 612. Canberra: Pacific Linguistics, Australian National University. First edition. ISBN 9780858836112.",
+          "claim_id": "ev_period_0b5e4205cea8c1ec6868ce50894dad79e2ea8887",
+          "event": "first_attestation",
+          "locator": "{\"page\": \"12\", \"pdf_page\": 30}",
+          "method": "scholarly_description",
+          "quote": "However, the earliest extant evidence of one of these Europeans actually recording \nNarungga language was not until after the beginning of colonisation of the area in the \n1830s – Snell’s diary, written 1849-59.",
+          "role": "observation",
+          "source": "Eira 2010",
+          "url": "https://openresearch-repository.anu.edu.au/server/api/core/bitstreams/3fbd57fd-b8d2-44ea-a0d3-fb3c629ae0a0/content"
+        }
+      ],
+      "kind": "attested",
+      "label": "from 1849/1859 CE",
+      "name": "Narungga",
+      "revival": [
+        {
+          "citation": "Eira, Christina, with the Narungga Aboriginal Progress Association. 2010. Fragments of Budderer’s Waddy: A New Narungga Grammar. Pacific Linguistics 612. Canberra: Pacific Linguistics, Australian National University. First edition. ISBN 9780858836112.",
+          "claim_id": "ev_period_c4d17185306e2f5021e7742a1b8ebe0a7c1500fb",
+          "event": "revitalization",
+          "label": "2000 CE–present",
+          "locator": "{\"page\": \"13\", \"pdf_page\": 31}",
+          "method": "scholarly_description",
+          "quote": "It is from this point that the intensive language renewal project was commenced in \n2000, under the auspices of the Narungga Aboriginal Progress Association (NAPA).  \n",
+          "role": "observation",
+          "source": "Eira 2010",
+          "url": "https://openresearch-repository.anu.edu.au/server/api/core/bitstreams/3fbd57fd-b8d2-44ea-a0d3-fb3c629ae0a0/content"
+        }
+      ],
+      "spoken": {
+        "end": null,
+        "ongoing": false,
+        "start": {
+          "earliest": 1849,
+          "latest": 1859
         }
       }
     },
