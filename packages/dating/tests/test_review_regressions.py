@@ -296,6 +296,7 @@ class TreeRegressions(unittest.TestCase):
 
     def test_changed_analysis_changes_evidence_identity(self):
         m = self.manifest()
+        m.pop("epoch_interpretation", None)  # a source-stated epoch replaces the reading
         original = summarize(m)[0]["id"]
         m["present"] = 1950
         self.assertNotEqual(summarize(m)[0]["id"], original)

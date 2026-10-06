@@ -192,8 +192,16 @@ class TreeTests(unittest.TestCase):
             summarize(m)
 
     def test_native_hpd_retained(self):
-        root = max(summarize(self.manifest()), key=lambda c: len(c["subject"]["taxa"]))
+        m = self.manifest()
+        root = max(summarize(m), key=lambda c: len(c["subject"]["taxa"]))
         self.assertEqual(root["time"]["original"]["interval_type"], "hpd")
+        # With the labeled conventional epoch the HPD converts, and says so.
+        self.assertEqual(root["time"]["form"], "distribution")
+        self.assertTrue(any("AD 1950 by convention" in x for x in root["assessment"]["limitations"]))
+        # Without it, an unstated epoch stays unconverted.
+        m.pop("epoch_interpretation")
+        m.pop("age_scale")
+        root = max(summarize(m), key=lambda c: len(c["subject"]["taxa"]))
         self.assertEqual(root["time"]["form"], "unknown")
         self.assertEqual(len(root["subject"]["taxa"]), 50)
 
