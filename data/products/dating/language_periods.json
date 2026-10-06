@@ -55,6 +55,24 @@
       "subject_id": "wikt:urj-prm-pro"
     },
     {
+      "analysis": "nagaraja2013-beast174-ctmc-strict",
+      "claim_id": "ev_period_0fc84bc0b69d666e9bac74503a96b93da2f9c15e",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 213,
+        "mean": null,
+        "median": 600,
+        "probability": 0.95,
+        "upper": 922
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Khasi, Lyngngam, PnarJaintia, WarLamin)",
+      "role": "posterior",
+      "source": "K. S. Nagaraja et al. 2013",
+      "subject_id": "nagaraja2013-beast174-ctmc-strict:clade:a27a3f17d40595a7"
+    },
+    {
       "analysis": "dunn2013-covarion-relaxed-clock-rrw-root-prior-removed",
       "claim_id": "ev_period_1258a0a0246e7f7a461941f1e6ca7311a13298e4",
       "epoch": 1950,
@@ -91,6 +109,24 @@
       "subject_id": "wikt:omq-zap-pro"
     },
     {
+      "analysis": "wu2022-tibet-arunachal-covarion-relaxed-bdss",
+      "claim_id": "ev_period_1ebca6a70246521c5afc05cfb9ff3b71defa9bc7",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 150,
+        "mean": null,
+        "median": null,
+        "probability": 0.95,
+        "upper": 1358
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Duhumbi, Jerigaon, Khijipi, Khoina, Khoitam, Rahung, Rupa, Shergaon)",
+      "role": "posterior",
+      "source": "Mei-Shin Wu et al. 2022",
+      "subject_id": "wu2022-tibet-arunachal-covarion-relaxed-bdss:clade:7ddc99e4b8a7f446"
+    },
+    {
       "analysis": "holman2011-asjp-ethnologue16-s092-r072",
       "claim_id": "ev_period_207f48bcf80d1ce403fc5a308ba8b28ae8cf40f4",
       "epoch": 2000,
@@ -107,6 +143,24 @@
       "role": "hypothesis",
       "source": "Eric W. Holman et al. 2011",
       "subject_id": "wikt:qfa-cka-pro"
+    },
+    {
+      "analysis": "oskolskaya2021-three-calibrations",
+      "claim_id": "ev_period_20ca62102d0d650142404ab40e7fc8ae1f1b191d",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -736,
+        "mean": null,
+        "median": 450,
+        "probability": 0.95,
+        "upper": 1154
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Bikin Nanai, Even, Evenki Chirinda, Evenki Khamnigan, Evenki Stony Tunguska, Evenki Strelka-Chunya, Evenki Teteya, Evenki Tutochany, Hezhe, Jurchen, Kur-Urmi, Manchu, Najkhin Nanai, Negidal, Oroch, Orok, Oroqen, Solon, Udihe, Ulch, Xibe)",
+      "role": "posterior",
+      "source": "Martine Robbeets & Sofia Oskolskaya 2022",
+      "subject_id": "oskolskaya2021-three-calibrations:clade:c66fc4c64d124401"
     },
     {
       "analysis": "holman2011-asjp-ethnologue16-s092-r072",
@@ -1187,6 +1241,24 @@
       "role": "hypothesis",
       "source": "Eric W. Holman et al. 2011",
       "subject_id": "wikt:cdc-pro"
+    },
+    {
+      "analysis": "wu2022-tibet-arunachal-covarion-relaxed-bdss",
+      "claim_id": "ev_period_de08a4769acd85128b9c986d417963c2f74d2adb",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -1753,
+        "mean": null,
+        "median": null,
+        "probability": 0.95,
+        "upper": -86
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Alike, Batang, Bumthang, Dzalakha, Khengkha, Lhasa, Manla Cuona Menba, Old Tibetan, Wenlang Cuona Menba, Xiahe)",
+      "role": "posterior",
+      "source": "Mei-Shin Wu et al. 2022",
+      "subject_id": "wu2022-tibet-arunachal-covarion-relaxed-bdss:clade:757e4f735502d950"
     },
     {
       "analysis": "holman2011-asjp-ethnologue16-s092-r072",
@@ -35389,8 +35461,39 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:fff5df92fe6ca543"
     }
   ],
-  "generation": "d56cbc46a432b64255df9e2416d5b31f2c4f92f4f93a1518d0f951cd59f82789",
+  "generation": "05e4b990854c64d15136896fc2381efd3f8b68d2f0873c683b57271bbdd1b9b2",
   "languages": [
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "aav-khs-pro",
+      "evidence": [
+        {
+          "citation": "Nagaraja, K. S., Paul Sidwell & Simon Greenhill. 2013. A Lexicostatistical Study of the Khasian Languages: Khasi, Pnar, Lyngngam, and War. Mon-Khmer Studies 42: 1–11.",
+          "claim_id": "ev_period_0fc84bc0b69d666e9bac74503a96b93da2f9c15e",
+          "event": "crown_divergence",
+          "locator": "{\"page\": \"6\", \"pdf_page\": 7, \"figure\": \"8\", \"section\": \"2\"}",
+          "method": "bayesian_phylogenetic",
+          "node": "MRCA(Khasi, Lyngngam, PnarJaintia, WarLamin)",
+          "proto_mapping": "War, the first branch, against Khasi, Pnar and Lyngngam: all Khasian branches, so the crown is the breakup of Proto-Khasian.",
+          "quote": "analysis places the origin of this subgroup at a younger median of 1350 years (95% HPD = 1028-\n1737 years).",
+          "role": "posterior",
+          "source": "K. S. Nagaraja et al. 2013",
+          "url": "https://openresearch-repository.anu.edu.au/server/api/core/bitstreams/63ae520c-7b0a-497e-91fc-3a27ee092394/content"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 213/922 CE",
+      "name": "Proto-Khasian",
+      "spoken": {
+        "end": {
+          "earliest": 213,
+          "latest": 922
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
     {
       "alternatives": [],
       "basis": "estimated",
@@ -43399,6 +43502,37 @@
     {
       "alternatives": [],
       "basis": "estimated",
+      "code": "qfa-lic-pro",
+      "evidence": [
+        {
+          "citation": "Phylogenetic evidence reveals early Kra-Dai divergence and dispersal in the late Holocene",
+          "claim_id": "ev_tree_b348935ebd01077d6699ed277186a13839a005daa14cd139ad31a69413330d60",
+          "event": "crown_divergence",
+          "locator": null,
+          "method": "phylogenetic",
+          "node": "MRCA(HlaiBaisha, HlaiBaoding, HlaiBaoting, HlaiChangjiang, HlaiCun, HlaiHeitu, HlaiJiamao, HlaiNadou, HlaiQiandui, HlaiTongza, HlaiXifang, HlaiYuanmen, HlaiZhongsha)",
+          "proto_mapping": "The Hlai clade: 13 varieties incl. Cun and Nadou, all Hlai branches in the sample, so its crown is the breakup of Proto-Hlai.",
+          "quote": null,
+          "role": "posterior",
+          "source": "Yuxin Tao et al. 2023",
+          "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10616200/"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 86 BCE/1510 CE",
+      "name": "Proto-Hlai",
+      "spoken": {
+        "end": {
+          "earliest": -85,
+          "latest": 1507
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
       "code": "qfa-tak-pro",
       "evidence": [
         {
@@ -43924,6 +44058,68 @@
       }
     },
     {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "sit-bdi-pro",
+      "evidence": [
+        {
+          "citation": "Wu, Mei-Shin, Timotheus A. Bodt & Tiago Tresoldi. 2022. Bayesian phylogenetics illuminate shallower relationships among Trans-Himalayan languages in the Tibet-Arunachal area. Linguistics of the Tibeto-Burman Area (author manuscript, MPG PuRe).",
+          "claim_id": "ev_period_de08a4769acd85128b9c986d417963c2f74d2adb",
+          "event": "crown_divergence",
+          "locator": "{\"table\": \"1\", \"figure\": \"2 for node identity\", \"page\": \"22\", \"pdf_page\": 24, \"node\": 18}",
+          "method": "bayesian_phylogenetic",
+          "node": "MRCA(Alike, Batang, Bumthang, Dzalakha, Khengkha, Lhasa, Manla Cuona Menba, Old Tibetan, Wenlang Cuona Menba, Xiahe)",
+          "proto_mapping": "Node 18 joins East Bodish (Cuona Menba, Dzalakha, Khengkha, Bumthang) and Tibetan (incl. Old Tibetan), so its crown is the breakup of Proto-Bodish.",
+          "quote": "2855 (2036 — 3703)",
+          "role": "posterior",
+          "source": "Mei-Shin Wu et al. 2022",
+          "url": "https://pure.mpg.de/rest/items/item_3383165_9/component/file_3383218/content"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 1750/87 BCE",
+      "name": "Proto-Bodish",
+      "spoken": {
+        "end": {
+          "earliest": -1753,
+          "latest": -86
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "sit-khw-pro",
+      "evidence": [
+        {
+          "citation": "Wu, Mei-Shin, Timotheus A. Bodt & Tiago Tresoldi. 2022. Bayesian phylogenetics illuminate shallower relationships among Trans-Himalayan languages in the Tibet-Arunachal area. Linguistics of the Tibeto-Burman Area (author manuscript, MPG PuRe).",
+          "claim_id": "ev_period_1ebca6a70246521c5afc05cfb9ff3b71defa9bc7",
+          "event": "crown_divergence",
+          "locator": "{\"table\": \"1\", \"figure\": \"2 for node identity\", \"page\": \"22\", \"pdf_page\": 24, \"node\": 49}",
+          "method": "bayesian_phylogenetic",
+          "node": "MRCA(Duhumbi, Jerigaon, Khijipi, Khoina, Khoitam, Rahung, Rupa, Shergaon)",
+          "proto_mapping": "Node 49 spans both Western Kho-Bwa branches (Sherdukpen–Sartang and Chug–Lish), so its crown is the breakup of Proto-Western Kho-Bwa.",
+          "quote": "1143 (592 — 1800)",
+          "role": "posterior",
+          "source": "Mei-Shin Wu et al. 2022",
+          "url": "https://pure.mpg.de/rest/items/item_3383165_9/component/file_3383218/content"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 150/1360 CE",
+      "name": "Proto-Western Kho-Bwa",
+      "spoken": {
+        "end": {
+          "earliest": 150,
+          "latest": 1358
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
       "alternatives": [
         {
           "basis": "estimated",
@@ -43979,16 +44175,16 @@
           {
             "basis": "estimated",
             "code": "tbq-pro",
-            "label": "until c. 2200 BCE",
+            "label": "until c. 3740/1770 BCE",
             "name": "Proto-Tibeto-Burman",
             "own": false
           }
         ],
         "end": {
-          "earliest": -2203,
-          "latest": -2203
+          "earliest": -3738,
+          "latest": -1766
         },
-        "label": "until c. 2200 BCE",
+        "label": "until c. 3740/1770 BCE",
         "ongoing": false,
         "partial": true,
         "start": null,
@@ -44499,29 +44695,50 @@
       }
     },
     {
-      "alternatives": [],
-      "basis": "estimated",
-      "code": "tbq-pro",
-      "evidence": [
+      "alternatives": [
         {
+          "basis": "estimated",
           "citation": "Automated dating of the world's language families based on lexical similarity",
           "claim_id": "ev_period_258d8bc3a7937d3e0693cca5413b9109273dd07f",
+          "end": {
+            "earliest": -2203,
+            "latest": -2203
+          },
           "event": "crown_divergence",
+          "label": "until c. 2200 BCE",
           "locator": "{\"table\": \"Table 4\", \"row\": \"Tibeto-Burman\", \"page\": 854, \"pdf_page\": 15, \"character_start\": 61309, \"character_end\": 61347, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
           "method": "lexicostatistic",
           "quote": "Tibeto-Burman\n10,352\n14 (18)\n5.81\n4203",
           "role": "hypothesis",
           "source": "Eric W. Holman et al. 2011",
+          "start": null,
           "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
         }
       ],
+      "basis": "estimated",
+      "code": "tbq-pro",
+      "evidence": [
+        {
+          "citation": "Phylogenetic evidence for Sino-Tibetan origin in northern China in the Late Neolithic",
+          "claim_id": "ev_tree_407d7c70a057f32c53621aa7e32b4a2b136b042e77b332886ba92fde46bb41a5",
+          "event": "crown_divergence",
+          "locator": null,
+          "method": "phylogenetic",
+          "node": "MRCA(Achang_Lianghe_Burmish, Achang_Longchuan_Burmish, Achang_Luxi_Burmish, Achang_Xiandao_Burmish, Angami_Kohima_Naga, Anong_Nungish, Ao_Chungli_Naga, Ao_Mongsen_Naga, Apatani_Tani, Atong_Sal, Atsi_Zaiwa_Burmish, Bengni_Tani, Bodo_Sal, Bokar_Lhoba_Tani, Bola_Luxi_Burmish, Burmese_Spoken_Rangoon_Burmese, Caodeng_rGyalrongic, Chang_Sal, Chepang_Himalayan, Cuona_Mama_Bodish, Cuona_Menba_Bodish, Daai_KukiChin, Daofu_rGyalrongic, Darang_Taraon_Diagarish, Dimasa_Sal, Ergong_Danba_rGyalrongic, Ersu_Ersuish, Garo_Sal, Gurung_Ghachok_TG, Hani_Caiyuan_Ngwi, Hani_Dazhai_Ngwi, Hani_Gelanghe_Ngwi, Hani_Luchun_Ngwi, Hani_Mojiang_Ngwi, Hani_Shuikui_Ngwi, Hayu_Kiranti, Idu_Diagarish, Jingpho_Sal, Jinuo_Youle_Ngwi, Kanauri_Kinauri, Karen_Karenic, Kayan_Pekon_Karenic, Khaling_Kiranti, Khumi_KukiChin, Konyak_Sal, Lahu_Lancang_Ngwi_Lahu, Lahu_Yellow_Ngwi_Lahu, Langsu_Luxi_Burmish, Leqi_Luxi_Burmish, Liangmei_Naga, Limbu_Kiranti, Lisu_Central_Ngwi, Lisu_Northern_Ngwi, Lotha_Naga_Naga, Lyuzu_Ersuish, Magar_Himalayan, Manang_Gyaru_TG, Manang_Prakaa_TG, Marma_Burmese, Matu_KukiChin, Mpi_Ngwi, Muya_Minyak_Qiangic, Namuyi_Naic, Naxi_Lijiang_Naic, Naxi_Yongning_Naic, Ngmuun_KukiChin, Nusu_Central_Nusu, Nusu_Northern_Nusu, Nusu_Southern_Nusu, Pa_O_Karenic, Pattani_Kinauri, Phom_Sal, Pumi_Qinghua_Qiangic_Pumi, Pumi_Taoba_Qiangic_Pumi, Qiang_Longxi_Qiangic, Qiang_Mawo_Qiangic, Queyu_Yajiang_Qiangic, Rongmei_Naga, Sak_Sal, Sangtam_Naga, Sema_Sumi_Naga, Sunwar_Kiranti, Tamang_TG, Tangkhul_Tangkhulic, Thado_KukiChin, Thakali_TG, Thulung_Kiranti, Tibetan_Amdo_Blabrang_Tibetan, Tibetan_Amdo_Zeku_Tibetan, Tibetan_Batang_Tibetan, Tibetan_Jirel_Tibetan, Tibetan_Khams_Tibetan, Tibetan_Lhasa_Tibetan, Tibetan_Xiahe_Tibetan, Tiddim_KukiChin, Trung_Dulong_Nungish, Trung_Nujiang_Nungish, Xumi_Naic, Yi_Dafang_Ngwi, Yi_Mile_Ngwi, Yi_Mojiang_Ngwi, Yi_Nanjian_Ngwi, Yi_Sani_Ngwi, Yi_Weishan_Ngwi, Yi_Wuding_Ngwi, Zeme_Naga, rGyalrong_Maerkang_rGyalrongic)",
+          "proto_mapping": "All 107 sampled Sino-Tibetan languages except Old Chinese and Mandarin: the non-Sinitic clade, which is what Proto-Tibeto-Burman reconstructs (support 0.68).",
+          "quote": null,
+          "role": "posterior",
+          "source": "Menghan Zhang et al. 2019",
+          "url": "https://doi.org/10.1038/s41586-019-1153-z"
+        }
+      ],
       "kind": "proto",
-      "label": "until c. 2200 BCE",
+      "label": "until c. 3740/1770 BCE",
       "name": "Proto-Tibeto-Burman",
       "spoken": {
         "end": {
-          "earliest": -2203,
-          "latest": -2203
+          "earliest": -3738,
+          "latest": -1766
         },
         "ongoing": false,
         "start": null
@@ -44767,29 +44984,50 @@
       }
     },
     {
-      "alternatives": [],
-      "basis": "estimated",
-      "code": "tuw-pro",
-      "evidence": [
+      "alternatives": [
         {
+          "basis": "estimated",
           "citation": "Automated dating of the world's language families based on lexical similarity",
           "claim_id": "ev_period_83655662c21096137dc78bf5ccd4f8d963bd663b",
+          "end": {
+            "earliest": 681,
+            "latest": 681
+          },
           "event": "crown_divergence",
+          "label": "until c. 681 CE",
           "locator": "{\"table\": \"Table 4\", \"row\": \"Tungusic\", \"page\": 854, \"pdf_page\": 15, \"character_start\": 59687, \"character_end\": 59715, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
           "method": "lexicostatistic",
           "quote": "Tungusic\n99\n2 (2)\n38.67\n1319",
           "role": "hypothesis",
           "source": "Eric W. Holman et al. 2011",
+          "start": null,
           "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
         }
       ],
+      "basis": "estimated",
+      "code": "tuw-pro",
+      "evidence": [
+        {
+          "citation": "Robbeets, Martine & Sofia Oskolskaya. 2022. Proto-Tungusic in time and space. In The Oxford Guide to the Transeurasian Languages (chapter 8; MPG PuRe copy), reporting Oskolskaya et al. 2021's Bayesian Tungusic phylogeny.",
+          "claim_id": "ev_period_20ca62102d0d650142404ab40e7fc8ae1f1b191d",
+          "event": "crown_divergence",
+          "locator": "{\"section\": \"3.2\", \"page\": \"271\", \"pdf_page\": 9, \"figure\": \"4 on p.272\"}",
+          "method": "bayesian_phylogenetic",
+          "node": "MRCA(Bikin Nanai, Even, Evenki Chirinda, Evenki Khamnigan, Evenki Stony Tunguska, Evenki Strelka-Chunya, Evenki Teteya, Evenki Tutochany, Hezhe, Jurchen, Kur-Urmi, Manchu, Najkhin Nanai, Negidal, Oroch, Orok, Oroqen, Solon, Udihe, Ulch, Xibe)",
+          "proto_mapping": "All sampled Tungusic branches (Northern: Even, Evenki, Negidal, Oroqen, Solon; Udihe-Oroch; Nanaic; Jurchen-Manchu), so the root is the breakup of Proto-Tungusic.",
+          "quote": "split covers about 1800 years (737 BC–1154 AD), which implies that there are\nnot enough data for more precise results. Nevertheless, the median of this bar is\naround 1500 BP, i.e. AD 450.",
+          "role": "posterior",
+          "source": "Martine Robbeets & Sofia Oskolskaya 2022",
+          "url": "https://pure.mpg.de/rest/items/item_3444737_2/component/file_3444738/content"
+        }
+      ],
       "kind": "proto",
-      "label": "until c. 681 CE",
+      "label": "until c. 737 BCE/1150 CE",
       "name": "Proto-Tungusic",
       "spoken": {
         "end": {
-          "earliest": 681,
-          "latest": 681
+          "earliest": -736,
+          "latest": 1154
         },
         "ongoing": false,
         "start": null
