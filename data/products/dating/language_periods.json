@@ -34093,7 +34093,7 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:fff5df92fe6ca543"
     }
   ],
-  "generation": "7fc557784fe499ac5e379c1c9ef2dd953cc24c4198da32a8fdef65cfa85df138",
+  "generation": "4ab02a5636509eff24fe0b58878e6acabf3544b1ad234ec2f163ad3ec4e3a02a",
   "languages": [
     {
       "alternatives": [
@@ -35361,11 +35361,82 @@
       "kind": "stage",
       "label": "4th–14th century CE",
       "name": "Coptic",
+      "span": {
+        "components": [
+          {
+            "basis": "conventional",
+            "code": "cop",
+            "label": "4th–14th century CE",
+            "name": "Coptic",
+            "own": true
+          },
+          {
+            "basis": "attested",
+            "code": "cop-sah",
+            "label": "from 4th century CE",
+            "name": "Sahidic Coptic",
+            "own": false
+          }
+        ],
+        "end": {
+          "earliest": 1301,
+          "latest": 1400
+        },
+        "label": "4th–14th century CE",
+        "ongoing": false,
+        "partial": true,
+        "start": {
+          "earliest": 301,
+          "latest": 400
+        },
+        "undated": [
+          "cop-akh",
+          "cop-boh",
+          "cop-fay",
+          "cop-ggg",
+          "cop-her",
+          "cop-jjj",
+          "cop-kkk",
+          "cop-lyc",
+          "cop-old",
+          "cop-oxy",
+          "cop-ply",
+          "cop-ppp"
+        ]
+      },
       "spoken": {
         "end": {
           "earliest": 1301,
           "latest": 1400
         },
+        "ongoing": false,
+        "start": {
+          "earliest": 301,
+          "latest": 400
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "attested",
+      "code": "cop-sah",
+      "evidence": [
+        {
+          "citation": "Loprieno, Antonio. 1995. Ancient Egyptian: A Linguistic Introduction. Cambridge: Cambridge University Press. Supplied copy digitally printed 2004. https://doi.org/10.1017/CBO9780511611865.",
+          "claim_id": "ev_period_73772d1b36d59cd856e120820b228ca503f0c9f4",
+          "event": "first_attestation",
+          "locator": "{\"page\": \"40\", \"pdf_page\": 56}",
+          "quote": "The two major Coptic dialects are Sahidic> normally considered to reflect\nthe Theban, upper Egyptian variety of the language, documented from the\nfourth century CE and representing the language of classical Coptic liter-\nature",
+          "role": "observation",
+          "source": "Loprieno 1995",
+          "url": "https://doi.org/10.1017/cbo9780511611865"
+        }
+      ],
+      "kind": "attested",
+      "label": "from 4th century CE",
+      "name": "Sahidic Coptic",
+      "spoken": {
+        "end": null,
         "ongoing": false,
         "start": {
           "earliest": 301,
@@ -37748,6 +37819,138 @@
       "alternatives": [
         {
           "basis": "attested",
+          "citation": "Windfuhr, Gernot, and John R. Perry. 2009. “Persian and Tajik.” In Gernot Windfuhr (ed.), The Iranian Languages, 416–544. London and New York: Routledge.",
+          "claim_id": "ev_period_51440bd7696c4088e8d3333fb1de930488bffa23",
+          "end": {
+            "earliest": 901,
+            "latest": 1000
+          },
+          "event": "documentary_sampling",
+          "label": "7th–10th century CE",
+          "locator": "{\"page\": \"378\", \"pdf_page\": 453}",
+          "quote": "Relatively little original Khotanese literature has survived, but we have among other \nitems a charming version of the Ramayal)a, some lyrical verses, a substantial fragment of \na metrical composition containing a love story, the description of a journey through \nGilgit and Chilas to Kashmir, and some literary epistles. \nThe bulk of the extant documents all appear to date from the period between the \nseventh and the tenth century CE, but some fragments have been dated on palaeo­\ngraphical grounds to the fifth and sixth centuries CE (for details, see Emmerick 1992a). ",
+          "role": "observation",
+          "source": "Windfuhr 2009",
+          "start": {
+            "earliest": 601,
+            "latest": 700
+          },
+          "url": null
+        },
+        {
+          "basis": "attested",
+          "citation": "Windfuhr, Gernot, and John R. Perry. 2009. “Persian and Tajik.” In Gernot Windfuhr (ed.), The Iranian Languages, 416–544. London and New York: Routledge.",
+          "claim_id": "ev_period_f0f7edd0e140f4aed2feb497ea8e8438bd1c5d42",
+          "end": {
+            "earliest": 501,
+            "latest": 600
+          },
+          "event": "documentary_sampling",
+          "label": "5th–6th century CE",
+          "locator": "{\"page\": \"378\", \"pdf_page\": 453}",
+          "quote": "Relatively little original Khotanese literature has survived, but we have among other \nitems a charming version of the Ramayal)a, some lyrical verses, a substantial fragment of \na metrical composition containing a love story, the description of a journey through \nGilgit and Chilas to Kashmir, and some literary epistles. \nThe bulk of the extant documents all appear to date from the period between the \nseventh and the tenth century CE, but some fragments have been dated on palaeo­\ngraphical grounds to the fifth and sixth centuries CE (for details, see Emmerick 1992a). ",
+          "role": "observation",
+          "source": "Windfuhr 2009",
+          "start": {
+            "earliest": 401,
+            "latest": 500
+          },
+          "url": null
+        }
+      ],
+      "basis": "attested",
+      "code": "kho",
+      "evidence": [
+        {
+          "citation": "Windfuhr, Gernot, and John R. Perry. 2009. “Persian and Tajik.” In Gernot Windfuhr (ed.), The Iranian Languages, 416–544. London and New York: Routledge.",
+          "claim_id": "ev_period_64726fedc3d8b09d82bfae2f7bceec49e74f566d",
+          "event": "last_attestation",
+          "locator": "{\"page\": \"411\", \"pdf_page\": 486}",
+          "quote": "We have no direct evidence concerning the demise of Tumshuqese and Khotanese, but it \nis probably significant that no Khotanese text can be dated to later than the tenth century, \nwhereas the language was flourishing throughout the century.",
+          "role": "observation",
+          "source": "Windfuhr 2009",
+          "url": null
+        }
+      ],
+      "kind": "attested",
+      "label": "until 1000 CE",
+      "name": "Khotanese",
+      "span": {
+        "components": [
+          {
+            "basis": "attested",
+            "code": "kho",
+            "label": "until 1000 CE",
+            "name": "Khotanese",
+            "own": true
+          },
+          {
+            "basis": "attested",
+            "code": "kho-lat",
+            "label": "9th–10th century CE",
+            "name": "Late Khotanese",
+            "own": false
+          }
+        ],
+        "end": {
+          "earliest": 901,
+          "latest": 1000
+        },
+        "label": "9th–10th century CE",
+        "ongoing": false,
+        "partial": true,
+        "start": {
+          "earliest": 801,
+          "latest": 900
+        },
+        "undated": [
+          "kho-old"
+        ]
+      },
+      "spoken": {
+        "end": {
+          "earliest": null,
+          "latest": 1000
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "attested",
+      "code": "kho-lat",
+      "evidence": [
+        {
+          "citation": "Klein, Jared S. (ed.); Joseph, Brian D. (ed.); Fritz, Matthias (ed.) (2017) Handbook of comparative and historical Indo-European linguistics. Vol. 1. Berlin ; Boston, De Gruyter Mouton.",
+          "claim_id": "ev_period_dfe606e9a30c154fedea9c9356cd4a6ed655ada6",
+          "event": "documentary_sampling",
+          "locator": "{\"page\": \"476\", \"pdf_page\": 488}",
+          "quote": "Late Khotanese known from Buddhist\ntexts and letters (9th−10th centuries).",
+          "role": "observation",
+          "source": "Klein et al. 2017",
+          "url": null
+        }
+      ],
+      "kind": "attested",
+      "label": "9th–10th century CE",
+      "name": "Late Khotanese",
+      "spoken": {
+        "end": {
+          "earliest": 901,
+          "latest": 1000
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 801,
+          "latest": 900
+        }
+      }
+    },
+    {
+      "alternatives": [
+        {
+          "basis": "attested",
           "citation": "Koch, J. T. 2020. Celto-Germanic: Later Prehistory and Post-Proto-Indo-European Vocabulary in the North and West. Aberystwyth: University of Wales Centre for Advanced Welsh and Celtic Studies. ISBN 978-1-907029-32-5.",
           "claim_id": "ev_period_0a5b196e284771b93fddd3b636cfb91499cb25f8",
           "end": null,
@@ -38282,6 +38485,34 @@
           "earliest": 750,
           "latest": 750
         }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "last_speaker",
+      "code": "nrn",
+      "evidence": [
+        {
+          "citation": "Fortson, Benjamin W., IV. 2010. Indo-European Language and Culture: An Introduction. 2nd ed. Blackwell Textbooks in Linguistics 19. Chichester and Malden, MA: Wiley-Blackwell. (Supplied copy is a reflowed e-book without printed page numbers; cited by section.)",
+          "claim_id": "ev_period_dca2398d52b98372465c53a9a46535bcafcc24b3",
+          "event": "native_transmission_end",
+          "locator": "{\"page\": \"§15.104 (retained PDF has no printed page number)\", \"pdf_page\": 385}",
+          "quote": "Closely related to Faroese was Norn, spoken on the Shetland and Orkney Islands until the\neighteenth century. Little written evidence of the language survives, but a large number of\nwords were borrowed into the Scots that supplanted it.",
+          "role": "hypothesis",
+          "source": "Fortson 2010",
+          "url": null
+        }
+      ],
+      "kind": "stage",
+      "label": "until 18th century CE",
+      "name": "Norn",
+      "spoken": {
+        "end": {
+          "earliest": 1701,
+          "latest": 1800
+        },
+        "ongoing": false,
+        "start": null
       }
     },
     {
@@ -38913,6 +39144,34 @@
         "start": {
           "earliest": 1501,
           "latest": 1600
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "attested",
+      "code": "otk-ork",
+      "evidence": [
+        {
+          "citation": "Kerslake, Celia. 2022. “Ottoman Turkish.” In Lars Johanson and Éva Á. Csató (eds.), The Turkic Languages, 2nd ed., 174–194. London and New York: Routledge. https://doi.org/10.4324/9781003243809.",
+          "claim_id": "ev_period_bae207ac42c7f8356a252d9bdbe460f6ce5fbaeb",
+          "event": "first_attestation",
+          "locator": "{\"page\": \"86\", \"pdf_page\": 111}",
+          "quote": "The earliest known records, documented from the eighth century onward, are inscrip­\ntions on stone steles in present-day Mongolia’s Orkhon valley, in honor of rulers of \nthe second Türk kaghanate.",
+          "role": "observation",
+          "source": "Johanson & Csató 2021",
+          "url": "https://doi.org/10.4324/9781003243809"
+        }
+      ],
+      "kind": "attested",
+      "label": "from 8th century CE",
+      "name": "Orkhon Turkic",
+      "spoken": {
+        "end": null,
+        "ongoing": false,
+        "start": {
+          "earliest": 701,
+          "latest": 800
         }
       }
     },
@@ -39735,6 +39994,34 @@
         "end": {
           "earliest": 900,
           "latest": 900
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "last_speaker",
+      "code": "sia",
+      "evidence": [
+        {
+          "citation": "Seurujärvi-Kari, Irja. 2011. “‘We Took Our Language Back’ – The Formation of a Sámi Identity within the Sámi Movement and the Role of the Sámi Language from the 1960s until 2008.” In Riho Grünthal and Magdolna Kovács (eds.), Ethnic and Linguistic Context of Identity: Finno-Ugric Minorities (Uralica Helsingiensia5), 37–78. Helsinki: Finno-Ugrian Society / University of Helsinki.",
+          "claim_id": "ev_period_07d6fd542e2bd9c752138262ddf80f611eb0e51c",
+          "event": "native_transmission_end",
+          "locator": "{\"page\": \"39\", \"pdf_page\": 20}",
+          "quote": "A few years ago, in 2003, the last \nremaining speaker of Akkala Sámi, Marija Sergina ig. Osipova of the \nmunicipality of Kovdor on the Kola Peninsula died (Rantala & Ser-\ngina 2009: 73).",
+          "role": "hypothesis",
+          "source": "Seurujärvi-Kari 2011",
+          "url": "https://journal.fi/uralicahelsingiensia/issue/download/uh5/uh5"
+        }
+      ],
+      "kind": "stage",
+      "label": "until 2003 CE",
+      "name": "Akkala Sami",
+      "spoken": {
+        "end": {
+          "earliest": 2003,
+          "latest": 2003
         },
         "ongoing": false,
         "start": null
@@ -40635,6 +40922,148 @@
         "start": {
           "earliest": 1101,
           "latest": 1200
+        }
+      }
+    },
+    {
+      "alternatives": [
+        {
+          "basis": "attested",
+          "citation": "Vicente, Ángeles. 2020. “Andalusi Arabic.” In Christopher Lucas and Stefano Manfredi (eds.), Arabic and contact-induced change (Contact and Multilingualism 1), 225–244. Berlin: Language Science Press. DOI:10.5281/zenodo.3744521.",
+          "claim_id": "ev_period_6e16f572aedd326c1d1ed98215f56421ea2ac648",
+          "end": {
+            "earliest": 1601,
+            "latest": 1700
+          },
+          "event": "documentary_sampling",
+          "label": "10th–17th century CE",
+          "locator": "{\"page\": \"226\", \"pdf_page\": 234}",
+          "quote": "Nevertheless, written documents in Andalusi Arabic are available from the\ntenth century until the expulsion of the moriscos in the seventeenth century.",
+          "role": "observation",
+          "source": "Vicente 2020",
+          "start": {
+            "earliest": 901,
+            "latest": 1000
+          },
+          "url": "https://zenodo.org/record/3744565/files/235.pdf?download=1"
+        }
+      ],
+      "basis": "conventional",
+      "code": "xaa",
+      "evidence": [
+        {
+          "citation": "Vicente, Ángeles. 2020. “Andalusi Arabic.” In Christopher Lucas and Stefano Manfredi (eds.), Arabic and contact-induced change (Contact and Multilingualism 1), 225–244. Berlin: Language Science Press. DOI:10.5281/zenodo.3744521.",
+          "claim_id": "ev_period_2fa1f7c35171bcb822f45b9cb44480e5b4aa446c",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"225\", \"pdf_page\": 233}",
+          "quote": "A dialect of the Western Neo-Arabic type, Andalusi Arabic is currently a dead\nlanguage. It was spoken from the eighth to the seventeenth century in a changing\nterritory following historical vicissitudes.",
+          "role": "convention",
+          "source": "Vicente 2020",
+          "url": "https://zenodo.org/record/3744565/files/235.pdf?download=1"
+        }
+      ],
+      "kind": "stage",
+      "label": "8th–17th century CE",
+      "name": "Andalusian Arabic",
+      "spoken": {
+        "end": {
+          "earliest": 1601,
+          "latest": 1700
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 701,
+          "latest": 800
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "last_speaker",
+      "code": "xas",
+      "evidence": [
+        {
+          "citation": "Arkhipov, Alexandre, Chris Lasse Däbritz, and Valentin Gusev. [2023 deposit]. INEL Kamas corpus 2.0: User documentation. In Gusev, Valentin, Tiina Klooster, and Beáta Wagner-Nagy, INEL Kamas Corpus, version 2.0. Universität Hamburg. https://hdl.handle.net/11022/0000-0007-FC25-4.",
+          "claim_id": "ev_period_7a8e446890aa0b98b3f4def92a011908844efa5f",
+          "event": "native_transmission_end",
+          "locator": "{\"page\": \"1\", \"pdf_page\": 1}",
+          "quote": "Kamas belongs to the Samoyedic branch of the Uralic language family. All the main sources\ndocument Forest Kamas varieties spoken in the settlement of Abalakovo, in the present\nKrasnoyarsk Krai in Southern Siberia, on the northern slopes of the East Sayan Mountains. The\nlanguage became extinct by the late XXth century with the death of its last known speaker, Klavdiya\nPlotnikova, in 1989.",
+          "role": "hypothesis",
+          "source": "Arkhipov 2023",
+          "url": "https://www.fdr.uni-hamburg.de/record/13882/files/kamas-2.0-documentation.pdf"
+        }
+      ],
+      "kind": "stage",
+      "label": "until 1989 CE",
+      "name": "Kamassian",
+      "spoken": {
+        "end": {
+          "earliest": 1989,
+          "latest": 1989
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [
+        {
+          "basis": "attested",
+          "citation": "Sims-Williams, Nicholas. 1988. “Bactrian Language.” Encyclopaedia Iranica III/4, 344–349. Published15 December1988; web page updated17 October2016.",
+          "claim_id": "ev_period_3ce5add24cdd2f103f35f1d640df06a5ad1b2c46",
+          "end": {
+            "earliest": 801,
+            "latest": 900
+          },
+          "event": "manuscript_production",
+          "label": "c. 8th–9th century CE",
+          "locator": "{\"start\": 183, \"end\": 486}",
+          "quote": "BACTRIAN LANGUAGE, the Iranian language of ancient Bactria (northern Afghanistan), attested by coins, seals, and inscriptions of the Kushan period (first to third centuries A.D.) and the following centuries and by a few manuscript fragments from a much later period, perhaps the eighth or ninth century.",
+          "role": "observation",
+          "source": "Sims-Williams 1988",
+          "start": {
+            "earliest": 701,
+            "latest": 800
+          },
+          "url": "https://www.iranicaonline.org/articles/bactrian-language/"
+        }
+      ],
+      "basis": "attested",
+      "code": "xbc",
+      "evidence": [
+        {
+          "citation": "Klein, Jared S. (ed.); Joseph, Brian D. (ed.); Fritz, Matthias (ed.) (2017) Handbook of comparative and historical Indo-European linguistics. Vol. 1. Berlin ; Boston, De Gruyter Mouton.",
+          "claim_id": "ev_period_442529a60f0ec3a482196be1e751a0e0aba1a43a",
+          "event": "first_attestation",
+          "locator": "{\"page\": \"476\", \"pdf_page\": 488}",
+          "quote": "Bactrian, known from inscriptions (from 2nd cent.) and a large corpus of documents\n(3rd−8th cents.; Sims-Williams 2000−2007).",
+          "role": "observation",
+          "source": "Klein et al. 2017",
+          "url": null
+        },
+        {
+          "citation": "Klein, Jared S. (ed.); Joseph, Brian D. (ed.); Fritz, Matthias (ed.) (2017) Handbook of comparative and historical Indo-European linguistics. Vol. 1. Berlin ; Boston, De Gruyter Mouton.",
+          "claim_id": "ev_period_ef5c7245f415a4d4fc37a8f974be0fbfa0e551af",
+          "event": "last_attestation",
+          "locator": "{\"page\": \"476\", \"pdf_page\": 488}",
+          "quote": "Bactrian, known from inscriptions (from 2nd cent.) and a large corpus of documents\n(3rd−8th cents.; Sims-Williams 2000−2007).",
+          "role": "observation",
+          "source": "Klein et al. 2017",
+          "url": null
+        }
+      ],
+      "kind": "attested",
+      "label": "2nd–8th century CE",
+      "name": "Bactrian",
+      "spoken": {
+        "end": {
+          "earliest": 701,
+          "latest": 800
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 101,
+          "latest": 200
         }
       }
     },
