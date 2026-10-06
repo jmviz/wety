@@ -77,6 +77,7 @@ class LabelTests(unittest.TestCase):
         )
         # An end known only as a lower bound ("died out after the 14th century").
         self.assertEqual(label(None, (1400, None)), "until after 1400 CE")
+        self.assertEqual(label(None, (-550, None), approximate=True), "until after c. 551 BCE")
         # An endpoint known only as one of two centuries.
         self.assertEqual(label((-699, -500), (-199, -100)), "7th/6th–2nd century BCE")
 

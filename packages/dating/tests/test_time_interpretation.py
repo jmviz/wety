@@ -88,6 +88,23 @@ class TimeInterpretationTests(unittest.TestCase):
                     }
                 )
 
+    def test_years_ago_has_its_own_labeled_convention(self):
+        # Maintainer decision 2026-10-06: rough expert estimates stated only as "years
+        # ago" may be read before AD 1950, labeled as such; never under the BP label.
+        raw = {"form": "point", "unit": "years_ago", "value": 2500, "age_scale": "calendar"}
+        convention = {
+            "basis": "conventional_years_ago_1950",
+            "notation": "years ago",
+            "epoch": 1950,
+        }
+        self.assertEqual(normalize_time({**raw, "epoch_interpretation": convention}).value, -550)
+        with self.assertRaises(ValueError):
+            normalize_time({**raw, "unit": "BP", "epoch_interpretation": convention})
+        with self.assertRaises(ValueError):
+            normalize_time(
+                {**raw, "epoch_interpretation": {**convention, "basis": "conventional_bp_1950"}}
+            )
+
     def test_uncalibrated_bc_is_not_a_calendar_date_either(self):
         with self.assertRaises(UnresolvedCalendar):
             normalize_time(

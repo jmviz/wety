@@ -307,6 +307,24 @@
       "subject_id": "wikt:tuw-pro"
     },
     {
+      "analysis": "mongolic-time-depth-reported-hakkinen2009",
+      "claim_id": "ev_period_29df9c3f431539bb7f8f3de1927355f02e1d6c8f",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Mongolic",
+      "role": "hypothesis",
+      "source": "Jaakko Häkkinen 2009",
+      "subject_id": "wikt:xgn-pro"
+    },
+    {
       "analysis": "peiros1998-austroasiatic-sixteen-language",
       "claim_id": "ev_period_2d402e95001478588c8a7748e58d3d2dd2f70b0e",
       "epoch": 1950,
@@ -829,6 +847,42 @@
       "subject_id": "wikt:tuw-pro"
     },
     {
+      "analysis": "gstarostin2010-shallow-groups-expert-summary",
+      "claim_id": "ev_period_76c88867df3989cc97e7d6ec88bb036f6ee28d06",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Mongolic",
+      "role": "hypothesis",
+      "source": "George Starostin 2010",
+      "subject_id": "wikt:xgn-pro"
+    },
+    {
+      "analysis": "pevnov2012-mutual-intelligibility",
+      "claim_id": "ev_period_798f99f6a01f0885104a8d1b94e9f87af601a415",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Tungusic",
+      "role": "hypothesis",
+      "source": "Martine Robbeets & Sofia Oskolskaya 2022",
+      "subject_id": "wikt:tuw-pro"
+    },
+    {
       "analysis": "holman2011-asjp-ethnologue16-s092-r072",
       "claim_id": "ev_period_79f20f354753c0d3eb24e89329a0e7c8294a0340",
       "epoch": 2000,
@@ -844,6 +898,24 @@
       "node": "Proto-Berber",
       "role": "hypothesis",
       "source": "Eric W. Holman et al. 2011",
+      "subject_id": "wikt:ber-pro"
+    },
+    {
+      "analysis": "militarev-berber-100word-restated2022",
+      "claim_id": "ev_period_7d170dae638acb2dca3d82b1388ee294d33afd83",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Berber",
+      "role": "hypothesis",
+      "source": "Alexander Militarev 2022",
       "subject_id": "wikt:ber-pro"
     },
     {
@@ -955,6 +1027,24 @@
       "subject_id": "wikt:omq-zpc-pro"
     },
     {
+      "analysis": "blust2013-general-time-depths",
+      "claim_id": "ev_period_92d363cd1dcc56b40674948670cbdf2a0c6029a0",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": null,
+        "lower": -4050,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": -3050
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Arawak",
+      "role": "hypothesis",
+      "source": "Blust 2013",
+      "subject_id": "wikt:awd-pro"
+    },
+    {
       "analysis": "holman2011-asjp-ethnologue16-s092-r072",
       "claim_id": "ev_period_9421d3e1872db2ab55c0b8ea9c5a30cccb615b89",
       "epoch": 2000,
@@ -1025,6 +1115,24 @@
       "role": "hypothesis",
       "source": "Eric W. Holman et al. 2011",
       "subject_id": "wikt:kar-pro"
+    },
+    {
+      "analysis": "vajda2018-expert-breakup-estimate",
+      "claim_id": "ev_period_9ad2ea1a1656806815dec4afd292c5c1b2a58b58",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": null,
+        "lower": -2050,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": -1050
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Yeniseian",
+      "role": "hypothesis",
+      "source": "Edward Vajda 2018",
+      "subject_id": "wikt:qfa-yen-pro"
     },
     {
       "analysis": "gstarostin2014-recalibrated-glottochronology",
@@ -1115,6 +1223,24 @@
       "role": "hypothesis",
       "source": "Petri Kallio 2006",
       "subject_id": "wikt:fiu-pro"
+    },
+    {
+      "analysis": "blust2013-general-time-depths",
+      "claim_id": "ev_period_a9d0306a842fbab12e77ca008ac03009b6bca3a6",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": null,
+        "lower": -4050,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": -3050
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Austroasiatic",
+      "role": "hypothesis",
+      "source": "Blust 2013",
+      "subject_id": "wikt:aav-pro"
     },
     {
       "analysis": "holman2011-asjp-ethnologue16-s092-r072",
@@ -1241,6 +1367,24 @@
       "role": "hypothesis",
       "source": "Eric W. Holman et al. 2011",
       "subject_id": "wikt:poz-pep-pro"
+    },
+    {
+      "analysis": "gstarostin2010-shallow-groups-expert-summary",
+      "claim_id": "ev_period_c5efd5098b0f6e5c0ab954adbd545dcebfe70a6b",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Athabaskan",
+      "role": "hypothesis",
+      "source": "George Starostin 2010",
+      "subject_id": "wikt:ath-pro"
     },
     {
       "analysis": "holman2011-asjp-ethnologue16-s092-r072",
@@ -35641,7 +35785,7 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:fff5df92fe6ca543"
     }
   ],
-  "generation": "5a801330a330158a2cae9ca3e337e830ec5867fd7ab566477d37a20a289b91d0",
+  "generation": "7b9574da8f47d63a1430b00dcf9cbf87355339023c03be8a84cce9b520d377e4",
   "languages": [
     {
       "alternatives": [],
@@ -35720,6 +35864,24 @@
           "source": "Eric W. Holman et al. 2011",
           "start": null,
           "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        },
+        {
+          "basis": "estimated",
+          "citation": "Blust, Robert. 2013. The Austronesian languages. Revised edition. Asia-Pacific Linguistics 8. Canberra: Australian National University. ISBN 9781922185075.",
+          "claim_id": "ev_period_a9d0306a842fbab12e77ca008ac03009b6bca3a6",
+          "end": {
+            "earliest": -4050,
+            "latest": -3050
+          },
+          "event": "crown_divergence",
+          "label": "until c. 4050/3050 BCE",
+          "locator": "{\"page\": \"767\", \"pdf_page\": 809, \"table\": \"11.4 and immediately preceding paragraph\"}",
+          "method": "expert_estimate",
+          "quote": "Except for Algonquian, Bantu, \nDravidian, Tupi-Guarani and Turkic, which appear to have shallower time-depths, this \ncorresponds to proto languages that probably began to differentiate on the order of 5,000-6,000 \nyears ago.",
+          "role": "hypothesis",
+          "source": "Blust 2013",
+          "start": null,
+          "url": "https://openresearch-repository.anu.edu.au/bitstreams/acb0151b-ebb5-4941-8f29-8f61a28c777e/download"
         }
       ],
       "basis": "estimated",
@@ -36963,7 +37125,26 @@
       }
     },
     {
-      "alternatives": [],
+      "alternatives": [
+        {
+          "basis": "estimated",
+          "citation": "Starostin, George. 2010. Lexicostatistics page, Global Lexicostatistical Database, https://starlingdb.org/new100/Lexicostatistics.htm.",
+          "claim_id": "ev_period_c5efd5098b0f6e5c0ab954adbd545dcebfe70a6b",
+          "end": {
+            "earliest": -550,
+            "latest": null
+          },
+          "event": "crown_divergence",
+          "label": "until after c. 551 BCE",
+          "locator": "{\"section\": \"preliminary lexicostatistics: primary groupings\", \"page\": \"HTML; no pagination\"}",
+          "method": "expert_estimate",
+          "quote": "groupings that descend from proto-languages whose age is commonly estimated not\r\nto exceed 2,000 � 2,500 years, such as, e. g., Germanic, South Dravidian,\r\nMongolic, Athapaskan, Daju, North Khoisan, etc.",
+          "role": "hypothesis",
+          "source": "George Starostin 2010",
+          "start": null,
+          "url": "https://starlingdb.org/new100/Lexicostatistics.htm"
+        }
+      ],
       "basis": "estimated",
       "code": "ath-pro",
       "evidence": [
@@ -37052,6 +37233,35 @@
         "end": {
           "earliest": -5017,
           "latest": -2506
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "awd-pro",
+      "evidence": [
+        {
+          "citation": "Blust, Robert. 2013. The Austronesian languages. Revised edition. Asia-Pacific Linguistics 8. Canberra: Australian National University. ISBN 9781922185075.",
+          "claim_id": "ev_period_92d363cd1dcc56b40674948670cbdf2a0c6029a0",
+          "event": "crown_divergence",
+          "locator": "{\"page\": \"767\", \"pdf_page\": 809, \"table\": \"11.4 and immediately preceding paragraph\"}",
+          "method": "expert_estimate",
+          "quote": "Except for Algonquian, Bantu, \nDravidian, Tupi-Guarani and Turkic, which appear to have shallower time-depths, this \ncorresponds to proto languages that probably began to differentiate on the order of 5,000-6,000 \nyears ago.",
+          "role": "hypothesis",
+          "source": "Blust 2013",
+          "url": "https://openresearch-repository.anu.edu.au/bitstreams/acb0151b-ebb5-4941-8f29-8f61a28c777e/download"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 4050/3050 BCE",
+      "name": "Proto-Arawak",
+      "spoken": {
+        "end": {
+          "earliest": -4050,
+          "latest": -3050
         },
         "ongoing": false,
         "start": null
@@ -37190,29 +37400,48 @@
       }
     },
     {
-      "alternatives": [],
-      "basis": "estimated",
-      "code": "ber-pro",
-      "evidence": [
+      "alternatives": [
         {
+          "basis": "estimated",
           "citation": "Automated dating of the world's language families based on lexical similarity",
           "claim_id": "ev_period_79f20f354753c0d3eb24e89329a0e7c8294a0340",
+          "end": {
+            "earliest": 267,
+            "latest": 267
+          },
           "event": "crown_divergence",
+          "label": "until c. 267 CE",
           "locator": "{\"table\": \"Table 3\", \"row\": \"Berber\", \"page\": 853, \"pdf_page\": 14, \"character_start\": 54487, \"character_end\": 54514, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
           "method": "lexicostatistic",
           "quote": "Berber\n139\n4 (4)\n29.46\n1733",
           "role": "hypothesis",
           "source": "Eric W. Holman et al. 2011",
+          "start": null,
           "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
         }
       ],
+      "basis": "estimated",
+      "code": "ber-pro",
+      "evidence": [
+        {
+          "citation": "Militarev, Alexander. 2022. Asian and African Studies 31(1).",
+          "claim_id": "ev_period_7d170dae638acb2dca3d82b1388ee294d33afd83",
+          "event": "crown_divergence",
+          "locator": "{\"page\": \"3\", \"pdf_page\": 3, \"paragraph\": \"first paragraph; footnote 12\"}",
+          "method": "lexicostatistic",
+          "quote": "The status of a linguistic family with a chronological depth of about \n3,000 years",
+          "role": "hypothesis",
+          "source": "Alexander Militarev 2022",
+          "url": "https://www.sav.sk/journals/uploads/06301136AsianAndAfricanStudies_1_2022_01_Militarev.A_ReconstructingaCulturalLexiconForPreHistoryBerberZoonymsofAfrasianAfro-AsiaticOrigin.pdf"
+        }
+      ],
       "kind": "proto",
-      "label": "until c. 267 CE",
+      "label": "until c. 1050 BCE",
       "name": "Proto-Berber",
       "spoken": {
         "end": {
-          "earliest": 267,
-          "latest": 267
+          "earliest": -1050,
+          "latest": -1050
         },
         "ongoing": false,
         "start": null
@@ -40362,6 +40591,24 @@
       "alternatives": [
         {
           "basis": "estimated",
+          "citation": "Peiros, Ilia. 1998. Comparative Linguistics in Southeast Asia. Canberra: Pacific Linguistics C-142.",
+          "claim_id": "ev_period_493d2b47e70ec4c3ee3473326b0122c578e9a7f8",
+          "end": {
+            "earliest": -799,
+            "latest": -799
+          },
+          "event": "crown_divergence",
+          "label": "until c. 800 BCE",
+          "locator": "{\"page\": \"116\", \"pdf_page\": 126}",
+          "method": "lexicostatistic",
+          "quote": "800 BC \nProto Miao-Y ao",
+          "role": "hypothesis",
+          "source": "Ilia Peiros 1998",
+          "start": null,
+          "url": "https://openresearch-repository.anu.edu.au/bitstreams/0d12b064-200b-40a2-b8da-674d2b56f0f1/download"
+        },
+        {
+          "basis": "estimated",
           "citation": "Automated dating of the world's language families based on lexical similarity",
           "claim_id": "ev_period_d2d82ee420ceb699f7fe1051aa60e4ab14d4c062",
           "end": {
@@ -40383,27 +40630,30 @@
       "code": "hmx-pro",
       "evidence": [
         {
-          "citation": "Peiros, Ilia. 1998. Comparative Linguistics in Southeast Asia. Canberra: Pacific Linguistics C-142.",
-          "claim_id": "ev_period_493d2b47e70ec4c3ee3473326b0122c578e9a7f8",
-          "event": "crown_divergence",
-          "locator": "{\"page\": \"116\", \"pdf_page\": 126}",
-          "method": "lexicostatistic",
-          "quote": "800 BC \nProto Miao-Y ao",
+          "citation": "Ratliff, Martha. 2010. Hmong-Mien Language History. Canberra: Pacific Linguistics.",
+          "claim_id": "ev_period_2682d6f7e801cc90622f0da24be9660924c933a4",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"8\", \"pdf_page\": 19, \"section\": \"1.5\"}",
+          "method": "expert_estimate",
+          "quote": "homeland and daily life of Proto Hmong-Mien speakers some 2500 years ago.",
           "role": "hypothesis",
-          "source": "Ilia Peiros 1998",
-          "url": "https://openresearch-repository.anu.edu.au/bitstreams/0d12b064-200b-40a2-b8da-674d2b56f0f1/download"
+          "source": "Martha Ratliff 2010",
+          "url": "https://openresearch-repository.anu.edu.au/bitstreams/3306230f-dfec-4e0c-93bb-b30f5aef7596/download"
         }
       ],
       "kind": "proto",
-      "label": "until c. 800 BCE",
+      "label": "c. 551 BCE",
       "name": "Proto-Hmong-Mien",
       "spoken": {
         "end": {
-          "earliest": -799,
-          "latest": -799
+          "earliest": -550,
+          "latest": -550
         },
         "ongoing": false,
-        "start": null
+        "start": {
+          "earliest": -550,
+          "latest": -550
+        }
       }
     },
     {
@@ -44280,6 +44530,24 @@
       "alternatives": [
         {
           "basis": "estimated",
+          "citation": "Vajda, Edward. 2018. Language Documentation & Conservation Special Publication 17 (ScholarSpace).",
+          "claim_id": "ev_period_9ad2ea1a1656806815dec4afd292c5c1b2a58b58",
+          "end": {
+            "earliest": -2050,
+            "latest": -1050
+          },
+          "event": "crown_divergence",
+          "label": "until c. 2050/1050 BCE",
+          "locator": "{\"page\": \"194\", \"pdf_page\": 12}",
+          "method": "expert_estimate",
+          "quote": "a rough\nguesstimate for the breakup of Common Yeniseian might be three, possibly four thousand\nyears ago.",
+          "role": "hypothesis",
+          "source": "Edward Vajda 2018",
+          "start": null,
+          "url": "https://scholarspace.manoa.hawaii.edu/bitstream/10125/24847/1/ldc-sp17-10-vajda.pdf"
+        },
+        {
+          "basis": "estimated",
           "citation": "Automated dating of the world's language families based on lexical similarity",
           "claim_id": "ev_period_d8f617057fe9c11c149583f452eb352e2bb62839",
           "end": {
@@ -45966,6 +46234,24 @@
         },
         {
           "basis": "estimated",
+          "citation": "Robbeets, Martine & Sofia Oskolskaya. 2022. Proto-Tungusic in time and space. In Andreas Hölzl & Thomas E. Payne (eds.), Tungusic languages: past and present. Berlin: Language Science Press (Zenodo 7025328).",
+          "claim_id": "ev_period_798f99f6a01f0885104a8d1b94e9f87af601a415",
+          "end": {
+            "earliest": null,
+            "latest": -50
+          },
+          "event": "crown_divergence",
+          "label": "until c. 51 BCE",
+          "locator": "{\"page\": \"269\", \"pdf_page\": 279}",
+          "method": "expert_estimate",
+          "quote": "Pevnov (2012: 32) estimated that Proto-Tungusic could not\nbe younger than two thousand years.",
+          "role": "hypothesis",
+          "source": "Martine Robbeets & Sofia Oskolskaya 2022",
+          "start": null,
+          "url": "https://zenodo.org/record/7025328/files/355-H%C3%B6lzlPayne-2022.pdf?download=1"
+        },
+        {
+          "basis": "estimated",
           "citation": "Automated dating of the world's language families based on lexical similarity",
           "claim_id": "ev_period_83655662c21096137dc78bf5ccd4f8d963bd663b",
           "end": {
@@ -47210,29 +47496,66 @@
       }
     },
     {
-      "alternatives": [],
-      "basis": "estimated",
-      "code": "xgn-pro",
-      "evidence": [
+      "alternatives": [
         {
+          "basis": "estimated",
           "citation": "Automated dating of the world's language families based on lexical similarity",
           "claim_id": "ev_period_4f496185252aa31c77a8941791fb4cab5b110dac",
+          "end": {
+            "earliest": -267,
+            "latest": -267
+          },
           "event": "crown_divergence",
+          "label": "until c. 268 BCE",
           "locator": "{\"table\": \"Table 4\", \"row\": \"Mongolic\", \"page\": 854, \"pdf_page\": 15, \"character_start\": 59631, \"character_end\": 59658, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
           "method": "lexicostatistic",
           "quote": "Mongolic\n7\n2 (2)\n20.75\n2267",
           "role": "hypothesis",
           "source": "Eric W. Holman et al. 2011",
+          "start": null,
           "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        },
+        {
+          "basis": "estimated",
+          "citation": "Starostin, George. 2010. Lexicostatistics page, Global Lexicostatistical Database, https://starlingdb.org/new100/Lexicostatistics.htm.",
+          "claim_id": "ev_period_76c88867df3989cc97e7d6ec88bb036f6ee28d06",
+          "end": {
+            "earliest": -550,
+            "latest": null
+          },
+          "event": "crown_divergence",
+          "label": "until after c. 551 BCE",
+          "locator": "{\"section\": \"preliminary lexicostatistics: primary groupings\", \"page\": \"HTML; no pagination\"}",
+          "method": "expert_estimate",
+          "quote": "groupings that descend from proto-languages whose age is commonly estimated not\r\nto exceed 2,000 � 2,500 years, such as, e. g., Germanic, South Dravidian,\r\nMongolic, Athapaskan, Daju, North Khoisan, etc.",
+          "role": "hypothesis",
+          "source": "George Starostin 2010",
+          "start": null,
+          "url": "https://starlingdb.org/new100/Lexicostatistics.htm"
+        }
+      ],
+      "basis": "estimated",
+      "code": "xgn-pro",
+      "evidence": [
+        {
+          "citation": "Häkkinen, Jaakko. 2009. Kantauralin ajoitus ja paikannus: perustelut puntarissa. Suomalais-Ugrilaisen Seuran Aikakauskirja 92: 9–56.",
+          "claim_id": "ev_period_29df9c3f431539bb7f8f3de1927355f02e1d6c8f",
+          "event": "crown_divergence",
+          "locator": "{\"page\": \"11\", \"pdf_page\": 3}",
+          "method": "expert_estimate",
+          "quote": "Esimerkiksi kanta-\nmongolin hajoaminen alkoi vasta noin 800 vuotta sitten",
+          "role": "hypothesis",
+          "source": "Jaakko Häkkinen 2009",
+          "url": "https://journal.fi/susa/article/download/82020/41214"
         }
       ],
       "kind": "proto",
-      "label": "until c. 268 BCE",
+      "label": "until c. 1150 CE",
       "name": "Proto-Mongolic",
       "spoken": {
         "end": {
-          "earliest": -267,
-          "latest": -267
+          "earliest": 1150,
+          "latest": 1150
         },
         "ongoing": false,
         "start": null

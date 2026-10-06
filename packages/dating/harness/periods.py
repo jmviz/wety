@@ -184,6 +184,8 @@ def label(start, end, ongoing=False, approximate=False, rounded=False):
         return f"{c}{text} {era}–present" if ongoing else f"from {c}{text} {era}"
     if start is None:
         text, era = describe(end, rounded)
+        if text.startswith("after "):  # "until after c. 551 BCE", not "until c. after"
+            return f"until after {c}{text[6:]} {era}"
         return f"until {c}{text} {era}"
     if start == end:  # one stated unit, e.g. "the 3rd millennium"
         text, era = describe(start, rounded)

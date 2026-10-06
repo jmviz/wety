@@ -36,3 +36,15 @@ Tungusic, Militarev on Berber) await a maintainer decision on reading them; Dybo
 Korovina and Korovina on Tungusic, Peiros on Proto-Miao and Proto-Li (mapping
 unresolved); EHL's core Afro-Asiatic and Niger-Congo (subset, overlap); Lakarra on
 Proto-Basque.
+
+## Revision: "years ago" (`revision-years-ago.json`)
+
+After the maintainer approved reading rough "years ago" estimates before AD 1950 under
+a labeled convention, nine candidates were supported. Adopted: Proto-Mongolic, breakup
+began about 800 years ago (Häkkinen 2009), replacing ASJP; Proto-Berber, about 3,000
+years (Militarev 2022), replacing ASJP; Proto-Hmong-Mien spoken some 2500 years ago
+(Ratliff 2010), with Peiros 1998 and ASJP as alternatives; Proto-Arawak, 5,000–6,000
+years ago (Blust 2013), its only age so far. Alternatives: Vajda 2018 on Yeniseian
+(3–4 thousand years), Pevnov 2012 on Tungusic (not younger than 2000 years), G.
+Starostin's upper limit of 2,000–2,500 years for Mongolic and Athapaskan, Blust on
+Austroasiatic.

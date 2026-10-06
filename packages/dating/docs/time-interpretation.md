@@ -31,6 +31,12 @@ precedence over the 1950 convention. It needs an unambiguous equation: Greenhill
 al. 2023 tie their 445 BP tip to both 1555 and 1571, so the convention applies there.
 The manifest records the equation as `present_evidence`.
 
+Rough expert estimates stated only as "years ago" (Ratliff's "some 2500 years ago",
+Häkkinen's "about 800 years ago") may be read before AD 1950 under their own labeled
+convention, `conventional_years_ago_1950` with notation "years ago" (maintainer
+decision, 2026-10-06): for such estimates the epoch moves the date by decades at most.
+It applies to `years_ago`/`ka_ago` units only and never under the BP label.
+
 The transport now supports `years_ago` and `ka_ago` separately from BP units.
 These preserve native quantities with an unknown epoch. Typed `century_BCE`,
 `century_CE`, `millennium_BCE` and `millennium_CE` retain the source ordinal;

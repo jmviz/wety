@@ -2,7 +2,7 @@
 
 import re
 from typing import Literal
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, model_validator
 
 BP_UNITS = ("BP", "ka_BP", "century_BP")
 AGE_UNITS = (*BP_UNITS, "years_ago", "ka_ago")
@@ -10,10 +10,21 @@ PERIOD_UNITS = ("century_BCE", "century_CE", "millennium_BCE", "millennium_CE")
 
 
 class BPConvention(BaseModel):
+    """A labeled reading of an age without a stated epoch as years before AD 1950: BP
+    notation by convention, and (maintainer decision 2026-10-06) rough expert estimates
+    stated only as "years ago", where the epoch moves the date by decades at most."""
+
     model_config = ConfigDict(extra="forbid")
-    basis: Literal["conventional_bp_1950"]
-    notation: Literal["BP", "B.P.", "YBP", "cal BP", "ka BP", "century BP"]
+    basis: Literal["conventional_bp_1950", "conventional_years_ago_1950"]
+    notation: Literal["BP", "B.P.", "YBP", "cal BP", "ka BP", "century BP", "years ago", "ka ago"]
     epoch: Literal[1950] = 1950
+
+    @model_validator(mode="after")
+    def notation_matches_basis(self):
+        relative = self.notation in ("years ago", "ka ago")
+        if relative != (self.basis == "conventional_years_ago_1950"):
+            raise ValueError("convention basis and notation disagree")
+        return self
 
 
 class UnresolvedCalendar(ValueError):
@@ -25,7 +36,12 @@ def calendar_epoch(raw):
     interpretation = raw.get("epoch_interpretation")
     if interpretation:
         convention = BPConvention.model_validate(interpretation)
-        if raw.get("unit") not in BP_UNITS:
+        units = (
+            ("years_ago", "ka_ago")
+            if convention.basis == "conventional_years_ago_1950"
+            else BP_UNITS
+        )
+        if raw.get("unit") not in units:
             raise ValueError("BP interpretation requires a BP unit")
         if explicit is not None:
             raise ValueError(
