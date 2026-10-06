@@ -19,13 +19,13 @@ in the `packages/dating` registry.
   rebuilds; language codes replace numeric IDs.
 - **Deployment:** pushing `main` deploys the server, then the website
   ([deploy/README.md](deploy/README.md)). Untested on the host.
-- **Dates:** 173 codes show a cited period (14 before this branch). New: Old East
+- **Dates:** 182 codes show a cited period (14 before this branch). New: Old East
   Slavic, Old Korean, Old Spanish, Ottoman Turkish (16th c. – 1928), Old and Middle
-  Georgian; Sirenik and Ubykh end with their last speakers. 37 proto-languages end at
-  reproduced crown ages, now also Dravidian, Turkic, Semitic, Japonic, Bantu,
-  Pama-Nyungan, Kra-Dai and Tai, Uto-Aztecan, Tupí-Guaraní
-  ([families/](packages/dating/families/)). Checked in the browser: labels, popover
-  evidence, dated varieties and alternatives render.
+  Georgian, Bactrian, Khotanese, Andalusi Arabic; Sirenik, Ubykh, Norn, Kamassian and
+  Akkala Sámi end with their last speakers. 37 proto-languages end at reproduced
+  crown ages, now also Dravidian, Turkic, Semitic, Japonic, Bantu, Pama-Nyungan,
+  Kra-Dai and Tai, Uto-Aztecan, Tupí-Guaraní ([families/](packages/dating/families/)).
+  Checked in the browser: labels, popover evidence, dated varieties and alternatives.
 - **Sources:** holdings carry tables of contents, also as Zotero child notes tagged
   `wety:contents`, so Zotero's search finds chapters for any project.
 
@@ -36,8 +36,8 @@ in the `packages/dating` registry.
   Summary nodes without heights yield no claim.
 - Labels round only years computed from an age; printed years stay as printed. A
   statement imported by two runs is listed once.
-- Nine source requests filed in Zotero (e.g. Gray 2009, Bouckaert 2012 and 2018
-  supplements, Janhunen's Proto-Mongolic, a Pāli literature handbook).
+- 13 source requests filed in Zotero (e.g. Gray 2009, Bouckaert 2012 and 2018
+  supplements, Janhunen's Mongolic Languages, Vajda's Yeniseian, a Pāli handbook).
 
 ## Uncertainties
 
