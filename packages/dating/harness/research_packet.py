@@ -172,6 +172,11 @@ def build(run_dir, review, languages=None, texts_dir=None):
                 {
                     "id": cid,
                     **body,
+                    # A divergence estimate names its analysis (e.g. one ASJP table),
+                    # kept out of the claim id so earlier packets keep theirs.
+                    "analysis_id": row.get("analysis_id")
+                    if row["event"] in ("crown_divergence", "stem_divergence")
+                    else None,
                     "study_id": ("doi:" + meta[sid]["doi"])
                     if meta[sid].get("doi")
                     else "source:" + reg_id,

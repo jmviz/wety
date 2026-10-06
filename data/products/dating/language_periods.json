@@ -1,6 +1,978 @@
 {
   "family_splits": [
     {
+      "analysis": "holman2011-asjp-ethnologue16-s092-r072",
+      "claim_id": "ev_period_0a47643bec0819d764e2bd3f594e6ed9ee07c1f2",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Permic",
+      "role": "hypothesis",
+      "source": "Eric W. Holman et al. 2011",
+      "subject_id": "wikt:urj-prm-pro"
+    },
+    {
+      "analysis": "holman2011-asjp-ethnologue16-s092-r072",
+      "claim_id": "ev_period_1b95d644bfa7ddb57530a676608031dc6fa4c572",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Zapotecan",
+      "role": "hypothesis",
+      "source": "Eric W. Holman et al. 2011",
+      "subject_id": "wikt:omq-zap-pro"
+    },
+    {
+      "analysis": "holman2011-asjp-ethnologue16-s092-r072",
+      "claim_id": "ev_period_207f48bcf80d1ce403fc5a308ba8b28ae8cf40f4",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Chukotko-Kamchatkan",
+      "role": "hypothesis",
+      "source": "Eric W. Holman et al. 2011",
+      "subject_id": "wikt:qfa-cka-pro"
+    },
+    {
+      "analysis": "holman2011-asjp-ethnologue16-s092-r072",
+      "claim_id": "ev_period_2359e5f25b1cbdf464fcb91673f574e1178a2ca4",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Eskimo",
+      "role": "hypothesis",
+      "source": "Eric W. Holman et al. 2011",
+      "subject_id": "wikt:esx-esk-pro"
+    },
+    {
+      "analysis": "holman2011-asjp-ethnologue16-s092-r072",
+      "claim_id": "ev_period_252d959000cfc59086dc4b86a2b6e18e7a256819",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Chatino",
+      "role": "hypothesis",
+      "source": "Eric W. Holman et al. 2011",
+      "subject_id": "wikt:omq-cha-pro"
+    },
+    {
+      "analysis": "holman2011-asjp-ethnologue16-s092-r072",
+      "claim_id": "ev_period_258d8bc3a7937d3e0693cca5413b9109273dd07f",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Tibeto-Burman",
+      "role": "hypothesis",
+      "source": "Eric W. Holman et al. 2011",
+      "subject_id": "wikt:tbq-pro"
+    },
+    {
+      "analysis": "holman2011-asjp-ethnologue16-s092-r072",
+      "claim_id": "ev_period_363d17ad02160d6a2abd1558f8f1877931f73d5c",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Hmongic",
+      "role": "hypothesis",
+      "source": "Eric W. Holman et al. 2011",
+      "subject_id": "wikt:hmn-pro"
+    },
+    {
+      "analysis": "holman2011-asjp-ethnologue16-s092-r072",
+      "claim_id": "ev_period_3981951117d985fe95a7d37031f0661487b16f0a",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Aslian",
+      "role": "hypothesis",
+      "source": "Eric W. Holman et al. 2011",
+      "subject_id": "wikt:mkh-asl-pro"
+    },
+    {
+      "analysis": "holman2011-asjp-ethnologue16-s092-r072",
+      "claim_id": "ev_period_39d1847bf8aa092977373ae1a5a5639784af1050",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Iroquoian",
+      "role": "hypothesis",
+      "source": "Eric W. Holman et al. 2011",
+      "subject_id": "wikt:iro-pro"
+    },
+    {
+      "analysis": "holman2011-asjp-ethnologue16-s092-r072",
+      "claim_id": "ev_period_3d332b765be505a3ce41e17cfe392e2f867bf5ab",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Malayo-Chamic",
+      "role": "hypothesis",
+      "source": "Eric W. Holman et al. 2011",
+      "subject_id": "wikt:poz-mcm-pro"
+    },
+    {
+      "analysis": "holman2011-asjp-ethnologue16-s092-r072",
+      "claim_id": "ev_period_3e89b5312b95c346870073c3ffc739aab23ce4c0",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Samoyedic",
+      "role": "hypothesis",
+      "source": "Eric W. Holman et al. 2011",
+      "subject_id": "wikt:syd-pro"
+    },
+    {
+      "analysis": "holman2011-asjp-ethnologue16-s092-r072",
+      "claim_id": "ev_period_4463ffb1797fbfe144380825dfe84fc938b93e23",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Yukaghir",
+      "role": "hypothesis",
+      "source": "Eric W. Holman et al. 2011",
+      "subject_id": "wikt:qfa-yuk-pro"
+    },
+    {
+      "analysis": "holman2011-asjp-ethnologue16-s092-r072",
+      "claim_id": "ev_period_47abd31b7c8b3e2282ed70a39a7dc6913fa07136",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Cushitic",
+      "role": "hypothesis",
+      "source": "Eric W. Holman et al. 2011",
+      "subject_id": "wikt:cus-pro"
+    },
+    {
+      "analysis": "holman2011-asjp-ethnologue16-s092-r072",
+      "claim_id": "ev_period_48af49c9cbb12063a3edf064b091536121ace906",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Malayo-Sumbawan",
+      "role": "hypothesis",
+      "source": "Eric W. Holman et al. 2011",
+      "subject_id": "wikt:poz-msa-pro"
+    },
+    {
+      "analysis": "holman2011-asjp-ethnologue16-s092-r072",
+      "claim_id": "ev_period_4c341058bee11150512fcc299d88c10ac84ccb6a",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-North Halmahera",
+      "role": "hypothesis",
+      "source": "Eric W. Holman et al. 2011",
+      "subject_id": "wikt:paa-nha-pro"
+    },
+    {
+      "analysis": "holman2011-asjp-ethnologue16-s092-r072",
+      "claim_id": "ev_period_4e895d667ed94d6df3a1eb3852f7629320d90435",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Eastern Malayo-Polynesian",
+      "role": "hypothesis",
+      "source": "Eric W. Holman et al. 2011",
+      "subject_id": "wikt:pqe-pro"
+    },
+    {
+      "analysis": "holman2011-asjp-ethnologue16-s092-r072",
+      "claim_id": "ev_period_4f496185252aa31c77a8941791fb4cab5b110dac",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Mongolic",
+      "role": "hypothesis",
+      "source": "Eric W. Holman et al. 2011",
+      "subject_id": "wikt:xgn-pro"
+    },
+    {
+      "analysis": "holman2011-asjp-ethnologue16-s092-r072",
+      "claim_id": "ev_period_50dd37adc672fba9d74c496677c973c645673fab",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Central Chadic",
+      "role": "hypothesis",
+      "source": "Eric W. Holman et al. 2011",
+      "subject_id": "wikt:cdc-cbm-pro"
+    },
+    {
+      "analysis": "holman2011-asjp-ethnologue16-s092-r072",
+      "claim_id": "ev_period_51a47ab5801e74cffbcfa62b72767071a93dd1c2",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Mordvinic",
+      "role": "hypothesis",
+      "source": "Eric W. Holman et al. 2011",
+      "subject_id": "wikt:urj-mdv-pro"
+    },
+    {
+      "analysis": "holman2011-asjp-ethnologue16-s092-r072",
+      "claim_id": "ev_period_58046ac696897658e2b40b48d8c9c19ff876e0e5",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Siouan",
+      "role": "hypothesis",
+      "source": "Eric W. Holman et al. 2011",
+      "subject_id": "wikt:sio-pro"
+    },
+    {
+      "analysis": "holman2011-asjp-ethnologue16-s092-r072",
+      "claim_id": "ev_period_59329ff4d741b838cd3f4e6e1657d1f55fc2000d",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Algonquian",
+      "role": "hypothesis",
+      "source": "Eric W. Holman et al. 2011",
+      "subject_id": "wikt:alg-pro"
+    },
+    {
+      "analysis": "holman2011-asjp-ethnologue16-s092-r072",
+      "claim_id": "ev_period_59dd3f27a1e3e17b329c4ac276ce3173a620f4b0",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Oto-Manguean",
+      "role": "hypothesis",
+      "source": "Eric W. Holman et al. 2011",
+      "subject_id": "wikt:omq-pro"
+    },
+    {
+      "analysis": "holman2011-asjp-ethnologue16-s092-r072",
+      "claim_id": "ev_period_62b9eb125a4147c1461ceffe3e03fe191d6d6c52",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Tupian",
+      "role": "hypothesis",
+      "source": "Eric W. Holman et al. 2011",
+      "subject_id": "wikt:tup-pro"
+    },
+    {
+      "analysis": "holman2011-asjp-ethnologue16-s092-r072",
+      "claim_id": "ev_period_6a26ff916df2ed85f9516a6256cce165908754b5",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Salish",
+      "role": "hypothesis",
+      "source": "Eric W. Holman et al. 2011",
+      "subject_id": "wikt:sal-pro"
+    },
+    {
+      "analysis": "holman2011-asjp-ethnologue16-s092-r072",
+      "claim_id": "ev_period_79f20f354753c0d3eb24e89329a0e7c8294a0340",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Berber",
+      "role": "hypothesis",
+      "source": "Eric W. Holman et al. 2011",
+      "subject_id": "wikt:ber-pro"
+    },
+    {
+      "analysis": "holman2011-asjp-ethnologue16-s092-r072",
+      "claim_id": "ev_period_83655662c21096137dc78bf5ccd4f8d963bd663b",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Tungusic",
+      "role": "hypothesis",
+      "source": "Eric W. Holman et al. 2011",
+      "subject_id": "wikt:tuw-pro"
+    },
+    {
+      "analysis": "holman2011-asjp-ethnologue16-s092-r072",
+      "claim_id": "ev_period_86602f136bc760c2846e2e83e1e369dd224fbbe1",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Ketic",
+      "role": "hypothesis",
+      "source": "Eric W. Holman et al. 2011",
+      "subject_id": "wikt:qfa-yke-pro"
+    },
+    {
+      "analysis": "holman2011-asjp-ethnologue16-s092-r072",
+      "claim_id": "ev_period_8736854b5eee9483358f69fac54d0955a1d7e78f",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Afroasiatic",
+      "role": "hypothesis",
+      "source": "Eric W. Holman et al. 2011",
+      "subject_id": "wikt:afa-pro"
+    },
+    {
+      "analysis": "holman2011-asjp-ethnologue16-s092-r072",
+      "claim_id": "ev_period_8a40971556a5c3d41715dc897db3e27baa0b693a",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Mon-Khmer",
+      "role": "hypothesis",
+      "source": "Eric W. Holman et al. 2011",
+      "subject_id": "wikt:mkh-pro"
+    },
+    {
+      "analysis": "holman2011-asjp-ethnologue16-s092-r072",
+      "claim_id": "ev_period_9145d2d047903a7b7697e267823fc02f87201b88",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Zapotec",
+      "role": "hypothesis",
+      "source": "Eric W. Holman et al. 2011",
+      "subject_id": "wikt:omq-zpc-pro"
+    },
+    {
+      "analysis": "holman2011-asjp-ethnologue16-s092-r072",
+      "claim_id": "ev_period_9421d3e1872db2ab55c0b8ea9c5a30cccb615b89",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Austroasiatic",
+      "role": "hypothesis",
+      "source": "Eric W. Holman et al. 2011",
+      "subject_id": "wikt:aav-pro"
+    },
+    {
+      "analysis": "holman2011-asjp-ethnologue16-s092-r072",
+      "claim_id": "ev_period_9a59f55d1f20c28db23058a053873f014b998852",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Karen",
+      "role": "hypothesis",
+      "source": "Eric W. Holman et al. 2011",
+      "subject_id": "wikt:kar-pro"
+    },
+    {
+      "analysis": "holman2011-asjp-ethnologue16-s092-r072",
+      "claim_id": "ev_period_a2b7a713db185774bd6c484c1629cc65049a73cd",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Mayan",
+      "role": "hypothesis",
+      "source": "Eric W. Holman et al. 2011",
+      "subject_id": "wikt:myn-pro"
+    },
+    {
+      "analysis": "holman2011-asjp-ethnologue16-s092-r072",
+      "claim_id": "ev_period_a7820d0f9adb776ea8d1c07d97e9bb9854c43bf1",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Inuit",
+      "role": "hypothesis",
+      "source": "Eric W. Holman et al. 2011",
+      "subject_id": "wikt:esx-inu-pro"
+    },
+    {
+      "analysis": "holman2011-asjp-ethnologue16-s092-r072",
+      "claim_id": "ev_period_ad1f4b2f8a6853ba4a34d14e75b4b3d5fe3e797b",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Philippine",
+      "role": "hypothesis",
+      "source": "Eric W. Holman et al. 2011",
+      "subject_id": "wikt:phi-pro"
+    },
+    {
+      "analysis": "holman2011-asjp-ethnologue16-s092-r072",
+      "claim_id": "ev_period_b64a92bfb51d36d1c3542a23c65b88543a9a2955",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Arawa",
+      "role": "hypothesis",
+      "source": "Eric W. Holman et al. 2011",
+      "subject_id": "wikt:auf-pro"
+    },
+    {
+      "analysis": "holman2011-asjp-ethnologue16-s092-r072",
+      "claim_id": "ev_period_bc9567f946bb7cd46c7fa66a60e394bee9d6fa61",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-South Sulawesi",
+      "role": "hypothesis",
+      "source": "Eric W. Holman et al. 2011",
+      "subject_id": "wikt:poz-ssw-pro"
+    },
+    {
+      "analysis": "holman2011-asjp-ethnologue16-s092-r072",
+      "claim_id": "ev_period_c0a45e6555e36359cedd9ccf855a55a9f3706ad2",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-North Iroquoian",
+      "role": "hypothesis",
+      "source": "Eric W. Holman et al. 2011",
+      "subject_id": "wikt:iro-nor-pro"
+    },
+    {
+      "analysis": "holman2011-asjp-ethnologue16-s092-r072",
+      "claim_id": "ev_period_c30e7151f299a253523fd2d390eacbb269fd5306",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Eastern Polynesian",
+      "role": "hypothesis",
+      "source": "Eric W. Holman et al. 2011",
+      "subject_id": "wikt:poz-pep-pro"
+    },
+    {
+      "analysis": "holman2011-asjp-ethnologue16-s092-r072",
+      "claim_id": "ev_period_c8e8c880919e1800120fcc45ac49cb039f554181",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Central-Eastern Malayo-Polynesian",
+      "role": "hypothesis",
+      "source": "Eric W. Holman et al. 2011",
+      "subject_id": "wikt:poz-cet-pro"
+    },
+    {
+      "analysis": "holman2011-asjp-ethnologue16-s092-r072",
+      "claim_id": "ev_period_c9a355efb77a27c96d8be013a417067a020a886b",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-South Cushitic",
+      "role": "hypothesis",
+      "source": "Eric W. Holman et al. 2011",
+      "subject_id": "wikt:cus-sou-pro"
+    },
+    {
+      "analysis": "holman2011-asjp-ethnologue16-s092-r072",
+      "claim_id": "ev_period_d270317b6df11c55a3a792d04c27da82577fdae5",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Northeast Caucasian",
+      "role": "hypothesis",
+      "source": "Eric W. Holman et al. 2011",
+      "subject_id": "wikt:cau-nec-pro"
+    },
+    {
+      "analysis": "holman2011-asjp-ethnologue16-s092-r072",
+      "claim_id": "ev_period_d2d82ee420ceb699f7fe1051aa60e4ab14d4c062",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Hmong-Mien",
+      "role": "hypothesis",
+      "source": "Eric W. Holman et al. 2011",
+      "subject_id": "wikt:hmx-pro"
+    },
+    {
+      "analysis": "holman2011-asjp-ethnologue16-s092-r072",
+      "claim_id": "ev_period_d382d1873c1e0c39054a4d386af0931eadad0062",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Algic",
+      "role": "hypothesis",
+      "source": "Eric W. Holman et al. 2011",
+      "subject_id": "wikt:aql-pro"
+    },
+    {
+      "analysis": "holman2011-asjp-ethnologue16-s092-r072",
+      "claim_id": "ev_period_d7496fb731829e234767cdb89550fabc1645f2de",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Athabaskan",
+      "role": "hypothesis",
+      "source": "Eric W. Holman et al. 2011",
+      "subject_id": "wikt:ath-pro"
+    },
+    {
+      "analysis": "holman2011-asjp-ethnologue16-s092-r072",
+      "claim_id": "ev_period_d82e597648abb5810187625b73df45bdfa678e62",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Northwest Caucasian",
+      "role": "hypothesis",
+      "source": "Eric W. Holman et al. 2011",
+      "subject_id": "wikt:cau-nwc-pro"
+    },
+    {
+      "analysis": "holman2011-asjp-ethnologue16-s092-r072",
+      "claim_id": "ev_period_d8f617057fe9c11c149583f452eb352e2bb62839",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Yeniseian",
+      "role": "hypothesis",
+      "source": "Eric W. Holman et al. 2011",
+      "subject_id": "wikt:qfa-yen-pro"
+    },
+    {
+      "analysis": "holman2011-asjp-ethnologue16-s092-r072",
+      "claim_id": "ev_period_da092e4cce18d73aa073ff85da10fb4ac337bfe7",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Chadic",
+      "role": "hypothesis",
+      "source": "Eric W. Holman et al. 2011",
+      "subject_id": "wikt:cdc-pro"
+    },
+    {
+      "analysis": "holman2011-asjp-ethnologue16-s092-r072",
+      "claim_id": "ev_period_e2990d3847bd4d50064c938c16e1fc11da4cd409",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Chamic",
+      "role": "hypothesis",
+      "source": "Eric W. Holman et al. 2011",
+      "subject_id": "wikt:cmc-pro"
+    },
+    {
+      "analysis": "holman2011-asjp-ethnologue16-s092-r072",
+      "claim_id": "ev_period_e8d182b27bc2f39e45d9cc697b2301307aa77742",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Kartvelian",
+      "role": "hypothesis",
+      "source": "Eric W. Holman et al. 2011",
+      "subject_id": "wikt:ccs-pro"
+    },
+    {
+      "analysis": "holman2011-asjp-ethnologue16-s092-r072",
+      "claim_id": "ev_period_f4fb323e854e07e1baa8359338f04017029f6982",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Muskogean",
+      "role": "hypothesis",
+      "source": "Eric W. Holman et al. 2011",
+      "subject_id": "wikt:nai-mus-pro"
+    },
+    {
+      "analysis": "holman2011-asjp-ethnologue16-s092-r072",
+      "claim_id": "ev_period_f5db57c13fc6f92f4f2b774ac2f611c20713edcb",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Atayalic",
+      "role": "hypothesis",
+      "source": "Eric W. Holman et al. 2011",
+      "subject_id": "wikt:map-ata-pro"
+    },
+    {
+      "analysis": "holman2011-asjp-ethnologue16-s092-r072",
+      "claim_id": "ev_period_f9e7610e8b640e42606098dbd0dd8fed8dcbe7ac",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Cariban",
+      "role": "hypothesis",
+      "source": "Eric W. Holman et al. 2011",
+      "subject_id": "wikt:sai-car-pro"
+    },
+    {
+      "analysis": "holman2011-asjp-ethnologue16-s092-r072",
+      "claim_id": "ev_period_fc448a83553e2a716b9cfc84fd48228c26d413b3",
+      "epoch": 2000,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Numic",
+      "role": "hypothesis",
+      "source": "Eric W. Holman et al. 2011",
+      "subject_id": "wikt:azc-num-pro"
+    },
+    {
       "analysis": "tao2023_kd_covarion_relaxed",
       "claim_id": "ev_tree_0025876b0a0f85d78a0f5dce959515c13e220a81b4ce51b9c7ca4a32767f9162",
       "epoch": 1950,
@@ -34093,8 +35065,37 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:fff5df92fe6ca543"
     }
   ],
-  "generation": "4cb69554b611fe0d8095a82c65ee314f8916286f38c8433e63282d15a6b15ea8",
+  "generation": "351d388445df7c5312a192c4f3787fb4b2907c5d74926af3b212c4cb2e0ed99e",
   "languages": [
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "aav-pro",
+      "evidence": [
+        {
+          "citation": "Automated dating of the world's language families based on lexical similarity",
+          "claim_id": "ev_period_9421d3e1872db2ab55c0b8ea9c5a30cccb615b89",
+          "event": "crown_divergence",
+          "locator": "{\"table\": \"Table 4\", \"row\": \"Austro-Asiatic\", \"page\": 854, \"pdf_page\": 15, \"character_start\": 59931, \"character_end\": 59967, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
+          "method": "lexicostatistic",
+          "quote": "Austro-Asiatic\n1,843\n2 (2)\n8.45\n3635",
+          "role": "hypothesis",
+          "source": "Eric W. Holman et al. 2011",
+          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 1640 BCE",
+      "name": "Proto-Austroasiatic",
+      "spoken": {
+        "end": {
+          "earliest": -1635,
+          "latest": -1635
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
     {
       "alternatives": [
         {
@@ -34328,6 +35329,35 @@
           "earliest": -899,
           "latest": -800
         }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "afa-pro",
+      "evidence": [
+        {
+          "citation": "Automated dating of the world's language families based on lexical similarity",
+          "claim_id": "ev_period_8736854b5eee9483358f69fac54d0955a1d7e78f",
+          "event": "crown_divergence",
+          "locator": "{\"table\": \"Table 3\", \"row\": \"Afro-Asiatic\", \"page\": 853, \"pdf_page\": 14, \"character_start\": 54451, \"character_end\": 54486, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
+          "method": "lexicostatistic",
+          "quote": "Afro-Asiatic\n24,303\n6 (7)\n1.77\n6016",
+          "role": "hypothesis",
+          "source": "Eric W. Holman et al. 2011",
+          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 4020 BCE",
+      "name": "Proto-Afroasiatic",
+      "spoken": {
+        "end": {
+          "earliest": -4016,
+          "latest": -4016
+        },
+        "ongoing": false,
+        "start": null
       }
     },
     {
@@ -34788,6 +35818,35 @@
       }
     },
     {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "alg-pro",
+      "evidence": [
+        {
+          "citation": "Automated dating of the world's language families based on lexical similarity",
+          "claim_id": "ev_period_59329ff4d741b838cd3f4e6e1657d1f55fc2000d",
+          "event": "crown_divergence",
+          "locator": "{\"table\": \"Table 6\", \"row\": \"Algonquian\", \"page\": 859, \"pdf_page\": 20, \"character_start\": 73365, \"character_end\": 73396, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
+          "method": "lexicostatistic",
+          "quote": "Algonquian\n180\n4 (7)\n10.23\n3343",
+          "role": "hypothesis",
+          "source": "Eric W. Holman et al. 2011",
+          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 1340 BCE",
+      "name": "Proto-Algonquian",
+      "spoken": {
+        "end": {
+          "earliest": -1343,
+          "latest": -1343
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
       "alternatives": [
         {
           "basis": "conventional",
@@ -34902,6 +35961,35 @@
           "earliest": 450,
           "latest": 450
         }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "aql-pro",
+      "evidence": [
+        {
+          "citation": "Automated dating of the world's language families based on lexical similarity",
+          "claim_id": "ev_period_d382d1873c1e0c39054a4d386af0931eadad0062",
+          "event": "crown_divergence",
+          "locator": "{\"table\": \"Table 6\", \"row\": \"Algic\", \"page\": 859, \"pdf_page\": 20, \"character_start\": 73340, \"character_end\": 73364, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
+          "method": "lexicostatistic",
+          "quote": "Algic\n51\n3 (3)\n2.39\n5554",
+          "role": "hypothesis",
+          "source": "Eric W. Holman et al. 2011",
+          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 3560 BCE",
+      "name": "Proto-Algic",
+      "spoken": {
+        "end": {
+          "earliest": -3554,
+          "latest": -3554
+        },
+        "ongoing": false,
+        "start": null
       }
     },
     {
@@ -35096,6 +36184,64 @@
     {
       "alternatives": [],
       "basis": "estimated",
+      "code": "ath-pro",
+      "evidence": [
+        {
+          "citation": "Automated dating of the world's language families based on lexical similarity",
+          "claim_id": "ev_period_d7496fb731829e234767cdb89550fabc1645f2de",
+          "event": "crown_divergence",
+          "locator": "{\"table\": \"Table 6\", \"row\": \"Athapaskan\", \"page\": 859, \"pdf_page\": 20, \"character_start\": 74679, \"character_end\": 74710, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
+          "method": "lexicostatistic",
+          "quote": "Athapaskan\n138\n4 (8)\n23.74\n2062",
+          "role": "hypothesis",
+          "source": "Eric W. Holman et al. 2011",
+          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 63 BCE",
+      "name": "Proto-Athabaskan",
+      "spoken": {
+        "end": {
+          "earliest": -62,
+          "latest": -62
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "auf-pro",
+      "evidence": [
+        {
+          "citation": "Automated dating of the world's language families based on lexical similarity",
+          "claim_id": "ev_period_b64a92bfb51d36d1c3542a23c65b88543a9a2955",
+          "event": "crown_divergence",
+          "locator": "{\"table\": \"Table 7\", \"row\": \"Arauan\", \"page\": 861, \"pdf_page\": 22, \"character_start\": 79398, \"character_end\": 79424, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
+          "method": "lexicostatistic",
+          "quote": "Arauan\n17\n4 (5)\n28.88\n1764",
+          "role": "hypothesis",
+          "source": "Eric W. Holman et al. 2011",
+          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 236 CE",
+      "name": "Proto-Arawa",
+      "spoken": {
+        "end": {
+          "earliest": 236,
+          "latest": 236
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
       "code": "aus-pam-pro",
       "evidence": [
         {
@@ -35151,6 +36297,35 @@
           "earliest": 1037,
           "latest": 1037
         }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "azc-num-pro",
+      "evidence": [
+        {
+          "citation": "Automated dating of the world's language families based on lexical similarity",
+          "claim_id": "ev_period_fc448a83553e2a716b9cfc84fd48228c26d413b3",
+          "event": "crown_divergence",
+          "locator": "{\"table\": \"Table 6\", \"row\": \"Numic\", \"page\": 860, \"pdf_page\": 21, \"character_start\": 76055, \"character_end\": 76080, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
+          "method": "lexicostatistic",
+          "quote": "Numic\n14\n3 (3)\n29.40\n1737",
+          "role": "hypothesis",
+          "source": "Eric W. Holman et al. 2011",
+          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 263 CE",
+      "name": "Proto-Numic",
+      "spoken": {
+        "end": {
+          "earliest": 263,
+          "latest": 263
+        },
+        "ongoing": false,
+        "start": null
       }
     },
     {
@@ -35216,6 +36391,35 @@
       }
     },
     {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "ber-pro",
+      "evidence": [
+        {
+          "citation": "Automated dating of the world's language families based on lexical similarity",
+          "claim_id": "ev_period_79f20f354753c0d3eb24e89329a0e7c8294a0340",
+          "event": "crown_divergence",
+          "locator": "{\"table\": \"Table 3\", \"row\": \"Berber\", \"page\": 853, \"pdf_page\": 14, \"character_start\": 54487, \"character_end\": 54514, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
+          "method": "lexicostatistic",
+          "quote": "Berber\n139\n4 (4)\n29.46\n1733",
+          "role": "hypothesis",
+          "source": "Eric W. Holman et al. 2011",
+          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 267 CE",
+      "name": "Proto-Berber",
+      "spoken": {
+        "end": {
+          "earliest": 267,
+          "latest": 267
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
       "alternatives": [
         {
           "basis": "estimated",
@@ -35263,6 +36467,151 @@
         "end": {
           "earliest": -3050,
           "latest": -2623
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "cau-nec-pro",
+      "evidence": [
+        {
+          "citation": "Automated dating of the world's language families based on lexical similarity",
+          "claim_id": "ev_period_d270317b6df11c55a3a792d04c27da82577fdae5",
+          "event": "crown_divergence",
+          "locator": "{\"table\": \"Table 4\", \"row\": \"East Caucasian\", \"page\": 854, \"pdf_page\": 15, \"character_start\": 61177, \"character_end\": 61211, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
+          "method": "lexicostatistic",
+          "quote": "East Caucasian\n391\n7 (7)\n7.06\n3907",
+          "role": "hypothesis",
+          "source": "Eric W. Holman et al. 2011",
+          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 1910 BCE",
+      "name": "Proto-Northeast Caucasian",
+      "spoken": {
+        "end": {
+          "earliest": -1907,
+          "latest": -1907
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "cau-nwc-pro",
+      "evidence": [
+        {
+          "citation": "Automated dating of the world's language families based on lexical similarity",
+          "claim_id": "ev_period_d82e597648abb5810187625b73df45bdfa678e62",
+          "event": "crown_divergence",
+          "locator": "{\"table\": \"Table 4\", \"row\": \"West Caucasian\", \"page\": 854, \"pdf_page\": 15, \"character_start\": 61212, \"character_end\": 61244, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
+          "method": "lexicostatistic",
+          "quote": "West Caucasian\n8\n3 (3)\n8.37\n3649",
+          "role": "hypothesis",
+          "source": "Eric W. Holman et al. 2011",
+          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 1650 BCE",
+      "name": "Proto-Northwest Caucasian",
+      "spoken": {
+        "end": {
+          "earliest": -1649,
+          "latest": -1649
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "ccs-pro",
+      "evidence": [
+        {
+          "citation": "Automated dating of the world's language families based on lexical similarity",
+          "claim_id": "ev_period_e8d182b27bc2f39e45d9cc697b2301307aa77742",
+          "event": "crown_divergence",
+          "locator": "{\"table\": \"Table 4\", \"row\": \"Kartvelian\", \"page\": 854, \"pdf_page\": 15, \"character_start\": 61090, \"character_end\": 61119, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
+          "method": "lexicostatistic",
+          "quote": "Kartvelian\n5\n3 (3)\n12.82\n2999",
+          "role": "hypothesis",
+          "source": "Eric W. Holman et al. 2011",
+          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 1000 BCE",
+      "name": "Proto-Kartvelian",
+      "spoken": {
+        "end": {
+          "earliest": -999,
+          "latest": -999
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "cdc-cbm-pro",
+      "evidence": [
+        {
+          "citation": "Automated dating of the world's language families based on lexical similarity",
+          "claim_id": "ev_period_50dd37adc672fba9d74c496677c973c645673fab",
+          "event": "crown_divergence",
+          "locator": "{\"table\": \"Table 3\", \"row\": \"Biu-Mandara\", \"page\": 853, \"pdf_page\": 14, \"character_start\": 54627, \"character_end\": 54657, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
+          "method": "lexicostatistic",
+          "quote": "Biu-Mandara\n44\n2 (3)\n4.92\n4457",
+          "role": "hypothesis",
+          "source": "Eric W. Holman et al. 2011",
+          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 2460 BCE",
+      "name": "Proto-Central Chadic",
+      "spoken": {
+        "end": {
+          "earliest": -2457,
+          "latest": -2457
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "cdc-pro",
+      "evidence": [
+        {
+          "citation": "Automated dating of the world's language families based on lexical similarity",
+          "claim_id": "ev_period_da092e4cce18d73aa073ff85da10fb4ac337bfe7",
+          "event": "crown_divergence",
+          "locator": "{\"table\": \"Table 3\", \"row\": \"Chadic\", \"page\": 853, \"pdf_page\": 14, \"character_start\": 54598, \"character_end\": 54626, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
+          "method": "lexicostatistic",
+          "quote": "Chadic\n2,945\n4 (4)\n3.86\n4826",
+          "role": "hypothesis",
+          "source": "Eric W. Holman et al. 2011",
+          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 2830 BCE",
+      "name": "Proto-Chadic",
+      "spoken": {
+        "end": {
+          "earliest": -2826,
+          "latest": -2826
         },
         "ongoing": false,
         "start": null
@@ -35429,6 +36778,35 @@
           "earliest": -499,
           "latest": -400
         }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "cmc-pro",
+      "evidence": [
+        {
+          "citation": "Automated dating of the world's language families based on lexical similarity",
+          "claim_id": "ev_period_e2990d3847bd4d50064c938c16e1fc11da4cd409",
+          "event": "crown_divergence",
+          "locator": "{\"table\": \"Table 1\", \"row\": \"Chamic\", \"page\": 851, \"pdf_page\": 12, \"character_start\": 48613, \"character_end\": 48642, \"columns\": [\"Language group\", \"Calibration date\", \"ASJP date\", \"Difference (%)\"]}",
+          "method": "lexicostatistic",
+          "quote": "Chamic\n1550\n2672\n\u00011,122 (\u000142)",
+          "role": "hypothesis",
+          "source": "Eric W. Holman et al. 2011",
+          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 673 BCE",
+      "name": "Proto-Chamic",
+      "spoken": {
+        "end": {
+          "earliest": -672,
+          "latest": -672
+        },
+        "ongoing": false,
+        "start": null
       }
     },
     {
@@ -35721,6 +37099,64 @@
           "earliest": 850,
           "latest": 850
         }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "cus-pro",
+      "evidence": [
+        {
+          "citation": "Automated dating of the world's language families based on lexical similarity",
+          "claim_id": "ev_period_47abd31b7c8b3e2282ed70a39a7dc6913fa07136",
+          "event": "crown_divergence",
+          "locator": "{\"table\": \"Table 3\", \"row\": \"Cushitic\", \"page\": 853, \"pdf_page\": 14, \"character_start\": 54708, \"character_end\": 54736, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
+          "method": "lexicostatistic",
+          "quote": "Cushitic\n752\n4 (4)\n4.10\n4734",
+          "role": "hypothesis",
+          "source": "Eric W. Holman et al. 2011",
+          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 2740 BCE",
+      "name": "Proto-Cushitic",
+      "spoken": {
+        "end": {
+          "earliest": -2734,
+          "latest": -2734
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "cus-sou-pro",
+      "evidence": [
+        {
+          "citation": "Automated dating of the world's language families based on lexical similarity",
+          "claim_id": "ev_period_c9a355efb77a27c96d8be013a417067a020a886b",
+          "event": "crown_divergence",
+          "locator": "{\"table\": \"Table 3\", \"row\": \"Cushitic > South\", \"page\": 853, \"pdf_page\": 14, \"character_start\": 54792, \"character_end\": 54817, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
+          "method": "lexicostatistic",
+          "quote": "South\n14\n5 (7)\n20.20\n2308",
+          "role": "hypothesis",
+          "source": "Eric W. Holman et al. 2011",
+          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 309 BCE",
+      "name": "Proto-South Cushitic",
+      "spoken": {
+        "end": {
+          "earliest": -308,
+          "latest": -308
+        },
+        "ongoing": false,
+        "start": null
       }
     },
     {
@@ -36560,6 +37996,64 @@
         "end": {
           "earliest": 1450,
           "latest": 1450
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "esx-esk-pro",
+      "evidence": [
+        {
+          "citation": "Automated dating of the world's language families based on lexical similarity",
+          "claim_id": "ev_period_2359e5f25b1cbdf464fcb91673f574e1178a2ca4",
+          "event": "crown_divergence",
+          "locator": "{\"table\": \"Table 6\", \"row\": \"Eskimo\", \"page\": 859, \"pdf_page\": 20, \"character_start\": 73592, \"character_end\": 73618, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
+          "method": "lexicostatistic",
+          "quote": "Eskimo\n16\n2 (2)\n27.43\n1842",
+          "role": "hypothesis",
+          "source": "Eric W. Holman et al. 2011",
+          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 158 CE",
+      "name": "Proto-Eskimo",
+      "spoken": {
+        "end": {
+          "earliest": 158,
+          "latest": 158
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "esx-inu-pro",
+      "evidence": [
+        {
+          "citation": "Automated dating of the world's language families based on lexical similarity",
+          "claim_id": "ev_period_a7820d0f9adb776ea8d1c07d97e9bb9854c43bf1",
+          "event": "crown_divergence",
+          "locator": "{\"table\": \"Table 1\", \"row\": \"Inuit\", \"page\": 851, \"pdf_page\": 12, \"character_start\": 48333, \"character_end\": 48357, \"columns\": [\"Language group\", \"Calibration date\", \"ASJP date\", \"Difference (%)\"]}",
+          "method": "lexicostatistic",
+          "quote": "Inuit\n800\n640\n\u0002160 (\u000225)",
+          "role": "hypothesis",
+          "source": "Eric W. Holman et al. 2011",
+          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 1360 CE",
+      "name": "Proto-Inuit",
+      "spoken": {
+        "end": {
+          "earliest": 1360,
+          "latest": 1360
         },
         "ongoing": false,
         "start": null
@@ -37623,6 +39117,64 @@
     {
       "alternatives": [],
       "basis": "estimated",
+      "code": "hmn-pro",
+      "evidence": [
+        {
+          "citation": "Automated dating of the world's language families based on lexical similarity",
+          "claim_id": "ev_period_363d17ad02160d6a2abd1558f8f1877931f73d5c",
+          "event": "crown_divergence",
+          "locator": "{\"table\": \"Table 4\", \"row\": \"Hmongic\", \"page\": 854, \"pdf_page\": 15, \"character_start\": 60543, \"character_end\": 60570, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
+          "method": "lexicostatistic",
+          "quote": "Hmongic\n21\n4 (5)\n14.84\n2777",
+          "role": "hypothesis",
+          "source": "Eric W. Holman et al. 2011",
+          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 778 BCE",
+      "name": "Proto-Hmongic",
+      "spoken": {
+        "end": {
+          "earliest": -777,
+          "latest": -777
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "hmx-pro",
+      "evidence": [
+        {
+          "citation": "Automated dating of the world's language families based on lexical similarity",
+          "claim_id": "ev_period_d2d82ee420ceb699f7fe1051aa60e4ab14d4c062",
+          "event": "crown_divergence",
+          "locator": "{\"table\": \"Table 4\", \"row\": \"Hmong-Mien\", \"page\": 854, \"pdf_page\": 15, \"character_start\": 60513, \"character_end\": 60542, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
+          "method": "lexicostatistic",
+          "quote": "Hmong-Mien\n49\n3 (3)\n5.66\n4243",
+          "role": "hypothesis",
+          "source": "Eric W. Holman et al. 2011",
+          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 2240 BCE",
+      "name": "Proto-Hmong-Mien",
+      "spoken": {
+        "end": {
+          "earliest": -2243,
+          "latest": -2243
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
       "code": "iir-pro",
       "evidence": [
         {
@@ -37942,6 +39494,64 @@
     },
     {
       "alternatives": [],
+      "basis": "estimated",
+      "code": "iro-nor-pro",
+      "evidence": [
+        {
+          "citation": "Automated dating of the world's language families based on lexical similarity",
+          "claim_id": "ev_period_c0a45e6555e36359cedd9ccf855a55a9f3706ad2",
+          "event": "crown_divergence",
+          "locator": "{\"table\": \"Table 6\", \"row\": \"Northern Iroquoian\", \"page\": 859, \"pdf_page\": 20, \"character_start\": 73842, \"character_end\": 73879, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
+          "method": "lexicostatistic",
+          "quote": "Northern Iroquoian\n5\n2 (3)\n11.42\n3176",
+          "role": "hypothesis",
+          "source": "Eric W. Holman et al. 2011",
+          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 1180 BCE",
+      "name": "Proto-North Iroquoian",
+      "spoken": {
+        "end": {
+          "earliest": -1176,
+          "latest": -1176
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "iro-pro",
+      "evidence": [
+        {
+          "citation": "Automated dating of the world's language families based on lexical similarity",
+          "claim_id": "ev_period_39d1847bf8aa092977373ae1a5a5639784af1050",
+          "event": "crown_divergence",
+          "locator": "{\"table\": \"Table 6\", \"row\": \"Iroquoian\", \"page\": 859, \"pdf_page\": 20, \"character_start\": 73814, \"character_end\": 73841, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
+          "method": "lexicostatistic",
+          "quote": "Iroquoian\n6\n2 (2)\n3.79\n4855",
+          "role": "hypothesis",
+          "source": "Eric W. Holman et al. 2011",
+          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 2860 BCE",
+      "name": "Proto-Iroquoian",
+      "spoken": {
+        "end": {
+          "earliest": -2855,
+          "latest": -2855
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
       "basis": "conventional",
       "code": "itc-ala",
       "evidence": [
@@ -38245,6 +39855,35 @@
           "earliest": 1101,
           "latest": 1200
         }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "kar-pro",
+      "evidence": [
+        {
+          "citation": "Automated dating of the world's language families based on lexical similarity",
+          "claim_id": "ev_period_9a59f55d1f20c28db23058a053873f014b998852",
+          "event": "crown_divergence",
+          "locator": "{\"table\": \"Table 4\", \"row\": \"Karen\", \"page\": 854, \"pdf_page\": 15, \"character_start\": 61405, \"character_end\": 61429, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
+          "method": "lexicostatistic",
+          "quote": "Karen\n9\n2 (4)\n19.71\n2345",
+          "role": "hypothesis",
+          "source": "Eric W. Holman et al. 2011",
+          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 346 BCE",
+      "name": "Proto-Karen",
+      "spoken": {
+        "end": {
+          "earliest": -345,
+          "latest": -345
+        },
+        "ongoing": false,
+        "start": null
       }
     },
     {
@@ -38790,6 +40429,35 @@
       }
     },
     {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "map-ata-pro",
+      "evidence": [
+        {
+          "citation": "Automated dating of the world's language families based on lexical similarity",
+          "claim_id": "ev_period_f5db57c13fc6f92f4f2b774ac2f611c20713edcb",
+          "event": "crown_divergence",
+          "locator": "{\"table\": \"Table 5\", \"row\": \"Atayalic\", \"page\": 856, \"pdf_page\": 17, \"character_start\": 67825, \"character_end\": 67852, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
+          "method": "lexicostatistic",
+          "quote": "Atayalic\n1\n2 (2)\n15.98\n2664",
+          "role": "hypothesis",
+          "source": "Eric W. Holman et al. 2011",
+          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 665 BCE",
+      "name": "Proto-Atayalic",
+      "spoken": {
+        "end": {
+          "earliest": -664,
+          "latest": -664
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
       "alternatives": [
         {
           "basis": "estimated",
@@ -38878,6 +40546,64 @@
     {
       "alternatives": [],
       "basis": "estimated",
+      "code": "mkh-asl-pro",
+      "evidence": [
+        {
+          "citation": "Automated dating of the world's language families based on lexical similarity",
+          "claim_id": "ev_period_3981951117d985fe95a7d37031f0661487b16f0a",
+          "event": "crown_divergence",
+          "locator": "{\"table\": \"Table 4\", \"row\": \"Aslian\", \"page\": 854, \"pdf_page\": 15, \"character_start\": 60000, \"character_end\": 60026, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
+          "method": "lexicostatistic",
+          "quote": "Aslian\n29\n4 (4)\n23.46\n2080",
+          "role": "hypothesis",
+          "source": "Eric W. Holman et al. 2011",
+          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 81 BCE",
+      "name": "Proto-Aslian",
+      "spoken": {
+        "end": {
+          "earliest": -80,
+          "latest": -80
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "mkh-pro",
+      "evidence": [
+        {
+          "citation": "Automated dating of the world's language families based on lexical similarity",
+          "claim_id": "ev_period_8a40971556a5c3d41715dc897db3e27baa0b693a",
+          "event": "crown_divergence",
+          "locator": "{\"table\": \"Table 4\", \"row\": \"Mon-Khmer\", \"page\": 854, \"pdf_page\": 15, \"character_start\": 59968, \"character_end\": 59999, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
+          "method": "lexicostatistic",
+          "quote": "Mon-Khmer\n3,358\n8 (9)\n9.81\n3406",
+          "role": "hypothesis",
+          "source": "Eric W. Holman et al. 2011",
+          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 1410 BCE",
+      "name": "Proto-Mon-Khmer",
+      "spoken": {
+        "end": {
+          "earliest": -1406,
+          "latest": -1406
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
       "code": "mkh-vie-pro",
       "evidence": [
         {
@@ -38902,6 +40628,64 @@
           "earliest": -999,
           "latest": -999
         }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "myn-pro",
+      "evidence": [
+        {
+          "citation": "Automated dating of the world's language families based on lexical similarity",
+          "claim_id": "ev_period_a2b7a713db185774bd6c484c1629cc65049a73cd",
+          "event": "crown_divergence",
+          "locator": "{\"table\": \"Table 6\", \"row\": \"Mayan\", \"page\": 859, \"pdf_page\": 20, \"character_start\": 73943, \"character_end\": 73971, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
+          "method": "lexicostatistic",
+          "quote": "Mayan\n1,449\n5 (5)\n21.39\n2220",
+          "role": "hypothesis",
+          "source": "Eric W. Holman et al. 2011",
+          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 221 BCE",
+      "name": "Proto-Mayan",
+      "spoken": {
+        "end": {
+          "earliest": -220,
+          "latest": -220
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "nai-mus-pro",
+      "evidence": [
+        {
+          "citation": "Automated dating of the world's language families based on lexical similarity",
+          "claim_id": "ev_period_f4fb323e854e07e1baa8359338f04017029f6982",
+          "event": "crown_divergence",
+          "locator": "{\"table\": \"Table 6\", \"row\": \"Muskogean\", \"page\": 859, \"pdf_page\": 20, \"character_start\": 74499, \"character_end\": 74527, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
+          "method": "lexicostatistic",
+          "quote": "Muskogean\n8\n2 (2)\n29.71\n1720",
+          "role": "hypothesis",
+          "source": "Eric W. Holman et al. 2011",
+          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 280 CE",
+      "name": "Proto-Muskogean",
+      "spoken": {
+        "end": {
+          "earliest": 280,
+          "latest": 280
+        },
+        "ongoing": false,
+        "start": null
       }
     },
     {
@@ -39471,6 +41255,122 @@
       }
     },
     {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "omq-cha-pro",
+      "evidence": [
+        {
+          "citation": "Automated dating of the world's language families based on lexical similarity",
+          "claim_id": "ev_period_252d959000cfc59086dc4b86a2b6e18e7a256819",
+          "event": "crown_divergence",
+          "locator": "{\"table\": \"Table 6\", \"row\": \"Chatino\", \"page\": 859, \"pdf_page\": 20, \"character_start\": 75126, \"character_end\": 75151, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
+          "method": "lexicostatistic",
+          "quote": "Chatino\n3\n3 (6)\n47.79\n997",
+          "role": "hypothesis",
+          "source": "Eric W. Holman et al. 2011",
+          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 1000 CE",
+      "name": "Proto-Chatino",
+      "spoken": {
+        "end": {
+          "earliest": 1003,
+          "latest": 1003
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "omq-pro",
+      "evidence": [
+        {
+          "citation": "Automated dating of the world's language families based on lexical similarity",
+          "claim_id": "ev_period_59dd3f27a1e3e17b329c4ac276ce3173a620f4b0",
+          "event": "crown_divergence",
+          "locator": "{\"table\": \"Table 6\", \"row\": \"Oto-Manguean\", \"page\": 859, \"pdf_page\": 20, \"character_start\": 74711, \"character_end\": 74745, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
+          "method": "lexicostatistic",
+          "quote": "Oto-Manguean\n2,108\n8 (8)\n1.21\n6591",
+          "role": "hypothesis",
+          "source": "Eric W. Holman et al. 2011",
+          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 4590 BCE",
+      "name": "Proto-Oto-Manguean",
+      "spoken": {
+        "end": {
+          "earliest": -4591,
+          "latest": -4591
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "omq-zap-pro",
+      "evidence": [
+        {
+          "citation": "Automated dating of the world's language families based on lexical similarity",
+          "claim_id": "ev_period_1b95d644bfa7ddb57530a676608031dc6fa4c572",
+          "event": "crown_divergence",
+          "locator": "{\"table\": \"Table 6\", \"row\": \"Zapotecan\", \"page\": 859, \"pdf_page\": 20, \"character_start\": 75096, \"character_end\": 75125, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
+          "method": "lexicostatistic",
+          "quote": "Zapotecan\n75\n2 (2)\n11.62\n3149",
+          "role": "hypothesis",
+          "source": "Eric W. Holman et al. 2011",
+          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 1150 BCE",
+      "name": "Proto-Zapotecan",
+      "spoken": {
+        "end": {
+          "earliest": -1149,
+          "latest": -1149
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "omq-zpc-pro",
+      "evidence": [
+        {
+          "citation": "Automated dating of the world's language families based on lexical similarity",
+          "claim_id": "ev_period_9145d2d047903a7b7697e267823fc02f87201b88",
+          "event": "crown_divergence",
+          "locator": "{\"table\": \"Table 6\", \"row\": \"Zapotec\", \"page\": 860, \"pdf_page\": 21, \"character_start\": 75406, \"character_end\": 75436, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
+          "method": "lexicostatistic",
+          "quote": "Zapotec\n300\n25 (57)\n30.60\n1676",
+          "role": "hypothesis",
+          "source": "Eric W. Holman et al. 2011",
+          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 324 CE",
+      "name": "Proto-Zapotec",
+      "spoken": {
+        "end": {
+          "earliest": 324,
+          "latest": 324
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
       "alternatives": [
         {
           "basis": "attested",
@@ -39859,6 +41759,35 @@
     },
     {
       "alternatives": [],
+      "basis": "estimated",
+      "code": "paa-nha-pro",
+      "evidence": [
+        {
+          "citation": "Automated dating of the world's language families based on lexical similarity",
+          "claim_id": "ev_period_4c341058bee11150512fcc299d88c10ac84ccb6a",
+          "event": "crown_divergence",
+          "locator": "{\"table\": \"Table 5\", \"row\": \"North Halmahera\", \"page\": 858, \"pdf_page\": 19, \"character_start\": 72941, \"character_end\": 72976, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
+          "method": "lexicostatistic",
+          "quote": "North Halmahera\n97\n4 (4)\n13.14\n2962",
+          "role": "hypothesis",
+          "source": "Eric W. Holman et al. 2011",
+          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 963 BCE",
+      "name": "Proto-North Halmahera",
+      "spoken": {
+        "end": {
+          "earliest": -962,
+          "latest": -962
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
       "basis": "attested",
       "code": "pal",
       "evidence": [
@@ -40032,6 +41961,35 @@
     },
     {
       "alternatives": [],
+      "basis": "estimated",
+      "code": "phi-pro",
+      "evidence": [
+        {
+          "citation": "Automated dating of the world's language families based on lexical similarity",
+          "claim_id": "ev_period_ad1f4b2f8a6853ba4a34d14e75b4b3d5fe3e797b",
+          "event": "crown_divergence",
+          "locator": "{\"table\": \"Table 5\", \"row\": \"Philippine\", \"page\": 856, \"pdf_page\": 17, \"character_start\": 68655, \"character_end\": 68689, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
+          "method": "lexicostatistic",
+          "quote": "Philippine\n7,587\n8 (10)\n27.65\n1830",
+          "role": "hypothesis",
+          "source": "Eric W. Holman et al. 2011",
+          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 170 CE",
+      "name": "Proto-Philippine",
+      "spoken": {
+        "end": {
+          "earliest": 170,
+          "latest": 170
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
       "basis": "attested",
       "code": "phn",
       "evidence": [
@@ -40154,6 +42112,93 @@
       }
     },
     {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "poz-cet-pro",
+      "evidence": [
+        {
+          "citation": "Automated dating of the world's language families based on lexical similarity",
+          "claim_id": "ev_period_c8e8c880919e1800120fcc45ac49cb039f554181",
+          "event": "crown_divergence",
+          "locator": "{\"table\": \"Table 5\", \"row\": \"Central-Eastern\", \"page\": 856, \"pdf_page\": 17, \"character_start\": 68056, \"character_end\": 68095, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
+          "method": "lexicostatistic",
+          "quote": "Central-Eastern\n51,447\n3 (4)\n11.92\n3111",
+          "role": "hypothesis",
+          "source": "Eric W. Holman et al. 2011",
+          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 1110 BCE",
+      "name": "Proto-Central-Eastern Malayo-Polynesian",
+      "spoken": {
+        "end": {
+          "earliest": -1111,
+          "latest": -1111
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "poz-mcm-pro",
+      "evidence": [
+        {
+          "citation": "Automated dating of the world's language families based on lexical similarity",
+          "claim_id": "ev_period_3d332b765be505a3ce41e17cfe392e2f867bf5ab",
+          "event": "crown_divergence",
+          "locator": "{\"table\": \"Table 1\", \"row\": \"Malayo-Chamic\", \"page\": 851, \"pdf_page\": 12, \"character_start\": 48112, \"character_end\": 48146, \"columns\": [\"Language group\", \"Calibration date\", \"ASJP date\", \"Difference (%)\"]}",
+          "method": "lexicostatistic",
+          "quote": "Malayo-Chamic\n2400\n2003\n\u0002397 (\u000220)",
+          "role": "hypothesis",
+          "source": "Eric W. Holman et al. 2011",
+          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 4 BCE",
+      "name": "Proto-Malayo-Chamic",
+      "spoken": {
+        "end": {
+          "earliest": -3,
+          "latest": -3
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "poz-msa-pro",
+      "evidence": [
+        {
+          "citation": "Automated dating of the world's language families based on lexical similarity",
+          "claim_id": "ev_period_48af49c9cbb12063a3edf064b091536121ace906",
+          "event": "crown_divergence",
+          "locator": "{\"table\": \"Table 5\", \"row\": \"Malayo-Sumbawan\", \"page\": 856, \"pdf_page\": 17, \"character_start\": 68400, \"character_end\": 68435, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
+          "method": "lexicostatistic",
+          "quote": "Malayo-Sumbawan\n65\n3 (3)\n27.37\n1845",
+          "role": "hypothesis",
+          "source": "Eric W. Holman et al. 2011",
+          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 155 CE",
+      "name": "Proto-Malayo-Sumbawan",
+      "spoken": {
+        "end": {
+          "earliest": 155,
+          "latest": 155
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
       "alternatives": [
         {
           "basis": "estimated",
@@ -40202,6 +42247,35 @@
           "earliest": -1450,
           "latest": -1450
         }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "poz-pep-pro",
+      "evidence": [
+        {
+          "citation": "Automated dating of the world's language families based on lexical similarity",
+          "claim_id": "ev_period_c30e7151f299a253523fd2d390eacbb269fd5306",
+          "event": "crown_divergence",
+          "locator": "{\"table\": \"Table 1\", \"row\": \"East Polynesian\", \"page\": 851, \"pdf_page\": 12, \"character_start\": 48299, \"character_end\": 48332, \"columns\": [\"Language group\", \"Calibration date\", \"ASJP date\", \"Difference (%)\"]}",
+          "method": "lexicostatistic",
+          "quote": "East Polynesian\n1050\n979\n\u000271 (\u00027)",
+          "role": "hypothesis",
+          "source": "Eric W. Holman et al. 2011",
+          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 1020 CE",
+      "name": "Proto-Eastern Polynesian",
+      "spoken": {
+        "end": {
+          "earliest": 1021,
+          "latest": 1021
+        },
+        "ongoing": false,
+        "start": null
       }
     },
     {
@@ -40313,6 +42387,64 @@
     },
     {
       "alternatives": [],
+      "basis": "estimated",
+      "code": "poz-ssw-pro",
+      "evidence": [
+        {
+          "citation": "Automated dating of the world's language families based on lexical similarity",
+          "claim_id": "ev_period_bc9567f946bb7cd46c7fa66a60e394bee9d6fa61",
+          "event": "crown_divergence",
+          "locator": "{\"table\": \"Table 5\", \"row\": \"South Sulawesi\", \"page\": 857, \"pdf_page\": 18, \"character_start\": 69114, \"character_end\": 69147, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
+          "method": "lexicostatistic",
+          "quote": "South Sulawesi\n39\n3 (5)\n48.63\n970",
+          "role": "hypothesis",
+          "source": "Eric W. Holman et al. 2011",
+          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 1030 CE",
+      "name": "Proto-South Sulawesi",
+      "spoken": {
+        "end": {
+          "earliest": 1030,
+          "latest": 1030
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "pqe-pro",
+      "evidence": [
+        {
+          "citation": "Automated dating of the world's language families based on lexical similarity",
+          "claim_id": "ev_period_4e895d667ed94d6df3a1eb3852f7629320d90435",
+          "event": "crown_divergence",
+          "locator": "{\"table\": \"Table 5\", \"row\": \"Eastern Malayo-Polynesian\", \"page\": 856, \"pdf_page\": 17, \"character_start\": 68146, \"character_end\": 68194, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
+          "method": "lexicostatistic",
+          "quote": "Eastern Malayo-Polynesian\n18,404\n2 (2)\n7.56\n3803",
+          "role": "hypothesis",
+          "source": "Eric W. Holman et al. 2011",
+          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 1800 BCE",
+      "name": "Proto-Eastern Malayo-Polynesian",
+      "spoken": {
+        "end": {
+          "earliest": -1803,
+          "latest": -1803
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
       "basis": "attested",
       "code": "pro",
       "evidence": [
@@ -40343,6 +42475,35 @@
     {
       "alternatives": [],
       "basis": "estimated",
+      "code": "qfa-cka-pro",
+      "evidence": [
+        {
+          "citation": "Automated dating of the world's language families based on lexical similarity",
+          "claim_id": "ev_period_207f48bcf80d1ce403fc5a308ba8b28ae8cf40f4",
+          "event": "crown_divergence",
+          "locator": "{\"table\": \"Table 4\", \"row\": \"Chukotko-Kamchatkan\", \"page\": 854, \"pdf_page\": 15, \"character_start\": 60278, \"character_end\": 60316, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
+          "method": "lexicostatistic",
+          "quote": "Chukotko-Kamchatkan\n6\n2 (2)\n10.06\n3368",
+          "role": "hypothesis",
+          "source": "Eric W. Holman et al. 2011",
+          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 1370 BCE",
+      "name": "Proto-Chukotko-Kamchatkan",
+      "spoken": {
+        "end": {
+          "earliest": -1368,
+          "latest": -1368
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
       "code": "qfa-tak-pro",
       "evidence": [
         {
@@ -40366,6 +42527,124 @@
         "end": {
           "earliest": -3600,
           "latest": -791
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "qfa-yen-pro",
+      "evidence": [
+        {
+          "citation": "Automated dating of the world's language families based on lexical similarity",
+          "claim_id": "ev_period_d8f617057fe9c11c149583f452eb352e2bb62839",
+          "event": "crown_divergence",
+          "locator": "{\"table\": \"Table 4\", \"row\": \"Yeniseian\", \"page\": 855, \"pdf_page\": 16, \"character_start\": 62074, \"character_end\": 62106, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
+          "method": "lexicostatistic",
+          "quote": "Yeniseian\n12\n1 (1) \u00012\n16.01\n2661",
+          "role": "hypothesis",
+          "source": "Eric W. Holman et al. 2011",
+          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 662 BCE",
+      "name": "Proto-Yeniseian",
+      "span": {
+        "components": [
+          {
+            "basis": "estimated",
+            "code": "qfa-yen-pro",
+            "label": "until c. 662 BCE",
+            "name": "Proto-Yeniseian",
+            "own": true
+          },
+          {
+            "basis": "estimated",
+            "code": "qfa-yke-pro",
+            "label": "until c. 1030 CE",
+            "name": "Proto-Ketic",
+            "own": false
+          }
+        ],
+        "end": {
+          "earliest": 1030,
+          "latest": 1030
+        },
+        "label": "until c. 1030 CE",
+        "ongoing": false,
+        "partial": true,
+        "start": null,
+        "undated": [
+          "qfa-yko-pro",
+          "qfa-ypm-pro",
+          "qfa-yrn-pro"
+        ]
+      },
+      "spoken": {
+        "end": {
+          "earliest": -661,
+          "latest": -661
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "qfa-yke-pro",
+      "evidence": [
+        {
+          "citation": "Automated dating of the world's language families based on lexical similarity",
+          "claim_id": "ev_period_86602f136bc760c2846e2e83e1e369dd224fbbe1",
+          "event": "crown_divergence",
+          "locator": "{\"table\": \"Table 4\", \"row\": \"Ket-Yugh\", \"page\": 855, \"pdf_page\": 16, \"character_start\": 62163, \"character_end\": 62189, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
+          "method": "lexicostatistic",
+          "quote": "Ket-Yugh\n1\n2 (2)\n48.65\n970",
+          "role": "hypothesis",
+          "source": "Eric W. Holman et al. 2011",
+          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 1030 CE",
+      "name": "Proto-Ketic",
+      "spoken": {
+        "end": {
+          "earliest": 1030,
+          "latest": 1030
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "qfa-yuk-pro",
+      "evidence": [
+        {
+          "citation": "Automated dating of the world's language families based on lexical similarity",
+          "claim_id": "ev_period_4463ffb1797fbfe144380825dfe84fc938b93e23",
+          "event": "crown_divergence",
+          "locator": "{\"table\": \"Table 4\", \"row\": \"Yukaghir\", \"page\": 855, \"pdf_page\": 16, \"character_start\": 62190, \"character_end\": 62217, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
+          "method": "lexicostatistic",
+          "quote": "Yukaghir\n1\n2 (2)\n24.28\n2027",
+          "role": "hypothesis",
+          "source": "Eric W. Holman et al. 2011",
+          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 28 BCE",
+      "name": "Proto-Yukaghir",
+      "spoken": {
+        "end": {
+          "earliest": -27,
+          "latest": -27
         },
         "ongoing": false,
         "start": null
@@ -40464,6 +42743,64 @@
           "earliest": -1499,
           "latest": -1499
         }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "sai-car-pro",
+      "evidence": [
+        {
+          "citation": "Automated dating of the world's language families based on lexical similarity",
+          "claim_id": "ev_period_f9e7610e8b640e42606098dbd0dd8fed8dcbe7ac",
+          "event": "crown_divergence",
+          "locator": "{\"table\": \"Table 7\", \"row\": \"Carib\", \"page\": 861, \"pdf_page\": 22, \"character_start\": 79636, \"character_end\": 79661, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
+          "method": "lexicostatistic",
+          "quote": "Carib\n72\n2 (2)\n19.50\n2362",
+          "role": "hypothesis",
+          "source": "Eric W. Holman et al. 2011",
+          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 363 BCE",
+      "name": "Proto-Cariban",
+      "spoken": {
+        "end": {
+          "earliest": -362,
+          "latest": -362
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "sal-pro",
+      "evidence": [
+        {
+          "citation": "Automated dating of the world's language families based on lexical similarity",
+          "claim_id": "ev_period_6a26ff916df2ed85f9516a6256cce165908754b5",
+          "event": "crown_divergence",
+          "locator": "{\"table\": \"Table 6\", \"row\": \"Salishan\", \"page\": 860, \"pdf_page\": 21, \"character_start\": 75704, \"character_end\": 75732, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
+          "method": "lexicostatistic",
+          "quote": "Salishan\n129\n5 (5)\n7.44\n3827",
+          "role": "hypothesis",
+          "source": "Eric W. Holman et al. 2011",
+          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 1830 BCE",
+      "name": "Proto-Salish",
+      "spoken": {
+        "end": {
+          "earliest": -1827,
+          "latest": -1827
+        },
+        "ongoing": false,
+        "start": null
       }
     },
     {
@@ -40663,6 +43000,35 @@
       }
     },
     {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "sio-pro",
+      "evidence": [
+        {
+          "citation": "Automated dating of the world's language families based on lexical similarity",
+          "claim_id": "ev_period_58046ac696897658e2b40b48d8c9c19ff876e0e5",
+          "event": "crown_divergence",
+          "locator": "{\"table\": \"Table 6\", \"row\": \"Siouan Proper\", \"page\": 860, \"pdf_page\": 21, \"character_start\": 75829, \"character_end\": 75862, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
+          "method": "lexicostatistic",
+          "quote": "Siouan Proper\n56\n3 (3)\n11.47\n3169",
+          "role": "hypothesis",
+          "source": "Eric W. Holman et al. 2011",
+          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 1170 BCE",
+      "name": "Proto-Siouan",
+      "spoken": {
+        "end": {
+          "earliest": -1169,
+          "latest": -1169
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
       "alternatives": [
         {
           "basis": "estimated",
@@ -40706,6 +43072,33 @@
       "kind": "proto",
       "label": "until c. 5870/2230 BCE",
       "name": "Proto-Sino-Tibetan",
+      "span": {
+        "components": [
+          {
+            "basis": "estimated",
+            "code": "sit-pro",
+            "label": "until c. 5870/2230 BCE",
+            "name": "Proto-Sino-Tibetan",
+            "own": true
+          },
+          {
+            "basis": "estimated",
+            "code": "tbq-pro",
+            "label": "until c. 2200 BCE",
+            "name": "Proto-Tibeto-Burman",
+            "own": false
+          }
+        ],
+        "end": {
+          "earliest": -2203,
+          "latest": -2203
+        },
+        "label": "until c. 2200 BCE",
+        "ongoing": false,
+        "partial": true,
+        "start": null,
+        "undated": []
+      },
       "spoken": {
         "end": {
           "earliest": -5867,
@@ -41010,6 +43403,35 @@
     {
       "alternatives": [],
       "basis": "estimated",
+      "code": "syd-pro",
+      "evidence": [
+        {
+          "citation": "Automated dating of the world's language families based on lexical similarity",
+          "claim_id": "ev_period_3e89b5312b95c346870073c3ffc739aab23ce4c0",
+          "event": "crown_divergence",
+          "locator": "{\"table\": \"Table 4\", \"row\": \"Samoyed\", \"page\": 855, \"pdf_page\": 16, \"character_start\": 62047, \"character_end\": 62073, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
+          "method": "lexicostatistic",
+          "quote": "Samoyed\n1\n2 (5)\n14.14\n2850",
+          "role": "hypothesis",
+          "source": "Eric W. Holman et al. 2011",
+          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 851 BCE",
+      "name": "Proto-Samoyedic",
+      "spoken": {
+        "end": {
+          "earliest": -850,
+          "latest": -850
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
       "code": "tai-pro",
       "evidence": [
         {
@@ -41157,6 +43579,35 @@
         "end": {
           "earliest": -379,
           "latest": 380
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "tbq-pro",
+      "evidence": [
+        {
+          "citation": "Automated dating of the world's language families based on lexical similarity",
+          "claim_id": "ev_period_258d8bc3a7937d3e0693cca5413b9109273dd07f",
+          "event": "crown_divergence",
+          "locator": "{\"table\": \"Table 4\", \"row\": \"Tibeto-Burman\", \"page\": 854, \"pdf_page\": 15, \"character_start\": 61309, \"character_end\": 61347, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
+          "method": "lexicostatistic",
+          "quote": "Tibeto-Burman\n10,352\n14 (18)\n5.81\n4203",
+          "role": "hypothesis",
+          "source": "Eric W. Holman et al. 2011",
+          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 2200 BCE",
+      "name": "Proto-Tibeto-Burman",
+      "spoken": {
+        "end": {
+          "earliest": -2203,
+          "latest": -2203
         },
         "ongoing": false,
         "start": null
@@ -41374,6 +43825,64 @@
     },
     {
       "alternatives": [],
+      "basis": "estimated",
+      "code": "tup-pro",
+      "evidence": [
+        {
+          "citation": "Automated dating of the world's language families based on lexical similarity",
+          "claim_id": "ev_period_62b9eb125a4147c1461ceffe3e03fe191d6d6c52",
+          "event": "crown_divergence",
+          "locator": "{\"table\": \"Table 7\", \"row\": \"Tupi\", \"page\": 861, \"pdf_page\": 22, \"character_start\": 80717, \"character_end\": 80742, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
+          "method": "lexicostatistic",
+          "quote": "Tupi\n570\n8 (10)\n8.73\n3585",
+          "role": "hypothesis",
+          "source": "Eric W. Holman et al. 2011",
+          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 1590 BCE",
+      "name": "Proto-Tupian",
+      "spoken": {
+        "end": {
+          "earliest": -1585,
+          "latest": -1585
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "tuw-pro",
+      "evidence": [
+        {
+          "citation": "Automated dating of the world's language families based on lexical similarity",
+          "claim_id": "ev_period_83655662c21096137dc78bf5ccd4f8d963bd663b",
+          "event": "crown_divergence",
+          "locator": "{\"table\": \"Table 4\", \"row\": \"Tungusic\", \"page\": 854, \"pdf_page\": 15, \"character_start\": 59687, \"character_end\": 59715, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
+          "method": "lexicostatistic",
+          "quote": "Tungusic\n99\n2 (2)\n38.67\n1319",
+          "role": "hypothesis",
+          "source": "Eric W. Holman et al. 2011",
+          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 681 CE",
+      "name": "Proto-Tungusic",
+      "spoken": {
+        "end": {
+          "earliest": 681,
+          "latest": 681
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
       "basis": "attested",
       "code": "txb",
       "evidence": [
@@ -41502,6 +44011,64 @@
         "end": {
           "earliest": 108,
           "latest": 1263
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "urj-mdv-pro",
+      "evidence": [
+        {
+          "citation": "Automated dating of the world's language families based on lexical similarity",
+          "claim_id": "ev_period_51a47ab5801e74cffbcfa62b72767071a93dd1c2",
+          "event": "crown_divergence",
+          "locator": "{\"table\": \"Table 4\", \"row\": \"Mordvin\", \"page\": 855, \"pdf_page\": 16, \"character_start\": 61971, \"character_end\": 61996, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
+          "method": "lexicostatistic",
+          "quote": "Mordvin\n1\n2 (2)\n54.39\n800",
+          "role": "hypothesis",
+          "source": "Eric W. Holman et al. 2011",
+          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 1200 CE",
+      "name": "Proto-Mordvinic",
+      "spoken": {
+        "end": {
+          "earliest": 1200,
+          "latest": 1200
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "urj-prm-pro",
+      "evidence": [
+        {
+          "citation": "Automated dating of the world's language families based on lexical similarity",
+          "claim_id": "ev_period_0a47643bec0819d764e2bd3f594e6ed9ee07c1f2",
+          "event": "crown_divergence",
+          "locator": "{\"table\": \"Table 4\", \"row\": \"Permian\", \"page\": 855, \"pdf_page\": 16, \"character_start\": 61997, \"character_end\": 62022, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
+          "method": "lexicostatistic",
+          "quote": "Permian\n2\n2 (2)\n49.17\n953",
+          "role": "hypothesis",
+          "source": "Eric W. Holman et al. 2011",
+          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 1050 CE",
+      "name": "Proto-Permic",
+      "spoken": {
+        "end": {
+          "earliest": 1047,
+          "latest": 1047
         },
         "ongoing": false,
         "start": null
@@ -42168,6 +44735,35 @@
           "earliest": -699,
           "latest": -500
         }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "xgn-pro",
+      "evidence": [
+        {
+          "citation": "Automated dating of the world's language families based on lexical similarity",
+          "claim_id": "ev_period_4f496185252aa31c77a8941791fb4cab5b110dac",
+          "event": "crown_divergence",
+          "locator": "{\"table\": \"Table 4\", \"row\": \"Mongolic\", \"page\": 854, \"pdf_page\": 15, \"character_start\": 59631, \"character_end\": 59658, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
+          "method": "lexicostatistic",
+          "quote": "Mongolic\n7\n2 (2)\n20.75\n2267",
+          "role": "hypothesis",
+          "source": "Eric W. Holman et al. 2011",
+          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 268 BCE",
+      "name": "Proto-Mongolic",
+      "spoken": {
+        "end": {
+          "earliest": -267,
+          "latest": -267
+        },
+        "ongoing": false,
+        "start": null
       }
     },
     {
