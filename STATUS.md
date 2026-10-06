@@ -18,44 +18,43 @@ in the `packages/dating` registry.
   rebuilds; language codes replace numeric IDs.
 - **Deployment:** pushing `main` deploys the server, then the website
   ([deploy/README.md](deploy/README.md)). Untested on the host.
-- **Dates:** 112 codes show a cited period (14 before this branch), e.g. Gothic, Old
-  Norse, Old French, Sumerian, Old and Middle Japanese, Classical Latin; Vedic and
-  Avestan by composition; 14 IE proto-languages end at Heggarty et al.'s crown ages
-  (PIE until 7614–4736 BCE). `dating period-targets` ranks 1,763 past-stage codes by tree use: 99
-  dated, 988 undated ones appear in trees.
+- **Dates:** 137 codes show a cited period (14 before this branch), e.g. Gothic, Old
+  Norse, Old and Middle French, Middle Persian, Old Javanese, Medieval Latin, the Celtic
+  and Egyptian stages; 25 proto-languages end at reproduced crown ages (IE, Sino-Tibetan,
+  Uralic); PIE also lists the steppe-compatible scenario. `dating period-targets`: 954
+  undated past-stage codes appear in trees.
+- **Sources:** 33 holdings with tables of contents (searched by `library`); Zotero
+  conventions for books, volumes, chapters and abstracts in
+  [single-frontier.md](packages/dating/docs/single-frontier.md#supplied-sources-and-requests).
 
 ## What changed
 
-- Rules 2: varieties (etymology-only codes) are dated as their own codes; a parent
-  shows a derived span over its dated varieties beside its own period; a proto code
-  may end at a sampled clade's crown age (decision `proto_mapping`).
-- `adopt` keeps choices a review did not replace; `readopt` after rule bumps;
-  revision reviews re-target earlier assertions; `check` validates times and events.
-- Five batch runs (212 assertions; 65 codes adopted after review), revisions of the
-  earlier runs (19 codes), composition windows (4). Sync takes supplied items out of
-  Zotero's `needs-fulltext`; 16 requests are filed there. Old generations collected.
+- Holdings record contents and volume; abstracts become abstract holdings; a whole book
+  answers chapter requests; trashed requests are recorded as declined; sync shelves
+  items in `wety/holdings`.
+- Proto-languages are codes named "Proto-…"; crown decisions may list reviewed
+  alternatives; manifests may carry a labeled conventional epoch.
+- Runs: supplied requests (9 codes), IE Handbook (10); Zhang 2019 and Honkola 2013
+  imported (8 proto ends). Two new requests are filed in Zotero.
 
 ## Uncertainties
 
-- The client's span display and its 409 reload are untested in a browser.
-- Reviews are model reviews (Astra researches, Claude reviews), not specialist
-  adjudication. Woodard's chapters date from 2004; Old and Middle French rest on a
-  paper's passing statement until Rickard 1989 arrives.
-- `period-targets` uses ISO's historical/extinct types, so non-ISO stages (Gaulish,
-  Proto-Norse) are missed unless added by hand.
-- IE proto ends rest on one analysis (Heggarty M3), conditional on its constraints;
-  Chang et al. 2015 is unreviewed. Sino-Tibetan, Uralic and other crown ages remain
-  candidates.
+- The client's span and alternatives display and its 409 reload are untested in a
+  browser.
+- Reviews are model reviews (Astra researches, Claude reviews). Proto ends rest on one
+  analysis each, conditional on its constraints; Honkola's epoch is a labeled 1950
+  reading. Chang et al.'s own trees are not reproducible here.
+- `period-targets` misses non-ISO stages unless added by hand.
 - The server needs ~5 GB; ~380k entries' `{{ety}}`/`{{etymon}}` are not parsed.
 
 ## Next three actions
 
 1. Maintainer: one-time deployment setup ([deploy/README.md](deploy/README.md)).
-2. Proto-language reviews: Chang et al. 2015 as an IE alternative; Sino-Tibetan and
-   Uralic (deposits reproduced) next.
-3. Supply the 16 filed requests (`holdings sync`), then the next batches from
-   `period-targets` (Ottoman Turkish, Old East Slavic, Old Spanish, proto-languages).
+2. Next batches from `period-targets`: Ottoman Turkish and Old Spanish (need a source
+   for the whole stage), Old East Slavic, Proto-Bantu, Proto-Tai, Austronesian protos.
+3. More crown ages: Sagart 2019 (epoch), Austronesian and Bantu deposits.
 
 ## Decisions needed from the maintainer
 
-- Running the deployment.
+- Show an end of native transmission (last speaker: Dalmatian 1898, Negerhollands
+  1987, Polabian) as a period's end, basis "last speaker"?
