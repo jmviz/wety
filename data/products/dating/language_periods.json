@@ -35785,7 +35785,7 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:fff5df92fe6ca543"
     }
   ],
-  "generation": "99fa4550547e6284b96d74057423d45d4211a74af6bc9b7e25a1b49535814fbf",
+  "generation": "a27919f137c8b8ed4f5ec6bb248328e0073a6e7bfd23b411332c95dfbefb80a1",
   "languages": [
     {
       "alternatives": [],
@@ -44834,7 +44834,26 @@
       }
     },
     {
-      "alternatives": [],
+      "alternatives": [
+        {
+          "basis": "last_speaker",
+          "citation": "Middleton, John. 2023. “Waking a sleeping language – our plan to revive the speaking of ta rē Moriori.” The Conversation, 23 November 2023. https://doi.org/10.64628/AA.9feuu46ea.",
+          "claim_id": "ev_period_d611a9a940c7d25832cb22ed1c5804c0b2838445",
+          "end": {
+            "earliest": 1901,
+            "latest": 2000
+          },
+          "event": "native_transmission_end",
+          "label": "until 20th century CE",
+          "locator": "{\"start\": 988, \"end\": 1143}",
+          "method": "expert_estimate",
+          "quote": "Take the Moriori language from the Chatham Islands, for example. Ta rē Moriori has no native speakers, with the last having died in the early 20th century.",
+          "role": "hypothesis",
+          "source": "Middleton 2023",
+          "start": null,
+          "url": "https://theconversation.com/waking-a-sleeping-language-our-plan-to-revive-the-speaking-of-ta-re-moriori-218023"
+        }
+      ],
       "basis": "last_speaker",
       "code": "rrm",
       "evidence": [
@@ -44853,6 +44872,20 @@
       "kind": "stage",
       "label": "until c. 20th century CE",
       "name": "Moriori",
+      "revival": [
+        {
+          "citation": "Hokotehi Moriori Trust. 2021. “Ta Rē Moriori Language App Launched.” Press release, 1 March 2021. Reproduced by Scoop, online edition.",
+          "claim_id": "ev_period_b983e3d696841eead20cecbe70519e150d7179c7",
+          "event": "revitalization",
+          "label": "2021 CE–present",
+          "locator": "{\"start\": 1764, \"end\": 1993}",
+          "method": "community_programme_history",
+          "quote": "Ta Rē Moriori Language App Launched\n\n\n           \nMonday,  1 March 2021,  5:12 pm\n\n             \nPress Release: \nHokotehi Moriori Trust\n\n\n         \n\n\n\t \n\n         \nHokotehi is proud to release our free Ta Rē Moriori\nLanguage App.",
+          "role": "observation",
+          "source": "Hokotehi Moriori Trust 2021",
+          "url": "https://www.scoop.co.nz/stories/AK2103/S00027/ta-re-moriori-language-app-launched.htm"
+        }
+      ],
       "spoken": {
         "end": {
           "earliest": 1901,
@@ -46844,6 +46877,20 @@
       "kind": "attested",
       "label": "17th–19th century CE",
       "name": "Massachusett",
+      "revival": [
+        {
+          "citation": "Wôpanâak Language Reclamation Project. n.d. “Project History.” Organisation website, accessed 6 October 2026.",
+          "claim_id": "ev_period_33ac931282969dd683a2c33a808ab3a7523882dc",
+          "event": "revitalization",
+          "label": "1993 CE–present",
+          "locator": "{\"start\": 6458, \"end\": 6781}",
+          "method": "community_programme_history",
+          "quote": "In 1993, Baird founded the Wôpanâak Language Reclamation Project (WLRP), which includes Wampanoag citizens from the Mashpee, Aquinnah, Assonet, and Herring Pond Wampanoag communities. The project's mission is to restore fluency in the Wampanoag Nation, making the language a primary means of cultural expression once again.",
+          "role": "observation",
+          "source": "Wôpanâak Language Reclamation Project 2026",
+          "url": "https://www.wlrp.org/project-history"
+        }
+      ],
       "spoken": {
         "end": {
           "earliest": 1801,
@@ -46908,6 +46955,20 @@
       "kind": "stage",
       "label": "until 1921 CE",
       "name": "Wathaurong",
+      "revival": [
+        {
+          "citation": "Wadawurrung Traditional Owners Aboriginal Corporation. 2025. Annual Report 2024–25. Organisation annual-report edition, p.26.",
+          "claim_id": "ev_period_4e1ee42ef1144f48a58e0e9248135c3121530952",
+          "event": "revitalization",
+          "label": "2024 CE–present",
+          "locator": "{\"page\": \"26\", \"pdf_page\": 28}",
+          "method": "community_programme_history",
+          "quote": "Language is being shared: Continued conducting \nonline Language classes for Members and teaching \nWadawurrung as the LOTE in Moolap (2024) and \nGrovedale Primary Schools (2024-2025).",
+          "role": "observation",
+          "source": "Wadawurrung Traditional Owners Aborigina 2025",
+          "url": "https://static.wixstatic.com/ugd/d96c4e_98a38cf3b8e34b5b80cf6fc30fb67377.pdf"
+        }
+      ],
       "spoken": {
         "end": {
           "earliest": 1921,
@@ -47340,6 +47401,20 @@
       "kind": "stage",
       "label": "until c. 19th/20th century CE",
       "name": "Dharug",
+      "revival": [
+        {
+          "citation": "Green, Richard (Ricky), and Amanda Oppliger. 2007. “The Interface Between Indigenous and Non-Indigenous Systems of Knowing and Learning: A Report on a Dharug Language Programme.” The Australian Journal of Indigenous Education 36, Supplement: 81–87. https://doi.org/10.1017/S1326011100004749. Original journal edition, retained in the 2022 open-access scan.",
+          "claim_id": "ev_period_41d5ee2f8c2fe7393314c48bcc4c8f416e386205",
+          "event": "revitalization",
+          "label": "2006 CE–present",
+          "locator": "{\"page\": \"82\", \"pdf_page\": 3}",
+          "method": "scholarly_programme_history",
+          "quote": "The teaching of Dharug at Dunheved began in \nTerm 1, 2006. This was preceded by several years of \nconsultation with language and community elders, \nAboriginal parents and students, and the consultative \nprocess is ongoing.",
+          "role": "observation",
+          "source": "Green 2007",
+          "url": "https://ajie.atsis.uq.edu.au/ajie/article/download/474/414"
+        }
+      ],
       "spoken": {
         "end": {
           "earliest": 1801,
