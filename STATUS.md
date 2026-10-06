@@ -1,8 +1,7 @@
 # Status
 
-*Updated 2026-10-05. Local `main` has `etymon-templates` (graph `7c39072a…` selected).
-Branch `processor-review` (on `canonical-forms`) is unmerged; its graph `dab06f67…`
-is built, validated and copied into `data/`, not selected. Nothing pushed.*
+*Updated 2026-10-05. Local `main` has `canonical-forms` and `processor-review`; graph
+`dab06f67…` is selected (CURRENT.json, `deploy/graph.json`). Nothing pushed.*
 
 ## What the project promises
 
@@ -12,13 +11,12 @@ in the `packages/dating` registry.
 
 ## What is usable today
 
-- **Graph** `7c39072a…` (2026-09-01 dump): homographs, Descendants sections and
-  `{{etymon}}` are read. Stable links; deployment via `main` → R2 → `production`
-  (host setup not yet run); dates for 14 of 20 pilot codes.
-- **Graph** `dab06f67…` (`processor-review`): 8,101,979 entries with an etymology
-  (English 1,059,987), against 7,894,425 in `cf09bd87…` (`canonical-forms`).
+- **Graph** `dab06f67…` (2026-09-01 dump): 8,101,979 entries with an etymology
+  (English 1,059,987), against 7,894,425 in `cf09bd87…` (`canonical-forms` alone).
+  Stable links; deployment via `main` → R2 → `production` (host setup not yet run;
+  the graph is not yet uploaded); dates for 14 of 20 pilot codes.
 
-## What changed on `processor-review`
+## What changed (`processor-review`)
 
 - Entry names from Wiktionary's Lua; `{{af}}` parts; deterministic root votes;
   one placeholder per missing term; cycles broken at their weakest link.
@@ -58,12 +56,11 @@ Old English *bearn* again (it had followed *barn* "barn" in `abf64f81…`).
 
 ## Next three actions
 
-1. Maintainer: review `canonical-forms` and `processor-review`; if accepted, merge and
-   select `dab06f67…` (CURRENT.json, `deploy/graph.json`).
-2. Maintainer: one-time deployment setup ([deploy/README.md](deploy/README.md)).
-3. Supply the six queued works in Zotero, then `dating holdings sync`.
+1. Maintainer: one-time deployment setup ([deploy/README.md](deploy/README.md));
+   `deploy/publish-graph.sh` uploads `dab06f67…` before `main` is pushed.
+2. Supply the six queued works in Zotero, then `dating holdings sync`.
+3. Review the remaining false "missing" verdicts and cross-language misparents.
 
 ## Decisions needed from the maintainer
 
-- Whether to adopt `dab06f67…`, including the unknown-origin and missing-homograph
-  policies and the new embedding model.
+- None pending for the graph.
