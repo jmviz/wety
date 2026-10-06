@@ -34093,7 +34093,7 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:fff5df92fe6ca543"
     }
   ],
-  "generation": "ad9737165fbe6e8c90e193ccbb3421ebd27aa0dd665c8f27270b4745750402b8",
+  "generation": "59d42b9b07363057fb1226477cbd29243ec9397cc6d10c3b7acb2ec3b8606115",
   "languages": [
     {
       "alternatives": [
@@ -34942,17 +34942,38 @@
           },
           {
             "basis": "conventional",
+            "code": "arc-jla",
+            "label": "c. 200 BCE – 200 CE",
+            "name": "Jewish Literary Aramaic",
+            "own": false
+          },
+          {
+            "basis": "conventional",
             "code": "arc-old",
             "label": "950–600 BCE",
             "name": "Old Aramaic",
             "own": false
+          },
+          {
+            "basis": "conventional",
+            "code": "jpa",
+            "label": "c. 200–700 CE",
+            "name": "Jewish Palestinian Aramaic",
+            "own": false
+          },
+          {
+            "basis": "conventional",
+            "code": "tmr",
+            "label": "c. 200–900 CE",
+            "name": "Jewish Babylonian Aramaic",
+            "own": false
           }
         ],
         "end": {
-          "earliest": -199,
-          "latest": -199
+          "earliest": 900,
+          "latest": 900
         },
-        "label": "1000/950–200 BCE",
+        "label": "c. 1000/950 BCE – 900 CE",
         "ongoing": false,
         "partial": true,
         "start": {
@@ -34963,11 +34984,8 @@
           "arc-bib",
           "arc-cpa",
           "arc-hat",
-          "arc-jla",
           "arc-nab",
-          "arc-pal",
-          "jpa",
-          "tmr"
+          "arc-pal"
         ]
       },
       "spoken": {
@@ -35008,6 +35026,38 @@
         "start": {
           "earliest": -599,
           "latest": -599
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "conventional",
+      "code": "arc-jla",
+      "evidence": [
+        {
+          "citation": "Damsma, Alinda. 2018. “The Aramaic of the Zohar: The Status Quaestionis.” In Lily Kahn (ed.), Jewish Languages in Historical Perspective (IJS Studies in Judaica), pp. 9–38. Leiden: Brill. Submitted author manuscript retained at UCL, numbered p. 1, note 1; final typeset pagination not inspected.",
+          "claim_id": "ev_period_b415a1f1959a40dd4ddbd35f1a4fca474041e0b4",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"1 (submitted manuscript pagination), note 1; published chapter pp. 9–38\", \"pdf_page\": 1}",
+          "method": "scholarly_periodization",
+          "quote": "JLA = Jewish Literary Aramaic. This literary dialect evolved in Judea from Imperial Aramaic. It was employed \nfrom approximately 200 BCE until 200 CE. Examples are Targum Onqelos to the Pentateuch and Targum \nJonathan to the Prophets.",
+          "role": "convention",
+          "source": "Damsma 2018",
+          "url": "https://discovery.ucl.ac.uk/10088406/1/The%20Aramaic%20of%20the%20Zohar.pdf"
+        }
+      ],
+      "kind": "stage",
+      "label": "c. 200 BCE – 200 CE",
+      "name": "Jewish Literary Aramaic",
+      "spoken": {
+        "end": {
+          "earliest": 200,
+          "latest": 200
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": -199,
+          "latest": -199
         }
       }
     },
@@ -35251,6 +35301,35 @@
       }
     },
     {
+      "alternatives": [],
+      "basis": "last_speaker",
+      "code": "chb",
+      "evidence": [
+        {
+          "citation": "Adelaar, Willem F. H. 2012. “Historical overview: Descriptive and comparative research on South American Indian languages.” In Lyle Campbell and Verónica Grondona (eds.), The Indigenous Languages of South America: A Comprehensive Guide, 1–57. Berlin/Boston: De Gruyter Mouton. Repository copy, version unspecified; locator refers to its printed pagination.",
+          "claim_id": "ev_period_c27a6d17ddb7e18e1de9c2e0deac89c29990bcf1",
+          "event": "native_transmission_end",
+          "locator": "{\"page\": \"5\", \"pdf_page\": 7}",
+          "method": "secondary_report",
+          "quote": "The Muisca language was reported extinct in the 18th century, together with most \nof its close relatives and neighbors.",
+          "role": "hypothesis",
+          "source": "Adelaar 2012",
+          "url": "https://scholarlypublications.universiteitleiden.nl/access/item%3A2884335/view"
+        }
+      ],
+      "kind": "stage",
+      "label": "until 18th century CE",
+      "name": "Chibcha",
+      "spoken": {
+        "end": {
+          "earliest": 1701,
+          "latest": 1800
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
       "alternatives": [
         {
           "basis": "conventional",
@@ -35415,6 +35494,27 @@
           },
           {
             "basis": "attested",
+            "code": "cop-akh",
+            "label": "from 4th century CE",
+            "name": "Akhmimic Coptic",
+            "own": false
+          },
+          {
+            "basis": "attested",
+            "code": "cop-boh",
+            "label": "from 4th/5th century CE",
+            "name": "Bohairic Coptic",
+            "own": false
+          },
+          {
+            "basis": "attested",
+            "code": "cop-lyc",
+            "label": "until 500 CE",
+            "name": "Lycopolitan Coptic",
+            "own": false
+          },
+          {
+            "basis": "attested",
             "code": "cop-sah",
             "label": "from 4th century CE",
             "name": "Sahidic Coptic",
@@ -35433,14 +35533,11 @@
           "latest": 400
         },
         "undated": [
-          "cop-akh",
-          "cop-boh",
           "cop-fay",
           "cop-ggg",
           "cop-her",
           "cop-jjj",
           "cop-kkk",
-          "cop-lyc",
           "cop-old",
           "cop-oxy",
           "cop-ply",
@@ -35457,6 +35554,112 @@
           "earliest": 301,
           "latest": 400
         }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "attested",
+      "code": "cop-akh",
+      "evidence": [
+        {
+          "citation": "Nagel, Peter. 1991. “Akhmimic.” In Aziz S. Atiya (ed.), The Coptic Encyclopedia, vol. 8, pp. A19a–A27b. New York: Macmillan. Digital reflow p. 1.",
+          "claim_id": "ev_period_81ed9b3c2fa264467a5adcc38aa10e6b4164b1d6",
+          "event": "first_attestation",
+          "locator": "{\"page\": \"A19a–A27b (entry range)\", \"pdf_page\": 1}",
+          "method": "scholarly_description",
+          "quote": "While Akhmimic had not\nbeen uniformly standardized, it became a medium of writing as early\nas the fourth century and reached its zenith in the fourth and fifth\ncenturies. ",
+          "role": "observation",
+          "source": "Nagel 1991",
+          "url": "https://ccdl.claremont.edu/digital/api/collection/cce/id/1962/download"
+        }
+      ],
+      "kind": "attested",
+      "label": "from 4th century CE",
+      "name": "Akhmimic Coptic",
+      "spoken": {
+        "end": null,
+        "ongoing": false,
+        "start": {
+          "earliest": 301,
+          "latest": 400
+        }
+      }
+    },
+    {
+      "alternatives": [
+        {
+          "basis": "attested",
+          "citation": "Loprieno, Antonio. 1995. Ancient Egyptian: A Linguistic Introduction. Cambridge: Cambridge University Press. Supplied copy digitally printed 2004. https://doi.org/10.1017/CBO9780511611865.",
+          "claim_id": "ev_period_cec59a97671389d2a1b1659ab1afdf01ebded185",
+          "end": null,
+          "event": "first_attestation",
+          "label": "from 5th century CE",
+          "locator": "{\"page\": \"40\", \"pdf_page\": 56}",
+          "method": "scholarly_description",
+          "quote": "Bohairic, the dialect of the Nile delta, documented from the fifth\ncentury CE and progressively established as the dialect of the liturgy of the\nCoptic church.",
+          "role": "observation",
+          "source": "Loprieno 1995",
+          "start": {
+            "earliest": 401,
+            "latest": 500
+          },
+          "url": "https://doi.org/10.1017/cbo9780511611865"
+        }
+      ],
+      "basis": "attested",
+      "code": "cop-boh",
+      "evidence": [
+        {
+          "citation": "Shisha-Halevy, Ariel. 1991. “Bohairic.” In Aziz S. Atiya (ed.), The Coptic Encyclopedia, vol. 8, pp. A53b–A60a. New York: Macmillan. Claremont Coptic Encyclopedia digital reflow, p. 1.",
+          "claim_id": "ev_period_64d83f6e7b2186ef58bde50a0cc55dd033cba284",
+          "event": "first_attestation",
+          "locator": "{\"page\": \"A53b–A60a (entry range; original individual page not marked in reflow)\", \"pdf_page\": 1}",
+          "method": "scholarly_description",
+          "quote": "What survives in the way of Bohairic documentation consists, on the\none hand, of manuscripts later than the ninth century with scriptural,\nhomiletic, hermeneutic, hagiographical, and liturgical texts and, on\nthe other, a much smaller collection of fourth- and fifth-century\nfragments, all biblical (see sec. 5 on the varieties of Bohairic).",
+          "role": "observation",
+          "source": "Shisha-Halevy 1991",
+          "url": "https://ccdl.claremont.edu/digital/api/collection/cce/id/2011/download"
+        }
+      ],
+      "kind": "attested",
+      "label": "from 4th/5th century CE",
+      "name": "Bohairic Coptic",
+      "spoken": {
+        "end": null,
+        "ongoing": false,
+        "start": {
+          "earliest": 301,
+          "latest": 500
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "attested",
+      "code": "cop-lyc",
+      "evidence": [
+        {
+          "citation": "Nagel, Peter. 1991. “Lycopolitan (or Lyco-Diospolitan or Subakhmimic).” In Aziz S. Atiya (ed.), The Coptic Encyclopedia, vol. 8, pp. A151b–A159b. New York: Macmillan. Digital reflow pp. 4–5.",
+          "claim_id": "ev_period_a623031165b37e00f278c1cf98463cd66df15c7d",
+          "event": "last_attestation",
+          "locator": "{\"page\": \"A151b–A159b (entry range)\", \"pdf_page\": 5}",
+          "method": "scholarly_description",
+          "quote": "After the fifth century no textual witness of L is attested, and one\nmay conclude that by that time L had gone out of use as a literary\nlanguage.",
+          "role": "observation",
+          "source": "Nagel 1991",
+          "url": "https://ccdl.claremont.edu/digital/api/collection/cce/id/2026/download"
+        }
+      ],
+      "kind": "attested",
+      "label": "until 500 CE",
+      "name": "Lycopolitan Coptic",
+      "spoken": {
+        "end": {
+          "earliest": null,
+          "latest": 500
+        },
+        "ongoing": false,
+        "start": null
       }
     },
     {
@@ -36285,6 +36488,42 @@
       "kind": "stage",
       "label": "1150–1500 CE",
       "name": "Middle English",
+      "span": {
+        "components": [
+          {
+            "basis": "conventional",
+            "code": "enm",
+            "label": "1150–1500 CE",
+            "name": "Middle English",
+            "own": true
+          },
+          {
+            "basis": "conventional",
+            "code": "enm-esc",
+            "label": "until c. 1450 CE",
+            "name": "Early Scots",
+            "own": false
+          }
+        ],
+        "end": {
+          "earliest": 1500,
+          "latest": 1500
+        },
+        "label": "c. 1150–1500 CE",
+        "ongoing": false,
+        "partial": true,
+        "start": {
+          "earliest": 1150,
+          "latest": 1150
+        },
+        "undated": [
+          "enm-emi",
+          "enm-ken",
+          "enm-nor",
+          "enm-sou",
+          "enm-wmi"
+        ]
+      },
       "spoken": {
         "end": {
           "earliest": 1500,
@@ -36295,6 +36534,35 @@
           "earliest": 1150,
           "latest": 1150
         }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "conventional",
+      "code": "enm-esc",
+      "evidence": [
+        {
+          "citation": "Smith, Jeremy. 2017. “Scots: an outline history,” section “Origins.” Revised online version of the introduction to Concise Scots Dictionary, second edition (2017). Dictionaries of the Scots Language. https://dsl.ac.uk/about-scots/an-outline-history-of-scots/origins/.",
+          "claim_id": "ev_period_b82d6d875777d74f9743522fc3e3bc06ea928a14",
+          "event": "conventional_period",
+          "locator": "{\"start\": 6014, \"end\": 6046, \"section\": \"Origins, final paragraph\"}",
+          "method": "scholarly_periodization",
+          "quote": "Early Scots\n (up to around 1450)",
+          "role": "convention",
+          "source": "Smith 2017",
+          "url": "https://dsl.ac.uk/about-scots/an-outline-history-of-scots/origins/"
+        }
+      ],
+      "kind": "stage",
+      "label": "until c. 1450 CE",
+      "name": "Early Scots",
+      "spoken": {
+        "end": {
+          "earliest": 1450,
+          "latest": 1450
+        },
+        "ongoing": false,
+        "start": null
       }
     },
     {
@@ -36826,6 +37094,38 @@
         "start": {
           "earliest": 1200,
           "latest": 1200
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "conventional",
+      "code": "gmq-osw-lat",
+      "evidence": [
+        {
+          "citation": "Larsson, Ida, and Erik M. Petzell. 2022. “Introduction: Morphosyntactic change in Late Modern Swedish.” In Ida Larsson and Erik M. Petzell (eds.), Morphosyntactic Change in Late Modern Swedish, 1–52. Open Germanic Linguistics 2. Berlin: Language Science Press. https://doi.org/10.5281/zenodo.5792951.",
+          "claim_id": "ev_period_aa884098bb2f7e45352f950fc9ba31e095653a68",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"2\", \"pdf_page\": 10}",
+          "method": "scholarly_periodization",
+          "quote": "b. Late Old Swedish (LOS) 1375–1526",
+          "role": "convention",
+          "source": "Larsson 2022",
+          "url": "https://zenodo.org/records/5482405/files/329.pdf?download=1"
+        }
+      ],
+      "kind": "stage",
+      "label": "c. 1375–1526 CE",
+      "name": "Late Old Swedish",
+      "spoken": {
+        "end": {
+          "earliest": 1526,
+          "latest": 1526
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 1375,
+          "latest": 1375
         }
       }
     },
@@ -37796,6 +38096,38 @@
         "start": {
           "earliest": 1200,
           "latest": 1200
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "conventional",
+      "code": "jpa",
+      "evidence": [
+        {
+          "citation": "Damsma, Alinda. 2018. “The Aramaic of the Zohar: The Status Quaestionis.” In Lily Kahn (ed.), Jewish Languages in Historical Perspective (IJS Studies in Judaica), pp. 9–38. Leiden: Brill. Submitted author manuscript retained at UCL, numbered p. 1, note 1; final typeset pagination not inspected.",
+          "claim_id": "ev_period_76e8fd6f4e22a371a9332a08dae6668aca47ee5a",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"1 (submitted manuscript pagination), note 1; published chapter pp. 9–38\", \"pdf_page\": 1}",
+          "method": "scholarly_periodization",
+          "quote": "JPA = Jewish Palestinian Aramaic. This dialect was employed in Palestine from approximately 200 CE until \nabout 700 CE. Examples are the Aramaic parts of the Palestinian Talmud, the Palestinian Targums to the \nPentateuch, and the Palestinian piyyutim.",
+          "role": "convention",
+          "source": "Damsma 2018",
+          "url": "https://discovery.ucl.ac.uk/10088406/1/The%20Aramaic%20of%20the%20Zohar.pdf"
+        }
+      ],
+      "kind": "stage",
+      "label": "c. 200–700 CE",
+      "name": "Jewish Palestinian Aramaic",
+      "spoken": {
+        "end": {
+          "earliest": 700,
+          "latest": 700
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 200,
+          "latest": 200
         }
       }
     },
@@ -38911,6 +39243,38 @@
     {
       "alternatives": [],
       "basis": "conventional",
+      "code": "ohu",
+      "evidence": [
+        {
+          "citation": "Dékány, Éva. 2014. “Argument structure and functional projections in Old Hungarian verbal gerunds.” Acta Linguistica Hungarica 61(3): 317–361. https://doi.org/10.1556/ALing.61.2014.3.4.",
+          "claim_id": "ev_period_428b7f950933cc5c46f7be65b9fb5fb7fc6ae259",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"317\", \"pdf_page\": 1}",
+          "method": "scholarly_periodization",
+          "quote": "Old Hungarian (896–1526 a.d.) features a wide variety of non-ﬁnite verb\nforms: in addition to an inﬁnitive, it also has several types of adjectival and\nadverbial participles as well as two types of gerunds.",
+          "role": "convention",
+          "source": "Dékány 2014",
+          "url": "https://real.mtak.hu/50994/1/aling.61.2014.3.4.pdf"
+        }
+      ],
+      "kind": "stage",
+      "label": "896–1526 CE",
+      "name": "Old Hungarian",
+      "spoken": {
+        "end": {
+          "earliest": 1526,
+          "latest": 1526
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 896,
+          "latest": 896
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "conventional",
       "code": "ojp",
       "evidence": [
         {
@@ -39071,6 +39435,38 @@
         "start": {
           "earliest": 918,
           "latest": 918
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "conventional",
+      "code": "olt",
+      "evidence": [
+        {
+          "citation": "Gelumbeckaitė, Jolanta, Mindaugas Šinkūnas, and Vytautas Zinkevičius. 2012. “Old Lithuanian Reference Corpus (SLIEKKAS) and Automated Grammatical Annotation.” Journal for Language Technology and Computational Linguistics (JLCL) 27(2): 83–96. https://doi.org/10.21248/jlcl.27.2012.165.",
+          "claim_id": "ev_period_7d0587492ce292c567b0a1b71db2f2d1429548c4",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"84\", \"pdf_page\": 2}",
+          "method": "scholarly_periodization",
+          "quote": "Old Lithuanian covers a period of ca. 300 years, from the 16th to the 19th centuries.",
+          "role": "convention",
+          "source": "Gelumbeckaitė 2012",
+          "url": "https://jlcl.org/article/download/165/163"
+        }
+      ],
+      "kind": "stage",
+      "label": "c. 16th–19th century CE",
+      "name": "Old Lithuanian",
+      "spoken": {
+        "end": {
+          "earliest": 1801,
+          "latest": 1900
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 1501,
+          "latest": 1600
         }
       }
     },
@@ -39977,6 +40373,38 @@
     },
     {
       "alternatives": [],
+      "basis": "conventional",
+      "code": "roa-oit",
+      "evidence": [
+        {
+          "citation": "Renzi, Lorenzo, and Giampaolo Salvi. 2010. “Italiano antico.” Enciclopedia dell’Italiano. Rome: Istituto della Enciclopedia Italiana (Treccani), section “Definizione.” Online edition, unpaginated.",
+          "claim_id": "ev_period_80ab055c8a8de9507451337242bc7cda7f9592e1",
+          "event": "conventional_period",
+          "locator": "{\"start\": 1167, \"end\": 1340, \"section\": \"Definizione, periodization item (a)\"}",
+          "method": "scholarly_periodization",
+          "quote": "italiano antico\n o meglio \nfiorentino antico\n, dal 1211 (data del primo documento, costituito dai frammenti di un libro di conti di banchieri fiorentini), fin verso il 1400;",
+          "role": "convention",
+          "source": "Renzi 2010",
+          "url": "https://www.treccani.it/enciclopedia/italiano-antico_(Enciclopedia-dell%27Italiano)/"
+        }
+      ],
+      "kind": "stage",
+      "label": "c. 1211–1400 CE",
+      "name": "Old Italian",
+      "spoken": {
+        "end": {
+          "earliest": 1400,
+          "latest": 1400
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 1211,
+          "latest": 1211
+        }
+      }
+    },
+    {
+      "alternatives": [],
       "basis": "estimated",
       "code": "roa-pro",
       "evidence": [
@@ -40736,6 +41164,38 @@
     },
     {
       "alternatives": [],
+      "basis": "conventional",
+      "code": "tmr",
+      "evidence": [
+        {
+          "citation": "Damsma, Alinda. 2018. “The Aramaic of the Zohar: The Status Quaestionis.” In Lily Kahn (ed.), Jewish Languages in Historical Perspective (IJS Studies in Judaica), pp. 9–38. Leiden: Brill. Submitted author manuscript retained at UCL, numbered p. 1, note 1; final typeset pagination not inspected.",
+          "claim_id": "ev_period_b4e09d7edf9fd58b701205c2d3d25414e9ecdc56",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"1 (submitted manuscript pagination), note 1; published chapter pp. 9–38\", \"pdf_page\": 1}",
+          "method": "scholarly_periodization",
+          "quote": "JBA = Jewish Babylonian Aramaic. This dialect was used in Babylonia from about 200 CE until 900 CE (one of \nits sub-dialects is BTA= Babylonian Talmudic Aramaic, the main dialect employed in the Babylonian Talmud).",
+          "role": "convention",
+          "source": "Damsma 2018",
+          "url": "https://discovery.ucl.ac.uk/10088406/1/The%20Aramaic%20of%20the%20Zohar.pdf"
+        }
+      ],
+      "kind": "stage",
+      "label": "c. 200–900 CE",
+      "name": "Jewish Babylonian Aramaic",
+      "spoken": {
+        "end": {
+          "earliest": 900,
+          "latest": 900
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 200,
+          "latest": 200
+        }
+      }
+    },
+    {
+      "alternatives": [],
       "basis": "estimated",
       "code": "trk-cmn-pro",
       "evidence": [
@@ -41129,6 +41589,38 @@
         "start": {
           "earliest": -1499,
           "latest": -1499
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "attested",
+      "code": "wam",
+      "evidence": [
+        {
+          "citation": "Fermino, Jessie Little Doe. 2000. An Introduction to Wampanoag Grammar. M.S. thesis, Department of Linguistics and Philosophy, Massachusetts Institute of Technology, June 2000.",
+          "claim_id": "ev_period_48690ce3366e164634062754498b5ff64703f9d0",
+          "event": "documentary_sampling",
+          "locator": "{\"page\": \"4\", \"pdf_page\": 4}",
+          "method": "scholarly_documentary_history",
+          "quote": "I\nmust also acknowledge Ives Goddard and Kathleen Bragdon for their work Native Writings in\nMassachusett. This work lays out an excellent analysis of Native written documents from the\n1 7 th , \n1 8th, and 19th centuries",
+          "role": "observation",
+          "source": "Fermino 2000",
+          "url": "https://theswissbay.ch/pdf/Books/Linguistics/Mega%20linguistics%20pack/North%20American/Algic/Massachusett%3B%20An%20Introduction%20to%20Wampanoag%20Grammar%20%28Fermino%29.pdf"
+        }
+      ],
+      "kind": "attested",
+      "label": "17th–19th century CE",
+      "name": "Massachusett",
+      "spoken": {
+        "end": {
+          "earliest": 1801,
+          "latest": 1900
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 1601,
+          "latest": 1700
         }
       }
     },
@@ -41796,6 +42288,38 @@
     {
       "alternatives": [],
       "basis": "attested",
+      "code": "xmr",
+      "evidence": [
+        {
+          "citation": "Rilly, Claude, and Alex de Voogt. 2012. The Meroitic Language and Writing System. Cambridge: Cambridge University Press. DOI: 10.1017/CBO9780511920028. Repository abstract, HAL halshs-01482445, deposited 2017.",
+          "claim_id": "ev_period_a43ebd002b97a16ab9a4900b705610e7abffc9bd",
+          "event": "documentary_sampling",
+          "locator": "{\"start\": 11039, \"end\": 11240, \"section\": \"HAL repository abstract\"}",
+          "method": "secondary_report",
+          "quote": "This book provides an introduction to the Meroitic language and writing system, which was used between circa 300 BC and AD 400 in the Kingdom of Meroe, located in what is now Sudan and Egyptian Nubia. ",
+          "role": "observation",
+          "source": "Rilly 2012",
+          "url": "https://shs.hal.science/halshs-01482445"
+        }
+      ],
+      "kind": "attested",
+      "label": "c. 300 BCE – 400 CE",
+      "name": "Meroitic",
+      "spoken": {
+        "end": {
+          "earliest": 400,
+          "latest": 400
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": -299,
+          "latest": -299
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "attested",
       "code": "xna",
       "evidence": [
         {
@@ -42016,6 +42540,35 @@
           "earliest": -999,
           "latest": 0
         }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "last_speaker",
+      "code": "xrn",
+      "evidence": [
+        {
+          "citation": "Georg, Stefan. 2007. A Descriptive Grammar of Ket (Yenisei-Ostyak). Part 1: Introduction, Phonology, Morphology. Languages of Asia 1. Folkestone: Global Oriental. First edition.",
+          "claim_id": "ev_period_2777874da24b32ef7938fd01170171f3fac83f41",
+          "event": "native_transmission_end",
+          "locator": "{\"page\": \"18\", \"pdf_page\": 20}",
+          "method": "expert_estimate",
+          "quote": "Arin was spoken on both sides of the Yenisei (but mostly on its left shore) from\nKrasnoyarsk in the South to Enisejsk in the North. Toponymy suggests (hydronyms\nin -set/-sat, cf. Arin sat \"river\") that, in pre-contact times, Arin may have been\npresent as far West as the river Ob'.  It died out in the 18th century, but some lexical\ndata are preserved in the  materials of Strahlenberg, Miller and Fischer (also\nincorporated in Klaproth's and Pallas' compilations), altogether ca. 400 lexical\nitems.",
+          "role": "hypothesis",
+          "source": "Georg 2007",
+          "url": "https://theswissbay.ch/pdf/Books/Linguistics/Mega%20linguistics%20pack/Paleosiberian/Yeniseian/Ket%2C%20A%20Descriptive%20Grammar%20of%20-%20Part%201%20%28Georg%29.pdf"
+        }
+      ],
+      "kind": "stage",
+      "label": "until 18th century CE",
+      "name": "Arin",
+      "spoken": {
+        "end": {
+          "earliest": 1701,
+          "latest": 1800
+        },
+        "ongoing": false,
+        "start": null
       }
     },
     {
@@ -42287,6 +42840,35 @@
     },
     {
       "alternatives": [],
+      "basis": "attested",
+      "code": "yug",
+      "evidence": [
+        {
+          "citation": "Fries, Simon, and Natalie Korobzow. 2024. “On the dating of sound changes and its implications for language relationship: The case of Proto-Yeniseian *p- > Ket h-, Yugh f-.” Diachronica 41(4): 525–555. https://doi.org/10.1075/dia.23030.fri.",
+          "claim_id": "ev_period_2b929cb1af474ce7ca6a5d8e3e570a62e7154488",
+          "event": "first_attestation",
+          "locator": "{\"page\": \"526\", \"pdf_page\": 2}",
+          "method": "scholarly_documentary_history",
+          "quote": "The languages we will look at are Ket\nand Yugh. Both are first documented in 18th century lexicographical resources\n(collected and published in Werner 2005)",
+          "role": "observation",
+          "source": "Fries 2024",
+          "url": "https://kups.ub.uni-koeln.de/79569/1/dia.23030.fri.pdf"
+        }
+      ],
+      "kind": "attested",
+      "label": "from 18th century CE",
+      "name": "Yug",
+      "spoken": {
+        "end": null,
+        "ongoing": false,
+        "start": {
+          "earliest": 1701,
+          "latest": 1800
+        }
+      }
+    },
+    {
+      "alternatives": [],
       "basis": "conventional",
       "code": "zkh",
       "evidence": [
@@ -42314,6 +42896,102 @@
         "start": {
           "earliest": 1201,
           "latest": 1300
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "conventional",
+      "code": "zle-mbe",
+      "evidence": [
+        {
+          "citation": "Moser, Michael. 2005. “Mittelruthenisch (Mittelweißrussisch und Mittelukrainisch): Ein Überblick.” Studia Slavica Academiae Scientiarum Hungaricae 50(1–2): 125–142. https://doi.org/10.1556/sslav.50.2005.1-2.11.",
+          "claim_id": "ev_period_d463919287c3827aa1306a6afb349a8aa82eaf09",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"125\", \"pdf_page\": 1}",
+          "method": "scholarly_periodization",
+          "quote": "Die autochthonen ostslavischen Sprachformationen, die zwischen dem 14. \nund dem 18. Jh. auf dem Gebiet der heutigen Ukraine und Weißrusslands im Ge-\nbrauch standen, werden aus retrospektiver Sicht als Mittelukrainisch bzw. Mittel-\nweißrussisch (auch eigentlich besser, aber weniger gebräuchlich Mittelweiß-\nruthenisch) oder in Anlehnung an die Terminologie der Zeitgenossen als das \nRuthenische der mittleren Periode bezeichnet.",
+          "role": "convention",
+          "source": "Moser 2005",
+          "url": "https://real.mtak.hu/81455/1/sslav.50.2005.1-2.11.pdf"
+        }
+      ],
+      "kind": "stage",
+      "label": "14th–18th century CE",
+      "name": "Middle Belarusian",
+      "spoken": {
+        "end": {
+          "earliest": 1701,
+          "latest": 1800
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 1301,
+          "latest": 1400
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "conventional",
+      "code": "zle-muk",
+      "evidence": [
+        {
+          "citation": "Moser, Michael. 2005. “Mittelruthenisch (Mittelweißrussisch und Mittelukrainisch): Ein Überblick.” Studia Slavica Academiae Scientiarum Hungaricae 50(1–2): 125–142. https://doi.org/10.1556/sslav.50.2005.1-2.11.",
+          "claim_id": "ev_period_3e463d0063caaf09a6cb05947dd197471d57e587",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"125\", \"pdf_page\": 1}",
+          "method": "scholarly_periodization",
+          "quote": "Die autochthonen ostslavischen Sprachformationen, die zwischen dem 14. \nund dem 18. Jh. auf dem Gebiet der heutigen Ukraine und Weißrusslands im Ge-\nbrauch standen, werden aus retrospektiver Sicht als Mittelukrainisch bzw. Mittel-\nweißrussisch (auch eigentlich besser, aber weniger gebräuchlich Mittelweiß-\nruthenisch) oder in Anlehnung an die Terminologie der Zeitgenossen als das \nRuthenische der mittleren Periode bezeichnet.",
+          "role": "convention",
+          "source": "Moser 2005",
+          "url": "https://real.mtak.hu/81455/1/sslav.50.2005.1-2.11.pdf"
+        }
+      ],
+      "kind": "stage",
+      "label": "14th–18th century CE",
+      "name": "Middle Ukrainian",
+      "spoken": {
+        "end": {
+          "earliest": 1701,
+          "latest": 1800
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 1301,
+          "latest": 1400
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "conventional",
+      "code": "zlw-mpl",
+      "evidence": [
+        {
+          "citation": "Smetonienė, Anželika. 2019. “Patterns of Morphological Integration of Slavic Loan Nouns in Petkevičius’ Catechism (1598) as an Indication of Their Origin and Chronology.” Studia z Filologii Polskiej i Słowiańskiej 54, article 1766: 1–30. https://doi.org/10.11649/sfps.1766.",
+          "claim_id": "ev_period_b34c5fbe341e81a1cfdb9ea70f331063e91b3f45",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"3\", \"pdf_page\": 3}",
+          "method": "scholarly_periodization",
+          "quote": "The history of the Polish language is divided into three stages: Old Polish \n(fourteenth–fifteenth centuries), Middle Polish (sixteenth–eighteenth centuries) \nand Modern Polish (since the end of the eighteenth century).",
+          "role": "convention",
+          "source": "Smetonienė 2019",
+          "url": "https://journals.ispan.edu.pl/index.php/sfps/article/download/sfps.1766/5569"
+        }
+      ],
+      "kind": "stage",
+      "label": "16th–18th century CE",
+      "name": "Middle Polish",
+      "spoken": {
+        "end": {
+          "earliest": 1701,
+          "latest": 1800
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 1501,
+          "latest": 1600
         }
       }
     }
