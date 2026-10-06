@@ -19,7 +19,7 @@ in the `packages/dating` registry.
   rebuilds; language codes replace numeric IDs.
 - **Deployment:** pushing `main` deploys the server, then the website
   ([deploy/README.md](deploy/README.md)). Untested on the host.
-- **Dates:** 289 codes show a cited period (14 before this branch); 93% of the tree
+- **Dates:** 295 codes show a cited period (14 before this branch); 93% of the tree
   items in past-stage languages are dated. 108 proto-languages carry an estimated
   end, each labeled with its method: 46 Bayesian phylogenies, 49 lexicostatistical
   (mostly ASJP family ages; family-specific estimates replace them as found), 13
@@ -42,20 +42,17 @@ in the `packages/dating` registry.
   large errors (Proto-Mayan c. 221 BCE); better-argued estimates replace them as
   defaults when found. Epochs: stated, from a source's own calibrations (approved),
   or a labeled 1950 convention.
-- Wide posteriors read oddly as bare intervals (Proto-Kartvelian until 16680 BCE/781 CE).
 - The server needs ~5 GB; ~380k entries' `{{ety}}`/`{{etymon}}` are not parsed.
 
 ## Next three actions
 
-1. Apply the decisions below, then further proto rounds for the remaining ASJP-only
-   and undated families.
+1. Review the running batches: revival evidence (Yurok, Mohegan, Dharug …) and proto
+   estimates round 3 (134 codes undated or ASJP-only).
 2. Supply the Zotero requests (`wety:needs-fulltext`), then `dating holdings sync`.
 3. Maintainer: one-time deployment setup ([deploy/README.md](deploy/README.md)).
 
 ## Decisions needed from the maintainer
 
-- Revived languages (Yurok, Mohegan, Dharug, Wathawurrung, Woiwurrung, Moriori): end at the last native
-  speaker, or show that date only as an alternative?
-- Show a central value in proto labels ("until c. 5690 BCE, 95%: …")?
-- Read rough expert estimates stated only as "years ago" (Ratliff, Häkkinen, Vajda,
-  Blust) with the labeled 1950 convention, as for BP? About a dozen wait on it.
+- None. Applied 2026-10-06: revived languages end at their last native speakers with a
+  "rev" mark and cited revival beside; "years ago" estimates read before 1950 under a
+  labeled convention; proto labels name the source's reported mean or median.
