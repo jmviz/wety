@@ -271,6 +271,24 @@
       "subject_id": "wikt:esx-esk-pro"
     },
     {
+      "analysis": "starostin-2010-chadic-glottochronology",
+      "claim_id": "ev_period_23fdfb7903ddf4a1b49280c6baa42b80f3522b61",
+      "epoch": null,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Chadic",
+      "role": "hypothesis",
+      "source": "Václav Blažek 2024",
+      "subject_id": "wikt:cdc-pro"
+    },
+    {
       "analysis": "holman2011-asjp-ethnologue16-s092-r072",
       "claim_id": "ev_period_252d959000cfc59086dc4b86a2b6e18e7a256819",
       "epoch": 2000,
@@ -541,6 +559,24 @@
       "subject_id": "wikt:iro-pro"
     },
     {
+      "analysis": "blazek-2012-recalibrated-unadjusted",
+      "claim_id": "ev_period_3b306e4da065de300ad8507f7d3ef67f5e21532d",
+      "epoch": null,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Ugric",
+      "role": "hypothesis",
+      "source": "Václav Blažek 2012",
+      "subject_id": "wikt:urj-ugr-pro"
+    },
+    {
       "analysis": "holman2011-asjp-ethnologue16-s092-r072",
       "claim_id": "ev_period_3d332b765be505a3ce41e17cfe392e2f867bf5ab",
       "epoch": 2000,
@@ -683,6 +719,24 @@
       "role": "hypothesis",
       "source": "Ilia Peiros 1998",
       "subject_id": "wikt:hmx-pro"
+    },
+    {
+      "analysis": "starostin-g-2003-reconstructed-lists",
+      "claim_id": "ev_period_4963c05cb34238a54d12f0721ab3c862b7fa8bb9",
+      "epoch": null,
+      "estimate": {
+        "interval_type": null,
+        "lower": -999,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": 0
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Khoe",
+      "role": "hypothesis",
+      "source": "George Starostin 2003",
+      "subject_id": "wikt:khi-kho-pro"
     },
     {
       "analysis": "holman2011-asjp-ethnologue16-s092-r072",
@@ -1495,6 +1549,24 @@
       "subject_id": "wikt:iro-nor-pro"
     },
     {
+      "analysis": "blazek-2024-tree-from-barreteau-jungraithmayr-1993",
+      "claim_id": "ev_period_c23a25334546657055192b76eff843956d99ab61",
+      "epoch": null,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Central Chadic",
+      "role": "hypothesis",
+      "source": "Václav Blažek 2024",
+      "subject_id": "wikt:cdc-cbm-pro"
+    },
+    {
       "analysis": "holman2011-asjp-ethnologue16-s092-r072",
       "claim_id": "ev_period_c30e7151f299a253523fd2d390eacbb269fd5306",
       "epoch": 2000,
@@ -1619,6 +1691,24 @@
       "role": "hypothesis",
       "source": "Eric W. Holman et al. 2011",
       "subject_id": "wikt:aql-pro"
+    },
+    {
+      "analysis": "blazek-2012-recalibrated-unadjusted",
+      "claim_id": "ev_period_d3d674396c71d913e07aadf8e5a0a6f0515e4fb9",
+      "epoch": null,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Mordvinic",
+      "role": "hypothesis",
+      "source": "Václav Blažek 2012",
+      "subject_id": "wikt:urj-mdv-pro"
     },
     {
       "analysis": "holman2011-asjp-ethnologue16-s092-r072",
@@ -1783,6 +1873,24 @@
       "subject_id": "wikt:afa-pro"
     },
     {
+      "analysis": "starostin-2010-chadic-glottochronology",
+      "claim_id": "ev_period_ef8bc6ec6ebda7a784f2e5d134b3beb0ffcd1c62",
+      "epoch": null,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Central Chadic",
+      "role": "hypothesis",
+      "source": "Václav Blažek 2024",
+      "subject_id": "wikt:cdc-cbm-pro"
+    },
+    {
       "analysis": "holman2011-asjp-ethnologue16-s092-r072",
       "claim_id": "ev_period_f4fb323e854e07e1baa8359338f04017029f6982",
       "epoch": 2000,
@@ -1817,6 +1925,24 @@
       "role": "hypothesis",
       "source": "Eric W. Holman et al. 2011",
       "subject_id": "wikt:map-ata-pro"
+    },
+    {
+      "analysis": "bartens-1999-mordvin-disintegration",
+      "claim_id": "ev_period_f8cdaa672bf4c40418555506ff743b00a9cebbea",
+      "epoch": null,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Mordvinic",
+      "role": "hypothesis",
+      "source": "Jaakko Häkkinen 2012",
+      "subject_id": "wikt:urj-mdv-pro"
     },
     {
       "analysis": "holman2011-asjp-ethnologue16-s092-r072",
@@ -35947,7 +36073,7 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:fff5df92fe6ca543"
     }
   ],
-  "generation": "febfdbf7f2a74e42449e098524b6faeec2d2c2516a4b5e54f8989a4febdb5ef3",
+  "generation": "a7b3114dd68c8f7e2745858cc30c2baa3510ca00b733c56f20709ea52a37e18e",
   "languages": [
     {
       "alternatives": [],
@@ -37927,58 +38053,114 @@
       }
     },
     {
-      "alternatives": [],
-      "basis": "estimated",
-      "code": "cdc-cbm-pro",
-      "evidence": [
+      "alternatives": [
         {
+          "basis": "estimated",
           "citation": "Automated dating of the world's language families based on lexical similarity",
           "claim_id": "ev_period_50dd37adc672fba9d74c496677c973c645673fab",
+          "end": {
+            "earliest": -2457,
+            "latest": -2457
+          },
           "event": "crown_divergence",
+          "label": "until c. 2460 BCE",
           "locator": "{\"table\": \"Table 3\", \"row\": \"Biu-Mandara\", \"page\": 853, \"pdf_page\": 14, \"character_start\": 54627, \"character_end\": 54657, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
           "method": "lexicostatistic",
           "quote": "Biu-Mandara\n44\n2 (3)\n4.92\n4457",
           "role": "hypothesis",
           "source": "Eric W. Holman et al. 2011",
+          "start": null,
           "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        },
+        {
+          "basis": "estimated",
+          "citation": "Blažek, Václav. 2024 [online publication 2025]. Central Chadic numerals in comparative perspective. Lingua Posnaniensis 66(2):33–71, p.36. DOI 10.14746/linpo.2024.66.2.2.",
+          "claim_id": "ev_period_c23a25334546657055192b76eff843956d99ab61",
+          "end": {
+            "earliest": -2329,
+            "latest": -2329
+          },
+          "event": "crown_divergence",
+          "label": "until c. 2330 BCE",
+          "locator": "{\"pdf_page\": 4, \"printed_page\": 36, \"section\": \"1.3\", \"description\": \"Unlabeled node uniting Kotoko with all other sampled non-Masa Central Chadic, immediately after the root's Masa split; association verified visually.\", \"start\": 4630, \"page_image_sha256\": \"be2db9636d12bd3cffdbf7b1dfe4a301df60e671dceda5a3293419221e3571be\"}",
+          "method": "lexicostatistic",
+          "quote": "-2330",
+          "role": "hypothesis",
+          "source": "Václav Blažek 2024",
+          "start": null,
+          "url": "https://pressto.amu.edu.pl/index.php/linpo/article/download/45468/39849"
+        }
+      ],
+      "basis": "estimated",
+      "code": "cdc-cbm-pro",
+      "evidence": [
+        {
+          "citation": "Blažek, Václav. 2024 [online publication 2025]. Central Chadic numerals in comparative perspective. Lingua Posnaniensis 66(2):33–71, p.36. DOI 10.14746/linpo.2024.66.2.2.",
+          "claim_id": "ev_period_ef8bc6ec6ebda7a784f2e5d134b3beb0ffcd1c62",
+          "event": "crown_divergence",
+          "locator": "{\"pdf_page\": 5, \"printed_page\": 37, \"section\": \"1.4\", \"description\": \"Dated tree root; association verified visually\", \"start\": 5598, \"page_image_sha256\": \"629d6a443016fd0bc380604d0ef4b1cde0d6da9b696bb372852393d4a8c35fdb\"}",
+          "method": "lexicostatistic",
+          "quote": "Central \n-4050",
+          "role": "hypothesis",
+          "source": "Václav Blažek 2024",
+          "url": "https://pressto.amu.edu.pl/index.php/linpo/article/download/45468/39849"
         }
       ],
       "kind": "proto",
-      "label": "until c. 2460 BCE",
+      "label": "until c. 4050 BCE",
       "name": "Proto-Central Chadic",
       "spoken": {
         "end": {
-          "earliest": -2457,
-          "latest": -2457
+          "earliest": -4049,
+          "latest": -4049
         },
         "ongoing": false,
         "start": null
       }
     },
     {
-      "alternatives": [],
-      "basis": "estimated",
-      "code": "cdc-pro",
-      "evidence": [
+      "alternatives": [
         {
+          "basis": "estimated",
           "citation": "Automated dating of the world's language families based on lexical similarity",
           "claim_id": "ev_period_da092e4cce18d73aa073ff85da10fb4ac337bfe7",
+          "end": {
+            "earliest": -2826,
+            "latest": -2826
+          },
           "event": "crown_divergence",
+          "label": "until c. 2830 BCE",
           "locator": "{\"table\": \"Table 3\", \"row\": \"Chadic\", \"page\": 853, \"pdf_page\": 14, \"character_start\": 54598, \"character_end\": 54626, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
           "method": "lexicostatistic",
           "quote": "Chadic\n2,945\n4 (4)\n3.86\n4826",
           "role": "hypothesis",
           "source": "Eric W. Holman et al. 2011",
+          "start": null,
           "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
         }
       ],
+      "basis": "estimated",
+      "code": "cdc-pro",
+      "evidence": [
+        {
+          "citation": "Blažek, Václav. 2024 [online publication 2025]. Central Chadic numerals in comparative perspective. Lingua Posnaniensis 66(2):33–71, p.36. DOI 10.14746/linpo.2024.66.2.2.",
+          "claim_id": "ev_period_23fdfb7903ddf4a1b49280c6baa42b80f3522b61",
+          "event": "crown_divergence",
+          "locator": "{\"pdf_page\": 5, \"printed_page\": 37, \"section\": \"1.4\", \"description\": \"Root age at left of whole Chadic tree, not the adjacent Mandara tip in extracted reading order; inspected PDF image.\", \"start\": 5592, \"page_image_sha256\": \"629d6a443016fd0bc380604d0ef4b1cde0d6da9b696bb372852393d4a8c35fdb\"}",
+          "method": "lexicostatistic",
+          "quote": "-5130",
+          "role": "hypothesis",
+          "source": "Václav Blažek 2024",
+          "url": "https://pressto.amu.edu.pl/index.php/linpo/article/download/45468/39849"
+        }
+      ],
       "kind": "proto",
-      "label": "until c. 2830 BCE",
+      "label": "until c. 5130 BCE",
       "name": "Proto-Chadic",
       "spoken": {
         "end": {
-          "earliest": -2826,
-          "latest": -2826
+          "earliest": -5129,
+          "latest": -5129
         },
         "ongoing": false,
         "start": null
@@ -41796,6 +41978,35 @@
           "earliest": 787,
           "latest": 787
         }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "khi-kho-pro",
+      "evidence": [
+        {
+          "citation": "Starostin, George. 2003. A Lexicostatistical Approach towards Reconstructing Proto-Khoisan. Mother Tongue 8: 81–126. Retained author PDF, pp.40–41, §III.2(a).",
+          "claim_id": "ev_period_4963c05cb34238a54d12f0721ab3c862b7fa8bb9",
+          "event": "crown_divergence",
+          "locator": "{\"pdf_page\": 41, \"section\": \"III.2(a) Level 1; sentence begins on PDF p.40\", \"start\": 152822}",
+          "method": "lexicostatistic",
+          "quote": "Khoisan, on the other side, took place sometime in the 1st millennium B.C.",
+          "role": "hypothesis",
+          "source": "George Starostin 2003",
+          "url": "https://starlingdb.org/Texts/khoilex.pdf"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 1st millennium BCE",
+      "name": "Proto-Khoe",
+      "spoken": {
+        "end": {
+          "earliest": -999,
+          "latest": 0
+        },
+        "ongoing": false,
+        "start": null
       }
     },
     {
@@ -47098,29 +47309,66 @@
       }
     },
     {
-      "alternatives": [],
-      "basis": "estimated",
-      "code": "urj-mdv-pro",
-      "evidence": [
+      "alternatives": [
         {
+          "basis": "estimated",
           "citation": "Automated dating of the world's language families based on lexical similarity",
           "claim_id": "ev_period_51a47ab5801e74cffbcfa62b72767071a93dd1c2",
+          "end": {
+            "earliest": 1200,
+            "latest": 1200
+          },
           "event": "crown_divergence",
+          "label": "until c. 1200 CE",
           "locator": "{\"table\": \"Table 4\", \"row\": \"Mordvin\", \"page\": 855, \"pdf_page\": 16, \"character_start\": 61971, \"character_end\": 61996, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
           "method": "lexicostatistic",
           "quote": "Mordvin\n1\n2 (2)\n54.39\n800",
           "role": "hypothesis",
           "source": "Eric W. Holman et al. 2011",
+          "start": null,
           "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        },
+        {
+          "basis": "estimated",
+          "citation": "Blažek, Václav. 2012. Was there a Volgaic unity within Finno-Ugric? Finnisch-Ugrische Forschungen 61:29–91, pp.33–34. DOI 10.33339/fuf.85681.",
+          "claim_id": "ev_period_d3d674396c71d913e07aadf8e5a0a6f0515e4fb9",
+          "end": {
+            "earliest": 1500,
+            "latest": 1500
+          },
+          "event": "crown_divergence",
+          "label": "until c. 1500 CE",
+          "locator": "{\"pdf_page\": 6, \"printed_page\": 34, \"description\": \"Tree diagram, node mordvin\", \"start\": 6817, \"page_image_sha256\": \"3310d2358b87eaa39bb600d3ea13e893e62443e063c3d00016653db0c12c3735\"}",
+          "method": "lexicostatistic",
+          "quote": "Mordvin \nErzya\n98.0%/+1500\nMordvin \nMokša",
+          "role": "hypothesis",
+          "source": "Václav Blažek 2012",
+          "start": null,
+          "url": "https://journal.fi/fuf/article/download/85681/44641"
+        }
+      ],
+      "basis": "estimated",
+      "code": "urj-mdv-pro",
+      "evidence": [
+        {
+          "citation": "Häkkinen, Jaakko. 2012. After the protolanguage: Invisible convergence, false divergence and boundary shift. Finnisch-Ugrische Forschungen 61:7–28, p.18. DOI 10.33339/fuf.85674. Cites Bartens 1999:15–16.",
+          "claim_id": "ev_period_f8cdaa672bf4c40418555506ff743b00a9cebbea",
+          "event": "crown_divergence",
+          "locator": "{\"pdf_page\": 12, \"printed_page\": 18, \"start\": 19744}",
+          "method": "expert_estimate",
+          "quote": "Mordvin consists of two languages, Erzya and Moksha, both having split \ninto several dialects. The disintegration of (Late) Proto-Mordvin is dated to \nca. 1000 CE (Bartens 1999: 15–16). ",
+          "role": "hypothesis",
+          "source": "Jaakko Häkkinen 2012",
+          "url": "https://journal.fi/fuf/article/download/85674/44638"
         }
       ],
       "kind": "proto",
-      "label": "until c. 1200 CE",
+      "label": "until c. 1000 CE",
       "name": "Proto-Mordvinic",
       "spoken": {
         "end": {
-          "earliest": 1200,
-          "latest": 1200
+          "earliest": 1000,
+          "latest": 1000
         },
         "ongoing": false,
         "start": null
@@ -47243,6 +47491,35 @@
         "end": {
           "earliest": -5553,
           "latest": -1380
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "urj-ugr-pro",
+      "evidence": [
+        {
+          "citation": "Blažek, Václav. 2012. Was there a Volgaic unity within Finno-Ugric? Finnisch-Ugrische Forschungen 61:29–91, pp.33–34. DOI 10.33339/fuf.85681.",
+          "claim_id": "ev_period_3b306e4da065de300ad8507f7d3ef67f5e21532d",
+          "event": "crown_divergence",
+          "locator": "{\"pdf_page\": 6, \"printed_page\": 34, \"description\": \"Tree diagram, node ugric\", \"start\": 6938, \"page_image_sha256\": \"3310d2358b87eaa39bb600d3ea13e893e62443e063c3d00016653db0c12c3735\"}",
+          "method": "lexicostatistic",
+          "quote": "Hungarian\n45.3%/-1480\nMansi North\nUgric",
+          "role": "hypothesis",
+          "source": "Václav Blažek 2012",
+          "url": "https://journal.fi/fuf/article/download/85681/44641"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 1480 BCE",
+      "name": "Proto-Ugric",
+      "spoken": {
+        "end": {
+          "earliest": -1479,
+          "latest": -1479
         },
         "ongoing": false,
         "start": null
