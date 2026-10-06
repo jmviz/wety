@@ -35461,7 +35461,7 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:fff5df92fe6ca543"
     }
   ],
-  "generation": "05e4b990854c64d15136896fc2381efd3f8b68d2f0873c683b57271bbdd1b9b2",
+  "generation": "01c3474b6c3df86545c6fa4e7f385beaf39d6c0d77540298c2872b85f02e7086",
   "languages": [
     {
       "alternatives": [],
@@ -39937,6 +39937,38 @@
         },
         "ongoing": false,
         "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "inc-pro",
+      "evidence": [
+        {
+          "citation": "Kapović, Mate (ed.). 2017. The Indo-European Languages. 2nd ed. Routledge Language Family Series. Abingdon and New York: Routledge (paperback issue 2019). Chapters cited by author in the locator.",
+          "claim_id": "ev_period_86944c10beef84ed823c5028c7b03945fbcf4424",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"214\", \"pdf_page\": 235}",
+          "method": "expert_estimate",
+          "quote": "The Indo-Aryan-speaking peoples probably came to the Indian subcontinent from the \nNorth-West, entering the greater Punjab (where the oldest Vedic text, the R̥gveda, was \ncomposed) by the end of the first half of the second millennium BC. In that epoch, Pro-\nto-Indo-Aryan was a single language (still very close to Proto-Iranian), which started to \nsplit into dialects essentially after the arrival in India.",
+          "role": "hypothesis",
+          "source": "Kapović 2017",
+          "url": null
+        }
+      ],
+      "kind": "proto",
+      "label": "c. 1500 BCE",
+      "name": "Proto-Indo-Aryan",
+      "spoken": {
+        "end": {
+          "earliest": -1499,
+          "latest": -1499
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": -1499,
+          "latest": -1499
+        }
       }
     },
     {
