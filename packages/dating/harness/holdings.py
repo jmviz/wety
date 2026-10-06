@@ -684,7 +684,9 @@ def search(query=None, limit=30):
         lines = toc(h)
         if terms:
             # Contents lines naming the query (and their page labels).
-            shown = [x for x in lines if any(t in x.lower() for t in terms)][:25]
+            shown = [x for x in lines if all(t in x.lower() for t in terms)][:25] or [
+                x for x in lines if any(t in x.lower() for t in terms)
+            ][:25]
         else:
             entries = c.get("entries") or []
             shown = [" ".join(map(str, e[1:])) for e in entries if e[0] == 1][:40] or lines[:40]
