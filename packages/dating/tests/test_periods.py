@@ -277,6 +277,16 @@ class PeriodExportTests(unittest.TestCase):
         # Without a decision, a supported claim is not a period.
         self.assertEqual(export_periods(bundle(claims, []), "gen")["languages"], [])
 
+    def test_same_statement_imported_twice_is_one_alternative(self):
+        claims = [
+            claim("a", "enm", "conventional_period", "convention", years(1150, 1500)),
+            claim("b", "enm", "conventional_period", "convention", years(1100, 1500)),
+            claim("b2", "enm", "conventional_period", "convention", years(1100, 1500)),
+            claim("c", "enm", "conventional_period", "convention", years(1100, 1450)),
+        ]
+        (enm,) = export_periods(bundle(claims, ["a"]), "gen")["languages"]
+        self.assertEqual([a["claim_id"] for a in enm["alternatives"]], ["b", "c"])
+
     def test_bce_years_are_astronomical_and_labels_convert(self):
         raw = years(500, 2600, unit="BCE", approximate=True)
         claims = [claim("a", "akk", "conventional_period", "convention", raw)]

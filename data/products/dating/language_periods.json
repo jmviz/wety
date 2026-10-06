@@ -31375,7 +31375,7 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:fff5df92fe6ca543"
     }
   ],
-  "generation": "98d41dc26a90d6c7458752b434a45fbd3a8470efdf061f285f4412c970bb6a56",
+  "generation": "209b14466d54c588ee175a85f4da43067714da378eff34fb49166d52741b26a4",
   "languages": [
     {
       "alternatives": [
@@ -35155,26 +35155,6 @@
             "latest": -99
           },
           "url": null
-        },
-        {
-          "basis": "conventional",
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Europe. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
-          "claim_id": "ev_period_513c34176f4edcc09d1fb7e81ddcd3fed1305d8f",
-          "end": {
-            "earliest": 14,
-            "latest": 14
-          },
-          "event": "conventional_period",
-          "label": "c. 100 BCE – 14 CE",
-          "locator": "{\"page\": \"74\", \"pdf_page\": 97}",
-          "quote": "Classical Latin: The language of ofﬁcial inscriptions and literature from c. 100 BC to\nc. AD 14.",
-          "role": "convention",
-          "source": "Woodard 2008",
-          "start": {
-            "earliest": -99,
-            "latest": -99
-          },
-          "url": null
         }
       ],
       "basis": "conventional",
@@ -37448,26 +37428,6 @@
           "label": "c. 5th millennium BCE",
           "locator": "{\"page\": \"80\", \"pdf_page\": 105}",
           "quote": "Proto-Turkic was \nprobably spoken by populations spreading westward in the fifth millennium bc, with the \ntransition of the Xinglongwa (6200–5400 bc) and Zhaobaogou cultures 5400–4700 bc) \ninto the Hongshan culture (4700–2900 bc) (Robbeets et al. under review).",
-          "role": "hypothesis",
-          "source": "Johanson & Csató 2021",
-          "start": {
-            "earliest": -4999,
-            "latest": -4000
-          },
-          "url": "https://doi.org/10.4324/9781003243809"
-        },
-        {
-          "basis": "estimated",
-          "citation": "Kerslake, Celia. 2022. “Ottoman Turkish.” In Lars Johanson and Éva Á. Csató (eds.), The Turkic Languages, 2nd ed., 174–194. London and New York: Routledge. https://doi.org/10.4324/9781003243809.",
-          "claim_id": "ev_period_fc43f78c631afa06fb2e086db5781effa616ca39",
-          "end": {
-            "earliest": -4999,
-            "latest": -4000
-          },
-          "event": "conventional_period",
-          "label": "c. 5th millennium BCE",
-          "locator": "{\"page\": \"80\", \"pdf_page\": 105}",
-          "quote": "Proto-Turkic was \nprobably spoken by populations spreading westward in the fifth millennium bc",
           "role": "hypothesis",
           "source": "Johanson & Csató 2021",
           "start": {

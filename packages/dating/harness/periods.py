@@ -289,11 +289,24 @@ def period_record(code, claims, alternatives, view, sources):
         "evidence": [evidence_entry(c, sources) for c in spoken["claims"]],
         # An adopted claim not used for the display (a crown age beside a stated
         # period) is still shown, as an alternative.
-        "alternatives": [
-            alternative(c, reconstructed, sources)
-            for c in [c for c in claims if c not in spoken["claims"]] + alternatives
-        ],
+        "alternatives": distinct(
+            [
+                alternative(c, reconstructed, sources)
+                for c in [c for c in claims if c not in spoken["claims"]] + alternatives
+            ]
+        ),
     }
+
+
+def distinct(alternatives):
+    """One entry per source, page and date: two runs may import the same statement."""
+    seen, out = set(), []
+    for a in alternatives:
+        key = (a["source"], a["locator"], a["label"], a["basis"])
+        if key not in seen:
+            seen.add(key)
+            out.append(a)
+    return out
 
 
 def alternative(claim, reconstructed, sources):
