@@ -19,6 +19,24 @@
       "subject_id": "gavashelishvili2023-binary-covarion-relaxed-clock:clade:6558ed876fe3f1d9"
     },
     {
+      "analysis": "hopkins-chronological-synthesis",
+      "claim_id": "ev_period_09238ca1b3a571043b3d0796dc4f6842b5d1ef9b",
+      "epoch": null,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Algic",
+      "role": "hypothesis",
+      "source": "Nicholas A. Hopkins",
+      "subject_id": "wikt:aql-pro"
+    },
+    {
       "analysis": "toivonen_1953_chronology_reported_kallio2006",
       "claim_id": "ev_period_09ac6a969258f7c68792ea76302b91b4622a6b9d",
       "epoch": null,
@@ -89,6 +107,24 @@
       "role": "posterior",
       "source": "Michael Dunn et al. 2013",
       "subject_id": "dunn2013-covarion-relaxed-clock-rrw-root-prior-removed:clade:d00a61eb9ec8cb3c"
+    },
+    {
+      "analysis": "earlier-comparative-guess",
+      "claim_id": "ev_period_12d40c9be871a19b2c9528feb3b21f81cdb97b91",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Iroquoian",
+      "role": "hypothesis",
+      "source": "Floyd G Lounsbury 1961",
+      "subject_id": "wikt:iro-pro"
     },
     {
       "analysis": "final-afrasian-classification",
@@ -397,6 +433,24 @@
       "subject_id": "wikt:poz-hce-pro"
     },
     {
+      "analysis": "published-discussion",
+      "claim_id": "ev_period_2cc0fa1a491012e25598536cc877e022d03e17fe",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": null,
+        "lower": -950,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": 50
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Athabaskan",
+      "role": "hypothesis",
+      "source": "James Kari 2010",
+      "subject_id": "wikt:ath-pro"
+    },
+    {
       "analysis": "peiros1998-austroasiatic-sixteen-language",
       "claim_id": "ev_period_2d402e95001478588c8a7748e58d3d2dd2f70b0e",
       "epoch": 1950,
@@ -449,6 +503,24 @@
       "role": "hypothesis",
       "source": "Jaakko Häkkinen 2009",
       "subject_id": "wikt:syd-pro"
+    },
+    {
+      "analysis": "reinterpretation-broadwell1992",
+      "claim_id": "ev_period_34c131e68c2e487527871ce1a9aae27bcf6698bb",
+      "epoch": null,
+      "estimate": {
+        "interval_type": null,
+        "lower": -999,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": -649
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Muskogean",
+      "role": "hypothesis",
+      "source": "Nicholas A. Hopkins",
+      "subject_id": "wikt:nai-mus-pro"
     },
     {
       "analysis": "korhonen_1981_chronology_reported_kallio2006",
@@ -991,6 +1063,24 @@
       "subject_id": "wikt:tup-pro"
     },
     {
+      "analysis": "published-discussion",
+      "claim_id": "ev_period_6579a82e83d2a0c2ec89cd8d64fded4fc59e985a",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Na-Dene",
+      "role": "hypothesis",
+      "source": "James Kari 2010",
+      "subject_id": "wikt:xnd-pro"
+    },
+    {
       "analysis": "holman2011-asjp-ethnologue16-s092-r072",
       "claim_id": "ev_period_6a26ff916df2ed85f9516a6256cce165908754b5",
       "epoch": 2000,
@@ -1045,6 +1135,24 @@
       "subject_id": "wikt:tuw-pro"
     },
     {
+      "analysis": "published-discussion",
+      "claim_id": "ev_period_7680b4ada4fa0c4dc4465948abb8b6de7ba5bf3d",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Na-Dene",
+      "role": "hypothesis",
+      "source": "James Kari 2010",
+      "subject_id": "wikt:xnd-pro"
+    },
+    {
       "analysis": "gstarostin2010-shallow-groups-expert-summary",
       "claim_id": "ev_period_76c88867df3989cc97e7d6ec88bb036f6ee28d06",
       "epoch": 1950,
@@ -1097,6 +1205,24 @@
       "role": "hypothesis",
       "source": "Eric W. Holman et al. 2011",
       "subject_id": "wikt:ber-pro"
+    },
+    {
+      "analysis": "swadesh200-corrected-deceleration",
+      "claim_id": "ev_period_7ab56eebc740d1dac3c2560105886ede6fc3e7e6",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": null,
+        "lower": -1850,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": -1550
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Iroquoian",
+      "role": "hypothesis",
+      "source": "Floyd G Lounsbury 1961",
+      "subject_id": "wikt:iro-pro"
     },
     {
       "analysis": "militarev-berber-100word-restated2022",
@@ -1225,6 +1351,24 @@
       "subject_id": "wikt:dmn-mdw-pro"
     },
     {
+      "analysis": "starostin-modified-glottochronology-with-pochutec",
+      "claim_id": "ev_period_8ef8aee962d61387c632bc06351c00775e7b943a",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Nahuan",
+      "role": "hypothesis",
+      "source": "Albert Davletshin 2012",
+      "subject_id": "wikt:azc-nah-pro"
+    },
+    {
       "analysis": "holman2011-asjp-ethnologue16-s092-r072",
       "claim_id": "ev_period_9145d2d047903a7b7697e267823fc02f87201b88",
       "epoch": 2000,
@@ -1315,6 +1459,24 @@
       "subject_id": "wikt:urj-fpr-pro"
     },
     {
+      "analysis": "reported-origin-or-first-split",
+      "claim_id": "ev_period_980e731527384d83e94eda585dc7b45ce81c6464",
+      "epoch": null,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Cariban",
+      "role": "hypothesis",
+      "source": "Marcelo Pinho de Valhery Jolkesky 2016",
+      "subject_id": "wikt:sai-car-pro"
+    },
+    {
       "analysis": "holman2011-asjp-ethnologue16-s092-r072",
       "claim_id": "ev_period_9a59f55d1f20c28db23058a053873f014b998852",
       "epoch": 2000,
@@ -1349,6 +1511,24 @@
       "role": "hypothesis",
       "source": "Edward Vajda 2018",
       "subject_id": "wikt:qfa-yen-pro"
+    },
+    {
+      "analysis": "published-discussion",
+      "claim_id": "ev_period_9f81c6c88ec0cb800746ef95162979ed2f948fb7",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Na-Dene",
+      "role": "hypothesis",
+      "source": "James Kari 2010",
+      "subject_id": "wikt:xnd-pro"
     },
     {
       "analysis": "gstarostin2014-recalibrated-glottochronology",
@@ -1493,6 +1673,24 @@
       "role": "hypothesis",
       "source": "Eric W. Holman et al. 2011",
       "subject_id": "wikt:phi-pro"
+    },
+    {
+      "analysis": "swadesh200-corrected-deceleration",
+      "claim_id": "ev_period_b38c1f7d114b2db21c7f58754cd04280d7d496da",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": null,
+        "lower": -450,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": 50
+      },
+      "event": "crown_divergence",
+      "node": "Proto-North Iroquoian",
+      "role": "hypothesis",
+      "source": "Floyd G Lounsbury 1961",
+      "subject_id": "wikt:iro-nor-pro"
     },
     {
       "analysis": "taagepera_1994_chronology_reported_kallio2006",
@@ -1909,6 +2107,24 @@
       "subject_id": "wikt:ccs-pro"
     },
     {
+      "analysis": "source-author-averaged-glottochronology",
+      "claim_id": "ev_period_ec0db4fcc80255da859cfad38e2bec214052767b",
+      "epoch": null,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Muskogean",
+      "role": "hypothesis",
+      "source": "Nicholas A. Hopkins",
+      "subject_id": "wikt:nai-mus-pro"
+    },
+    {
       "analysis": "ehl2014-50item-broader",
       "claim_id": "ev_period_ee53e161d55070aacdf95c007e3ff7f4885afcac",
       "epoch": 1950,
@@ -1979,6 +2195,24 @@
       "role": "hypothesis",
       "source": "Eric W. Holman et al. 2011",
       "subject_id": "wikt:map-ata-pro"
+    },
+    {
+      "analysis": "reported-glottochronology",
+      "claim_id": "ev_period_f7d22352aabbf90d4c0269ae88f6bc93a285287e",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Tupian",
+      "role": "hypothesis",
+      "source": "Cilene Rodrigues 2020",
+      "subject_id": "wikt:tup-pro"
     },
     {
       "analysis": "bartens-1999-mordvin-disintegration",
@@ -36145,7 +36379,7 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:fff5df92fe6ca543"
     }
   ],
-  "generation": "fd6a8858efa37c738ffc59cf7f93e1350cd24c798a1d01b064a563de03b2e721",
+  "generation": "fa7a43163e80b4bc179ba63337a6e2fadf07288ba8d5e14f745d10c2fda52795",
   "languages": [
     {
       "alternatives": [],
@@ -37289,7 +37523,26 @@
       }
     },
     {
-      "alternatives": [],
+      "alternatives": [
+        {
+          "basis": "estimated",
+          "citation": "Hopkins, Nicholas A. n.d. The Native Languages of the Southeastern United States. FAMSI report.",
+          "claim_id": "ev_period_09238ca1b3a571043b3d0796dc4f6842b5d1ef9b",
+          "end": {
+            "earliest": null,
+            "latest": -5999
+          },
+          "event": "crown_divergence",
+          "label": "until c. 6000 BCE",
+          "locator": "{\"start\": 82434, \"end\": 82570, \"pdf_page\": 34}",
+          "method": "expert_estimate",
+          "quote": "Early on in the Archaic, perhaps as early as 6000 \nBC (Proulx 1980, 1984), Algic (Algonkian-Ritwan) separated into Ritwan and Algonkian.",
+          "role": "hypothesis",
+          "source": "Nicholas A. Hopkins",
+          "start": null,
+          "url": "https://www.famsi.org/research/hopkins/SouthEastUSLanguages.pdf"
+        }
+      ],
       "basis": "estimated",
       "code": "aql-pro",
       "evidence": [
@@ -37542,6 +37795,27 @@
       "alternatives": [
         {
           "basis": "estimated",
+          "citation": "Kari, James. 2010. The concept of geolinguistic conservatism in Na-Dene prehistory. In Kari & Potter (eds.), The Dene–Yeniseian Connection, pp.194–222.",
+          "claim_id": "ev_period_2d116ab981cfddd42757c038a4ce92b8f1d8aed9",
+          "end": {
+            "earliest": -1050,
+            "latest": -1050
+          },
+          "event": "conventional_period",
+          "label": "c. 10050–1050 BCE",
+          "locator": "{\"start\": 57514, \"end\": 57768, \"pdf_page\": 16, \"page_label\": \"209\"}",
+          "method": "expert_estimate",
+          "quote": "At Level 5 in Figure 3 with a red solid/dashed perimeter, I suggest beginning 12,000 years ago and \ncontinuing until through 3000 years ago there was a large and continuous Proto-Athabascan occupation \nfrom Northwest Alaska to portions of western Canada.",
+          "role": "hypothesis",
+          "source": "James Kari 2010",
+          "start": {
+            "earliest": -10050,
+            "latest": -10050
+          },
+          "url": "https://www.uaf.edu/alc/history/2016/papers/2010-geolingconservNDprehistory_2011.pdf"
+        },
+        {
+          "basis": "estimated",
           "citation": "Starostin, George. 2010. Lexicostatistics page, Global Lexicostatistical Database, https://starlingdb.org/new100/Lexicostatistics.htm.",
           "claim_id": "ev_period_c5efd5098b0f6e5c0ab954adbd545dcebfe70a6b",
           "end": {
@@ -37557,30 +37831,48 @@
           "source": "George Starostin 2010",
           "start": null,
           "url": "https://starlingdb.org/new100/Lexicostatistics.htm"
+        },
+        {
+          "basis": "estimated",
+          "citation": "Automated dating of the world's language families based on lexical similarity",
+          "claim_id": "ev_period_d7496fb731829e234767cdb89550fabc1645f2de",
+          "end": {
+            "earliest": -62,
+            "latest": -62
+          },
+          "event": "crown_divergence",
+          "label": "until c. 63 BCE",
+          "locator": "{\"table\": \"Table 6\", \"row\": \"Athapaskan\", \"page\": 859, \"pdf_page\": 20, \"character_start\": 74679, \"character_end\": 74710, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
+          "method": "lexicostatistic",
+          "quote": "Athapaskan\n138\n4 (8)\n23.74\n2062",
+          "role": "hypothesis",
+          "source": "Eric W. Holman et al. 2011",
+          "start": null,
+          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
         }
       ],
       "basis": "estimated",
       "code": "ath-pro",
       "evidence": [
         {
-          "citation": "Automated dating of the world's language families based on lexical similarity",
-          "claim_id": "ev_period_d7496fb731829e234767cdb89550fabc1645f2de",
+          "citation": "Kari, James. 2010. The concept of geolinguistic conservatism in Na-Dene prehistory. In Kari & Potter (eds.), The Dene–Yeniseian Connection, pp.194–222.",
+          "claim_id": "ev_period_2cc0fa1a491012e25598536cc877e022d03e17fe",
           "event": "crown_divergence",
-          "locator": "{\"table\": \"Table 6\", \"row\": \"Athapaskan\", \"page\": 859, \"pdf_page\": 20, \"character_start\": 74679, \"character_end\": 74710, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
+          "locator": "{\"start\": 62352, \"end\": 62571, \"pdf_page\": 17, \"page_label\": \"210\"}",
           "method": "lexicostatistic",
-          "quote": "Athapaskan\n138\n4 (8)\n23.74\n2062",
+          "quote": "The often cited estimated “dates of divergence for Na-Dene languages” are 2400 ±500 years for \nAthabascan, and 3400 ±500 years between Athabascan and Eyak and about 4500 years for Tlingit (Krauss \n1973:950, 1980:11–13).",
           "role": "hypothesis",
-          "source": "Eric W. Holman et al. 2011",
-          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+          "source": "James Kari 2010",
+          "url": "https://www.uaf.edu/alc/history/2016/papers/2010-geolingconservNDprehistory_2011.pdf"
         }
       ],
       "kind": "proto",
-      "label": "until c. 63 BCE",
+      "label": "until c. 951 BCE/50 CE",
       "name": "Proto-Athabaskan",
       "spoken": {
         "end": {
-          "earliest": -62,
-          "latest": -62
+          "earliest": -950,
+          "latest": 50
         },
         "ongoing": false,
         "start": null
@@ -37708,6 +38000,35 @@
           "earliest": 1037,
           "latest": 1037
         }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "azc-nah-pro",
+      "evidence": [
+        {
+          "citation": "Davletshin, Albert. 2012. Proto-Uto-Aztecans on their way to the Proto-Aztecan homeland: linguistic evidence. Journal of Language Relationship 8:75–92, p.78. doi:10.31826/jlr-2012-080106",
+          "claim_id": "ev_period_8ef8aee962d61387c632bc06351c00775e7b943a",
+          "event": "crown_divergence",
+          "locator": "{\"start\": 9675, \"end\": 9888, \"pdf_page\": 4, \"page_label\": \"78\"}",
+          "method": "lexicostatistic",
+          "quote": "Ac-\ncording to Sergei Starostin’s modification of the method (see for example Starostin 2000), the\nbreakup occurred around 25 centuries ago, if Pochutec is included, and around 18 centuries\nago, if it is excluded.",
+          "role": "hypothesis",
+          "source": "Albert Davletshin 2012",
+          "url": "https://jolr.ru/files/(95)jlr2012-8(75-92).pdf"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 551 BCE",
+      "name": "Proto-Nahuan",
+      "spoken": {
+        "end": {
+          "earliest": -550,
+          "latest": -550
+        },
+        "ongoing": false,
+        "start": null
       }
     },
     {
@@ -41660,58 +41981,114 @@
       }
     },
     {
-      "alternatives": [],
-      "basis": "estimated",
-      "code": "iro-nor-pro",
-      "evidence": [
+      "alternatives": [
         {
+          "basis": "estimated",
           "citation": "Automated dating of the world's language families based on lexical similarity",
           "claim_id": "ev_period_c0a45e6555e36359cedd9ccf855a55a9f3706ad2",
+          "end": {
+            "earliest": -1176,
+            "latest": -1176
+          },
           "event": "crown_divergence",
+          "label": "until c. 1180 BCE",
           "locator": "{\"table\": \"Table 6\", \"row\": \"Northern Iroquoian\", \"page\": 859, \"pdf_page\": 20, \"character_start\": 73842, \"character_end\": 73879, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
           "method": "lexicostatistic",
           "quote": "Northern Iroquoian\n5\n2 (3)\n11.42\n3176",
           "role": "hypothesis",
           "source": "Eric W. Holman et al. 2011",
+          "start": null,
           "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
         }
       ],
+      "basis": "estimated",
+      "code": "iro-nor-pro",
+      "evidence": [
+        {
+          "citation": "Lounsbury, Floyd G. 1961. Iroquois-Cherokee Linguistic Relations. In Symposium on Cherokee and Iroquois Culture, Bureau of American Ethnology Bulletin 180, pp.11–17, here pp.11–12.",
+          "claim_id": "ev_period_b38c1f7d114b2db21c7f58754cd04280d7d496da",
+          "event": "crown_divergence",
+          "locator": "{\"start\": 31026, \"end\": 31216, \"pdf_page\": 20, \"page_label\": \"12\", \"image_verified\": true, \"image_sha256\": \"72ffdc67ab2f3f41d414b7af608c41aaeda78832e9395b1b90dc875e996caba3\"}",
+          "method": "lexicostatistic",
+          "quote": "Glottochronologic retentions between Tuscarora and Five Nations \nlanguages range from 59.4 to 50.0 percent of the 200-word list. These \nshould represent a depth of from 1,900 to 2,400 years.",
+          "role": "hypothesis",
+          "source": "Floyd G Lounsbury 1961",
+          "url": "https://archive.org/download/symposiumonchero00fent/symposiumonchero00fent.pdf"
+        }
+      ],
       "kind": "proto",
-      "label": "until c. 1180 BCE",
+      "label": "until c. 451 BCE/50 CE",
       "name": "Proto-North Iroquoian",
       "spoken": {
         "end": {
-          "earliest": -1176,
-          "latest": -1176
+          "earliest": -450,
+          "latest": 50
         },
         "ongoing": false,
         "start": null
       }
     },
     {
-      "alternatives": [],
-      "basis": "estimated",
-      "code": "iro-pro",
-      "evidence": [
+      "alternatives": [
         {
+          "basis": "estimated",
+          "citation": "Lounsbury, Floyd G. 1961. Iroquois-Cherokee Linguistic Relations. In Symposium on Cherokee and Iroquois Culture, Bureau of American Ethnology Bulletin 180, pp.11–17, here pp.11–12.",
+          "claim_id": "ev_period_12d40c9be871a19b2c9528feb3b21f81cdb97b91",
+          "end": {
+            "earliest": -2050,
+            "latest": -2050
+          },
+          "event": "crown_divergence",
+          "label": "until c. 2050 BCE",
+          "locator": "{\"start\": 27715, \"end\": 27853, \"pdf_page\": 19, \"page_label\": \"11\", \"image_verified\": true, \"image_sha256\": \"23e159ba2d85459eae3d5d0b383ab1369bf35deb2d340e601419869d1e4bddf9\"}",
+          "method": "comparative_reconstruction",
+          "quote": "Ten years ago, at \nthe Fourth Conference on Iroquois Research, I hazarded a guess of \naround 4,000 years for the time depth of this split.",
+          "role": "hypothesis",
+          "source": "Floyd G Lounsbury 1961",
+          "start": null,
+          "url": "https://archive.org/download/symposiumonchero00fent/symposiumonchero00fent.pdf"
+        },
+        {
+          "basis": "estimated",
           "citation": "Automated dating of the world's language families based on lexical similarity",
           "claim_id": "ev_period_39d1847bf8aa092977373ae1a5a5639784af1050",
+          "end": {
+            "earliest": -2855,
+            "latest": -2855
+          },
           "event": "crown_divergence",
+          "label": "until c. 2860 BCE",
           "locator": "{\"table\": \"Table 6\", \"row\": \"Iroquoian\", \"page\": 859, \"pdf_page\": 20, \"character_start\": 73814, \"character_end\": 73841, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
           "method": "lexicostatistic",
           "quote": "Iroquoian\n6\n2 (2)\n3.79\n4855",
           "role": "hypothesis",
           "source": "Eric W. Holman et al. 2011",
+          "start": null,
           "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
         }
       ],
+      "basis": "estimated",
+      "code": "iro-pro",
+      "evidence": [
+        {
+          "citation": "Lounsbury, Floyd G. 1961. Iroquois-Cherokee Linguistic Relations. In Symposium on Cherokee and Iroquois Culture, Bureau of American Ethnology Bulletin 180, pp.11–17, here pp.11–12.",
+          "claim_id": "ev_period_7ab56eebc740d1dac3c2560105886ede6fc3e7e6",
+          "event": "crown_divergence",
+          "locator": "{\"start\": 28484, \"end\": 28574, \"pdf_page\": 19, \"page_label\": \"11\", \"image_verified\": true, \"image_sha256\": \"23e159ba2d85459eae3d5d0b383ab1369bf35deb2d340e601419869d1e4bddf9\"}",
+          "method": "lexicostatistic",
+          "quote": "around 3,500 to 3,800 years duration—a trifle shorter than my first \nguess from phonology.",
+          "role": "hypothesis",
+          "source": "Floyd G Lounsbury 1961",
+          "url": "https://archive.org/download/symposiumonchero00fent/symposiumonchero00fent.pdf"
+        }
+      ],
       "kind": "proto",
-      "label": "until c. 2860 BCE",
+      "label": "until c. 1850/1550 BCE",
       "name": "Proto-Iroquoian",
       "spoken": {
         "end": {
-          "earliest": -2855,
-          "latest": -2855
+          "earliest": -1850,
+          "latest": -1550
         },
         "ongoing": false,
         "start": null
@@ -43023,29 +43400,66 @@
       }
     },
     {
-      "alternatives": [],
-      "basis": "estimated",
-      "code": "nai-mus-pro",
-      "evidence": [
+      "alternatives": [
         {
+          "basis": "estimated",
+          "citation": "Hopkins, Nicholas A. n.d. The Native Languages of the Southeastern United States. FAMSI report.",
+          "claim_id": "ev_period_ec0db4fcc80255da859cfad38e2bec214052767b",
+          "end": {
+            "earliest": -499,
+            "latest": -499
+          },
+          "event": "crown_divergence",
+          "label": "until c. 500 BCE",
+          "locator": "{\"start\": 94036, \"end\": 94112, \"pdf_page\": 38}",
+          "method": "lexicostatistic",
+          "quote": "Broadwell (1992:7) arrives at the date 500 BC \nby averaging several figures.",
+          "role": "hypothesis",
+          "source": "Nicholas A. Hopkins",
+          "start": null,
+          "url": "https://www.famsi.org/research/hopkins/SouthEastUSLanguages.pdf"
+        },
+        {
+          "basis": "estimated",
           "citation": "Automated dating of the world's language families based on lexical similarity",
           "claim_id": "ev_period_f4fb323e854e07e1baa8359338f04017029f6982",
+          "end": {
+            "earliest": 280,
+            "latest": 280
+          },
           "event": "crown_divergence",
+          "label": "until c. 280 CE",
           "locator": "{\"table\": \"Table 6\", \"row\": \"Muskogean\", \"page\": 859, \"pdf_page\": 20, \"character_start\": 74499, \"character_end\": 74527, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
           "method": "lexicostatistic",
           "quote": "Muskogean\n8\n2 (2)\n29.71\n1720",
           "role": "hypothesis",
           "source": "Eric W. Holman et al. 2011",
+          "start": null,
           "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
         }
       ],
+      "basis": "estimated",
+      "code": "nai-mus-pro",
+      "evidence": [
+        {
+          "citation": "Hopkins, Nicholas A. n.d. The Native Languages of the Southeastern United States. FAMSI report.",
+          "claim_id": "ev_period_34c131e68c2e487527871ce1a9aae27bcf6698bb",
+          "event": "crown_divergence",
+          "locator": "{\"start\": 93884, \"end\": 94034, \"pdf_page\": 38}",
+          "method": "lexicostatistic",
+          "quote": "These figures indicate 2645-2954 \nyears of independent development, placing Proto-Muskogean, their only common \nancestor, in the range of 650-1000 BC.",
+          "role": "hypothesis",
+          "source": "Nicholas A. Hopkins",
+          "url": "https://www.famsi.org/research/hopkins/SouthEastUSLanguages.pdf"
+        }
+      ],
       "kind": "proto",
-      "label": "until c. 280 CE",
+      "label": "until c. 1000/650 BCE",
       "name": "Proto-Muskogean",
       "spoken": {
         "end": {
-          "earliest": 280,
-          "latest": 280
+          "earliest": -999,
+          "latest": -649
         },
         "ongoing": false,
         "start": null
@@ -45504,6 +45918,38 @@
     },
     {
       "alternatives": [],
+      "basis": "estimated",
+      "code": "qwe-pro",
+      "evidence": [
+        {
+          "citation": "Jolkesky, Marcelo Pinho de Valhery. 2016 [corrected 2017]. Estudo arqueo-ecolinguístico das terras tropicais sul-americanas. PhD, Universidade de Brasília, pp.632–634.",
+          "claim_id": "ev_period_2085c8ba94482dbf21ad0777bfaa60bbda0fb965",
+          "event": "conventional_period",
+          "locator": "{\"start\": 1371571, \"end\": 1371763, \"pdf_page\": 664, \"page_label\": \"652\"}",
+          "method": "archaeological_correlation",
+          "quote": "tal perspectiva pressupõe que a coalescência do proto-kechua teria \nse dado na região que engloba as bacias do lago Junín e do Alto Huallaga durante a segunda \nmetade do primeiro milênio a.C..",
+          "role": "hypothesis",
+          "source": "Marcelo Pinho de Valhery Jolkesky 2016",
+          "url": "https://www.etnolinguistica.org/local--files/tese:jolkesky-2016-arqueoecolinguistica/Jolkesky2016PhD_corrigido2017.pdf"
+        }
+      ],
+      "kind": "proto",
+      "label": "c. 500–1 BCE",
+      "name": "Proto-Quechuan",
+      "spoken": {
+        "end": {
+          "earliest": 0,
+          "latest": 0
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": -499,
+          "latest": -499
+        }
+      }
+    },
+    {
+      "alternatives": [],
       "basis": "attested",
       "code": "qwm-arm",
       "evidence": [
@@ -45730,32 +46176,72 @@
       }
     },
     {
-      "alternatives": [],
-      "basis": "estimated",
-      "code": "sai-car-pro",
-      "evidence": [
+      "alternatives": [
         {
+          "basis": "estimated",
           "citation": "Automated dating of the world's language families based on lexical similarity",
           "claim_id": "ev_period_f9e7610e8b640e42606098dbd0dd8fed8dcbe7ac",
+          "end": {
+            "earliest": -362,
+            "latest": -362
+          },
           "event": "crown_divergence",
+          "label": "until c. 363 BCE",
           "locator": "{\"table\": \"Table 7\", \"row\": \"Carib\", \"page\": 861, \"pdf_page\": 22, \"character_start\": 79636, \"character_end\": 79661, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
           "method": "lexicostatistic",
           "quote": "Carib\n72\n2 (2)\n19.50\n2362",
           "role": "hypothesis",
           "source": "Eric W. Holman et al. 2011",
+          "start": null,
           "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        },
+        {
+          "basis": "estimated",
+          "citation": "Jolkesky, Marcelo Pinho de Valhery. 2016 [corrected 2017]. Estudo arqueo-ecolinguístico das terras tropicais sul-americanas. PhD, Universidade de Brasília, pp.632–634.",
+          "claim_id": "ev_period_980e731527384d83e94eda585dc7b45ce81c6464",
+          "end": {
+            "earliest": -2999,
+            "latest": -2999
+          },
+          "event": "crown_divergence",
+          "label": "until c. 3000 BCE",
+          "locator": "{\"start\": 1315100, \"end\": 1315291, \"pdf_page\": 644, \"page_label\": \"632\"}",
+          "method": "lexicostatistic",
+          "quote": "Para Tarble (op.cit.), os proto-karib seriam uma população pré-cerâmica que teria \nhabitado por volta de 3000 a.C. a região das Guyanas, quando teria havido a primeira cisão dos \nproto-karib;",
+          "role": "hypothesis",
+          "source": "Marcelo Pinho de Valhery Jolkesky 2016",
+          "start": null,
+          "url": "https://www.etnolinguistica.org/local--files/tese:jolkesky-2016-arqueoecolinguistica/Jolkesky2016PhD_corrigido2017.pdf"
+        }
+      ],
+      "basis": "estimated",
+      "code": "sai-car-pro",
+      "evidence": [
+        {
+          "citation": "Jolkesky, Marcelo Pinho de Valhery. 2016 [corrected 2017]. Estudo arqueo-ecolinguístico das terras tropicais sul-americanas. PhD, Universidade de Brasília, pp.632–634.",
+          "claim_id": "ev_period_2c7754014a623d33c253f50f6b11fa343303517a",
+          "event": "conventional_period",
+          "locator": "{\"start\": 1320282, \"end\": 1320415, \"pdf_page\": 645, \"page_label\": \"633\"}",
+          "method": "lexicostatistic",
+          "quote": "Durbin (1977:35) utilizou dados linguísticos e glotocronologia para propor uma origem proto-karib nas Guyanas em \ntorno de 2500 a.C..",
+          "role": "hypothesis",
+          "source": "Marcelo Pinho de Valhery Jolkesky 2016",
+          "url": "https://www.etnolinguistica.org/local--files/tese:jolkesky-2016-arqueoecolinguistica/Jolkesky2016PhD_corrigido2017.pdf"
         }
       ],
       "kind": "proto",
-      "label": "until c. 363 BCE",
+      "label": "c. 2500 BCE",
       "name": "Proto-Cariban",
       "spoken": {
         "end": {
-          "earliest": -362,
-          "latest": -362
+          "earliest": -2499,
+          "latest": -2499
         },
         "ongoing": false,
-        "start": null
+        "start": {
+          "earliest": -2499,
+          "latest": -2499
+        }
       }
     },
     {
@@ -47012,29 +47498,87 @@
       }
     },
     {
-      "alternatives": [],
-      "basis": "estimated",
-      "code": "tup-pro",
-      "evidence": [
+      "alternatives": [
         {
+          "basis": "estimated",
+          "citation": "Rodrigues, Cilene. 2020. Founder effect in Tupian languages. Diadorim 22 (especial):65–97. doi:10.35520/diadorim.2020.v22n3a38007",
+          "claim_id": "ev_period_2d8f655f12b53fa1dff78c82261f202ef66c26bd",
+          "end": null,
+          "event": "conventional_period",
+          "label": "from c. 3050 BCE",
+          "locator": "{\"pdf_page\": 14, \"page_label\": \"78\", \"start\": 40235, \"end\": 40497}",
+          "method": "lexicostatistic",
+          "quote": "Also, based on glottochronology, it is estimated that Proto-Tupi emerged 5.000 B.P. \n(RODRIGUES, 1964; URBAN, 1992, 1996), and the first Tupi languages (which are language \nfamilies nowadays), including Proto-Tupi-Guarani, started branching out around 3.000 B.P.",
+          "role": "hypothesis",
+          "source": "Cilene Rodrigues 2020",
+          "start": {
+            "earliest": -3050,
+            "latest": -3050
+          },
+          "url": "https://revistas.ufrj.br/index.php/diadorim/article/download/38007/21447"
+        },
+        {
+          "basis": "estimated",
           "citation": "Automated dating of the world's language families based on lexical similarity",
           "claim_id": "ev_period_62b9eb125a4147c1461ceffe3e03fe191d6d6c52",
+          "end": {
+            "earliest": -1585,
+            "latest": -1585
+          },
           "event": "crown_divergence",
+          "label": "until c. 1590 BCE",
           "locator": "{\"table\": \"Table 7\", \"row\": \"Tupi\", \"page\": 861, \"pdf_page\": 22, \"character_start\": 80717, \"character_end\": 80742, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
           "method": "lexicostatistic",
           "quote": "Tupi\n570\n8 (10)\n8.73\n3585",
           "role": "hypothesis",
           "source": "Eric W. Holman et al. 2011",
+          "start": null,
           "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        },
+        {
+          "basis": "estimated",
+          "citation": "Jolkesky, Marcelo Pinho de Valhery. 2016 [corrected 2017]. Estudo arqueo-ecolinguístico das terras tropicais sul-americanas. PhD, Universidade de Brasília, pp.632–634.",
+          "claim_id": "ev_period_d611d923f73378c9b5fdf32d507a160768f96989",
+          "end": {
+            "earliest": -1999,
+            "latest": -1999
+          },
+          "event": "conventional_period",
+          "label": "c. 3000–2000 BCE",
+          "locator": "{\"start\": 1328043, \"end\": 1328156, \"pdf_page\": 648, \"page_label\": \"636\"}",
+          "method": "expert_estimate",
+          "quote": "por Migliazza (1982:501-502) para aferir a origem tupi entre os rios Jiparaná e Aripuanã entre \n3000 e 2000 a.C..",
+          "role": "hypothesis",
+          "source": "Marcelo Pinho de Valhery Jolkesky 2016",
+          "start": {
+            "earliest": -2999,
+            "latest": -2999
+          },
+          "url": "https://www.etnolinguistica.org/local--files/tese:jolkesky-2016-arqueoecolinguistica/Jolkesky2016PhD_corrigido2017.pdf"
+        }
+      ],
+      "basis": "estimated",
+      "code": "tup-pro",
+      "evidence": [
+        {
+          "citation": "Rodrigues, Cilene. 2020. Founder effect in Tupian languages. Diadorim 22 (especial):65–97. doi:10.35520/diadorim.2020.v22n3a38007",
+          "claim_id": "ev_period_f7d22352aabbf90d4c0269ae88f6bc93a285287e",
+          "event": "crown_divergence",
+          "locator": "{\"pdf_page\": 14, \"page_label\": \"78\", \"start\": 40235, \"end\": 40497}",
+          "method": "lexicostatistic",
+          "quote": "Also, based on glottochronology, it is estimated that Proto-Tupi emerged 5.000 B.P. \n(RODRIGUES, 1964; URBAN, 1992, 1996), and the first Tupi languages (which are language \nfamilies nowadays), including Proto-Tupi-Guarani, started branching out around 3.000 B.P.",
+          "role": "hypothesis",
+          "source": "Cilene Rodrigues 2020",
+          "url": "https://revistas.ufrj.br/index.php/diadorim/article/download/38007/21447"
         }
       ],
       "kind": "proto",
-      "label": "until c. 1590 BCE",
+      "label": "until c. 1050 BCE",
       "name": "Proto-Tupian",
       "spoken": {
         "end": {
-          "earliest": -1585,
-          "latest": -1585
+          "earliest": -1050,
+          "latest": -1050
         },
         "ongoing": false,
         "start": null
@@ -48924,6 +49468,72 @@
           "earliest": -799,
           "latest": -700
         }
+      }
+    },
+    {
+      "alternatives": [
+        {
+          "basis": "estimated",
+          "citation": "Kari, James. 2010. The concept of geolinguistic conservatism in Na-Dene prehistory. In Kari & Potter (eds.), The Dene–Yeniseian Connection, pp.194–222.",
+          "claim_id": "ev_period_7680b4ada4fa0c4dc4465948abb8b6de7ba5bf3d",
+          "end": {
+            "earliest": null,
+            "latest": -8050
+          },
+          "event": "crown_divergence",
+          "label": "until c. 8050 BCE",
+          "locator": "{\"start\": 60585, \"end\": 60712, \"pdf_page\": 16, \"page_label\": \"209\"}",
+          "method": "expert_estimate",
+          "quote": "I suggest that Tlingit and Eyak are old binary branchings from Proto-Na-Dene. Perhaps both branchings \ntook place by 10,000 BP.",
+          "role": "hypothesis",
+          "source": "James Kari 2010",
+          "start": null,
+          "url": "https://www.uaf.edu/alc/history/2016/papers/2010-geolingconservNDprehistory_2011.pdf"
+        },
+        {
+          "basis": "estimated",
+          "citation": "Kari, James. 2010. The concept of geolinguistic conservatism in Na-Dene prehistory. In Kari & Potter (eds.), The Dene–Yeniseian Connection, pp.194–222.",
+          "claim_id": "ev_period_9f81c6c88ec0cb800746ef95162979ed2f948fb7",
+          "end": {
+            "earliest": -1550,
+            "latest": -1550
+          },
+          "event": "crown_divergence",
+          "label": "until c. 1550 BCE",
+          "locator": "{\"start\": 63126, \"end\": 63277, \"pdf_page\": 17, \"page_label\": \"210\"}",
+          "method": "expert_estimate",
+          "quote": "Note that Kaufman and Golla (2000) have estimated (without any \nexplanation) a time depth for Na-Dene at 3500 years, a 23% reduction in the time frame!",
+          "role": "hypothesis",
+          "source": "James Kari 2010",
+          "start": null,
+          "url": "https://www.uaf.edu/alc/history/2016/papers/2010-geolingconservNDprehistory_2011.pdf"
+        }
+      ],
+      "basis": "estimated",
+      "code": "xnd-pro",
+      "evidence": [
+        {
+          "citation": "Kari, James. 2010. The concept of geolinguistic conservatism in Na-Dene prehistory. In Kari & Potter (eds.), The Dene–Yeniseian Connection, pp.194–222.",
+          "claim_id": "ev_period_6579a82e83d2a0c2ec89cd8d64fded4fc59e985a",
+          "event": "crown_divergence",
+          "locator": "{\"start\": 62352, \"end\": 62571, \"pdf_page\": 17, \"page_label\": \"210\"}",
+          "method": "lexicostatistic",
+          "quote": "The often cited estimated “dates of divergence for Na-Dene languages” are 2400 ±500 years for \nAthabascan, and 3400 ±500 years between Athabascan and Eyak and about 4500 years for Tlingit (Krauss \n1973:950, 1980:11–13).",
+          "role": "hypothesis",
+          "source": "James Kari 2010",
+          "url": "https://www.uaf.edu/alc/history/2016/papers/2010-geolingconservNDprehistory_2011.pdf"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 2550 BCE",
+      "name": "Proto-Na-Dene",
+      "spoken": {
+        "end": {
+          "earliest": -2550,
+          "latest": -2550
+        },
+        "ongoing": false,
+        "start": null
       }
     },
     {
