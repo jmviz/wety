@@ -127,6 +127,24 @@
       "subject_id": "wikt:iro-pro"
     },
     {
+      "analysis": "blazek-2019-recalibrated-glottochronology",
+      "claim_id": "ev_period_14291826c6c6ff60b2a02b865a5a2ab85cc2dd83",
+      "epoch": null,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-South Cushitic",
+      "role": "hypothesis",
+      "source": "Václav Blažek 2019",
+      "subject_id": "wikt:cus-sou-pro"
+    },
+    {
       "analysis": "final-afrasian-classification",
       "claim_id": "ev_period_16bbe9256053a34779dd81aa38b3ccaef6da91ef",
       "epoch": null,
@@ -36379,7 +36397,7 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:fff5df92fe6ca543"
     }
   ],
-  "generation": "fe50509fdbe9e1f277302508aaa1f6b2d45cfb09d2c8184d059fe3bf483a67b3",
+  "generation": "5f17830f0c16e20e5502e1520f6ca8dbfb5666d8a880e2df980baf48e6bc2403",
   "languages": [
     {
       "alternatives": [],
@@ -39428,29 +39446,48 @@
       }
     },
     {
-      "alternatives": [],
-      "basis": "estimated",
-      "code": "cus-sou-pro",
-      "evidence": [
+      "alternatives": [
         {
+          "basis": "estimated",
           "citation": "Automated dating of the world's language families based on lexical similarity",
           "claim_id": "ev_period_c9a355efb77a27c96d8be013a417067a020a886b",
+          "end": {
+            "earliest": -308,
+            "latest": -308
+          },
           "event": "crown_divergence",
+          "label": "until c. 309 BCE",
           "locator": "{\"table\": \"Table 3\", \"row\": \"Cushitic > South\", \"page\": 853, \"pdf_page\": 14, \"character_start\": 54792, \"character_end\": 54817, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
           "method": "lexicostatistic",
           "quote": "South\n14\n5 (7)\n20.20\n2308",
           "role": "hypothesis",
           "source": "Eric W. Holman et al. 2011",
+          "start": null,
           "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
         }
       ],
+      "basis": "estimated",
+      "code": "cus-sou-pro",
+      "evidence": [
+        {
+          "citation": "Blažek, Václav. 2019. South Cushitic classification in lexicostatistic perspective. Folia Orientalia 56:41–94. DOI:10.24425/for.2019.130704, p.44, Tree diagram 4.",
+          "claim_id": "ev_period_14291826c6c6ff60b2a02b865a5a2ab85cc2dd83",
+          "event": "crown_divergence",
+          "locator": "{\"pdf_page\": 4, \"printed_page\": \"44\", \"figure\": \"Tree diagram 4\", \"start\": 4797, \"end\": 4939, \"page_image_sha256\": \"3387a894ac0c79ca862cd09f9ffc90171a64df946531ec19ae7278523d606ca1\"}",
+          "method": "lexicostatistic",
+          "quote": "Tree diagram 4\n-2000\n-1000\n0\n+1000\n+2000\nIraqw\n98.86%\n+1600\nGorowa\n82.25%\n+470\nAlagwa\n-1610 43.39%\n+840 89.06%\nBurunge\n38.71%\n-1950\nAsa\nQwadza",
+          "role": "hypothesis",
+          "source": "Václav Blažek 2019",
+          "url": "https://journals.pan.pl/Content/114144/PDF/FoliaOrientalia%2056-19%206Bla%C5%BEek.pdf?handler=pdf"
+        }
+      ],
       "kind": "proto",
-      "label": "until c. 309 BCE",
+      "label": "until c. 1950 BCE",
       "name": "Proto-South Cushitic",
       "spoken": {
         "end": {
-          "earliest": -308,
-          "latest": -308
+          "earliest": -1949,
+          "latest": -1949
         },
         "ongoing": false,
         "start": null
@@ -40468,6 +40505,38 @@
         "start": {
           "earliest": -699,
           "latest": -699
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "euq-pro",
+      "evidence": [
+        {
+          "citation": "Martínez-Areta, Mikel (ed.). 2013. Basque and Proto-Basque: Language-Internal and Typological Approaches to Linguistic Reconstruction. Peter Lang. DOI:10.3726/978-3-653-02701-3. Publisher summary.",
+          "claim_id": "ev_period_75f1aadf3fb6c42e19c9c51413a4bce6e190ba64",
+          "event": "conventional_period",
+          "locator": "{\"section\": \"Publisher Summary\", \"start\": 7482, \"end\": 7515}",
+          "method": "expert_estimate",
+          "quote": "Proto-Basque (ca. 3rd-1st cc. BC)",
+          "role": "hypothesis",
+          "source": "Mikel (ed.) Martínez-Areta 2013",
+          "url": "https://www.peterlang.com/document/1046298"
+        }
+      ],
+      "kind": "proto",
+      "label": "c. 3rd–1st century BCE",
+      "name": "Proto-Basque",
+      "spoken": {
+        "end": {
+          "earliest": -99,
+          "latest": 0
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": -299,
+          "latest": -200
         }
       }
     },
