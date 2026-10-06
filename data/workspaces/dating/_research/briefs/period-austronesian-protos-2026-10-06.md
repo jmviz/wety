@@ -37,13 +37,20 @@ For each code:
    others as alternatives. Prefer a scholarly handbook statement over ISO 639-3 names
    and Glottolog documentation windows when both have exact scope.
 
-Proto-languages and reconstructed codes: use only dates a source gives for that proto
-stage itself (e.g. "Proto-Slavic was spoken c. ..."). Never use a family's crown or
-stem divergence date, a phylogenetic split, a daughter's first attestation, or
-archaeological culture dates unless the source itself explicitly dates the proto stage
-with them. Such periods are always estimates (role hypothesis), even when stated
-confidently. Record competing proposals separately. (Phylogenetic crown ages are
-handled by separate family research, not this brief.)
+Proto-languages and reconstructed codes: record every published estimate of when the
+proto stage was spoken or broke up, each as its own claim with its method; never merge
+them. A date for the stage itself ("Proto-Slavic was spoken c. ...") is a
+conventional_period or bound with role hypothesis. A family's age or breakup date (a
+family age from ASJP or glottochronology, a node age an article reports for a named
+family or subgroup) is event crown_divergence about the proto code, role posterior for
+a Bayesian analysis and hypothesis otherwise; give the source's name for the family and
+its sample (which subgroups) in source_label and mapping_basis, and map it exact only if
+the sample spans the family's first split. Set method to one of bayesian_phylogenetic,
+lexicostatistic (incl. ASJP and glottochronology), comparative_reconstruction (dated
+from reconstructed vocabulary, loans or sound changes), archaeological_correlation,
+expert_estimate. Keep a calibration prior apart from a posterior. Never use a
+daughter's first attestation or an archaeological culture's dates as the proto
+stage's date unless the source itself dates the stage with them.
 
 Source access, in this order.
 1. Supplied sources first. Call library (no query lists everything). For this batch:
@@ -132,52 +139,46 @@ shows now, and where to look. Dates in a note's pointer are unverified leads, no
 evidence: verify them in a source or leave them out.
 
 phi-pro — Proto-Philippine (reconstructed). Tree items: 1632. Now: none.
-  Proto-Philippine: only a date a source gives for the proto stage itself (no crown
-  ages, daughters' attestations or archaeology unless the source dates the stage with
-  them).
+  Proto-Philippine: every published estimate of when the stage was spoken or broke up
+  (handbook statements, family ages, article node ages), each with its method.
 poz-mly-pro — Proto-Malayic (reconstructed). Tree items: 1003. Now: none.
-  Proto-Malayic: only a date a source gives for the proto stage itself (no crown ages,
-  daughters' attestations or archaeology unless the source dates the stage with them).
+  Proto-Malayic: every published estimate of when the stage was spoken or broke up
+  (handbook statements, family ages, article node ages), each with its method.
 poz-mic-pro — Proto-Micronesian (reconstructed). Tree items: 361. Now: none.
-  Proto-Micronesian: only a date a source gives for the proto stage itself (no crown
-  ages, daughters' attestations or archaeology unless the source dates the stage with
-  them).
+  Proto-Micronesian: every published estimate of when the stage was spoken or broke up
+  (handbook statements, family ages, article node ages), each with its method.
 poz-cet-pro — Proto-Central-Eastern Malayo-Polynesian (reconstructed). Tree items:
-  313. Now: none. Proto-Central-Eastern Malayo-Polynesian: only a date a source gives
-  for the proto stage itself (no crown ages, daughters' attestations or archaeology
-  unless the source dates the stage with them).
+  313. Now: none. Proto-Central-Eastern Malayo-Polynesian: every published estimate of
+  when the stage was spoken or broke up (handbook statements, family ages, article
+  node ages), each with its method.
 poz-ssw-pro — Proto-South Sulawesi (reconstructed). Tree items: 237. Now: none.
-  Proto-South Sulawesi: only a date a source gives for the proto stage itself (no
-  crown ages, daughters' attestations or archaeology unless the source dates the stage
-  with them).
+  Proto-South Sulawesi: every published estimate of when the stage was spoken or broke
+  up (handbook statements, family ages, article node ages), each with its method.
 poz-pnp-pro — Proto-Nuclear Polynesian (reconstructed). Tree items: 229. Now: none.
-  Proto-Nuclear Polynesian: only a date a source gives for the proto stage itself (no
-  crown ages, daughters' attestations or archaeology unless the source dates the stage
-  with them).
+  Proto-Nuclear Polynesian: every published estimate of when the stage was spoken or
+  broke up (handbook statements, family ages, article node ages), each with its
+  method.
 poz-pep-pro — Proto-Eastern Polynesian (reconstructed). Tree items: 138. Now: none.
-  Proto-Eastern Polynesian: only a date a source gives for the proto stage itself (no
-  crown ages, daughters' attestations or archaeology unless the source dates the stage
-  with them).
-dru-pro — Proto-Rukai (reconstructed). Tree items: 99. Now: none. Proto-Rukai: only a
-  date a source gives for the proto stage itself (no crown ages, daughters'
-  attestations or archaeology unless the source dates the stage with them).
+  Proto-Eastern Polynesian: every published estimate of when the stage was spoken or
+  broke up (handbook statements, family ages, article node ages), each with its
+  method.
+dru-pro — Proto-Rukai (reconstructed). Tree items: 99. Now: none. Proto-Rukai: every
+  published estimate of when the stage was spoken or broke up (handbook statements,
+  family ages, article node ages), each with its method.
 map-ata-pro — Proto-Atayalic (reconstructed). Tree items: 97. Now: none.
-  Proto-Atayalic: only a date a source gives for the proto stage itself (no crown
-  ages, daughters' attestations or archaeology unless the source dates the stage with
-  them).
+  Proto-Atayalic: every published estimate of when the stage was spoken or broke up
+  (handbook statements, family ages, article node ages), each with its method.
 poz-mcm-pro — Proto-Malayo-Chamic (reconstructed). Tree items: 65. Now: none.
-  Proto-Malayo-Chamic: only a date a source gives for the proto stage itself (no crown
-  ages, daughters' attestations or archaeology unless the source dates the stage with
-  them).
+  Proto-Malayo-Chamic: every published estimate of when the stage was spoken or broke
+  up (handbook statements, family ages, article node ages), each with its method.
 poz-msa-pro — Proto-Malayo-Sumbawan (reconstructed). Tree items: 60. Now: none.
-  Proto-Malayo-Sumbawan: only a date a source gives for the proto stage itself (no
-  crown ages, daughters' attestations or archaeology unless the source dates the stage
-  with them).
-btk-pro — Proto-Batak (reconstructed). Tree items: 37. Now: none. Proto-Batak: only a
-  date a source gives for the proto stage itself (no crown ages, daughters'
-  attestations or archaeology unless the source dates the stage with them).
+  Proto-Malayo-Sumbawan: every published estimate of when the stage was spoken or
+  broke up (handbook statements, family ages, article node ages), each with its
+  method.
+btk-pro — Proto-Batak (reconstructed). Tree items: 37. Now: none. Proto-Batak: every
+  published estimate of when the stage was spoken or broke up (handbook statements,
+  family ages, article node ages), each with its method.
 poz-swa-pro — Proto-North Sarawak (reconstructed). Tree items: 33. Now: none.
-  Proto-North Sarawak: only a date a source gives for the proto stage itself (no crown
-  ages, daughters' attestations or archaeology unless the source dates the stage with
-  them).
+  Proto-North Sarawak: every published estimate of when the stage was spoken or broke
+  up (handbook statements, family ages, article node ages), each with its method.
 ```
