@@ -317,6 +317,18 @@ class PeriodExportTests(unittest.TestCase):
         (enm,) = export_periods(bundle(claims, ["a"]), "gen")["languages"]
         self.assertEqual([a["claim_id"] for a in enm["alternatives"]], ["b", "c"])
 
+    def test_a_revival_is_shown_beside_the_end_of_native_transmission(self):
+        end = {"form": "point", "unit": "CE", "value": 1908, "precision": "year"}
+        since = {"form": "point", "unit": "CE", "value": 1990, "precision": "year"}
+        claims = [
+            claim("e", "xpq", "native_transmission_end", "hypothesis", end),
+            claim("r", "xpq", "revitalization", "observation", since),
+        ]
+        (xpq,) = export_periods(bundle(claims, ["e"]), "gen")["languages"]
+        self.assertEqual((xpq["label"], xpq["basis"]), ("until 1908 CE", "last_speaker"))
+        self.assertEqual(xpq["alternatives"], [])
+        self.assertEqual([r["label"] for r in xpq["revival"]], ["1990 CE–present"])
+
     def test_a_single_dated_record_is_not_a_start(self):
         raw = {"form": "point", "unit": "CE", "value": 1867, "precision": "year"}
         claims = [claim("w", "aru", "documentary_sampling", "observation", raw)]

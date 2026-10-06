@@ -467,3 +467,8 @@
 .tree-view .period .basis-composition {
   border-style: dotted;
 }
+
+/* A revived language: shown beside the end of native transmission. */
+.tree-view .period .basis-revival {
+  font-style: italic;
+}

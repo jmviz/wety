@@ -57,6 +57,9 @@ export default function NodeLabel(props: NodeLabelProps) {
           >
             {p().label}
             <span class={`basis basis-${p().basis}`}>{BASIS_MARK[p().basis]}</span>
+            <Show when={p().revival?.length}>
+              <span class="basis basis-revival" title="being revived">rev</span>
+            </Show>
           </span>
         )}
       </Show>

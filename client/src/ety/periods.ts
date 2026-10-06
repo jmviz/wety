@@ -65,6 +65,8 @@ export interface LangPeriod {
   basis: Basis;
   label: string;
   estimate?: Estimate;
+  // A revival beside the end of native transmission (it does not reopen it).
+  revival?: (PeriodEvidence & { label: string | null })[];
   evidence: PeriodEvidence[];
   alternatives: Alternative[];
   span?: Span;

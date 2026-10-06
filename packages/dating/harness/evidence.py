@@ -195,6 +195,7 @@ class EvidenceClaim(StrictModel):
         "contact",
         "population_event",
         "relative_constraint",
+        "revitalization",
         "unspecified",
     ]
     role: Literal[

@@ -300,6 +300,10 @@ def period_record(code, claims, alternatives, view, sources):
     spoken = interval(claims)
     if spoken is None:
         return None
+    # A revival (second-language speakers, new programmes) is shown beside the period;
+    # it never reopens the end of native transmission.
+    revivals = [c for c in alternatives if c["event"] == "revitalization"]
+    alternatives = [c for c in alternatives if c["event"] != "revitalization"]
     b = basis(spoken["claims"], reconstructed)
     return {
         "code": code,
@@ -329,6 +333,24 @@ def period_record(code, claims, alternatives, view, sources):
             spoken["rounded"],
         ),
         **({"estimate": spoken["estimate"]} if spoken.get("estimate") else {}),
+        **(
+            {
+                "revival": [
+                    {
+                        **evidence_entry(c, sources),
+                        # "since 2004" (a programme's start) reads "2004 CE–present"
+                        "label": label(
+                            ranges(c)[0] if c["time"]["form"] == "duration" else event_range(c),
+                            None,
+                            True,
+                        ),
+                    }
+                    for c in revivals
+                ]
+            }
+            if revivals
+            else {}
+        ),
         "_rounded": spoken["rounded"],
         "evidence": [evidence_entry(c, sources) for c in spoken["claims"]],
         # An adopted claim not used for the display (a crown age beside a stated

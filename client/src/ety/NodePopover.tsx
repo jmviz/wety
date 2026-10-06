@@ -263,6 +263,18 @@ function PeriodSection(props: { period: LangPeriod }) {
       <ul class="period-cites">
         <For each={props.period.evidence}>{(e) => <li title={e.citation ?? undefined}>{cite(e)}</li>}</For>
       </ul>
+      <Show when={props.period.revival?.length}>
+        <div class="popover-muted">Being revived:</div>
+        <ul class="period-cites">
+          <For each={props.period.revival}>
+            {(r) => (
+              <li title={r.citation ?? undefined}>
+                <span class="period-label">{r.label}</span> · {cite(r)}
+              </li>
+            )}
+          </For>
+        </ul>
+      </Show>
       <Show when={props.period.span}>
         {(span) => (
           <>

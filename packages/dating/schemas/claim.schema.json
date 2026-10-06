@@ -457,6 +457,7 @@
         "contact",
         "population_event",
         "relative_constraint",
+        "revitalization",
         "unspecified"
       ],
       "title": "Event",
