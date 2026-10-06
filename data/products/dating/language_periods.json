@@ -31375,7 +31375,7 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:fff5df92fe6ca543"
     }
   ],
-  "generation": "209b14466d54c588ee175a85f4da43067714da378eff34fb49166d52741b26a4",
+  "generation": "1111fabe567f1906f089a92fc0a01c7141c146a54365811b9bf9c810b4dd34ed",
   "languages": [
     {
       "alternatives": [
@@ -36055,6 +36055,37 @@
       }
     },
     {
+      "alternatives": [],
+      "basis": "conventional",
+      "code": "osp",
+      "evidence": [
+        {
+          "citation": "Flores, Marcela, and Chantal Melis. 2015. “Periodización del español. Evidencia para una tercera etapa evolutiva.” Études romanes de Brno 36(2): 11–28.",
+          "claim_id": "ev_period_8b029654214b7fe237f065b7cf63a55310ce3048",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"11\", \"pdf_page\": 1}",
+          "quote": "Discutimos en primer lugar que la periodización que suelen establecer \nlos manuales y tratados de historia del español, en dos grandes etapas: la “medieval” (siglos XII al \nXV) y la “moderna”, que arranca en los siglos XVI-XVII y se prolonga hasta nuestros días (Cano \nAguilar 1988; Lapesa [1942] 1981; Penny 1993; Spaulding 1943) es prematura, dada la falta de \nestudios del camino evolutivo que recorrió el español después del siglo XVII.",
+          "role": "convention",
+          "source": "Flores 2015",
+          "url": "https://dialnet.unirioja.es/descarga/articulo/5335008.pdf"
+        }
+      ],
+      "kind": "stage",
+      "label": "12th–15th century CE",
+      "name": "Old Spanish",
+      "spoken": {
+        "end": {
+          "earliest": 1401,
+          "latest": 1500
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 1101,
+          "latest": 1200
+        }
+      }
+    },
+    {
       "alternatives": [
         {
           "basis": "conventional",
@@ -37657,7 +37688,28 @@
       }
     },
     {
-      "alternatives": [],
+      "alternatives": [
+        {
+          "basis": "composition",
+          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Asia and the Americas. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "claim_id": "ev_period_e338d8e386851804261f7539d0ad5bbbedad78c1",
+          "end": {
+            "earliest": -499,
+            "latest": -499
+          },
+          "event": "composition",
+          "label": "c. 1500–500 BCE",
+          "locator": "{\"page\": \"6\", \"pdf_page\": 28}",
+          "quote": "Though the composition of Vedic texts can be dated with fair conﬁdence to the period of\nc. 1500–500 BC, direct records of them are only found several millennia later. The “texts”\nwere transmitted orally, with minimal alteration, and even after they were also committed\nto writing, the manuscripts were perishable and less reliable than the oral tradition.\n",
+          "role": "hypothesis",
+          "source": "Woodard 2008",
+          "start": {
+            "earliest": -1499,
+            "latest": -1499
+          },
+          "url": null
+        }
+      ],
       "basis": "composition",
       "code": "vsn",
       "evidence": [
