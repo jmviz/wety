@@ -182,6 +182,48 @@ def compact_pages(pages):
     return ",".join(runs)
 
 
+CONTENTS_LEVELS = 3
+CONTENTS_MAX = 800
+
+
+def contents(path, text=None):
+    """What a supplied file holds, so a researcher can see that a handbook titled for a
+    family has chapters on its languages: the PDF outline (bookmarks) to three levels,
+    each with its printed page label; without an outline, the lines of the printed
+    contents pages. Bibliographic structure only, never body text."""
+    import pymupdf
+
+    with pymupdf.open(path) as doc:
+        toc = doc.get_toc(simple=True)
+        labels = [page.get_label() for page in doc]
+        if toc:
+            entries = [
+                [level, " ".join(title.split()), labels[page - 1] or str(page) if page > 0 else ""]
+                for level, title, page in toc
+                if level <= CONTENTS_LEVELS and title.strip()
+            ]
+            return {
+                "source": "pdf_outline",
+                "entries": entries[:CONTENTS_MAX],
+                "truncated": len(entries) > CONTENTS_MAX,
+            }
+        for i in range(min(40, len(doc))):
+            page_text = doc[i].get_text()
+            if re.search(r"^\s*(table of )?contents\b|^\s*inhalt", page_text, re.I | re.M):
+                lines = []
+                for j in range(i, min(i + 6, len(doc))):
+                    lines += [
+                        " ".join(x.split()) for x in doc[j].get_text().splitlines() if x.strip()
+                    ]
+                return {
+                    "source": "contents_pages",
+                    "pdf_pages": f"{i + 1}-{min(i + 6, len(doc))}",
+                    "lines": lines[:CONTENTS_MAX],
+                    "truncated": len(lines) > CONTENTS_MAX,
+                }
+    return {"source": "none", "note": "no PDF outline or contents page found; use find in the text"}
+
+
 def page_at(text, offset):
     """One-based PDF page holding a text offset, from the `[PDF page N]` markers."""
     found = None
@@ -267,6 +309,9 @@ def ingest(path, bibliography, *, zotero=None, extent=None, ocr="auto", language
             and (texts_dir() / (old["text"]["sha256"] + ".txt")).exists()
         ):
             changed = refresh_bibliography(old, bibliography)
+            if "contents" not in old:
+                old["contents"] = contents(REPO / old["file"]["raw_path"])
+                changed = True
             if zotero and old.get("zotero") != zotero:
                 old["zotero"] = zotero
                 changed = True
@@ -306,6 +351,7 @@ def ingest(path, bibliography, *, zotero=None, extent=None, ocr="auto", language
                 "page_labels": bool(meta.get("page_labels")),
             },
             "identity_hint": identity_hint(text, bibliography.get("title")),
+            "contents": contents(dest / "files/source"),
             "ingested_at": old["ingested_at"] if old else provenance["ingested_at"],
             "parsed_at": now(),
             "ingester_sha256": file_sha(__file__),
@@ -325,6 +371,8 @@ BIB_FIELDS = (
     "editors",
     "year",
     "edition",
+    "volume",
+    "number_of_volumes",
     "publisher",
     "place",
     "series",
@@ -372,6 +420,8 @@ def bibliography_from_zotero(item):
         "editors": people["editor"],
         "year": int(year) if year.isdigit() else None,
         "edition": d.get("edition") or None,
+        "volume": d.get("volume") or None,
+        "number_of_volumes": d.get("numberOfVolumes") or None,
         "publisher": d.get("publisher") or None,
         "place": d.get("place") or None,
         "series": d.get("series") or None,
@@ -394,10 +444,78 @@ def citation(bib):
         if bib.get("container") and bib["container"] != bib.get("title")
         else "",
         (bib.get("edition") + ".") if bib.get("edition") else "",
+        f"Vol. {bib['volume']}." if bib.get("volume") else "",
         ", ".join(x for x in (bib.get("place"), bib.get("publisher")) if x) + ".",
         f"https://doi.org/{bib['doi']}" if bib.get("doi") else "",
     ]
     return " ".join(p for p in parts if p and p != ".").strip()
+
+
+def ingest_abstract(abstract, bibliography, zotero):
+    """A Zotero item without full text whose abstract the maintainer entered (e.g. from a
+    publisher's page): its abstract becomes a small text holding, cited as an abstract."""
+    text = (
+        "[Abstract of the work, as entered in Zotero by the maintainer]\n\n"
+        + abstract.strip()
+        + "\n"
+    )
+    data = text.encode()
+    raw_sha = hashlib.sha256(data).hexdigest()
+    hid = raw_sha[:16]
+    with locked(HOLDINGS):
+        holdings = load(HOLDINGS, "holdings")
+        old = holdings["holdings"].get(hid)
+        if old:
+            if refresh_bibliography(old, bibliography):
+                atomic_json(HOLDINGS, holdings)
+            return old
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "abstract.txt"
+            path.write_bytes(data)
+            provenance = {
+                "origin": "maintainer_supplied",
+                "original_filename": "zotero-abstract.txt",
+                "bytes": len(data),
+                "ingested_at": now(),
+                "zotero": zotero,
+                "completeness": "abstract only, entered in Zotero by the maintainer",
+            }
+            dest, receipt = retain(path, provenance)
+        texts_dir().mkdir(parents=True, exist_ok=True)
+        (texts_dir() / (raw_sha + ".txt")).write_bytes(data)
+        holding = {
+            "id": hid,
+            **bibliography,
+            "origin": "maintainer_supplied",
+            "zotero": zotero,
+            "extent": "the work's abstract only (from the Zotero abstract field)",
+            "file": {
+                "artifact": str(dest.relative_to(REPO)),
+                "raw_path": str((dest / "files/source").relative_to(REPO)),
+                "sha256": raw_sha,
+                "bytes": len(data),
+                "original_filename": "zotero-abstract.txt",
+                "receipt": str(receipt.relative_to(REPO)),
+            },
+            "text": {
+                "sha256": raw_sha,
+                "characters": len(text),
+                "settings": {"source": "zotero abstractNote"},
+                "parser": "zotero abstractNote",
+                "pages": 0,
+                "kind": "maintainer_abstract",
+                "coverage": "Abstract only, as the maintainer entered it in Zotero; cite it as the work's abstract, not its body",
+                "page_labels": False,
+            },
+            "contents": {"source": "none", "note": "abstract only"},
+            "ingested_at": now(),
+            "parsed_at": now(),
+            "ingester_sha256": file_sha(__file__),
+        }
+        holdings["holdings"][hid] = holding
+        atomic_json(HOLDINGS, holdings)
+    mark_supplied(holding)
+    return holding
 
 
 def ingest_zotero_item(client, key, *, extent=None, ocr="auto", languages="eng"):
@@ -431,7 +549,21 @@ def ingest_zotero_item(client, key, *, extent=None, ocr="auto", languages="eng")
         holding = ingest(path, bib, zotero=zot, extent=extent, ocr=ocr, languages=languages)
         results.append({"holding": holding["id"], "title": holding["title"], "status": "ingested"})
     if not attachments:
-        results.append({"zotero": {"item_key": item["key"]}, "status": "no_pdf_attachment"})
+        abstract = item["data"].get("abstractNote") or ""
+        if item["data"].get("deleted"):
+            results.append({"zotero": {"item_key": item["key"]}, "status": "trashed"})
+        elif abstract.strip():
+            zot = {
+                "item_key": item["key"],
+                "item_version": item["version"],
+                "field": "abstractNote",
+            }
+            holding = ingest_abstract(abstract, bib, zot)
+            results.append(
+                {"holding": holding["id"], "title": holding["title"], "status": "abstract"}
+            )
+        else:
+            results.append({"zotero": {"item_key": item["key"]}, "status": "no_pdf_attachment"})
     return results
 
 
@@ -447,9 +579,31 @@ def sync(client, keys=()):
         for r in requests.values()
         if r.get("zotero") and r["status"] == "filed"
     ]
+    from .zotero import ZoteroError
+
     report = []
     for key in dict.fromkeys(wanted):
-        report += ingest_zotero_item(client, key)
+        try:
+            report += ingest_zotero_item(client, key)
+        except ZoteroError as e:
+            if "404" not in str(e):
+                raise
+            # Deleted from Zotero's trash as well: as good as trashed.
+            report.append({"zotero": {"item_key": key}, "status": "trashed"})
+    # A filed request whose item the maintainer trashed, and which no holding answered,
+    # was declined (no full text found, or replaced by an item that did not match).
+    trashed = {r["zotero"]["item_key"] for r in report if r["status"] == "trashed"}
+    with locked(REQUESTS):
+        queue = load(REQUESTS, "requests")
+        for r in queue["requests"].values():
+            if r["status"] == "filed" and r.get("zotero", {}).get("item_key") in trashed:
+                set_status(
+                    r,
+                    "unobtainable",
+                    note="Zotero item trashed by the maintainer; no supplied holding answers it.",
+                )
+                report.append({"request": r["key"], "status": "declined (trashed)"})
+        atomic_json(REQUESTS, queue)
     return report
 
 
@@ -469,11 +623,7 @@ def mark_supplied(holding):
                     and holding.get("zotero")
                     and r["zotero"]["item_key"] == holding["zotero"]["item_key"]
                 )
-                or (
-                    r.get("doi")
-                    and holding.get("doi")
-                    and r["doi"].lower() == holding["doi"].lower()
-                )
+                or covers_doi(holding, r.get("doi"))
                 or (
                     r.get("isbn")
                     and holding.get("isbn")
@@ -486,6 +636,20 @@ def mark_supplied(holding):
         if changed:
             atomic_json(REQUESTS, queue)
     return changed
+
+
+def covers_doi(holding, doi):
+    """Does a holding answer a request for this DOI? The same DOI, or a chapter of the
+    holding: a DOI extending the book's (10.4324/9780203641736-11) or carrying one of its
+    ISBNs, as publishers' chapter DOIs do."""
+    if not doi:
+        return False
+    doi = doi.lower().removeprefix("https://doi.org/")
+    own = (holding.get("doi") or "").lower().removeprefix("https://doi.org/")
+    if own and (doi == own or doi.startswith(own + "-") or doi.startswith(own + ".")):
+        return True
+    digits = re.sub(r"[^0-9x]", "", doi)
+    return any(len(i) == 13 and i.lower() in digits for i in isbns(holding.get("isbn")))
 
 
 def isbns(value):
@@ -501,12 +665,30 @@ def search(query=None, limit=30):
     requests = load(REQUESTS, "requests")["requests"].values()
     terms = [t for t in re.split(r"\s+", (query or "").lower()) if t]
 
+    def toc(record):
+        c = record.get("contents") or {}
+        return [" ".join(map(str, e[1:])) for e in c.get("entries", [])] or c.get("lines", [])
+
     def hit(record):
         hay = " ".join(
-            str(record.get(k) or "")
-            for k in ("title", "authors", "editors", "doi", "isbn", "citation", "container")
+            [
+                str(record.get(k) or "")
+                for k in ("title", "authors", "editors", "doi", "isbn", "citation", "container")
+            ]
+            + toc(record)
         ).lower()
         return all(t in hay for t in terms)
+
+    def chapters(h):
+        c = h.get("contents") or {}
+        lines = toc(h)
+        if terms:
+            # Contents lines naming the query (and their page labels).
+            shown = [x for x in lines if any(t in x.lower() for t in terms)][:25]
+        else:
+            entries = c.get("entries") or []
+            shown = [" ".join(map(str, e[1:])) for e in entries if e[0] == 1][:40] or lines[:40]
+        return {"source": c.get("source", "none"), "lines": len(lines), "shown": shown}
 
     found = [
         {
@@ -517,6 +699,7 @@ def search(query=None, limit=30):
             "text_kind": h["text"]["kind"],
             "ocr_pages": h["text"].get("ocr", {}).get("pages", 0),
             "identity_hint": h.get("identity_hint"),
+            "contents": chapters(h),
         }
         for h in holdings
         if hit(h)
@@ -535,7 +718,7 @@ def search(query=None, limit=30):
         "holdings": found[:limit],
         "holdings_omitted": max(0, len(found) - limit),
         "requests": asked[:limit],
-        "scope": "Sources the maintainer supplied (open them by holding_id) and sources already requested.",
+        "scope": "Sources the maintainer supplied (open them by holding_id) and sources already requested. A holding may be a whole handbook or one volume of many chapters: the query also searches its table of contents, and `contents.shown` lists the matching chapters with page labels.",
     }
 
 
@@ -880,19 +1063,60 @@ def enrich_requests(keys=(), force=False):
     return done
 
 
+def add_contents():
+    """Record the table of contents of holdings ingested before contents were kept."""
+    with locked(HOLDINGS):
+        holdings = load(HOLDINGS, "holdings")
+        done = []
+        for h in holdings["holdings"].values():
+            if "contents" not in h and h["text"]["kind"] != "maintainer_abstract":
+                h["contents"] = contents(REPO / h["file"]["raw_path"])
+                done.append({"holding": h["id"], "source": h["contents"]["source"]})
+        atomic_json(HOLDINGS, holdings)
+    return done
+
+
 def untag_supplied(client):
-    """After ingest: on supplied requests' items, swap the needs tag for wety:ingested
-    and leave wety/needs-fulltext (the wety/dating/<topic> collection stays)."""
+    """After ingest: every holding's Zotero item, and every supplied or declined request's
+    item, leaves wety/needs-fulltext and loses the needs tags; holdings' items join
+    wety/holdings and are tagged wety:ingested (topic collections stay)."""
     queue = client.find_collection(["wety", "needs-fulltext"])
+    shelf = client.ensure_collection(["wety", "holdings"])
+    keys = {
+        h["zotero"]["item_key"]
+        for h in load(HOLDINGS, "holdings")["holdings"].values()
+        if h.get("zotero")
+    }
+    from .zotero import ZoteroError
+
+    def live(key):
+        try:
+            return not client.item(key)["data"].get("deleted")
+        except ZoteroError as e:
+            if "404" not in str(e):
+                raise
+            return False
+
     done = []
+    for key in sorted(keys):
+        if not live(key):
+            continue
+        for tag in (NEEDS_FULLTEXT, NEEDS_PART):
+            client.remove_tag(key, tag)
+        client.add_to_item(key, collections=[shelf], tags=[SUPPLIED])
+        if queue:
+            client.leave_collection(key, queue)
+        done.append(key)
     for r in load(REQUESTS, "requests")["requests"].values():
-        if r["status"] == "supplied" and r.get("zotero"):
+        key = (r.get("zotero") or {}).get("item_key")
+        if r["status"] in ("supplied", "unobtainable") and key and key not in keys:
+            if not live(key):
+                continue
             for tag in (NEEDS_FULLTEXT, NEEDS_PART):
-                client.remove_tag(r["zotero"]["item_key"], tag)
-            client.add_to_item(r["zotero"]["item_key"], tags=[SUPPLIED])
+                client.remove_tag(key, tag)
             if queue:
-                client.leave_collection(r["zotero"]["item_key"], queue)
-            done.append(r["key"])
+                client.leave_collection(key, queue)
+            done.append(key)
     return done
 
 
@@ -934,6 +1158,7 @@ def main(argv=None):
         q.add_argument("--languages", default="eng", help="tesseract languages, e.g. eng+deu+grc")
     z.add_argument("keys", nargs="+", help="Zotero item or attachment keys")
     sub.add_parser("sync", help="ingest new PDFs in the wety collections and filed requests")
+    sub.add_parser("contents", help="record tables of contents of older holdings")
     sub.add_parser("list")
     args = p.parse_args(argv)
     if args.command == "add":
@@ -966,11 +1191,9 @@ def main(argv=None):
 
         client = Zotero()
         result = {"ingested": sync(client)}
-        if any(
-            r["status"] == "supplied" and r.get("zotero")
-            for r in load(REQUESTS, "requests")["requests"].values()
-        ):
-            result["retagged"] = untag_supplied(client)
+        result["shelved"] = untag_supplied(client)
+    elif args.command == "contents":
+        result = add_contents()
     else:
         result = search()
     print(json.dumps(result, indent=2, ensure_ascii=False))

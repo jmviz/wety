@@ -78,6 +78,26 @@ class ExtractTests(Sandbox):
         self.assertEqual(meta["page_labels"], ["11", "12", "13"])
         self.assertEqual(holdings.page_at(text, text.index(PASSAGE)), 2)
 
+    def test_contents_from_outline_or_contents_pages(self):
+        path = self.files / "handbook.pdf"
+        text_pdf(path)
+        with pymupdf.open(path) as doc:
+            doc.set_toc([[1, "Part I: Celtic", 2], [2, "Gaulish and Galatian", 3]])
+            doc.saveIncr()
+        c = holdings.contents(path)
+        self.assertEqual(c["source"], "pdf_outline")
+        self.assertEqual(
+            c["entries"], [[1, "Part I: Celtic", "12"], [2, "Gaulish and Galatian", "13"]]
+        )
+        plain = self.files / "plain.pdf"
+        doc = pymupdf.open()
+        doc.new_page().insert_text((72, 100), "Contents\n1 Gothic 5\n2 Old Norse 40")
+        doc.save(plain)
+        c = holdings.contents(plain)
+        self.assertEqual(
+            (c["source"], c["lines"][:2]), ("contents_pages", ["Contents", "1 Gothic 5"])
+        )
+
     def test_scanned_pages_are_ocred_or_skipped_when_too_many(self):
         path = self.files / "scan.pdf"
         scanned_pdf(path)
@@ -100,6 +120,14 @@ class ExtractTests(Sandbox):
         text, meta = holdings.extract_pdf(path)
         self.assertEqual((meta["kind"], meta["scan_text_layer"]["page_list"]), ("pdf_text", "1"))
         self.assertIn("page image", meta["coverage"])
+
+    def test_chapter_requests_are_answered_by_the_book(self):
+        book = {"doi": "10.4324/9780203641736", "isbn": "978-0-7007-1131-4 978-0-203-64173-6"}
+        self.assertTrue(holdings.covers_doi(book, "10.4324/9780203641736-11"))
+        self.assertTrue(holdings.covers_doi({"isbn": book["isbn"]}, "10.4324/9780203641736-15"))
+        self.assertTrue(holdings.covers_doi(book, "https://doi.org/10.4324/9780203641736"))
+        self.assertFalse(holdings.covers_doi(book, "10.4324/9780203641737-1"))
+        self.assertFalse(holdings.covers_doi(book, None))
 
     def test_request_keys(self):
         self.assertEqual(holdings.request_key({"doi": "https://doi.org/10.1/AB"}), "doi:10.1/ab")
@@ -174,6 +202,38 @@ class HoldingTests(Sandbox):
         self.assertEqual(len(again["previous_texts"]), 1)
         self.assertEqual(again["file"]["receipt"], h["file"]["receipt"])
         self.assertEqual(len(list(holdings.RECEIPTS.iterdir())), 1)
+
+    def test_abstract_becomes_a_small_holding(self):
+        bib = {"item_type": "bookSection", "title": "Medieval Latin", "doi": "10.9/ml"}
+        holdings.atomic_json(
+            holdings.REQUESTS,
+            {
+                "requests": {
+                    "doi:10.9/ml": {
+                        "key": "doi:10.9/ml",
+                        "doi": "10.9/ml",
+                        "status": "filed",
+                        "history": [],
+                    }
+                }
+            },
+        )
+        h = holdings.ingest_abstract(
+            "Medieval Latin was written c. 500-1500.", bib, {"item_key": "K1"}
+        )
+        self.assertEqual(h["text"]["kind"], "maintainer_abstract")
+        text = (holdings.texts_dir() / (h["text"]["sha256"] + ".txt")).read_text()
+        self.assertIn("as entered in Zotero by the maintainer", text)
+        self.assertIn("c. 500-1500", text)
+        queue = holdings.load(holdings.REQUESTS, "requests")["requests"]
+        self.assertEqual(queue["doi:10.9/ml"]["status"], "supplied")
+        # Re-ingesting the same abstract is idempotent.
+        self.assertEqual(
+            holdings.ingest_abstract(
+                "Medieval Latin was written c. 500-1500.", bib, {"item_key": "K1"}
+            )["id"],
+            h["id"],
+        )
 
     def test_non_pdf_is_refused(self):
         p = self.files / "book.epub"
