@@ -221,6 +221,19 @@ marks the request supplied, retags the item `wety:ingested` and takes it out of
 `wety/needs-fulltext` (it stays in its topic collection); a supplement request is closed only by hand
 (`dating requests set KEY supplied --holding ID`).
 
+How to supply a source in Zotero. Put the item anywhere under `wety` (the request's own
+item, or your own in `wety/needs-fulltext`); sync ingests it and files it in
+`wety/holdings`. One item per file: a whole book is one `book` item even when chapters
+were requested (sync closes chapter requests whose DOI extends the book's or carries
+its ISBN); a multi-volume work is one item per volume, same title and ISBN, with
+`volume` (and optionally `# of Volumes`) set. Chapter items are not needed: researchers
+cite chapters by author and title in the locator, and each holding records its table
+of contents (the PDF outline, else the printed contents pages), which `library`
+searches. If you want chapters visible in Zotero, add `bookSection` items without a file
+and link them to the book with Zotero's Related field; wety ignores them. With no full
+text, paste the abstract into the item's Abstract field (it becomes an abstract-only
+holding) or trash the item (the request is recorded as unobtainable).
+
 Original HTTP bytes and acquisition receipts use the existing artifact registry.
 Parsed text and PDF renders retain hashes in the research workspace. Model output
 can only write the four named dossier files, with prior revisions preserved. It
