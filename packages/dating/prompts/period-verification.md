@@ -56,7 +56,9 @@ family age from ASJP or glottochronology, a node age an article reports for a na
 family or subgroup) is event crown_divergence about the proto code, role posterior for
 a Bayesian analysis and hypothesis otherwise; give the source's name for the family and
 its sample (which subgroups) in source_label and mapping_basis, and map it exact only if
-the sample spans the family's first split. Set method to one of bayesian_phylogenetic,
+the sample spans the family's first split. For a Bayesian posterior, list the node's
+sampled descendants in subject.taxa (the study's tip labels, or the subgroups it names
+as the node's members) and acquire a deposited tree if there is one. Set method to one of bayesian_phylogenetic,
 lexicostatistic (incl. ASJP and glottochronology), comparative_reconstruction (dated
 from reconstructed vocabulary, loans or sound changes), archaeological_correlation,
 expert_estimate. Keep a calibration prior apart from a posterior. Never use a
