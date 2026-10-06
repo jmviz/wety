@@ -1,6 +1,24 @@
 {
   "family_splits": [
     {
+      "analysis": "sagart2019_relaxed_fbd",
+      "claim_id": "ev_tree_0062223b43c1241a534ae7c2a39462ffc35d987aefd418d2b098e1b7a8cfb2cf",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -994,
+        "mean": -18,
+        "median": 15,
+        "probability": 0.95,
+        "upper": 1048
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(KirantiKhaling, KirantiKulung)",
+      "role": "posterior",
+      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "subject_id": "sagart2019_relaxed_fbd:clade:0062223b43c1241a"
+    },
+    {
       "analysis": "heggarty2023_sa8a_chang_broad",
       "claim_id": "ev_tree_007ea2bdd029423a45aaae7836c66e78b9ad5bc24b165cda8e6a789fd46bdc97",
       "epoch": 2000,
@@ -251,6 +269,24 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_main_m3:clade:076a4d05be1df6a5"
+    },
+    {
+      "analysis": "sagart2019_relaxed_fbd",
+      "claim_id": "ev_tree_0774b939e8ad38660d45c89bf3dbeede2086753cab34061907e297012c80b5a6",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -5171,
+        "mean": -3726,
+        "median": -3710,
+        "probability": 0.95,
+        "upper": -2202
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(BodicTshangla, BurmishAchang, BurmishAtsi, BurmishBola, BurmishLashi, BurmishMaru, BurmishOldBurmese, BurmishRangoon, BurmishXiandao, ChepangChepang, DengDarangTaraon, DengYidu, KhroskyabsWobzi, KirantiBahing, KirantiBantawa, KirantiHayu, KirantiKhaling, KirantiKulung, KirantiLimbu, KirantiThulung, LoloishLisu, NungicDulong, QiangicZhaba, Tangut, TaniBokar, TibetanAlike, TibetanBatang, TibetanLhasa, TibetanOldTibetan, TibetanXiahe, TibetoKinauriBunan, TibetoKinauriByangsi, TibetoKinauriRongpo, rGyalrongDaofu, rGyalrongJaphug, rGyalrongMaerkang)",
+      "role": "posterior",
+      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "subject_id": "sagart2019_relaxed_fbd:clade:0774b939e8ad3866"
     },
     {
       "analysis": "zhang2019_relaxed_covarion",
@@ -865,6 +901,24 @@
       "subject_id": "heggarty2023_sa8b_chang_broad_ancestry:clade:1e2b9f1549912325"
     },
     {
+      "analysis": "sagart2019_relaxed_fbd",
+      "claim_id": "ev_tree_1e36a1bc4c5a9fe41dcaef4d4168a2db444a56ca90676ccc2d5e915381f70533",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1427,
+        "mean": 1640,
+        "median": 1655,
+        "probability": 0.95,
+        "upper": 1822
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(BurmishBola, BurmishMaru)",
+      "role": "posterior",
+      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "subject_id": "sagart2019_relaxed_fbd:clade:1e36a1bc4c5a9fe4"
+    },
+    {
       "analysis": "heggarty2023_sa8a_chang_broad",
       "claim_id": "ev_tree_1e65de858aea81373620ace8dd413c08ae75d09d80f5a225f9f7ab6242425a50",
       "epoch": 2000,
@@ -1063,6 +1117,42 @@
       "subject_id": "zhang2019_relaxed_covarion:clade:21c18645c3270758"
     },
     {
+      "analysis": "sagart2019_relaxed_fbd",
+      "claim_id": "ev_tree_21c9146e2b7eb83108fbe725d93b0636ba96efbc5a11abf0ed79628b5d7e03e6",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -4772,
+        "mean": -3144,
+        "median": -3100,
+        "probability": 0.95,
+        "upper": -1384
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(BodicTshangla, DengDarangTaraon, DengYidu, TaniBokar)",
+      "role": "posterior",
+      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "subject_id": "sagart2019_relaxed_fbd:clade:21c9146e2b7eb831"
+    },
+    {
+      "analysis": "sagart2019_relaxed_fbd",
+      "claim_id": "ev_tree_22457144ae50bfd058992b5ab492295452e9feb4224855577c2774e27a8f6953",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -2155,
+        "mean": -971,
+        "median": -929,
+        "probability": 0.95,
+        "upper": 10
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(BurmishAchang, BurmishAtsi, BurmishBola, BurmishLashi, BurmishMaru, BurmishOldBurmese, BurmishRangoon, BurmishXiandao, LoloishLisu)",
+      "role": "posterior",
+      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "subject_id": "sagart2019_relaxed_fbd:clade:22457144ae50bfd0"
+    },
+    {
       "analysis": "zhang2019_relaxed_covarion",
       "claim_id": "ev_tree_228ca2417d7595594cbcca980c8a7ee3de3c04b6148a3df9c1c55671dcb6a07f",
       "epoch": 1950,
@@ -1079,6 +1169,24 @@
       "role": "posterior",
       "source": "Menghan Zhang et al. 2019",
       "subject_id": "zhang2019_relaxed_covarion:clade:228ca2417d759559"
+    },
+    {
+      "analysis": "sagart2019_relaxed_fbd",
+      "claim_id": "ev_tree_22a9f8ebcabafcdd78b0f068c1de0be5bd54dfca0d21e0e9faf2586caefcac7a",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1132,
+        "mean": 1411,
+        "median": 1427,
+        "probability": 0.95,
+        "upper": 1651
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(BurmishAtsi, BurmishBola, BurmishMaru)",
+      "role": "posterior",
+      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "subject_id": "sagart2019_relaxed_fbd:clade:22a9f8ebcabafcdd"
     },
     {
       "analysis": "heggarty2023_sa8a_chang_broad",
@@ -1819,6 +1927,24 @@
       "subject_id": "heggarty2023_main_m3:clade:379ec4004b6ec2d2"
     },
     {
+      "analysis": "sagart2019_relaxed_fbd",
+      "claim_id": "ev_tree_37afc51b7998eb6dbbcca1b08a03d1499a2d4ddb79c2f0ef53cfb28a7f06421d",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -4743,
+        "mean": -3099,
+        "median": -3075,
+        "probability": 0.95,
+        "upper": -1493
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(ChinHakha, Karbi, MizoLushai, NagaUkhrul)",
+      "role": "posterior",
+      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "subject_id": "sagart2019_relaxed_fbd:clade:37afc51b7998eb6d"
+    },
+    {
       "analysis": "heggarty2023_main_m3",
       "claim_id": "ev_tree_38b005f371d8c1c4c132c8d5e3e56351d775a19c032865c6e94410dc3174d544",
       "epoch": 2000,
@@ -1979,6 +2105,24 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_main_m3:clade:3e14bf78b247e457"
+    },
+    {
+      "analysis": "sagart2019_relaxed_fbd",
+      "claim_id": "ev_tree_3e4d73603fad2ba7802270e0b2bfab2615a81b083ffb1618682950dc9eadd3ad",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -208,
+        "mean": -110,
+        "median": -98,
+        "probability": 0.95,
+        "upper": -50
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(SiniticBeijing, SiniticChaozhou, SiniticGuangzhou, SiniticJieyang, SiniticLonggang, SiniticXingning)",
+      "role": "posterior",
+      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "subject_id": "sagart2019_relaxed_fbd:clade:3e4d73603fad2ba7"
     },
     {
       "analysis": "heggarty2023_main_m3",
@@ -2339,6 +2483,42 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_main_m3:clade:48a37950a8416e9a"
+    },
+    {
+      "analysis": "sagart2019_relaxed_fbd",
+      "claim_id": "ev_tree_48f71aef44feb3f80b79c4bd1004c6aa2176a500803a1eb8c075777d2f659066",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -3686,
+        "mean": -2334,
+        "median": -2290,
+        "probability": 0.95,
+        "upper": -1027
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(BurmishAchang, BurmishAtsi, BurmishBola, BurmishLashi, BurmishMaru, BurmishOldBurmese, BurmishRangoon, BurmishXiandao, KhroskyabsWobzi, LoloishLisu, QiangicZhaba, Tangut, rGyalrongDaofu, rGyalrongJaphug, rGyalrongMaerkang)",
+      "role": "posterior",
+      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "subject_id": "sagart2019_relaxed_fbd:clade:48f71aef44feb3f8"
+    },
+    {
+      "analysis": "sagart2019_relaxed_fbd",
+      "claim_id": "ev_tree_4930ef7cf6660d67e7f864f459375b82797efda71a5f16ff6bd43baafe77a45e",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -947,
+        "mean": -253,
+        "median": -219,
+        "probability": 0.95,
+        "upper": 471
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(KhroskyabsWobzi, Tangut, rGyalrongDaofu)",
+      "role": "posterior",
+      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "subject_id": "sagart2019_relaxed_fbd:clade:4930ef7cf6660d67"
     },
     {
       "analysis": "heggarty2023_sa8b_chang_broad_ancestry",
@@ -2773,6 +2953,24 @@
       "subject_id": "zhang2019_relaxed_covarion:clade:554fef0114ec8609"
     },
     {
+      "analysis": "sagart2019_relaxed_fbd",
+      "claim_id": "ev_tree_570084978762ce58268547600c3b870f69d2cc9d787fe822564c3a6360cae578",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -3141,
+        "mean": -1698,
+        "median": -1645,
+        "probability": 0.95,
+        "upper": -401
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(KirantiBahing, KirantiBantawa, KirantiHayu, KirantiKhaling, KirantiKulung, KirantiLimbu, KirantiThulung)",
+      "role": "posterior",
+      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "subject_id": "sagart2019_relaxed_fbd:clade:570084978762ce58"
+    },
+    {
       "analysis": "heggarty2023_sa8a_chang_broad",
       "claim_id": "ev_tree_57445c96ceaedacba151a520df3b5f38a4e7dbf2e43f28b2507ce4a337c59c57",
       "epoch": 2000,
@@ -2951,6 +3149,24 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_sa8b_chang_broad_ancestry:clade:59d99e1233504fcf"
+    },
+    {
+      "analysis": "sagart2019_relaxed_fbd",
+      "claim_id": "ev_tree_5a740bf0b368c6f36c9fb6b74acc5c0af19e231ebab0b0f4138ab0756b21c471",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -1465,
+        "mean": -476,
+        "median": -428,
+        "probability": 0.95,
+        "upper": 465
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(KirantiBahing, KirantiKhaling, KirantiKulung, KirantiThulung)",
+      "role": "posterior",
+      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "subject_id": "sagart2019_relaxed_fbd:clade:5a740bf0b368c6f3"
     },
     {
       "analysis": "heggarty2023_main_m3",
@@ -3151,6 +3367,42 @@
       "subject_id": "heggarty2023_sa8a_chang_broad:clade:605581aa650199c0"
     },
     {
+      "analysis": "sagart2019_relaxed_fbd",
+      "claim_id": "ev_tree_60af2b3e314495dfd5ce86a2e0b022bf5e10f7211aa7d8ecf68ce87634c80560",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -207,
+        "mean": 548,
+        "median": 582,
+        "probability": 0.95,
+        "upper": 1304
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(rGyalrongJaphug, rGyalrongMaerkang)",
+      "role": "posterior",
+      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "subject_id": "sagart2019_relaxed_fbd:clade:60af2b3e314495df"
+    },
+    {
+      "analysis": "sagart2019_relaxed_fbd",
+      "claim_id": "ev_tree_611d4cc26c42126af927c3be99daba0510c9b84258874d829a6da557a2187b14",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -4997,
+        "mean": -3528,
+        "median": -3504,
+        "probability": 0.95,
+        "upper": -1866
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(BurmishAchang, BurmishAtsi, BurmishBola, BurmishLashi, BurmishMaru, BurmishOldBurmese, BurmishRangoon, BurmishXiandao, KhroskyabsWobzi, LoloishLisu, NungicDulong, QiangicZhaba, Tangut, TibetanAlike, TibetanBatang, TibetanLhasa, TibetanOldTibetan, TibetanXiahe, TibetoKinauriBunan, TibetoKinauriByangsi, TibetoKinauriRongpo, rGyalrongDaofu, rGyalrongJaphug, rGyalrongMaerkang)",
+      "role": "posterior",
+      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "subject_id": "sagart2019_relaxed_fbd:clade:611d4cc26c42126a"
+    },
+    {
       "analysis": "heggarty2023_main_m3",
       "claim_id": "ev_tree_616f5855d10d75e97969179881b71274c5661c0515272be9b0da8f38aa7d3818",
       "epoch": 2000,
@@ -3311,6 +3563,24 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_sa8a_chang_broad:clade:651a0a3eddef97cd"
+    },
+    {
+      "analysis": "sagart2019_relaxed_fbd",
+      "claim_id": "ev_tree_65b3509c29f3f7ca1488b8b6cd3904eb12ff46e455018b6e29567f0cb50bede0",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -153,
+        "mean": 105,
+        "median": 81,
+        "probability": 0.95,
+        "upper": 421
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(SiniticChaozhou, SiniticGuangzhou, SiniticJieyang, SiniticLonggang, SiniticXingning)",
+      "role": "posterior",
+      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "subject_id": "sagart2019_relaxed_fbd:clade:65b3509c29f3f7ca"
     },
     {
       "analysis": "heggarty2023_sa8a_chang_broad",
@@ -3673,6 +3943,24 @@
       "subject_id": "zhang2019_relaxed_covarion:clade:7236bef6f22950b5"
     },
     {
+      "analysis": "sagart2019_relaxed_fbd",
+      "claim_id": "ev_tree_724b94af56a9d8833a726d6ed90ff9820c761a7aad0eac8cc8be46b14079fa79",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -2369,
+        "mean": -1271,
+        "median": -1226,
+        "probability": 0.95,
+        "upper": -220
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(KhroskyabsWobzi, QiangicZhaba, Tangut, rGyalrongDaofu, rGyalrongJaphug, rGyalrongMaerkang)",
+      "role": "posterior",
+      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "subject_id": "sagart2019_relaxed_fbd:clade:724b94af56a9d883"
+    },
+    {
       "analysis": "heggarty2023_sa8a_chang_broad",
       "claim_id": "ev_tree_7254102816c47cce68f377283afa77f976b291ea0bb42b62566a122ea7485672",
       "epoch": 2000,
@@ -3743,6 +4031,24 @@
       "role": "posterior",
       "source": "Menghan Zhang et al. 2019",
       "subject_id": "zhang2019_relaxed_covarion:clade:73997e2958366f35"
+    },
+    {
+      "analysis": "sagart2019_relaxed_fbd",
+      "claim_id": "ev_tree_73b75ef74040624179187c8533bf2f3a0fb049a7179df8b4fba34d3c241931fe",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -359,
+        "mean": 422,
+        "median": 465,
+        "probability": 0.95,
+        "upper": 1240
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(KirantiBahing, KirantiThulung)",
+      "role": "posterior",
+      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "subject_id": "sagart2019_relaxed_fbd:clade:73b75ef740406241"
     },
     {
       "analysis": "heggarty2023_sa8a_chang_broad",
@@ -3889,6 +4195,24 @@
       "subject_id": "heggarty2023_sa8b_chang_broad_ancestry:clade:769504a5edb780be"
     },
     {
+      "analysis": "sagart2019_relaxed_fbd",
+      "claim_id": "ev_tree_7695396230ebc2396d4bb6c733c68601fd97f6c3f3cc578a5834caf5d7740c93",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -5119,
+        "mean": -3494,
+        "median": -3396,
+        "probability": 0.95,
+        "upper": -2069
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(GaroGaro, JingphoJingpho, Rabha, SiniticBeijing, SiniticChaozhou, SiniticGuangzhou, SiniticJieyang, SiniticLonggang, SiniticOldChinese, SiniticXingning)",
+      "role": "posterior",
+      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "subject_id": "sagart2019_relaxed_fbd:clade:7695396230ebc239"
+    },
+    {
       "analysis": "heggarty2023_sa8b_chang_broad_ancestry",
       "claim_id": "ev_tree_76ae6a64b7429dcb0f2c7dc29eda2fc3928b0b15eefb42c6e16e77b0c030f79b",
       "epoch": 2000,
@@ -4013,6 +4337,24 @@
       "role": "posterior",
       "source": "Menghan Zhang et al. 2019",
       "subject_id": "zhang2019_relaxed_covarion:clade:7984dedfc054992d"
+    },
+    {
+      "analysis": "sagart2019_relaxed_fbd",
+      "claim_id": "ev_tree_79b10a0cc87fb52f2eccd0cca89c5a984987269998d74f287a28a14945bbc110",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -3061,
+        "mean": -1538,
+        "median": -1496,
+        "probability": 0.95,
+        "upper": -32
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(ChinHakha, MizoLushai, NagaUkhrul)",
+      "role": "posterior",
+      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "subject_id": "sagart2019_relaxed_fbd:clade:79b10a0cc87fb52f"
     },
     {
       "analysis": "heggarty2023_sa8b_chang_broad_ancestry",
@@ -4177,6 +4519,24 @@
       "subject_id": "heggarty2023_main_m3:clade:7f278a4f4cc3bba8"
     },
     {
+      "analysis": "sagart2019_relaxed_fbd",
+      "claim_id": "ev_tree_7f6a05699daa6c0d0ef5cb6d9072f247bb09de8354a72edff1dbe5620ddb249f",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -3894,
+        "mean": -2163,
+        "median": -2087,
+        "probability": 0.95,
+        "upper": -438
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(DengDarangTaraon, DengYidu, TaniBokar)",
+      "role": "posterior",
+      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "subject_id": "sagart2019_relaxed_fbd:clade:7f6a05699daa6c0d"
+    },
+    {
       "analysis": "heggarty2023_main_m3",
       "claim_id": "ev_tree_7f97774375bb431d21503fa33bf319975c67269f2fb08fedf9232fcc775bcd43",
       "epoch": 2000,
@@ -4213,6 +4573,24 @@
       "subject_id": "heggarty2023_sa8b_chang_broad_ancestry:clade:7fe77bf21ca8f5e9"
     },
     {
+      "analysis": "sagart2019_relaxed_fbd",
+      "claim_id": "ev_tree_7feb7a1627ecb61dcd3e13296add30ddff13d1ed46b4f598d8dac0ce8d3422e7",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1373,
+        "mean": 1588,
+        "median": 1600,
+        "probability": 0.95,
+        "upper": 1800
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(TibetanAlike, TibetanXiahe)",
+      "role": "posterior",
+      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "subject_id": "sagart2019_relaxed_fbd:clade:7feb7a1627ecb61d"
+    },
+    {
       "analysis": "heggarty2023_sa8b_chang_broad_ancestry",
       "claim_id": "ev_tree_801090b9c8c8f89b82fdbe9755b9a0617b15df538eb8e5bdaf84c557e21d0328",
       "epoch": 2000,
@@ -4229,6 +4607,24 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_sa8b_chang_broad_ancestry:clade:801090b9c8c8f89b"
+    },
+    {
+      "analysis": "sagart2019_relaxed_fbd",
+      "claim_id": "ev_tree_8012c9ce11620d188f2635c9f844bb87ae907b7b832501909c50cf71eb7693ef",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -4374,
+        "mean": -2883,
+        "median": -2832,
+        "probability": 0.95,
+        "upper": -1359
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(BurmishAchang, BurmishAtsi, BurmishBola, BurmishLashi, BurmishMaru, BurmishOldBurmese, BurmishRangoon, BurmishXiandao, KhroskyabsWobzi, LoloishLisu, QiangicZhaba, Tangut, TibetanAlike, TibetanBatang, TibetanLhasa, TibetanOldTibetan, TibetanXiahe, rGyalrongDaofu, rGyalrongJaphug, rGyalrongMaerkang)",
+      "role": "posterior",
+      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "subject_id": "sagart2019_relaxed_fbd:clade:8012c9ce11620d18"
     },
     {
       "analysis": "heggarty2023_main_m3",
@@ -4301,6 +4697,42 @@
       "role": "posterior",
       "source": "Menghan Zhang et al. 2019",
       "subject_id": "zhang2019_relaxed_covarion:clade:81b98a22e981bba0"
+    },
+    {
+      "analysis": "sagart2019_relaxed_fbd",
+      "claim_id": "ev_tree_821f8cfefdfb8c554b25ac41fc785a33296080fd87182943afac728847a7a09f",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 967,
+        "mean": 1291,
+        "median": 1310,
+        "probability": 0.95,
+        "upper": 1568
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(BurmishAtsi, BurmishBola, BurmishLashi, BurmishMaru)",
+      "role": "posterior",
+      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "subject_id": "sagart2019_relaxed_fbd:clade:821f8cfefdfb8c55"
+    },
+    {
+      "analysis": "sagart2019_relaxed_fbd",
+      "claim_id": "ev_tree_82d99173276a918cffd2a832f0361af7daf23d7941dfffa7dd080d10db797979",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -1428,
+        "mean": -189,
+        "median": -122,
+        "probability": 0.95,
+        "upper": 902
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(GaroGaro, Rabha)",
+      "role": "posterior",
+      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "subject_id": "sagart2019_relaxed_fbd:clade:82d99173276a918c"
     },
     {
       "analysis": "heggarty2023_sa8a_chang_broad",
@@ -4411,6 +4843,24 @@
       "subject_id": "heggarty2023_sa8a_chang_broad:clade:85a9d94d532e2876"
     },
     {
+      "analysis": "sagart2019_relaxed_fbd",
+      "claim_id": "ev_tree_85fc284e79c8f3962d6306b752570a9d731eafb478363180306d8105e8108e7b",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -7618,
+        "mean": -5235,
+        "median": -5103,
+        "probability": 0.95,
+        "upper": -3143
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(BodicTshangla, BurmishAchang, BurmishAtsi, BurmishBola, BurmishLashi, BurmishMaru, BurmishOldBurmese, BurmishRangoon, BurmishXiandao, ChepangChepang, ChinHakha, DengDarangTaraon, DengYidu, GaroGaro, JingphoJingpho, Karbi, KhroskyabsWobzi, KirantiBahing, KirantiBantawa, KirantiHayu, KirantiKhaling, KirantiKulung, KirantiLimbu, KirantiThulung, LoloishLisu, MizoLushai, NagaUkhrul, NungicDulong, QiangicZhaba, Rabha, SiniticBeijing, SiniticChaozhou, SiniticGuangzhou, SiniticJieyang, SiniticLonggang, SiniticOldChinese, SiniticXingning, Tangut, TaniBokar, TibetanAlike, TibetanBatang, TibetanLhasa, TibetanOldTibetan, TibetanXiahe, TibetoKinauriBunan, TibetoKinauriByangsi, TibetoKinauriRongpo, rGyalrongDaofu, rGyalrongJaphug, rGyalrongMaerkang)",
+      "role": "posterior",
+      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "subject_id": "sagart2019_relaxed_fbd:clade:85fc284e79c8f396"
+    },
+    {
       "analysis": "heggarty2023_sa8b_chang_broad_ancestry",
       "claim_id": "ev_tree_8655ef33fbbcda1e71b61d35dc4910d4e02061dae9a7f52f8272ce100dd14ca6",
       "epoch": 2000,
@@ -4445,6 +4895,24 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_main_m3:clade:86cb086f48205db6"
+    },
+    {
+      "analysis": "sagart2019_relaxed_fbd",
+      "claim_id": "ev_tree_8700d19bd5ee5f48d36611cbfddd3aa19edced259b9a072426b3aefe28f8c6f6",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1269,
+        "mean": 1549,
+        "median": 1569,
+        "probability": 0.95,
+        "upper": 1786
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(BurmishAchang, BurmishXiandao)",
+      "role": "posterior",
+      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "subject_id": "sagart2019_relaxed_fbd:clade:8700d19bd5ee5f48"
     },
     {
       "analysis": "heggarty2023_main_m3",
@@ -4627,6 +5095,24 @@
       "subject_id": "heggarty2023_sa8b_chang_broad_ancestry:clade:8c9fd3f8c748eac6"
     },
     {
+      "analysis": "sagart2019_relaxed_fbd",
+      "claim_id": "ev_tree_8cf838849e101c213b6c7a5e83cc4376e3084f9a3db08588995a7c4a48b84502",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 140,
+        "mean": 669,
+        "median": 698,
+        "probability": 0.95,
+        "upper": 1204
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(BurmishAchang, BurmishAtsi, BurmishBola, BurmishLashi, BurmishMaru, BurmishXiandao)",
+      "role": "posterior",
+      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "subject_id": "sagart2019_relaxed_fbd:clade:8cf838849e101c21"
+    },
+    {
       "analysis": "heggarty2023_sa8a_chang_broad",
       "claim_id": "ev_tree_8d07afb7ae1afa13ecb6c791cc8a74928f2a31cf51f60f1da8e27416aa05cbd8",
       "epoch": 2000,
@@ -4661,6 +5147,24 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_main_m3:clade:8d47226ac646ee6e"
+    },
+    {
+      "analysis": "sagart2019_relaxed_fbd",
+      "claim_id": "ev_tree_8d80d110371c2885fa569d532289b652baec6d284c05e913a5c3b501ff1c7093",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1009,
+        "mean": 1244,
+        "median": 1243,
+        "probability": 0.95,
+        "upper": 1493
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(TibetanAlike, TibetanBatang, TibetanLhasa, TibetanXiahe)",
+      "role": "posterior",
+      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "subject_id": "sagart2019_relaxed_fbd:clade:8d80d110371c2885"
     },
     {
       "analysis": "honkola2013_beast",
@@ -4825,6 +5329,24 @@
       "subject_id": "zhang2019_relaxed_covarion:clade:93239234a68224e9"
     },
     {
+      "analysis": "sagart2019_relaxed_fbd",
+      "claim_id": "ev_tree_93667a9682375bf18997cb1e2053c9f280a477952d51250d2efb9551bfdb5a0b",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -600,
+        "mean": -600,
+        "median": -600,
+        "probability": 0.95,
+        "upper": -600
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(SiniticBeijing, SiniticChaozhou, SiniticGuangzhou, SiniticJieyang, SiniticLonggang, SiniticOldChinese, SiniticXingning)",
+      "role": "posterior",
+      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "subject_id": "sagart2019_relaxed_fbd:clade:93667a9682375bf1"
+    },
+    {
       "analysis": "heggarty2023_sa8a_chang_broad",
       "claim_id": "ev_tree_93b4868fc06cf938c08f8f5136da4ff61ad69f1b6d58465e06f47651971f8f22",
       "epoch": 2000,
@@ -4841,6 +5363,24 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_sa8a_chang_broad:clade:93b4868fc06cf938"
+    },
+    {
+      "analysis": "sagart2019_relaxed_fbd",
+      "claim_id": "ev_tree_93fcedc9a680d544560f5207d7dbad44f5f527b7c4c337c8c64b907100c6158b",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -5076,
+        "mean": -3463,
+        "median": -3419,
+        "probability": 0.95,
+        "upper": -1841
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(BodicTshangla, DengDarangTaraon, DengYidu, KirantiBahing, KirantiBantawa, KirantiHayu, KirantiKhaling, KirantiKulung, KirantiLimbu, KirantiThulung, TaniBokar)",
+      "role": "posterior",
+      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "subject_id": "sagart2019_relaxed_fbd:clade:93fcedc9a680d544"
     },
     {
       "analysis": "heggarty2023_main_m3",
@@ -4913,6 +5453,24 @@
       "role": "posterior",
       "source": "Cultural and climatic changes shape the evolutionary history of the Uralic languages 2013",
       "subject_id": "honkola2013_beast:clade:9576ed8214561d75"
+    },
+    {
+      "analysis": "sagart2019_relaxed_fbd",
+      "claim_id": "ev_tree_95935d6b4bfcc2949f4d07e7eb43f4e74cc07f4eb633076d9a6035399c3beaa6",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -1427,
+        "mean": -259,
+        "median": -212,
+        "probability": 0.95,
+        "upper": 835
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(KirantiBantawa, KirantiLimbu)",
+      "role": "posterior",
+      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "subject_id": "sagart2019_relaxed_fbd:clade:95935d6b4bfcc294"
     },
     {
       "analysis": "heggarty2023_sa8a_chang_broad",
@@ -5455,6 +6013,24 @@
       "subject_id": "zhang2019_relaxed_covarion:clade:a43741d460247478"
     },
     {
+      "analysis": "sagart2019_relaxed_fbd",
+      "claim_id": "ev_tree_a457f1863863a56586eb04522826b4a837ec2597ff849483f19fcd58dd51ae78",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 876,
+        "mean": 1025,
+        "median": 1042,
+        "probability": 0.95,
+        "upper": 1135
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(BurmishOldBurmese, BurmishRangoon)",
+      "role": "posterior",
+      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "subject_id": "sagart2019_relaxed_fbd:clade:a457f1863863a565"
+    },
+    {
       "analysis": "heggarty2023_main_m3",
       "claim_id": "ev_tree_a463c25539261c96d94ab14e53acaa611f938506486f99e0e67659058c2f9585",
       "epoch": 2000,
@@ -5581,6 +6157,24 @@
       "subject_id": "heggarty2023_main_m3:clade:a945d6d5015c552f"
     },
     {
+      "analysis": "sagart2019_relaxed_fbd",
+      "claim_id": "ev_tree_a95ef5fde2f3bddb3e762fe809a09e3eef39fce490134fcc87079463d9fb392f",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -2361,
+        "mean": -1203,
+        "median": -1169,
+        "probability": 0.95,
+        "upper": -142
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(KirantiBahing, KirantiBantawa, KirantiKhaling, KirantiKulung, KirantiLimbu, KirantiThulung)",
+      "role": "posterior",
+      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "subject_id": "sagart2019_relaxed_fbd:clade:a95ef5fde2f3bddb"
+    },
+    {
       "analysis": "heggarty2023_main_m3",
       "claim_id": "ev_tree_aa7f6852509e2844766d04ae0ed1eddce77d688009f7f6b16c3de327d58911d1",
       "epoch": 2000,
@@ -5705,6 +6299,24 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_sa8a_chang_broad:clade:ac0203e3e04117de"
+    },
+    {
+      "analysis": "sagart2019_relaxed_fbd",
+      "claim_id": "ev_tree_ac05c99327920422c2f282fc4580f91f2a011b6749f87c6ac4dc262898704de5",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -5006,
+        "mean": -3446,
+        "median": -3398,
+        "probability": 0.95,
+        "upper": -1827
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(BurmishAchang, BurmishAtsi, BurmishBola, BurmishLashi, BurmishMaru, BurmishOldBurmese, BurmishRangoon, BurmishXiandao, KhroskyabsWobzi, LoloishLisu, NungicDulong, QiangicZhaba, Tangut, TibetanAlike, TibetanBatang, TibetanLhasa, TibetanOldTibetan, TibetanXiahe, rGyalrongDaofu, rGyalrongJaphug, rGyalrongMaerkang)",
+      "role": "posterior",
+      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "subject_id": "sagart2019_relaxed_fbd:clade:ac05c99327920422"
     },
     {
       "analysis": "heggarty2023_main_m3",
@@ -5995,6 +6607,24 @@
       "subject_id": "heggarty2023_sa8a_chang_broad:clade:b73537451e5182d5"
     },
     {
+      "analysis": "sagart2019_relaxed_fbd",
+      "claim_id": "ev_tree_b83975bb2a11fb4afa2474d540d680d8ef5abbc4efeaff16e44e7c5d9a7c8232",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -4798,
+        "mean": -2793,
+        "median": -2701,
+        "probability": 0.95,
+        "upper": -1144
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(GaroGaro, JingphoJingpho, Rabha)",
+      "role": "posterior",
+      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "subject_id": "sagart2019_relaxed_fbd:clade:b83975bb2a11fb4a"
+    },
+    {
       "analysis": "heggarty2023_main_m3",
       "claim_id": "ev_tree_b85bf247325d6d8570611ac6fe0be66e68d066c4b6f5cf7314ef254e2314786b",
       "epoch": 2000,
@@ -6047,6 +6677,24 @@
       "role": "posterior",
       "source": "Menghan Zhang et al. 2019",
       "subject_id": "zhang2019_relaxed_covarion:clade:b94cf78c3f173f92"
+    },
+    {
+      "analysis": "sagart2019_relaxed_fbd",
+      "claim_id": "ev_tree_b9e9d1efab220078797389e9a1fbda8d93f373d94665662c9c7c7860d3b33e3f",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -107,
+        "mean": 659,
+        "median": 715,
+        "probability": 0.95,
+        "upper": 1390
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(DengDarangTaraon, DengYidu)",
+      "role": "posterior",
+      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "subject_id": "sagart2019_relaxed_fbd:clade:b9e9d1efab220078"
     },
     {
       "analysis": "zhang2019_relaxed_covarion",
@@ -6209,6 +6857,24 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_main_m3:clade:bd9accc8e6d99091"
+    },
+    {
+      "analysis": "sagart2019_relaxed_fbd",
+      "claim_id": "ev_tree_be1c707ff7776dd9027de5ae77a5fe229f48faa1a0412da0b8ee823ac0a0a154",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1504,
+        "mean": 1695,
+        "median": 1712,
+        "probability": 0.95,
+        "upper": 1860
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(SiniticChaozhou, SiniticJieyang)",
+      "role": "posterior",
+      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "subject_id": "sagart2019_relaxed_fbd:clade:be1c707ff7776dd9"
     },
     {
       "analysis": "heggarty2023_main_m3",
@@ -6589,6 +7255,24 @@
       "subject_id": "heggarty2023_sa8a_chang_broad:clade:c97e95caee05ff08"
     },
     {
+      "analysis": "sagart2019_relaxed_fbd",
+      "claim_id": "ev_tree_c9f2d9b736f51c31e43566780cfc971970e632a2d8ae073227276329039aa609",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -1234,
+        "mean": -433,
+        "median": -405,
+        "probability": 0.95,
+        "upper": 301
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(KhroskyabsWobzi, Tangut, rGyalrongDaofu, rGyalrongJaphug, rGyalrongMaerkang)",
+      "role": "posterior",
+      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "subject_id": "sagart2019_relaxed_fbd:clade:c9f2d9b736f51c31"
+    },
+    {
       "analysis": "heggarty2023_main_m3",
       "claim_id": "ev_tree_ca28fafc172b661234deb2022ceb3ae322bb780641f52824a03eb1548f5b82cd",
       "epoch": 2000,
@@ -6857,6 +7541,24 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_main_m3:clade:d29ac8d244e19465"
+    },
+    {
+      "analysis": "sagart2019_relaxed_fbd",
+      "claim_id": "ev_tree_d2ce6f8350c7a8f0e613edda0a4835994a85982d4319d77f6f64a3923c24afbe",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 768,
+        "mean": 1159,
+        "median": 1170,
+        "probability": 0.95,
+        "upper": 1531
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(SiniticLonggang, SiniticXingning)",
+      "role": "posterior",
+      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "subject_id": "sagart2019_relaxed_fbd:clade:d2ce6f8350c7a8f0"
     },
     {
       "analysis": "heggarty2023_sa8b_chang_broad_ancestry",
@@ -7219,6 +7921,24 @@
       "subject_id": "heggarty2023_main_m3:clade:dae243bf1c63a8a0"
     },
     {
+      "analysis": "sagart2019_relaxed_fbd",
+      "claim_id": "ev_tree_dafe8621d9ce99a50c00fa499011ece4ee08ea74ab417b507a3ce3a3b272311f",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -2358,
+        "mean": -827,
+        "median": -741,
+        "probability": 0.95,
+        "upper": 454
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(TibetoKinauriByangsi, TibetoKinauriRongpo)",
+      "role": "posterior",
+      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "subject_id": "sagart2019_relaxed_fbd:clade:dafe8621d9ce99a5"
+    },
+    {
       "analysis": "zhang2019_relaxed_covarion",
       "claim_id": "ev_tree_db62711591db536e896fc0f786bfc50dd656f9d140c4a5c27ed7c646c43ad1fd",
       "epoch": 1950,
@@ -7325,6 +8045,24 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_main_m3:clade:dd96e574386f411d"
+    },
+    {
+      "analysis": "sagart2019_relaxed_fbd",
+      "claim_id": "ev_tree_ddce35e3569bc6d8fac2dca66eccfe35a40e7b2b722028cb3bcab80b3a52759c",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -3190,
+        "mean": -1495,
+        "median": -1397,
+        "probability": 0.95,
+        "upper": -12
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(TibetoKinauriBunan, TibetoKinauriByangsi, TibetoKinauriRongpo)",
+      "role": "posterior",
+      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "subject_id": "sagart2019_relaxed_fbd:clade:ddce35e3569bc6d8"
     },
     {
       "analysis": "heggarty2023_main_m3",
@@ -7469,6 +8207,24 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_main_m3:clade:e0b330176751bcc8"
+    },
+    {
+      "analysis": "sagart2019_relaxed_fbd",
+      "claim_id": "ev_tree_e0ed31321593b630020b96f7dd6459b38249de310db0f590506c66a54cf6b3cf",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -753,
+        "mean": 295,
+        "median": 355,
+        "probability": 0.95,
+        "upper": 1220
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(ChinHakha, MizoLushai)",
+      "role": "posterior",
+      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "subject_id": "sagart2019_relaxed_fbd:clade:e0ed31321593b630"
     },
     {
       "analysis": "zhang2019_relaxed_covarion",
@@ -7669,6 +8425,24 @@
       "subject_id": "zhang2019_relaxed_covarion:clade:e57fd31b9bbeb5c3"
     },
     {
+      "analysis": "sagart2019_relaxed_fbd",
+      "claim_id": "ev_tree_e60bfec14186684f880c24d0c3e0327462fff5aebc11442d86651f32307f8128",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 750,
+        "mean": 750,
+        "median": 750,
+        "probability": 0.95,
+        "upper": 750
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(TibetanAlike, TibetanBatang, TibetanLhasa, TibetanOldTibetan, TibetanXiahe)",
+      "role": "posterior",
+      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "subject_id": "sagart2019_relaxed_fbd:clade:e60bfec14186684f"
+    },
+    {
       "analysis": "heggarty2023_sa8a_chang_broad",
       "claim_id": "ev_tree_e6655b9f879669930a0d0ffa228d112bdd0b28336593ef7d282026b3cbc24419",
       "epoch": 2000,
@@ -7757,6 +8531,24 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_sa8b_chang_broad_ancestry:clade:e7be39b9dc2e8d5c"
+    },
+    {
+      "analysis": "sagart2019_relaxed_fbd",
+      "claim_id": "ev_tree_e8a3a428140f1114b7527c6ee470c21c63103d08c47e7041b4f7c92f6e6a3400",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -5491,
+        "mean": -3936,
+        "median": -3949,
+        "probability": 0.95,
+        "upper": -2313
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(BodicTshangla, BurmishAchang, BurmishAtsi, BurmishBola, BurmishLashi, BurmishMaru, BurmishOldBurmese, BurmishRangoon, BurmishXiandao, ChepangChepang, ChinHakha, DengDarangTaraon, DengYidu, Karbi, KhroskyabsWobzi, KirantiBahing, KirantiBantawa, KirantiHayu, KirantiKhaling, KirantiKulung, KirantiLimbu, KirantiThulung, LoloishLisu, MizoLushai, NagaUkhrul, NungicDulong, QiangicZhaba, Tangut, TaniBokar, TibetanAlike, TibetanBatang, TibetanLhasa, TibetanOldTibetan, TibetanXiahe, TibetoKinauriBunan, TibetoKinauriByangsi, TibetoKinauriRongpo, rGyalrongDaofu, rGyalrongJaphug, rGyalrongMaerkang)",
+      "role": "posterior",
+      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "subject_id": "sagart2019_relaxed_fbd:clade:e8a3a428140f1114"
     },
     {
       "analysis": "heggarty2023_main_m3",
@@ -7885,6 +8677,24 @@
       "subject_id": "heggarty2023_main_m3:clade:ea461eccd604a9ed"
     },
     {
+      "analysis": "sagart2019_relaxed_fbd",
+      "claim_id": "ev_tree_ea7aeb0a9cf93fa3533e0d39fce7ee46579a3da89d14936c5b81a7d66b19d48d",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -945,
+        "mean": -140,
+        "median": -95,
+        "probability": 0.95,
+        "upper": 597
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(BurmishAchang, BurmishAtsi, BurmishBola, BurmishLashi, BurmishMaru, BurmishOldBurmese, BurmishRangoon, BurmishXiandao)",
+      "role": "posterior",
+      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "subject_id": "sagart2019_relaxed_fbd:clade:ea7aeb0a9cf93fa3"
+    },
+    {
       "analysis": "heggarty2023_main_m3",
       "claim_id": "ev_tree_eacaa7e1393ccda704c87e08d06ae56e9faec66ef65b04e3c8173f3ed7f3df2d",
       "epoch": 2000,
@@ -8011,6 +8821,24 @@
       "subject_id": "heggarty2023_main_m3:clade:f18d33ac1395ada8"
     },
     {
+      "analysis": "sagart2019_relaxed_fbd",
+      "claim_id": "ev_tree_f24ece1ecfe670a2cfce110ff4f23e1466605dfea99a17d915195bc4872bf9ff",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -5015,
+        "mean": -3466,
+        "median": -3435,
+        "probability": 0.95,
+        "upper": -1995
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(BodicTshangla, ChepangChepang, DengDarangTaraon, DengYidu, KirantiBahing, KirantiBantawa, KirantiHayu, KirantiKhaling, KirantiKulung, KirantiLimbu, KirantiThulung, TaniBokar)",
+      "role": "posterior",
+      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "subject_id": "sagart2019_relaxed_fbd:clade:f24ece1ecfe670a2"
+    },
+    {
       "analysis": "heggarty2023_sa8a_chang_broad",
       "claim_id": "ev_tree_f2b740863bcc3e6eba4df674d1e26babbe8d036277cd5b6ac4ce87e142063e98",
       "epoch": 2000,
@@ -8045,6 +8873,24 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_sa8a_chang_broad:clade:f2e25f41bd1bfc16"
+    },
+    {
+      "analysis": "sagart2019_relaxed_fbd",
+      "claim_id": "ev_tree_f30b4f96b05d520521c38bd57f5d928dd5649ea28a1b89b1a961194abdcd62e7",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1168,
+        "mean": 1416,
+        "median": 1420,
+        "probability": 0.95,
+        "upper": 1650
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(TibetanBatang, TibetanLhasa)",
+      "role": "posterior",
+      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "subject_id": "sagart2019_relaxed_fbd:clade:f30b4f96b05d5205"
     },
     {
       "analysis": "heggarty2023_main_m3",
@@ -8117,6 +8963,24 @@
       "role": "posterior",
       "source": "Menghan Zhang et al. 2019",
       "subject_id": "zhang2019_relaxed_covarion:clade:f4971ea06328059d"
+    },
+    {
+      "analysis": "sagart2019_relaxed_fbd",
+      "claim_id": "ev_tree_f4c9794bb65b5b315c579f8870411b06c54382fc3055e4587f132707bba840ee",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 163,
+        "mean": 576,
+        "median": 568,
+        "probability": 0.95,
+        "upper": 1003
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(SiniticGuangzhou, SiniticLonggang, SiniticXingning)",
+      "role": "posterior",
+      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "subject_id": "sagart2019_relaxed_fbd:clade:f4c9794bb65b5b31"
     },
     {
       "analysis": "heggarty2023_main_m3",
@@ -8389,6 +9253,24 @@
       "subject_id": "heggarty2023_main_m3:clade:fdb87311daec1b74"
     },
     {
+      "analysis": "sagart2019_relaxed_fbd",
+      "claim_id": "ev_tree_fde5e0867979fae2f90af63c39b92548eec75605d2102f06a627f2eaf08c80e0",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -501,
+        "mean": 245,
+        "median": 271,
+        "probability": 0.95,
+        "upper": 974
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(KhroskyabsWobzi, rGyalrongDaofu)",
+      "role": "posterior",
+      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "subject_id": "sagart2019_relaxed_fbd:clade:fde5e0867979fae2"
+    },
+    {
       "analysis": "heggarty2023_sa8b_chang_broad_ancestry",
       "claim_id": "ev_tree_fdf60728ae8d1c24b5f0a858a7b7932c95dcf3e1fc9ca935bf58f1f877b7aea1",
       "epoch": 2000,
@@ -8461,7 +9343,7 @@
       "subject_id": "zhang2019_relaxed_covarion:clade:ff9f137507695c91"
     }
   ],
-  "generation": "0bf8d4d87f590d2e0b8633ffc64e3705509ebe206421628df819af489b001be6",
+  "generation": "64df57f3b574ca80e7101b9437f9d6c261978ae4e5e2650a0e3d0bff228ba677",
   "languages": [
     {
       "alternatives": [
@@ -13142,7 +14024,28 @@
       }
     },
     {
-      "alternatives": [],
+      "alternatives": [
+        {
+          "basis": "estimated",
+          "citation": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan",
+          "claim_id": "ev_tree_85fc284e79c8f3962d6306b752570a9d731eafb478363180306d8105e8108e7b",
+          "end": {
+            "earliest": -7618,
+            "latest": -3143
+          },
+          "event": "crown_divergence",
+          "label": "until c. 7619/3144 BCE",
+          "locator": null,
+          "node": "MRCA(BodicTshangla, BurmishAchang, BurmishAtsi, BurmishBola, BurmishLashi, BurmishMaru, BurmishOldBurmese, BurmishRangoon, BurmishXiandao, ChepangChepang, ChinHakha, DengDarangTaraon, DengYidu, GaroGaro, JingphoJingpho, Karbi, KhroskyabsWobzi, KirantiBahing, KirantiBantawa, KirantiHayu, KirantiKhaling, KirantiKulung, KirantiLimbu, KirantiThulung, LoloishLisu, MizoLushai, NagaUkhrul, NungicDulong, QiangicZhaba, Rabha, SiniticBeijing, SiniticChaozhou, SiniticGuangzhou, SiniticJieyang, SiniticLonggang, SiniticOldChinese, SiniticXingning, Tangut, TaniBokar, TibetanAlike, TibetanBatang, TibetanLhasa, TibetanOldTibetan, TibetanXiahe, TibetoKinauriBunan, TibetoKinauriByangsi, TibetoKinauriRongpo, rGyalrongDaofu, rGyalrongJaphug, rGyalrongMaerkang)",
+          "note": "Sagart et al. 2019 (relaxed clock, fossilized birth-death prior; mean 7184 BP): BP read as AD 1950 by convention. Sinitic is basal in only 33% of its posterior trees.",
+          "proto_mapping": "The root of Sagart et al.'s tree: its 50 sampled varieties include Sinitic (Old Chinese and modern Chinese) and the Tibeto-Burman subgroups, so its crown is the breakup of Proto-Sino-Tibetan in this analysis.",
+          "quote": null,
+          "role": "posterior",
+          "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+          "start": null,
+          "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC6534992/fullTextXML"
+        }
+      ],
       "basis": "estimated",
       "code": "sit-pro",
       "evidence": [

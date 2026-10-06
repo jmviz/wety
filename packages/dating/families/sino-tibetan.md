@@ -12,8 +12,9 @@ rule, 95% HPD: `sit-pro` until 5868–2234 BCE (root), `tbq-lob-pro` 380 BCE –
 Not adopted: Tibeto-Burman (support 0.68; contested as a clade), Loloish (Nusu falls
 outside the Lahu–Ngwi clade), Naish (Zhang's "Naic" adds Namuyi and Xumi), Bodish
 (scope), Tani (three taxa), Bodo-Garo (Zhang's "Sal" adds Konyak and Jingpho). Sagart
-2019 (no stated epoch) and Zhang 2020 remain unconverted alternatives; they date the
-root older.
+2019 writes BP without an epoch: its tree is now read as AD 1950 by convention (labeled)
+and its root is listed beside Zhang's for `sit-pro` (until 7619–3144 BCE; mean 7184 BP).
+Zhang 2020 remains unconverted (epoch and calibration discrepancies).
 
 ## Sino-Tibetan source and scenario packet
 
