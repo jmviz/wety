@@ -41,6 +41,9 @@ reproduce 8629 and 4997 BP): without ancestry constraints until 7814–5301 BCE,
 Chang's eight ancestry constraints until 3817–2289 BCE, the steppe-compatible
 scenario. Chang et al.'s own posterior trees are not available in reproducible form
 (D-PLACE's copy has no HPDs or scenario label).
+Bouckaert et al. 2012's published root (7,116–10,410 BP, no centre given) is recorded as
+a candidate: its Phlorest deposit holds the 2013 corrected trees, which do not reproduce
+it (TREE1 7066–10342), so it is not shown.
 
 ## Indo-European: source and scenario packet
 

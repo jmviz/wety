@@ -1,6 +1,24 @@
 {
   "family_splits": [
     {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_0025876b0a0f85d78a0f5dce959515c13e220a81b4ce51b9c7ca4a32767f9162",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1176,
+        "mean": 1535,
+        "median": 1560,
+        "probability": 0.95,
+        "upper": 1827
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(TcWenma, TcYanshan)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:0025876b0a0f85d7"
+    },
+    {
       "analysis": "savelyev_robbeets2020_covarion_strict",
       "claim_id": "ev_tree_00309340eec1fe62c22a094ebc42a26e425adb1c48af3ac62bcd8ada6bcf15ba",
       "epoch": 2000,
@@ -179,6 +197,24 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_sa8b_chang_broad_ancestry:clade:01d957475dee34e5"
+    },
+    {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_01e38aa669dee9728e847339df5b51f723c889c835755bcaf50e7931fcc61f26",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1592,
+        "mean": 1790,
+        "median": 1817,
+        "probability": 0.95,
+        "upper": 1928
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(HlaiBaisha, HlaiYuanmen)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:01e38aa669dee972"
     },
     {
       "analysis": "grollemund2015_bantu_mcc",
@@ -487,6 +523,24 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:0476bd046499b78f"
     },
     {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_04791cbc8115fd74198d8adf8b5e2de51b2589c79cbe66089781cc0db6581e99",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -276,
+        "mean": 200,
+        "median": 203,
+        "probability": 0.95,
+        "upper": 651
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(BeChengmaiMY, BeChengmaiYL, BeHaikouCL, BeHaikouRS, BeJizhao, BeLinGaoLC, BeLinGaoXY, BeQiongshanLQ, BeQiongshanLT)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:04791cbc8115fd74"
+    },
+    {
       "analysis": "kitchen2009_semitic_mcc",
       "claim_id": "ev_tree_049b59d041f382669532f5898785d94ac4073235e4815064f0fbbb0f95455d20",
       "epoch": 1950,
@@ -683,6 +737,24 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_main_m3:clade:0626035c3d4a1e2f"
+    },
+    {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_0661eb8996ab943f33d6adbcbcabc94eaaf611cbaa4c8aba99c24c0debadcf0c",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 881,
+        "mean": 1196,
+        "median": 1200,
+        "probability": 0.95,
+        "upper": 1478
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(KsChadong, KsJin, KsKamJP, KsKamLP, KsKamRJ, KsKamTZ, KsMak, KsMaonan, KsMulam, KsSuiDS, KsSuiDY, KsSuiLB, KsSuiSD, KsThen)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:0661eb8996ab943f"
     },
     {
       "analysis": "koile2022_part2_geographic",
@@ -1009,6 +1081,24 @@
       "subject_id": "koile2022_part2_geographic:clade:0865ff84a4e972e5"
     },
     {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_08c6d4ca792832e81361d2639edc768e634562497e702359539724eb0d5b0b81",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1604,
+        "mean": 1770,
+        "median": 1786,
+        "probability": 0.95,
+        "upper": 1900
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(TnDonglan, TnFengshan)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:08c6d4ca792832e8"
+    },
+    {
       "analysis": "bouckaert2018_pama_nyungan_mcc",
       "claim_id": "ev_tree_08d33dd27ad611d15923fc4ffca625f57ee743a9bb707eb7a8b79173b60ba2c1",
       "epoch": 1950,
@@ -1189,6 +1279,42 @@
       "subject_id": "koile2022_part2_geographic:clade:0ada890d799271e1"
     },
     {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_0af9946ef782cb03871a75f1ae9f9bf58f72bef3294eb81a873b208ffd02e5bf",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 540,
+        "mean": 728,
+        "median": 728,
+        "probability": 0.95,
+        "upper": 906
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(KsBiao, KsChadong, KsJin, KsKamJP, KsKamLP, KsKamRJ, KsKamTZ, KsLakkia, KsMak, KsMaonan, KsMulam, KsSuiDS, KsSuiDY, KsSuiLB, KsSuiSD, KsThen)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:0af9946ef782cb03"
+    },
+    {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_0afbe50b33e06e580813a0645a65eaf0941aa43a0d225d1bb21333d5aafe771f",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1883,
+        "mean": 1923,
+        "median": 1929,
+        "probability": 0.95,
+        "upper": 1949
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(BeLinGaoLC, BeLinGaoXY)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:0afbe50b33e06e58"
+    },
+    {
       "analysis": "grollemund2015_bantu_mcc",
       "claim_id": "ev_tree_0b00146ef57cd31cc3efec1888a2133f89a573bec6c0355fa4aa35ee3a711312",
       "epoch": 1950,
@@ -1205,6 +1331,24 @@
       "role": "posterior",
       "source": "Rebecca Grollemund et al. 2015",
       "subject_id": "grollemund2015_bantu_mcc:clade:0b00146ef57cd31c"
+    },
+    {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_0b0dea7a65187474ef806a1678a5e270515f6b8b9db68a0047a7260bd5c86acb",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 435,
+        "mean": 980,
+        "median": 1010,
+        "probability": 0.95,
+        "upper": 1495
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(KraGelaoAS, KraGelaoDF, KraGelaoMJ, KraGelaoZF)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:0b0dea7a65187474"
     },
     {
       "analysis": "grollemund2015_bantu_mcc",
@@ -1241,6 +1385,24 @@
       "role": "posterior",
       "source": "Menghan Zhang et al. 2019",
       "subject_id": "zhang2019_relaxed_covarion:clade:0b4f6fc19a12370d"
+    },
+    {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_0b66927211d4942be3b1cc7f8dc9887eab0d4891860f6886012c567630e7fd0b",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1722,
+        "mean": 1836,
+        "median": 1849,
+        "probability": 0.95,
+        "upper": 1922
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(BeChengmaiMY, BeLinGaoLC, BeLinGaoXY)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:0b66927211d4942b"
     },
     {
       "analysis": "zhang2019_relaxed_covarion",
@@ -1297,6 +1459,24 @@
       "subject_id": "koile2022_part2_geographic:clade:0bd35e818fb53a67"
     },
     {
+      "analysis": "gerardi2023_full_relaxed",
+      "claim_id": "ev_tree_0bdb8945b7085908dd72507ea16c467daff49b5ef3fbb8e5605807ede255d1d7",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -295,
+        "mean": 545,
+        "median": 603,
+        "probability": 0.95,
+        "upper": 1270
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Amondawa, Anambe, Apiaka, Arawete, Asurini_Tocantins, Asurini_Xingu, Kayabi, Parakana, Parintintin, Surui_Aikewara, Tapirape, Tenharim, Urueuwauwau)",
+      "role": "posterior",
+      "source": "Fabrício Ferraz Gerardi et al. 2023",
+      "subject_id": "gerardi2023_full_relaxed:clade:0bdb8945b7085908"
+    },
+    {
       "analysis": "bouckaert2018_pama_nyungan_mcc",
       "claim_id": "ev_tree_0bea124f3b149ff77e0086c73431f50a873ad5340413e858f5ccb85168ac47cb",
       "epoch": 1950,
@@ -1331,6 +1511,24 @@
       "role": "posterior",
       "source": "Sean Lee & Toshikazu Hasegawa 2011",
       "subject_id": "lee_hasegawa2011_ucld_cov:clade:0bf6bc9f684c8bb4"
+    },
+    {
+      "analysis": "gerardi2023_full_relaxed",
+      "claim_id": "ev_tree_0c1a91cc71e2931254899c6b67ac479e819b06f3bd9622343d94f58a081ff4a3",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 285,
+        "mean": 959,
+        "median": 1017,
+        "probability": 0.95,
+        "upper": 1507
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Asurini_Tocantins, Parakana, Surui_Aikewara, Tapirape)",
+      "role": "posterior",
+      "source": "Fabrício Ferraz Gerardi et al. 2023",
+      "subject_id": "gerardi2023_full_relaxed:clade:0c1a91cc71e29312"
     },
     {
       "analysis": "kolipakam2018_cov_est_relax",
@@ -1655,6 +1853,24 @@
       "role": "posterior",
       "source": "Ezequiel Koile et al. 2022",
       "subject_id": "koile2022_part2_geographic:clade:0dac46994c29293d"
+    },
+    {
+      "analysis": "gerardi2023_full_relaxed",
+      "claim_id": "ev_tree_0db54c8e0cb246ace8982bddc1c1d0ce19441cc19fdb4c5cee8d29b4e67c821c",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 486,
+        "mean": 1149,
+        "median": 1199,
+        "probability": 0.95,
+        "upper": 1772
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Anambe, Arawete)",
+      "role": "posterior",
+      "source": "Fabrício Ferraz Gerardi et al. 2023",
+      "subject_id": "gerardi2023_full_relaxed:clade:0db54c8e0cb246ac"
     },
     {
       "analysis": "koile2022_part2_geographic",
@@ -2071,6 +2287,24 @@
       "subject_id": "heggarty2023_main_m3:clade:114f4fff88bc6785"
     },
     {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_1175820349e6f22f2525bd5f66e83210758e6d05438bcc1772e08e80f1f611fd",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1110,
+        "mean": 1385,
+        "median": 1396,
+        "probability": 0.95,
+        "upper": 1620
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(TswAiton, TswChiangmai, TswHsipaw, TswKhuen, TswNgheAn, TswTaunggyi)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:1175820349e6f22f"
+    },
+    {
       "analysis": "grollemund2015_bantu_mcc",
       "claim_id": "ev_tree_1197c4cbcf13088d143870304028c2ca5a199a5f4ae76f6f60527133fca80001",
       "epoch": 1950,
@@ -2485,6 +2719,24 @@
       "subject_id": "bouckaert2018_pama_nyungan_mcc:clade:159276abcb82d733"
     },
     {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_159b000235b05183fec65a9060780e16dd6ad790cf8230c6b6b56b25b6f03a01",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 583,
+        "mean": 1090,
+        "median": 1127,
+        "probability": 0.95,
+        "upper": 1492
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(TcFusui, TcLongAn, TcQinzhou, TcShangsi, TcYongning, TnDonglan, TnDuAn, TnFengshan, TnHengxian, TnHuishui, TnLianshan, TnLibo, TnLiujiang, TnLuodian, TnPanxian, TnPingguo, TnQianxi, TnQiubei, TnShuicheng, TnTiandong, TnWuming, TnZhenfeng, TnZhenning)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:159b000235b05183"
+    },
+    {
       "analysis": "bouckaert2018_pama_nyungan_mcc",
       "claim_id": "ev_tree_15c319ea58b91bd292f7a9fe7f35104cb67b6fb60fd3bcea9b2c5d1abfe8b097",
       "epoch": 1950,
@@ -2573,6 +2825,24 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_sa8b_chang_broad_ancestry:clade:173ade565c673b35"
+    },
+    {
+      "analysis": "gerardi2023_full_relaxed",
+      "claim_id": "ev_tree_1762de3bd270424b8116ab64e3a8a993d90aa32843568c24d9dac448aed2f362",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 327,
+        "mean": 974,
+        "median": 1019,
+        "probability": 0.95,
+        "upper": 1526
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Amondawa, Apiaka, Kayabi, Parintintin, Tenharim, Urueuwauwau)",
+      "role": "posterior",
+      "source": "Fabrício Ferraz Gerardi et al. 2023",
+      "subject_id": "gerardi2023_full_relaxed:clade:1762de3bd270424b"
     },
     {
       "analysis": "bouckaert2018_pama_nyungan_mcc",
@@ -2737,6 +3007,24 @@
       "subject_id": "heggarty2023_sa8a_chang_broad:clade:18a425864505a823"
     },
     {
+      "analysis": "gerardi2023_full_relaxed",
+      "claim_id": "ev_tree_18a7884b29b1547033f6cfd0c272897eaa986362e920fc156de8064775298f2a",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 106,
+        "mean": 897,
+        "median": 948,
+        "probability": 0.95,
+        "upper": 1539
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Ava_Canoeiro, Kamajura)",
+      "role": "posterior",
+      "source": "Fabrício Ferraz Gerardi et al. 2023",
+      "subject_id": "gerardi2023_full_relaxed:clade:18a7884b29b15470"
+    },
+    {
       "analysis": "grollemund2015_bantu_mcc",
       "claim_id": "ev_tree_18b1277b1ccd3be730f8fab435fe55e7996ee8b22da2eccfb3f56ce0988aa9c8",
       "epoch": 1950,
@@ -2899,6 +3187,24 @@
       "subject_id": "kitchen2009_semitic_mcc:clade:19d6c590687d465c"
     },
     {
+      "analysis": "gerardi2023_full_relaxed",
+      "claim_id": "ev_tree_19da2cdb2efa88ab3c353f45c76adab1e67e42c76b861c2a6cb785e139850ac0",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 264,
+        "mean": 921,
+        "median": 967,
+        "probability": 0.95,
+        "upper": 1447
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Ache, Siriono, Yuki)",
+      "role": "posterior",
+      "source": "Fabrício Ferraz Gerardi et al. 2023",
+      "subject_id": "gerardi2023_full_relaxed:clade:19da2cdb2efa88ab"
+    },
+    {
       "analysis": "koile2022_part2_geographic",
       "claim_id": "ev_tree_19e14e8f95aa18c7f15004d19876aec84f5dbfaaaa536722b7fbfc7de1fc4298",
       "epoch": 1950,
@@ -2915,6 +3221,42 @@
       "role": "posterior",
       "source": "Ezequiel Koile et al. 2022",
       "subject_id": "koile2022_part2_geographic:clade:19e14e8f95aa18c7"
+    },
+    {
+      "analysis": "greenhill2023_ua_covarion_relaxed",
+      "claim_id": "ev_tree_19e64c9dffa5d1c34d7f1429ab74760374423a842dd2381caea995044bd9e518",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -904,
+        "mean": -267,
+        "median": -312,
+        "probability": 0.95,
+        "upper": 547
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Gabrielino-15, Kitanemuk-34, Serrano-11)",
+      "role": "posterior",
+      "source": "Simon J. Greenhill et al. 2023",
+      "subject_id": "greenhill2023_ua_covarion_relaxed:clade:19e64c9dffa5d1c3"
+    },
+    {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_1a33da9a67f20c3f1f92c696755f6ae331bec79b96019cefa97d7a005f4114c7",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -1586,
+        "mean": -649,
+        "median": -581,
+        "probability": 0.95,
+        "upper": 149
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(BeChengmaiMY, BeChengmaiYL, BeHaikouCL, BeHaikouRS, BeJizhao, BeLinGaoLC, BeLinGaoXY, BeQiongshanLQ, BeQiongshanLT, KsBiao, KsChadong, KsJin, KsKamJP, KsKamLP, KsKamRJ, KsKamTZ, KsLakkia, KsMak, KsMaonan, KsMulam, KsSuiDS, KsSuiDY, KsSuiLB, KsSuiSD, KsThen, TcCaoBanTai, TcDaxin, TcDebao, TcFusui, TcLongAn, TcLongzhou, TcQinzhou, TcShangsi, TcWenma, TcYanshan, TcYongning, TnDonglan, TnDuAn, TnFengshan, TnHengxian, TnHuishui, TnLianshan, TnLibo, TnLiujiang, TnLuodian, TnPanxian, TnPingguo, TnQianxi, TnQiubei, TnSaek, TnShuicheng, TnTiandong, TnWuming, TnZhenfeng, TnZhenning, TswAiton, TswBangkok, TswChiangmai, TswHsipaw, TswJinghong, TswJinping, TswJinsha, TswKhuen, TswKorat, TswLao, TswLuchun, TswMaguan, TswMangshi, TswMenglian, TswNgheAn, TswSongkhla, TswTaunggyi, TswThaiTrang, TswWuding, TswYuanjiang, TswYuanyang)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:1a33da9a67f20c3f"
     },
     {
       "analysis": "heggarty2023_sa8a_chang_broad",
@@ -3007,6 +3349,24 @@
       "subject_id": "koile2022_part2_geographic:clade:1ab90c1412b7aaef"
     },
     {
+      "analysis": "gerardi2023_full_relaxed",
+      "claim_id": "ev_tree_1abda9131179111ba36439a8d459733f2c1f060f7b5987109c97200d4ec76045",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -380,
+        "mean": 459,
+        "median": 520,
+        "probability": 0.95,
+        "upper": 1229
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Amondawa, Anambe, Apiaka, Arawete, Asurini_Tocantins, Asurini_Xingu, Ava_Canoeiro, Kamajura, Kayabi, Parakana, Parintintin, Surui_Aikewara, Tapirape, Tenharim, Urueuwauwau)",
+      "role": "posterior",
+      "source": "Fabrício Ferraz Gerardi et al. 2023",
+      "subject_id": "gerardi2023_full_relaxed:clade:1abda9131179111b"
+    },
+    {
       "analysis": "lee_hasegawa2011_ucld_cov",
       "claim_id": "ev_tree_1b0c1e9d2c5a86786a3c3a4a4223111d26cf86e9fd1bfd1661e72a89e6e1c28d",
       "epoch": 2010,
@@ -3023,6 +3383,24 @@
       "role": "posterior",
       "source": "Sean Lee & Toshikazu Hasegawa 2011",
       "subject_id": "lee_hasegawa2011_ucld_cov:clade:1b0c1e9d2c5a8678"
+    },
+    {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_1b219de7feb7a7a941301887c960d3451d9266f3848457ea2c203de6a6e7dfc5",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 941,
+        "mean": 1231,
+        "median": 1245,
+        "probability": 0.95,
+        "upper": 1512
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(TswAiton, TswChiangmai, TswHsipaw, TswJinghong, TswJinping, TswJinsha, TswKhuen, TswLuchun, TswMaguan, TswMangshi, TswMenglian, TswNgheAn, TswTaunggyi, TswThaiTrang, TswWuding, TswYuanjiang, TswYuanyang)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:1b219de7feb7a7a9"
     },
     {
       "analysis": "grollemund2015_bantu_mcc",
@@ -3421,6 +3799,24 @@
       "subject_id": "heggarty2023_sa8b_chang_broad_ancestry:clade:1e2b9f1549912325"
     },
     {
+      "analysis": "gerardi2023_full_relaxed",
+      "claim_id": "ev_tree_1e3614d3debbaa915b6f26b966de34ea50b9c142a7dc6a90c4173081ce17e528",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 735,
+        "mean": 1214,
+        "median": 1249,
+        "probability": 0.95,
+        "upper": 1607
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Guarani, Kaiowa, Mbya)",
+      "role": "posterior",
+      "source": "Fabrício Ferraz Gerardi et al. 2023",
+      "subject_id": "gerardi2023_full_relaxed:clade:1e3614d3debbaa91"
+    },
+    {
       "analysis": "sagart2019_relaxed_fbd",
       "claim_id": "ev_tree_1e36a1bc4c5a9fe41dcaef4d4168a2db444a56ca90676ccc2d5e915381f70533",
       "epoch": 1950,
@@ -3455,6 +3851,24 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_sa8a_chang_broad:clade:1e65de858aea8137"
+    },
+    {
+      "analysis": "gerardi2023_full_relaxed",
+      "claim_id": "ev_tree_1e7cb6bf212cfb0cf8882a2627a3509f4182df749338f040a1e253b6046c0981",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 131,
+        "mean": 808,
+        "median": 864,
+        "probability": 0.95,
+        "upper": 1388
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Ache, Siriono, Xeta, Yuki)",
+      "role": "posterior",
+      "source": "Fabrício Ferraz Gerardi et al. 2023",
+      "subject_id": "gerardi2023_full_relaxed:clade:1e7cb6bf212cfb0c"
     },
     {
       "analysis": "bouckaert2018_pama_nyungan_mcc",
@@ -3979,6 +4393,24 @@
       "subject_id": "koile2022_part2_geographic:clade:21d016cdce4f1e9c"
     },
     {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_2234b11e3877b85d4270e0a4b83ed832c47a6ba230eec69e19cc32bf477ea07a",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1424,
+        "mean": 1651,
+        "median": 1669,
+        "probability": 0.95,
+        "upper": 1843
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(TswBangkok, TswKorat, TswSongkhla)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:2234b11e3877b85d"
+    },
+    {
       "analysis": "koile2022_part2_geographic",
       "claim_id": "ev_tree_223d46850552789fc92dcc31b465e6c31f0357e69b2474363091040f66a233bc",
       "epoch": 1950,
@@ -4285,6 +4717,24 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:24a368d78b5c8c6f"
     },
     {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_24ba9cfe481769f6fa9d6557a45cc4b7e21b89e0b4c1b58734b7a6e78278758c",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1817,
+        "mean": 1896,
+        "median": 1908,
+        "probability": 0.95,
+        "upper": 1947
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(KsJin, KsMak)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:24ba9cfe481769f6"
+    },
+    {
       "analysis": "koile2022_part2_geographic",
       "claim_id": "ev_tree_24bb65defae4a54daab251a296afa21b1eaab59c13490bb52f228cf8b340dc6c",
       "epoch": 1950,
@@ -4373,6 +4823,24 @@
       "role": "posterior",
       "source": "Remco Bouckaert et al. 2018",
       "subject_id": "bouckaert2018_pama_nyungan_mcc:clade:2575aae885f60c51"
+    },
+    {
+      "analysis": "gerardi2023_full_relaxed",
+      "claim_id": "ev_tree_258dd1a4352cf4b133ba44dae805defca95c7395bc7d494d6aec0bd2c040d151",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1320,
+        "mean": 1598,
+        "median": 1626,
+        "probability": 0.95,
+        "upper": 1828
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Amondawa, Parintintin, Tenharim, Urueuwauwau)",
+      "role": "posterior",
+      "source": "Fabrício Ferraz Gerardi et al. 2023",
+      "subject_id": "gerardi2023_full_relaxed:clade:258dd1a4352cf4b1"
     },
     {
       "analysis": "grollemund2015_bantu_mcc",
@@ -4481,6 +4949,24 @@
       "role": "posterior",
       "source": "Ezequiel Koile et al. 2022",
       "subject_id": "koile2022_part2_geographic:clade:264bf3c5642c60de"
+    },
+    {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_2671fefb126a3e078349c4508d4d0316066bd42fd554be0e65507a86e66504fd",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1629,
+        "mean": 1781,
+        "median": 1796,
+        "probability": 0.95,
+        "upper": 1902
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(BeHaikouCL, BeHaikouRS, BeQiongshanLQ, BeQiongshanLT)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:2671fefb126a3e07"
     },
     {
       "analysis": "bouckaert2018_pama_nyungan_mcc",
@@ -4607,6 +5093,24 @@
       "role": "posterior",
       "source": "Remco Bouckaert et al. 2018",
       "subject_id": "bouckaert2018_pama_nyungan_mcc:clade:26e097f69a3be2ff"
+    },
+    {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_272247765752d4acbe72be989275fcbaa52d37386ceab2cbcf3edfd936660380",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1051,
+        "mean": 1350,
+        "median": 1360,
+        "probability": 0.95,
+        "upper": 1613
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(KsChadong, KsJin, KsMak, KsMaonan, KsMulam, KsSuiDS, KsSuiDY, KsSuiLB, KsSuiSD, KsThen)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:272247765752d4ac"
     },
     {
       "analysis": "grollemund2015_bantu_mcc",
@@ -4951,6 +5455,42 @@
       "subject_id": "bouckaert2018_pama_nyungan_mcc:clade:29cd29119dada5de"
     },
     {
+      "analysis": "greenhill2023_ua_covarion_relaxed",
+      "claim_id": "ev_tree_29f5292f27e94149490a3bc61e1b3d00cdc5a8ea3d34ad2722da85d5abdc4503",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -2073,
+        "mean": -1549,
+        "median": -1514,
+        "probability": 0.95,
+        "upper": -1089
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Cahuilla-12, Chemehuevi-7, Comanche-5, Cupeno-13, Gabrielino-15, Hopi-16, Kawaiisu-6, Kitanemuk-34, Luiseno-14, Mono-1, Northern_Paiute-2, Pannamint-3, Serrano-11, Shoshoni_Gosiute_Dialect-4, Southern_Paiute-8, Southern_Ute-9, Tubatulabel-10)",
+      "role": "posterior",
+      "source": "Simon J. Greenhill et al. 2023",
+      "subject_id": "greenhill2023_ua_covarion_relaxed:clade:29f5292f27e94149"
+    },
+    {
+      "analysis": "gerardi2023_full_relaxed",
+      "claim_id": "ev_tree_2a2c93dba434e5ca9d3cc82581ea4cbc8e722c56a6fd65b659b805f49d6a5c4e",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 196,
+        "mean": 970,
+        "median": 1033,
+        "probability": 0.95,
+        "upper": 1622
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Guaja, Guajajara, Tembe)",
+      "role": "posterior",
+      "source": "Fabrício Ferraz Gerardi et al. 2023",
+      "subject_id": "gerardi2023_full_relaxed:clade:2a2c93dba434e5ca"
+    },
+    {
       "analysis": "heggarty2023_main_m3",
       "claim_id": "ev_tree_2a3e3f373822ab5c79c287a2a757734e50c8fc5093d888d766d4a8ad45181740",
       "epoch": 2000,
@@ -5185,6 +5725,24 @@
       "subject_id": "koile2022_part2_geographic:clade:2b0d6eb27b97db1a"
     },
     {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_2b2c5ec49343c0cff30ee6f6324fac4bc07e62175ad464d09203a637d6488d7e",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -3600,
+        "mean": -2091,
+        "median": -1980,
+        "probability": 0.95,
+        "upper": -791
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(BeChengmaiMY, BeChengmaiYL, BeHaikouCL, BeHaikouRS, BeJizhao, BeLinGaoLC, BeLinGaoXY, BeQiongshanLQ, BeQiongshanLT, HlaiBaisha, HlaiBaoding, HlaiBaoting, HlaiChangjiang, HlaiCun, HlaiHeitu, HlaiJiamao, HlaiNadou, HlaiQiandui, HlaiTongza, HlaiXifang, HlaiYuanmen, HlaiZhongsha, KraBuyangBH, KraBuyangEC, KraBuyangLJ, KraBuyangYR, KraGelaoAS, KraGelaoDF, KraGelaoMJ, KraGelaoZF, KraLachi, KraLaha, KraPubiao, KsBiao, KsChadong, KsJin, KsKamJP, KsKamLP, KsKamRJ, KsKamTZ, KsLakkia, KsMak, KsMaonan, KsMulam, KsSuiDS, KsSuiDY, KsSuiLB, KsSuiSD, KsThen, TcCaoBanTai, TcDaxin, TcDebao, TcFusui, TcLongAn, TcLongzhou, TcQinzhou, TcShangsi, TcWenma, TcYanshan, TcYongning, TnDonglan, TnDuAn, TnFengshan, TnHengxian, TnHuishui, TnLianshan, TnLibo, TnLiujiang, TnLuodian, TnPanxian, TnPingguo, TnQianxi, TnQiubei, TnSaek, TnShuicheng, TnTiandong, TnWuming, TnZhenfeng, TnZhenning, TswAiton, TswBangkok, TswChiangmai, TswHsipaw, TswJinghong, TswJinping, TswJinsha, TswKhuen, TswKorat, TswLao, TswLuchun, TswMaguan, TswMangshi, TswMenglian, TswNgheAn, TswSongkhla, TswTaunggyi, TswThaiTrang, TswWuding, TswYuanjiang, TswYuanyang)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:2b2c5ec49343c0cf"
+    },
+    {
       "analysis": "bouckaert2018_pama_nyungan_mcc",
       "claim_id": "ev_tree_2b3b62771253aabd599c3917f27905043b0c739fc416260dd56cb968c9c9974b",
       "epoch": 1950,
@@ -5273,6 +5831,24 @@
       "role": "posterior",
       "source": "Remco Bouckaert et al. 2018",
       "subject_id": "bouckaert2018_pama_nyungan_mcc:clade:2c1c7a013a1834aa"
+    },
+    {
+      "analysis": "greenhill2023_ua_covarion_relaxed",
+      "claim_id": "ev_tree_2c23ebeea6ea43539163bd8da5e3945c1b30ded7896bad2fff292acf1825040a",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 876,
+        "mean": 1361,
+        "median": 1405,
+        "probability": 0.95,
+        "upper": 1779
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Guarijio-22, Tarahumara-23)",
+      "role": "posterior",
+      "source": "Simon J. Greenhill et al. 2023",
+      "subject_id": "greenhill2023_ua_covarion_relaxed:clade:2c23ebeea6ea4353"
     },
     {
       "analysis": "koile2022_part2_geographic",
@@ -5453,6 +6029,24 @@
       "role": "posterior",
       "source": "Menghan Zhang et al. 2019",
       "subject_id": "zhang2019_relaxed_covarion:clade:2d5da1cb60137c1f"
+    },
+    {
+      "analysis": "greenhill2023_ua_covarion_relaxed",
+      "claim_id": "ev_tree_2d792b28cca890b31f365dd086ac14d5cf97d14e005757651e7755c259595a56",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 296,
+        "mean": 949,
+        "median": 979,
+        "probability": 0.95,
+        "upper": 1530
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Eudeve-21, Opata-20)",
+      "role": "posterior",
+      "source": "Simon J. Greenhill et al. 2023",
+      "subject_id": "greenhill2023_ua_covarion_relaxed:clade:2d792b28cca890b3"
     },
     {
       "analysis": "bouckaert2018_pama_nyungan_mcc",
@@ -5671,6 +6265,24 @@
       "subject_id": "koile2022_part2_geographic:clade:2f49d03115542ed2"
     },
     {
+      "analysis": "greenhill2023_ua_covarion_relaxed",
+      "claim_id": "ev_tree_2f751e6beb4a1b218b03ae531adf2c173a06f2c4393cd883edf1bebdfb94dfcc",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -5946,
+        "mean": -3612,
+        "median": -3479,
+        "probability": 0.95,
+        "upper": -1606
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Aztec_Tetelcingo-30, Aztec_Zacapoaxtla-31, Cahuilla-12, Chemehuevi-7, Classical_Aztec-29, Comanche-5, Cora-27, Cupeno-13, Eudeve-21, Gabrielino-15, Guarijio-22, Hopi-16, Huichol-28, Kawaiisu-6, Kiowa-35, Kitanemuk-34, Luiseno-14, Mayo-25, Mono-1, Northern_Paiute-2, Northern_Tepehuan-19, Opata-20, Pannamint-3, Papago-Pima-17, Pima_de_Onavas-18, Pipil-32, San_Juan_Pueblo_Tewa-36, Serrano-11, Shoshoni_Gosiute_Dialect-4, Southeastern_Tepehuan-33, Southern_Paiute-8, Southern_Ute-9, Tarahumara-23, Tubar-24, Tubatulabel-10, Yaqui-26)",
+      "role": "posterior",
+      "source": "Simon J. Greenhill et al. 2023",
+      "subject_id": "greenhill2023_ua_covarion_relaxed:clade:2f751e6beb4a1b21"
+    },
+    {
       "analysis": "grollemund2015_bantu_mcc",
       "claim_id": "ev_tree_2f783330bc6fa716cd7f01b7615b5f46bff82404388411b206d25e06d69015ff",
       "epoch": 1950,
@@ -5831,6 +6443,24 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_sa8b_chang_broad_ancestry:clade:30f033aabe441642"
+    },
+    {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_310c6a98c524135f33dd02fd7af68fce6e6861c90a9795c0cffbbedfcead04d4",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1412,
+        "mean": 1650,
+        "median": 1672,
+        "probability": 0.95,
+        "upper": 1847
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(TcFusui, TcQinzhou, TcShangsi)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:310c6a98c524135f"
     },
     {
       "analysis": "grollemund2015_bantu_mcc",
@@ -6571,6 +7201,24 @@
       "subject_id": "lee_hasegawa2011_ucld_cov:clade:35e394282dc12360"
     },
     {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_3634725123fd2034620a94ecff922c7c1d81817440f4d4652b7ab77c60a8596f",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1486,
+        "mean": 1722,
+        "median": 1744,
+        "probability": 0.95,
+        "upper": 1896
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(TcLongAn, TcYongning)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:3634725123fd2034"
+    },
+    {
       "analysis": "bouckaert2018_pama_nyungan_mcc",
       "claim_id": "ev_tree_3651bf520dd27847b0880248805c3ef77239b124f67f0bfe553ba6d7618d9067",
       "epoch": 1950,
@@ -6677,6 +7325,24 @@
       "role": "posterior",
       "source": "Alexander Savelyev & Martine Robbeets 2020",
       "subject_id": "savelyev_robbeets2020_covarion_strict:clade:367387025770493a"
+    },
+    {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_36bf1f3b39201dc6077fbedbd4cdcee8ccf522a987300befc221395d03d73d97",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1230,
+        "mean": 1575,
+        "median": 1603,
+        "probability": 0.95,
+        "upper": 1857
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(TnHengxian, TnWuming)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:36bf1f3b39201dc6"
     },
     {
       "analysis": "zhang2019_relaxed_covarion",
@@ -6859,6 +7525,24 @@
       "subject_id": "sagart2019_relaxed_fbd:clade:37afc51b7998eb6d"
     },
     {
+      "analysis": "gerardi2023_full_relaxed",
+      "claim_id": "ev_tree_3890647214e32686744496c45e5745d0599ff4f1087ec7ec78f3fc7ecec0bf2a",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1600,
+        "mean": 1776,
+        "median": 1795,
+        "probability": 0.95,
+        "upper": 1903
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Amondawa, Tenharim)",
+      "role": "posterior",
+      "source": "Fabrício Ferraz Gerardi et al. 2023",
+      "subject_id": "gerardi2023_full_relaxed:clade:3890647214e32686"
+    },
+    {
       "analysis": "bouckaert2018_pama_nyungan_mcc",
       "claim_id": "ev_tree_389684ebb1d6a95e199d900207a656ee40f92538ca224ccbf5c73deaba6a8bbc",
       "epoch": 1950,
@@ -7019,6 +7703,24 @@
       "role": "posterior",
       "source": "Rebecca Grollemund et al. 2015",
       "subject_id": "grollemund2015_bantu_mcc:clade:39692d1323782241"
+    },
+    {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_3969db2152becd394fc7653d2a32b4ee18d6338c75533836724cabdaac5e2a41",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1582,
+        "mean": 1768,
+        "median": 1786,
+        "probability": 0.95,
+        "upper": 1909
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(HlaiChangjiang, HlaiXifang)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:3969db2152becd39"
     },
     {
       "analysis": "heggarty2023_sa8b_chang_broad_ancestry",
@@ -7381,6 +8083,24 @@
       "subject_id": "zhang2019_relaxed_covarion:clade:3d87550447667745"
     },
     {
+      "analysis": "greenhill2023_ua_covarion_relaxed",
+      "claim_id": "ev_tree_3da4600c55eb8775d8751d5ba4d60c42e8c48eb5a7f8dc9f8ccf3b97b55b11a4",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1221,
+        "mean": 1474,
+        "median": 1486,
+        "probability": 0.95,
+        "upper": 1701
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Chemehuevi-7, Kawaiisu-6, Southern_Paiute-8)",
+      "role": "posterior",
+      "source": "Simon J. Greenhill et al. 2023",
+      "subject_id": "greenhill2023_ua_covarion_relaxed:clade:3da4600c55eb8775"
+    },
+    {
       "analysis": "bouckaert2018_pama_nyungan_mcc",
       "claim_id": "ev_tree_3db7ca183b208deb7f6c36fa9b0609f1e4f3e610ee214e796d69260a1ab00793",
       "epoch": 1950,
@@ -7543,6 +8263,24 @@
       "subject_id": "koile2022_part2_geographic:clade:3f95351511f377eb"
     },
     {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_3fac19f2e464931ec3f15870729367918716cd471790be7c28bd4f6531468061",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 965,
+        "mean": 1321,
+        "median": 1349,
+        "probability": 0.95,
+        "upper": 1633
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(HlaiBaisha, HlaiBaoding, HlaiBaoting, HlaiChangjiang, HlaiCun, HlaiHeitu, HlaiNadou, HlaiQiandui, HlaiTongza, HlaiXifang, HlaiYuanmen, HlaiZhongsha)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:3fac19f2e464931e"
+    },
+    {
       "analysis": "bouckaert2018_pama_nyungan_mcc",
       "claim_id": "ev_tree_3faef2e2a30c462440ea7043d14f401f0e9b16eaaf3e10add41a9d7b157321d9",
       "epoch": 1950,
@@ -7687,6 +8425,24 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:409cd6843bde35c6"
     },
     {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_40b06cb19a11c753ddbadd6bf4c6258c80686f5c7143e6662bce4ab699289a39",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 780,
+        "mean": 1297,
+        "median": 1334,
+        "probability": 0.95,
+        "upper": 1707
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(KraBuyangEC, KraBuyangLJ, KraBuyangYR)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:40b06cb19a11c753"
+    },
+    {
       "analysis": "heggarty2023_main_m3",
       "claim_id": "ev_tree_40c2c59750aab255e05d19faa366ffdfd8ac863c2fd44c28022a05de229304d4",
       "epoch": 2000,
@@ -7811,6 +8567,24 @@
       "role": "posterior",
       "source": "Ezequiel Koile et al. 2022",
       "subject_id": "koile2022_part2_geographic:clade:410f20d79a3936fe"
+    },
+    {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_41129b2c52a2dfe0f53ced2bda01acdf8888317bd6d4df89f4ba62c96e4ceb9c",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1348,
+        "mean": 1593,
+        "median": 1607,
+        "probability": 0.95,
+        "upper": 1797
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(KsKamJP, KsKamLP, KsKamRJ, KsKamTZ)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:41129b2c52a2dfe0"
     },
     {
       "analysis": "bouckaert2018_pama_nyungan_mcc",
@@ -7993,6 +8767,24 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:41e2c7a36eefcf1e"
     },
     {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_41ed9a0a54af58b4baa61614e78d3d6fb38fab1317359ee9fc44de962a291150",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1299,
+        "mean": 1569,
+        "median": 1589,
+        "probability": 0.95,
+        "upper": 1829
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(TcDaxin, TcDebao, TcLongzhou)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:41ed9a0a54af58b4"
+    },
+    {
       "analysis": "koile2022_part2_geographic",
       "claim_id": "ev_tree_41f16f978112b1589343ecdd4a9ecd576881e3cdd81f5a1b696a6f3508ca5e48",
       "epoch": 1950,
@@ -8155,6 +8947,24 @@
       "subject_id": "koile2022_part2_geographic:clade:42c369b3f692d80b"
     },
     {
+      "analysis": "gerardi2023_full_relaxed",
+      "claim_id": "ev_tree_42cb7ae271f32a8356a9c9e1655727987e3009db050e71367c7484ae2c1a41f2",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1272,
+        "mean": 1603,
+        "median": 1633,
+        "probability": 0.95,
+        "upper": 1843
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Kokama, Omagua)",
+      "role": "posterior",
+      "source": "Fabrício Ferraz Gerardi et al. 2023",
+      "subject_id": "gerardi2023_full_relaxed:clade:42cb7ae271f32a83"
+    },
+    {
       "analysis": "grollemund2015_bantu_mcc",
       "claim_id": "ev_tree_42f6839cbedafcf0f66d6cb8c1f56b611dff8675bd3e3f12af1b1af0d5d5740d",
       "epoch": 1950,
@@ -8209,6 +9019,24 @@
       "subject_id": "heggarty2023_main_m3:clade:432e4945f6099847"
     },
     {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_4366d37bd05d8635da9d815fd3f1cc8f4cd41751eba605456436aede6b5fef6a",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1603,
+        "mean": 1762,
+        "median": 1774,
+        "probability": 0.95,
+        "upper": 1888
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(TswJinping, TswThaiTrang)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:4366d37bd05d8635"
+    },
+    {
       "analysis": "savelyev_robbeets2020_covarion_strict",
       "claim_id": "ev_tree_43889eabe8e4f13f8f6816097060edb181bcd738f395e6785d279e71b57c57ef",
       "epoch": 2000,
@@ -8261,6 +9089,24 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_main_m3:clade:4421539369cff4bb"
+    },
+    {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_442d3e84f852fa9d1a543c76349c9c85221f59a6eaa8679843d741a4959c9295",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -420,
+        "mean": 241,
+        "median": 249,
+        "probability": 0.95,
+        "upper": 845
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(KraBuyangBH, KraGelaoAS, KraGelaoDF, KraGelaoMJ, KraGelaoZF, KraLachi, KraLaha)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:442d3e84f852fa9d"
     },
     {
       "analysis": "grollemund2015_bantu_mcc",
@@ -8641,6 +9487,24 @@
       "subject_id": "heggarty2023_sa8b_chang_broad_ancestry:clade:476346f89cf6a4f1"
     },
     {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_4763fd0eedf28c657ceb44d9973c08989d7b947e944acb02c2a7713913d1f35c",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -959,
+        "mean": -485,
+        "median": -484,
+        "probability": 0.95,
+        "upper": -17
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(KraBuyangBH, KraBuyangEC, KraBuyangLJ, KraBuyangYR, KraGelaoAS, KraGelaoDF, KraGelaoMJ, KraGelaoZF, KraLachi, KraLaha, KraPubiao)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:4763fd0eedf28c65"
+    },
+    {
       "analysis": "bouckaert2018_pama_nyungan_mcc",
       "claim_id": "ev_tree_4767a7fc1c69b4dd08ab64aa4ca1755a4fea79ea09179c7af81d389c3ec7e7db",
       "epoch": 1950,
@@ -8747,6 +9611,24 @@
       "role": "posterior",
       "source": "Rebecca Grollemund et al. 2015",
       "subject_id": "grollemund2015_bantu_mcc:clade:4874fc3f2b69764f"
+    },
+    {
+      "analysis": "greenhill2023_ua_covarion_relaxed",
+      "claim_id": "ev_tree_4887f99ac834403053aa5a527780922f070c777d541a047c8bd28ad892c04309",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -1892,
+        "mean": -1029,
+        "median": -1014,
+        "probability": 0.95,
+        "upper": -184
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Eudeve-21, Guarijio-22, Mayo-25, Northern_Tepehuan-19, Opata-20, Papago-Pima-17, Pima_de_Onavas-18, Southeastern_Tepehuan-33, Tarahumara-23, Tubar-24, Yaqui-26)",
+      "role": "posterior",
+      "source": "Simon J. Greenhill et al. 2023",
+      "subject_id": "greenhill2023_ua_covarion_relaxed:clade:4887f99ac8344030"
     },
     {
       "analysis": "bouckaert2018_pama_nyungan_mcc",
@@ -8983,6 +9865,24 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:49fd9555cb19c1de"
     },
     {
+      "analysis": "gerardi2023_full_relaxed",
+      "claim_id": "ev_tree_4a03cdadaf898a19e7cfe25afd91abeca0a6fbb9a1a4ab35e27e6983de7a18c5",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1399,
+        "mean": 1643,
+        "median": 1670,
+        "probability": 0.95,
+        "upper": 1837
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Amondawa, Parintintin, Tenharim)",
+      "role": "posterior",
+      "source": "Fabrício Ferraz Gerardi et al. 2023",
+      "subject_id": "gerardi2023_full_relaxed:clade:4a03cdadaf898a19"
+    },
+    {
       "analysis": "grollemund2015_bantu_mcc",
       "claim_id": "ev_tree_4a30d4ad866860b5385ef8bf0c62cc5382633e6f24d6a2684d84cefb765f74f7",
       "epoch": 1950,
@@ -9071,6 +9971,24 @@
       "role": "posterior",
       "source": "Rebecca Grollemund et al. 2015",
       "subject_id": "grollemund2015_bantu_mcc:clade:4a9872418c2531fd"
+    },
+    {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_4ac2673ad7e3bcde5ffa5445f2508834f77464253dab72ba3b34515b566861bd",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1726,
+        "mean": 1838,
+        "median": 1848,
+        "probability": 0.95,
+        "upper": 1923
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(KsKamJP, KsKamTZ)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:4ac2673ad7e3bcde"
     },
     {
       "analysis": "lee_hasegawa2011_ucld_cov",
@@ -9181,6 +10099,42 @@
       "subject_id": "heggarty2023_sa8b_chang_broad_ancestry:clade:4b8569ada5bf9caa"
     },
     {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_4bc2551ec937b03c831a754d9048428f82d34e0279c1cf51de351e9b515c95e5",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1775,
+        "mean": 1871,
+        "median": 1883,
+        "probability": 0.95,
+        "upper": 1938
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(BeQiongshanLQ, BeQiongshanLT)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:4bc2551ec937b03c"
+    },
+    {
+      "analysis": "gerardi2023_full_relaxed",
+      "claim_id": "ev_tree_4c697d0e7ec382538bb9d52a235653cb8feff7793540d9364a68396fcc78a538",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 160,
+        "mean": 815,
+        "median": 868,
+        "probability": 0.95,
+        "upper": 1380
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Chiriguano, Guarani, Guarayo, Kaiowa, Mbya, Old_Guarani, Tapiete)",
+      "role": "posterior",
+      "source": "Fabrício Ferraz Gerardi et al. 2023",
+      "subject_id": "gerardi2023_full_relaxed:clade:4c697d0e7ec38253"
+    },
+    {
       "analysis": "grollemund2015_bantu_mcc",
       "claim_id": "ev_tree_4c8d0cc658b8e6f814e3f130ebeeb18a96bc4c232a06df2f71ca9820d8737a74",
       "epoch": 1950,
@@ -9235,6 +10189,24 @@
       "subject_id": "koile2022_part2_geographic:clade:4cb86663969515fa"
     },
     {
+      "analysis": "gerardi2023_full_relaxed",
+      "claim_id": "ev_tree_4ce0f1f1e80c36152a213d598ec3d265b98c1cc28c8b98c58c47727add7a9a6c",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 365,
+        "mean": 997,
+        "median": 1044,
+        "probability": 0.95,
+        "upper": 1534
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Kokama, Nheengatu, Omagua)",
+      "role": "posterior",
+      "source": "Fabrício Ferraz Gerardi et al. 2023",
+      "subject_id": "gerardi2023_full_relaxed:clade:4ce0f1f1e80c3615"
+    },
+    {
       "analysis": "koile2022_part2_geographic",
       "claim_id": "ev_tree_4d080aa0415e085586d40121d5385ef6f3249a563603eec8a43862ddd563941f",
       "epoch": 1950,
@@ -9287,6 +10259,24 @@
       "role": "posterior",
       "source": "Rebecca Grollemund et al. 2015",
       "subject_id": "grollemund2015_bantu_mcc:clade:4d54a45a5979a4c2"
+    },
+    {
+      "analysis": "gerardi2023_full_relaxed",
+      "claim_id": "ev_tree_4d8060aba9c2003d55dbd689ecda9b118e08f77466fd4b350fc04288977c9575",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 975,
+        "mean": 1456,
+        "median": 1504,
+        "probability": 0.95,
+        "upper": 1844
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Guajajara, Tembe)",
+      "role": "posterior",
+      "source": "Fabrício Ferraz Gerardi et al. 2023",
+      "subject_id": "gerardi2023_full_relaxed:clade:4d8060aba9c2003d"
     },
     {
       "analysis": "grollemund2015_bantu_mcc",
@@ -10207,6 +11197,24 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:546e0a1c2d4351cc"
     },
     {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_54a1eb56427477e1b9151a70bc8be96380fc32c8b79b368357a2484593679880",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1678,
+        "mean": 1819,
+        "median": 1833,
+        "probability": 0.95,
+        "upper": 1923
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(TswJinsha, TswWuding)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:54a1eb56427477e1"
+    },
+    {
       "analysis": "koile2022_part2_geographic",
       "claim_id": "ev_tree_54ccfd6bfa4bc46dc22aefa56119d248d0881e3f27cc56a563f9addba6d62749",
       "epoch": 1950,
@@ -10405,6 +11413,24 @@
       "subject_id": "bouckaert2018_pama_nyungan_mcc:clade:568959a170df265f"
     },
     {
+      "analysis": "greenhill2023_ua_covarion_relaxed",
+      "claim_id": "ev_tree_56f558a063040f01cac5f99d0ca2a7156996cb92d7e16093882ac771e1732ca2",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 585,
+        "mean": 842,
+        "median": 836,
+        "probability": 0.95,
+        "upper": 1146
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Chemehuevi-7, Comanche-5, Kawaiisu-6, Pannamint-3, Shoshoni_Gosiute_Dialect-4, Southern_Paiute-8, Southern_Ute-9)",
+      "role": "posterior",
+      "source": "Simon J. Greenhill et al. 2023",
+      "subject_id": "greenhill2023_ua_covarion_relaxed:clade:56f558a063040f01"
+    },
+    {
       "analysis": "sagart2019_relaxed_fbd",
       "claim_id": "ev_tree_570084978762ce58268547600c3b870f69d2cc9d787fe822564c3a6360cae578",
       "epoch": 1950,
@@ -10529,6 +11555,24 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_sa8b_chang_broad_ancestry:clade:57c3571c9da7c1a5"
+    },
+    {
+      "analysis": "gerardi2023_full_relaxed",
+      "claim_id": "ev_tree_57fd4738498368bd311b2795d7d3130293f8a534f0221fcc0550a41f905ae484",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 759,
+        "mean": 1272,
+        "median": 1307,
+        "probability": 0.95,
+        "upper": 1733
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Chiriguano, Tapiete)",
+      "role": "posterior",
+      "source": "Fabrício Ferraz Gerardi et al. 2023",
+      "subject_id": "gerardi2023_full_relaxed:clade:57fd4738498368bd"
     },
     {
       "analysis": "koile2022_part2_geographic",
@@ -12043,6 +13087,24 @@
       "subject_id": "heggarty2023_sa8a_chang_broad:clade:641d4e23f531b699"
     },
     {
+      "analysis": "greenhill2023_ua_covarion_relaxed",
+      "claim_id": "ev_tree_641e1b0b46e6e9567537fbd2b0f8909c9d32a111874af6b0a98445d8f7cca3d8",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -2973,
+        "mean": -2099,
+        "median": -2041,
+        "probability": 0.95,
+        "upper": -1307
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Aztec_Tetelcingo-30, Aztec_Zacapoaxtla-31, Cahuilla-12, Chemehuevi-7, Classical_Aztec-29, Comanche-5, Cora-27, Cupeno-13, Eudeve-21, Gabrielino-15, Guarijio-22, Hopi-16, Huichol-28, Kawaiisu-6, Kitanemuk-34, Luiseno-14, Mayo-25, Mono-1, Northern_Paiute-2, Northern_Tepehuan-19, Opata-20, Pannamint-3, Papago-Pima-17, Pima_de_Onavas-18, Pipil-32, Serrano-11, Shoshoni_Gosiute_Dialect-4, Southeastern_Tepehuan-33, Southern_Paiute-8, Southern_Ute-9, Tarahumara-23, Tubar-24, Tubatulabel-10, Yaqui-26)",
+      "role": "posterior",
+      "source": "Simon J. Greenhill et al. 2023",
+      "subject_id": "greenhill2023_ua_covarion_relaxed:clade:641e1b0b46e6e956"
+    },
+    {
       "analysis": "grollemund2015_bantu_mcc",
       "claim_id": "ev_tree_643fed023e0f2703ebfbcc32d4b50eeb16e3c73cb423003c6cbdf818dad68cce",
       "epoch": 1950,
@@ -12077,6 +13139,24 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_sa8a_chang_broad:clade:644dd958c76f1408"
+    },
+    {
+      "analysis": "greenhill2023_ua_covarion_relaxed",
+      "claim_id": "ev_tree_647b33bb22084f5786a846f858dd7eeb871bf6fa370c4c91e50b4083daf4d181",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 158,
+        "mean": 307,
+        "median": 324,
+        "probability": 0.95,
+        "upper": 417
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Aztec_Tetelcingo-30, Aztec_Zacapoaxtla-31, Classical_Aztec-29, Pipil-32)",
+      "role": "posterior",
+      "source": "Simon J. Greenhill et al. 2023",
+      "subject_id": "greenhill2023_ua_covarion_relaxed:clade:647b33bb22084f57"
     },
     {
       "analysis": "bouckaert2018_pama_nyungan_mcc",
@@ -12131,6 +13211,24 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_sa8a_chang_broad:clade:651a0a3eddef97cd"
+    },
+    {
+      "analysis": "gerardi2023_full_relaxed",
+      "claim_id": "ev_tree_65410baf425601fd8446db24a25c6dbc9a8817107098faf17a7b59e0d59431aa",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -134,
+        "mean": 657,
+        "median": 719,
+        "probability": 0.95,
+        "upper": 1316
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Kokama, Nheengatu, Omagua, Tupinamba)",
+      "role": "posterior",
+      "source": "Fabrício Ferraz Gerardi et al. 2023",
+      "subject_id": "gerardi2023_full_relaxed:clade:65410baf425601fd"
     },
     {
       "analysis": "grollemund2015_bantu_mcc",
@@ -12239,6 +13337,24 @@
       "role": "posterior",
       "source": "Rebecca Grollemund et al. 2015",
       "subject_id": "grollemund2015_bantu_mcc:clade:65dced7b40db2764"
+    },
+    {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_65f25b64f7446df2abd1ba364631692518ddf2256532e580c6c0bad8a63e8602",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1606,
+        "mean": 1770,
+        "median": 1785,
+        "probability": 0.95,
+        "upper": 1896
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(BeChengmaiMY, BeChengmaiYL, BeLinGaoLC, BeLinGaoXY)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:65f25b64f7446df2"
     },
     {
       "analysis": "koile2022_part2_geographic",
@@ -12401,6 +13517,60 @@
       "role": "posterior",
       "source": "Remco Bouckaert et al. 2018",
       "subject_id": "bouckaert2018_pama_nyungan_mcc:clade:6694366b3b843610"
+    },
+    {
+      "analysis": "greenhill2023_ua_covarion_relaxed",
+      "claim_id": "ev_tree_669a1894fbfcc9948ed0f3e67aada538b59046a41eb2e14494d74a6cb43015aa",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 316,
+        "mean": 903,
+        "median": 941,
+        "probability": 0.95,
+        "upper": 1437
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Northern_Tepehuan-19, Papago-Pima-17, Pima_de_Onavas-18, Southeastern_Tepehuan-33)",
+      "role": "posterior",
+      "source": "Simon J. Greenhill et al. 2023",
+      "subject_id": "greenhill2023_ua_covarion_relaxed:clade:669a1894fbfcc994"
+    },
+    {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_669b75bb3893f66d84533fc3d9860ffb8092369c0c8d856f664a623d343efa81",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 788,
+        "mean": 1126,
+        "median": 1144,
+        "probability": 0.95,
+        "upper": 1434
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(TswAiton, TswBangkok, TswChiangmai, TswHsipaw, TswJinghong, TswJinping, TswJinsha, TswKhuen, TswKorat, TswLao, TswLuchun, TswMaguan, TswMangshi, TswMenglian, TswNgheAn, TswSongkhla, TswTaunggyi, TswThaiTrang, TswWuding, TswYuanjiang, TswYuanyang)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:669b75bb3893f66d"
+    },
+    {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_66ae11289c0519a46ac8d52ed4c8b7f2dfc0708391d56cbbdcee711de62016ea",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1610,
+        "mean": 1768,
+        "median": 1782,
+        "probability": 0.95,
+        "upper": 1906
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(TswHsipaw, TswTaunggyi)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:66ae11289c0519a4"
     },
     {
       "analysis": "lee_hasegawa2011_ucld_cov",
@@ -12637,6 +13807,24 @@
       "subject_id": "koile2022_part2_geographic:clade:67be7cce2ae26255"
     },
     {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_67c8966a564faf27f3a02a563026b83c3b7dcbe6e6d63e76b260411a2ea4612e",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1653,
+        "mean": 1774,
+        "median": 1783,
+        "probability": 0.95,
+        "upper": 1875
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(TnHuishui, TnLibo, TnLuodian, TnPanxian, TnQianxi, TnShuicheng, TnZhenfeng, TnZhenning)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:67c8966a564faf27"
+    },
+    {
       "analysis": "grollemund2015_bantu_mcc",
       "claim_id": "ev_tree_67d7ee2aed96b77ebe79fc46985b62674d28b153e35a80122218f99336bf2d2b",
       "epoch": 1950,
@@ -12707,6 +13895,24 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_sa8b_chang_broad_ancestry:clade:695b8d348c7223b0"
+    },
+    {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_696f4b3a6ca68e564d0c76efe7a0e5946b7886a2baba29bcfadaa362ccc79416",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1384,
+        "mean": 1633,
+        "median": 1659,
+        "probability": 0.95,
+        "upper": 1834
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(BeChengmaiMY, BeChengmaiYL, BeHaikouCL, BeHaikouRS, BeLinGaoLC, BeLinGaoXY, BeQiongshanLQ, BeQiongshanLT)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:696f4b3a6ca68e56"
     },
     {
       "analysis": "zhang2019_relaxed_covarion",
@@ -13015,6 +14221,24 @@
       "subject_id": "bouckaert2018_pama_nyungan_mcc:clade:6bf1406109d20bf5"
     },
     {
+      "analysis": "greenhill2023_ua_covarion_relaxed",
+      "claim_id": "ev_tree_6c150eb2ed33580a362f00f8b8b31439a313974062c5eac47eee118d8cc005dc",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1088,
+        "mean": 1369,
+        "median": 1379,
+        "probability": 0.95,
+        "upper": 1619
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Chemehuevi-7, Kawaiisu-6, Southern_Paiute-8, Southern_Ute-9)",
+      "role": "posterior",
+      "source": "Simon J. Greenhill et al. 2023",
+      "subject_id": "greenhill2023_ua_covarion_relaxed:clade:6c150eb2ed33580a"
+    },
+    {
       "analysis": "heggarty2023_main_m3",
       "claim_id": "ev_tree_6c26fef544b151fd6b7bb4fefde34c015d72af4d967e7649bb992f2118305327",
       "epoch": 2000,
@@ -13139,6 +14363,24 @@
       "role": "posterior",
       "source": "Menghan Zhang et al. 2019",
       "subject_id": "zhang2019_relaxed_covarion:clade:6e12b3507c8e32d0"
+    },
+    {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_6e1328ad9543b5030e4f1d1a882d8ec8f75f0b88e551154972376965c0e92db0",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1631,
+        "mean": 1789,
+        "median": 1804,
+        "probability": 0.95,
+        "upper": 1912
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(TswKorat, TswSongkhla)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:6e1328ad9543b503"
     },
     {
       "analysis": "heggarty2023_sa8a_chang_broad",
@@ -13285,6 +14527,24 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:6ee81aa6220bcc5c"
     },
     {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_6f40b30652d08f27335adc848b1cac48bdad92ec9949d93abf5d956f407c2e92",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1557,
+        "mean": 1770,
+        "median": 1796,
+        "probability": 0.95,
+        "upper": 1924
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(TnPingguo, TnTiandong)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:6f40b30652d08f27"
+    },
+    {
       "analysis": "koile2022_part2_geographic",
       "claim_id": "ev_tree_6f7b849e7848f26a0d623ed27a1453cfc5a69957fb28fc4b49950ee3b1e6730c",
       "epoch": 1950,
@@ -13321,6 +14581,24 @@
       "subject_id": "koile2022_part2_geographic:clade:6f8636981af2c97b"
     },
     {
+      "analysis": "greenhill2023_ua_covarion_relaxed",
+      "claim_id": "ev_tree_6fc003de15628ef6d7f9894789adb4547f8b2f273c0e8ca77ad21614bee8020d",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -1146,
+        "mean": -891,
+        "median": -870,
+        "probability": 0.95,
+        "upper": -684
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Cahuilla-12, Cupeno-13, Gabrielino-15, Kitanemuk-34, Luiseno-14, Serrano-11)",
+      "role": "posterior",
+      "source": "Simon J. Greenhill et al. 2023",
+      "subject_id": "greenhill2023_ua_covarion_relaxed:clade:6fc003de15628ef6"
+    },
+    {
       "analysis": "grollemund2015_bantu_mcc",
       "claim_id": "ev_tree_6fc4277bc214607c0095d1d408b5f677d8e3e77a557c2fbee9ee85281a0a9776",
       "epoch": 1950,
@@ -13337,6 +14615,24 @@
       "role": "posterior",
       "source": "Rebecca Grollemund et al. 2015",
       "subject_id": "grollemund2015_bantu_mcc:clade:6fc4277bc214607c"
+    },
+    {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_6fe947b4703e8b4af0ae89a5d336279f1e86e73e08a0b6a9934d7085f0c5ccce",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 776,
+        "mean": 1187,
+        "median": 1208,
+        "probability": 0.95,
+        "upper": 1583
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(TcCaoBanTai, TcDaxin, TcDebao, TcLongzhou, TcWenma, TcYanshan)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:6fe947b4703e8b4a"
     },
     {
       "analysis": "grollemund2015_bantu_mcc",
@@ -13463,6 +14759,24 @@
       "role": "posterior",
       "source": "Ezequiel Koile et al. 2022",
       "subject_id": "koile2022_part2_geographic:clade:713cb09a3a51d2d5"
+    },
+    {
+      "analysis": "greenhill2023_ua_covarion_relaxed",
+      "claim_id": "ev_tree_714611348980a4d94828a7e40743673329ec377d8496e451cd66f0cdde3aec62",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -819,
+        "mean": -55,
+        "median": -38,
+        "probability": 0.95,
+        "upper": 737
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Eudeve-21, Guarijio-22, Mayo-25, Opata-20, Tarahumara-23, Yaqui-26)",
+      "role": "posterior",
+      "source": "Simon J. Greenhill et al. 2023",
+      "subject_id": "greenhill2023_ua_covarion_relaxed:clade:714611348980a4d9"
     },
     {
       "analysis": "koile2022_part2_geographic",
@@ -13879,6 +15193,24 @@
       "subject_id": "heggarty2023_sa8a_chang_broad:clade:73c30a8645c12567"
     },
     {
+      "analysis": "greenhill2023_ua_covarion_relaxed",
+      "claim_id": "ev_tree_73ea52107cbc3e65e9132579583c2f0bdae558122a2ce3513cfa3ceaf1ebebfd",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -1562,
+        "mean": -680,
+        "median": -661,
+        "probability": 0.95,
+        "upper": 170
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Eudeve-21, Guarijio-22, Mayo-25, Opata-20, Tarahumara-23, Tubar-24, Yaqui-26)",
+      "role": "posterior",
+      "source": "Simon J. Greenhill et al. 2023",
+      "subject_id": "greenhill2023_ua_covarion_relaxed:clade:73ea52107cbc3e65"
+    },
+    {
       "analysis": "koile2022_part2_geographic",
       "claim_id": "ev_tree_74144e09ccc3afcde4ec8b5836b1ed11789f67753e82401c06909cacfb041963",
       "epoch": 1950,
@@ -13895,6 +15227,24 @@
       "role": "posterior",
       "source": "Ezequiel Koile et al. 2022",
       "subject_id": "koile2022_part2_geographic:clade:74144e09ccc3afcd"
+    },
+    {
+      "analysis": "gerardi2023_full_relaxed",
+      "claim_id": "ev_tree_742865ec806a388862cbf98c639ef9a32e23be95998fca0adf4de54efd58aafe",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 679,
+        "mean": 1250,
+        "median": 1292,
+        "probability": 0.95,
+        "upper": 1764
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Teko, Wayampi)",
+      "role": "posterior",
+      "source": "Fabrício Ferraz Gerardi et al. 2023",
+      "subject_id": "gerardi2023_full_relaxed:clade:742865ec806a3888"
     },
     {
       "analysis": "zhang2019_relaxed_covarion",
@@ -13967,6 +15317,42 @@
       "role": "posterior",
       "source": "Rebecca Grollemund et al. 2015",
       "subject_id": "grollemund2015_bantu_mcc:clade:7469f3ba119a4b4b"
+    },
+    {
+      "analysis": "gerardi2023_full_relaxed",
+      "claim_id": "ev_tree_747b533d574bc79b310639f34533f19ccc27f0832942998b4facc15c60d2b17e",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 87,
+        "mean": 827,
+        "median": 885,
+        "probability": 0.95,
+        "upper": 1427
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Asurini_Tocantins, Asurini_Xingu, Parakana, Surui_Aikewara, Tapirape)",
+      "role": "posterior",
+      "source": "Fabrício Ferraz Gerardi et al. 2023",
+      "subject_id": "gerardi2023_full_relaxed:clade:747b533d574bc79b"
+    },
+    {
+      "analysis": "gerardi2023_full_relaxed",
+      "claim_id": "ev_tree_747ef396cb5b3e76db7e8835fd9619767946d2ded8094498a183c32e2dd39daa",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 158,
+        "mean": 885,
+        "median": 943,
+        "probability": 0.95,
+        "upper": 1511
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Teko, Wayampi, Zoe)",
+      "role": "posterior",
+      "source": "Fabrício Ferraz Gerardi et al. 2023",
+      "subject_id": "gerardi2023_full_relaxed:clade:747ef396cb5b3e76"
     },
     {
       "analysis": "kitchen2009_semitic_mcc",
@@ -14075,6 +15461,24 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_main_m3:clade:76144513f4090f34"
+    },
+    {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_761ec79eda92cfbccf95e7b737575d3e378da1b3b435cf7b43319cdf52a8cd7d",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1710,
+        "mean": 1822,
+        "median": 1832,
+        "probability": 0.95,
+        "upper": 1915
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(KsSuiDS, KsSuiDY)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:761ec79eda92cfbc"
     },
     {
       "analysis": "koile2022_part2_geographic",
@@ -14363,6 +15767,24 @@
       "role": "posterior",
       "source": "Ezequiel Koile et al. 2022",
       "subject_id": "koile2022_part2_geographic:clade:78b231c5b5b3b64d"
+    },
+    {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_78c69bec62a6c067eb0fa2fa50965ee274868e83fdf04733311ee92cf6ac648a",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 992,
+        "mean": 1403,
+        "median": 1431,
+        "probability": 0.95,
+        "upper": 1750
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(KraGelaoAS, KraGelaoZF)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:78c69bec62a6c067"
     },
     {
       "analysis": "heggarty2023_sa8b_chang_broad_ancestry",
@@ -15211,6 +16633,24 @@
       "subject_id": "heggarty2023_sa8a_chang_broad:clade:7df7ebdeaa2733d5"
     },
     {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_7e0e751ccf7ebba0a42b1fd364f1e24a924a21536488314864a8792dd9aa59ce",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1642,
+        "mean": 1807,
+        "median": 1826,
+        "probability": 0.95,
+        "upper": 1928
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(HlaiHeitu, HlaiZhongsha)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:7e0e751ccf7ebba0"
+    },
+    {
       "analysis": "koile2022_part2_geographic",
       "claim_id": "ev_tree_7e90ff58db56231df7e32ef2c8aed61125603ef1f01d64323a1066eb78d03af8",
       "epoch": 1950,
@@ -15335,6 +16775,24 @@
       "role": "posterior",
       "source": "Rebecca Grollemund et al. 2015",
       "subject_id": "grollemund2015_bantu_mcc:clade:7ef215c07977d77f"
+    },
+    {
+      "analysis": "gerardi2023_full_relaxed",
+      "claim_id": "ev_tree_7f1740d1bf2bea18f7c08e6ff39d313b74ccb3476009ba7af2da1aaf9daf9ca5",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 890,
+        "mean": 1330,
+        "median": 1363,
+        "probability": 0.95,
+        "upper": 1687
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Siriono, Yuki)",
+      "role": "posterior",
+      "source": "Fabrício Ferraz Gerardi et al. 2023",
+      "subject_id": "gerardi2023_full_relaxed:clade:7f1740d1bf2bea18"
     },
     {
       "analysis": "grollemund2015_bantu_mcc",
@@ -15859,6 +17317,24 @@
       "subject_id": "sagart2019_relaxed_fbd:clade:821f8cfefdfb8c55"
     },
     {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_8229b99da4d1a370ca038c5fab8c970575af98f911f8b13446e700e0cfbc12b8",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1730,
+        "mean": 1849,
+        "median": 1864,
+        "probability": 0.95,
+        "upper": 1937
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(HlaiBaoting, HlaiQiandui)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:8229b99da4d1a370"
+    },
+    {
       "analysis": "lee_hasegawa2011_ucld_cov",
       "claim_id": "ev_tree_825a304041b497d5074526eb248b5a5e2ec696a1f6fb210b115ddbd03da99156",
       "epoch": 2010,
@@ -15875,6 +17351,24 @@
       "role": "posterior",
       "source": "Sean Lee & Toshikazu Hasegawa 2011",
       "subject_id": "lee_hasegawa2011_ucld_cov:clade:825a304041b497d5"
+    },
+    {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_826900cf7f2989b6eaabebee9921ae810b59b0e6eab18c6e8e42f21bc1257ee7",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1369,
+        "mean": 1598,
+        "median": 1611,
+        "probability": 0.95,
+        "upper": 1792
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(TswAiton, TswHsipaw, TswTaunggyi)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:826900cf7f2989b6"
     },
     {
       "analysis": "grollemund2015_bantu_mcc",
@@ -15947,6 +17441,24 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_sa8a_chang_broad:clade:8318972d4466536b"
+    },
+    {
+      "analysis": "gerardi2023_full_relaxed",
+      "claim_id": "ev_tree_8354bdac9b93ec54415125fd92d402227cc6c54702fec709e589348dc23e6544",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -428,
+        "mean": 454,
+        "median": 527,
+        "probability": 0.95,
+        "upper": 1214
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Kaapor, Kokama, Nheengatu, Omagua, Teko, Tupinamba, Wayampi, Zoe)",
+      "role": "posterior",
+      "source": "Fabrício Ferraz Gerardi et al. 2023",
+      "subject_id": "gerardi2023_full_relaxed:clade:8354bdac9b93ec54"
     },
     {
       "analysis": "grollemund2015_bantu_mcc",
@@ -16201,6 +17713,24 @@
       "subject_id": "heggarty2023_main_m3:clade:857159e745ff331a"
     },
     {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_859faafe6d422d69bebcae9bc812eece467188288761253b533836627cfe26f1",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 47,
+        "mean": 590,
+        "median": 615,
+        "probability": 0.95,
+        "upper": 1077
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(TcCaoBanTai, TcDaxin, TcDebao, TcFusui, TcLongAn, TcLongzhou, TcQinzhou, TcShangsi, TcWenma, TcYanshan, TcYongning, TnDonglan, TnDuAn, TnFengshan, TnHengxian, TnHuishui, TnLianshan, TnLibo, TnLiujiang, TnLuodian, TnPanxian, TnPingguo, TnQianxi, TnQiubei, TnSaek, TnShuicheng, TnTiandong, TnWuming, TnZhenfeng, TnZhenning, TswAiton, TswBangkok, TswChiangmai, TswHsipaw, TswJinghong, TswJinping, TswJinsha, TswKhuen, TswKorat, TswLao, TswLuchun, TswMaguan, TswMangshi, TswMenglian, TswNgheAn, TswSongkhla, TswTaunggyi, TswThaiTrang, TswWuding, TswYuanjiang, TswYuanyang)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:859faafe6d422d69"
+    },
+    {
       "analysis": "heggarty2023_sa8a_chang_broad",
       "claim_id": "ev_tree_85a9d94d532e28766e41126c0db0471ba37a0d9e0e1a01b0a86b5218de53fc38",
       "epoch": 2000,
@@ -16217,6 +17747,24 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_sa8a_chang_broad:clade:85a9d94d532e2876"
+    },
+    {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_85aca56a5fb23101e2ce77667b955d40a19b64d237e081260ef926136fe03dd3",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1403,
+        "mean": 1617,
+        "median": 1631,
+        "probability": 0.95,
+        "upper": 1806
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(TswJinping, TswThaiTrang, TswYuanjiang)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:85aca56a5fb23101"
     },
     {
       "analysis": "bouckaert2018_pama_nyungan_mcc",
@@ -16381,6 +17929,24 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:871fafa8b884a401"
     },
     {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_875cb9bd42b46d468c336490a60982d22ca91289c6bd51d8eefa89aa3cf1b12b",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1809,
+        "mean": 1891,
+        "median": 1903,
+        "probability": 0.95,
+        "upper": 1947
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(BeHaikouCL, BeHaikouRS)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:875cb9bd42b46d46"
+    },
+    {
       "analysis": "grollemund2015_bantu_mcc",
       "claim_id": "ev_tree_87a00fb0272bfd9d946eea1a944dda2f8eaf259ba5b40acbc8eef90ea49f14a9",
       "epoch": 1950,
@@ -16487,6 +18053,24 @@
       "role": "posterior",
       "source": "Rebecca Grollemund et al. 2015",
       "subject_id": "grollemund2015_bantu_mcc:clade:882cc4460aa081db"
+    },
+    {
+      "analysis": "greenhill2023_ua_covarion_relaxed",
+      "claim_id": "ev_tree_8837a2905bfea9307d485f7c56980877297bb5dfffe929258a890c5a2ba4d422",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 902,
+        "mean": 1319,
+        "median": 1336,
+        "probability": 0.95,
+        "upper": 1709
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Mono-1, Northern_Paiute-2)",
+      "role": "posterior",
+      "source": "Simon J. Greenhill et al. 2023",
+      "subject_id": "greenhill2023_ua_covarion_relaxed:clade:8837a2905bfea930"
     },
     {
       "analysis": "lee_hasegawa2011_ucld_cov",
@@ -16867,6 +18451,24 @@
       "subject_id": "savelyev_robbeets2020_covarion_strict:clade:8a8cf1529b29512b"
     },
     {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_8acd8561f834c613d2b1667ac5773f2146ad1c0074a38f22c5db02effa8f08f2",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1219,
+        "mean": 1569,
+        "median": 1597,
+        "probability": 0.95,
+        "upper": 1843
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(KraBuyangEC, KraBuyangLJ)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:8acd8561f834c613"
+    },
+    {
       "analysis": "grollemund2015_bantu_mcc",
       "claim_id": "ev_tree_8acf9290f4d7cf5d7ce79cc817b7bd4ff0d360af5a61c55eda54050d1cfbbe5d",
       "epoch": 1950,
@@ -17101,6 +18703,42 @@
       "subject_id": "koile2022_part2_geographic:clade:8c599b770d71bb0b"
     },
     {
+      "analysis": "greenhill2023_ua_covarion_relaxed",
+      "claim_id": "ev_tree_8c8bd49cb7e1c0ac4ae2aa1cac97da9879bf2bbebe1f36af051060e90f1b2080",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 578,
+        "mean": 1050,
+        "median": 1098,
+        "probability": 0.95,
+        "upper": 1412
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Aztec_Tetelcingo-30, Aztec_Zacapoaxtla-31, Classical_Aztec-29)",
+      "role": "posterior",
+      "source": "Simon J. Greenhill et al. 2023",
+      "subject_id": "greenhill2023_ua_covarion_relaxed:clade:8c8bd49cb7e1c0ac"
+    },
+    {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_8c8d97a34203baf563fcda454e54eff5931df80d93b3f2497eb6e7f5eac46946",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -709,
+        "mean": 0,
+        "median": 48,
+        "probability": 0.95,
+        "upper": 598
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(KsBiao, KsChadong, KsJin, KsKamJP, KsKamLP, KsKamRJ, KsKamTZ, KsLakkia, KsMak, KsMaonan, KsMulam, KsSuiDS, KsSuiDY, KsSuiLB, KsSuiSD, KsThen, TcCaoBanTai, TcDaxin, TcDebao, TcFusui, TcLongAn, TcLongzhou, TcQinzhou, TcShangsi, TcWenma, TcYanshan, TcYongning, TnDonglan, TnDuAn, TnFengshan, TnHengxian, TnHuishui, TnLianshan, TnLibo, TnLiujiang, TnLuodian, TnPanxian, TnPingguo, TnQianxi, TnQiubei, TnSaek, TnShuicheng, TnTiandong, TnWuming, TnZhenfeng, TnZhenning, TswAiton, TswBangkok, TswChiangmai, TswHsipaw, TswJinghong, TswJinping, TswJinsha, TswKhuen, TswKorat, TswLao, TswLuchun, TswMaguan, TswMangshi, TswMenglian, TswNgheAn, TswSongkhla, TswTaunggyi, TswThaiTrang, TswWuding, TswYuanjiang, TswYuanyang)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:8c8d97a34203baf5"
+    },
+    {
       "analysis": "koile2022_part2_geographic",
       "claim_id": "ev_tree_8c95c32d36db73d2b999f5c8015b836302e3d4e1326d7e5b63f03ee6e8631d0e",
       "epoch": 1950,
@@ -17317,6 +18955,24 @@
       "subject_id": "heggarty2023_sa8a_chang_broad:clade:8e4600ce54935bd4"
     },
     {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_8e4de6dcb2a5db92e7fa0137935939e10ba65e093c6d4f886ca7d379ff581766",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -2438,
+        "mean": -1229,
+        "median": -1157,
+        "probability": 0.95,
+        "upper": -154
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(BeChengmaiMY, BeChengmaiYL, BeHaikouCL, BeHaikouRS, BeJizhao, BeLinGaoLC, BeLinGaoXY, BeQiongshanLQ, BeQiongshanLT, HlaiBaisha, HlaiBaoding, HlaiBaoting, HlaiChangjiang, HlaiCun, HlaiHeitu, HlaiJiamao, HlaiNadou, HlaiQiandui, HlaiTongza, HlaiXifang, HlaiYuanmen, HlaiZhongsha, KsBiao, KsChadong, KsJin, KsKamJP, KsKamLP, KsKamRJ, KsKamTZ, KsLakkia, KsMak, KsMaonan, KsMulam, KsSuiDS, KsSuiDY, KsSuiLB, KsSuiSD, KsThen, TcCaoBanTai, TcDaxin, TcDebao, TcFusui, TcLongAn, TcLongzhou, TcQinzhou, TcShangsi, TcWenma, TcYanshan, TcYongning, TnDonglan, TnDuAn, TnFengshan, TnHengxian, TnHuishui, TnLianshan, TnLibo, TnLiujiang, TnLuodian, TnPanxian, TnPingguo, TnQianxi, TnQiubei, TnSaek, TnShuicheng, TnTiandong, TnWuming, TnZhenfeng, TnZhenning, TswAiton, TswBangkok, TswChiangmai, TswHsipaw, TswJinghong, TswJinping, TswJinsha, TswKhuen, TswKorat, TswLao, TswLuchun, TswMaguan, TswMangshi, TswMenglian, TswNgheAn, TswSongkhla, TswTaunggyi, TswThaiTrang, TswWuding, TswYuanjiang, TswYuanyang)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:8e4de6dcb2a5db92"
+    },
+    {
       "analysis": "heggarty2023_main_m3",
       "claim_id": "ev_tree_8e50f6b476ce7cf8a54dc7d11323559cdecdc7a1b63a1dbfe1f48dae223e7049",
       "epoch": 2000,
@@ -17513,6 +19169,24 @@
       "role": "posterior",
       "source": "Remco Bouckaert et al. 2018",
       "subject_id": "bouckaert2018_pama_nyungan_mcc:clade:8f8f823c7ddf6bb9"
+    },
+    {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_8fcef7813d76cb739587e09a86f68dd6e8a1dc8faf5c7c65a204091d481be245",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 855,
+        "mean": 1257,
+        "median": 1289,
+        "probability": 0.95,
+        "upper": 1584
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(TnDonglan, TnDuAn, TnFengshan, TnHengxian, TnHuishui, TnLianshan, TnLibo, TnLiujiang, TnLuodian, TnPanxian, TnPingguo, TnQianxi, TnQiubei, TnShuicheng, TnTiandong, TnWuming, TnZhenfeng, TnZhenning)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:8fcef7813d76cb73"
     },
     {
       "analysis": "bouckaert2018_pama_nyungan_mcc",
@@ -17731,6 +19405,24 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:912ebb21ef30bcc1"
     },
     {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_912f5a1b8bb64057832134012f73e117e2a614ac04117c800b03d720e33922f0",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 51,
+        "mean": 754,
+        "median": 776,
+        "probability": 0.95,
+        "upper": 1382
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(KraBuyangBH, KraLachi, KraLaha)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:912f5a1b8bb64057"
+    },
+    {
       "analysis": "grollemund2015_bantu_mcc",
       "claim_id": "ev_tree_916a11d8993c78c51eeef2cc01acba400d27576baf654455bd35629d72358e9a",
       "epoch": 1950,
@@ -17767,6 +19459,24 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:91d0b82ccc2e3480"
     },
     {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_91ea12f72940f3eb90a29634f05bb886a604fae5d082325c7cb6504b75bb3da4",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1165,
+        "mean": 1488,
+        "median": 1513,
+        "probability": 0.95,
+        "upper": 1744
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(TcFusui, TcLongAn, TcQinzhou, TcShangsi, TcYongning)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:91ea12f72940f3eb"
+    },
+    {
       "analysis": "bouckaert2018_pama_nyungan_mcc",
       "claim_id": "ev_tree_91ee0f90b8ce50fceeb59753a159a42b466775ffcef8793dc1a92772be657363",
       "epoch": 1950,
@@ -17801,6 +19511,42 @@
       "role": "posterior",
       "source": "Ezequiel Koile et al. 2022",
       "subject_id": "koile2022_part2_geographic:clade:9249ddb174ffd4d3"
+    },
+    {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_925f8d5c1dda2816ffc87ababade6593ac4ad1e7de65a2a01a38f9cbe4770433",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1649,
+        "mean": 1799,
+        "median": 1813,
+        "probability": 0.95,
+        "upper": 1915
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(TcFusui, TcShangsi)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:925f8d5c1dda2816"
+    },
+    {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_9297bf78511ecf8ba11081f2ba476b866c5f5690dcda052eb42a29fcac9d4421",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1295,
+        "mean": 1547,
+        "median": 1559,
+        "probability": 0.95,
+        "upper": 1777
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(TswChiangmai, TswKhuen, TswNgheAn)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:9297bf78511ecf8b"
     },
     {
       "analysis": "koile2022_part2_geographic",
@@ -17855,6 +19601,24 @@
       "role": "posterior",
       "source": "Ezequiel Koile et al. 2022",
       "subject_id": "koile2022_part2_geographic:clade:92dde92692a9082f"
+    },
+    {
+      "analysis": "gerardi2023_full_relaxed",
+      "claim_id": "ev_tree_92e17dcbc2b37571ae38eb97e6f1ebb3fd795339ab8185bc753f5b3120bb7c38",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -161,
+        "mean": 621,
+        "median": 679,
+        "probability": 0.95,
+        "upper": 1321
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Amondawa, Apiaka, Asurini_Tocantins, Asurini_Xingu, Kayabi, Parakana, Parintintin, Surui_Aikewara, Tapirape, Tenharim, Urueuwauwau)",
+      "role": "posterior",
+      "source": "Fabrício Ferraz Gerardi et al. 2023",
+      "subject_id": "gerardi2023_full_relaxed:clade:92e17dcbc2b37571"
     },
     {
       "analysis": "zhang2019_relaxed_covarion",
@@ -17927,6 +19691,24 @@
       "role": "posterior",
       "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
       "subject_id": "sagart2019_relaxed_fbd:clade:93667a9682375bf1"
+    },
+    {
+      "analysis": "greenhill2023_ua_covarion_relaxed",
+      "claim_id": "ev_tree_93737f6f1027c4208106d1f21a53b021c18d72ca21e922e4490b202ab12dfaf8",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 461,
+        "mean": 1088,
+        "median": 1128,
+        "probability": 0.95,
+        "upper": 1620
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Cahuilla-12, Cupeno-13)",
+      "role": "posterior",
+      "source": "Simon J. Greenhill et al. 2023",
+      "subject_id": "greenhill2023_ua_covarion_relaxed:clade:93737f6f1027c420"
     },
     {
       "analysis": "heggarty2023_sa8a_chang_broad",
@@ -18863,6 +20645,42 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_sa8a_chang_broad:clade:99101561e726a84f"
+    },
+    {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_993b87e9e7cd6cd982f2015d2460983e09d712852926eb977cadf7f9ed29c05c",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1248,
+        "mean": 1345,
+        "median": 1346,
+        "probability": 0.95,
+        "upper": 1436
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(KsBiao, KsLakkia)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:993b87e9e7cd6cd9"
+    },
+    {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_9965344fd85d80771a7f49bbf474f400e97a8409671d977efec4fb03150717a9",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -288,
+        "mean": 508,
+        "median": 528,
+        "probability": 0.95,
+        "upper": 1278
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(KraBuyangEC, KraBuyangLJ, KraBuyangYR, KraPubiao)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:9965344fd85d8077"
     },
     {
       "analysis": "bouckaert2018_pama_nyungan_mcc",
@@ -19873,6 +21691,42 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:a2cfbd23cadd28f4"
     },
     {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_a32039287a8167f5e0547dbacfd0b9b3055e8816c7f38101fda18f9266d83b34",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1220,
+        "mean": 1460,
+        "median": 1475,
+        "probability": 0.95,
+        "upper": 1694
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(TswJinping, TswJinsha, TswLuchun, TswMaguan, TswThaiTrang, TswWuding, TswYuanjiang, TswYuanyang)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:a32039287a8167f5"
+    },
+    {
+      "analysis": "greenhill2023_ua_covarion_relaxed",
+      "claim_id": "ev_tree_a32065474ce3dcf2f6ac2d4b057b7073f3dc8c3dbe024ab03afb54db9dc5dd1c",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 613,
+        "mean": 1109,
+        "median": 1138,
+        "probability": 0.95,
+        "upper": 1563
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Papago-Pima-17, Pima_de_Onavas-18, Southeastern_Tepehuan-33)",
+      "role": "posterior",
+      "source": "Simon J. Greenhill et al. 2023",
+      "subject_id": "greenhill2023_ua_covarion_relaxed:clade:a32065474ce3dcf2"
+    },
+    {
       "analysis": "grollemund2015_bantu_mcc",
       "claim_id": "ev_tree_a3492ed199e053b522624d596746d6eb11862e195508da64ba4c5094fd5e14d6",
       "epoch": 1950,
@@ -19961,6 +21815,24 @@
       "role": "posterior",
       "source": "Rebecca Grollemund et al. 2015",
       "subject_id": "grollemund2015_bantu_mcc:clade:a42653b4c81fa4e9"
+    },
+    {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_a428adf30239acf5d49c7eb5cd06730aac61e2d04fcca51fee135d8be9d36da4",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1227,
+        "mean": 1489,
+        "median": 1502,
+        "probability": 0.95,
+        "upper": 1706
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(KsChadong, KsJin, KsMak, KsMaonan, KsSuiDS, KsSuiDY, KsSuiLB, KsSuiSD, KsThen)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:a428adf30239acf5"
     },
     {
       "analysis": "zhang2019_relaxed_covarion",
@@ -20323,6 +22195,24 @@
       "subject_id": "koile2022_part2_geographic:clade:a7a8cda6b6dc0891"
     },
     {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_a7aad012c6ee9bca6fdc2d249925d6d0a794555d5bd49d852ab153a0c30a935a",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1281,
+        "mean": 1565,
+        "median": 1585,
+        "probability": 0.95,
+        "upper": 1793
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(TswBangkok, TswKorat, TswLao, TswSongkhla)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:a7aad012c6ee9bca"
+    },
+    {
       "analysis": "koile2022_part2_geographic",
       "claim_id": "ev_tree_a7c114650abbdcc9fa3618ebad3e8f5958af55ee76d94573dcd4febaad5ce5fe",
       "epoch": 1950,
@@ -20393,6 +22283,24 @@
       "role": "posterior",
       "source": "Remco Bouckaert et al. 2018",
       "subject_id": "bouckaert2018_pama_nyungan_mcc:clade:a829607cd7cff28f"
+    },
+    {
+      "analysis": "greenhill2023_ua_covarion_relaxed",
+      "claim_id": "ev_tree_a83297c64a9d9d2e64f6b49489f813974c9a7717ec9cf5f62ed4788b90d1e681",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -1715,
+        "mean": -963,
+        "median": -918,
+        "probability": 0.95,
+        "upper": -281
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Aztec_Tetelcingo-30, Aztec_Zacapoaxtla-31, Classical_Aztec-29, Cora-27, Huichol-28, Pipil-32)",
+      "role": "posterior",
+      "source": "Simon J. Greenhill et al. 2023",
+      "subject_id": "greenhill2023_ua_covarion_relaxed:clade:a83297c64a9d9d2e"
     },
     {
       "analysis": "zhang2019_relaxed_covarion",
@@ -20575,6 +22483,24 @@
       "subject_id": "sagart2019_relaxed_fbd:clade:a95ef5fde2f3bddb"
     },
     {
+      "analysis": "gerardi2023_full_relaxed",
+      "claim_id": "ev_tree_a96d6df28c7f3d1c0f310a9d52053046228c75c70d85d26625d5d5b142db66b6",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -791,
+        "mean": 187,
+        "median": 262,
+        "probability": 0.95,
+        "upper": 1103
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Ache, Amondawa, Anambe, Apiaka, Arawete, Asurini_Tocantins, Asurini_Xingu, Ava_Canoeiro, Chiriguano, Guaja, Guajajara, Guarani, Guarayo, Kaapor, Kaiowa, Kamajura, Kayabi, Kokama, Mbya, Nheengatu, Old_Guarani, Omagua, Parakana, Parintintin, Siriono, Surui_Aikewara, Tapiete, Tapirape, Teko, Tembe, Tenharim, Tupinamba, Urueuwauwau, Warazu, Wayampi, Xeta, Yuki, Zoe)",
+      "role": "posterior",
+      "source": "Fabrício Ferraz Gerardi et al. 2023",
+      "subject_id": "gerardi2023_full_relaxed:clade:a96d6df28c7f3d1c"
+    },
+    {
       "analysis": "grollemund2015_bantu_mcc",
       "claim_id": "ev_tree_a9875b3fe00d4b68b7319fdd116c5417f26e33a7fa9763091296874f2b7684af",
       "epoch": 1950,
@@ -20681,6 +22607,42 @@
       "role": "posterior",
       "source": "Rebecca Grollemund et al. 2015",
       "subject_id": "grollemund2015_bantu_mcc:clade:aa5ee0b9f416d97f"
+    },
+    {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_aa61c9b36e44a3eba54277c3962c9b4217bd494c28abf7408eadaabddeb0d538",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1076,
+        "mean": 1417,
+        "median": 1434,
+        "probability": 0.95,
+        "upper": 1721
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(TcCaoBanTai, TcDaxin, TcDebao, TcLongzhou)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:aa61c9b36e44a3eb"
+    },
+    {
+      "analysis": "gerardi2023_full_relaxed",
+      "claim_id": "ev_tree_aa6566f1998a2aa27c32b8c26d8ab86fa194805417f6fd107ae78538ae6dea30",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -612,
+        "mean": 323,
+        "median": 391,
+        "probability": 0.95,
+        "upper": 1139
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Ache, Amondawa, Anambe, Apiaka, Arawete, Asurini_Tocantins, Asurini_Xingu, Ava_Canoeiro, Chiriguano, Guarani, Guarayo, Kaiowa, Kamajura, Kayabi, Mbya, Old_Guarani, Parakana, Parintintin, Siriono, Surui_Aikewara, Tapiete, Tapirape, Tenharim, Urueuwauwau, Warazu, Xeta, Yuki)",
+      "role": "posterior",
+      "source": "Fabrício Ferraz Gerardi et al. 2023",
+      "subject_id": "gerardi2023_full_relaxed:clade:aa6566f1998a2aa2"
     },
     {
       "analysis": "koile2022_part2_geographic",
@@ -20825,6 +22787,24 @@
       "role": "posterior",
       "source": "Rebecca Grollemund et al. 2015",
       "subject_id": "grollemund2015_bantu_mcc:clade:ab844c7235cf1f2c"
+    },
+    {
+      "analysis": "gerardi2023_full_relaxed",
+      "claim_id": "ev_tree_ab9a47b5a1fa859b34da332b7635661b7e7b436eec31f39abfb5b62ca06470a2",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -526,
+        "mean": 378,
+        "median": 452,
+        "probability": 0.95,
+        "upper": 1107
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Guaja, Guajajara, Kaapor, Kokama, Nheengatu, Omagua, Teko, Tembe, Tupinamba, Wayampi, Zoe)",
+      "role": "posterior",
+      "source": "Fabrício Ferraz Gerardi et al. 2023",
+      "subject_id": "gerardi2023_full_relaxed:clade:ab9a47b5a1fa859b"
     },
     {
       "analysis": "heggarty2023_sa8b_chang_broad_ancestry",
@@ -21043,6 +23023,24 @@
       "subject_id": "bouckaert2018_pama_nyungan_mcc:clade:ac3178a400e09b67"
     },
     {
+      "analysis": "greenhill2023_ua_covarion_relaxed",
+      "claim_id": "ev_tree_ac5fee1ee67d01a1fc4b75f9b0a53b4d64b0fb69430e7668b55c585bef7f0b12",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1526,
+        "mean": 1742,
+        "median": 1765,
+        "probability": 0.95,
+        "upper": 1896
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Mayo-25, Yaqui-26)",
+      "role": "posterior",
+      "source": "Simon J. Greenhill et al. 2023",
+      "subject_id": "greenhill2023_ua_covarion_relaxed:clade:ac5fee1ee67d01a1"
+    },
+    {
       "analysis": "bouckaert2018_pama_nyungan_mcc",
       "claim_id": "ev_tree_ac80fafba67e3a1459ca6f09762ed8f6f9930d2dd0c1325160d5ac064ec537fb",
       "epoch": 1950,
@@ -21259,6 +23257,24 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:ae4c6e9e5066e4cd"
     },
     {
+      "analysis": "gerardi2023_full_relaxed",
+      "claim_id": "ev_tree_ae614dcb7733f3ad9983daf07764c268ba3187907713976fe354f734892520a7",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 564,
+        "mean": 1090,
+        "median": 1128,
+        "probability": 0.95,
+        "upper": 1496
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Guarani, Kaiowa, Mbya, Old_Guarani)",
+      "role": "posterior",
+      "source": "Fabrício Ferraz Gerardi et al. 2023",
+      "subject_id": "gerardi2023_full_relaxed:clade:ae614dcb7733f3ad"
+    },
+    {
       "analysis": "grollemund2015_bantu_mcc",
       "claim_id": "ev_tree_ae675ac273c563e731289253aee0549acc8565fecf2102add903ea82a6b9d1b0",
       "epoch": 1950,
@@ -21329,6 +23345,24 @@
       "role": "posterior",
       "source": "Ezequiel Koile et al. 2022",
       "subject_id": "koile2022_part2_geographic:clade:ae95ec5f92e9a546"
+    },
+    {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_ae9de1b718ed497385d14430429a4d5891edd9490f120f2a382f11c80b7657f6",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1232,
+        "mean": 1577,
+        "median": 1612,
+        "probability": 0.95,
+        "upper": 1825
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(HlaiBaisha, HlaiBaoting, HlaiQiandui, HlaiTongza, HlaiYuanmen)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:ae9de1b718ed4973"
     },
     {
       "analysis": "honkola2013_beast",
@@ -21835,6 +23869,24 @@
       "subject_id": "heggarty2023_main_m3:clade:b27e995ea96365b2"
     },
     {
+      "analysis": "gerardi2023_full_relaxed",
+      "claim_id": "ev_tree_b2bdae8279e7283c0297cd14d20b3764ff2c4fb27b40a7c3c5b1687430f2116f",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -2088,
+        "mean": -654,
+        "median": -571,
+        "probability": 0.95,
+        "upper": 546
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Ache, Amondawa, Anambe, Apiaka, Arawete, Asurini_Tocantins, Asurini_Xingu, Ava_Canoeiro, Aweti, Chiriguano, Guaja, Guajajara, Guarani, Guarayo, Kaapor, Kaiowa, Kamajura, Kayabi, Kokama, Mbya, Nheengatu, Old_Guarani, Omagua, Parakana, Parintintin, Siriono, Surui_Aikewara, Tapiete, Tapirape, Teko, Tembe, Tenharim, Tupinamba, Urueuwauwau, Warazu, Wayampi, Xeta, Yuki, Zoe)",
+      "role": "posterior",
+      "source": "Fabrício Ferraz Gerardi et al. 2023",
+      "subject_id": "gerardi2023_full_relaxed:clade:b2bdae8279e7283c"
+    },
+    {
       "analysis": "zhang2019_relaxed_covarion",
       "claim_id": "ev_tree_b2d8e5437001b306fd861921846089da587d91d4fb2803df8073acbd9db9c22b",
       "epoch": 1950,
@@ -21907,6 +23959,24 @@
       "subject_id": "savelyev_robbeets2020_covarion_strict:clade:b32166cbb6f6de2d"
     },
     {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_b348935ebd01077d6699ed277186a13839a005daa14cd139ad31a69413330d60",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -85,
+        "mean": 795,
+        "median": 871,
+        "probability": 0.95,
+        "upper": 1507
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(HlaiBaisha, HlaiBaoding, HlaiBaoting, HlaiChangjiang, HlaiCun, HlaiHeitu, HlaiJiamao, HlaiNadou, HlaiQiandui, HlaiTongza, HlaiXifang, HlaiYuanmen, HlaiZhongsha)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:b348935ebd01077d"
+    },
+    {
       "analysis": "bouckaert2018_pama_nyungan_mcc",
       "claim_id": "ev_tree_b37609ce7102ac7b8032b3b4ed45eba28e301e8aba300e8f674c2ebc449c25f5",
       "epoch": 1950,
@@ -21977,6 +24047,42 @@
       "role": "posterior",
       "source": "Rebecca Grollemund et al. 2015",
       "subject_id": "grollemund2015_bantu_mcc:clade:b3d33de34e8def10"
+    },
+    {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_b42831f28201a60dd09b7faec421c95eaac8dcff833dcd29adde7c2dd17cd711",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1487,
+        "mean": 1704,
+        "median": 1725,
+        "probability": 0.95,
+        "upper": 1867
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(HlaiCun, HlaiNadou)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:b42831f28201a60d"
+    },
+    {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_b4569ad110a90d55120d4d697bbfb44b49480a25270efaae872b7dc24f9bcefc",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1471,
+        "mean": 1708,
+        "median": 1736,
+        "probability": 0.95,
+        "upper": 1902
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(HlaiBaoting, HlaiQiandui, HlaiTongza)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:b4569ad110a90d55"
     },
     {
       "analysis": "koile2022_part2_geographic",
@@ -22087,6 +24193,24 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:b4cf0917db65538c"
     },
     {
+      "analysis": "greenhill2023_ua_covarion_relaxed",
+      "claim_id": "ev_tree_b4fd3c8432e3b96074f10e56baa4da0fb2492876e7b5e38ef165591883bb70c7",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -2182,
+        "mean": -1340,
+        "median": -1294,
+        "probability": 0.95,
+        "upper": -580
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Aztec_Tetelcingo-30, Aztec_Zacapoaxtla-31, Classical_Aztec-29, Cora-27, Eudeve-21, Guarijio-22, Huichol-28, Mayo-25, Northern_Tepehuan-19, Opata-20, Papago-Pima-17, Pima_de_Onavas-18, Pipil-32, Southeastern_Tepehuan-33, Tarahumara-23, Tubar-24, Yaqui-26)",
+      "role": "posterior",
+      "source": "Simon J. Greenhill et al. 2023",
+      "subject_id": "greenhill2023_ua_covarion_relaxed:clade:b4fd3c8432e3b960"
+    },
+    {
       "analysis": "grollemund2015_bantu_mcc",
       "claim_id": "ev_tree_b50f8a3395f653b70d8c5c99edd7ae92dee3579122ba5ecab6ccdc6dfeadace2",
       "epoch": 1950,
@@ -22121,6 +24245,24 @@
       "role": "posterior",
       "source": "Ezequiel Koile et al. 2022",
       "subject_id": "koile2022_part2_geographic:clade:b528989115cfe21d"
+    },
+    {
+      "analysis": "gerardi2023_full_relaxed",
+      "claim_id": "ev_tree_b5453932fed033c53aff25f3313b6be1049ee0d8544773033257ee64eea4a4cc",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 567,
+        "mean": 1147,
+        "median": 1197,
+        "probability": 0.95,
+        "upper": 1631
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Asurini_Tocantins, Parakana, Surui_Aikewara)",
+      "role": "posterior",
+      "source": "Fabrício Ferraz Gerardi et al. 2023",
+      "subject_id": "gerardi2023_full_relaxed:clade:b5453932fed033c5"
     },
     {
       "analysis": "grollemund2015_bantu_mcc",
@@ -22375,6 +24517,24 @@
       "subject_id": "bouckaert2018_pama_nyungan_mcc:clade:b75c6a730905fb55"
     },
     {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_b7b221c826e3d7a91a9f8723fe5928f943bd2a2b1358fdd2a818c0399e4896cb",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1538,
+        "mean": 1733,
+        "median": 1750,
+        "probability": 0.95,
+        "upper": 1901
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(TswLuchun, TswYuanyang)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:b7b221c826e3d7a9"
+    },
+    {
       "analysis": "koile2022_part2_geographic",
       "claim_id": "ev_tree_b7d0d6a5917e528292a88936ed11ea30b81f951c0aa61460e56093a39d258d89",
       "epoch": 1950,
@@ -22589,6 +24749,24 @@
       "role": "posterior",
       "source": "Menghan Zhang et al. 2019",
       "subject_id": "zhang2019_relaxed_covarion:clade:b94cf78c3f173f92"
+    },
+    {
+      "analysis": "greenhill2023_ua_covarion_relaxed",
+      "claim_id": "ev_tree_b9b0f2741376cc5d88a20321b5afaae7031607176d73194d448bcfd1aba84003",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -462,
+        "mean": 282,
+        "median": 302,
+        "probability": 0.95,
+        "upper": 1019
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Eudeve-21, Mayo-25, Opata-20, Yaqui-26)",
+      "role": "posterior",
+      "source": "Simon J. Greenhill et al. 2023",
+      "subject_id": "greenhill2023_ua_covarion_relaxed:clade:b9b0f2741376cc5d"
     },
     {
       "analysis": "bouckaert2018_pama_nyungan_mcc",
@@ -22897,6 +25075,42 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:bbb0d468875444b7"
     },
     {
+      "analysis": "gerardi2023_full_relaxed",
+      "claim_id": "ev_tree_bbb77835aa9a3bc0e05c3e791327a204ca1eef482c6c6eae96126fbbcbe795a4",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 628,
+        "mean": 1163,
+        "median": 1204,
+        "probability": 0.95,
+        "upper": 1640
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Amondawa, Apiaka, Parintintin, Tenharim, Urueuwauwau)",
+      "role": "posterior",
+      "source": "Fabrício Ferraz Gerardi et al. 2023",
+      "subject_id": "gerardi2023_full_relaxed:clade:bbb77835aa9a3bc0"
+    },
+    {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_bbf3603434255eb488f94e92004273cc2301e5fd05e5eb8d8e130c85b5e14486",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1628,
+        "mean": 1769,
+        "median": 1780,
+        "probability": 0.95,
+        "upper": 1884
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(KsSuiDS, KsSuiDY, KsSuiLB, KsSuiSD)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:bbf3603434255eb4"
+    },
+    {
       "analysis": "bouckaert2018_pama_nyungan_mcc",
       "claim_id": "ev_tree_bc09e63b05eb7f60bda41b97e4459e989ffd4ffa2c4dae5115dbbc5c386fd75b",
       "epoch": 1950,
@@ -23095,6 +25309,24 @@
       "subject_id": "savelyev_robbeets2020_covarion_strict:clade:bd0c059d479432fd"
     },
     {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_bd1119c49dcfb04c2445076e6a37a7a35eab22c8ad785fc156e35c11951e1000",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1567,
+        "mean": 1763,
+        "median": 1783,
+        "probability": 0.95,
+        "upper": 1914
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(TcDaxin, TcLongzhou)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:bd1119c49dcfb04c"
+    },
+    {
       "analysis": "heggarty2023_main_m3",
       "claim_id": "ev_tree_bd20881fee0c0da5562a4934dfca329cef4db0fce02e4d28bbba4f08ec7d2382",
       "epoch": 2000,
@@ -23219,6 +25451,24 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_main_m3:clade:bd9accc8e6d99091"
+    },
+    {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_bdc3ece40b191910dd9ad0fffbc325a2e54e7cb942f0f017ae864ed876b69441",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 299,
+        "mean": 771,
+        "median": 795,
+        "probability": 0.95,
+        "upper": 1210
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(TcCaoBanTai, TcDaxin, TcDebao, TcLongzhou, TcWenma, TcYanshan, TnSaek, TswAiton, TswBangkok, TswChiangmai, TswHsipaw, TswJinghong, TswJinping, TswJinsha, TswKhuen, TswKorat, TswLao, TswLuchun, TswMaguan, TswMangshi, TswMenglian, TswNgheAn, TswSongkhla, TswTaunggyi, TswThaiTrang, TswWuding, TswYuanjiang, TswYuanyang)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:bdc3ece40b191910"
     },
     {
       "analysis": "sagart2019_relaxed_fbd",
@@ -23489,6 +25739,24 @@
       "role": "posterior",
       "source": "Menghan Zhang et al. 2019",
       "subject_id": "zhang2019_relaxed_covarion:clade:c0964b36bf84c104"
+    },
+    {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_c0ade0d31f5fc4535b69e4e538973cd7ac0ccfa9c58d03b790b57063337c79dc",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1286,
+        "mean": 1568,
+        "median": 1588,
+        "probability": 0.95,
+        "upper": 1789
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(HlaiChangjiang, HlaiCun, HlaiNadou, HlaiXifang)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:c0ade0d31f5fc453"
     },
     {
       "analysis": "heggarty2023_sa8b_chang_broad_ancestry",
@@ -23851,6 +26119,24 @@
       "subject_id": "koile2022_part2_geographic:clade:c4367823578299a0"
     },
     {
+      "analysis": "gerardi2023_full_relaxed",
+      "claim_id": "ev_tree_c450b6d77a375828b82303fa19b5dd65505bae49260c6727aec3b31bc64e80c7",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 237,
+        "mean": 873,
+        "median": 924,
+        "probability": 0.95,
+        "upper": 1405
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Chiriguano, Guarani, Kaiowa, Mbya, Old_Guarani, Tapiete)",
+      "role": "posterior",
+      "source": "Fabrício Ferraz Gerardi et al. 2023",
+      "subject_id": "gerardi2023_full_relaxed:clade:c450b6d77a375828"
+    },
+    {
       "analysis": "bouckaert2018_pama_nyungan_mcc",
       "claim_id": "ev_tree_c48700f46715446270df543c0907b13ef1d9a02cdfe5e908c7f75df91ae83e14",
       "epoch": 1950,
@@ -24101,6 +26387,24 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_sa8b_chang_broad_ancestry:clade:c69343d3200fc575"
+    },
+    {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_c69dbf73dd19144273193c5666f09b1ae4ca76e0e49be6e73c31c1c0523f5841",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1629,
+        "mean": 1790,
+        "median": 1806,
+        "probability": 0.95,
+        "upper": 1917
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(TswMangshi, TswMenglian)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:c69dbf73dd191442"
     },
     {
       "analysis": "grollemund2015_bantu_mcc",
@@ -25543,6 +27847,24 @@
       "subject_id": "koile2022_part2_geographic:clade:d0af687db2c677ba"
     },
     {
+      "analysis": "gerardi2023_full_relaxed",
+      "claim_id": "ev_tree_d0cd3cfe3681c19dcc36ce00e9c83b4330f61e9606927139709484522b30f5a6",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 864,
+        "mean": 1295,
+        "median": 1324,
+        "probability": 0.95,
+        "upper": 1702
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Kaiowa, Mbya)",
+      "role": "posterior",
+      "source": "Fabrício Ferraz Gerardi et al. 2023",
+      "subject_id": "gerardi2023_full_relaxed:clade:d0cd3cfe3681c19d"
+    },
+    {
       "analysis": "koile2022_part2_geographic",
       "claim_id": "ev_tree_d12886b44529b891a21ff136812936f73ad2d2b60cc20ce8c75ed3e6b455ca4d",
       "epoch": 1950,
@@ -25867,6 +28189,24 @@
       "subject_id": "heggarty2023_sa8b_chang_broad_ancestry:clade:d2e8c80a5efbc81d"
     },
     {
+      "analysis": "greenhill2023_ua_covarion_relaxed",
+      "claim_id": "ev_tree_d2f7798b3a6e8365f99cf6e077ec79ab94dfbc9c17412f399276c01e718b1310",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -1967,
+        "mean": -265,
+        "median": -127,
+        "probability": 0.95,
+        "upper": 1189
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Kiowa-35, San_Juan_Pueblo_Tewa-36)",
+      "role": "posterior",
+      "source": "Simon J. Greenhill et al. 2023",
+      "subject_id": "greenhill2023_ua_covarion_relaxed:clade:d2f7798b3a6e8365"
+    },
+    {
       "analysis": "koile2022_part2_geographic",
       "claim_id": "ev_tree_d3690501bb7b368126a2e706383d48f8a548471ba80116c5dfe607e27f6187cd",
       "epoch": 1950,
@@ -25937,6 +28277,24 @@
       "role": "posterior",
       "source": "Ezequiel Koile et al. 2022",
       "subject_id": "koile2022_part2_geographic:clade:d39cb69cc36f5f85"
+    },
+    {
+      "analysis": "greenhill2023_ua_covarion_relaxed",
+      "claim_id": "ev_tree_d3ca223c7e21ed939326c71b39840f3533cd0987f6e9dc0445dafebc90466b89",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 555,
+        "mean": 1175,
+        "median": 1220,
+        "probability": 0.95,
+        "upper": 1666
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Kitanemuk-34, Serrano-11)",
+      "role": "posterior",
+      "source": "Simon J. Greenhill et al. 2023",
+      "subject_id": "greenhill2023_ua_covarion_relaxed:clade:d3ca223c7e21ed93"
     },
     {
       "analysis": "grollemund2015_bantu_mcc",
@@ -26047,6 +28405,24 @@
       "subject_id": "heggarty2023_sa8b_chang_broad_ancestry:clade:d475ba5f2ed69437"
     },
     {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_d49246ee1c18de5ac81ddcff93f7cccd354cc7e914dc9782dff838a6c4cf9d51",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1524,
+        "mean": 1708,
+        "median": 1723,
+        "probability": 0.95,
+        "upper": 1861
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(KsKamJP, KsKamLP, KsKamTZ)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:d49246ee1c18de5a"
+    },
+    {
       "analysis": "heggarty2023_sa8b_chang_broad_ancestry",
       "claim_id": "ev_tree_d494f0e3c60ad755a3cc2ed2e99049cb58b827c79a46ab2fe58f3e48ca3f8678",
       "epoch": 2000,
@@ -26063,6 +28439,24 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_sa8b_chang_broad_ancestry:clade:d494f0e3c60ad755"
+    },
+    {
+      "analysis": "greenhill2023_ua_covarion_relaxed",
+      "claim_id": "ev_tree_d4a7e110870e8e974ad256b156d8dbb61a752020f4002e7425ad690064657743",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -407,
+        "mean": 488,
+        "median": 526,
+        "probability": 0.95,
+        "upper": 1354
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Cora-27, Huichol-28)",
+      "role": "posterior",
+      "source": "Simon J. Greenhill et al. 2023",
+      "subject_id": "greenhill2023_ua_covarion_relaxed:clade:d4a7e110870e8e97"
     },
     {
       "analysis": "heggarty2023_sa8a_chang_broad",
@@ -26153,6 +28547,24 @@
       "role": "posterior",
       "source": "Menghan Zhang et al. 2019",
       "subject_id": "zhang2019_relaxed_covarion:clade:d4fc9523ed3738b2"
+    },
+    {
+      "analysis": "greenhill2023_ua_covarion_relaxed",
+      "claim_id": "ev_tree_d54f101947527918c706f04327b3e115ab99fec469285e32db0cf1ea90c0a5b9",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1157,
+        "mean": 1455,
+        "median": 1469,
+        "probability": 0.95,
+        "upper": 1710
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Comanche-5, Pannamint-3, Shoshoni_Gosiute_Dialect-4)",
+      "role": "posterior",
+      "source": "Simon J. Greenhill et al. 2023",
+      "subject_id": "greenhill2023_ua_covarion_relaxed:clade:d54f101947527918"
     },
     {
       "analysis": "koile2022_part2_geographic",
@@ -26261,6 +28673,24 @@
       "role": "posterior",
       "source": "Remco Bouckaert et al. 2018",
       "subject_id": "bouckaert2018_pama_nyungan_mcc:clade:d68ed77e0d799f3b"
+    },
+    {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_d6f611e7efa41ee62e96654edaa5ce77a18a21d81708035917b8a16b1399d9cb",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 485,
+        "mean": 919,
+        "median": 945,
+        "probability": 0.95,
+        "upper": 1316
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(TnSaek, TswAiton, TswBangkok, TswChiangmai, TswHsipaw, TswJinghong, TswJinping, TswJinsha, TswKhuen, TswKorat, TswLao, TswLuchun, TswMaguan, TswMangshi, TswMenglian, TswNgheAn, TswSongkhla, TswTaunggyi, TswThaiTrang, TswWuding, TswYuanjiang, TswYuanyang)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:d6f611e7efa41ee6"
     },
     {
       "analysis": "heggarty2023_sa8a_chang_broad",
@@ -26677,6 +29107,24 @@
       "subject_id": "heggarty2023_main_m3:clade:d994690beec6586d"
     },
     {
+      "analysis": "greenhill2023_ua_covarion_relaxed",
+      "claim_id": "ev_tree_d9c8691abb067eb0c912b7693fe6ce3fa3b3441132973b1579e85f02ffe33752",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 839,
+        "mean": 1227,
+        "median": 1276,
+        "probability": 0.95,
+        "upper": 1474
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Aztec_Zacapoaxtla-31, Classical_Aztec-29)",
+      "role": "posterior",
+      "source": "Simon J. Greenhill et al. 2023",
+      "subject_id": "greenhill2023_ua_covarion_relaxed:clade:d9c8691abb067eb0"
+    },
+    {
       "analysis": "heggarty2023_sa8a_chang_broad",
       "claim_id": "ev_tree_da09f58aeaefe6051974e6b9eccdc3b11d23719c41668b426259146b8a398f0c",
       "epoch": 2000,
@@ -26747,6 +29195,24 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_main_m3:clade:dae243bf1c63a8a0"
+    },
+    {
+      "analysis": "gerardi2023_full_relaxed",
+      "claim_id": "ev_tree_daf3f5e448fd4ed9e5dd9ce28873a5ff7fb72fcd102f8efd2bd5a8247cb71954",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -161,
+        "mean": 613,
+        "median": 672,
+        "probability": 0.95,
+        "upper": 1290
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Ache, Chiriguano, Guarani, Guarayo, Kaiowa, Mbya, Old_Guarani, Siriono, Tapiete, Xeta, Yuki)",
+      "role": "posterior",
+      "source": "Fabrício Ferraz Gerardi et al. 2023",
+      "subject_id": "gerardi2023_full_relaxed:clade:daf3f5e448fd4ed9"
     },
     {
       "analysis": "sagart2019_relaxed_fbd",
@@ -27163,6 +29629,24 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:dd9f771983506c39"
     },
     {
+      "analysis": "greenhill2023_ua_covarion_relaxed",
+      "claim_id": "ev_tree_ddad817f911759c6725dffb05699240e51e47f90f0652dc3b2c8d136d6096764",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1008,
+        "mean": 1405,
+        "median": 1432,
+        "probability": 0.95,
+        "upper": 1754
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Papago-Pima-17, Pima_de_Onavas-18)",
+      "role": "posterior",
+      "source": "Simon J. Greenhill et al. 2023",
+      "subject_id": "greenhill2023_ua_covarion_relaxed:clade:ddad817f911759c6"
+    },
+    {
       "analysis": "sagart2019_relaxed_fbd",
       "claim_id": "ev_tree_ddce35e3569bc6d8fac2dca66eccfe35a40e7b2b722028cb3bcab80b3a52759c",
       "epoch": 1950,
@@ -27215,6 +29699,24 @@
       "role": "posterior",
       "source": "Ezequiel Koile et al. 2022",
       "subject_id": "koile2022_part2_geographic:clade:de1ee0503c2ca5bd"
+    },
+    {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_de41e3b8b04c4a9ddb25b7505ab6f9dee18b28f783e4f6a8a7d84ae4dfd9ab2a",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1284,
+        "mean": 1553,
+        "median": 1564,
+        "probability": 0.95,
+        "upper": 1797
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(TswJinghong, TswMangshi, TswMenglian)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:de41e3b8b04c4a9d"
     },
     {
       "analysis": "heggarty2023_main_m3",
@@ -27433,6 +29935,24 @@
       "subject_id": "bouckaert2018_pama_nyungan_mcc:clade:df9d5771576a23dd"
     },
     {
+      "analysis": "greenhill2023_ua_covarion_relaxed",
+      "claim_id": "ev_tree_dfd46c5fc927743b2443e4cf11f4cfbdfc609b098f9c335e0fe18823480efdbb",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1500,
+        "mean": 1704,
+        "median": 1719,
+        "probability": 0.95,
+        "upper": 1875
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Comanche-5, Shoshoni_Gosiute_Dialect-4)",
+      "role": "posterior",
+      "source": "Simon J. Greenhill et al. 2023",
+      "subject_id": "greenhill2023_ua_covarion_relaxed:clade:dfd46c5fc927743b"
+    },
+    {
       "analysis": "heggarty2023_sa8b_chang_broad_ancestry",
       "claim_id": "ev_tree_dfe30ac47be8d1c179c0e8cd045f43fcb8f22790d31742298f17aa3e58ca6ef4",
       "epoch": 2000,
@@ -27577,6 +30097,24 @@
       "subject_id": "heggarty2023_main_m3:clade:e0b330176751bcc8"
     },
     {
+      "analysis": "greenhill2023_ua_covarion_relaxed",
+      "claim_id": "ev_tree_e0bf8ec8e76a347b8cce7e3ec373d9b62932674644e88b4f7a10cf5aef26f29d",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1348,
+        "mean": 1584,
+        "median": 1599,
+        "probability": 0.95,
+        "upper": 1808
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Chemehuevi-7, Southern_Paiute-8)",
+      "role": "posterior",
+      "source": "Simon J. Greenhill et al. 2023",
+      "subject_id": "greenhill2023_ua_covarion_relaxed:clade:e0bf8ec8e76a347b"
+    },
+    {
       "analysis": "grollemund2015_bantu_mcc",
       "claim_id": "ev_tree_e0c096dfc06788c64f549aceee7e2e038627608fb0ed1489bb393d7a2c969b33",
       "epoch": 1950,
@@ -27593,6 +30131,24 @@
       "role": "posterior",
       "source": "Rebecca Grollemund et al. 2015",
       "subject_id": "grollemund2015_bantu_mcc:clade:e0c096dfc06788c6"
+    },
+    {
+      "analysis": "greenhill2023_ua_covarion_relaxed",
+      "claim_id": "ev_tree_e0c685d838754c5e75e829a0e88b2e79c731ef6e0d0953391809863fcf7b42c1",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 405,
+        "mean": 577,
+        "median": 604,
+        "probability": 0.95,
+        "upper": 668
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Chemehuevi-7, Comanche-5, Kawaiisu-6, Mono-1, Northern_Paiute-2, Pannamint-3, Shoshoni_Gosiute_Dialect-4, Southern_Paiute-8, Southern_Ute-9)",
+      "role": "posterior",
+      "source": "Simon J. Greenhill et al. 2023",
+      "subject_id": "greenhill2023_ua_covarion_relaxed:clade:e0c685d838754c5e"
     },
     {
       "analysis": "bouckaert2018_pama_nyungan_mcc",
@@ -27665,6 +30221,24 @@
       "role": "posterior",
       "source": "Rebecca Grollemund et al. 2015",
       "subject_id": "grollemund2015_bantu_mcc:clade:e10e0da4bc262ca2"
+    },
+    {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_e11e3190640bcde0b6fdf665f1657d22608da7557fe0a8d4181c564bfdee795e",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1806,
+        "mean": 1887,
+        "median": 1895,
+        "probability": 0.95,
+        "upper": 1943
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(KsSuiLB, KsSuiSD)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:e11e3190640bcde0"
     },
     {
       "analysis": "grollemund2015_bantu_mcc",
@@ -28207,6 +30781,24 @@
       "subject_id": "koile2022_part2_geographic:clade:e4dcc1f0cbb30a0d"
     },
     {
+      "analysis": "gerardi2023_full_relaxed",
+      "claim_id": "ev_tree_e4ed56e8100c9a7536d4c11fc91ad1d33420ab5086f8d641b854e0794ba0f9cf",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -2670,
+        "mean": -1363,
+        "median": -1194,
+        "probability": 0.95,
+        "upper": -550
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Ache, Amondawa, Anambe, Apiaka, Arawete, Asurini_Tocantins, Asurini_Xingu, Ava_Canoeiro, Aweti, Chiriguano, Guaja, Guajajara, Guarani, Guarayo, Kaapor, Kaiowa, Kamajura, Kayabi, Kokama, Mawe, Mbya, Nheengatu, Old_Guarani, Omagua, Parakana, Parintintin, Siriono, Surui_Aikewara, Tapiete, Tapirape, Teko, Tembe, Tenharim, Tupinamba, Urueuwauwau, Warazu, Wayampi, Xeta, Yuki, Zoe)",
+      "role": "posterior",
+      "source": "Fabrício Ferraz Gerardi et al. 2023",
+      "subject_id": "gerardi2023_full_relaxed:clade:e4ed56e8100c9a75"
+    },
+    {
       "analysis": "koile2022_part2_geographic",
       "claim_id": "ev_tree_e4eed4d788b51c3f30c61e3a5a1b14712922c8cc0ea0ee1013e6997dc140ea8a",
       "epoch": 1950,
@@ -28549,6 +31141,24 @@
       "subject_id": "koile2022_part2_geographic:clade:e76b63019e6f7a98"
     },
     {
+      "analysis": "greenhill2023_ua_covarion_relaxed",
+      "claim_id": "ev_tree_e76ebf34befbddb16a944deaf718540f2c3da6425ca4e90f3bee1cafeae3a048",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -1184,
+        "mean": -686,
+        "median": -603,
+        "probability": 0.95,
+        "upper": -431
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Chemehuevi-7, Comanche-5, Hopi-16, Kawaiisu-6, Mono-1, Northern_Paiute-2, Pannamint-3, Shoshoni_Gosiute_Dialect-4, Southern_Paiute-8, Southern_Ute-9, Tubatulabel-10)",
+      "role": "posterior",
+      "source": "Simon J. Greenhill et al. 2023",
+      "subject_id": "greenhill2023_ua_covarion_relaxed:clade:e76ebf34befbddb1"
+    },
+    {
       "analysis": "koile2022_part2_geographic",
       "claim_id": "ev_tree_e77597e21b98d39b4b3d25ce2a842dadfedd13fcb7dfa1c6548c213ea5431682",
       "epoch": 1950,
@@ -28691,6 +31301,24 @@
       "role": "posterior",
       "source": "Remco Bouckaert et al. 2018",
       "subject_id": "bouckaert2018_pama_nyungan_mcc:clade:e854c1a1f270da85"
+    },
+    {
+      "analysis": "tao2023_kd_covarion_relaxed",
+      "claim_id": "ev_tree_e88a96d1fcce9addc411e355501662ce89dd29a0ca9cc90004414f94093d67bc",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1190,
+        "mean": 1477,
+        "median": 1499,
+        "probability": 0.95,
+        "upper": 1717
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(HlaiBaoding, HlaiChangjiang, HlaiCun, HlaiHeitu, HlaiNadou, HlaiXifang, HlaiZhongsha)",
+      "role": "posterior",
+      "source": "Yuxin Tao et al. 2023",
+      "subject_id": "tao2023_kd_covarion_relaxed:clade:e88a96d1fcce9add"
     },
     {
       "analysis": "bouckaert2018_pama_nyungan_mcc",
@@ -29017,6 +31645,24 @@
       "subject_id": "heggarty2023_main_m3:clade:ea461eccd604a9ed"
     },
     {
+      "analysis": "gerardi2023_full_relaxed",
+      "claim_id": "ev_tree_ea652631148fc087e9af936298f0f28f0907d64223eaff44ff3c879370058d34",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -259,
+        "mean": 556,
+        "median": 619,
+        "probability": 0.95,
+        "upper": 1242
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Ache, Chiriguano, Guarani, Guarayo, Kaiowa, Mbya, Old_Guarani, Siriono, Tapiete, Warazu, Xeta, Yuki)",
+      "role": "posterior",
+      "source": "Fabrício Ferraz Gerardi et al. 2023",
+      "subject_id": "gerardi2023_full_relaxed:clade:ea652631148fc087"
+    },
+    {
       "analysis": "koile2022_part2_geographic",
       "claim_id": "ev_tree_ea6a081d4699a2c67e27149dcf30b36bef4dc0b7f39fd426cab5822ff6345253",
       "epoch": 1950,
@@ -29305,6 +31951,24 @@
       "subject_id": "bouckaert2018_pama_nyungan_mcc:clade:ed40f1c865813f8a"
     },
     {
+      "analysis": "greenhill2023_ua_covarion_relaxed",
+      "claim_id": "ev_tree_ed7df8cae162c2ab3edbe7fc1128e27eb9809ffc4b691f34060539cf825a76e2",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -831,
+        "mean": -313,
+        "median": -296,
+        "probability": 0.95,
+        "upper": 161
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Chemehuevi-7, Comanche-5, Hopi-16, Kawaiisu-6, Mono-1, Northern_Paiute-2, Pannamint-3, Shoshoni_Gosiute_Dialect-4, Southern_Paiute-8, Southern_Ute-9)",
+      "role": "posterior",
+      "source": "Simon J. Greenhill et al. 2023",
+      "subject_id": "greenhill2023_ua_covarion_relaxed:clade:ed7df8cae162c2ab"
+    },
+    {
       "analysis": "grollemund2015_bantu_mcc",
       "claim_id": "ev_tree_ed8c40be6b551d4d23923d883a11ff59b0d561c6323d0ce9d3050556333769bf",
       "epoch": 1950,
@@ -29375,6 +32039,24 @@
       "role": "posterior",
       "source": "Ezequiel Koile et al. 2022",
       "subject_id": "koile2022_part2_geographic:clade:edf74fabb61137bc"
+    },
+    {
+      "analysis": "greenhill2023_ua_covarion_relaxed",
+      "claim_id": "ev_tree_ee01b9a4a621d46c15073197925e64cc7bbca001d397115667a88fa9055acf6d",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -530,
+        "mean": 224,
+        "median": 230,
+        "probability": 0.95,
+        "upper": 963
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Cahuilla-12, Cupeno-13, Luiseno-14)",
+      "role": "posterior",
+      "source": "Simon J. Greenhill et al. 2023",
+      "subject_id": "greenhill2023_ua_covarion_relaxed:clade:ee01b9a4a621d46c"
     },
     {
       "analysis": "grollemund2015_bantu_mcc",
@@ -29501,6 +32183,24 @@
       "role": "posterior",
       "source": "Rebecca Grollemund et al. 2015",
       "subject_id": "grollemund2015_bantu_mcc:clade:ee91ffc0b22d0c42"
+    },
+    {
+      "analysis": "gerardi2023_full_relaxed",
+      "claim_id": "ev_tree_ef07f3b59b48406dda851a47d1b43fb072297cc66a22038c487a90fa38295b31",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 852,
+        "mean": 1345,
+        "median": 1389,
+        "probability": 0.95,
+        "upper": 1761
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Asurini_Tocantins, Parakana)",
+      "role": "posterior",
+      "source": "Fabrício Ferraz Gerardi et al. 2023",
+      "subject_id": "gerardi2023_full_relaxed:clade:ef07f3b59b48406d"
     },
     {
       "analysis": "bouckaert2018_pama_nyungan_mcc",
@@ -29915,6 +32615,24 @@
       "role": "posterior",
       "source": "Ezequiel Koile et al. 2022",
       "subject_id": "koile2022_part2_geographic:clade:f3f324761938baf6"
+    },
+    {
+      "analysis": "gerardi2023_full_relaxed",
+      "claim_id": "ev_tree_f3fd6344b46e2e26cbaf390a905f6a53051358bb74a5cb561cb9209f30d24b15",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -234,
+        "mean": 621,
+        "median": 686,
+        "probability": 0.95,
+        "upper": 1306
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Kaapor, Teko, Wayampi, Zoe)",
+      "role": "posterior",
+      "source": "Fabrício Ferraz Gerardi et al. 2023",
+      "subject_id": "gerardi2023_full_relaxed:clade:f3fd6344b46e2e26"
     },
     {
       "analysis": "heggarty2023_main_m3",
@@ -31375,7 +34093,7 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:fff5df92fe6ca543"
     }
   ],
-  "generation": "1111fabe567f1906f089a92fc0a01c7141c146a54365811b9bf9c810b4dd34ed",
+  "generation": "7fc557784fe499ac5e379c1c9ef2dd953cc24c4198da32a8fdef65cfa85df138",
   "languages": [
     {
       "alternatives": [
@@ -32351,6 +35069,36 @@
           "earliest": 1037,
           "latest": 1037
         }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "azc-pro",
+      "evidence": [
+        {
+          "citation": "A recent northern origin for the Uto-Aztecan family (author manuscript)",
+          "claim_id": "ev_tree_641e1b0b46e6e9567537fbd2b0f8909c9d32a111874af6b0a98445d8f7cca3d8",
+          "event": "crown_divergence",
+          "locator": null,
+          "node": "MRCA(Aztec_Tetelcingo-30, Aztec_Zacapoaxtla-31, Cahuilla-12, Chemehuevi-7, Classical_Aztec-29, Comanche-5, Cora-27, Cupeno-13, Eudeve-21, Gabrielino-15, Guarijio-22, Hopi-16, Huichol-28, Kawaiisu-6, Kitanemuk-34, Luiseno-14, Mayo-25, Mono-1, Northern_Paiute-2, Northern_Tepehuan-19, Opata-20, Pannamint-3, Papago-Pima-17, Pima_de_Onavas-18, Pipil-32, Serrano-11, Shoshoni_Gosiute_Dialect-4, Southeastern_Tepehuan-33, Southern_Paiute-8, Southern_Ute-9, Tarahumara-23, Tubar-24, Tubatulabel-10, Yaqui-26)",
+          "proto_mapping": "The Uto-Aztecan crown: all 34 sampled varieties, Northern (Numic, Takic, Hopi, Tübatulabal) and Southern (Tepiman, Taracahitan, Corachol, Aztecan), without the Kiowa and Tewa outgroups.",
+          "quote": null,
+          "role": "posterior",
+          "source": "Simon J. Greenhill et al. 2023",
+          "url": "https://osf.io/download/am68h/"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 2970/1310 BCE",
+      "name": "Proto-Uto-Aztecan",
+      "spoken": {
+        "end": {
+          "earliest": -2973,
+          "latest": -1307
+        },
+        "ongoing": false,
+        "start": null
       }
     },
     {
@@ -36744,6 +39492,36 @@
     {
       "alternatives": [],
       "basis": "estimated",
+      "code": "qfa-tak-pro",
+      "evidence": [
+        {
+          "citation": "Phylogenetic evidence reveals early Kra-Dai divergence and dispersal in the late Holocene",
+          "claim_id": "ev_tree_2b2c5ec49343c0cff30ee6f6324fac4bc07e62175ad464d09203a637d6488d7e",
+          "event": "crown_divergence",
+          "locator": null,
+          "node": "MRCA(BeChengmaiMY, BeChengmaiYL, BeHaikouCL, BeHaikouRS, BeJizhao, BeLinGaoLC, BeLinGaoXY, BeQiongshanLQ, BeQiongshanLT, HlaiBaisha, HlaiBaoding, HlaiBaoting, HlaiChangjiang, HlaiCun, HlaiHeitu, HlaiJiamao, HlaiNadou, HlaiQiandui, HlaiTongza, HlaiXifang, HlaiYuanmen, HlaiZhongsha, KraBuyangBH, KraBuyangEC, KraBuyangLJ, KraBuyangYR, KraGelaoAS, KraGelaoDF, KraGelaoMJ, KraGelaoZF, KraLachi, KraLaha, KraPubiao, KsBiao, KsChadong, KsJin, KsKamJP, KsKamLP, KsKamRJ, KsKamTZ, KsLakkia, KsMak, KsMaonan, KsMulam, KsSuiDS, KsSuiDY, KsSuiLB, KsSuiSD, KsThen, TcCaoBanTai, TcDaxin, TcDebao, TcFusui, TcLongAn, TcLongzhou, TcQinzhou, TcShangsi, TcWenma, TcYanshan, TcYongning, TnDonglan, TnDuAn, TnFengshan, TnHengxian, TnHuishui, TnLianshan, TnLibo, TnLiujiang, TnLuodian, TnPanxian, TnPingguo, TnQianxi, TnQiubei, TnSaek, TnShuicheng, TnTiandong, TnWuming, TnZhenfeng, TnZhenning, TswAiton, TswBangkok, TswChiangmai, TswHsipaw, TswJinghong, TswJinping, TswJinsha, TswKhuen, TswKorat, TswLao, TswLuchun, TswMaguan, TswMangshi, TswMenglian, TswNgheAn, TswSongkhla, TswTaunggyi, TswThaiTrang, TswWuding, TswYuanjiang, TswYuanyang)",
+          "proto_mapping": "The root: Kra against the rest (Hlai, Ong-Be, Kam-Sui, Tai), all five branches sampled, so its crown is the breakup of Proto-Kra-Dai.",
+          "quote": null,
+          "role": "posterior",
+          "source": "Yuxin Tao et al. 2023",
+          "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10616200/"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 3600/792 BCE",
+      "name": "Proto-Kra-Dai",
+      "spoken": {
+        "end": {
+          "earliest": -3600,
+          "latest": -791
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
       "code": "roa-pro",
       "evidence": [
         {
@@ -37297,6 +40075,66 @@
     {
       "alternatives": [],
       "basis": "estimated",
+      "code": "tai-pro",
+      "evidence": [
+        {
+          "citation": "Phylogenetic evidence reveals early Kra-Dai divergence and dispersal in the late Holocene",
+          "claim_id": "ev_tree_859faafe6d422d69bebcae9bc812eece467188288761253b533836627cfe26f1",
+          "event": "crown_divergence",
+          "locator": null,
+          "node": "MRCA(TcCaoBanTai, TcDaxin, TcDebao, TcFusui, TcLongAn, TcLongzhou, TcQinzhou, TcShangsi, TcWenma, TcYanshan, TcYongning, TnDonglan, TnDuAn, TnFengshan, TnHengxian, TnHuishui, TnLianshan, TnLibo, TnLiujiang, TnLuodian, TnPanxian, TnPingguo, TnQianxi, TnQiubei, TnSaek, TnShuicheng, TnTiandong, TnWuming, TnZhenfeng, TnZhenning, TswAiton, TswBangkok, TswChiangmai, TswHsipaw, TswJinghong, TswJinping, TswJinsha, TswKhuen, TswKorat, TswLao, TswLuchun, TswMaguan, TswMangshi, TswMenglian, TswNgheAn, TswSongkhla, TswTaunggyi, TswThaiTrang, TswWuding, TswYuanjiang, TswYuanyang)",
+          "proto_mapping": "The Tai clade: Northern (incl. Saek), Central and Southwestern Tai, 51 varieties, so its crown is the breakup of Proto-Tai.",
+          "quote": null,
+          "role": "posterior",
+          "source": "Yuxin Tao et al. 2023",
+          "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10616200/"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 47/1080 CE",
+      "name": "Proto-Tai",
+      "spoken": {
+        "end": {
+          "earliest": 47,
+          "latest": 1077
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "tai-swe-pro",
+      "evidence": [
+        {
+          "citation": "Phylogenetic evidence reveals early Kra-Dai divergence and dispersal in the late Holocene",
+          "claim_id": "ev_tree_669b75bb3893f66d84533fc3d9860ffb8092369c0c8d856f664a623d343efa81",
+          "event": "crown_divergence",
+          "locator": null,
+          "node": "MRCA(TswAiton, TswBangkok, TswChiangmai, TswHsipaw, TswJinghong, TswJinping, TswJinsha, TswKhuen, TswKorat, TswLao, TswLuchun, TswMaguan, TswMangshi, TswMenglian, TswNgheAn, TswSongkhla, TswTaunggyi, TswThaiTrang, TswWuding, TswYuanjiang, TswYuanyang)",
+          "proto_mapping": "The Southwestern Tai clade: 21 varieties incl. Thai, Lao, Northern Thai, Khün, Shan, Tai Lü and Tai Dam areas, so its crown is the breakup of Proto-Southwestern Tai.",
+          "quote": null,
+          "role": "posterior",
+          "source": "Yuxin Tao et al. 2023",
+          "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10616200/"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 788/1430 CE",
+      "name": "Proto-Southwestern Tai",
+      "spoken": {
+        "end": {
+          "earliest": 788,
+          "latest": 1434
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
       "code": "tbq-brm-pro",
       "evidence": [
         {
@@ -37522,6 +40360,36 @@
         "end": {
           "earliest": -755,
           "latest": 483
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "tup-gua-pro",
+      "evidence": [
+        {
+          "citation": "Lexical phylogenetics of the Tupí-Guaraní family: Language, archaeology, and the problem of chronology",
+          "claim_id": "ev_tree_a96d6df28c7f3d1c0f310a9d52053046228c75c70d85d26625d5d5b142db66b6",
+          "event": "crown_divergence",
+          "locator": null,
+          "node": "MRCA(Ache, Amondawa, Anambe, Apiaka, Arawete, Asurini_Tocantins, Asurini_Xingu, Ava_Canoeiro, Chiriguano, Guaja, Guajajara, Guarani, Guarayo, Kaapor, Kaiowa, Kamajura, Kayabi, Kokama, Mbya, Nheengatu, Old_Guarani, Omagua, Parakana, Parintintin, Siriono, Surui_Aikewara, Tapiete, Tapirape, Teko, Tembe, Tenharim, Tupinamba, Urueuwauwau, Warazu, Wayampi, Xeta, Yuki, Zoe)",
+          "proto_mapping": "The Tupí-Guaraní crown: 38 TG languages incl. Tupinambá and Old Guarani, without Awetí and Mawé, so its crown is the breakup of Proto-Tupí-Guaraní.",
+          "quote": null,
+          "role": "posterior",
+          "source": "Fabrício Ferraz Gerardi et al. 2023",
+          "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10270611/"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 792 BCE/1100 CE",
+      "name": "Proto-Tupi-Guarani",
+      "spoken": {
+        "end": {
+          "earliest": -791,
+          "latest": 1103
         },
         "ongoing": false,
         "start": null
