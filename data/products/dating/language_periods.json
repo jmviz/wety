@@ -9343,7 +9343,7 @@
       "subject_id": "zhang2019_relaxed_covarion:clade:ff9f137507695c91"
     }
   ],
-  "generation": "7c11d76217c65a727a945e8a901c3d3e7ccb5d18a54e634fab1c07f3e8deb967",
+  "generation": "2e01adbdfba7acef0483a0479f2979cd5041cf2e623928856845df83b3774081",
   "languages": [
     {
       "alternatives": [
@@ -10129,6 +10129,80 @@
     },
     {
       "alternatives": [],
+      "basis": "attested",
+      "code": "arc",
+      "evidence": [
+        {
+          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Syria-Palestine and Arabia. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "claim_id": "ev_period_068e141895df864fb1718a108d69bfdb63e687fb",
+          "event": "first_attestation",
+          "locator": "{\"page\": \"109\", \"pdf_page\": 131}",
+          "quote": "Though Aramaic was spoken during the second millennium BC, the ﬁrst extant texts appear\nat the beginning of the ﬁrst millennium.",
+          "role": "observation",
+          "source": "Woodard 2008",
+          "url": null
+        }
+      ],
+      "kind": "attested",
+      "label": "from 1st millennium BCE",
+      "name": "Aramaic",
+      "span": {
+        "components": [
+          {
+            "basis": "attested",
+            "code": "arc",
+            "label": "from 1st millennium BCE",
+            "name": "Aramaic",
+            "own": true
+          },
+          {
+            "basis": "conventional",
+            "code": "arc-imp",
+            "label": "600–200 BCE",
+            "name": "Imperial Aramaic",
+            "own": false
+          },
+          {
+            "basis": "conventional",
+            "code": "arc-old",
+            "label": "950–600 BCE",
+            "name": "Old Aramaic",
+            "own": false
+          }
+        ],
+        "end": {
+          "earliest": -199,
+          "latest": -199
+        },
+        "label": "1000/950–200 BCE",
+        "ongoing": false,
+        "partial": true,
+        "start": {
+          "earliest": -999,
+          "latest": -949
+        },
+        "undated": [
+          "arc-bib",
+          "arc-cpa",
+          "arc-hat",
+          "arc-jla",
+          "arc-nab",
+          "arc-pal",
+          "jpa",
+          "tmr"
+        ]
+      },
+      "spoken": {
+        "end": null,
+        "ongoing": false,
+        "start": {
+          "earliest": -999,
+          "latest": 0
+        }
+      }
+    },
+    {
+      "alternatives": [],
       "basis": "conventional",
       "code": "arc-imp",
       "evidence": [
@@ -10626,7 +10700,28 @@
       }
     },
     {
-      "alternatives": [],
+      "alternatives": [
+        {
+          "basis": "conventional",
+          "citation": "Loprieno, Antonio. 1995. Ancient Egyptian: A Linguistic Introduction. Cambridge: Cambridge University Press. Supplied copy digitally printed 2004. https://doi.org/10.1017/CBO9780511611865.",
+          "claim_id": "ev_period_e02766d259e8b63343056d503291643afad106db",
+          "end": {
+            "earliest": -699,
+            "latest": -699
+          },
+          "event": "conventional_period",
+          "label": "1300–700 BCE",
+          "locator": "{\"page\": \"7\", \"pdf_page\": 23}",
+          "quote": "(a) Late Egyptian (1300-700 BCE), the language of written records from\nthe second part of the New Kingdom.",
+          "role": "convention",
+          "source": "Loprieno 1995",
+          "start": {
+            "earliest": -1299,
+            "latest": -1299
+          },
+          "url": "https://doi.org/10.1017/cbo9780511611865"
+        }
+      ],
       "basis": "conventional",
       "code": "egy-lat",
       "evidence": [
@@ -10657,7 +10752,28 @@
       }
     },
     {
-      "alternatives": [],
+      "alternatives": [
+        {
+          "basis": "conventional",
+          "citation": "Loprieno, Antonio. 1995. Ancient Egyptian: A Linguistic Introduction. Cambridge: Cambridge University Press. Supplied copy digitally printed 2004. https://doi.org/10.1017/CBO9780511611865.",
+          "claim_id": "ev_period_aa36d9050127ca9f3c1680f367a721e8ea94f3ff",
+          "end": {
+            "earliest": -1299,
+            "latest": -1299
+          },
+          "event": "conventional_period",
+          "label": "2000–1300 BCE",
+          "locator": "{\"page\": \"5\", \"pdf_page\": 21}",
+          "quote": "(b) Middle Egyptian, also termed Classical Egyptian, from the Middle\nKingdom to the end of Dyn. XVIII (2000-1300 BCE).",
+          "role": "convention",
+          "source": "Loprieno 1995",
+          "start": {
+            "earliest": -1999,
+            "latest": -1999
+          },
+          "url": "https://doi.org/10.1017/cbo9780511611865"
+        }
+      ],
       "basis": "conventional",
       "code": "egy-mid",
       "evidence": [
@@ -10688,7 +10804,28 @@
       }
     },
     {
-      "alternatives": [],
+      "alternatives": [
+        {
+          "basis": "conventional",
+          "citation": "Loprieno, Antonio. 1995. Ancient Egyptian: A Linguistic Introduction. Cambridge: Cambridge University Press. Supplied copy digitally printed 2004. https://doi.org/10.1017/CBO9780511611865.",
+          "claim_id": "ev_period_4532d6ff207b3531166e24090463599d95e863ed",
+          "end": {
+            "earliest": -1999,
+            "latest": -1999
+          },
+          "event": "conventional_period",
+          "label": "3000–2000 BCE",
+          "locator": "{\"page\": \"5\", \"pdf_page\": 21}",
+          "quote": "(a) Old Egyptian, the language of the Old Kingdom and of the First\nIntermediate Period (3000-2000 BCE).",
+          "role": "convention",
+          "source": "Loprieno 1995",
+          "start": {
+            "earliest": -2999,
+            "latest": -2999
+          },
+          "url": "https://doi.org/10.1017/cbo9780511611865"
+        }
+      ],
       "basis": "conventional",
       "code": "egy-old",
       "evidence": [
@@ -13380,6 +13517,98 @@
       }
     },
     {
+      "alternatives": [],
+      "basis": "conventional",
+      "code": "okm",
+      "evidence": [
+        {
+          "citation": "Lee, Ki-Moon, and S. Robert Ramsey. 2011. “Early Middle Korean,” chapter 4 in A History of the Korean Language, 77–99. Cambridge: Cambridge University Press. doi:10.1017/CBO9780511974045.006. Quoted from publisher-hosted chapter summary.",
+          "claim_id": "ev_period_2087127aff458e7858ba157ac47ac8d94a8bde73",
+          "event": "conventional_period",
+          "locator": "{\"start\": 11575, \"end\": 12037, \"section\": \"Publisher-hosted chapter summary (no PDF accessed)\"}",
+          "quote": "The stage of the language known as “Middle Korean” lasted from the tenth century until the end of the sixteenth century. It began with the establishment of the Koryŏ dynasty in AD 918, when the new government moved the capital from Kyŏngju, in the southeast, to Kaegyŏng (later to be renamed Kaesŏng) in the middle of the peninsula. It nominally ended when the Japanese invaded Korea in 1592, and the resulting chaos disrupted the written record of the language.",
+          "role": "convention",
+          "source": "Lee 2011",
+          "url": "https://doi.org/10.1017/CBO9780511974045.006"
+        }
+      ],
+      "kind": "stage",
+      "label": "918–1592 CE",
+      "name": "Middle Korean",
+      "span": {
+        "components": [
+          {
+            "basis": "conventional",
+            "code": "okm",
+            "label": "918–1592 CE",
+            "name": "Middle Korean",
+            "own": true
+          },
+          {
+            "basis": "conventional",
+            "code": "okm-ear",
+            "label": "918–1392 CE",
+            "name": "Early Middle Korean",
+            "own": false
+          }
+        ],
+        "end": {
+          "earliest": 1592,
+          "latest": 1592
+        },
+        "label": "918–1592 CE",
+        "ongoing": false,
+        "partial": false,
+        "start": {
+          "earliest": 918,
+          "latest": 918
+        },
+        "undated": []
+      },
+      "spoken": {
+        "end": {
+          "earliest": 1592,
+          "latest": 1592
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 918,
+          "latest": 918
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "conventional",
+      "code": "okm-ear",
+      "evidence": [
+        {
+          "citation": "Lee, Ki-Moon, and S. Robert Ramsey. 2011. “Early Middle Korean,” chapter 4 in A History of the Korean Language, 77–99. Cambridge: Cambridge University Press. doi:10.1017/CBO9780511974045.006. Quoted from publisher-hosted chapter summary.",
+          "claim_id": "ev_period_fbbe65fe456dac9afa94f8ce57fcbc1a35ec4700",
+          "event": "conventional_period",
+          "locator": "{\"start\": 12038, \"end\": 12335, \"section\": \"Publisher-hosted chapter summary\"}",
+          "quote": "Middle Korean can be most conveniently divided into two parts: Early Middle Korean and Late Middle Korean. The language of the Koryŏ period (918~1392) is considered to be Early Middle Korean, while the language of the first two hundred years of the Chosŏn period is taken to be Late Middle Korean.",
+          "role": "convention",
+          "source": "Lee 2011",
+          "url": "https://doi.org/10.1017/CBO9780511974045.006"
+        }
+      ],
+      "kind": "stage",
+      "label": "918–1392 CE",
+      "name": "Early Middle Korean",
+      "spoken": {
+        "end": {
+          "earliest": 1392,
+          "latest": 1392
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 918,
+          "latest": 918
+        }
+      }
+    },
+    {
       "alternatives": [
         {
           "basis": "attested",
@@ -13425,6 +13654,37 @@
         "start": {
           "earliest": 701,
           "latest": 800
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "conventional",
+      "code": "orv",
+      "evidence": [
+        {
+          "citation": "Krause, Todd B., and Jonathan Slocum. n.d. “Old Russian Online: Series Introduction.” Linguistics Research Center, University of Texas at Austin, section on sources. https://lrc.la.utexas.edu/eieol/oruol (accessed 2026-10-05).",
+          "claim_id": "ev_period_256e69efbbd65110c19049fc755a412e9416f40a",
+          "event": "conventional_period",
+          "locator": "{\"start\": 21015, \"end\": 21992, \"section\": \"Sources of Old Russian\"}",
+          "quote": "No specific dates fix the period of Old Russian. Rather we may suppose from historical sources that its earliest stages represent something close to what was spoken upon the reception of the Byzantine liturgy in the middle of the 10th century, since this would likely have marked the opening of the literary tradition that produced the earliest surviving manuscripts. That would place the beginning of the Old Russian period sometime in the 10th century AD. Since no monuments have survived from this period, however, scholars generally agree that Old Russian as a documented system begins in the 11th century. At the other extreme, the end date is similarly flexible. Some scholars prefer to place the end of the Old Russian period relatively early, sometime near the beginning of the 14th century. Others prefer to place the end closer to the latter part of the 15th century, as the center of literary production shifts from Kiev to Moscow in the waning years of Tartar rule.",
+          "role": "convention",
+          "source": "Krause 2026",
+          "url": "https://lrc.la.utexas.edu/eieol/oruol"
+        }
+      ],
+      "kind": "stage",
+      "label": "c. 10th–14th/15th century CE",
+      "name": "Old East Slavic",
+      "spoken": {
+        "end": {
+          "earliest": 1301,
+          "latest": 1500
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 901,
+          "latest": 1000
         }
       }
     },
@@ -14679,6 +14939,37 @@
     },
     {
       "alternatives": [],
+      "basis": "conventional",
+      "code": "trk-oat",
+      "evidence": [
+        {
+          "citation": "Kerslake, Celia. 2022. “Ottoman Turkish.” In Lars Johanson and Éva Á. Csató (eds.), The Turkic Languages, 2nd ed., 174–194. London and New York: Routledge. https://doi.org/10.4324/9781003243809.",
+          "claim_id": "ev_period_47ce72f91aadbd9753051569e9aa248bff33bec3",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"176\", \"pdf_page\": 201}",
+          "quote": "Old Ottoman: thirteenth to fifteenth centuries",
+          "role": "convention",
+          "source": "Johanson & Csató 2021",
+          "url": "https://doi.org/10.4324/9781003243809"
+        }
+      ],
+      "kind": "stage",
+      "label": "c. 13th–15th century CE",
+      "name": "Old Anatolian Turkish",
+      "spoken": {
+        "end": {
+          "earliest": 1401,
+          "latest": 1500
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 1201,
+          "latest": 1300
+        }
+      }
+    },
+    {
+      "alternatives": [],
       "basis": "attested",
       "code": "txb",
       "evidence": [
@@ -14706,6 +14997,34 @@
           "earliest": 401,
           "latest": 500
         }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "last_speaker",
+      "code": "uby",
+      "evidence": [
+        {
+          "citation": "Durhan, Ö. S. 2014. “Tevfik Esenç and the Ubykh Language.” Tehlikedeki Diller Dergisi / Journal of Endangered Languages 3(4–5): 267–269.",
+          "claim_id": "ev_period_72ecd7c721b5cd259c7e742f56dad1943184eb16",
+          "event": "native_transmission_end",
+          "locator": "{\"page\": \"267\", \"pdf_page\": 1}",
+          "quote": "On October 7, 1992, Tevfik Esenç died at the age of 88. His death meant more than the demise of a \nhuman being as he was the last speaker of the Ubykh language.",
+          "role": "hypothesis",
+          "source": "Durhan 2014",
+          "url": "https://dergipark.org.tr/en/download/article-file/305216"
+        }
+      ],
+      "kind": "stage",
+      "label": "until 1992 CE",
+      "name": "Ubykh",
+      "spoken": {
+        "end": {
+          "earliest": 1992,
+          "latest": 1992
+        },
+        "ongoing": false,
+        "start": null
       }
     },
     {
@@ -15374,6 +15693,37 @@
     },
     {
       "alternatives": [],
+      "basis": "attested",
+      "code": "xng",
+      "evidence": [
+        {
+          "citation": "Brosig, Benjamin. 2014. Aspect, Evidentiality and Tense in Mongolian: From Middle Mongol to Khalkha and Khorchin. Doctoral thesis, Department of Linguistics, Stockholm University. ISBN 978-91-628-9124-4.",
+          "claim_id": "ev_period_c3c74ed939fa91be8ad88e3ea8127dd1ceb30bfe",
+          "event": "documentary_sampling",
+          "locator": "{\"page\": \"2\", \"pdf_page\": 22}",
+          "quote": "Middle Mongol as preserved in texts from the 13th\nand 14th century.",
+          "role": "observation",
+          "source": "Brosig 2014",
+          "url": "https://su.diva-portal.org/smash/get/diva2:735288/FULLTEXT01.pdf"
+        }
+      ],
+      "kind": "attested",
+      "label": "13th–14th century CE",
+      "name": "Middle Mongol",
+      "spoken": {
+        "end": {
+          "earliest": 1301,
+          "latest": 1400
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 1201,
+          "latest": 1300
+        }
+      }
+    },
+    {
+      "alternatives": [],
       "basis": "conventional",
       "code": "xno",
       "evidence": [
@@ -15742,6 +16092,34 @@
           "earliest": -599,
           "latest": -500
         }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "last_speaker",
+      "code": "ysr",
+      "evidence": [
+        {
+          "citation": "Krauss, Michael E. 2005. “Eskimo languages in Asia, 1791 on, and the Wrangel Island–Point Hope connection.” Études/Inuit/Studies 29(1–2): 163–185. doi:10.7202/013938ar.",
+          "claim_id": "ev_period_d385e2e66d331dbd6a518559a19f4d29aad4f191",
+          "event": "native_transmission_end",
+          "locator": "{\"page\": \"166\", \"pdf_page\": 5}",
+          "quote": "Sirenikski language became extinct with the death of Wye in 1997.",
+          "role": "hypothesis",
+          "source": "Krauss 2005",
+          "url": "https://www.erudit.org/fr/revues/etudinuit/2005-v29-n1-2-etudinuit1430/013938ar.pdf"
+        }
+      ],
+      "kind": "stage",
+      "label": "until 1997 CE",
+      "name": "Sirenik",
+      "spoken": {
+        "end": {
+          "earliest": 1997,
+          "latest": 1997
+        },
+        "ongoing": false,
+        "start": null
       }
     },
     {
