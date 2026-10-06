@@ -74,9 +74,12 @@ build graphs or catalogs: report it rather than re-acquiring sources.
   republish (`uv run --frozen python -m harness.cli synthesize`) and validate in the
   same change. Decisions survive code edits; they go stale only when their subject's
   evidence or catalog mapping changes, or `DECISION_RULES` is bumped. Check
-  `rejected_decisions.json` after publishing. Catalog generations likewise fingerprint `packages/catalogs`,
-  `packages/source_tools`, `packages/workflow_tools` and the root `pyproject.toml`;
-  changing those requires a catalog rebuild, so avoid incidental edits there.
+  `rejected_decisions.json` after publishing.
+- A catalog generation goes stale only when its sources, decisions or mirrors change;
+  the workflow run receipt records the code. Code edits need no catalog rebuild; rerun
+  `uv run --frozen wety-data run catalogs` when a change should alter the catalog.
+  Editing `packages/workflow_tools` or `packages/catalogs/iecor.py` still changes what
+  dating checks: republish dating in the same change.
 
 ## Reporting
 

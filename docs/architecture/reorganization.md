@@ -40,4 +40,5 @@ Catalog source identity now hashes named input-file hashes, excluding physical p
 The initial identity migration has an explicit receipt; source hashes were verified
 unchanged before retaining the existing bounded decision. New relocations therefore
 do not invalidate mappings solely because a directory changed. Generated bundle IDs
-still bind actual implementation code and selected provenance.
+bind content and selected provenance (since 2026-10-06; earlier bundles also recorded
+code hashes, no longer checked); the code is recorded in the workflow run receipt.
