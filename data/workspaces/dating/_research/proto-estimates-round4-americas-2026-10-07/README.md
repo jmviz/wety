@@ -36,3 +36,9 @@ Candidates: Gerardi et al. 2025's Jê nodes (Cerrado and Jê calibrated; Norther
 be read from the deposited tree as a manifest), pairwise Muskogean and Five Nations
 separations, Davletshin without Pochutec, Ramirez's Japurá-Colombia (unresolved),
 Schwerin's Cariban origin, Kari's Proto-Na-Dene duration.
+
+Follow-up: Gerardi et al. 2025's deposited Jê MCC tree was not made a manifest. The
+article reports no node ages (it is a classification; calibrations were added at a
+reviewer's request: a uniform 500–6000 BP root and lognormal/normal priors on inner
+splits), so the tree cannot be checked against published values, and its Northern Jê
+node (median 276 BP) stays a candidate.
