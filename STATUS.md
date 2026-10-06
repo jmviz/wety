@@ -1,6 +1,6 @@
 # Status
 
-*Updated 2026-10-05. Local `main` has `canonical-forms` and `processor-review`; graph
+*Updated 2026-10-06. Local `main` has `canonical-forms` and `processor-review`; graph
 `dab06f67…` is selected (CURRENT.json, `deploy/graph.json`). Nothing pushed.*
 
 ## What the project promises
@@ -63,4 +63,6 @@ Old English *bearn* again (it had followed *barn* "barn" in `abf64f81…`).
 
 ## Decisions needed from the maintainer
 
-- None pending for the graph.
+- Code edits no longer make the catalog stale (`e5c5221`). Dating still fingerprints
+  `workflow_tools` and the IE-CoR receipt names `iecor.py`; dropping both needs a dating
+  republish, best done by the active dating branch. Proceed?
