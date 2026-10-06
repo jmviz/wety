@@ -36379,7 +36379,7 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:fff5df92fe6ca543"
     }
   ],
-  "generation": "fa7a43163e80b4bc179ba63337a6e2fadf07288ba8d5e14f745d10c2fda52795",
+  "generation": "75452cd3589ec51dbaba3c11ca7eeab5aaa224b70de61753d5b45973aec9a224",
   "languages": [
     {
       "alternatives": [],
@@ -37621,6 +37621,13 @@
             "own": false
           },
           {
+            "basis": "attested",
+            "code": "arc-pal",
+            "label": "c. 44 BCE – 280 CE",
+            "name": "Palmyrene Aramaic",
+            "own": false
+          },
+          {
             "basis": "conventional",
             "code": "jpa",
             "label": "c. 200–700 CE",
@@ -37650,8 +37657,7 @@
           "arc-bib",
           "arc-cpa",
           "arc-hat",
-          "arc-nab",
-          "arc-pal"
+          "arc-nab"
         ]
       },
       "spoken": {
@@ -37756,6 +37762,38 @@
         "start": {
           "earliest": -949,
           "latest": -949
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "attested",
+      "code": "arc-pal",
+      "evidence": [
+        {
+          "citation": "The Unicode Consortium. 2025. The Unicode Standard, Version 17.0.0, Core Specification, §10.11 “Palmyrene.” https://www.unicode.org/versions/Unicode17.0.0/core-spec/chapter-10/.",
+          "claim_id": "ev_period_1be94764d20e2996427bd00b37b9843fb3aa5875",
+          "event": "documentary_sampling",
+          "locator": "{\"start\": 41564, \"end\": 41796, \"section\": \"10.11.1 Palmyrene\"}",
+          "method": "epigraphic_summary",
+          "quote": "The script was used for writing the Palmyrene dialect of West Aramaic, and is known from inscriptions and documents found mainly in the city of Palmyra and other cities in the region of Syria, dating from 44 \nBCE\n to about 280 \nCE\n.",
+          "role": "observation",
+          "source": "The Unicode Consortium 2025",
+          "url": "https://www.unicode.org/versions/Unicode17.0.0/core-spec/chapter-10/"
+        }
+      ],
+      "kind": "attested",
+      "label": "c. 44 BCE – 280 CE",
+      "name": "Palmyrene Aramaic",
+      "spoken": {
+        "end": {
+          "earliest": 280,
+          "latest": 280
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": -43,
+          "latest": -43
         }
       }
     },
@@ -39169,6 +39207,36 @@
       "kind": "stage",
       "label": "c. 850–1100 CE",
       "name": "Old Church Slavonic",
+      "span": {
+        "components": [
+          {
+            "basis": "conventional",
+            "code": "cu",
+            "label": "c. 850–1100 CE",
+            "name": "Old Church Slavonic",
+            "own": true
+          },
+          {
+            "basis": "attested",
+            "code": "cu-bgm",
+            "label": "from 12th century CE",
+            "name": "Middle Bulgarian",
+            "own": false
+          }
+        ],
+        "end": {
+          "earliest": 1100,
+          "latest": 1100
+        },
+        "label": "c. 850–1100 CE",
+        "ongoing": false,
+        "partial": true,
+        "start": {
+          "earliest": 850,
+          "latest": 850
+        },
+        "undated": []
+      },
       "spoken": {
         "end": {
           "earliest": 1100,
@@ -39178,6 +39246,35 @@
         "start": {
           "earliest": 850,
           "latest": 850
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "attested",
+      "code": "cu-bgm",
+      "evidence": [
+        {
+          "citation": "Klein, Jared S. (ed.); Joseph, Brian D. (ed.); Fritz, Matthias (ed.) (2017) Handbook of comparative and historical Indo-European linguistics. Vol. 3. Berlin ; Boston, De Gruyter Mouton.",
+          "claim_id": "ev_period_5a3211ce587be924c03707f3d1f6865349d66d6e",
+          "event": "first_attestation",
+          "locator": "{\"page\": \"1404\", \"pdf_page\": 18}",
+          "method": "documentary_attestation",
+          "quote": "Beginning in the 12th century, we have numerous texts with enough innovative re-\ngional features that they are classified as Bulgarian or Macedonian recensions of Old\nChurch Slavic, or simply as Middle Bulgarian.",
+          "role": "observation",
+          "source": "Klein et al. 2017",
+          "url": null
+        }
+      ],
+      "kind": "attested",
+      "label": "from 12th century CE",
+      "name": "Middle Bulgarian",
+      "spoken": {
+        "end": null,
+        "ongoing": false,
+        "start": {
+          "earliest": 1101,
+          "latest": 1200
         }
       }
     },
@@ -43052,6 +43149,60 @@
       }
     },
     {
+      "alternatives": [
+        {
+          "basis": "conventional",
+          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Asia and the Americas. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "claim_id": "ev_period_451de80cb39ece7aab8858cbfd98a921dc2f2c5d",
+          "end": {
+            "earliest": -220,
+            "latest": -220
+          },
+          "event": "conventional_period",
+          "label": "475–221 BCE",
+          "locator": "{\"page\": \"136\", \"pdf_page\": 158}",
+          "method": "scholarly_periodization",
+          "quote": "It is essentially the classical language par excellence – that of the Warring States period\n(475–221 BC) – that will be discussed in this chapter.",
+          "role": "convention",
+          "source": "Woodard 2008",
+          "start": {
+            "earliest": -474,
+            "latest": -474
+          },
+          "url": null
+        }
+      ],
+      "basis": "conventional",
+      "code": "lzh",
+      "evidence": [
+        {
+          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Asia and the Americas. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "claim_id": "ev_period_46c47fad3263ace9a30a152a066568cd71d49563",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"137\", \"pdf_page\": 159}",
+          "method": "scholarly_periodization",
+          "quote": "(iii) Late Archaic, the Classical Chinese par\nexcellence, comprising such well-known texts as the Analects of Confucius, and Mencius\n(ﬁfth–second BC)",
+          "role": "convention",
+          "source": "Woodard 2008",
+          "url": null
+        }
+      ],
+      "kind": "stage",
+      "label": "5th–2nd century BCE",
+      "name": "Classical Chinese",
+      "spoken": {
+        "end": {
+          "earliest": -199,
+          "latest": -100
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": -499,
+          "latest": -400
+        }
+      }
+    },
+    {
       "alternatives": [],
       "basis": "estimated",
       "code": "map-ata-pro",
@@ -44856,6 +45007,39 @@
       "kind": "attested",
       "label": "from 1st century BCE",
       "name": "Middle Persian",
+      "span": {
+        "components": [
+          {
+            "basis": "attested",
+            "code": "pal",
+            "label": "from 1st century BCE",
+            "name": "Middle Persian",
+            "own": true
+          },
+          {
+            "basis": "composition",
+            "code": "xmn",
+            "label": "3rd century CE",
+            "name": "Manichaean Middle Persian",
+            "own": false
+          }
+        ],
+        "end": {
+          "earliest": 201,
+          "latest": 300
+        },
+        "label": "1st century BCE – 3rd century CE",
+        "ongoing": false,
+        "partial": true,
+        "start": {
+          "earliest": -99,
+          "latest": 0
+        },
+        "undated": [
+          "pal-ear",
+          "pal-lat"
+        ]
+      },
       "spoken": {
         "end": null,
         "ongoing": false,
@@ -45642,6 +45826,38 @@
     {
       "alternatives": [],
       "basis": "estimated",
+      "code": "pyx",
+      "evidence": [
+        {
+          "citation": "Miyake, Marc. 2021 [online 16 December 2020]. “Studies in Pyu phonology, I: Onsets.” Language and Linguistics 22(1): 28–70. doi:10.1075/lali.00077.miy. Publisher abstract.",
+          "claim_id": "ev_period_c0149ef8167a9bc2702e9b2d88008751aa55190d",
+          "event": "conventional_period",
+          "locator": "{\"start\": 4204, \"end\": 4360, \"section\": \"Abstract\"}",
+          "method": "expert_estimate",
+          "quote": "The extinct Pyu language was spoken during the first millennium CE and the early centuries of the second millennium CE in\n          what is now Upper Burma.",
+          "role": "hypothesis",
+          "source": "Marc Miyake 2021",
+          "url": "https://benjamins.com/catalog/lali.00077.miy"
+        }
+      ],
+      "kind": "stage",
+      "label": "c. 1st millennium – 12th century CE",
+      "name": "Pyu (Myanmar)",
+      "spoken": {
+        "end": {
+          "earliest": 1101,
+          "latest": 1200
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 1,
+          "latest": 1000
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
       "code": "qfa-cka-pro",
       "evidence": [
         {
@@ -46275,6 +46491,38 @@
     },
     {
       "alternatives": [],
+      "basis": "attested",
+      "code": "scn-old",
+      "evidence": [
+        {
+          "citation": "ARTESIA (Archivio Testuale del Siciliano Antico / Medievale), Università degli Studi di Catania and Centro di studi filologici e linguistici siciliani. “Presentazione.” Project founded by Mario Pagano and Margherita Spampinato, 2008; undated web page, accessed 6 October 2026. https://artesia.unict.it/presentazione.",
+          "claim_id": "ev_period_4d05a59fb281f1c68d7d228431a7bd8b955d7d71",
+          "event": "documentary_sampling",
+          "locator": "{\"start\": 2216, \"end\": 2516, \"section\": \"Presentazione\"}",
+          "method": "scholarly_corpus_description",
+          "quote": "Sviluppa e pubblica risorse sul volgare siciliano, la cui documentazione è compresa in un arco cronologico che va dalla fine del XIII secolo alla prima metà del XVI, periodo in cui il siciliano è progressivamente sostituito dal toscano come lingua dell'amministrazione e della comunicazione pubblica.",
+          "role": "observation",
+          "source": "Università degli Studi di Catania ARTESIA (Archivio Testuale del Siciliano Antico / Medievale) & Centro di studi filologici e linguistici siciliani",
+          "url": "https://artesia.unict.it/presentazione"
+        }
+      ],
+      "kind": "attested",
+      "label": "13th–16th century CE",
+      "name": "Old Sicilian",
+      "spoken": {
+        "end": {
+          "earliest": 1501,
+          "latest": 1600
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 1201,
+          "latest": 1300
+        }
+      }
+    },
+    {
+      "alternatives": [],
       "basis": "estimated",
       "code": "sem-pro",
       "estimate": {
@@ -46696,6 +46944,35 @@
         "end": {
           "earliest": 278,
           "latest": 1193
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "last_speaker",
+      "code": "sjk",
+      "evidence": [
+        {
+          "citation": "Kovář, Michal. 2019. “Sami Texts From Kemi Sápmi Recorded by Jenny and Samuli Paulaharju.” Acta Universitatis Carolinae, Philologica 2019(3): 39–44. doi:10.14712/24646830.2019.28.",
+          "claim_id": "ev_period_734f7b486d47502dc112e38607ba6c70d23b7aa4",
+          "event": "native_transmission_end",
+          "locator": "{\"page\": \"41\", \"pdf_page\": 3, \"context_page\": \"40\", \"context_pdf_page\": 2}",
+          "method": "expert_estimate",
+          "quote": "time, describing the massive Finnish colonization,7 the final extinction came during \nthe first half of the 19th century. However, among Samuli Paulaharju’s folklore records \nfrom the southern parts of Finnish Sápmi from 1920s and 1930s, stored in Samuli Paula­\nharju’s archive in the Folklore Archive of the Finnish Literature Society, some Sami texts \ncan be found. Perhaps these texts were narrated in a descendant language of what we call \nKemi Sami? Can we consider it as an evidence of the survival of the Kemi Sami dialects \nuntil the 20th century?",
+          "role": "hypothesis",
+          "source": "Michal Kovář 2019",
+          "url": "https://karolinum.cz/data/clanek/7523/AUC%20Philologica%203%202019%206777%20kovar%2039-44.pdf"
+        }
+      ],
+      "kind": "stage",
+      "label": "until 19th century CE",
+      "name": "Kemi Sami",
+      "spoken": {
+        "end": {
+          "earliest": 1801,
+          "latest": 1900
         },
         "ongoing": false,
         "start": null
@@ -49397,6 +49674,38 @@
     },
     {
       "alternatives": [],
+      "basis": "composition",
+      "code": "xmn",
+      "evidence": [
+        {
+          "citation": "Windfuhr, Gernot, and John R. Perry. 2009. “Persian and Tajik.” In Gernot Windfuhr (ed.), The Iranian Languages, 416–544. London and New York: Routledge.",
+          "claim_id": "ev_period_32dce519a2b1e0d3195515cb28e9ce7d21e5bd37",
+          "event": "composition",
+          "locator": "{\"page\": \"197\", \"pdf_page\": 272, \"scope_page\": \"196\", \"scope_pdf_page\": 271}",
+          "method": "expert_estimate",
+          "quote": "The earliest Manichean texts may have been composed in the mid-third century, but \nthe manuscripts are much later",
+          "role": "hypothesis",
+          "source": "Windfuhr 2009",
+          "url": null
+        }
+      ],
+      "kind": "stage",
+      "label": "3rd century CE",
+      "name": "Manichaean Middle Persian",
+      "spoken": {
+        "end": {
+          "earliest": 201,
+          "latest": 300
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 201,
+          "latest": 300
+        }
+      }
+    },
+    {
+      "alternatives": [],
       "basis": "attested",
       "code": "xmr",
       "evidence": [
@@ -50191,6 +50500,49 @@
         "start": {
           "earliest": 1201,
           "latest": 1300
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "last_speaker",
+      "code": "zkv",
+      "evidence": [
+        {
+          "citation": "Noreikis, Simonas. 2025. “Krevinian Toponyms — A Review of Etymologies Presented by Dziļļeja and Other Researchers.” Linguistica Uralica 61(1): 1–29. doi:10.3176/lu.2025.1.01.",
+          "claim_id": "ev_period_7bd59ce6dc130eac04ed5c1e589a2bc764febbe9",
+          "event": "first_attestation",
+          "locator": "{\"page\": \"5\", \"pdf_page\": 5}",
+          "method": "documentary_attestation",
+          "quote": "The first samples of Krevinian language were written in 1774 (Bušs & Jansone \n2019 : 212) by a pastoral candidate, Christoph Albrecht Appelbaum, in 1810 \nand 1815 by pastor Karl Lutzau, and in 1846 by a landlord Nicolai von Gülden-\nstubbe.",
+          "role": "observation",
+          "source": "Simonas Noreikis 2025",
+          "url": "https://kirj.ee/wp-content/plugins/kirj/pub/ling-2025-1-1-29_20250310122410.pdf"
+        },
+        {
+          "citation": "Noreikis, Simonas. 2025. “Krevinian Toponyms — A Review of Etymologies Presented by Dziļļeja and Other Researchers.” Linguistica Uralica 61(1): 1–29. doi:10.3176/lu.2025.1.01.",
+          "claim_id": "ev_period_c04e403ccfe629209d6698979185fa3f23ba3f45",
+          "event": "native_transmission_end",
+          "locator": "{\"page\": \"1\", \"pdf_page\": 1}",
+          "method": "expert_estimate",
+          "quote": "The Krevinians were a Finnic \ncommunity which lived in the south of what is nowadays Latvia (Semi-\ngallia/Zemgale region) and spoke a variation of the Votic language, which \nbecame fully extinct in the middle of the nineteenth century.",
+          "role": "hypothesis",
+          "source": "Simonas Noreikis 2025",
+          "url": "https://kirj.ee/wp-content/plugins/kirj/pub/ling-2025-1-1-29_20250310122410.pdf"
+        }
+      ],
+      "kind": "stage",
+      "label": "1774 CE – 19th century CE",
+      "name": "Krevinian",
+      "spoken": {
+        "end": {
+          "earliest": 1801,
+          "latest": 1900
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 1774,
+          "latest": 1774
         }
       }
     },
