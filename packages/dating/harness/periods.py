@@ -6,7 +6,8 @@ each with its own source; nothing is averaged or merged across sources. Years ar
 astronomical (BCE n = 1 - n) and converted only for labels. Family split estimates are
 separate records and never become a language's period. A composition window (texts
 transmitted orally, known from much later copies) is shown, basis "composition", only
-when no period or attestation is adopted.
+when no period or attestation is adopted. An adopted end of native transmission (the
+last native speakers) is the end of an attestation window, basis "last_speaker".
 
 A code with Wiktionary varieties (etymology-only codes such as Early Middle Japanese
 under Old Japanese) also gets a `span`: from the earliest start to the latest end of
@@ -155,6 +156,8 @@ def label(start, end, ongoing=False, approximate=False):
 def basis(claims, reconstructed):
     if not reconstructed and all(c["event"] == "composition" for c in claims):
         return "composition"
+    if not reconstructed and any(c["event"] == "native_transmission_end" for c in claims):
+        return "last_speaker"
     if reconstructed or any(c["role"] in ("hypothesis", "posterior") for c in claims):
         return "estimated"
     if all(c["event"] == "conventional_period" for c in claims):
@@ -203,6 +206,9 @@ def interval(claims):
         approximate = True
     else:
         first, last = (by_event.get(e) for e in ATTESTATION_EVENTS)
+        # A language ends when its last native speakers die (Dalmatian, 1898): an
+        # adopted end of native transmission replaces the last attestation as the end.
+        last = by_event.get("native_transmission_end") or last
         used = [c for c in (first, last) if c]
         if not used and "composition" in by_event:
             # Texts transmitted orally (the Vedas, the Avesta) survive only in much
@@ -267,7 +273,7 @@ def period_record(code, claims, alternatives, view, sources):
 
 
 def alternative(claim, reconstructed, sources):
-    if claim["event"] in ATTESTATION_EVENTS:
+    if claim["event"] in (*ATTESTATION_EVENTS, "native_transmission_end"):
         r = event_range(claim)
         start, end = (r, None) if claim["event"] == "first_attestation" else (None, r)
     elif claim["event"] == "crown_divergence":

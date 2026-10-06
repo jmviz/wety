@@ -8461,7 +8461,7 @@
       "subject_id": "zhang2019_relaxed_covarion:clade:ff9f137507695c91"
     }
   ],
-  "generation": "aca3fc8e1d9d516f5cdb4a142827684805f3346b84ef6c8d6305c86bd8c357a7",
+  "generation": "0bf8d4d87f590d2e0b8633ffc64e3705509ebe206421628df819af489b001be6",
   "languages": [
     {
       "alternatives": [
@@ -9588,6 +9588,62 @@
       }
     },
     {
+      "alternatives": [],
+      "basis": "last_speaker",
+      "code": "dcr",
+      "evidence": [
+        {
+          "citation": "Bøegh, Kristoffer Friis, Mikael Parkvall, and Peter Bakker. 2025. “‘Mij dodte, mij loppe, in mijn lande’: Extending the horizon on documented contact language use in the Virgin Islands with a quote in incipient Dutch Creole from 1681.” Journal of Pidgin and Creole Languages. Online-first version published 6 February 2025, pp. [1]–[29]. doi:10.1075/jpcl.24004.bxe.",
+          "claim_id": "ev_period_d63350554c287ae453fcd0a09dd307d6566a9f79",
+          "event": "native_transmission_end",
+          "locator": "{\"page\": \"[2]\", \"pdf_page\": 2, \"start\": 2813, \"end\": 2953}",
+          "quote": "VIDC was spoken\nfor roughly three centuries in total. The creole survived until the late 20th century,\nits last speaker passing away in 1987",
+          "role": "hypothesis",
+          "source": "Bøegh et al. 2025",
+          "url": "https://pure.au.dk/ws/files/464142999/jpcl.24004.bxe.pdf"
+        }
+      ],
+      "kind": "stage",
+      "label": "until 1987 CE",
+      "name": "Negerhollands",
+      "spoken": {
+        "end": {
+          "earliest": 1987,
+          "latest": 1987
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "last_speaker",
+      "code": "dlm",
+      "evidence": [
+        {
+          "citation": "Klein, Jared S. (ed.); Joseph, Brian D. (ed.); Fritz, Matthias (ed.) (2017) Handbook of comparative and historical Indo-European linguistics. Vol. 2. Berlin ; Boston, De Gruyter Mouton.",
+          "claim_id": "ev_period_66a087a1233546312a936449a36608a294b17ed5",
+          "event": "native_transmission_end",
+          "locator": "{\"page\": \"862\", \"pdf_page\": 142}",
+          "quote": "From the 6th century CE on, Avar and later Slavic invasions pushed Latin\nback to the coastal cities where it developed into Dalmatian. This Romance language,\nespecially the dialects of Ragusa (Dubrovnik) and Vegliot (Krk) played an important\nrole in Mediterranean trade until the 15th century. It survived until 1898 when the last\nspeaker of Vegliot died. Dalmatian was completely replaced by Croatian.",
+          "role": "hypothesis",
+          "source": "Klein et al. 2017",
+          "url": null
+        }
+      ],
+      "kind": "stage",
+      "label": "until 1898 CE",
+      "name": "Dalmatian",
+      "spoken": {
+        "end": {
+          "earliest": 1898,
+          "latest": 1898
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
       "alternatives": [
         {
           "basis": "conventional",
@@ -10387,6 +10443,34 @@
           "earliest": -499,
           "latest": -399
         }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "last_speaker",
+      "code": "gez",
+      "evidence": [
+        {
+          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Mesopotamia, Egypt and Aksum. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Supplied copy is the 2010 reprint. Chapters cited by author in the locator.",
+          "claim_id": "ev_period_e9736261aa27091a5e652d85456a392d74db77ed",
+          "event": "native_transmission_end",
+          "locator": "{\"page\": \"212\", \"pdf_page\": 116}",
+          "quote": "Ge'ez disappeared as a spoken language \nprobably some time before the tenth century AD, but continued as the liturgical language \nof the Ethiopian Orthodox Church, and as the only official written language of Ethiopia \npractically up to the end of the nineteenth century.",
+          "role": "hypothesis",
+          "source": "Woodard 2008",
+          "url": null
+        }
+      ],
+      "kind": "stage",
+      "label": "until c. 901 CE",
+      "name": "Ge'ez",
+      "spoken": {
+        "end": {
+          "earliest": null,
+          "latest": 901
+        },
+        "ongoing": false,
+        "start": null
       }
     },
     {
@@ -12822,7 +12906,7 @@
     {
       "alternatives": [
         {
-          "basis": "estimated",
+          "basis": "last_speaker",
           "citation": "Klein, Jared S. (ed.); Joseph, Brian D. (ed.); Fritz, Matthias (ed.) (2017) Handbook of comparative and historical Indo-European linguistics. Vol. 3. Berlin ; Boston, De Gruyter Mouton.",
           "claim_id": "ev_period_708ec8206644b5274228301cfb9f2009ddef8983",
           "end": {
@@ -12830,15 +12914,12 @@
             "latest": 1800
           },
           "event": "native_transmission_end",
-          "label": "18th century CE",
+          "label": "until 18th century CE",
           "locator": "{\"page\": \"1407\", \"pdf_page\": 21}",
           "quote": "Polabian died out in\nthe first half of the 18th century and is attested only fragmentarily, mostly in lists of\nwords and phrases that were collected when the language was already moribund (see\nPolański 1993).",
           "role": "hypothesis",
           "source": "Klein et al. 2017",
-          "start": {
-            "earliest": 1701,
-            "latest": 1800
-          },
+          "start": null,
           "url": null
         }
       ],

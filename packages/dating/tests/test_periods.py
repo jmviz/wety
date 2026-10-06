@@ -166,6 +166,18 @@ class PeriodExportTests(unittest.TestCase):
         self.assertEqual(vsn["basis"], "attested")
         self.assertEqual(vsn["alternatives"][0]["basis"], "composition")
 
+    def test_last_native_speaker_ends_the_window(self):
+        first = claim("f", "dlm", "first_attestation", "observation", years(1000, 1100))
+        last = claim(
+            "l",
+            "dlm",
+            "native_transmission_end",
+            "observation",
+            {"form": "point", "unit": "CE", "value": 1898},
+        )
+        (dlm,) = export_periods(bundle([first, last], ["f", "l"]), "gen")["languages"]
+        self.assertEqual((dlm["basis"], dlm["label"]), ("last_speaker", "1000/1100–1898 CE"))
+
     def test_crown_age_dates_a_proto_languages_end(self):
         crown = {
             "id": "k",

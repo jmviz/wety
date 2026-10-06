@@ -7,7 +7,7 @@
 import { createSignal } from "solid-js";
 import { Lang } from "../search/types";
 
-export type Basis = "conventional" | "attested" | "estimated" | "composition";
+export type Basis = "conventional" | "attested" | "estimated" | "composition" | "last_speaker";
 
 export interface YearRange {
   earliest: number | null;
@@ -63,6 +63,7 @@ export const BASIS_MARK: Record<Basis, string> = {
   attested: "att",
   estimated: "est",
   composition: "comp",
+  last_speaker: "last",
 };
 
 export const BASIS_NAME: Record<Basis, string> = {
@@ -70,6 +71,7 @@ export const BASIS_NAME: Record<Basis, string> = {
   attested: "attestation window",
   estimated: "scholarly estimate",
   composition: "composition of its texts",
+  last_speaker: "attested, until its last native speakers",
 };
 
 const [showDates, setShowDates] = createSignal(false);
