@@ -325,6 +325,24 @@
       "subject_id": "wikt:xgn-pro"
     },
     {
+      "analysis": "bellwood-2019-linguistic-depth",
+      "claim_id": "ev_period_2b3a6438d51aecb28933506fe6c33901aaed372a",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Halmahera-Cenderawasih",
+      "role": "hypothesis",
+      "source": "Peter Bellwood 2019",
+      "subject_id": "wikt:poz-hce-pro"
+    },
+    {
       "analysis": "peiros1998-austroasiatic-sixteen-language",
       "claim_id": "ev_period_2d402e95001478588c8a7748e58d3d2dd2f70b0e",
       "epoch": 1950,
@@ -701,6 +719,24 @@
       "role": "hypothesis",
       "source": "Eric W. Holman et al. 2011",
       "subject_id": "wikt:urj-mdv-pro"
+    },
+    {
+      "analysis": "grant-2005-historical-correlation",
+      "claim_id": "ev_period_544935a03f27a51b76483a4e624f32d15bdd2f37",
+      "epoch": null,
+      "estimate": {
+        "interval_type": null,
+        "lower": 901,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": 1000
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Chamic",
+      "role": "hypothesis",
+      "source": "Anthony P. Grant 2005",
+      "subject_id": "wikt:cmc-pro"
     },
     {
       "analysis": "kettunen_vaula_1938_chronology_reported_kallio2006",
@@ -1547,6 +1583,24 @@
       "role": "hypothesis",
       "source": "Eric W. Holman et al. 2011",
       "subject_id": "wikt:cdc-pro"
+    },
+    {
+      "analysis": "grant-2005-general-chronology",
+      "claim_id": "ev_period_da84dbdad4686164dc0017ff67bc2f328a0db478",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Chamic",
+      "role": "hypothesis",
+      "source": "Anthony P. Grant 2005",
+      "subject_id": "wikt:cmc-pro"
     },
     {
       "analysis": "wu2022-tibet-arunachal-covarion-relaxed-bdss",
@@ -35785,7 +35839,7 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:fff5df92fe6ca543"
     }
   ],
-  "generation": "a27919f137c8b8ed4f5ec6bb248328e0073a6e7bfd23b411332c95dfbefb80a1",
+  "generation": "5de2d45d58a667e715f157114c3ff4330f3e72e57c7a88e177d9366d694b9de2",
   "languages": [
     {
       "alternatives": [],
@@ -37932,29 +37986,66 @@
       }
     },
     {
-      "alternatives": [],
-      "basis": "estimated",
-      "code": "cmc-pro",
-      "evidence": [
+      "alternatives": [
         {
+          "basis": "estimated",
+          "citation": "Grant, Anthony P. 2005. Norm-referenced lexicostatistics and Chamic. In Chamic and Beyond, 105–146. Canberra: Pacific Linguistics.",
+          "claim_id": "ev_period_da84dbdad4686164dc0017ff67bc2f328a0db478",
+          "end": {
+            "earliest": -50,
+            "latest": -50
+          },
+          "event": "crown_divergence",
+          "label": "until c. 51 BCE",
+          "locator": "{\"pdf_page\": 12, \"character_start\": 44474, \"character_end\": 44550, \"printed_page\": \"116\", \"image_checked\": true}",
+          "method": "expert_estimate",
+          "quote": "Vietnam) since the split up of the Chamic languages about two millennia ago.",
+          "role": "hypothesis",
+          "source": "Anthony P. Grant 2005",
+          "start": null,
+          "url": "https://openresearch-repository.anu.edu.au/bitstreams/1872be1e-c8bf-41a1-b1b3-3434b40a6498/download"
+        },
+        {
+          "basis": "estimated",
           "citation": "Automated dating of the world's language families based on lexical similarity",
           "claim_id": "ev_period_e2990d3847bd4d50064c938c16e1fc11da4cd409",
+          "end": {
+            "earliest": -672,
+            "latest": -672
+          },
           "event": "crown_divergence",
+          "label": "until c. 673 BCE",
           "locator": "{\"table\": \"Table 1\", \"row\": \"Chamic\", \"page\": 851, \"pdf_page\": 12, \"character_start\": 48613, \"character_end\": 48642, \"columns\": [\"Language group\", \"Calibration date\", \"ASJP date\", \"Difference (%)\"]}",
           "method": "lexicostatistic",
           "quote": "Chamic\n1550\n2672\n\u00011,122 (\u000142)",
           "role": "hypothesis",
           "source": "Eric W. Holman et al. 2011",
+          "start": null,
           "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
         }
       ],
+      "basis": "estimated",
+      "code": "cmc-pro",
+      "evidence": [
+        {
+          "citation": "Grant, Anthony P. 2005. Norm-referenced lexicostatistics and Chamic. In Chamic and Beyond, 105–146. Canberra: Pacific Linguistics.",
+          "claim_id": "ev_period_544935a03f27a51b76483a4e624f32d15bdd2f37",
+          "event": "crown_divergence",
+          "locator": "{\"pdf_page\": 32, \"character_start\": 125841, \"character_end\": 125991, \"printed_page\": \"136\", \"image_checked\": true}",
+          "method": "expert_estimate",
+          "quote": "We may date the split of Acehnese to the late tenth century AD, with the downfall \nof the northern Cham empire, and that of Tsat maybe a little later.",
+          "role": "hypothesis",
+          "source": "Anthony P. Grant 2005",
+          "url": "https://openresearch-repository.anu.edu.au/bitstreams/1872be1e-c8bf-41a1-b1b3-3434b40a6498/download"
+        }
+      ],
       "kind": "proto",
-      "label": "until c. 673 BCE",
+      "label": "until c. 10th century CE",
       "name": "Proto-Chamic",
       "spoken": {
         "end": {
-          "earliest": -672,
-          "latest": -672
+          "earliest": 901,
+          "latest": 1000
         },
         "ongoing": false,
         "start": null
@@ -42210,6 +42301,38 @@
     {
       "alternatives": [],
       "basis": "estimated",
+      "code": "mkh-pea-pro",
+      "evidence": [
+        {
+          "citation": "Sidwell, Paul. n.d. Pearic/Chongic Languages Project, overview. https://sites.google.com/view/paulsidwell/pearicchongic-languges-project.",
+          "claim_id": "ev_period_77c8d40f7077b1873c9ef1de533a080d10ce8083",
+          "event": "conventional_period",
+          "locator": "{\"section\": \"Overview\", \"character_start\": 1388, \"character_end\": 1537}",
+          "method": "expert_estimate",
+          "quote": "Pearic is not very diverse internally, and we can suggest that historical unity of the group goes back to the Old Khmer period (1\nst\n millennium CE).",
+          "role": "hypothesis",
+          "source": "Paul Sidwell",
+          "url": "https://sites.google.com/view/paulsidwell/pearicchongic-languges-project"
+        }
+      ],
+      "kind": "proto",
+      "label": "c. 1st millennium CE",
+      "name": "Proto-Pearic",
+      "spoken": {
+        "end": {
+          "earliest": 1,
+          "latest": 1000
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 1,
+          "latest": 1000
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
       "code": "mkh-pro",
       "evidence": [
         {
@@ -42265,6 +42388,38 @@
         "start": {
           "earliest": -999,
           "latest": -999
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "mun-pro",
+      "evidence": [
+        {
+          "citation": "Rau, Felix & Paul Sidwell. 2019. The Munda Maritime Hypothesis. Journal of the Southeast Asian Linguistics Society 12(2): 35–57.",
+          "claim_id": "ev_period_d78015d3910246ec6ac70e21a8db39606a76057d",
+          "event": "conventional_period",
+          "locator": "{\"pdf_page\": 17, \"printed_page\": \"51\", \"character_start\": 61806, \"character_end\": 61980}",
+          "method": "archaeological_correlation",
+          "quote": "The synthesis of the date ranges from linguistics, \narchaeology, and genetics point to around 3500 years ago (approximately 1500 BCE) as the best estimation \nfor proto-Munda.",
+          "role": "hypothesis",
+          "source": "Felix Rau & Paul Sidwell 2019",
+          "url": "https://evols.library.manoa.hawaii.edu/bitstreams/b8f2084c-df40-4d73-97d1-133ba00be49d/download"
+        }
+      ],
+      "kind": "proto",
+      "label": "c. 1500 BCE",
+      "name": "Proto-Munda",
+      "spoken": {
+        "end": {
+          "earliest": -1499,
+          "latest": -1499
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": -1499,
+          "latest": -1499
         }
       }
     },
@@ -44086,6 +44241,35 @@
         "end": {
           "earliest": -1111,
           "latest": -1111
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "poz-hce-pro",
+      "evidence": [
+        {
+          "citation": "Bellwood, Peter. 2019. The Northern Spice Islands in prehistory, from 40,000 years ago to the recent past. In The Spice Islands in Prehistory, ch. 13. Canberra: ANU Press.",
+          "claim_id": "ev_period_2b3a6438d51aecb28933506fe6c33901aaed372a",
+          "event": "crown_divergence",
+          "locator": "{\"pdf_page\": 8, \"printed_page\": \"218\", \"character_start\": 24711, \"character_end\": 25212}",
+          "method": "expert_estimate",
+          "quote": "There is no simple answer to this question from an Austronesian linguistic viewpoint, partly \nbecause the South Halmahera–West New Guinea (SHWNG) languages shown in Figure 13.1 \nalso reveal considerable linguistic levelling according to Blust (2017:195–197), meaning that \ntheir current time depth is also likely to be closer to 2000 years, as with the Halmahera West \nPapuan languages, rather than the >3000 years BP that we would expect for initial Austronesian \nsettlement in the Northern Moluccas.",
+          "role": "hypothesis",
+          "source": "Peter Bellwood 2019",
+          "url": "https://doi.org/10.22459/TA50.2019.13"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 51 BCE",
+      "name": "Proto-Halmahera-Cenderawasih",
+      "spoken": {
+        "end": {
+          "earliest": -50,
+          "latest": -50
         },
         "ongoing": false,
         "start": null
