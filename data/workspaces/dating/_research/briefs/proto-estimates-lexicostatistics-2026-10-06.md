@@ -14,7 +14,10 @@ chapters and reference grammars that state a date for the proto stage or the fam
 breakup; ASJP is covered by a separate run. Record the method of each estimate:
 lexicostatistic for glottochronology and recalibrated glottochronology,
 comparative_reconstruction for dates argued from reconstructed vocabulary, loans or
-sound changes, archaeological_correlation, expert_estimate otherwise.
+sound changes, archaeological_correlation, expert_estimate otherwise. Leads from an
+earlier run (verify, never quote from memory): Kallio 2006's table of Uralic division
+dates (Finno-Permic, Permic, Samoyedic …); Häkkinen on the Samoyedic breakup; Lakarra
+2009 on Proto-Basque stages; Klimov and Fähnrich on Kartvelian.
 For each code: one assertion per published estimate, event crown_divergence (a family's or
 subgroup's age / breakup) or conventional_period (when the source dates the stage itself),
 role posterior for a Bayesian analysis and hypothesis otherwise, method as above, subject
