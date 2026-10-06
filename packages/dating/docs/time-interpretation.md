@@ -24,6 +24,13 @@ ago”, `ka` or `kya` need contextual interpretation; do not silently assign the
 conversion even when the BP epoch is interpretable. Preserve the native claim
 and a specific gap instead of discarding it.
 
+A source's own calibration that equates a calendar date with an age sets its epoch
+(maintainer decision, 2026-10-06): Kolipakam et al. 2018 put Tamil's 254 BCE at 2250
+years ago (AD 2000); Lee & Hasegawa 2011 put 1603 at 407 YBP (AD 2010). This takes
+precedence over the 1950 convention. It needs an unambiguous equation: Greenhill et
+al. 2023 tie their 445 BP tip to both 1555 and 1571, so the convention applies there.
+The manifest records the equation as `present_evidence`.
+
 The transport now supports `years_ago` and `ka_ago` separately from BP units.
 These preserve native quantities with an unknown epoch. Typed `century_BCE`,
 `century_CE`, `millennium_BCE` and `millennium_CE` retain the source ordinal;

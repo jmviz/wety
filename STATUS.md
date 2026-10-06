@@ -44,7 +44,7 @@ in the `packages/dating` registry.
 - Reviews are model reviews (Astra researches, Claude reviews). Crown ends rest on
   one analysis each; several nodes are bounded by the authors' calibrations (Bantu
   4,000–5,000 B.P., Dravidian South I and North). Epochs: Turkic stated; Dravidian and
-  Japonic implied by their calibrations; the rest a labeled 1950 convention.
+  Japonic from their own calibrations (approved); the rest a labeled 1950 convention.
 - The server needs ~5 GB; ~380k entries' `{{ety}}`/`{{etymon}}` are not parsed.
 
 ## Next three actions
@@ -57,6 +57,4 @@ in the `packages/dating` registry.
 
 ## Decisions needed from the maintainer
 
-- None blocking. Approve or reject: reading an epoch from a source's own calendar
-  calibrations (Kolipakam: 254 BCE = 2250 years ago, so AD 2000; Lee & Hasegawa:
-  407 YBP = 1603, so AD 2010) rather than the 1950 convention.
+- None.
