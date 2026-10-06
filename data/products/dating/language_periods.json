@@ -91,6 +91,24 @@
       "subject_id": "dunn2013-covarion-relaxed-clock-rrw-root-prior-removed:clade:d00a61eb9ec8cb3c"
     },
     {
+      "analysis": "final-afrasian-classification",
+      "claim_id": "ev_period_16bbe9256053a34779dd81aa38b3ccaef6da91ef",
+      "epoch": null,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Afroasiatic",
+      "role": "hypothesis",
+      "source": "Militarev 2005",
+      "subject_id": "wikt:afa-pro"
+    },
+    {
       "analysis": "holman2011-asjp-ethnologue16-s092-r072",
       "claim_id": "ev_period_1b95d644bfa7ddb57530a676608031dc6fa4c572",
       "epoch": 2000,
@@ -125,6 +143,24 @@
       "role": "hypothesis",
       "source": "J. Peter Denny 1991",
       "subject_id": "wikt:alg-pro"
+    },
+    {
+      "analysis": "final-afrasian-classification",
+      "claim_id": "ev_period_1cc3da4e680c51a4e77567e246b08131049347c4",
+      "epoch": null,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Cushitic",
+      "role": "hypothesis",
+      "source": "Militarev 2005",
+      "subject_id": "wikt:cus-pro"
     },
     {
       "analysis": "gstarostin2014-recalibrated-glottochronology",
@@ -431,6 +467,42 @@
       "role": "hypothesis",
       "source": "Eric W. Holman et al. 2011",
       "subject_id": "wikt:hmn-pro"
+    },
+    {
+      "analysis": "original-glottochronology",
+      "claim_id": "ev_period_36520cffa5e7496c3d7ff0bc6a3b10cc14f75c33",
+      "epoch": null,
+      "estimate": {
+        "interval_type": null,
+        "lower": -9999,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": -9000
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Afroasiatic",
+      "role": "hypothesis",
+      "source": "Militarev 2002",
+      "subject_id": "wikt:afa-pro"
+    },
+    {
+      "analysis": "mari-loan-chronology",
+      "claim_id": "ev_period_3861c08c8ca5ba65334fb0b265a7de5de9005311",
+      "epoch": null,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Mari",
+      "role": "hypothesis",
+      "source": "Holopainen & Niklas Metsäranta 2020",
+      "subject_id": "wikt:chm-pro"
     },
     {
       "analysis": "holman2011-asjp-ethnologue16-s092-r072",
@@ -1207,6 +1279,24 @@
       "subject_id": "wikt:myn-pro"
     },
     {
+      "analysis": "kaufman-current-glottochronology",
+      "claim_id": "ev_period_a726972dae092daa660645a7d61a2ad299bf6ed9",
+      "epoch": null,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Mixe-Zoque",
+      "role": "hypothesis",
+      "source": "Woodard 2008",
+      "subject_id": "wikt:nai-miz-pro"
+    },
+    {
       "analysis": "holman2011-asjp-ethnologue16-s092-r072",
       "claim_id": "ev_period_a7820d0f9adb776ea8d1c07d97e9bb9854c43bf1",
       "epoch": 2000,
@@ -1313,6 +1403,24 @@
       "role": "hypothesis",
       "source": "Petri Kallio 2006",
       "subject_id": "wikt:fiu-pro"
+    },
+    {
+      "analysis": "loan-corrected-glottochronology",
+      "claim_id": "ev_period_b64a7a6844011cce4aae14473ac49071cfd915a3",
+      "epoch": null,
+      "estimate": {
+        "interval_type": null,
+        "lower": -8999,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": -8000
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Afroasiatic",
+      "role": "hypothesis",
+      "source": "Militarev 2002",
+      "subject_id": "wikt:afa-pro"
     },
     {
       "analysis": "holman2011-asjp-ethnologue16-s092-r072",
@@ -35839,7 +35947,7 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:fff5df92fe6ca543"
     }
   ],
-  "generation": "5de2d45d58a667e715f157114c3ff4330f3e72e57c7a88e177d9366d694b9de2",
+  "generation": "febfdbf7f2a74e42449e098524b6faeec2d2c2516a4b5e54f8989a4febdb5ef3",
   "languages": [
     {
       "alternatives": [],
@@ -36233,6 +36341,60 @@
       "alternatives": [
         {
           "basis": "estimated",
+          "citation": "Militarev, Alexander. 2002. The Prehistory of a Dispersal: the Proto-Afrasian (Afroasiatic) Farming Lexicon. In P. Bellwood & C. Renfrew (eds.), Examining the Farming/Language Dispersal Hypothesis, 135–150. McDonald Institute, Cambridge.",
+          "claim_id": "ev_period_36520cffa5e7496c3d7ff0bc6a3b10cc14f75c33",
+          "end": {
+            "earliest": -9999,
+            "latest": -9000
+          },
+          "event": "crown_divergence",
+          "label": "until c. 10th millennium BCE",
+          "locator": "{\"pdf_page\": 1, \"printed_page\": 135, \"text_start\": 2859, \"text_end\": 3125}",
+          "method": "lexicostatistic",
+          "quote": "This date is later\nthan those which I proposed in Militarev 2000 (see\nTree on p. 303), these being the tenth millennium BC\nfor the separation between the Northern Branch of\nAfrasian (Egyptian, Semitic, Chadic and Berber) and\nthe Southern Branch (Cushitic and Omotic)",
+          "role": "hypothesis",
+          "source": "Militarev 2002",
+          "start": null,
+          "url": "https://starling.rinet.ru/Texts/afrfarm.pdf"
+        },
+        {
+          "basis": "estimated",
+          "citation": "Automated dating of the world's language families based on lexical similarity",
+          "claim_id": "ev_period_8736854b5eee9483358f69fac54d0955a1d7e78f",
+          "end": {
+            "earliest": -4016,
+            "latest": -4016
+          },
+          "event": "crown_divergence",
+          "label": "until c. 4020 BCE",
+          "locator": "{\"table\": \"Table 3\", \"row\": \"Afro-Asiatic\", \"page\": 853, \"pdf_page\": 14, \"character_start\": 54451, \"character_end\": 54486, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
+          "method": "lexicostatistic",
+          "quote": "Afro-Asiatic\n24,303\n6 (7)\n1.77\n6016",
+          "role": "hypothesis",
+          "source": "Eric W. Holman et al. 2011",
+          "start": null,
+          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        },
+        {
+          "basis": "estimated",
+          "citation": "Militarev, Alexander. 2002. The Prehistory of a Dispersal: the Proto-Afrasian (Afroasiatic) Farming Lexicon. In P. Bellwood & C. Renfrew (eds.), Examining the Farming/Language Dispersal Hypothesis, 135–150. McDonald Institute, Cambridge.",
+          "claim_id": "ev_period_b64a7a6844011cce4aae14473ac49071cfd915a3",
+          "end": {
+            "earliest": -8999,
+            "latest": -8000
+          },
+          "event": "crown_divergence",
+          "label": "until c. 9th millennium BCE",
+          "locator": "{\"pdf_page\": 1, \"printed_page\": 135, \"text_start\": 2729, \"text_end\": 2858}",
+          "method": "lexicostatistic",
+          "quote": "The Proto-Afrasian language, on the verge of a\nsplit into daughter languages, should be roughly\ndated to the ninth millennium BC.",
+          "role": "hypothesis",
+          "source": "Militarev 2002",
+          "start": null,
+          "url": "https://starling.rinet.ru/Texts/afrfarm.pdf"
+        },
+        {
+          "basis": "estimated",
           "citation": "Evolution of Human Languages (EHL) project, Santa Fe Institute. Current state of affairs, https://ehl.santafe.edu/EhlforWeb.pdf.",
           "claim_id": "ev_period_ee53e161d55070aacdf95c007e3ff7f4885afcac",
           "end": {
@@ -36254,24 +36416,24 @@
       "code": "afa-pro",
       "evidence": [
         {
-          "citation": "Automated dating of the world's language families based on lexical similarity",
-          "claim_id": "ev_period_8736854b5eee9483358f69fac54d0955a1d7e78f",
+          "citation": "Militarev, Alexander. 2005. Once more about glottochronology and the comparative method: the Omotic-Afrasian case. Aspects of Comparative Linguistics 1, Festschrift S. Starostin (Orientalia et Classica VI), Moscow, 339–408. https://starling.rinet.ru/Texts/fleming.pdf",
+          "claim_id": "ev_period_16bbe9256053a34779dd81aa38b3ccaef6da91ef",
           "event": "crown_divergence",
-          "locator": "{\"table\": \"Table 3\", \"row\": \"Afro-Asiatic\", \"page\": 853, \"pdf_page\": 14, \"character_start\": 54451, \"character_end\": 54486, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
+          "locator": "{\"pdf_page\": 60, \"printed_page\": 398, \"section\": \"Final classification\", \"image_sha256\": \"8a869e6f11b9d5ad72ec31f2007df730b0506e6e8109d33b8a93b5f3f5796e0e\", \"text_start\": 152473, \"text_end\": 152496}",
           "method": "lexicostatistic",
-          "quote": "Afro-Asiatic\n24,303\n6 (7)\n1.77\n6016",
+          "quote": "Proto-Afrasian [-9.97].",
           "role": "hypothesis",
-          "source": "Eric W. Holman et al. 2011",
-          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+          "source": "Militarev 2005",
+          "url": "https://starling.rinet.ru/Texts/fleming.pdf"
         }
       ],
       "kind": "proto",
-      "label": "until c. 4020 BCE",
+      "label": "until c. 9970 BCE",
       "name": "Proto-Afroasiatic",
       "spoken": {
         "end": {
-          "earliest": -4016,
-          "latest": -4016
+          "earliest": -9969,
+          "latest": -9969
         },
         "ongoing": false,
         "start": null
@@ -37938,6 +38100,35 @@
       }
     },
     {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "chm-pro",
+      "evidence": [
+        {
+          "citation": "Holopainen, Sampsa & Niklas Metsäranta. 2020. A bridge too far – A Uralic perspective on Volga Bulgarian. Finnisch-Ugrische Forschungen 65:172–186. https://doi.org/10.33339/fuf.89967",
+          "claim_id": "ev_period_3861c08c8ca5ba65334fb0b265a7de5de9005311",
+          "event": "crown_divergence",
+          "locator": "{\"pdf_page\": 6, \"printed_page\": 177, \"text_start\": 15055, \"text_end\": 15300}",
+          "method": "comparative_reconstruction",
+          "quote": "As some of the \nearlier Volga Bulgarian/Chuvash \nloanwords display sound changes \ncommon to all Mari dialects, it can \nbe assumed with some certainty \nthat they were borrowed into a uni-\nfied proto-language at some point \nafter the 13th century.",
+          "role": "hypothesis",
+          "source": "Holopainen & Niklas Metsäranta 2020",
+          "url": "https://journal.fi/fuf/article/download/89967/57637"
+        }
+      ],
+      "kind": "proto",
+      "label": "until after c. 1300 CE",
+      "name": "Proto-Mari",
+      "spoken": {
+        "end": {
+          "earliest": 1300,
+          "latest": null
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
       "alternatives": [
         {
           "basis": "estimated",
@@ -38416,29 +38607,48 @@
       }
     },
     {
-      "alternatives": [],
-      "basis": "estimated",
-      "code": "cus-pro",
-      "evidence": [
+      "alternatives": [
         {
+          "basis": "estimated",
           "citation": "Automated dating of the world's language families based on lexical similarity",
           "claim_id": "ev_period_47abd31b7c8b3e2282ed70a39a7dc6913fa07136",
+          "end": {
+            "earliest": -2734,
+            "latest": -2734
+          },
           "event": "crown_divergence",
+          "label": "until c. 2740 BCE",
           "locator": "{\"table\": \"Table 3\", \"row\": \"Cushitic\", \"page\": 853, \"pdf_page\": 14, \"character_start\": 54708, \"character_end\": 54736, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
           "method": "lexicostatistic",
           "quote": "Cushitic\n752\n4 (4)\n4.10\n4734",
           "role": "hypothesis",
           "source": "Eric W. Holman et al. 2011",
+          "start": null,
           "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
         }
       ],
+      "basis": "estimated",
+      "code": "cus-pro",
+      "evidence": [
+        {
+          "citation": "Militarev, Alexander. 2005. Once more about glottochronology and the comparative method: the Omotic-Afrasian case. Aspects of Comparative Linguistics 1, Festschrift S. Starostin (Orientalia et Classica VI), Moscow, 339–408. https://starling.rinet.ru/Texts/fleming.pdf",
+          "claim_id": "ev_period_1cc3da4e680c51a4e77567e246b08131049347c4",
+          "event": "crown_divergence",
+          "locator": "{\"pdf_page\": 60, \"printed_page\": 398, \"section\": \"Final classification\", \"image_sha256\": \"8a869e6f11b9d5ad72ec31f2007df730b0506e6e8109d33b8a93b5f3f5796e0e\", \"text_start\": 152825, \"text_end\": 152853}",
+          "method": "lexicostatistic",
+          "quote": "I.2. Proto-Cushitic [-6.51].",
+          "role": "hypothesis",
+          "source": "Militarev 2005",
+          "url": "https://starling.rinet.ru/Texts/fleming.pdf"
+        }
+      ],
       "kind": "proto",
-      "label": "until c. 2740 BCE",
+      "label": "until c. 6510 BCE",
       "name": "Proto-Cushitic",
       "spoken": {
         "end": {
-          "earliest": -2734,
-          "latest": -2734
+          "earliest": -6509,
+          "latest": -6509
         },
         "ongoing": false,
         "start": null
@@ -42447,6 +42657,35 @@
         "end": {
           "earliest": -220,
           "latest": -220
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "nai-miz-pro",
+      "evidence": [
+        {
+          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Asia and the Americas. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "claim_id": "ev_period_a726972dae092daa660645a7d61a2ad299bf6ed9",
+          "event": "crown_divergence",
+          "locator": "{\"pdf_page\": 216, \"page_label\": \"194\", \"figure\": \"10.1\", \"text_start\": 561376, \"image_sha256\": \"e81f3106061535b72c74f1101b6f4556dbb0155d25889ae31038cb636339a665\", \"text_end\": 561522}",
+          "method": "lexicostatistic",
+          "quote": "Figure 10.1 The Mije-Sokean language family. Parenthesized dates are Kaufman’s current glottochronological estimates for subgroup\ndiversification.",
+          "role": "hypothesis",
+          "source": "Woodard 2008",
+          "url": null
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 1000 BCE",
+      "name": "Proto-Mixe-Zoque",
+      "spoken": {
+        "end": {
+          "earliest": -999,
+          "latest": -999
         },
         "ongoing": false,
         "start": null
@@ -46888,32 +47127,54 @@
       }
     },
     {
-      "alternatives": [],
-      "basis": "estimated",
-      "code": "urj-prm-pro",
-      "evidence": [
+      "alternatives": [
         {
+          "basis": "estimated",
           "citation": "Automated dating of the world's language families based on lexical similarity",
           "claim_id": "ev_period_0a47643bec0819d764e2bd3f594e6ed9ee07c1f2",
+          "end": {
+            "earliest": 1047,
+            "latest": 1047
+          },
           "event": "crown_divergence",
+          "label": "until c. 1050 CE",
           "locator": "{\"table\": \"Table 4\", \"row\": \"Permian\", \"page\": 855, \"pdf_page\": 16, \"character_start\": 61997, \"character_end\": 62022, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
           "method": "lexicostatistic",
           "quote": "Permian\n2\n2 (2)\n49.17\n953",
           "role": "hypothesis",
           "source": "Eric W. Holman et al. 2011",
+          "start": null,
           "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
         }
       ],
+      "basis": "estimated",
+      "code": "urj-prm-pro",
+      "evidence": [
+        {
+          "citation": "Parpola, Asko. 2017. Finnish vatsa ~ Sanskrit vatsá- and the formation of Indo-Iranian and Uralic languages. Journal de la Société Finno-Ougrienne 96:245–286. https://doi.org/10.33340/susa.70229",
+          "claim_id": "ev_period_8c9e45574e6fc4d63b5c857ef14a36f1bb476cd0",
+          "event": "conventional_period",
+          "locator": "{\"pdf_page\": 10, \"page_label\": \"254\", \"section\": \"archaeological correlations\", \"text_start\": 21784, \"text_end\": 21953}",
+          "method": "archaeological_correlation",
+          "quote": "In the ninth century BCE, the \nPrikazan culture developed into the powerful Ananʹino culture (800–200 BCE) \n(Fig. 7), which undoubtedly had Proto-Permic as its language.",
+          "role": "hypothesis",
+          "source": "Parpola 2017",
+          "url": "https://journal.fi/susa/article/download/70229/31259"
+        }
+      ],
       "kind": "proto",
-      "label": "until c. 1050 CE",
+      "label": "c. 800–200 BCE",
       "name": "Proto-Permic",
       "spoken": {
         "end": {
-          "earliest": 1047,
-          "latest": 1047
+          "earliest": -199,
+          "latest": -199
         },
         "ongoing": false,
-        "start": null
+        "start": {
+          "earliest": -799,
+          "latest": -799
+        }
       }
     },
     {
