@@ -34,3 +34,12 @@ Adopted crown ends (decisions with `proto_mapping`): `dra-pro`, `dra-sdo-pro`,
 `jpx-pro`, `jpx-ryu-pro`, `bnt-pro`, `aus-pam-pro`. Readings and caveats per family are
 in `packages/dating/families/`. `map-pro`'s Blust default was re-adopted after Gray's
 candidate touched it.
+
+## Follow-up: archives
+
+Koile 2022's Trees.zip: the Part 2 summary tree (manifest `koile2022_part2_geographic`)
+reproduces the article's root HPD and supplies a reviewed alternative for `bnt-pro`; the
+Part 1 tree does not reproduce the article and is not used. Gray 2009's redeposited
+MCC (`a400-m1pcv-time.mcct.trees`) carries no node annotations, only branch lengths,
+so it gives no HPD; only the posterior sample could, and that needs tip ages and
+diagnostics. `map-pro` keeps Blust 2013.
