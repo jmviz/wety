@@ -23851,7 +23851,7 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:fff5df92fe6ca543"
     }
   ],
-  "generation": "fac153925a303f964b1699b033066b085a37605d6b502fd17180896827920a0e",
+  "generation": "f9de30255652be87cded0e19ce68eafd8722cc247569d0edd7dc283212cae1fa",
   "languages": [
     {
       "alternatives": [
@@ -24231,7 +24231,7 @@
           "earliest": 100,
           "latest": 100
         },
-        "label": "c. 3000/2500 BCE – 100 CE",
+        "label": "c. 3000/2501 BCE – 100 CE",
         "ongoing": false,
         "partial": true,
         "start": {
@@ -26950,7 +26950,7 @@
           "earliest": -1484,
           "latest": 474
         },
-        "label": "until 1485 BCE/474 CE",
+        "label": "until c. 1480 BCE/474 CE",
         "ongoing": false,
         "partial": true,
         "start": null,
@@ -27372,13 +27372,34 @@
       }
     },
     {
-      "alternatives": [],
+      "alternatives": [
+        {
+          "basis": "conventional",
+          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Asia Minor. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "claim_id": "ev_period_e4f99cc5c8efa22fd721fe7bb50a84a59925fcd2",
+          "end": {
+            "earliest": 1701,
+            "latest": 1800
+          },
+          "event": "conventional_period",
+          "label": "12th–18th century CE",
+          "locator": "{\"page\": \"146\", \"pdf_page\": 169}",
+          "quote": "Middle Georgian:\n12th–18th centuries",
+          "role": "convention",
+          "source": "Woodard 2008",
+          "start": {
+            "earliest": 1101,
+            "latest": 1200
+          },
+          "url": null
+        }
+      ],
       "basis": "conventional",
       "code": "ka-mid",
       "evidence": [
         {
           "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Asia Minor. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
-          "claim_id": "ev_period_e4f99cc5c8efa22fd721fe7bb50a84a59925fcd2",
+          "claim_id": "ev_period_76477fb6fb6da8aaf13ac619e6189ce8aadf4275",
           "event": "conventional_period",
           "locator": "{\"page\": \"146\", \"pdf_page\": 169}",
           "quote": "Middle Georgian:\n12th–18th centuries",
@@ -28196,6 +28217,37 @@
     {
       "alternatives": [],
       "basis": "conventional",
+      "code": "oge",
+      "evidence": [
+        {
+          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Asia Minor. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "claim_id": "ev_period_dc0ef4fe447d0e2f2b15bdee638fafd40808a7b1",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"146\", \"pdf_page\": 169}",
+          "quote": "Early Old Georgian (EG):\n5th–8th centuries\nClassical Old Georgian (COG)\n9th–11th centuries",
+          "role": "convention",
+          "source": "Woodard 2008",
+          "url": null
+        }
+      ],
+      "kind": "stage",
+      "label": "5th–11th century CE",
+      "name": "Old Georgian",
+      "spoken": {
+        "end": {
+          "earliest": 1001,
+          "latest": 1100
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 401,
+          "latest": 500
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "conventional",
       "code": "ojp",
       "evidence": [
         {
@@ -28526,6 +28578,37 @@
         "start": {
           "earliest": 800,
           "latest": 800
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "conventional",
+      "code": "ota",
+      "evidence": [
+        {
+          "citation": "Kerslake, Celia. 2022. “Ottoman Turkish.” In Lars Johanson and Éva Á. Csató (eds.), The Turkic Languages, 2nd ed., 174–194. London and New York: Routledge. https://doi.org/10.4324/9781003243809.",
+          "claim_id": "ev_period_3af43595126b6eb0a9e42ff2f0f2dc11cc9c66dd",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"176\", \"pdf_page\": 201}",
+          "quote": "Middle Ottoman: sixteenth to eighteenth centuries\nNew Ottoman: nineteenth century to 1928",
+          "role": "convention",
+          "source": "Johanson & Csató 2021",
+          "url": "https://doi.org/10.4324/9781003243809"
+        }
+      ],
+      "kind": "stage",
+      "label": "c. 16th century – 1928 CE",
+      "name": "Ottoman Turkish",
+      "spoken": {
+        "end": {
+          "earliest": 1928,
+          "latest": 1928
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 1501,
+          "latest": 1600
         }
       }
     },
@@ -29889,7 +29972,7 @@
           "earliest": 7,
           "latest": 809
         },
-        "label": "until 7/809 CE",
+        "label": "until c. 7/809 CE",
         "ongoing": false,
         "partial": true,
         "start": null,
@@ -30147,7 +30230,7 @@
         }
       ],
       "kind": "stage",
-      "label": "c. 1100–1660 CE",
+      "label": "c. 1100–1659 CE",
       "name": "Middle Breton",
       "spoken": {
         "end": {

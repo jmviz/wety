@@ -35,3 +35,12 @@ Uyghur, Caucasian Albanian and Skepi Dutch (attestation samples narrower than th
 code), Modern Low German (the dictionary's period covers more than `nds-de`), Berbice
 Dutch (2010 is an official declaration, not a last speaker's death), Loprieno 1995's
 Egyptian stages (the same author's adopted Woodard chapter stays the default).
+
+## Revision: periodizations (`revision-periodizations.json`)
+
+Kerslake and Tuite each give a periodization of the whole language, so a code takes
+the phases its scope covers. `ota`: Middle and New Ottoman, 16th century – 1928 (Old
+Ottoman is Wiktionary's `trk-oat`, an ancestor of `ota`). `oge`: Early and Classical Old
+Georgian, 5th–11th c. `ka-mid`: Middle Georgian, 12th–18th c. (the Classical claim
+re-targeted to the next line of the same list). Labels now print source years as
+printed (1928, not 1930); only years computed from an age are rounded to the decade.

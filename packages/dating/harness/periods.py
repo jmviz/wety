@@ -19,6 +19,7 @@ endpoints, which may be wider than shown.
 """
 
 import json
+import re
 from pathlib import Path
 
 from workflow_tools.paths import DATING_PRODUCT
@@ -97,12 +98,22 @@ def endpoint(r):
     return {"earliest": r[0], "latest": r[1]}
 
 
-def era_year(y, approximate=False):
+def era_year(y, rounded=False):
     year, era = (1 - y, "BCE") if y <= 0 else (y, "CE")
-    if approximate and year >= 1000:
+    if rounded and year >= 1000:
         # "c. 4051 BCE" from 6000 BP is exact arithmetic but false precision.
         year = round(year, -1)
     return str(year), era
+
+
+def counted_back(claim):
+    """Whether a claim's years are computed from an age (BP, years ago, a crown age),
+    so that labels round them, rather than printed by the source (Ottoman to 1928)."""
+    if claim["event"] == "crown_divergence":
+        return True
+    return bool(
+        re.search(r'"unit": "[^"]*(BP|ago)"', json.dumps(claim["time"].get("original", {})))
+    )
 
 
 def ordinal(n):
@@ -110,13 +121,13 @@ def ordinal(n):
     return f"{n}{suffix}"
 
 
-def describe(r, approximate=False):
+def describe(r, rounded=False):
     """(text, era) for an endpoint range: a year, a century, or a year span."""
     lo, hi = r
     if lo is None or hi is None:
-        return era_year(hi if lo is None else lo, approximate)
+        return era_year(hi if lo is None else lo, rounded)
     if lo == hi:
-        return era_year(lo, approximate)
+        return era_year(lo, rounded)
     if hi - lo == 999 and (lo - 1) % 1000 == 0 and lo > 0:
         return ordinal(hi // 1000) + " millennium", "CE"
     if hi - lo == 999 and hi % 1000 == 0 and hi <= 0:
@@ -129,24 +140,24 @@ def describe(r, approximate=False):
         return ordinal(hi // 100) + " century", "CE"
     if hi - lo == 99 and hi % 100 == 0 and hi <= 0:
         return ordinal((1 - lo) // 100) + " century", "BCE"
-    (a, era_a), (b, era_b) = era_year(lo, approximate), era_year(hi, approximate)
+    (a, era_a), (b, era_b) = era_year(lo, rounded), era_year(hi, rounded)
     return (f"{a}/{b}", era_a) if era_a == era_b else (f"{a} {era_a}/{b}", era_b)
 
 
-def label(start, end, ongoing=False, approximate=False):
+def label(start, end, ongoing=False, approximate=False, rounded=False):
     c = "c. " if approximate else ""
     if start is None and end is None:
         return None
     if end is None:
-        text, era = describe(start, approximate)
+        text, era = describe(start, rounded)
         return f"{c}{text} {era}–present" if ongoing else f"from {c}{text} {era}"
     if start is None:
-        text, era = describe(end, approximate)
+        text, era = describe(end, rounded)
         return f"until {c}{text} {era}"
     if start == end:  # one stated unit, e.g. "the 3rd millennium"
-        text, era = describe(start, approximate)
+        text, era = describe(start, rounded)
         return f"{c}{text} {era}"
-    (a, era_a), (b, era_b) = describe(start, approximate), describe(end, approximate)
+    (a, era_a), (b, era_b) = describe(start, rounded), describe(end, rounded)
     for unit in (" century", " millennium"):
         if era_a == era_b and a.endswith(unit) and b.endswith(unit):
             return f"{c}{a.removesuffix(unit)}–{b} {era_b}"
@@ -226,6 +237,7 @@ def interval(claims):
                 "end": end,
                 "ongoing": False,
                 "approximate": bool(comp["time"].get("original", {}).get("approximate")),
+                "rounded": counted_back(comp),
                 "claims": [comp],
             }
         if not used:
@@ -239,6 +251,7 @@ def interval(claims):
         "end": end,
         "ongoing": ongoing,
         "approximate": approximate,
+        "rounded": any(counted_back(c) for c in used),
         "claims": used,
     }
 
@@ -265,7 +278,14 @@ def period_record(code, claims, alternatives, view, sources):
             "ongoing": spoken["ongoing"],
         },
         "basis": b,
-        "label": label(spoken["start"], spoken["end"], spoken["ongoing"], spoken["approximate"]),
+        "label": label(
+            spoken["start"],
+            spoken["end"],
+            spoken["ongoing"],
+            spoken["approximate"],
+            spoken["rounded"],
+        ),
+        "_rounded": spoken["rounded"],
         "evidence": [evidence_entry(c, sources) for c in spoken["claims"]],
         # An adopted claim not used for the display (a crown age beside a stated
         # period) is still shown, as an alternative.
@@ -292,7 +312,7 @@ def alternative(claim, reconstructed, sources):
         "basis": basis([claim], reconstructed),
         "start": endpoint(start),
         "end": endpoint(end),
-        "label": label(start, end, claim["time"]["ongoing"], approximate),
+        "label": label(start, end, claim["time"]["ongoing"], approximate, counted_back(claim)),
     }
 
 
@@ -333,13 +353,14 @@ def span(own, varieties, undated):
         if ongoing or not known_ends
         else (highest(known_ends, "earliest"), highest(known_ends, "latest"))
     )
-    approximate = any(p["label"].startswith("c. ") for p in parts)
+    approximate = any("c. " in p["label"] for p in parts)  # also "until c. …"
+    rounded = any(p["_rounded"] for p in parts)
     partial = bool(undated) or None in starts or (not ongoing and None in ends)
     return {
         "start": endpoint(start),
         "end": endpoint(end),
         "ongoing": ongoing,
-        "label": label(start, end, ongoing, approximate),
+        "label": label(start, end, ongoing, approximate, rounded),
         "partial": partial,
         "components": [
             {
@@ -364,6 +385,8 @@ def add_spans(languages, view):
         own = records.get(parent)
         if own:
             own["span"] = span(own, dated, [c for c in codes if c not in records])
+    for r in languages:
+        del r["_rounded"]  # internal: whether the label rounds years
     languages.sort(key=lambda r: r["code"])
 
 
