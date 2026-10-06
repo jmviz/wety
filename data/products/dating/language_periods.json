@@ -9343,7 +9343,7 @@
       "subject_id": "zhang2019_relaxed_covarion:clade:ff9f137507695c91"
     }
   ],
-  "generation": "64df57f3b574ca80e7101b9437f9d6c261978ae4e5e2650a0e3d0bff228ba677",
+  "generation": "7c11d76217c65a727a945e8a901c3d3e7ccb5d18a54e634fab1c07f3e8deb967",
   "languages": [
     {
       "alternatives": [
@@ -9723,7 +9723,7 @@
           "earliest": 100,
           "latest": 100
         },
-        "label": "c. 3000/2501 BCE – 100 CE",
+        "label": "c. 3000/2500 BCE – 100 CE",
         "ongoing": false,
         "partial": true,
         "start": {
@@ -10236,7 +10236,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 1485 BCE/474 CE",
+      "label": "until c. 1480 BCE/474 CE",
       "name": "Proto-Baltic",
       "spoken": {
         "end": {
@@ -12042,7 +12042,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 4797/2536 BCE",
+      "label": "until c. 4800/2540 BCE",
       "name": "Proto-Indo-Iranian",
       "spoken": {
         "end": {
@@ -12072,7 +12072,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 3621/1858 BCE",
+      "label": "until c. 3620/1860 BCE",
       "name": "Proto-Anatolian",
       "spoken": {
         "end": {
@@ -12102,21 +12102,21 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 3035/532 BCE",
+      "label": "until c. 3040/532 BCE",
       "name": "Proto-Balto-Slavic",
       "span": {
         "components": [
           {
             "basis": "estimated",
             "code": "ine-bsl-pro",
-            "label": "until c. 3035/532 BCE",
+            "label": "until c. 3040/532 BCE",
             "name": "Proto-Balto-Slavic",
             "own": true
           },
           {
             "basis": "estimated",
             "code": "bat-pro",
-            "label": "until c. 1485 BCE/474 CE",
+            "label": "until c. 1480 BCE/474 CE",
             "name": "Proto-Baltic",
             "own": false
           }
@@ -12154,7 +12154,7 @@
             "latest": -2288
           },
           "event": "crown_divergence",
-          "label": "until c. 3817/2289 BCE",
+          "label": "until c. 3820/2290 BCE",
           "locator": null,
           "node": "MRCA(Adapazar, Afrikaans, Ancient_Greek, Arumanian, Arvanitika, Assamese, Avestan, Baluchi, Belarusian, Bengali, Bihari, Breton, Bulgarian, Cagliari, Catalan, Classical_Armenian, Cornish, Czech, Danish, Digor_Ossetic, Dutch, Eastern_Armenian, English, Faroese, Flemish, French, Frisian, Friulian, German, Gothic, Gujarati, Hindi, Hittite, Icelandic, Irish, Italian, Kashmiri, Kurdish, Ladin, Lahnda, Latin, Latvian, Lithuanian, Lower_Sorbian, Luxembourgish, Macedonian, Marathi, Marwari, Modern_Greek, Nepali, Norwegian, Nuorese, Old_Church_Slavic, Old_English, Old_High_German, Old_Irish, Old_Prussian, Old_West_Norse, Oriya, Panjabi, Pashto, Persian, Polish, Portuguese, Provencal, Romani, Romanian, Romansh, Russian, Sariqoli, Scots_Gaelic, Serbian, Shughni, Sindhi, Singhalese, Slovak, Slovenian, Sogdian, Spanish, Swedish, Swiss_German, Tajik, Tocharian_A, Tocharian_B, Tosk, Ukrainian, Upper_Sorbian, Urdu, Vedic_Sanskrit, Wakhi, Walloon, Waziri, Welsh, Zazaki)",
           "note": "Heggarty et al. 2023 sensitivity analysis SA8b: their M3 model on Chang et al.'s broad dataset with Chang's eight ancestry constraints (root median 4997 BP), close to Chang et al.'s steppe-compatible dates.",
@@ -12174,7 +12174,7 @@
             "latest": -5300
           },
           "event": "crown_divergence",
-          "label": "until c. 7814/5301 BCE",
+          "label": "until c. 7810/5300 BCE",
           "locator": null,
           "node": "MRCA(Adapazar, Afrikaans, Ancient_Greek, Arumanian, Arvanitika, Assamese, Avestan, Baluchi, Belarusian, Bengali, Bihari, Breton, Bulgarian, Cagliari, Catalan, Classical_Armenian, Cornish, Czech, Danish, Digor_Ossetic, Dutch, Eastern_Armenian, English, Faroese, Flemish, French, Frisian, Friulian, German, Gothic, Gujarati, Hindi, Hittite, Icelandic, Irish, Italian, Kashmiri, Kurdish, Ladin, Lahnda, Latin, Latvian, Lithuanian, Lower_Sorbian, Luxembourgish, Macedonian, Marathi, Marwari, Modern_Greek, Nepali, Norwegian, Nuorese, Old_Church_Slavic, Old_English, Old_High_German, Old_Irish, Old_Prussian, Old_West_Norse, Oriya, Panjabi, Pashto, Persian, Polish, Portuguese, Provencal, Romani, Romanian, Romansh, Russian, Sariqoli, Scots_Gaelic, Serbian, Shughni, Sindhi, Singhalese, Slovak, Slovenian, Sogdian, Spanish, Swedish, Swiss_German, Tajik, Tocharian_A, Tocharian_B, Tosk, Ukrainian, Upper_Sorbian, Urdu, Vedic_Sanskrit, Wakhi, Walloon, Waziri, Welsh, Zazaki)",
           "note": "Heggarty et al. 2023 sensitivity analysis SA8a: the same data without ancestry constraints (root median 8629 BP).",
@@ -12220,7 +12220,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 7614/4736 BCE",
+      "label": "until c. 7610/4740 BCE",
       "name": "Proto-Indo-European",
       "spoken": {
         "end": {
@@ -12321,7 +12321,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 2895/1465 BCE",
+      "label": "until c. 2900/1460 BCE",
       "name": "Proto-Iranian",
       "spoken": {
         "end": {
@@ -12413,7 +12413,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 2287/772 BCE",
+      "label": "until c. 2290/772 BCE",
       "name": "Proto-Italic",
       "spoken": {
         "end": {
@@ -12933,6 +12933,58 @@
       }
     },
     {
+      "alternatives": [
+        {
+          "basis": "estimated",
+          "citation": "Pawley, Andrew. 2007. The origins of Early Lapita culture: the testimony of historical linguistics. In Stuart Bedford, Christophe Sand and Sean P. Connaughton (eds.), Oceanic Explorations: Lapita and Western Pacific Settlement, 17–49. Terra Australis 26. Canberra: ANU E Press. https://doi.org/10.22459/TA26.2007.02",
+          "claim_id": "ev_period_d814686551090efaa0af79fc48f8875b93051f9e",
+          "end": {
+            "earliest": -2050,
+            "latest": -2050
+          },
+          "event": "conventional_period",
+          "label": "c. 3050–2050 BCE",
+          "locator": "{\"page\": \"23\", \"pdf_page\": 7}",
+          "quote": "Proto Austronesian \t\nNeolithic cultures of Taiwan 5000-4,000 BP",
+          "role": "hypothesis",
+          "source": "Pawley 2007",
+          "start": {
+            "earliest": -3050,
+            "latest": -3050
+          },
+          "url": "https://doi.org/10.22459/TA26.2007.02"
+        }
+      ],
+      "basis": "estimated",
+      "code": "map-pro",
+      "evidence": [
+        {
+          "citation": "Blust, Robert. 2013. The Austronesian languages. Revised edition. Asia-Pacific Linguistics 8. Canberra: Australian National University. ISBN 9781922185075.",
+          "claim_id": "ev_period_80b111ad4f5df74cc17f42354bd218b5103d0ced",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"769\", \"pdf_page\": 811}",
+          "quote": "Some 1,290 of these are assigned to PAN (c. 5,500-6,000 BP), and 2,730 to PMP (c. \n4,500-5,000 BP), as of April, 2013.",
+          "role": "hypothesis",
+          "source": "Blust 2013",
+          "url": "https://openresearch-repository.anu.edu.au/bitstreams/acb0151b-ebb5-4941-8f29-8f61a28c777e/download"
+        }
+      ],
+      "kind": "proto",
+      "label": "c. 4050–3550 BCE",
+      "name": "Proto-Austronesian",
+      "spoken": {
+        "end": {
+          "earliest": -3550,
+          "latest": -3550
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": -4050,
+          "latest": -4050
+        }
+      }
+    },
+    {
       "alternatives": [],
       "basis": "conventional",
       "code": "mga",
@@ -12960,6 +13012,34 @@
         "start": {
           "earliest": 901,
           "latest": 1000
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "mkh-vie-pro",
+      "evidence": [
+        {
+          "citation": "Alves, Mark. 2020. Historical Ethnolinguistic Notes on Proto-Austroasiatic and Proto-Vietic Vocabulary in Vietnamese. Journal of the Southeast Asian Linguistics Society 13(2):xiii–xlv. University of Hawaiʻi Press. https://hdl.handle.net/10524/52472",
+          "claim_id": "ev_period_c0d8b17f5df6a3ede6825e76528433f0083c80ae",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"xviii\", \"pdf_page\": 6, \"table\": \"3\", \"row\": \"Proto-Vietic as distinct speech group\"}",
+          "quote": "Proto-Vietic as \ndistinct speech \ngroup \nc. 1,000 BCE \n",
+          "role": "hypothesis",
+          "source": "Alves 2020",
+          "url": "https://evols.library.manoa.hawaii.edu/bitstreams/e6c33def-13b8-4d38-8374-ffb215a3cf17/download"
+        }
+      ],
+      "kind": "proto",
+      "label": "from c. 1000 BCE",
+      "name": "Proto-Vietic",
+      "spoken": {
+        "end": null,
+        "ongoing": false,
+        "start": {
+          "earliest": -999,
+          "latest": -999
         }
       }
     },
@@ -13835,6 +13915,158 @@
       }
     },
     {
+      "alternatives": [
+        {
+          "basis": "estimated",
+          "citation": "Blust, Robert. 2013. The Austronesian languages. Revised edition. Asia-Pacific Linguistics 8. Canberra: Australian National University. ISBN 9781922185075.",
+          "claim_id": "ev_period_8c84459c4eb1f8c59737349a24dfbb95afe938eb",
+          "end": null,
+          "event": "conventional_period",
+          "label": "from c. 1550 BCE",
+          "locator": "{\"page\": \"769\", \"pdf_page\": 811}",
+          "quote": "All earlier reconstructions of the lexicon of Proto Oceanic, \nspoken c. 3,500 BP, have been superseded by the superlative work of Ross, Pawley and \nOsmond (1998, 2003, 2008, 2011, 2013, and volumes yet to appear).",
+          "role": "hypothesis",
+          "source": "Blust 2013",
+          "start": {
+            "earliest": -1550,
+            "latest": -1550
+          },
+          "url": "https://openresearch-repository.anu.edu.au/bitstreams/acb0151b-ebb5-4941-8f29-8f61a28c777e/download"
+        }
+      ],
+      "basis": "estimated",
+      "code": "poz-oce-pro",
+      "evidence": [
+        {
+          "citation": "Pawley, Andrew. 2007. The origins of Early Lapita culture: the testimony of historical linguistics. In Stuart Bedford, Christophe Sand and Sean P. Connaughton (eds.), Oceanic Explorations: Lapita and Western Pacific Settlement, 17–49. Terra Australis 26. Canberra: ANU E Press. https://doi.org/10.22459/TA26.2007.02",
+          "claim_id": "ev_period_b8268a92658698ac840d115db2e27d4fb1eba4c7",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"23\", \"pdf_page\": 7}",
+          "quote": "Proto Oceanic\t\nEarly Lapita of the Bismarcks 3400-3100 BP",
+          "role": "hypothesis",
+          "source": "Pawley 2007",
+          "url": "https://doi.org/10.22459/TA26.2007.02"
+        }
+      ],
+      "kind": "proto",
+      "label": "c. 1450–1150 BCE",
+      "name": "Proto-Oceanic",
+      "spoken": {
+        "end": {
+          "earliest": -1150,
+          "latest": -1150
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": -1450,
+          "latest": -1450
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "poz-pol-pro",
+      "evidence": [
+        {
+          "citation": "Pawley, Andrew. 2007. The origins of Early Lapita culture: the testimony of historical linguistics. In Stuart Bedford, Christophe Sand and Sean P. Connaughton (eds.), Oceanic Explorations: Lapita and Western Pacific Settlement, 17–49. Terra Australis 26. Canberra: ANU E Press. https://doi.org/10.22459/TA26.2007.02",
+          "claim_id": "ev_period_c4d4c365e44d62b71dbd1b8efeff1cdcb8508ddd",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"23\", \"pdf_page\": 7}",
+          "quote": "Proto Polynesian\t\nPost-Lapita cultures of the Tonga-Samoa region c. 2000-1500 BP",
+          "role": "hypothesis",
+          "source": "Pawley 2007",
+          "url": "https://doi.org/10.22459/TA26.2007.02"
+        }
+      ],
+      "kind": "proto",
+      "label": "c. 51 BCE – 450 CE",
+      "name": "Proto-Polynesian",
+      "spoken": {
+        "end": {
+          "earliest": 450,
+          "latest": 450
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": -50,
+          "latest": -50
+        }
+      }
+    },
+    {
+      "alternatives": [
+        {
+          "basis": "estimated",
+          "citation": "Blust, Robert. 2013. The Austronesian languages. Revised edition. Asia-Pacific Linguistics 8. Canberra: Australian National University. ISBN 9781922185075.",
+          "claim_id": "ev_period_255d098fbb639bdec7823e4c71b2e1ee9a7df6ac",
+          "end": {
+            "earliest": -2550,
+            "latest": -2550
+          },
+          "event": "conventional_period",
+          "label": "c. 3050–2550 BCE",
+          "locator": "{\"page\": \"769\", \"pdf_page\": 811}",
+          "quote": "Some 1,290 of these are assigned to PAN (c. 5,500-6,000 BP), and 2,730 to PMP (c. \n4,500-5,000 BP), as of April, 2013.",
+          "role": "hypothesis",
+          "source": "Blust 2013",
+          "start": {
+            "earliest": -3050,
+            "latest": -3050
+          },
+          "url": "https://openresearch-repository.anu.edu.au/bitstreams/acb0151b-ebb5-4941-8f29-8f61a28c777e/download"
+        },
+        {
+          "basis": "estimated",
+          "citation": "Pawley, Andrew. 2007. The origins of Early Lapita culture: the testimony of historical linguistics. In Stuart Bedford, Christophe Sand and Sean P. Connaughton (eds.), Oceanic Explorations: Lapita and Western Pacific Settlement, 17–49. Terra Australis 26. Canberra: ANU E Press. https://doi.org/10.22459/TA26.2007.02",
+          "claim_id": "ev_period_520c5dc52b0227aafecae617fc119b510d8e6a4d",
+          "end": {
+            "earliest": -1650,
+            "latest": -1650
+          },
+          "event": "conventional_period",
+          "label": "c. 2050–1650 BCE",
+          "locator": "{\"page\": \"23\", \"pdf_page\": 7}",
+          "quote": "Proto Malayo-Polynesian\t\nNeolithic of the Batanes Is. and N. Luzon c. 4000-3600 BP ",
+          "role": "hypothesis",
+          "source": "Pawley 2007",
+          "start": {
+            "earliest": -2050,
+            "latest": -2050
+          },
+          "url": "https://doi.org/10.22459/TA26.2007.02"
+        }
+      ],
+      "basis": "estimated",
+      "code": "poz-pro",
+      "evidence": [
+        {
+          "citation": "Blust, Robert. 2013. The Austronesian languages. Revised edition. Asia-Pacific Linguistics 8. Canberra: Australian National University. ISBN 9781922185075.",
+          "claim_id": "ev_period_c59e3eaf14fa110dd56ff14a1a83a62aadb967db",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"607\", \"pdf_page\": 649}",
+          "quote": "Proto Malayo-Polynesian, spoken in the northern Philippines between 4,000 and 4,500 BP,",
+          "role": "hypothesis",
+          "source": "Blust 2013",
+          "url": "https://openresearch-repository.anu.edu.au/bitstreams/acb0151b-ebb5-4941-8f29-8f61a28c777e/download"
+        }
+      ],
+      "kind": "proto",
+      "label": "c. 2550–2050 BCE",
+      "name": "Proto-Malayo-Polynesian",
+      "spoken": {
+        "end": {
+          "earliest": -2050,
+          "latest": -2050
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": -2550,
+          "latest": -2550
+        }
+      }
+    },
+    {
       "alternatives": [],
       "basis": "attested",
       "code": "pro",
@@ -14034,7 +14266,7 @@
             "latest": -3143
           },
           "event": "crown_divergence",
-          "label": "until c. 7619/3144 BCE",
+          "label": "until c. 7620/3140 BCE",
           "locator": null,
           "node": "MRCA(BodicTshangla, BurmishAchang, BurmishAtsi, BurmishBola, BurmishLashi, BurmishMaru, BurmishOldBurmese, BurmishRangoon, BurmishXiandao, ChepangChepang, ChinHakha, DengDarangTaraon, DengYidu, GaroGaro, JingphoJingpho, Karbi, KhroskyabsWobzi, KirantiBahing, KirantiBantawa, KirantiHayu, KirantiKhaling, KirantiKulung, KirantiLimbu, KirantiThulung, LoloishLisu, MizoLushai, NagaUkhrul, NungicDulong, QiangicZhaba, Rabha, SiniticBeijing, SiniticChaozhou, SiniticGuangzhou, SiniticJieyang, SiniticLonggang, SiniticOldChinese, SiniticXingning, Tangut, TaniBokar, TibetanAlike, TibetanBatang, TibetanLhasa, TibetanOldTibetan, TibetanXiahe, TibetoKinauriBunan, TibetoKinauriByangsi, TibetoKinauriRongpo, rGyalrongDaofu, rGyalrongJaphug, rGyalrongMaerkang)",
           "note": "Sagart et al. 2019 (relaxed clock, fossilized birth-death prior; mean 7184 BP): BP read as AD 1950 by convention. Sinitic is basal in only 33% of its posterior trees.",
@@ -14063,7 +14295,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 5868/2234 BCE",
+      "label": "until c. 5870/2230 BCE",
       "name": "Proto-Sino-Tibetan",
       "spoken": {
         "end": {
@@ -14093,7 +14325,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 278/1193 CE",
+      "label": "until c. 278/1190 CE",
       "name": "Proto-Tamangic",
       "spoken": {
         "end": {
@@ -14171,7 +14403,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 632/1592 CE",
+      "label": "until c. 632/1590 CE",
       "name": "Proto-Samic",
       "spoken": {
         "end": {
@@ -14270,7 +14502,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 118/1532 CE",
+      "label": "until c. 118/1530 CE",
       "name": "Proto-Albanian",
       "spoken": {
         "end": {
@@ -14536,7 +14768,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 108/1263 CE",
+      "label": "until c. 108/1260 CE",
       "name": "Proto-Finnic",
       "spoken": {
         "end": {
@@ -14566,7 +14798,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 5554/1381 BCE",
+      "label": "until c. 5550/1380 BCE",
       "name": "Proto-Uralic",
       "spoken": {
         "end": {
@@ -14656,7 +14888,7 @@
         }
       ],
       "kind": "stage",
-      "label": "c. 1100–1659 CE",
+      "label": "c. 1100–1660 CE",
       "name": "Middle Breton",
       "spoken": {
         "end": {

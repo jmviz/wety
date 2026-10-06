@@ -65,6 +65,11 @@ class LabelTests(unittest.TestCase):
         self.assertEqual(label((-2999, -2000), (-1999, -1000)), "3rd–2nd millennium BCE")
         self.assertEqual(label((-2999, -2000), (-1200, -1200)), "3rd millennium – 1201 BCE")
         self.assertEqual(label((401, 500), (1101, 1200)), "5th–12th century CE")
+        # Approximate dates older than 1000 print to the decade.
+        self.assertEqual(
+            label((-4050, -4050), (-3550, -3550), approximate=True), "c. 4050–3550 BCE"
+        )
+        self.assertEqual(label((-4050, -4050), (-3550, -3550)), "4051–3551 BCE")
         # An endpoint known only as one of two centuries.
         self.assertEqual(label((-699, -500), (-199, -100)), "7th/6th–2nd century BCE")
 

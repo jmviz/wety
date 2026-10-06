@@ -97,8 +97,12 @@ def endpoint(r):
     return {"earliest": r[0], "latest": r[1]}
 
 
-def era_year(y):
-    return (str(1 - y), "BCE") if y <= 0 else (str(y), "CE")
+def era_year(y, approximate=False):
+    year, era = (1 - y, "BCE") if y <= 0 else (y, "CE")
+    if approximate and year >= 1000:
+        # "c. 4051 BCE" from 6000 BP is exact arithmetic but false precision.
+        year = round(year, -1)
+    return str(year), era
 
 
 def ordinal(n):
@@ -106,13 +110,13 @@ def ordinal(n):
     return f"{n}{suffix}"
 
 
-def describe(r):
+def describe(r, approximate=False):
     """(text, era) for an endpoint range: a year, a century, or a year span."""
     lo, hi = r
     if lo is None or hi is None:
-        return era_year(hi if lo is None else lo)
+        return era_year(hi if lo is None else lo, approximate)
     if lo == hi:
-        return era_year(lo)
+        return era_year(lo, approximate)
     if hi - lo == 999 and (lo - 1) % 1000 == 0 and lo > 0:
         return ordinal(hi // 1000) + " millennium", "CE"
     if hi - lo == 999 and hi % 1000 == 0 and hi <= 0:
@@ -125,7 +129,7 @@ def describe(r):
         return ordinal(hi // 100) + " century", "CE"
     if hi - lo == 99 and hi % 100 == 0 and hi <= 0:
         return ordinal((1 - lo) // 100) + " century", "BCE"
-    (a, era_a), (b, era_b) = era_year(lo), era_year(hi)
+    (a, era_a), (b, era_b) = era_year(lo, approximate), era_year(hi, approximate)
     return (f"{a}/{b}", era_a) if era_a == era_b else (f"{a} {era_a}/{b}", era_b)
 
 
@@ -134,15 +138,15 @@ def label(start, end, ongoing=False, approximate=False):
     if start is None and end is None:
         return None
     if end is None:
-        text, era = describe(start)
+        text, era = describe(start, approximate)
         return f"{c}{text} {era}–present" if ongoing else f"from {c}{text} {era}"
     if start is None:
-        text, era = describe(end)
+        text, era = describe(end, approximate)
         return f"until {c}{text} {era}"
     if start == end:  # one stated unit, e.g. "the 3rd millennium"
-        text, era = describe(start)
+        text, era = describe(start, approximate)
         return f"{c}{text} {era}"
-    (a, era_a), (b, era_b) = describe(start), describe(end)
+    (a, era_a), (b, era_b) = describe(start, approximate), describe(end, approximate)
     for unit in (" century", " millennium"):
         if era_a == era_b and a.endswith(unit) and b.endswith(unit):
             return f"{c}{a.removesuffix(unit)}–{b} {era_b}"
