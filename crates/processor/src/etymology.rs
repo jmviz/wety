@@ -569,9 +569,10 @@ impl WiktextractJsonItem<'_> {
     // if no ety section or no templates, as a fallback we see if term
     // is listed as a "form_of" (item.senses[0].form_of[0].word)
     // or "alt_of" (item.senses[0].alt_of[0].word) another term.
-    // e.g. "happenin'" is listed as an alt_of of "happening".
+    // e.g. "happenin'" is listed as an alt_of of "happening". Its "extra",
+    // where given, glosses the term (enm bern: alt_of barn, "child").
     fn get_form_ety(&self, string_pool: &mut StringPool, lang: Lang) -> Option<RawEtymology> {
-        let alt_term = self
+        let alt_obj = self
             .json
             .get_array("senses")
             .and_then(|senses| senses.first())
@@ -580,10 +581,12 @@ impl WiktextractJsonItem<'_> {
                     .get_array("alt_of")
                     .or_else(|| sense.get_array("form_of"))
             })
-            .and_then(|alt_list| alt_list.first())
-            .and_then(|alt_obj| alt_obj.get_str("word"))?;
-        let langterm = lang.new_langterm(string_pool, alt_term);
-        let ety = RawEtyTemplate::new(langterm, EtyMode::Form);
+            .and_then(|alt_list| alt_list.first())?;
+        let langterm = lang.new_langterm(string_pool, alt_obj.get_str("word")?);
+        let mut ety = RawEtyTemplate::new(langterm, EtyMode::Form);
+        if let Some(gloss) = alt_obj.get_str("extra").filter(|g| !g.is_empty()) {
+            ety = ety.with_part(Part { id: None, gloss: Some(gloss.into()), pos: None });
+        }
         Some(vec![ParsedRawEtyTemplate::Parsed(ety)].into())
     }
 
@@ -1330,6 +1333,24 @@ mod tests {
             let quick = t.add("en", "limewash");
             t.process(quick, r#"[{"name": "af", "args": {"1": "en", "2": "lime<id:quicklime>", "3": "wash"}}]"#);
             assert_eq!(t.parent(quick), mineral);
+        }
+
+        #[test]
+        fn an_alternative_form_cites_its_lemma_with_the_gloss() {
+            // the gloss decides between enm barn "child" and barn "barn"
+            let mut sp = StringPool::new();
+            let json = r#"{"senses": [{"glosses": ["alternative form of barn (“child”)"],
+                "alt_of": [{"word": "barn", "extra": "child"}]}]}"#;
+            let mut bytes = json.to_string().into_bytes();
+            let json = to_borrowed_value(&mut bytes).unwrap();
+            let lang = Lang::from_str("enm").unwrap();
+            let ety = WiktextractJsonItem { json }.get_etymology(&mut sp, lang).unwrap();
+            let ParsedRawEtyTemplate::Parsed(template) = &ety.templates[0] else {
+                panic!("not parsed");
+            };
+            assert_eq!(template.mode, EtyMode::Form);
+            assert_eq!(template.langterms[0].term.resolve(&sp), "barn");
+            assert_eq!(template.parts[0].gloss.as_deref(), Some("child"));
         }
 
         #[test]
