@@ -1078,6 +1078,73 @@ def add_contents():
     return done
 
 
+CONTENTS_TAG = "wety:contents"
+NOTE_LINES = 400
+
+
+def contents_note(holding):
+    """The holding's table of contents as a Zotero note (HTML), so the library itself can
+    be searched by chapter title ("All Fields & Tags" searches note text) in any project."""
+    from html import escape
+
+    c = holding.get("contents") or {}
+    head = (
+        "<h2>Contents</h2><p>From the attached PDF's "
+        + ("outline (bookmarks)" if c.get("source") == "pdf_outline" else "printed contents pages")
+        + "; page numbers are the printed page labels. Added by wety.</p>"
+    )
+    if c.get("entries"):
+        rows = [
+            f'<p style="margin-left:{(level - 1) * 1.5}em">{escape(title)}'
+            + (f" — {escape(str(page))}" if page else "")
+            + "</p>"
+            for level, title, page in c["entries"][:NOTE_LINES]
+        ]
+    else:
+        rows = [f"<p>{escape(line)}</p>" for line in c.get("lines", [])[:NOTE_LINES]]
+    return head + "".join(rows)
+
+
+def add_contents_notes(client, apply=False):
+    """Give each holding's Zotero item a child note with its table of contents, once."""
+    from .zotero import ZoteroError
+
+    done = []
+    for h in load(HOLDINGS, "holdings")["holdings"].values():
+        c = h.get("contents") or {}
+        key = (h.get("zotero") or {}).get("item_key")
+        if not key or not (c.get("entries") or c.get("lines")):
+            continue
+        try:
+            if client.item(key)["data"].get("deleted"):
+                continue
+            children = client.children(key)
+        except ZoteroError as e:
+            if "404" in str(e):
+                continue
+            raise
+        if any(
+            ch["data"]["itemType"] == "note"
+            and any(t["tag"] == CONTENTS_TAG for t in ch["data"].get("tags", []))
+            for ch in children
+        ):
+            continue
+        if apply:
+            client.create(
+                "items",
+                [
+                    {
+                        "itemType": "note",
+                        "parentItem": key,
+                        "note": contents_note(h),
+                        "tags": [{"tag": CONTENTS_TAG}],
+                    }
+                ],
+            )
+        done.append({"holding": h["id"], "item": key, "title": h.get("title")})
+    return {"applied": apply, "notes": done}
+
+
 def untag_supplied(client):
     """After ingest: every holding's Zotero item, and every supplied or declined request's
     item, leaves wety/needs-fulltext and loses the needs tags; holdings' items join
@@ -1161,6 +1228,10 @@ def main(argv=None):
     z.add_argument("keys", nargs="+", help="Zotero item or attachment keys")
     sub.add_parser("sync", help="ingest new PDFs in the wety collections and filed requests")
     sub.add_parser("contents", help="record tables of contents of older holdings")
+    n = sub.add_parser(
+        "contents-notes", help="add a Contents child note to each holding's Zotero item"
+    )
+    n.add_argument("--apply", action="store_true", help="write (default: list what would be added)")
     sub.add_parser("list")
     args = p.parse_args(argv)
     if args.command == "add":
@@ -1194,8 +1265,13 @@ def main(argv=None):
         client = Zotero()
         result = {"ingested": sync(client)}
         result["shelved"] = untag_supplied(client)
+        result["contents_notes"] = len(add_contents_notes(client, apply=True)["notes"])
     elif args.command == "contents":
         result = add_contents()
+    elif args.command == "contents-notes":
+        from .zotero import Zotero
+
+        result = add_contents_notes(Zotero(), apply=args.apply)
     else:
         result = search()
     print(json.dumps(result, indent=2, ensure_ascii=False))

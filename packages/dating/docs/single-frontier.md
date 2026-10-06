@@ -229,8 +229,12 @@ its ISBN); a multi-volume work is one item per volume, same title and ISBN, with
 `volume` (and optionally `# of Volumes`) set. Chapter items are not needed: researchers
 cite chapters by author and title in the locator, and each holding records its table
 of contents (the PDF outline, else the printed contents pages), which `library`
-searches. If you want chapters visible in Zotero, add `bookSection` items without a file
-and link them to the book with Zotero's Related field; wety ignores them. With no full
+searches. Sync also writes that table of contents into Zotero as a child note tagged
+`wety:contents` (`dating holdings contents-notes --apply` for older items), so Zotero's
+"All Fields & Tags" search finds a book by chapter title in any project; delete the
+notes by that tag to undo. Zotero has no book–chapter hierarchy: for chapters you cite
+elsewhere, the common practice is `bookSection` items without a file, linked to the
+book with Related (the Zutilo plugin automates it); wety ignores them. With no full
 text, paste the abstract into the item's Abstract field (it becomes an abstract-only
 holding) or trash the item (the request is recorded as unobtainable).
 

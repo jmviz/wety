@@ -121,6 +121,18 @@ class ExtractTests(Sandbox):
         self.assertEqual((meta["kind"], meta["scan_text_layer"]["page_list"]), ("pdf_text", "1"))
         self.assertIn("page image", meta["coverage"])
 
+    def test_contents_note_is_html_with_levels_and_pages(self):
+        note = holdings.contents_note(
+            {
+                "contents": {
+                    "source": "pdf_outline",
+                    "entries": [[1, "XI. Celtic", "1168"], [2, "67. <Documentation>", "1168"]],
+                }
+            }
+        )
+        self.assertIn("outline (bookmarks)", note)
+        self.assertIn('<p style="margin-left:1.5em">67. &lt;Documentation&gt; — 1168</p>', note)
+
     def test_chapter_requests_are_answered_by_the_book(self):
         book = {"doi": "10.4324/9780203641736", "isbn": "978-0-7007-1131-4 978-0-203-64173-6"}
         self.assertTrue(holdings.covers_doi(book, "10.4324/9780203641736-11"))
