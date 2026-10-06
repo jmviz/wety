@@ -35785,7 +35785,7 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:fff5df92fe6ca543"
     }
   ],
-  "generation": "7b9574da8f47d63a1430b00dcf9cbf87355339023c03be8a84cce9b520d377e4",
+  "generation": "9626e291d9555548eed65a803ad1692097317e1fca480384c7fd70bc67a42811",
   "languages": [
     {
       "alternatives": [],
@@ -44835,6 +44835,35 @@
     },
     {
       "alternatives": [],
+      "basis": "last_speaker",
+      "code": "rrm",
+      "evidence": [
+        {
+          "citation": "Middleton, John. 2023. “Waking a sleeping language – our plan to revive the speaking of ta rē Moriori.” The Conversation, 23 November 2023. https://doi.org/10.64628/AA.9feuu46ea.",
+          "claim_id": "ev_period_10ca5202c5471753ecb94c6d7962cb4221498f20",
+          "event": "native_transmission_end",
+          "locator": "{\"start\": 988, \"end\": 1143, \"section\": \"Opening discussion\"}",
+          "method": "expert_estimate",
+          "quote": "Take the Moriori language from the Chatham Islands, for example. Ta rē Moriori has no native speakers, with the last having died in the early 20th century.",
+          "role": "hypothesis",
+          "source": "Middleton 2023",
+          "url": "https://theconversation.com/waking-a-sleeping-language-our-plan-to-revive-the-speaking-of-ta-re-moriori-218023"
+        }
+      ],
+      "kind": "stage",
+      "label": "until c. 20th century CE",
+      "name": "Moriori",
+      "spoken": {
+        "end": {
+          "earliest": 1901,
+          "latest": 2000
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
       "basis": "composition",
       "code": "sa-rig",
       "evidence": [
@@ -46860,6 +46889,64 @@
       }
     },
     {
+      "alternatives": [],
+      "basis": "last_speaker",
+      "code": "wth",
+      "evidence": [
+        {
+          "citation": "Blake, Barry J., Ian D. Clark, and Sharnthi H. Krishna-Pillay.1998. 'Wathawurrung: The Language of the Geelong-Ballarat Area.' In Barry J. Blake(ed.), Wathawurrung and the Colac Language of Southern Victoria,59–154. Pacific Linguistics C-147. Canberra: The Australian National University.",
+          "claim_id": "ev_period_59da76333fa2b298396ef627d20a2f5b7cdfa686",
+          "event": "native_transmission_end",
+          "locator": "{\"page\": \"64\", \"pdf_page\": 74}",
+          "method": "expert_estimate",
+          "quote": "The last competent speaker of Wathawurrung is believed to have been Ellen Richards \n(nee Phillips) (c. l 848-1921), a member of the Burrumbeet baluk clan belonging to Lake \nBurrumbeet.",
+          "role": "hypothesis",
+          "source": "Blake 1998",
+          "url": "https://doi.org/10.15144/PL-C147"
+        }
+      ],
+      "kind": "stage",
+      "label": "until 1921 CE",
+      "name": "Wathaurong",
+      "spoken": {
+        "end": {
+          "earliest": 1921,
+          "latest": 1921
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "last_speaker",
+      "code": "wyi",
+      "evidence": [
+        {
+          "citation": "Hercus, L. A. 1986. Victorian Languages: A Late Survey. Revised and enlarged version of The Languages of Victoria: A Late Survey (1969). Pacific Linguistics B-77. Canberra: Department of Linguistics, Research School of Pacific Studies, The Australian National University. https://doi.org/10.15144/PL-B77.",
+          "claim_id": "ev_period_3d3017c0e64c8d1f60531fb39eea3d59ba4c6ef6",
+          "event": "native_transmission_end",
+          "locator": "{\"page\": \"160\", \"pdf_page\": 190}",
+          "method": "expert_estimate",
+          "quote": "Woiwuru was the language of the WoiwuruD or Wurundjeri tribe , of which the \nYarra-yarra of Healesville were a sub-tribe . \nThe people traditionally inter­\nmarried with members of the Goulburn and the Murray tribes , particularly the \nYodayoda . \nThe language was still kept intact at Healesville at the beginning \nof this century at the Coranderrk reserve , despite this influx of people from \nother tribes , but the last fluent speakers died soon after that .",
+          "role": "hypothesis",
+          "source": "Hercus 1986",
+          "url": "https://openresearch-repository.anu.edu.au/bitstreams/973471b4-288e-40f2-ac83-ef27b18d5ea7/download"
+        }
+      ],
+      "kind": "stage",
+      "label": "until c. 20th century CE",
+      "name": "Woiwurrung",
+      "spoken": {
+        "end": {
+          "earliest": 1901,
+          "latest": 2000
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
       "alternatives": [
         {
           "basis": "attested",
@@ -47231,6 +47318,35 @@
           "earliest": 1001,
           "latest": 1100
         }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "last_speaker",
+      "code": "xdk",
+      "evidence": [
+        {
+          "citation": "Troy, Jakelin. 1994. The Sydney Language. First edition. Canberra: Jakelin Troy; printed by Panther Publishing and Printing. ISBN 0-646-11015-2.",
+          "claim_id": "ev_period_a1fbc241f2e7e369909f92904beeb673815f0e30",
+          "event": "native_transmission_end",
+          "locator": "{\"page\": \"unnumbered preface\", \"pdf_page\": 4}",
+          "method": "expert_estimate",
+          "quote": "Sometime in the late nineteenth or early twentieth centuries, the \nSydney Language effectively died with its last speakers, leaving successive generations of Sydney \npeople without access to their language.",
+          "role": "hypothesis",
+          "source": "Troy 1994",
+          "url": "https://www.williamdawes.org/docs/troy_sydney_language_publication.pdf"
+        }
+      ],
+      "kind": "stage",
+      "label": "until c. 19th/20th century CE",
+      "name": "Dharug",
+      "spoken": {
+        "end": {
+          "earliest": 1801,
+          "latest": 2000
+        },
+        "ongoing": false,
+        "start": null
       }
     },
     {
@@ -47939,6 +48055,35 @@
           "earliest": 501,
           "latest": 600
         }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "last_speaker",
+      "code": "xpq",
+      "evidence": [
+        {
+          "citation": "Granberry, Julian. 2003. Modern Mohegan: The Dialect of Jits Bodunaxa. Languages of the World/Materials 430. Munich: LINCOM Europa. First edition.",
+          "claim_id": "ev_period_85f032dedb1ef780be622fc35118a39dca7cc572",
+          "event": "native_transmission_end",
+          "locator": "{\"page\": \"5\", \"pdf_page\": 6}",
+          "method": "secondary_report",
+          "quote": "The geographical range in which the dialects of Mohegan-Pequot were \nspoken became increasingly smaller over the years of European \nencroachment, and by the late 1700s to mid-1800s Pequot, Niantic, \nMontauk, and Shinnecock had lost their last speakers. For reasons not \nentirely clear, Mohegan speech survived until 1908, when its last speaker, \nMrs. Fidelia A. Hoscott Fielding (1827-1908), known by her Mohegan name \nof Jits Bodunaxa (Flying Bird), died.",
+          "role": "hypothesis",
+          "source": "Granberry 2003",
+          "url": "https://theswissbay.ch/pdf/Books/Linguistics/Mega%20linguistics%20pack/North%20American/Algic/Mohegan%2C%20Modern%20%28Granberry%29.pdf"
+        }
+      ],
+      "kind": "stage",
+      "label": "until 1908 CE",
+      "name": "Mohegan-Pequot",
+      "spoken": {
+        "end": {
+          "earliest": 1908,
+          "latest": 1908
+        },
+        "ongoing": false,
+        "start": null
       }
     },
     {
