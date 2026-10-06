@@ -4,6 +4,17 @@
 
 Packet: `data/workspaces/dating/_research/packets/sino-tibetan-2026-09-20`.
 
+**Shown in wety (2026-10-05).** Zhang et al. 2019's MCC tree (from the publisher's
+supplementary ZIP; manifest `zhang2019_relaxed_covarion`, epoch AD 1950 as the abstract
+states; its root reproduces the article) gives five proto ends under the crown-age
+rule, 95% HPD: `sit-pro` until 5868–2234 BCE (root), `tbq-lob-pro` 380 BCE – 380 CE,
+`tbq-kuk-pro` 695 BCE – 722 CE, `tbq-brm-pro` 159–966 CE, `sit-tam-pro` 278–1193 CE.
+Not adopted: Tibeto-Burman (support 0.68; contested as a clade), Loloish (Nusu falls
+outside the Lahu–Ngwi clade), Naish (Zhang's "Naic" adds Namuyi and Xumi), Bodish
+(scope), Tani (three taxa), Bodo-Garo (Zhang's "Sal" adds Konyak and Jingpho). Sagart
+2019 (no stated epoch) and Zhang 2020 remain unconverted alternatives; they date the
+root older.
+
 ## Sino-Tibetan source and scenario packet
 
 The [packet](../../../data/workspaces/dating/_research/packets/sino-tibetan-2026-09-20/packet.json) records 31 findings across nine source files for Sagart 2019, Zhang 2019 and Zhang 2020. It recovers supplementary methods, a BEAST configuration and a previously omitted posterior file. This is same-session development review with a numerical self-audit, not held-out evaluation or historical adjudication. It imports no chronological claims or defaults.

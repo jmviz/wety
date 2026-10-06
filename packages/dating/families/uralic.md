@@ -4,6 +4,16 @@
 
 Packets: `data/workspaces/dating/_research/packets/uralic-*`.
 
+**Shown in wety (2026-10-05).** Honkola et al.'s deposited summary tree (manifest
+`honkola2013_beast`) is now read with a labeled conventional epoch: the article writes
+YBP with no epoch, so calendar years take BP as AD 1950 (a 2000 epoch would move them
+50 years, small against HPDs of 1,000–4,000 years). Three proto ends, 95% HPD:
+`urj-pro` until 5554–1381 BCE (root), `urj-fin-pro` 108–1263 CE (north–south Finnic),
+`smi-pro` 632–1592 CE (East–West Saami). Not adopted: Permic and Samoyedic (calibrated
+nodes, close to their priors), Ugric (support 0.47), Finno-Permic (0.29), Mordvinic
+(Erzya only). Grünthal et al. 2022's relative argument stays a recorded alternative
+view.
+
 ## Uralic source review, 19 September 2026
 
 This packet compares Honkola's lexical-clock analysis, Maurits's calibration demonstration and Grünthal's contact argument. It contains 13 chronological assertions, 18 methodological findings and two explicit relative relations. Five assertions satisfy the registry's source-fidelity checks; eight remain candidates with unnormalized native dates. No historical default or dictionary-stage date is adopted.

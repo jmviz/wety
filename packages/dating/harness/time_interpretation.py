@@ -12,7 +12,7 @@ PERIOD_UNITS = ("century_BCE", "century_CE", "millennium_BCE", "millennium_CE")
 class BPConvention(BaseModel):
     model_config = ConfigDict(extra="forbid")
     basis: Literal["conventional_bp_1950"]
-    notation: Literal["BP", "B.P.", "cal BP", "ka BP", "century BP"]
+    notation: Literal["BP", "B.P.", "YBP", "cal BP", "ka BP", "century BP"]
     epoch: Literal[1950] = 1950
 
 

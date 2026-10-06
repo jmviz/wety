@@ -146,6 +146,11 @@ def summarize(manifest):
             "present": manifest.get("present"),
             "precision": "century",
         }
+        # A source without a stated epoch may carry a labeled conventional reading
+        # (BP as AD 1950) and an explicit calendar age scale; never both epochs.
+        for key in ("epoch_interpretation", "age_scale"):
+            if manifest.get(key) is not None:
+                native[key] = manifest[key]
         if posterior:
             native.update(
                 median=statistics.median(xs),
@@ -183,9 +188,16 @@ def summarize(manifest):
             raise ValueError("invalid clade support")
         try:
             temporal = normalize_time(native)
-            limitations = []
+            limitations = (
+                [
+                    "Calendar years read the source's BP as AD 1950 by convention; the source"
+                    " states no epoch."
+                ]
+                if native.get("epoch_interpretation")
+                else []
+            )
         except ValueError:
-            if manifest.get("present") is not None:
+            if manifest.get("present") is not None or manifest.get("epoch_interpretation"):
                 raise
             temporal = Temporal(form="unknown", original=native)
             limitations = [

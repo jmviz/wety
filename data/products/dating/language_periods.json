@@ -37,6 +37,60 @@
       "subject_id": "heggarty2023_main_m3:clade:034b511ce4ed0135"
     },
     {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_03b415b54aa736fed34d6da4a68e1f32aed6c7d530e2c8902ebbf32a5aa5c721",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -2995,
+        "mean": -1926,
+        "median": -1903,
+        "probability": 0.95,
+        "upper": -908
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Anong_Nungish, Chepang_Himalayan, Hayu_Kiranti, Khaling_Kiranti, Limbu_Kiranti, Magar_Himalayan, Sunwar_Kiranti, Thulung_Kiranti, Trung_Dulong_Nungish, Trung_Nujiang_Nungish)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:03b415b54aa736fe"
+    },
+    {
+      "analysis": "honkola2013_beast",
+      "claim_id": "ev_tree_03f80525ffe69ed2e632653ef3a89f11a81b7d4631e2674f2a114e41190046a6",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -5553,
+        "mean": -3316,
+        "median": -3163,
+        "probability": 0.95,
+        "upper": -1380
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Estonian, Finnish, Hungarian, Karelian, Khanty, Komi, Livonian, Mansi, Mari, Mordvin, Nenets, Northern_Sami, Selkup, Skolt_Sami, Udmurt, Ume_Sami, Veps)",
+      "role": "posterior",
+      "source": "Cultural and climatic changes shape the evolutionary history of the Uralic languages 2013",
+      "subject_id": "honkola2013_beast:clade:03f80525ffe69ed2"
+    },
+    {
+      "analysis": "honkola2013_beast",
+      "claim_id": "ev_tree_04c94a172f161426cb5ef8b20da6bb0a6be5ef8794104622b7271d923cf6e544",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 108,
+        "mean": 743,
+        "median": 779,
+        "probability": 0.95,
+        "upper": 1263
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Estonian, Finnish, Karelian, Livonian, Veps)",
+      "role": "posterior",
+      "source": "Cultural and climatic changes shape the evolutionary history of the Uralic languages 2013",
+      "subject_id": "honkola2013_beast:clade:04c94a172f161426"
+    },
+    {
       "analysis": "heggarty2023_main_m3",
       "claim_id": "ev_tree_0626035c3d4a1e2f171772360748f3027bd06d88357d1c429731f1fe82133ee7",
       "epoch": 2000,
@@ -53,6 +107,24 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_main_m3:clade:0626035c3d4a1e2f"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_06bf60fa4f79877e183576046b7448118863f1c2d666b71e475cccec6a4ed852",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 743,
+        "mean": 997,
+        "median": 1000,
+        "probability": 0.95,
+        "upper": 1252
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Hani_Caiyuan_Ngwi, Hani_Dazhai_Ngwi, Hani_Gelanghe_Ngwi, Hani_Luchun_Ngwi, Hani_Mojiang_Ngwi, Hani_Shuikui_Ngwi)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:06bf60fa4f79877e"
     },
     {
       "analysis": "heggarty2023_main_m3",
@@ -73,6 +145,24 @@
       "subject_id": "heggarty2023_main_m3:clade:076a4d05be1df6a5"
     },
     {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_07c333adb3cfa7cae744e92424fe48da1df4c9b51fd9ee2477a59bb924fc99df",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 159,
+        "mean": 580,
+        "median": 597,
+        "probability": 0.95,
+        "upper": 966
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Achang_Lianghe_Burmish, Achang_Longchuan_Burmish, Achang_Luxi_Burmish, Achang_Xiandao_Burmish, Atsi_Zaiwa_Burmish, Bola_Luxi_Burmish, Burmese_Spoken_Rangoon_Burmese, Langsu_Luxi_Burmish, Leqi_Luxi_Burmish, Marma_Burmese)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:07c333adb3cfa7ca"
+    },
+    {
       "analysis": "heggarty2023_main_m3",
       "claim_id": "ev_tree_0a607cc58f10e3f42fefa2ad8362e9680cac8275aa04649f567c525691c93bbc",
       "epoch": 2000,
@@ -91,6 +181,78 @@
       "subject_id": "heggarty2023_main_m3:clade:0a607cc58f10e3f4"
     },
     {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_0b4f6fc19a12370dc6719d440698c23f3b781a8d86a73aca0800bb00c6facf9b",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -1246,
+        "mean": -450,
+        "median": -418,
+        "probability": 0.95,
+        "upper": 300
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Atong_Sal, Bodo_Sal, Chang_Sal, Dimasa_Sal, Garo_Sal, Konyak_Sal, Phom_Sal)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:0b4f6fc19a12370d"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_0b7bfcf2550b7814fbae8f0071f539dbc19f5135ce4886311d0d08c026d2bbe8",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 97,
+        "mean": 589,
+        "median": 612,
+        "probability": 0.95,
+        "upper": 1050
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Namuyi_Naic, Naxi_Lijiang_Naic, Naxi_Yongning_Naic, Xumi_Naic)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:0b7bfcf2550b7814"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_0c871c7fcbe135823e489ce90eb772d8191ec8b78d748e0de3bc7df8828a35d2",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1140,
+        "mean": 1399,
+        "median": 1411,
+        "probability": 0.95,
+        "upper": 1651
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Lisu_Central_Ngwi, Lisu_Northern_Ngwi)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:0c871c7fcbe13582"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_0c9a3ec47831c59edcfe6e7a2d52607dc3f0e87093748b732c21549b321d308c",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -2195,
+        "mean": -1219,
+        "median": -1177,
+        "probability": 0.95,
+        "upper": -290
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Cuona_Mama_Bodish, Cuona_Menba_Bodish, Gurung_Ghachok_TG, Manang_Gyaru_TG, Manang_Prakaa_TG, Tamang_TG, Thakali_TG, Tibetan_Amdo_Blabrang_Tibetan, Tibetan_Amdo_Zeku_Tibetan, Tibetan_Batang_Tibetan, Tibetan_Jirel_Tibetan, Tibetan_Khams_Tibetan, Tibetan_Lhasa_Tibetan, Tibetan_Xiahe_Tibetan)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:0c9a3ec47831c59e"
+    },
+    {
       "analysis": "heggarty2023_main_m3",
       "claim_id": "ev_tree_0cde9d3a535f4c13dec571abea485cbdb8d915df984d17beb0cd6463f5b0003f",
       "epoch": 2000,
@@ -107,6 +269,24 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_main_m3:clade:0cde9d3a535f4c13"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_0ce39d2719e99fef8a1418d88e9f935c8623a5bf5020251f57c7639ccef091fc",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1207,
+        "mean": 1460,
+        "median": 1471,
+        "probability": 0.95,
+        "upper": 1724
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Naxi_Lijiang_Naic, Naxi_Yongning_Naic)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:0ce39d2719e99fef"
     },
     {
       "analysis": "heggarty2023_main_m3",
@@ -181,6 +361,24 @@
       "subject_id": "heggarty2023_main_m3:clade:114f4fff88bc6785"
     },
     {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_12fd26a82007bb894db2576f9b2b32dac4e4377226cd4f4cd4ef24a2885e9848",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1110,
+        "mean": 1383,
+        "median": 1395,
+        "probability": 0.95,
+        "upper": 1628
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Yi_Nanjian_Ngwi, Yi_Weishan_Ngwi)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:12fd26a82007bb89"
+    },
+    {
       "analysis": "heggarty2023_main_m3",
       "claim_id": "ev_tree_133e604e77d2fd0c4b53bb5a74b417be930dc11f26135f4a4652dbb52f4f11b9",
       "epoch": 2000,
@@ -235,6 +433,42 @@
       "subject_id": "heggarty2023_main_m3:clade:1616d08cbf4e87a9"
     },
     {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_167486f83257962c6a24bd568f81cf65711138087f9ad001310c87305a67f487",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1143,
+        "mean": 1241,
+        "median": 1241,
+        "probability": 0.95,
+        "upper": 1336
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Pumi_Qinghua_Qiangic_Pumi, Pumi_Taoba_Qiangic_Pumi)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:167486f83257962c"
+    },
+    {
+      "analysis": "honkola2013_beast",
+      "claim_id": "ev_tree_179e98b64ecb08f17ea3b2ff47de6a648db8385149af6bdf17d646a216d4b307",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1113,
+        "mean": 1476,
+        "median": 1503,
+        "probability": 0.95,
+        "upper": 1777
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Northern_Sami, Ume_Sami)",
+      "role": "posterior",
+      "source": "Cultural and climatic changes shape the evolutionary history of the Uralic languages 2013",
+      "subject_id": "honkola2013_beast:clade:179e98b64ecb08f1"
+    },
+    {
       "analysis": "heggarty2023_main_m3",
       "claim_id": "ev_tree_17c5457efa959b8e02bd91923d4c2baad2269743b50d0ddfd93ac007acad1a1d",
       "epoch": 2000,
@@ -251,6 +485,24 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_main_m3:clade:17c5457efa959b8e"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_1947c35f5f4b2f8d8fb774d5fa69372588c17b75a439422cc5dc303398a2ccfd",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -3152,
+        "mean": -2190,
+        "median": -2160,
+        "probability": 0.95,
+        "upper": -1347
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Achang_Lianghe_Burmish, Achang_Longchuan_Burmish, Achang_Luxi_Burmish, Achang_Xiandao_Burmish, Anong_Nungish, Atsi_Zaiwa_Burmish, Bola_Luxi_Burmish, Burmese_Spoken_Rangoon_Burmese, Caodeng_rGyalrongic, Chepang_Himalayan, Cuona_Mama_Bodish, Cuona_Menba_Bodish, Daofu_rGyalrongic, Ergong_Danba_rGyalrongic, Ersu_Ersuish, Gurung_Ghachok_TG, Hani_Caiyuan_Ngwi, Hani_Dazhai_Ngwi, Hani_Gelanghe_Ngwi, Hani_Luchun_Ngwi, Hani_Mojiang_Ngwi, Hani_Shuikui_Ngwi, Hayu_Kiranti, Jinuo_Youle_Ngwi, Kanauri_Kinauri, Khaling_Kiranti, Lahu_Lancang_Ngwi_Lahu, Lahu_Yellow_Ngwi_Lahu, Langsu_Luxi_Burmish, Leqi_Luxi_Burmish, Limbu_Kiranti, Lisu_Central_Ngwi, Lisu_Northern_Ngwi, Lyuzu_Ersuish, Magar_Himalayan, Manang_Gyaru_TG, Manang_Prakaa_TG, Marma_Burmese, Mpi_Ngwi, Muya_Minyak_Qiangic, Namuyi_Naic, Naxi_Lijiang_Naic, Naxi_Yongning_Naic, Nusu_Central_Nusu, Nusu_Northern_Nusu, Nusu_Southern_Nusu, Pattani_Kinauri, Pumi_Qinghua_Qiangic_Pumi, Pumi_Taoba_Qiangic_Pumi, Qiang_Longxi_Qiangic, Qiang_Mawo_Qiangic, Queyu_Yajiang_Qiangic, Sunwar_Kiranti, Tamang_TG, Thakali_TG, Thulung_Kiranti, Tibetan_Amdo_Blabrang_Tibetan, Tibetan_Amdo_Zeku_Tibetan, Tibetan_Batang_Tibetan, Tibetan_Jirel_Tibetan, Tibetan_Khams_Tibetan, Tibetan_Lhasa_Tibetan, Tibetan_Xiahe_Tibetan, Trung_Dulong_Nungish, Trung_Nujiang_Nungish, Xumi_Naic, Yi_Dafang_Ngwi, Yi_Mile_Ngwi, Yi_Mojiang_Ngwi, Yi_Nanjian_Ngwi, Yi_Sani_Ngwi, Yi_Weishan_Ngwi, Yi_Wuding_Ngwi, rGyalrong_Maerkang_rGyalrongic)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:1947c35f5f4b2f8d"
     },
     {
       "analysis": "heggarty2023_main_m3",
@@ -289,6 +541,24 @@
       "subject_id": "heggarty2023_main_m3:clade:1bf009fd8da68cce"
     },
     {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_1c182ce4edd00a3793ccd52009ead7d3af6e81bcabefa34411458179ca611a0c",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -951,
+        "mean": 105,
+        "median": 166,
+        "probability": 0.95,
+        "upper": 997
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Kanauri_Kinauri, Pattani_Kinauri)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:1c182ce4edd00a37"
+    },
+    {
       "analysis": "heggarty2023_main_m3",
       "claim_id": "ev_tree_1c9fc39f430614173333f37ad9a2951e3bc10e81c16110bd2a74c2e962809366",
       "epoch": 2000,
@@ -305,6 +575,24 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_main_m3:clade:1c9fc39f43061417"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_1dc3838a5f90b93dfc959a2f59cae2fb257cabb72de3a2b9b03ddcb293f976b0",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -21,
+        "mean": 407,
+        "median": 425,
+        "probability": 0.95,
+        "upper": 793
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Pumi_Qinghua_Qiangic_Pumi, Pumi_Taoba_Qiangic_Pumi, Qiang_Longxi_Qiangic, Qiang_Mawo_Qiangic, Queyu_Yajiang_Qiangic)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:1dc3838a5f90b93d"
     },
     {
       "analysis": "heggarty2023_main_m3",
@@ -343,6 +631,24 @@
       "subject_id": "heggarty2023_main_m3:clade:1f3c880cf275f158"
     },
     {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_207cede1782eebe5250187182b7223e76cde66ece9891aa7832efa965bcd3be4",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 593,
+        "mean": 1077,
+        "median": 1107,
+        "probability": 0.95,
+        "upper": 1513
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Cuona_Mama_Bodish, Cuona_Menba_Bodish)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:207cede1782eebe5"
+    },
+    {
       "analysis": "heggarty2023_main_m3",
       "claim_id": "ev_tree_210ca7d3c4650dc2e0061a7b4a06a62f9306fa9bf4aae2b7ea56d68b03785d41",
       "epoch": 2000,
@@ -361,6 +667,24 @@
       "subject_id": "heggarty2023_main_m3:clade:210ca7d3c4650dc2"
     },
     {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_21992f370f441f5f7e63fa84bb8b389cf6f074aec49c4f7e236031a6d3f1883c",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -5867,
+        "mean": -3921,
+        "median": -3764,
+        "probability": 0.95,
+        "upper": -2233
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Achang_Lianghe_Burmish, Achang_Longchuan_Burmish, Achang_Luxi_Burmish, Achang_Xiandao_Burmish, Angami_Kohima_Naga, Anong_Nungish, Ao_Chungli_Naga, Ao_Mongsen_Naga, Apatani_Tani, Atong_Sal, Atsi_Zaiwa_Burmish, Bengni_Tani, Bodo_Sal, Bokar_Lhoba_Tani, Bola_Luxi_Burmish, Burmese_Spoken_Rangoon_Burmese, Caodeng_rGyalrongic, Chang_Sal, Chepang_Himalayan, Chinese_Mandarin_Chinese, Chinese_Old_Chinese, Cuona_Mama_Bodish, Cuona_Menba_Bodish, Daai_KukiChin, Daofu_rGyalrongic, Darang_Taraon_Diagarish, Dimasa_Sal, Ergong_Danba_rGyalrongic, Ersu_Ersuish, Garo_Sal, Gurung_Ghachok_TG, Hani_Caiyuan_Ngwi, Hani_Dazhai_Ngwi, Hani_Gelanghe_Ngwi, Hani_Luchun_Ngwi, Hani_Mojiang_Ngwi, Hani_Shuikui_Ngwi, Hayu_Kiranti, Idu_Diagarish, Jingpho_Sal, Jinuo_Youle_Ngwi, Kanauri_Kinauri, Karen_Karenic, Kayan_Pekon_Karenic, Khaling_Kiranti, Khumi_KukiChin, Konyak_Sal, Lahu_Lancang_Ngwi_Lahu, Lahu_Yellow_Ngwi_Lahu, Langsu_Luxi_Burmish, Leqi_Luxi_Burmish, Liangmei_Naga, Limbu_Kiranti, Lisu_Central_Ngwi, Lisu_Northern_Ngwi, Lotha_Naga_Naga, Lyuzu_Ersuish, Magar_Himalayan, Manang_Gyaru_TG, Manang_Prakaa_TG, Marma_Burmese, Matu_KukiChin, Mpi_Ngwi, Muya_Minyak_Qiangic, Namuyi_Naic, Naxi_Lijiang_Naic, Naxi_Yongning_Naic, Ngmuun_KukiChin, Nusu_Central_Nusu, Nusu_Northern_Nusu, Nusu_Southern_Nusu, Pa_O_Karenic, Pattani_Kinauri, Phom_Sal, Pumi_Qinghua_Qiangic_Pumi, Pumi_Taoba_Qiangic_Pumi, Qiang_Longxi_Qiangic, Qiang_Mawo_Qiangic, Queyu_Yajiang_Qiangic, Rongmei_Naga, Sak_Sal, Sangtam_Naga, Sema_Sumi_Naga, Sunwar_Kiranti, Tamang_TG, Tangkhul_Tangkhulic, Thado_KukiChin, Thakali_TG, Thulung_Kiranti, Tibetan_Amdo_Blabrang_Tibetan, Tibetan_Amdo_Zeku_Tibetan, Tibetan_Batang_Tibetan, Tibetan_Jirel_Tibetan, Tibetan_Khams_Tibetan, Tibetan_Lhasa_Tibetan, Tibetan_Xiahe_Tibetan, Tiddim_KukiChin, Trung_Dulong_Nungish, Trung_Nujiang_Nungish, Xumi_Naic, Yi_Dafang_Ngwi, Yi_Mile_Ngwi, Yi_Mojiang_Ngwi, Yi_Nanjian_Ngwi, Yi_Sani_Ngwi, Yi_Weishan_Ngwi, Yi_Wuding_Ngwi, Zeme_Naga, rGyalrong_Maerkang_rGyalrongic)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:21992f370f441f5f"
+    },
+    {
       "analysis": "heggarty2023_main_m3",
       "claim_id": "ev_tree_21b81502be56ab55ad29367123bc2d223b0353878865ac7dd20d64c309ee0abd",
       "epoch": 2000,
@@ -377,6 +701,42 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_main_m3:clade:21b81502be56ab55"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_21c18645c3270758d0210e09f703513da67d586499edf9527e419e2c2b862ef3",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 278,
+        "mean": 752,
+        "median": 774,
+        "probability": 0.95,
+        "upper": 1193
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Gurung_Ghachok_TG, Manang_Gyaru_TG, Manang_Prakaa_TG, Tamang_TG, Thakali_TG)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:21c18645c3270758"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_228ca2417d7595594cbcca980c8a7ee3de3c04b6148a3df9c1c55671dcb6a07f",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1116,
+        "mean": 1407,
+        "median": 1420,
+        "probability": 0.95,
+        "upper": 1644
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Achang_Lianghe_Burmish, Achang_Luxi_Burmish)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:228ca2417d759559"
     },
     {
       "analysis": "heggarty2023_main_m3",
@@ -415,6 +775,42 @@
       "subject_id": "heggarty2023_main_m3:clade:24087d7367953ad2"
     },
     {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_248c1ed54359528f8ca386ccff8d7e9c49a0c85004b387387d409ffe11fb7416",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -3072,
+        "mean": -2034,
+        "median": -1999,
+        "probability": 0.95,
+        "upper": -1136
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Achang_Lianghe_Burmish, Achang_Longchuan_Burmish, Achang_Luxi_Burmish, Achang_Xiandao_Burmish, Atsi_Zaiwa_Burmish, Bola_Luxi_Burmish, Burmese_Spoken_Rangoon_Burmese, Caodeng_rGyalrongic, Cuona_Mama_Bodish, Cuona_Menba_Bodish, Daofu_rGyalrongic, Ergong_Danba_rGyalrongic, Ersu_Ersuish, Gurung_Ghachok_TG, Hani_Caiyuan_Ngwi, Hani_Dazhai_Ngwi, Hani_Gelanghe_Ngwi, Hani_Luchun_Ngwi, Hani_Mojiang_Ngwi, Hani_Shuikui_Ngwi, Jinuo_Youle_Ngwi, Kanauri_Kinauri, Lahu_Lancang_Ngwi_Lahu, Lahu_Yellow_Ngwi_Lahu, Langsu_Luxi_Burmish, Leqi_Luxi_Burmish, Lisu_Central_Ngwi, Lisu_Northern_Ngwi, Lyuzu_Ersuish, Manang_Gyaru_TG, Manang_Prakaa_TG, Marma_Burmese, Mpi_Ngwi, Muya_Minyak_Qiangic, Namuyi_Naic, Naxi_Lijiang_Naic, Naxi_Yongning_Naic, Nusu_Central_Nusu, Nusu_Northern_Nusu, Nusu_Southern_Nusu, Pattani_Kinauri, Pumi_Qinghua_Qiangic_Pumi, Pumi_Taoba_Qiangic_Pumi, Qiang_Longxi_Qiangic, Qiang_Mawo_Qiangic, Queyu_Yajiang_Qiangic, Tamang_TG, Thakali_TG, Tibetan_Amdo_Blabrang_Tibetan, Tibetan_Amdo_Zeku_Tibetan, Tibetan_Batang_Tibetan, Tibetan_Jirel_Tibetan, Tibetan_Khams_Tibetan, Tibetan_Lhasa_Tibetan, Tibetan_Xiahe_Tibetan, Xumi_Naic, Yi_Dafang_Ngwi, Yi_Mile_Ngwi, Yi_Mojiang_Ngwi, Yi_Nanjian_Ngwi, Yi_Sani_Ngwi, Yi_Weishan_Ngwi, Yi_Wuding_Ngwi, rGyalrong_Maerkang_rGyalrongic)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:248c1ed54359528f"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_27abc2900f10f1fd68ef263b5756b19dc9d5800a9153783aea44e6cb74e45dce",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 983,
+        "mean": 1311,
+        "median": 1333,
+        "probability": 0.95,
+        "upper": 1587
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Tamang_TG, Thakali_TG)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:27abc2900f10f1fd"
+    },
+    {
       "analysis": "heggarty2023_main_m3",
       "claim_id": "ev_tree_27d7539fac2e7225eb80f090cd9f3269cb19d39bc6a8bd1b944feb52c716cb9d",
       "epoch": 2000,
@@ -451,6 +847,24 @@
       "subject_id": "heggarty2023_main_m3:clade:28912cd2765a54c5"
     },
     {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_29bba386d64b51967cff51f8647f1d5b790f065b71de4b394cd5273defeed993",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 171,
+        "mean": 355,
+        "median": 356,
+        "probability": 0.95,
+        "upper": 533
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Hani_Caiyuan_Ngwi, Hani_Dazhai_Ngwi, Hani_Gelanghe_Ngwi, Hani_Luchun_Ngwi, Hani_Mojiang_Ngwi, Hani_Shuikui_Ngwi, Jinuo_Youle_Ngwi, Lahu_Lancang_Ngwi_Lahu, Lahu_Yellow_Ngwi_Lahu, Lisu_Central_Ngwi, Lisu_Northern_Ngwi, Mpi_Ngwi, Yi_Dafang_Ngwi, Yi_Mile_Ngwi, Yi_Mojiang_Ngwi, Yi_Nanjian_Ngwi, Yi_Sani_Ngwi, Yi_Weishan_Ngwi, Yi_Wuding_Ngwi)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:29bba386d64b5196"
+    },
+    {
       "analysis": "heggarty2023_main_m3",
       "claim_id": "ev_tree_2a3e3f373822ab5c79c287a2a757734e50c8fc5093d888d766d4a8ad45181740",
       "epoch": 2000,
@@ -467,6 +881,24 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_main_m3:clade:2a3e3f373822ab5c"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_2a9f1be367192d2128e1ca1e31cd6b929cebc377b34147e3edf4386af8949ef0",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -2995,
+        "mean": -1978,
+        "median": -1965,
+        "probability": 0.95,
+        "upper": -894
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Angami_Kohima_Naga, Ao_Chungli_Naga, Ao_Mongsen_Naga, Daai_KukiChin, Karen_Karenic, Kayan_Pekon_Karenic, Khumi_KukiChin, Liangmei_Naga, Lotha_Naga_Naga, Matu_KukiChin, Ngmuun_KukiChin, Pa_O_Karenic, Rongmei_Naga, Sangtam_Naga, Sema_Sumi_Naga, Tangkhul_Tangkhulic, Thado_KukiChin, Tiddim_KukiChin, Zeme_Naga)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:2a9f1be367192d21"
     },
     {
       "analysis": "heggarty2023_main_m3",
@@ -487,6 +919,24 @@
       "subject_id": "heggarty2023_main_m3:clade:2b6c0398ef55a91c"
     },
     {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_2c812d97192938564e9a3d891fc81dfa8ed8098972a215e1f62908cbbbb68788",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -3320,
+        "mean": -2425,
+        "median": -2401,
+        "probability": 0.95,
+        "upper": -1563
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Achang_Lianghe_Burmish, Achang_Longchuan_Burmish, Achang_Luxi_Burmish, Achang_Xiandao_Burmish, Anong_Nungish, Apatani_Tani, Atong_Sal, Atsi_Zaiwa_Burmish, Bengni_Tani, Bodo_Sal, Bokar_Lhoba_Tani, Bola_Luxi_Burmish, Burmese_Spoken_Rangoon_Burmese, Caodeng_rGyalrongic, Chang_Sal, Chepang_Himalayan, Cuona_Mama_Bodish, Cuona_Menba_Bodish, Daofu_rGyalrongic, Darang_Taraon_Diagarish, Dimasa_Sal, Ergong_Danba_rGyalrongic, Ersu_Ersuish, Garo_Sal, Gurung_Ghachok_TG, Hani_Caiyuan_Ngwi, Hani_Dazhai_Ngwi, Hani_Gelanghe_Ngwi, Hani_Luchun_Ngwi, Hani_Mojiang_Ngwi, Hani_Shuikui_Ngwi, Hayu_Kiranti, Idu_Diagarish, Jingpho_Sal, Jinuo_Youle_Ngwi, Kanauri_Kinauri, Khaling_Kiranti, Konyak_Sal, Lahu_Lancang_Ngwi_Lahu, Lahu_Yellow_Ngwi_Lahu, Langsu_Luxi_Burmish, Leqi_Luxi_Burmish, Limbu_Kiranti, Lisu_Central_Ngwi, Lisu_Northern_Ngwi, Lyuzu_Ersuish, Magar_Himalayan, Manang_Gyaru_TG, Manang_Prakaa_TG, Marma_Burmese, Mpi_Ngwi, Muya_Minyak_Qiangic, Namuyi_Naic, Naxi_Lijiang_Naic, Naxi_Yongning_Naic, Nusu_Central_Nusu, Nusu_Northern_Nusu, Nusu_Southern_Nusu, Pattani_Kinauri, Phom_Sal, Pumi_Qinghua_Qiangic_Pumi, Pumi_Taoba_Qiangic_Pumi, Qiang_Longxi_Qiangic, Qiang_Mawo_Qiangic, Queyu_Yajiang_Qiangic, Sak_Sal, Sunwar_Kiranti, Tamang_TG, Thakali_TG, Thulung_Kiranti, Tibetan_Amdo_Blabrang_Tibetan, Tibetan_Amdo_Zeku_Tibetan, Tibetan_Batang_Tibetan, Tibetan_Jirel_Tibetan, Tibetan_Khams_Tibetan, Tibetan_Lhasa_Tibetan, Tibetan_Xiahe_Tibetan, Trung_Dulong_Nungish, Trung_Nujiang_Nungish, Xumi_Naic, Yi_Dafang_Ngwi, Yi_Mile_Ngwi, Yi_Mojiang_Ngwi, Yi_Nanjian_Ngwi, Yi_Sani_Ngwi, Yi_Weishan_Ngwi, Yi_Wuding_Ngwi, rGyalrong_Maerkang_rGyalrongic)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:2c812d9719293856"
+    },
+    {
       "analysis": "heggarty2023_main_m3",
       "claim_id": "ev_tree_2d2e4ca00b80a5a8b2eecc99a947b84e970fa635e8bb90621ab8719b5d346adc",
       "epoch": 2000,
@@ -503,6 +953,24 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_main_m3:clade:2d2e4ca00b80a5a8"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_2d5da1cb60137c1f8ea5d311bb83dc01a5d2824e79b1c5db18db7415f23a2e0e",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1193,
+        "mean": 1444,
+        "median": 1453,
+        "probability": 0.95,
+        "upper": 1674
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Achang_Longchuan_Burmish, Achang_Xiandao_Burmish)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:2d5da1cb60137c1f"
     },
     {
       "analysis": "heggarty2023_main_m3",
@@ -523,6 +991,42 @@
       "subject_id": "heggarty2023_main_m3:clade:2ea563ecd3c0bac1"
     },
     {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_30e3188d856023dec845c8cb359ba7e5357e04b024dcad8e0f33cedcd09bdc5f",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 903,
+        "mean": 1241,
+        "median": 1255,
+        "probability": 0.95,
+        "upper": 1543
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Yi_Sani_Ngwi, Yi_Wuding_Ngwi)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:30e3188d856023de"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_312aed2afc8dca00f8449997061269f8b0015e9f41a6f9c434672a6da731f184",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -448,
+        "mean": 356,
+        "median": 411,
+        "probability": 0.95,
+        "upper": 1022
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Anong_Nungish, Trung_Dulong_Nungish, Trung_Nujiang_Nungish)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:312aed2afc8dca00"
+    },
+    {
       "analysis": "heggarty2023_main_m3",
       "claim_id": "ev_tree_32efad89345bee353fa6e9926c5f3438bb13299ccebccc537a124231ad1916d0",
       "epoch": 2000,
@@ -541,6 +1045,24 @@
       "subject_id": "heggarty2023_main_m3:clade:32efad89345bee35"
     },
     {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_3430d2fa603077d736e7f7f208d2fa643b17b5f8606a51ec6434e37ba80c80db",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 762,
+        "mean": 1199,
+        "median": 1228,
+        "probability": 0.95,
+        "upper": 1555
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Caodeng_rGyalrongic, rGyalrong_Maerkang_rGyalrongic)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:3430d2fa603077d7"
+    },
+    {
       "analysis": "heggarty2023_main_m3",
       "claim_id": "ev_tree_3481854129789b69f15768f7221370329b1541a83bd730c8dba37bb6694f6c8e",
       "epoch": 2000,
@@ -557,6 +1079,78 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_main_m3:clade:3481854129789b69"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_3583cafbd3da636f0a82f395309730f97bd08c92381348f93e1481850997b6c3",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 314,
+        "mean": 756,
+        "median": 769,
+        "probability": 0.95,
+        "upper": 1193
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Daofu_rGyalrongic, Ergong_Danba_rGyalrongic, Muya_Minyak_Qiangic)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:3583cafbd3da636f"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_365804644a7c47741b4c43268e4418721b62233e7f296e1cb7b103048b9f3aff",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1234,
+        "mean": 1491,
+        "median": 1498,
+        "probability": 0.95,
+        "upper": 1766
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Daai_KukiChin, Ngmuun_KukiChin)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:365804644a7c4774"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_36c3f264f12e956028af29786e409169fe10ffcc70d7178bdd23e7de96c84cd0",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 322,
+        "mean": 545,
+        "median": 544,
+        "probability": 0.95,
+        "upper": 777
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Lahu_Lancang_Ngwi_Lahu, Lahu_Yellow_Ngwi_Lahu, Lisu_Central_Ngwi, Lisu_Northern_Ngwi, Yi_Dafang_Ngwi, Yi_Mile_Ngwi, Yi_Mojiang_Ngwi, Yi_Nanjian_Ngwi, Yi_Sani_Ngwi, Yi_Weishan_Ngwi, Yi_Wuding_Ngwi)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:36c3f264f12e9560"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_37626b6cbd73315c01e9607ba88ae0c2e5ee082721f1fb4084cc497cb9952d3d",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1363,
+        "mean": 1587,
+        "median": 1596,
+        "probability": 0.95,
+        "upper": 1801
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Tibetan_Amdo_Blabrang_Tibetan, Tibetan_Amdo_Zeku_Tibetan)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:37626b6cbd73315c"
     },
     {
       "analysis": "heggarty2023_main_m3",
@@ -667,6 +1261,24 @@
       "subject_id": "heggarty2023_main_m3:clade:3d388707d641c508"
     },
     {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_3d8755044766774504e5c8a156ccf5c1266a59b9d93a9d10484c3de31c60606a",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -379,
+        "mean": 18,
+        "median": 34,
+        "probability": 0.95,
+        "upper": 380
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Achang_Lianghe_Burmish, Achang_Longchuan_Burmish, Achang_Luxi_Burmish, Achang_Xiandao_Burmish, Atsi_Zaiwa_Burmish, Bola_Luxi_Burmish, Burmese_Spoken_Rangoon_Burmese, Hani_Caiyuan_Ngwi, Hani_Dazhai_Ngwi, Hani_Gelanghe_Ngwi, Hani_Luchun_Ngwi, Hani_Mojiang_Ngwi, Hani_Shuikui_Ngwi, Jinuo_Youle_Ngwi, Lahu_Lancang_Ngwi_Lahu, Lahu_Yellow_Ngwi_Lahu, Langsu_Luxi_Burmish, Leqi_Luxi_Burmish, Lisu_Central_Ngwi, Lisu_Northern_Ngwi, Marma_Burmese, Mpi_Ngwi, Nusu_Central_Nusu, Nusu_Northern_Nusu, Nusu_Southern_Nusu, Yi_Dafang_Ngwi, Yi_Mile_Ngwi, Yi_Mojiang_Ngwi, Yi_Nanjian_Ngwi, Yi_Sani_Ngwi, Yi_Weishan_Ngwi, Yi_Wuding_Ngwi)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:3d87550447667745"
+    },
+    {
       "analysis": "heggarty2023_main_m3",
       "claim_id": "ev_tree_3e14bf78b247e457ba3c9e84db39e25e6f22dd39b390facd9d856d74bbb02cf3",
       "epoch": 2000,
@@ -703,6 +1315,78 @@
       "subject_id": "heggarty2023_main_m3:clade:3f3142a6d5984d7f"
     },
     {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_3f7a1496162b765dffc964e79e6e0afd2a0675c3b1f65031ad3cbb1a7d9fd35b",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 387,
+        "mean": 875,
+        "median": 885,
+        "probability": 0.95,
+        "upper": 1370
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Bodo_Sal, Dimasa_Sal)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:3f7a1496162b765d"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_4028cc54a88a85f5c93210bda07d225979518094da90a8b868150c669e60cb7d",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 872,
+        "mean": 1139,
+        "median": 1146,
+        "probability": 0.95,
+        "upper": 1387
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Tibetan_Amdo_Blabrang_Tibetan, Tibetan_Amdo_Zeku_Tibetan, Tibetan_Batang_Tibetan, Tibetan_Khams_Tibetan, Tibetan_Lhasa_Tibetan, Tibetan_Xiahe_Tibetan)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:4028cc54a88a85f5"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_407d7c70a057f32c53621aa7e32b4a2b136b042e77b332886ba92fde46bb41a5",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -3738,
+        "mean": -2715,
+        "median": -2681,
+        "probability": 0.95,
+        "upper": -1766
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Achang_Lianghe_Burmish, Achang_Longchuan_Burmish, Achang_Luxi_Burmish, Achang_Xiandao_Burmish, Angami_Kohima_Naga, Anong_Nungish, Ao_Chungli_Naga, Ao_Mongsen_Naga, Apatani_Tani, Atong_Sal, Atsi_Zaiwa_Burmish, Bengni_Tani, Bodo_Sal, Bokar_Lhoba_Tani, Bola_Luxi_Burmish, Burmese_Spoken_Rangoon_Burmese, Caodeng_rGyalrongic, Chang_Sal, Chepang_Himalayan, Cuona_Mama_Bodish, Cuona_Menba_Bodish, Daai_KukiChin, Daofu_rGyalrongic, Darang_Taraon_Diagarish, Dimasa_Sal, Ergong_Danba_rGyalrongic, Ersu_Ersuish, Garo_Sal, Gurung_Ghachok_TG, Hani_Caiyuan_Ngwi, Hani_Dazhai_Ngwi, Hani_Gelanghe_Ngwi, Hani_Luchun_Ngwi, Hani_Mojiang_Ngwi, Hani_Shuikui_Ngwi, Hayu_Kiranti, Idu_Diagarish, Jingpho_Sal, Jinuo_Youle_Ngwi, Kanauri_Kinauri, Karen_Karenic, Kayan_Pekon_Karenic, Khaling_Kiranti, Khumi_KukiChin, Konyak_Sal, Lahu_Lancang_Ngwi_Lahu, Lahu_Yellow_Ngwi_Lahu, Langsu_Luxi_Burmish, Leqi_Luxi_Burmish, Liangmei_Naga, Limbu_Kiranti, Lisu_Central_Ngwi, Lisu_Northern_Ngwi, Lotha_Naga_Naga, Lyuzu_Ersuish, Magar_Himalayan, Manang_Gyaru_TG, Manang_Prakaa_TG, Marma_Burmese, Matu_KukiChin, Mpi_Ngwi, Muya_Minyak_Qiangic, Namuyi_Naic, Naxi_Lijiang_Naic, Naxi_Yongning_Naic, Ngmuun_KukiChin, Nusu_Central_Nusu, Nusu_Northern_Nusu, Nusu_Southern_Nusu, Pa_O_Karenic, Pattani_Kinauri, Phom_Sal, Pumi_Qinghua_Qiangic_Pumi, Pumi_Taoba_Qiangic_Pumi, Qiang_Longxi_Qiangic, Qiang_Mawo_Qiangic, Queyu_Yajiang_Qiangic, Rongmei_Naga, Sak_Sal, Sangtam_Naga, Sema_Sumi_Naga, Sunwar_Kiranti, Tamang_TG, Tangkhul_Tangkhulic, Thado_KukiChin, Thakali_TG, Thulung_Kiranti, Tibetan_Amdo_Blabrang_Tibetan, Tibetan_Amdo_Zeku_Tibetan, Tibetan_Batang_Tibetan, Tibetan_Jirel_Tibetan, Tibetan_Khams_Tibetan, Tibetan_Lhasa_Tibetan, Tibetan_Xiahe_Tibetan, Tiddim_KukiChin, Trung_Dulong_Nungish, Trung_Nujiang_Nungish, Xumi_Naic, Yi_Dafang_Ngwi, Yi_Mile_Ngwi, Yi_Mojiang_Ngwi, Yi_Nanjian_Ngwi, Yi_Sani_Ngwi, Yi_Weishan_Ngwi, Yi_Wuding_Ngwi, Zeme_Naga, rGyalrong_Maerkang_rGyalrongic)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:407d7c70a057f32c"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_4097c156a3b774f3f255e43d12cca3ca080643ce1e0388ce4adb0b9695c37447",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 481,
+        "mean": 982,
+        "median": 1001,
+        "probability": 0.95,
+        "upper": 1419
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Atong_Sal, Garo_Sal)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:4097c156a3b774f3"
+    },
+    {
       "analysis": "heggarty2023_main_m3",
       "claim_id": "ev_tree_40c2c59750aab255e05d19faa366ffdfd8ac863c2fd44c28022a05de229304d4",
       "epoch": 2000,
@@ -719,6 +1403,24 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_main_m3:clade:40c2c59750aab255"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_422a94dbdc1971b8bc1672c4c08891f18d191998fd7d30aa25067a9bc2b487cc",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 592,
+        "mean": 1007,
+        "median": 1018,
+        "probability": 0.95,
+        "upper": 1442
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Qiang_Longxi_Qiangic, Qiang_Mawo_Qiangic)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:422a94dbdc1971b8"
     },
     {
       "analysis": "heggarty2023_main_m3",
@@ -829,6 +1531,78 @@
       "subject_id": "heggarty2023_main_m3:clade:48a37950a8416e9a"
     },
     {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_4b0c927509c5028108b4d0795935f67af80a3817b6a03e6e4d0321d506568aa3",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 993,
+        "mean": 1336,
+        "median": 1357,
+        "probability": 0.95,
+        "upper": 1651
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Ao_Chungli_Naga, Ao_Mongsen_Naga)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:4b0c927509c50281"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_4b778bcbd936107234ea9972bf1cec5efab3ec6b3aef92e7f2235f14f43e88d4",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 772,
+        "mean": 1149,
+        "median": 1172,
+        "probability": 0.95,
+        "upper": 1456
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Gurung_Ghachok_TG, Tamang_TG, Thakali_TG)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:4b778bcbd9361072"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_4eb8b3518d7b18d74f75c8214ec26d90ae84dd61478ed0cbc8c831d40fa8e061",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1166,
+        "mean": 1428,
+        "median": 1439,
+        "probability": 0.95,
+        "upper": 1661
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Yi_Mile_Ngwi, Yi_Mojiang_Ngwi)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:4eb8b3518d7b18d7"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_4eebcf0431b4494d00f128f6898d1f8c2da619a1bbc417b274fed1a38c8954d4",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -467,
+        "mean": 353,
+        "median": 398,
+        "probability": 0.95,
+        "upper": 1100
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Hayu_Kiranti, Sunwar_Kiranti)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:4eebcf0431b4494d"
+    },
+    {
       "analysis": "heggarty2023_main_m3",
       "claim_id": "ev_tree_4fab52192bb6564ef602527bc42fe92cde2cabc6ea256c645db56a9ea543283c",
       "epoch": 2000,
@@ -845,6 +1619,60 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_main_m3:clade:4fab52192bb6564e"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_50318dec1865926eeb5984e5cac03b5543b718e7820d40c998f264e2334160b5",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -694,
+        "mean": 40,
+        "median": 77,
+        "probability": 0.95,
+        "upper": 722
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Daai_KukiChin, Khumi_KukiChin, Matu_KukiChin, Ngmuun_KukiChin, Thado_KukiChin, Tiddim_KukiChin)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:50318dec1865926e"
+    },
+    {
+      "analysis": "honkola2013_beast",
+      "claim_id": "ev_tree_50a1662a05c41126c8b1056f012b0109ae7ea5d07f0bbe3884b80cb77f8b366a",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -2317,
+        "mean": -1255,
+        "median": -1197,
+        "probability": 0.95,
+        "upper": -317
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Estonian, Finnish, Karelian, Livonian, Mari, Mordvin, Northern_Sami, Skolt_Sami, Ume_Sami, Veps)",
+      "role": "posterior",
+      "source": "Cultural and climatic changes shape the evolutionary history of the Uralic languages 2013",
+      "subject_id": "honkola2013_beast:clade:50a1662a05c41126"
+    },
+    {
+      "analysis": "honkola2013_beast",
+      "claim_id": "ev_tree_51ff0ee4b72e9a06c289fb4b2f48e9634e859de22e52e649fe2c8824b7c24e82",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 662,
+        "mean": 757,
+        "median": 762,
+        "probability": 0.95,
+        "upper": 850
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Komi, Udmurt)",
+      "role": "posterior",
+      "source": "Cultural and climatic changes shape the evolutionary history of the Uralic languages 2013",
+      "subject_id": "honkola2013_beast:clade:51ff0ee4b72e9a06"
     },
     {
       "analysis": "heggarty2023_main_m3",
@@ -883,6 +1711,24 @@
       "subject_id": "heggarty2023_main_m3:clade:524edf0c642d0ec3"
     },
     {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_525c8999356277b4c822675377886cbf55cfb0b8c978dd6a7a0400f6029a14f1",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 227,
+        "mean": 785,
+        "median": 801,
+        "probability": 0.95,
+        "upper": 1305
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Ersu_Ersuish, Lyuzu_Ersuish)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:525c8999356277b4"
+    },
+    {
       "analysis": "heggarty2023_main_m3",
       "claim_id": "ev_tree_52ca5078f284007f857f4c2cb9f1e13ce37336b540ccb7a15d1c51499038a258",
       "epoch": 2000,
@@ -917,6 +1763,42 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_main_m3:clade:538baf378a5c696f"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_554fef0114ec8609fac366283f14b8ecb0a4d6ed67d508babd7952d3a0963280",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1249,
+        "mean": 1468,
+        "median": 1472,
+        "probability": 0.95,
+        "upper": 1695
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Hani_Mojiang_Ngwi, Hani_Shuikui_Ngwi)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:554fef0114ec8609"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_57571840f56d348c3f7cf32dc072fe7a439ba9aeccc594cc6e755aa71982c22c",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1316,
+        "mean": 1593,
+        "median": 1607,
+        "probability": 0.95,
+        "upper": 1847
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Manang_Gyaru_TG, Manang_Prakaa_TG)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:57571840f56d348c"
     },
     {
       "analysis": "heggarty2023_main_m3",
@@ -1009,6 +1891,24 @@
       "subject_id": "heggarty2023_main_m3:clade:5c8ed6cc3c0ddfb2"
     },
     {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_5ce5128450bcf6011e80e6e59eab7dd7a3dff7bf0d6a4e1d0b2bbdd96ae616d3",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -1085,
+        "mean": -17,
+        "median": 43,
+        "probability": 0.95,
+        "upper": 976
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Chepang_Himalayan, Magar_Himalayan)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:5ce5128450bcf601"
+    },
+    {
       "analysis": "heggarty2023_main_m3",
       "claim_id": "ev_tree_5dc69b8be1e24fa266534b97e51ee579f07d22baee01cdeb9f857033ad40d418",
       "epoch": 2000,
@@ -1063,6 +1963,24 @@
       "subject_id": "heggarty2023_main_m3:clade:5fc597e47cb80069"
     },
     {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_5fe8907c7e4016ed607b8eb2363ca6048fcf2ad5eaefb6fc34bddeea68b0b72e",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 857,
+        "mean": 1250,
+        "median": 1280,
+        "probability": 0.95,
+        "upper": 1586
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Liangmei_Naga, Zeme_Naga)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:5fe8907c7e4016ed"
+    },
+    {
       "analysis": "heggarty2023_main_m3",
       "claim_id": "ev_tree_616f5855d10d75e97969179881b71274c5661c0515272be9b0da8f38aa7d3818",
       "epoch": 2000,
@@ -1079,6 +1997,24 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_main_m3:clade:616f5855d10d75e9"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_617a12bb376640bda864321ac49b7924ac2d703f3f4995c08b1af81caa10a505",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -84,
+        "mean": 543,
+        "median": 583,
+        "probability": 0.95,
+        "upper": 1108
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Liangmei_Naga, Rongmei_Naga, Zeme_Naga)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:617a12bb376640bd"
     },
     {
       "analysis": "heggarty2023_main_m3",
@@ -1099,6 +2035,60 @@
       "subject_id": "heggarty2023_main_m3:clade:61bf1f93c6986bbc"
     },
     {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_620466a4ee9562da33532a7b6ca7f5b2aca731b633676619e64fa6669a9e62aa",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -1844,
+        "mean": -622,
+        "median": -592,
+        "probability": 0.95,
+        "upper": 545
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Jingpho_Sal, Sak_Sal)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:620466a4ee9562da"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_6415b8937dc756d2c9033cdb85b52affd4d26198d8be03c55e5a6674c77a54cd",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1041,
+        "mean": 1253,
+        "median": 1259,
+        "probability": 0.95,
+        "upper": 1448
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Hani_Dazhai_Ngwi, Hani_Gelanghe_Ngwi, Hani_Luchun_Ngwi, Hani_Mojiang_Ngwi, Hani_Shuikui_Ngwi)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:6415b8937dc756d2"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_675d7cc2d48a9ec0ea015e558eb82dac6baa0021790c09d3d9e0d2e2b326d5fb",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 289,
+        "mean": 771,
+        "median": 787,
+        "probability": 0.95,
+        "upper": 1190
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Ao_Chungli_Naga, Ao_Mongsen_Naga, Lotha_Naga_Naga, Sangtam_Naga)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:675d7cc2d48a9ec0"
+    },
+    {
       "analysis": "heggarty2023_main_m3",
       "claim_id": "ev_tree_67808474b9b71a8df289a527c851d2cf5783ccb20f87d1245f4af42e4aa39a7d",
       "epoch": 2000,
@@ -1115,6 +2105,42 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_main_m3:clade:67808474b9b71a8d"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_69a8d34885e79ac37d7b57e6d14ea5e4db6cde437e791ff81a276560d1584059",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -41,
+        "mean": 512,
+        "median": 540,
+        "probability": 0.95,
+        "upper": 1041
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Khumi_KukiChin, Thado_KukiChin, Tiddim_KukiChin)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:69a8d34885e79ac3"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_69dc2f58fad61c55bcf1866a002ae8b504298b16e031efab994243820a0620ba",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 535,
+        "mean": 838,
+        "median": 840,
+        "probability": 0.95,
+        "upper": 1133
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Yi_Dafang_Ngwi, Yi_Mile_Ngwi, Yi_Mojiang_Ngwi, Yi_Sani_Ngwi, Yi_Wuding_Ngwi)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:69dc2f58fad61c55"
     },
     {
       "analysis": "heggarty2023_main_m3",
@@ -1153,6 +2179,24 @@
       "subject_id": "heggarty2023_main_m3:clade:6e1234736797b566"
     },
     {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_6e12b3507c8e32d0ce76aa52e96d85ae24e6296ef0600738c05983effa7ead54",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -1413,
+        "mean": -806,
+        "median": -789,
+        "probability": 0.95,
+        "upper": -217
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Achang_Lianghe_Burmish, Achang_Longchuan_Burmish, Achang_Luxi_Burmish, Achang_Xiandao_Burmish, Atsi_Zaiwa_Burmish, Bola_Luxi_Burmish, Burmese_Spoken_Rangoon_Burmese, Caodeng_rGyalrongic, Daofu_rGyalrongic, Ergong_Danba_rGyalrongic, Ersu_Ersuish, Hani_Caiyuan_Ngwi, Hani_Dazhai_Ngwi, Hani_Gelanghe_Ngwi, Hani_Luchun_Ngwi, Hani_Mojiang_Ngwi, Hani_Shuikui_Ngwi, Jinuo_Youle_Ngwi, Lahu_Lancang_Ngwi_Lahu, Lahu_Yellow_Ngwi_Lahu, Langsu_Luxi_Burmish, Leqi_Luxi_Burmish, Lisu_Central_Ngwi, Lisu_Northern_Ngwi, Lyuzu_Ersuish, Marma_Burmese, Mpi_Ngwi, Muya_Minyak_Qiangic, Namuyi_Naic, Naxi_Lijiang_Naic, Naxi_Yongning_Naic, Nusu_Central_Nusu, Nusu_Northern_Nusu, Nusu_Southern_Nusu, Pumi_Qinghua_Qiangic_Pumi, Pumi_Taoba_Qiangic_Pumi, Qiang_Longxi_Qiangic, Qiang_Mawo_Qiangic, Queyu_Yajiang_Qiangic, Xumi_Naic, Yi_Dafang_Ngwi, Yi_Mile_Ngwi, Yi_Mojiang_Ngwi, Yi_Nanjian_Ngwi, Yi_Sani_Ngwi, Yi_Weishan_Ngwi, Yi_Wuding_Ngwi, rGyalrong_Maerkang_rGyalrongic)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:6e12b3507c8e32d0"
+    },
+    {
       "analysis": "heggarty2023_main_m3",
       "claim_id": "ev_tree_71aa07a9496ae57d56032eae720f16707f50158e09567129682408a3bdaea6ad",
       "epoch": 2000,
@@ -1189,6 +2233,42 @@
       "subject_id": "heggarty2023_main_m3:clade:7206ee5b4b015c10"
     },
     {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_7236bef6f22950b50ff6d5b869e76ee1b2d0d9205126728531b2b87cdcb784b0",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -767,
+        "mean": 159,
+        "median": 211,
+        "probability": 0.95,
+        "upper": 965
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Darang_Taraon_Diagarish, Idu_Diagarish)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:7236bef6f22950b5"
+    },
+    {
+      "analysis": "honkola2013_beast",
+      "claim_id": "ev_tree_733e7191ca73c4c8b8f53081b5dcebd94a69ac39dd59c3770f7482e6e39940e4",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 643,
+        "mean": 1155,
+        "median": 1190,
+        "probability": 0.95,
+        "upper": 1580
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Finnish, Karelian, Veps)",
+      "role": "posterior",
+      "source": "Cultural and climatic changes shape the evolutionary history of the Uralic languages 2013",
+      "subject_id": "honkola2013_beast:clade:733e7191ca73c4c8"
+    },
+    {
       "analysis": "heggarty2023_main_m3",
       "claim_id": "ev_tree_7344092402be13772b48f1cb1a3d0f854d1f7e035a8383e10542fb0006258c4a",
       "epoch": 2000,
@@ -1205,6 +2285,42 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_main_m3:clade:7344092402be1377"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_73997e2958366f3545342bc1e08daa123da47fe5eb14969bc1f2e16b58c30d52",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -737,
+        "mean": -221,
+        "median": -206,
+        "probability": 0.95,
+        "upper": 267
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Caodeng_rGyalrongic, Daofu_rGyalrongic, Ergong_Danba_rGyalrongic, Ersu_Ersuish, Lyuzu_Ersuish, Muya_Minyak_Qiangic, Namuyi_Naic, Naxi_Lijiang_Naic, Naxi_Yongning_Naic, Pumi_Qinghua_Qiangic_Pumi, Pumi_Taoba_Qiangic_Pumi, Qiang_Longxi_Qiangic, Qiang_Mawo_Qiangic, Queyu_Yajiang_Qiangic, Xumi_Naic, rGyalrong_Maerkang_rGyalrongic)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:73997e2958366f35"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_74341b9afea457247fd248a9bf186e595896d138a7eeee6cb41129b81e29d3c4",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1169,
+        "mean": 1422,
+        "median": 1433,
+        "probability": 0.95,
+        "upper": 1650
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Tibetan_Amdo_Blabrang_Tibetan, Tibetan_Amdo_Zeku_Tibetan, Tibetan_Xiahe_Tibetan)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:74341b9afea45724"
     },
     {
       "analysis": "heggarty2023_main_m3",
@@ -1295,6 +2411,78 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_main_m3:clade:772ca038eade6e62"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_7744924695577cdbb7ac8e022d011f3257b4f7fe34b07d81e757255d6ac8e633",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -1322,
+        "mean": -402,
+        "median": -361,
+        "probability": 0.95,
+        "upper": 502
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Hayu_Kiranti, Khaling_Kiranti, Sunwar_Kiranti, Thulung_Kiranti)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:7744924695577cdb"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_790b551a6e8695b80da21cebbdc14dea09174cef5042638f0d83a98b70a256f9",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1013,
+        "mean": 1347,
+        "median": 1371,
+        "probability": 0.95,
+        "upper": 1615
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Thado_KukiChin, Tiddim_KukiChin)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:790b551a6e8695b8"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_7984dedfc054992daa43e227b55b454051c8dfbb8f38df936c062089d2b7a5a4",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1130,
+        "mean": 1396,
+        "median": 1409,
+        "probability": 0.95,
+        "upper": 1639
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Bola_Luxi_Burmish, Langsu_Luxi_Burmish, Leqi_Luxi_Burmish)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:7984dedfc054992d"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_7a125d929b38d825eefa887bc3a19138c8a2ceb3d7ae72ce6cc84ce883a5353f",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1096,
+        "mean": 1395,
+        "median": 1413,
+        "probability": 0.95,
+        "upper": 1668
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Bengni_Tani, Bokar_Lhoba_Tani)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:7a125d929b38d825"
     },
     {
       "analysis": "heggarty2023_main_m3",
@@ -1405,6 +2593,42 @@
       "subject_id": "heggarty2023_main_m3:clade:805452c15427fe0d"
     },
     {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_815cd1232262ad885dd4f043a7e87e331cb892b28ca3c4f1ed0a9dd1485dcfe0",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -454,
+        "mean": 5,
+        "median": 17,
+        "probability": 0.95,
+        "upper": 465
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Caodeng_rGyalrongic, Daofu_rGyalrongic, Ergong_Danba_rGyalrongic, Ersu_Ersuish, Lyuzu_Ersuish, Muya_Minyak_Qiangic, Pumi_Qinghua_Qiangic_Pumi, Pumi_Taoba_Qiangic_Pumi, Qiang_Longxi_Qiangic, Qiang_Mawo_Qiangic, Queyu_Yajiang_Qiangic, rGyalrong_Maerkang_rGyalrongic)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:815cd1232262ad88"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_81b98a22e981bba0be738014787e4095972d730a8f8459021e1f870859f7dc9d",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -698,
+        "mean": -31,
+        "median": 6,
+        "probability": 0.95,
+        "upper": 550
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Cuona_Mama_Bodish, Cuona_Menba_Bodish, Tibetan_Amdo_Blabrang_Tibetan, Tibetan_Amdo_Zeku_Tibetan, Tibetan_Batang_Tibetan, Tibetan_Jirel_Tibetan, Tibetan_Khams_Tibetan, Tibetan_Lhasa_Tibetan, Tibetan_Xiahe_Tibetan)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:81b98a22e981bba0"
+    },
+    {
       "analysis": "heggarty2023_main_m3",
       "claim_id": "ev_tree_853e71fd02a1ea1f49b3379c98cb055b3ebbfaf518b1e0b47ec2105d9598ad9b",
       "epoch": 2000,
@@ -1513,6 +2737,24 @@
       "subject_id": "heggarty2023_main_m3:clade:895a30e8dc36edf4"
     },
     {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_89c483fad1fe8bbd779b3692055ee309bf8e4d2306779f21343c402a6d7eb113",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -82,
+        "mean": 295,
+        "median": 302,
+        "probability": 0.95,
+        "upper": 658
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Achang_Lianghe_Burmish, Achang_Longchuan_Burmish, Achang_Luxi_Burmish, Achang_Xiandao_Burmish, Atsi_Zaiwa_Burmish, Bola_Luxi_Burmish, Burmese_Spoken_Rangoon_Burmese, Langsu_Luxi_Burmish, Leqi_Luxi_Burmish, Marma_Burmese, Nusu_Central_Nusu, Nusu_Northern_Nusu, Nusu_Southern_Nusu)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:89c483fad1fe8bbd"
+    },
+    {
       "analysis": "heggarty2023_main_m3",
       "claim_id": "ev_tree_89d20be2a3380d81c46a259b99f761df31caf264a71e0868a91e2b7a1a51f985",
       "epoch": 2000,
@@ -1585,6 +2827,24 @@
       "subject_id": "heggarty2023_main_m3:clade:8d47226ac646ee6e"
     },
     {
+      "analysis": "honkola2013_beast",
+      "claim_id": "ev_tree_8e3aa81f5c58105bae982817cd869703587b13b966ed380a41859d8933bbcc67",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -2978,
+        "mean": -1749,
+        "median": -1684,
+        "probability": 0.95,
+        "upper": -665
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Estonian, Finnish, Karelian, Komi, Livonian, Mari, Mordvin, Northern_Sami, Skolt_Sami, Udmurt, Ume_Sami, Veps)",
+      "role": "posterior",
+      "source": "Cultural and climatic changes shape the evolutionary history of the Uralic languages 2013",
+      "subject_id": "honkola2013_beast:clade:8e3aa81f5c58105b"
+    },
+    {
       "analysis": "heggarty2023_main_m3",
       "claim_id": "ev_tree_8e50f6b476ce7cf8a54dc7d11323559cdecdc7a1b63a1dbfe1f48dae223e7049",
       "epoch": 2000,
@@ -1621,6 +2881,42 @@
       "subject_id": "heggarty2023_main_m3:clade:8f19632646ba42fe"
     },
     {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_92ff254eac25328b01029f279a48024f1fb021bfd6df7915184292a51f182591",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -2357,
+        "mean": -1288,
+        "median": -1245,
+        "probability": 0.95,
+        "upper": -189
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Chepang_Himalayan, Hayu_Kiranti, Khaling_Kiranti, Limbu_Kiranti, Magar_Himalayan, Sunwar_Kiranti, Thulung_Kiranti)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:92ff254eac25328b"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_93239234a68224e926a593b55dbc4d8c69eef4c9278d3027845b1dfd83401100",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 674,
+        "mean": 821,
+        "median": 821,
+        "probability": 0.95,
+        "upper": 958
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Karen_Karenic, Kayan_Pekon_Karenic, Pa_O_Karenic)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:93239234a68224e9"
+    },
+    {
       "analysis": "heggarty2023_main_m3",
       "claim_id": "ev_tree_94172a5fff205a0d36606b8ea60b4f98a6ac7cd3b35e14cca13cc3f84d17ccf1",
       "epoch": 2000,
@@ -1639,6 +2935,60 @@
       "subject_id": "heggarty2023_main_m3:clade:94172a5fff205a0d"
     },
     {
+      "analysis": "honkola2013_beast",
+      "claim_id": "ev_tree_942a95830fb9568c5aa1e802e20b96e8d17d56a6cbbc2e432e2d8b98953ef6eb",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 632,
+        "mean": 1145,
+        "median": 1180,
+        "probability": 0.95,
+        "upper": 1592
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Northern_Sami, Skolt_Sami, Ume_Sami)",
+      "role": "posterior",
+      "source": "Cultural and climatic changes shape the evolutionary history of the Uralic languages 2013",
+      "subject_id": "honkola2013_beast:clade:942a95830fb9568c"
+    },
+    {
+      "analysis": "honkola2013_beast",
+      "claim_id": "ev_tree_942aa371b78bc88bdb05aebe57b9e86166e45d6c27f417fecbb2375607f6550d",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 926,
+        "mean": 1357,
+        "median": 1386,
+        "probability": 0.95,
+        "upper": 1737
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Estonian, Livonian)",
+      "role": "posterior",
+      "source": "Cultural and climatic changes shape the evolutionary history of the Uralic languages 2013",
+      "subject_id": "honkola2013_beast:clade:942aa371b78bc88b"
+    },
+    {
+      "analysis": "honkola2013_beast",
+      "claim_id": "ev_tree_9576ed8214561d757a03226a09cf07be9eaa719f80170c21438c85547ba3562e",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -1289,
+        "mean": 89,
+        "median": 166,
+        "probability": 0.95,
+        "upper": 1248
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Khanty, Mansi)",
+      "role": "posterior",
+      "source": "Cultural and climatic changes shape the evolutionary history of the Uralic languages 2013",
+      "subject_id": "honkola2013_beast:clade:9576ed8214561d75"
+    },
+    {
       "analysis": "heggarty2023_main_m3",
       "claim_id": "ev_tree_95f3066eb89f29ebc4ededbfa055895725c2d91851bd025436a73e67f498851e",
       "epoch": 2000,
@@ -1655,6 +3005,24 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_main_m3:clade:95f3066eb89f29eb"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_96a7951d2b734212ee615b2a958ca73f58626bad07f5410141272add677116f1",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 499,
+        "mean": 927,
+        "median": 937,
+        "probability": 0.95,
+        "upper": 1311
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Ao_Chungli_Naga, Ao_Mongsen_Naga, Sangtam_Naga)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:96a7951d2b734212"
     },
     {
       "analysis": "heggarty2023_main_m3",
@@ -1693,6 +3061,24 @@
       "subject_id": "heggarty2023_main_m3:clade:982d4a614fe68a4b"
     },
     {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_9903e01ad645763cc19681494723fdc877560cacaebe53066dc5be26e45eb131",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 970,
+        "mean": 1247,
+        "median": 1259,
+        "probability": 0.95,
+        "upper": 1517
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Tibetan_Amdo_Blabrang_Tibetan, Tibetan_Amdo_Zeku_Tibetan, Tibetan_Lhasa_Tibetan, Tibetan_Xiahe_Tibetan)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:9903e01ad645763c"
+    },
+    {
       "analysis": "heggarty2023_main_m3",
       "claim_id": "ev_tree_9ace764bc9fee23ca11e227140caffb6877e38da6774317c66c238fe17bab83d",
       "epoch": 2000,
@@ -1709,6 +3095,24 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_main_m3:clade:9ace764bc9fee23c"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_9af10265132840d0c29b2f0d1051312dc3b1fc85cb56252f00d2d248c8c2ced6",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1411,
+        "mean": 1595,
+        "median": 1601,
+        "probability": 0.95,
+        "upper": 1758
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Hani_Dazhai_Ngwi, Hani_Gelanghe_Ngwi)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:9af10265132840d0"
     },
     {
       "analysis": "heggarty2023_main_m3",
@@ -1745,6 +3149,24 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_main_m3:clade:9ce02fa2d82451a0"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_9d2f968205d3bfcfd159ccdf62a0ee6c9adcf029e44a0e9948724ba50d9bd73e",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1157,
+        "mean": 1434,
+        "median": 1447,
+        "probability": 0.95,
+        "upper": 1704
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Nusu_Central_Nusu, Nusu_Northern_Nusu, Nusu_Southern_Nusu)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:9d2f968205d3bfcf"
     },
     {
       "analysis": "heggarty2023_main_m3",
@@ -1855,6 +3277,24 @@
       "subject_id": "heggarty2023_main_m3:clade:a35a39b2dbb136a1"
     },
     {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_a43741d460247478bba7de8c828905e9da740ea8e428491c00df5c3582f0dcbb",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 709,
+        "mean": 810,
+        "median": 811,
+        "probability": 0.95,
+        "upper": 902
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Tibetan_Amdo_Blabrang_Tibetan, Tibetan_Amdo_Zeku_Tibetan, Tibetan_Batang_Tibetan, Tibetan_Jirel_Tibetan, Tibetan_Khams_Tibetan, Tibetan_Lhasa_Tibetan, Tibetan_Xiahe_Tibetan)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:a43741d460247478"
+    },
+    {
       "analysis": "heggarty2023_main_m3",
       "claim_id": "ev_tree_a463c25539261c96d94ab14e53acaa611f938506486f99e0e67659058c2f9585",
       "epoch": 2000,
@@ -1871,6 +3311,60 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_main_m3:clade:a463c25539261c96"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_a5ca10a18eeca6bd56e83f02911d3e9ba01a842c3b3a3ca41f9f7aea9b30b218",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 569,
+        "mean": 842,
+        "median": 844,
+        "probability": 0.95,
+        "upper": 1111
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Lisu_Central_Ngwi, Lisu_Northern_Ngwi, Yi_Nanjian_Ngwi, Yi_Weishan_Ngwi)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:a5ca10a18eeca6bd"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_a6ca3e36820bf31c6bc535d29f695ed147c442d34ef2047873b65a91da7f67c3",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -1906,
+        "mean": -848,
+        "median": -798,
+        "probability": 0.95,
+        "upper": 157
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Hayu_Kiranti, Khaling_Kiranti, Limbu_Kiranti, Sunwar_Kiranti, Thulung_Kiranti)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:a6ca3e36820bf31c"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_a84013dbc68eed2d3c9b15f03df03776e64af9ddbde10c9f190e812b744eba16",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 722,
+        "mean": 1118,
+        "median": 1141,
+        "probability": 0.95,
+        "upper": 1483
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Daofu_rGyalrongic, Ergong_Danba_rGyalrongic)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:a84013dbc68eed2d"
     },
     {
       "analysis": "heggarty2023_main_m3",
@@ -1927,6 +3421,60 @@
       "subject_id": "heggarty2023_main_m3:clade:aa7f6852509e2844"
     },
     {
+      "analysis": "honkola2013_beast",
+      "claim_id": "ev_tree_abc4147990769def23acedd228e6272dc1f895ecabbb9bb833ee3bdecf45a09c",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -239,
+        "mean": -145,
+        "median": -142,
+        "probability": 0.95,
+        "upper": -50
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Nenets, Selkup)",
+      "role": "posterior",
+      "source": "Cultural and climatic changes shape the evolutionary history of the Uralic languages 2013",
+      "subject_id": "honkola2013_beast:clade:abc4147990769def"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_abe016df7b12c90f9997102f537d1432060da6e217e9f29603a6bfbb263e08f7",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -848,
+        "mean": -73,
+        "median": -47,
+        "probability": 0.95,
+        "upper": 561
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Liangmei_Naga, Rongmei_Naga, Tangkhul_Tangkhulic, Zeme_Naga)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:abe016df7b12c90f"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_abf27492a90f1a37b8cb5065c0cad878642aeaded8ea0f75b940fbd32b6dc15d",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 602,
+        "mean": 913,
+        "median": 918,
+        "probability": 0.95,
+        "upper": 1245
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Achang_Lianghe_Burmish, Achang_Longchuan_Burmish, Achang_Luxi_Burmish, Achang_Xiandao_Burmish, Atsi_Zaiwa_Burmish)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:abf27492a90f1a37"
+    },
+    {
       "analysis": "heggarty2023_main_m3",
       "claim_id": "ev_tree_ac17fe201423840647cda213e3786c5611412506374a66b5a55d92bb6a873b45",
       "epoch": 2000,
@@ -1961,6 +3509,42 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_main_m3:clade:adae2190ab228ae7"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_adf97aecd48f4328e9d2234d32cfb893eaa108254f80e94d90fc53c51de6e6c3",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -194,
+        "mean": 224,
+        "median": 240,
+        "probability": 0.95,
+        "upper": 635
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Daofu_rGyalrongic, Ergong_Danba_rGyalrongic, Muya_Minyak_Qiangic, Pumi_Qinghua_Qiangic_Pumi, Pumi_Taoba_Qiangic_Pumi, Qiang_Longxi_Qiangic, Qiang_Mawo_Qiangic, Queyu_Yajiang_Qiangic)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:adf97aecd48f4328"
+    },
+    {
+      "analysis": "honkola2013_beast",
+      "claim_id": "ev_tree_aeb8ae061d2b52156bac7b8a1bea9723a1466a5334bfa705244a552b206f8d09",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1124,
+        "mean": 1490,
+        "median": 1522,
+        "probability": 0.95,
+        "upper": 1790
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Karelian, Veps)",
+      "role": "posterior",
+      "source": "Cultural and climatic changes shape the evolutionary history of the Uralic languages 2013",
+      "subject_id": "honkola2013_beast:clade:aeb8ae061d2b5215"
     },
     {
       "analysis": "heggarty2023_main_m3",
@@ -2017,6 +3601,24 @@
       "subject_id": "heggarty2023_main_m3:clade:b27e995ea96365b2"
     },
     {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_b2d8e5437001b306fd861921846089da587d91d4fb2803df8073acbd9db9c22b",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -1566,
+        "mean": -745,
+        "median": -719,
+        "probability": 0.95,
+        "upper": 23
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Angami_Kohima_Naga, Ao_Chungli_Naga, Ao_Mongsen_Naga, Liangmei_Naga, Lotha_Naga_Naga, Rongmei_Naga, Sangtam_Naga, Sema_Sumi_Naga, Tangkhul_Tangkhulic, Zeme_Naga)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:b2d8e5437001b306"
+    },
+    {
       "analysis": "heggarty2023_main_m3",
       "claim_id": "ev_tree_b378370d9eaa7e97aaba1188d7e79f59cef7e254be6ac37b08205b5bffb15edb",
       "epoch": 2000,
@@ -2053,6 +3655,24 @@
       "subject_id": "heggarty2023_main_m3:clade:b48fb497f0ab2a1a"
     },
     {
+      "analysis": "honkola2013_beast",
+      "claim_id": "ev_tree_b4a19567a52337fc3f4dfff7dfd4076ad99601235866dffc5c4f03b88b9c6cbc",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -3421,
+        "mean": -1992,
+        "median": -1907,
+        "probability": 0.95,
+        "upper": -745
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Estonian, Finnish, Hungarian, Karelian, Khanty, Komi, Livonian, Mansi, Mari, Mordvin, Northern_Sami, Skolt_Sami, Udmurt, Ume_Sami, Veps)",
+      "role": "posterior",
+      "source": "Cultural and climatic changes shape the evolutionary history of the Uralic languages 2013",
+      "subject_id": "honkola2013_beast:clade:b4a19567a52337fc"
+    },
+    {
       "analysis": "heggarty2023_main_m3",
       "claim_id": "ev_tree_b63664727a83c2e333d2b8dc710b80bde0800d0d67c2f154c50c37d85c647bc5",
       "epoch": 2000,
@@ -2071,6 +3691,24 @@
       "subject_id": "heggarty2023_main_m3:clade:b63664727a83c2e3"
     },
     {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_b7041b6ecdc374d269a4d02bdd4c0bbc6f5d029fd4affbaa6381083364414ca3",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -1019,
+        "mean": -296,
+        "median": -273,
+        "probability": 0.95,
+        "upper": 387
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Angami_Kohima_Naga, Liangmei_Naga, Rongmei_Naga, Sema_Sumi_Naga, Tangkhul_Tangkhulic, Zeme_Naga)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:b7041b6ecdc374d2"
+    },
+    {
       "analysis": "heggarty2023_main_m3",
       "claim_id": "ev_tree_b85bf247325d6d8570611ac6fe0be66e68d066c4b6f5cf7314ef254e2314786b",
       "epoch": 2000,
@@ -2087,6 +3725,42 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_main_m3:clade:b85bf247325d6d85"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_b94cf78c3f173f923ad8caa3b7cdfa79b962921459af2d1e3689cadf17df3332",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 234,
+        "mean": 632,
+        "median": 655,
+        "probability": 0.95,
+        "upper": 994
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Pumi_Qinghua_Qiangic_Pumi, Pumi_Taoba_Qiangic_Pumi, Queyu_Yajiang_Qiangic)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:b94cf78c3f173f92"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_b9f10c122a5b208006a48a91279eb4b56cf2bbbe6cb3c4b1eb3c5b094f005b9e",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -2913,
+        "mean": -1928,
+        "median": -1896,
+        "probability": 0.95,
+        "upper": -1065
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Achang_Lianghe_Burmish, Achang_Longchuan_Burmish, Achang_Luxi_Burmish, Achang_Xiandao_Burmish, Atsi_Zaiwa_Burmish, Bola_Luxi_Burmish, Burmese_Spoken_Rangoon_Burmese, Caodeng_rGyalrongic, Cuona_Mama_Bodish, Cuona_Menba_Bodish, Daofu_rGyalrongic, Ergong_Danba_rGyalrongic, Ersu_Ersuish, Gurung_Ghachok_TG, Hani_Caiyuan_Ngwi, Hani_Dazhai_Ngwi, Hani_Gelanghe_Ngwi, Hani_Luchun_Ngwi, Hani_Mojiang_Ngwi, Hani_Shuikui_Ngwi, Jinuo_Youle_Ngwi, Lahu_Lancang_Ngwi_Lahu, Lahu_Yellow_Ngwi_Lahu, Langsu_Luxi_Burmish, Leqi_Luxi_Burmish, Lisu_Central_Ngwi, Lisu_Northern_Ngwi, Lyuzu_Ersuish, Manang_Gyaru_TG, Manang_Prakaa_TG, Marma_Burmese, Mpi_Ngwi, Muya_Minyak_Qiangic, Namuyi_Naic, Naxi_Lijiang_Naic, Naxi_Yongning_Naic, Nusu_Central_Nusu, Nusu_Northern_Nusu, Nusu_Southern_Nusu, Pumi_Qinghua_Qiangic_Pumi, Pumi_Taoba_Qiangic_Pumi, Qiang_Longxi_Qiangic, Qiang_Mawo_Qiangic, Queyu_Yajiang_Qiangic, Tamang_TG, Thakali_TG, Tibetan_Amdo_Blabrang_Tibetan, Tibetan_Amdo_Zeku_Tibetan, Tibetan_Batang_Tibetan, Tibetan_Jirel_Tibetan, Tibetan_Khams_Tibetan, Tibetan_Lhasa_Tibetan, Tibetan_Xiahe_Tibetan, Xumi_Naic, Yi_Dafang_Ngwi, Yi_Mile_Ngwi, Yi_Mojiang_Ngwi, Yi_Nanjian_Ngwi, Yi_Sani_Ngwi, Yi_Weishan_Ngwi, Yi_Wuding_Ngwi, rGyalrong_Maerkang_rGyalrongic)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:b9f10c122a5b2080"
     },
     {
       "analysis": "heggarty2023_main_m3",
@@ -2143,6 +3817,42 @@
       "subject_id": "heggarty2023_main_m3:clade:be973828f8645b72"
     },
     {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_c0964b36bf84c104660131c293ed28abb0946c36b9da5128885e3025c21b31de",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 724,
+        "mean": 1040,
+        "median": 1050,
+        "probability": 0.95,
+        "upper": 1330
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Achang_Lianghe_Burmish, Achang_Longchuan_Burmish, Achang_Luxi_Burmish, Achang_Xiandao_Burmish)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:c0964b36bf84c104"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_c1d619ec4e2198e761f8dd9b7a7e410f73b8ab5027d3f2f521759eb337339281",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 577,
+        "mean": 1029,
+        "median": 1050,
+        "probability": 0.95,
+        "upper": 1487
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Konyak_Sal, Phom_Sal)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:c1d619ec4e2198e7"
+    },
+    {
       "analysis": "heggarty2023_main_m3",
       "claim_id": "ev_tree_c2a04d7c904538caef7e8f521d1c1c027269cdc78a6935e6085d9f1977f3f37b",
       "epoch": 2000,
@@ -2179,6 +3889,42 @@
       "subject_id": "heggarty2023_main_m3:clade:c339e270c5d88678"
     },
     {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_c35824974130f462dde740d2209c2cf98e1ccb09c63bed8bd555f3653088453e",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -3137,
+        "mean": -2010,
+        "median": -2009,
+        "probability": 0.95,
+        "upper": -824
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Apatani_Tani, Bengni_Tani, Bokar_Lhoba_Tani, Darang_Taraon_Diagarish, Idu_Diagarish)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:c35824974130f462"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_c5551b384231f19b810a766447054fbadd7521a395b777c5fd5cdf20bd25c8f2",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -2227,
+        "mean": -1324,
+        "median": -1295,
+        "probability": 0.95,
+        "upper": -448
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Angami_Kohima_Naga, Ao_Chungli_Naga, Ao_Mongsen_Naga, Daai_KukiChin, Khumi_KukiChin, Liangmei_Naga, Lotha_Naga_Naga, Matu_KukiChin, Ngmuun_KukiChin, Rongmei_Naga, Sangtam_Naga, Sema_Sumi_Naga, Tangkhul_Tangkhulic, Thado_KukiChin, Tiddim_KukiChin, Zeme_Naga)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:c5551b384231f19b"
+    },
+    {
       "analysis": "heggarty2023_main_m3",
       "claim_id": "ev_tree_c56c5934cc5d90257696db04c2e358727f13bab572347d111b1989970165fd45",
       "epoch": 2000,
@@ -2195,6 +3941,24 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_main_m3:clade:c56c5934cc5d9025"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_c5c2618292756264c61e2e3f2db066eb0b80ca9814b7083a1988dcec044b8f1e",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 805,
+        "mean": 1119,
+        "median": 1117,
+        "probability": 0.95,
+        "upper": 1458
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Kayan_Pekon_Karenic, Pa_O_Karenic)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:c5c2618292756264"
     },
     {
       "analysis": "heggarty2023_main_m3",
@@ -2251,6 +4015,60 @@
       "subject_id": "heggarty2023_main_m3:clade:ca28fafc172b6612"
     },
     {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_ca8e4e34bd49f86fc4287bae520aef9911978eefb0e107477bc3ab3989346be7",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1426,
+        "mean": 1648,
+        "median": 1665,
+        "probability": 0.95,
+        "upper": 1832
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Bola_Luxi_Burmish, Langsu_Luxi_Burmish)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:ca8e4e34bd49f86f"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_cb92f3e77229ab297edb766dc3dc53b44c2d66f0ab100a3ff999fdcc5097695b",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 552,
+        "mean": 867,
+        "median": 876,
+        "probability": 0.95,
+        "upper": 1164
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Achang_Lianghe_Burmish, Achang_Longchuan_Burmish, Achang_Luxi_Burmish, Achang_Xiandao_Burmish, Atsi_Zaiwa_Burmish, Bola_Luxi_Burmish, Langsu_Luxi_Burmish, Leqi_Luxi_Burmish)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:cb92f3e77229ab29"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_ce0ec1eaf96815931e5ff2701f8431c97bbf42a4a2ae0c4323129c0e02475167",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 881,
+        "mean": 1182,
+        "median": 1194,
+        "probability": 0.95,
+        "upper": 1461
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Yi_Dafang_Ngwi, Yi_Mile_Ngwi, Yi_Mojiang_Ngwi)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:ce0ec1eaf9681593"
+    },
+    {
       "analysis": "heggarty2023_main_m3",
       "claim_id": "ev_tree_cf7d7084526d77e3dc1d3d0364c69c0918640df2c297aba858f5c7c832bb3736",
       "epoch": 2000,
@@ -2267,6 +4085,42 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_main_m3:clade:cf7d7084526d77e3"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_cfd9aad2a203ea1ad7cfc3fab1e72d72609550684156d5d39f8eed3f76b36fd2",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1255,
+        "mean": 1441,
+        "median": 1447,
+        "probability": 0.95,
+        "upper": 1636
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Hani_Dazhai_Ngwi, Hani_Gelanghe_Ngwi, Hani_Luchun_Ngwi)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:cfd9aad2a203ea1a"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_d05abd48d3d5c3b04ccd36d2c20a9c4c9d453e12254cc89c0f2f7be60fdf98ff",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -323,
+        "mean": 111,
+        "median": 124,
+        "probability": 0.95,
+        "upper": 553
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Caodeng_rGyalrongic, Daofu_rGyalrongic, Ergong_Danba_rGyalrongic, Muya_Minyak_Qiangic, Pumi_Qinghua_Qiangic_Pumi, Pumi_Taoba_Qiangic_Pumi, Qiang_Longxi_Qiangic, Qiang_Mawo_Qiangic, Queyu_Yajiang_Qiangic, rGyalrong_Maerkang_rGyalrongic)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:d05abd48d3d5c3b0"
     },
     {
       "analysis": "heggarty2023_main_m3",
@@ -2339,6 +4193,24 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_main_m3:clade:d4f1e300db55f04d"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_d4fc9523ed3738b25d7b610f7ce903fe99f1416009042f9f93ea4720835395b9",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 586,
+        "mean": 843,
+        "median": 843,
+        "probability": 0.95,
+        "upper": 1085
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Hani_Caiyuan_Ngwi, Hani_Dazhai_Ngwi, Hani_Gelanghe_Ngwi, Hani_Luchun_Ngwi, Hani_Mojiang_Ngwi, Hani_Shuikui_Ngwi, Mpi_Ngwi)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:d4fc9523ed3738b2"
     },
     {
       "analysis": "heggarty2023_main_m3",
@@ -2431,6 +4303,24 @@
       "subject_id": "heggarty2023_main_m3:clade:dae243bf1c63a8a0"
     },
     {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_db62711591db536e896fc0f786bfc50dd656f9d140c4a5c27ed7c646c43ad1fd",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -575,
+        "mean": 255,
+        "median": 307,
+        "probability": 0.95,
+        "upper": 988
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Khaling_Kiranti, Thulung_Kiranti)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:db62711591db536e"
+    },
+    {
       "analysis": "heggarty2023_main_m3",
       "claim_id": "ev_tree_dc12434be2de97a4ef58fe8b20ab0dff2337c0bfc4ee3bfba7e07c44c59af208",
       "epoch": 2000,
@@ -2465,6 +4355,24 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_main_m3:clade:dcfdea1224f9bd44"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_dd3971f5054298aa32e955248d9ccf80ecd081ec53accdeeed22f11b55f6ea11",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 448,
+        "mean": 694,
+        "median": 696,
+        "probability": 0.95,
+        "upper": 928
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Lahu_Lancang_Ngwi_Lahu, Lahu_Yellow_Ngwi_Lahu, Lisu_Central_Ngwi, Lisu_Northern_Ngwi, Yi_Nanjian_Ngwi, Yi_Weishan_Ngwi)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:dd3971f5054298aa"
     },
     {
       "analysis": "heggarty2023_main_m3",
@@ -2521,6 +4429,60 @@
       "subject_id": "heggarty2023_main_m3:clade:de7a7c0be3b26ce4"
     },
     {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_df1dc6cf152145925c7cbb038a9049b377acc17d8aa2eb5e7a39b7a40941f230",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -1049,
+        "mean": -800,
+        "median": -798,
+        "probability": 0.95,
+        "upper": -544
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Chinese_Mandarin_Chinese, Chinese_Old_Chinese)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:df1dc6cf15214592"
+    },
+    {
+      "analysis": "honkola2013_beast",
+      "claim_id": "ev_tree_df6c358ded9cdc609428ed7636c30284c86788f0d069ce534f3aacff4353de31",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -2945,
+        "mean": -1331,
+        "median": -1252,
+        "probability": 0.95,
+        "upper": 260
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Hungarian, Khanty, Mansi)",
+      "role": "posterior",
+      "source": "Cultural and climatic changes shape the evolutionary history of the Uralic languages 2013",
+      "subject_id": "honkola2013_beast:clade:df6c358ded9cdc60"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_e018bd18ab0611d6da0f6ee6469af000d9ea2ca97c7905b0fb04f0de6acfc7c8",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -2604,
+        "mean": -1485,
+        "median": -1442,
+        "probability": 0.95,
+        "upper": -534
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Atong_Sal, Bodo_Sal, Chang_Sal, Dimasa_Sal, Garo_Sal, Jingpho_Sal, Konyak_Sal, Phom_Sal, Sak_Sal)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:e018bd18ab0611d6"
+    },
+    {
       "analysis": "heggarty2023_main_m3",
       "claim_id": "ev_tree_e0b330176751bcc89adfec7833747f2de897caf4c162f5d77824159ab8817aea",
       "epoch": 2000,
@@ -2537,6 +4499,42 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_main_m3:clade:e0b330176751bcc8"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_e13e53368039d979c33dcb7f983cd071a55041b3e333bee19704af8cce1ec2b7",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 830,
+        "mean": 1187,
+        "median": 1204,
+        "probability": 0.95,
+        "upper": 1522
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Burmese_Spoken_Rangoon_Burmese, Marma_Burmese)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:e13e53368039d979"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_e2453d6cfc4b1d4ca773ccb431698c1ab7a9d65a0486ef4408ad7947f6af01c1",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1454,
+        "mean": 1682,
+        "median": 1702,
+        "probability": 0.95,
+        "upper": 1858
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Nusu_Northern_Nusu, Nusu_Southern_Nusu)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:e2453d6cfc4b1d4c"
     },
     {
       "analysis": "heggarty2023_main_m3",
@@ -2593,6 +4591,60 @@
       "subject_id": "heggarty2023_main_m3:clade:e4db5f6c47f538eb"
     },
     {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_e57fd31b9bbeb5c303d1bdf6077b49efaa99e41136a37751b14fbff6ef5df8b8",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -55,
+        "mean": 545,
+        "median": 571,
+        "probability": 0.95,
+        "upper": 1080
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Chang_Sal, Konyak_Sal, Phom_Sal)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:e57fd31b9bbeb5c3"
+    },
+    {
+      "analysis": "honkola2013_beast",
+      "claim_id": "ev_tree_e72fdbdca699dc2b3dfe352a22e2335a30e4666f553fb3054778c263820a4829",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -1049,
+        "mean": -566,
+        "median": -575,
+        "probability": 0.95,
+        "upper": -113
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Estonian, Finnish, Karelian, Livonian, Northern_Sami, Skolt_Sami, Ume_Sami, Veps)",
+      "role": "posterior",
+      "source": "Cultural and climatic changes shape the evolutionary history of the Uralic languages 2013",
+      "subject_id": "honkola2013_beast:clade:e72fdbdca699dc2b"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_e7aee71550d9154934fbb28fa80e1bba20ebad7df9a2823be40600215ecf644f",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 367,
+        "mean": 811,
+        "median": 827,
+        "probability": 0.95,
+        "upper": 1220
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Naxi_Lijiang_Naic, Naxi_Yongning_Naic, Xumi_Naic)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:e7aee71550d91549"
+    },
+    {
       "analysis": "heggarty2023_main_m3",
       "claim_id": "ev_tree_e90ae03ddb65354bb0cbbae6a597c096abb95a54d17333c6b92794adcef676fd",
       "epoch": 2000,
@@ -2609,6 +4661,42 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_main_m3:clade:e90ae03ddb65354b"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_e90dd8fe54652207d37b3617ef1441d4d4a59a72b3ca96851937b6ddcea859c6",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 433,
+        "mean": 679,
+        "median": 678,
+        "probability": 0.95,
+        "upper": 930
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Hani_Caiyuan_Ngwi, Hani_Dazhai_Ngwi, Hani_Gelanghe_Ngwi, Hani_Luchun_Ngwi, Hani_Mojiang_Ngwi, Hani_Shuikui_Ngwi, Jinuo_Youle_Ngwi, Mpi_Ngwi)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:e90dd8fe54652207"
+    },
+    {
+      "analysis": "honkola2013_beast",
+      "claim_id": "ev_tree_e95d352cce8f903a79d9ea0711de684aab72a338ea0f2a1b19eecc877648c50d",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -1896,
+        "mean": -974,
+        "median": -924,
+        "probability": 0.95,
+        "upper": -152
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Estonian, Finnish, Karelian, Livonian, Mordvin, Northern_Sami, Skolt_Sami, Ume_Sami, Veps)",
+      "role": "posterior",
+      "source": "Cultural and climatic changes shape the evolutionary history of the Uralic languages 2013",
+      "subject_id": "honkola2013_beast:clade:e95d352cce8f903a"
     },
     {
       "analysis": "heggarty2023_main_m3",
@@ -2665,6 +4753,60 @@
       "subject_id": "heggarty2023_main_m3:clade:eacaa7e1393ccda7"
     },
     {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_eb0669eb1974a332396b339596d224f18282e56ab54702f367a374df61a76c67",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 686,
+        "mean": 1111,
+        "median": 1138,
+        "probability": 0.95,
+        "upper": 1472
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Apatani_Tani, Bengni_Tani, Bokar_Lhoba_Tani)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:eb0669eb1974a332"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_ee79d9295b089c94e1b96ed026a87fd5592d8496118d4e18100b6a0787cdbae8",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 850,
+        "mean": 1246,
+        "median": 1276,
+        "probability": 0.95,
+        "upper": 1572
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Daai_KukiChin, Matu_KukiChin, Ngmuun_KukiChin)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:ee79d9295b089c94"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_efcf8c4df6d117710ee0490258dee84fb17f4cb3793704c7b1520058d687ae19",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -32,
+        "mean": 508,
+        "median": 530,
+        "probability": 0.95,
+        "upper": 1004
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Atong_Sal, Bodo_Sal, Dimasa_Sal, Garo_Sal)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:efcf8c4df6d11771"
+    },
+    {
       "analysis": "heggarty2023_main_m3",
       "claim_id": "ev_tree_f0974aae9ac733ed554c5e936d3193a98daf22603b2aab309126bb2c27bbe17e",
       "epoch": 2000,
@@ -2719,6 +4861,42 @@
       "subject_id": "heggarty2023_main_m3:clade:f42569ce6e9d9bc7"
     },
     {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_f450c7a40400b467ca57a0beb0f9dc65726e45eebf5142096dc26264c33efbb3",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1094,
+        "mean": 1407,
+        "median": 1422,
+        "probability": 0.95,
+        "upper": 1665
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Tibetan_Batang_Tibetan, Tibetan_Khams_Tibetan)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:f450c7a40400b467"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_f4971ea06328059df9b2ef619e6f881e155f05247855120ccf74e615c66ac7f6",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1090,
+        "mean": 1403,
+        "median": 1423,
+        "probability": 0.95,
+        "upper": 1676
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Trung_Dulong_Nungish, Trung_Nujiang_Nungish)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:f4971ea06328059d"
+    },
+    {
       "analysis": "heggarty2023_main_m3",
       "claim_id": "ev_tree_f4eba3c80e1a85ccacd109215bde313f6d7f6015a582aeb2000ed6684c072d2e",
       "epoch": 2000,
@@ -2735,6 +4913,42 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_main_m3:clade:f4eba3c80e1a85cc"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_f69206da50db90b9011be1ba9933277adb0594ed93e1c8467ff725a0c1b5b9af",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -3151,
+        "mean": -2256,
+        "median": -2226,
+        "probability": 0.95,
+        "upper": -1299
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Achang_Lianghe_Burmish, Achang_Longchuan_Burmish, Achang_Luxi_Burmish, Achang_Xiandao_Burmish, Anong_Nungish, Apatani_Tani, Atsi_Zaiwa_Burmish, Bengni_Tani, Bokar_Lhoba_Tani, Bola_Luxi_Burmish, Burmese_Spoken_Rangoon_Burmese, Caodeng_rGyalrongic, Chepang_Himalayan, Cuona_Mama_Bodish, Cuona_Menba_Bodish, Daofu_rGyalrongic, Darang_Taraon_Diagarish, Ergong_Danba_rGyalrongic, Ersu_Ersuish, Gurung_Ghachok_TG, Hani_Caiyuan_Ngwi, Hani_Dazhai_Ngwi, Hani_Gelanghe_Ngwi, Hani_Luchun_Ngwi, Hani_Mojiang_Ngwi, Hani_Shuikui_Ngwi, Hayu_Kiranti, Idu_Diagarish, Jinuo_Youle_Ngwi, Kanauri_Kinauri, Khaling_Kiranti, Lahu_Lancang_Ngwi_Lahu, Lahu_Yellow_Ngwi_Lahu, Langsu_Luxi_Burmish, Leqi_Luxi_Burmish, Limbu_Kiranti, Lisu_Central_Ngwi, Lisu_Northern_Ngwi, Lyuzu_Ersuish, Magar_Himalayan, Manang_Gyaru_TG, Manang_Prakaa_TG, Marma_Burmese, Mpi_Ngwi, Muya_Minyak_Qiangic, Namuyi_Naic, Naxi_Lijiang_Naic, Naxi_Yongning_Naic, Nusu_Central_Nusu, Nusu_Northern_Nusu, Nusu_Southern_Nusu, Pattani_Kinauri, Pumi_Qinghua_Qiangic_Pumi, Pumi_Taoba_Qiangic_Pumi, Qiang_Longxi_Qiangic, Qiang_Mawo_Qiangic, Queyu_Yajiang_Qiangic, Sunwar_Kiranti, Tamang_TG, Thakali_TG, Thulung_Kiranti, Tibetan_Amdo_Blabrang_Tibetan, Tibetan_Amdo_Zeku_Tibetan, Tibetan_Batang_Tibetan, Tibetan_Jirel_Tibetan, Tibetan_Khams_Tibetan, Tibetan_Lhasa_Tibetan, Tibetan_Xiahe_Tibetan, Trung_Dulong_Nungish, Trung_Nujiang_Nungish, Xumi_Naic, Yi_Dafang_Ngwi, Yi_Mile_Ngwi, Yi_Mojiang_Ngwi, Yi_Nanjian_Ngwi, Yi_Sani_Ngwi, Yi_Weishan_Ngwi, Yi_Wuding_Ngwi, rGyalrong_Maerkang_rGyalrongic)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:f69206da50db90b9"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_f707c39fb428064c0aff27d6225977b3a0041e92e5f2cd39c6ca43476298f074",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": 1112,
+        "mean": 1363,
+        "median": 1375,
+        "probability": 0.95,
+        "upper": 1607
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Lahu_Lancang_Ngwi_Lahu, Lahu_Yellow_Ngwi_Lahu)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:f707c39fb428064c"
     },
     {
       "analysis": "heggarty2023_main_m3",
@@ -2879,9 +5093,27 @@
       "role": "posterior",
       "source": "Paul Heggarty et al. 2023",
       "subject_id": "heggarty2023_main_m3:clade:fef8d007b0a4d3f6"
+    },
+    {
+      "analysis": "zhang2019_relaxed_covarion",
+      "claim_id": "ev_tree_ff9f137507695c916abad3cf7e0f95a328f518ba53613895c043acf60de09417",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "hpd",
+        "lower": -271,
+        "mean": 472,
+        "median": 510,
+        "probability": 0.95,
+        "upper": 1128
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Angami_Kohima_Naga, Sema_Sumi_Naga)",
+      "role": "posterior",
+      "source": "Menghan Zhang et al. 2019",
+      "subject_id": "zhang2019_relaxed_covarion:clade:ff9f137507695c91"
     }
   ],
-  "generation": "b3db229ba05ddf07ab6eaa184d3f5187ddf637a0c16204ed0fe47bcda012135b",
+  "generation": "d8128856379e34299fac1e04933c79ec34e57429fd7ec6f185a9c2f1d8a5608e",
   "languages": [
     {
       "alternatives": [],
@@ -6768,6 +9000,66 @@
       }
     },
     {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "sit-pro",
+      "evidence": [
+        {
+          "citation": "Phylogenetic evidence for Sino-Tibetan origin in northern China in the Late Neolithic",
+          "claim_id": "ev_tree_21992f370f441f5f7e63fa84bb8b389cf6f074aec49c4f7e236031a6d3f1883c",
+          "event": "crown_divergence",
+          "locator": null,
+          "node": "MRCA(Achang_Lianghe_Burmish, Achang_Longchuan_Burmish, Achang_Luxi_Burmish, Achang_Xiandao_Burmish, Angami_Kohima_Naga, Anong_Nungish, Ao_Chungli_Naga, Ao_Mongsen_Naga, Apatani_Tani, Atong_Sal, Atsi_Zaiwa_Burmish, Bengni_Tani, Bodo_Sal, Bokar_Lhoba_Tani, Bola_Luxi_Burmish, Burmese_Spoken_Rangoon_Burmese, Caodeng_rGyalrongic, Chang_Sal, Chepang_Himalayan, Chinese_Mandarin_Chinese, Chinese_Old_Chinese, Cuona_Mama_Bodish, Cuona_Menba_Bodish, Daai_KukiChin, Daofu_rGyalrongic, Darang_Taraon_Diagarish, Dimasa_Sal, Ergong_Danba_rGyalrongic, Ersu_Ersuish, Garo_Sal, Gurung_Ghachok_TG, Hani_Caiyuan_Ngwi, Hani_Dazhai_Ngwi, Hani_Gelanghe_Ngwi, Hani_Luchun_Ngwi, Hani_Mojiang_Ngwi, Hani_Shuikui_Ngwi, Hayu_Kiranti, Idu_Diagarish, Jingpho_Sal, Jinuo_Youle_Ngwi, Kanauri_Kinauri, Karen_Karenic, Kayan_Pekon_Karenic, Khaling_Kiranti, Khumi_KukiChin, Konyak_Sal, Lahu_Lancang_Ngwi_Lahu, Lahu_Yellow_Ngwi_Lahu, Langsu_Luxi_Burmish, Leqi_Luxi_Burmish, Liangmei_Naga, Limbu_Kiranti, Lisu_Central_Ngwi, Lisu_Northern_Ngwi, Lotha_Naga_Naga, Lyuzu_Ersuish, Magar_Himalayan, Manang_Gyaru_TG, Manang_Prakaa_TG, Marma_Burmese, Matu_KukiChin, Mpi_Ngwi, Muya_Minyak_Qiangic, Namuyi_Naic, Naxi_Lijiang_Naic, Naxi_Yongning_Naic, Ngmuun_KukiChin, Nusu_Central_Nusu, Nusu_Northern_Nusu, Nusu_Southern_Nusu, Pa_O_Karenic, Pattani_Kinauri, Phom_Sal, Pumi_Qinghua_Qiangic_Pumi, Pumi_Taoba_Qiangic_Pumi, Qiang_Longxi_Qiangic, Qiang_Mawo_Qiangic, Queyu_Yajiang_Qiangic, Rongmei_Naga, Sak_Sal, Sangtam_Naga, Sema_Sumi_Naga, Sunwar_Kiranti, Tamang_TG, Tangkhul_Tangkhulic, Thado_KukiChin, Thakali_TG, Thulung_Kiranti, Tibetan_Amdo_Blabrang_Tibetan, Tibetan_Amdo_Zeku_Tibetan, Tibetan_Batang_Tibetan, Tibetan_Jirel_Tibetan, Tibetan_Khams_Tibetan, Tibetan_Lhasa_Tibetan, Tibetan_Xiahe_Tibetan, Tiddim_KukiChin, Trung_Dulong_Nungish, Trung_Nujiang_Nungish, Xumi_Naic, Yi_Dafang_Ngwi, Yi_Mile_Ngwi, Yi_Mojiang_Ngwi, Yi_Nanjian_Ngwi, Yi_Sani_Ngwi, Yi_Weishan_Ngwi, Yi_Wuding_Ngwi, Zeme_Naga, rGyalrong_Maerkang_rGyalrongic)",
+          "proto_mapping": "The root: its 109 sampled descendants include Sinitic (Old Chinese, Mandarin) and every Tibeto-Burman subgroup sampled, so its crown is the breakup of Proto-Sino-Tibetan.",
+          "quote": null,
+          "role": "posterior",
+          "source": "Menghan Zhang et al. 2019",
+          "url": "https://doi.org/10.1038/s41586-019-1153-z"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 5868/2234 BCE",
+      "name": "Proto-Sino-Tibetan",
+      "spoken": {
+        "end": {
+          "earliest": -5867,
+          "latest": -2233
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "sit-tam-pro",
+      "evidence": [
+        {
+          "citation": "Phylogenetic evidence for Sino-Tibetan origin in northern China in the Late Neolithic",
+          "claim_id": "ev_tree_21c18645c3270758d0210e09f703513da67d586499edf9527e419e2c2b862ef3",
+          "event": "crown_divergence",
+          "locator": null,
+          "node": "MRCA(Gurung_Ghachok_TG, Manang_Gyaru_TG, Manang_Prakaa_TG, Tamang_TG, Thakali_TG)",
+          "proto_mapping": "The clade contains Tamang, Gurung, Thakali and Manang (Gyaru, Prakaa): the Tamangic languages. Support 1.0.",
+          "quote": null,
+          "role": "posterior",
+          "source": "Menghan Zhang et al. 2019",
+          "url": "https://doi.org/10.1038/s41586-019-1153-z"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 278/1193 CE",
+      "name": "Proto-Tamangic",
+      "spoken": {
+        "end": {
+          "earliest": 278,
+          "latest": 1193
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
       "alternatives": [
         {
           "basis": "estimated",
@@ -6810,6 +9102,36 @@
         "end": {
           "earliest": 800,
           "latest": 1000
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "smi-pro",
+      "evidence": [
+        {
+          "citation": "Cultural and climatic changes shape the evolutionary history of the Uralic languages",
+          "claim_id": "ev_tree_942a95830fb9568c5aa1e802e20b96e8d17d56a6cbbc2e432e2d8b98953ef6eb",
+          "event": "crown_divergence",
+          "locator": null,
+          "node": "MRCA(Northern_Sami, Skolt_Sami, Ume_Sami)",
+          "proto_mapping": "The clade contains Eastern (Skolt) and Western Saami (North, Ume). Support 1.0; not a calibrated node.",
+          "quote": null,
+          "role": "posterior",
+          "source": "Cultural and climatic changes shape the evolutionary history of the Uralic languages 2013",
+          "url": "https://bedlan.net/wp-content/uploads/2019/05/honkola_et_al_2013_cultural_and_climatic.pdf"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 632/1592 CE",
+      "name": "Proto-Samic",
+      "spoken": {
+        "end": {
+          "earliest": 632,
+          "latest": 1592
         },
         "ongoing": false,
         "start": null
@@ -6962,6 +9284,96 @@
     },
     {
       "alternatives": [],
+      "basis": "estimated",
+      "code": "tbq-brm-pro",
+      "evidence": [
+        {
+          "citation": "Phylogenetic evidence for Sino-Tibetan origin in northern China in the Late Neolithic",
+          "claim_id": "ev_tree_07c333adb3cfa7cae744e92424fe48da1df4c9b51fd9ee2477a59bb924fc99df",
+          "event": "crown_divergence",
+          "locator": null,
+          "node": "MRCA(Achang_Lianghe_Burmish, Achang_Longchuan_Burmish, Achang_Luxi_Burmish, Achang_Xiandao_Burmish, Atsi_Zaiwa_Burmish, Bola_Luxi_Burmish, Burmese_Spoken_Rangoon_Burmese, Langsu_Luxi_Burmish, Leqi_Luxi_Burmish, Marma_Burmese)",
+          "proto_mapping": "The clade contains Burmese (Rangoon, Marma) and the Northern Burmish languages (Achang, Atsi/Zaiwa, Bola, Langsu, Leqi). Support 0.98.",
+          "quote": null,
+          "role": "posterior",
+          "source": "Menghan Zhang et al. 2019",
+          "url": "https://doi.org/10.1038/s41586-019-1153-z"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 159/966 CE",
+      "name": "Proto-Burmish",
+      "spoken": {
+        "end": {
+          "earliest": 159,
+          "latest": 966
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "tbq-kuk-pro",
+      "evidence": [
+        {
+          "citation": "Phylogenetic evidence for Sino-Tibetan origin in northern China in the Late Neolithic",
+          "claim_id": "ev_tree_50318dec1865926eeb5984e5cac03b5543b718e7820d40c998f264e2334160b5",
+          "event": "crown_divergence",
+          "locator": null,
+          "node": "MRCA(Daai_KukiChin, Khumi_KukiChin, Matu_KukiChin, Ngmuun_KukiChin, Thado_KukiChin, Tiddim_KukiChin)",
+          "proto_mapping": "The clade contains Northern (Thado), Central/Peripheral (Tiddim) and Southern Kuki-Chin (Daai, Khumi, Matu, Ngmuun). Support 1.0.",
+          "quote": null,
+          "role": "posterior",
+          "source": "Menghan Zhang et al. 2019",
+          "url": "https://doi.org/10.1038/s41586-019-1153-z"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 695 BCE/722 CE",
+      "name": "Proto-Kuki-Chin",
+      "spoken": {
+        "end": {
+          "earliest": -694,
+          "latest": 722
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "tbq-lob-pro",
+      "evidence": [
+        {
+          "citation": "Phylogenetic evidence for Sino-Tibetan origin in northern China in the Late Neolithic",
+          "claim_id": "ev_tree_3d8755044766774504e5c8a156ccf5c1266a59b9d93a9d10484c3de31c60606a",
+          "event": "crown_divergence",
+          "locator": null,
+          "node": "MRCA(Achang_Lianghe_Burmish, Achang_Longchuan_Burmish, Achang_Luxi_Burmish, Achang_Xiandao_Burmish, Atsi_Zaiwa_Burmish, Bola_Luxi_Burmish, Burmese_Spoken_Rangoon_Burmese, Hani_Caiyuan_Ngwi, Hani_Dazhai_Ngwi, Hani_Gelanghe_Ngwi, Hani_Luchun_Ngwi, Hani_Mojiang_Ngwi, Hani_Shuikui_Ngwi, Jinuo_Youle_Ngwi, Lahu_Lancang_Ngwi_Lahu, Lahu_Yellow_Ngwi_Lahu, Langsu_Luxi_Burmish, Leqi_Luxi_Burmish, Lisu_Central_Ngwi, Lisu_Northern_Ngwi, Marma_Burmese, Mpi_Ngwi, Nusu_Central_Nusu, Nusu_Northern_Nusu, Nusu_Southern_Nusu, Yi_Dafang_Ngwi, Yi_Mile_Ngwi, Yi_Mojiang_Ngwi, Yi_Nanjian_Ngwi, Yi_Sani_Ngwi, Yi_Weishan_Ngwi, Yi_Wuding_Ngwi)",
+          "proto_mapping": "The clade contains Burmish (Burmese, Achang, Atsi, Bola, Langsu, Leqi) and Loloish (Ngwi: Yi, Hani, Lisu, Jinuo, Mpi; Lahu; Nusu): both branches of Lolo-Burmese. Support 1.0.",
+          "quote": null,
+          "role": "posterior",
+          "source": "Menghan Zhang et al. 2019",
+          "url": "https://doi.org/10.1038/s41586-019-1153-z"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 380 BCE/380 CE",
+      "name": "Proto-Lolo-Burmese",
+      "spoken": {
+        "end": {
+          "earliest": -379,
+          "latest": 380
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
       "basis": "attested",
       "code": "txb",
       "evidence": [
@@ -7030,6 +9442,66 @@
           "earliest": -1299,
           "latest": -1299
         }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "urj-fin-pro",
+      "evidence": [
+        {
+          "citation": "Cultural and climatic changes shape the evolutionary history of the Uralic languages",
+          "claim_id": "ev_tree_04c94a172f161426cb5ef8b20da6bb0a6be5ef8794104622b7271d923cf6e544",
+          "event": "crown_divergence",
+          "locator": null,
+          "node": "MRCA(Estonian, Finnish, Karelian, Livonian, Veps)",
+          "proto_mapping": "The clade contains northern (Finnish, Karelian, Veps) and southern Finnic (Estonian, Livonian). Support 1.0; not a calibrated node.",
+          "quote": null,
+          "role": "posterior",
+          "source": "Cultural and climatic changes shape the evolutionary history of the Uralic languages 2013",
+          "url": "https://bedlan.net/wp-content/uploads/2019/05/honkola_et_al_2013_cultural_and_climatic.pdf"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 108/1263 CE",
+      "name": "Proto-Finnic",
+      "spoken": {
+        "end": {
+          "earliest": 108,
+          "latest": 1263
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "urj-pro",
+      "evidence": [
+        {
+          "citation": "Cultural and climatic changes shape the evolutionary history of the Uralic languages",
+          "claim_id": "ev_tree_03f80525ffe69ed2e632653ef3a89f11a81b7d4631e2674f2a114e41190046a6",
+          "event": "crown_divergence",
+          "locator": null,
+          "node": "MRCA(Estonian, Finnish, Hungarian, Karelian, Khanty, Komi, Livonian, Mansi, Mari, Mordvin, Nenets, Northern_Sami, Selkup, Skolt_Sami, Udmurt, Ume_Sami, Veps)",
+          "proto_mapping": "The root: its 17 sampled descendants include Samoyed (Nenets, Selkup), Ugric (Hungarian, Khanty, Mansi), Permic, Mari, Mordvin, Saami and Finnic, so its crown is the breakup of Proto-Uralic.",
+          "quote": null,
+          "role": "posterior",
+          "source": "Cultural and climatic changes shape the evolutionary history of the Uralic languages 2013",
+          "url": "https://bedlan.net/wp-content/uploads/2019/05/honkola_et_al_2013_cultural_and_climatic.pdf"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 5554/1381 BCE",
+      "name": "Proto-Uralic",
+      "spoken": {
+        "end": {
+          "earliest": -5553,
+          "latest": -1380
+        },
+        "ongoing": false,
+        "start": null
       }
     },
     {
