@@ -19,12 +19,13 @@ in the `packages/dating` registry.
   rebuilds; language codes replace numeric IDs.
 - **Deployment:** pushing `main` deploys the server, then the website
   ([deploy/README.md](deploy/README.md)). Untested on the host.
-- **Dates:** 300 codes show a cited period (14 before this branch); 93% of the tree
-  items in past-stage languages are dated. 114 proto-languages carry an estimated
+- **Dates:** 321 codes show a cited period (14 before this branch); 93% of the tree
+  items in past-stage languages are dated. 123 proto-languages carry an estimated
   end, labeled with its method and the source's reported mean or median: 46 Bayesian
-  phylogenies, 46 lexicostatistical (ASJP points give way to family-specific
-  estimates as found), 22 expert or archaeological estimates. Revived languages end at
-  their last native speakers with a cited "being revived" beside. Checked in the browser.
+  phylogenies, 49 lexicostatistical (ASJP points give way to family-specific
+  estimates as found), 28 expert, comparative or archaeological estimates. Revived
+  languages end at their last native speakers with a cited "being revived" beside.
+  Checked in the browser.
 - **Sources:** holdings carry tables of contents, also as Zotero child notes tagged
   `wety:contents`.
 
@@ -47,8 +48,8 @@ in the `packages/dating` registry.
 
 ## Next three actions
 
-1. Further proto rounds for the ~125 codes still undated or ASJP-only (each round
-   adds 5–10), and the historical/extinct tail under 15 tree items.
+1. After the ChatGPT limit resets (given as 2026-10-13): rerun round 5B's codes
+   (it stopped early), then further proto rounds and the tail under 8 tree items.
 2. Supply the Zotero requests (`wety:needs-fulltext`), then `dating holdings sync`.
 3. Maintainer: one-time deployment setup ([deploy/README.md](deploy/README.md)).
 
