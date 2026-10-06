@@ -51,7 +51,8 @@ pub(crate) struct EmbeddingNeeds {
 pub(crate) struct Items {
     pub(crate) graph: EtyGraph,
     pub(crate) dupes: Dupes,
-    pub(crate) page_term_dupes: Dupes,
+    // (lang, page title) -> every real item on that page
+    pub(crate) pages: Dupes,
     pub(crate) imputed_dupes: Dupes,
     pub(crate) ids: Ids,
     pub(crate) entry_names: EntryNames,
@@ -76,7 +77,7 @@ impl Items {
         Ok(Self {
             graph: EtyGraph::default(),
             dupes: Dupes::default(),
-            page_term_dupes: Dupes::default(),
+            pages: Dupes::default(),
             imputed_dupes: Dupes::default(),
             ids: Ids::default(),
             entry_names: EntryNames::default(),
@@ -129,8 +130,8 @@ impl Items {
         self.graph.add(item)
     }
 
-    fn add_page_term_dupe(&mut self, page_langterm: LangTerm, id: ItemId) {
-        match self.page_term_dupes.entry(page_langterm) {
+    fn add_page_item(&mut self, page_langterm: LangTerm, id: ItemId) {
+        match self.pages.entry(page_langterm) {
             Entry::Occupied(mut e) => e.get_mut().push(id),
             Entry::Vacant(e) => {
                 e.insert(vec![id]);
@@ -142,7 +143,7 @@ impl Items {
     // got merged into an existing item and hence the ItemId is old
     pub(crate) fn add_real(&mut self, mut item: RealItem) -> (ItemId, bool) {
         let langterm = LangTerm::new(item.lang, item.term);
-        let page_langterm = item.page_term.map(|pt| LangTerm::new(item.lang, pt));
+        let page_langterm = LangTerm::new(item.lang, item.page_term.unwrap_or(item.term));
         // If we've seen this langterm before...
         if let Some(dupes) = self.dupes.get(&langterm) {
             let mut max_ety = 0;
@@ -186,17 +187,13 @@ impl Items {
                 .get_mut(&langterm)
                 .expect("already found")
                 .push(id);
-            if let Some(page_langterm) = page_langterm {
-                self.add_page_term_dupe(page_langterm, id);
-            }
+            self.add_page_item(page_langterm, id);
             return (id, true);
         }
         // A langterm that hasn't been seen yet
         let id = self.add(Item::Real(item));
         self.dupes.insert(langterm, vec![id]);
-        if let Some(page_langterm) = page_langterm {
-            self.add_page_term_dupe(page_langterm, id);
-        }
+        self.add_page_item(page_langterm, id);
         (id, true)
     }
 
@@ -281,7 +278,7 @@ impl Items {
     // title), then under the page title its language's entry-name rules give
     // (la mātrīx -> matrix), then through a redirect. Etymology-only languages
     // are looked up under their full language.
-    fn lookup_langterms(&self, langterm: LangTerm) -> impl Iterator<Item = LangTerm> {
+    fn lookup_langterms(&self, langterm: LangTerm) -> [LangTerm; 3] {
         let lang = langterm.lang.ety2non();
         let title = self
             .entry_names
@@ -294,22 +291,25 @@ impl Items {
             LangTerm::new(lang, title),
             redirect,
         ]
-        .into_iter()
     }
 
     // The item that a reference "lang:term<id:...>" (or id=) names.
     pub(crate) fn get_id_item(&self, langterm: LangTerm, id: &str) -> Option<ItemId> {
         self.lookup_langterms(langterm)
+            .into_iter()
             .find_map(|lt| self.ids.get(&(lt, Box::from(id))).copied())
     }
 
-    // The items a cited langterm may name (several for homographs).
+    // The items a cited langterm may name (several for homographs): those
+    // whose headword it spells out, where it is more than the page title (e.g.
+    // Latin mālum, not malum), else every item on the page it links to.
     pub(crate) fn candidates(&self, langterm: LangTerm) -> Option<&Vec<ItemId>> {
-        self.lookup_langterms(langterm).find_map(|lt| {
-            self.dupes
-                .get(&lt)
-                .or_else(|| self.page_term_dupes.get(&lt))
-        })
+        let [written, title, redirect] = self.lookup_langterms(langterm);
+        (written != title)
+            .then(|| self.dupes.get(&written))
+            .flatten()
+            .or_else(|| [written, title, redirect].iter().find_map(|lt| self.pages.get(lt)))
+            .or_else(|| [written, title, redirect].iter().find_map(|lt| self.dupes.get(lt)))
     }
 
 }

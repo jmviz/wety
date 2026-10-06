@@ -2885,6 +2885,7 @@ dependencies = [
  "sled",
  "snmalloc-rs",
  "tokenizers",
+ "unicode-normalization",
  "wety-core",
  "xxhash-rust",
 ]

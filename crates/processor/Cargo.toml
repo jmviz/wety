@@ -13,6 +13,7 @@ anyhow = {workspace = true}
 indicatif = "0.17.0"
 clap = { version = "3.2.17", features = ["derive"] }
 regex = "1.7.1"
+unicode-normalization = "0.1.22"
 itertools = "0.10.5"
 serde = {workspace = true}
 serde_json = {workspace = true}

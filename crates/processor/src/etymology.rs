@@ -1035,6 +1035,11 @@ mod tests {
             }
 
             fn add(&mut self, lang: &str, term: &str) -> ItemId {
+                self.add_on_page(lang, term, None)
+            }
+
+            // an item whose headword differs from its page title
+            fn add_on_page(&mut self, lang: &str, term: &str, page: Option<&str>) -> ItemId {
                 let item = RealItem {
                     ety_num: 1,
                     ety_label: None,
@@ -1042,7 +1047,7 @@ mod tests {
                     term: Term::new(&mut self.sp, term),
                     pos: vec![Pos::from_str("noun").unwrap()],
                     gloss: vec![Gloss::new(&mut self.sp, "x")],
-                    page_term: None,
+                    page_term: page.map(|page| Term::new(&mut self.sp, page)),
                     romanization: None,
                     is_reconstructed: false,
                 };
@@ -1254,6 +1259,62 @@ mod tests {
             t.process(free, r#"[{"name": "inh", "args": {"1": "en", "2": "enm", "3": "fre"}},
                 {"name": "inh", "args": {"1": "en", "2": "ang", "3": "frēo"}}]"#);
             assert_eq!(t.parent(free), fre);
+        }
+
+        #[test]
+        fn candidates_are_the_homographs_on_the_page() {
+            // Middle Dutch "dië" (thigh) has its headword on the page "die"
+            let mut t = Setup::new("page");
+            t.add("odt", "thie");
+            t.add("odt", "thio");
+            let that = t.add_glossed("dum", "die", "that, those");
+            t.record(that, r#"[{"name": "inh", "args": {"1": "dum", "2": "odt", "3": "thie"}}]"#);
+            let thigh = t.add_on_page("dum", "dië", Some("die"));
+            t.record(thigh, r#"[{"name": "inh", "args": {"1": "dum", "2": "odt", "3": "thio", "4": "thīo"}}]"#);
+            let dij = t.add_glossed("nl", "dij", "thigh");
+            t.process(dij, r#"[{"name": "inh", "args": {"1": "nl", "2": "dum", "3": "die"}},
+                {"name": "inh", "args": {"1": "nl", "2": "odt", "3": "*thio"}}]"#);
+            assert_eq!(t.parent(dij), thigh);
+        }
+
+        #[test]
+        fn only_an_entry_s_own_etymology_contradicts() {
+            let mut t = Setup::new("contradicts");
+            // a link from another entry's Descendants list
+            t.add("trk-pro", "*bȫrü");
+            let flea = t.add("trk-pro", "*bürgä");
+            let wolf = t.add("tt", "бүре");
+            t.items.graph.add_ety(wolf, EtyMode::Inherited, Some(0), &[flea], &[1.0]);
+            let mari = t.add("mhr", "пире");
+            t.process(mari, r#"[{"name": "bor", "args": {"1": "mhr", "2": "tt", "3": "бүре"}},
+                {"name": "der", "args": {"1": "mhr", "2": "trk-pro", "3": "*bȫrü"}}]"#);
+            assert_eq!(t.parent(mari), wolf);
+            // spellings that differ only in diacritics or hyphens
+            t.add("goh", "selah");
+            t.add("goh", "sëlah");
+            let sele = t.add("gmh", "sële");
+            t.record(sele, r#"[{"name": "inh", "args": {"1": "gmh", "2": "goh", "3": "sëlah"}}]"#);
+            let seehund = t.add("de", "Seehund");
+            t.process(seehund, r#"[{"name": "der", "args": {"1": "de", "2": "gmh", "3": "sële"}},
+                {"name": "der", "args": {"1": "de", "2": "goh", "3": "selah"}}]"#);
+            assert_eq!(t.parents(seehund), ["gmh:sële"]);
+            t.add("la", "ad-");
+            t.add("la", "ad");
+            let a = t.add("fro", "a-");
+            t.record(a, r#"[{"name": "inh", "args": {"1": "fro", "2": "la", "3": "ad-"}}]"#);
+            let amolir = t.add("enm", "amolisshen");
+            t.process(amolir, r#"[{"name": "der", "args": {"1": "enm", "2": "fro", "3": "a-"}},
+                {"name": "der", "args": {"1": "enm", "2": "la", "3": "ad"}}]"#);
+            assert_eq!(t.parents(amolir), ["fro:a-"]);
+            // a root names a family, not the next step
+            t.add("ine-pro", "*bʰer-");
+            t.add("ine-pro", "*bʰerǵ-");
+            let frigo = t.add("la", "frīgō");
+            t.record(frigo, r#"[{"name": "der", "args": {"1": "la", "2": "ine-pro", "3": "*bʰerǵ-"}}]"#);
+            let frighere = t.add("sc", "frighere");
+            t.process(frighere, r#"[{"name": "inh", "args": {"1": "sc", "2": "la", "3": "frīgō"}},
+                {"name": "der", "args": {"1": "sc", "2": "ine-pro", "3": "*bʰer-"}}]"#);
+            assert_eq!(t.parents(frighere), ["la:frīgō"]);
         }
 
         #[test]

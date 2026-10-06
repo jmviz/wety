@@ -33,6 +33,7 @@ use wety_core::{
 };
 
 use anyhow::{Ok, Result};
+use unicode_normalization::UnicodeNormalization;
 
 // how many etymology steps to follow when relating two terms
 const DEPTH: usize = 3;
@@ -103,6 +104,17 @@ const STOPWORDS: [&str; 24] = [
     "a", "an", "the", "to", "of", "or", "and", "in", "on", "for", "with", "by", "from", "as",
     "at", "be", "is", "one", "someone", "something", "that", "which", "who", "its",
 ];
+
+// A term's letters only: no diacritics, asterisks or hyphens (Old High
+// German sëlah and selah, Latin ad- and ad).
+fn folded(string_pool: &StringPool, key: LangTerm) -> String {
+    key.term
+        .resolve(string_pool)
+        .nfd()
+        .filter(|c| c.is_alphanumeric())
+        .flat_map(char::to_lowercase)
+        .collect()
+}
 
 fn gloss_words<'a>(text: impl Iterator<Item = &'a str>) -> HashSet<String> {
     text.flat_map(|t| t.split(|c: char| !c.is_alphanumeric()))
@@ -263,23 +275,28 @@ impl Items {
         !words(a).is_disjoint(&words(b))
     }
 
-    // A candidate contradicts the citation if its etymology names terms in the
-    // language of `expected`, all of them existing, unrelated to it and unlike
-    // it in meaning.
+    // A candidate contradicts the citation if its own etymology names terms in
+    // the language of `expected`, all of them existing, unrelated to it, unlike
+    // it in meaning and not merely spelled differently. (Links made from other
+    // entries' Descendants lists are no such statement.) A root names a family,
+    // not the next step, so contradicts nothing.
     fn contradicts(&self, string_pool: &StringPool, candidate: ItemId, expected: LangTerm) -> bool {
+        if expected.term.resolve(string_pool).ends_with('-') && expected.lang.is_reconstructed() {
+            return false;
+        }
         let same_lang: Vec<LangTerm> = self
-            .source_keys(candidate)
-            .into_iter()
+            .ety_mentions(candidate)
+            .iter()
+            .copied()
             .filter(|m| m.lang == expected.lang)
             .collect();
         !same_lang.is_empty()
-            && same_lang
-                .iter()
-                .all(|&m| {
-                    self.candidates(m).is_some()
-                        && !self.related(m, expected)
-                        && !self.alike(string_pool, m, expected)
-                })
+            && same_lang.iter().all(|&m| {
+                self.candidates(m).is_some()
+                    && folded(string_pool, m) != folded(string_pool, expected)
+                    && !self.related(m, expected)
+                    && !self.alike(string_pool, m, expected)
+            })
     }
 
     fn agrees(&self, candidate: ItemId, citation: &Citation, citer_keys: &[LangTerm]) -> bool {
