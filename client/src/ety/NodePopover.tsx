@@ -251,6 +251,13 @@ function PeriodSection(props: { period: LangPeriod }) {
       <div>
         <span class="period-head">{props.period.lang.name} spoken</span>{" "}
         <span class="period-label">{props.period.label}</span>{" "}
+        <Show when={props.period.estimate}>
+          {(e) => (
+            <span class="popover-muted">
+              ({e().statistic}; {e().interval}){" "}
+            </span>
+          )}
+        </Show>
         <span class="period-basis">· {BASIS_NAME[props.period.basis]}</span>
       </div>
       <ul class="period-cites">
@@ -283,7 +290,16 @@ function PeriodSection(props: { period: LangPeriod }) {
           <For each={props.period.alternatives}>
             {(a) => (
               <li title={a.citation ?? undefined}>
-                <span class="period-label">{a.label}</span> · {cite(a)}
+                <span class="period-label">{a.label}</span>
+                <Show when={a.estimate}>
+                  {(e) => (
+                    <span class="popover-muted">
+                      {" "}
+                      ({e().statistic}; {e().interval})
+                    </span>
+                  )}
+                </Show>{" "}
+                · {cite(a)}
                 <Show when={a.note}>
                   <div class="popover-muted">{a.note}</div>
                 </Show>

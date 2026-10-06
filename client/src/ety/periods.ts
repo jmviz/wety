@@ -27,9 +27,19 @@ export interface PeriodEvidence {
   note?: string;
 }
 
+// A posterior's central value as its source reports it (mean or median) and its
+// interval; the label names the central value.
+export interface Estimate {
+  statistic: "mean" | "median";
+  value: number;
+  text: string;
+  interval: string;
+}
+
 export interface Alternative extends PeriodEvidence {
   basis: Basis;
   label: string | null;
+  estimate?: Estimate;
 }
 
 export interface SpanComponent {
@@ -54,6 +64,7 @@ export interface LangPeriod {
   spoken: { start: YearRange | null; end: YearRange | null; ongoing: boolean };
   basis: Basis;
   label: string;
+  estimate?: Estimate;
   evidence: PeriodEvidence[];
   alternatives: Alternative[];
   span?: Span;

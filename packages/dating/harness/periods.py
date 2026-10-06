@@ -80,6 +80,34 @@ def event_range(claim):
     return (t["lower"], t["upper"])
 
 
+def estimate(claim):
+    """The central value a distribution's source reports (its mean when it reports a
+    mean, else its median), with the interval, for labels; never a midpoint computed
+    here. None when the source gives only an interval or a statistic the registry does
+    not keep (a mode)."""
+    t = claim["time"]
+    if t["form"] != "distribution" or t.get("lower") is None or t.get("upper") is None:
+        return None
+    statistic = (
+        "mean" if t.get("mean") is not None else "median" if t.get("median") is not None else None
+    )
+    if statistic is None:
+        return None
+    rounded = counted_back(claim)
+    kind = {"hpd": "HPD", "equal_tailed": "interval", "reported_range": "range"}.get(
+        t.get("interval_type"), "interval"
+    )
+    p = t.get("probability")
+    span = label((t["lower"], t["lower"]), (t["upper"], t["upper"]), rounded=rounded)
+    text, era = era_year(t[statistic], rounded)
+    return {
+        "statistic": statistic,
+        "value": t[statistic],
+        "text": f"{text} {era}",
+        "interval": (f"{round(p * 100)}% " if p else "") + f"{kind} {span}",
+    }
+
+
 def crown_end(claim):
     """A proto-language ends when its sampled descendants split: the crown age's
     interval (or its central value) is the uncertain end; no start is implied."""
@@ -212,6 +240,7 @@ def interval(claims):
     """spoken interval from the claims of one code: a period, or two attestation events."""
     by_event = {c["event"]: c for c in claims}
     period = next((by_event[e] for e in PERIOD_EVENTS if e in by_event), None)
+    central = None
     if period:
         start, end = ranges(period)
         if period["time"]["form"] == "point":  # one dated record: "known only from 1867"
@@ -225,6 +254,7 @@ def interval(claims):
         used = [crown]
         ongoing = False
         approximate = True
+        central = estimate(crown)
     else:
         first, last = (by_event.get(e) for e in ATTESTATION_EVENTS)
         # A language ends when its last native speakers die (Dalmatian, 1898): an
@@ -259,6 +289,7 @@ def interval(claims):
         "approximate": approximate,
         "rounded": any(counted_back(c) for c in used),
         "claims": used,
+        "estimate": central if "crown_divergence" in by_event and not period else None,
     }
 
 
@@ -284,13 +315,18 @@ def period_record(code, claims, alternatives, view, sources):
             "ongoing": spoken["ongoing"],
         },
         "basis": b,
-        "label": label(
+        # A posterior's reported central value names the end; its interval stays the
+        # end's range and is shown beside it.
+        "label": f"until c. {spoken['estimate']['text']}"
+        if spoken.get("estimate")
+        else label(
             spoken["start"],
             spoken["end"],
             spoken["ongoing"],
             spoken["approximate"],
             spoken["rounded"],
         ),
+        **({"estimate": spoken["estimate"]} if spoken.get("estimate") else {}),
         "_rounded": spoken["rounded"],
         "evidence": [evidence_entry(c, sources) for c in spoken["claims"]],
         # An adopted claim not used for the display (a crown age beside a stated
@@ -327,12 +363,16 @@ def alternative(claim, reconstructed, sources):
     approximate = claim["event"] == "crown_divergence" or bool(
         claim["time"].get("original", {}).get("approximate")
     )
+    central = estimate(claim) if claim["event"] == "crown_divergence" else None
     return {
         **evidence_entry(claim, sources),
         "basis": basis([claim], reconstructed),
         "start": endpoint(start),
         "end": endpoint(end),
-        "label": label(start, end, claim["time"]["ongoing"], approximate, counted_back(claim)),
+        "label": f"until c. {central['text']}"
+        if central
+        else label(start, end, claim["time"]["ongoing"], approximate, counted_back(claim)),
+        **({"estimate": central} if central else {}),
     }
 
 

@@ -241,13 +241,18 @@ class PeriodExportTests(unittest.TestCase):
         self.assertEqual((pie["kind"], pie["basis"]), ("proto", "estimated"))
         self.assertIsNone(pie["spoken"]["start"])
         self.assertEqual(pie["spoken"]["end"], {"earliest": -7999, "latest": -4399})
-        self.assertEqual(pie["label"], "until c. 8000/4400 BCE")
+        # The reported median names the end; the HPD stays its range, shown beside it.
+        self.assertEqual(pie["label"], "until c. 6120 BCE")
+        self.assertEqual(
+            (pie["estimate"]["statistic"], pie["estimate"]["interval"]),
+            ("median", "95% HPD 8000–4400 BCE"),
+        )
         self.assertEqual(pie["evidence"][0]["node"], "Indo-European (sampled)")
         # Without the stated correspondence, or for a code that is not a proto
         # language, the crown age is not displayed.
         # A reviewed alternative crown age (another scenario) is shown beside it.
         alt = {**crown, "id": "k2", "subject": {**crown["subject"], "id": "clade:ie2"}}
-        alt["time"] = {**crown["time"], "lower": -3999, "upper": -2499}
+        alt["time"] = {**crown["time"], "median": -3299, "lower": -3999, "upper": -2499}
         b["claims"].append(alt)
         b["decisions"][0]["proto_alternatives"] = [
             {"claim_id": "k2", "proto_mapping": "Same branches.", "note": "Sensitivity run."}
@@ -255,7 +260,11 @@ class PeriodExportTests(unittest.TestCase):
         (pie,) = export_periods(b, "gen")["languages"]
         (shown,) = pie["alternatives"]
         self.assertEqual((shown["claim_id"], shown["note"]), ("k2", "Sensitivity run."))
-        self.assertEqual(shown["label"], "until c. 4000/2500 BCE")
+        self.assertEqual(shown["label"], "until c. 3300 BCE")
+        # Without a reported central value (an interval only), the interval is the label.
+        alt["time"] = {**alt["time"], "median": None}
+        (pie,) = export_periods(b, "gen")["languages"]
+        self.assertEqual(pie["alternatives"][0]["label"], "until c. 4000/2500 BCE")
         del b["decisions"][0]["proto_alternatives"]
         del b["decisions"][0]["proto_mapping"]
         self.assertEqual(export_periods(b, "gen")["languages"], [])
