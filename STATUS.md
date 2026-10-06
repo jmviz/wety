@@ -19,11 +19,11 @@ in the `packages/dating` registry.
   rebuilds; language codes replace numeric IDs.
 - **Deployment:** pushing `main` deploys the server, then the website
   ([deploy/README.md](deploy/README.md)). Untested on the host.
-- **Dates:** 274 codes show a cited period (14 before this branch); 93% of the tree
-  items in past-stage languages are dated. 103 proto-languages carry an estimated
-  end, each labeled with its method: 40 Bayesian phylogenies (deposited trees, or
-  article node ages with the sample listed), 52 ASJP family ages, 11 expert
-  estimates (e.g. Kallio's table of Uralic division dates). Checked in the browser.
+- **Dates:** 289 codes show a cited period (14 before this branch); 93% of the tree
+  items in past-stage languages are dated. 108 proto-languages carry an estimated
+  end, each labeled with its method: 46 Bayesian phylogenies, 49 lexicostatistical
+  (mostly ASJP family ages; family-specific estimates replace them as found), 13
+  expert estimates. Checked in the browser.
 - **Sources:** holdings carry tables of contents, also as Zotero child notes tagged
   `wety:contents`.
 
@@ -47,13 +47,15 @@ in the `packages/dating` registry.
 
 ## Next three actions
 
-1. Review the running proto runs (phylogenies and lexicostatistics, second round;
-   Indo-European subgroups).
+1. Apply the decisions below, then further proto rounds for the remaining ASJP-only
+   and undated families.
 2. Supply the Zotero requests (`wety:needs-fulltext`), then `dating holdings sync`.
 3. Maintainer: one-time deployment setup ([deploy/README.md](deploy/README.md)).
 
 ## Decisions needed from the maintainer
 
-- Revived languages (Yurok, Mohegan, Dharug, Wathawurrung): end at the last native
+- Revived languages (Yurok, Mohegan, Dharug, Wathawurrung, Woiwurrung, Moriori): end at the last native
   speaker, or show that date only as an alternative?
 - Show a central value in proto labels ("until c. 5690 BCE, 95%: …")?
+- Read rough expert estimates stated only as "years ago" (Ratliff, Häkkinen, Vajda,
+  Blust) with the labeled 1950 convention, as for BP? About a dozen wait on it.
