@@ -214,6 +214,8 @@ def interval(claims):
     period = next((by_event[e] for e in PERIOD_EVENTS if e in by_event), None)
     if period:
         start, end = ranges(period)
+        if period["time"]["form"] == "point":  # one dated record: "known only from 1867"
+            end = start
         used = [period]
         ongoing = period["time"]["ongoing"]
         approximate = bool(period["time"].get("original", {}).get("approximate"))

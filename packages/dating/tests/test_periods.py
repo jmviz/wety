@@ -307,6 +307,12 @@ class PeriodExportTests(unittest.TestCase):
         (enm,) = export_periods(bundle(claims, ["a"]), "gen")["languages"]
         self.assertEqual([a["claim_id"] for a in enm["alternatives"]], ["b", "c"])
 
+    def test_a_single_dated_record_is_not_a_start(self):
+        raw = {"form": "point", "unit": "CE", "value": 1867, "precision": "year"}
+        claims = [claim("w", "aru", "documentary_sampling", "observation", raw)]
+        (aru,) = export_periods(bundle(claims, ["w"]), "gen")["languages"]
+        self.assertEqual(aru["label"], "1867 CE")
+
     def test_bce_years_are_astronomical_and_labels_convert(self):
         raw = years(500, 2600, unit="BCE", approximate=True)
         claims = [claim("a", "akk", "conventional_period", "convention", raw)]

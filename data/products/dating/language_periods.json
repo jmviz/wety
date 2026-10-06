@@ -35389,7 +35389,7 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:fff5df92fe6ca543"
     }
   ],
-  "generation": "94dbd8abea93962f9d99a53be5150b39bda5ad64523f8c64f1346c63ab79ea62",
+  "generation": "d56cbc46a432b64255df9e2416d5b31f2c4f92f4f93a1518d0f951cd59f82789",
   "languages": [
     {
       "alternatives": [],
@@ -35415,6 +35415,35 @@
         "end": {
           "earliest": -1635,
           "latest": -1635
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "last_speaker",
+      "code": "abj",
+      "evidence": [
+        {
+          "citation": "Abbi, Anvita, and Pramod Kumar.2011. 'In search of language contact between Jarawa and Aka-Bea: The languages of South Andaman.' Acta Orientalia72:1–40. doi:10.5617/ao.4848.",
+          "claim_id": "ev_period_e326a85dbf0f3c78c1fb08e80e497dc470fdc826",
+          "event": "native_transmission_end",
+          "locator": "{\"page\": \"3\", \"pdf_page\": 3}",
+          "method": "expert_estimate",
+          "quote": "Aka-Bea became extinct by 1930 but Jarawa is still \nspoken in the South and Middle Andaman.",
+          "role": "hypothesis",
+          "source": "Abbi 2011",
+          "url": "https://journals.uio.no/actaorientalia/article/download/4848/4230"
+        }
+      ],
+      "kind": "stage",
+      "label": "until 1930 CE",
+      "name": "Aka-Bea",
+      "spoken": {
+        "end": {
+          "earliest": null,
+          "latest": 1930
         },
         "ongoing": false,
         "start": null
@@ -36531,6 +36560,38 @@
         "start": {
           "earliest": -949,
           "latest": -949
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "attested",
+      "code": "aru",
+      "evidence": [
+        {
+          "citation": "Dienst, Stefan. 2008. 'The internal classification of the Arawan language.' LIAMES 8:61–67 (Primavera2008; online metadata2010). doi:10.20396/liames.v8i1.1471.",
+          "claim_id": "ev_period_1eac012c1efdeda2711e62f4acf027d2e7256ac0",
+          "event": "documentary_sampling",
+          "locator": "{\"page\": \"61\", \"pdf_page\": 1}",
+          "method": "scholarly_description",
+          "quote": "The Arawan language family of south-western Amazonia was named after the extinct Arawá language,\nwhich is only known from a short wordlist collected by William Chandless in 1867.",
+          "role": "observation",
+          "source": "Dienst 2008",
+          "url": "https://periodicos.sbu.unicamp.br/ojs/index.php/liames/article/viewFile/1471/1461"
+        }
+      ],
+      "kind": "attested",
+      "label": "1867 CE",
+      "name": "Arua",
+      "spoken": {
+        "end": {
+          "earliest": 1867,
+          "latest": 1867
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 1867,
+          "latest": 1867
         }
       }
     },
@@ -41212,10 +41273,13 @@
         }
       ],
       "kind": "proto",
-      "label": "from c. 1000 BCE",
+      "label": "c. 1000 BCE",
       "name": "Proto-Vietic",
       "spoken": {
-        "end": null,
+        "end": {
+          "earliest": -999,
+          "latest": -999
+        },
         "ongoing": false,
         "start": {
           "earliest": -999,
@@ -46623,6 +46687,35 @@
           "earliest": -599,
           "latest": -500
         }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "last_speaker",
+      "code": "xxt",
+      "evidence": [
+        {
+          "citation": "Blust, Robert. 2013. The Austronesian languages. Revised edition. Asia-Pacific Linguistics 8. Canberra: Australian National University. ISBN 9781922185075.",
+          "claim_id": "ev_period_a43d651b90642132d09a43f0be7293cbaaabaf4b",
+          "event": "native_transmission_end",
+          "locator": "{\"page\": \"3\", \"pdf_page\": 45}",
+          "method": "expert_estimate",
+          "quote": "This language, known only \nfrom a vocabulary of 40 words collected during the Raffles governorship of Java, \ndisappeared following the catastrophic eruption of Mount Tambora in 1815.",
+          "role": "hypothesis",
+          "source": "Blust 2013",
+          "url": "https://openresearch-repository.anu.edu.au/bitstreams/acb0151b-ebb5-4941-8f29-8f61a28c777e/download"
+        }
+      ],
+      "kind": "stage",
+      "label": "until after 1815 CE",
+      "name": "Tambora",
+      "spoken": {
+        "end": {
+          "earliest": 1815,
+          "latest": null
+        },
+        "ongoing": false,
+        "start": null
       }
     },
     {
