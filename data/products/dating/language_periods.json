@@ -721,6 +721,24 @@
       "subject_id": "wikt:urj-ugr-pro"
     },
     {
+      "analysis": "swadesh-1967-mayan-glottochronology",
+      "claim_id": "ev_period_3b3548f40e57fd4821da446a3b2f2760686402c0",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Mayan",
+      "role": "hypothesis",
+      "source": "Quentin Douglas Atkinson 2006",
+      "subject_id": "wikt:myn-pro"
+    },
+    {
       "analysis": "holman2011-asjp-ethnologue16-s092-r072",
       "claim_id": "ev_period_3d332b765be505a3ce41e17cfe392e2f867bf5ab",
       "epoch": 2000,
@@ -2267,6 +2285,24 @@
       "role": "posterior",
       "source": "Mei-Shin Wu et al. 2022",
       "subject_id": "wu2022-tibet-arunachal-covarion-relaxed-bdss:clade:757e4f735502d950"
+    },
+    {
+      "analysis": "kaufman-1976-mayan-glottochronology",
+      "claim_id": "ev_period_e1a47c8f5b3a0d9623555ae60de7963114cf6bd6",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Mayan",
+      "role": "hypothesis",
+      "source": "Quentin Douglas Atkinson 2006",
+      "subject_id": "wikt:myn-pro"
     },
     {
       "analysis": "holman2011-asjp-ethnologue16-s092-r072",
@@ -36631,7 +36667,7 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:fff5df92fe6ca543"
     }
   ],
-  "generation": "6c355e8ba7350ab63ee71f49b6d42dab57612cad4f01b8d8d3283f872076385e",
+  "generation": "dfb3be4fc1c055a687459ec1ed35b82f143d28086b33b77783afe43a0814420a",
   "languages": [
     {
       "alternatives": [],
@@ -44196,29 +44232,66 @@
       }
     },
     {
-      "alternatives": [],
-      "basis": "estimated",
-      "code": "myn-pro",
-      "evidence": [
+      "alternatives": [
         {
+          "basis": "estimated",
+          "citation": "Atkinson, Quentin Douglas. 2006. From Species to Languages: A phylogenetic approach to human prehistory. PhD thesis, University of Auckland, ch. 6, pp. 6.7–6.19, Figs. 6.3–6.4. https://hdl.handle.net/2292/86",
+          "claim_id": "ev_period_3b3548f40e57fd4821da446a3b2f2760686402c0",
+          "end": {
+            "earliest": -1650,
+            "latest": -1650
+          },
+          "event": "crown_divergence",
+          "label": "until c. 1650 BCE",
+          "locator": "{\"pdf_page\": 151, \"printed_page\": \"6.3\", \"section\": \"6.1 Introduction\", \"start\": 326595, \"end\": 326918}",
+          "method": "lexicostatistic",
+          "quote": "Initial \nglottochronology-based estimates put the age of Proto-Mayan, the hypothesized \ncommon ancestor of all known Mayan languages, at 3,600BP (Swadesh, 1967). This \nestimate was subsequently revised to 4,200BP by Kaufman (1976) using more \nextensive and more complete lexical data, which were more thoroughly analyzed.",
+          "role": "hypothesis",
+          "source": "Quentin Douglas Atkinson 2006",
+          "start": null,
+          "url": "https://researchspace.auckland.ac.nz/bitstreams/1d185c4a-c5d8-4211-b9ec-a6f628be75e4/download"
+        },
+        {
+          "basis": "estimated",
           "citation": "Automated dating of the world's language families based on lexical similarity",
           "claim_id": "ev_period_a2b7a713db185774bd6c484c1629cc65049a73cd",
+          "end": {
+            "earliest": -220,
+            "latest": -220
+          },
           "event": "crown_divergence",
+          "label": "until c. 220 BCE",
           "locator": "{\"table\": \"Table 6\", \"row\": \"Mayan\", \"page\": 859, \"pdf_page\": 20, \"character_start\": 73943, \"character_end\": 73971, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
           "method": "lexicostatistic",
           "quote": "Mayan\n1,449\n5 (5)\n21.39\n2220",
           "role": "hypothesis",
           "source": "Eric W. Holman et al. 2011",
+          "start": null,
           "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
         }
       ],
+      "basis": "estimated",
+      "code": "myn-pro",
+      "evidence": [
+        {
+          "citation": "Atkinson, Quentin Douglas. 2006. From Species to Languages: A phylogenetic approach to human prehistory. PhD thesis, University of Auckland, ch. 6, pp. 6.7–6.19, Figs. 6.3–6.4. https://hdl.handle.net/2292/86",
+          "claim_id": "ev_period_e1a47c8f5b3a0d9623555ae60de7963114cf6bd6",
+          "event": "crown_divergence",
+          "locator": "{\"pdf_page\": 151, \"printed_page\": \"6.3\", \"section\": \"6.1 Introduction\", \"start\": 326595, \"end\": 326918}",
+          "method": "lexicostatistic",
+          "quote": "Initial \nglottochronology-based estimates put the age of Proto-Mayan, the hypothesized \ncommon ancestor of all known Mayan languages, at 3,600BP (Swadesh, 1967). This \nestimate was subsequently revised to 4,200BP by Kaufman (1976) using more \nextensive and more complete lexical data, which were more thoroughly analyzed.",
+          "role": "hypothesis",
+          "source": "Quentin Douglas Atkinson 2006",
+          "url": "https://researchspace.auckland.ac.nz/bitstreams/1d185c4a-c5d8-4211-b9ec-a6f628be75e4/download"
+        }
+      ],
       "kind": "proto",
-      "label": "until c. 220 BCE",
+      "label": "until c. 2250 BCE",
       "name": "Proto-Mayan",
       "spoken": {
         "end": {
-          "earliest": -220,
-          "latest": -220
+          "earliest": -2250,
+          "latest": -2250
         },
         "ongoing": false,
         "start": null
