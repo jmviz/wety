@@ -36631,7 +36631,7 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:fff5df92fe6ca543"
     }
   ],
-  "generation": "60118d1aeb4acd37363cc4c40c81bc559e6e810423f501b0e40445d99f272318",
+  "generation": "4d5a42d21588758c2521573b7262f5b837e016afbd6439ad08beddb40d203ea4",
   "languages": [
     {
       "alternatives": [],
@@ -44561,6 +44561,35 @@
     },
     {
       "alternatives": [],
+      "basis": "last_speaker",
+      "code": "nyv",
+      "evidence": [
+        {
+          "citation": "McGregor, William B. 2011. The Nyulnyul language of Dampier Land, Western Australia. Volume1:Grammar; Volume2:Texts,wordlists and appendices. First edition. Pacific Linguistics632. Canberra:Pacific Linguistics, Australian National University. ISBN9780858836471.",
+          "claim_id": "ev_period_92296294a691c1f7abf84ac5854712717c963c61",
+          "event": "native_transmission_end",
+          "locator": "{\"page\": \"32\", \"pdf_page\": 64, \"start\": 138786, \"end\": 139084}",
+          "method": "expert_estimate",
+          "quote": "Nyulnyul has been, as of the end of the twentieth century, an extinct language: no fluent\nspeakers remain, and the language is not used as a primary vehicle of daily speech\ninteraction. The last fluent speaker, Mary Carmel Charles was born in Beagle Bay Mission\nin 1912, and died in Broome in 1999.",
+          "role": "hypothesis",
+          "source": "William B McGregor 2011",
+          "url": "https://openresearch-repository.anu.edu.au/bitstreams/16e7d5af-c183-4c15-8c73-b6068b9eabd0/download"
+        }
+      ],
+      "kind": "stage",
+      "label": "until 1999 CE",
+      "name": "Nyulnyul",
+      "spoken": {
+        "end": {
+          "earliest": 1999,
+          "latest": 1999
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
       "basis": "conventional",
       "code": "obr",
       "evidence": [
@@ -49679,6 +49708,49 @@
         "start": {
           "earliest": 1601,
           "latest": 1700
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "attested",
+      "code": "wka",
+      "evidence": [
+        {
+          "citation": "Kruijsdijk, Iris. 2024. “The position of Asá and Qwadza within Cushitic.” In Yaqian Huang, Nina Hagen Kaldhol, Jun Jie Lim, Sharon Rose & Anthony Struthers-Young (eds.), ACAL in SoCAL: Selected papers from the 53rd Annual Conference on African Linguistics, 347–365. Contemporary African Linguistics 11. Berlin: Language Science Press. DOI: 10.5281/zenodo.11210466.",
+          "claim_id": "ev_period_df55e69b420b299b747cd1a338534cfc0368d304",
+          "event": "first_attestation",
+          "locator": "{\"page\": \"348\", \"pdf_page\": 358, \"start\": 706887, \"end\": 707050}",
+          "method": "scholarly_description",
+          "quote": "The earliest data for Qwadza were collected in 1908 by colonial administrators\nwho, most likely, worked mainly with rememberers, who were shifting to Gogo\n(Bantu).",
+          "role": "observation",
+          "source": "Iris Kruijsdijk 2024",
+          "url": "https://zenodo.org/records/11189852/files/438-HuangEtAl-2024.pdf?download=1"
+        },
+        {
+          "citation": "Kruijsdijk, Iris. 2024. “The position of Asá and Qwadza within Cushitic.” In Yaqian Huang, Nina Hagen Kaldhol, Jun Jie Lim, Sharon Rose & Anthony Struthers-Young (eds.), ACAL in SoCAL: Selected papers from the 53rd Annual Conference on African Linguistics, 347–365. Contemporary African Linguistics 11. Berlin: Language Science Press. DOI: 10.5281/zenodo.11210466.",
+          "claim_id": "ev_period_43353c0e93f2d57ea2a65f0b13a73eba51b5425c",
+          "event": "last_attestation",
+          "locator": "{\"page\": \"348\", \"pdf_page\": 358, \"start\": 706887, \"end\": 707259}",
+          "method": "scholarly_description",
+          "quote": "The earliest data for Qwadza were collected in 1908 by colonial administrators\nwho, most likely, worked mainly with rememberers, who were shifting to Gogo\n(Bantu). The two sources, Claus (1910) and Kohl-Larsen (1943) both contain lin-\nguistic data. Pearce (1954) contains an unpublished wordlist, which is referred to\nin Whiteley (1958). Ehret collected data from 1973-74.",
+          "role": "observation",
+          "source": "Iris Kruijsdijk 2024",
+          "url": "https://zenodo.org/records/11189852/files/438-HuangEtAl-2024.pdf?download=1"
+        }
+      ],
+      "kind": "attested",
+      "label": "1908–1973/1974 CE",
+      "name": "Kw'adza",
+      "spoken": {
+        "end": {
+          "earliest": 1973,
+          "latest": 1974
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 1908,
+          "latest": 1908
         }
       }
     },
