@@ -1135,6 +1135,24 @@
       "subject_id": "wikt:omq-pro"
     },
     {
+      "analysis": "sowa2017-dialectology",
+      "claim_id": "ev_period_5ae2056ad759c2a6e89724ea69f8f96fd3b8f2ee",
+      "epoch": null,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Hellenic",
+      "role": "hypothesis",
+      "source": "Klein et al. 2017",
+      "subject_id": "wikt:grk-pro"
+    },
+    {
       "analysis": "holman2011-asjp-ethnologue16-s092-r072",
       "claim_id": "ev_period_62b9eb125a4147c1461ceffe3e03fe191d6d6c52",
       "epoch": 2000,
@@ -36613,14 +36631,14 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:fff5df92fe6ca543"
     }
   ],
-  "generation": "82a72b2d5f0a45aca1672ff2925fa0cc43d29d89e644b5c08b4ad61c351e2a50",
+  "generation": "60118d1aeb4acd37363cc4c40c81bc559e6e810423f501b0e40445d99f272318",
   "languages": [
     {
       "alternatives": [],
       "basis": "estimated",
       "code": "aav-khs-pro",
       "estimate": {
-        "interval": "95% HPD 213–922 CE",
+        "interval": "95% HPD 210–920 CE",
         "statistic": "median",
         "text": "600 CE",
         "value": 600
@@ -38142,7 +38160,7 @@
             "latest": null
           },
           "event": "crown_divergence",
-          "label": "until after c. 551 BCE",
+          "label": "until after c. 550 BCE",
           "locator": "{\"section\": \"preliminary lexicostatistics: primary groupings\", \"page\": \"HTML; no pagination\"}",
           "method": "expert_estimate",
           "quote": "groupings that descend from proto-languages whose age is commonly estimated not\r\nto exceed 2,000 � 2,500 years, such as, e. g., Germanic, South Dravidian,\r\nMongolic, Athapaskan, Daju, North Khoisan, etc.",
@@ -38160,7 +38178,7 @@
             "latest": -62
           },
           "event": "crown_divergence",
-          "label": "until c. 63 BCE",
+          "label": "until c. 60 BCE",
           "locator": "{\"table\": \"Table 6\", \"row\": \"Athapaskan\", \"page\": 859, \"pdf_page\": 20, \"character_start\": 74679, \"character_end\": 74710, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
           "method": "lexicostatistic",
           "quote": "Athapaskan\n138\n4 (8)\n23.74\n2062",
@@ -38186,7 +38204,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 951 BCE/50 CE",
+      "label": "until c. 950 BCE/50 CE",
       "name": "Proto-Athabaskan",
       "spoken": {
         "end": {
@@ -38215,7 +38233,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 236 CE",
+      "label": "until c. 240 CE",
       "name": "Proto-Arawa",
       "spoken": {
         "end": {
@@ -38339,7 +38357,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 551 BCE",
+      "label": "until c. 550 BCE",
       "name": "Proto-Nahuan",
       "spoken": {
         "end": {
@@ -38368,7 +38386,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 263 CE",
+      "label": "until c. 260 CE",
       "name": "Proto-Numic",
       "spoken": {
         "end": {
@@ -38421,7 +38439,7 @@
       "basis": "estimated",
       "code": "bat-pro",
       "estimate": {
-        "interval": "95% HPD 1480 BCE – 474 CE",
+        "interval": "95% HPD 1480 BCE – 470 CE",
         "statistic": "median",
         "text": "440 BCE",
         "value": -439
@@ -38464,7 +38482,7 @@
             "latest": 267
           },
           "event": "crown_divergence",
-          "label": "until c. 267 CE",
+          "label": "until c. 270 CE",
           "locator": "{\"table\": \"Table 3\", \"row\": \"Berber\", \"page\": 853, \"pdf_page\": 14, \"character_start\": 54487, \"character_end\": 54514, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
           "method": "lexicostatistic",
           "quote": "Berber\n139\n4 (4)\n29.46\n1733",
@@ -38661,7 +38679,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 51 BCE",
+      "label": "until c. 50 BCE",
       "name": "Proto-Dargwa",
       "spoken": {
         "end": {
@@ -38831,9 +38849,9 @@
       "basis": "estimated",
       "code": "ccs-gzn-pro",
       "estimate": {
-        "interval": "95% HPD 2370 BCE – 772 CE",
+        "interval": "95% HPD 2370 BCE – 770 CE",
         "statistic": "mean",
-        "text": "668 BCE",
+        "text": "670 BCE",
         "value": -667
       },
       "evidence": [
@@ -38852,7 +38870,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 668 BCE",
+      "label": "until c. 670 BCE",
       "name": "Proto-Georgian-Zan",
       "spoken": {
         "end": {
@@ -38905,7 +38923,7 @@
       "basis": "estimated",
       "code": "ccs-pro",
       "estimate": {
-        "interval": "95% HPD 16680 BCE – 781 CE",
+        "interval": "95% HPD 16680 BCE – 780 CE",
         "statistic": "mean",
         "text": "5690 BCE",
         "value": -5691
@@ -39297,7 +39315,7 @@
             "latest": -50
           },
           "event": "crown_divergence",
-          "label": "until c. 51 BCE",
+          "label": "until c. 50 BCE",
           "locator": "{\"pdf_page\": 12, \"character_start\": 44474, \"character_end\": 44550, \"printed_page\": \"116\", \"image_checked\": true}",
           "method": "expert_estimate",
           "quote": "Vietnam) since the split up of the Chamic languages about two millennia ago.",
@@ -39315,7 +39333,7 @@
             "latest": -672
           },
           "event": "crown_divergence",
-          "label": "until c. 673 BCE",
+          "label": "until c. 670 BCE",
           "locator": "{\"table\": \"Table 1\", \"row\": \"Chamic\", \"page\": 851, \"pdf_page\": 12, \"character_start\": 48613, \"character_end\": 48642, \"columns\": [\"Language group\", \"Calibration date\", \"ASJP date\", \"Difference (%)\"]}",
           "method": "lexicostatistic",
           "quote": "Chamic\n1550\n2672\n\u00011,122 (\u000142)",
@@ -39834,7 +39852,7 @@
             "latest": -308
           },
           "event": "crown_divergence",
-          "label": "until c. 309 BCE",
+          "label": "until c. 310 BCE",
           "locator": "{\"table\": \"Table 3\", \"row\": \"Cushitic > South\", \"page\": 853, \"pdf_page\": 14, \"character_start\": 54792, \"character_end\": 54817, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
           "method": "lexicostatistic",
           "quote": "South\n14\n5 (7)\n20.20\n2308",
@@ -40025,9 +40043,9 @@
       "basis": "estimated",
       "code": "dra-nor-pro",
       "estimate": {
-        "interval": "95% HPD 251 BCE – 729 CE",
+        "interval": "95% HPD 250 BCE – 730 CE",
         "statistic": "median",
-        "text": "57 CE",
+        "text": "60 CE",
         "value": 57
       },
       "evidence": [
@@ -40046,7 +40064,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 57 CE",
+      "label": "until c. 60 CE",
       "name": "Proto-North Dravidian",
       "spoken": {
         "end": {
@@ -40062,7 +40080,7 @@
       "basis": "estimated",
       "code": "dra-pro",
       "estimate": {
-        "interval": "95% HPD 5060–813 BCE",
+        "interval": "95% HPD 5060–810 BCE",
         "statistic": "median",
         "text": "2430 BCE",
         "value": -2433
@@ -40099,9 +40117,9 @@
       "basis": "estimated",
       "code": "dra-sdo-pro",
       "estimate": {
-        "interval": "95% HPD 1740–251 BCE",
+        "interval": "95% HPD 1740–250 BCE",
         "statistic": "median",
-        "text": "561 BCE",
+        "text": "560 BCE",
         "value": -560
       },
       "evidence": [
@@ -40120,7 +40138,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 561 BCE",
+      "label": "until c. 560 BCE",
       "name": "Proto-South Dravidian I",
       "spoken": {
         "end": {
@@ -40136,9 +40154,9 @@
       "basis": "estimated",
       "code": "dra-sdt-pro",
       "estimate": {
-        "interval": "95% HPD 1940 BCE – 599 CE",
+        "interval": "95% HPD 1940 BCE – 600 CE",
         "statistic": "median",
-        "text": "411 BCE",
+        "text": "410 BCE",
         "value": -410
       },
       "evidence": [
@@ -40157,7 +40175,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 411 BCE",
+      "label": "until c. 410 BCE",
       "name": "Proto-South Dravidian II",
       "spoken": {
         "end": {
@@ -40829,32 +40847,54 @@
       }
     },
     {
-      "alternatives": [],
-      "basis": "estimated",
-      "code": "esx-esk-pro",
-      "evidence": [
+      "alternatives": [
         {
+          "basis": "estimated",
           "citation": "Automated dating of the world's language families based on lexical similarity",
           "claim_id": "ev_period_2359e5f25b1cbdf464fcb91673f574e1178a2ca4",
+          "end": {
+            "earliest": 158,
+            "latest": 158
+          },
           "event": "crown_divergence",
+          "label": "until c. 160 CE",
           "locator": "{\"table\": \"Table 6\", \"row\": \"Eskimo\", \"page\": 859, \"pdf_page\": 20, \"character_start\": 73592, \"character_end\": 73618, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
           "method": "lexicostatistic",
           "quote": "Eskimo\n16\n2 (2)\n27.43\n1842",
           "role": "hypothesis",
           "source": "Eric W. Holman et al. 2011",
+          "start": null,
           "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
         }
       ],
+      "basis": "estimated",
+      "code": "esx-esk-pro",
+      "evidence": [
+        {
+          "citation": "Fortescue, Michael. 2004. How far west into Asia have Eskimo languages been spoken, and which ones? Études/Inuit/Studies 28(2):159–183, p.166. doi:10.7202/013201ar.",
+          "claim_id": "ev_period_7cfc0911fe74173bb6bfced2a2decb775edd02ab",
+          "event": "conventional_period",
+          "locator": "{\"pdf_page\": 9, \"printed_page\": \"166\", \"section\": \"discussion following Table 1\", \"start\": 30319, \"end\": 30436}",
+          "method": "archaeological_correlation",
+          "quote": "This would have occurred long after Proto-Eskimo was\nspoken in Chukotka during Neo-Eskimo times some 2,000 years ago.",
+          "role": "hypothesis",
+          "source": "Michael Fortescue 2004",
+          "url": "https://www.erudit.org/fr/revues/etudinuit/2004-v28-n2-etudinuit1289/013201ar.pdf"
+        }
+      ],
       "kind": "proto",
-      "label": "until c. 158 CE",
+      "label": "c. 50 BCE",
       "name": "Proto-Eskimo",
       "spoken": {
         "end": {
-          "earliest": 158,
-          "latest": 158
+          "earliest": -50,
+          "latest": -50
         },
         "ongoing": false,
-        "start": null
+        "start": {
+          "earliest": -50,
+          "latest": -50
+        }
       }
     },
     {
@@ -41368,13 +41408,13 @@
             "latest": 69
           },
           "estimate": {
-            "interval": "95% HPD 866 BCE – 69 CE",
+            "interval": "95% HPD 870 BCE – 70 CE",
             "statistic": "median",
-            "text": "338 BCE",
+            "text": "340 BCE",
             "value": -337
           },
           "event": "crown_divergence",
-          "label": "until c. 338 BCE",
+          "label": "until c. 340 BCE",
           "locator": null,
           "method": "phylogenetic",
           "node": "MRCA(Danish, Dutch, Elfdalian, English, Faroese, Flemish, Frisian, German, GermanBernese, Gothic, Icelandic, Luxembourgish, MiddleDutch, MiddleHighGerman, NorwegianBokmal, NorwegianNynorsk, OldEnglish, OldFrisian, OldHighGerman, OldIcelandic, OldSaxon, OldSwedish, Swedish)",
@@ -41685,9 +41725,9 @@
       "basis": "estimated",
       "code": "gmq-pro",
       "estimate": {
-        "interval": "95% HPD 474–950 CE",
+        "interval": "95% HPD 470–950 CE",
         "statistic": "median",
-        "text": "733 CE",
+        "text": "730 CE",
         "value": 733
       },
       "evidence": [
@@ -41706,7 +41746,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 733 CE",
+      "label": "until c. 730 CE",
       "name": "Proto-Norse",
       "spoken": {
         "end": {
@@ -41722,9 +41762,9 @@
       "basis": "estimated",
       "code": "gmw-pro",
       "estimate": {
-        "interval": "95% HPD 35 BCE – 528 CE",
+        "interval": "95% HPD 40 BCE – 530 CE",
         "statistic": "median",
-        "text": "273 CE",
+        "text": "270 CE",
         "value": 273
       },
       "evidence": [
@@ -41743,7 +41783,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 273 CE",
+      "label": "until c. 270 CE",
       "name": "Proto-West Germanic",
       "spoken": {
         "end": {
@@ -42064,6 +42104,35 @@
     },
     {
       "alternatives": [],
+      "basis": "estimated",
+      "code": "grk-pro",
+      "evidence": [
+        {
+          "citation": "Klein, Jared S. (ed.); Joseph, Brian D. (ed.); Fritz, Matthias (ed.) (2017) Handbook of comparative and historical Indo-European linguistics. Vol. 1. Berlin ; Boston, De Gruyter Mouton.",
+          "claim_id": "ev_period_5ae2056ad759c2a6e89724ea69f8f96fd3b8f2ee",
+          "event": "crown_divergence",
+          "locator": "{\"pdf_page\": 726, \"printed_page\": \"714\", \"section\": \"44 The dialectology of Greek, §5\", \"start\": 2168948, \"end\": 2169054}",
+          "method": "comparative_reconstruction",
+          "quote": "In the period after the Greek tribes appeared in\nGreece (ca. 1900 BCE) the first dialectal split occurred.",
+          "role": "hypothesis",
+          "source": "Klein et al. 2017",
+          "url": null
+        }
+      ],
+      "kind": "proto",
+      "label": "until after c. 1900 BCE",
+      "name": "Proto-Hellenic",
+      "spoken": {
+        "end": {
+          "earliest": -1899,
+          "latest": null
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
       "basis": "conventional",
       "code": "hbo",
       "evidence": [
@@ -42231,7 +42300,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 778 BCE",
+      "label": "until c. 780 BCE",
       "name": "Proto-Hmongic",
       "spoken": {
         "end": {
@@ -42297,7 +42366,7 @@
         }
       ],
       "kind": "proto",
-      "label": "c. 551 BCE",
+      "label": "c. 550 BCE",
       "name": "Proto-Hmong-Mien",
       "spoken": {
         "end": {
@@ -42422,7 +42491,7 @@
       "basis": "estimated",
       "code": "ine-bsl-pro",
       "estimate": {
-        "interval": "95% HPD 3040–532 BCE",
+        "interval": "95% HPD 3040–530 BCE",
         "statistic": "median",
         "text": "1660 BCE",
         "value": -1663
@@ -42466,7 +42535,7 @@
           "earliest": -1484,
           "latest": 474
         },
-        "label": "until c. 1480 BCE/474 CE",
+        "label": "until c. 1480 BCE/470 CE",
         "ongoing": false,
         "partial": true,
         "start": null,
@@ -42599,9 +42668,9 @@
       "basis": "estimated",
       "code": "ine-toc-pro",
       "estimate": {
-        "interval": "95% HPD 316 BCE – 505 CE",
+        "interval": "95% HPD 320 BCE – 500 CE",
         "statistic": "median",
-        "text": "174 CE",
+        "text": "170 CE",
         "value": 174
       },
       "evidence": [
@@ -42620,7 +42689,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 174 CE",
+      "label": "until c. 170 CE",
       "name": "Proto-Tocharian",
       "spoken": {
         "end": {
@@ -42748,7 +42817,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 451 BCE/50 CE",
+      "label": "until c. 450 BCE/50 CE",
       "name": "Proto-North Iroquoian",
       "spoken": {
         "end": {
@@ -42894,7 +42963,7 @@
       "basis": "estimated",
       "code": "itc-pro",
       "estimate": {
-        "interval": "95% HPD 2290–772 BCE",
+        "interval": "95% HPD 2290–770 BCE",
         "statistic": "median",
         "text": "1430 BCE",
         "value": -1431
@@ -43027,9 +43096,9 @@
       "basis": "estimated",
       "code": "jpx-pro",
       "estimate": {
-        "interval": "95% HPD 2180 BCE – 771 CE",
+        "interval": "95% HPD 2180 BCE – 770 CE",
         "statistic": "median",
-        "text": "173 BCE",
+        "text": "170 BCE",
         "value": -172
       },
       "evidence": [
@@ -43048,7 +43117,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 173 BCE",
+      "label": "until c. 170 BCE",
       "name": "Proto-Japonic",
       "spoken": {
         "end": {
@@ -43064,7 +43133,7 @@
       "basis": "estimated",
       "code": "jpx-ryu-pro",
       "estimate": {
-        "interval": "95% HPD 82 BCE – 1690 CE",
+        "interval": "95% HPD 80 BCE – 1690 CE",
         "statistic": "median",
         "text": "950 CE",
         "value": 950
@@ -43168,7 +43237,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 346 BCE",
+      "label": "until c. 350 BCE",
       "name": "Proto-Karen",
       "spoken": {
         "end": {
@@ -43477,7 +43546,7 @@
           {
             "basis": "estimated",
             "code": "roa-pro",
-            "label": "until c. 162 CE",
+            "label": "until c. 160 CE",
             "name": "Proto-Romance",
             "own": false
           }
@@ -43854,7 +43923,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 665 BCE",
+      "label": "until c. 660 BCE",
       "name": "Proto-Atayalic",
       "spoken": {
         "end": {
@@ -43962,7 +44031,7 @@
             "latest": -80
           },
           "event": "crown_divergence",
-          "label": "until c. 81 BCE",
+          "label": "until c. 80 BCE",
           "locator": "{\"table\": \"Table 4\", \"row\": \"Aslian\", \"page\": 854, \"pdf_page\": 15, \"character_start\": 60000, \"character_end\": 60026, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
           "method": "lexicostatistic",
           "quote": "Aslian\n29\n4 (4)\n23.46\n2080",
@@ -43990,7 +44059,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 4620/994 BCE",
+      "label": "until c. 4620/990 BCE",
       "name": "Proto-Aslian",
       "spoken": {
         "end": {
@@ -44144,7 +44213,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 221 BCE",
+      "label": "until c. 220 BCE",
       "name": "Proto-Mayan",
       "spoken": {
         "end": {
@@ -45335,7 +45404,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 324 CE",
+      "label": "until c. 320 CE",
       "name": "Proto-Zapotec",
       "spoken": {
         "end": {
@@ -45863,7 +45932,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 963 BCE",
+      "label": "until c. 960 BCE",
       "name": "Proto-North Halmahera",
       "spoken": {
         "end": {
@@ -46319,7 +46388,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 379/637 CE",
+      "label": "until c. 380/640 CE",
       "name": "Proto-Bungku-Tolaki",
       "spoken": {
         "end": {
@@ -46396,7 +46465,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 51 BCE",
+      "label": "until c. 50 BCE",
       "name": "Proto-Halmahera-Cenderawasih",
       "spoken": {
         "end": {
@@ -46454,7 +46523,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 155 CE",
+      "label": "until c. 160 CE",
       "name": "Proto-Malayo-Sumbawan",
       "spoken": {
         "end": {
@@ -46582,7 +46651,7 @@
         }
       ],
       "kind": "proto",
-      "label": "c. 51 BCE – 450 CE",
+      "label": "c. 50 BCE – 450 CE",
       "name": "Proto-Polynesian",
       "spoken": {
         "end": {
@@ -46824,9 +46893,9 @@
       "basis": "estimated",
       "code": "qfa-lic-pro",
       "estimate": {
-        "interval": "95% HPD 86 BCE – 1510 CE",
+        "interval": "95% HPD 90 BCE – 1510 CE",
         "statistic": "mean",
-        "text": "795 CE",
+        "text": "800 CE",
         "value": 795
       },
       "evidence": [
@@ -46845,7 +46914,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 795 CE",
+      "label": "until c. 800 CE",
       "name": "Proto-Hlai",
       "spoken": {
         "end": {
@@ -46861,7 +46930,7 @@
       "basis": "estimated",
       "code": "qfa-tak-pro",
       "estimate": {
-        "interval": "95% HPD 3600–792 BCE",
+        "interval": "95% HPD 3600–790 BCE",
         "statistic": "mean",
         "text": "2090 BCE",
         "value": -2091
@@ -46922,7 +46991,7 @@
             "latest": -661
           },
           "event": "crown_divergence",
-          "label": "until c. 662 BCE",
+          "label": "until c. 660 BCE",
           "locator": "{\"table\": \"Table 4\", \"row\": \"Yeniseian\", \"page\": 855, \"pdf_page\": 16, \"character_start\": 62074, \"character_end\": 62106, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
           "method": "lexicostatistic",
           "quote": "Yeniseian\n12\n1 (1) \u00012\n16.01\n2661",
@@ -47056,7 +47125,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 28 BCE",
+      "label": "until c. 30 BCE",
       "name": "Proto-Yukaghir",
       "spoken": {
         "end": {
@@ -47200,9 +47269,9 @@
       "basis": "estimated",
       "code": "roa-pro",
       "estimate": {
-        "interval": "95% HPD 248 BCE – 527 CE",
+        "interval": "95% HPD 250 BCE – 530 CE",
         "statistic": "median",
-        "text": "162 CE",
+        "text": "160 CE",
         "value": 162
       },
       "evidence": [
@@ -47221,7 +47290,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 162 CE",
+      "label": "until c. 160 CE",
       "name": "Proto-Romance",
       "spoken": {
         "end": {
@@ -47337,7 +47406,7 @@
             "latest": -362
           },
           "event": "crown_divergence",
-          "label": "until c. 363 BCE",
+          "label": "until c. 360 BCE",
           "locator": "{\"table\": \"Table 7\", \"row\": \"Carib\", \"page\": 861, \"pdf_page\": 22, \"character_start\": 79636, \"character_end\": 79661, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
           "method": "lexicostatistic",
           "quote": "Carib\n72\n2 (2)\n19.50\n2362",
@@ -47745,7 +47814,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 1750/87 BCE",
+      "label": "until c. 1750/90 BCE",
       "name": "Proto-Bodish",
       "spoken": {
         "end": {
@@ -47884,9 +47953,9 @@
       "basis": "estimated",
       "code": "sit-tam-pro",
       "estimate": {
-        "interval": "95% HPD 278–1190 CE",
+        "interval": "95% HPD 280–1190 CE",
         "statistic": "mean",
-        "text": "752 CE",
+        "text": "750 CE",
         "value": 752
       },
       "evidence": [
@@ -47905,7 +47974,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 752 CE",
+      "label": "until c. 750 CE",
       "name": "Proto-Tamangic",
       "spoken": {
         "end": {
@@ -47956,13 +48025,13 @@
             "latest": 778
           },
           "estimate": {
-            "interval": "95% HPD 163–778 CE",
+            "interval": "95% HPD 160–780 CE",
             "statistic": "median",
-            "text": "507 CE",
+            "text": "510 CE",
             "value": 507
           },
           "event": "crown_divergence",
-          "label": "until c. 507 CE",
+          "label": "until c. 510 CE",
           "locator": null,
           "method": "phylogenetic",
           "node": "MRCA(Belarusian, Bulgarian, Czech, Kashubian, Macedonian, MacedonianSuho, MacedonianVisoka, OldChurchSlavonic, OldCzech, OldNovgorod, OldPolish, Polabian, Polish, Russian, Rusyn, SerboCroatian, Slovak, Slovene, SloveneEarlyModern, SloveneKostel, SorbianLower, SorbianUpper, Ukrainian)",
@@ -48006,7 +48075,7 @@
       "basis": "estimated",
       "code": "smi-pro",
       "estimate": {
-        "interval": "95% HPD 632–1590 CE",
+        "interval": "95% HPD 630–1590 CE",
         "statistic": "mean",
         "text": "1140 CE",
         "value": 1145
@@ -48115,9 +48184,9 @@
       "basis": "estimated",
       "code": "sqj-pro",
       "estimate": {
-        "interval": "95% HPD 118–1530 CE",
+        "interval": "95% HPD 120–1530 CE",
         "statistic": "median",
-        "text": "933 CE",
+        "text": "930 CE",
         "value": 933
       },
       "evidence": [
@@ -48136,7 +48205,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 933 CE",
+      "label": "until c. 930 CE",
       "name": "Proto-Albanian",
       "spoken": {
         "end": {
@@ -48267,7 +48336,7 @@
             "latest": -850
           },
           "event": "crown_divergence",
-          "label": "until c. 851 BCE",
+          "label": "until c. 850 BCE",
           "locator": "{\"table\": \"Table 4\", \"row\": \"Samoyed\", \"page\": 855, \"pdf_page\": 16, \"character_start\": 62047, \"character_end\": 62073, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
           "method": "lexicostatistic",
           "quote": "Samoyed\n1\n2 (5)\n14.14\n2850",
@@ -48309,7 +48378,7 @@
       "basis": "estimated",
       "code": "tai-pro",
       "estimate": {
-        "interval": "95% HPD 47–1080 CE",
+        "interval": "95% HPD 50–1080 CE",
         "statistic": "mean",
         "text": "590 CE",
         "value": 590
@@ -48346,7 +48415,7 @@
       "basis": "estimated",
       "code": "tai-swe-pro",
       "estimate": {
-        "interval": "95% HPD 788–1430 CE",
+        "interval": "95% HPD 790–1430 CE",
         "statistic": "mean",
         "text": "1130 CE",
         "value": 1126
@@ -48383,7 +48452,7 @@
       "basis": "estimated",
       "code": "tbq-brm-pro",
       "estimate": {
-        "interval": "95% HPD 159–966 CE",
+        "interval": "95% HPD 160–970 CE",
         "statistic": "mean",
         "text": "580 CE",
         "value": 580
@@ -48420,7 +48489,7 @@
       "basis": "estimated",
       "code": "tbq-kuk-pro",
       "estimate": {
-        "interval": "95% HPD 695 BCE – 722 CE",
+        "interval": "95% HPD 700 BCE – 720 CE",
         "statistic": "mean",
         "text": "40 CE",
         "value": 40
@@ -48582,9 +48651,9 @@
       "basis": "estimated",
       "code": "trk-cmn-pro",
       "estimate": {
-        "interval": "95% HPD 7–809 CE",
+        "interval": "95% HPD 7–810 CE",
         "statistic": "median",
-        "text": "474 CE",
+        "text": "470 CE",
         "value": 474
       },
       "evidence": [
@@ -48603,7 +48672,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 474 CE",
+      "label": "until c. 470 CE",
       "name": "Proto-Common Turkic",
       "spoken": {
         "end": {
@@ -48673,9 +48742,9 @@
       "basis": "estimated",
       "code": "trk-pro",
       "estimate": {
-        "interval": "95% HPD 756 BCE – 483 CE",
+        "interval": "95% HPD 760 BCE – 480 CE",
         "statistic": "median",
-        "text": "67 BCE",
+        "text": "70 BCE",
         "value": -66
       },
       "evidence": [
@@ -48694,21 +48763,21 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 67 BCE",
+      "label": "until c. 70 BCE",
       "name": "Proto-Turkic",
       "span": {
         "components": [
           {
             "basis": "estimated",
             "code": "trk-pro",
-            "label": "until c. 67 BCE",
+            "label": "until c. 70 BCE",
             "name": "Proto-Turkic",
             "own": true
           },
           {
             "basis": "estimated",
             "code": "trk-cmn-pro",
-            "label": "until c. 474 CE",
+            "label": "until c. 470 CE",
             "name": "Proto-Common Turkic",
             "own": false
           }
@@ -48717,7 +48786,7 @@
           "earliest": 7,
           "latest": 809
         },
-        "label": "until c. 7/809 CE",
+        "label": "until c. 7/810 CE",
         "ongoing": false,
         "partial": true,
         "start": null,
@@ -48741,9 +48810,9 @@
       "basis": "estimated",
       "code": "tup-gua-pro",
       "estimate": {
-        "interval": "95% HPD 792 BCE – 1100 CE",
+        "interval": "95% HPD 790 BCE – 1100 CE",
         "statistic": "mean",
-        "text": "187 CE",
+        "text": "190 CE",
         "value": 187
       },
       "evidence": [
@@ -48762,7 +48831,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 187 CE",
+      "label": "until c. 190 CE",
       "name": "Proto-Tupi-Guarani",
       "spoken": {
         "end": {
@@ -48925,7 +48994,7 @@
             "latest": -50
           },
           "event": "crown_divergence",
-          "label": "until c. 51 BCE",
+          "label": "until c. 50 BCE",
           "locator": "{\"page\": \"269\", \"pdf_page\": 279}",
           "method": "expert_estimate",
           "quote": "Pevnov (2012: 32) estimated that Proto-Tungusic could not\nbe younger than two thousand years.",
@@ -48943,7 +49012,7 @@
             "latest": 681
           },
           "event": "crown_divergence",
-          "label": "until c. 681 CE",
+          "label": "until c. 680 CE",
           "locator": "{\"table\": \"Table 4\", \"row\": \"Tungusic\", \"page\": 854, \"pdf_page\": 15, \"character_start\": 59687, \"character_end\": 59715, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
           "method": "lexicostatistic",
           "quote": "Tungusic\n99\n2 (2)\n38.67\n1319",
@@ -48974,7 +49043,7 @@
       "basis": "estimated",
       "code": "tuw-pro",
       "estimate": {
-        "interval": "95% HPD 737 BCE – 1150 CE",
+        "interval": "95% HPD 740 BCE – 1150 CE",
         "statistic": "median",
         "text": "450 CE",
         "value": 450
@@ -49144,9 +49213,9 @@
       "basis": "estimated",
       "code": "urj-fin-pro",
       "estimate": {
-        "interval": "95% HPD 108–1260 CE",
+        "interval": "95% HPD 110–1260 CE",
         "statistic": "mean",
-        "text": "743 CE",
+        "text": "740 CE",
         "value": 743
       },
       "evidence": [
@@ -49165,7 +49234,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 743 CE",
+      "label": "until c. 740 CE",
       "name": "Proto-Finnic",
       "spoken": {
         "end": {
@@ -50450,7 +50519,7 @@
             "latest": -267
           },
           "event": "crown_divergence",
-          "label": "until c. 268 BCE",
+          "label": "until c. 270 BCE",
           "locator": "{\"table\": \"Table 4\", \"row\": \"Mongolic\", \"page\": 854, \"pdf_page\": 15, \"character_start\": 59631, \"character_end\": 59658, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
           "method": "lexicostatistic",
           "quote": "Mongolic\n7\n2 (2)\n20.75\n2267",
@@ -50468,7 +50537,7 @@
             "latest": null
           },
           "event": "crown_divergence",
-          "label": "until after c. 551 BCE",
+          "label": "until after c. 550 BCE",
           "locator": "{\"section\": \"preliminary lexicostatistics: primary groupings\", \"page\": \"HTML; no pagination\"}",
           "method": "expert_estimate",
           "quote": "groupings that descend from proto-languages whose age is commonly estimated not\r\nto exceed 2,000 � 2,500 years, such as, e. g., Germanic, South Dravidian,\r\nMongolic, Athapaskan, Daju, North Khoisan, etc.",

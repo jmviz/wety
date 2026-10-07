@@ -128,8 +128,9 @@ def endpoint(r):
 
 def era_year(y, rounded=False):
     year, era = (1 - y, "BCE") if y <= 0 else (y, "CE")
-    if rounded and year >= 1000:
-        # "c. 4051 BCE" from 6000 BP is exact arithmetic but false precision.
+    if rounded and year >= 20:
+        # "c. 4051 BCE" from 6000 BP, or "c. 51 BCE" from 2000 years ago, is exact
+        # arithmetic but false precision; decades never round to a year 0.
         year = round(year, -1)
     return str(year), era
 

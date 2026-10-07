@@ -72,6 +72,7 @@ class LabelTests(unittest.TestCase):
             "c. 4050–3550 BCE",
         )
         self.assertEqual(label((-4050, -4050), (-3550, -3550)), "4051–3551 BCE")
+        self.assertEqual(label(None, (-50, -50), approximate=True, rounded=True), "until c. 50 BCE")
         self.assertEqual(
             label((1501, 1600), (1928, 1928), approximate=True), "c. 16th century – 1928 CE"
         )
