@@ -36667,7 +36667,7 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:fff5df92fe6ca543"
     }
   ],
-  "generation": "73182ff577ec07b0488654adc20b8857743a089b536f1c3cfd1978a5d0fcd984",
+  "generation": "609d7c95be85d848b79e462873546c024ec1d1841def2492856bfdf75c7851f0",
   "languages": [
     {
       "alternatives": [],
@@ -38275,6 +38275,43 @@
         "end": {
           "earliest": 236,
           "latest": 236
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "aus-cww-pro",
+      "estimate": {
+        "interval": "95% HPD 820 BCE – 550 CE",
+        "statistic": "median",
+        "text": "130 BCE",
+        "value": -131
+      },
+      "evidence": [
+        {
+          "citation": "Bouckaert, Bowern & Atkinson 2018, 'The origin and expansion of Pama–Nyungan languages across Australia', Nature Ecology & Evolution 2: 741–749, doi:10.1038/s41559-018-0489-3; Supplementary Data File 2.",
+          "claim_id": "ev_tree_a822589e53f21772edbdc5a7ef4dd755ae2b2e7c8a0585d13221d138bca8cc1d",
+          "event": "crown_divergence",
+          "locator": null,
+          "method": "phylogenetic",
+          "node": "MRCA(Gamilaraay, Kamilaroi, Ngiyambaa, Wailwan, Wiradjuri, Yuwaalaraay)",
+          "proto_mapping": "The Central New South Wales (Wiradhuric) clade: Wiradjuri, Ngiyambaa, Wailwan, Gamilaraay, Kamilaroi and Yuwaalaraay, six languages and no others; Muruwari and the coastal NSW languages fall outside.",
+          "quote": null,
+          "role": "posterior",
+          "source": "Remco Bouckaert et al. 2018",
+          "url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs41559-018-0489-3/MediaObjects/41559_2018_489_MOESM4_ESM.txt"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 130 BCE",
+      "name": "Proto-Central New South Wales",
+      "spoken": {
+        "end": {
+          "earliest": -815,
+          "latest": 546
         },
         "ongoing": false,
         "start": null
