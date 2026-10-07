@@ -36631,7 +36631,7 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:fff5df92fe6ca543"
     }
   ],
-  "generation": "4d5a42d21588758c2521573b7262f5b837e016afbd6439ad08beddb40d203ea4",
+  "generation": "6c355e8ba7350ab63ee71f49b6d42dab57612cad4f01b8d8d3283f872076385e",
   "languages": [
     {
       "alternatives": [],
@@ -51182,6 +51182,57 @@
         "start": {
           "earliest": 1066,
           "latest": 1066
+        }
+      }
+    },
+    {
+      "alternatives": [
+        {
+          "basis": "last_speaker",
+          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Asia Minor. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "claim_id": "ev_period_8549839ce6e40c05168a3f6330ddaddff1ec2f0f",
+          "end": {
+            "earliest": 601,
+            "latest": 700
+          },
+          "event": "native_transmission_end",
+          "label": "until c. 7th century CE",
+          "locator": "{\"page\": \"72\", \"pdf_page\": 95}",
+          "method": "expert_estimate",
+          "quote": "The ancient sources last speak of the Phrygian language in the ﬁfth century AD (see\nFriedrich 1941, col. 868–869); but it is quite possible that it was not actually eliminated until\nthe Arab incursions in the seventh century (Brixhe 1987:11).",
+          "role": "hypothesis",
+          "source": "Woodard 2008",
+          "start": null,
+          "url": null
+        }
+      ],
+      "basis": "attested",
+      "code": "xpg",
+      "evidence": [
+        {
+          "citation": "Klein, Jared S. (ed.); Joseph, Brian D. (ed.); Fritz, Matthias (ed.) (2017) Handbook of comparative and historical Indo-European linguistics. Vol. 3. Berlin ; Boston, De Gruyter Mouton.",
+          "claim_id": "ev_period_49f6fd7c26d211f0a1fe30e35ed70bb901c1eff1",
+          "event": "documentary_sampling",
+          "locator": "{\"page\": \"1816\", \"pdf_page\": 430}",
+          "method": "scholarly_description",
+          "quote": "Phrygian is an extinct Indo-European language of West and Central Anatolia, the written\nsources of which span the period between the 8th century BCE and 3rd century CE.",
+          "role": "observation",
+          "source": "Klein et al. 2017",
+          "url": null
+        }
+      ],
+      "kind": "attested",
+      "label": "8th century BCE – 3rd century CE",
+      "name": "Phrygian",
+      "spoken": {
+        "end": {
+          "earliest": 201,
+          "latest": 300
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": -799,
+          "latest": -700
         }
       }
     },
