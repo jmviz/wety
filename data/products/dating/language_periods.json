@@ -36667,7 +36667,7 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:fff5df92fe6ca543"
     }
   ],
-  "generation": "dfb3be4fc1c055a687459ec1ed35b82f143d28086b33b77783afe43a0814420a",
+  "generation": "b89f1122e459e444b33bb31a6b13fec418544bee77f90f2dd3e698381acca34a",
   "languages": [
     {
       "alternatives": [],
@@ -47899,6 +47899,43 @@
     {
       "alternatives": [],
       "basis": "estimated",
+      "code": "sit-aao-pro",
+      "estimate": {
+        "interval": "95% HPD 290–1190 CE",
+        "statistic": "mean",
+        "text": "770 CE",
+        "value": 771
+      },
+      "evidence": [
+        {
+          "citation": "Phylogenetic evidence for Sino-Tibetan origin in northern China in the Late Neolithic",
+          "claim_id": "ev_tree_675d7cc2d48a9ec0ea015e558eb82dac6baa0021790c09d3d9e0d2e2b326d5fb",
+          "event": "crown_divergence",
+          "locator": null,
+          "method": "phylogenetic",
+          "node": "MRCA(Ao_Chungli_Naga, Ao_Mongsen_Naga, Lotha_Naga_Naga, Sangtam_Naga)",
+          "proto_mapping": "Ao (Chungli and Mongsen), Lotha and Sangtam: Glottolog 5.3's Central Naga (aoic1235), the family Wiktionary's sit-aao names. Support 1.00.",
+          "quote": null,
+          "role": "posterior",
+          "source": "Menghan Zhang et al. 2019",
+          "url": "https://doi.org/10.1038/s41586-019-1153-z"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 770 CE",
+      "name": "Proto-Central Naga",
+      "spoken": {
+        "end": {
+          "earliest": 289,
+          "latest": 1190
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
       "code": "sit-bdi-pro",
       "evidence": [
         {
@@ -47930,6 +47967,43 @@
     {
       "alternatives": [],
       "basis": "estimated",
+      "code": "sit-ers-pro",
+      "estimate": {
+        "interval": "95% HPD 230–1300 CE",
+        "statistic": "mean",
+        "text": "780 CE",
+        "value": 785
+      },
+      "evidence": [
+        {
+          "citation": "Phylogenetic evidence for Sino-Tibetan origin in northern China in the Late Neolithic",
+          "claim_id": "ev_tree_525c8999356277b4c822675377886cbf55cfb0b8c978dd6a7a0400f6029a14f1",
+          "event": "crown_divergence",
+          "locator": null,
+          "method": "phylogenetic",
+          "node": "MRCA(Ersu_Ersuish, Lyuzu_Ersuish)",
+          "proto_mapping": "Ersu and Lizu (Lyuzu), the two sampled Ersuic languages (Glottolog 5.3 Ersuic: Ersu, Lizu). Support 0.98.",
+          "quote": null,
+          "role": "posterior",
+          "source": "Menghan Zhang et al. 2019",
+          "url": "https://doi.org/10.1038/s41586-019-1153-z"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 780 CE",
+      "name": "Proto-Ersuic",
+      "spoken": {
+        "end": {
+          "earliest": 227,
+          "latest": 1305
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
       "code": "sit-khw-pro",
       "evidence": [
         {
@@ -47953,6 +48027,43 @@
         "end": {
           "earliest": 150,
           "latest": 1358
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "sit-nas-pro",
+      "estimate": {
+        "interval": "95% HPD 1210–1720 CE",
+        "statistic": "mean",
+        "text": "1460 CE",
+        "value": 1460
+      },
+      "evidence": [
+        {
+          "citation": "Phylogenetic evidence for Sino-Tibetan origin in northern China in the Late Neolithic",
+          "claim_id": "ev_tree_0ce39d2719e99fef8a1418d88e9f935c8623a5bf5020251f57c7639ccef091fc",
+          "event": "crown_divergence",
+          "locator": null,
+          "method": "phylogenetic",
+          "node": "MRCA(Naxi_Lijiang_Naic, Naxi_Yongning_Naic)",
+          "proto_mapping": "Lijiang Naxi and Yongning Na (Mosuo): Naxi against Na, the Naish split of Jacques & Michaud 2011 (Laze, unsampled, groups with Na). Namuyi and Xumi, which Zhang et al. label Naic, fall outside. Support 1.00.",
+          "quote": null,
+          "role": "posterior",
+          "source": "Menghan Zhang et al. 2019",
+          "url": "https://doi.org/10.1038/s41586-019-1153-z"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 1460 CE",
+      "name": "Proto-Naish",
+      "spoken": {
+        "end": {
+          "earliest": 1207,
+          "latest": 1724
         },
         "ongoing": false,
         "start": null
@@ -48544,6 +48655,43 @@
         "end": {
           "earliest": 788,
           "latest": 1434
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "tbq-bdg-pro",
+      "estimate": {
+        "interval": "95% HPD 30 BCE – 1000 CE",
+        "statistic": "mean",
+        "text": "510 CE",
+        "value": 508
+      },
+      "evidence": [
+        {
+          "citation": "Phylogenetic evidence for Sino-Tibetan origin in northern China in the Late Neolithic",
+          "claim_id": "ev_tree_efcf8c4df6d117710ee0490258dee84fb17f4cb3793704c7b1520058d687ae19",
+          "event": "crown_divergence",
+          "locator": null,
+          "method": "phylogenetic",
+          "node": "MRCA(Atong_Sal, Bodo_Sal, Dimasa_Sal, Garo_Sal)",
+          "proto_mapping": "The Bodo-Garo clade: Bodo and Dimasa (Bodo-Garo proper), Garo and Atong (Koch, Glottolog 5.3), so its first split is sampled; Jingpho, Konyak and other Sal languages fall outside. Support 1.00.",
+          "quote": null,
+          "role": "posterior",
+          "source": "Menghan Zhang et al. 2019",
+          "url": "https://doi.org/10.1038/s41586-019-1153-z"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 510 CE",
+      "name": "Proto-Bodo-Garo",
+      "spoken": {
+        "end": {
+          "earliest": -32,
+          "latest": 1004
         },
         "ongoing": false,
         "start": null

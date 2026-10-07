@@ -9,9 +9,15 @@ supplementary ZIP; manifest `zhang2019_relaxed_covarion`, epoch AD 1950 as the a
 states; its root reproduces the article) gives five proto ends under the crown-age
 rule, 95% HPD: `sit-pro` until 5868–2234 BCE (root), `tbq-lob-pro` 380 BCE – 380 CE,
 `tbq-kuk-pro` 695 BCE – 722 CE, `tbq-brm-pro` 159–966 CE, `sit-tam-pro` 278–1193 CE.
-Not adopted: Tibeto-Burman (support 0.68; contested as a clade), Loloish (Nusu falls
-outside the Lahu–Ngwi clade), Naish (Zhang's "Naic" adds Namuyi and Xumi), Bodish
-(scope), Tani (three taxa), Bodo-Garo (Zhang's "Sal" adds Konyak and Jingpho). Sagart
+Added 2026-10-07 from uncalibrated subclades of the same tree (means): `tbq-bdg-pro`
+c. 510 CE (Bodo, Dimasa, Garo and Koch Atong, an exact four-taxon clade inside "Sal"),
+`sit-nas-pro` c. 1460 CE (Lijiang Naxi against Yongning Na, without Namuyi and Xumi;
+young, and from two taxa), `sit-ers-pro` c. 780 CE (Ersu, Lizu), `sit-aao-pro` c. 770 CE
+(Ao, Lotha, Sangtam). Not adopted: Tibeto-Burman (support 0.68; contested as a clade),
+Loloish (Nusu falls outside the Lahu–Ngwi clade, and the deposited XML calibrates that
+clade at N(1500, 100) BP), Karen (calibrated at N(1150, 75) BP; ASJP stays), Bodish
+(scope), Tani (three Western Tani taxa), Northern Naga (Chang, Phom and Konyak only:
+a subset of Patkaian). Sagart
 2019 writes BP without an epoch: its tree is now read as AD 1950 by convention (labeled)
 and its root is listed beside Zhang's for `sit-pro` (until 7619–3144 BCE; mean 7184 BP).
 Zhang 2020 remains unconverted (epoch and calibration discrepancies).
