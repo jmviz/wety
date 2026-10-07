@@ -36433,7 +36433,7 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:fff5df92fe6ca543"
     }
   ],
-  "generation": "be3bf9eea5d037a1489f66006690e06fbf95fcc6051417e484d1364b5f0ff275",
+  "generation": "cc40cbab66f9408120814dfbff3da0bba6806e0424083da874baf54b97da69ce",
   "languages": [
     {
       "alternatives": [],
@@ -45115,6 +45115,38 @@
     {
       "alternatives": [],
       "basis": "attested",
+      "code": "otb",
+      "evidence": [
+        {
+          "citation": "Old Tibetan Documents Online (OTDO) Project. n.d. “Introduction.” Research Institute for Languages and Cultures of Asia and Africa (ILCAA), Tokyo University of Foreign Studies, with collaborating specialists. https://otdo.aa-ken.jp/intro (accessed 2026-10-06).",
+          "claim_id": "ev_period_b789f46189e9c59bf176f1566c457b5a16b52174",
+          "event": "documentary_sampling",
+          "locator": "{\"start\": 996, \"end\": 1129, \"section\": \"Introduction, first paragraph\"}",
+          "method": "scholarly_description",
+          "quote": "Old Tibetan documents. These documents constitute a\n    large corpus of Tibetan writing dating from the VIIth to XIIth\n    centuries.",
+          "role": "observation",
+          "source": "Old Tibetan Documents Online (OTDO) Project",
+          "url": "https://otdo.aa-ken.jp/intro"
+        }
+      ],
+      "kind": "attested",
+      "label": "7th–12th century CE",
+      "name": "Old Tibetan",
+      "spoken": {
+        "end": {
+          "earliest": 1101,
+          "latest": 1200
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 601,
+          "latest": 700
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "attested",
       "code": "otk-ork",
       "evidence": [
         {
@@ -46815,6 +46847,38 @@
         "start": {
           "earliest": 1201,
           "latest": 1300
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "attested",
+      "code": "scx",
+      "evidence": [
+        {
+          "citation": "Klein, Jared S. (ed.); Joseph, Brian D. (ed.); Fritz, Matthias (ed.) (2017) Handbook of comparative and historical Indo-European linguistics. Vol. 3. Berlin ; Boston, De Gruyter Mouton.",
+          "claim_id": "ev_period_2af0a3b8d9b827c004d2135048709a29d93d04a4",
+          "event": "documentary_sampling",
+          "locator": "{\"page\": \"1854\", \"pdf_page\": 468}",
+          "method": "scholarly_description",
+          "quote": "Siculian (or Sicel) was the language spoken by the inhabitants of central and eastern\nSicily, documented from the end of the 6th century to the 4th century BCE.",
+          "role": "observation",
+          "source": "Klein et al. 2017",
+          "url": null
+        }
+      ],
+      "kind": "attested",
+      "label": "6th–4th century BCE",
+      "name": "Sicel",
+      "spoken": {
+        "end": {
+          "earliest": -399,
+          "latest": -300
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": -599,
+          "latest": -500
         }
       }
     },
@@ -49761,6 +49825,35 @@
       }
     },
     {
+      "alternatives": [],
+      "basis": "attested",
+      "code": "xhd",
+      "evidence": [
+        {
+          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Syria-Palestine and Arabia. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "claim_id": "ev_period_3a6648d7b79f580dfc3a1facf3e026b38990c4d0",
+          "event": "last_attestation",
+          "locator": "{\"page\": \"146\", \"pdf_page\": 168}",
+          "method": "scholarly_description",
+          "quote": "At the beginning of the fourth century AD the Himyar incorpo-\nrate Hadramawt into their area of control, after which the epigraphic documentation of\nHadramitic likewise ends and is replaced by Sabaic.",
+          "role": "observation",
+          "source": "Woodard 2008",
+          "url": null
+        }
+      ],
+      "kind": "attested",
+      "label": "until c. 4th century CE",
+      "name": "Hadrami",
+      "spoken": {
+        "end": {
+          "earliest": 301,
+          "latest": 400
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
       "alternatives": [
         {
           "basis": "conventional",
@@ -49966,6 +50059,70 @@
         "start": {
           "earliest": -599,
           "latest": -599
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "attested",
+      "code": "xls",
+      "evidence": [
+        {
+          "citation": "Klein, Jared S. (ed.); Joseph, Brian D. (ed.); Fritz, Matthias (ed.) (2017) Handbook of comparative and historical Indo-European linguistics. Vol. 3. Berlin ; Boston, De Gruyter Mouton.",
+          "claim_id": "ev_period_ef886574c977a67c3459f851bbd3a08b5044deda",
+          "event": "documentary_sampling",
+          "locator": "{\"page\": \"1858\", \"pdf_page\": 472}",
+          "method": "scholarly_description",
+          "quote": "All documents are written in the Roman script. The possible time-frame for the in-\nscriptions extends from the 1st c. BCE to the 2nd c. CE, but due to the lack of archaeo-\nlogical contexts the chronology remains conjectural; dating the texts on linguistic\ngrounds is circular.\nThe limited corpus creates several methodological problems: there probably never\nexisted a written literary standard for Lus.;",
+          "role": "observation",
+          "source": "Klein et al. 2017",
+          "url": null
+        }
+      ],
+      "kind": "attested",
+      "label": "c. 1st century BCE – 2nd century CE",
+      "name": "Lusitanian",
+      "spoken": {
+        "end": {
+          "earliest": 101,
+          "latest": 200
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": -99,
+          "latest": 0
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "attested",
+      "code": "xly",
+      "evidence": [
+        {
+          "citation": "Fortson, Benjamin W., IV. 2010. Indo-European Language and Culture: An Introduction. 2nd ed. Blackwell Textbooks in Linguistics 19. Chichester and Malden, MA: Wiley-Blackwell. (Supplied copy is a reflowed e-book without printed page numbers; cited by section.)",
+          "claim_id": "ev_period_6109bf9fc6e09aa8ba3d233aa1a347dd7c622816",
+          "event": "documentary_sampling",
+          "locator": "{\"page\": \"§20.23; printed page label absent in supplied PDF\", \"pdf_page\": 473}",
+          "method": "scholarly_description",
+          "quote": "Fragments of pottery and some coins from the city of Segesta in western Sicily attest a\nlanguage called Elymian also written in the Greek alphabet from the sixth to the fourth\ncenturies BC.",
+          "role": "observation",
+          "source": "Fortson 2010",
+          "url": null
+        }
+      ],
+      "kind": "attested",
+      "label": "6th–4th century BCE",
+      "name": "Elymian",
+      "spoken": {
+        "end": {
+          "earliest": -399,
+          "latest": -300
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": -599,
+          "latest": -500
         }
       }
     },
@@ -50412,6 +50569,60 @@
         },
         "ongoing": false,
         "start": null
+      }
+    },
+    {
+      "alternatives": [
+        {
+          "basis": "attested",
+          "citation": "Schumacher, Stefan, Corinna Salomon, Sindy Kluge, Gudrun Bajc and Martin Braun (eds.). n.d. “Raetica.” Thesaurus Inscriptionum Raeticarum. University of Vienna. https://tir.univie.ac.at/wiki/Raetica (accessed2026-10-06).",
+          "claim_id": "ev_period_3f7f75fe1cdb3c6fb3fa1db97a50759c5ac43fa3",
+          "end": {
+            "earliest": -99,
+            "latest": 0
+          },
+          "event": "documentary_sampling",
+          "label": "c. 6th–1st century BCE",
+          "locator": "{\"start\": 445, \"end\": 854, \"section\": \"Introduction\"}",
+          "method": "scholarly_description",
+          "quote": "The term \"Raetic\" refers to \na few hundred inscriptions\n found mainly in the Trentino and in South and North Tyrol, as well as sporadically in the Veneto, in Graubünden, and in Slovenia. These inscriptions, written with North Italic alphabets, are roughly dated between the 6\nth\n and the 1\nst\n centuries BC, and are the only documents of the Raetic language, a non-Indo-European language of the Alpine region.",
+          "role": "observation",
+          "source": "Schumacher & Martin Braun (eds",
+          "start": {
+            "earliest": -599,
+            "latest": -500
+          },
+          "url": "https://tir.univie.ac.at/wiki/Raetica"
+        }
+      ],
+      "basis": "attested",
+      "code": "xrr",
+      "evidence": [
+        {
+          "citation": "Salomon, Corinna. 2020. “Raetic.” Palaeohispanica 20: 263–298. https://doi.org/10.36707/palaeohispanica.v0i20.380.",
+          "claim_id": "ev_period_8a35a1133a31a733c13d69cd87ce677607ff5095",
+          "event": "documentary_sampling",
+          "locator": "{\"page\": \"270\", \"pdf_page\": 8}",
+          "method": "scholarly_description",
+          "quote": "The Raetic writing culture lasted from the late 6th century, when the \nRaetians learned to write from neighbouring cultures, to the establishment \nof Roman rule in the Central Alps the late 1st century BC.",
+          "role": "observation",
+          "source": "Corinna Salomon 2020",
+          "url": "https://ifc-ojs.es/index.php/palaeohispanica/article/download/380/358"
+        }
+      ],
+      "kind": "attested",
+      "label": "c. 6th–1st century BCE",
+      "name": "Raetic",
+      "spoken": {
+        "end": {
+          "earliest": -99,
+          "latest": 0
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": -599,
+          "latest": -500
+        }
       }
     },
     {
