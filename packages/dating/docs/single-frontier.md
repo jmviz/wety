@@ -35,7 +35,8 @@ configuration. Select `--profile NAME` at preparation; legacy role overrides and
 
 | Profile | Access | Model | Initial effort |
 | --- | --- | --- | --- |
-| `codex-astra` **default** | Codex CLI (pinned, bundled), personal ChatGPT subscription | `gpt-6-astra` | `high`, standard service tier; cached web search for discovery |
+| `codex-sol` **default** | Codex CLI (pinned, bundled), personal ChatGPT subscription | `gpt-6.1-sol` | `high`, standard service tier; cached web search for discovery |
+| `codex-astra` | Same transport | `gpt-6-astra` | `high`; the default until 2026-10-06 |
 | `claude-opus` | Claude Agent SDK, personal Claude subscription | `claude-opus-5` | `high`, adaptive thinking |
 | `openrouter-astra` | Explicitly selected paid OpenRouter API | `openai/gpt-6-astra` | `high` |
 | `openrouter-opus` | Explicitly selected paid OpenRouter API | `anthropic/claude-opus-5` | `high` |
@@ -46,6 +47,10 @@ explicitly in a new configuration when justified. No alias silently upgrades a r
 Unsupported combinations fail rather than dropping reasoning settings.
 
 ## Why these thinking settings
+
+**Sol high (default since 2026-10-06, maintainer decision):** GPT-6.1 Sol at high
+effort replaces Astra for new runs. Earlier runs keep the profile frozen in their
+brief; no comparison between the two was made.
 
 **Astra high:** source interpretation combines uncertain events, borrowed dates,
 priors, sample definitions and conditional models. High is a reasonable initial

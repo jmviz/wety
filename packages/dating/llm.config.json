@@ -169,7 +169,7 @@
   ],
   "selection_history": "packages/dating/docs/archive/llm-config-2026-09-20.json",
   "single_researcher": {
-    "default_profile": "codex-astra",
+    "default_profile": "codex-sol",
     "validation_status": "Provisional single-agent profiles; high effort is a quality/cost hypothesis, not a measured optimum.",
     "limits": {
       "searches": null,
@@ -179,6 +179,12 @@
       "openrouter_cost_stop_usd": 15
     },
     "profiles": {
+      "codex-sol": {
+        "backend": "codex",
+        "model": "gpt-6.1-sol",
+        "effort": "high",
+        "web_search": "cached"
+      },
       "codex-astra": {
         "backend": "codex",
         "model": "gpt-6-astra",
@@ -215,7 +221,7 @@
         }
       }
     },
-    "web_search_note": "Profile web_search (disabled|cached|live) is discovery only: Codex's own search (cached = OpenAI's indexed copy) or Claude's WebSearch. Quotes must still come from a source retained with acquire or open; check enforces that. Enabled for codex-astra on 2026-10-04 so the researcher can find author pages and self-archived copies.",
+    "web_search_note": "Profile web_search (disabled|cached|live) is discovery only: Codex's own search (cached = OpenAI's indexed copy) or Claude's WebSearch. Quotes must still come from a source retained with acquire or open; check enforces that. Enabled for codex-astra on 2026-10-04 so the researcher can find author pages and self-archived copies; codex-sol keeps it.",
     "limits_note": "null = uncapped. The active-time budget (prepare --research-seconds/--delivery-seconds) bounds every run; model_turns bounds Claude and OpenRouter (Codex has no native turn cap); openrouter_cost_stop_usd bounds paid runs. Caps were removed after the 2026-10-03 period pilot hit raised limits (30 acquisitions, 250 tool actions) at a third of its time budget."
   }
 }
