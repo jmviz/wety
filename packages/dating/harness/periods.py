@@ -301,7 +301,14 @@ def period_record(code, claims, alternatives, view, sources):
     # A revival (second-language speakers, new programmes) is shown beside the period;
     # it never reopens the end of native transmission.
     revivals = [c for c in alternatives if c["event"] == "revitalization"]
-    since = lambda c: ranges(c)[0] if c["time"]["form"] == "duration" else event_range(c)
+    # A programme "since 2002" started in 2002, not at some time after it.
+    since = lambda c: (
+        ranges(c)[0]
+        if c["time"]["form"] == "duration"
+        else (c["time"]["value"],) * 2
+        if c["time"].get("relation") == "since"
+        else event_range(c)
+    )
     # One entry per source and start ("since 2024" quoted twice from one report).
     revivals = list({(c["source_id"], json.dumps(since(c))): c for c in revivals}.values())
     alternatives = [c for c in alternatives if c["event"] != "revitalization"]

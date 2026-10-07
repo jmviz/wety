@@ -36433,7 +36433,7 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:fff5df92fe6ca543"
     }
   ],
-  "generation": "cc40cbab66f9408120814dfbff3da0bba6806e0424083da874baf54b97da69ce",
+  "generation": "bb737d6b9f380459da3d5f28690cc0c73bfa7982356df267edff3a167a317733",
   "languages": [
     {
       "alternatives": [],
@@ -39608,6 +39608,49 @@
     },
     {
       "alternatives": [],
+      "basis": "attested",
+      "code": "dif",
+      "evidence": [
+        {
+          "citation": "Austin, Peter K. 2014. And still they speak Diyari: the life history of an endangered language. Ethnorema 10: 1–17. Retained publisher PDF includes a January 2015 personal-communication footnote.",
+          "claim_id": "ev_period_b3f71a6479df327e7b3d2f8b312dbbdcb283e825",
+          "event": "first_attestation",
+          "locator": "{\"page\": \"3\", \"pdf_page\": 3}",
+          "method": "scholarly_description",
+          "quote": "The earliest written records of the Diyari language that have survived are a \npedagogical and religious book by Lutheran missionaries Koch and Homann (1870) \nthat includes a list of orthographic symbols, and sample syllables, words, and \nsentences plus short translations from German of the Lutheran catechism and hymns.",
+          "role": "observation",
+          "source": "Peter K Austin 2014",
+          "url": "https://www.ethnorema.it/wp-content/uploads/10-03-Austin.pdf"
+        }
+      ],
+      "kind": "attested",
+      "label": "from 1870 CE",
+      "name": "Dieri",
+      "revival": [
+        {
+          "citation": "Austin, Peter K. 2014. And still they speak Diyari: the life history of an endangered language. Ethnorema 10: 1–17. Retained publisher PDF includes a January 2015 personal-communication footnote.",
+          "claim_id": "ev_period_46bdab02bd0c5615b85baa51dc0019ee9209c605",
+          "event": "revitalization",
+          "label": "2008 CE–present",
+          "locator": "{\"page\": \"10\", \"pdf_page\": 10}",
+          "method": "scholarly_description",
+          "quote": "Since its formation, the DAC has been concerned about maintenance and \npropagation of cultural and linguistic heritage, and in 2008 began a collaboration \nbetween its Dieri Resources Development Group, based in Port Augusta, and Greg \nWilson of the South Australian Department of Education and Children’s Services to \ndevelop Diyari language pedagogical materials.",
+          "role": "observation",
+          "source": "Peter K Austin 2014",
+          "url": "https://www.ethnorema.it/wp-content/uploads/10-03-Austin.pdf"
+        }
+      ],
+      "spoken": {
+        "end": null,
+        "ongoing": false,
+        "start": {
+          "earliest": 1870,
+          "latest": 1870
+        }
+      }
+    },
+    {
+      "alternatives": [],
       "basis": "last_speaker",
       "code": "dlm",
       "evidence": [
@@ -40621,6 +40664,49 @@
         "start": {
           "earliest": -299,
           "latest": -200
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "last_speaker",
+      "code": "eya",
+      "evidence": [
+        {
+          "citation": "Holton, Gary. 2012. Language archives: They're not just for linguists any more. In Frank Seifart, Geoffrey Haig, Nikolaus P. Himmelmann, Dagmar Jung, Anna Margetts and Paul Trilsbeek (eds.), Potentials of Language Documentation: Methods, Analyses, and Utilization, 105–110. Language Documentation & Conservation Special Publication 3. Honolulu: University of Hawai‘i Press.",
+          "claim_id": "ev_period_516296321424960ab0ac956555eda0c0be24e912",
+          "event": "first_attestation",
+          "locator": "{\"page\": \"107\", \"pdf_page\": 4}",
+          "method": "scholarly_description",
+          "quote": "The ﬁrst known documentation of Eyak is\nfound in a 1308-item vocabulary by Rezanov (1805).",
+          "role": "observation",
+          "source": "Gary Holton 2012",
+          "url": "https://scholarspace.manoa.hawaii.edu/bitstreams/1497fec9-3b88-4fdc-bd1b-6019798d4460/download"
+        },
+        {
+          "citation": "Holton, Gary. 2012. Language archives: They're not just for linguists any more. In Frank Seifart, Geoffrey Haig, Nikolaus P. Himmelmann, Dagmar Jung, Anna Margetts and Paul Trilsbeek (eds.), Potentials of Language Documentation: Methods, Analyses, and Utilization, 105–110. Language Documentation & Conservation Special Publication 3. Honolulu: University of Hawai‘i Press.",
+          "claim_id": "ev_period_edc51c1691777e4f87ae49a7e96f3303cb54661f",
+          "event": "native_transmission_end",
+          "locator": "{\"page\": \"107\", \"pdf_page\": 4}",
+          "method": "expert_estimate",
+          "quote": "In 2008 Eyak became the ﬁrst Alaska Native\nlanguage to disappear in recent times.",
+          "role": "hypothesis",
+          "source": "Gary Holton 2012",
+          "url": "https://scholarspace.manoa.hawaii.edu/bitstreams/1497fec9-3b88-4fdc-bd1b-6019798d4460/download"
+        }
+      ],
+      "kind": "stage",
+      "label": "1805–2008 CE",
+      "name": "Eyak",
+      "spoken": {
+        "end": {
+          "earliest": 2008,
+          "latest": 2008
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 1805,
+          "latest": 1805
         }
       }
     },
@@ -44303,6 +44389,38 @@
       }
     },
     {
+      "alternatives": [],
+      "basis": "attested",
+      "code": "ofo",
+      "evidence": [
+        {
+          "citation": "Dorsey, James Owen & John R. Swanton. 1912. A Dictionary of the Biloxi and Ofo Languages, Accompanied with Thirty-one Biloxi Texts and Numerous Biloxi Phrases. Bureau of American Ethnology Bulletin 47. Washington: Government Printing Office. First edition. Introduction by John R. Swanton, p.4.",
+          "claim_id": "ev_period_794434a1503d5146fb4b86b576c68cc27fd13bc3",
+          "event": "documentary_sampling",
+          "locator": "{\"page\": \"4\", \"pdf_page\": 17, \"read_start\": 12934, \"read_end\": 13063, \"scan_source_id\": \"cc1d9bdc326529db\"}",
+          "method": "fieldwork",
+          "quote": "The material on Ofo was collected by the writer in November and \nDecember, 1908, from the last survivor of that tribe.",
+          "role": "observation",
+          "source": "James Owen Dorsey & John R. Swanton 1912",
+          "url": "https://archive.org/download/adictionarybilo02swangoog/adictionarybilo02swangoog_djvu.txt"
+        }
+      ],
+      "kind": "attested",
+      "label": "1908 CE",
+      "name": "Ofo",
+      "spoken": {
+        "end": {
+          "earliest": 1908,
+          "latest": 1908
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 1908,
+          "latest": 1908
+        }
+      }
+    },
+    {
       "alternatives": [
         {
           "basis": "attested",
@@ -44698,6 +44816,75 @@
         "start": {
           "earliest": 1501,
           "latest": 1600
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "last_speaker",
+      "code": "omc",
+      "evidence": [
+        {
+          "citation": "Eloranta-Barrera Virhuez, Rita Silvia. 2020. Mochica: Grammatical topics and external relations. LOT 563. Amsterdam: LOT. Leiden University doctoral dissertation, defended 12 May 2020. First edition. ISBN 978-94-6093-348-6.",
+          "claim_id": "ev_period_1ede69b151dbd3b737f1a3ba53775d2eeff139de",
+          "event": "first_attestation",
+          "locator": "{\"page\": \"42\", \"pdf_page\": 68}",
+          "method": "scholarly_description",
+          "quote": "The earliest testimony of the Mochica language registered in press is that of \nJerónimo de Oré (1607: 403-408); this work was part of a polyglot manual \nprepared for the use of the priests.",
+          "role": "observation",
+          "source": "Rita Silvia Eloranta-Barrera Virhuez 2020",
+          "url": "https://www.lotpublications.nl/Documents/563_fulltext.pdf"
+        },
+        {
+          "citation": "Eloranta-Barrera Virhuez, Rita Silvia. 2020. Mochica: Grammatical topics and external relations. LOT 563. Amsterdam: LOT. Leiden University doctoral dissertation, defended 12 May 2020. First edition. ISBN 978-94-6093-348-6.",
+          "claim_id": "ev_period_f882e6906e92aff990bbab08fe0e7614088e8a61",
+          "event": "native_transmission_end",
+          "locator": "{\"page\": \"66\", \"pdf_page\": 92}",
+          "method": "expert_estimate",
+          "quote": "Mochica constitutes an interesting case of language revival. Following \nZuckermann & Walsh (2011) and Zuckermann & Monaghan (2012), I prefer \nto use the term language revival instead of language revitalization because it \nis more appropriate for the situation of Mochica. After its extinction in the \nfirst half of the 20th century, it was revived in an attempt to maintain it and \nempower it.",
+          "role": "hypothesis",
+          "source": "Rita Silvia Eloranta-Barrera Virhuez 2020",
+          "url": "https://www.lotpublications.nl/Documents/563_fulltext.pdf"
+        }
+      ],
+      "kind": "stage",
+      "label": "c. 1607–1901/1950 CE",
+      "name": "Mochica",
+      "revival": [
+        {
+          "citation": "Eloranta-Barrera Virhuez, Rita Silvia. 2020. Mochica: Grammatical topics and external relations. LOT 563. Amsterdam: LOT. Leiden University doctoral dissertation, defended 12 May 2020. First edition. ISBN 978-94-6093-348-6.",
+          "claim_id": "ev_period_58db308d8f3ebe3b843023e9cfe13dcb61e8a1b5",
+          "event": "revitalization",
+          "label": "2008 CE–present",
+          "locator": "{\"page\": \"67\", \"pdf_page\": 93}",
+          "method": "scholarly_description",
+          "quote": "Serrepe Ascencio is the director of the Sociedad y Cultura Muchik association \nin Chiclayo, which is a group of Mochica culture and, especially, language \nresearchers, founded in 2008. This association is dedicated to the teaching of \nMochica in the Instituto Nacional de Cultura in Chiclayo (National Institute \nof Culture).",
+          "role": "observation",
+          "source": "Rita Silvia Eloranta-Barrera Virhuez 2020",
+          "url": "https://www.lotpublications.nl/Documents/563_fulltext.pdf"
+        },
+        {
+          "citation": "Eloranta-Barrera Virhuez, Rita Silvia. 2020. Mochica: Grammatical topics and external relations. LOT 563. Amsterdam: LOT. Leiden University doctoral dissertation, defended 12 May 2020. First edition. ISBN 978-94-6093-348-6.",
+          "claim_id": "ev_period_fc1788d09567ac200a841d131581aa2ad0b77a70",
+          "event": "revitalization",
+          "label": "2005 CE–present",
+          "locator": "{\"page\": \"68\", \"pdf_page\": 94}",
+          "method": "scholarly_description",
+          "quote": "Lambayeque counts on another group, including a younger generation of \nrevitalists, such as Medalí Peralta Vallejos and the brothers Juan Carlos Chero \nZurita and Luis Enrique Chero Zurita, who work in an interdisciplinary team \nthat, since 2005, has been establishing an active front of the revived Mochica \nlanguage and culture.",
+          "role": "observation",
+          "source": "Rita Silvia Eloranta-Barrera Virhuez 2020",
+          "url": "https://www.lotpublications.nl/Documents/563_fulltext.pdf"
+        }
+      ],
+      "spoken": {
+        "end": {
+          "earliest": 1901,
+          "latest": 1950
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 1607,
+          "latest": 1607
         }
       }
     },
@@ -47544,6 +47731,38 @@
     {
       "alternatives": [],
       "basis": "attested",
+      "code": "sqn",
+      "evidence": [
+        {
+          "citation": "Julian, Charles. 2010. A History of the Iroquoian Languages. PhD dissertation, Department of Linguistics, University of Manitoba, Winnipeg.",
+          "claim_id": "ev_period_56513b115c50447b64d933996abd0fe151182382",
+          "event": "documentary_sampling",
+          "locator": "{\"page\": \"182\", \"pdf_page\": 204}",
+          "method": "scholarly_description",
+          "quote": "The Susquehannock language is extinct, but is known from a list of 80 \nvocabulary items recorded in the 1640s by the Swedish missionary Johann Campanius \nas an appendix to his Delaware translation of Martin Luther's catechism (Campanius \n1696).",
+          "role": "observation",
+          "source": "Julian 2010",
+          "url": "https://mspace.lib.umanitoba.ca/server/api/core/bitstreams/6b2df4a6-c15a-4d2d-8042-a189bf638df4/content"
+        }
+      ],
+      "kind": "attested",
+      "label": "1640–1649 CE",
+      "name": "Susquehannock",
+      "spoken": {
+        "end": {
+          "earliest": 1649,
+          "latest": 1649
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 1640,
+          "latest": 1640
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "attested",
       "code": "sux",
       "evidence": [
         {
@@ -49005,6 +49224,49 @@
           "earliest": 1101,
           "latest": 1200
         }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "last_speaker",
+      "code": "wrg",
+      "evidence": [
+        {
+          "citation": "Tsunoda, Tasaku. 2011. A Grammar of Warrongo. Mouton Grammar Library 53. Berlin/Boston: De Gruyter Mouton. First edition. ISBN 978-3-11-023876-1. https://doi.org/10.1515/9783110238778.",
+          "claim_id": "ev_period_eea104bc72fb2b0a437e134faff9310c8b524627",
+          "event": "native_transmission_end",
+          "locator": "{\"page\": \"v\", \"pdf_page\": 6}",
+          "method": "expert_estimate",
+          "quote": "But almost all the data on it were provided by the late Mr. Alf Palmer \n(Warrongo name: Jinbilnggay), the last fluent speaker of the language. A very \nsmall amount of information — nonetheless invaluable — was recorded from the \nlate Mr. Alec Collins (Warrongo name: Wolngarra) by Peter Sutton and by me.\nAlf Palmer passed away in 1981.",
+          "role": "hypothesis",
+          "source": "Tasaku Tsunoda 2011",
+          "url": "https://api.pageplace.de/preview/DT0400.9783110238778_A19074002/preview-9783110238778_A19074002.pdf"
+        }
+      ],
+      "kind": "stage",
+      "label": "until 1981 CE",
+      "name": "Warungu",
+      "revival": [
+        {
+          "citation": "Tsunoda, Tasaku. 2011. A Grammar of Warrongo. Mouton Grammar Library 53. Berlin/Boston: De Gruyter Mouton. First edition. ISBN 978-3-11-023876-1. https://doi.org/10.1515/9783110238778.",
+          "claim_id": "ev_period_e4816472d419afd6eba4ffd29292d80910f60aec",
+          "event": "revitalization",
+          "label": "2002 CE–present",
+          "locator": "{\"page\": \"v\", \"pdf_page\": 6}",
+          "method": "scholarly_description",
+          "quote": "But towards the end of the 20th century, a \nmovement to revive the ancestral languages of the area (including Warrongo) \n­started, and I have been conducting Warrongo language lessons in Townsville \nsince 2002 (Tsunoda (2002, 2004, 2005: 212-213) and Tsunoda and Tsunoda (2006, \n2007, 2008, 2010)).",
+          "role": "observation",
+          "source": "Tasaku Tsunoda 2011",
+          "url": "https://api.pageplace.de/preview/DT0400.9783110238778_A19074002/preview-9783110238778_A19074002.pdf"
+        }
+      ],
+      "spoken": {
+        "end": {
+          "earliest": 1981,
+          "latest": 1981
+        },
+        "ongoing": false,
+        "start": null
       }
     },
     {

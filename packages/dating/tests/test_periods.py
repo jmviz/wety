@@ -328,6 +328,10 @@ class PeriodExportTests(unittest.TestCase):
         self.assertEqual((xpq["label"], xpq["basis"]), ("until 1908 CE", "last_speaker"))
         self.assertEqual(xpq["alternatives"], [])
         self.assertEqual([r["label"] for r in xpq["revival"]], ["1990 CE–present"])
+        # "lessons since 2002": the programme started in 2002, not after it.
+        claims[1]["time"] = {"form": "bound", "unit": "CE", "value": 2002, "relation": "since"}
+        (xpq,) = export_periods(bundle(claims, ["e"]), "gen")["languages"]
+        self.assertEqual([r["label"] for r in xpq["revival"]], ["2002 CE–present"])
 
     def test_a_single_dated_record_is_not_a_start(self):
         raw = {"form": "point", "unit": "CE", "value": 1867, "precision": "year"}
