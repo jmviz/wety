@@ -739,6 +739,24 @@
       "subject_id": "wikt:syd-pro"
     },
     {
+      "analysis": "Blazek2008-Starostin-glottochronology",
+      "claim_id": "ev_period_3f7f81ae29c28ef7dabacd22e5860026f746a468",
+      "epoch": null,
+      "estimate": {
+        "interval_type": null,
+        "lower": -4999,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": -4000
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Omotic",
+      "role": "hypothesis",
+      "source": "Václav Blažek 2008",
+      "subject_id": "wikt:omv-pro"
+    },
+    {
       "analysis": "gld_nakh_fixed_rate_default_tutorial",
       "claim_id": "ev_period_406f7baa6d9b4cf6016db68772980bd99bb8bb9a",
       "epoch": null,
@@ -809,6 +827,24 @@
       "role": "hypothesis",
       "source": "Eric W. Holman et al. 2011",
       "subject_id": "wikt:cus-pro"
+    },
+    {
+      "analysis": "Ginting2024-500-word-lexicostatistics",
+      "claim_id": "ev_period_47bb69ca7b0b9f4df443e88c3bb510c3cf8ce8a4",
+      "epoch": 2023,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Batak",
+      "role": "hypothesis",
+      "source": "Ria Clara Ginting et al. 2024",
+      "subject_id": "wikt:btk-pro"
     },
     {
       "analysis": "holman2011-asjp-ethnologue16-s092-r072",
@@ -2215,6 +2251,24 @@
       "subject_id": "wikt:cdc-cbm-pro"
     },
     {
+      "analysis": "Hanna2018-200-word-lexicostatistics",
+      "claim_id": "ev_period_f1dc6d9afbb006f7a21acbe03691d8c3cfc66118",
+      "epoch": 2015,
+      "estimate": {
+        "interval_type": null,
+        "lower": 379,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": 637
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Bungku-Tolaki",
+      "role": "hypothesis",
+      "source": "Hanna et al. 2018",
+      "subject_id": "wikt:poz-btk-pro"
+    },
+    {
       "analysis": "holman2011-asjp-ethnologue16-s092-r072",
       "claim_id": "ev_period_f4fb323e854e07e1baa8359338f04017029f6982",
       "epoch": 2000,
@@ -2303,6 +2357,24 @@
       "role": "hypothesis",
       "source": "Eric W. Holman et al. 2011",
       "subject_id": "wikt:sai-car-pro"
+    },
+    {
+      "analysis": "Rajagukguk2022-200-word-lexicostatistics",
+      "claim_id": "ev_period_fb29e7467500cd4118925981d11b2e4e18e91b50",
+      "epoch": null,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Batak",
+      "role": "hypothesis",
+      "source": "Desy Lampita Rajagukguk & Dwi Widayati 2022",
+      "subject_id": "wikt:btk-pro"
     },
     {
       "analysis": "starostin-2020-nubian-starlingnj",
@@ -36433,7 +36505,7 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:fff5df92fe6ca543"
     }
   ],
-  "generation": "16acced82dc08aa76e4adeb8eb2bd087999555d66c528adca8235e653fd376fb",
+  "generation": "6ee3a0bad396db0b966cd8a80fc57de6502ae0fae10f026aa0a8a7232e623ada",
   "languages": [
     {
       "alternatives": [],
@@ -38392,6 +38464,54 @@
         "end": {
           "earliest": -3050,
           "latest": -2623
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [
+        {
+          "basis": "estimated",
+          "citation": "Ginting, Ria Clara; Sinaga, Warisman; Damanik, Ramlan. 2024. Eksplorasi hubungan genetik bahasa Batak Karo dan bahasa Batak Toba: pendekatan leksikostatistik. Kompetensi 17(1):55–65. https://doi.org/10.36277/kompetensi.v17i1.219",
+          "claim_id": "ev_period_47bb69ca7b0b9f4df443e88c3bb510c3cf8ce8a4",
+          "end": {
+            "earliest": 1028,
+            "latest": 1028
+          },
+          "event": "crown_divergence",
+          "label": "until c. 1030 CE",
+          "locator": "{\"section\": \"Abstract\", \"pdf_page\": 1, \"char_start\": 1344, \"char_end\": 1516, \"page_label\": \"55\", \"visual_check\": \"PDF page 8, printed p. 62; corresponding formula and variant numerals checked. Abstract quote is native PDF text.\"}",
+          "method": "lexicostatistic",
+          "quote": "Perpisahan antara \nbahasa Batak Karo dan Batak Toba diperkirakan terjadi sekitar tahun 1028 M atau pada abad ke-\n11, sekitar 995 tahun yang lalu (dihitung dari tahun 2023).",
+          "role": "hypothesis",
+          "source": "Ria Clara Ginting et al. 2024",
+          "start": null,
+          "url": "https://kompetensi.fkip.uniba-bpn.ac.id/index.php/jurnal-kompetensi/article/download/219/170"
+        }
+      ],
+      "basis": "estimated",
+      "code": "btk-pro",
+      "evidence": [
+        {
+          "citation": "Rajagukguk, Desy Lampita; Widayati, Dwi. 2022. Relationship of Batak Karo, Batak Toba, and Nias: comparative historical linguistic study. International Journal of Humanities Education and Social Sciences 1(6):1037–1046. https://doi.org/10.55227/ijhess.v1i6.192",
+          "claim_id": "ev_period_fb29e7467500cd4118925981d11b2e4e18e91b50",
+          "event": "crown_divergence",
+          "locator": "{\"section\": \"Results: Batak Karo/Batak Toba\", \"pdf_page\": 5, \"char_start\": 10987, \"char_end\": 11113}",
+          "method": "lexicostatistic",
+          "quote": "The year of separation is = 2.022 – 1.319 = 703 M \nSo, The Batak Karo language separated from The Batak Toba language in 703M.",
+          "role": "hypothesis",
+          "source": "Desy Lampita Rajagukguk & Dwi Widayati 2022",
+          "url": "https://ijhess.com/index.php/ijhess/article/download/192/169"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 703 CE",
+      "name": "Proto-Batak",
+      "spoken": {
+        "end": {
+          "earliest": 703,
+          "latest": 703
         },
         "ongoing": false,
         "start": null
@@ -45057,6 +45177,35 @@
     },
     {
       "alternatives": [],
+      "basis": "estimated",
+      "code": "omv-pro",
+      "evidence": [
+        {
+          "citation": "Blažek, Václav. 2008. Lexicostatistical comparison of Omotic languages. In Bengtson (ed.), In Hot Pursuit of Language in Prehistory. https://doi.org/10.1075/z.145.12bla",
+          "claim_id": "ev_period_3f7f81ae29c28ef7dabacd22e5860026f746a468",
+          "event": "crown_divergence",
+          "locator": "{\"section\": \"Publisher's chapter abstract\", \"char_start\": 4563, \"char_end\": 4675}",
+          "method": "lexicostatistic",
+          "quote": "According to the latter the North/South Omotic disintegration can be dated to the beginning of the 5th mill. BC.",
+          "role": "hypothesis",
+          "source": "Václav Blažek 2008",
+          "url": "https://benjamins.com/catalog/z.145.12bla"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 5th millennium BCE",
+      "name": "Proto-Omotic",
+      "spoken": {
+        "end": {
+          "earliest": -4999,
+          "latest": -4000
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
       "basis": "conventional",
       "code": "orv",
       "evidence": [
@@ -45928,6 +46077,35 @@
           "earliest": 1501,
           "latest": 1600
         }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "poz-btk-pro",
+      "evidence": [
+        {
+          "citation": "Hanna; Mursidin; Jannah, Siti Nur Rochmatul. 2018. Language Kinship between Tulambatu and Tolaki Language in North Konawe. Mediterranean Journal of Social Sciences 9(1):91–102. https://doi.org/10.2478/mjss-2018-0009",
+          "claim_id": "ev_period_f1dc6d9afbb006f7a21acbe03691d8c3cfc66118",
+          "event": "crown_divergence",
+          "locator": "{\"section\": \"Discussion: separation estimate\", \"pdf_page\": 11, \"page_label\": \"101\", \"char_start\": 38665, \"char_end\": 38872}",
+          "method": "lexicostatistic",
+          "quote": "Tulambatu and Tolaki languages split 1507 years ± 129 years which means between (1507 + \n129) years and (1507 - 129) years ago. The Tulambatu and Tolaki languages were the only \nlanguage 1636-1378 years ago.",
+          "role": "hypothesis",
+          "source": "Hanna et al. 2018",
+          "url": "https://doi.org/10.2478/mjss-2018-0009"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 379/637 CE",
+      "name": "Proto-Bungku-Tolaki",
+      "spoken": {
+        "end": {
+          "earliest": 379,
+          "latest": 637
+        },
+        "ongoing": false,
+        "start": null
       }
     },
     {
