@@ -36667,7 +36667,7 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:fff5df92fe6ca543"
     }
   ],
-  "generation": "b89f1122e459e444b33bb31a6b13fec418544bee77f90f2dd3e698381acca34a",
+  "generation": "73182ff577ec07b0488654adc20b8857743a089b536f1c3cfd1978a5d0fcd984",
   "languages": [
     {
       "alternatives": [],
@@ -38644,6 +38644,71 @@
         "end": {
           "earliest": -3050,
           "latest": -2623
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [
+        {
+          "basis": "estimated",
+          "citation": "Phylogeographic analysis of the Bantu language expansion supports a rainforest route",
+          "claim_id": "ev_tree_2a98cd49555e59fc7a8b3ed712badc9c9fe71bc9cf885554de0e0adeb8640674",
+          "end": {
+            "earliest": 331,
+            "latest": 911
+          },
+          "estimate": {
+            "interval": "95% HPD 330–910 CE",
+            "statistic": "median",
+            "text": "610 CE",
+            "value": 606
+          },
+          "event": "crown_divergence",
+          "label": "until c. 610 CE",
+          "locator": null,
+          "method": "phylogenetic",
+          "node": "MRCA(E701_Elwana, E71A_Upper_Pokomo, E72a_Giryama, E73_Digo, G401_Mwani, G412_Mwiini, G41_Bajuni, G42_Swahili, G42a_Amu, G42d_Unguja, G43_Kae, G44D_Maore, G44a_Ngazija, G44b_Ndzwani)",
+          "note": "Koile et al. 2022, Part 2 (lexical + geographic model), the authors' OSF tree. A re-analysis of Grollemund et al.'s lexical data, not independent evidence; B.P. read as AD 1950 by convention.",
+          "proto_mapping": "The Sabaki clade: Elwana, Pokomo, Mijikenda (Giryama, Digo), the Swahili varieties (Mwani, Mwiini, Bajuni, Swahili, Amu, Unguja, Kae) and Comorian (Maore, Ngazija, Ndzwani), 14 languages and no others; the Taita languages (Dawida, Tuveta) fall outside.",
+          "quote": null,
+          "role": "posterior",
+          "source": "Ezequiel Koile et al. 2022",
+          "start": null,
+          "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9372543/"
+        }
+      ],
+      "basis": "estimated",
+      "code": "bnt-sab-pro",
+      "estimate": {
+        "interval": "95% HPD 3 BCE – 690 CE",
+        "statistic": "mean",
+        "text": "400 CE",
+        "value": 404
+      },
+      "evidence": [
+        {
+          "citation": "Bantu expansion shows that habitat alters the route and pace of human dispersals",
+          "claim_id": "ev_tree_1547d1cf821d5048c8ff530ad1c87f94674be59a8db3d44a88ca69aa331665d7",
+          "event": "crown_divergence",
+          "locator": null,
+          "method": "phylogenetic",
+          "node": "MRCA(E701_Elwana, E71A_Upper_Pokomo, E72a_Giryama, E73_Digo, G401_Mwani, G412_Mwiini, G41_Bajuni, G42_Swahili, G42a_Amu, G42d_Unguja, G43_Kae, G44D_Maore, G44a_Ngazija, G44b_Ndzwani)",
+          "proto_mapping": "The Sabaki clade: Elwana, Pokomo, Mijikenda (Giryama, Digo), the Swahili varieties (Mwani, Mwiini, Bajuni, Swahili, Amu, Unguja, Kae) and Comorian (Maore, Ngazija, Ndzwani), 14 languages and no others; the Taita languages (Dawida, Tuveta) fall outside.",
+          "quote": null,
+          "role": "posterior",
+          "source": "Rebecca Grollemund et al. 2015",
+          "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4629331/"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 400 CE",
+      "name": "Proto-Sabaki",
+      "spoken": {
+        "end": {
+          "earliest": -2,
+          "latest": 692
         },
         "ongoing": false,
         "start": null

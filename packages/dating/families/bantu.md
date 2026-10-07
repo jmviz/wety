@@ -15,7 +15,13 @@ Alternative shown: Koile et al. 2022, Part 2 (lexical + geographic model; manife
 `koile2022_part2_geographic`, the authors' OSF tree, whose root HPD reproduces the
 article's 5,110 BP, 4,640–5,770). Its Bantu in-group (410 languages, Jarawan again
 nested inside) ends 3049–2094 BCE. It re-analyses Grollemund et al.'s lexical data, so
-it is a model alternative, not independent evidence. Koile's Part 1 summary tree in the
+it is a model alternative, not independent evidence.
+
+`bnt-sab-pro` (added 2026-10-07) ends at the Sabaki clade of both trees: Elwana, Pokomo,
+Mijikenda, the Swahili varieties and Comorian, 14 languages, Taita outside. Grollemund:
+mean c. 400 CE, 95% HPD 3 BCE – 690 CE; Koile alternative c. 610 CE. The node is not
+calibrated (the article's calibrations are all 2,500 B.P. or older). Nguni is not
+adopted: only Zulu, Xhosa and Ndebele (Zunda) are sampled, not Swati (Tekela). Koile's Part 1 summary tree in the
 same archive does not reproduce the article (root 4927 against 4,940; node 1 HPD upper
 4362 against 4,380) and is not used. Source review: run
 `phylogeny-deposits-2026-10-05`.
