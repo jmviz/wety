@@ -433,6 +433,24 @@
       "subject_id": "wikt:tuw-pro"
     },
     {
+      "analysis": "starlingnj-etymological-binary",
+      "claim_id": "ev_period_298524c04d3c13b728bf1369e255b20cf9e6c54a",
+      "epoch": null,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Lezghian",
+      "role": "hypothesis",
+      "source": "Alexei Kassian 2015",
+      "subject_id": "wikt:cau-lzg-pro"
+    },
+    {
       "analysis": "mongolic-time-depth-reported-hakkinen2009",
       "claim_id": "ev_period_29df9c3f431539bb7f8f3de1927355f02e1d6c8f",
       "epoch": 1950,
@@ -1243,6 +1261,24 @@
       "subject_id": "wikt:xgn-pro"
     },
     {
+      "analysis": "older-lexicostatistical-estimate-summary",
+      "claim_id": "ev_period_7979859e069aa67e1f6b59dff43b827aff0d21c4",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": null,
+        "lower": -1950,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": -1550
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Mixtecan",
+      "role": "hypothesis",
+      "source": "Sandra Auderset et al. 2023",
+      "subject_id": "wikt:omq-mix-pro"
+    },
+    {
       "analysis": "pevnov2012-mutual-intelligibility",
       "claim_id": "ev_period_798f99f6a01f0885104a8d1b94e9f87af601a415",
       "epoch": 1950,
@@ -1367,6 +1403,24 @@
       "role": "hypothesis",
       "source": "Eric W. Holman et al. 2011",
       "subject_id": "wikt:afa-pro"
+    },
+    {
+      "analysis": "2004-specialist-statement",
+      "claim_id": "ev_period_8772376cb7ce0315f025613a355a4fd373a56bbf",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Algic",
+      "role": "hypothesis",
+      "source": "Paul Proulx 2004",
+      "subject_id": "wikt:aql-pro"
     },
     {
       "analysis": "holman2011-asjp-ethnologue16-s092-r072",
@@ -1583,6 +1637,24 @@
       "role": "hypothesis",
       "source": "Edward Vajda 2018",
       "subject_id": "wikt:qfa-yen-pro"
+    },
+    {
+      "analysis": "archaeological-synthesis",
+      "claim_id": "ev_period_9df6b0bf10e064c7f12b704be5c131b78170c21c",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Central-Eastern Malayo-Polynesian",
+      "role": "hypothesis",
+      "source": "Matthew Spriggs 2010",
+      "subject_id": "wikt:poz-cet-pro"
     },
     {
       "analysis": "published-discussion",
@@ -2035,6 +2107,24 @@
       "subject_id": "wikt:aql-pro"
     },
     {
+      "analysis": "starlingnj-etymological-joined",
+      "claim_id": "ev_period_d3936919b3e05d035e7ba7f499bd7adbe1ef7e45",
+      "epoch": null,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Lezghian",
+      "role": "hypothesis",
+      "source": "Alexei Kassian 2015",
+      "subject_id": "wikt:cau-lzg-pro"
+    },
+    {
       "analysis": "blazek-2012-recalibrated-unadjusted",
       "claim_id": "ev_period_d3d674396c71d913e07aadf8e5a0a6f0515e4fb9",
       "epoch": null,
@@ -2411,6 +2501,24 @@
       "role": "hypothesis",
       "source": "Eric W. Holman et al. 2011",
       "subject_id": "wikt:azc-num-pro"
+    },
+    {
+      "analysis": "impressionistic-comparative-depth",
+      "claim_id": "ev_period_ff93814990a2014db5987b21f0e385ce09c56754",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": null,
+        "lower": 950,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": 1350
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Chatino",
+      "role": "hypothesis",
+      "source": "Eric Campbell 2013",
+      "subject_id": "wikt:omq-cha-pro"
     },
     {
       "analysis": "tao2023_kd_covarion_relaxed",
@@ -36505,7 +36613,7 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:fff5df92fe6ca543"
     }
   ],
-  "generation": "6ee3a0bad396db0b966cd8a80fc57de6502ae0fae10f026aa0a8a7232e623ada",
+  "generation": "82a72b2d5f0a45aca1672ff2925fa0cc43d29d89e644b5c08b4ad61c351e2a50",
   "languages": [
     {
       "alternatives": [],
@@ -37696,30 +37804,48 @@
           "source": "Nicholas A. Hopkins",
           "start": null,
           "url": "https://www.famsi.org/research/hopkins/SouthEastUSLanguages.pdf"
+        },
+        {
+          "basis": "estimated",
+          "citation": "Automated dating of the world's language families based on lexical similarity",
+          "claim_id": "ev_period_d382d1873c1e0c39054a4d386af0931eadad0062",
+          "end": {
+            "earliest": -3554,
+            "latest": -3554
+          },
+          "event": "crown_divergence",
+          "label": "until c. 3560 BCE",
+          "locator": "{\"table\": \"Table 6\", \"row\": \"Algic\", \"page\": 859, \"pdf_page\": 20, \"character_start\": 73340, \"character_end\": 73364, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
+          "method": "lexicostatistic",
+          "quote": "Algic\n51\n3 (3)\n2.39\n5554",
+          "role": "hypothesis",
+          "source": "Eric W. Holman et al. 2011",
+          "start": null,
+          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
         }
       ],
       "basis": "estimated",
       "code": "aql-pro",
       "evidence": [
         {
-          "citation": "Automated dating of the world's language families based on lexical similarity",
-          "claim_id": "ev_period_d382d1873c1e0c39054a4d386af0931eadad0062",
+          "citation": "Proulx, Paul.2004. Proto Algic VI: Conditioned Yurok Reflexes of Proto Algic Vowels. Kansas Working Papers in Linguistics 27:124–138. doi:10.17161/KWPL.1808.1247.",
+          "claim_id": "ev_period_8772376cb7ce0315f025613a355a4fd373a56bbf",
           "event": "crown_divergence",
-          "locator": "{\"table\": \"Table 6\", \"row\": \"Algic\", \"page\": 859, \"pdf_page\": 20, \"character_start\": 73340, \"character_end\": 73364, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
-          "method": "lexicostatistic",
-          "quote": "Algic\n51\n3 (3)\n2.39\n5554",
+          "locator": "{\"pdf_page\": 2, \"printed_page\": \"124\", \"section\": \"1. Introduction\", \"page_image_sha256\": \"c9b31b96de4e0ea1e56ac7aaae3dfe9b8c40cc6a85d558d209ce6c1d2a6c573c\"}",
+          "method": "expert_estimate",
+          "quote": "Moreover, working out the details of Proto Algic is \na considerably more complex business than in the case of Proto Algonquian, due to \nthe presumed time depth involved (about 8,000 years).",
           "role": "hypothesis",
-          "source": "Eric W. Holman et al. 2011",
-          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+          "source": "Paul Proulx 2004",
+          "url": "https://journals.ku.edu/kwpl/article/download/17177/15452"
         }
       ],
       "kind": "proto",
-      "label": "until c. 3560 BCE",
+      "label": "until c. 6050 BCE",
       "name": "Proto-Algic",
       "spoken": {
         "end": {
-          "earliest": -3554,
-          "latest": -3554
+          "earliest": -6050,
+          "latest": -6050
         },
         "ongoing": false,
         "start": null
@@ -38541,6 +38667,54 @@
         "end": {
           "earliest": -50,
           "latest": -50
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [
+        {
+          "basis": "estimated",
+          "citation": "Kassian, Alexei. 2015. Towards a Formal Genealogical Classification of the Lezgian Languages (North Caucasus): Testing Various Phylogenetic Methods on Lexical Data. PLOS ONE 10(2): e0116950. doi:10.1371/journal.pone.0116950",
+          "claim_id": "ev_period_d3936919b3e05d035e7ba7f499bd7adbe1ef7e45",
+          "end": {
+            "earliest": -1729,
+            "latest": -1729
+          },
+          "event": "crown_divergence",
+          "label": "until c. 1730 BCE",
+          "locator": "{\"pdf_page\": 8, \"printed_page\": \"8\", \"figure\": \"3\", \"graphic_node_label\": \"Lezgian (1730 BC)\", \"page_image_sha256\": \"0d94dd6e18228fa57ef1d3a3ff9ac5a26c0a09edb1dacd9d9a10640a067b7b4c\"}",
+          "method": "lexicostatistic",
+          "quote": "Fig 3. Etymology-based phylogenetic tree of the Lezgian lects produced by the StarlingNJ method from the multistate matrix (neighboring nodes\nare joined if the distance between them is 300 years or less). The tree is dated.",
+          "role": "hypothesis",
+          "source": "Alexei Kassian 2015",
+          "start": null,
+          "url": "https://journals.plos.org/plosone/article/file?id=10.1371/journal.pone.0116950&type=printable"
+        }
+      ],
+      "basis": "estimated",
+      "code": "cau-lzg-pro",
+      "evidence": [
+        {
+          "citation": "Kassian, Alexei. 2015. Towards a Formal Genealogical Classification of the Lezgian Languages (North Caucasus): Testing Various Phylogenetic Methods on Lexical Data. PLOS ONE 10(2): e0116950. doi:10.1371/journal.pone.0116950",
+          "claim_id": "ev_period_298524c04d3c13b728bf1369e255b20cf9e6c54a",
+          "event": "crown_divergence",
+          "locator": "{\"pdf_page\": 7, \"printed_page\": \"7\", \"figure\": \"2\", \"graphic_node_label\": \"Lezgian (1750 BC)\", \"page_image_sha256\": \"28eb62000864d54d6142884129ee48889589910e5176d0dcc36ec0e61b637638\"}",
+          "method": "lexicostatistic",
+          "quote": "Fig 2. Etymology-based phylogenetic tree of the Lezgian lects produced by the StarlingNJ method from the multistate matrix (binary nodes only).",
+          "role": "hypothesis",
+          "source": "Alexei Kassian 2015",
+          "url": "https://journals.plos.org/plosone/article/file?id=10.1371/journal.pone.0116950&type=printable"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 1750 BCE",
+      "name": "Proto-Lezghian",
+      "spoken": {
+        "end": {
+          "earliest": -1749,
+          "latest": -1749
         },
         "ongoing": false,
         "start": null
@@ -45009,29 +45183,77 @@
       }
     },
     {
-      "alternatives": [],
-      "basis": "estimated",
-      "code": "omq-cha-pro",
-      "evidence": [
+      "alternatives": [
         {
+          "basis": "estimated",
           "citation": "Automated dating of the world's language families based on lexical similarity",
           "claim_id": "ev_period_252d959000cfc59086dc4b86a2b6e18e7a256819",
+          "end": {
+            "earliest": 1003,
+            "latest": 1003
+          },
           "event": "crown_divergence",
+          "label": "until c. 1000 CE",
           "locator": "{\"table\": \"Table 6\", \"row\": \"Chatino\", \"page\": 859, \"pdf_page\": 20, \"character_start\": 75126, \"character_end\": 75151, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
           "method": "lexicostatistic",
           "quote": "Chatino\n3\n3 (6)\n47.79\n997",
           "role": "hypothesis",
           "source": "Eric W. Holman et al. 2011",
+          "start": null,
           "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
         }
       ],
+      "basis": "estimated",
+      "code": "omq-cha-pro",
+      "evidence": [
+        {
+          "citation": "Campbell, Eric. 2013. The Internal Diversification and Subgrouping of Chatino. International Journal of American Linguistics 79(3):395–420. doi:10.1086/670924",
+          "claim_id": "ev_period_ff93814990a2014db5987b21f0e385ce09c56754",
+          "event": "crown_divergence",
+          "locator": "{\"pdf_page\": 4, \"printed_page\": \"397\", \"section\": \"2. Comparative Zapotecan basics\"}",
+          "method": "expert_estimate",
+          "quote": "The time depth of Chatino diver-\nsification is fairly shallow, probably between 600 and 1,000 years,",
+          "role": "hypothesis",
+          "source": "Eric Campbell 2013",
+          "url": "https://linguistics.ucsb.edu/sites/default/files/sitefiles/people/campbell/Campbell-2013-Internal_divers_and_subgrouping_Chatino.pdf"
+        }
+      ],
       "kind": "proto",
-      "label": "until c. 1000 CE",
+      "label": "until c. 950/1350 CE",
       "name": "Proto-Chatino",
       "spoken": {
         "end": {
-          "earliest": 1003,
-          "latest": 1003
+          "earliest": 950,
+          "latest": 1350
+        },
+        "ongoing": false,
+        "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "estimated",
+      "code": "omq-mix-pro",
+      "evidence": [
+        {
+          "citation": "Auderset, Sandra, Simon J. Greenhill, Christian T. DiCanio & Eric W. Campbell. 2023. Subgrouping in a ‘dialect continuum’: A Bayesian phylogenetic analysis of the Mixtecan language family. Journal of Language Evolution. doi:10.1093/jole/lzad004",
+          "claim_id": "ev_period_7979859e069aa67e1f6b59dff43b827aff0d21c4",
+          "event": "crown_divergence",
+          "locator": "{\"pdf_page\": 4, \"section\": \"2. Previous classifications and dating estimates\"}",
+          "method": "lexicostatistic",
+          "quote": "Mixtec and Triqui are \nestimated to have diverged around 3900–3500 years \nago, Triqui and Cuicatec around 3900 years ago, and \nMixtec and Cuicatec around 3100–2500 years ago \n(Holland 1959: 25–6, Arana Osnaya 1960: 262–3, \nSwadesh 1967: 94).",
+          "role": "hypothesis",
+          "source": "Sandra Auderset et al. 2023",
+          "url": "https://pure.mpg.de/rest/items/item_3524862_2/component/file_3524863/content"
+        }
+      ],
+      "kind": "proto",
+      "label": "until c. 1950/1550 BCE",
+      "name": "Proto-Mixtecan",
+      "spoken": {
+        "end": {
+          "earliest": -1950,
+          "latest": -1550
         },
         "ongoing": false,
         "start": null
@@ -46109,29 +46331,48 @@
       }
     },
     {
-      "alternatives": [],
-      "basis": "estimated",
-      "code": "poz-cet-pro",
-      "evidence": [
+      "alternatives": [
         {
+          "basis": "estimated",
           "citation": "Automated dating of the world's language families based on lexical similarity",
           "claim_id": "ev_period_c8e8c880919e1800120fcc45ac49cb039f554181",
+          "end": {
+            "earliest": -1111,
+            "latest": -1111
+          },
           "event": "crown_divergence",
+          "label": "until c. 1110 BCE",
           "locator": "{\"table\": \"Table 5\", \"row\": \"Central-Eastern\", \"page\": 856, \"pdf_page\": 17, \"character_start\": 68056, \"character_end\": 68095, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
           "method": "lexicostatistic",
           "quote": "Central-Eastern\n51,447\n3 (4)\n11.92\n3111",
           "role": "hypothesis",
           "source": "Eric W. Holman et al. 2011",
+          "start": null,
           "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
         }
       ],
+      "basis": "estimated",
+      "code": "poz-cet-pro",
+      "evidence": [
+        {
+          "citation": "Spriggs, Matthew. 2010. ‘I was so much older then, I’m younger than that now’: why the dates keep changing for the spread of Austronesian languages. In Bowden, Himmelmann & Ross (eds), A journey through Austronesian and Papuan linguistic and cultural space, pp. 113–140. Pacific Linguistics.",
+          "claim_id": "ev_period_9df6b0bf10e064c7f12b704be5c131b78170c21c",
+          "event": "crown_divergence",
+          "locator": "{\"pdf_page\": 19, \"printed_page\": \"129\", \"section\": \"4.5\"}",
+          "method": "archaeological_correlation",
+          "quote": "After the break-up of PCEMP as it spread into northern Maluku and/or parts of western \nNew Guinea around 3500 BP, the languages in the CMP area diverged in situ, forming a \nlinkage rather than a perfectly discrete subgroup.",
+          "role": "hypothesis",
+          "source": "Matthew Spriggs 2010",
+          "url": "https://openresearch-repository.anu.edu.au/bitstreams/b907d75d-7bd0-405c-8084-c2d6e6c81289/download"
+        }
+      ],
       "kind": "proto",
-      "label": "until c. 1110 BCE",
+      "label": "until c. 1550 BCE",
       "name": "Proto-Central-Eastern Malayo-Polynesian",
       "spoken": {
         "end": {
-          "earliest": -1111,
-          "latest": -1111
+          "earliest": -1550,
+          "latest": -1550
         },
         "ongoing": false,
         "start": null
