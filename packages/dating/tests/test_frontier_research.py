@@ -6,7 +6,14 @@ import unittest
 from unittest.mock import patch
 
 from harness.frontier_tools import ResearchTools, check, sha, tool_response
-from harness.frontier_research import REPO, clean_env, codex_command, prepare, router_run
+from harness.frontier_research import (
+    REPO,
+    clean_env,
+    codex_command,
+    codex_run,
+    prepare,
+    router_run,
+)
 
 
 class FrontierTests(unittest.TestCase):
@@ -284,6 +291,33 @@ class FrontierTests(unittest.TestCase):
         self.assertNotIn("OPENAI_API_KEY", env)
         self.assertNotIn("OPENROUTER_API_KEY", env)
         self.assertEqual(env["CODEX_HOME"], "/auth")
+
+    def test_codex_events_keep_unicode_line_separators_inside_strings(self):
+        # A quoted source can carry U+2028 unescaped in a JSON string; it is not a
+        # line break of the JSONL event stream.
+        (self.root / "prompt.txt").write_text("research")
+        events = [
+            {"type": "thread.started", "thread_id": "t"},
+            {"type": "item.completed", "item": {"text": "a\u2028b"}},
+            {"type": "turn.completed", "usage": {"output_tokens": 1}},
+        ]
+
+        def fake_run(cmd, **kw):
+            if "stdout" in kw:
+                kw["stdout"].write("\n".join(json.dumps(e, ensure_ascii=False) for e in events))
+            return type(
+                "P", (), {"returncode": 0, "stdout": "Logged in using ChatGPT", "stderr": ""}
+            )
+
+        self.brief["transport"] = {}
+        with (
+            patch("shutil.which", return_value="/bin/codex"),
+            patch("harness.frontier_research.codex_executable", return_value="/bin/codex"),
+            patch("subprocess.run", fake_run),
+        ):
+            codex_run(self.root, self.brief)
+        usage = json.loads((self.root / "usage.json").read_text())
+        self.assertEqual((usage["thread_id"], usage["turns"]), ("t", [{"output_tokens": 1}]))
 
     def test_router_preserves_reasoning_and_stops_on_missing_cost(self):
         from io import BytesIO

@@ -556,7 +556,7 @@ def check(root):
     p = root / "assertions.jsonl"
     if p.exists():
         try:
-            rows = [json.loads(line) for line in p.read_text().splitlines() if line.strip()]
+            rows = [json.loads(line) for line in p.read_text().split("\n") if line.strip()]
         except ValueError:
             errors.append("invalid assertions JSONL")
     seen = set()

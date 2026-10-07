@@ -78,7 +78,7 @@ def build(run_dir, review, languages=None, texts_dir=None):
         r["id"]: r
         for r in (
             json.loads(x)
-            for x in (run_dir / "assertions.jsonl").read_text().splitlines()
+            for x in (run_dir / "assertions.jsonl").read_text().split("\n")
             if x.strip()
         )
     }

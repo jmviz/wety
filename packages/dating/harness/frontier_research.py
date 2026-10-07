@@ -259,10 +259,10 @@ def codex_run(root, brief):
         proc = subprocess.run(
             cmd, input=(root / "prompt.txt").read_text(), env=env, text=True, stdout=out, stderr=err
         )
+    # JSONL is split on "\n" only: str.splitlines also breaks on U+2028 and other
+    # separators that a JSON string may carry unescaped (quoted source text).
     events = [
-        json.loads(line)
-        for line in (root / "events.jsonl").read_text().splitlines()
-        if line.strip()
+        json.loads(line) for line in (root / "events.jsonl").read_text().split("\n") if line.strip()
     ]
     completed = [e for e in events if e.get("type") == "turn.completed"]
     usage = {
