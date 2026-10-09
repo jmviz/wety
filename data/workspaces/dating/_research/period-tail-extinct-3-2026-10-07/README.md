@@ -4,11 +4,12 @@
 
 ## Run
 
-- Profile `codex-astra` (gpt-6-astra, high effort, Codex CLI 0.160.0). 2700 s + 600 s;
-  used 2233 s (completed). 520 tool actions. Usage 13,680,367 input tokens (13,065,344 cached), 65,611 output.
+- Profile `codex-sol` (gpt-6.1-sol, high effort, Codex CLI on ChatGPT subscription, codex-cli 0.160.0).
+  2700 s + 600 s; used 2233 s (completed).
+  520 tool actions. Usage 13,680,367 input tokens (13,065,344 cached), 65,611 output.
   `check`: 23 assertions, 0 errors. Requests: Arawakan: Maipure-Yavitero; Galice Athapaskan: A Grammatical Sketch; A comparative vocabulary of Formosan languages and dialects; Evaluating historical data (wordlists) in the case of Bolivian extinct languages; Aghu Tharrnggala: a language of the Princess Charlotte Bay region of Cape York Peninsula; The Khoesan languages; California Indian Languages; Pidgin Delaware; A Grammatical Sketch of Apalachee.
 
-## Review (Claude Opus 5.5)
+## Review (Claude Opus 5.5 (Claude Code))
 
 Quotes exact in the retained texts. 12 of 23 supported; 2 codes adopted.
 
@@ -20,3 +21,5 @@ one documentation project would misstate a language's window: Uruava 1973, Akaje
 1876–79 and 1906–08, Arára 2007, Kato 1902 and 1906, Limilngan 1972 and 1980–94; the
 Quinault revival grant 2006 (no period to stand beside). Scope findings: Kinikinau and
 Kanoê have living speakers; the sole Aequian inscription is suspected as a forgery.
+
+Correction (2026-10-09): this run's review and its first README named gpt-6-astra; the run used gpt-6.1-sol (its brief.json). Recorded as an erratum in the ledger; the decisions were re-recorded with the right attribution.

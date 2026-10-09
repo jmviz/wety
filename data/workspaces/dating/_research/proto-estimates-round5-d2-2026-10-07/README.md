@@ -4,11 +4,12 @@
 
 ## Run
 
-- Profile `codex-astra` (gpt-6-astra, high effort, Codex CLI 0.160.0). 2700 s + 600 s;
-  used 2182 s (failed). 715 tool actions. Usage not reported.
-  `check`: 7 assertions, 0 errors. Requests: Proto-Greek and Common Greek; On Siouan Chronology; The Yoruba: A New History; The languages of Kamchatka: A reconstruction; Salish Phonologic Geography; West Caucasian proto-language: Origin and stages of evolutionary development.
+- Profile `codex-sol` (gpt-6.1-sol, high effort, Codex CLI on ChatGPT subscription).
+  2700 s + 600 s; used 2182 s (failed).
+  715 tool actions. Usage not recorded.
+  `check`: 7 assertions, 6 errors. Requests: Proto-Greek and Common Greek; On Siouan Chronology; The Yoruba: A New History; The languages of Kamchatka: A reconstruction; Salish Phonologic Geography; West Caucasian proto-language: Origin and stages of evolutionary development.
 
-## Review (Claude Opus 5.5)
+## Review (Claude Opus 5.5 (Claude Code))
 
 Quotes exact in the retained texts. 2 of 7 supported; 2 codes adopted.
 
@@ -21,3 +22,5 @@ old (Sidwell 2000, a subgroup); Austroasiatic c. 4000 BP and not before 4200 BP 
 & Blench 2011; Austroasiatic includes Munda, broader than Proto-Mon-Khmer); Strand 2023's
 1800–800 BCE emergence of each Nuristani language (no single proto-stage); Fortescue on
 common Eskimo in Chukotka (not Chukotko-Kamchatkan).
+
+Correction (2026-10-09): this run's review and its first README named gpt-6-astra; the run used gpt-6.1-sol (its brief.json). Recorded as an erratum in the ledger; the decisions were re-recorded with the right attribution.

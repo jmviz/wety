@@ -4,11 +4,12 @@
 
 ## Run
 
-- Profile `codex-astra` (gpt-6-astra, high effort, Codex CLI 0.160.0). 2700 s + 600 s;
-  used 2518 s (partial). 499 tool actions. Usage 12,428,132 input tokens (11,837,824 cached), 47,859 output.
-  `check`: 10 assertions, 0 errors. Requests: Mayan Linguistics: Where Are We Now?; Hawaiki, Ancestral Polynesia: An Essay in Historical Anthropology; Comparative Eskimo Dictionary with Aleut Cognates; Language Relations across Bering Strait: Reappraising the Archaeological and Linguistic Evidence; The Katuic Languages: Classification, Reconstruction and Comparative Lexicon; Bayesian phylogenetic analysis of Philippine languages supports a rapid migration of Malayo-Polynesian languages; Lexicostatistic Classification; Proto-Micronesian Reconstructions—I; Revised Lexicostatistical Classification of Salishan Languages.
+- Profile `codex-sol` (gpt-6.1-sol, high effort, Codex CLI on ChatGPT subscription, codex-cli 0.160.0).
+  2700 s + 600 s; used 2518 s (completed).
+  499 tool actions. Usage 12,428,132 input tokens (11,837,824 cached), 47,859 output.
+  `check`: 10 assertions, 6 errors. Requests: Mayan Linguistics: Where Are We Now?; Hawaiki, Ancestral Polynesia: An Essay in Historical Anthropology; Comparative Eskimo Dictionary with Aleut Cognates; Language Relations across Bering Strait: Reappraising the Archaeological and Linguistic Evidence; The Katuic Languages: Classification, Reconstruction and Comparative Lexicon; Bayesian phylogenetic analysis of Philippine languages supports a rapid migration of Malayo-Polynesian languages; Lexicostatistic Classification; Proto-Micronesian Reconstructions—I; Revised Lexicostatistical Classification of Salishan Languages.
 
-## Review (Claude Opus 5.5)
+## Review (Claude Opus 5.5 (Claude Code))
 
 Quotes exact in the retained texts. 2 of 10 supported; 1 codes adopted.
 
@@ -27,3 +28,5 @@ Revision (2026-10-08, `coordinator-review/revision-atkinson.json`): Atkinson's t
 are supported sampled-clade posteriors (taxa checked against Fig. 6.3, analyses
 registered in the research graph) and shown beside Kaufman's default for Proto-Mayan,
 both labeled by the prose's 95% interval of about 4000–9000 BP.
+
+Correction (2026-10-09): this run's review and its first README named gpt-6-astra; the run used gpt-6.1-sol (its brief.json). Recorded as an erratum in the ledger; the decisions were re-recorded with the right attribution.

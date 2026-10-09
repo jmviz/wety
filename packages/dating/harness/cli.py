@@ -19,6 +19,13 @@ dating build-packet RUN REVIEW               reviewed research run -> packet, re
 dating adopt REVIEW                          record the review's editorial defaults (after import + synthesize)
 dating withdraw SUBJECT EVENT --reviewer R --rationale TEXT   retract a decision, kept with its reason in the ledger
 dating ledger status|migrate|resolve-source KEY N   the append-only editorial ledger (decisions, sources)
+dating ledger erratum PACKET --field F --correct TEXT --basis TEXT   record a correction to an imported packet
+dating brief SPEC.json                       batch brief from a prompt template (period or proto)
+dating review RUN JUDGMENTS.json [--reviewer NAME]   coordinator-review/review.json from judgments
+dating publish RUN [--review PATH]           packet, import, adopt, publish, validate, export (one reviewed run)
+dating run-readme RUN --title T --notes FILE  the run's README.md (researcher, budget, outcome, notes)
+dating review-summary RUN [--pages DIR]      one block per assertion; render the pages proposed defaults cite
+dating adopt-clades SPEC.json                proto ends from deposited trees' clades (exact taxon sets)
 dating readopt [SUBJECT...] --reviewer R --note TEXT   re-adopt stale decisions unchanged (e.g. after a rules bump)
 dating holdings add|zotero|sync|list         maintainer-supplied sources (library PDFs, via Zotero): retain, hash, parse
 dating requests list|merge|push|set          the source acquisition queue (files requests in Zotero)
@@ -254,6 +261,26 @@ def cmd_ledger(args) -> None:
 
     if args.action == "migrate":
         print(json.dumps(ledger.migrate(), indent=2))
+    elif args.action == "erratum":
+        if not (args.key and args.field and args.correct and args.basis):
+            raise SystemExit("erratum needs PACKET --field --correct --basis")
+        ledger.append(
+            [
+                {
+                    "kind": "erratum",
+                    "key": f"{args.key}|{args.field}",
+                    "op": "put",
+                    "record": {
+                        "packet_id": args.key,
+                        "field": args.field,
+                        "correct": args.correct,
+                        "basis": args.basis,
+                    },
+                }
+            ],
+            reason="erratum",
+        )
+        print(json.dumps(ledger.current("erratum")[0], indent=2))
     elif args.action == "resolve-source":
         records, conflicts = ledger.current("source")
         if args.key not in conflicts:
@@ -279,6 +306,43 @@ def cmd_ledger(args) -> None:
                 indent=2,
             )
         )
+
+
+def cmd_brief(args) -> None:
+    from .briefs import make_brief
+
+    print(make_brief(json.loads(open(args.spec).read())))
+
+
+def cmd_review(args) -> None:
+    from .review_tools import review_from_judgments
+
+    judgments = json.loads(open(args.judgments).read())
+    print(json.dumps(review_from_judgments(args.run, judgments, args.reviewer), indent=2))
+
+
+def cmd_publish(args) -> None:
+    from .review_tools import publish
+
+    print(json.dumps(publish(args.run, args.review), indent=2, ensure_ascii=False))
+
+
+def cmd_run_readme(args) -> None:
+    from .review_tools import run_readme
+
+    print(run_readme(args.run, args.title, open(args.notes).read(), args.reviewer))
+
+
+def cmd_review_summary(args) -> None:
+    from .review_tools import summarize
+
+    print(summarize(args.run, args.pages))
+
+
+def cmd_adopt_clades(args) -> None:
+    from .review_tools import adopt_clades
+
+    print(json.dumps(adopt_clades(json.loads(open(args.spec).read())), indent=2))
 
 
 def cmd_report(args) -> None:
@@ -388,9 +452,37 @@ def main() -> None:
     p.add_argument("--reviewer", required=True)
     p.add_argument("--rationale", required=True)
     p.set_defaults(fn=cmd_withdraw)
+    p = sub.add_parser("brief")
+    p.add_argument("spec")
+    p.set_defaults(fn=cmd_brief)
+    p = sub.add_parser("review")
+    p.add_argument("run")
+    p.add_argument("judgments")
+    p.add_argument("--reviewer", help="default: WETY_REVIEWER")
+    p.set_defaults(fn=cmd_review)
+    p = sub.add_parser("publish")
+    p.add_argument("run")
+    p.add_argument("--review", help="default: RUN/coordinator-review/review.json")
+    p.set_defaults(fn=cmd_publish)
+    p = sub.add_parser("run-readme")
+    p.add_argument("run")
+    p.add_argument("--title", required=True)
+    p.add_argument("--notes", required=True, help="markdown file with the reviewer's notes")
+    p.add_argument("--reviewer", help="default: WETY_REVIEWER")
+    p.set_defaults(fn=cmd_run_readme)
+    p = sub.add_parser("review-summary")
+    p.add_argument("run")
+    p.add_argument("--pages", help="directory for rendered PDF pages")
+    p.set_defaults(fn=cmd_review_summary)
+    p = sub.add_parser("adopt-clades")
+    p.add_argument("spec")
+    p.set_defaults(fn=cmd_adopt_clades)
     p = sub.add_parser("ledger")
-    p.add_argument("action", choices=["status", "migrate", "resolve-source"])
-    p.add_argument("key", nargs="?", help="resolve-source: the source id")
+    p.add_argument("action", choices=["status", "migrate", "resolve-source", "erratum"])
+    p.add_argument("key", nargs="?", help="resolve-source: the source id; erratum: the packet id")
+    p.add_argument("--field", help="erratum: the recorded field that is wrong")
+    p.add_argument("--correct", help="erratum: what it should say")
+    p.add_argument("--basis", help="erratum: how the correction is known")
     p.add_argument(
         "choice", nargs="?", type=int, default=0, help="resolve-source: which record (0, 1, ...)"
     )
@@ -435,6 +527,8 @@ def main() -> None:
         "adopt",
         "withdraw",
         "ledger",
+        "publish",
+        "adopt-clades",
     }:
         with locked(DATA_DIR + "/_pipeline"):
             args.fn(args)
