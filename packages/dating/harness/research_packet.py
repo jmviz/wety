@@ -355,6 +355,12 @@ def adopt(review):
                 "rationale": choice["rationale"],
                 "dependencies": [],
                 **({"proto_mapping": choice["proto_mapping"]} if clade else {}),
+                # Reviewed crown ages of trees shown beside the default (claim ids).
+                **(
+                    {"proto_alternatives": choice["proto_alternatives"]}
+                    if choice.get("proto_alternatives")
+                    else {}
+                ),
             }
             existing = current.get((decision["subject_id"], decision["event"]))
             if existing and {**existing, "kind": None} == {**decision, "kind": None}:

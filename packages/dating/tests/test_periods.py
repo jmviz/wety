@@ -293,6 +293,39 @@ class PeriodExportTests(unittest.TestCase):
         (pu,) = export_periods(b, "gen")["languages"]
         self.assertEqual((pu["basis"], pu["label"]), ("estimated", "until c. 4000/3000 BCE"))
         self.assertEqual(pu["evidence"][0]["method"], "lexicostatistic")
+        # A tree's crown age stands beside such a default when the decision lists it.
+        tree = claim(
+            "t",
+            "urj-pro",
+            "crown_divergence",
+            "posterior",
+            {"form": "event_range", "unit": "BCE", "lower": 3500, "upper": 4500},
+        )
+        tree["subject"] = {
+            "id": "a:clade:x",
+            "type": "sampled_clade",
+            "name": "MRCA(Finnish, Hungarian)",
+            "taxa": ["Finnish", "Hungarian"],
+            "mapping": "exact",
+        }
+        b["claims"].append(tree)
+        b["decisions"][0]["proto_alternatives"] = [
+            {"claim_id": "t", "proto_mapping": "Finnic and Ugric: the first split."}
+        ]
+        (pu,) = export_periods(b, "gen")["languages"]
+        self.assertEqual(pu["label"], "until c. 4000/3000 BCE")
+        (shown,) = pu["alternatives"]
+        self.assertEqual((shown["claim_id"], shown["label"]), ("t", "until c. 4500/3500 BCE"))
+        self.assertEqual(shown["node"], "MRCA(Finnish, Hungarian)")
+        # Two models' clades reported in one passage are two alternatives.
+        other = {**tree, "id": "t2", "subject": {**tree["subject"], "id": "b:clade:y"}}
+        other["subject"]["name"] = "MRCA(Estonian, Hungarian)"
+        b["claims"].append(other)
+        b["decisions"][0]["proto_alternatives"].append(
+            {"claim_id": "t2", "proto_mapping": "Finnic and Ugric again."}
+        )
+        (pu,) = export_periods(b, "gen")["languages"]
+        self.assertEqual([a["claim_id"] for a in pu["alternatives"]], ["t", "t2"])
 
     def test_only_adopted_supported_exact_evidence_is_displayed(self):
         claims = [

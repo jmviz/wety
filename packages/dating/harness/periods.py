@@ -371,10 +371,19 @@ def period_record(code, claims, alternatives, view, sources):
 
 def distinct(alternatives):
     """One entry per source, page, date and quoted passage: two runs may import the same
-    statement (one quoting more of it); different rows of one table stay separate."""
+    statement (one quoting more of it); different rows of one table stay separate, and so
+    do two analyses' clades reported in one passage (a node's taxa differ)."""
     seen, out = set(), []
     for a in alternatives:
-        key = (a["source"], a["locator"], a["label"], a["basis"], (a["quote"] or "")[:40])
+        key = (
+            a["source"],
+            a["locator"],
+            a["label"],
+            a["basis"],
+            (a["quote"] or "")[:40],
+            a.get("node"),
+            a.get("note"),
+        )
         if key not in seen:
             seen.add(key)
             out.append(a)
@@ -515,6 +524,9 @@ def export_periods(bundle, generation=None):
             continue
         if d["event"] == "crown_divergence" and c["subject"].get("type") == "sampled_clade":
             c = {**c, "proto_mapping": d["proto_mapping"]}
+        if d["event"] == "crown_divergence":
+            # A tree's crown age may stand beside any proto default, including a
+            # family age that a source states for the proto code itself.
             for alt in d.get("proto_alternatives") or []:
                 a = claims.get(alt["claim_id"])
                 if a and a["status"] == "supported" and a["event"] == "crown_divergence":

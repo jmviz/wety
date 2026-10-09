@@ -22,3 +22,8 @@ default. Candidates: Marck 2000 and Pawley 1996 on East Polynesian's separation 
 Nuclear Polynesian per Glottolog 5.3), Proto-Polynesian's disintegration (superset),
 Sidwell & Jacq 2003 on West Bahnaric (subset), Collins's Proto-Malay (the Malay branch,
 per Adelaar 2004). Nothing citable for the other codes.
+
+Revision (2026-10-08, `coordinator-review/revision-atkinson.json`): Atkinson's two roots
+are supported sampled-clade posteriors (taxa checked against Fig. 6.3, analyses
+registered in the research graph) and shown beside Kaufman's default for Proto-Mayan,
+both labeled by the prose's 95% interval of about 4000–9000 BP.

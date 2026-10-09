@@ -775,6 +775,24 @@
       "subject_id": "wikt:syd-pro"
     },
     {
+      "analysis": "atkinson-2006-mayan-stochastic-dollo-yule-traitlab",
+      "claim_id": "ev_period_3ebe32382d608dbb34130a9e0117b2fa4eb1c52d",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "unknown",
+        "lower": -7050,
+        "mean": null,
+        "median": null,
+        "probability": 0.95,
+        "upper": -2050
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Achi', Akateko, Awakateko, Ch'orti', Chicomuceltec, Chol, Chontal, Colonial Kaqchiquel, Colonial Yucatec, Huastec, Itza', Ixil, Jakalteko, K'iche', Lacandon, Mam, Mocho, Mopán, Poqomam, Poqomchi', Q'anjobal, Q'eqchi', Sakapulteko, Sipakapense, Tektiteko, Tz'utujil, Tzeltal, Tzotzil, Uspanteko)",
+      "role": "posterior",
+      "source": "Quentin Douglas Atkinson 2006",
+      "subject_id": "atkinson-2006-mayan-stochastic-dollo-yule-traitlab:clade:cd13c5cdd73fbaae"
+    },
+    {
       "analysis": "Blazek2008-Starostin-glottochronology",
       "claim_id": "ev_period_3f7f81ae29c28ef7dabacd22e5860026f746a468",
       "epoch": null,
@@ -2051,6 +2069,24 @@
       "role": "hypothesis",
       "source": "George Starostin 2010",
       "subject_id": "wikt:ath-pro"
+    },
+    {
+      "analysis": "atkinson-2006-mayan-time-reversible-yule-r8s",
+      "claim_id": "ev_period_c65c6ef0c82512933a58182a79f4bea8c5184157",
+      "epoch": 1950,
+      "estimate": {
+        "interval_type": "unknown",
+        "lower": -7050,
+        "mean": null,
+        "median": null,
+        "probability": 0.95,
+        "upper": -2050
+      },
+      "event": "crown_divergence",
+      "node": "MRCA(Achi', Akateko, Awakateko, Ch'orti', Chicomuceltec, Chol, Chontal, Classic Maya, Colonial Kaqchiquel, Colonial Yucatec, Huastec, Itza', Ixil, Jakalteko, K'iche', Lacandon, Mam, Mocho, Mopán, Poqomam, Poqomchi', Q'anjobal, Q'eqchi', Sakapulteko, Sipakapense, Tektiteko, Tz'utujil, Tzeltal, Tzotzil, Uspanteko)",
+      "role": "posterior",
+      "source": "Quentin Douglas Atkinson 2006",
+      "subject_id": "atkinson-2006-mayan-time-reversible-yule-r8s:clade:0c4996133de6ea32"
     },
     {
       "analysis": "holman2011-asjp-ethnologue16-s092-r072",
@@ -36667,7 +36703,7 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:fff5df92fe6ca543"
     }
   ],
-  "generation": "609d7c95be85d848b79e462873546c024ec1d1841def2492856bfdf75c7851f0",
+  "generation": "0c7770076fd80e10c64fd67b4d2bb57eeb3b6d89a9996ea2581203001d350465",
   "languages": [
     {
       "alternatives": [],
@@ -44335,6 +44371,48 @@
     },
     {
       "alternatives": [
+        {
+          "basis": "estimated",
+          "citation": "Atkinson, Quentin Douglas. 2006. From Species to Languages: A phylogenetic approach to human prehistory. PhD thesis, University of Auckland, ch. 6, pp. 6.7–6.19, Figs. 6.3–6.4. https://hdl.handle.net/2292/86",
+          "claim_id": "ev_period_c65c6ef0c82512933a58182a79f4bea8c5184157",
+          "end": {
+            "earliest": -7050,
+            "latest": -2050
+          },
+          "event": "crown_divergence",
+          "label": "until c. 7050/2050 BCE",
+          "locator": "{\"pdf_page\": 166, \"printed_page\": \"6.18\", \"section\": \"6.4 Discussion\", \"start\": 358724, \"end\": 359141}",
+          "method": "bayesian_phylogenetic",
+          "node": "MRCA(Achi', Akateko, Awakateko, Ch'orti', Chicomuceltec, Chol, Chontal, Classic Maya, Colonial Kaqchiquel, Colonial Yucatec, Huastec, Itza', Ixil, Jakalteko, K'iche', Lacandon, Mam, Mocho, Mopán, Poqomam, Poqomchi', Q'anjobal, Q'eqchi', Sakapulteko, Sipakapense, Tektiteko, Tz'utujil, Tzeltal, Tzotzil, Uspanteko)",
+          "note": "Atkinson 2006 (PhD thesis), time-reversible model, 30 languages incl. Classic Maya; Fig. 6.3a prints 3,900–9,100 BP. BP read as AD 1950 by convention.",
+          "proto_mapping": "Huastecan (Huastec, Chicomuceltec) against the rest of Mayan: Q'anjobalan, Quichean, Mamean, Cholan, Yucatecan and Tzeltalan are sampled, so the root is Proto-Mayan's breakup. Chuj and Tojolabal were left out for contact.",
+          "quote": "Mean divergence time estimates for the age at the root of the Mayan language tree \nunder both models were approximately 6,000 to 6,500 years (Figure 6.3), \nconsiderably older than Kaufman’s (1976) glottochronology-based estimate of 4,200 \nyears. However, both models produced a 95% confidence interval for the root age of \nbetween approximately 4,000BP and 9,000BP, a range that does overlap with \nKaufman’s finding. ",
+          "role": "posterior",
+          "source": "Quentin Douglas Atkinson 2006",
+          "start": null,
+          "url": "https://researchspace.auckland.ac.nz/bitstreams/1d185c4a-c5d8-4211-b9ec-a6f628be75e4/download"
+        },
+        {
+          "basis": "estimated",
+          "citation": "Atkinson, Quentin Douglas. 2006. From Species to Languages: A phylogenetic approach to human prehistory. PhD thesis, University of Auckland, ch. 6, pp. 6.7–6.19, Figs. 6.3–6.4. https://hdl.handle.net/2292/86",
+          "claim_id": "ev_period_3ebe32382d608dbb34130a9e0117b2fa4eb1c52d",
+          "end": {
+            "earliest": -7050,
+            "latest": -2050
+          },
+          "event": "crown_divergence",
+          "label": "until c. 7050/2050 BCE",
+          "locator": "{\"pdf_page\": 166, \"printed_page\": \"6.18\", \"section\": \"6.4 Discussion\", \"start\": 358724, \"end\": 359141}",
+          "method": "bayesian_phylogenetic",
+          "node": "MRCA(Achi', Akateko, Awakateko, Ch'orti', Chicomuceltec, Chol, Chontal, Colonial Kaqchiquel, Colonial Yucatec, Huastec, Itza', Ixil, Jakalteko, K'iche', Lacandon, Mam, Mocho, Mopán, Poqomam, Poqomchi', Q'anjobal, Q'eqchi', Sakapulteko, Sipakapense, Tektiteko, Tz'utujil, Tzeltal, Tzotzil, Uspanteko)",
+          "note": "Atkinson 2006 (PhD thesis), stochastic-Dollo model, 29 languages; Fig. 6.3b prints 4,150–8,450 BP. Same data, another model: not independent evidence.",
+          "proto_mapping": "Huastecan (Huastec, Chicomuceltec) against the rest of Mayan: Q'anjobalan, Quichean, Mamean, Cholan, Yucatecan and Tzeltalan are sampled, so the root is Proto-Mayan's breakup. Chuj and Tojolabal were left out for contact.",
+          "quote": "Mean divergence time estimates for the age at the root of the Mayan language tree \nunder both models were approximately 6,000 to 6,500 years (Figure 6.3), \nconsiderably older than Kaufman’s (1976) glottochronology-based estimate of 4,200 \nyears. However, both models produced a 95% confidence interval for the root age of \nbetween approximately 4,000BP and 9,000BP, a range that does overlap with \nKaufman’s finding. ",
+          "role": "posterior",
+          "source": "Quentin Douglas Atkinson 2006",
+          "start": null,
+          "url": "https://researchspace.auckland.ac.nz/bitstreams/1d185c4a-c5d8-4211-b9ec-a6f628be75e4/download"
+        },
         {
           "basis": "estimated",
           "citation": "Atkinson, Quentin Douglas. 2006. From Species to Languages: A phylogenetic approach to human prehistory. PhD thesis, University of Auckland, ch. 6, pp. 6.7–6.19, Figs. 6.3–6.4. https://hdl.handle.net/2292/86",
