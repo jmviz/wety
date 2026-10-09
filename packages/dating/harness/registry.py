@@ -285,6 +285,11 @@ def validate_bundle(bundle):
     errors = []
     claims = {}
     sources = bundle["sources"]
+    for key in bundle.get("source_conflicts") or []:
+        errors.append(
+            f"source {key} was registered differently by concurrent sessions; "
+            "resolve with `dating ledger resolve-source`"
+        )
     checked_analyses = {}
     reproduced = {}
     if bundle.get("pilot_coverage", {}).get("packet_errors"):
@@ -631,8 +636,20 @@ def build_bundle():
         by_subject[c["subject"]["id"]].append(c["id"])
     decisions = []
     rejected = []
-    path = Path(DATA_DIR) / "_decisions/decisions.json"
-    for raw in json.loads(path.read_text()) if path.exists() else []:
+    from . import ledger
+
+    current, conflicts = ledger.current("decision")
+    for key, competing in sorted(conflicts.items()):
+        for raw in competing:
+            rejected.append(
+                {
+                    "decision": raw,
+                    "reason": "conflicting decisions from concurrent sessions for "
+                    + key
+                    + "; a new decision must replace them",
+                }
+            )
+    for _, raw in sorted(current.items()):
         try:
             d = Decision.model_validate(raw)
             c = by_id[d.claim_id]
@@ -743,6 +760,7 @@ def build_bundle():
         "review_queue": queue,
         "decisions": decisions,
         "rejected_decisions": rejected,
+        "source_conflicts": sorted(ledger.current("source")[1]),
     }
     errors = validate_bundle(bundle)
     if errors:

@@ -1,4 +1,4 @@
-"""Read/write the on-disk artifact: sources.json, per-family claims.jsonl,
+"""Read/write the on-disk artifact: registered sources (in the ledger), per-family claims.jsonl,
 languoids.json, search_log.jsonl. Idempotent writes keyed by id."""
 
 from __future__ import annotations
@@ -12,7 +12,7 @@ from .config import DATA_DIR, family_dir, now
 from .schema import Claim, Languoid, Source
 from .io_utils import atomic_json, atomic_text, locked, digest
 
-SOURCES_PATH = os.path.join(DATA_DIR, "sources", "sources.json")
+# Registered sources live in the append-only ledger (see ledger.py).
 
 
 def _read_jsonl(path: str) -> list[dict]:
@@ -30,22 +30,32 @@ def _write_jsonl(path: str, rows: list[dict]) -> None:
 
 
 def load_sources() -> dict[str, dict]:
-    if not os.path.exists(SOURCES_PATH):
-        return {}
-    with open(SOURCES_PATH, encoding="utf-8") as f:
-        return json.load(f)
+    """Current registered sources. A source written concurrently by two sessions with
+    different records is left out (the registry reports the conflict)."""
+    from . import ledger
+
+    return ledger.current("source")[0]
 
 
 def save_sources(sources: dict[str, dict]) -> None:
-    os.makedirs(os.path.dirname(SOURCES_PATH), exist_ok=True)
-    atomic_json(SOURCES_PATH, sources)
+    """Record new or changed sources; sources are never removed."""
+    from . import ledger
+
+    old = load_sources()
+    ledger.append(
+        [
+            {"kind": "source", "key": k, "op": "put", "record": v}
+            for k, v in sorted(sources.items())
+            if old.get(k) != v
+        ],
+        reason="register sources",
+    )
 
 
 def upsert_source(src: Source) -> None:
-    with locked(SOURCES_PATH):
-        sources = load_sources()
-        sources[src.id] = {**sources.get(src.id, {}), **src.model_dump(exclude_none=True)}
-        save_sources(sources)
+    sources = load_sources()
+    sources[src.id] = {**sources.get(src.id, {}), **src.model_dump(exclude_none=True)}
+    save_sources(sources)
 
 
 def load_claims(family: str) -> list[dict]:

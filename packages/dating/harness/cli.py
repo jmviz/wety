@@ -17,7 +17,8 @@ dating gc [--keep-recent N] [--apply]        retire old generations (dry run unl
 dating decision-digest SUBJECT               evidence digest a decision on SUBJECT (e.g. wikt:ang) must name
 dating build-packet RUN REVIEW               reviewed research run -> packet, registered sources and texts
 dating adopt REVIEW                          record the review's editorial defaults (after import + synthesize)
-dating withdraw SUBJECT EVENT --reviewer R --rationale TEXT   remove a decision, kept in withdrawals.json
+dating withdraw SUBJECT EVENT --reviewer R --rationale TEXT   retract a decision, kept with its reason in the ledger
+dating ledger status|migrate|resolve-source KEY N   the append-only editorial ledger (decisions, sources)
 dating readopt [SUBJECT...] --reviewer R --note TEXT   re-adopt stale decisions unchanged (e.g. after a rules bump)
 dating holdings add|zotero|sync|list         maintainer-supplied sources (library PDFs, via Zotero): retain, hash, parse
 dating requests list|merge|push|set          the source acquisition queue (files requests in Zotero)
@@ -248,6 +249,38 @@ def cmd_withdraw(args) -> None:
     print(json.dumps(withdraw(args.subject, args.event, args.reviewer, args.rationale), indent=2))
 
 
+def cmd_ledger(args) -> None:
+    from . import ledger
+
+    if args.action == "migrate":
+        print(json.dumps(ledger.migrate(), indent=2))
+    elif args.action == "resolve-source":
+        records, conflicts = ledger.current("source")
+        if args.key not in conflicts:
+            raise SystemExit(f"no conflict for source {args.key}")
+        chosen = conflicts[args.key][args.choice]
+        ledger.append(
+            [{"kind": "source", "key": args.key, "op": "put", "record": chosen}],
+            reason="resolve concurrent source registrations",
+        )
+        print(json.dumps({"resolved": args.key, "record": chosen}, indent=2))
+    else:
+        decisions, d_conflicts = ledger.current("decision")
+        sources, s_conflicts = ledger.current("source")
+        print(
+            json.dumps(
+                {
+                    "batches": len(ledger.batches()),
+                    "decisions": len(decisions),
+                    "sources": len(sources),
+                    "withdrawals": len(ledger.withdrawals()),
+                    "conflicts": {"decision": d_conflicts, "source": s_conflicts},
+                },
+                indent=2,
+            )
+        )
+
+
 def cmd_report(args) -> None:
     from .registry import current_bundle, report
 
@@ -355,6 +388,13 @@ def main() -> None:
     p.add_argument("--reviewer", required=True)
     p.add_argument("--rationale", required=True)
     p.set_defaults(fn=cmd_withdraw)
+    p = sub.add_parser("ledger")
+    p.add_argument("action", choices=["status", "migrate", "resolve-source"])
+    p.add_argument("key", nargs="?", help="resolve-source: the source id")
+    p.add_argument(
+        "choice", nargs="?", type=int, default=0, help="resolve-source: which record (0, 1, ...)"
+    )
+    p.set_defaults(fn=cmd_ledger)
     p = sub.add_parser("report")
     p.set_defaults(fn=cmd_report)
     p = sub.add_parser("benchmark")
@@ -394,6 +434,7 @@ def main() -> None:
         "build-packet",
         "adopt",
         "withdraw",
+        "ledger",
     }:
         with locked(DATA_DIR + "/_pipeline"):
             args.fn(args)

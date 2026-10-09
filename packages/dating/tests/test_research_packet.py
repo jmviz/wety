@@ -164,12 +164,13 @@ class SyntheticRun(unittest.TestCase):
             self.build()
 
     def test_write_registers_sources_and_texts_once(self):
-        sources = self.base / "sources.json"
-        with patch("harness.store.SOURCES_PATH", str(sources)):
+        from harness.store import load_sources
+
+        with patch("harness.ledger.LEDGER_DIR", self.base / "_ledger"):
             result = self.build()
             summary = write(result, self.base / "packet", self.base / "texts")
             self.assertEqual((summary["claims"], summary["supported"]), (2, 1))
-            self.assertIn("src_test", json.loads(sources.read_text()))
+            self.assertIn("src_test", load_sources())
             self.assertEqual(len(list((self.base / "texts").glob("*.txt"))), 1)
             packet = json.loads((self.base / "packet/packet.json").read_text())
             self.assertEqual(packet["claims_sha256"], result["packet"]["claims_sha256"])
