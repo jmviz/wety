@@ -1,0 +1,246 @@
+#!/usr/bin/env python3
+"""The private research store: versioned snapshots of data/ and merging between checkouts.
+
+Git holds code, docs and the few files the app is built from; everything else under
+data/ lives here. Snapshots use restic (deduplicated, encrypted, any backend: Cloudflare
+R2, another S3 service, a local disk). The commit names its data with the pointer file
+data/SNAPSHOT.json, written by `snapshot`.
+
+    uv run --frozen python tools/wety_store.py status
+    uv run --frozen python tools/wety_store.py snapshot [--data DIR] [--note TEXT]
+    uv run --frozen python tools/wety_store.py restore --target DIR [--snapshot ID]
+    uv run --frozen python tools/wety_store.py sync SRC DST [--apply]
+    uv run --frozen python tools/wety_store.py check
+
+Configuration is restic's own environment: RESTIC_REPOSITORY (for example
+"s3:https://<account>.r2.cloudflarestorage.com/wety-research" or "rclone:r2:wety-research"),
+RESTIC_PASSWORD_FILE, and for S3 AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY. Setup:
+docs/architecture/provenance.md.
+
+Snapshots are taken of the main checkout's data/ (worktrees link parts of it); bring a
+worktree's new records there first with `sync WORKTREE/data MAIN/data --apply`.
+"""
+
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import os
+import shutil
+import subprocess
+import sys
+from datetime import datetime, timezone
+from pathlib import Path
+
+REPO = Path(__file__).resolve().parents[1]
+POINTER = "data/SNAPSHOT.json"
+EXCLUDES = ["*.lock", "__pycache__", ".DS_Store"]
+# Paths whose files are written once and never edited: a difference is corruption or a
+# collision, not a newer version.
+IMMUTABLE = (
+    "artifacts/",
+    "workspaces/dating/_ledger/",
+    "workspaces/dating/_evidence/review_",
+    "workspaces/dating/_research/packets/",
+    "registry/acquisitions/",
+)
+
+
+def main_checkout(repo=REPO) -> Path:
+    """The main checkout (worktrees share its git directory)."""
+    common = subprocess.run(
+        ["git", "rev-parse", "--path-format=absolute", "--git-common-dir"],
+        cwd=repo,
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout.strip()
+    return Path(common).parent
+
+
+def restic(*args, capture=True):
+    if not shutil.which("restic"):
+        raise SystemExit("restic is not installed (macOS: brew install restic)")
+    if not os.environ.get("RESTIC_REPOSITORY"):
+        raise SystemExit("set RESTIC_REPOSITORY (see docs/architecture/provenance.md)")
+    out = subprocess.run(["restic", *args], capture_output=capture, text=True)
+    if out.returncode:
+        raise SystemExit(f"restic {args[0]} failed: {(out.stderr or '').strip()[-500:]}")
+    return out.stdout
+
+
+def git_head(repo=REPO):
+    out = subprocess.run(["git", "rev-parse", "HEAD"], cwd=repo, capture_output=True, text=True)
+    return out.stdout.strip() or None
+
+
+def snapshot(data=None, note=None, repo=REPO) -> dict:
+    data = Path(data or main_checkout(repo) / "data").resolve()
+    links = [p.name for p in data.iterdir() if p.is_symlink()]
+    if links:
+        raise SystemExit(
+            f"{data} links {', '.join(links)} elsewhere; snapshot the main checkout's data/ instead"
+        )
+    args = ["backup", "--json", "--tag", "wety", str(data)]
+    for pattern in EXCLUDES:
+        args += ["--exclude", pattern]
+    if note:
+        args += ["--tag", "note:" + note[:60]]
+    summary = next(
+        json.loads(line)
+        for line in reversed(restic(*args).splitlines())
+        if line.strip().startswith("{") and json.loads(line).get("message_type") == "summary"
+    )
+    pointer = {
+        "schema_version": 1,
+        "snapshot": summary["snapshot_id"],
+        "taken_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "source": str(data),
+        "files": summary.get("total_files_processed"),
+        "bytes": summary.get("total_bytes_processed"),
+        "git_commit": git_head(repo),
+        "note": note,
+    }
+    (Path(repo) / POINTER).write_text(json.dumps(pointer, indent=2) + "\n")
+    return pointer
+
+
+def read_pointer(repo=REPO) -> dict:
+    p = Path(repo) / POINTER
+    if not p.exists():
+        raise SystemExit(f"no {POINTER}; take a snapshot first")
+    return json.loads(p.read_text())
+
+
+def restore(target, snapshot_id=None, repo=REPO) -> dict:
+    target = Path(target)
+    if target.exists() and any(target.iterdir()):
+        raise SystemExit(f"{target} is not empty; restore into an empty directory, then sync")
+    pointer = read_pointer(repo)
+    sid = snapshot_id or pointer["snapshot"]
+    restic("restore", f"{sid}:{pointer['source']}", "--target", str(target), capture=False)
+    return {"restored": sid, "target": str(target)}
+
+
+def check(repo=REPO) -> dict:
+    pointer = read_pointer(repo)
+    found = json.loads(restic("snapshots", "--json", pointer["snapshot"]))
+    if not found:
+        raise SystemExit(
+            f"snapshot {pointer['snapshot']} is not in {os.environ['RESTIC_REPOSITORY']}"
+        )
+    return {"snapshot": pointer["snapshot"], "time": found[0]["time"], "paths": found[0]["paths"]}
+
+
+def status(repo=REPO) -> dict:
+    p = Path(repo) / POINTER
+    return {
+        "restic": shutil.which("restic"),
+        "repository": os.environ.get("RESTIC_REPOSITORY"),
+        "password": bool(
+            os.environ.get("RESTIC_PASSWORD_FILE") or os.environ.get("RESTIC_PASSWORD")
+        ),
+        "pointer": json.loads(p.read_text()) if p.exists() else None,
+        "main_data": str(main_checkout(repo) / "data"),
+    }
+
+
+def _sha(path):
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def _tracked(checkout) -> set[str]:
+    """Paths under data/ that git tracks in that checkout (git merges those)."""
+    out = subprocess.run(
+        ["git", "ls-files", "-z", "data"], cwd=checkout, capture_output=True, text=True
+    ).stdout
+    return {p.removeprefix("data/") for p in out.split("\0") if p}
+
+
+def _copy(src, dst):
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    # A copy-on-write clone where the filesystem supports it (APFS), else a copy.
+    if sys.platform == "darwin" and subprocess.run(["cp", "-c", "-p", src, dst]).returncode == 0:
+        return
+    shutil.copy2(src, dst)
+
+
+def sync(src, dst, apply=False) -> dict:
+    """Bring src's files into dst: missing files are copied; a file present in both with
+    different content is a conflict and is never overwritten. Files git tracks in dst's
+    checkout, and directories src links from elsewhere, are skipped."""
+    src, dst = Path(src).resolve(), Path(dst).resolve()
+    tracked = _tracked(dst.parent) if (dst.parent / ".git").exists() else set()
+    copied, conflicts, same = [], [], 0
+    for root, dirs, files in os.walk(src):
+        here = Path(root)
+        dirs[:] = [d for d in dirs if not (here / d).is_symlink()]
+        for name in files:
+            s = here / name
+            if s.is_symlink() or name in (".DS_Store",) or name.endswith(".lock"):
+                continue
+            rel = s.relative_to(src).as_posix()
+            if rel in tracked:
+                continue
+            d = dst / rel
+            if not d.exists():
+                copied.append(rel)
+                if apply:
+                    _copy(s, d)
+            elif s.stat().st_size == d.stat().st_size and _sha(s) == _sha(d):
+                same += 1
+            else:
+                conflicts.append(
+                    {
+                        "path": rel,
+                        "kind": "immutable" if rel.startswith(IMMUTABLE) else "mutable",
+                        "newer": "src" if s.stat().st_mtime > d.stat().st_mtime else "dst",
+                    }
+                )
+    return {
+        "applied": apply,
+        "copied" if apply else "to_copy": len(copied),
+        "identical": same,
+        "conflicts": conflicts,
+        "sample": copied[:20],
+    }
+
+
+def main(argv=None):
+    ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
+    sub = ap.add_subparsers(dest="cmd", required=True)
+    sub.add_parser("status")
+    p = sub.add_parser("snapshot")
+    p.add_argument("--data", help="default: the main checkout's data/")
+    p.add_argument("--note")
+    p = sub.add_parser("restore")
+    p.add_argument("--target", required=True)
+    p.add_argument("--snapshot", help=f"default: the one {POINTER} names")
+    p = sub.add_parser("sync")
+    p.add_argument("src")
+    p.add_argument("dst")
+    p.add_argument("--apply", action="store_true", help="copy (default: report only)")
+    sub.add_parser("check")
+    a = ap.parse_args(argv)
+    if a.cmd == "status":
+        out = status()
+    elif a.cmd == "snapshot":
+        out = snapshot(a.data, a.note)
+    elif a.cmd == "restore":
+        out = restore(a.target, a.snapshot)
+    elif a.cmd == "sync":
+        out = sync(a.src, a.dst, a.apply)
+    else:
+        out = check()
+    print(json.dumps(out, indent=2))
+    if a.cmd == "sync" and out["conflicts"]:
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

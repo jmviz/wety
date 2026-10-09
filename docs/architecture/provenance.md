@@ -53,20 +53,86 @@ before processing; source acquisition remains separate from computation.
 
 ## Storage and recovery
 
-Small reference inputs, editorial records, product pointers, source manifests, locks, and run/acquisition receipts are
-version controlled. Large original dumps, extracted deposits, generated generations and product mirrors,
-research retrievals, run logs, and legacy archives are local and ignored by Git.
-Back up `data/` as a unit before moving machines. A manifest does not provide remote
-storage: for legacy inputs without a known immutable upstream location, a backup is
-the only currently established recovery route. Do not delete local payloads on the
-assumption that hashes make them downloadable.
+Three layers, each with one job.
 
-To restore, place the exact bytes at manifest locations, then run
-`uv run --frozen wety-data verify-all`, followed by catalog and dating workflows.
+1. **Git (public):** code, schemas, prompts and docs; what the server and website are
+   built from (`inputs.json`, the Wiktionary export, `language_periods.json`,
+   `deploy/graph.json`); small references code reads (build configuration, locks,
+   product pointers, the relocation map, curated catalog inputs); the snapshot pointer
+   `data/SNAPSHOT.json`; and human-readable research records (briefs, run READMEs,
+   family pages, STATUS). The exact list is `.gitignore`.
+2. **The research store (private):** everything else under `data/`: retained texts,
+   artifacts and receipts, evidence, the editorial ledger, runs, packets, generations.
+   It is backed up as restic snapshots (deduplicated, encrypted) by
+   `tools/wety_store.py`; a commit names the data it was made with in `data/SNAPSHOT.json`.
+3. **Curated releases (public):** built from what wety shows, never copied from the
+   store. `language_periods.json` is one; `dating release` writes linked data (Turtle,
+   JSON-LD) with quotes governed by each source's recorded reuse rights.
+
+Research outputs never enter git: they are large, they grow with every run, and they
+quote sources verbatim, often from copyrighted works.
+
+### The editorial ledger
+
+Decisions, withdrawals, registered sources, source reuse rights and errata live in
+`data/workspaces/dating/_ledger/` as immutable batch files: every write adds one file,
+nothing is edited (`harness/ledger.py`). An event names the heads it replaces, so
+checkouts merge by copying files; two sessions that write one key without seeing each
+other leave a conflict, which the registry withholds until a new event replaces both.
+`dating ledger status` shows the state; `dating ledger erratum` records a correction to
+an imported packet (claims are content-addressed and never edited).
+
+### Setting up the store
+
+Once per machine: `brew install restic`; create a private bucket (for example
+Cloudflare R2 `wety-research`) and an API token scoped to it; then
+
+    export RESTIC_REPOSITORY=s3:https://<account-id>.r2.cloudflarestorage.com/wety-research
+    export AWS_ACCESS_KEY_ID=... AWS_SECRET_ACCESS_KEY=...
+    export RESTIC_PASSWORD_FILE=~/.config/wety/restic-password   # keep a copy elsewhere
+    restic init
+
+`rclone:<remote>:<bucket>` works too (rclone is already used to publish the graph).
+Without the password the snapshots cannot be read: store it outside the machine.
+
+### Working with it
+
+- Snapshot at checkpoints, from the main checkout's `data/` (worktrees link parts of
+  it): `uv run --frozen python tools/wety_store.py snapshot --note "..."`, then commit
+  `data/SNAPSHOT.json`.
+- A worktree's new records reach the main checkout with
+  `tools/wety_store.py sync WORKTREE/data MAIN/data --apply`: missing files are cloned,
+  nothing is overwritten, and a file that differs is reported as a conflict (append-only
+  areas should never conflict; derived products are regenerated with `dating synthesize`).
+- New machine or lost data: `tools/wety_store.py restore --target DIR` (into an empty
+  directory), then `sync DIR data --apply`, then `uv run --frozen wety-data verify-all`
+  and the catalog and dating workflows.
+- `check` confirms that the pointer's snapshot exists in the configured repository.
+
 Archived generations are historical evidence, not current selections. Current pointer
 files identify current generations; directory modification times never select them.
 Historical absolute paths inside evidence are resolved through the exact checked
-migration map without modifying claim payloads or their identities.
+migration map without modifying claim payloads or their identities. Do not delete local
+payloads on the assumption that hashes make them downloadable.
+
+### Leaving research data out of published history
+
+Research data was tracked until 2026-10-09. Two pushed branches already carry some of
+it (`dating-pilot`, `reorg-baseline`: the 2026-10-03 pilot's packets, evidence and
+claims); deleting them on GitHub is the maintainer's call, and pushed content may have
+been cached. Before the first push of the rest, remove it from the unpushed commits only,
+so the commits already on GitHub keep their hashes (rewriting them would also drop
+GitHub's merge signatures). In the main checkout, with every worktree's branch either
+merged or listed, and `data/` backed up:
+
+    uvx git-filter-repo --force --invert-paths \
+      --paths-from-file docs/architecture/history-filter.txt \
+      --refs origin/main..main origin/main..BRANCH ...
+
+Tested on a clone (2026-10-09): `origin/main` stays an ancestor (a plain push applies)
+and no research path remains in the rewritten commits. Afterwards run
+`tools/wety_store.py sync BACKUP/data data --apply` to put back any file the rewrite
+removed from the working tree.
 
 `data/cache` contains disposable computation/environment caches only. The legacy
 virtual environments were preserved there for inspection, not advertised as relocatable

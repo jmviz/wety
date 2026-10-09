@@ -87,20 +87,31 @@ adopt (format in `harness/research_packet.py`; example: the
 Then:
 
 ```sh
-uv run --frozen python -m harness.cli build-packet RUN RUN/coordinator-review/review.json
-uv run --frozen python -m harness.cli import-evidence data/workspaces/dating/_research/packets/ID/claims.json
-uv run --frozen python -m harness.cli synthesize
-uv run --frozen python -m harness.cli adopt RUN/coordinator-review/review.json
-uv run --frozen python -m harness.cli synthesize
-uv run --frozen python -m harness.cli validate
-uv run --frozen python -m harness.cli export-periods
+export WETY_REVIEWER="<reviewing model> (<tool>)"
+uv run --frozen dating brief SPEC.json                 # brief from prompts/ (period or proto)
+uv run --frozen dating review-summary RUN --pages DIR  # one block per assertion; cited pages
+uv run --frozen dating review RUN JUDGMENTS.json       # coordinator-review/review.json
+uv run --frozen dating publish RUN                     # packet, import, adopt, publish, validate, export
+uv run --frozen dating run-readme RUN --title T --notes NOTES.md
 ```
 
+`publish` runs the individual steps (`build-packet`, `import-evidence`, `synthesize`,
+`adopt`, `synthesize`, `validate`, `export-periods`), which remain available. The review
+names the researcher from the run's frozen brief and the reviewer from `WETY_REVIEWER`.
 `build-packet` registers the run's sources with their parsed-text hashes and copies
-the texts to the retrieved-text store. `decide FILE` records a single decision by hand;
-`withdraw SUBJECT EVENT --reviewer R --rationale TEXT` (or a review's `withdraw` list)
-removes one, keeping it with the reason in `_decisions/withdrawals.json`, e.g. so an
-attestation window can replace a database documentation window in the display.
+the texts to the retrieved-text store. `adopt-clades SPEC.json` adopts proto ends from
+deposited trees' clades by exact taxon set. `decide FILE` records a single decision by
+hand; `withdraw SUBJECT EVENT --reviewer R --rationale TEXT` retracts one, keeping it
+with the reason, e.g. so an attestation window can replace a database documentation
+window in the display.
+
+Decisions, withdrawals, registered sources, reuse rights and errata are append-only
+events in `data/workspaces/dating/_ledger/` (`harness/ledger.py`): `dating ledger
+status`, `ledger erratum PACKET --field F --correct TEXT --basis TEXT` (a correction to
+an imported packet), `ledger resolve-source`. `dating rights SOURCE --reuse
+open|short_quote|citation_only --basis TEXT` records what a source's quotes may be
+reused for; `dating release` writes the curated linked-data release (Turtle, JSON-LD)
+from what wety shows, withholding quotes whose reuse is not recorded.
 `adopt` also records again, unchanged, any choice of a code the review touched but did
 not replace (new evidence makes it stale); `readopt [SUBJECT...] --reviewer R --note
 TEXT` does this after a `DECISION_RULES` bump. A revision review (`revises`: an earlier
