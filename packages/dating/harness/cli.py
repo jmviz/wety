@@ -26,6 +26,8 @@ dating publish RUN [--review PATH]           packet, import, adopt, publish, val
 dating run-readme RUN --title T --notes FILE  the run's README.md (researcher, budget, outcome, notes)
 dating review-summary RUN [--pages DIR]      one block per assertion; render the pages proposed defaults cite
 dating adopt-clades SPEC.json                proto ends from deposited trees' clades (exact taxon sets)
+dating rights [SOURCE --reuse R --basis TEXT [--license L]]   record a source's reuse rights; alone: list sources shown
+dating release [--out DIR]                   curated linked-data release (Turtle, JSON-LD) of what wety shows
 dating readopt [SUBJECT...] --reviewer R --note TEXT   re-adopt stale decisions unchanged (e.g. after a rules bump)
 dating holdings add|zotero|sync|list         maintainer-supplied sources (library PDFs, via Zotero): retain, hash, parse
 dating requests list|merge|push|set          the source acquisition queue (files requests in Zotero)
@@ -345,6 +347,36 @@ def cmd_adopt_clades(args) -> None:
     print(json.dumps(adopt_clades(json.loads(open(args.spec).read())), indent=2))
 
 
+def cmd_rights(args) -> None:
+    from .release import rights, set_rights
+
+    if args.source:
+        print(json.dumps(set_rights(args.source, args.reuse, args.basis, args.license), indent=2))
+        return
+    import collections
+    from pathlib import Path
+
+    from workflow_tools.paths import DATING_PRODUCT
+    from .registry import load_evidence
+
+    claims = {c["id"]: c["source_id"] for c in load_evidence()}
+    periods = json.loads((Path(DATING_PRODUCT) / "language_periods.json").read_text())["languages"]
+    shown = collections.Counter(
+        claims.get(e["claim_id"])
+        for r in periods
+        for e in r.get("evidence", []) + r.get("alternatives", []) + r.get("revival", [])
+    )
+    known = rights()
+    for sid, n in shown.most_common():
+        print(f"{n:4} {known.get(sid, {}).get('reuse', 'unassessed'):14} {sid}")
+
+
+def cmd_release(args) -> None:
+    from .release import write_release
+
+    print(json.dumps(write_release(args.out), indent=2))
+
+
 def cmd_report(args) -> None:
     from .registry import current_bundle, report
 
@@ -477,6 +509,15 @@ def main() -> None:
     p = sub.add_parser("adopt-clades")
     p.add_argument("spec")
     p.set_defaults(fn=cmd_adopt_clades)
+    p = sub.add_parser("rights")
+    p.add_argument("source", nargs="?")
+    p.add_argument("--reuse", choices=["citation_only", "short_quote", "open"])
+    p.add_argument("--basis", help="how the rights are known (licence page, publisher terms)")
+    p.add_argument("--license", help="e.g. CC BY 4.0")
+    p.set_defaults(fn=cmd_rights)
+    p = sub.add_parser("release")
+    p.add_argument("--out")
+    p.set_defaults(fn=cmd_release)
     p = sub.add_parser("ledger")
     p.add_argument("action", choices=["status", "migrate", "resolve-source", "erratum"])
     p.add_argument("key", nargs="?", help="resolve-source: the source id; erratum: the packet id")
