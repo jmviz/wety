@@ -13,6 +13,7 @@ anyhow = {workspace = true}
 indicatif = "0.17.0"
 clap = { version = "3.2.17", features = ["derive"] }
 regex = "1.7.1"
+unicode-normalization = "0.1.22"
 itertools = "0.10.5"
 serde = {workspace = true}
 serde_json = {workspace = true}
@@ -21,7 +22,7 @@ xxhash-rust = {version="0.8.6", features=["xxh3"]}
 phf = {version = "0.10", features = ["macros"]}
 csv = "1.2.2"
 hf-hub = "0.3.2"
-tokenizers = { version = "0.15.0", default-features = false, features = ["onig"] }
+tokenizers = { version = "0.22.2", default-features = false, features = ["onig"] }
 candle-core = { version = "0.11.0"}
 candle-transformers = { version = "0.11.0"}
 candle-nn = { version = "0.11.0"}

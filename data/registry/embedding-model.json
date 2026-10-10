@@ -1,10 +1,10 @@
 {
   "files": {
-    "config.json": "ae8eb28eeebfed037bc91d77a98b336ee3a215b04c21deff81388868b4321f97",
-    "pytorch_model.bin": "54609dea3ff88f3167f049eeadbfe780b1173a3117bfac862134ebcd8ce33661",
-    "tokenizer.json": "be50c3628f2bf5bb5e3a7f17b1f74611b2561a3a27eeab05e5aa30f411572037"
+    "config.json": "154518e6452854eb11123ce433d165f2773437aa0f36935d2204249b2c327198",
+    "tokenizer.json": "6c8aaa9a542084f2457eab775d4eeb51f92a70c0fd9de28d5edb0ddec3c08d30",
+    "model.safetensors": "dcbfaf2ee50d358763cbc0c08e5b045ecbf6aeb02dc0e86ffb910029bf9ebb5f"
   },
-  "model": "sentence-transformers/all-MiniLM-L12-v2",
-  "revision": "7b92c94edb86f18b2d52ed2797de0c5d474632ae",
-  "selection_basis": "Existing local Hugging Face cached revision; not a claim about previous graph builds"
+  "model": "ibm-granite/granite-embedding-small-english-r2",
+  "revision": "2ab6fa8ea2d674564defd37171ae19079b864b33",
+  "selection_basis": "Chosen 2026-10-05 over all-MiniLM-L12-v2 and eight others (bge, arctic-embed, mxbai, granite base/multilingual, EmbeddingGemma, Qwen3-Embedding) on 4,000 ambiguous Wiktionary citations whose homograph an id or a Descendants list gives: best accuracy per runtime cost (84.6% vs 81.4% for MiniLM under the same scoring)."
 }

@@ -1,7 +1,8 @@
 use crate::{
     HashSet,
-    embeddings::{self, Embeddings, ItemEmbedding},
-    items::{Items, Retrieval},
+    embeddings::Embeddings,
+    items::Items,
+    resolve::{Citation, Relation, Resolution},
     progress_bar,
     wiktextract_json::{WiktextractJson, WiktextractJsonItem, WiktextractJsonValidStr},
 };
@@ -23,6 +24,20 @@ use simd_json::ValueAccess;
 #[derive(Hash, Eq, PartialEq, Debug)]
 pub(crate) struct RawDescendants {
     pub(crate) lines: Box<[RawDescLine]>,
+}
+
+impl RawDescendants {
+    // the langterms the section lists
+    pub(crate) fn langterms(&self) -> impl Iterator<Item = LangTerm> + '_ {
+        self.lines.iter().flat_map(|line| match &line.kind {
+            RawDescLineKind::Desc { desc } => desc
+                .terms
+                .iter()
+                .map(|&term| LangTerm::new(desc.lang, term))
+                .collect::<Vec<_>>(),
+            _ => vec![],
+        })
+    }
 }
 
 impl From<Vec<RawDescLine>> for RawDescendants {
@@ -213,16 +228,6 @@ impl<T: Clone> Ancestors<T> {
     }
 }
 
-impl Ancestors<ItemId> {
-    fn embeddings(&self, items: &Items, embeddings: &Embeddings) -> Result<Vec<ItemEmbedding>> {
-        let mut item_embeddings = Vec::with_capacity(self.ancestors.len());
-        for &ancestor in &self.ancestors {
-            item_embeddings.push(embeddings.get(items.get(ancestor), ancestor)?);
-        }
-        Ok(item_embeddings)
-    }
-}
-
 impl Items {
     pub(crate) fn get_desc_items_needing_embedding(
         &self,
@@ -234,11 +239,10 @@ impl Items {
         for line in &*raw_descendants.lines {
             let possible_parents = possible_ancestors.prune_and_get_parent(line.depth);
             let mut has_ambiguous_child = false;
-            let mut has_imputed_child = false;
             if let RawDescLineKind::Desc { desc } = &line.kind {
                 for (i, &term) in desc.terms.iter().enumerate() {
                     let desc_langterm = LangTerm::new(desc.lang, term);
-                    if let Some(desc_items) = self.get_dupes(desc_langterm) {
+                    if let Some(desc_items) = self.candidates(desc_langterm) {
                         if i == 0 {
                             possible_ancestors.add(desc_items, line.depth);
                         }
@@ -249,11 +253,9 @@ impl Items {
                                 items_needing_embedding.insert(desc_item);
                             }
                         }
-                    } else {
-                        has_imputed_child = true;
                     }
                 }
-                if has_ambiguous_child || has_imputed_child {
+                if has_ambiguous_child {
                     for possible_parent in possible_parents {
                         items_needing_embedding.insert(possible_parent);
                     }
@@ -263,12 +265,19 @@ impl Items {
         items_needing_embedding
     }
 
-    pub(crate) fn process_raw_descendants(&mut self, embeddings: &Embeddings) -> Result<()> {
+    pub(crate) fn process_raw_descendants(
+        &mut self,
+        string_pool: &StringPool,
+        embeddings: &Embeddings,
+    ) -> Result<()> {
         let n = self.raw_templates.desc.len();
         let pb = progress_bar(n, "Processing descendants")?;
-        let raw_templates_desc = mem::take(&mut self.raw_templates.desc);
+        // in id order, so that the result does not depend on hash-map order
+        let mut raw_templates_desc: Vec<_> =
+            mem::take(&mut self.raw_templates.desc).into_iter().collect();
+        raw_templates_desc.sort_unstable_by_key(|(item_id, _)| *item_id);
         for (item_id, desc) in raw_templates_desc {
-            self.process_item_raw_descendants(embeddings, item_id, &desc)?;
+            self.process_item_raw_descendants(string_pool, embeddings, item_id, &desc)?;
             pb.inc(1);
         }
 
@@ -278,6 +287,7 @@ impl Items {
 
     pub(crate) fn process_item_raw_descendants(
         &mut self,
+        string_pool: &StringPool,
         embeddings: &Embeddings,
         item: ItemId,
         raw_descendants: &RawDescendants,
@@ -319,15 +329,19 @@ impl Items {
                         continue 'lines;
                     }
                     let langterm = LangTerm::new(desc.lang, term);
-                    let Retrieval {
-                        item_id: desc_item,
-                        confidence,
-                    } = self.get_or_impute_item(
-                        embeddings,
-                        &ancestors.embeddings(self, embeddings)?,
-                        item,
+                    let citation = Citation {
                         langterm,
-                    )?;
+                        id: None,
+                        gloss: None,
+                        pos: None,
+                        citer: parent,
+                        relation: Relation::Child,
+                    };
+                    let (desc_item, confidence) =
+                        match self.resolve(string_pool, embeddings, &citation)? {
+                            Resolution::Found { item, confidence } => (item, confidence),
+                            Resolution::Missing => (self.impute_item(langterm, item), 0.0),
+                        };
                     // Only use the first term in a multi-term desc line as
                     // the ancestor for any deeper-nested lines below it.
                     if i == 0 {
@@ -337,8 +351,16 @@ impl Items {
                     confidences.push(confidence);
                     modes.push(mode);
                 }
-                for (desc_item, confidence, mode) in izip!(desc_items, confidences, modes) {
-                    if confidence >= embeddings::SIMILARITY_THRESHOLD {
+                for (desc_item, confidence, mut mode) in izip!(desc_items, confidences, modes) {
+                    // Inheritance is from another language: an untagged
+                    // same-language line is a derivation (e.g. a derived
+                    // term listed under its base word).
+                    if mode == EtyMode::Inherited
+                        && self.get(desc_item).lang() == self.get(parent).lang()
+                    {
+                        mode = EtyMode::MorphologicalDerivation;
+                    }
+                    {
                         self.graph
                             .add_ety(desc_item, mode, Some(0), &[parent], &[confidence]);
                     }

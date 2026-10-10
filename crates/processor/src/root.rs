@@ -1,18 +1,22 @@
-use std::{mem, str::FromStr};
+use std::{collections::BTreeMap, mem, str::FromStr};
 
 use crate::{
-    embeddings::{self, Comparand, Embeddings, ItemEmbedding},
+    HashMap,
+    embeddings::{self, Embeddings},
     etymology::validate_ety_template_lang,
-    items::{Items, Retrieval},
+    items::Items,
     progress_bar,
-    wiktextract_json::{WiktextractJson, WiktextractJsonItem, WiktextractJsonValidStr},
+    wiktextract_json::{
+        WiktextractJson, WiktextractJsonItem, WiktextractJsonValidStr, clean_template_term,
+        modifier, split_modifiers,
+    },
 };
 use wety_core::{
     etymology_templates::EtyMode,
     items::ItemId,
     langterm::{LangTerm, Term},
     languages::Lang,
-    string_pool::{StringPool, Symbol},
+    string_pool::StringPool,
 };
 
 use anyhow::{Ok, Result};
@@ -24,7 +28,10 @@ use simd_json::ValueAccess;
 #[derive(Hash, Eq, PartialEq, Debug)]
 pub(crate) struct RawRoot {
     pub(crate) langterm: LangTerm,
-    pub(crate) sense_id: Option<Symbol>,
+    // The root's sense, e.g. "carry" in {{root|en|ine-pro|*bʰer- (carry)}} or
+    // the category "... root *bʰer- (carry)". It is the {{etymon}} id of the
+    // root's own entry, which distinguishes homograph roots.
+    pub(crate) sense_id: Option<Box<str>>,
 }
 
 enum RootKind {
@@ -33,51 +40,49 @@ enum RootKind {
 }
 
 impl WiktextractJsonItem<'_> {
-    // cf. https://en.wiktionary.org/wiki/Template:root. For now we skip
-    // attempting to deal with multiple roots listed in a root template or
-    // multiple root templates being listed. In both cases we just take the
-    // first root term seen. If we discover it is common, we will handle it. We
-    // also handle https://en.wiktionary.org/wiki/Template:PIE_word and
-    // https://en.wiktionary.org/wiki/Template:word here. These are both used in
-    // the same way as {{root}}; namely, they are placed at the top of the
-    // etymology section before the body of the etymology where the "normal" ety
-    // templates are found. And all three are used to indicate ultimate descent
-    // from a term in a proto-language. For expedience, we gloss over the
-    // distinction among them and categorize them all as "root" etys.
-    pub(crate) fn get_root(&self, string_pool: &mut StringPool, lang: Lang) -> Option<RawRoot> {
+    // The roots an entry descends from, per its first {{root}}-like template
+    // (https://en.wiktionary.org/wiki/Template:root, and the similar
+    // https://en.wiktionary.org/wiki/Template:word and
+    // https://en.wiktionary.org/wiki/Template:PIE_word), else per its root
+    // categories, which {{etymon}} and other templates also generate. These
+    // indicate ultimate descent from a proto-language term, which we record as
+    // "root" etys. An entry may name several roots (e.g. a compound).
+    pub(crate) fn get_roots(&self, string_pool: &mut StringPool, lang: Lang) -> Vec<RawRoot> {
         if let Some(templates) = self.json.get_array("etymology_templates") {
             for template in templates {
                 if let Some(name) = template.get_valid_str("name")
                     && let Some(args) = template.get("args")
                 {
-                    match name {
-                        "root" => {
-                            return process_root_template(string_pool, args, lang, &RootKind::Root);
-                        }
-                        "word" => {
-                            return process_root_template(string_pool, args, lang, &RootKind::Word);
-                        }
-                        "PIE word" => {
-                            return process_pie_word_template(string_pool, args, lang);
-                        }
-                        _ => {}
+                    let roots = match name {
+                        "root" => process_root_template(string_pool, args, lang, &RootKind::Root),
+                        "word" => process_root_template(string_pool, args, lang, &RootKind::Word),
+                        "PIE word" => process_pie_word_template(string_pool, args, lang),
+                        _ => continue,
+                    };
+                    if !roots.is_empty() {
+                        return roots;
                     }
                 }
             }
         }
 
-        // if no {root} found in ety section, look for a category of the form
         // e.g. "English terms derived from the Proto-Indo-European root *dʰeh₁-"
         // or "English terms derived from the Proto-Indo-European root *bʰel- (shiny)"
-        if let Some(categories) = self.json.get_array("categories") {
-            for category in categories.iter().filter_map(|c| c.as_str()) {
-                if let Some(raw_root) = process_json_root_category(string_pool, category, lang) {
-                    return Some(raw_root);
-                }
+        let mut roots: Vec<RawRoot> = vec![];
+        for category in self
+            .json
+            .get_array("categories")
+            .into_iter()
+            .flatten()
+            .filter_map(|c| c.as_str())
+        {
+            if let Some(root) = process_json_root_category(string_pool, category, lang)
+                && !roots.contains(&root)
+            {
+                roots.push(root);
             }
         }
-
-        None
+        roots
     }
 }
 
@@ -86,37 +91,46 @@ impl WiktextractJsonItem<'_> {
 // This handles both {{root}} and {{word}}. The templates work the same, with
 // the only exception being that the arg for the proto-language uses the
 // standard language code in the case of {{root}}, while "-pro" is clipped off
-// in the case of {{word}}.
+// in the case of {{word}}. The roots are args "3", "4", ...
 fn process_root_template(
     string_pool: &mut StringPool,
     args: &WiktextractJson,
     lang: Lang,
     kind: &RootKind,
-) -> Option<RawRoot> {
-    validate_ety_template_lang(args, lang).ok()?;
-    let root_lang = args.get_valid_str("2")?;
-    let root_lang = match kind {
-        RootKind::Root => Lang::from_str(root_lang).ok()?,
-        RootKind::Word => Lang::from_str(&format!("{root_lang}-pro")).ok()?,
-    };
-    let raw_root_term = args.get_valid_str("3")?;
-    let root_term = args.get_valid_term("3")?;
-    // we don't deal with multi-roots for now:
-    args.get_valid_term("4").is_none().then_some(())?;
-
-    let mut sense_id = "";
-    // Sometimes a root's senseid is given in parentheses after the term in
-    // the 3 arg slot, see e.g. https://en.wiktionary.org/wiki/blaze.
-    if let Some(right_paren_idx) = raw_root_term.rfind(')')
-        && let Some(left_paren_idx) = raw_root_term.rfind(" (")
-    {
-        sense_id = &raw_root_term[left_paren_idx + 2..right_paren_idx];
-    } else if let Some(id) = args.get_valid_str("id") {
-        sense_id = id;
+) -> Vec<RawRoot> {
+    let mut roots = vec![];
+    if validate_ety_template_lang(args, lang).is_err() {
+        return roots;
     }
-    let sense_id = (!sense_id.is_empty()).then(|| string_pool.get_or_intern(sense_id));
-    let langterm = root_lang.new_langterm(string_pool, root_term);
-    Some(RawRoot { langterm, sense_id })
+    let Some(root_lang) = args.get_valid_str("2").and_then(|code| match kind {
+        RootKind::Root => Lang::from_str(code).ok(),
+        RootKind::Word => Lang::from_str(&format!("{code}-pro")).ok(),
+    }) else {
+        return roots;
+    };
+    for n in 3.. {
+        let Some(raw_root_term) = args.get_valid_str(n.to_string().as_str()) else {
+            break;
+        };
+        let (term, modifiers) = split_modifiers(raw_root_term);
+        let root_term = clean_template_term(term);
+        if root_term.is_empty() {
+            continue;
+        }
+        // The sense is given in parentheses after the term (see e.g.
+        // https://en.wiktionary.org/wiki/blaze), as <id:...>, or for a single
+        // root as id=.
+        let sense_id = term
+            .rfind(" (")
+            .and_then(|l| Some(&term[l + 2..term.rfind(')')?]))
+            .or_else(|| modifier(&modifiers, "id"))
+            .or_else(|| (n == 3).then(|| args.get_valid_str("id")).flatten())
+            .filter(|id| !id.is_empty())
+            .map(Box::from);
+        let langterm = root_lang.new_langterm(string_pool, root_term);
+        roots.push(RawRoot { langterm, sense_id });
+    }
+    roots
 }
 
 // https://en.wiktionary.org/wiki/Template:PIE_word
@@ -124,15 +138,19 @@ fn process_pie_word_template(
     string_pool: &mut StringPool,
     args: &WiktextractJson,
     lang: Lang,
-) -> Option<RawRoot> {
-    validate_ety_template_lang(args, lang).ok()?;
-    let pie_lang = Lang::from_str("ine-pro").ok()?;
-    let pie_word = args.get_valid_term("2")?;
-    let pie_langterm = pie_lang.new_langterm(string_pool, pie_word);
-    Some(RawRoot {
-        langterm: pie_langterm,
+) -> Vec<RawRoot> {
+    if validate_ety_template_lang(args, lang).is_err() {
+        return vec![];
+    }
+    let (Some(pie_lang), Some(pie_word)) =
+        (Lang::from_str("ine-pro").ok(), args.get_valid_term("2"))
+    else {
+        return vec![];
+    };
+    vec![RawRoot {
+        langterm: pie_lang.new_langterm(string_pool, pie_word),
         sense_id: None,
-    })
+    }]
 }
 
 fn process_json_root_category(
@@ -151,85 +169,203 @@ fn process_json_root_category(
     let cat_root_lang = Lang::from_name(cat_root_lang_name).ok()?;
     let cat_root_term = caps.get(3).map(|m| m.as_str())?;
     let cat_root_term = Term::new(string_pool, cat_root_term);
-    let cat_root_sense_id = caps
-        .get(4)
-        .map(|cap| string_pool.get_or_intern(cap.as_str()));
     Some(RawRoot {
         langterm: LangTerm::new(cat_root_lang, cat_root_term),
-        sense_id: cat_root_sense_id,
+        sense_id: caps.get(4).map(|cap| Box::from(cap.as_str())),
     })
 }
 
 impl Items {
-    fn impute_item_root_ety(
-        &mut self,
+    // The item a root names: by its sense id where that is some root entry's
+    // {{etymon}} id, else among homographs the one that best fits the item by
+    // meaning (embeddings::citation_score).
+    fn find_root(
+        &self,
         embeddings: &Embeddings,
-        embedding: &ItemEmbedding,
-        item_id: ItemId,
-        raw_root: &RawRoot,
+        item: ItemId,
+        root: &RawRoot,
+    ) -> Result<Option<(ItemId, f32)>> {
+        if let Some(sense_id) = &root.sense_id
+            && let Some(root_item) = self.get_id_item(root.langterm, sense_id)
+        {
+            return Ok(Some((root_item, 1.0)));
+        }
+        let Some(candidates) = self.candidates(root.langterm) else {
+            return Ok(None);
+        };
+        if let [only] = candidates[..] {
+            return Ok(Some((only, 0.5)));
+        }
+        let embedding = embeddings.get(self.get(item), item)?;
+        let mut best: Option<(ItemId, f32)> = None;
+        for &candidate in candidates {
+            let candidate_embedding = embeddings.get(self.get(candidate), candidate)?;
+            let score = embeddings::citation_score(&embedding, &candidate_embedding, true, None);
+            if best.is_none_or(|(_, s)| score > s) {
+                best = Some((candidate, score));
+            }
+        }
+        Ok(best)
+    }
+
+    // Whether a root may be imputed as an item's ety: the item's language must
+    // descend from the root's (an imputed item's may be the root's own).
+    // An imputed item may be a derivative in its root's own language (*bʰor-no-m
+    // < *bʰer-), unless it is a root or affix itself (*bʰor-).
+    fn may_descend_from_root(&self, string_pool: &StringPool, item: ItemId, root_item: ItemId) -> bool {
+        let item = self.get(item);
+        let root_lang = self.get(root_item).lang();
+        item.lang().strictly_descends_from(root_lang)
+            || (item.is_imputed()
+                && item.lang().descends_from(root_lang)
+                && !item.term().resolve(string_pool).ends_with('-'))
+    }
+
+    // Root etys are imputed in two passes, each over items in id order so that
+    // the result does not depend on hash-map order.
+    //
+    // 1. An item with no ety of its own gets its roots as its ety (imputing a
+    //    root missing from the data).
+    // 2. An item with an ety chain that does not reach one of its roots says
+    //    that the top of its head chain (its head progenitor, which has no ety)
+    //    descends from that root. Many items may speak for the same progenitor,
+    //    not always alike (their categories also cover other parts of their
+    //    ancestry), so each progenitor gets the root most of them name, an item
+    //    naming n unreached roots giving each 1/n of a vote.
+    pub(crate) fn impute_root_etys(
+        &mut self,
+        string_pool: &StringPool,
+        embeddings: &Embeddings,
     ) -> Result<()> {
-        let Retrieval {
-            item_id: root_item_id,
-            confidence,
-        } = self.get_or_impute_item(embeddings, embedding, item_id, raw_root.langterm)?;
+        let raw_roots: BTreeMap<ItemId, Box<[RawRoot]>> =
+            mem::take(&mut self.raw_templates.root).into_iter().collect();
+        let pb = progress_bar(raw_roots.len() * 2, "Imputing root etys")?;
 
-        let root_lang = self.get(root_item_id).lang();
-
-        match self.graph.progenitors(item_id) {
-            None => {
-                let item = self.get(item_id);
-                let item_lang = item.lang();
-                if (item_lang.strictly_descends_from(root_lang)
-                    || (item.is_imputed() && item_lang.descends_from(root_lang)))
-                    && confidence >= embeddings::SIMILARITY_THRESHOLD
+        for (&item_id, roots) in &raw_roots {
+            pb.inc(1);
+            if self.graph.immediate_ety(item_id).is_some() {
+                continue;
+            }
+            let (mut root_items, mut confidences) = (vec![], vec![]);
+            for root in roots {
+                let (root_item, confidence) = match self.find_root(embeddings, item_id, root)? {
+                    Some(found) => found,
+                    None => (self.impute_item(root.langterm, item_id), 0.0),
+                };
+                if self.may_descend_from_root(string_pool, item_id, root_item)
+                    && !root_items.contains(&root_item)
                 {
-                    self.graph.add_ety(
-                        item_id,
-                        EtyMode::Root,
-                        Some(0u8),
-                        &[root_item_id],
-                        &[confidence],
-                    );
+                    root_items.push(root_item);
+                    confidences.push(confidence);
                 }
             }
-            Some(progenitors) => {
-                if let Some(head_progenitor_id) = progenitors.head
-                    && let head_progenitor = self.get(head_progenitor_id)
-                    && !progenitors.items.contains(&root_item_id)
-                    && let head_progenitor_lang = head_progenitor.lang()
-                    && (head_progenitor_lang.strictly_descends_from(root_lang)
-                        || (head_progenitor.is_imputed()
-                            && head_progenitor_lang.descends_from(root_lang)))
-                {
-                    let root_embedding = embeddings.get(self.get(root_item_id), root_item_id)?;
-                    let hp_embedding = embeddings.get(head_progenitor, head_progenitor_id)?;
-                    let similarity = hp_embedding.cosine_similarity(&root_embedding);
-                    if similarity >= embeddings::SIMILARITY_THRESHOLD {
-                        self.graph.add_ety(
-                            head_progenitor_id,
-                            EtyMode::Root,
-                            Some(0u8),
-                            &[root_item_id],
-                            &[similarity],
-                        );
-                    }
-                }
+            if !root_items.is_empty() {
+                let head = (root_items.len() == 1).then_some(0);
+                self.graph
+                    .add_ety(item_id, EtyMode::Root, head, &root_items, &confidences);
             }
         }
 
-        Ok(())
-    }
-
-    pub(crate) fn impute_root_etys(&mut self, embeddings: &Embeddings) -> Result<()> {
-        let n = self.raw_templates.root.len();
-        let pb = progress_bar(n, "Imputing root etys")?;
-        let raw_templates_root = mem::take(&mut self.raw_templates.root);
-        for (item_id, root) in raw_templates_root {
-            let embedding = embeddings.get(self.get(item_id), item_id)?;
-            self.impute_item_root_ety(embeddings, &embedding, item_id, &root)?;
+        // progenitor -> root -> (votes, voters)
+        let mut votes: BTreeMap<ItemId, HashMap<ItemId, (f32, u32)>> = BTreeMap::new();
+        for (&item_id, roots) in &raw_roots {
             pb.inc(1);
+            let Some(progenitors) = self.graph.progenitors(item_id) else {
+                continue;
+            };
+            let Some(head_progenitor) = progenitors.head else {
+                continue;
+            };
+            let mut unreached = vec![];
+            for root in roots {
+                if let Some((root_item, _)) = self.find_root(embeddings, item_id, root)?
+                    && !progenitors.items.contains(&root_item)
+                    && head_progenitor != root_item
+                    && self.may_descend_from_root(string_pool, head_progenitor, root_item)
+                    && !unreached.contains(&root_item)
+                {
+                    unreached.push(root_item);
+                }
+            }
+            #[allow(clippy::cast_precision_loss)]
+            let share = 1.0 / unreached.len() as f32;
+            for root_item in unreached {
+                let vote = votes
+                    .entry(head_progenitor)
+                    .or_default()
+                    .entry(root_item)
+                    .or_default();
+                vote.0 += share;
+                vote.1 += 1;
+            }
+        }
+        for (progenitor, roots) in votes {
+            let Some((&root_item, _)) = roots.iter().max_by(|(a, va), (b, vb)| {
+                va.0.total_cmp(&vb.0)
+                    .then(va.1.cmp(&vb.1))
+                    .then(b.cmp(a)) // the lower id on a tie
+            }) else {
+                continue;
+            };
+            // a confidence from the share of the votes
+            let (votes, _) = roots[&root_item];
+            let total: f32 = roots.values().map(|(v, _)| v).sum();
+            self.graph.add_ety(
+                progenitor,
+                EtyMode::Root,
+                Some(0u8),
+                &[root_item],
+                &[votes / total],
+            );
         }
         pb.finish();
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use simd_json::to_borrowed_value;
+
+    fn roots(json: &str) -> Vec<(String, Option<String>)> {
+        let mut bytes = json.as_bytes().to_vec();
+        let json = to_borrowed_value(&mut bytes).unwrap();
+        let mut sp = StringPool::new();
+        WiktextractJsonItem { json }
+            .get_roots(&mut sp, Lang::from_str("en").unwrap())
+            .into_iter()
+            .map(|r| {
+                (
+                    format!("{}:{}", r.langterm.lang.code(), r.langterm.term.resolve(&sp)),
+                    r.sense_id.map(String::from),
+                )
+            })
+            .collect()
+    }
+
+    #[test]
+    fn root_templates_and_categories() {
+        let pie = |t: &str, s: Option<&str>| (format!("ine-pro:{t}"), s.map(String::from));
+        // several roots, with senses
+        assert_eq!(
+            roots(r#"{"etymology_templates": [{"name": "root",
+                "args": {"1": "en", "2": "ine-pro", "3": "*bʰer- (carry)", "4": "*pleh₂k-<id:flat>"}}]}"#),
+            [pie("bʰer-", Some("carry")), pie("pleh₂k-", Some("flat"))]
+        );
+        assert_eq!(
+            roots(r#"{"etymology_templates": [{"name": "root",
+                "args": {"1": "en", "2": "ine-pro", "3": "*bʰel-", "id": "shiny"}}]}"#),
+            [pie("bʰel-", Some("shiny"))]
+        );
+        // all root categories, once each
+        assert_eq!(
+            roots(r#"{"categories": [
+                "English terms derived from the Proto-Indo-European root *bʰer- (carry)",
+                "English lemmas",
+                "English terms derived from the Proto-Indo-European root *per- (before)",
+                "English terms derived from the Proto-Indo-European root *bʰer- (carry)"]}"#),
+            [pie("bʰer-", Some("carry")), pie("per-", Some("before"))]
+        );
     }
 }

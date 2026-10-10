@@ -1,91 +1,67 @@
-use crate::{HashMap, wiktextract_json::WiktextractJson};
+//! Text embeddings of items, for choosing among homographs (see resolve.rs).
+//!
+//! Each item gets embeddings of each of its senses' glosses, of its glosses
+//! joined, and of its etymology text; a citation may also give a gloss of the
+//! cited term (t=). Embeddings are cached by text, under a namespace of the
+//! model, its revision and this file.
+
+use crate::HashMap;
 use wety_core::items::{Item, ItemId};
 
-use std::{mem, path::PathBuf, rc::Rc};
+use std::{hash::Hash, mem, path::PathBuf, rc::Rc};
 
 use anyhow::{Error, Result};
 
-use simd_json::ValueAccess;
 use sled::{self, Db, IVec};
 use xxhash_rust::xxh3::xxh3_64;
 
 type Embedding = Vec<f32>;
 
-/// Only retrieve items with similarity greater than this threshold
-pub(crate) const SIMILARITY_THRESHOLD: f32 = 0.0;
-
 /// For an `imputed_item` embedding, we use the embedding for
 /// `imputed_item.from`, weighted by this discount factor
 pub(crate) const IMPUTATION_DISCOUNT: f32 = 0.5;
 
+// senses per item to embed, and characters of etymology text
+const MAX_SENSES: usize = 12;
+const MAX_ETY_CHARS: usize = 600;
+
 pub(crate) struct ItemEmbedding {
     ety: Option<Embedding>,
     glosses: Option<Embedding>,
+    senses: Vec<Embedding>,
     discount: f32,
-}
-
-impl ItemEmbedding {
-    pub(crate) fn is_empty(&self) -> bool {
-        self.ety.is_none() && self.glosses.is_none()
-    }
 }
 
 type TextHash = u64;
 
-trait ToByteSlice {
-    fn to_bytes(&self) -> [u8; 8];
+fn text_hash(text: &str) -> TextHash {
+    xxh3_64(text.as_bytes())
 }
 
-impl ToByteSlice for TextHash {
-    fn to_bytes(&self) -> [u8; 8] {
-        self.to_be_bytes()
-    }
+fn to_bytes(embedding: &[f32]) -> Vec<u8> {
+    embedding.iter().flat_map(|e| e.to_be_bytes()).collect()
 }
 
-trait ToByteVec {
-    fn to_bytes(&self) -> Vec<u8>;
+fn to_embedding(bytes: &IVec) -> Embedding {
+    // the 4 here assumes Embedding elements are f32
+    let (chunks, _) = bytes.as_ref().as_chunks::<4>();
+    chunks.iter().map(|&b| f32::from_be_bytes(b)).collect()
 }
 
-impl ToByteVec for Embedding {
-    fn to_bytes(&self) -> Vec<u8> {
-        self.iter().flat_map(|e| e.to_be_bytes()).collect()
-    }
-}
-
-trait ToEmbedding {
-    fn to_embedding(&self) -> Embedding;
-}
-
-impl ToEmbedding for &[u8] {
-    fn to_embedding(&self) -> Embedding {
-        // the 4 here assumes Embedding elements are f32
-        let (chunks, _) = self.as_chunks::<4>();
-        chunks
-            .iter()
-            .map(|&bytes| f32::from_be_bytes(bytes))
-            .collect()
-    }
-}
-
-impl ToEmbedding for IVec {
-    fn to_embedding(&self) -> Embedding {
-        self.as_ref().to_embedding()
-    }
-}
-
-struct Batch {
+// Texts waiting to be embedded, by key.
+struct Batch<K> {
     max_size: usize,
     model: Rc<Model>,
     cache: Rc<Db>,
-    items: Vec<ItemId>,
+    keys: Vec<K>,
     texts: Vec<String>,
     text_hashes: Vec<TextHash>,
 }
 
-impl Batch {
+impl<K> Batch<K> {
     fn new(model: &Rc<Model>, size: usize, cache: &Rc<Db>) -> Self {
         Self {
-            items: Vec::with_capacity(size),
+            keys: Vec::with_capacity(size),
             texts: Vec::with_capacity(size),
             text_hashes: Vec::with_capacity(size),
             max_size: size,
@@ -94,70 +70,43 @@ impl Batch {
         }
     }
 
-    fn len(&self) -> usize {
-        self.items.len()
-    }
-
-    fn add(&mut self, item: ItemId, text: String, text_hash: TextHash) {
-        self.items.push(item);
+    // Add a text; when the batch is full, embed and cache it, returning the
+    // keys it embedded.
+    fn update(&mut self, key: K, text: String, text_hash: TextHash) -> Result<Vec<(K, TextHash)>> {
+        self.keys.push(key);
         self.texts.push(text);
         self.text_hashes.push(text_hash);
-    }
-
-    fn clear(&mut self) {
-        self.items.clear();
-        self.texts.clear();
-        self.text_hashes.clear();
-    }
-
-    fn update(
-        &mut self,
-        item: ItemId,
-        text: String,
-        text_hash: TextHash,
-    ) -> Result<Option<(Vec<ItemId>, Vec<TextHash>)>> {
-        self.add(item, text, text_hash);
-        if self.len() >= self.max_size {
-            return Ok(Some(self.encode_and_cache()?));
+        if self.keys.len() >= self.max_size {
+            return self.flush();
         }
-        Ok(None)
+        Ok(vec![])
     }
 
-    fn flush(&mut self) -> Result<Option<(Vec<ItemId>, Vec<TextHash>)>> {
-        if self.len() > 0 {
-            return Ok(Some(self.encode_and_cache()?));
+    fn flush(&mut self) -> Result<Vec<(K, TextHash)>> {
+        if self.keys.is_empty() {
+            return Ok(vec![]);
         }
-        Ok(None)
-    }
-
-    fn encode_and_cache(&mut self) -> Result<(Vec<ItemId>, Vec<TextHash>)> {
-        let items = mem::take(&mut self.items);
+        let keys = mem::take(&mut self.keys);
         let text_hashes = mem::take(&mut self.text_hashes);
         let texts = mem::take(&mut self.texts);
-        let embeddings = self.model.encode(texts)?;
-        self.cache(&text_hashes, &embeddings)?;
-        self.clear();
-        Ok((items, text_hashes))
-    }
-
-    fn cache(&self, text_hashes: &[TextHash], embeddings: &Tensor) -> Result<()> {
+        let embeddings = self.model.encode(texts)?.to_vec2::<f32>()?;
         let mut batch = sled::Batch::default();
-        let embeddings = embeddings.to_vec2::<f32>()?;
-        for (text_hash, embedding) in text_hashes.iter().zip(embeddings.iter()) {
-            batch.insert(&text_hash.to_bytes(), embedding.to_bytes());
+        for (text_hash, embedding) in text_hashes.iter().zip(&embeddings) {
+            batch.insert(&text_hash.to_be_bytes(), to_bytes(embedding));
         }
         self.cache.apply_batch(batch)?;
-        Ok(())
+        Ok(keys.into_iter().zip(text_hashes).collect())
     }
 }
 
-struct EmbeddingsMap {
-    batch: Batch,
-    map: HashMap<ItemId, TextHash>,
+// Embeddings by key (an item, an item's sense, a text), through the cache.
+struct EmbeddingsMap<K> {
+    batch: Batch<K>,
+    map: HashMap<K, TextHash>,
     cache: Rc<Db>,
 }
 
-impl EmbeddingsMap {
+impl<K: Copy + Eq + Hash> EmbeddingsMap<K> {
     fn new(model: &Rc<Model>, batch_size: usize, cache: &Rc<Db>) -> Self {
         Self {
             batch: Batch::new(model, batch_size, cache),
@@ -166,34 +115,34 @@ impl EmbeddingsMap {
         }
     }
 
-    fn update(&mut self, item: ItemId, text: String) -> Result<()> {
-        let text_hash = xxh3_64(text.as_bytes());
-        if self.cache.contains_key(text_hash.to_bytes())? {
-            self.map.insert(item, text_hash);
+    fn update(&mut self, key: K, text: String) -> Result<()> {
+        let hash = text_hash(&text);
+        if self.cache.contains_key(hash.to_be_bytes())? {
+            self.map.insert(key, hash);
             return Ok(());
         }
-        if let Some((items, text_hashes)) = self.batch.update(item, text, text_hash)? {
-            for (&item, text_hash) in items.iter().zip(text_hashes) {
-                self.map.insert(item, text_hash);
-            }
+        for (key, hash) in self.batch.update(key, text, hash)? {
+            self.map.insert(key, hash);
         }
         Ok(())
     }
 
     fn flush(&mut self) -> Result<()> {
-        if let Some((items, text_hashes)) = self.batch.flush()? {
-            for (&item, text_hash) in items.iter().zip(text_hashes) {
-                self.map.insert(item, text_hash);
-            }
+        for (key, hash) in self.batch.flush()? {
+            self.map.insert(key, hash);
         }
         Ok(())
     }
 
-    fn get(&self, item: ItemId) -> Result<Option<Embedding>> {
-        if let Some(text_hash) = self.map.get(&item)
-            && let Some(embedding_bytes) = self.cache.get(text_hash.to_bytes())?
+    fn contains(&self, key: &K) -> bool {
+        self.map.contains_key(key)
+    }
+
+    fn get(&self, key: K) -> Result<Option<Embedding>> {
+        if let Some(hash) = self.map.get(&key)
+            && let Some(bytes) = self.cache.get(hash.to_be_bytes())?
         {
-            return Ok(Some(embedding_bytes.to_embedding()));
+            return Ok(Some(to_embedding(&bytes)));
         }
         Ok(None)
     }
@@ -201,10 +150,11 @@ impl EmbeddingsMap {
 
 /// For other options, see:
 /// <https://huggingface.co/models?library=sentence-transformers&sort=trending>.
-/// For speed, try sentence-transformers/paraphrase-MiniLM-L3-v2, which should be
-/// about 4x faster than sentence-transformers/all-MiniLM-L12-v2.
-pub const DEFAULT_MODEL: &str = "sentence-transformers/all-MiniLM-L12-v2";
-pub const DEFAULT_MODEL_REVISION: &str = "7b92c94edb86f18b2d52ed2797de0c5d474632ae";
+/// BERT (mean pooling) and ModernBERT (CLS pooling) checkpoints are supported;
+/// sentence-transformers/all-MiniLM-L12-v2 is about 2.4x faster here, and
+/// somewhat less accurate for choosing homographs.
+pub const DEFAULT_MODEL: &str = "ibm-granite/granite-embedding-small-english-r2";
+pub const DEFAULT_MODEL_REVISION: &str = "2ab6fa8ea2d674564defd37171ae19079b864b33";
 pub const DEFAULT_BATCH_SIZE: usize = 800;
 
 #[cfg(feature = "mkl")]
@@ -214,11 +164,14 @@ extern crate intel_mkl_src;
 extern crate accelerate_src;
 
 use candle_core::{
-    Device, Tensor,
+    Device, IndexOp, Tensor,
     utils::{cuda_is_available, metal_is_available},
 };
 use candle_nn::VarBuilder;
-use candle_transformers::models::bert::{self, BertModel, DTYPE, HiddenAct};
+use candle_transformers::models::{
+    bert::{self, BertModel, DTYPE, HiddenAct},
+    modernbert::{self, ModernBert},
+};
 use hf_hub::{Repo, RepoType, api::sync::Api};
 use tokenizers::Tokenizer;
 
@@ -258,9 +211,18 @@ fn device() -> Result<Device> {
     Ok(Device::Cpu)
 }
 
+// The supported architectures, with the pooling their sentence-transformers
+// configurations use.
+enum Inner {
+    // mean pooling (e.g. sentence-transformers/all-MiniLM-L12-v2)
+    Bert(BertModel),
+    // CLS pooling (e.g. ibm-granite/granite-embedding-small-english-r2)
+    ModernBert(ModernBert),
+}
+
 struct Model {
     device: Device,
-    inner: BertModel,
+    inner: Inner,
     tokenizer: Tokenizer,
 }
 
@@ -276,34 +238,50 @@ impl Model {
             .join("snapshots").join(&revision);
         let repo = Repo::with_revision(model_name, RepoType::Model, revision);
 
-        let (config_filename, tokenizer_filename, weights_filename) = if
-            ["config.json", "tokenizer.json", "pytorch_model.bin"].iter().all(|name| snapshot.join(name).is_file()) {
-            (snapshot.join("config.json"), snapshot.join("tokenizer.json"), snapshot.join("pytorch_model.bin"))
-        } else {
-            let api = Api::new()?;
-            let api = api.repo(repo);
-            let config = api.get("config.json")?;
-            let tokenizer = api.get("tokenizer.json")?;
-            let weights = api.get("pytorch_model.bin")?;
-            (config, tokenizer, weights)
+        let file = |name: &str| -> Result<PathBuf> {
+            if snapshot.join(name).is_file() {
+                return Ok(snapshot.join(name));
+            }
+            Ok(Api::new()?.repo(repo.clone()).get(name)?)
         };
+        let config_filename = file("config.json")?;
+        let config = std::fs::read_to_string(config_filename)?;
+        let model_type = serde_json::from_str::<serde_json::Value>(&config)?
+            .get("model_type")
+            .and_then(|t| t.as_str().map(str::to_owned))
+            .unwrap_or_default();
 
         // No tokenizer padding: encode() pads each length-sorted sub-batch itself.
-        // The tokenizer's own truncation (128 tokens for this model) stays.
-        let mut tokenizer = Tokenizer::from_file(tokenizer_filename).map_err(Error::msg)?;
+        // Texts are truncated to 256 tokens (glosses and etymologies rarely
+        // need more).
+        let mut tokenizer = Tokenizer::from_file(file("tokenizer.json")?).map_err(Error::msg)?;
         tokenizer.with_padding(None);
+        tokenizer
+            .with_truncation(Some(tokenizers::TruncationParams {
+                max_length: 256,
+                ..Default::default()
+            }))
+            .map_err(Error::msg)?;
 
-        let vb = VarBuilder::from_pth(&weights_filename, DTYPE, &device)?;
-
-        let config = std::fs::read_to_string(config_filename)?;
-        let mut config: bert::Config = serde_json::from_str(&config)?;
-        config.hidden_act = HiddenAct::GeluApproximate;
-
-        let model = BertModel::load(vb, &config)?;
+        let inner = if model_type == "modernbert" {
+            let config: modernbert::Config = serde_json::from_str(&config)?;
+            // candle expects the weights under "model."; sentence-transformers
+            // checkpoints have them at the root.
+            let vb = unsafe {
+                VarBuilder::from_mmaped_safetensors(&[file("model.safetensors")?], DTYPE, &device)?
+            }
+            .rename_f(|name: &str| name.strip_prefix("model.").unwrap_or(name).to_owned());
+            Inner::ModernBert(ModernBert::load(vb, &config)?)
+        } else {
+            let vb = VarBuilder::from_pth(file("pytorch_model.bin")?, DTYPE, &device)?;
+            let mut config: bert::Config = serde_json::from_str(&config)?;
+            config.hidden_act = HiddenAct::GeluApproximate;
+            Inner::Bert(BertModel::load(vb, &config)?)
+        };
 
         Ok(Self {
             device,
-            inner: model,
+            inner,
             tokenizer,
         })
     }
@@ -340,13 +318,21 @@ impl Model {
             }
             let ids = Tensor::from_vec(ids, (chunk.len(), width), &self.device)?;
             let mask = Tensor::from_vec(mask, (chunk.len(), width), &self.device)?;
-            let token_type_ids = ids.zeros_like()?;
-            let hidden = self.inner.forward(&ids, &token_type_ids, Some(&mask))?;
-            let weights = mask.to_dtype(hidden.dtype())?.unsqueeze(2)?;
-            let pooled = hidden
-                .broadcast_mul(&weights)?
-                .sum(1)?
-                .broadcast_div(&weights.sum(1)?)?;
+            let pooled = match &self.inner {
+                Inner::Bert(model) => {
+                    let token_type_ids = ids.zeros_like()?;
+                    let hidden = model.forward(&ids, &token_type_ids, Some(&mask))?;
+                    let weights = mask.to_dtype(hidden.dtype())?.unsqueeze(2)?;
+                    hidden
+                        .broadcast_mul(&weights)?
+                        .sum(1)?
+                        .broadcast_div(&weights.sum(1)?)?
+                }
+                Inner::ModernBert(model) => {
+                    let hidden = model.forward(&ids, &mask)?;
+                    hidden.i((.., 0, ..))?.contiguous()?
+                }
+            };
             for (&i, row) in chunk.iter().zip(normalize_l2(&pooled)?.to_vec2::<f32>()?) {
                 rows[i] = Some(row);
             }
@@ -369,8 +355,11 @@ pub struct Config {
 }
 
 pub(crate) struct Embeddings {
-    ety: EmbeddingsMap,
-    glosses: EmbeddingsMap,
+    ety: EmbeddingsMap<ItemId>,
+    glosses: EmbeddingsMap<ItemId>,
+    senses: EmbeddingsMap<(ItemId, u8)>,
+    n_senses: HashMap<ItemId, u8>,
+    texts: EmbeddingsMap<TextHash>,
     cache: Rc<Db>,
 }
 
@@ -387,51 +376,44 @@ impl Embeddings {
         Ok(Self {
             ety: EmbeddingsMap::new(&model, config.batch_size, &cache),
             glosses: EmbeddingsMap::new(&model, config.batch_size, &cache),
+            senses: EmbeddingsMap::new(&model, config.batch_size, &cache),
+            n_senses: HashMap::default(),
+            texts: EmbeddingsMap::new(&model, config.batch_size, &cache),
             cache,
         })
     }
 
     pub(crate) fn add(
         &mut self,
-        json_item: &WiktextractJson,
+        item_id: ItemId,
         item_lang: &str,
         item_term: &str,
-        item_id: ItemId,
+        ety_text: Option<&str>,
+        glosses: &[String],
     ) -> Result<()> {
-        if !self.ety.map.contains_key(&item_id)
-            && let Some(ety_text) = json_item.get_str("etymology_text")
-            && !ety_text.is_empty()
-        {
-            // We prepend the lang name and term to the ety text. Consider a
-            // veridical ancestor chain of a>b>c0, where c0 has a within-lang
-            // homograph c1. Suppose that the ety texts are as follows: a: "",
-            // b: "From a.", c0: "From b.", c1: "From z." If we just compared
-            // ety texts, then c0 and c1 would have comparable similarities to
-            // b, because neither c0 nor c1's ety text share's anything from
-            // b's. Now consider the prepended versions: a: "a", b: "b. From
-            // a.", c0: "c0. From b.", c1: "c1. From z." Now c0 shares "b" with
-            // b's ety text, while c1 still shares nothing with b's ety text. So
-            // c0's similarity to b will be higher than c1's, as desired.
-            let ety_text = format!("{item_lang} {item_term}. {ety_text}");
-            self.ety.update(item_id, ety_text)?;
+        if let Some(ety_text) = ety_text {
+            // The lang name and term are prepended to the ety text, so that an
+            // etymology naming a term is near that term's own etymology.
+            let ety_text: String = ety_text.chars().take(MAX_ETY_CHARS).collect();
+            self.ety.update(item_id, format!("{item_lang} {item_term}. {ety_text}"))?;
         }
-        if !self.glosses.map.contains_key(&item_id) {
-            let mut glosses_text = String::new();
-            if let Some(senses) = json_item.get_array("senses") {
-                for sense in senses {
-                    if let Some(gloss) = sense
-                        .get_array("glosses")
-                        .and_then(|glosses| glosses.first())
-                        .and_then(|gloss| gloss.as_str())
-                    {
-                        glosses_text.push_str(gloss);
-                        glosses_text.push(' ');
-                    }
-                }
+        let glosses = &glosses[..glosses.len().min(MAX_SENSES)];
+        if !glosses.is_empty() {
+            self.glosses.update(item_id, glosses.join(" "))?;
+            for (n, gloss) in (0u8..).zip(glosses) {
+                self.senses.update((item_id, n), gloss.clone())?;
             }
-            if !glosses_text.is_empty() {
-                self.glosses.update(item_id, glosses_text.clone())?;
-            }
+            #[allow(clippy::cast_possible_truncation)]
+            self.n_senses.insert(item_id, glosses.len() as u8);
+        }
+        Ok(())
+    }
+
+    /// Embed a text that is not an item's, e.g. a gloss a citation gives.
+    pub(crate) fn add_text(&mut self, text: &str) -> Result<()> {
+        let hash = text_hash(text);
+        if !self.texts.contains(&hash) {
+            self.texts.update(hash, text.to_owned())?;
         }
         Ok(())
     }
@@ -439,298 +421,233 @@ impl Embeddings {
     pub(crate) fn flush(&mut self) -> Result<()> {
         self.ety.flush()?;
         self.glosses.flush()?;
+        self.senses.flush()?;
+        self.texts.flush()?;
         self.cache.flush()?;
         Ok(())
     }
 
+    pub(crate) fn text(&self, text: &str) -> Result<Option<Embedding>> {
+        self.texts.get(text_hash(text))
+    }
+
     pub(crate) fn get(&self, item: &Item, item_id: ItemId) -> Result<ItemEmbedding> {
-        Ok(match item {
-            Item::Real(_) => ItemEmbedding {
-                ety: self.ety.get(item_id)?,
-                glosses: self.glosses.get(item_id)?,
-                discount: 1.0,
-            },
-            Item::Imputed(imputed) => ItemEmbedding {
-                ety: self.ety.get(imputed.from)?,
-                glosses: self.glosses.get(imputed.from)?,
-                discount: IMPUTATION_DISCOUNT,
-            },
+        let (id, discount) = match item {
+            Item::Real(_) => (item_id, 1.0),
+            Item::Imputed(imputed) => (imputed.from, IMPUTATION_DISCOUNT),
+        };
+        let n = self.n_senses.get(&id).copied().unwrap_or(0);
+        let mut senses = Vec::with_capacity(n.into());
+        for s in 0..n {
+            if let Some(sense) = self.senses.get((id, s))? {
+                senses.push(sense);
+            }
+        }
+        Ok(ItemEmbedding {
+            ety: self.ety.get(id)?,
+            glosses: self.glosses.get(id)?,
+            senses,
+            discount,
         })
     }
 }
 
-pub(crate) trait Comparand<T> {
-    fn cosine_similarity(&self, other: &T) -> f32;
+fn cosine(a: &[f32], b: &[f32]) -> f32 {
+    let (mut ab, mut aa, mut bb) = (0.0, 0.0, 0.0);
+    for (x, y) in a.iter().zip(b) {
+        ab += x * y;
+        aa += x * x;
+        bb += y * y;
+    }
+    if aa == 0.0 || bb == 0.0 {
+        return 0.0;
+    }
+    ab / (aa * bb).sqrt()
 }
 
-impl Comparand<Embedding> for Embedding {
-    fn cosine_similarity(&self, other: &Embedding) -> f32 {
-        let (mut ab, mut aa, mut bb) = (0.0, 0.0, 0.0);
-        for (a, b) in self.iter().zip(other) {
-            ab += a * b;
-            aa += a * a;
-            bb += b * b;
-        }
-        ab / (aa * bb).sqrt()
-    }
+fn best_match<'a>(a: impl Iterator<Item = &'a Embedding> + Clone, b: &[Embedding]) -> f32 {
+    a.flat_map(|x| b.iter().map(move |y| cosine(x, y)))
+        .fold(0.0, f32::max)
 }
 
-impl Comparand<Option<Embedding>> for Option<Embedding> {
-    fn cosine_similarity(&self, other: &Option<Embedding>) -> f32 {
-        if let Some(this) = self
-            && let Some(other) = other
-        {
-            return this.cosine_similarity(other);
-        }
-        0.0
-    }
-}
-
-const GLOSSES_WEIGHT: f32 = 0.75;
-const ETY_WEIGHT: f32 = 1.0 - GLOSSES_WEIGHT;
-
-impl Comparand<ItemEmbedding> for ItemEmbedding {
-    fn cosine_similarity(&self, other: &ItemEmbedding) -> f32 {
-        let discount = self.discount.min(other.discount);
-        let glosses_similarity = self.glosses.cosine_similarity(&other.glosses);
-        discount
-            * if let Some(self_ety) = &self.ety
-                && let Some(other_ety) = &other.ety
-            {
-                let ety_similarity = self_ety.cosine_similarity(other_ety);
-                ETY_WEIGHT * ety_similarity + GLOSSES_WEIGHT * glosses_similarity
-            } else {
-                glosses_similarity
-            }
-    }
-}
-
-// The farther you get down a chain of ancestry, the more an item's meaning (and
-// hence glosses) is likely to diverge from the remoter ancestors'. This
-// discount factor thus assigns ancestors progressively lesser weights the
-// farther you get up the chain from the item in question.
-const DISCOUNT: f32 = 0.95;
-
-const ETY_QUALITY: f32 = 1.0;
-const NO_ETY_QUALITY: f32 = 1.0 - ETY_WEIGHT;
-const EMPTY_QUALITY: f32 = 0.0;
-
-// for comparing an item with all its ancestors
-impl Comparand<ItemEmbedding> for Vec<ItemEmbedding> {
-    fn cosine_similarity(&self, other: &ItemEmbedding) -> f32 {
-        if other.is_empty() {
-            return 0.0;
-        }
-        let mut total_similarity = 0.0;
-        let mut discount = 1.0;
-        let mut total_weight = 0.0;
-        for ancestor in self.iter().rev() {
-            let similarity = other.cosine_similarity(ancestor);
-            let quality = if other.ety.is_some() && ancestor.ety.is_some() {
-                ETY_QUALITY
-            } else if !ancestor.is_empty() {
-                NO_ETY_QUALITY
-            } else {
-                EMPTY_QUALITY
-            };
-            let weight = discount * quality;
-            total_similarity += weight * similarity;
-            total_weight += weight;
-            discount *= DISCOUNT;
-        }
-        if total_weight > 0.0 {
-            return total_similarity / total_weight;
-        }
-        0.0
-    }
+/// How well a candidate fits a citation, by meaning: the best match between a
+/// sense of the cited term as the citation glosses it (t=) or else of the
+/// citing item, and a sense of the candidate (0.7); and how near the child's
+/// etymology text is to the parent's glosses (0.3), since an etymology
+/// describes the source it names. The weights were chosen on ambiguous
+/// citations whose answer an id or a Descendants list gives.
+pub(crate) fn citation_score(
+    citer: &ItemEmbedding,
+    candidate: &ItemEmbedding,
+    citer_is_child: bool,
+    gloss: Option<&Embedding>,
+) -> f32 {
+    let senses = match gloss {
+        Some(gloss) => best_match(std::iter::once(gloss), &candidate.senses),
+        None => best_match(citer.senses.iter(), &candidate.senses),
+    };
+    let (child, parent) = if citer_is_child {
+        (citer, candidate)
+    } else {
+        (candidate, citer)
+    };
+    let etymology = match (&child.ety, &parent.glosses) {
+        (Some(ety), Some(glosses)) => cosine(ety, glosses),
+        _ => 0.0,
+    };
+    citer.discount.min(candidate.discount) * (0.7 * senses + 0.3 * etymology)
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use simd_json::json;
-    use std::path::Path;
 
-    fn delete_cache(path: &Path) {
-        std::fs::remove_dir_all(path).unwrap();
-    }
-
-    fn json<'a>(ety: &str, gloss: &str) -> WiktextractJson<'a> {
-        json!({
-            "etymology_text": ety,
-            "senses": [
-                {
-                    "glosses": [
-                        gloss
-                    ]
-                }
-            ]
-        })
-        .into()
-    }
-
-    fn embeddings(cache_path: &Path) -> Embeddings {
+    // Whether, among two candidates, the right one scores higher for a
+    // citation, with the default model.
+    fn assert_right_disambiguation(
+        name: &str,
+        citer: (&str, &str, &str, &[&str]),
+        citer_is_child: bool,
+        candidates: (&str, &str),
+        right: (&str, &[&str]),
+        wrong: (&str, &[&str]),
+    ) {
+        let cache = std::env::temp_dir().join(format!("wety-embeddings-tests-{name}"));
         let config = Config {
             model_name: DEFAULT_MODEL.to_string(),
             model_revision: DEFAULT_MODEL_REVISION.to_string(),
             batch_size: 1,
-            cache_path: cache_path.to_path_buf(),
+            cache_path: cache.clone(),
         };
-        Embeddings::new(&config).unwrap()
-    }
-
-    fn feq(f0: f32, f1: f32) -> bool {
-        (f0 - f1).abs() <= f32::EPSILON
-    }
-
-    impl Embeddings {
-        fn get_real(&self, item_id: ItemId) -> Result<ItemEmbedding> {
-            Ok(ItemEmbedding {
-                ety: self.ety.get(item_id)?,
-                glosses: self.glosses.get(item_id)?,
-                discount: 1.0,
-            })
+        let mut embeddings = Embeddings::new(&config).unwrap();
+        let owned = |glosses: &[&str]| glosses.iter().map(|g| (*g).to_owned()).collect::<Vec<_>>();
+        let ids = [0, 1, 2].map(ItemId::from);
+        embeddings
+            .add(ids[0], citer.0, citer.1, Some(citer.2), &owned(citer.3))
+            .unwrap();
+        for (id, (ety, glosses)) in ids[1..].iter().zip([right, wrong]) {
+            embeddings
+                .add(*id, candidates.0, candidates.1, Some(ety), &owned(glosses))
+                .unwrap();
         }
+        embeddings.flush().unwrap();
+        let get = |id| {
+            let item = Item::Imputed(wety_core::items::ImputedItem {
+                ety_num: 1,
+                lang: "en".parse().unwrap(),
+                term: wety_core::langterm::Term::new(&mut wety_core::string_pool::StringPool::new(), "x"),
+                romanization: None,
+                from: id,
+            });
+            let mut embedding = embeddings.get(&item, id).unwrap();
+            embedding.discount = 1.0;
+            embedding
+        };
+        let (base, right, wrong) = (get(ids[0]), get(ids[1]), get(ids[2]));
+        let right_score = citation_score(&base, &right, citer_is_child, None);
+        let wrong_score = citation_score(&base, &wrong, citer_is_child, None);
+        println!("{name}: {right_score} vs {wrong_score}");
+        assert!(right_score > wrong_score);
+        drop(embeddings);
+        std::fs::remove_dir_all(cache).unwrap();
     }
 
     #[test]
-    fn cosine_similarity_identical() {
-        let cache = PathBuf::from("tmp-embeddings-tests-identical");
-        let mut embeddings = embeddings(&cache);
-        let json = json("test", "test test");
-        let lang = "test_lang";
-        let term = "test_term";
-        let id0 = ItemId::from(0);
-        let id1 = ItemId::from(1);
-        embeddings.add(&json, lang, term, id0).unwrap();
-        embeddings.add(&json, lang, term, id1).unwrap();
-        let item_embedding0 = embeddings.get_real(id0).unwrap();
-        assert!(item_embedding0.ety.is_some());
-        assert!(item_embedding0.glosses.is_some());
-        let item_embedding1 = embeddings.get_real(id1).unwrap();
-        assert!(item_embedding1.ety.is_some());
-        assert!(item_embedding1.glosses.is_some());
-        assert_eq!(item_embedding0.ety, item_embedding1.ety);
-        assert_eq!(item_embedding0.glosses, item_embedding1.glosses);
-        let similarity0 = item_embedding0.cosine_similarity(&item_embedding1);
-        println!("{similarity0}");
-        assert!(feq(similarity0, 1.0));
-        let similarity1 = item_embedding1.cosine_similarity(&item_embedding0);
-        assert!(feq(similarity0, similarity1));
-        delete_cache(&cache);
-    }
-
-    #[allow(clippy::too_many_arguments)]
-    fn assert_right_disambiguation(
-        embeddings: &mut Embeddings,
-        base_lang: &str,
-        base_term: &str,
-        base_json: &WiktextractJson,
-        candidates_lang: &str,
-        candidates_term: &str,
-        right_json: &WiktextractJson,
-        wrong_json: &WiktextractJson,
-    ) {
-        let parent = ItemId::from(0);
-        let right = ItemId::from(1);
-        let wrong = ItemId::from(2);
-        embeddings
-            .add(base_json, base_lang, base_term, parent)
-            .unwrap();
-        embeddings
-            .add(right_json, candidates_lang, candidates_term, right)
-            .unwrap();
-        embeddings
-            .add(wrong_json, candidates_lang, candidates_term, wrong)
-            .unwrap();
-        let base_embedding = embeddings.get_real(parent).unwrap();
-        let right_embedding = embeddings.get_real(right).unwrap();
-        let wrong_embedding = embeddings.get_real(wrong).unwrap();
-        let ety_right_similarity = base_embedding.ety.cosine_similarity(&right_embedding.ety);
-        let ety_wrong_similarity = base_embedding.ety.cosine_similarity(&wrong_embedding.ety);
-        println!("ety similarities: {ety_right_similarity}, {ety_wrong_similarity}");
-        // assert!(ety_right_similarity > ety_wrong_similarity);
-        let glosses_right_similarity = base_embedding
-            .glosses
-            .cosine_similarity(&right_embedding.glosses);
-        let glosses_wrong_similarity = base_embedding
-            .glosses
-            .cosine_similarity(&wrong_embedding.glosses);
-        println!("glosses similarities: {glosses_right_similarity}, {glosses_wrong_similarity}");
-        // assert!(glosses_right_similarity > glosses_wrong_similarity);
-        let right_similarity = base_embedding.cosine_similarity(&right_embedding);
-        let wrong_similarity = base_embedding.cosine_similarity(&wrong_embedding);
-        println!("similarities: {right_similarity}, {wrong_similarity}");
-        assert!(right_similarity > wrong_similarity);
-    }
-
-    #[test]
-    fn cosine_similarity_minþiją() {
-        let cache = PathBuf::from("tmp-embeddings-tests-minþiją");
-        let mut embeddings = embeddings(&cache);
-        let base_lang = "Proto-Germanic";
-        let base_term = "minþiją";
-        let base_json = json(
-            "From Proto-Indo-European *men- (“to think”).",
-            "memory, remembrance",
-        );
-        let candidates_lang = "Old Norse";
-        let candidates_term = "minni";
-        let right_json = json("From Proto-Germanic *(ga)minþiją.", "memory");
-        let wrong_json = json(
-            "From Proto-Germanic *minnizô, comparative of *lītilaz.",
-            "less, smaller: comparative degree of lítill",
-        );
+    fn disambiguates_minþiją() {
+        // Proto-Germanic *minþiją lists Old Norse minni among its descendants
         assert_right_disambiguation(
-            &mut embeddings,
-            base_lang,
-            base_term,
-            &base_json,
-            candidates_lang,
-            candidates_term,
-            &right_json,
-            &wrong_json,
+            "minþiją",
+            ("Proto-Germanic", "minþiją", "From Proto-Indo-European *men- (“to think”).", &["memory, remembrance"]),
+            false,
+            ("Old Norse", "minni"),
+            ("From Proto-Germanic *(ga)minþiją.", &["memory"]),
+            ("From Proto-Germanic *minnizô, comparative of *lītilaz.", &["less, smaller: comparative degree of lítill"]),
         );
-        delete_cache(&cache);
     }
 
     #[test]
-    fn cosine_similarity_mone() {
-        let cache = PathBuf::from("tmp-embeddings-tests-mone");
-        let mut embeddings = embeddings(&cache);
-        let base_lang = "English";
-        let base_term = "moon";
-        let base_json = json(
-            "From Middle English mone, from Old English mōna (“moon”), from Proto-West Germanic *mānō, from Proto-Germanic *mēnô (“moon”), from Proto-Indo-European *mḗh₁n̥s (“moon, month”), probably from *meh₁- (“to measure”).\ncognates and doublets\nCognate with Scots mone, mune, muin (“moon”), North Frisian muun (“moon”), West Frisian moanne (“moon”), Dutch maan (“moon”), German Mond (“moon”), Danish måne (“moon”), Norwegian Bokmål måne (“moon”), Norwegian Nynorsk måne (“moon”), Swedish måne (“moon”), Icelandic máni (“moon”), Latin mēnsis (“month”). See also month, a related term within Indo-European.",
-            "Alternative letter-case form of Moon (“the Earth's only permanent natural satellite”).",
-        );
-        let candidates_lang = "Middle English";
-        let candidates_term = "mone";
-        let right_json = json(
-            "From Old English mōna. The sense of the word as silver is the result of its astrological association with the planet.",
-            "The celestial body closest to the Earth, considered to be a planet in the Ptolemic system as well as the boundary between the Earth and the heavens; the Moon. A white, precious metal; silver.",
-        );
-        let wrong_json = json(
-            "From Old English mān, from Proto-West Germanic *mainu, from Proto-Germanic *mainō.",
-            "A lamentation A moan, complaint",
-        );
+    fn disambiguates_mone() {
+        // English moon cites Middle English mone
         assert_right_disambiguation(
-            &mut embeddings,
-            base_lang,
-            base_term,
-            &base_json,
-            candidates_lang,
-            candidates_term,
-            &right_json,
-            &wrong_json,
+            "mone",
+            (
+                "English",
+                "moon",
+                "From Middle English mone, from Old English mōna (“moon”), from Proto-West Germanic *mānō, from Proto-Germanic *mēnô (“moon”), from Proto-Indo-European *mḗh₁n̥s (“moon, month”), probably from *meh₁- (“to measure”).",
+                &["The Earth's only permanent natural satellite.", "A satellite of a planet."],
+            ),
+            true,
+            ("Middle English", "mone"),
+            (
+                "From Old English mōna. The sense of the word as silver is the result of its astrological association with the planet.",
+                &["The celestial body closest to the Earth, considered to be a planet in the Ptolemic system as well as the boundary between the Earth and the heavens; the Moon.", "A white, precious metal; silver."],
+            ),
+            ("From Old English mān, from Proto-West Germanic *mainu, from Proto-Germanic *mainō.", &["A lamentation", "A moan, complaint"]),
         );
-        delete_cache(&cache);
     }
 
     #[test]
-    fn xxhash_equality() {
-        let a = xxh3_64("test".as_bytes());
-        let b = xxh3_64("test".as_bytes());
-        assert_eq!(a, b);
+    fn scores() {
+        let e = |v: &[f32]| v.to_vec();
+        let item = |ety: Option<&[f32]>, glosses: &[f32], senses: &[&[f32]]| ItemEmbedding {
+            ety: ety.map(e),
+            glosses: Some(e(glosses)),
+            senses: senses.iter().map(|s| e(s)).collect(),
+            discount: 1.0,
+        };
+        // the child's etymology describes the parent's sense [0, 1]
+        let child = item(Some(&[0.0, 1.0]), &[1.0, 0.0], &[&[1.0, 0.0]]);
+        let right = item(None, &[0.0, 1.0], &[&[0.0, 1.0], &[1.0, 0.0]]);
+        let wrong = item(None, &[1.0, 1.0], &[&[0.6, 0.8]]);
+        assert!(citation_score(&child, &right, true, None) > citation_score(&child, &wrong, true, None));
+        // a citation's gloss replaces the citing item's senses
+        let gloss = e(&[0.6, 0.8]);
+        assert!(citation_score(&child, &wrong, true, Some(&gloss)) > citation_score(&child, &right, true, Some(&gloss)) - 0.3);
+        // seen from the parent, the roles of etymology and glosses swap
+        assert!((citation_score(&right, &child, false, None) - citation_score(&child, &right, true, None)).abs() < 1e-6);
+    }
+}
+
+#[cfg(test)]
+mod parity {
+    use super::*;
+
+    // Writes embeddings of a few texts for comparison with sentence-transformers:
+    // WETY_PARITY_OUT=path cargo test -p processor parity -- --ignored
+    #[test]
+    #[ignore = "downloads a model; for manual comparison"]
+    fn write_embeddings() {
+        let out = std::env::var("WETY_PARITY_OUT").unwrap();
+        let model = std::env::var("WETY_PARITY_MODEL").unwrap();
+        let revision = std::env::var("WETY_PARITY_REVISION").unwrap();
+        let model = Model::new(model, revision).unwrap();
+        let texts = [
+            "A child or baby.",
+            "barn, farm building, granary",
+            "English bairn. From Middle English bern, barn, from Old English bearn (“child”).",
+            "to bear, carry",
+        ];
+        let embeddings = model
+            .encode(texts.iter().map(|t| (*t).to_owned()).collect())
+            .unwrap()
+            .to_vec2::<f32>()
+            .unwrap();
+        std::fs::write(out, serde_json::to_string(&embeddings).unwrap()).unwrap();
+    }
+
+    // Texts per second: WETY_PARITY_MODEL=... WETY_PARITY_REVISION=... cargo test
+    // --release -p processor parity::throughput -- --ignored --nocapture
+    #[test]
+    #[ignore = "downloads a model; for manual measurement"]
+    fn throughput() {
+        let model = std::env::var("WETY_PARITY_MODEL").unwrap();
+        let revision = std::env::var("WETY_PARITY_REVISION").unwrap();
+        let model = Model::new(model, revision).unwrap();
+        let texts: Vec<String> = (0..4000)
+            .map(|i| format!("a word for the act or result of doing thing number {i}, as of a kind of work or play"))
+            .collect();
+        let start = std::time::Instant::now();
+        model.encode(texts.clone()).unwrap();
+        println!("{:.0} texts/s", texts.len() as f64 / start.elapsed().as_secs_f64());
     }
 }

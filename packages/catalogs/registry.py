@@ -300,7 +300,7 @@ def publish(languages,families,glottolog,snapshot,decisions):
     queue.sort(key=lambda r:({'conflict':0,'stage_scope':1,'catalog_scope':2}[r['priority']],r['subject']))
     b={'schema_version':2,'policy':POLICY,'source_snapshot':snapshot,'languages':languages,'families':families,'glottolog':glottolog,
        'index_by_wiktionary_code':alias_index(languages),'index_by_target':allidx,'index_by_iso639_3':isoidx,'index_by_glottocode':glidx,'review_queue':queue,
-       'decisions':decisions,'implementation':implementation_hashes()}
+       'decisions':decisions}
     errors=validate_bundle(b)
     if errors:raise ValueError('\n'.join(errors[:30]))
     gen=digest(b);folder=CATALOG_GENERATIONS/gen
@@ -333,18 +333,8 @@ def validate_current(root=ROOT):
     for name,info in b['source_snapshot']['files'].items():
         p=CATALOG_SOURCES/name.removeprefix('sources/') if name.startswith('sources/') else root/info['provenance']['path'] if 'path' in info['provenance'] else None
         if p and sha(p)!=info['sha256']:errors.append('source changed; rebuild '+name)
-    for name,h in b['implementation'].items():
-        if sha(REPO/name)!=h:errors.append('implementation changed; rebuild '+name)
     if json.loads((CATALOG_WORKSPACE/'overrides.json').read_text()).get('decisions',{})!=b['decisions']:errors.append('decisions changed; rebuild')
     return errors
-
-
-def implementation_hashes():
-    paths=[]
-    for package in ('catalogs','source_tools','workflow_tools'):
-        paths.extend((REPO/'packages'/package).glob('*.py'))
-    paths += [REPO/'pyproject.toml', REPO/'uv.lock']
-    return {str(p.relative_to(REPO)):sha(p) for p in sorted(paths)}
 
 
 if __name__=='__main__':

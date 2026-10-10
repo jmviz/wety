@@ -5,7 +5,7 @@ use crate::{
 };
 use wety_core::{
     gloss::Gloss,
-    items::RealItem,
+    items::{ItemId, RealItem},
     langterm::Term,
     languages::Lang,
     pos::Pos,
@@ -74,7 +74,7 @@ impl Items {
 pub(crate) type WiktextractJson<'a> = simd_json::value::borrowed::Value<'a>;
 
 /// The most common affix kinds.
-#[derive(PartialEq)]
+#[derive(PartialEq, Eq, Hash, Clone, Copy, Debug)]
 pub(crate) enum Affix {
     Prefix,
     Suffix,
@@ -168,14 +168,18 @@ impl Items {
                 is_reconstructed: json_item.is_reconstructed(),
             };
             let (item_id, is_new_ety) = self.add_real(item);
+            for id in json_item.get_ids(lang) {
+                self.add_id(item_id, id);
+            }
             if is_new_ety { // a new item was added
                 // This means that the glosses embedding for a multi-pos item
                 // will be based on the glosses for whichever pos happens to
                 // first in the wiktextract data. $$ This may be good enough or
                 // may require better handling in the future...
                 self.lines.insert(line_number, item_id);
-                if let Some(raw_root) = json_item.get_root(string_pool, lang) {
-                    self.raw_templates.root.insert(item_id, raw_root);
+                let raw_roots = json_item.get_roots(string_pool, lang);
+                if !raw_roots.is_empty() {
+                    self.raw_templates.root.insert(item_id, raw_roots.into_boxed_slice());
                 }
                 if let Some(raw_etymology) = json_item.get_etymology(string_pool, lang) {
                     self.raw_templates.ety.insert(item_id, raw_etymology);
@@ -183,22 +187,53 @@ impl Items {
                 if let Some(raw_descendants) = json_item.get_descendants(string_pool) {
                     self.raw_templates.desc.insert(item_id, raw_descendants);
                 }
+                self.add_derived(string_pool, item_id, json_item, lang);
                 return;
             }
-            // This was a new pos of an existing item. 
-            if let Some(mut raw_descendants) = json_item.get_descendants(string_pool) {
+            // This was a new pos of an existing item.
+            self.lines.insert(line_number, item_id);
+            self.add_derived(string_pool, item_id, json_item, lang);
+            if let Some(raw_descendants) = json_item.get_descendants(string_pool) {
                 // Sometimes multiple pos's under the same ety have different
                 // Descendants sections. This handles that by simply joining the
-                // lists into one. $$ This does assume that each list uses the
-                // same base level of indentation though...
-                if let Some(existing) = self.raw_templates.desc.get_mut(&item_id) {
-                    let mut ex_lines = Vec::from(mem::take(&mut existing.lines));
-                    let new_lines = Vec::from(mem::take(&mut raw_descendants.lines));
-                    ex_lines.extend(new_lines);
-                    let full = RawDescendants::from(ex_lines);
-                    self.raw_templates.desc.insert(item_id, full);
+                // lists into one (a repeated list is kept once). $$ This does
+                // assume that each list uses the same base level of
+                // indentation though... (The joined list was overwritten by
+                // the later one's emptied lines, losing both.)
+                match self.raw_templates.desc.get_mut(&item_id) {
+                    Some(existing) if *existing == raw_descendants => {}
+                    Some(existing) => {
+                        let mut lines = Vec::from(mem::take(&mut existing.lines));
+                        lines.extend(Vec::from(raw_descendants.lines));
+                        *existing = RawDescendants::from(lines);
+                    }
+                    None => {
+                        self.raw_templates.desc.insert(item_id, raw_descendants);
+                    }
                 }
-                self.raw_templates.desc.insert(item_id, raw_descendants);
+            }
+        }
+    }
+}
+
+impl Items {
+    // The entry's "Derived terms" (same language), which name the item's
+    // derivatives as a Descendants section names its descendants.
+    fn add_derived(
+        &mut self,
+        string_pool: &mut StringPool,
+        item_id: ItemId,
+        json_item: &WiktextractJsonItem,
+        lang: Lang,
+    ) {
+        for derived in json_item.json.get_array("derived").into_iter().flatten() {
+            if let Some(word) = derived.get_valid_term("word") {
+                let langterm = lang.new_langterm(string_pool, word);
+                self.raw_templates
+                    .derived
+                    .entry(item_id)
+                    .or_default()
+                    .push(langterm);
             }
         }
     }
@@ -231,9 +266,12 @@ impl WiktextractJsonItem<'_> {
                     let mut t = 0;
                     while let Some(tag) = tags.get(t).as_str() {
                         if tag == "canonical" {
-                            // There are some
                             if let Some(term) = form.get_valid_term("form")
                                 && !should_ignore_term(term)
+                                && self
+                                    .json
+                                    .get_valid_term("word")
+                                    .is_some_and(|word| is_respelling(term, word))
                             {
                                 return Some(Term::new(string_pool, term));
                             }
@@ -312,8 +350,109 @@ impl WiktextractJsonItem<'_> {
     }
 }
 
+/// Split `text<a:1><b<c>>` into `text` and the contents of its top-level
+/// angle-bracket groups (`a:1`, `b<c>`). An unbalanced tail is dropped.
+pub(crate) fn split_modifiers(s: &str) -> (&str, Vec<&str>) {
+    let Some(start) = s.find('<') else {
+        return (s, vec![]);
+    };
+    let mut modifiers = vec![];
+    let mut depth = 0usize;
+    let mut open = start;
+    for (i, c) in s.char_indices().skip_while(|&(i, _)| i < start) {
+        match c {
+            '<' => {
+                if depth == 0 {
+                    open = i;
+                }
+                depth += 1;
+            }
+            '>' if depth > 0 => {
+                depth -= 1;
+                if depth == 0 {
+                    modifiers.push(&s[open + 1..i]);
+                }
+            }
+            _ => {}
+        }
+    }
+    (&s[..start], modifiers)
+}
+
+pub(crate) fn modifier<'a>(modifiers: &[&'a str], name: &str) -> Option<&'a str> {
+    modifiers.iter().find_map(|m| {
+        m.strip_prefix(name)
+            .and_then(|rest| rest.strip_prefix(':'))
+            .map(str::trim)
+    })
+}
+
+/// Split a `lang:term` prefix off a term arg, as Module:links and Module:affix
+/// accept it (e.g. {{af|pt|a-|grc:χρῶμα|-ia}}). Only checks the syntax of the
+/// code; callers decide what an unknown code means.
+pub(crate) fn split_lang_prefix(s: &str) -> Option<(&str, &str)> {
+    let (code, term) = s.split_once(':')?;
+    (code.starts_with(|c: char| c.is_ascii_alphabetic())
+        && code
+            .chars()
+            .all(|c| c.is_ascii_alphanumeric() || matches!(c, '.' | '_' | '-')))
+    .then_some((code, term))
+}
+
+/// An explicit affix type, as given by {{af}}'s typeN=/<type:> or
+/// {{etymon}}'s <aftype:>.
+pub(crate) fn affix_type(name: &str) -> Option<Affix> {
+    Some(match name {
+        "prefix" | "pre" => Affix::Prefix,
+        "suffix" | "suf" => Affix::Suffix,
+        "infix" | "in" | "interfix" | "inter" => Affix::Infix,
+        "non-affix" | "naf" | "root" => Affix::Base,
+        _ => return None,
+    })
+}
+
+/// A part of speech as templates name it (pos=, <pos:...>), e.g. "verb",
+/// "adjective", "diminutive suffix" (the last word naming one).
+pub(crate) fn parse_pos(text: &str) -> Option<Pos> {
+    text.split(|c: char| !c.is_alphabetic())
+        .rev()
+        .find_map(|word| {
+            let code = match word.to_lowercase().as_str() {
+                "noun" | "substantive" => "noun",
+                "verb" => "verb",
+                "adjective" | "adj" => "adj",
+                "adverb" | "adv" => "adv",
+                "pronoun" => "pron",
+                "numeral" => "num",
+                "name" => "name",
+                "prefix" => "prefix",
+                "suffix" => "suffix",
+                "infix" => "infix",
+                "interfix" => "interfix",
+                "root" => "root",
+                _ => return None,
+            };
+            code.parse().ok()
+        })
+}
+
+/// The affix type implied by hyphens, as {{af}} infers it.
+pub(crate) fn affix_by_hyphens(term: &str) -> Affix {
+    match (term.starts_with('-'), term.ends_with('-')) {
+        (true, true) => Affix::Infix,
+        (true, false) => Affix::Suffix,
+        (false, true) => Affix::Prefix,
+        (false, false) => Affix::Base,
+    }
+}
+
 /// Clean a term that appears as a template arg
-fn clean_template_term(mut term: &str) -> &str {
+pub(crate) fn clean_template_term(mut term: &str) -> &str {
+    // A term may be a link whose target is the lemma, e.g.
+    // {{af|it|la:[[lītus|lītoris]]|-aneo}}.
+    if let Some(link) = term.strip_prefix("[[") {
+        term = link.split(['|', ']']).next().unwrap_or(link);
+    }
     // Reconstructed terms (e.g. PIE) are supposed to start with "*" when cited
     // in etymologies but their entry titles (and hence wiktextract "word"
     // field) do not. This is done by
@@ -323,6 +462,10 @@ fn clean_template_term(mut term: &str) -> &str {
     // terms that actually start with *, but there are almost none of these, and
     // none of them are particularly relevant for our purposes AFAIK ($$).
     term = term.strip_prefix('*').unwrap_or(term);
+    // Terms in templates may carry inline modifiers, e.g.
+    // {{af|en|non-<id:not>|sense}} or {{slbor|fro|la|līber<id:free>}}. Page
+    // titles cannot contain "<", so we cut there.
+    term = term.split_once('<').map_or(term, |(t, _)| t);
     // Occasionally a term is linked in an ety or descendants section like e.g.
     // on page tuig: {{desc|bor=1|en|twig#Etymology_2}}. Or even more rarely,
     // using #X to link to some other subsection (e.g. language). We just take
@@ -333,6 +476,16 @@ fn clean_template_term(mut term: &str) -> &str {
     // {{root|en|ine-pro|*bʰel- (shiny)}}.
     term = term.split_once(" (").map_or(term, |(t, _)| t);
     term
+}
+
+/// Whether a "canonical" form plausibly respells the page title (adding
+/// diacritics, niqqud, Old Irish "·", etc.): it must have the same number of
+/// words. Wiktextract sometimes takes headword-line labels or articles into
+/// the canonical form, e.g. "octobre oblique singular or" for Old French
+/// octobre ({{fro-noun}}), "the pond", "a abate 3rd conjugation" or
+/// "kun # second-person singular imperative of kien".
+fn is_respelling(canonical: &str, title: &str) -> bool {
+    canonical.split_whitespace().count() == title.split_whitespace().count()
 }
 
 // $$ These two functions needs revisiting depending on results.
@@ -372,10 +525,68 @@ mod tests {
         assert_eq!(ety_label(r#"{"word": "lime"}"#), None);
     }
 
+    fn canonical_term(json: &str) -> String {
+        let mut bytes = json.as_bytes().to_vec();
+        let json = to_borrowed_value(&mut bytes).unwrap();
+        let mut string_pool = StringPool::new();
+        WiktextractJsonItem { json }
+            .get_canonical_term(&mut string_pool)
+            .unwrap()
+            .resolve(&string_pool)
+            .to_owned()
+    }
+
+    #[test]
+    fn descendants_of_several_parts_of_speech_are_joined() {
+        let mut sp = StringPool::new();
+        let mut items = Items::new().unwrap();
+        let entry = |pos: &str, desc: &str| {
+            format!(
+                r#"{{"word": "māter", "lang_code": "la", "pos": "{pos}",
+                    "senses": [{{"glosses": ["mother"]}}],
+                    "descendants": [{{"lang_code": "{desc}", "word": "x"}}],
+                    "derived": [{{"word": "māternus"}}]}}"#
+            )
+        };
+        for (n, json) in [entry("noun", "it"), entry("noun", "it"), entry("verb", "fr")].iter().enumerate() {
+            let mut bytes = json.as_bytes().to_vec();
+            let json = to_borrowed_value(&mut bytes).unwrap();
+            items.process_item(&mut sp, &WiktextractJsonItem { json }, n);
+        }
+        let (_, desc) = items.raw_templates.desc.iter().next().unwrap();
+        // the repeated list once, then the other
+        assert_eq!(desc.langterms().count(), 2);
+        let (_, derived) = items.raw_templates.derived.iter().next().unwrap();
+        assert_eq!(derived.len(), 3);
+    }
+
+    #[test]
+    fn canonical_terms() {
+        let form = |word: &str, canonical: &str| {
+            canonical_term(&format!(
+                r#"{{"word": "{word}", "forms": [{{"form": "{canonical}", "tags": ["canonical"]}}]}}"#
+            ))
+        };
+        assert_eq!(form("matrix", "mātrīx"), "mātrīx");
+        assert_eq!(form("מילה", "מִלָּה"), "מִלָּה");
+        assert_eq!(form("dorat", "do·rat"), "do·rat");
+        assert_eq!(form("qui docet", "quī docet"), "quī docet");
+        assert_eq!(form("octobre", "octobre oblique singular or"), "octobre");
+        assert_eq!(form("pond", "the pond"), "pond");
+        assert_eq!(form("abate", "a abate 3rd conjugation"), "abate");
+    }
+
     #[test]
     fn clean_template_terms() {
         assert_eq!("gaberaną", clean_template_term("*gaberaną"));
         assert_eq!("bʰel-", clean_template_term("*bʰel- (shiny)"));
         assert_eq!("twig", clean_template_term("twig#Etymology_2"));
+        assert_eq!("līber", clean_template_term("līber<id:free>"));
+        assert_eq!("non-", clean_template_term("non-<id:not><t:no>"));
+        assert_eq!("lītus", clean_template_term("[[lītus|lītoris]]"));
+        assert_eq!("lītus", clean_template_term("[[lītus]]"));
+        assert_eq!(parse_pos("augmentative suffix").map(Pos::name), Some("suffix"));
+        assert_eq!(parse_pos("adjective").map(Pos::name), Some("adj"));
+        assert_eq!(parse_pos("feminine of {{m|pt|novo}}"), None);
     }
 }

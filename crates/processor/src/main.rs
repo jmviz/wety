@@ -23,6 +23,9 @@ pub struct Args {
     serialization_path: PathBuf,
     #[clap(short = 't', long, value_parser)]
     turtle_path: Option<PathBuf>,
+    /// Page titles of cited terms (packages/source_tools/entry_names.py)
+    #[clap(short = 'e', long, value_parser)]
+    entry_names: Option<PathBuf>,
     #[clap(short = 'm', long, default_value = embeddings::DEFAULT_MODEL, value_parser)]
     embeddings_model: String,
     #[clap(short = 'r', long, default_value = embeddings::DEFAULT_MODEL_REVISION, value_parser)]
@@ -51,6 +54,7 @@ fn main() -> Result<()> {
         &args.wiktextract_path,
         &args.serialization_path,
         args.turtle_path.as_deref(),
+        args.entry_names.as_deref(),
         &embeddings_config,
     )?;
 
