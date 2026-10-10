@@ -123,10 +123,9 @@ payloads on the assumption that hashes make them downloadable.
 
 ### Leaving research data out of published history
 
-Research data was tracked until 2026-10-09. Two pushed branches already carry some of
-it (`dating-pilot`, `reorg-baseline`: the 2026-10-03 pilot's packets, evidence and
-claims); deleting them on GitHub is the maintainer's call, and pushed content may have
-been cached. Before the first push of the rest, remove it from the unpushed commits only,
+Research data was tracked until 2026-10-09. Two pushed branches that carried the
+2026-10-03 pilot's packets, evidence and claims (`dating-pilot`, `reorg-baseline`) were
+deleted on GitHub on 2026-10-10; pushed content may have been cached. Before the first push of the rest, remove it from the unpushed commits only,
 so the commits already on GitHub keep their hashes (rewriting them would also drop
 GitHub's merge signatures). In the main checkout, with every worktree's branch either
 merged or listed, and `data/` backed up:
