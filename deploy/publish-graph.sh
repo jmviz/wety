@@ -10,7 +10,7 @@ set -euo pipefail
 
 repo=$(cd "$(dirname "$0")/.." && pwd)
 remote=${WETY_R2_REMOTE:-r2}
-bucket=${WETY_R2_BUCKET:-wety}
+bucket=${WETY_R2_BUCKET:-wety-deploy}
 pointer=$repo/data/products/etymology_graph/CURRENT.json
 
 if [ $# -gt 0 ]; then

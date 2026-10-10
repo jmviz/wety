@@ -47,14 +47,14 @@ fi
 if [ ! -f /etc/wety/r2.env ]; then
     install -m 600 /dev/null /etc/wety/r2.env
     cat >/etc/wety/r2.env <<'EOF'
-# Read-only R2 token for the wety bucket (deploy/README.md, step 1).
+# Read-only R2 token for the wety-deploy bucket (deploy/README.md, step 1).
 RCLONE_CONFIG_R2_TYPE=s3
 RCLONE_CONFIG_R2_PROVIDER=Cloudflare
 RCLONE_CONFIG_R2_ACCESS_KEY_ID=
 RCLONE_CONFIG_R2_SECRET_ACCESS_KEY=
 RCLONE_CONFIG_R2_ENDPOINT=https://ACCOUNT_ID.r2.cloudflarestorage.com
 RCLONE_CONFIG_R2_NO_CHECK_BUCKET=true
-WETY_R2_BUCKET=wety
+WETY_R2_BUCKET=wety-deploy
 EOF
     echo "created /etc/wety/r2.env: fill in the R2 credentials"
 fi

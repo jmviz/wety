@@ -38,11 +38,11 @@ is done, probably 30–60 minutes. `<ip>` is the instance's public IP.
 
 1. Cloudflare dashboard → **R2 Object Storage**. If R2 is not enabled yet, enable it.
    Cloudflare may ask for a payment method; usage stays within the free tier (10 GB).
-2. **Create bucket**: name `wety`, location automatic.
+2. **Create bucket**: name `wety-deploy`, location automatic.
 3. On the R2 **Overview** page, copy the **Account ID**. The endpoint is
    `https://<ACCOUNT_ID>.r2.cloudflarestorage.com`.
 4. **Overview** → **API Tokens** → **Manage** → **Create Account API token**, three
-   times, each scoped to the `wety` bucket only. Each token's secret is shown once, so
+   times, each scoped to the `wety-deploy` bucket only. Each token's secret is shown once, so
    copy both values each time:
    - `wety-ci`: **Object Read & Write**. Goes to GitHub (step 3).
    - `wety-host`: **Object Read**. Goes to the host (step 6).
@@ -114,7 +114,7 @@ The tunnel needs `wety.org`'s DNS on Cloudflare. Check **wety.org** → **DNS** 
    ```
 
    ```bash
-   gh variable set R2_BUCKET --env production --body wety
+   gh variable set R2_BUCKET --env production --body wety-deploy
    ```
 
    ```bash
@@ -211,7 +211,7 @@ instead risks "out of capacity" errors.
    Check that the host can read the bucket:
 
    ```bash
-   sudo bash -c 'set -a; . /etc/wety/r2.env; rclone lsf -R r2:wety/graphs/'
+   sudo bash -c 'set -a; . /etc/wety/r2.env; rclone lsf -R r2:wety-deploy/graphs/'
    ```
 
 7. Install the tunnel connector with the token from step 2:
@@ -336,7 +336,7 @@ Host layout (`/srv/wety`):
 - `current` and `previous` are symlinks to releases. Deploys keep these two plus the
   three newest releases, and the graphs those use.
 
-R2 layout (bucket `wety`): `releases/<commit>/{release.json,bundle.tar.gz}` and
+R2 layout (bucket `wety-deploy`): `releases/<commit>/{release.json,bundle.tar.gz}` and
 `graphs/<sha256>/<file>`.
 
 Server environment:
