@@ -1,14 +1,12 @@
 import json
 import os
 import stat
-import sys
 import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-import wety_store  # noqa: E402
+from workflow_tools import store
 
 FAKE_RESTIC = """#!/bin/sh
 echo "$@" >> "$FAKE_RESTIC_LOG"
@@ -45,31 +43,29 @@ class StoreTests(unittest.TestCase):
         (self.repo / "data/workspaces/x.json").write_text("{}")
 
     def test_snapshot_writes_the_pointer_and_restore_uses_it(self):
-        with patch.object(wety_store, "git_head", return_value="deadbeef"):
-            pointer = wety_store.snapshot(self.repo / "data", note="first", repo=self.repo)
+        with patch.object(store, "git_head", return_value="deadbeef"):
+            pointer = store.snapshot(self.repo / "data", note="first", repo=self.repo)
         self.assertEqual(
             (pointer["snapshot"], pointer["files"], pointer["git_commit"]),
             ("abc123", 2, "deadbeef"),
         )
-        self.assertEqual(
-            json.loads((self.repo / wety_store.POINTER).read_text())["snapshot"], "abc123"
-        )
+        self.assertEqual(json.loads((self.repo / store.POINTER).read_text())["snapshot"], "abc123")
         backup = self.log.read_text().splitlines()[0]
         self.assertIn("--exclude *.lock", backup)
         self.assertIn(str((self.repo / "data").resolve()), backup)
-        wety_store.restore(self.base / "restored", repo=self.repo)
+        store.restore(self.base / "restored", repo=self.repo)
         self.assertIn(
             f"restore abc123:{(self.repo / 'data').resolve()} --target", self.log.read_text()
         )
-        self.assertEqual(wety_store.check(self.repo)["snapshot"], "abc123")
+        self.assertEqual(store.check(self.repo)["snapshot"], "abc123")
         (self.base / "restored/keep").write_text("x")
         with self.assertRaises(SystemExit):
-            wety_store.restore(self.base / "restored", repo=self.repo)
+            store.restore(self.base / "restored", repo=self.repo)
 
     def test_snapshot_refuses_a_worktree_data_dir_with_links(self):
         (self.repo / "data/cache").symlink_to(self.base)
         with self.assertRaises(SystemExit):
-            wety_store.snapshot(self.repo / "data", repo=self.repo)
+            store.snapshot(self.repo / "data", repo=self.repo)
 
     def test_sync_copies_missing_files_and_never_overwrites(self):
         src, dst = self.base / "a/data", self.base / "b/data"
@@ -83,7 +79,7 @@ class StoreTests(unittest.TestCase):
         (dst / "registry").mkdir()
         (dst / "registry/holdings.json").write_text("old")
         (src / "linked").symlink_to(self.base)
-        report = wety_store.sync(src, dst)
+        report = store.sync(src, dst)
         self.assertEqual((report["to_copy"], report["applied"]), (1, False))
         self.assertFalse((dst / "workspaces/dating/_ledger/1.json").exists())
         kinds = {c["path"]: c["kind"] for c in report["conflicts"]}
@@ -91,10 +87,10 @@ class StoreTests(unittest.TestCase):
             kinds,
             {"workspaces/dating/_ledger/2.json": "immutable", "registry/holdings.json": "mutable"},
         )
-        report = wety_store.sync(src, dst, apply=True)
+        report = store.sync(src, dst, apply=True)
         self.assertEqual((dst / "workspaces/dating/_ledger/1.json").read_text(), "one")
         self.assertEqual((dst / "registry/holdings.json").read_text(), "old")
-        self.assertEqual(wety_store.sync(src, dst)["to_copy"], 0)
+        self.assertEqual(store.sync(src, dst)["to_copy"], 0)
 
 
 if __name__ == "__main__":

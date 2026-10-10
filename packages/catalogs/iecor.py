@@ -69,7 +69,7 @@ def main():
     results=[propose(r,b,names) for r in sorted(rows,key=lambda r:r['ID'])]
     output=HERE/'iecor_wiktionary_matches.json'
     catalog_registry.atomic(output,catalog_registry.json_bytes(results))
-    receipt={'schema_version':2,'crossref_generation':catalog_registry.digest(b),'files':{str(p.relative_to(REPO)):catalog_registry.sha(p) for p in (selected('iecor_languages'),selected('wiktionary_languages'),Path(__file__),output)},'limitations':['Names and source codes only generate proposals; no sample-to-stage equivalence has been adjudicated.','Original IE-CoR table download/revision receipt unavailable in legacy input.']}
+    receipt={'schema_version':2,'crossref_generation':catalog_registry.digest(b),'files':{str(p.relative_to(REPO)):catalog_registry.sha(p) for p in (selected('iecor_languages'),selected('wiktionary_languages'),output)},'limitations':['Names and source codes only generate proposals; no sample-to-stage equivalence has been adjudicated.','Original IE-CoR table download/revision receipt unavailable in legacy input.']}
     catalog_registry.atomic(HERE/'iecor_matches_receipt.json',catalog_registry.json_bytes(receipt))
     print(f'{len(results)} source samples retained; '+str(dict(Counter(r['match']['status'] for r in results))))
 

@@ -214,11 +214,8 @@ def migrate_claim(c, sources, g):
 def context_hashes():
     import hashlib
 
-    files = (
-        list(Path(DATING_DIR, "harness").rglob("*.py"))
-        + list((REPO / "packages/workflow_tools").glob("*.py"))
-        + [REPO / "uv.lock", REPO / "pyproject.toml"]
-    )
+    # The dating code and its locked dependencies; workflow_tools supplies only paths.
+    files = list(Path(DATING_DIR, "harness").rglob("*.py")) + [REPO / "uv.lock"]
     files += [
         Path(LANGCODES_DIR, n)
         for n in (

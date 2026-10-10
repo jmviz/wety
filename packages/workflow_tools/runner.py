@@ -42,7 +42,7 @@ def run(definition):
         if spec['mode']=='artifact':
             for name in spec['required_outputs']:
                 p=(staging/name).resolve()
-                if not p.is_relative_to(staging) or not p.is_file() or p.stat().st_size==0:raise ValueError('required output missing: '+name)
+                if not p.is_relative_to(staging.resolve()) or not p.is_file() or p.stat().st_size==0:raise ValueError('required output missing: '+name)
             artifact=run_dir/'artifact';artifact.mkdir();staging.rename(artifact/'files')
             m=manifest(artifact,spec['collection'],'transformed',{'run':str((run_dir/'receipt.json').relative_to(REPO))},parents=list(input_hashes.values()))
             atomic_json(artifact/'manifest.json',m)

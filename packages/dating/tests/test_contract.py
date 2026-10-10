@@ -219,7 +219,9 @@ class TreeTests(unittest.TestCase):
         self.assertEqual(root["time"]["original"]["interval_type"], "hpd")
         # With the labeled conventional epoch the HPD converts, and says so.
         self.assertEqual(root["time"]["form"], "distribution")
-        self.assertTrue(any("AD 1950 by convention" in x for x in root["assessment"]["limitations"]))
+        self.assertTrue(
+            any("AD 1950 by convention" in x for x in root["assessment"]["limitations"])
+        )
         # Without it, an unstated epoch stays unconverted.
         m.pop("epoch_interpretation")
         m.pop("age_scale")
@@ -247,7 +249,9 @@ class IntegrityTests(unittest.TestCase):
                 c = claims[entry["claim_id"]]
                 self.assertEqual(c["subject"]["id"], "wikt:" + code)
                 self.assertEqual((c["status"], c["subject"]["mapping"]), ("supported", "exact"))
-                self.assertNotIn(entry["claim_id"], view["catalog_context"] + view["ancestral_context"])
+                self.assertNotIn(
+                    entry["claim_id"], view["catalog_context"] + view["ancestral_context"]
+                )
 
     def test_bundle_valid(self):
         self.assertEqual(validate_bundle(self.bundle), [])

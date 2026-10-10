@@ -66,7 +66,9 @@ class ContactCaseTests(unittest.TestCase):
         from harness.registry import context_hashes
 
         context = context_hashes()
-        self.assertIn("pyproject.toml", context)
+        # The resolved environment, not shared tooling or package metadata.
+        self.assertIn("uv.lock", context)
+        self.assertFalse(any(k.startswith("packages/workflow_tools") for k in context))
         self.assertNotIn("packages/dating/pyproject.toml", context)
 
     def test_alternatives_checked_separately(self):

@@ -105,18 +105,10 @@ hand; `withdraw SUBJECT EVENT --reviewer R --rationale TEXT` retracts one, keepi
 with the reason, e.g. so an attestation window can replace a database documentation
 window in the display.
 
-Decisions, withdrawals, registered sources, reuse rights and errata are append-only
-events in `data/workspaces/dating/_ledger/` (`harness/ledger.py`): `dating ledger
-status`, `ledger erratum PACKET --field F --correct TEXT --basis TEXT` (a correction to
-an imported packet), `ledger resolve-source`. `dating rights SOURCE --reuse
-open|short_quote|citation_only --basis TEXT` records what a source's quotes may be
-reused for; `dating release` writes the curated linked-data release (Turtle, JSON-LD)
-from what wety shows, withholding quotes whose reuse is not recorded.
-`adopt` also records again, unchanged, any choice of a code the review touched but did
-not replace (new evidence makes it stale); `readopt [SUBJECT...] --reviewer R --note
-TEXT` does this after a `DECISION_RULES` bump. A revision review (`revises`: an earlier
-packet id) covers only the assertions it changes, e.g. moving a stage period from a
-parent code to its variety code with `correct: {"code": ...}`.
+Decisions, withdrawals, registered sources and errata are append-only events in
+`data/workspaces/dating/_ledger/` (`harness/ledger.py`): `dating ledger status`, `ledger
+erratum PACKET --field F --correct TEXT --basis TEXT` (a correction to an imported
+packet), `ledger resolve-source`.
 
 Sources a researcher cannot reach (paywalled handbooks and papers) are supplied by the
 maintainer, usually through Zotero: `dating holdings zotero ITEMKEY...` retains the PDF

@@ -7,7 +7,7 @@ The maintainer supervises with limited time: work must stay easy to track and di
 
 Read [STATUS.md](STATUS.md) first. Layout: `crates/` (Rust graph, processor, server),
 `client/` (frontend), `packages/` (Python: catalogs, dating, source/workflow tools),
-`workflows/`, `tools/` (the research store), `data/` (the private research store; git
+`workflows/`, `data/` (the private research store, `wety-data store`; git
 tracks only the few files listed in `.gitignore`, see
 [docs/architecture/provenance.md](docs/architecture/provenance.md)). The dating contract is
 [packages/dating/README.md](packages/dating/README.md); per-family results are in
@@ -39,7 +39,7 @@ provenance machinery, new workflow infrastructure, and deleting anything under `
   enter git: they live in the research store. Git gets code, docs, the files the app is
   built from, run READMEs and briefs. Changing that list is a maintainer decision.
 - At each checkpoint, also bring a worktree's new data into the main checkout:
-  `uv run --frozen python tools/wety_store.py sync data <main>/data --apply` (it never
+  `uv run --frozen wety-data store sync data <main>/data --apply` (it never
   overwrites; report its conflicts). When the store is configured, snapshot from the
   main checkout and commit `data/SNAPSHOT.json`.
 - Merging the 2026-10-09 boundary commit deletes the newly ignored files from a
@@ -80,8 +80,7 @@ build graphs or catalogs: report it rather than re-acquiring sources.
 - Match the surrounding style. Format the dating package with `ruff format`.
 - Run the relevant tests before committing (commands in the root README).
 - Use the harness commands for research workflow steps (`dating brief`, `review`,
-  `publish`, `run-readme`, `review-summary`, `adopt-clades`, `ledger`, `rights`,
-  `release`); a step done twice belongs in the harness, not in a session script. Set
+  `publish`, `run-readme`, `review-summary`, `adopt-clades`, `ledger`); a step done twice belongs in the harness, not in a session script. Set
   `WETY_REVIEWER` to name the reviewing model; the researcher is read from the run.
 - Editing `packages/dating/harness/` changes the dating generation fingerprint:
   republish (`uv run --frozen python -m harness.cli synthesize`) and validate in the
@@ -91,8 +90,8 @@ build graphs or catalogs: report it rather than re-acquiring sources.
 - A catalog generation goes stale only when its sources, decisions or mirrors change;
   the workflow run receipt records the code. Code edits need no catalog rebuild; rerun
   `uv run --frozen wety-data run catalogs` when a change should alter the catalog.
-  Editing `packages/workflow_tools` or `packages/catalogs/iecor.py` still changes what
-  dating checks: republish dating in the same change.
+  Shared tooling (`workflow_tools`, `source_tools`) belongs wherever it fits best; no
+  code outside `packages/dating/harness/` and `uv.lock` is part of a fingerprint.
 
 ## Reporting
 

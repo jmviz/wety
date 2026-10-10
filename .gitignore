@@ -9,7 +9,7 @@ __pycache__/
 *.pyc
 *.egg-info/
 
-# data/ is the private research store (tools/wety_store.py: restic snapshots, merged
+# data/ is the private research store (`wety-data store`: restic snapshots, merged
 # between checkouts with `sync`); git holds only what the app is built from, small
 # references code reads, the snapshot pointer, and human-readable records. Research
 # outputs (evidence, ledger, runs, packets, receipts) never enter git. Change this list

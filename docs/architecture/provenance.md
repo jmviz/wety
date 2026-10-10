@@ -67,18 +67,17 @@ Three layers, each with one job.
    family pages, STATUS). The exact list is `.gitignore`.
 2. **The research store (private):** everything else under `data/`: retained texts,
    artifacts and receipts, evidence, the editorial ledger, runs, packets, generations.
-   It is backed up as restic snapshots (deduplicated, encrypted) by
-   `tools/wety_store.py`; a commit names the data it was made with in `data/SNAPSHOT.json`.
-3. **Curated releases (public):** built from what wety shows, never copied from the
-   store. `language_periods.json` is one; `dating release` writes linked data (Turtle,
-   JSON-LD) with quotes governed by each source's recorded reuse rights.
+   It is backed up as restic snapshots (deduplicated, encrypted) by `wety-data store`
+   (`packages/workflow_tools/store.py`); a commit names the data it was made with in
+   `data/SNAPSHOT.json`.
+3. **Published products (public):** built from what wety shows, never copied from the
+   store; `language_periods.json` is one.
 
-Research outputs never enter git: they are large, they grow with every run, and they
-quote sources verbatim, often from copyrighted works.
+Research outputs never enter git: they are large and grow with every run.
 
 ### The editorial ledger
 
-Decisions, withdrawals, registered sources, source reuse rights and errata live in
+Decisions, withdrawals, registered sources and errata live in
 `data/workspaces/dating/_ledger/` as immutable batch files: every write adds one file,
 nothing is edited (`harness/ledger.py`). An event names the heads it replaces, so
 checkouts merge by copying files; two sessions that write one key without seeing each
@@ -102,13 +101,13 @@ Without the password the snapshots cannot be read: store it outside the machine.
 ### Working with it
 
 - Snapshot at checkpoints, from the main checkout's `data/` (worktrees link parts of
-  it): `uv run --frozen python tools/wety_store.py snapshot --note "..."`, then commit
+  it): `uv run --frozen wety-data store snapshot --note "..."`, then commit
   `data/SNAPSHOT.json`.
 - A worktree's new records reach the main checkout with
-  `tools/wety_store.py sync WORKTREE/data MAIN/data --apply`: missing files are cloned,
+  `wety-data store sync WORKTREE/data MAIN/data --apply`: missing files are cloned,
   nothing is overwritten, and a file that differs is reported as a conflict (append-only
   areas should never conflict; derived products are regenerated with `dating synthesize`).
-- New machine or lost data: `tools/wety_store.py restore --target DIR` (into an empty
+- New machine or lost data: `wety-data store restore --target DIR` (into an empty
   directory), then `sync DIR data --apply`, then `uv run --frozen wety-data verify-all`
   and the catalog and dating workflows.
 - `check` confirms that the pointer's snapshot exists in the configured repository.
@@ -135,7 +134,7 @@ merged or listed, and `data/` backed up:
 
 Tested on a clone (2026-10-09): `origin/main` stays an ancestor (a plain push applies)
 and no research path remains in the rewritten commits. Afterwards run
-`tools/wety_store.py sync BACKUP/data data --apply` to put back any file the rewrite
+`wety-data store sync BACKUP/data data --apply` to put back any file the rewrite
 removed from the working tree.
 
 `data/cache` contains disposable computation/environment caches only. The legacy

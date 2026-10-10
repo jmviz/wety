@@ -1,29 +1,24 @@
-#!/usr/bin/env python3
 """The private research store: versioned snapshots of data/ and merging between checkouts.
 
 Git holds code, docs and the few files the app is built from; everything else under
 data/ lives here. Snapshots use restic (deduplicated, encrypted, any backend: Cloudflare
-R2, another S3 service, a local disk). The commit names its data with the pointer file
+R2, another S3 service, a local disk). A commit names its data with the pointer file
 data/SNAPSHOT.json, written by `snapshot`.
 
-    uv run --frozen python tools/wety_store.py status
-    uv run --frozen python tools/wety_store.py snapshot [--data DIR] [--note TEXT]
-    uv run --frozen python tools/wety_store.py restore --target DIR [--snapshot ID]
-    uv run --frozen python tools/wety_store.py sync SRC DST [--apply]
-    uv run --frozen python tools/wety_store.py check
+    uv run --frozen wety-data store status
+    uv run --frozen wety-data store snapshot [--data DIR] [--note TEXT]
+    uv run --frozen wety-data store restore --target DIR [--snapshot ID]
+    uv run --frozen wety-data store sync SRC DST [--apply]
+    uv run --frozen wety-data store check
 
-Configuration is restic's own environment: RESTIC_REPOSITORY (for example
-"s3:https://<account>.r2.cloudflarestorage.com/wety-research" or "rclone:r2:wety-research"),
-RESTIC_PASSWORD_FILE, and for S3 AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY. Setup:
-docs/architecture/provenance.md.
-
+Configuration is restic's own environment: RESTIC_REPOSITORY, RESTIC_PASSWORD_FILE and,
+for S3, AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY (docs/architecture/provenance.md).
 Snapshots are taken of the main checkout's data/ (worktrees link parts of it); bring a
 worktree's new records there first with `sync WORKTREE/data MAIN/data --apply`.
 """
 
 from __future__ import annotations
 
-import argparse
 import hashlib
 import json
 import os
@@ -33,7 +28,8 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[1]
+from .paths import REPO
+
 POINTER = "data/SNAPSHOT.json"
 EXCLUDES = ["*.lock", "__pycache__", ".DS_Store"]
 # Paths whose files are written once and never edited: a difference is corruption or a
@@ -209,38 +205,3 @@ def sync(src, dst, apply=False) -> dict:
         "conflicts": conflicts,
         "sample": copied[:20],
     }
-
-
-def main(argv=None):
-    ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    sub = ap.add_subparsers(dest="cmd", required=True)
-    sub.add_parser("status")
-    p = sub.add_parser("snapshot")
-    p.add_argument("--data", help="default: the main checkout's data/")
-    p.add_argument("--note")
-    p = sub.add_parser("restore")
-    p.add_argument("--target", required=True)
-    p.add_argument("--snapshot", help=f"default: the one {POINTER} names")
-    p = sub.add_parser("sync")
-    p.add_argument("src")
-    p.add_argument("dst")
-    p.add_argument("--apply", action="store_true", help="copy (default: report only)")
-    sub.add_parser("check")
-    a = ap.parse_args(argv)
-    if a.cmd == "status":
-        out = status()
-    elif a.cmd == "snapshot":
-        out = snapshot(a.data, a.note)
-    elif a.cmd == "restore":
-        out = restore(a.target, a.snapshot)
-    elif a.cmd == "sync":
-        out = sync(a.src, a.dst, a.apply)
-    else:
-        out = check()
-    print(json.dumps(out, indent=2))
-    if a.cmd == "sync" and out["conflicts"]:
-        sys.exit(1)
-
-
-if __name__ == "__main__":
-    main()
