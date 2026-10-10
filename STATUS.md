@@ -1,9 +1,9 @@
 # Status
 
-*Updated 2026-10-09. Local `main` has `wiktionary-refresh`, `stable-links` and the
-server deployment automation merged; nothing pushed. Branch
-`claude/language-dating-period-9aa9ac` adds dating rules 2, period batches, published
-proto-language estimates, and moves research data out of git.*
+*Updated 2026-10-10. Local `main` has `canonical-forms` and `processor-review`; graph
+`dab06f67…` is selected. Branch `claude/language-dating-period-9aa9ac` (main merged in)
+adds dating rules 2, period batches, proto-language estimates, and moves research data
+out of git. Nothing pushed.*
 
 ## What the project promises
 
@@ -13,50 +13,50 @@ in the `packages/dating` registry.
 
 ## What is usable today
 
-- **Graph** (`etymology-graph/bf5c28d2…`, in `deploy/graph.json`): homographs are
-  separate items; Descendants sections are read. Stable word URLs.
-- **Deployment:** pushing `main` deploys the server, then the website. Untested on the host.
+- **Graph** `dab06f67…` (2026-09-01 dump): 8,101,979 entries with an etymology;
+  homographs resolved by ids, Descendants lists, then meaning. Stable word URLs.
+- **Deployment:** `main` → R2 → `production`; host setup not yet run, graph not uploaded.
 - **Dates:** 348 codes show a cited period; 135 proto-languages an estimated end with
   its method and reported mean or median; tree estimates can stand beside any proto
-  default (Proto-Mayan: Kaufman, with Atkinson's Bayesian roots beside).
-- **Research store:** git now holds code, docs, the app's inputs, briefs and run READMEs
-  (401 files, from 7,028). Everything else lives in `data/`, merged between checkouts
-  with `tools/wety_store.py sync` and snapshotted with restic once configured
-  ([provenance](docs/architecture/provenance.md)). A full copy of every checkout's
-  `data/` is on the Desktop (`wety-data-2026-10-09`, APFS clones: same disk).
-- **Editorial ledger:** decisions, withdrawals, sources, rights and errata are
-  append-only events; concurrent sessions merge by copying files.
+  default (Proto-Mayan: Kaufman 4200 BP, Atkinson's Bayesian roots beside).
+- **Research store:** git holds code, docs, the app's inputs, briefs and run READMEs;
+  everything else is in `data/`, merged between checkouts with `wety-data store sync`
+  and snapshotted with restic once configured
+  ([provenance](docs/architecture/provenance.md)). A copy of every checkout's `data/`
+  is on the Desktop (`wety-data-2026-10-09`, APFS clones on the same disk).
+- **Editorial ledger:** decisions, withdrawals, sources and errata are append-only
+  events; concurrent sessions merge by copying files.
 - **Tooling:** `dating brief | review | publish | run-readme | review-summary |
-  adopt-clades | rights | release` replace session scripts.
+  adopt-clades | ledger` replace session scripts.
 
 ## What changed
 
-- The append-only ledger replaced `decisions.json`, `withdrawals.json`, `sources.json`
-  (migrated unchanged; published periods identical).
-- The session scripts had credited eight GPT-6.1 Sol runs to gpt-6-astra: errata
-  recorded, 34 decisions re-recorded, READMEs regenerated.
-- `dating release` writes Turtle and JSON-LD of what wety shows; quotes are withheld
-  until a source's reuse rights are recorded (none yet).
+- No shared code is part of a fingerprint any more: catalogs (`e5c5221`), dating (harness
+  and `uv.lock` only) and the IE-CoR receipt. Tooling can live where it fits; the store
+  is `wety-data store`.
+- The session scripts had credited eight GPT-6.1 Sol runs to gpt-6-astra: ledger errata,
+  34 decisions re-recorded, READMEs regenerated.
+- Removed: source reuse rights and the linked-data release (maintainer decision).
+- Deleted the pushed `dating-pilot` and `reorg-baseline` branches, which carried the
+  pilot's research data.
 
 ## Uncertainties
 
 - Reviews are model reviews (Sol or Astra research, Claude review).
-- Two pushed branches (`dating-pilot`, `reorg-baseline`) already carry the 2026-10-03
-  pilot's research data.
 - Merging this branch deletes the newly ignored files from `main`'s working tree; they
-  are already in `main/data` via `sync`, and in the Desktop copy.
-- A workflow-tools test fails only in worktrees (a symlinked `data/cache`; pre-existing).
+  are in `main/data` already (`sync`) and in the Desktop copy.
+- 566k graph citations are decided by meaning alone (about 85% accurate offline).
 
 ## Next three actions
 
-1. Maintainer: R2 bucket, `brew install restic`, `restic init`, first snapshot
+1. Maintainer: R2 bucket, `brew install restic`, `restic init`, first
+   `wety-data store snapshot`
    ([setup](docs/architecture/provenance.md#setting-up-the-store)).
-2. Maintainer: merge, then the range-limited history rewrite before any push
-   ([recipe](docs/architecture/provenance.md#leaving-research-data-out-of-published-history)).
-3. Record reuse rights for the most-cited sources (`dating rights` lists them).
+2. Maintainer: merge, `sync` back, then the range-limited history rewrite before any
+   push ([recipe](docs/architecture/provenance.md#leaving-research-data-out-of-published-history));
+   deployment setup and graph upload.
+3. Supply the queued works in Zotero, then `dating holdings sync`.
 
 ## Decisions needed from the maintainer
 
-- Delete the pushed `dating-pilot` and `reorg-baseline` branches?
-- Default for quotes of unassessed sources in public releases: withheld (current) or
-  short quotes?
+- None.

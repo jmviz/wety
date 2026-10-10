@@ -96,7 +96,10 @@ Cloudflare R2 `wety-research`) and an API token scoped to it; then
     restic init
 
 `rclone:<remote>:<bucket>` works too (rclone is already used to publish the graph).
-Without the password the snapshots cannot be read: store it outside the machine.
+restic encrypts every snapshot with this password, and every command reads it from the
+password file, so the file stays on this machine. Keep a second copy elsewhere (a
+password manager): if the machine is lost, the snapshots in the bucket can only be
+restored with it.
 
 ### Working with it
 
