@@ -110,7 +110,11 @@ jobs:
             >out/release.json
           cat out/release.json
       - name: Upload release
-        run: rclone copy out/release.json out/bundle.tar.gz "r2:$R2_BUCKET/releases/$GITHUB_SHA/"
+        # rclone copy takes one source. The bundle goes first, so a release.json in R2
+        # means its bundle is there too.
+        run: |
+          rclone copyto out/bundle.tar.gz "r2:$R2_BUCKET/releases/$GITHUB_SHA/bundle.tar.gz"
+          rclone copyto out/release.json "r2:$R2_BUCKET/releases/$GITHUB_SHA/release.json"
       - name: Deploy
         env:
           DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
