@@ -1,6 +1,6 @@
 # Status
 
-*Updated 2026-10-10. Local `main` has `canonical-forms` and `processor-review`; graph
+*Updated 2026-10-11. Local `main` has `canonical-forms` and `processor-review`; graph
 `dab06f67…` is selected. Branch `claude/language-dating-period-9aa9ac` (main merged in)
 adds dating rules 2, period batches, proto-language estimates, and moves research data
 out of git. Nothing pushed.*
@@ -39,11 +39,15 @@ in the `packages/dating` registry.
 - Removed: source reuse rights and the linked-data release (maintainer decision).
 - Deleted the pushed `dating-pilot` and `reorg-baseline` branches, which carried the
   pilot's research data.
+- Snapshots hold `data/` as `/data`, restorable anywhere; the pointer names no machine
+  path. Deploy tokens `wety-deploy-ci/-host/-local`, laptop rclone remote `wety-deploy`.
 
-## Client fixes (`claude/client-ui-ux-review-3d08c7`, on `processor-review`)
+## Client fixes (cherry-picked from `claude/client-ui-ux-review-3d08c7`)
 
 Filters no longer blank the tree; wide charts open centred on the word; home clears
-the last word; empty cognates explain themselves; wrapped rows align.
+the last word; empty cognates explain themselves; wrapped rows align. Type-checks and
+builds on the current client. Never merge the old branch: its history carries the
+research data the rewrite removes.
 
 ## Uncertainties
 
@@ -54,13 +58,11 @@ the last word; empty cognates explain themselves; wrapped rows align.
 
 ## Next three actions
 
-1. Maintainer: R2 bucket, `brew install restic`, `restic init`, first
-   `wety-data store snapshot`
-   ([setup](docs/architecture/provenance.md#setting-up-the-store)).
-2. Maintainer: merge, `sync` back, then the range-limited history rewrite before any
-   push ([recipe](docs/architecture/provenance.md#leaving-research-data-out-of-published-history));
-   deployment setup and graph upload.
-3. Supply the queued works in Zotero, then `dating holdings sync`.
+1. Maintainer: fast-forward `main`, rename the rclone remote, retake the snapshot
+   relatively and forget the first one, commit `data/SNAPSHOT.json`.
+2. Maintainer: the range-limited history rewrite, then push `main`
+   ([recipe](docs/architecture/provenance.md#leaving-research-data-out-of-published-history)).
+3. Maintainer: server rebuild and deployment ([deploy/README.md](deploy/README.md) steps 6–9).
 
 ## Decisions needed from the maintainer
 
