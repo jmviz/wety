@@ -87,19 +87,31 @@ an imported packet (claims are content-addressed and never edited).
 
 ### Setting up the store
 
-Once per machine: `brew install restic`; create a private bucket (for example
-Cloudflare R2 `wety-research`) and an API token scoped to it; then
+Once per machine:
 
-    export RESTIC_REPOSITORY=s3:https://<account-id>.r2.cloudflarestorage.com/wety-research
-    export AWS_ACCESS_KEY_ID=... AWS_SECRET_ACCESS_KEY=...
-    export RESTIC_PASSWORD_FILE=~/.config/wety/restic-password   # keep a copy elsewhere
-    restic init
+1. Cloudflare R2: a private bucket `wety-research`, and an Account API token
+   `wety-research-local` (Object Read & Write, scoped to that bucket only).
+2. `brew install restic` (Linux: the distribution's package or the release binary).
+3. A password, which encrypts every snapshot:
+   `openssl rand -base64 32 > ~/.config/wety/restic-password` (mode 600). Every command
+   reads it from that file; keep a second copy in a password manager, since the
+   snapshots cannot be restored without it.
+4. `~/.config/wety/restic.env` (mode 600), sourced from the shell profile so agent
+   sessions see it too:
 
-`rclone:<remote>:<bucket>` works too (rclone is already used to publish the graph).
-restic encrypts every snapshot with this password, and every command reads it from the
-password file, so the file stays on this machine. Keep a second copy elsewhere (a
-password manager): if the machine is lost, the snapshots in the bucket can only be
-restored with it.
+       export RESTIC_REPOSITORY=s3:https://<account-id>.r2.cloudflarestorage.com/wety-research
+       export AWS_ACCESS_KEY_ID=<key id> AWS_SECRET_ACCESS_KEY=<secret> AWS_DEFAULT_REGION=auto
+       export RESTIC_PASSWORD_FILE=$HOME/.config/wety/restic-password
+
+5. `restic init` (once per repository, not per machine).
+
+Snapshots hold `data/` under the name `/data`, backed up from the checkout by its
+relative name with the host label `wety`, so nothing about this machine's directories
+is in the snapshot tree or in `data/SNAPSHOT.json`, and a snapshot restores into a
+checkout anywhere. restic itself still labels each snapshot with the absolute directory
+it was taken from; that label is inside the encrypted repository. A snapshot taken
+before 2026-10-11 holds the full path instead; its pointer's `source` names it, and
+`restore` still works.
 
 ### Working with it
 
@@ -110,9 +122,10 @@ restored with it.
   `wety-data store sync WORKTREE/data MAIN/data --apply`: missing files are cloned,
   nothing is overwritten, and a file that differs is reported as a conflict (append-only
   areas should never conflict; derived products are regenerated with `dating synthesize`).
-- New machine or lost data: `wety-data store restore --target DIR` (into an empty
-  directory), then `sync DIR data --apply`, then `uv run --frozen wety-data verify-all`
-  and the catalog and dating workflows.
+- New machine or lost data: clone the repository, set up the store as above (skip
+  `restic init`), then `wety-data store restore --target DIR` (an empty directory
+  anywhere), `wety-data store sync DIR data --apply`, `uv run --frozen wety-data
+  verify-all`, and the catalog and dating workflows.
 - `check` confirms that the pointer's snapshot exists in the configured repository.
 
 Archived generations are historical evidence, not current selections. Current pointer

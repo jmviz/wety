@@ -44,10 +44,10 @@ is done, probably 30–60 minutes. `<ip>` is the instance's public IP.
 4. **Overview** → **API Tokens** → **Manage** → **Create Account API token**, three
    times, each scoped to the `wety-deploy` bucket only. Each token's secret is shown once, so
    copy both values each time:
-   - `wety-ci`: **Object Read & Write**. Goes to GitHub (step 3).
-   - `wety-host`: **Object Read**. Goes to the host (step 6).
-   - `wety-laptop`: **Object Read & Write**. Used for graph uploads from your machine.
-5. On your machine, install rclone and add a remote named `r2` with the `wety-laptop`
+   - `wety-deploy-ci`: **Object Read & Write**. Goes to GitHub (step 3).
+   - `wety-deploy-host`: **Object Read**. Goes to the host (step 6).
+   - `wety-deploy-local`: **Object Read & Write**. Used for graph uploads from your machine.
+5. On your machine, install rclone and add a remote named `wety-deploy` with the `wety-deploy-local`
    token. The command line puts the secret in shell history; run `rclone config`
    instead if you prefer to answer prompts.
 
@@ -56,7 +56,7 @@ is done, probably 30–60 minutes. `<ip>` is the instance's public IP.
    ```
 
    ```bash
-   rclone config create r2 s3 provider=Cloudflare no_check_bucket=true access_key_id=<KEY_ID> secret_access_key=<SECRET> endpoint=https://<ACCOUNT_ID>.r2.cloudflarestorage.com
+   rclone config create wety-deploy s3 provider=Cloudflare no_check_bucket=true access_key_id=<KEY_ID> secret_access_key=<SECRET> endpoint=https://<ACCOUNT_ID>.r2.cloudflarestorage.com
    ```
 
 6. Upload the selected graph (the artifact named in
@@ -121,7 +121,7 @@ The tunnel needs `wety.org`'s DNS on Cloudflare. Check **wety.org** → **DNS** 
    gh variable set DEPLOY_HOST --env production --body <ip>
    ```
 
-   The R2 values are those of the `wety-ci` token. `DEPLOY_KNOWN_HOSTS` follows in step 6.
+   The R2 values are those of the `wety-deploy-ci` token. `DEPLOY_KNOWN_HOSTS` follows in step 6.
 
 ### 4. Hold the website back
 
@@ -202,7 +202,7 @@ instead risks "out of capacity" errors.
    sudo bash deploy/bootstrap.sh ~/wety_deploy.pub
    ```
 
-6. Fill in the `wety-host` R2 token (key id, secret, account id in the endpoint):
+6. Fill in the `wety-deploy-host` R2 token (key id, secret, account id in the endpoint):
 
    ```bash
    sudo nano /etc/wety/r2.env
@@ -337,7 +337,9 @@ Host layout (`/srv/wety`):
   three newest releases, and the graphs those use.
 
 R2 layout (bucket `wety-deploy`): `releases/<commit>/{release.json,bundle.tar.gz}` and
-`graphs/<sha256>/<file>`.
+`graphs/<sha256>/<file>`. Your machine reaches it through the rclone remote
+`wety-deploy`; on the host and in CI the remote is defined by `RCLONE_CONFIG_R2_*`
+environment variables (`/etc/wety/r2.env`, the workflow) and is named `r2` there.
 
 Server environment:
 

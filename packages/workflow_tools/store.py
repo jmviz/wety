@@ -55,12 +55,12 @@ def main_checkout(repo=REPO) -> Path:
     return Path(common).parent
 
 
-def restic(*args, capture=True):
+def restic(*args, capture=True, cwd=None):
     if not shutil.which("restic"):
         raise SystemExit("restic is not installed (macOS: brew install restic)")
     if not os.environ.get("RESTIC_REPOSITORY"):
         raise SystemExit("set RESTIC_REPOSITORY (see docs/architecture/provenance.md)")
-    out = subprocess.run(["restic", *args], capture_output=capture, text=True)
+    out = subprocess.run(["restic", *args], capture_output=capture, text=True, cwd=cwd)
     if out.returncode:
         raise SystemExit(f"restic {args[0]} failed: {(out.stderr or '').strip()[-500:]}")
     return out.stdout
@@ -78,21 +78,24 @@ def snapshot(data=None, note=None, repo=REPO) -> dict:
         raise SystemExit(
             f"{data} links {', '.join(links)} elsewhere; snapshot the main checkout's data/ instead"
         )
-    args = ["backup", "--json", "--tag", "wety", str(data)]
+    # Backed up by its relative name from its parent, so the snapshot holds /data/...
+    # rather than this machine's directories, and restores anywhere. The host label
+    # is fixed for the same reason.
+    args = ["backup", "--json", "--tag", "wety", "--host", "wety", data.name]
     for pattern in EXCLUDES:
         args += ["--exclude", pattern]
     if note:
         args += ["--tag", "note:" + note[:60]]
     summary = next(
         json.loads(line)
-        for line in reversed(restic(*args).splitlines())
+        for line in reversed(restic(*args, cwd=data.parent).splitlines())
         if line.strip().startswith("{") and json.loads(line).get("message_type") == "summary"
     )
     pointer = {
         "schema_version": 1,
         "snapshot": summary["snapshot_id"],
         "taken_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        "source": str(data),
+        "root": "/" + data.name,
         "files": summary.get("total_files_processed"),
         "bytes": summary.get("total_bytes_processed"),
         "git_commit": git_head(repo),
@@ -115,7 +118,9 @@ def restore(target, snapshot_id=None, repo=REPO) -> dict:
         raise SystemExit(f"{target} is not empty; restore into an empty directory, then sync")
     pointer = read_pointer(repo)
     sid = snapshot_id or pointer["snapshot"]
-    restic("restore", f"{sid}:{pointer['source']}", "--target", str(target), capture=False)
+    # The directory inside the snapshot; older pointers named an absolute source.
+    root = pointer.get("root") or pointer["source"]
+    restic("restore", f"{sid}:{root}", "--target", str(target), capture=False)
     return {"restored": sid, "target": str(target)}
 
 
@@ -126,7 +131,7 @@ def check(repo=REPO) -> dict:
         raise SystemExit(
             f"snapshot {pointer['snapshot']} is not in {os.environ['RESTIC_REPOSITORY']}"
         )
-    return {"snapshot": pointer["snapshot"], "time": found[0]["time"], "paths": found[0]["paths"]}
+    return {"snapshot": pointer["snapshot"], "time": found[0]["time"], "host": found[0]["hostname"]}
 
 
 def status(repo=REPO) -> dict:

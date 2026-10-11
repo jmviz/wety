@@ -5,11 +5,11 @@
 #   deploy/publish-graph.sh [artifact-dir]
 #
 # The default is the artifact selected by data/products/etymology_graph/CURRENT.json.
-# Needs rclone with a remote named by WETY_R2_REMOTE (default r2) and jq.
+# Needs rclone with a remote named by WETY_R2_REMOTE (default wety-deploy) and jq.
 set -euo pipefail
 
 repo=$(cd "$(dirname "$0")/.." && pwd)
-remote=${WETY_R2_REMOTE:-r2}
+remote=${WETY_R2_REMOTE:-wety-deploy}
 bucket=${WETY_R2_BUCKET:-wety-deploy}
 pointer=$repo/data/products/etymology_graph/CURRENT.json
 

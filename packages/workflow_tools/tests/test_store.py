@@ -9,11 +9,11 @@ from unittest.mock import patch
 from workflow_tools import store
 
 FAKE_RESTIC = """#!/bin/sh
-echo "$@" >> "$FAKE_RESTIC_LOG"
+echo "$PWD $@" >> "$FAKE_RESTIC_LOG"
 case "$1" in
   backup) echo '{"message_type":"status"}'
           echo '{"message_type":"summary","snapshot_id":"abc123","total_files_processed":2,"total_bytes_processed":10}';;
-  snapshots) echo '[{"time":"2026-10-09T00:00:00Z","paths":["/data"]}]';;
+  snapshots) echo '[{"time":"2026-10-09T00:00:00Z","hostname":"wety","paths":["/x/data"]}]';;
   restore) mkdir -p "$4" && echo restored;;
 esac
 """
@@ -52,11 +52,19 @@ class StoreTests(unittest.TestCase):
         self.assertEqual(json.loads((self.repo / store.POINTER).read_text())["snapshot"], "abc123")
         backup = self.log.read_text().splitlines()[0]
         self.assertIn("--exclude *.lock", backup)
-        self.assertIn(str((self.repo / "data").resolve()), backup)
-        store.restore(self.base / "restored", repo=self.repo)
-        self.assertIn(
-            f"restore abc123:{(self.repo / 'data').resolve()} --target", self.log.read_text()
+        # Run from the checkout with the relative name: no machine path in the snapshot.
+        self.assertTrue(backup.startswith(str(self.repo.resolve()) + " backup"))
+        self.assertTrue(
+            backup.endswith(
+                " data --exclude *.lock --exclude __pycache__ --exclude .DS_Store --tag note:first"
+            )
         )
+        self.assertIn("--host wety", backup)
+        pointer = json.loads((self.repo / store.POINTER).read_text())
+        self.assertEqual(pointer["root"], "/data")
+        self.assertNotIn(str(self.base), json.dumps(pointer))
+        store.restore(self.base / "restored", repo=self.repo)
+        self.assertIn("restore abc123:/data --target", self.log.read_text())
         self.assertEqual(store.check(self.repo)["snapshot"], "abc123")
         (self.base / "restored/keep").write_text("x")
         with self.assertRaises(SystemExit):
