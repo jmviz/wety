@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "snapshot": "71431f2fa253f423e7ccaa404542ae9da7ba893ae0b2b14cba838b559972f136",
+  "taken_at": "2026-10-11T15:09:09+00:00",
+  "root": "/data",
+  "files": 45138,
+  "bytes": 82406474907,
+  "git_commit": "740a375997ee243199b9561430cb3daa634d4f7f",
+  "note": "relative paths"
+}
