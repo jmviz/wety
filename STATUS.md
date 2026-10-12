@@ -41,20 +41,23 @@ in the `packages/dating` registry.
 - Each server deploy now prunes R2 (`deploy/prune-r2.sh`): the five newest releases,
   their graphs, the selected graph and graphs from the last 30 days stay. Tested on a
   local rclone backend only.
+- `dating gc` counts references in the research store: besides tracked files it reads
+  `data/workspaces/dating` (packets, run directories, evidence, ledger, family
+  workspaces), skipping retrieved and retained source text, caches and binaries, in
+  about 2 s. It now keeps the Uralic packet baseline `a82941da…`, which the old scan
+  listed for removal. Republished dating generation `840b8f8b…` for the harness edit:
+  0 validation errors, no rejected decisions, the same 348 periods.
 
 ## Uncertainties
 
 - Reviews are model reviews (Sol or Astra research, Claude review).
 - 566k graph citations are decided by meaning alone (about 85% accurate offline).
-- `dating gc` keeps a generation only if a git-tracked file names it; packets are no
-  longer tracked, so a generation named only by a packet would be listed for removal.
-  Do not run `gc --apply` until this is fixed.
 - R2 pruning has not run against R2 yet; its first run is the next server deploy.
 
 ## Next three actions
 
-1. Fix `dating gc` to count references in the research store, not only tracked files.
-2. Maintainer: before merging, run `deploy/prune-r2.sh` (dry run) and check its list.
+1. Maintainer: before merging, run `deploy/prune-r2.sh` (dry run) and check its list.
+2. Snapshot the store with generation `840b8f8b…` and commit `data/SNAPSHOT.json`.
 3. Resume dating research from `dating period-targets`.
 
 ## Decisions needed from the maintainer
