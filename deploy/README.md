@@ -95,9 +95,10 @@ boot volume keeps the instance, its shape and its public IP; a new A1 instance m
 2. Firewall: the host must accept only SSH. `netfilter-persistent` loads
    `/etc/iptables/rules.v4` and `rules.v6`. INPUT accepts established connections,
    ICMP, loopback and tcp/22, then rejects; FORWARD rejects; OUTPUT is open. OCI's
-   Ubuntu images ship with similar rules; check with `sudo iptables -S` and
-   `sudo ip6tables -S`, and make sure no other firewall (firewalld, ufw) is installed.
-   `bootstrap.sh` does not set this up.
+   Ubuntu images ship with these rules, so `bootstrap.sh` does not install them; check
+   with `sudo iptables -S` and `sudo ip6tables -S`, and make sure no other firewall
+   (firewalld, ufw) is installed. On the current host they were written by hand after
+   firewalld was removed.
 3. From the repository on your machine, copy `deploy/` and the deploy key's public
    half:
 
@@ -202,15 +203,14 @@ environment variables (`/etc/wety/r2.env`, the workflow) and is named `r2` there
   ([provenance](../docs/architecture/provenance.md#setting-up-the-store)).
 - **Cloudflare Tunnel** `wety-api`: its route publishes `api.wety.org` to
   `http://127.0.0.1:3000`, which also manages the `api` DNS record.
-- **Cloudflare Pages:** the production branch is `production`. Preview builds, if
-  enabled, talk to the production API.
+- **Cloudflare Pages:** the production branch is `production`. Preview builds are
+  disabled; they would talk to the production API.
 - **GitHub** environment `production`, limited to `main`: secrets `R2_ACCESS_KEY_ID`,
   `R2_SECRET_ACCESS_KEY` (the `wety-deploy-ci` token), `DEPLOY_SSH_KEY` (the private
   half of `~/.ssh/wety_deploy`, an ed25519 key made for this) and `DEPLOY_KNOWN_HOSTS`;
   variables `R2_ENDPOINT`, `R2_BUCKET` (`wety-deploy`) and `DEPLOY_HOST` (the IP).
-- **OCI:** the subnet's security list allows ingress on tcp/22 only. Oracle may reclaim
-  idle instances on an Always Free account; Pay As You Go prevents that, and Always
-  Free resources stay free.
+- **OCI:** a Pay As You Go account (Always Free resources stay free, and idle instances
+  are not reclaimed). The subnet's security list allows ingress on tcp/22 only.
 
 Server environment:
 
