@@ -43,10 +43,10 @@ coverage and scholarly scope separately.
   explicitly selected table. The old table's upstream revision remains unresolved.
 - Kaikki: retain the dump plus the `rawdata.html` extraction metadata, including dump
   date and extractor commits. A moving URL is an acquisition route, not an archive.
-- Dating retrieval: original research material formerly called `dating/cache` is
-  durable under `data/workspaces/dating/retrieved`. New dataset requests preserve
-  response bodies through the shared acquirer; GitHub file retrieval pins one commit,
-  records its tree separately and rejects truncated trees. Bibliography, retrieval
+- Dating retrieval: original research material is durable under
+  `data/workspaces/dating/retrieved`. New dataset requests preserve response bodies
+  through the shared acquirer; GitHub file retrieval pins one commit, records its tree
+  separately and rejects truncated trees. Bibliography, retrieval
   coverage, mechanical reproduction and expert review remain separate records.
 
 The embedding-model recipe likewise downloads each file at the pinned commit with
@@ -108,10 +108,9 @@ Once per machine:
 Snapshots hold `data/` under the name `/data`, backed up from the checkout by its
 relative name with the host label `wety`, so nothing about this machine's directories
 is in the snapshot tree or in `data/SNAPSHOT.json`, and a snapshot restores into a
-checkout anywhere. restic itself still labels each snapshot with the absolute directory
-it was taken from; that label is inside the encrypted repository. A snapshot taken
-before 2026-10-11 holds the full path instead; its pointer's `source` names it, and
-`restore` still works.
+checkout anywhere. `restic snapshots` still labels each snapshot with the absolute
+directory it was taken from; that label is inside the encrypted repository and does
+not affect restoring elsewhere.
 
 ### Working with it
 
@@ -127,6 +126,8 @@ before 2026-10-11 holds the full path instead; its pointer's `source` names it, 
   anywhere), `wety-data store sync DIR data --apply`, `uv run --frozen wety-data
   verify-all`, and the catalog and dating workflows.
 - `check` confirms that the pointer's snapshot exists in the configured repository.
+- Do not pipe restic into `head`: closing the pipe early can leave a stale lock. Use
+  `sed -n 1,5p` instead.
 
 Archived generations are historical evidence, not current selections. Current pointer
 files identify current generations; directory modification times never select them.
@@ -134,29 +135,18 @@ Historical absolute paths inside evidence are resolved through the exact checked
 migration map without modifying claim payloads or their identities. Do not delete local
 payloads on the assumption that hashes make them downloadable.
 
-### Leaving research data out of published history
-
-Research data was tracked until 2026-10-09. Two pushed branches that carried the
-2026-10-03 pilot's packets, evidence and claims (`dating-pilot`, `reorg-baseline`) were
-deleted on GitHub on 2026-10-10; pushed content may have been cached. Before the first push of the rest, remove it from the unpushed commits only,
-so the commits already on GitHub keep their hashes (rewriting them would also drop
-GitHub's merge signatures). In the main checkout, with every worktree's branch either
-merged or listed, and `data/` backed up:
-
-    uvx git-filter-repo --force --invert-paths \
-      --paths-from-file docs/architecture/history-filter.txt \
-      --refs origin/main..main origin/main..BRANCH ...
-
-Tested on a clone (2026-10-09): `origin/main` stays an ancestor (a plain push applies)
-and no research path remains in the rewritten commits. Afterwards run
-`wety-data store sync BACKUP/data data --apply` to put back any file the rewrite
-removed from the working tree.
-
 `data/cache` contains disposable computation/environment caches only. The legacy
 virtual environments were preserved there for inspection, not advertised as relocatable
 installations. The root `.venv` is recreated from the root lock. Publication can be
 reproduced from retained input artifacts; live upstream services and model extraction
 are not assumed deterministic or historically replayable.
+
+### History
+
+Research data was tracked in git until 2026-10-09. It was removed from the unpushed
+commits with git-filter-repo before they were first pushed, and the two pushed branches
+that carried the 2026-10-03 pilot's data were deleted (pushed content may have been
+cached). GitHub holds `main`, `production` and `raw`.
 
 ## Publishing a new local source or editorial set
 
