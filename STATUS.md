@@ -32,9 +32,10 @@ in the `packages/dating` registry.
 ## What changed
 
 - Docs describe the running system instead of the migration: deploy README (operating,
-  setting up a host, accounts and secrets), provenance (history rewrite reduced to a
-  note), AGENTS (restore from the store; the boundary-commit rule removed), README and
-  dating README (what git tracks), organization page trimmed to the current layout.
+  setting up a host, accounts and secrets), provenance (history-rewrite recipe
+  removed), AGENTS (restore from the store; the boundary-commit rule removed), README and
+  dating README (what git tracks), `docs/architecture/layout.md` (was
+  `reorganization.md`) trimmed to the current layout; `history-filter.txt` deleted.
 - Links from tracked docs to research-store files (packets, run reports) became code
   text; AGENTS now says to link only to tracked files.
 
@@ -45,16 +46,16 @@ in the `packages/dating` registry.
 - `dating gc` keeps a generation only if a git-tracked file names it; packets are no
   longer tracked, so a generation named only by a packet would be listed for removal.
   Do not run `gc --apply` until this is fixed.
-- `deploy/bootstrap.sh` does not install the host firewall rules; a rebuilt host relies
-  on the image's rules or a manual step.
+- Nothing prunes R2: old releases and graphs accumulate in `wety-deploy` (each graph
+  about 600 MB; the free tier is 10 GB).
 
 ## Next three actions
 
 1. Fix `dating gc` to count references in the research store, not only tracked files.
-2. Add the host firewall rules to `deploy/` and `bootstrap.sh`, if approved.
+2. Prune old R2 releases and unused graphs (a script run by the deploy workflow).
+   Writing it needs the maintainer's permission in the agent session.
 3. Resume dating research from `dating period-targets`.
 
 ## Decisions needed from the maintainer
 
-- Firewall rules in `bootstrap.sh`; delete `docs/architecture/history-filter.txt`;
-  merge `docs/architecture/reorganization.md` into the README and provenance.
+- Whether and how to prune R2 automatically (CI after each deploy, or by hand).
