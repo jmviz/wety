@@ -9,7 +9,8 @@ catalog and dating research. Workflows can invoke either stack through explicit 
 - `crates/{core,processor,server}`: Rust libraries, graph processor, API server.
 - `packages/{catalogs,dating,source_tools,workflow_tools}`: Python domain code and shared tooling.
 - `workflows/`: executable workflow definitions; algorithms stay in their packages/crates.
-- `data/`: one home for artifacts, research workspaces, product selections, receipts, caches and archives.
+- `data/`: the private research store (artifacts, research workspaces, product selections, receipts,
+  caches, archives), backed up with `wety-data store`; git tracks only the files listed in `.gitignore`.
 - `client/`: frontend. `experiments/`: exploratory notebooks.
 
 **Current state and next steps: [STATUS.md](STATUS.md).** Rules for agents:
@@ -37,9 +38,11 @@ cargo test --locked -p wety-core --lib
 ```
 
 Catalog/dating builds and tests use existing local source material and make no model
-calls. A fresh checkout needs the ignored source artifacts restored first; manifests
-and the migration inventory identify the required bytes. Run `wety-data verify-all`
-to check adopted artifacts. Source refresh is always a separate, deliberate command.
+calls. A fresh checkout needs `data/` restored from the research store first
+(`uv run --frozen wety-data store restore --target DIR`, then `wety-data store sync DIR
+data --apply`; setup in [provenance](docs/architecture/provenance.md#setting-up-the-store)).
+Run `wety-data verify-all` to check adopted artifacts. Source refresh is always a
+separate, deliberate command.
 
 ## Build an etymological graph
 
