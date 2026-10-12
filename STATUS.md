@@ -31,11 +31,10 @@ in the `packages/dating` registry.
 
 ## What changed
 
-- Docs describe the running system instead of the migration: deploy README (operating,
-  setting up a host, accounts and secrets), provenance (history-rewrite recipe
-  removed), AGENTS (restore from the store; the boundary-commit rule removed), README and
-  dating README (what git tracks), `docs/architecture/layout.md` (was
-  `reorganization.md`) trimmed to the current layout; `history-filter.txt` deleted.
+- Docs describe the running system instead of the migration (deploy README,
+  provenance, AGENTS, READMEs, `docs/architecture/layout.md`).
+- Site: the favicon is a square copy of the search box's Lindisfarne border; Brill
+  always loads from wety.org (no `local()`), so its preloads are used.
 - Links from tracked docs to research-store files (packets, run reports) became code
   text; AGENTS now says to link only to tracked files.
 - Each server deploy now prunes R2 (`deploy/prune-r2.sh`): the five newest releases,
