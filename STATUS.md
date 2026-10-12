@@ -23,7 +23,7 @@ in the `packages/dating` registry.
   everything else is in `data/`, snapshotted with restic to R2 (`wety-research`) and
   merged between checkouts by `wety-data store`
   ([provenance](docs/architecture/provenance.md)). `data/SNAPSHOT.json` names the
-  current snapshot.
+  current snapshot, `a23f5c6c…` (with dating generation `840b8f8b…`).
 - **Editorial ledger:** decisions, withdrawals, sources and errata are append-only
   events; concurrent sessions merge by copying files.
 - **Tooling:** `dating brief | review | publish | run-readme | review-summary |
@@ -57,8 +57,8 @@ in the `packages/dating` registry.
 ## Next three actions
 
 1. Maintainer: before merging, run `deploy/prune-r2.sh` (dry run) and check its list.
-2. Snapshot the store with generation `840b8f8b…` and commit `data/SNAPSHOT.json`.
-3. Resume dating research from `dating period-targets`.
+2. Resume dating research from `dating period-targets`.
+3. Merge this branch into `main` (deploys the server; the first R2 prune follows).
 
 ## Decisions needed from the maintainer
 
