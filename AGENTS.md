@@ -41,8 +41,9 @@ provenance machinery, new workflow infrastructure, and deleting anything under `
 - At each checkpoint, also bring a worktree's new data into the main checkout:
   `uv run --frozen wety-data store sync data <main>/data --apply` (it never
   overwrites; report its conflicts). Then snapshot from the main checkout
-  (`wety-data store snapshot`) and commit `data/SNAPSHOT.json`; if the store is not
-  configured in this session, say so.
+  (`wety-data store snapshot`) and commit `data/SNAPSHOT.json`. The store reads its
+  settings from `~/.config/wety/restic.env` itself; if `wety-data store status` shows
+  no `settings`, the store is not configured here: say so.
 
 ## Worktrees and `data/`
 

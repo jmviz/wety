@@ -75,6 +75,29 @@ class StoreTests(unittest.TestCase):
         with self.assertRaises(SystemExit):
             store.snapshot(self.repo / "data", repo=self.repo)
 
+    def test_settings_file_is_read_when_the_environment_has_none(self):
+        settings = self.base / "restic.env"
+        settings.write_text(
+            "export RESTIC_REPOSITORY=s3:https://example/wety-research\n"
+            "export AWS_ACCESS_KEY_ID=key AWS_DEFAULT_REGION=auto\n"
+            "export RESTIC_PASSWORD_FILE=$HOME/pw\n"
+            "UNRELATED=1\n"
+        )
+        with patch.dict(os.environ, {"WETY_RESTIC_ENV": str(settings), "HOME": "/home/x"}):
+            del os.environ["RESTIC_REPOSITORY"]
+            self.assertEqual(store.load_settings(), str(settings))
+            self.assertEqual(os.environ["RESTIC_REPOSITORY"], "s3:https://example/wety-research")
+            self.assertEqual(os.environ["AWS_DEFAULT_REGION"], "auto")
+            self.assertEqual(os.environ["RESTIC_PASSWORD_FILE"], "/home/x/pw")
+            self.assertNotIn("UNRELATED", os.environ)
+
+    def test_environment_wins_over_the_settings_file(self):
+        settings = self.base / "restic.env"
+        settings.write_text("export RESTIC_REPOSITORY=/elsewhere\n")
+        with patch.dict(os.environ, {"WETY_RESTIC_ENV": str(settings)}):
+            self.assertIsNone(store.load_settings())
+            self.assertEqual(os.environ["RESTIC_REPOSITORY"], "/tmp/repo")
+
     def test_sync_copies_missing_files_and_never_overwrites(self):
         src, dst = self.base / "a/data", self.base / "b/data"
         for d in (src, dst):

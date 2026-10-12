@@ -13,6 +13,8 @@ data/SNAPSHOT.json, written by `snapshot`.
 
 Configuration is restic's own environment: RESTIC_REPOSITORY, RESTIC_PASSWORD_FILE and,
 for S3, AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY (docs/architecture/provenance.md).
+When RESTIC_REPOSITORY is unset, they are read from ~/.config/wety/restic.env (or the
+file WETY_RESTIC_ENV names), so non-interactive shells need no profile.
 Snapshots are taken of the main checkout's data/ (worktrees link parts of it); bring a
 worktree's new records there first with `sync WORKTREE/data MAIN/data --apply`.
 """
@@ -31,6 +33,9 @@ from pathlib import Path
 from .paths import REPO
 
 POINTER = "data/SNAPSHOT.json"
+SETTINGS = Path("~/.config/wety/restic.env")
+# What a settings file may set: restic's own variables and its S3 credentials.
+SETTING_PREFIXES = ("RESTIC_", "AWS_")
 EXCLUDES = ["*.lock", "__pycache__", ".DS_Store"]
 # Paths whose files are written once and never edited: a difference is corruption or a
 # collision, not a newer version.
@@ -55,11 +60,37 @@ def main_checkout(repo=REPO) -> Path:
     return Path(common).parent
 
 
+def load_settings():
+    """Source the settings file into this process unless RESTIC_REPOSITORY is set.
+    Returns the file read, or None. A shell reads it, so `export A=1 B=$HOME/x` works."""
+    if os.environ.get("RESTIC_REPOSITORY"):
+        return None
+    path = Path(os.environ.get("WETY_RESTIC_ENV") or SETTINGS).expanduser()
+    if not path.is_file():
+        return None
+    out = subprocess.run(
+        ["sh", "-c", 'set -a; . "$1" >/dev/null; env -0', "sh", str(path)],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if out.returncode:
+        raise SystemExit(f"could not read {path}: {out.stderr.strip()[-300:]}")
+    for entry in out.stdout.split("\0"):
+        key, sep, value = entry.partition("=")
+        if sep and key.startswith(SETTING_PREFIXES):
+            os.environ[key] = value
+    return str(path)
+
+
 def restic(*args, capture=True, cwd=None):
     if not shutil.which("restic"):
         raise SystemExit("restic is not installed (macOS: brew install restic)")
+    load_settings()
     if not os.environ.get("RESTIC_REPOSITORY"):
-        raise SystemExit("set RESTIC_REPOSITORY (see docs/architecture/provenance.md)")
+        raise SystemExit(
+            f"set RESTIC_REPOSITORY or write {SETTINGS} (see docs/architecture/provenance.md)"
+        )
     out = subprocess.run(["restic", *args], capture_output=capture, text=True, cwd=cwd)
     if out.returncode:
         raise SystemExit(f"restic {args[0]} failed: {(out.stderr or '').strip()[-500:]}")
@@ -134,8 +165,10 @@ def check(repo=REPO) -> dict:
 
 def status(repo=REPO) -> dict:
     p = Path(repo) / POINTER
+    settings = load_settings()
     return {
         "restic": shutil.which("restic"),
+        "settings": settings or ("environment" if os.environ.get("RESTIC_REPOSITORY") else None),
         "repository": os.environ.get("RESTIC_REPOSITORY"),
         "password": bool(
             os.environ.get("RESTIC_PASSWORD_FILE") or os.environ.get("RESTIC_PASSWORD")

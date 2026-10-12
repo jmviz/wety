@@ -96,8 +96,10 @@ Once per machine:
    `openssl rand -base64 32 > ~/.config/wety/restic-password` (mode 600). Every command
    reads it from that file; keep a second copy in a password manager, since the
    snapshots cannot be restored without it.
-4. `~/.config/wety/restic.env` (mode 600), sourced from the shell profile so agent
-   sessions see it too:
+4. `~/.config/wety/restic.env` (mode 600). `wety-data store` reads it whenever
+   `RESTIC_REPOSITORY` is unset (`WETY_RESTIC_ENV` names another file), so agent and
+   other non-interactive shells need nothing from the profile. Source it in the shell
+   profile as well to run `restic` itself.
 
        export RESTIC_REPOSITORY=s3:https://<account-id>.r2.cloudflarestorage.com/wety-research
        export AWS_ACCESS_KEY_ID=<key id> AWS_SECRET_ACCESS_KEY=<secret> AWS_DEFAULT_REGION=auto
