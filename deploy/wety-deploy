@@ -37,6 +37,8 @@ load_r2() {
     # shellcheck source=/dev/null
     . "$R2_ENV"
     set +a
+    # The r2 remote comes from RCLONE_CONFIG_R2_* in $R2_ENV; no config file.
+    export RCLONE_CONFIG=/dev/null
     [ -n "${WETY_R2_BUCKET:-}" ] || die "WETY_R2_BUCKET is not set in $R2_ENV"
 }
 
@@ -98,14 +100,17 @@ fetch_release() {
     mv "$tmp" "$dir"
 }
 
-healthy() { curl -fsS -o /dev/null --max-time 10 "$HEALTH_URL"; }
+# Silent: refused connections are expected while the server loads the graph.
+healthy() { curl -fs -o /dev/null --max-time 10 "$HEALTH_URL"; }
 
 # Restart and wait until the server answers. Loading a large graph takes a
 # while; a crash (e.g. a graph built with other reference tables) fails fast.
 restart_and_check() {
-    local deadline restarts state
+    local start deadline report now restarts state
     systemctl restart "$SERVICE"
-    deadline=$(($(date +%s) + HEALTH_TIMEOUT))
+    start=$(date +%s)
+    deadline=$((start + HEALTH_TIMEOUT))
+    report=$((start + 30))
     while ! healthy; do
         restarts=$(systemctl show -p NRestarts --value "$SERVICE")
         state=$(systemctl show -p ActiveState --value "$SERVICE")
@@ -113,12 +118,18 @@ restart_and_check() {
             log "server exited during startup"
             return 1
         fi
-        if [ "$(date +%s)" -ge "$deadline" ]; then
+        now=$(date +%s)
+        if [ "$now" -ge "$deadline" ]; then
             log "server did not answer within ${HEALTH_TIMEOUT}s"
             return 1
         fi
+        if [ "$now" -ge "$report" ]; then
+            log "waiting for the server to load the graph ($((now - start))s)"
+            report=$((report + 30))
+        fi
         sleep 5
     done
+    log "server answered after $(($(date +%s) - start))s"
 }
 
 # Remove releases beyond the newest few (never current or previous), then

@@ -70,6 +70,11 @@ run receipt.
 - **Change the host setup** (`bootstrap.sh`, `wety-deploy`, `wety.service`): CI does
   not install these. Copy `deploy/` to the host again and rerun `bootstrap.sh`. It
   restarts the server only if the unit file changed.
+- **Update rclone:** CI and the host both install the version pinned in
+  [`install-rclone.sh`](install-rclone.sh), not Ubuntu's package (1.60, too old for
+  R2). To move it, change the version and the `linux-arm64.deb` checksum from
+  `https://downloads.rclone.org/v<version>/SHA256SUMS`, then rerun `bootstrap.sh` on
+  the host.
 - **OS updates:** `unattended-upgrades` installs security updates but does not reboot.
   Now and then run `sudo apt-get update && sudo apt-get full-upgrade` and reboot. A
   release upgrade (`sudo do-release-upgrade`) also works in place; the OCI console
@@ -111,7 +116,7 @@ boot volume keeps the instance, its shape and its public IP; a new A1 instance m
    scp -r deploy ~/.ssh/wety_deploy.pub ubuntu@<ip>:
    ```
 
-4. On the host, run the bootstrap. It installs `cloudflared`, `rclone` and
+4. On the host, run the bootstrap. It installs `cloudflared`, the pinned `rclone` and
    `unattended-upgrades`, creates the `wety` and `deploy` users, `/srv/wety`, the
    service, and the restricted deploy key:
 
