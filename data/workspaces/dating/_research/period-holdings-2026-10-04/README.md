@@ -19,7 +19,7 @@ Languages.
   (13,791 reasoning). No dollar cost (subscription).
 - `check`: 41 assertions, 0 errors.
 
-Tracked: `report.md` (Astra's report), `assertions.jsonl`, `coordinator-review/review.json`.
+Run files: `report.md` (Astra's report), `assertions.jsonl`, `coordinator-review/review.json`.
 
 ## Review (Claude Opus 5.5, the session that ran the holdings sync and wrote the brief)
 

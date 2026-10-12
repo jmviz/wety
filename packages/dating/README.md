@@ -28,7 +28,7 @@ Current state and next steps: [STATUS.md](../../STATUS.md). Per-family results:
 * `study_id`, `analysis_id`, and `result_id` prevent a paper, its supplement, D-PLACE copy and repository deposit from becoming independent votes. Alternative clock/root/calibration scenarios remain separate analyses. No averaging, newest-paper ranking or source-count confidence determines a default.
 * `assessment` separates textual fidelity, semantic interpretation and entity mapping. “Supported” means the recorded assertion satisfies those checks, **not that the historical hypothesis is true**.
 * New model extraction is a proposal. Verbatim spans, source-native numbers, immutable run histories and content digests make it auditable. A model review cannot overwrite dates. An explicit editorial decision names an eligible claim, reviewer, rationale and current evidence digest.
-* Only supported, exact `wikt:<code>` evidence enters that code's `chronology`. Catalog and ancestor evidence are contextual references, never fallback lifespans. Unknown is a valid result. (`spoken` in the compatibility view is `null` until the display export described in STATUS exists.)
+* Only supported, exact `wikt:<code>` evidence enters that code's `chronology`. Catalog and ancestor evidence are contextual references, never fallback lifespans. Unknown is a valid result. (`spoken` in the compatibility view is always `null`; displayed periods come from `export-periods`.)
 * Wiktionary varieties (etymology-only codes such as `ja-mid-ear` under `ojp`, `vsn` and `cls` under `sa`) are subjects of their own. A parent code is matched against the stage it names: Old Japanese 700–800 is exact for `ojp`, Early Middle Japanese for `ja-mid-ear`. The display export adds a derived `span` from a code's own period and its varieties' periods, listing each component; it is never evidence, is shown only beside the code's own period (a span cannot tell a living parent from a historical one), and is `partial` while some varieties are undated. Researchers still never join stage periods into one claim.
 * Texts transmitted orally and known only from much later copies (the Vedas, the Avesta) are dated by event `composition`; an adopted composition window is shown, basis `composition`, only when the code has no adopted period or attestation.
 * A proto-language (a code Wiktionary names "Proto-…", whether filed as reconstructed, attested like Proto-Norse, or as a variety like Proto-Romance) may end at a crown age: a decision on its code with event `crown_divergence` may select a supported crown claim of a sampled clade (two or more taxa) when its `proto_mapping` says why the sampled taxa cover the family. The clade claim stays about the clade; the export shows the crown interval as the proto stage's estimated end, never as its start or as a daughter's beginning. A source that dates the family's breakup itself (a family age, an article's node age) may also give the crown claim; an article's Bayesian node age names its sampled descendants. Each estimate carries its method. A posterior's label names the central value its source reports (the mean when it reports a mean, else the median), never a midpoint computed here, with the interval beside it; an estimate given only as an interval is labeled by the interval. A crown decision may list reviewed crown ages of trees (`proto_alternatives`, each with its own `proto_mapping`) shown beside the default, whatever kind of estimate the default is.
@@ -57,8 +57,8 @@ uv run --frozen python -m harness.cli benchmark
 ```
 
 Tests and the benchmark are offline and make no model calls. Several test modules read
-local research data under `data/` that is backed up outside git; they fail in a fresh
-clone without it. Without separately supplied predictions, extraction accuracy is
+research data under `data/` that is not in git; a fresh clone needs it restored from
+the research store first (root README). Without separately supplied predictions, extraction accuracy is
 explicitly **not measured**.
 
 Code changes anywhere in `harness/` change the generation fingerprint, so republish
@@ -131,18 +131,24 @@ need their own evidence and are never inferred from the catalog tree.
 
 ## Data layout
 
-| Path | Meaning |
-|---|---|
-| `data/products/dating/CURRENT.json` | Pointer to the current generation; readers start here (tracked) |
-| `data/artifacts/dating-generations/<digest>/bundle.json` | Complete, validated, content-addressed generation (local) |
-| `data/products/dating/*.json` | Mirrors of the current generation: evidence, review queue, Wiktionary view, benchmark (local) |
-| `data/workspaces/dating/<family>/claims.jsonl` | Legacy per-family claims, conservative ingress (tracked) |
-| `data/workspaces/dating/_evidence/`, `_analyses/`, `_constraints/` | Typed source evidence, analysis manifests, relative relations (tracked) |
-| `data/workspaces/dating/_research/packets/` | Editorial source packets: spans, provenance, importable claims (tracked) |
-| `data/workspaces/dating/_research/<run>/` | Research runs; only `report.md`, `assertions.jsonl`, revisions and `README.md` are tracked |
-| `data/workspaces/dating/retrieved/` | Retrieved source bytes and parsed text (local; never committed) |
-| `data/artifacts/dating-local-sources/<sha256>/` | Bytes of maintainer-supplied sources (local; never committed) |
-| `data/registry/holdings.json`, `source-requests.json` | Supplied sources and the acquisition queue: metadata only (tracked) |
+Git tracks only the generation pointer and the display export; everything else is in
+the research store ([provenance](../../docs/architecture/provenance.md)).
+
+| Path | Meaning | Where |
+|---|---|---|
+| `data/products/dating/CURRENT.json` | Pointer to the current generation; readers start here | git |
+| `data/products/dating/language_periods.json` | Display periods the server ships (`export-periods`) | git |
+| `data/artifacts/dating-generations/<digest>/bundle.json` | Complete, validated, content-addressed generation | store |
+| `data/products/dating/*.json` (others) | Mirrors of the current generation: evidence, review queue, Wiktionary view, benchmark | store |
+| `data/workspaces/dating/<glottocode>/claims.jsonl` | Legacy per-family claims, conservative ingress | store |
+| `data/workspaces/dating/_evidence/`, `_analyses/`, `_constraints/` | Typed source evidence, analysis manifests, relative relations | store |
+| `data/workspaces/dating/_ledger/` | Decisions, withdrawals, sources and errata as append-only events | store |
+| `data/workspaces/dating/_research/packets/` | Editorial source packets: spans, provenance, importable claims | store |
+| `data/workspaces/dating/_research/<run>/` | Research runs; only `README.md` is in git | store |
+| `data/workspaces/dating/_research/briefs/` | Research briefs | git |
+| `data/workspaces/dating/retrieved/` | Retrieved source bytes and parsed text | store |
+| `data/artifacts/dating-local-sources/<sha256>/` | Bytes of maintainer-supplied sources | store |
+| `data/registry/holdings.json`, `source-requests.json` | Supplied sources and the acquisition queue: metadata only | store |
 
 Use `harness.registry.current_bundle()` for consistent reads.
 

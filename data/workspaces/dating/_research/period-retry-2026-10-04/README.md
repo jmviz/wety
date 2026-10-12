@@ -23,7 +23,7 @@ list`). It is the first run with the `library`, `open` and `request` tool action
   compared quotes against newline-translated text, which hid a CRLF mismatch in one
   quote (Wright).
 
-Tracked: `report.md` (Astra's report), `assertions.jsonl`, `coordinator-review/review.json`.
+Run files: `report.md` (Astra's report), `assertions.jsonl`, `coordinator-review/review.json`.
 The six requests were merged into `data/registry/source-requests.json`.
 
 ## Review (Claude Opus 5.5, the session that built the holdings route)

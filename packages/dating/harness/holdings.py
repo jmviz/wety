@@ -13,10 +13,10 @@ why, for which codes, and the routes tried. `requests push` files open requests 
 Zotero (collection wety/dating/<topic>, tag wety:needs-fulltext); once the maintainer
 attaches the file, `holdings sync` ingests it and marks the request supplied.
 
-Tracked records (metadata only, never publisher text):
+Records (metadata only, never publisher text), kept in the research store with the
+source bytes and text under data/artifacts and data/workspaces; git tracks none of them:
   data/registry/holdings.json          holdings by id
   data/registry/source-requests.json   the acquisition queue
-Source bytes and text stay under data/artifacts and data/workspaces (ignored by git).
 """
 
 from datetime import datetime, timezone

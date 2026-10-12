@@ -18,7 +18,7 @@ view.
 
 This packet compares Honkola's lexical-clock analysis, Maurits's calibration demonstration and Grünthal's contact argument. It contains 13 chronological assertions, 18 methodological findings and two explicit relative relations. Five assertions satisfy the registry's source-fidelity checks; eight remain candidates with unnormalized native dates. No historical default or dictionary-stage date is adopted.
 
-The [editorial packet](../../../data/workspaces/dating/_research/packets/uralic-2026-09-19/packet.json) records retained PDF/text hashes, exact text spans, source versions, review scope and five catalog-transfer abstentions. Its companion `claims.json` is the reproducible import. This is a single-agent development review, not independent specialist annotation, exhaustive extraction or a held-out evaluation.
+The editorial packet (`data/workspaces/dating/_research/packets/uralic-2026-09-19/packet.json`) records retained PDF/text hashes, exact text spans, source versions, review scope and five catalog-transfer abstentions. Its companion `claims.json` is the reproducible import. This is a single-agent development review, not independent specialist annotation, exhaustive extraction or a held-out evaluation.
 
 ### What the sources actually support
 
@@ -96,11 +96,11 @@ From the repository root:
 uv run --frozen wety-data run dating
 ```
 
-The [follow-up packet](../../../data/workspaces/dating/_research/packets/uralic-supplements-2026-09-19/packet.json) binds exact source spans and review limitations. Its `numerical-checks.json` records the calculations; `retrieval-attempts.json` records access attempts. The numerical checks also run as dating regressions. Pilot coverage reports methodological findings separately from date-bearing claims, so zero new dates does not erase the review's contribution.
+The follow-up packet (`data/workspaces/dating/_research/packets/uralic-supplements-2026-09-19/packet.json`) binds exact source spans and review limitations. Its `numerical-checks.json` records the calculations; `retrieval-attempts.json` records access attempts. The numerical checks also run as dating regressions. Pilot coverage reports methodological findings separately from date-bearing claims, so zero new dates does not erase the review's contribution.
 
 ## Uralic “hundred”: conditional contact case
 
-The Permic forms do not, by themselves, decide between an earlier loan with regular development and separate borrowing. The [review packet](../../../data/workspaces/dating/_research/packets/uralic-hundred-2026-09-19/packet.json) retains eleven findings and a [structured case](../../../data/workspaces/dating/_research/packets/uralic-hundred-2026-09-19/case.json). Neither account receives a calendar date or a global registry relation.
+The Permic forms do not, by themselves, decide between an earlier loan with regular development and separate borrowing. The review packet (`data/workspaces/dating/_research/packets/uralic-hundred-2026-09-19/packet.json`) retains eleven findings and a structured case (`data/workspaces/dating/_research/packets/uralic-hundred-2026-09-19/case.json`). Neither account receives a calendar date or a global registry relation.
 
 ### Sources and scope
 

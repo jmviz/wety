@@ -1,13 +1,17 @@
 """Retention for published dating generations (`data/artifacts/dating-generations`).
 
 Keep the current generation, the most recently published others (default two), and
-any generation a tracked file names by its digest (a packet's baseline, a run
-README). Migration inventories do not count as references. Everything else is
-reported for removal. Nothing is deleted without `apply`; a removal log is kept in the
-dating history.
+any generation a record names by its digest (a packet's baseline, a run README).
+Records are the files git tracks and the research store's dating workspace
+(`data/workspaces/dating`: packets, run directories, briefs, evidence, ledger, family
+workspaces), which git no longer tracks. Each file is read once. Retrieved and retained
+source text, caches and binary files are not scanned; migration inventories do not
+count as references. Everything else is reported for removal. Nothing is deleted
+without `apply`; a removal log is kept in the dating history.
 """
 
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -17,31 +21,61 @@ from pathlib import Path
 from workflow_tools.paths import DATING_GENERATIONS, DATING_HISTORY, DATING_PRODUCT, REPO
 
 DIGEST = re.compile(rb"[0-9a-f]{64}")
+# Hex bytes become x, others a space: a C-speed find then locates the long hex runs.
+HEX_MASK = bytes(ord("x" if chr(c) in "0123456789abcdef" else " ") for c in range(256))
 # Migration inventories list every file that moved, not what depends on it.
 NOT_REFERENCES = ("data/registry/migrations/",)
+# Research-store records outside git that can name a generation.
+STORE = ("data/workspaces/dating",)
+# Source text (the retrieved store, runs' retained `evidence/`), caches and binaries
+# only hold what was read or computed; skipping them keeps the scan fast.
+NOT_SCANNED_DIRS = {"retrieved", "evidence", "__pycache__", "cache"}
+NOT_SCANNED_SUFFIXES = {".pdf", ".png", ".jpg", ".jpeg", ".xlsx", ".pyc", ".gz", ".zip"}
 
 
 def size(path):
     return sum(p.stat().st_size for p in Path(path).rglob("*") if p.is_file())
 
 
-def tracked_references(generations, repo=REPO, ignore=NOT_REFERENCES):
-    """{generation: [tracked files naming it]}; reads every tracked file once."""
-    files = subprocess.run(
+def record_files(repo=REPO, store=STORE):
+    """Repository-relative paths of tracked files, then research-store files; each once."""
+    tracked = subprocess.run(
         ["git", "ls-files", "-z"], cwd=repo, capture_output=True, check=True
     ).stdout.split(b"\0")
+    names = dict.fromkeys(n.decode() for n in tracked if n)
+    for top in store:
+        for folder, dirs, files in os.walk(Path(repo) / top):
+            dirs[:] = sorted(d for d in dirs if d not in NOT_SCANNED_DIRS)
+            for f in sorted(files):
+                if Path(f).suffix.lower() not in NOT_SCANNED_SUFFIXES:
+                    names.setdefault(Path(folder, f).relative_to(repo).as_posix(), None)
+    return list(names)
+
+
+def digests(data):
+    """The digests DIGEST.findall finds in data; the regex only sees long hex runs."""
+    mask, found = data.translate(HEX_MASK), set()
+    start = mask.find(b"x" * 64)
+    while start != -1:
+        end = mask.find(b" ", start)
+        end = len(data) if end == -1 else end
+        found.update(m.decode() for m in DIGEST.findall(data, start, end))
+        start = mask.find(b"x" * 64, end)
+    return found
+
+
+def references(generations, repo=REPO, ignore=NOT_REFERENCES, store=STORE):
+    """{generation: [records naming it]}; reads every record file once."""
     wanted = set(generations)
     refs = {}
-    for name in filter(None, files):
-        if name.decode().startswith(ignore):
+    for name in record_files(repo, store):
+        if name.startswith(ignore):
             continue
-        path = Path(repo) / name.decode()
+        path = Path(repo) / name
         if not path.is_file():
             continue
-        for match in set(DIGEST.findall(path.read_bytes())):
-            digest = match.decode()
-            if digest in wanted:
-                refs.setdefault(digest, []).append(name.decode())
+        for digest in digests(path.read_bytes()) & wanted:
+            refs.setdefault(digest, []).append(name)
     return refs
 
 
@@ -59,7 +93,7 @@ def plan(keep_recent=2, root=DATING_GENERATIONS, product=DATING_PRODUCT, repo=RE
     if current not in names:
         raise ValueError("current generation is not in the generation store")
     recent = [n for n in names if n != current][:keep_recent]
-    refs = tracked_references(names, repo)
+    refs = references(names, repo)
     keep = {}
     for n in names:
         reasons = (

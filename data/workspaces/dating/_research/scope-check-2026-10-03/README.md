@@ -16,7 +16,7 @@ re-checked in current Wiktionary the filings behind earlier catalog decisions.
 - Codex usage, one turn: 2,535,627 input tokens (2,385,920 cached), 24,141 output
   (6,024 reasoning). `check`: 86 assertions, 0 structural errors.
 
-Tracked: `report.md` (Astra's report), `assertions.jsonl` (86 quoted pieces of scope
+Run files: `report.md` (Astra's report), `assertions.jsonl` (86 quoted pieces of scope
 evidence), `coordinator-review/review.json` (the review below).
 
 ## Result and review (Claude Opus 5.5, separate session)

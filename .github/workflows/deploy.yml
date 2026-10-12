@@ -127,6 +127,14 @@ jobs:
           chmod 600 ~/.ssh/deploy
           ssh -i ~/.ssh/deploy -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
             -o ServerAliveInterval=30 "deploy@$DEPLOY_HOST" deploy "$GITHUB_SHA"
+      - name: Prune R2
+        # Old releases and unused graphs; the host keeps its own rollback copies. A
+        # failure here does not hold back the website.
+        continue-on-error: true
+        env:
+          WETY_R2_REMOTE: r2
+          WETY_R2_BUCKET: ${{ vars.R2_BUCKET }}
+        run: deploy/prune-r2.sh --apply
 
   promote:
     needs: [plan, server]
