@@ -40,18 +40,19 @@ provenance machinery, new workflow infrastructure, and deleting anything under `
   built from, run READMEs and briefs. Changing that list is a maintainer decision.
 - At each checkpoint, also bring a worktree's new data into the main checkout:
   `uv run --frozen wety-data store sync data <main>/data --apply` (it never
-  overwrites; report its conflicts). When the store is configured, snapshot from the
-  main checkout and commit `data/SNAPSHOT.json`.
-- Merging the 2026-10-09 boundary commit deletes the newly ignored files from a
-  checkout's working tree; restore them with `sync` from a worktree or backup.
+  overwrites; report its conflicts). Then snapshot from the main checkout
+  (`wety-data store snapshot`) and commit `data/SNAPSHOT.json`; if the store is not
+  configured in this session, say so.
 
 ## Worktrees and `data/`
 
-Most of `data/` is ignored, so a git worktree (or any fresh checkout) lacks the inputs,
-caches and artifacts. They live in the main checkout: the first entry of
-`git worktree list`. Until they are mirrored to object storage (planned: R2, keyed by
-manifest checksum, like `deploy/graph.json`), a session without that checkout cannot
-build graphs or catalogs: report it rather than re-acquiring sources.
+Most of `data/` is ignored, so a git worktree (or any fresh checkout) lacks the
+research store: artifacts, caches, evidence and runs. They live in the main checkout:
+the first entry of `git worktree list`. Without that checkout, restore `data/` from the
+store's snapshot (`wety-data store restore`, then `sync`;
+[provenance](docs/architecture/provenance.md#working-with-it)); if the store is not
+configured either, report it rather than re-acquiring sources. Do not pipe restic into
+`head` (it can leave a stale lock); use `sed -n 1,5p`.
 
 - Reading only: use the main checkout's files by absolute path.
 - Running a workflow from a worktree: the runner rejects inputs outside the repository,
@@ -74,6 +75,8 @@ build graphs or catalogs: report it rather than re-acquiring sources.
 - A new document must replace or merge an existing one. Each family has one page in
   `packages/dating/families/` giving the current reading, with corrections applied.
 - Run artifacts belong in the run's directory under `data/`, not in docs.
+- Link only to files git tracks; name a research-store path as code text
+  (`data/workspaces/dating/_research/packets/...`), since links to it are dead on GitHub.
 
 ## Code
 
