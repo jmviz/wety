@@ -118,9 +118,7 @@ def restore(target, snapshot_id=None, repo=REPO) -> dict:
         raise SystemExit(f"{target} is not empty; restore into an empty directory, then sync")
     pointer = read_pointer(repo)
     sid = snapshot_id or pointer["snapshot"]
-    # The directory inside the snapshot; older pointers named an absolute source.
-    root = pointer.get("root") or pointer["source"]
-    restic("restore", f"{sid}:{root}", "--target", str(target), capture=False)
+    restic("restore", f"{sid}:{pointer['root']}", "--target", str(target), capture=False)
     return {"restored": sid, "target": str(target)}
 
 

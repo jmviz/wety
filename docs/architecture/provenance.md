@@ -141,13 +141,6 @@ installations. The root `.venv` is recreated from the root lock. Publication can
 reproduced from retained input artifacts; live upstream services and model extraction
 are not assumed deterministic or historically replayable.
 
-### History
-
-Research data was tracked in git until 2026-10-09. It was removed from the unpushed
-commits with git-filter-repo before they were first pushed, and the two pushed branches
-that carried the 2026-10-03 pilot's data were deleted (pushed content may have been
-cached). GitHub holds `main`, `production` and `raw`.
-
 ## Publishing a new local source or editorial set
 
 Use `wety-data adopt COLLECTION REPO_RELATIVE_DIRECTORY --role source|transformed|editorial

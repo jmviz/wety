@@ -14,7 +14,7 @@ catalog and dating research. Workflows can invoke either stack through explicit 
 - `client/`: frontend. `experiments/`: exploratory notebooks.
 
 **Current state and next steps: [STATUS.md](STATUS.md).** Rules for agents:
-[AGENTS.md](AGENTS.md). See also [organization and ownership](docs/architecture/reorganization.md)
+[AGENTS.md](AGENTS.md). See also [repository layout](docs/architecture/layout.md)
 and [source acquisition and recovery](docs/architecture/provenance.md).
 The scientific contracts remain in [catalogs](packages/catalogs/README.md) and
 [dating](packages/dating/README.md). Catalog correspondence never licenses automatic

@@ -1,4 +1,4 @@
-# Repository organization
+# Repository layout
 
 | Location | Responsibility |
 | --- | --- |
