@@ -1,7 +1,7 @@
 # Status
 
-*Updated 2026-10-11. Local `main` has `canonical-forms` and `processor-review`; graph
-`dab06f67…` is selected. Branch `claude/language-dating-period-9aa9ac` (main merged in)
+*Updated 2026-10-11 on branch `claude/cranky-noyce-c69059` (`dating gc` fix). Local
+`main` has `canonical-forms` and `processor-review`; graph `dab06f67…` is selected. Branch `claude/language-dating-period-9aa9ac` (main merged in)
 adds dating rules 2, period batches, proto-language estimates, and moves research data
 out of git. Nothing pushed.*
 
@@ -31,23 +31,18 @@ in the `packages/dating` registry.
 
 ## What changed
 
-- No shared code is part of a fingerprint any more: catalogs (`e5c5221`), dating (harness
-  and `uv.lock` only) and the IE-CoR receipt. Tooling can live where it fits; the store
-  is `wety-data store`.
-- The session scripts had credited eight GPT-6.1 Sol runs to gpt-6-astra: ledger errata,
-  34 decisions re-recorded, READMEs regenerated.
-- Removed: source reuse rights and the linked-data release (maintainer decision).
-- Deleted the pushed `dating-pilot` and `reorg-baseline` branches, which carried the
-  pilot's research data.
-- Snapshots hold `data/` as `/data`, restorable anywhere; the pointer names no machine
-  path. Deploy tokens `wety-deploy-ci/-host/-local`, laptop rclone remote `wety-deploy`.
-
-## Client fixes (cherry-picked from `claude/client-ui-ux-review-3d08c7`)
-
-Filters no longer blank the tree; wide charts open centred on the word; home clears
-the last word; empty cognates explain themselves; wrapped rows align. Type-checks and
-builds on the current client. Never merge the old branch: its history carries the
-research data the rewrite removes.
+- `dating gc` counts references in the research store: besides tracked files it reads
+  `data/workspaces/dating` (packets, run directories, evidence, ledger, family
+  workspaces), skipping retrieved and retained source text, caches and binaries. On
+  the main checkout's store it now keeps Uralic packet baseline `a82941da…`, which the
+  old scan listed for removal; the scan takes about 2 s. `gc --apply` was not run.
+- Holdings and source requests are described as research-store records, not tracked.
+- Republished dating generation `840b8f8b…` for the harness edit: 0 validation errors,
+  no rejected decisions, the same 348 periods.
+- Earlier on `main`: client fixes (filters no longer blank the tree, wide charts open
+  centred, empty cognates explain themselves), relative store snapshots, deploy token
+  names. Never merge `claude/client-ui-ux-review-3d08c7`: its history carries research
+  data.
 
 ## Uncertainties
 
