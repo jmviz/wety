@@ -14,7 +14,10 @@ server first.
 2. [`wety-deploy`](wety-deploy) downloads the release and the graph it names,
    verifies their checksums, switches `/srv/wety/current`, restarts `wety.service`
    and waits until the server answers. If the server does not start, it switches back.
-3. The workflow moves the `production` branch to the commit. Pages builds the website
+3. The workflow prunes R2 with [`prune-r2.sh`](prune-r2.sh): it keeps the five newest
+   releases, the graphs they and `graph.json` name, and graphs uploaded in the last 30
+   days. A pruning failure does not stop the deploy.
+4. The workflow moves the `production` branch to the commit. Pages builds the website
    from `production` (API URL from `client/.env.production`), so the website only
    changes once its API is serving.
 
@@ -47,7 +50,10 @@ run receipt.
   language/POS tables match its own; if they do not, the deploy rolls back and fails.
   If the graph comes with a new Wiktionary language export, record the codes it
   retired first (root README, "Links"). Shared links name words, so they survive a new
-  graph; open tabs notice it (the API answers 409) and reload.
+  graph; open tabs notice it (the API answers 409) and reload. A published graph not
+  merged within 30 days may be pruned; rerun `publish-graph.sh` to upload it again.
+- **Prune R2 by hand:** `deploy/prune-r2.sh` lists what it would remove;
+  `--apply` removes it.
 - **Roll back:** run the command below on the host. It swaps `current` and `previous`.
   `production` still names the newer commit, so fix or revert on `main` next.
 
@@ -95,10 +101,9 @@ boot volume keeps the instance, its shape and its public IP; a new A1 instance m
 2. Firewall: the host must accept only SSH. `netfilter-persistent` loads
    `/etc/iptables/rules.v4` and `rules.v6`. INPUT accepts established connections,
    ICMP, loopback and tcp/22, then rejects; FORWARD rejects; OUTPUT is open. OCI's
-   Ubuntu images ship with these rules, so `bootstrap.sh` does not install them; check
+   Ubuntu images should ship with these rules, so `bootstrap.sh` does not install them; check
    with `sudo iptables -S` and `sudo ip6tables -S`, and make sure no other firewall
-   (firewalld, ufw) is installed. On the current host they were written by hand after
-   firewalld was removed.
+   (firewalld, ufw) is installed.
 3. From the repository on your machine, copy `deploy/` and the deploy key's public
    half:
 

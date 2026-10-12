@@ -38,6 +38,9 @@ in the `packages/dating` registry.
   `reorganization.md`) trimmed to the current layout; `history-filter.txt` deleted.
 - Links from tracked docs to research-store files (packets, run reports) became code
   text; AGENTS now says to link only to tracked files.
+- Each server deploy now prunes R2 (`deploy/prune-r2.sh`): the five newest releases,
+  their graphs, the selected graph and graphs from the last 30 days stay. Tested on a
+  local rclone backend only.
 
 ## Uncertainties
 
@@ -46,16 +49,14 @@ in the `packages/dating` registry.
 - `dating gc` keeps a generation only if a git-tracked file names it; packets are no
   longer tracked, so a generation named only by a packet would be listed for removal.
   Do not run `gc --apply` until this is fixed.
-- Nothing prunes R2: old releases and graphs accumulate in `wety-deploy` (each graph
-  about 600 MB; the free tier is 10 GB).
+- R2 pruning has not run against R2 yet; its first run is the next server deploy.
 
 ## Next three actions
 
 1. Fix `dating gc` to count references in the research store, not only tracked files.
-2. Prune old R2 releases and unused graphs (a script run by the deploy workflow).
-   Writing it needs the maintainer's permission in the agent session.
+2. Maintainer: before merging, run `deploy/prune-r2.sh` (dry run) and check its list.
 3. Resume dating research from `dating period-targets`.
 
 ## Decisions needed from the maintainer
 
-- Whether and how to prune R2 automatically (CI after each deploy, or by hand).
+- None.
