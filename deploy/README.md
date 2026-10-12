@@ -158,7 +158,7 @@ boot volume keeps the instance, its shape and its public IP; a new A1 instance m
    gh secret set DEPLOY_KNOWN_HOSTS --env production < /tmp/wety_known_hosts
    ```
 
-   If the IP changed, also `gh variable set DEPLOY_HOST --env production --body <ip>`.
+   If the IP changed, also `gh secret set DEPLOY_HOST --env production --body <ip>`.
 8. Check that the deploy key can run `wety-deploy` and nothing else. The first command
    prints `current: none`; the second prints the usage message.
 
@@ -217,8 +217,10 @@ environment variables (`/etc/wety/r2.env`, the workflow) and is named `r2` there
   disabled; they would talk to the production API.
 - **GitHub** environment `production`, limited to `main`: secrets `R2_ACCESS_KEY_ID`,
   `R2_SECRET_ACCESS_KEY` (the `wety-deploy-ci` token), `DEPLOY_SSH_KEY` (the private
-  half of `~/.ssh/wety_deploy`, an ed25519 key made for this) and `DEPLOY_KNOWN_HOSTS`;
-  variables `R2_ENDPOINT`, `R2_BUCKET` (`wety-deploy`) and `DEPLOY_HOST` (the IP).
+  half of `~/.ssh/wety_deploy`, an ed25519 key made for this), `DEPLOY_KNOWN_HOSTS`,
+  `R2_ENDPOINT` and `DEPLOY_HOST` (the IP); variable `R2_BUCKET` (`wety-deploy`). The
+  endpoint (it holds the Cloudflare account id) and the IP are secrets only so that
+  the public run logs mask them.
 - **OCI:** a Pay As You Go account (Always Free resources stay free, and idle instances
   are not reclaimed). The subnet's security list allows ingress on tcp/22 only.
 
