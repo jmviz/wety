@@ -29,7 +29,8 @@ if [ ! -f /etc/apt/sources.list.d/cloudflared.list ]; then
         >/etc/apt/sources.list.d/cloudflared.list
 fi
 apt-get update -q
-DEBIAN_FRONTEND=noninteractive apt-get install -y -q cloudflared curl jq rclone unattended-upgrades
+DEBIAN_FRONTEND=noninteractive apt-get install -y -q cloudflared curl jq unattended-upgrades
+"$here/install-rclone.sh"
 
 echo "== users"
 id wety >/dev/null 2>&1 || useradd --system --home-dir /srv/wety --shell /usr/sbin/nologin wety
