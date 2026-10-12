@@ -19,9 +19,9 @@ gem-pro ine-pro sla-pro cel-pro`).
   (5,475 reasoning). No dollar cost (subscription).
 - `check`: 39 assertions, 0 structural errors.
 
-Files kept in git: `report.md` (Astra's report), `assertions.jsonl` (Astra's
-proposals), `coordinator-review/review.json` (the review below). Retained sources,
-events and tool logs stay local.
+Run files: `report.md` (Astra's report), `assertions.jsonl` (Astra's
+proposals), `coordinator-review/review.json` (the review below), with the retained
+sources, events and tool logs, all in the research store.
 
 ## Astra's findings
 
