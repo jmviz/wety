@@ -17,8 +17,8 @@ Dossier: `data/workspaces/dating/_research/single-frontier-turkic-2026-09-21/`.
 The Codex/Astra subscription run completed in **782.2 seconds (13.0 minutes)**,
 producing **13 proposals** from selected passages in three substantive articles.
 It also read a corrigendum and a chapter summary. The
-[model report](../../../data/workspaces/dating/_research/single-frontier-turkic-2026-09-21/report.md)
-is retained unchanged. The [coordinator review](../../../data/workspaces/dating/_research/single-frontier-turkic-2026-09-21/coordinator-review/review.json)
+model report (`data/workspaces/dating/_research/single-frontier-turkic-2026-09-21/report.md`)
+is retained unchanged. The coordinator review (`data/workspaces/dating/_research/single-frontier-turkic-2026-09-21/coordinator-review/review.json`)
 accepts it as useful partial research, with no material record corrections found
 within the checked scope. This is not historical validation or import approval.
 

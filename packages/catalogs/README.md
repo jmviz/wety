@@ -2,7 +2,7 @@
 
 This is a registry of **assertions between source-specific concepts**, not a universal table of equivalent languages. Wiktionary language and family codes, ISO registrations, Glottolog languoids, Wikidata items and IE-CoR documentary samples describe different objects. Agreement between identifiers does not establish identical geographic, temporal, social or lexical scope.
 
-Read [the linguistic and cataloging critique](critique.md), [the finding-by-finding resolution ledger](review-ledger.json), and [the generated coverage report](../../data/products/catalogs/report.md). The previous outputs, code and documentation are preserved under `data/archive/catalogs/pre_v2/` with hashes. They are not current results.
+Read [the linguistic and cataloging critique](critique.md), [the finding-by-finding resolution ledger](review-ledger.json), and the generated coverage report (`data/products/catalogs/report.md`). The previous outputs, code and documentation are preserved under `data/archive/catalogs/pre_v2/` with hashes. They are not current results.
 
 ## Contract
 
@@ -55,7 +55,7 @@ Refreshes archive the previous source set, stage downloads, serialize writers, a
 
 ## Publication and consumers
 
-The authoritative unit is `data/artifacts/catalog-generations/<digest>/bundle.json`, committed through `data/products/catalogs/CURRENT.json`. Use `registry.current_bundle()` for a consistent generation and `registry.validate_current()` to detect modified sources, decisions or mirrors. The bundle contains records, indexes, Glottolog source attributes, a prioritized review queue, decisions and input fingerprints. The workflow run receipt records the code that built a generation; code edits do not make it stale. Generations published before 2026-10-06 also carry an `implementation` record, which is no longer checked; later ones are identified by content alone, so a rebuild that changes no output keeps the generation. Mirrors are individually atomic, not a multi-file transaction; consumers must not assemble their own generation from independently opened mirrors.
+The authoritative unit is `data/artifacts/catalog-generations/<digest>/bundle.json`, selected by `data/products/catalogs/CURRENT.json` (the only one of these in git). Use `registry.current_bundle()` for a consistent generation and `registry.validate_current()` to detect modified sources, decisions or mirrors. The bundle contains records, indexes, Glottolog source attributes, a prioritized review queue, decisions and input fingerprints. The workflow run receipt records the code that built a generation; code edits do not make it stale. Generations published before 2026-10-06 also carry an `implementation` record, which is no longer checked; later ones are identified by content alone, so a rebuild that changes no output keeps the generation. Mirrors are individually atomic, not a multi-file transaction; consumers must not assemble their own generation from independently opened mirrors.
 
 JSON and CSV mirrors retain complete link assertions. CSV nested values are JSON, not semicolon-joined lists. `index_by_target.json` includes proposed, contextual and reviewed links from both language and family concepts, with relation/status/link IDs. Compatibility `index_by_glottocode.json` and `index_by_iso639_3.json` contain only projected language-code catalog lookups. Their multiplicity means shared catalog context, not synonymy. They are not safe equality joins.
 
@@ -65,7 +65,7 @@ An editorial decision in `data/workspaces/catalogs/overrides.json` must name a q
 
 IE-CoR matching now produces **proposals**, preserving all 160 source sample IDs, names, codes, descriptions and prior parameters. No proposal selects a preferred Wiktionary stage. Its receipt binds the table, code, Wiktionary input, catalog generation and output. A unique Glottocode or similar name cannot turn Late Cornish into Old Cornish. Future sample-to-stage adjudication must record temporal/geographic/lexical scope; it must not overwrite the original sample or automatically transfer its prior.
 
-Dating reads and validates the committed catalog bundle. Family nodes are not classified as reconstructed languages. Catalog ancestry remains context; unknown tips prevent a complete common-ancestor result, and non-genealogical buckets are excluded from genetic paths. Source-specific sample identities survive ingestion. Exact code-specific chronological evidence requires a separate dating assessment; every `spoken` field remains null.
+Dating reads and validates the current catalog bundle. Family nodes are not classified as reconstructed languages. Catalog ancestry remains context; unknown tips prevent a complete common-ancestor result, and non-genealogical buckets are excluded from genetic paths. Source-specific sample identities survive ingestion. Exact code-specific chronological evidence requires a separate dating assessment; every `spoken` field remains null.
 
 ## What remains unestablished
 

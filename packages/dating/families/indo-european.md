@@ -47,7 +47,7 @@ it (TREE1 7066–10342), so it is not shown.
 
 ## Indo-European: source and scenario packet
 
-The [packet](../../../data/workspaces/dating/_research/packets/indo-european-2026-09-20/packet.json) records 23 source findings across Chang, Heggarty, the deposited results guide, and Kassian & Starostin. It advances the pilot comparison without importing a new date or selecting a historical default. This is development annotation with adversarial self-audit; the completed separate-session Uralic review does not count as a second review of this packet.
+The packet (`data/workspaces/dating/_research/packets/indo-european-2026-09-20/packet.json`) records 23 source findings across Chang, Heggarty, the deposited results guide, and Kassian & Starostin. It advances the pilot comparison without importing a new date or selecting a historical default. This is development annotation with adversarial self-audit; the completed separate-session Uralic review does not count as a second review of this packet.
 
 ### What was recovered and verified
 

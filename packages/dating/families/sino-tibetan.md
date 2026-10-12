@@ -24,7 +24,7 @@ Zhang 2020 remains unconverted (epoch and calibration discrepancies).
 
 ## Sino-Tibetan source and scenario packet
 
-The [packet](../../../data/workspaces/dating/_research/packets/sino-tibetan-2026-09-20/packet.json) records 31 findings across nine source files for Sagart 2019, Zhang 2019 and Zhang 2020. It recovers supplementary methods, a BEAST configuration and a previously omitted posterior file. This is same-session development review with a numerical self-audit, not held-out evaluation or historical adjudication. It imports no chronological claims or defaults.
+The packet (`data/workspaces/dating/_research/packets/sino-tibetan-2026-09-20/packet.json`) records 31 findings across nine source files for Sagart 2019, Zhang 2019 and Zhang 2020. It recovers supplementary methods, a BEAST configuration and a previously omitted posterior file. This is same-session development review with a numerical self-audit, not held-out evaluation or historical adjudication. It imports no chronological claims or defaults.
 
 ### Sources and access
 
