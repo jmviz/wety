@@ -134,7 +134,8 @@ function Toolbar(props: { forest: Forest }) {
   return (
     <div class="tree-toolbar" role="toolbar" aria-label="tree controls">
       <span class="tree-stats">
-        {props.forest.nodeCount.toLocaleString()} words · {props.forest.langs.length} languages
+        {props.forest.nodeCount.toLocaleString()} {props.forest.nodeCount === 1 ? "word" : "words"}
+        {" · "}{props.forest.langs.length} {props.forest.langs.length === 1 ? "language" : "languages"}
       </span>
       <button type="button" onClick={() => setAllOpen(props.forest, true)}>
         Expand all
@@ -148,7 +149,7 @@ function Toolbar(props: { forest: Forest }) {
           ref={langSelect}
           onChange={(e) => {
             const id = Number(e.currentTarget.value);
-            if (id) openLang(props.forest, id);
+            if (e.currentTarget.value !== "") openLang(props.forest, id);
             e.currentTarget.value = "";
           }}
         >

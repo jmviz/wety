@@ -30,6 +30,11 @@ export default function NodePopover() {
   let el!: HTMLDivElement;
   let lastAnchor: HTMLElement | null = null;
   const goTo = useGoTo();
+  const dismiss = () => {
+    const anchor = popover()?.anchor;
+    close();
+    if (anchor?.isConnected) anchor.focus({ preventScroll: true });
+  };
 
   const show = () => {
     if (typeof el.showPopover === "function") {
@@ -49,6 +54,7 @@ export default function NodePopover() {
     const margin = 6;
     let top = a.top - p.height - margin;
     if (top < margin) top = a.bottom + margin;
+    top = Math.max(margin, Math.min(top, window.innerHeight - p.height - margin));
     let left = a.left;
     if (left + p.width > window.innerWidth - margin)
       left = Math.max(margin, window.innerWidth - margin - p.width);
@@ -77,6 +83,12 @@ export default function NodePopover() {
       if (supportsAnchor) lastAnchor.style.setProperty("anchor-name", "--wety-node");
     }
     show();
+    if (state.pinned) {
+      requestAnimationFrame(() => {
+        if (popover() === state)
+          el.querySelector<HTMLButtonElement>(".popover-close")?.focus({ preventScroll: true });
+      });
+    }
     if (!sheet && !supportsAnchor) {
       requestAnimationFrame(() => placeManually(state.anchor));
     }
@@ -84,7 +96,7 @@ export default function NodePopover() {
 
   onMount(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && popover()) close();
+      if (e.key === "Escape" && popover()) dismiss();
     };
     const onPointerDown = (e: PointerEvent) => {
       const state = popover();
@@ -135,7 +147,7 @@ export default function NodePopover() {
           return (
             <div class="popover-body">
               <Show when={state().pinned}>
-                <button class="popover-close" aria-label="close" onClick={close}>
+                <button class="popover-close" aria-label="close" onClick={dismiss}>
                   ×
                 </button>
               </Show>

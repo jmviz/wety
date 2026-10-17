@@ -26,6 +26,7 @@ import {
   buildForest,
   snapshotOpen,
 } from "./ety/model";
+import { close as closePopover } from "./ety/popover";
 import {
   ENGLISH,
   browserLangName,
@@ -122,6 +123,8 @@ export const [tree, setTree] = createSignal<Etymology | Descendants[] | null>(
 export const [lastRequest, setLastRequest] = createSignal<TreeRequest | null>(
   null
 );
+export const [loading, setLoading] = createSignal(false);
+export const [loadError, setLoadError] = createSignal<string | null>(null);
 // Every item sharing the shown word's language and term (Wiktionary's
 // numbered etymologies), for switching between them.
 export const [homographs, setHomographs] = createSignal<Item[]>([]);
@@ -213,9 +216,11 @@ function staleGraph(): never {
   throw new Error("graph changed; reloading");
 }
 
-async function fetchJson(url: string): Promise<{ status: number; body: any }> {
+async function fetchJson(url: string, allowMissing = false): Promise<{ status: number; body: any }> {
   const r = await fetch(url);
   if (r.status === 409) staleGraph();
+  if (!r.ok && !(allowMissing && r.status === 404))
+    throw new Error(`Request failed (${r.status})`);
   return { status: r.status, body: await r.json().catch(() => null) };
 }
 
@@ -232,7 +237,8 @@ function resolveLink(link: WordLink): Promise<Resolved> {
   const key = params.toString();
   let p = resolveCache.get(key);
   if (!p) {
-    p = fetchJson(`${API}/resolve?${key}`).then(({ body }) => body as Resolved);
+    // A missing word is a valid resolution result, sent with HTTP 404.
+    p = fetchJson(`${API}/resolve?${key}`, true).then(({ body }) => body as Resolved);
     p.catch(() => resolveCache.delete(key));
     resolveCache.set(key, p);
   }
@@ -291,11 +297,14 @@ let loadSeq = 0;
 export function clearView() {
   loadSeq++;
   batch(() => {
+    closePopover();
     setTree(null);
     setLastRequest(null);
     setUnresolved(null);
     setHomographs([]);
     setSelectedItem(null);
+    setLoading(false);
+    setLoadError(null);
   });
 }
 
@@ -305,53 +314,64 @@ export function clearView() {
 export async function loadFromPath(path: string): Promise<string | null> {
   const link = parseWordHref(path);
   if (!link) return null;
+  const seq = ++loadSeq;
+  batch(() => {
+    closePopover();
+    setTree(null);
+    setLastRequest(null);
+    setUnresolved(null);
+    setHomographs([]);
+    setLoadError(null);
+    setLoading(true);
+  });
   // Never let a caller's tracking scope see the signal reads below.
-  return untrack(() => loadLink(link, ++loadSeq));
+  try {
+    return await untrack(() => loadLink(link, seq));
+  } catch {
+    if (seq === loadSeq)
+      setLoadError("Could not load this word. Check your connection and try again.");
+    return null;
+  } finally {
+    if (seq === loadSeq) setLoading(false);
+  }
 }
 
 async function loadLink(link: WordLink, seq: number): Promise<string | null> {
-  let resolved: Resolved;
-  try {
-    resolved = await resolveLink(link);
-  } catch (error) {
-    console.log(error);
-    return null;
-  }
+  const resolved = await resolveLink(link);
   if (seq !== loadSeq) return null;
   graph = resolved.graph;
   const item = resolved.item;
   if (!item) {
+    const lang = resolved.homographs[0]?.lang ?? await fetchLang(link.lang);
+    if (seq !== loadSeq) return null;
     batch(() => {
       setTree(null);
       setLastRequest(null);
       setHomographs(resolved.homographs);
       setUnresolved({ link, reason: resolved.homographs.length ? "ambiguous" : "missing" });
       setSelectedItem(null);
-      if (resolved.homographs[0]) setSelectedLang(resolved.homographs[0].lang);
+      if (lang) setSelectedLang(lang);
       setSelectedTreeKind(link.kind);
     });
     return null;
   }
 
-  const codes = [...new Set(link.descLangs)].sort();
+  const codes = link.kind === TreeKind.Etymology
+    ? []
+    : [...new Set([...link.descLangs, item.lang.code])].sort();
   const params = new URLSearchParams({ graph });
   for (const c of codes) params.append("descLang", c);
   const apiPath = `/${kindPath[link.kind]}/${item.id}?${params}`;
   let treeResult = treeCache.get(apiPath);
   if (!treeResult) {
-    try {
-      const { body } = await fetchJson(`${API}${apiPath}`);
-      treeResult =
-        link.kind === TreeKind.Etymology
-          ? (body as Etymology)
-          : link.kind === TreeKind.Descendants
-            ? [body as Descendants]
-            : (body as Descendants[]);
-      treeCache.set(apiPath, treeResult);
-    } catch (error) {
-      console.log(error);
-      return null;
-    }
+    const { body } = await fetchJson(`${API}${apiPath}`);
+    treeResult =
+      link.kind === TreeKind.Etymology
+        ? (body as Etymology)
+        : link.kind === TreeKind.Descendants
+          ? [body as Descendants]
+          : (body as Descendants[]);
+    treeCache.set(apiPath, treeResult);
   }
 
   const descLangs = await resolveDescLangs(codes, treeResult);

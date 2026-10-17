@@ -16,6 +16,8 @@
   line-height: 1.45;
   width: max-content;
   max-width: min(30em, calc(100vw - 2em));
+  max-height: calc(100dvh - 1rem);
+  overflow-y: auto;
   text-align: left;
   overflow-wrap: anywhere;
 }
@@ -85,6 +87,11 @@
 
 .popover-close:hover {
   color: #2b2622;
+}
+
+.popover-close:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
 }
 
 .popover-lang {

@@ -1,6 +1,6 @@
 import { Lang, TreeKind } from "./types";
 import { searchLangs } from "./api";
-import { useGoTo } from "./navigate";
+import { useGoTo, withOwnLang } from "./navigate";
 import FiltersPanel from "../settings/FiltersPanel";
 import { showDates, toggleDates } from "../ety/periods";
 import {
@@ -39,9 +39,10 @@ export default function ViewBar() {
   };
 
   const applyDescLangs = (next: Lang[]) => {
-    setSelectedDescLangs(next);
     const r = request();
-    if (r && r.kind !== TreeKind.Etymology) goTo(r.kind, r.item, next);
+    const langs = r ? withOwnLang(next, r.item.lang) : next;
+    setSelectedDescLangs(langs);
+    if (r && r.kind !== TreeKind.Etymology) goTo(r.kind, r.item, langs);
   };
 
   return (

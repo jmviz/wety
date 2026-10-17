@@ -6,7 +6,7 @@ import { useGoTo } from "./search/navigate";
 import OutlineTree from "./ety/OutlineTree";
 import ChartTree from "./ety/ChartTree";
 import NodePopover from "./ety/NodePopover";
-import { clearView, forest, lastRequest, loadFromPath, tree } from "./state";
+import { clearView, forest, lastRequest, loadFromPath, loadError, loading, tree } from "./state";
 
 import { Show, createEffect, on } from "solid-js";
 import { Link, useLocation, useRouter } from "@tanstack/solid-router";
@@ -54,7 +54,18 @@ export default function App() {
         <ViewBar />
         <HomographBar />
       </header>
-      <main>
+      <main aria-busy={loading()}>
+        <Show when={loading()}>
+          <p class="empty" role="status">Loading word…</p>
+        </Show>
+        <Show when={loadError()}>
+          <p class="empty" role="alert">
+            {loadError()}{" "}
+            <button type="button" class="link" onClick={() => window.location.reload()}>
+              Retry
+            </button>
+          </p>
+        </Show>
         <Show when={forest()} keyed>
           {(f) =>
             f.roots.length === 0 ? (
