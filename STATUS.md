@@ -29,24 +29,36 @@ and citations from reviewed evidence in the `packages/dating` registry.
   with no cognates. Four bug fixes from that commit were kept: stale popovers,
   popover placement on resize, stale language-search responses, and re-scrolling
   on every filter change.
-- Checks pass: workspace compilation, 8 core tests, TypeScript and production build.
+- **Cognates start from an ancestor on the word's trail** (review item A1, approved).
+  The trail runs from the word back through each older form that is the same word
+  (inherited, borrowed, a form, "derived from"; never a "derived" step onto a bare
+  root). The tree is the last step's descendants: *mother* now shows the *méh₂tēr
+  family (182 words with English selected) and *democracy* reaches Greek
+  δημοκρατία. Readers can start from any step or source (`root=` in links); long
+  trails collapse their middle. Same-word branches open first in the initial view.
+- Checks pass: workspace compilation, 11 core tests (3 new for the trail rule), 7
+  server tests, TypeScript and production build. Checked in the browser against the
+  full graph: mother, father, democracy, sugar, quiz, a chosen root, language
+  changes, Descendants, phone width.
 
 ## Uncertainties
 
-- The proposed cognate rule is measured on 38 words and all English entries, not
-  reviewed word by word; "derived" steps sometimes overreach (*chess*) or follow
-  data errors (*robot*).
-- The local client on port 8000 still serves the main checkout's build of `b36265cf`.
+- The trail rule is measured on 38 words and all English entries, not reviewed word
+  by word; "derived" steps sometimes overreach (*chess*) or follow data errors (*robot*).
+- The `/cognates` response shape changed; deploy server and client together (old
+  open tabs break until reloaded).
+- Port 8000 still serves the main checkout's build of `b36265cf`; this branch runs on
+  5198 (client) and 3918 (API) while those preview processes remain.
 - Research reviews remain model reviews; R2 pruning still needs a live dry run.
 
 ## Next three actions
 
-1. Implement proposal A1 (cognates from a chosen ancestor) once its rule is approved.
-2. Then the one-row controls and quieter rows (review items B and C).
+1. Maintainer: review this branch in the browser before merging.
+2. Review items A2–A4 and B (one direction, one language control, one control row).
 3. Inspect the R2 pruning dry run before the next server deployment.
 
 ## Decisions needed from the maintainer
 
-- A1: follow "derived" steps; stop at calques; root guard only on "derived" steps;
-  later merge Descendants into the same view.
+- When to merge Descendants into Cognates (start from the word itself), approved
+  for later as its own change.
 - Whether `codex/client-ux-audit` is superseded by this branch.
