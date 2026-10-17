@@ -315,6 +315,9 @@
   padding: 1.5em 0 1em;
 }
 
+/* Oldest at the top, like the outline: each node's sources sit above it and
+   the searched word is at the bottom. Rows align on their bottom edge and the
+   connectors run along the bottom of each gap. */
 .chart,
 .chart ul {
   --gap: 1.3em;
@@ -324,20 +327,20 @@
   padding: 0;
   display: flex;
   justify-content: center;
-  align-items: flex-start;
+  align-items: flex-end;
   width: max-content;
   min-width: 100%;
 }
 
 .chart ul {
   position: relative;
-  padding-top: var(--gap);
+  padding-bottom: var(--gap);
 }
 
 .chart ul::before {
   content: "";
   position: absolute;
-  top: 0;
+  bottom: 0;
   left: 50%;
   height: var(--gap);
   border-left: var(--line) solid var(--rule);
@@ -346,20 +349,20 @@
 .chart li {
   position: relative;
   display: flex;
-  flex-direction: column;
+  flex-direction: column-reverse;
   align-items: center;
-  padding: var(--gap) var(--hgap) 0;
+  padding: 0 var(--hgap) var(--gap);
 }
 
 .chart li::before,
 .chart li::after {
   content: "";
   position: absolute;
-  top: 0;
+  bottom: 0;
   right: 50%;
   width: 50%;
   height: var(--gap);
-  border-top: var(--line) solid var(--rule);
+  border-bottom: var(--line) solid var(--rule);
 }
 
 .chart li::after {
@@ -374,7 +377,7 @@
 }
 
 .chart li:only-child {
-  padding-top: 0;
+  padding-bottom: 0;
 }
 
 .chart li:first-child::before,
@@ -384,15 +387,15 @@
 
 .chart li:last-child::before {
   border-right: var(--line) solid var(--rule);
-  border-radius: 0 0.4em 0 0;
+  border-radius: 0 0 0.4em 0;
 }
 
 .chart li:first-child::after {
-  border-radius: 0.4em 0 0 0;
+  border-radius: 0 0 0 0.4em;
 }
 
 .chart > li {
-  padding-top: 0;
+  padding-bottom: 0;
 }
 
 .chart > li::before,
@@ -430,7 +433,7 @@
   font-style: italic;
   color: var(--muted);
   line-height: 1;
-  padding-top: 0.35em;
+  padding-bottom: 0.35em;
   min-height: 0.3em;
 }
 

@@ -15,7 +15,7 @@ Everything else is a property of the view rather than the search, and lives on o
 Both tree kinds are plain HTML; there is no SVG or layout library.
 
 - **Descendants / cognates** (`src/ety/OutlineTree.tsx`) are an indented outline: nested `<ul>`/`<li>`, a `<details>` on every node that has children (leaves are plain rows), and connectors drawn with CSS borders. Subtrees use `content-visibility: auto` with a size hint from the number of visible rows, so very large trees stay cheap to scroll. A branch's children are built the first time it is opened.
-- **Etymology** (`src/ety/ChartTree.tsx`) is a top-down chart laid out entirely with flexbox and border pseudo-elements; the derivation mode sits on the connector.
+- **Etymology** (`src/ety/ChartTree.tsx`) is a chart read like the outline, oldest at the top and the word at the bottom, laid out entirely with flexbox and border pseudo-elements; the derivation mode sits on the connector.
 - `src/ety/model.ts` turns the API's JSON into the display model: stable keys, subtree counts and language summaries, display order (the searched item's ancestry first, then closest languages, then largest subtrees), the default collapse policy (path to the searched item plus a visible-row budget, spent on branches that pass the same word on before new formations), and the client-side filters (connection types, hidden languages) from the settings drawer. Filters never re-fetch.
 - Word details open in a popover (`src/ety/NodePopover.tsx`) on hover or click; on touch devices it is a bottom sheet. It uses the Popover API and CSS anchor positioning, with JS placement as a fallback.
 

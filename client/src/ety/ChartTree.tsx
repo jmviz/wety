@@ -11,9 +11,10 @@ interface ChartTreeProps {
   forest: Forest;
 }
 
-// Etymology as a top-down chart: the word at the top, its sources beneath it,
-// theirs beneath them. Layout and connectors are pure CSS (flex rows plus
-// border pseudo-elements); the derivation mode sits on the connector.
+// Etymology as a chart read like the outline, oldest at the top: the word at
+// the bottom, its sources above it, theirs above them. Layout and connectors
+// are pure CSS (flex rows plus border pseudo-elements); the derivation mode
+// sits on the connector.
 export default function ChartTree(props: ChartTreeProps) {
   let rootEl!: HTMLDivElement;
 
@@ -25,7 +26,7 @@ export default function ChartTree(props: ChartTreeProps) {
   };
 
   // A chart wider than the screen would open at its left edge; centre the
-  // searched word (the top of the chart) instead.
+  // searched word (the bottom of the chart) instead.
   onMount(() => {
     requestAnimationFrame(() => {
       const box = rootEl.querySelector<HTMLElement>(".chart-node.selected > .chart-box");
