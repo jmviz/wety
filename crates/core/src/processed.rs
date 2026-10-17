@@ -2,9 +2,12 @@ use crate::{
     HashMap,
     descendant_langs::DescendantLangs,
     ety_graph::{EtyEdgeAccess, EtyGraph, Progenitors},
+    etymology_templates::EtyMode,
     items::{Item, ItemId},
     languages::Lang,
-    response::{CognatesJson, DescendantsJson, EtymologyJson, GlossStr, ItemJson, OtherParentJson},
+    response::{
+        CognatesJson, DescendantsJson, EtymologyJson, GlossStr, ItemJson, OtherParentJson, TrailStepJson,
+    },
     string_pool::StringPool,
 };
 
@@ -266,32 +269,85 @@ impl Data {
         }
     }
 
+    /// The item's trail: the item, then each older form that is the same
+    /// word, stepping to an etymology's single source while its mode passes
+    /// the word on. A "derived from" step never lands on a root or affix
+    /// entry (its term starts or ends with a hyphen), since Wiktionary uses it
+    /// for distant ancestors too. Ends at a new formation, a meaning-only loan,
+    /// an etymology with several sources, or a word with none.
+    #[must_use]
+    pub fn lineage(&self, item: ItemId) -> Vec<ItemId> {
+        let mut trail = vec![item];
+        let mut current = item;
+        while let Some(ety) = self.graph.immediate_ety(current) {
+            let [source] = ety.items[..] else { break };
+            let bare = |t: &str| t.starts_with('-') || t.ends_with('-');
+            if !ety.mode.passes_word_on()
+                || (ety.mode == EtyMode::Derived && bare(self.term(source)))
+                || trail.contains(&source)
+            {
+                break;
+            }
+            trail.push(source);
+            current = source;
+        }
+        trail
+    }
+
+    /// The item or one of its ancestors with this lang code, term and (when
+    /// given) link ety, for starting a cognates tree there.
+    #[must_use]
+    pub fn ancestor_named(&self, item: ItemId, lang: &str, term: &str, ety: Option<&str>) -> Option<ItemId> {
+        let matches = |id: ItemId| {
+            let it = self.item(id);
+            it.lang().code() == lang
+                && self.term(id) == term
+                && ety.is_none_or(|e| it.link_ety().as_deref() == Some(e))
+        };
+        std::iter::once(item)
+            .chain(self.graph.ancestor_edges(item).map(|e| e.parent()))
+            .find(|&id| matches(id))
+    }
+
+    /// The descendants of `root` (default: the last step of the item's
+    /// trail), keeping the path to the item visible.
     #[must_use]
     pub fn item_cognates_json(
         &self,
         item_id: ItemId,
+        root: Option<ItemId>,
         dist_lang: Lang,
         desc_langs: &[Lang],
         req_item_ancestors_within_desc_langs: &[ItemId],
         lean: bool,
     ) -> CognatesJson<'_> {
-        self.progenitors
-            .get(&item_id)
-            .map_or_else(Vec::new, |progenitors| {
-                progenitors
-                    .items
-                    .iter()
-                    .map(|&p| {
-                        self.item_descendants_json(
-                            p,
-                            dist_lang,
-                            desc_langs,
-                            req_item_ancestors_within_desc_langs,
-                            lean,
-                        )
-                    })
-                    .collect()
-            })
+        let trail = self.lineage(item_id);
+        let top = *trail.last().expect("a trail starts with its item");
+        let root = root.unwrap_or(top);
+        let ety_mode = |id: ItemId| self.graph.immediate_ety(id).map(|e| e.mode.as_str());
+        CognatesJson {
+            trail: trail
+                .iter()
+                .map(|&id| TrailStepJson {
+                    item: self.item_json_inner(id, lean),
+                    ety_mode: ety_mode(id),
+                })
+                .collect(),
+            sources: self
+                .graph
+                .immediate_ety(top)
+                .map_or_else(Vec::new, |e| {
+                    e.items.iter().map(|&id| self.item_json_inner(id, lean)).collect()
+                }),
+            root,
+            tree: self.item_descendants_json(
+                root,
+                dist_lang,
+                desc_langs,
+                req_item_ancestors_within_desc_langs,
+                lean,
+            ),
+        }
     }
 
     #[must_use]
@@ -480,5 +536,100 @@ mod reference_tests {
         assert!(validate_reference_fingerprint(Some("different"), true).is_err());
         assert!(validate_reference_fingerprint(None, false).is_err());
         assert!(validate_reference_fingerprint(None, true).is_ok());
+    }
+}
+
+#[cfg(test)]
+mod lineage_tests {
+    use super::*;
+    use crate::{items::ImputedItem, langterm::Term};
+    use std::str::FromStr;
+
+    fn add(graph: &mut EtyGraph, pool: &mut StringPool, code: &str, term: &str) -> ItemId {
+        graph.add(Item::Imputed(ImputedItem {
+            ety_num: 1,
+            lang: Lang::from_str(code).unwrap(),
+            term: Term::new(pool, term),
+            romanization: None,
+            from: ItemId::from(0),
+        }))
+    }
+
+    fn ety(graph: &mut EtyGraph, item: ItemId, mode: EtyMode, sources: &[ItemId]) {
+        let head = (sources.len() == 1).then_some(0);
+        graph.add_ety(item, mode, head, sources, &vec![1.0; sources.len()]);
+    }
+
+    #[test]
+    fn the_trail_follows_the_same_word_back_to_its_formation() {
+        let (mut graph, mut pool) = (EtyGraph::default(), StringPool::default());
+        let mother = add(&mut graph, &mut pool, "en", "mother");
+        let moder = add(&mut graph, &mut pool, "enm", "moder");
+        let mater = add(&mut graph, &mut pool, "ine-pro", "méh₂tēr");
+        let base = add(&mut graph, &mut pool, "ine-pro", "méh₂");
+        let suffix = add(&mut graph, &mut pool, "ine-pro", "-tḗr");
+        let matrix = add(&mut graph, &mut pool, "la", "mātrīx");
+        ety(&mut graph, mother, EtyMode::Inherited, &[moder]);
+        ety(&mut graph, moder, EtyMode::Inherited, &[mater]);
+        ety(&mut graph, mater, EtyMode::Suffix, &[base, suffix]);
+        ety(&mut graph, matrix, EtyMode::Suffix, &[mater, suffix]);
+        let data = Data::new(pool, graph);
+        assert_eq!(data.lineage(mother), [mother, moder, mater]);
+
+        let en = Lang::from_str("en").unwrap();
+        let la = Lang::from_str("la").unwrap();
+        let cognates = data.item_cognates_json(mother, None, en, &[en, la], &[], false);
+        assert_eq!(cognates.root, mater);
+        assert_eq!(cognates.trail.len(), 3);
+        assert_eq!(cognates.trail[0].ety_mode, Some("inherited"));
+        assert_eq!(cognates.trail[2].ety_mode, Some("suffix"));
+        assert_eq!(cognates.sources.iter().map(|s| s.id).collect_vec(), [base, suffix]);
+        let children = cognates.tree.children.iter().map(|c| c.item.id).collect_vec();
+        assert!(children.contains(&moder) && children.contains(&matrix));
+
+        // A source of the oldest form is a valid starting point; an unrelated
+        // word is not.
+        assert_eq!(data.ancestor_named(mother, "ine-pro", "-tḗr", None), Some(suffix));
+        assert_eq!(data.ancestor_named(mother, "la", "mātrīx", None), None);
+        let from_suffix = data.item_cognates_json(mother, Some(suffix), en, &[en, la], &[], false);
+        assert_eq!(from_suffix.root, suffix);
+        assert_eq!(from_suffix.tree.item.id, suffix);
+    }
+
+    #[test]
+    fn meaning_loans_and_several_sources_end_the_trail() {
+        let (mut graph, mut pool) = (EtyGraph::default(), StringPool::default());
+        let halbinsel = add(&mut graph, &mut pool, "de", "Halbinsel");
+        let paeninsula = add(&mut graph, &mut pool, "la", "paenīnsula");
+        let word = add(&mut graph, &mut pool, "en", "word");
+        let fr = add(&mut graph, &mut pool, "fr", "mot");
+        let la = add(&mut graph, &mut pool, "la", "verbum");
+        ety(&mut graph, halbinsel, EtyMode::Calque, &[paeninsula]);
+        ety(&mut graph, word, EtyMode::Borrowed, &[fr, la]);
+        let data = Data::new(pool, graph);
+        assert_eq!(data.lineage(halbinsel), [halbinsel]);
+        assert_eq!(data.lineage(word), [word]);
+    }
+
+    #[test]
+    fn derived_steps_stop_before_roots_but_inherited_steps_reach_stems() {
+        let (mut graph, mut pool) = (EtyGraph::default(), StringPool::default());
+        let lime = add(&mut graph, &mut pool, "en", "lime");
+        let limaz = add(&mut graph, &mut pool, "gem-pro", "līmaz");
+        let root = add(&mut graph, &mut pool, "ine-pro", "(s)ley-");
+        let two = add(&mut graph, &mut pool, "ang", "twā");
+        let stem = add(&mut graph, &mut pool, "gmw-pro", "twai-");
+        let dwoh = add(&mut graph, &mut pool, "ine-pro", "dwóh₁");
+        let hound = add(&mut graph, &mut pool, "gem-pro", "hundaz");
+        let kwon = add(&mut graph, &mut pool, "ine-pro", "ḱwṓ");
+        ety(&mut graph, lime, EtyMode::Inherited, &[limaz]);
+        ety(&mut graph, limaz, EtyMode::Derived, &[root]);
+        ety(&mut graph, two, EtyMode::Inherited, &[stem]);
+        ety(&mut graph, stem, EtyMode::Inherited, &[dwoh]);
+        ety(&mut graph, hound, EtyMode::Derived, &[kwon]);
+        let data = Data::new(pool, graph);
+        assert_eq!(data.lineage(lime), [lime, limaz]);
+        assert_eq!(data.lineage(two), [two, stem, dwoh]);
+        assert_eq!(data.lineage(hound), [hound, kwon]);
     }
 }

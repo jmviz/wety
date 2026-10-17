@@ -1,12 +1,11 @@
 import SearchBox from "./search/SearchBox";
 import ViewBar from "./search/ViewBar";
 import { HomographBar, Unresolved } from "./search/Homographs";
-import { TreeKind, term } from "./search/types";
-import { useGoTo } from "./search/navigate";
+import { TreeKind } from "./search/types";
 import OutlineTree from "./ety/OutlineTree";
 import ChartTree from "./ety/ChartTree";
 import NodePopover from "./ety/NodePopover";
-import { clearView, forest, lastRequest, loadFromPath, loadError, loading, tree } from "./state";
+import { clearView, forest, lastRequest, loadFromPath, loadError, loading } from "./state";
 
 import { Show, createEffect, on } from "solid-js";
 import { Link, useLocation, useRouter } from "@tanstack/solid-router";
@@ -87,28 +86,7 @@ export default function App() {
   );
 }
 
-// A tree with nothing to draw: cognates of a word with no recorded ancestor
-// (the server finds none), or filters that hide every word.
+// A tree with nothing to draw: filters that hide every word.
 function EmptyTree() {
-  const goTo = useGoTo();
-  const request = lastRequest()!;
-  const t = tree();
-  return (
-    <Show
-      when={Array.isArray(t) && t.length === 0}
-      fallback={<p class="empty">The filters hide every word in this tree.</p>}
-    >
-      <p class="empty">
-        wety knows no ancestor of <span class="term">{term(request.item)}</span>, so it has no
-        cognates to show.{" "}
-        <button
-          type="button"
-          class="link"
-          onClick={() => goTo(TreeKind.Descendants, request.item)}
-        >
-          Show its descendants
-        </button>
-      </p>
-    </Show>
-  );
+  return <p class="empty">The filters hide every word in this tree.</p>;
 }

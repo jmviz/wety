@@ -330,9 +330,24 @@ export function openPathTo(node: TreeNode) {
   });
 }
 
+// Modes that hand the same word on (inheritance, borrowing, a form); the
+// server's `EtyMode::passes_word_on`.
+const PASSES_WORD_ON = new Set([
+  "inherited",
+  "borrowed",
+  "learned borrowing",
+  "semi-learned borrowing",
+  "unadapted borrowing",
+  "orthographic borrowing",
+  "transliteration",
+  "form",
+  "derived",
+]);
+
 // Default collapse policy: always show the path to the searched item and its
 // direct descendants; then open the rest level by level (nearest the roots
-// first) while the number of visible rows stays within `budget`.
+// first) while the number of visible rows stays within `budget`: first the
+// branches that pass the same word on, then new formations.
 export function applyDefaultOpen(forest: Forest, budget = 200) {
   let visible = forest.roots.length;
   const opened = new Set<number>();
@@ -348,18 +363,21 @@ export function applyDefaultOpen(forest: Forest, budget = 200) {
     for (const n of path.reverse()) if (n.children.length) open(n);
   }
 
-  const queue = [...forest.roots];
-  while (queue.length) {
-    const n = queue.shift()!;
-    if (!n.children.length) continue;
-    if (!opened.has(n.key)) {
-      if (visible + n.children.length > budget) {
-        n.setOpen(false);
-        continue;
+  const passes = (n: TreeNode) => n.etyMode !== null && PASSES_WORD_ON.has(n.etyMode);
+  for (const sameWordOnly of [true, false]) {
+    const queue = [...forest.roots];
+    while (queue.length) {
+      const n = queue.shift()!;
+      if (!n.children.length) continue;
+      if (!opened.has(n.key)) {
+        if (visible + n.children.length > budget) {
+          n.setOpen(false);
+          continue;
+        }
+        open(n);
       }
-      open(n);
+      queue.push(...(sameWordOnly ? n.children.filter(passes) : n.children));
     }
-    queue.push(...n.children);
   }
 }
 

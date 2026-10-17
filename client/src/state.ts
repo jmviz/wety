@@ -7,6 +7,7 @@ import {
   untrack,
 } from "solid-js";
 import {
+  Cognates,
   Descendants,
   Etymology,
   Item,
@@ -123,6 +124,8 @@ export const [tree, setTree] = createSignal<Etymology | Descendants[] | null>(
 export const [lastRequest, setLastRequest] = createSignal<TreeRequest | null>(
   null
 );
+// The cognates view's trail and sources (the tree itself is in `tree`).
+export const [cognates, setCognates] = createSignal<Omit<Cognates, "tree"> | null>(null);
 export const [loading, setLoading] = createSignal(false);
 export const [loadError, setLoadError] = createSignal<string | null>(null);
 // Every item sharing the shown word's language and term (Wiktionary's
@@ -287,7 +290,7 @@ function sameLangs(a: Lang[], b: Lang[]): boolean {
   return a.length === b.length && a.every((l, i) => l.id === b[i].id);
 }
 
-const treeCache = new Map<string, Etymology | Descendants[]>();
+const treeCache = new Map<string, Etymology | Descendants | Cognates>();
 
 // Each load (and each return home) supersedes the ones before it, so a slow
 // response for an earlier URL never replaces what the current one shows.
@@ -299,6 +302,7 @@ export function clearView() {
   batch(() => {
     closePopover();
     setTree(null);
+    setCognates(null);
     setLastRequest(null);
     setUnresolved(null);
     setHomographs([]);
@@ -318,6 +322,7 @@ export async function loadFromPath(path: string): Promise<string | null> {
   batch(() => {
     closePopover();
     setTree(null);
+    setCognates(null);
     setLastRequest(null);
     setUnresolved(null);
     setHomographs([]);
@@ -361,32 +366,38 @@ async function loadLink(link: WordLink, seq: number): Promise<string | null> {
     : [...new Set([...link.descLangs, item.lang.code])].sort();
   const params = new URLSearchParams({ graph });
   for (const c of codes) params.append("descLang", c);
-  const apiPath = `/${kindPath[link.kind]}/${item.id}?${params}`;
-  let treeResult = treeCache.get(apiPath);
-  if (!treeResult) {
-    const { body } = await fetchJson(`${API}${apiPath}`);
-    treeResult =
-      link.kind === TreeKind.Etymology
-        ? (body as Etymology)
-        : link.kind === TreeKind.Descendants
-          ? [body as Descendants]
-          : (body as Descendants[]);
-    treeCache.set(apiPath, treeResult);
+  if (link.kind === TreeKind.Cognates && link.root) {
+    params.set("root", link.root);
+    if (link.rootEty) params.set("rootEty", link.rootEty);
   }
+  const apiPath = `/${kindPath[link.kind]}/${item.id}?${params}`;
+  let body = treeCache.get(apiPath);
+  if (!body) {
+    body = (await fetchJson(`${API}${apiPath}`)).body as Etymology | Descendants | Cognates;
+    treeCache.set(apiPath, body);
+  }
+  const cog = link.kind === TreeKind.Cognates ? (body as Cognates) : null;
+  const treeResult: Etymology | Descendants[] =
+    link.kind === TreeKind.Etymology
+      ? (body as Etymology)
+      : [cog ? cog.tree : (body as Descendants)];
 
   const descLangs = await resolveDescLangs(codes, treeResult);
   if (seq !== loadSeq) return null;
-  const result = treeResult;
-  const request = new TreeRequest(item.lang, item, descLangs, link.kind);
+  // The server falls back to the default root when the link names none it
+  // knows; only a root other than the trail's last step goes in the URL.
+  const root = cog && cog.root !== cog.trail[cog.trail.length - 1].item.id ? cog.tree.item : null;
+  const request = new TreeRequest(item.lang, item, descLangs, link.kind, root);
   batch(() => {
     setUnresolved(null);
     setHomographs(resolved.homographs);
-    setTree(result);
+    setTree(treeResult);
+    setCognates(cog && { trail: cog.trail, sources: cog.sources, root: cog.root });
     setLastRequest(request);
     applySearchState(item, descLangs, link.kind);
   });
   // Compared as links, not strings: the router may hand us `path` decoded.
-  const canonical = parseWordHref(wordHref(link.kind, item, request.descLangs))!;
+  const canonical = parseWordHref(wordHref(link.kind, item, request.descLangs, root))!;
   return sameLink(canonical, link) ? null : linkHref(canonical);
 }
 
@@ -396,6 +407,8 @@ function sameLink(a: WordLink, b: WordLink): boolean {
     a.lang === b.lang &&
     a.term === b.term &&
     a.ety === b.ety &&
+    a.root === b.root &&
+    a.rootEty === b.rootEty &&
     a.descLangs.join(" ") === b.descLangs.join(" ")
   );
 }

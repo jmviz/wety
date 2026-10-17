@@ -378,6 +378,25 @@ impl EtyMode {
         }
     }
 
+    /// Whether an etymology in this mode hands the same word on (inheritance,
+    /// borrowing, an alternative form, Wiktionary's unspecified "derived
+    /// from") rather than forming a new one or loaning only its meaning.
+    #[must_use]
+    pub fn passes_word_on(self) -> bool {
+        matches!(
+            self,
+            EtyMode::Inherited
+                | EtyMode::Borrowed
+                | EtyMode::LearnedBorrowing
+                | EtyMode::SemiLearnedBorrowing
+                | EtyMode::UnadaptedBorrowing
+                | EtyMode::OrthographicBorrowing
+                | EtyMode::Transliteration
+                | EtyMode::Form
+                | EtyMode::Derived
+        )
+    }
+
     // pub fn has_ambiguous_head(self) -> bool {
     //     matches!(
     //         self,

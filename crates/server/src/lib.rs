@@ -56,6 +56,9 @@ pub enum TreeKey {
     },
     Cognates {
         item: ItemId,
+        /// `None` for the default, the last step of the item's trail, so
+        /// requests naming it share an entry with those that don't.
+        root: Option<ItemId>,
         dist_lang: Lang,
         desc_langs: Vec<Lang>,
         lean: bool,
@@ -134,16 +137,20 @@ impl AppState {
             }
             TreeKey::Cognates {
                 item,
+                root,
                 dist_lang,
                 desc_langs,
                 lean,
             } => {
                 let ancestors = self.data.ancestors_in_langs(*item, desc_langs);
-                serde_json::to_vec(
-                    &self
-                        .data
-                        .item_cognates_json(*item, *dist_lang, desc_langs, &ancestors, *lean),
-                )?
+                serde_json::to_vec(&self.data.item_cognates_json(
+                    *item,
+                    *root,
+                    *dist_lang,
+                    desc_langs,
+                    &ancestors,
+                    *lean,
+                ))?
             }
         };
         Ok(Bytes::from(bytes))
@@ -313,6 +320,12 @@ pub struct TreeQueries {
     /// on demand from `/item/:id` instead.
     #[serde(default)]
     lean: bool,
+    /// Cognates only: the ancestor to start from, as `<lang code>:<term>`,
+    /// with `rootEty` when homographs need telling apart. It must be the
+    /// item or one of its ancestors; otherwise the default is used.
+    root: Option<String>,
+    #[serde(rename = "rootEty")]
+    root_ety: Option<String>,
 }
 
 impl TreeQueries {
@@ -361,11 +374,20 @@ pub async fn item_cognates(
     if !state.data.has_item(item_id) {
         return StatusCode::NOT_FOUND.into_response();
     }
+    let root = tree_queries
+        .root
+        .as_deref()
+        .and_then(|r| r.split_once(':'))
+        .and_then(|(lang, term)| {
+            state.data.ancestor_named(item_id, lang, term, tree_queries.root_ety.as_deref())
+        })
+        .filter(|&r| state.data.lineage(item_id).last() != Some(&r));
     let (dist_lang, desc_langs, lean) = tree_queries.canonical(&state.data, item_id);
     tree_response(
         state,
         TreeKey::Cognates {
             item: item_id,
+            root,
             dist_lang,
             desc_langs,
             lean,

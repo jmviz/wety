@@ -2,6 +2,7 @@ import { Lang, TreeKind } from "./types";
 import { searchLangs } from "./api";
 import { useGoTo, withOwnLang } from "./navigate";
 import FiltersPanel from "../settings/FiltersPanel";
+import Trail from "../ety/Trail";
 import { showDates, toggleDates } from "../ety/periods";
 import {
   lastRequest,
@@ -42,7 +43,7 @@ export default function ViewBar() {
     const r = request();
     const langs = r ? withOwnLang(next, r.item.lang) : next;
     setSelectedDescLangs(langs);
-    if (r && r.kind !== TreeKind.Etymology) goTo(r.kind, r.item, langs);
+    if (r && r.kind !== TreeKind.Etymology) goTo(r.kind, r.item, langs, r.root);
   };
 
   return (
@@ -100,6 +101,9 @@ export default function ViewBar() {
               dates
             </button>
           </nav>
+          <Show when={kind() === TreeKind.Cognates}>
+            <Trail />
+          </Show>
           <Show when={panel() === "langs" && hasDescLangs()}>
             <LangSetEditor
               value={selectedDescLangs()}

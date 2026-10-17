@@ -213,6 +213,49 @@ main {
   outline-offset: 2px;
 }
 
+.trail {
+  max-width: 48rem;
+  margin: 0.35em auto 0;
+  text-align: center;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: var(--faint);
+}
+
+.trail-word {
+  all: unset;
+  cursor: pointer;
+  color: var(--muted);
+  border-bottom: 1px dotted transparent;
+}
+
+.trail-word:hover {
+  color: var(--ink);
+  border-bottom-color: var(--faint);
+}
+
+.trail-word.current {
+  color: var(--ink);
+  font-weight: bold;
+  cursor: default;
+  border-bottom-color: transparent;
+}
+
+.trail-word:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.trail-word .lang {
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.03em;
+  font-weight: normal;
+}
+
+.trail-link {
+  white-space: nowrap;
+}
+
 .langs-summary {
   color: var(--ink);
 }

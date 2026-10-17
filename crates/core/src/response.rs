@@ -81,8 +81,25 @@ pub struct DescendantsJson<'a> {
     pub parent_ety_order: Option<u8>,
 }
 
-/// One descendants tree per progenitor of the requested item.
-pub type CognatesJson<'a> = Vec<DescendantsJson<'a>>;
+/// One step of a word's trail: the item and the mode of its own etymology.
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TrailStepJson<'a> {
+    pub item: ItemJson<'a>,
+    pub ety_mode: Option<&'static str>,
+}
+
+/// The descendants of one ancestor of the requested item (`root`), with the
+/// item's trail (itself back to its oldest form that is the same word) and
+/// the sources of that oldest form, which the reader may start from instead.
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CognatesJson<'a> {
+    pub trail: Vec<TrailStepJson<'a>>,
+    pub sources: Vec<ItemJson<'a>>,
+    pub root: ItemId,
+    pub tree: DescendantsJson<'a>,
+}
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
