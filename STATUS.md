@@ -1,60 +1,62 @@
 # Status
 
-*Updated 2026-10-17. Client audit fixes are on `codex/client-ux-audit`; not deployed.*
+*Updated 2026-10-17. UI improvements are on `codex/client-ux-audit`; not deployed.*
 
 ## What the project promises
 
-wety shows Wiktionary etymologies as trees. Behind a toggle, language nodes show when
-the language was spoken: an interval, its basis and citations, from reviewed evidence
-in the `packages/dating` registry.
+wety shows Wiktionary etymologies as trees. Language dates show an interval, its basis
+and citations from reviewed evidence in the `packages/dating` registry.
 
 ## What is usable today
 
-- **Site:** wety.org and api.wety.org. Deployment follows `main` and `production`
-  ([deploy/README.md](deploy/README.md)); only the maintainer merges/deploys.
-- **Graph:** `dab06f67…`, the 2026-09-01 dump; 8,101,979 entries with an etymology,
-  homographs and stable word URLs.
-- **Dates:** 348 codes have cited periods; 135 proto-languages have estimated ends.
-  Alternatives and their methods remain separate.
-- **Research store:** private artifacts, evidence and runs live in `data/`, backed up
-  with `wety-data store`. Git retains code, app inputs, briefs and run READMEs;
-  [provenance](docs/architecture/provenance.md) describes recovery and syncing.
-- **Local review:** `http://127.0.0.1:8000` serves the built client against the real
-  local API on port 3000 while the audit's processes remain running.
+- **Site:** wety.org and api.wety.org; only the maintainer merges/deploys `main` and
+  `production` ([deploy/README.md](deploy/README.md)).
+- **Graph:** `dab06f67…`, the 2026-09-01 dump; 8,101,979 etymological entries with
+  stable word URLs and homographs. Dates cover 348 codes, including 135 estimated
+  proto-language ends.
+- **Local client:** port 8000 against the full local graph on port 3000 while the
+  review processes remain running.
+- **Research store:** private evidence, artifacts and runs stay in `data/`, backed up
+  with `wety-data store`; [provenance](docs/architecture/provenance.md) covers recovery.
 
 ## What changed
 
-- Failed word loads show an error and Retry; pending loads have a status. Search
-  distinguishes unavailable service from no matches, rejects failed HTTP responses,
-  and prevents outdated responses from reopening dismissed suggestions.
-- Navigation closes word details, preventing a crash when returning to a missing or
-  ambiguous word. Missing-word links select the URL's search language.
-- Clearing descendant languages preserves the word's own language; direct links
-  also include it consistently.
-- Long language chips leave room for the word field on small screens. Mobile zoom
-  is allowed. Citation popovers scroll within short viewports, and pinned details
-  receive keyboard focus. Search arrow navigation wraps and reveals its selection.
-- Single-word/language counts use singular labels; language expansion accepts Afar's
-  valid zero ID.
-- Production build and TypeScript checks pass. Browsed real searches, homographs,
-  all three views, filters, dates, glosses, expansion/collapse, Back navigation and
-  narrow/short viewports. API-unavailable feedback was checked separately.
+- Cognates default to **Base lineage**, following the processor's recorded single
+  base in both directions. **All components** retains the broader affix/compound
+  view, with `scope=all` in shared links. API clients retain the old all-components
+  default; the new client sends its scope explicitly.
+- Head traversal reads existing graph edges and stops at ambiguous compounds, rather
+  than trusting older summaries that can end at an intermediate word. No graph
+  rebuild is required. With Latin and English selected, Latin *status* has 1,123
+  base-lineage words versus 3,217 through all components.
+- Target-language suggestions use distinct reachable words in this lineage, with
+  the browser language first when present. Counts precede target/display filtering;
+  there is no fixed favoured-language list. `/explore/:id` caches this context.
+- Filters have presets, collapsed groups limited to connection types present, a
+  searchable bounded language list, visible exclusions and reset controls.
+- Homographs use a compact selector and full selected sense; search definitions get
+  separate lines. Hover previews stay brief; full details disclose date evidence,
+  varieties, alternative estimates and bibliographic citations.
+- Tree guides explain direction, relationships and date labels. Outline controls
+  stay visible while scrolling; “Jump to searched word” reopens and focuses its path.
+- Checks pass: workspace compilation, 10 core tests, 7 server tests, production client
+  build and TypeScript. Real-data browser checks cover suggestions, both scopes,
+  *blackbird*'s missing-base state, presets/reset, expansion/jump, citations and mobile.
 
 ## Uncertainties
 
+- Recorded bases are morphological analysis, not guaranteed semantic/syntactic heads
+  or strict inherited cognacy. Loans and word formations remain explicitly included.
 - Touch hardware and other browser engines were not tested.
-- The UX recommendations remain proposals: descendant-language discovery, clearer
-  relationship semantics, a compact filter panel, readable homograph choices and
-  progressive disclosure of date evidence. No design overhaul was applied.
-- Research reviews remain model reviews; 566k graph citations were resolved by
-  meaning alone (about 85% accurate offline). R2 pruning still needs a live dry run.
+- Deploy the updated API with the client; its exploration endpoint is new.
+- Research reviews remain model reviews; R2 pruning still needs a live dry run.
 
 ## Next three actions
 
-1. Review the audit recommendations in this chat and choose the next design change.
-2. Maintainer: inspect the R2 pruning dry run before the next server deployment.
+1. Maintainer: review the local UI and branch before merging.
+2. Inspect the R2 pruning dry run before the next server deployment.
 3. Resume approved dating research from `dating period-targets`.
 
 ## Decisions needed from the maintainer
 
-- Prioritize the proposed UI changes; none are implemented without that decision.
+- None; the requested UI changes are implemented.

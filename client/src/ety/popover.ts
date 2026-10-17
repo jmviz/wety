@@ -1,8 +1,8 @@
 // Single app-wide popover state, driven by delegated events on the trees.
 //
-// Desktop (fine pointer): hovering a row opens the popover after a short
+// Desktop (fine pointer): hovering a row opens a brief preview after a short
 // delay; it stays while the pointer is over the row or the popover. Clicking
-// a label pins it. Touch (coarse pointer): tapping a label opens it as a
+// a label opens full details. Touch (coarse pointer): tapping a label opens it as a
 // bottom sheet. Esc, outside click or the close button dismiss a pinned one.
 
 import { createSignal } from "solid-js";

@@ -1,6 +1,7 @@
 import "./tree.css";
 import { Forest, TreeNode } from "./model";
 import NodeLabel from "./NodeLabel";
+import TreeGuide from "./TreeGuide";
 import { langColor } from "./langColor";
 import { etyModeRep } from "./etyMode";
 import { hoverEnter, hoverLeave, pin } from "./popover";
@@ -38,6 +39,14 @@ export default function ChartTree(props: ChartTreeProps) {
 
   return (
     <div class="tree-view">
+      <TreeGuide kind={props.forest.kind} />
+      <div class="chart-navigation">
+        <button type="button" class="link" onClick={() => {
+          const label = rootEl.querySelector<HTMLButtonElement>(".chart-node.selected .label");
+          label?.scrollIntoView({ block: "center", inline: "center" });
+          label?.focus({ preventScroll: true });
+        }}>Jump to searched word</button>
+      </div>
       <div
         ref={rootEl}
         class="chart-scroll"

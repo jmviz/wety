@@ -8,6 +8,8 @@ import {
 } from "solid-js";
 import {
   Descendants,
+  CognateScope,
+  Exploration,
   Etymology,
   Item,
   Lang,
@@ -125,6 +127,9 @@ export const [lastRequest, setLastRequest] = createSignal<TreeRequest | null>(
 );
 export const [loading, setLoading] = createSignal(false);
 export const [loadError, setLoadError] = createSignal<string | null>(null);
+export const [selectedCognateScope, setSelectedCognateScope] = createSignal<CognateScope>("head");
+export const [exploration, setExploration] = createSignal<Exploration | null>(null);
+export const [explorationError, setExplorationError] = createSignal(false);
 // Every item sharing the shown word's language and term (Wiktionary's
 // numbered etymologies), for switching between them.
 export const [homographs, setHomographs] = createSignal<Item[]>([]);
@@ -194,6 +199,25 @@ export const treeLangs = createMemo<LangCount[]>(() => {
     (a, b) => b.count - a.count || a.lang.name.localeCompare(b.lang.name)
   );
 });
+
+export const treeModes = createMemo(() => {
+  const counts = new Map<string, number>();
+  const visit = (n: Etymology | Descendants) => {
+    if (n.etyMode) counts.set(n.etyMode, (counts.get(n.etyMode) ?? 0) + 1);
+    ("parents" in n ? n.parents : n.children).forEach(visit);
+  };
+  const t = tree();
+  if (Array.isArray(t)) t.forEach(visit);
+  else if (t) visit(t);
+  return counts;
+});
+
+export function resetFilters() {
+  batch(() => {
+    setHiddenLangs(new Set<number>());
+    setDisabledEtyModes(new Set<string>());
+  });
+}
 
 // Debounce utility
 export function debounce<T extends (...args: any[]) => any>(
@@ -305,6 +329,8 @@ export function clearView() {
     setSelectedItem(null);
     setLoading(false);
     setLoadError(null);
+    setExploration(null);
+    setExplorationError(false);
   });
 }
 
@@ -323,6 +349,8 @@ export async function loadFromPath(path: string): Promise<string | null> {
     setHomographs([]);
     setLoadError(null);
     setLoading(true);
+    setExploration(null);
+    setExplorationError(false);
   });
   // Never let a caller's tracking scope see the signal reads below.
   try {
@@ -360,6 +388,7 @@ async function loadLink(link: WordLink, seq: number): Promise<string | null> {
     ? []
     : [...new Set([...link.descLangs, item.lang.code])].sort();
   const params = new URLSearchParams({ graph });
+  if (link.kind === TreeKind.Cognates) params.set("scope", link.scope);
   for (const c of codes) params.append("descLang", c);
   const apiPath = `/${kindPath[link.kind]}/${item.id}?${params}`;
   let treeResult = treeCache.get(apiPath);
@@ -377,16 +406,18 @@ async function loadLink(link: WordLink, seq: number): Promise<string | null> {
   const descLangs = await resolveDescLangs(codes, treeResult);
   if (seq !== loadSeq) return null;
   const result = treeResult;
-  const request = new TreeRequest(item.lang, item, descLangs, link.kind);
+  const request = new TreeRequest(item.lang, item, descLangs, link.kind, link.scope);
   batch(() => {
     setUnresolved(null);
     setHomographs(resolved.homographs);
     setTree(result);
     setLastRequest(request);
     applySearchState(item, descLangs, link.kind);
+    if (link.kind === TreeKind.Cognates) setSelectedCognateScope(link.scope);
   });
+  if (link.kind !== TreeKind.Etymology) void loadExploration(request, seq);
   // Compared as links, not strings: the router may hand us `path` decoded.
-  const canonical = parseWordHref(wordHref(link.kind, item, request.descLangs))!;
+  const canonical = parseWordHref(wordHref(link.kind, item, request.descLangs, link.scope))!;
   return sameLink(canonical, link) ? null : linkHref(canonical);
 }
 
@@ -396,8 +427,27 @@ function sameLink(a: WordLink, b: WordLink): boolean {
     a.lang === b.lang &&
     a.term === b.term &&
     a.ety === b.ety &&
+    a.scope === b.scope &&
     a.descLangs.join(" ") === b.descLangs.join(" ")
   );
+}
+
+const explorationCache = new Map<string, Promise<Exploration>>();
+async function loadExploration(request: TreeRequest, seq: number) {
+  const params = new URLSearchParams({ graph, cognates: String(request.kind === TreeKind.Cognates), scope: request.scope });
+  const url = `${API}/explore/${request.item.id}?${params}`;
+  let pending = explorationCache.get(url);
+  if (!pending) {
+    pending = fetchJson(url).then(({ body }) => body as Exploration);
+    explorationCache.set(url, pending);
+    pending.catch(() => explorationCache.delete(url));
+  }
+  try {
+    const result = await pending;
+    if (seq === loadSeq) setExploration(result);
+  } catch {
+    if (seq === loadSeq) setExplorationError(true);
+  }
 }
 
 // Lazily fetched full items (for nodes whose glosses were left out).

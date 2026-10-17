@@ -306,12 +306,15 @@ export default function SearchBox() {
                     const it = () => (o() as { item: Item }).item;
                     return (
                       <>
+                        <span class="option-word">
                         <span class="lang">{it().lang.name}</span>{" "}
                         <span class="term">{term(it())}</span>
                         <Show when={it().romanization}>
                           {" "}
                           <span class="romanization">{it().romanization}</span>
                         </Show>
+                        <Show when={it().ety}><span class="option-ety">etymology {it().ety}</span></Show>
+                        </span>
                         <Show when={it().pos?.length}>
                           <span class="gloss">
                             <i>{it().pos![0]}</i>

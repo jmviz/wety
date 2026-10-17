@@ -284,6 +284,22 @@ struct Tracker {
 }
 
 impl EtyGraph {
+    /// Follow the recorded single base at each step. Stop with no answer at
+    /// an ambiguous compound, rather than mistaking that intermediate word
+    /// for an ultimate head. Read edges so older stored progenitor summaries
+    /// do not need rebuilding.
+    #[must_use]
+    pub fn head_progenitor(&self, mut item: ItemId) -> Option<ItemId> {
+        let mut seen = HashSet::default();
+        while seen.insert(item) {
+            match self.immediate_ety(item) {
+                Some(ety) => item = ety.head()?,
+                None => return Some(item),
+            }
+        }
+        None
+    }
+
     #[must_use]
     pub fn progenitors(&self, item: ItemId) -> Option<Progenitors> {
         let immediate_ety = self.immediate_ety(item)?;

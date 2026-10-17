@@ -6,7 +6,7 @@ import { useGoTo } from "./search/navigate";
 import OutlineTree from "./ety/OutlineTree";
 import ChartTree from "./ety/ChartTree";
 import NodePopover from "./ety/NodePopover";
-import { clearView, forest, lastRequest, loadFromPath, loadError, loading, tree } from "./state";
+import { clearView, forest, lastRequest, loadFromPath, loadError, loading, tree, exploration, resetFilters, explorationError } from "./state";
 
 import { Show, createEffect, on } from "solid-js";
 import { Link, useLocation, useRouter } from "@tanstack/solid-router";
@@ -96,11 +96,17 @@ function EmptyTree() {
   return (
     <Show
       when={Array.isArray(t) && t.length === 0}
-      fallback={<p class="empty">The filters hide every word in this tree.</p>}
+      fallback={<p class="empty">The filters hide every word in this tree.{" "}
+        <button type="button" class="link" onClick={resetFilters}>Reset filters</button></p>}
     >
       <p class="empty">
+        <Show when={request.scope === "head" && (!exploration() || exploration()?.hasAncestry)} fallback={<>
         wety knows no ancestor of <span class="term">{term(request.item)}</span>, so it has no
-        cognates to show.{" "}
+        cognates to show.{" "}</>}>
+          {exploration() ? "No single base lineage is recorded for this word."
+            : explorationError() ? "The relationship summary could not be loaded." : "Checking the recorded base lineage…"}{" "}
+          <button type="button" class="link" onClick={() => goTo(TreeKind.Cognates, request.item, request.descLangs, "all")}>Explore all components</button>{" · "}
+        </Show>
         <button
           type="button"
           class="link"

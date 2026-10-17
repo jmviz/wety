@@ -84,6 +84,28 @@ pub struct DescendantsJson<'a> {
 /// One descendants tree per progenitor of the requested item.
 pub type CognatesJson<'a> = Vec<DescendantsJson<'a>>;
 
+#[derive(Clone, Copy, Debug, Default, Eq, Hash, PartialEq, serde::Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum CognateScope {
+    Head,
+    #[default]
+    All,
+}
+
+#[derive(Serialize)]
+pub struct LanguageCountJson {
+    pub lang: LangInfo,
+    pub count: usize,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ExplorationJson<'a> {
+    pub head: Option<ItemJson<'a>>,
+    pub has_ancestry: bool,
+    pub languages: Vec<LanguageCountJson>,
+}
+
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct EtymologyJson<'a> {
