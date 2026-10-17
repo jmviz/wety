@@ -1,6 +1,6 @@
 # Status
 
-*Updated 2026-10-17. UI improvements are on `codex/client-ux-audit`; not deployed.*
+*Updated 2026-10-17. Client work is on `claude/client-ux-audit-findings-c7d2b1`; not deployed.*
 
 ## What the project promises
 
@@ -14,49 +14,39 @@ and citations from reviewed evidence in the `packages/dating` registry.
 - **Graph:** `dab06f67…`, the 2026-09-01 dump; 8,101,979 etymological entries with
   stable word URLs and homographs. Dates cover 348 codes, including 135 estimated
   proto-language ends.
-- **Local client:** port 8000 against the full local graph on port 3000 while the
-  review processes remain running.
 - **Research store:** private evidence, artifacts and runs stay in `data/`, backed up
   with `wety-data store`; [provenance](docs/architecture/provenance.md) covers recovery.
 
 ## What changed
 
-- Cognates default to **Base lineage**, following the processor's recorded single
-  base in both directions. **All components** retains the broader affix/compound
-  view, with `scope=all` in shared links. API clients retain the old all-components
-  default; the new client sends its scope explicitly.
-- Head traversal reads existing graph edges and stops at ambiguous compounds, rather
-  than trusting older summaries that can end at an intermediate word. No graph
-  rebuild is required. With Latin and English selected, Latin *status* has 1,123
-  base-lineage words versus 3,217 through all components.
-- Target-language suggestions use distinct reachable words in this lineage, with
-  the browser language first when present. Counts precede target/display filtering;
-  there is no fixed favoured-language list. `/explore/:id` caches this context.
-- Filters have presets, collapsed groups limited to connection types present, a
-  searchable bounded language list, visible exclusions and reset controls.
-- Homographs use a compact selector and full selected sense; search definitions get
-  separate lines. Hover previews stay brief; full details disclose date evidence,
-  varieties, alternative estimates and bibliographic citations.
-- Tree guides explain direction, relationships and date labels. Outline controls
-  stay visible while scrolling; “Jump to searched word” reopens and focuses its path.
-- Checks pass: workspace compilation, 10 core tests, 7 server tests, production client
-  build and TypeScript. Real-data browser checks cover suggestions, both scopes,
-  *blackbird*'s missing-base state, presets/reset, expansion/jump, citations and mobile.
+- The client UX review lives in a shared doc outside git ("wety client UX review"),
+  with recommendations as tickable items and the cognates proposal below.
+- Kept codex's bug fixes (`b4f9a4ef`): error states, stale search responses, focus,
+  mobile zoom, popover overflow.
+- Reverted the client and server design additions of `b36265cf`: the Base lineage /
+  All components scope, `/explore`, language suggestion cards, tree reading guide,
+  filter presets and homograph selector. Base lineage left *mother* and *democracy*
+  with no cognates. Four bug fixes from that commit were kept: stale popovers,
+  popover placement on resize, stale language-search responses, and re-scrolling
+  on every filter change.
+- Checks pass: workspace compilation, 8 core tests, TypeScript and production build.
 
 ## Uncertainties
 
-- Recorded bases are morphological analysis, not guaranteed semantic/syntactic heads
-  or strict inherited cognacy. Loans and word formations remain explicitly included.
-- Touch hardware and other browser engines were not tested.
-- Deploy the updated API with the client; its exploration endpoint is new.
+- The proposed cognate rule is measured on 38 words and all English entries, not
+  reviewed word by word; "derived" steps sometimes overreach (*chess*) or follow
+  data errors (*robot*).
+- The local client on port 8000 still serves the main checkout's build of `b36265cf`.
 - Research reviews remain model reviews; R2 pruning still needs a live dry run.
 
 ## Next three actions
 
-1. Maintainer: review the local UI and branch before merging.
-2. Inspect the R2 pruning dry run before the next server deployment.
-3. Resume approved dating research from `dating period-targets`.
+1. Implement proposal A1 (cognates from a chosen ancestor) once its rule is approved.
+2. Then the one-row controls and quieter rows (review items B and C).
+3. Inspect the R2 pruning dry run before the next server deployment.
 
 ## Decisions needed from the maintainer
 
-- None; the requested UI changes are implemented.
+- A1: follow "derived" steps; stop at calques; root guard only on "derived" steps;
+  later merge Descendants into the same view.
+- Whether `codex/client-ux-audit` is superseded by this branch.
