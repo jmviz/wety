@@ -9,7 +9,6 @@ use wety_core::{
     Data, ItemId, Lang, Search,
     keys::{Keys, Resolution},
     processed::graph_version,
-    response::CognateScope,
 };
 
 use std::{str::FromStr, sync::Arc};
@@ -60,12 +59,6 @@ pub enum TreeKey {
         dist_lang: Lang,
         desc_langs: Vec<Lang>,
         lean: bool,
-        scope: CognateScope,
-    },
-    Explore {
-        item: ItemId,
-        cognates: bool,
-        scope: CognateScope,
     },
 }
 
@@ -144,17 +137,13 @@ impl AppState {
                 dist_lang,
                 desc_langs,
                 lean,
-                scope,
             } => {
                 let ancestors = self.data.ancestors_in_langs(*item, desc_langs);
                 serde_json::to_vec(
                     &self
                         .data
-                        .scoped_cognates_json(*item, *dist_lang, desc_langs, &ancestors, *lean, *scope),
+                        .item_cognates_json(*item, *dist_lang, desc_langs, &ancestors, *lean),
                 )?
-            }
-            TreeKey::Explore { item, cognates, scope } => {
-                serde_json::to_vec(&self.data.exploration_json(*item, *cognates, *scope))?
             }
         };
         Ok(Bytes::from(bytes))
@@ -324,8 +313,6 @@ pub struct TreeQueries {
     /// on demand from `/item/:id` instead.
     #[serde(default)]
     lean: bool,
-    #[serde(default)]
-    scope: CognateScope,
 }
 
 impl TreeQueries {
@@ -374,7 +361,6 @@ pub async fn item_cognates(
     if !state.data.has_item(item_id) {
         return StatusCode::NOT_FOUND.into_response();
     }
-    let scope = tree_queries.scope;
     let (dist_lang, desc_langs, lean) = tree_queries.canonical(&state.data, item_id);
     tree_response(
         state,
@@ -383,35 +369,7 @@ pub async fn item_cognates(
             dist_lang,
             desc_langs,
             lean,
-            scope,
         },
     )
     .await
-}
-
-#[derive(Deserialize)]
-pub struct ExploreQuery {
-    graph: Option<String>,
-    #[serde(default)]
-    cognates: bool,
-    #[serde(default)]
-    scope: CognateScope,
-}
-
-pub async fn item_exploration(
-    State(state): State<Arc<AppState>>,
-    Path(item): Path<ItemId>,
-    Query(query): Query<ExploreQuery>,
-) -> Response {
-    if let Some(stale) = stale_graph(&state, query.graph.as_deref()) {
-        return stale;
-    }
-    if !state.data.has_item(item) {
-        return StatusCode::NOT_FOUND.into_response();
-    }
-    tree_response(state, TreeKey::Explore {
-        item,
-        cognates: query.cognates,
-        scope: query.scope,
-    }).await
 }

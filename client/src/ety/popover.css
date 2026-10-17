@@ -249,33 +249,3 @@
   font-style: italic;
   font-size: 0.92em;
 }
-
-.period-context {
-  color: var(--muted);
-  font-size: 0.9em;
-  margin: 0.4em 0;
-}
-.period-evidence > summary, .full-citation > summary {
-  cursor: pointer;
-  color: var(--accent);
-  padding: 0.2em 0;
-}
-.full-citation {
-  font-size: 0.9em;
-  margin-block: 0.35em;
-}
-.full-citation p {
-  margin: 0.3em 0;
-}
-.period-evidence .period-quote {
-  display: block;
-  -webkit-line-clamp: unset;
-  overflow: visible;
-}
-.node-popover:not([data-pinned]) {
-  max-width: min(24em, calc(100vw - 2em));
-}
-.node-popover:not([data-pinned]) .popover-glosses {
-  max-height: 5em;
-  overflow: hidden;
-}

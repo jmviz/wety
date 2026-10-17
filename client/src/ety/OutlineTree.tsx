@@ -1,14 +1,14 @@
 import "./tree.css";
 import { Forest, TreeNode, setAllOpen, openLang } from "./model";
 import NodeLabel from "./NodeLabel";
-import TreeGuide from "./TreeGuide";
 import { langColor } from "./langColor";
 import { hoverEnter, hoverLeave, pin } from "./popover";
-import { showGlosses, setShowGlosses, lastRequest, resetFilters } from "../state";
-import { TreeRequest, term } from "../search/types";
+import { showGlosses, setShowGlosses, lastRequest } from "../state";
+import { TreeRequest } from "../search/types";
 
-import { For, Show, batch, createEffect, createMemo, on } from "solid-js";
+import { For, Show, createEffect, createMemo, on } from "solid-js";
 
+// Filters rebuild the forest; scroll only when a new request arrives.
 let positionedRequest: TreeRequest | null = null;
 
 interface OutlineTreeProps {
@@ -19,18 +19,6 @@ interface OutlineTreeProps {
 // `<details>` on branch nodes only, connectors drawn with CSS borders.
 export default function OutlineTree(props: OutlineTreeProps) {
   let rootEl!: HTMLDivElement;
-  const jumpToWord = () => {
-    const selected = props.forest.selected;
-    if (!selected) return;
-    batch(() => {
-      for (let n: TreeNode | null = selected.parent; n; n = n.parent) n.setOpen(true);
-    });
-    requestAnimationFrame(() => {
-      const label = rootEl.querySelector<HTMLButtonElement>(`.label[data-key="${selected.key}"]`);
-      label?.scrollIntoView({ block: "center", inline: "nearest" });
-      label?.focus({ preventScroll: true });
-    });
-  };
 
   const nodeFromEvent = (e: Event): [TreeNode, HTMLElement] | null => {
     const label = (e.target as Element).closest<HTMLElement>(".label");
@@ -75,8 +63,7 @@ export default function OutlineTree(props: OutlineTreeProps) {
 
   return (
     <div class="tree-view">
-      <Toolbar forest={props.forest} onJump={jumpToWord} />
-      <TreeGuide kind={props.forest.kind} />
+      <Toolbar forest={props.forest} />
       <div
         ref={rootEl}
         class="outline"
@@ -147,20 +134,14 @@ function langSummary(n: TreeNode): string {
   return top.join(", ") + (more > 0 ? ` +${more}` : "");
 }
 
-function Toolbar(props: { forest: Forest; onJump: () => void }) {
+function Toolbar(props: { forest: Forest }) {
   let langSelect!: HTMLSelectElement;
   return (
     <div class="tree-toolbar" role="toolbar" aria-label="tree controls">
       <span class="tree-stats">
-        <strong>{lastRequest() && term(lastRequest()!.item)}</strong>{" · "}
         {props.forest.nodeCount.toLocaleString()} {props.forest.nodeCount === 1 ? "word" : "words"}
         {" · "}{props.forest.langs.length} {props.forest.langs.length === 1 ? "language" : "languages"}
       </span>
-      <Show when={props.forest.selected} fallback={
-        <button type="button" onClick={resetFilters}>Show searched word · reset filters</button>
-      }>
-        <button type="button" onClick={props.onJump}>Jump to searched word</button>
-      </Show>
       <button type="button" onClick={() => setAllOpen(props.forest, true)}>
         Expand all
       </button>

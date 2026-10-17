@@ -1,11 +1,10 @@
 use crate::{
     HashMap,
-    HashSet,
     descendant_langs::DescendantLangs,
     ety_graph::{EtyEdgeAccess, EtyGraph, Progenitors},
     items::{Item, ItemId},
     languages::Lang,
-    response::{CognateScope, CognatesJson, DescendantsJson, EtymologyJson, ExplorationJson, GlossStr, ItemJson, LanguageCountJson, OtherParentJson},
+    response::{CognatesJson, DescendantsJson, EtymologyJson, GlossStr, ItemJson, OtherParentJson},
     string_pool::StringPool,
 };
 
@@ -199,7 +198,6 @@ impl Data {
             lean,
             None,
             None,
-            false,
         )
     }
 
@@ -212,7 +210,6 @@ impl Data {
         lean: bool,
         item_parent_id: Option<ItemId>,
         item_parent_ety_order: Option<u8>,
-        heads_only: bool,
     ) -> DescendantsJson<'_> {
         let item = self.item(item_id);
         let item_lang = item.lang();
@@ -220,7 +217,6 @@ impl Data {
         let children: Vec<DescendantsJson<'_>> = self
             .graph
             .child_edges(item_id)
-            .filter(|e| !heads_only || e.head())
             .filter(|e| {
                 let child = e.child();
                 let child_lang = self.item(child).lang();
@@ -239,11 +235,8 @@ impl Data {
                     lean,
                     Some(item_id),
                     Some(e.order()),
-                    heads_only,
                 )
             })
-            .filter(|c| !heads_only || !c.children.is_empty()
-                || desc_langs.iter().any(|l| l.id() == c.item.lang.id))
             .collect();
         let descendant_count = children.iter().map(|c| 1 + c.descendant_count).sum();
 
@@ -282,90 +275,23 @@ impl Data {
         req_item_ancestors_within_desc_langs: &[ItemId],
         lean: bool,
     ) -> CognatesJson<'_> {
-        self.scoped_cognates_json(
-            item_id,
-            dist_lang,
-            desc_langs,
-            req_item_ancestors_within_desc_langs,
-            lean,
-            CognateScope::All,
-        )
-    }
-
-    fn cognate_roots(&self, item: ItemId, scope: CognateScope) -> Vec<ItemId> {
-        if self.graph.immediate_ety(item).is_none() {
-            return vec![];
-        }
-        match scope {
-            CognateScope::Head => self.graph.head_progenitor(item).into_iter().collect(),
-            CognateScope::All => self.progenitors
-                .get(&item)
-                .map_or_else(Vec::new, |p| p.items.to_vec()),
-        }
-    }
-
-    #[must_use]
-    pub fn scoped_cognates_json(
-        &self,
-        item: ItemId,
-        dist_lang: Lang,
-        langs: &[Lang],
-        ancestors: &[ItemId],
-        lean: bool,
-        scope: CognateScope,
-    ) -> CognatesJson<'_> {
-        self.cognate_roots(item, scope)
-            .into_iter()
-            .map(|root| {
-                self.item_descendants_json_inner(
-                    root, dist_lang, langs, ancestors, lean,
-                    None, None, scope == CognateScope::Head,
-                )
+        self.progenitors
+            .get(&item_id)
+            .map_or_else(Vec::new, |progenitors| {
+                progenitors
+                    .items
+                    .iter()
+                    .map(|&p| {
+                        self.item_descendants_json(
+                            p,
+                            dist_lang,
+                            desc_langs,
+                            req_item_ancestors_within_desc_langs,
+                            lean,
+                        )
+                    })
+                    .collect()
             })
-            .collect()
-    }
-
-    /// Unique reachable words by language, independent of the display's
-    /// target-language filter. Counts come from this word's graph, never a
-    /// global popularity list. One visited set also deduplicates diamonds.
-    #[must_use]
-    pub fn exploration_json(
-        &self,
-        item: ItemId,
-        cognates: bool,
-        scope: CognateScope,
-    ) -> ExplorationJson<'_> {
-        let has_ancestry = self.graph.immediate_ety(item).is_some();
-        let head = has_ancestry.then(|| self.graph.head_progenitor(item)).flatten();
-        let mut pending = if cognates {
-            self.cognate_roots(item, scope)
-        } else {
-            vec![item]
-        };
-        let mut seen = HashSet::default();
-        let mut counts: HashMap<Lang, usize> = HashMap::default();
-        while let Some(id) = pending.pop() {
-            if !seen.insert(id) {
-                continue;
-            }
-            if id != item {
-                *counts.entry(self.lang(id)).or_default() += 1;
-            }
-            pending.extend(
-                self.graph.child_edges(id)
-                    .filter(|e| !cognates || scope != CognateScope::Head || e.head())
-                    .map(|e| e.child()),
-            );
-        }
-        let mut languages: Vec<_> = counts.into_iter()
-            .map(|(lang, count)| LanguageCountJson { lang: lang.info(), count })
-            .collect();
-        languages.sort_by(|a, b| b.count.cmp(&a.count).then(a.lang.name.cmp(b.lang.name)));
-        ExplorationJson {
-            head: head.map(|h| self.item_json(h)),
-            has_ancestry,
-            languages,
-        }
     }
 
     #[must_use]
@@ -554,70 +480,5 @@ mod reference_tests {
         assert!(validate_reference_fingerprint(Some("different"), true).is_err());
         assert!(validate_reference_fingerprint(None, false).is_err());
         assert!(validate_reference_fingerprint(None, true).is_ok());
-    }
-}
-
-#[cfg(test)]
-mod exploration_tests {
-    use super::*;
-    use crate::{ety_graph::EtyGraph, etymology_templates::EtyMode, items::ImputedItem, langterm::Term};
-    use std::str::FromStr;
-
-    fn add(graph: &mut EtyGraph, pool: &mut StringPool, code: &str, term: &str) -> ItemId {
-        graph.add(Item::Imputed(ImputedItem { ety_num: 1, lang: Lang::from_str(code).unwrap(),
-            term: Term::new(pool, term), romanization: None, from: ItemId::from(0) }))
-    }
-
-    fn ids(tree: &DescendantsJson<'_>, out: &mut Vec<ItemId>) {
-        out.push(tree.item.id);
-        for child in &tree.children { ids(child, out); }
-    }
-
-    #[test]
-    fn head_scope_excludes_shared_affixes_but_keeps_loans_and_language_counts() {
-        let mut graph = EtyGraph::default();
-        let mut pool = StringPool::default();
-        let root = add(&mut graph, &mut pool, "la", "base");
-        let affix = add(&mut graph, &mut pool, "la", "-tus");
-        let word = add(&mut graph, &mut pool, "la", "based");
-        let loan = add(&mut graph, &mut pool, "en", "loan");
-        let other = add(&mut graph, &mut pool, "la", "other");
-        let unrelated = add(&mut graph, &mut pool, "en", "other-tus");
-        graph.add_ety(word, EtyMode::Suffix, Some(0), &[root, affix], &[1.0, 1.0]);
-        graph.add_ety(loan, EtyMode::Borrowed, Some(0), &[word], &[1.0]);
-        graph.add_ety(unrelated, EtyMode::Suffix, Some(0), &[other, affix], &[1.0, 1.0]);
-        let data = Data::new(pool, graph);
-        let en = Lang::from_str("en").unwrap();
-        let la = Lang::from_str("la").unwrap();
-        let head = data.scoped_cognates_json(word, la, &[en, la], &[], false, CognateScope::Head);
-        let mut shown = vec![];
-        for tree in &head { ids(tree, &mut shown); }
-        assert!(shown.contains(&word) && shown.contains(&loan));
-        assert!(!shown.contains(&affix) && !shown.contains(&unrelated));
-        let all = data.scoped_cognates_json(word, la, &[en, la], &[], false, CognateScope::All);
-        let mut broad = vec![];
-        for tree in &all { ids(tree, &mut broad); }
-        assert!(broad.contains(&unrelated));
-        let summary = data.exploration_json(word, true, CognateScope::Head);
-        assert_eq!(summary.head.unwrap().id, root);
-        assert_eq!(summary.languages.iter().find(|l| l.lang.code == "en").unwrap().count, 1);
-    }
-
-    #[test]
-    fn an_ambiguous_compound_does_not_become_a_false_ultimate_head() {
-        let mut graph = EtyGraph::default();
-        let mut pool = StringPool::default();
-        let a = add(&mut graph, &mut pool, "en", "a");
-        let b = add(&mut graph, &mut pool, "en", "b");
-        let compound = add(&mut graph, &mut pool, "en", "ab");
-        let derivative = add(&mut graph, &mut pool, "en", "abed");
-        graph.add_ety(compound, EtyMode::Compound, None, &[a, b], &[1.0, 1.0]);
-        graph.add_ety(derivative, EtyMode::Derived, Some(0), &[compound], &[1.0]);
-        assert_eq!(graph.head_progenitor(derivative), None);
-        let data = Data::new(pool, graph);
-        let summary = data.exploration_json(derivative, true, CognateScope::Head);
-        assert!(summary.has_ancestry && summary.head.is_none());
-        assert!(summary.languages.is_empty());
-        assert!(!data.exploration_json(derivative, true, CognateScope::All).languages.is_empty());
     }
 }

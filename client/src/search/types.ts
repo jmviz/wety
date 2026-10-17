@@ -59,14 +59,6 @@ export enum TreeKind {
   Descendants = "Descendants",
 }
 
-export type CognateScope = "head" | "all";
-
-export interface Exploration {
-  head: Item | null;
-  hasAncestry: boolean;
-  languages: { lang: Lang; count: number }[];
-}
-
 export const kindPath: Record<TreeKind, string> = {
   [TreeKind.Etymology]: "etymology",
   [TreeKind.Descendants]: "descendants",
@@ -86,26 +78,23 @@ export interface WordLink {
   term: string;
   ety: string | null;
   descLangs: string[];
-  scope: CognateScope;
 }
 
 export function linkHref(link: WordLink): string {
   const params = new URLSearchParams();
   if (link.ety) params.set("ety", link.ety);
   if (link.kind !== TreeKind.Etymology) for (const c of link.descLangs) params.append("lang", c);
-  if (link.kind === TreeKind.Cognates && link.scope === "all") params.set("scope", "all");
   const search = params.toString();
   return `/${kindPath[link.kind]}/${link.lang}/${encodeTerm(link.term)}${search ? `?${search}` : ""}`;
 }
 
-export function wordHref(kind: TreeKind, item: Item, descLangs: Lang[] = [], scope: CognateScope = "head"): string {
+export function wordHref(kind: TreeKind, item: Item, descLangs: Lang[] = []): string {
   return linkHref({
     kind,
     lang: item.lang.code,
     term: item.term,
     ety: item.ety ?? null,
     descLangs: descLangs.map((l) => l.code),
-    scope,
   });
 }
 
@@ -128,7 +117,6 @@ export function parseWordHref(href: string): WordLink | null {
     term,
     ety: params.get("ety"),
     descLangs: kind === TreeKind.Etymology ? [] : params.getAll("lang"),
-    scope: kind === TreeKind.Cognates && params.get("scope") === "all" ? "all" : "head",
   };
 }
 
@@ -139,20 +127,17 @@ export class TreeRequest {
   item: Item;
   descLangs: Lang[];
   kind: TreeKind;
-  scope: CognateScope;
 
-  constructor(lang: Lang, item: Item, descLangs: Lang[], kind: TreeKind, scope: CognateScope = "head") {
+  constructor(lang: Lang, item: Item, descLangs: Lang[], kind: TreeKind) {
     this.lang = lang;
     this.item = item;
     this.descLangs = descLangs;
     this.descLangs.sort((a, b) => a.id - b.id);
     this.kind = kind;
-    this.scope = scope;
   }
 
   apiPath(graph: string): string {
     const params = new URLSearchParams({ graph });
-    if (this.kind === TreeKind.Cognates) params.set("scope", this.scope);
     if (this.kind !== TreeKind.Etymology)
       for (const l of this.descLangs) params.append("descLang", l.code);
     return `/${kindPath[this.kind]}/${this.item.id}?${params}`;

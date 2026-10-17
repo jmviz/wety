@@ -147,39 +147,3 @@
 .search-menu .opt-lang .lang {
   color: var(--ink);
 }
-
-.search-menu .opt-item {
-  display: block;
-  white-space: normal;
-  padding-block: 0.45em;
-}
-.search-menu .option-word {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.15em 0.35em;
-  align-items: baseline;
-}
-.search-menu .option-word .term {
-  overflow-wrap: anywhere;
-  min-width: 0;
-  flex: 0 1 auto;
-}
-.search-menu .option-ety {
-  color: var(--muted);
-  font-size: 0.75em;
-  margin-left: auto;
-}
-.search-menu .opt-item .gloss {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  white-space: normal;
-  margin: 0;
-  line-height: 1.35;
-}
-.search-menu .opt-lang .lang {
-  flex: 1 1 auto;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}

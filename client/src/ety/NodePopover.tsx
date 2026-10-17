@@ -144,8 +144,8 @@ export default function NodePopover() {
       ref={el}
       class="node-popover"
       popover="manual"
-      role={popover()?.pinned ? "dialog" : "tooltip"}
-      aria-label={popover()?.pinned ? "word details" : "word preview"}
+      role="dialog"
+      aria-label="word details"
       on:pointerenter={popoverEnter}
       on:pointerleave={hoverLeave}
     >
@@ -186,7 +186,7 @@ export default function NodePopover() {
               <Show when={glosses()}>
                 {(g) => (
                   <ol class="popover-glosses">
-                    <For each={state().pinned ? g() : g().slice(0, 1)}>
+                    <For each={g()}>
                       {(gloss, i) => (
                         <li>
                           <Show when={posList()[i()]}>
@@ -200,11 +200,9 @@ export default function NodePopover() {
                 )}
               </Show>
               <Show when={periodOf(item().lang.id)}>
-                {(p) => <Show when={state().pinned} fallback={
-                  <div class="popover-muted">Language period: {p().label} · {BASIS_NAME[p().basis]}</div>
-                }><PeriodSection period={p()} /></Show>}
+                {(p) => <PeriodSection period={p()} />}
               </Show>
-              <Show when={state().pinned && node().etyMode && forest() && sourcesOf(forest()!, node()).length}>
+              <Show when={node().etyMode && sourcesOf(forest()!, node()).length}>
                 <div class="popover-ety">{etyLine(node().etyMode!, sourcesOf(forest()!, node()))}</div>
               </Show>
               <Show when={forest()?.kind !== TreeKind.Etymology && node().descendantCount > 0}>
@@ -215,7 +213,6 @@ export default function NodePopover() {
                   </Show>
                 </div>
               </Show>
-              <Show when={state().pinned} fallback={<p class="popover-muted">Click the word for details and sources.</p>}>
               <div class="popover-actions">
                 <button onClick={() => go("descendants", item())}>Descendants</button>
                 <button onClick={() => go("cognates", item())}>Cognates</button>
@@ -226,7 +223,6 @@ export default function NodePopover() {
                   </a>
                 </Show>
               </div>
-              </Show>
             </div>
           );
         }}
@@ -275,9 +271,6 @@ function PeriodSection(props: { period: LangPeriod }) {
       <Show when={e.quote}>
         <q class="period-quote">{e.quote}</q>
       </Show>
-      <Show when={e.citation}>
-        <details class="full-citation"><summary>Full citation</summary><p>{e.citation}</p></details>
-      </Show>
     </>
   );
   return (
@@ -294,9 +287,6 @@ function PeriodSection(props: { period: LangPeriod }) {
         </Show>
         <span class="period-basis">· {BASIS_NAME[props.period.basis]}</span>
       </div>
-      <p class="period-context">This dates the language, not this word or its first attestation.</p>
-      <details class="period-evidence">
-      <summary>Evidence, varieties and alternatives</summary>
       <ul class="period-cites">
         <For each={props.period.evidence}>{(e) => <li title={e.citation ?? undefined}>{cite(e)}</li>}</For>
       </ul>
@@ -334,7 +324,7 @@ function PeriodSection(props: { period: LangPeriod }) {
         )}
       </Show>
       <Show when={props.period.alternatives.length}>
-        <div class="popover-muted">Alternative estimates and periods:</div>
+        <div class="popover-muted">Other sources:</div>
         <ul class="period-cites">
           <For each={props.period.alternatives}>
             {(a) => (
@@ -357,7 +347,6 @@ function PeriodSection(props: { period: LangPeriod }) {
           </For>
         </ul>
       </Show>
-      </details>
     </div>
   );
 }
