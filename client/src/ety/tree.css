@@ -17,16 +17,13 @@
     --indent-same: 0.85em;
     padding: 0 0.5rem;
   }
-
-  .tree .badge-langs {
-    display: none;
-  }
 }
 
+/* Ink throughout: the term leads, its language sits quietly beside it. */
 .tree-view .lang {
   font-variant-caps: all-small-caps;
   letter-spacing: 0.03em;
-  color: var(--lang-color, var(--ink));
+  color: var(--muted);
 }
 
 .tree-view .term {
@@ -197,8 +194,7 @@
   left: calc(var(--caret-w) / 2);
   top: calc(var(--row-h) / 2 + 0.05em);
   width: calc(var(--indent) - 0.2em);
-  border-top: var(--line) solid
-    color-mix(in srgb, var(--lang-color) 55%, var(--paper));
+  border-top: var(--line) solid var(--rule);
 }
 
 .tree ul > li.node.same-lang::after {
@@ -272,7 +268,7 @@
   width: 0.26em;
   height: 0.26em;
   border-radius: 50%;
-  background: color-mix(in srgb, var(--lang-color) 55%, var(--paper));
+  background: var(--faint);
 }
 
 /* Always in the DOM (toggling 1,000+ of them is measurable in Firefox); shown
@@ -281,21 +277,12 @@
   display: none;
 }
 
+/* A closed branch: how many words it holds (its languages on hover). */
 .tree .badge {
-  font-size: 0.75em;
-  color: var(--muted);
-  background: #f3f0ea;
-  border-radius: 1em;
-  padding: 0 0.6em;
-  line-height: 1.6;
-  white-space: nowrap;
-  max-width: 24em;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.tree .badge-langs {
+  font-size: 0.8em;
   color: var(--faint);
+  font-variant-numeric: oldstyle-nums;
+  white-space: nowrap;
 }
 
 .tree li.node.selected > details > summary,
@@ -404,7 +391,7 @@
 }
 
 .chart-box {
-  border: var(--line) solid color-mix(in srgb, var(--lang-color) 40%, var(--paper));
+  border: var(--line) solid var(--rule);
   border-radius: 0.4em;
   background: var(--paper);
   padding: 0.3em 0.7em 0.35em;
@@ -414,7 +401,7 @@
 
 .chart li.selected > .chart-box {
   background: var(--highlight);
-  border-color: color-mix(in srgb, var(--lang-color) 70%, var(--paper));
+  border-color: var(--faint);
 }
 
 .chart-box .label {
@@ -446,6 +433,21 @@
   margin-left: 0.35em;
 }
 
+.chart-box .gloss {
+  max-width: 12em;
+  margin: 0.1em auto 0;
+  white-space: normal;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  font-size: 0.8em;
+  line-height: 1.3;
+}
+
+.chart-box .gloss::before {
+  content: none;
+}
+
 .chart-box .period {
   display: block;
   margin-left: 0;
@@ -456,25 +458,3 @@
   margin-inline: auto;
 }
 
-.tree-view .period .basis {
-  font-size: 0.85em;
-  font-variant-caps: all-small-caps;
-  letter-spacing: 0.04em;
-  margin-left: 0.3em;
-  padding: 0 0.25em;
-  border: 1px solid var(--faint);
-  border-radius: 0.3em;
-}
-
-.tree-view .period .basis-estimated {
-  border-style: dashed;
-}
-
-.tree-view .period .basis-composition {
-  border-style: dotted;
-}
-
-/* A revived language: shown beside the end of native transmission. */
-.tree-view .period .basis-revival {
-  font-style: italic;
-}

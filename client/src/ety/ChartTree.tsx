@@ -1,7 +1,6 @@
 import "./tree.css";
 import { Forest, TreeNode } from "./model";
 import NodeLabel from "./NodeLabel";
-import { langColor } from "./langColor";
 import { etyModeRep } from "./etyMode";
 import { hoverEnter, hoverLeave, pin } from "./popover";
 
@@ -69,7 +68,6 @@ function ChartNode(props: { node: TreeNode }) {
     <li
       class="chart-node"
       classList={{ selected: n.isSelected }}
-      style={{ "--lang-color": langColor(n.langDistance) }}
       role="treeitem"
     >
       <div class="chart-box">
@@ -77,7 +75,8 @@ function ChartNode(props: { node: TreeNode }) {
       </div>
       <Show when={n.children.length > 0}>
         <div class="chart-mode">
-          <Show when={n.etyMode}>{etyModeRep(n.etyMode!)}</Show>
+          {/* Inheritance is the unmarked case. */}
+          <Show when={n.etyMode && n.etyMode !== "inherited"}>{etyModeRep(n.etyMode!)}</Show>
         </div>
         <ul role="group">
           <For each={n.children}>{(c) => <ChartNode node={c} />}</For>

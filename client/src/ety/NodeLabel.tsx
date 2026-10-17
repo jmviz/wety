@@ -1,9 +1,8 @@
 import { term } from "../search/types";
 import { TreeNode, outlineSources } from "./model";
-import { langColor } from "./langColor";
 import { etyModeShort, etyPrep } from "./etyMode";
 import { showGlosses } from "../state";
-import { BASIS_MARK, BASIS_NAME, periodOf } from "./periods";
+import { BASIS_NAME, periodOf } from "./periods";
 
 import { For, Show } from "solid-js";
 
@@ -29,6 +28,14 @@ export default function NodeLabel(props: NodeLabelProps) {
           .map((p) => ({ item: p.item, langDistance: p.langDistance }))
       : outlineSources(props.node);
   const gloss = () => item().gloss?.[0];
+  // Dates belong to languages: show them where the language changes.
+  const datedHere = () => props.node.parent?.item.lang.id !== item().lang.id;
+  // Inheritance is the unmarked case: say nothing unless there is a source
+  // to name.
+  const showMode = () =>
+    props.inlineMode &&
+    props.node.etyMode &&
+    !(props.node.etyMode === "inherited" && props.node.parent && inlineSources().length === 0);
 
   return (
     <>
@@ -38,16 +45,14 @@ export default function NodeLabel(props: NodeLabelProps) {
         data-key={props.node.key}
         aria-haspopup="dialog"
       >
-        <span class="lang" style={{ color: langColor(props.node.langDistance) }}>
-          {item().lang.name}
-        </span>{" "}
+        <span class="lang">{item().lang.name}</span>{" "}
         <span class="term">{term(item())}</span>
         <Show when={item().romanization}>
           {" "}
           <span class="romanization">{item().romanization}</span>
         </Show>
       </button>
-      <Show when={periodOf(item().lang.id)}>
+      <Show when={datedHere() && periodOf(item().lang.id)}>
         {(p) => (
           <span
             class="period"
@@ -56,14 +61,11 @@ export default function NodeLabel(props: NodeLabelProps) {
               .join("; ")})`}
           >
             {p().label}
-            <span class={`basis basis-${p().basis}`}>{BASIS_MARK[p().basis]}</span>
-            <Show when={p().revival?.length}>
-              <span class="basis basis-revival" title="being revived">rev</span>
-            </Show>
+            <Show when={p().revival?.length}>, being revived</Show>
           </span>
         )}
       </Show>
-      <Show when={props.inlineMode && props.node.etyMode}>
+      <Show when={showMode()}>
         <span class="mode">
           <span class="mode-name">{etyModeShort(props.node.etyMode!)}</span>
           <For each={inlineSources()}>
@@ -74,9 +76,7 @@ export default function NodeLabel(props: NodeLabelProps) {
                   : " + "}
                 <span class="mode-src">
                   <Show when={s.item.lang.id !== item().lang.id}>
-                    <span class="lang" style={{ color: langColor(s.langDistance) }}>
-                      {s.item.lang.name}
-                    </span>{" "}
+                    <span class="lang">{s.item.lang.name}</span>{" "}
                   </Show>
                   {term(s.item)}
                 </span>

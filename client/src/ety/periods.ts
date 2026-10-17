@@ -72,14 +72,6 @@ export interface LangPeriod {
   span?: Span;
 }
 
-export const BASIS_MARK: Record<Basis, string> = {
-  conventional: "conv",
-  attested: "att",
-  estimated: "est",
-  composition: "comp",
-  last_speaker: "last",
-};
-
 export const BASIS_NAME: Record<Basis, string> = {
   conventional: "conventional period",
   attested: "attestation window",

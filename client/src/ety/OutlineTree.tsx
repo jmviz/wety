@@ -1,7 +1,6 @@
 import "./tree.css";
 import { Forest, TreeNode, setAllOpen, openLang } from "./model";
 import NodeLabel from "./NodeLabel";
-import { langColor } from "./langColor";
 import { hoverEnter, hoverLeave, pin } from "./popover";
 import { showGlosses, setShowGlosses, lastRequest } from "../state";
 import { TreeRequest } from "../search/types";
@@ -97,7 +96,7 @@ function Node(props: { node: TreeNode }) {
         selected: n.isSelected,
         "on-path": n.onSelectedPath,
       }}
-      style={{ "--lang-color": langColor(n.langDistance), "--rows": n.visibleRows() }}
+      style={{ "--rows": n.visibleRows() }}
       role="treeitem"
       aria-expanded={branch ? n.open() : undefined}
       aria-selected={n.isSelected ? true : undefined}
@@ -112,9 +111,8 @@ function Node(props: { node: TreeNode }) {
           <summary class="row">
             <span class="caret" aria-hidden="true" />
             <NodeLabel node={n} inlineMode />
-            <span class="badge">
-              {n.descendantCount}
-              <span class="badge-langs"> · {langSummary(n)}</span>
+            <span class="badge" title={langSummary(n)}>
+              +{n.descendantCount.toLocaleString()}
             </span>
           </summary>
           <Show when={mounted()}>

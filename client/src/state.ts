@@ -145,7 +145,10 @@ export const [disabledEtyModes, setDisabledEtyModes] = createSignal<
 export const [hiddenLangs, setHiddenLangs] = createSignal<Set<number>>(
   new Set()
 );
-export const [showGlosses, setShowGlosses] = createSignal(false);
+// On where there is room for them.
+export const [showGlosses, setShowGlosses] = createSignal(
+  window.matchMedia("(min-width: 700px)").matches
+);
 
 // The display forest: the fetched tree with filters applied. When only a
 // filter changes, open/closed state is carried over; a new tree gets the

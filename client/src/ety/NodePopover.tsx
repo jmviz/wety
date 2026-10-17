@@ -1,7 +1,6 @@
 import "./popover.css";
 import { Item, TreeKind, term } from "../search/types";
 import { EtySource, sourcesOf } from "./model";
-import { langColor } from "./langColor";
 import { etyModeRep, etyPrep } from "./etyMode";
 import { BASIS_NAME, LangPeriod, METHOD_NAME, PeriodEvidence, formatLocator, periodOf } from "./periods";
 import {
@@ -166,7 +165,7 @@ export default function NodePopover() {
                   ×
                 </button>
               </Show>
-              <div class="popover-lang" style={{ color: langColor(node().langDistance) }}>
+              <div class="popover-lang">
                 {item().lang.name}
               </div>
               <div class="popover-term">
@@ -239,7 +238,7 @@ export function etyLine(mode: string, sources: EtySource[]): JSX.Element {
     if (i > 0) parts.push(<span class="ety-plus"> + </span>);
     if (s.item.lang.id !== prevLang) {
       parts.push(
-        <span class="ety-lang" style={{ color: langColor(s.langDistance) }}>
+        <span class="ety-lang">
           {s.item.lang.name}{" "}
         </span>
       );
