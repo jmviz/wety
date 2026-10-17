@@ -198,6 +198,26 @@ export const treeLangs = createMemo<LangCount[]>(() => {
   );
 });
 
+// Connection modes in the fetched (unfiltered) tree with counts, for the
+// filters; like `treeLangs`, stable across filter changes.
+export const treeModes = createMemo<Map<string, number>>(() => {
+  const t = tree();
+  const counts = new Map<string, number>();
+  if (t === null) return counts;
+  const count = (mode: string | null) => mode && counts.set(mode, (counts.get(mode) ?? 0) + 1);
+  const visitD = (d: Descendants) => {
+    count(d.etyMode);
+    d.children.forEach(visitD);
+  };
+  const visitE = (e: Etymology) => {
+    if (e.parents.length) count(e.etyMode);
+    e.parents.forEach(visitE);
+  };
+  if (Array.isArray(t)) t.forEach(visitD);
+  else visitE(t);
+  return counts;
+});
+
 // Debounce utility
 export function debounce<T extends (...args: any[]) => any>(
   fn: T,

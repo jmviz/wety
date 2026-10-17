@@ -1,10 +1,11 @@
-import { etyModeGroups } from "./etyModes";
+import { allEtyModes, etyModeCategories } from "./etyModes";
 import {
   disabledEtyModes,
   setDisabledEtyModes,
   hiddenLangs,
   setHiddenLangs,
   treeLangs,
+  treeModes,
 } from "../state";
 
 import { For, Show } from "solid-js";
@@ -28,6 +29,26 @@ export default function FiltersPanel() {
       else next.delete(m);
     }
     setDisabledEtyModes(next);
+  };
+
+  // The categories present in this tree, each with only its present modes;
+  // a mode the client does not know counts as "other".
+  const categories = () => {
+    const present = treeModes();
+    const known = new Set(allEtyModes);
+    return etyModeCategories
+      .map((c) => {
+        const modes = [
+          ...c.modes.filter((m) => present.has(m)),
+          ...(c.label === "other" ? [...present.keys()].filter((m) => !known.has(m)) : []),
+        ];
+        return { label: c.label, modes, count: modes.reduce((n, m) => n + present.get(m)!, 0) };
+      })
+      .filter((c) => c.modes.length > 0);
+  };
+  const state = (modes: string[]) => {
+    const off = modes.filter((m) => disabledEtyModes().has(m)).length;
+    return off === 0 ? "on" : off === modes.length ? "off" : "mixed";
   };
 
   const toggleLang = (id: number) => {
@@ -77,35 +98,40 @@ export default function FiltersPanel() {
             </button>
           </Show>
         </p>
-        <div class="mode-groups">
-          <For each={etyModeGroups}>
-            {(group) => (
-              <div class="mode-group">
-                <p class="mode-group-title">
-                  <button type="button" class="link" onClick={() => toggleGroup(group.modes)}>
-                    {group.label}
-                  </button>
-                </p>
-                <ul class="check-list">
-                  <For each={group.modes}>
-                    {(mode) => (
-                      <li>
-                        <label>
-                          <input
-                            type="checkbox"
-                            checked={!disabledEtyModes().has(mode)}
-                            onChange={() => toggleMode(mode)}
-                          />
-                          {mode}
-                        </label>
-                      </li>
-                    )}
-                  </For>
-                </ul>
-              </div>
+        <div class="chips">
+          <For each={categories()}>
+            {(c) => (
+              <button
+                type="button"
+                class="chip toggle"
+                aria-pressed={state(c.modes) === "on" ? "true" : state(c.modes) === "off" ? "false" : "mixed"}
+                onClick={() => toggleGroup(c.modes)}
+              >
+                {c.label} <span class="count">{c.count.toLocaleString()}</span>
+              </button>
             )}
           </For>
         </div>
+        <details class="mode-detail">
+          <summary>more</summary>
+          <ul class="check-list columns">
+            <For each={categories().flatMap((c) => c.modes)}>
+              {(mode) => (
+                <li>
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={!disabledEtyModes().has(mode)}
+                      onChange={() => toggleMode(mode)}
+                    />
+                    {mode}
+                    <span class="count">{treeModes().get(mode)}</span>
+                  </label>
+                </li>
+              )}
+            </For>
+          </ul>
+        </details>
       </section>
     </div>
   );

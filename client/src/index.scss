@@ -494,20 +494,48 @@ main {
   letter-spacing: 0.03em;
 }
 
-.mode-groups {
-  columns: 12em;
-  column-gap: 1.5em;
+// A filter that can be on, off, or partly on (some of its modes off).
+.chip.toggle {
+  cursor: pointer;
+  padding: 0 0.6em;
+  border: 1px solid var(--rule);
+  border-radius: 1em;
+  line-height: 1.55;
 }
 
-.mode-group {
-  break-inside: avoid;
-  margin-bottom: 0.6em;
+.chip.toggle[aria-pressed="false"] {
+  color: var(--faint);
+  text-decoration: line-through;
+  text-decoration-color: var(--faint);
 }
 
-.mode-group-title {
-  margin: 0 0 0.1em;
-  font-variant-caps: all-small-caps;
-  letter-spacing: 0.05em;
+.chip.toggle[aria-pressed="mixed"] {
+  border-style: dashed;
+}
+
+.chip.toggle:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.chip .count,
+.check-list .count {
+  color: var(--faint);
+  font-variant-numeric: oldstyle-nums;
+}
+
+.mode-detail {
+  margin-top: 0.5em;
+}
+
+.mode-detail summary {
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 0.85em;
+}
+
+.mode-detail .check-list {
+  margin-top: 0.3em;
 }
 
 // Homographs: the word's other etymologies --------------------------------
