@@ -1,7 +1,7 @@
 import "./popover.css";
 import { Item, TreeKind, term } from "../search/types";
-import { EtySource, sourcesOf } from "./model";
-import { etyModeRep, etyPrep } from "./etyMode";
+import { EtySource, TreeNode, sourcesOf } from "./model";
+import { etyModeRep, etyModeShort, etyPrep } from "./etyMode";
 import { BASIS_NAME, LangPeriod, METHOD_NAME, PeriodEvidence, formatLocator, periodOf } from "./periods";
 import {
   popover,
@@ -227,8 +227,18 @@ export default function NodePopover() {
                   </ol>
                 )}
               </Show>
-              <Show when={node().etyMode && sourcesOf(forest()!, node()).length}>
-                <div class="popover-ety">{etyLine(node().etyMode!, sourcesOf(forest()!, node()))}</div>
+              {/* In an outline, the word's way back up the tree; in the chart
+                  (which is itself the lineage), and for a tree's root, its
+                  sources. */}
+              <Show
+                when={forest()?.kind !== TreeKind.Etymology && node().parent}
+                fallback={
+                  <Show when={node().etyMode && sourcesOf(forest()!, node()).length}>
+                    <div class="popover-ety">{etyLine(node().etyMode!, sourcesOf(forest()!, node()))}</div>
+                  </Show>
+                }
+              >
+                <Lineage node={node()} />
               </Show>
               <div class="popover-actions">
                 <button onClick={() => go("descendants", item())}>Descendants</button>
@@ -246,6 +256,55 @@ export default function NodePopover() {
         }}
       </Show>
     </div>
+  );
+}
+
+// "English motherhood ← Middle English moderhode ← moder ← … ← Proto-Indo-European
+// *méh₂tēr": the word back up the tree to its root, the language named where it
+// changes. A long one shows its two ends; the gap opens on click.
+function Lineage(props: { node: TreeNode }) {
+  const steps = () => {
+    const out: TreeNode[] = [];
+    for (let n: TreeNode | null = props.node; n; n = n.parent) out.push(n);
+    return out;
+  };
+  const [open, setOpen] = createSignal(false);
+  createEffect(on(() => props.node, () => setOpen(false)));
+  // How many steps after the second hide behind the gap.
+  const hidden = () => (open() || steps().length <= 5 ? 0 : steps().length - 4);
+  const shown = (i: number) => i < 2 || i >= 2 + hidden();
+  return (
+    <p class="popover-lineage">
+      <For each={steps()}>
+        {(n, i) => (
+          <Show when={shown(i())}>
+            <Show when={hidden() > 0 && i() === 2 + hidden()}>
+              <span class="lineage-step">
+                {" ← "}
+                <button
+                  class="lineage-gap"
+                  aria-label={`show ${hidden()} more steps`}
+                  onClick={() => setOpen(true)}
+                >
+                  …
+                </button>
+              </span>
+            </Show>
+            <span class="lineage-step">
+              <Show when={i() > 0}>
+                <span title={steps()[i() - 1].etyMode ? etyModeShort(steps()[i() - 1].etyMode!) : undefined}>
+                  {" ← "}
+                </span>
+              </Show>
+              <Show when={i() === 0 || !shown(i() - 1) || steps()[i() - 1].item.lang.id !== n.item.lang.id}>
+                <span class="ety-lang">{n.item.lang.name}</span>{" "}
+              </Show>
+              <span class="ety-term">{term(n.item)}</span>
+            </span>
+          </Show>
+        )}
+      </For>
+    </p>
   );
 }
 

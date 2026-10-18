@@ -1,7 +1,7 @@
 import "./tree.css";
 import { Forest, TreeNode, openPathTo } from "./model";
 import NodeLabel from "./NodeLabel";
-import { hoverEnter, hoverLeave, pin } from "./popover";
+import { hoverEnter, hoverLeave, pin, popover } from "./popover";
 import { term } from "../search/types";
 
 import { For, Show, createEffect, createMemo, createSignal, on, onCleanup, onMount } from "solid-js";
@@ -110,6 +110,22 @@ export default function OutlineTree(props: OutlineTreeProps) {
         })
     )
   );
+
+  // While a word's details show, mark its rows back up to the root. Marked
+  // in place, so a hover re-renders nothing.
+  let marked: HTMLElement[] = [];
+  createEffect(() => {
+    const state = popover();
+    for (const li of marked) li.classList.remove("lineage");
+    marked = [];
+    if (!state || props.forest.byKey.get(state.node.key) !== state.node) return;
+    for (let n: TreeNode | null = state.node; n; n = n.parent) {
+      const li = rootEl.querySelector(`.label[data-key="${n.key}"]`)?.closest<HTMLElement>("li.node");
+      if (li) marked.push(li);
+    }
+    for (const li of marked) li.classList.add("lineage");
+  });
+  onCleanup(() => marked.forEach((li) => li.classList.remove("lineage")));
 
   const jump = () => {
     openPathTo(props.forest.selected!);

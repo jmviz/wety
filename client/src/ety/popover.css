@@ -187,6 +187,39 @@
   border-radius: 0.35em;
 }
 
+/* The word's way back up the tree, as on the trail line. */
+.popover-lineage {
+  font-size: 0.88em;
+  margin: 0.35em 0;
+  color: var(--faint);
+  line-height: 1.5;
+}
+
+.popover-lineage .ety-lang {
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.03em;
+  color: var(--muted);
+}
+
+.popover-lineage .ety-term {
+  color: var(--ink);
+}
+
+.popover-lineage .lineage-step:first-child .ety-term {
+  font-weight: bold;
+}
+
+.lineage-gap {
+  all: unset;
+  cursor: pointer;
+  color: var(--muted);
+}
+
+.lineage-gap:hover,
+.lineage-gap:focus-visible {
+  color: var(--ink);
+}
+
 .popover-ety .ety-mode {
   font-style: italic;
 }

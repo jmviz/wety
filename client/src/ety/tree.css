@@ -197,6 +197,33 @@
   border-top: var(--line) solid var(--rule);
 }
 
+/* The way back up the tree from the word whose details show: its rows a
+   shade darker, on a faint wash, and their stubs drawn in ink. */
+.tree li.node.lineage > .row,
+.tree li.node.lineage > details > summary {
+  background: var(--wash);
+  border-radius: 0.3em;
+}
+
+.tree li.node.selected.lineage > .row,
+.tree li.node.selected.lineage > details > summary {
+  background: var(--highlight);
+}
+
+.tree li.node.lineage > .row .lang,
+.tree li.node.lineage > details > summary .lang {
+  color: var(--ink);
+}
+
+.tree ul > li.node.lineage::after {
+  border-top-color: var(--muted);
+}
+
+.tree li.node.lineage > details > summary .caret,
+.tree li.node.lineage > .row .caret {
+  color: var(--ink);
+}
+
 .tree ul > li.node.same-lang::after {
   border-top-style: dotted;
 }
