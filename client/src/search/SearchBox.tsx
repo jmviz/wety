@@ -306,8 +306,15 @@ export default function SearchBox() {
                     const it = () => (o() as { item: Item }).item;
                     return (
                       <>
-                        <span class="lang">{it().lang.name}</span>{" "}
+                        {/* Words are in the chip's language; name only another. */}
+                        <Show when={it().lang.id !== selectedLang().id}>
+                          <span class="lang">{it().lang.name}</span>{" "}
+                        </Show>
                         <span class="term">{term(it())}</span>
+                        {/* Homographs: Wiktionary's etymology number. */}
+                        <Show when={it().ety}>
+                          <sup class="ety-label">{it().ety}</sup>
+                        </Show>
                         <Show when={it().romanization}>
                           {" "}
                           <span class="romanization">{it().romanization}</span>

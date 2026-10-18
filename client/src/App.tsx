@@ -53,8 +53,10 @@ export default function App() {
         <SearchBox />
         <Show when={home()}>
           <p class="hint">
-            Type a word, or a language then a word: <kbd>latin</kbd> <kbd>status</kbd>.
-            Press <kbd>/</kbd> to search from anywhere.
+            Try <Example href="/cognates/en/mother?ety=1">mother</Example>,{" "}
+            <Example href="/cognates/en/sugar">sugar</Example> or{" "}
+            <Example href="/cognates/la/pater">Latin pater</Example>. Type a language name
+            first to search in it.
           </p>
         </Show>
       </header>
@@ -94,6 +96,22 @@ export default function App() {
       </main>
       <NodePopover />
     </>
+  );
+}
+
+// A word on the home page, opened in place.
+function Example(props: { href: string; children: string }) {
+  const router = useRouter();
+  return (
+    <a
+      href={props.href}
+      onClick={(e) => {
+        e.preventDefault();
+        router.history.push(props.href);
+      }}
+    >
+      {props.children}
+    </a>
   );
 }
 

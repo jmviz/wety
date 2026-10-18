@@ -410,6 +410,26 @@ pub struct Search {
     terms: HashMap<Lang, TrieMap<u8, Vec<ItemId>>>,
 }
 
+/// A term as a reader types it: lowercase, without diacritics (Latin pāter as
+/// "pater"), modifier letters as plain ones (ʰ as h), subscript digits as
+/// digits (h₂ as h2) and no reconstruction asterisk. Only the diacritic blocks
+/// are stripped, so vowel signs of Indic scripts stay.
+fn fold_term(term: &str) -> String {
+    use unicode_normalization::UnicodeNormalization;
+    term.trim_start_matches('*')
+        .nfd()
+        .filter(|c| !matches!(*c, '\u{0300}'..='\u{036F}' | '\u{1DC0}'..='\u{1DFF}'))
+        .map(|c| match c {
+            'ʰ' => 'h',
+            'ʷ' => 'w',
+            'ʲ' => 'j',
+            '₀'..='₉' => char::from_digit(c as u32 - '₀' as u32, 10).expect("a digit"),
+            _ => c,
+        })
+        .flat_map(char::to_lowercase)
+        .collect()
+}
+
 fn normalize_lang_name(name: &str) -> String {
     name.chars()
         .filter(|c| !matches!(c, '(' | ')'))
@@ -436,14 +456,15 @@ impl Data {
         let mut term_items = HashMap::<Lang, HashMap<String, Vec<ItemId>>>::default();
         for (item_id, item) in self.graph.iter().filter(|(_, item)| !item.is_imputed()) {
             let norm_lang = normalize_lang_name(item.lang().name());
+            let lang_terms = term_items.entry(item.lang()).or_default();
+            // Found by its spelling as a reader types it, and by its
+            // romanization (Greek πατήρ by "pater").
             let term = item.term().resolve(&self.string_pool);
-            let lowered = term.to_lowercase();
-            term_items
-                .entry(item.lang())
-                .or_default()
-                .entry(lowered)
-                .or_default()
-                .push(item_id);
+            let romanization = item.romanization().map(|r| r.resolve(&self.string_pool));
+            // The trie takes no empty key (a term that is all diacritics).
+            for key in std::iter::once(term).chain(romanization).map(fold_term).filter(|k| !k.is_empty()).unique() {
+                lang_terms.entry(key).or_default().push(item_id);
+            }
             if let Some(lang_data) = normalized_langs.get_mut(&norm_lang) {
                 lang_data.items += 1;
             } else {
@@ -474,68 +495,112 @@ impl Data {
     }
 }
 
+const MAX_LANG_RESULTS: usize = 20;
+
 impl Search {
+    /// Languages whose name is the query, starts with it, or has a word
+    /// starting with it ("fren" finds Old French), the largest first; then
+    /// near spellings.
     #[must_use]
     pub fn langs(&self, lang: &str) -> Value {
-        let mut matches = self
+        let query = normalize_lang_name(lang.trim());
+        let rank = |name: &str| {
+            if name == query {
+                Some(0)
+            } else if name.starts_with(&query) {
+                Some(1)
+            } else if name.split(' ').any(|w| w.starts_with(&query)) {
+                Some(2)
+            } else {
+                None
+            }
+        };
+        let mut named = self
+            .normalized_langs
+            .iter()
+            .filter_map(|(name, data)| rank(name).map(|r| (r, data)))
+            .collect_vec();
+        named.sort_unstable_by(|a, b| a.0.cmp(&b.0).then(b.1.items.cmp(&a.1.items)));
+        let mut near = self
             .langs
             .search(lang, 0.4)
             .iter()
+            .filter(|r| rank(&r.text).is_none())
             .filter_map(|r| {
                 self.normalized_langs
                     .get(&r.text)
                     .map(|lang_data| (r.similarity, lang_data))
             })
             .collect_vec();
-        matches.sort_unstable_by(|a, b| {
+        near.sort_unstable_by(|a, b| {
             if (a.0 - b.0).abs() < 0.1 {
                 b.1.items.cmp(&a.1.items)
             } else {
                 b.0.total_cmp(&a.0)
             }
         });
-        let matches = matches
+        let matches = named
             .iter()
-            .map(|(_, lang_data)| lang_data.lang.json())
+            .map(|(_, d)| d)
+            .chain(near.iter().map(|(_, d)| d))
+            .take(MAX_LANG_RESULTS)
+            .map(|lang_data| lang_data.lang.json())
             .collect_vec();
         json!(matches)
     }
 }
 
 const MAX_SEARCH_RESULTS: usize = 20;
+/// Prefix matches considered before ranking, so headwords further along in
+/// the trie can outrank inflected forms that sort earlier.
+const SEARCH_CANDIDATES: usize = 300;
 
 impl Search {
+    /// Words in `lang` starting with `term` as a reader types it (see
+    /// `fold_term`). The exact spelling comes first (then in another case,
+    /// then with other diacritics), then headwords before
+    /// forms of other words, words with an etymology or descendants before
+    /// bare entries, then shorter words.
     #[must_use]
     pub fn items(&self, data: &Data, lang: Lang, term: &str) -> Value {
-        let lowered = term.to_lowercase();
+        let folded = fold_term(term);
+        let typed = term.trim_start_matches('*');
+        let typed_lower = typed.to_lowercase();
         let mut items: Vec<ItemId> = Vec::new();
+        if folded.is_empty() {
+            return json!(items);
+        }
         if let Some(lang_trie) = self.terms.get(&lang) {
             // predictive_search returns results in lexicographic byte order,
             // so shorter terms come first. Break early once we have enough.
-            for (_, item_ids) in lang_trie.predictive_search::<String, _>(&lowered) {
+            for (_, item_ids) in lang_trie.predictive_search::<String, _>(&folded) {
                 items.extend(item_ids.iter().copied());
-                if items.len() >= MAX_SEARCH_RESULTS {
+                if items.len() >= SEARCH_CANDIDATES {
                     break;
                 }
             }
         }
-        items.sort_unstable_by(|&a, &b| {
-            let a_term = data.term(a);
-            let b_term = data.term(b);
-            let a_len = a_term.chars().count();
-            let b_len = b_term.chars().count();
-            if a_len == b_len {
-                if a_term == b_term {
-                    data.ety_num(a).cmp(&data.ety_num(b))
-                } else {
-                    b_term.cmp(a_term)
-                }
+        let items = items.into_iter().unique().collect_vec();
+        let key = |id: ItemId| {
+            let t = data.term(id);
+            let exact = if t == typed {
+                0
+            } else if t.to_lowercase() == typed_lower {
+                1
+            } else if fold_term(t) == folded {
+                2
             } else {
-                a_len.cmp(&b_len)
-            }
-        });
+                3
+            };
+            let ety = data.graph.immediate_ety(id);
+            let form = ety.as_ref().is_some_and(|e| e.mode == EtyMode::Form);
+            let bare = ety.is_none() && data.graph.child_edges(id).next().is_none();
+            (exact, form, bare, t.chars().count(), t, data.ety_num(id))
+        };
+        let mut items = items.into_iter().map(|id| (key(id), id)).collect_vec();
+        items.sort_unstable_by(|a, b| a.0.cmp(&b.0));
         items.truncate(MAX_SEARCH_RESULTS);
-        json!(items.iter().map(|&id| data.item_json(id)).collect_vec())
+        json!(items.iter().map(|&(_, id)| data.item_json(id)).collect_vec())
     }
 }
 
@@ -557,6 +622,21 @@ mod reference_tests {
         assert!(validate_reference_fingerprint(Some("different"), true).is_err());
         assert!(validate_reference_fingerprint(None, false).is_err());
         assert!(validate_reference_fingerprint(None, true).is_ok());
+    }
+}
+
+#[cfg(test)]
+mod search_tests {
+    use super::fold_term;
+
+    #[test]
+    fn terms_fold_to_what_a_reader_types() {
+        assert_eq!(fold_term("pāternitās"), "paternitas");
+        assert_eq!(fold_term("*bʰer-"), "bher-");
+        assert_eq!(fold_term("ph₂tḗr"), "ph2ter");
+        assert_eq!(fold_term("Πατήρ"), "πατηρ");
+        // Indic vowel signs are part of the letter, not diacritics.
+        assert_eq!(fold_term("शर्करा"), "शर्करा");
     }
 }
 
