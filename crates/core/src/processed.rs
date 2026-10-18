@@ -106,6 +106,9 @@ impl Data {
     }
 }
 
+/// `descendant_total` stops counting here; clients show the cap as "more".
+pub const TOTAL_CAP: usize = 100_000;
+
 // pub methods for server
 impl Data {
     #[must_use]
@@ -223,7 +226,8 @@ impl Data {
             .filter(|e| {
                 let child = e.child();
                 let child_lang = self.item(child).lang();
-                req_item_ancestors_within_desc_langs.contains(&item_id)
+                desc_langs.is_empty()
+                    || req_item_ancestors_within_desc_langs.contains(&item_id)
                     || (desc_langs.contains(&child_lang) && child_lang != item_lang)
                     || desc_langs
                         .iter()
@@ -269,6 +273,20 @@ impl Data {
         }
     }
 
+    /// Words in `root`'s unfiltered descendants tree, counting at most `cap`
+    /// (a word reached by two paths is drawn, and counted, twice).
+    #[must_use]
+    pub fn descendant_total(&self, root: ItemId, cap: usize) -> usize {
+        self.graph.descendant_edges(root).take(cap).count()
+    }
+
+    /// The tree's root for a cognates request: `root` when given, else the
+    /// last step of the item's trail.
+    #[must_use]
+    pub fn cognates_root(&self, item: ItemId, root: Option<ItemId>) -> ItemId {
+        root.unwrap_or_else(|| *self.lineage(item).last().expect("a trail starts with its item"))
+    }
+
     /// The item's trail: the item, then each older form that is the same
     /// word, stepping to an etymology's single source while its mode passes
     /// the word on. A "derived from" step never lands on a root or affix
@@ -310,7 +328,8 @@ impl Data {
     }
 
     /// The descendants of `root` (default: the last step of the item's
-    /// trail), keeping the path to the item visible.
+    /// trail), keeping the path to the item visible. Empty `desc_langs` means
+    /// every language.
     #[must_use]
     pub fn item_cognates_json(
         &self,
@@ -340,6 +359,8 @@ impl Data {
                     e.items.iter().map(|&id| self.item_json_inner(id, lean)).collect()
                 }),
             root,
+            total: self.descendant_total(root, TOTAL_CAP),
+            all_langs: desc_langs.is_empty(),
             tree: self.item_descendants_json(
                 root,
                 dist_lang,
@@ -631,5 +652,29 @@ mod lineage_tests {
         assert_eq!(data.lineage(lime), [lime, limaz]);
         assert_eq!(data.lineage(two), [two, stem, dwoh]);
         assert_eq!(data.lineage(hound), [hound, kwon]);
+    }
+
+    #[test]
+    fn no_languages_means_every_language() {
+        let (mut graph, mut pool) = (EtyGraph::default(), StringPool::default());
+        let pater = add(&mut graph, &mut pool, "la", "pater");
+        let paternus = add(&mut graph, &mut pool, "la", "paternus");
+        let pere = add(&mut graph, &mut pool, "fr", "père");
+        let suffix = add(&mut graph, &mut pool, "la", "-nus");
+        ety(&mut graph, paternus, EtyMode::Suffix, &[pater, suffix]);
+        ety(&mut graph, pere, EtyMode::Inherited, &[pater]);
+        let data = Data::new(pool, graph);
+        let la = Lang::from_str("la").unwrap();
+        let fr = Lang::from_str("fr").unwrap();
+        let ids = |t: &DescendantsJson<'_>| t.children.iter().map(|c| c.item.id).collect_vec();
+        // A same-language child with no descendants elsewhere drops out of a
+        // filtered tree, but not out of the every-language one.
+        let filtered = data.item_descendants_json(pater, la, &[fr, la], &[], false);
+        assert_eq!(ids(&filtered), [pere]);
+        let all = data.item_descendants_json(pater, la, &[], &[], false);
+        assert_eq!(all.children.len(), 2);
+        assert!(ids(&all).contains(&paternus));
+        assert_eq!(data.descendant_total(pater, TOTAL_CAP), 2);
+        assert_eq!(data.descendant_total(pater, 1), 1);
     }
 }

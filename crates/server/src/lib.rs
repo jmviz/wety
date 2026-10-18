@@ -8,7 +8,8 @@ use serde::{Deserialize, Deserializer, de::Error as _};
 use wety_core::{
     Data, ItemId, Lang, Search,
     keys::{Keys, Resolution},
-    processed::graph_version,
+    processed::{TOTAL_CAP, graph_version},
+    response::DescendantsViewJson,
 };
 
 use std::{str::FromStr, sync::Arc};
@@ -50,7 +51,8 @@ pub enum TreeKey {
     Descendants {
         item: ItemId,
         dist_lang: Lang,
-        /// sorted and deduplicated, so equivalent queries share an entry
+        /// sorted and deduplicated, so equivalent queries share an entry;
+        /// empty for every language
         desc_langs: Vec<Lang>,
         lean: bool,
     },
@@ -129,11 +131,13 @@ impl AppState {
                 lean,
             } => {
                 let ancestors = self.data.ancestors_in_langs(*item, desc_langs);
-                serde_json::to_vec(
-                    &self
+                serde_json::to_vec(&DescendantsViewJson {
+                    total: self.data.descendant_total(*item, TOTAL_CAP),
+                    all_langs: desc_langs.is_empty(),
+                    tree: self
                         .data
                         .item_descendants_json(*item, *dist_lang, desc_langs, &ancestors, *lean),
-                )?
+                })?
             }
             TreeKey::Cognates {
                 item,
@@ -326,13 +330,20 @@ pub struct TreeQueries {
     root: Option<String>,
     #[serde(rename = "rootEty")]
     root_ety: Option<String>,
+    /// Ignore `descLang` (draw every language) when the unfiltered tree has
+    /// at most this many words.
+    #[serde(rename = "upTo")]
+    up_to: Option<usize>,
 }
 
 impl TreeQueries {
-    /// `(dist_lang, desc_langs, lean)` in canonical form for `TreeKey`.
-    fn canonical(self, data: &Data, item_id: ItemId) -> (Lang, Vec<Lang>, bool) {
+    /// `(dist_lang, desc_langs, lean)` in canonical form for `TreeKey`, for a
+    /// tree starting at `root`: no languages (every one) when `upTo` allows.
+    fn canonical(self, data: &Data, item_id: ItemId, root: ItemId) -> (Lang, Vec<Lang>, bool) {
         let dist_lang = self.dist_lang.map_or(data.lang(item_id), |l| l.0);
-        let mut desc_langs: Vec<Lang> = self.desc_langs.into_iter().map(|l| l.0).collect();
+        let small = self.up_to.is_some_and(|n| data.descendant_total(root, n + 1) <= n);
+        let mut desc_langs: Vec<Lang> =
+            if small { vec![] } else { self.desc_langs.into_iter().map(|l| l.0).collect() };
         desc_langs.sort_unstable_by_key(|l| l.id());
         desc_langs.dedup();
         (dist_lang, desc_langs, self.lean)
@@ -350,7 +361,7 @@ pub async fn item_descendants(
     if !state.data.has_item(item_id) {
         return StatusCode::NOT_FOUND.into_response();
     }
-    let (dist_lang, desc_langs, lean) = tree_queries.canonical(&state.data, item_id);
+    let (dist_lang, desc_langs, lean) = tree_queries.canonical(&state.data, item_id, item_id);
     tree_response(
         state,
         TreeKey::Descendants {
@@ -382,7 +393,8 @@ pub async fn item_cognates(
             state.data.ancestor_named(item_id, lang, term, tree_queries.root_ety.as_deref())
         })
         .filter(|&r| state.data.lineage(item_id).last() != Some(&r));
-    let (dist_lang, desc_langs, lean) = tree_queries.canonical(&state.data, item_id);
+    let tree_root = state.data.cognates_root(item_id, root);
+    let (dist_lang, desc_langs, lean) = tree_queries.canonical(&state.data, item_id, tree_root);
     tree_response(
         state,
         TreeKey::Cognates {

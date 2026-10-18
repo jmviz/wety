@@ -98,6 +98,20 @@ pub struct CognatesJson<'a> {
     pub trail: Vec<TrailStepJson<'a>>,
     pub sources: Vec<ItemJson<'a>>,
     pub root: ItemId,
+    /// Words in the root's unfiltered tree (up to `TOTAL_CAP`).
+    pub total: usize,
+    /// Whether `tree` covers every language rather than the requested ones.
+    pub all_langs: bool,
+    pub tree: DescendantsJson<'a>,
+}
+
+/// A descendants tree with the size of its unfiltered version, as for
+/// cognates.
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DescendantsViewJson<'a> {
+    pub total: usize,
+    pub all_langs: bool,
     pub tree: DescendantsJson<'a>,
 }
 
