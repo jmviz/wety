@@ -35,10 +35,11 @@
 .node-popover[data-mode="float"] {
   position: fixed;
   inset: auto;
-  margin: 0.3em 0;
+  margin: 0 0.6em;
   position-anchor: --wety-node;
-  position-area: block-start span-inline-end;
-  position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
+  /* Beside the word, so its ancestors and descendants stay in view. */
+  position-area: inline-end span-block-end;
+  position-try-fallbacks: flip-inline, block-end span-inline-end, block-start span-inline-end;
 }
 
 .node-popover[data-mode="sheet"] {
@@ -99,6 +100,39 @@
   letter-spacing: 0.04em;
   font-size: 1.05em;
   color: var(--muted);
+}
+
+/* A dated language opens its dates and their sources in place. */
+.popover-lang-link,
+.popover-back {
+  all: unset;
+  cursor: pointer;
+  color: var(--muted);
+}
+
+.popover-lang-link .period-label {
+  font-variant-caps: normal;
+  letter-spacing: 0;
+  font-size: 0.85em;
+  color: var(--faint);
+  border-bottom: 1px dotted var(--faint);
+}
+
+.popover-lang-link:hover,
+.popover-back:hover {
+  color: var(--ink);
+}
+
+.popover-lang-link:focus-visible,
+.popover-back:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.popover-back {
+  display: block;
+  font-size: 0.9em;
+  margin-bottom: 0.4em;
 }
 
 .popover-term {

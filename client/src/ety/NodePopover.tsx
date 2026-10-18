@@ -18,6 +18,8 @@ import {
   Show,
   createEffect,
   createResource,
+  createSignal,
+  on,
   onCleanup,
   onMount,
 } from "solid-js";
@@ -46,17 +48,21 @@ export default function NodePopover() {
     } else delete el.dataset.open;
   };
 
-  // Fallback placement for browsers without CSS anchor positioning.
+  // Fallback placement for browsers without CSS anchor positioning: beside
+  // the word (right, else left), so its ancestors and descendants stay in
+  // view; below it when neither side has room.
   const placeManually = (anchor: HTMLElement) => {
     const a = anchor.getBoundingClientRect();
     const p = el.getBoundingClientRect();
-    const margin = 6;
-    let top = a.top - p.height - margin;
-    if (top < margin) top = a.bottom + margin;
+    const margin = 8;
+    let top = a.top - 4;
+    let left = a.right + margin;
+    if (left + p.width > window.innerWidth - margin) left = a.left - margin - p.width;
+    if (left < margin) {
+      left = Math.max(margin, Math.min(a.left, window.innerWidth - margin - p.width));
+      top = a.bottom + margin;
+    }
     top = Math.max(margin, Math.min(top, window.innerHeight - p.height - margin));
-    let left = a.left;
-    if (left + p.width > window.innerWidth - margin)
-      left = Math.max(margin, window.innerWidth - margin - p.width);
     el.style.top = `${top}px`;
     el.style.left = `${left}px`;
   };
@@ -157,6 +163,9 @@ export default function NodePopover() {
           );
           const glosses = () => full()?.gloss ?? null;
           const posList = () => full()?.pos ?? item().pos ?? [];
+          // The word, or its language's dates and their evidence.
+          const [langView, setLangView] = createSignal(false);
+          createEffect(on(node, () => setLangView(false)));
           return (
             <div class="popover-body">
               <Show when={state().pinned}>
@@ -164,8 +173,29 @@ export default function NodePopover() {
                   ×
                 </button>
               </Show>
+              <Show when={langView() && periodOf(item().lang.id)}>
+                {(p) => (
+                  <>
+                    <button class="popover-back" onClick={() => setLangView(false)}>
+                      ← {term(item())}
+                    </button>
+                    <PeriodSection period={p()} />
+                  </>
+                )}
+              </Show>
+              <Show when={!langView()}>
               <div class="popover-lang">
-                {item().lang.name}
+                <Show when={periodOf(item().lang.id)} fallback={item().lang.name}>
+                  {(p) => (
+                    <button
+                      class="popover-lang-link"
+                      title={`When ${item().lang.name} was spoken, with sources`}
+                      onClick={() => setLangView(true)}
+                    >
+                      {item().lang.name} <span class="period-label">{p().label}</span>
+                    </button>
+                  )}
+                </Show>
               </div>
               <div class="popover-term">
                 <span class="term">{term(item())}</span>
@@ -197,19 +227,8 @@ export default function NodePopover() {
                   </ol>
                 )}
               </Show>
-              <Show when={periodOf(item().lang.id)}>
-                {(p) => <PeriodSection period={p()} />}
-              </Show>
               <Show when={node().etyMode && sourcesOf(forest()!, node()).length}>
                 <div class="popover-ety">{etyLine(node().etyMode!, sourcesOf(forest()!, node()))}</div>
-              </Show>
-              <Show when={forest()?.kind !== TreeKind.Etymology && node().descendantCount > 0}>
-                <div class="popover-muted">
-                  {node().descendantCount} descendant{node().descendantCount === 1 ? "" : "s"} shown
-                  <Show when={node().langCounts.length > 1}>
-                    {" "}in {node().langCounts.length} languages
-                  </Show>
-                </div>
               </Show>
               <div class="popover-actions">
                 <button onClick={() => go("descendants", item())}>Descendants</button>
@@ -221,6 +240,7 @@ export default function NodePopover() {
                   </a>
                 </Show>
               </div>
+              </Show>
             </div>
           );
         }}
