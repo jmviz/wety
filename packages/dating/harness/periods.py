@@ -148,8 +148,41 @@ def ordinal(n):
     return f"{n}{suffix}"
 
 
-def describe(r, rounded=False):
-    """(text, era) for an endpoint range: a year, a century, or a year span."""
+def unit_name(r):
+    """(text, era) when an endpoint range is a named unit: a millennium, a century,
+    two adjacent centuries ("late ninth or early tenth century"), or half a
+    century; None otherwise."""
+    lo, hi = r
+    if hi - lo == 999 and (lo - 1) % 1000 == 0 and lo > 0:
+        return ordinal(hi // 1000) + " millennium", "CE"
+    if hi - lo == 999 and hi % 1000 == 0 and hi <= 0:
+        return ordinal((1 - lo) // 1000) + " millennium", "BCE"
+    if hi - lo == 199 and (lo - 1) % 100 == 0 and lo > 0:
+        return f"{ordinal(hi // 100 - 1)} or {ordinal(hi // 100)} century", "CE"
+    if hi - lo == 199 and hi % 100 == 0 and hi <= 0:
+        return f"{ordinal((1 - lo) // 100)} or {ordinal((1 - lo) // 100 - 1)} century", "BCE"
+    if hi - lo == 99 and (lo - 1) % 100 == 0 and lo > 0:
+        return ordinal(hi // 100) + " century", "CE"
+    if hi - lo == 99 and hi % 100 == 0 and hi <= 0:
+        return ordinal((1 - lo) // 100) + " century", "BCE"
+    if hi - lo == 49 and lo > 0 and (lo - 1) % 50 == 0:  # 1901–1950: early 20th century
+        half = "early" if (lo - 1) % 100 == 0 else "late"
+        return f"{half} {ordinal((hi - 1) // 100 + 1)} century", "CE"
+    if hi - lo == 49 and hi <= 0 and (1 - lo) % 50 == 0:  # 1200–1151 BCE: early 12th
+        half = "early" if (1 - lo) % 100 == 0 else "late"
+        return f"{half} {ordinal((1 - hi) // 100 + 1)} century", "BCE"
+    return None
+
+
+def year_span(r):
+    """Whether an endpoint is known only as a range of years, not a named unit."""
+    lo, hi = r
+    return lo is not None and hi is not None and lo != hi and unit_name(r) is None
+
+
+def describe(r, rounded=False, joiner="–"):
+    """(text, era) for an endpoint range: a year, a named unit, or a year span joined
+    by `joiner` ("–" when the label has one end, " or " between two ends)."""
     lo, hi = r
     if hi is None:  # only a lower bound: "the language died out after the 14th century"
         text, era = era_year(lo, rounded)
@@ -158,23 +191,21 @@ def describe(r, rounded=False):
         return era_year(hi, rounded)
     if lo == hi:
         return era_year(lo, rounded)
-    if hi - lo == 999 and (lo - 1) % 1000 == 0 and lo > 0:
-        return ordinal(hi // 1000) + " millennium", "CE"
-    if hi - lo == 999 and hi % 1000 == 0 and hi <= 0:
-        return ordinal((1 - lo) // 1000) + " millennium", "BCE"
-    if hi - lo == 199 and (lo - 1) % 100 == 0 and lo > 0:  # "the 6th or 7th century"
-        return f"{ordinal(hi // 100 - 1)}/{ordinal(hi // 100)} century", "CE"
-    if hi - lo == 199 and hi % 100 == 0 and hi <= 0:
-        return f"{ordinal((1 - lo) // 100)}/{ordinal((1 - lo) // 100 - 1)} century", "BCE"
-    if hi - lo == 99 and (lo - 1) % 100 == 0 and lo > 0:
-        return ordinal(hi // 100) + " century", "CE"
-    if hi - lo == 99 and hi % 100 == 0 and hi <= 0:
-        return ordinal((1 - lo) // 100) + " century", "BCE"
+    named = unit_name(r)
+    if named:
+        return named
     (a, era_a), (b, era_b) = era_year(lo, rounded), era_year(hi, rounded)
-    return (f"{a}/{b}", era_a) if era_a == era_b else (f"{a} {era_a}/{b}", era_b)
+    if era_a == era_b:
+        return f"{a}{joiner}{b}", era_a
+    return f"{a} {era_a}{' – ' if joiner == '–' else joiner}{b}", era_b
 
 
 def label(start, end, ongoing=False, approximate=False, rounded=False):
+    """A period in words, never with a slash: an endpoint known as a range is a
+    named unit ("4th or 5th century"), a dashed range in a one-ended label ("until c.
+    1000–500 BCE"), or alternatives in a two-ended one ("1150 – 1500 or 1600 CE").
+    When both ends are year ranges, the outer span stands for them ("c. 500 BCE –
+    1 CE"); the evidence keeps the exact bounds."""
     c = "c. " if approximate else ""
     if start is None and end is None:
         return None
@@ -189,13 +220,18 @@ def label(start, end, ongoing=False, approximate=False, rounded=False):
     if start == end:  # one stated unit, e.g. "the 3rd millennium"
         text, era = describe(start, rounded)
         return f"{c}{text} {era}"
-    (a, era_a), (b, era_b) = describe(start, rounded), describe(end, rounded)
+    if year_span(start) and end[1] is not None and year_span(end):
+        return label((start[0], start[0]), (end[1], end[1]), ongoing, True, rounded)
+    (a, era_a), (b, era_b) = describe(start, rounded, " or "), describe(end, rounded, " or ")
     for unit in (" century", " millennium"):
         if era_a == era_b and a.endswith(unit) and b.endswith(unit):
-            return f"{c}{a.removesuffix(unit)}–{b} {era_b}"
-    if era_a == era_b and "century" not in a + b and "millennium" not in a + b:
+            a = a.removesuffix(unit)
+            # "10th – 14th or 15th century": a plain dash would join 10th to 14th.
+            dash = " – " if " " in a or " " in b.removesuffix(unit) else "–"
+            return f"{c}{a}{dash}{b} {era_b}"
+    if era_a == era_b and " " not in a + b:
         return f"{c}{a}–{b} {era_b}"
-    if era_a == era_b and ("century" in a or "millennium" in a):  # "19th century – 1200 BCE"
+    if era_a == era_b:  # "19th century – 1200 BCE", "1150 – 1500 or 1600 CE"
         return f"{c}{a} – {b} {era_b}"
     return f"{c}{a} {era_a} – {b} {era_b}"
 

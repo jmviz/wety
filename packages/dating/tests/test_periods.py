@@ -80,7 +80,30 @@ class LabelTests(unittest.TestCase):
         self.assertEqual(label(None, (1400, None)), "until after 1400 CE")
         self.assertEqual(label(None, (-550, None), approximate=True), "until after c. 551 BCE")
         # An endpoint known only as one of two centuries.
-        self.assertEqual(label((-699, -500), (-199, -100)), "7th/6th–2nd century BCE")
+        self.assertEqual(label((-699, -500), (-199, -100)), "7th or 6th – 2nd century BCE")
+        self.assertEqual(label((301, 500), None), "from 4th or 5th century CE")
+
+    def test_ranges_read_without_slashes(self):
+        # A label with one end: the range with a dash.
+        self.assertEqual(label(None, (-999, -499), approximate=True), "until c. 1000–500 BCE")
+        self.assertEqual(
+            label(None, (-950, 50), approximate=True, rounded=True), "until c. 950 BCE – 50 CE"
+        )
+        # With two ends: the alternatives, since the dash separates start from end.
+        self.assertEqual(label((1150, 1150), (1500, 1600)), "1150 – 1500 or 1600 CE")
+        self.assertEqual(
+            label((901, 1000), (1301, 1500), approximate=True), "c. 10th – 14th or 15th century CE"
+        )
+        self.assertEqual(label((-599, -500), (301, 500)), "6th century BCE – 4th or 5th century CE")
+        # Half a century.
+        self.assertEqual(
+            label((1607, 1607), (1901, 1950), approximate=True), "c. 1607 – early 20th century CE"
+        )
+        self.assertEqual(label(None, (1951, 2000)), "until late 20th century CE")
+        self.assertEqual(label(None, (-1199, -1150)), "until early 12th century BCE")
+        # Both ends year ranges: the outer span, approximate.
+        self.assertEqual(label((-499, -399), (-299, 1), approximate=True), "c. 500 BCE – 1 CE")
+        self.assertEqual(label((1150, 1200), (1600, 1650)), "c. 1150–1650 CE")
 
 
 class PeriodExportTests(unittest.TestCase):
@@ -190,7 +213,7 @@ class PeriodExportTests(unittest.TestCase):
             {"form": "point", "unit": "CE", "value": 1898},
         )
         (dlm,) = export_periods(bundle([first, last], ["f", "l"]), "gen")["languages"]
-        self.assertEqual((dlm["basis"], dlm["label"]), ("last_speaker", "1000/1100–1898 CE"))
+        self.assertEqual((dlm["basis"], dlm["label"]), ("last_speaker", "1000 or 1100 – 1898 CE"))
 
     def test_crown_age_dates_a_proto_languages_end(self):
         crown = {
@@ -266,7 +289,7 @@ class PeriodExportTests(unittest.TestCase):
         # Without a reported central value (an interval only), the interval is the label.
         alt["time"] = {**alt["time"], "median": None}
         (pie,) = export_periods(b, "gen")["languages"]
-        self.assertEqual(pie["alternatives"][0]["label"], "until c. 4000/2500 BCE")
+        self.assertEqual(pie["alternatives"][0]["label"], "until c. 4000–2500 BCE")
         del b["decisions"][0]["proto_alternatives"]
         del b["decisions"][0]["proto_mapping"]
         self.assertEqual(export_periods(b, "gen")["languages"], [])
@@ -291,7 +314,7 @@ class PeriodExportTests(unittest.TestCase):
         b = bundle([age], ["f"], {"urj-pro": "reconstructed"})
         b["view"]["urj-pro"]["name"] = "Proto-Uralic"
         (pu,) = export_periods(b, "gen")["languages"]
-        self.assertEqual((pu["basis"], pu["label"]), ("estimated", "until c. 4000/3000 BCE"))
+        self.assertEqual((pu["basis"], pu["label"]), ("estimated", "until c. 4000–3000 BCE"))
         self.assertEqual(pu["evidence"][0]["method"], "lexicostatistic")
         # A tree's crown age stands beside such a default when the decision lists it.
         tree = claim(
@@ -313,9 +336,9 @@ class PeriodExportTests(unittest.TestCase):
             {"claim_id": "t", "proto_mapping": "Finnic and Ugric: the first split."}
         ]
         (pu,) = export_periods(b, "gen")["languages"]
-        self.assertEqual(pu["label"], "until c. 4000/3000 BCE")
+        self.assertEqual(pu["label"], "until c. 4000–3000 BCE")
         (shown,) = pu["alternatives"]
-        self.assertEqual((shown["claim_id"], shown["label"]), ("t", "until c. 4500/3500 BCE"))
+        self.assertEqual((shown["claim_id"], shown["label"]), ("t", "until c. 4500–3500 BCE"))
         self.assertEqual(shown["node"], "MRCA(Finnish, Hungarian)")
         # Two models' clades reported in one passage are two alternatives.
         other = {**tree, "id": "t2", "subject": {**tree["subject"], "id": "b:clade:y"}}
@@ -406,7 +429,7 @@ class PeriodExportTests(unittest.TestCase):
         self.assertEqual((got["kind"], got["basis"]), ("attested", "attested"))
         self.assertEqual(got["spoken"]["start"], {"earliest": 350, "latest": 380})
         self.assertEqual(got["spoken"]["end"], {"earliest": 550, "latest": 550})
-        self.assertEqual(got["label"], "350/380–550 CE")
+        self.assertEqual(got["label"], "350 or 380 – 550 CE")
         self.assertEqual([e["claim_id"] for e in got["evidence"]], ["f", "l"])
 
     def test_proto_is_always_estimated(self):
@@ -441,7 +464,7 @@ class PeriodExportTests(unittest.TestCase):
         ]
         self.assertEqual(gem["spoken"]["start"], {"earliest": -499, "latest": -399})
         self.assertEqual(gem["spoken"]["end"], {"earliest": -299, "latest": 1})
-        self.assertEqual(gem["label"], "c. 500/400 BCE – 300 BCE/1 CE")
+        self.assertEqual(gem["label"], "c. 500 BCE – 1 CE")
         mixed = {
             "form": "duration",
             "start": {"value": 1200, "unit": "BCE"},
