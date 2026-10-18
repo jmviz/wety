@@ -229,9 +229,11 @@ def label(start, end, ongoing=False, approximate=False, rounded=False):
             # "10th – 14th or 15th century": a plain dash would join 10th to 14th.
             dash = " – " if " " in a or " " in b.removesuffix(unit) else "–"
             return f"{c}{a}{dash}{b} {era_b}"
-    if era_a == era_b and " " not in a + b:
-        return f"{c}{a}–{b} {era_b}"
-    if era_a == era_b:  # "19th century – 1200 BCE", "1150 – 1500 or 1600 CE"
+    if era_a == era_b and "century" not in a + b and "millennium" not in a + b:
+        # "1150 – 1500 or 1600 CE": a plain dash would join 1150 to 1500.
+        dash = " – " if " or " in a + b else "–"
+        return f"{c}{a}{dash}{b} {era_b}"
+    if era_a == era_b and ("century" in a or "millennium" in a):  # "19th century – 1200 BCE"
         return f"{c}{a} – {b} {era_b}"
     return f"{c}{a} {era_a} – {b} {era_b}"
 
