@@ -50,8 +50,8 @@ export default function Trail() {
   // other forms with no source); all of them when there is no root. Like the
   // gap, opened for one word at a time.
   const [allUltimateFor, setAllUltimateFor] = createSignal<number | null>(null);
-  const roots = () => info()!.ultimateRoots ?? [];
-  const others = () => info()!.ultimateOthers ?? [];
+  const roots = () => info()!.ultimateRoots;
+  const others = () => info()!.ultimateOthers;
   const ultimate = () => {
     const all =
       !roots().length ||
