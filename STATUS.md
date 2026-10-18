@@ -19,46 +19,45 @@ and citations from reviewed evidence in the `packages/dating` registry.
 
 ## What changed
 
-- The client UX review lives in a shared doc outside git ("wety client UX review"),
-  with recommendations as tickable items and the cognates proposal below.
-- Kept codex's bug fixes (`b4f9a4ef`): error states, stale search responses, focus,
-  mobile zoom, popover overflow.
-- Reverted the client and server design additions of `b36265cf`: the Base lineage /
-  All components scope, `/explore`, language suggestion cards, tree reading guide,
-  filter presets and homograph selector. Base lineage left *mother* and *democracy*
-  with no cognates. Four bug fixes from that commit were kept: stale popovers,
-  popover placement on resize, stale language-search responses, and re-scrolling
-  on every filter change.
-- **Cognates start from an ancestor on the word's trail** (review item A1, approved).
-  The trail runs from the word back through each older form that is the same word
-  (inherited, borrowed, a form, "derived from"; never a "derived" step onto a bare
-  root). The tree is the last step's descendants: *mother* now shows the *méh₂tēr
-  family (182 words with English selected) and *democracy* reaches Greek
-  δημοκρατία. Readers can start from any step or source (`root=` in links); long
-  trails collapse their middle. Same-word branches open first in the initial view.
-- Checks pass: workspace compilation, 11 core tests (3 new for the trail rule), 7
-  server tests, TypeScript and production build. Checked in the browser against the
-  full graph: mother, father, democracy, sugar, quiz, a chosen root, language
-  changes, Descendants, phone width.
+The client UX review (a shared doc outside git, "wety client UX review") is worked
+through on this branch, after reverting codex's design additions (`b36265cf`):
+
+- **Cognates** start from the oldest form that is the same word (*mother* shows the
+  \*méh₂tēr family); a trail lets readers start elsewhere (`root=`).
+- **Every view reads oldest at the top**, the etymology chart included.
+- **Languages:** trees of up to 1,000 words show every language (*quiz*: 111 words in
+  21, was 1); larger ones the reader's languages, with "show all" (`all=1`). One
+  languages panel replaces three controls.
+- **One header line, a title line, one control row**: the tree starts about a quarter
+  of the way down (was nearly half); the toolbar and help rows are gone.
+- **Quieter rows:** one ink, unmarked inheritance, "+N" branches, meanings on by
+  default and in the chart, dates only where the language changes.
+- **Word details** open beside the word; dates and evidence sit in a language view.
+- **Search** folds diacritics, ʰ, subscripts and romanizations (paternitas, bher,
+  Greek pater now match) and ranks headwords before inflected forms; language search
+  matches any word in a name ("fren" finds Old French).
+- One Tab stop per tree with arrow keys; dark mode; tab titles name the word.
+- Checks pass: workspace compilation, 13 core tests, 7 server tests, TypeScript and
+  production build; checked in the browser against the full graph, desktop and phone.
 
 ## Uncertainties
 
-- The trail rule is measured on 38 words and all English entries, not reviewed word
-  by word; "derived" steps sometimes overreach (*chess*) or follow data errors (*robot*).
-- The `/cognates` response shape changed; deploy server and client together (old
-  open tabs break until reloaded).
-- Port 8000 still serves the main checkout's build of `b36265cf`; this branch runs on
-  5198 (client) and 3918 (API) while those preview processes remain.
+- The trail rule is measured, not reviewed word by word; "derived" steps can
+  overreach (*chess*) or follow data errors (*robot*).
+- `/cognates` and `/descendants` responses changed shape: deploy server and client
+  together.
+- The browser pane was hidden during checks, so paint-timing issues (a blank gap
+  after load) could not be confirmed or ruled out.
 - Research reviews remain model reviews; R2 pruning still needs a live dry run.
 
 ## Next three actions
 
-1. Maintainer: review this branch in the browser before merging.
-2. Review items A2–A4 and B (one direction, one language control, one control row).
+1. Maintainer: review this branch at localhost:5198 (API 3918) before merging.
+2. Decide whether period ranges get simpler labels (dating package, fingerprint).
 3. Inspect the R2 pruning dry run before the next server deployment.
 
 ## Decisions needed from the maintainer
 
-- When to merge Descendants into Cognates (start from the word itself), approved
-  for later as its own change.
+- Simpler period range labels (review item C5), a dating-package change.
+- When to merge Descendants into Cognates, approved for later.
 - Whether `codex/client-ux-audit` is superseded by this branch.
