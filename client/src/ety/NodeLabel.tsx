@@ -11,6 +11,8 @@ interface NodeLabelProps {
   // Show the derivation mode inline (outline rows); the chart shows it on the
   // connector instead.
   inlineMode?: boolean;
+  // Outline rows take one Tab stop between them; arrows move within.
+  roving?: boolean;
 }
 
 // The clickable part of a row: language, term, romanization. Everything else
@@ -43,6 +45,7 @@ export default function NodeLabel(props: NodeLabelProps) {
         type="button"
         class="label"
         data-key={props.node.key}
+        tabIndex={props.roving ? -1 : undefined}
         aria-haspopup="dialog"
       >
         <span class="lang">{item().lang.name}</span>{" "}

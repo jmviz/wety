@@ -62,6 +62,55 @@ export default function OutlineTree(props: OutlineTreeProps) {
     });
   });
   createEffect(on(() => props.forest, () => queueMicrotask(checkAway)));
+  // Keyboard: the tree is one Tab stop (the searched word, else the first
+  // row); arrows move between visible rows, right and left open and close.
+  const visibleLabels = () =>
+    [...rootEl.querySelectorAll<HTMLElement>(".label")].filter((l) => l.getClientRects().length > 0);
+  const moveTo = (from: HTMLElement | null, to: HTMLElement | undefined) => {
+    if (!to) return;
+    from?.setAttribute("tabindex", "-1");
+    to.setAttribute("tabindex", "0");
+    to.focus();
+  };
+  const onKeyDown = (e: KeyboardEvent) => {
+    const label = (e.target as Element).closest<HTMLElement>(".label");
+    if (!label || !rootEl.contains(label)) return;
+    const node = props.forest.byKey.get(Number(label.dataset.key));
+    const labels = visibleLabels();
+    const i = labels.indexOf(label);
+    const byKey = (n: TreeNode | null | undefined) =>
+      n ? rootEl.querySelector<HTMLElement>(`.label[data-key="${n.key}"]`) ?? undefined : undefined;
+    const keys: Record<string, () => void> = {
+      ArrowDown: () => moveTo(label, labels[i + 1]),
+      ArrowUp: () => moveTo(label, labels[i - 1]),
+      Home: () => moveTo(label, labels[0]),
+      End: () => moveTo(label, labels[labels.length - 1]),
+      ArrowRight: () => {
+        if (!node?.children.length) return;
+        if (!node.open()) node.setOpen(true);
+        else queueMicrotask(() => moveTo(label, byKey(node.children[0])));
+      },
+      ArrowLeft: () => {
+        if (node?.children.length && node.open()) node.setOpen(false);
+        else moveTo(label, byKey(node?.parent));
+      },
+    };
+    const act = keys[e.key];
+    if (!act) return;
+    e.preventDefault();
+    act();
+  };
+  createEffect(
+    on(
+      () => props.forest,
+      () =>
+        queueMicrotask(() => {
+          const first = selectedLabel() ?? rootEl.querySelector<HTMLElement>(".label");
+          first?.setAttribute("tabindex", "0");
+        })
+    )
+  );
+
   const jump = () => {
     openPathTo(props.forest.selected!);
     // Branches mount their children when opened; wait for the label.
@@ -79,6 +128,7 @@ export default function OutlineTree(props: OutlineTreeProps) {
         ref={rootEl}
         class="outline"
         on:click={onClick}
+        on:keydown={onKeyDown}
         on:pointerover={onPointerOver}
         on:pointerout={onPointerOut}
       >
@@ -121,13 +171,13 @@ function Node(props: { node: TreeNode }) {
       <Show when={branch} fallback={
         <div class="row">
           <span class="caret" aria-hidden="true" />
-          <NodeLabel node={n} inlineMode />
+          <NodeLabel node={n} inlineMode roving />
         </div>
       }>
         <details open={n.open()} on:toggle={(e) => n.setOpen((e.currentTarget as HTMLDetailsElement).open)}>
-          <summary class="row">
+          <summary class="row" tabIndex={-1}>
             <span class="caret" aria-hidden="true" />
-            <NodeLabel node={n} inlineMode />
+            <NodeLabel node={n} inlineMode roving />
             <span class="badge" title={langSummary(n)}>
               +{n.descendantCount.toLocaleString()}
             </span>
