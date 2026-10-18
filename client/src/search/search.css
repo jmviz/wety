@@ -53,6 +53,12 @@
   border-image-outset: 36px 42px;
 }
 
+@media (prefers-color-scheme: dark) {
+  .search-form {
+    border-image-source: url("./lindisfarne-border-dark.svg");
+  }
+}
+
 .search-form .chip {
   cursor: pointer;
   color: var(--muted);

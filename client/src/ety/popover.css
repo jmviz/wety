@@ -6,10 +6,10 @@
   display: none;
   margin: 0;
   padding: 0;
-  border: 1px solid #d8d1c6;
+  border: 1px solid var(--rule);
   border-radius: 0.5em;
-  background: #fff;
-  color: #2b2622;
+  background: var(--paper);
+  color: var(--ink);
   box-shadow: 0 8px 28px rgba(40, 30, 20, 0.16);
   font-family: var(--serif);
   font-size: 0.95rem;
@@ -80,14 +80,14 @@
   top: 0.2em;
   right: 0.45em;
   cursor: pointer;
-  color: #b3aba1;
+  color: var(--faint);
   font-size: 1.3em;
   line-height: 1;
   padding: 0.1em 0.2em;
 }
 
 .popover-close:hover {
-  color: #2b2622;
+  color: var(--ink);
 }
 
 .popover-close:focus-visible {
@@ -146,7 +146,7 @@
 }
 
 .popover-term .romanization {
-  color: #7d746a;
+  color: var(--muted);
   font-size: 0.85em;
 }
 
@@ -160,7 +160,7 @@
 .popover-term .imputed {
   font-size: 0.7em;
   font-style: italic;
-  color: #7d746a;
+  color: var(--muted);
   vertical-align: 0.15em;
 }
 
@@ -176,14 +176,14 @@
 
 .popover-glosses .pos {
   font-style: italic;
-  color: #7d746a;
+  color: var(--muted);
 }
 
 .popover-ety {
   font-size: 0.92em;
   margin: 0.3em 0;
   padding: 0.35em 0.6em;
-  background: #f7f4ee;
+  background: var(--wash);
   border-radius: 0.35em;
 }
 
@@ -192,7 +192,7 @@
 }
 
 .popover-ety .ety-prep {
-  color: #7d746a;
+  color: var(--muted);
 }
 
 .popover-ety .ety-lang {
@@ -205,11 +205,11 @@
 }
 
 .popover-ety .ety-plus {
-  color: #7d746a;
+  color: var(--muted);
 }
 
 .popover-muted {
-  color: #7d746a;
+  color: var(--muted);
   font-size: 0.85em;
 }
 
@@ -249,7 +249,7 @@
   font-size: 0.88em;
   margin: 0.3em 0;
   padding: 0.35em 0.6em;
-  border-left: 2px solid #d9d1c4;
+  border-left: 2px solid var(--rule);
 }
 
 .popover-period .period-label {
@@ -257,12 +257,12 @@
 }
 
 .popover-period .period-basis {
-  color: #7d746a;
+  color: var(--muted);
 }
 
 .popover-period a.period-source {
   color: inherit;
-  text-decoration: underline dotted #b3aba1;
+  text-decoration: underline dotted var(--faint);
   text-underline-offset: 0.18em;
 }
 
@@ -280,7 +280,7 @@
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  color: #7d746a;
+  color: var(--muted);
   font-style: italic;
   font-size: 0.92em;
 }

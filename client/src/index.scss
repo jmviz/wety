@@ -39,6 +39,22 @@
   --accent: #745536; // the Lindisfarne dots
   --focus: #745536;
   --serif: "Brill", "Noto Serif", "Gentium Plus", Georgia, serif;
+  color-scheme: light dark;
+}
+
+// The same page by lamplight: warm paper turned dark, ink turned light.
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ink: #ebe4d8;
+    --muted: #a99f92;
+    --faint: #6f665c;
+    --rule: #3b352f;
+    --paper: #1a1714;
+    --wash: #25211d;
+    --highlight: #3b3221;
+    --accent: #c9a77c;
+    --focus: #c9a77c;
+  }
 }
 
 *,
