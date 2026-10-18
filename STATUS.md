@@ -22,12 +22,13 @@ and citations from reviewed evidence in the `packages/dating` registry.
 The client UX review (a shared doc outside git, "wety client UX review") is worked
 through on this branch, after reverting codex's design additions (`b36265cf`):
 
-- **Cognates** start from the oldest form that is the same word (*mother* shows the
-  \*méh₂tēr family); a trail lets readers start elsewhere (`root=`).
+- **Cognates** start from the oldest form that is the same word, or the root it is
+  built on (*mother*: \*méh₂tēr; Latin *pater*: \*peh₂-); a trail lets readers start
+  elsewhere (`root=`).
 - **Every view reads oldest at the top**, the etymology chart included.
-- **Languages:** trees of up to 1,000 words show every language (*quiz*: 111 words in
-  21, was 1); larger ones the reader's languages, with "show all" (`all=1`). One
-  languages panel replaces three controls.
+- **Languages:** trees use the reader's languages, with "all languages" (`all=1`) a
+  choice; words formed within a language (limelight under lime) only on request
+  (`within=1`). One languages panel replaces three controls.
 - **One header line, a title line, one control row**: the tree starts about a quarter
   of the way down (was nearly half); the toolbar and help rows are gone.
 - **Quieter rows:** one ink, unmarked inheritance, "+N" branches, meanings on by
@@ -54,7 +55,7 @@ through on this branch, after reverting codex's design additions (`b36265cf`):
 
 ## Next three actions
 
-1. Maintainer: review this branch at localhost:5198 (API 3918) before merging.
+1. Maintainer: restart the API on port 3000 (rebuilt binary), then review the branch.
 2. Merge Descendants into Cognates (start from the word itself), approved for later.
 3. Inspect the R2 pruning dry run before the next server deployment.
 
