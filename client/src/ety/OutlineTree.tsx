@@ -1,14 +1,10 @@
 import "./tree.css";
-import { Forest, TreeNode, setAllOpen, openLang } from "./model";
+import { Forest, TreeNode, openPathTo } from "./model";
 import NodeLabel from "./NodeLabel";
 import { hoverEnter, hoverLeave, pin } from "./popover";
-import { showGlosses, setShowGlosses, lastRequest } from "../state";
-import { TreeRequest } from "../search/types";
+import { term } from "../search/types";
 
-import { For, Show, createEffect, createMemo, on } from "solid-js";
-
-// Filters rebuild the forest; scroll only when a new request arrives.
-let positionedRequest: TreeRequest | null = null;
+import { For, Show, createEffect, createMemo, createSignal, on, onCleanup, onMount } from "solid-js";
 
 interface OutlineTreeProps {
   forest: Forest;
@@ -44,25 +40,41 @@ export default function OutlineTree(props: OutlineTreeProps) {
     hoverLeave();
   };
 
-  // Bring the searched item into view once per tree.
-  createEffect(
-    on(
-      () => props.forest,
-      (f) => {
-        if (!f.selected || positionedRequest === lastRequest()) return;
-        positionedRequest = lastRequest();
-        requestAnimationFrame(() => {
-          rootEl
-            .querySelector(`.label[data-key="${f.selected!.key}"]`)
-            ?.scrollIntoView({ block: "center" });
-        });
-      }
-    )
-  );
+  // The page opens at the top, with the word's path already open. While the
+  // searched word is off screen, a button brings it back.
+  const [away, setAway] = createSignal<"above" | "below" | null>(null);
+  const selectedLabel = () =>
+    props.forest.selected &&
+    rootEl.querySelector<HTMLElement>(`.label[data-key="${props.forest.selected.key}"]`);
+  const checkAway = () => {
+    const label = selectedLabel();
+    const r = label?.getBoundingClientRect();
+    // A label inside a closed branch has no box: treat it as below.
+    if (!r || (r.width === 0 && r.height === 0)) return setAway(label ? "below" : null);
+    setAway(r.bottom <= 0 ? "above" : r.top >= window.innerHeight ? "below" : null);
+  };
+  onMount(() => {
+    window.addEventListener("scroll", checkAway, { passive: true });
+    window.addEventListener("resize", checkAway);
+    onCleanup(() => {
+      window.removeEventListener("scroll", checkAway);
+      window.removeEventListener("resize", checkAway);
+    });
+  });
+  createEffect(on(() => props.forest, () => queueMicrotask(checkAway)));
+  const jump = () => {
+    openPathTo(props.forest.selected!);
+    // Branches mount their children when opened; wait for the label.
+    queueMicrotask(() => {
+      const label = selectedLabel();
+      label?.scrollIntoView({ block: "center" });
+      label?.focus({ preventScroll: true });
+      checkAway();
+    });
+  };
 
   return (
     <div class="tree-view">
-      <Toolbar forest={props.forest} />
       <div
         ref={rootEl}
         class="outline"
@@ -74,6 +86,11 @@ export default function OutlineTree(props: OutlineTreeProps) {
           <For each={props.forest.roots}>{(n) => <Node node={n} />}</For>
         </ul>
       </div>
+      <Show when={away()}>
+        <button type="button" class="jump-to-word" onClick={jump}>
+          {away() === "above" ? "↑" : "↓"} {term(props.forest.selected!.item)}
+        </button>
+      </Show>
     </div>
   );
 }
@@ -130,50 +147,4 @@ function langSummary(n: TreeNode): string {
   const top = n.langCounts.slice(0, 3).map((lc) => lc.lang.name);
   const more = n.langCounts.length - top.length;
   return top.join(", ") + (more > 0 ? ` +${more}` : "");
-}
-
-function Toolbar(props: { forest: Forest }) {
-  let langSelect!: HTMLSelectElement;
-  return (
-    <div class="tree-toolbar" role="toolbar" aria-label="tree controls">
-      <span class="tree-stats">
-        {props.forest.nodeCount.toLocaleString()} {props.forest.nodeCount === 1 ? "word" : "words"}
-        {" · "}{props.forest.langs.length} {props.forest.langs.length === 1 ? "language" : "languages"}
-      </span>
-      <button type="button" onClick={() => setAllOpen(props.forest, true)}>
-        Expand all
-      </button>
-      <button type="button" onClick={() => setAllOpen(props.forest, false)}>
-        Collapse all
-      </button>
-      <label class="tree-lang-expand">
-        Expand language
-        <select
-          ref={langSelect}
-          onChange={(e) => {
-            const id = Number(e.currentTarget.value);
-            if (e.currentTarget.value !== "") openLang(props.forest, id);
-            e.currentTarget.value = "";
-          }}
-        >
-          <option value="">…</option>
-          <For each={props.forest.langs}>
-            {(lc) => (
-              <option value={lc.lang.id}>
-                {lc.lang.name} ({lc.count})
-              </option>
-            )}
-          </For>
-        </select>
-      </label>
-      <label class="tree-toggle">
-        <input
-          type="checkbox"
-          checked={showGlosses()}
-          onChange={(e) => setShowGlosses(e.currentTarget.checked)}
-        />
-        glosses
-      </label>
-    </div>
-  );
 }

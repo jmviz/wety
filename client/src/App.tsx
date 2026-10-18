@@ -1,7 +1,8 @@
 import SearchBox from "./search/SearchBox";
 import ViewBar from "./search/ViewBar";
-import { HomographBar, Unresolved } from "./search/Homographs";
-import { TreeKind } from "./search/types";
+import WordTitle from "./search/WordTitle";
+import { Unresolved } from "./search/Homographs";
+import { TreeKind, term } from "./search/types";
 import OutlineTree from "./ety/OutlineTree";
 import ChartTree from "./ety/ChartTree";
 import NodePopover from "./ety/NodePopover";
@@ -34,6 +35,12 @@ export default function App() {
 
   const home = () => location().pathname === "/";
 
+  // The tab names the word, so history and bookmarks tell words apart.
+  createEffect(() => {
+    const r = lastRequest();
+    document.title = r ? `${term(r.item)} · ${r.item.lang.name} · wety` : "wety";
+  });
+
   return (
     <>
       <header class="masthead" classList={{ home: home() }}>
@@ -50,9 +57,13 @@ export default function App() {
             Press <kbd>/</kbd> to search from anywhere.
           </p>
         </Show>
-        <ViewBar />
-        <HomographBar />
       </header>
+      <Show when={!home()}>
+        <section class="view" aria-label="word">
+          <WordTitle />
+          <ViewBar />
+        </section>
+      </Show>
       <main aria-busy={loading()}>
         <Show when={loading()}>
           <p class="empty" role="status">Loading word…</p>

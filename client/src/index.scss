@@ -99,19 +99,17 @@ kbd {
   padding-top: 18vh;
 }
 
-@media (max-width: 600px) {
-  .masthead:not(.home) .wordmark {
-    position: static;
-    display: block;
-    text-align: left;
-    margin-bottom: 0.4rem;
-  }
+// On a word's page the masthead is one quiet line: wordmark and search. The
+// dotted frame is the home page's.
+.masthead:not(.home) {
+  display: flex;
+  align-items: baseline;
+  gap: 1.4rem;
+  text-align: left;
+  padding: 0.9rem 1rem 0;
 }
 
 .wordmark {
-  position: absolute;
-  top: 0.9rem;
-  left: 1.1rem;
   font-variant-caps: all-small-caps;
   letter-spacing: 0.14em;
   font-size: 1.05rem;
@@ -158,29 +156,131 @@ main {
 // The view line -----------------------------------------------------------
 
 .view {
-  max-width: 64rem;
-  margin: 0 auto;
+  padding: 1.6rem 1rem 0.4rem;
   text-align: left;
 }
 
+// The word: term and etymology switch, its first sense, the tree's size.
+.word-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 0.9em;
+  margin-bottom: 0.5rem;
+}
+
+.word {
+  margin: 0;
+  font-size: 1.7rem;
+  line-height: 1.2;
+  font-weight: bold;
+}
+
+.homograph-switch sup {
+  font-size: 0.8em;
+  font-weight: normal;
+  color: var(--accent);
+  font-variant-numeric: lining-nums;
+  vertical-align: 0.6em;
+  line-height: 0;
+}
+
+.sense {
+  margin: 0;
+  flex: 1 1 18rem;
+  min-width: 0;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tree-stats {
+  margin: 0;
+  color: var(--faint);
+  font-size: 0.85rem;
+  font-variant-numeric: oldstyle-nums;
+}
+
+.homograph-switch {
+  position: relative;
+  font-size: 1rem;
+}
+
+.homograph-switch .view-link {
+  margin-left: 0.1em;
+}
+
+.menu {
+  list-style: none;
+  margin: 0;
+  padding: 0.3em 0;
+  position: absolute;
+  z-index: 50;
+  top: calc(100% + 0.3em);
+  left: 0;
+  width: max-content;
+  max-width: min(30rem, calc(100vw - 2rem));
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 0.4em;
+  box-shadow: 0 8px 28px rgba(40, 30, 20, 0.12);
+  font-size: 0.92rem;
+  font-weight: normal;
+}
+
+.menu button {
+  all: unset;
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 0.25em 0.8em;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.menu button:hover,
+.menu button:focus-visible {
+  background: var(--wash);
+}
+
+.menu button.current {
+  font-weight: bold;
+}
+
+// The row of controls: views on the left, the rest on the right. Each group
+// wraps as a unit, so a wrapped line never starts with a lone dot.
 .view-bar {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  justify-content: center;
-  gap: 0.2em 0.55em;
+  justify-content: space-between;
+  gap: 0.3em 1.5em;
   font-size: 0.92rem;
   color: var(--muted);
   padding: 0 0 0.3rem;
+  border-bottom: 1px dotted var(--rule);
 }
 
-// Separators travel with the item they precede, so a wrapped line never
-// starts or ends with a lone dot.
-.view-bar > .view-link + .view-link::before {
+.view-group {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: baseline;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.view-group > .view-link + .view-link::before {
   content: "·";
   color: var(--faint);
-  margin-right: 0.55em;
+  margin: 0 0.55em;
   font-weight: normal;
+}
+
+.view-bar .count {
+  color: var(--faint);
 }
 
 .view-link {
@@ -214,9 +314,7 @@ main {
 }
 
 .trail {
-  max-width: 48rem;
-  margin: 0.35em auto 0;
-  text-align: center;
+  margin: 0.5em 0 0;
   font-size: 0.92rem;
   line-height: 1.55;
   color: var(--faint);
@@ -258,6 +356,11 @@ main {
 
 .langs-summary {
   color: var(--ink);
+  display: inline-block;
+  max-width: 14em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: bottom;
 }
 
 .disclosure::after {
@@ -433,17 +536,76 @@ main {
   background: var(--wash);
 }
 
-// Filters
-.filters {
-  display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(0, 2fr);
-  gap: 0.6rem 2rem;
+// Languages panel: which languages are drawn, then those in the tree.
+.panel-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35em 0.7em;
+  margin-bottom: 0.4rem;
 }
 
-@media (max-width: 700px) {
-  .filters {
-    grid-template-columns: 1fr;
-  }
+.panel-row .panel-title {
+  margin: 0;
+}
+
+.panel-or {
+  color: var(--faint);
+  font-style: italic;
+}
+
+.link.on {
+  color: var(--ink);
+  border-bottom-style: solid;
+}
+
+.languages > .panel-note {
+  margin: 0 0 0.6rem;
+  font-size: 0.85em;
+}
+
+.languages .check-list li {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45em;
+}
+
+.lang-reveal {
+  all: unset;
+  cursor: pointer;
+  line-height: 1.6;
+}
+
+.lang-reveal:hover .lang {
+  text-decoration: underline dotted var(--faint);
+}
+
+.lang-reveal:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+// While the searched word is off screen.
+.jump-to-word {
+  all: unset;
+  position: fixed;
+  bottom: 1.2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 40;
+  cursor: pointer;
+  padding: 0.25em 0.9em;
+  font-size: 0.9rem;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 1em;
+  box-shadow: 0 4px 16px rgba(40, 30, 20, 0.12);
+}
+
+.jump-to-word:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
 }
 
 .check-list {
@@ -539,10 +701,6 @@ main {
 }
 
 // Homographs: the word's other etymologies --------------------------------
-
-.homographs {
-  font-size: 0.85rem;
-}
 
 .ety-label {
   font-variant-numeric: oldstyle-nums;

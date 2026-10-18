@@ -10,7 +10,7 @@ import {
   close,
   isFinePointer,
 } from "./popover";
-import { forest, fetchItem, selectedDescLangs } from "../state";
+import { forest, fetchItem } from "../state";
 import { useGoTo } from "../search/navigate";
 import {
   For,
@@ -134,8 +134,7 @@ export default function NodePopover() {
       descendants: TreeKind.Descendants,
       cognates: TreeKind.Cognates,
     }[kind];
-    const descLangs = selectedDescLangs();
-    goTo(treeKind, item, descLangs.length ? descLangs : [item.lang]);
+    goTo(treeKind, item);
   };
 
   return (

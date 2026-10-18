@@ -65,6 +65,16 @@ export interface Cognates {
   trail: TrailStep[];
   sources: Item[];
   root: number;
+  // Words in the root's unfiltered tree (the server stops counting at
+  // 100,000), and whether `tree` covers every language.
+  total: number;
+  allLangs: boolean;
+  tree: Descendants;
+}
+
+export interface DescendantsView {
+  total: number;
+  allLangs: boolean;
   tree: Descendants;
 }
 
@@ -85,16 +95,18 @@ export const kindPath: Record<TreeKind, string> = {
 export const encodeTerm = (term: string) => encodeURIComponent(term.replace(/ /g, "_"));
 export const decodeTerm = (s: string) => decodeURIComponent(s).replace(/_/g, " ");
 
-// What a URL names: `/<view>/<lang code>/<term>?ety=…&lang=…`, where `lang`
-// lists the descendant languages (codes). Cognates may add `root=<lang
-// code>:<term>` (and `rootEty`), the ancestor to start from, when it is not
-// the default.
+// What a URL names: `/<view>/<lang code>/<term>?ety=…&lang=…`. Trees are
+// drawn in every language when small and otherwise in the reader's
+// languages, unless `lang` names the languages to draw (codes) or `all=1`
+// asks for every one. Cognates may add `root=<lang code>:<term>` (and
+// `rootEty`), the ancestor to start from, when it is not the default.
 export interface WordLink {
   kind: TreeKind;
   lang: string;
   term: string;
   ety: string | null;
   descLangs: string[];
+  allLangs: boolean;
   root: string | null;
   rootEty: string | null;
 }
@@ -102,7 +114,10 @@ export interface WordLink {
 export function linkHref(link: WordLink): string {
   const params = new URLSearchParams();
   if (link.ety) params.set("ety", link.ety);
-  if (link.kind !== TreeKind.Etymology) for (const c of link.descLangs) params.append("lang", c);
+  if (link.kind !== TreeKind.Etymology) {
+    if (link.allLangs) params.set("all", "1");
+    else for (const c of link.descLangs) params.append("lang", c);
+  }
   if (link.kind === TreeKind.Cognates && link.root) {
     params.set("root", link.root);
     if (link.rootEty) params.set("rootEty", link.rootEty);
@@ -111,11 +126,18 @@ export function linkHref(link: WordLink): string {
   return `/${kindPath[link.kind]}/${link.lang}/${encodeTerm(link.term)}${search ? `?${search}` : ""}`;
 }
 
+// Which languages a tree is drawn in: the default (none named), exactly
+// these, or all of them.
+export interface LangChoice {
+  langs?: Lang[];
+  all?: boolean;
+}
+
 // `root`: the ancestor a cognates tree starts from, when not the default.
 export function wordHref(
   kind: TreeKind,
   item: Item,
-  descLangs: Lang[] = [],
+  choice: LangChoice = {},
   root: Item | null = null
 ): string {
   return linkHref({
@@ -123,7 +145,8 @@ export function wordHref(
     lang: item.lang.code,
     term: item.term,
     ety: item.ety ?? null,
-    descLangs: descLangs.map((l) => l.code),
+    descLangs: choice.all ? [] : (choice.langs ?? []).map((l) => l.code),
+    allLangs: !!choice.all,
     root: root && `${root.lang.code}:${root.term}`,
     rootEty: root?.ety ?? null,
   });
@@ -147,38 +170,43 @@ export function parseWordHref(href: string): WordLink | null {
     lang,
     term,
     ety: params.get("ety"),
-    descLangs: kind === TreeKind.Etymology ? [] : params.getAll("lang"),
+    descLangs: kind === TreeKind.Etymology || params.get("all") ? [] : params.getAll("lang"),
+    allLangs: kind !== TreeKind.Etymology && params.get("all") === "1",
     root: kind === TreeKind.Cognates ? params.get("root") : null,
     rootEty: kind === TreeKind.Cognates ? params.get("rootEty") : null,
   };
 }
 
-// A loaded view: the word, its descendant languages, the cognates root when
-// not the default, and the graph build its numeric ids belong to.
+// A loaded view: the word, the languages its link names (none for the
+// default), the cognates root when not the default, and the graph build its
+// numeric ids belong to.
 export class TreeRequest {
   lang: Lang;
   item: Item;
   descLangs: Lang[];
+  allLangs: boolean;
   kind: TreeKind;
   root: Item | null;
 
-  constructor(lang: Lang, item: Item, descLangs: Lang[], kind: TreeKind, root: Item | null = null) {
+  constructor(
+    lang: Lang,
+    item: Item,
+    descLangs: Lang[],
+    kind: TreeKind,
+    root: Item | null = null,
+    allLangs = false
+  ) {
     this.lang = lang;
     this.item = item;
     this.descLangs = descLangs;
     this.descLangs.sort((a, b) => a.id - b.id);
+    this.allLangs = allLangs;
     this.kind = kind;
     this.root = root;
   }
 
-  apiPath(graph: string): string {
-    const params = new URLSearchParams({ graph });
-    if (this.kind !== TreeKind.Etymology)
-      for (const l of this.descLangs) params.append("descLang", l.code);
-    if (this.kind === TreeKind.Cognates && this.root) {
-      params.set("root", `${this.root.lang.code}:${this.root.term}`);
-      if (this.root.ety) params.set("rootEty", this.root.ety);
-    }
-    return `/${kindPath[this.kind]}/${this.item.id}?${params}`;
+  // The same languages, for another view of this word.
+  get choice(): LangChoice {
+    return this.allLangs ? { all: true } : this.descLangs.length ? { langs: this.descLangs } : {};
   }
 }

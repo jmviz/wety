@@ -1,16 +1,23 @@
 import { Lang, TreeKind } from "./types";
 import { searchLangs } from "./api";
 import { useGoTo, withOwnLang } from "./navigate";
-import FiltersPanel from "../settings/FiltersPanel";
+import ConnectionsPanel from "../settings/ConnectionsPanel";
+import DisplayPanel from "../settings/DisplayPanel";
 import Trail from "../ety/Trail";
-import { showDates, toggleDates } from "../ety/periods";
+import { openLang } from "../ety/model";
 import {
+  ALL_LANGS_UP_TO,
+  debounce,
+  disabledEtyModes,
+  forest,
+  hiddenLangs,
   lastRequest,
   selectedDescLangs,
+  setHiddenLangs,
   setSelectedDescLangs,
-  disabledEtyModes,
-  hiddenLangs,
-  debounce,
+  treeLangs,
+  treeModes,
+  treeSize,
 } from "../state";
 
 import { For, Show, createSignal } from "solid-js";
@@ -21,98 +28,116 @@ const VIEWS: [TreeKind, string][] = [
   [TreeKind.Cognates, "Cognates"],
 ];
 
-// One quiet line under the search box: which view of the word is shown,
-// which languages its descendants are drawn in, and the filters toggle.
+type Panel = "langs" | "connections" | "display";
+
+// The one row of controls under the word: its three views on the left; on the
+// right, which languages are drawn, which connections are followed, and how
+// rows are shown. Each opens a panel beneath the row.
 export default function ViewBar() {
   const goTo = useGoTo();
-  const [panel, setPanel] = createSignal<"langs" | "filters" | null>(null);
-  const toggle = (p: "langs" | "filters") => setPanel(panel() === p ? null : p);
+  const [panel, setPanel] = createSignal<Panel | null>(null);
+  const toggle = (p: Panel) => setPanel(panel() === p ? null : p);
 
   const request = () => lastRequest();
   const kind = () => request()?.kind;
-  const hasDescLangs = () => kind() !== TreeKind.Etymology;
-  const filterCount = () => disabledEtyModes().size + hiddenLangs().size;
+  const isTree = () => kind() !== TreeKind.Etymology;
 
-  const summary = () => {
-    const ls = selectedDescLangs().slice().sort((a, b) => a.name.localeCompare(b.name));
-    const head = ls.slice(0, 3).map((l) => l.name).join(", ");
-    return ls.length > 3 ? `${head} +${ls.length - 3}` : head || "no languages";
+  // The languages a tree is drawn in: the link's, else the reader's.
+  const langs = () => {
+    const r = request()!;
+    return r.descLangs.length ? r.descLangs : withOwnLang(selectedDescLangs(), r.item.lang);
   };
-
-  const applyDescLangs = (next: Lang[]) => {
-    const r = request();
-    const langs = r ? withOwnLang(next, r.item.lang) : next;
-    setSelectedDescLangs(langs);
-    if (r && r.kind !== TreeKind.Etymology) goTo(r.kind, r.item, langs, r.root);
+  const langSummary = () => {
+    if (treeSize()?.allLangs) return "all languages";
+    const ls = langs().slice().sort((a, b) => a.name.localeCompare(b.name));
+    const head = ls.slice(0, 2).map((l) => l.name).join(", ");
+    return ls.length > 2 ? `${head} +${ls.length - 2}` : head;
   };
+  const hiddenHere = () => treeLangs().filter((l) => hiddenLangs().has(l.lang.id)).length;
+  const offModes = () => [...treeModes().keys()].filter((m) => disabledEtyModes().has(m)).length;
 
   return (
     <Show when={request()}>
       {(r) => (
-        <div class="view">
-          <nav class="view-bar" aria-label="view">
-            <For each={VIEWS}>
-              {([k, label]) => (
+        <div class="view-controls">
+          <div class="view-bar">
+            <nav class="view-group" aria-label="view">
+              <For each={VIEWS}>
+                {([k, label]) => (
+                  <button
+                    type="button"
+                    class="view-link"
+                    classList={{ current: kind() === k }}
+                    aria-current={kind() === k ? "page" : undefined}
+                    onClick={() => kind() !== k && goTo(k, r().item, r().choice)}
+                  >
+                    {label}
+                  </button>
+                )}
+              </For>
+            </nav>
+            <div class="view-group">
+              <Show when={isTree()}>
                 <button
                   type="button"
                   class="view-link"
-                  classList={{ current: kind() === k }}
-                  aria-current={kind() === k ? "page" : undefined}
-                  onClick={() => kind() !== k && goTo(k, r().item)}
+                  classList={{ open: panel() === "langs" }}
+                  aria-expanded={panel() === "langs"}
+                  onClick={() => toggle("langs")}
                 >
-                  {label}
+                  in <span class="langs-summary">{langSummary()}</span>
+                  <Show when={hiddenHere() > 0}>
+                    {" "}
+                    <span class="count">{hiddenHere()} hidden</span>
+                  </Show>
+                  <span class="disclosure" aria-hidden="true" />
                 </button>
-              )}
-            </For>
-            <Show when={hasDescLangs()}>
+              </Show>
               <button
                 type="button"
                 class="view-link"
-                classList={{ open: panel() === "langs" }}
-                aria-expanded={panel() === "langs"}
-                onClick={() => toggle("langs")}
+                classList={{ open: panel() === "connections" }}
+                aria-expanded={panel() === "connections"}
+                onClick={() => toggle("connections")}
               >
-                in <span class="langs-summary">{summary()}</span>
+                connections
+                <Show when={offModes() > 0}>
+                  {" "}
+                  <span class="count">{offModes()} off</span>
+                </Show>
                 <span class="disclosure" aria-hidden="true" />
               </button>
-            </Show>
-            <button
-              type="button"
-              class="view-link"
-              classList={{ open: panel() === "filters" }}
-              aria-expanded={panel() === "filters"}
-              onClick={() => toggle("filters")}
-            >
-              filters
-              <Show when={filterCount() > 0}>
-                {" "}
-                <span class="count">{filterCount()}</span>
-              </Show>
-              <span class="disclosure" aria-hidden="true" />
-            </button>
-            <button
-              type="button"
-              class="view-link"
-              classList={{ on: showDates() }}
-              aria-pressed={showDates()}
-              title="Show when each language was spoken, where a cited period is available"
-              onClick={toggleDates}
-            >
-              dates
-            </button>
-          </nav>
+              <button
+                type="button"
+                class="view-link"
+                classList={{ open: panel() === "display" }}
+                aria-expanded={panel() === "display"}
+                onClick={() => toggle("display")}
+              >
+                display
+                <span class="disclosure" aria-hidden="true" />
+              </button>
+            </div>
+          </div>
           <Show when={kind() === TreeKind.Cognates}>
             <Trail />
           </Show>
-          <Show when={panel() === "langs" && hasDescLangs()}>
-            <LangSetEditor
-              value={selectedDescLangs()}
-              own={r().item.lang}
-              onChange={applyDescLangs}
+          <Show when={panel() === "langs" && isTree()}>
+            <LanguagesPanel
+              langs={langs()}
+              onLangs={(next) => {
+                const chosen = withOwnLang(next, r().item.lang);
+                setSelectedDescLangs(chosen);
+                goTo(r().kind, r().item, { langs: chosen }, r().root);
+              }}
+              onAll={() => goTo(r().kind, r().item, r().allLangs ? {} : { all: true }, r().root)}
             />
           </Show>
-          <Show when={panel() === "filters"}>
-            <FiltersPanel />
+          <Show when={panel() === "connections"}>
+            <ConnectionsPanel />
+          </Show>
+          <Show when={panel() === "display"}>
+            <DisplayPanel />
           </Show>
         </div>
       )}
@@ -120,7 +145,62 @@ export default function ViewBar() {
   );
 }
 
-// Chips for the descendant-language set plus a small language search.
+// Which languages are drawn (the reader's, or all of them), and the languages
+// in this tree: hide one, or open every branch that reaches it.
+function LanguagesPanel(props: { langs: Lang[]; onLangs: (v: Lang[]) => void; onAll: () => void }) {
+  const r = () => lastRequest()!;
+  const toggleLang = (id: number) => {
+    const next = new Set(hiddenLangs());
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    setHiddenLangs(next);
+  };
+  return (
+    <div class="panel languages" role="group" aria-label="languages">
+      <div class="panel-row">
+        <span class="panel-title">Branches reaching</span>
+        <LangSetEditor value={props.langs} own={r().item.lang} onChange={props.onLangs} />
+        <span class="panel-or">or</span>
+        <button type="button" class="link" aria-pressed={r().allLangs} classList={{ on: r().allLangs }} onClick={props.onAll}>
+          all languages
+        </button>
+      </div>
+      <Show when={!r().allLangs && !r().descLangs.length}>
+        <p class="panel-note">Trees of up to {ALL_LANGS_UP_TO.toLocaleString()} words show every language.</p>
+      </Show>
+      <Show when={treeLangs().length > 1}>
+        <p class="panel-title">In this tree</p>
+        <ul class="check-list columns">
+          <For each={treeLangs()}>
+            {(lc) => (
+              <li>
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={!hiddenLangs().has(lc.lang.id)}
+                    aria-label={`show ${lc.lang.name}`}
+                    onChange={() => toggleLang(lc.lang.id)}
+                  />
+                </label>
+                <button
+                  type="button"
+                  class="lang-reveal"
+                  title={`open every branch that reaches ${lc.lang.name}`}
+                  onClick={() => forest() && openLang(forest()!, lc.lang.id)}
+                >
+                  <span class="lang">{lc.lang.name}</span> <span class="count">{lc.count}</span>
+                </button>
+              </li>
+            )}
+          </For>
+        </ul>
+      </Show>
+    </div>
+  );
+}
+
+// Chips for the reader's languages plus a small language search. The word's
+// own language is always among them.
 function LangSetEditor(props: { value: Lang[]; own: Lang; onChange: (v: Lang[]) => void }) {
   let inputEl!: HTMLInputElement;
   const [text, setText] = createSignal("");
@@ -152,9 +232,7 @@ function LangSetEditor(props: { value: Lang[]; own: Lang; onChange: (v: Lang[]) 
     props.onChange(props.value.filter((l) => l.id !== lang.id));
 
   return (
-    <div class="panel lang-set" role="group" aria-label="descendant languages">
-      <p class="panel-title">Descendant languages</p>
-      <div class="chips">
+    <div class="chips" role="group" aria-label="your languages">
         <For each={props.value.slice().sort((a, b) => a.name.localeCompare(b.name))}>
           {(lang) => (
             <span class="chip removable">
@@ -230,13 +308,6 @@ function LangSetEditor(props: { value: Lang[]; own: Lang; onChange: (v: Lang[]) 
             </ul>
           </Show>
         </span>
-      </div>
-      <p class="panel-foot">
-        <button type="button" class="link" onClick={() => props.onChange([])}>
-          clear
-        </button>
-        <span class="panel-note">The word's own language is always included.</span>
-      </p>
     </div>
   );
 }

@@ -15,6 +15,30 @@
   }
 }
 
+/* A word's page: an underlined field beside the wordmark, no frame. */
+.masthead:not(.home) .search {
+  flex: 0 1 22rem;
+  width: auto;
+  min-width: 0;
+  margin: 0;
+}
+
+.masthead:not(.home) .search-form {
+  border-image: none;
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 0.15em;
+}
+
+.masthead:not(.home) .search-form:focus-within {
+  border-bottom-color: var(--ink);
+}
+
+.masthead:not(.home) .search-menu {
+  top: calc(100% + 0.4rem);
+  left: 0;
+  transform: none;
+}
+
 .search-form {
   display: flex;
   align-items: baseline;

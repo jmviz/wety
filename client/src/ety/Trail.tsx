@@ -1,6 +1,6 @@
 import { Item, TreeKind, term } from "../search/types";
 import { useGoTo } from "../search/navigate";
-import { cognates, lastRequest, selectedDescLangs } from "../state";
+import { cognates, lastRequest } from "../state";
 import { etyModeShort } from "./etyMode";
 
 import { For, Show, createSignal } from "solid-js";
@@ -26,7 +26,7 @@ export default function Trail() {
   const shown = (i: number) => i === 0 || i > hidden();
   const choose = (item: Item) => {
     const r = lastRequest()!;
-    goTo(TreeKind.Cognates, r.item, selectedDescLangs(), item.id === top().id ? null : item);
+    goTo(TreeKind.Cognates, r.item, r.choice, item.id === top().id ? null : item);
   };
 
   // A language name only where it changes, so a run within one language
