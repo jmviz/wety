@@ -162,13 +162,8 @@ export function buildForest(
   filters: TreeFilters,
   prevOpen?: Map<string, boolean>
 ): Forest {
-  const rawRoots = applyFilters(
-    Array.isArray(tree)
-      ? tree.map(rawFromDescendants)
-      : [rawFromEtymology(tree)],
-    filters,
-    kind
-  );
+  const raw = Array.isArray(tree) ? tree.map(rawFromDescendants) : [rawFromEtymology(tree)];
+  const rawRoots = applyFilters(raw, filters, kind);
 
   const byKey = new Map<number, TreeNode>();
   const langTotals = new Map<number, LangCount>();

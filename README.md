@@ -85,10 +85,10 @@ differs from the server binary's is rejected. The server listens on port 3000 (s
 Shared links name a word by language code, term and, when Wiktionary numbers the
 page's etymologies, that number: `/etymology/en/lime?ety=3`,
 `/cognates/en/lime?ety=3&lang=la&lang=grc`. A cognates tree starts by default at the
-oldest form that is the same word (inherited or borrowed); `root=ine-pro:peh₂-` (with
-`rootEty` when needed) names another of the word's ancestors to start from. Without
-`lang`, trees of up to 1,000 words show every language (the API's `upTo`) and larger
-ones the reader's languages; `all=1` shows every language at any size. The client
+oldest form that is the same word (inherited or borrowed), or at the root that form is
+built on (Latin pater starts at PIE \*peh₂-); `root=ine-pro:ph₂tḗr` (with `rootEty`
+when needed) names another of the word's ancestors to start from. Without `lang`,
+trees show the reader's languages; `all=1` shows every language. The client
 resolves links with
 `/resolve?lang=en&term=lime&ety=3`, which also lists the word's homographs. Numeric
 item and language IDs are positions in one build and never appear in shared links;

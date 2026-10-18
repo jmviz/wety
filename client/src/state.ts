@@ -126,13 +126,12 @@ export const [lastRequest, setLastRequest] = createSignal<TreeRequest | null>(
   null
 );
 // The cognates view's trail and sources (the tree itself is in `tree`).
-export const [cognates, setCognates] = createSignal<Pick<Cognates, "trail" | "sources" | "root"> | null>(null);
+export const [cognates, setCognates] = createSignal<
+  Pick<Cognates, "trail" | "sources" | "root" | "defaultRoot"> | null
+>(null);
 // A descendants or cognates tree's unfiltered size, and whether it is drawn in
 // every language.
 export const [treeSize, setTreeSize] = createSignal<{ total: number; allLangs: boolean } | null>(null);
-// Unfiltered trees up to this many words are drawn in every language unless
-// the link names languages.
-export const ALL_LANGS_UP_TO = 1000;
 export const [loading, setLoading] = createSignal(false);
 export const [loadError, setLoadError] = createSignal<string | null>(null);
 // Every item sharing the shown word's language and term (Wiktionary's
@@ -165,11 +164,11 @@ let prevTree: Etymology | Descendants[] | null = null;
 export const forest = createMemo<Forest | null>(() => {
   const t = tree();
   const request = lastRequest();
+  if (t === null || request === null) return null;
   const filters = {
     disabledEtyModes: disabledEtyModes(),
     hiddenLangs: hiddenLangs(),
   };
-  if (t === null || request === null) return null;
   const sameTree = t === prevTree && prevForest !== null;
   const f = untrack(() =>
     buildForest(
@@ -394,7 +393,7 @@ async function loadLink(link: WordLink, seq: number): Promise<string | null> {
   }
 
   // Languages the link names, plus the word's own; by default the reader's
-  // languages (remembered from the last choice), unless the tree is small.
+  // languages (remembered from the last choice).
   const named = link.kind !== TreeKind.Etymology && !link.allLangs && link.descLangs.length > 0;
   const codes =
     link.kind === TreeKind.Etymology || link.allLangs
@@ -402,7 +401,7 @@ async function loadLink(link: WordLink, seq: number): Promise<string | null> {
       : [...new Set([...(named ? link.descLangs : selectedDescLangs().map((l) => l.code)), item.lang.code])].sort();
   const params = new URLSearchParams({ graph });
   for (const c of codes) params.append("descLang", c);
-  if (link.kind !== TreeKind.Etymology && !named && !link.allLangs) params.set("upTo", String(ALL_LANGS_UP_TO));
+  if (link.within) params.set("within", "true");
   if (link.kind === TreeKind.Cognates && link.root) {
     params.set("root", link.root);
     if (link.rootEty) params.set("rootEty", link.rootEty);
@@ -421,8 +420,8 @@ async function loadLink(link: WordLink, seq: number): Promise<string | null> {
   if (seq !== loadSeq) return null;
   // The server falls back to the default root when the link names none it
   // knows; only a root other than the trail's last step goes in the URL.
-  const root = cog && cog.root !== cog.trail[cog.trail.length - 1].item.id ? cog.tree.item : null;
-  const request = new TreeRequest(item.lang, item, descLangs, link.kind, root, link.allLangs);
+  const root = cog && cog.root !== cog.defaultRoot ? cog.tree.item : null;
+  const request = new TreeRequest(item.lang, item, descLangs, link.kind, root, link.allLangs, link.within);
   const previous = lastRequest();
   batch(() => {
     setUnresolved(null);
@@ -430,7 +429,7 @@ async function loadLink(link: WordLink, seq: number): Promise<string | null> {
     // Hidden languages belong to the tree they were hidden in.
     if (previous?.item.id !== item.id) setHiddenLangs(new Set<number>());
     setTree(treeResult);
-    setCognates(cog && { trail: cog.trail, sources: cog.sources, root: cog.root });
+    setCognates(cog && { trail: cog.trail, sources: cog.sources, root: cog.root, defaultRoot: cog.defaultRoot });
     setTreeSize(view && { total: view.total, allLangs: view.allLangs });
     setLastRequest(request);
     applySearchState(item, descLangs, link.kind);
@@ -447,6 +446,7 @@ function sameLink(a: WordLink, b: WordLink): boolean {
     a.term === b.term &&
     a.ety === b.ety &&
     a.allLangs === b.allLangs &&
+    a.within === b.within &&
     a.root === b.root &&
     a.rootEty === b.rootEty &&
     a.descLangs.join(" ") === b.descLangs.join(" ")

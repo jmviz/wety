@@ -6,7 +6,6 @@ import DisplayPanel from "../settings/DisplayPanel";
 import Trail from "../ety/Trail";
 import { openLang } from "../ety/model";
 import {
-  ALL_LANGS_UP_TO,
   debounce,
   disabledEtyModes,
   forest,
@@ -128,9 +127,12 @@ export default function ViewBar() {
               onLangs={(next) => {
                 const chosen = withOwnLang(next, r().item.lang);
                 setSelectedDescLangs(chosen);
-                goTo(r().kind, r().item, { langs: chosen }, r().root);
+                goTo(r().kind, r().item, { langs: chosen, within: r().within }, r().root);
               }}
-              onAll={() => goTo(r().kind, r().item, r().allLangs ? {} : { all: true }, r().root)}
+              onAll={() =>
+                goTo(r().kind, r().item, { all: !r().allLangs, within: r().within }, r().root)
+              }
+              onWithin={(within) => goTo(r().kind, r().item, { ...r().choice, within }, r().root)}
             />
           </Show>
           <Show when={panel() === "connections"}>
@@ -147,7 +149,12 @@ export default function ViewBar() {
 
 // Which languages are drawn (the reader's, or all of them), and the languages
 // in this tree: hide one, or open every branch that reaches it.
-function LanguagesPanel(props: { langs: Lang[]; onLangs: (v: Lang[]) => void; onAll: () => void }) {
+function LanguagesPanel(props: {
+  langs: Lang[];
+  onLangs: (v: Lang[]) => void;
+  onAll: () => void;
+  onWithin: (within: boolean) => void;
+}) {
   const r = () => lastRequest()!;
   const toggleLang = (id: number) => {
     const next = new Set(hiddenLangs());
@@ -165,9 +172,20 @@ function LanguagesPanel(props: { langs: Lang[]; onLangs: (v: Lang[]) => void; on
           all languages
         </button>
       </div>
-      <Show when={!r().allLangs && !r().descLangs.length}>
-        <p class="panel-note">Trees of up to {ALL_LANGS_UP_TO.toLocaleString()} words show every language.</p>
-      </Show>
+      <ul class="check-list within-lang">
+        <li>
+          <label>
+            <input
+              type="checkbox"
+              checked={r().within}
+              onChange={(e) => props.onWithin(e.currentTarget.checked)}
+            />
+            {!r().allLangs && props.langs.length === 1
+              ? `${props.langs[0].name} words formed from ${props.langs[0].name} words`
+              : "words formed from words of the same language"}
+          </label>
+        </li>
+      </ul>
       <Show when={treeLangs().length > 1}>
         <p class="panel-title">In this tree</p>
         <ul class="check-list columns">

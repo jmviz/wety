@@ -65,6 +65,9 @@ export interface Cognates {
   trail: TrailStep[];
   sources: Item[];
   root: number;
+  // Where the tree starts without a `root` in the link: the trail's last step,
+  // or the root entry it is formed from.
+  defaultRoot: number;
   // Words in the root's unfiltered tree (the server stops counting at
   // 100,000), and whether `tree` covers every language.
   total: number;
@@ -98,8 +101,9 @@ export const decodeTerm = (s: string) => decodeURIComponent(s).replace(/_/g, " "
 // What a URL names: `/<view>/<lang code>/<term>?ety=…&lang=…`. Trees are
 // drawn in every language when small and otherwise in the reader's
 // languages, unless `lang` names the languages to draw (codes) or `all=1`
-// asks for every one. Cognates may add `root=<lang code>:<term>` (and
-// `rootEty`), the ancestor to start from, when it is not the default.
+// asks for every one; `within=1` also draws words formed from a word of the
+// same language. Cognates may add `root=<lang code>:<term>` (and `rootEty`),
+// the ancestor to start from, when it is not the default.
 export interface WordLink {
   kind: TreeKind;
   lang: string;
@@ -107,6 +111,7 @@ export interface WordLink {
   ety: string | null;
   descLangs: string[];
   allLangs: boolean;
+  within: boolean;
   root: string | null;
   rootEty: string | null;
 }
@@ -117,6 +122,7 @@ export function linkHref(link: WordLink): string {
   if (link.kind !== TreeKind.Etymology) {
     if (link.allLangs) params.set("all", "1");
     else for (const c of link.descLangs) params.append("lang", c);
+    if (link.within) params.set("within", "1");
   }
   if (link.kind === TreeKind.Cognates && link.root) {
     params.set("root", link.root);
@@ -127,10 +133,11 @@ export function linkHref(link: WordLink): string {
 }
 
 // Which languages a tree is drawn in: the default (none named), exactly
-// these, or all of them.
+// these, or all of them; and whether words formed within one are drawn.
 export interface LangChoice {
   langs?: Lang[];
   all?: boolean;
+  within?: boolean;
 }
 
 // `root`: the ancestor a cognates tree starts from, when not the default.
@@ -147,6 +154,7 @@ export function wordHref(
     ety: item.ety ?? null,
     descLangs: choice.all ? [] : (choice.langs ?? []).map((l) => l.code),
     allLangs: !!choice.all,
+    within: !!choice.within,
     root: root && `${root.lang.code}:${root.term}`,
     rootEty: root?.ety ?? null,
   });
@@ -172,6 +180,7 @@ export function parseWordHref(href: string): WordLink | null {
     ety: params.get("ety"),
     descLangs: kind === TreeKind.Etymology || params.get("all") ? [] : params.getAll("lang"),
     allLangs: kind !== TreeKind.Etymology && params.get("all") === "1",
+    within: kind !== TreeKind.Etymology && params.get("within") === "1",
     root: kind === TreeKind.Cognates ? params.get("root") : null,
     rootEty: kind === TreeKind.Cognates ? params.get("rootEty") : null,
   };
@@ -185,6 +194,7 @@ export class TreeRequest {
   item: Item;
   descLangs: Lang[];
   allLangs: boolean;
+  within: boolean;
   kind: TreeKind;
   root: Item | null;
 
@@ -194,19 +204,23 @@ export class TreeRequest {
     descLangs: Lang[],
     kind: TreeKind,
     root: Item | null = null,
-    allLangs = false
+    allLangs = false,
+    within = false
   ) {
     this.lang = lang;
     this.item = item;
     this.descLangs = descLangs;
     this.descLangs.sort((a, b) => a.id - b.id);
     this.allLangs = allLangs;
+    this.within = within;
     this.kind = kind;
     this.root = root;
   }
 
   // The same languages, for another view of this word.
   get choice(): LangChoice {
-    return this.allLangs ? { all: true } : this.descLangs.length ? { langs: this.descLangs } : {};
+    const within = this.within || undefined;
+    if (this.allLangs) return { all: true, within };
+    return this.descLangs.length ? { langs: this.descLangs, within } : { within };
   }
 }

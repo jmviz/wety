@@ -26,7 +26,7 @@ export default function Trail() {
   const shown = (i: number) => i === 0 || i > hidden();
   const choose = (item: Item) => {
     const r = lastRequest()!;
-    goTo(TreeKind.Cognates, r.item, r.choice, item.id === top().id ? null : item);
+    goTo(TreeKind.Cognates, r.item, r.choice, item.id === info()!.defaultRoot ? null : item);
   };
 
   // A language name only where it changes, so a run within one language

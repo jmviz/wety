@@ -98,6 +98,9 @@ pub struct CognatesJson<'a> {
     pub trail: Vec<TrailStepJson<'a>>,
     pub sources: Vec<ItemJson<'a>>,
     pub root: ItemId,
+    /// Where the tree starts without a `root` request: the trail's last step,
+    /// or the root entry it is formed from.
+    pub default_root: ItemId,
     /// Words in the root's unfiltered tree (up to `TOTAL_CAP`).
     pub total: usize,
     /// Whether `tree` covers every language rather than the requested ones.
