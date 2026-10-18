@@ -36703,7 +36703,7 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:fff5df92fe6ca543"
     }
   ],
-  "generation": "840b8f8b680a6c77f9c46bc58143bc8616afe24b7a918bcb0ea37c60a5469837",
+  "generation": "b0bed444a73b7d46da7de212647ca4b36bd39c6f977396103fe7d1cd163a5d9c",
   "languages": [
     {
       "alternatives": [],
@@ -36792,7 +36792,7 @@
             "latest": -3050
           },
           "event": "crown_divergence",
-          "label": "until c. 4050/3050 BCE",
+          "label": "until c. 4050–3050 BCE",
           "locator": "{\"page\": \"767\", \"pdf_page\": 809, \"table\": \"11.4 and immediately preceding paragraph\"}",
           "method": "expert_estimate",
           "quote": "Except for Algonquian, Bantu, \nDravidian, Tupi-Guarani and Turkic, which appear to have shallower time-depths, this \ncorresponds to proto languages that probably began to differentiate on the order of 5,000-6,000 \nyears ago.",
@@ -36972,7 +36972,7 @@
           "earliest": -799,
           "latest": 0
         },
-        "label": "c. 2nd millennium – 800/1 BCE",
+        "label": "c. 2nd millennium – 800 or 1 BCE",
         "ongoing": false,
         "partial": false,
         "start": {
@@ -37187,7 +37187,7 @@
             "latest": -8050
           },
           "event": "crown_divergence",
-          "label": "until c. 10050/8050 BCE",
+          "label": "until c. 10050–8050 BCE",
           "locator": "{\"pdf_page\": 11, \"page\": \"11\", \"section\": \"IV.A(3)\"}",
           "method": "lexicostatistic",
           "quote": "This «broader» version of Afro-Asiatic, like the \nbroader Eurasiatic, is tentatively dated to around 12,000-10,000 BP.",
@@ -37409,7 +37409,7 @@
           "earliest": 100,
           "latest": 100
         },
-        "label": "c. 3000/2501 BCE – 100 CE",
+        "label": "c. 3000 or 2501 BCE – 100 CE",
         "ongoing": false,
         "partial": true,
         "start": {
@@ -37747,7 +37747,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 1000/500 BCE",
+      "label": "until c. 1000–500 BCE",
       "name": "Proto-Algonquian",
       "spoken": {
         "end": {
@@ -38017,7 +38017,7 @@
           "earliest": 900,
           "latest": 900
         },
-        "label": "c. 1000/950 BCE – 900 CE",
+        "label": "c. 1000 or 950 BCE – 900 CE",
         "ongoing": false,
         "partial": true,
         "start": {
@@ -38276,7 +38276,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 950 BCE/50 CE",
+      "label": "until c. 950 BCE – 50 CE",
       "name": "Proto-Athabaskan",
       "spoken": {
         "end": {
@@ -38408,7 +38408,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 4050/3050 BCE",
+      "label": "until c. 4050–3050 BCE",
       "name": "Proto-Arawak",
       "spoken": {
         "end": {
@@ -39687,7 +39687,7 @@
           {
             "basis": "attested",
             "code": "cop-boh",
-            "label": "from 4th/5th century CE",
+            "label": "from 4th or 5th century CE",
             "name": "Bohairic Coptic",
             "own": false
           },
@@ -39807,7 +39807,7 @@
         }
       ],
       "kind": "attested",
-      "label": "from 4th/5th century CE",
+      "label": "from 4th or 5th century CE",
       "name": "Bohairic Coptic",
       "spoken": {
         "end": null,
@@ -40418,7 +40418,7 @@
         }
       ],
       "kind": "stage",
-      "label": "1150–1500/1600 CE",
+      "label": "1150 – 1500 or 1600 CE",
       "name": "Middle Dutch",
       "spoken": {
         "end": {
@@ -41616,7 +41616,7 @@
         }
       ],
       "kind": "proto",
-      "label": "c. 500/400 BCE – 300 BCE/1 CE",
+      "label": "c. 500 BCE – 1 CE",
       "name": "Proto-Germanic",
       "spoken": {
         "end": {
@@ -41819,7 +41819,7 @@
             "latest": 1650
           },
           "event": "conventional_period",
-          "label": "1150/1200–1600/1650 CE",
+          "label": "c. 1150–1650 CE",
           "locator": "{\"page\": \"23\", \"pdf_page\": 46}",
           "method": "scholarly_periodization",
           "quote": "Mittelniederdeutsch \n(1150/1200–1600/1650)",
@@ -42402,7 +42402,7 @@
           "claim_id": "ev_period_ee3e95601d2a1c5b5eec0955e7cc0d214f764cd7",
           "end": null,
           "event": "first_attestation",
-          "label": "from 19th/18th century BCE",
+          "label": "from 19th or 18th century BCE",
           "locator": "{\"page\": \"6\", \"pdf_page\": 28}",
           "method": "scholarly_attestation_survey",
           "quote": "The speakers of Hittite were in place in Central Anatolia by the nineteenth–eighteenth\ncentury BC, since a few words of the language (notably iˇsh˘iul- “contract”) appear in Old\nAssyrian documents from the merchant colonies like K¯arum Kaneˇs, Hittite Neˇsaˇs, modern\nK¨ultepe.",
@@ -42709,7 +42709,7 @@
           "earliest": -1484,
           "latest": 474
         },
-        "label": "until c. 1480 BCE/470 CE",
+        "label": "until c. 1480 BCE – 470 CE",
         "ongoing": false,
         "partial": true,
         "start": null,
@@ -42991,7 +42991,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 450 BCE/50 CE",
+      "label": "until c. 450 BCE – 50 CE",
       "name": "Proto-North Iroquoian",
       "spoken": {
         "end": {
@@ -43057,7 +43057,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 1850/1550 BCE",
+      "label": "until c. 1850–1550 BCE",
       "name": "Proto-Iroquoian",
       "spoken": {
         "end": {
@@ -43729,7 +43729,7 @@
           "earliest": 1500,
           "latest": 1500
         },
-        "label": "c. 700/650 BCE – 1500 CE",
+        "label": "c. 700 or 650 BCE – 1500 CE",
         "ongoing": false,
         "partial": true,
         "start": {
@@ -44233,7 +44233,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 4620/990 BCE",
+      "label": "until c. 4620–990 BCE",
       "name": "Proto-Aslian",
       "spoken": {
         "end": {
@@ -44380,7 +44380,7 @@
             "latest": -2050
           },
           "event": "crown_divergence",
-          "label": "until c. 7050/2050 BCE",
+          "label": "until c. 7050–2050 BCE",
           "locator": "{\"pdf_page\": 166, \"printed_page\": \"6.18\", \"section\": \"6.4 Discussion\", \"start\": 358724, \"end\": 359141}",
           "method": "bayesian_phylogenetic",
           "node": "MRCA(Achi', Akateko, Awakateko, Ch'orti', Chicomuceltec, Chol, Chontal, Classic Maya, Colonial Kaqchiquel, Colonial Yucatec, Huastec, Itza', Ixil, Jakalteko, K'iche', Lacandon, Mam, Mocho, Mopán, Poqomam, Poqomchi', Q'anjobal, Q'eqchi', Sakapulteko, Sipakapense, Tektiteko, Tz'utujil, Tzeltal, Tzotzil, Uspanteko)",
@@ -44401,7 +44401,7 @@
             "latest": -2050
           },
           "event": "crown_divergence",
-          "label": "until c. 7050/2050 BCE",
+          "label": "until c. 7050–2050 BCE",
           "locator": "{\"pdf_page\": 166, \"printed_page\": \"6.18\", \"section\": \"6.4 Discussion\", \"start\": 358724, \"end\": 359141}",
           "method": "bayesian_phylogenetic",
           "node": "MRCA(Achi', Akateko, Awakateko, Ch'orti', Chicomuceltec, Chol, Chontal, Colonial Kaqchiquel, Colonial Yucatec, Huastec, Itza', Ixil, Jakalteko, K'iche', Lacandon, Mam, Mocho, Mopán, Poqomam, Poqomchi', Q'anjobal, Q'eqchi', Sakapulteko, Sipakapense, Tektiteko, Tz'utujil, Tzeltal, Tzotzil, Uspanteko)",
@@ -44561,7 +44561,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 1000/650 BCE",
+      "label": "until c. 1000–650 BCE",
       "name": "Proto-Muskogean",
       "spoken": {
         "end": {
@@ -44622,7 +44622,7 @@
         }
       ],
       "kind": "attested",
-      "label": "from 1849/1859 CE",
+      "label": "from 1849–1859 CE",
       "name": "Narungga",
       "revival": [
         {
@@ -44769,7 +44769,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 1550/1050 BCE",
+      "label": "until c. 1550–1050 BCE",
       "name": "Proto-Nubian",
       "spoken": {
         "end": {
@@ -44971,7 +44971,7 @@
         }
       ],
       "kind": "attested",
-      "label": "from 9th/10th century CE",
+      "label": "from 9th or 10th century CE",
       "name": "Old Cornish",
       "spoken": {
         "end": null,
@@ -45493,7 +45493,7 @@
         }
       ],
       "kind": "stage",
-      "label": "c. 1607–1901/1950 CE",
+      "label": "c. 1607 CE – early 20th century CE",
       "name": "Mochica",
       "revival": [
         {
@@ -45570,7 +45570,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 950/1350 CE",
+      "label": "until c. 950–1350 CE",
       "name": "Proto-Chatino",
       "spoken": {
         "end": {
@@ -45599,7 +45599,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 1950/1550 BCE",
+      "label": "until c. 1950–1550 BCE",
       "name": "Proto-Mixtecan",
       "spoken": {
         "end": {
@@ -45795,7 +45795,7 @@
         }
       ],
       "kind": "stage",
-      "label": "c. 10th–14th/15th century CE",
+      "label": "c. 10th – 14th or 15th century CE",
       "name": "Old East Slavic",
       "spoken": {
         "end": {
@@ -45946,7 +45946,7 @@
             "latest": 1200
           },
           "event": "conventional_period",
-          "label": "800–1150/1200 CE",
+          "label": "800 – 1150 or 1200 CE",
           "locator": "{\"page\": \"23\", \"pdf_page\": 46}",
           "method": "scholarly_periodization",
           "quote": "Altsächsisch/\nAltniederdeutsch\n(800–1150/1200)",
@@ -46295,7 +46295,7 @@
           "claim_id": "ev_period_9a7df863bbc6892503a4a6fc7b5c5ea46e88321a",
           "end": null,
           "event": "first_attestation",
-          "label": "from 522/486 BCE",
+          "label": "from 522–486 BCE",
           "locator": "{\"page\": \"76\", \"pdf_page\": 98}",
           "method": "inscriptional_dating",
           "quote": "The only direct and authentic sources available for the Old Persian language are the\ncuneiform inscriptions on durable objects (rock, stone, metal, rarely clay tablets) ranging\nover the period from Darius I (522–486 BC) to Artaxerxes III (359/8–338/7 BC), but dating\nin the main from the reigns of Darius I and Xerxes I (486–465 BC).",
@@ -46547,7 +46547,7 @@
         }
       ],
       "kind": "attested",
-      "label": "from 10th/9th century BCE",
+      "label": "from 10th or 9th century BCE",
       "name": "Phoenician",
       "spoken": {
         "end": null,
@@ -46670,7 +46670,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 380/640 CE",
+      "label": "until c. 380–640 CE",
       "name": "Proto-Bungku-Tolaki",
       "spoken": {
         "end": {
@@ -46904,7 +46904,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 1190/1293 CE",
+      "label": "until c. 1190–1293 CE",
       "name": "Proto-Eastern Polynesian",
       "spoken": {
         "end": {
@@ -47255,7 +47255,7 @@
             "latest": -1050
           },
           "event": "crown_divergence",
-          "label": "until c. 2050/1050 BCE",
+          "label": "until c. 2050–1050 BCE",
           "locator": "{\"page\": \"194\", \"pdf_page\": 12}",
           "method": "expert_estimate",
           "quote": "a rough\nguesstimate for the breakup of Common Yeniseian might be three, possibly four thousand\nyears ago.",
@@ -48133,7 +48133,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 1750/90 BCE",
+      "label": "until c. 1750–90 BCE",
       "name": "Proto-Bodish",
       "spoken": {
         "end": {
@@ -48201,7 +48201,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 150/1360 CE",
+      "label": "until c. 150–1360 CE",
       "name": "Proto-Western Kho-Bwa",
       "spoken": {
         "end": {
@@ -48326,7 +48326,7 @@
           "earliest": -3738,
           "latest": -1766
         },
-        "label": "until c. 3740/1770 BCE",
+        "label": "until c. 3740–1770 BCE",
         "ongoing": false,
         "partial": true,
         "start": null,
@@ -48452,7 +48452,7 @@
         }
       ],
       "kind": "proto",
-      "label": "until c. 800/1000 CE",
+      "label": "until c. 800–1000 CE",
       "name": "Proto-Slavic",
       "spoken": {
         "end": {
@@ -49216,7 +49216,7 @@
           "earliest": 7,
           "latest": 809
         },
-        "label": "until c. 7/810 CE",
+        "label": "until c. 7–810 CE",
         "ongoing": false,
         "partial": true,
         "start": null,
@@ -49370,7 +49370,7 @@
             "latest": 220
           },
           "event": "crown_divergence",
-          "label": "until c. 206 BCE/220 CE",
+          "label": "until c. 206 BCE – 220 CE",
           "locator": "{\"page\": \"270\", \"pdf_page\": 280, \"table\": \"1\"}",
           "method": "expert_estimate",
           "quote": "Ethnonym shift\nRobbeets 2015\n206 BC–AD 220",
@@ -49388,7 +49388,7 @@
             "latest": 200
           },
           "event": "crown_divergence",
-          "label": "until c. 1st/2nd century CE",
+          "label": "until c. 1st or 2nd century CE",
           "locator": "{\"page\": \"271\", \"pdf_page\": 281}",
           "method": "expert_estimate",
           "quote": "Therefore, it is probable that the actual\nbreak-up of Proto-Tungusic took place several centuries before the inferred date\nof AD 450, probably in the beginning of the first millennium AD",
@@ -49406,7 +49406,7 @@
             "latest": 200
           },
           "event": "crown_divergence",
-          "label": "until c. 600 BCE/200 CE",
+          "label": "until c. 600 BCE – 200 CE",
           "locator": "{\"page\": \"270\", \"pdf_page\": 280, \"table\": \"1\"}",
           "method": "comparative_reconstruction",
           "quote": "Contact linguistics\nRobbeets et al. 2020\n600 BC–AD 200",
@@ -49460,7 +49460,7 @@
             "latest": 500
           },
           "event": "crown_divergence",
-          "label": "until c. 500 BCE/500 CE",
+          "label": "until c. 500 BCE – 500 CE",
           "locator": "{\"page\": \"270\", \"pdf_page\": 280, \"table\": \"1\"}",
           "method": "comparative_reconstruction",
           "quote": "Cultural reconstruction\nJanhunen 2012\n500 BC–AD 500",
@@ -49968,7 +49968,7 @@
           "earliest": -1999,
           "latest": -1380
         },
-        "label": "until c. 2000/1380 BCE",
+        "label": "until c. 2000–1380 BCE",
         "ongoing": false,
         "partial": true,
         "start": null,
@@ -50141,7 +50141,7 @@
         }
       ],
       "kind": "attested",
-      "label": "1908–1973/1974 CE",
+      "label": "1908 – 1973 or 1974 CE",
       "name": "Kw'adza",
       "spoken": {
         "end": {
@@ -50694,7 +50694,7 @@
         }
       ],
       "kind": "stage",
-      "label": "until c. 19th/20th century CE",
+      "label": "until c. 19th or 20th century CE",
       "name": "Dharug",
       "revival": [
         {
@@ -50967,7 +50967,7 @@
         }
       ],
       "kind": "attested",
-      "label": "7th/6th–2nd century BCE",
+      "label": "7th or 6th – 2nd century BCE",
       "name": "Faliscan",
       "spoken": {
         "end": {
@@ -51145,7 +51145,7 @@
         }
       ],
       "kind": "attested",
-      "label": "from 23rd/22nd century BCE",
+      "label": "from 23rd or 22nd century BCE",
       "name": "Hurrian",
       "spoken": {
         "end": null,
@@ -51228,7 +51228,7 @@
         }
       ],
       "kind": "attested",
-      "label": "8th/7th–3rd century BCE",
+      "label": "8th or 7th – 3rd century BCE",
       "name": "Lydian",
       "spoken": {
         "end": {
@@ -51727,7 +51727,7 @@
         }
       ],
       "kind": "attested",
-      "label": "6th century BCE – 4th/5th century CE",
+      "label": "6th century BCE – 4th or 5th century CE",
       "name": "Punic",
       "spoken": {
         "end": {
