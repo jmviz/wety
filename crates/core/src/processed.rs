@@ -1,5 +1,5 @@
 use crate::{
-    HashMap,
+    HashMap, HashSet,
     descendant_langs::DescendantLangs,
     ety_graph::{EtyEdgeAccess, EtyGraph, Progenitors},
     etymology_templates::EtyMode,
@@ -306,18 +306,42 @@ impl Data {
     #[must_use]
     pub fn default_root(&self, item: ItemId) -> ItemId {
         let top = *self.lineage(item).last().expect("a trail starts with its item");
-        let root_entry = |id: ItemId| {
-            let t = self.term(id);
-            t.ends_with('-') && !t.starts_with('-')
-        };
-        let roots = self
-            .graph
-            .immediate_ety(top)
-            .map_or_else(Vec::new, |e| e.items.into_iter().filter(|&s| root_entry(s)).collect_vec());
+        let roots = self.graph.immediate_ety(top).map_or_else(Vec::new, |e| {
+            e.items.into_iter().filter(|&s| self.is_root_entry(s)).collect_vec()
+        });
         match roots[..] {
             [root] => root,
             _ => top,
         }
+    }
+
+    /// The item's ultimate ancestors, in the order its etymology names them:
+    /// the forms at the ends of its ancestry, which have no source of their
+    /// own (English astronomy: PIE *h₂eHs- and *nem- among them).
+    #[must_use]
+    pub fn ultimate_sources(&self, item: ItemId) -> Vec<ItemId> {
+        let mut out = vec![];
+        let mut seen = HashSet::default();
+        let mut stack = vec![item];
+        while let Some(id) = stack.pop() {
+            if !seen.insert(id) {
+                continue;
+            }
+            match self.graph.immediate_ety(id) {
+                // Reversed onto the stack, so the first source is visited first.
+                Some(ety) => stack.extend(ety.items.into_iter().rev()),
+                None if id != item => out.push(id),
+                None => {}
+            }
+        }
+        out
+    }
+
+    /// Whether a term is a root entry: it ends, but does not start, with a
+    /// hyphen (PIE *peh₂-, not the suffix *-tḗr).
+    fn is_root_entry(&self, id: ItemId) -> bool {
+        let t = self.term(id);
+        t.ends_with('-') && !t.starts_with('-')
     }
 
     /// The item's trail: the item, then each older form that is the same
@@ -372,6 +396,14 @@ impl Data {
         let default_root = self.default_root(item_id);
         let root = root.unwrap_or(default_root);
         let ety_mode = |id: ItemId| self.graph.immediate_ety(id).map(|e| e.mode.as_str());
+        let sources = self.graph.immediate_ety(top).map_or_else(Vec::new, |e| e.items);
+        // Roots first, then affixes and other ends, leaving out what the
+        // trail and its sources already name.
+        let (roots, others): (Vec<_>, Vec<_>) = self
+            .ultimate_sources(item_id)
+            .into_iter()
+            .filter(|id| !trail.contains(id) && !sources.contains(id))
+            .partition(|&id| self.is_root_entry(id));
         CognatesJson {
             trail: trail
                 .iter()
@@ -380,12 +412,9 @@ impl Data {
                     ety_mode: ety_mode(id),
                 })
                 .collect(),
-            sources: self
-                .graph
-                .immediate_ety(top)
-                .map_or_else(Vec::new, |e| {
-                    e.items.iter().map(|&id| self.item_json_inner(id, lean)).collect()
-                }),
+            sources: sources.iter().map(|&id| self.item_json_inner(id, lean)).collect(),
+            ultimate_roots: roots.iter().map(|&id| self.item_json_inner(id, lean)).collect(),
+            ultimate_others: others.iter().map(|&id| self.item_json_inner(id, lean)).collect(),
             root,
             default_root,
             total: self.descendant_total(root, TOTAL_CAP),
@@ -748,6 +777,34 @@ mod lineage_tests {
         assert!(cognates.tree.children.iter().any(|c| c.item.id == pastor));
         // The suffix is not a root entry: an affix alone never becomes the default.
         assert_eq!(data.ancestor_named(pater, "ine-pro", "-tḗr", None), Some(ter));
+    }
+
+    #[test]
+    fn ultimate_ancestors_come_in_etymology_order_roots_first() {
+        let (mut graph, mut pool) = (EtyGraph::default(), StringPool::default());
+        let astronomy = add(&mut graph, &mut pool, "en", "astronomy");
+        let astronomia = add(&mut graph, &mut pool, "grc", "ἀστρονομία");
+        let astron = add(&mut graph, &mut pool, "grc", "ἄστρον");
+        let nome = add(&mut graph, &mut pool, "grc", "νομή");
+        let star = add(&mut graph, &mut pool, "ine-pro", "h₂stḗr");
+        let burn = add(&mut graph, &mut pool, "ine-pro", "h₂eHs-");
+        let ter = add(&mut graph, &mut pool, "ine-pro", "-tḗr");
+        let nem = add(&mut graph, &mut pool, "ine-pro", "nem-");
+        let eh2 = add(&mut graph, &mut pool, "ine-pro", "-eh₂");
+        ety(&mut graph, astronomy, EtyMode::Borrowed, &[astronomia]);
+        ety(&mut graph, astronomia, EtyMode::Compound, &[astron, nome]);
+        ety(&mut graph, astron, EtyMode::Inherited, &[star]);
+        ety(&mut graph, star, EtyMode::Suffix, &[burn, ter]);
+        ety(&mut graph, nome, EtyMode::Suffix, &[nem, eh2]);
+        let data = Data::new(pool, graph);
+        assert_eq!(data.ultimate_sources(astronomy), [burn, ter, nem, eh2]);
+        let en = Lang::from_str("en").unwrap();
+        let c = data.item_cognates_json(astronomy, None, en, &[en], false, &[], false);
+        assert_eq!(c.root, astronomia);
+        assert_eq!(c.ultimate_roots.iter().map(|i| i.id).collect_vec(), [burn, nem]);
+        assert_eq!(c.ultimate_others.iter().map(|i| i.id).collect_vec(), [ter, eh2]);
+        // An ultimate form is an ancestor, so a link can start the tree there.
+        assert_eq!(data.ancestor_named(astronomy, "ine-pro", "nem-", None), Some(nem));
     }
 
     #[test]

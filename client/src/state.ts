@@ -127,7 +127,7 @@ export const [lastRequest, setLastRequest] = createSignal<TreeRequest | null>(
 );
 // The cognates view's trail and sources (the tree itself is in `tree`).
 export const [cognates, setCognates] = createSignal<
-  Pick<Cognates, "trail" | "sources" | "root" | "defaultRoot"> | null
+  Omit<Cognates, "tree" | "total" | "allLangs"> | null
 >(null);
 // A descendants or cognates tree's unfiltered size, and whether it is drawn in
 // every language.
@@ -429,7 +429,16 @@ async function loadLink(link: WordLink, seq: number): Promise<string | null> {
     // Hidden languages belong to the tree they were hidden in.
     if (previous?.item.id !== item.id) setHiddenLangs(new Set<number>());
     setTree(treeResult);
-    setCognates(cog && { trail: cog.trail, sources: cog.sources, root: cog.root, defaultRoot: cog.defaultRoot });
+    setCognates(
+      cog && {
+        trail: cog.trail,
+        sources: cog.sources,
+        ultimateRoots: cog.ultimateRoots,
+        ultimateOthers: cog.ultimateOthers,
+        root: cog.root,
+        defaultRoot: cog.defaultRoot,
+      }
+    );
     setTreeSize(view && { total: view.total, allLangs: view.allLangs });
     setLastRequest(request);
     applySearchState(item, descLangs, link.kind);

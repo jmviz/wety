@@ -97,6 +97,11 @@ pub struct TrailStepJson<'a> {
 pub struct CognatesJson<'a> {
     pub trail: Vec<TrailStepJson<'a>>,
     pub sources: Vec<ItemJson<'a>>,
+    /// The item's ultimate ancestors not already on the trail or among its
+    /// sources, in etymology order: root entries, then the rest (affixes,
+    /// words with no recorded source).
+    pub ultimate_roots: Vec<ItemJson<'a>>,
+    pub ultimate_others: Vec<ItemJson<'a>>,
     pub root: ItemId,
     /// Where the tree starts without a `root` request: the trail's last step,
     /// or the root entry it is formed from.

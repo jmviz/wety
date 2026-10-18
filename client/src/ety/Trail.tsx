@@ -46,6 +46,21 @@ export default function Trail() {
     </button>
   );
 
+  // The ultimate ancestors: the roots, then on request the rest (affixes and
+  // other forms with no source); all of them when there is no root. Like the
+  // gap, opened for one word at a time.
+  const [allUltimateFor, setAllUltimateFor] = createSignal<number | null>(null);
+  const roots = () => info()!.ultimateRoots ?? [];
+  const others = () => info()!.ultimateOthers ?? [];
+  const ultimate = () => {
+    const all =
+      !roots().length ||
+      allUltimateFor() === lastRequest()?.item.id ||
+      others().some((o) => o.id === info()!.root);
+    return all ? [...roots(), ...others()] : roots();
+  };
+  const moreUltimate = () => roots().length + others().length - ultimate().length;
+
   // How each step came from the next one ("inherited", "borrowed"…).
   const stepMode = (i: number) => {
     const mode = info()!.trail[i].etyMode;
@@ -54,7 +69,12 @@ export default function Trail() {
 
   // Each arrow stays with the word after it when the line wraps.
   return (
-    <Show when={info() && (info()!.trail.length > 1 || info()!.sources.length > 0)}>
+    <Show
+      when={
+        info() &&
+        (info()!.trail.length > 1 || info()!.sources.length > 0 || ultimate().length > 0)
+      }
+    >
       <p class="trail" role="group" aria-label="start the tree from">
         <For each={info()!.trail}>
           {(step, i) => (
@@ -100,6 +120,32 @@ export default function Trail() {
               )}
             </For>
           </span>
+        </Show>
+        <Show when={ultimate().length}>
+          <For each={ultimate()}>
+            {(u, i) => (
+              <>
+                {i() === 0 ? " " : ", "}
+                <span class="trail-link">
+                  <Show when={i() === 0}>
+                    <span class="trail-from">· ultimately from </span>
+                  </Show>
+                  <Word item={u} prev={i() === 0 ? top() : ultimate()[i() - 1]} />
+                </span>
+              </>
+            )}
+          </For>
+          <Show when={moreUltimate() > 0}>
+            {" "}
+            <button
+              type="button"
+              class="trail-word trail-gap"
+              title="affixes and other forms with no recorded source"
+              onClick={() => setAllUltimateFor(lastRequest()!.item.id)}
+            >
+              +{moreUltimate()} more
+            </button>
+          </Show>
         </Show>
       </p>
     </Show>

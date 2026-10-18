@@ -64,6 +64,10 @@ export interface TrailStep {
 export interface Cognates {
   trail: TrailStep[];
   sources: Item[];
+  // The word's ultimate ancestors not already on the trail or among its
+  // sources, in etymology order: root entries, then affixes and the like.
+  ultimateRoots: Item[];
+  ultimateOthers: Item[];
   root: number;
   // Where the tree starts without a `root` in the link: the trail's last step,
   // or the root entry it is formed from.
