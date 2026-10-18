@@ -2,6 +2,12 @@ import { TreeKind } from "../search/types";
 import { setAllOpen } from "../ety/model";
 import { showDates, toggleDates } from "../ety/periods";
 import { forest, lastRequest, setShowGlosses, showGlosses } from "../state";
+import {
+  setShortLangsInDetails,
+  setShortLangsInTree,
+  shortLangsInDetails,
+  shortLangsInTree,
+} from "../ety/langName";
 
 import { Show } from "solid-js";
 
@@ -25,6 +31,26 @@ export default function DisplayPanel() {
           <label title="When each language was spoken, where a cited period is available">
             <input type="checkbox" checked={showDates()} onChange={toggleDates} />
             dates
+          </label>
+        </li>
+        <li>
+          <label title="Proto-Indo-European as PIE, with the full name on hover">
+            <input
+              type="checkbox"
+              checked={shortLangsInTree()}
+              onChange={(e) => setShortLangsInTree(e.currentTarget.checked)}
+            />
+            language initials in the tree
+          </label>
+        </li>
+        <li>
+          <label title="Proto-Indo-European as PIE, with the full name on hover">
+            <input
+              type="checkbox"
+              checked={shortLangsInDetails()}
+              onChange={(e) => setShortLangsInDetails(e.currentTarget.checked)}
+            />
+            language initials in word details
           </label>
         </li>
       </ul>

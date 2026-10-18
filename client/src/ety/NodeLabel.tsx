@@ -3,6 +3,7 @@ import { TreeNode, outlineSources } from "./model";
 import { etyModeShort, etyPrep } from "./etyMode";
 import { showGlosses } from "../state";
 import { BASIS_NAME, periodOf } from "./periods";
+import { LangName, shortLangsInTree } from "./langName";
 
 import { For, Show } from "solid-js";
 
@@ -48,7 +49,7 @@ export default function NodeLabel(props: NodeLabelProps) {
         tabIndex={props.roving ? -1 : undefined}
         aria-haspopup="dialog"
       >
-        <span class="lang">{item().lang.name}</span>{" "}
+        <LangName lang={item().lang} short={shortLangsInTree()} />{" "}
         <span class="term">{term(item())}</span>
         <Show when={item().romanization}>
           {" "}
@@ -79,7 +80,7 @@ export default function NodeLabel(props: NodeLabelProps) {
                   : " + "}
                 <span class="mode-src">
                   <Show when={s.item.lang.id !== item().lang.id}>
-                    <span class="lang">{s.item.lang.name}</span>{" "}
+                    <LangName lang={s.item.lang} short={shortLangsInTree()} />{" "}
                   </Show>
                   {term(s.item)}
                 </span>

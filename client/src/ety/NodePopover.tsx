@@ -1,6 +1,7 @@
 import "./popover.css";
 import { Item, TreeKind, term } from "../search/types";
 import { EtySource, TreeNode, sourcesOf } from "./model";
+import { LangName, shortLangsInDetails } from "./langName";
 import { etyModeRep, etyModeShort, etyPrep } from "./etyMode";
 import { BASIS_NAME, LangPeriod, METHOD_NAME, PeriodEvidence, formatLocator, periodOf } from "./periods";
 import {
@@ -296,8 +297,9 @@ function Lineage(props: { node: TreeNode }) {
                   {" ← "}
                 </span>
               </Show>
-              <Show when={i() === 0 || !shown(i() - 1) || steps()[i() - 1].item.lang.id !== n.item.lang.id}>
-                <span class="ety-lang">{n.item.lang.name}</span>{" "}
+              {/* The header above names the word's own language. */}
+              <Show when={i() > 0 && (!shown(i() - 1) || steps()[i() - 1].item.lang.id !== n.item.lang.id)}>
+                <LangName lang={n.item.lang} short={shortLangsInDetails()} class="ety-lang" />{" "}
               </Show>
               <span class="ety-term">{term(n.item)}</span>
             </span>
@@ -316,9 +318,9 @@ export function etyLine(mode: string, sources: EtySource[]): JSX.Element {
     if (i > 0) parts.push(<span class="ety-plus"> + </span>);
     if (s.item.lang.id !== prevLang) {
       parts.push(
-        <span class="ety-lang">
-          {s.item.lang.name}{" "}
-        </span>
+        <>
+          <LangName lang={s.item.lang} short={shortLangsInDetails()} class="ety-lang" />{" "}
+        </>
       );
       prevLang = s.item.lang.id;
     }
