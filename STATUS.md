@@ -37,8 +37,11 @@ through on this branch, after reverting codex's design additions (`b36265cf`):
   Greek pater now match) and ranks headwords before inflected forms; language search
   matches any word in a name ("fren" finds Old French).
 - One Tab stop per tree with arrow keys; dark mode; tab titles name the word.
-- Checks pass: workspace compilation, 13 core tests, 7 server tests, TypeScript and
-  production build; checked in the browser against the full graph, desktop and phone.
+- **Period labels** have no slashes ("from 9th or 10th century CE", "until c. 1000–500
+  BCE"; Proto-Germanic "c. 500 BCE – 1 CE"): dating generation `b0bed444`, 51 labels
+  reworded, no date changed; store snapshot `7054f5c2`.
+- Checks pass: 13 core, 7 server and 254 dating tests, dating validation (0 errors,
+  no rejected decisions), TypeScript and build; browser-checked on the full graph.
 
 ## Uncertainties
 
@@ -46,18 +49,15 @@ through on this branch, after reverting codex's design additions (`b36265cf`):
   overreach (*chess*) or follow data errors (*robot*).
 - `/cognates` and `/descendants` responses changed shape: deploy server and client
   together.
-- The browser pane was hidden during checks, so paint-timing issues (a blank gap
-  after load) could not be confirmed or ruled out.
+- With the browser pane hidden, a blank gap after load could not be checked.
 - Research reviews remain model reviews; R2 pruning still needs a live dry run.
 
 ## Next three actions
 
 1. Maintainer: review this branch at localhost:5198 (API 3918) before merging.
-2. Decide whether period ranges get simpler labels (dating package, fingerprint).
+2. Merge Descendants into Cognates (start from the word itself), approved for later.
 3. Inspect the R2 pruning dry run before the next server deployment.
 
 ## Decisions needed from the maintainer
 
-- Simpler period range labels (review item C5), a dating-package change.
-- When to merge Descendants into Cognates, approved for later.
 - Whether `codex/client-ux-audit` is superseded by this branch.
