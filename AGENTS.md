@@ -83,6 +83,13 @@ configured either, report it rather than re-acquiring sources. Do not pipe resti
 
 - Match the surrounding style. Format the dating package with `ruff format`.
 - Run the relevant tests before committing (commands in the root README).
+- When a change replaces behaviour, remove the old behaviour; do not keep it alongside
+  "for compatibility". No interface, format or behaviour here is guaranteed unless a
+  document says so, so fallbacks for old shapes, legacy aliases, deprecated paths and
+  dual code paths need a stated guarantee or a compelling reason, named in the commit.
+  Never add them for momentary convenience (sparing a dev-server restart) or just in
+  case. Change both sides of an interface in one commit and say what must be restarted
+  or rebuilt.
 - Use the harness commands for research workflow steps (`dating brief`, `review`,
   `publish`, `run-readme`, `review-summary`, `adopt-clades`, `ledger`); a step done twice belongs in the harness, not in a session script. Set
   `WETY_REVIEWER` to name the reviewing model; the researcher is read from the run.
