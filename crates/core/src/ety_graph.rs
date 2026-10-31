@@ -12,9 +12,10 @@ use itertools::{Itertools, izip};
 use petgraph::{
     Direction,
     stable_graph::{EdgeReference, StableDiGraph},
-    visit::{EdgeRef, IntoNodeReferences},
+    visit::{EdgeRef, IntoEdgeReferences, IntoNodeReferences},
 };
 use serde::{Deserialize, Serialize};
+use strum::{AsRefStr, EnumIter};
 
 pub type EtyEdge<'a> = EdgeReference<'a, EtyEdgeData>;
 
@@ -23,7 +24,45 @@ pub struct EtyEdgeData {
     pub mode: EtyMode,
     pub order: u8,
     pub head: bool,
+    pub basis: EdgeBasis,
     confidence: f32,
+}
+
+/// What made an edge: a statement on Wiktionary, or a rule of wety's that
+/// reads one. A rule's edge is wety's inference, not the source's claim.
+#[derive(Serialize, Deserialize, Hash, Eq, PartialEq, Debug, Copy, Clone, AsRefStr, EnumIter)]
+#[strum(serialize_all = "snake_case")]
+pub enum EdgeBasis {
+    /// an {{etymon}} group, or the inline etymology it gives a single parent
+    Etymon,
+    /// the first classic etymology template ({{inh}}, {{bor}}, {{af}}, ...)
+    Template,
+    /// a later template read as the etymology of the parent before it, whose
+    /// term is missing from the data ("from enm X, from ang Y")
+    Chain,
+    /// a lone {{m}}, in a section with no other etymology template
+    Mention,
+    /// a form-of or alt-of sense, for an entry with no etymology
+    FormOf,
+    /// a line of the parent's Descendants section
+    Descendants,
+    /// the entry's {{root}} or root category, for an entry with no other
+    /// etymology
+    Root,
+    /// the root that most of a progenitor's derivatives name, for a progenitor
+    /// with no etymology
+    RootVote,
+}
+
+impl EdgeBasis {
+    /// Whether the edge is wety's reading rather than a link Wiktionary gives.
+    #[must_use]
+    pub fn is_rule(self) -> bool {
+        matches!(
+            self,
+            Self::Chain | Self::Mention | Self::FormOf | Self::Root | Self::RootVote
+        )
+    }
 }
 
 pub trait EtyEdgeAccess {
@@ -32,6 +71,7 @@ pub trait EtyEdgeAccess {
     fn order(&self) -> u8;
     fn head(&self) -> bool;
     fn mode(&self) -> EtyMode;
+    fn basis(&self) -> EdgeBasis;
     fn confidence(&self) -> f32;
 }
 
@@ -50,6 +90,9 @@ impl EtyEdgeAccess for EtyEdge<'_> {
     }
     fn mode(&self) -> EtyMode {
         self.weight().mode
+    }
+    fn basis(&self) -> EdgeBasis {
+        self.weight().basis
     }
     fn confidence(&self) -> f32 {
         self.weight().confidence
@@ -94,6 +137,10 @@ impl EtyGraph {
 
     pub fn iter(&self) -> impl Iterator<Item = (ItemId, &Item)> {
         self.graph.node_references()
+    }
+
+    pub fn edges(&self) -> impl Iterator<Item = EtyEdge<'_>> {
+        self.graph.edge_references()
     }
 
     #[must_use]
@@ -218,6 +265,7 @@ impl EtyGraph {
         item: ItemId,
         mode: EtyMode,
         head: Option<u8>,
+        basis: EdgeBasis,
         ety_items: &[ItemId],
         confidences: &[f32],
     ) {
@@ -251,6 +299,7 @@ impl EtyGraph {
                 mode,
                 order: i,
                 head: head.is_some_and(|head| head == i),
+                basis,
                 confidence,
             };
             self.graph.add_edge(item, ety_item, ety_link);
@@ -467,9 +516,30 @@ mod tests {
         };
         let [a, b, c, d] = ["a", "b", "c", "d"].map(|t| add(&mut graph, t));
         // a -> b -> c -> a, and c -> d outside the cycle
-        graph.add_ety(a, EtyMode::Inherited, Some(0), &[b], &[0.9]);
-        graph.add_ety(b, EtyMode::Inherited, Some(0), &[c], &[0.2]);
-        graph.add_ety(c, EtyMode::Compound, None, &[a, d], &[0.9, 0.9]);
+        graph.add_ety(
+            a,
+            EtyMode::Inherited,
+            Some(0),
+            EdgeBasis::Template,
+            &[b],
+            &[0.9],
+        );
+        graph.add_ety(
+            b,
+            EtyMode::Inherited,
+            Some(0),
+            EdgeBasis::Template,
+            &[c],
+            &[0.2],
+        );
+        graph.add_ety(
+            c,
+            EtyMode::Compound,
+            None,
+            EdgeBasis::Template,
+            &[a, d],
+            &[0.9, 0.9],
+        );
         // lower confidence is weaker
         let removed = graph.break_cycles(|g, item| {
             let confidence = g

@@ -11,6 +11,7 @@ use crate::{
     },
 };
 use wety_core::{
+    ety_graph::EdgeBasis,
     etymology_templates::{EtyMode, TemplateKind},
     items::ItemId,
     langterm::LangTerm,
@@ -82,12 +83,16 @@ pub(crate) enum ParsedRawEtyTemplate {
 #[derive(Hash, Eq, PartialEq, Debug)]
 pub(crate) struct RawEtymology {
     pub(crate) templates: Box<[ParsedRawEtyTemplate]>,
+    // what the templates were read from: {{etymon}}, the classic templates, a
+    // lone {{m}} or a form-of sense
+    pub(crate) basis: EdgeBasis,
 }
 
-impl From<Vec<ParsedRawEtyTemplate>> for RawEtymology {
-    fn from(templates: Vec<ParsedRawEtyTemplate>) -> Self {
+impl RawEtymology {
+    fn new(templates: Vec<ParsedRawEtyTemplate>, basis: EdgeBasis) -> Self {
         Self {
             templates: templates.into_boxed_slice(),
+            basis,
         }
     }
 }
@@ -526,7 +531,7 @@ impl WiktextractJsonItem<'_> {
                 .skip(1);
             templates.extend(continuation);
         }
-        Some(templates.into())
+        Some(RawEtymology::new(templates, EdgeBasis::Etymon))
     }
 
     // Many ety sections contain a single {{m}} template and no others, and
@@ -559,7 +564,10 @@ impl WiktextractJsonItem<'_> {
         let mention_lang = Lang::from_str(mention_lang).ok()?;
         let mention_langterm = mention_lang.new_langterm(string_pool, mention_term);
         let ety = RawEtyTemplate::new(mention_langterm, EtyMode::Mention);
-        Some(vec![ParsedRawEtyTemplate::Parsed(ety)].into())
+        Some(RawEtymology::new(
+            vec![ParsedRawEtyTemplate::Parsed(ety)],
+            EdgeBasis::Mention,
+        ))
     }
 
     fn get_standard_ety(&self, string_pool: &mut StringPool, lang: Lang) -> Option<RawEtymology> {
@@ -584,7 +592,8 @@ impl WiktextractJsonItem<'_> {
                 raw_ety_templates.push(ParsedRawEtyTemplate::Skipped);
             }
         }
-        (!raw_ety_templates.is_empty()).then(|| raw_ety_templates.into())
+        (!raw_ety_templates.is_empty())
+            .then(|| RawEtymology::new(raw_ety_templates, EdgeBasis::Template))
     }
 
     // if no ety section or no templates, as a fallback we see if term
@@ -612,7 +621,10 @@ impl WiktextractJsonItem<'_> {
                 pos: None,
             });
         }
-        Some(vec![ParsedRawEtyTemplate::Parsed(ety)].into())
+        Some(RawEtymology::new(
+            vec![ParsedRawEtyTemplate::Parsed(ety)],
+            EdgeBasis::FormOf,
+        ))
     }
 
     pub(crate) fn get_etymology(
@@ -728,7 +740,14 @@ impl Items {
                 confidences.push(confidence);
             }
             let (mode, head) = self.revise_affixes(template, &ety_items);
-            if !self.set_own_ety(current_item, mode, head, &ety_items, &confidences) {
+            // A later template is stated to give the parent's etymology only
+            // when {{etymon}} gives it inline; otherwise it is read so.
+            let basis = if current_item == item || template.continues {
+                raw_etymology.basis
+            } else {
+                EdgeBasis::Chain
+            };
+            if !self.set_own_ety(current_item, mode, head, basis, &ety_items, &confidences) {
                 return Ok(());
             }
             // Continue with an imputed single parent's own etymology?
@@ -769,6 +788,7 @@ impl Items {
         item: ItemId,
         mode: EtyMode,
         head: Option<u8>,
+        basis: EdgeBasis,
         ety_items: &[ItemId],
         confidences: &[f32],
     ) -> bool {
@@ -792,7 +812,8 @@ impl Items {
             }
             self.graph.remove_ety(item);
         }
-        self.graph.add_ety(item, mode, head, ety_items, confidences);
+        self.graph
+            .add_ety(item, mode, head, basis, ety_items, confidences);
         self.own_ety.insert(item);
         true
     }
@@ -1058,7 +1079,9 @@ mod tests {
     mod chains {
         use super::*;
         use crate::embeddings::{self, Config};
-        use wety_core::{gloss::Gloss, items::RealItem, langterm::Term, pos::Pos};
+        use wety_core::{
+            ety_graph::EtyEdgeAccess, gloss::Gloss, items::RealItem, langterm::Term, pos::Pos,
+        };
 
         struct Setup {
             sp: StringPool,
@@ -1157,6 +1180,15 @@ mod tests {
             fn parent(&self, item: ItemId) -> ItemId {
                 self.items.graph.immediate_ety(item).unwrap().items[0]
             }
+
+            fn bases(&self, item: ItemId) -> Vec<EdgeBasis> {
+                self.items
+                    .graph
+                    .edges()
+                    .filter(|e| e.child() == item)
+                    .map(|e| e.basis())
+                    .collect()
+            }
         }
 
         #[test]
@@ -1211,18 +1243,63 @@ mod tests {
         }
 
         #[test]
+        fn edges_record_what_they_were_read_from() {
+            let mut t = Setup::new("bases");
+            t.add("ang", "mōdor");
+            t.add("la", "muttum");
+            t.add("la", "lupus");
+            // the classic templates: the first is stated, a later one is read
+            // as its missing parent's etymology
+            let mother = t.add("en", "mother");
+            t.process(
+                mother,
+                r#"[{"name": "inh", "args": {"1": "en", "2": "enm", "3": "moder"}},
+                {"name": "inh", "args": {"1": "en", "2": "ang", "3": "mōdor"}}]"#,
+            );
+            assert_eq!(t.bases(mother), [EdgeBasis::Template]);
+            assert_eq!(t.bases(t.parent(mother)), [EdgeBasis::Chain]);
+            // {{etymon}} states its inline etymology too
+            let word = t.add("en", "motword");
+            t.process(
+                word,
+                r#"[{"name": "etymon", "args": {"1": "en", "2": ":bor",
+                "3": "fro:mot<ety:inh<la:muttum>>"}}]"#,
+            );
+            assert_eq!(t.bases(word), [EdgeBasis::Etymon]);
+            assert_eq!(t.bases(t.parent(word)), [EdgeBasis::Etymon]);
+            // a lone {{m}} is read as the parent
+            let lupine = t.add("en", "lupine");
+            t.process(
+                lupine,
+                r#"[{"name": "m", "args": {"1": "la", "2": "lupus"}}]"#,
+            );
+            assert_eq!(t.bases(lupine), [EdgeBasis::Mention]);
+            assert!(EdgeBasis::Mention.is_rule() && !EdgeBasis::Etymon.is_rule());
+        }
+
+        #[test]
         fn own_etymology_and_descendants_lists() {
             let mut t = Setup::new("own");
             let octo = t.add("la", "Octōber");
             let octobre = t.add("fro", "octobre");
             let october = t.add("en", "October");
-            t.items
-                .graph
-                .add_ety(octobre, EtyMode::Inherited, Some(0), &[octo], &[0.5]);
+            t.items.graph.add_ety(
+                octobre,
+                EtyMode::Inherited,
+                Some(0),
+                EdgeBasis::Descendants,
+                &[octo],
+                &[0.5],
+            );
             // a Descendants list gave the more specific parent: kept
-            t.items
-                .graph
-                .add_ety(october, EtyMode::Borrowed, Some(0), &[octobre], &[0.5]);
+            t.items.graph.add_ety(
+                october,
+                EtyMode::Borrowed,
+                Some(0),
+                EdgeBasis::Descendants,
+                &[octobre],
+                &[0.5],
+            );
             t.process(
                 october,
                 r#"[{"name": "der", "args": {"1": "en", "2": "la", "3": "Octōber"}}]"#,
@@ -1231,9 +1308,14 @@ mod tests {
             // a different parent: the item's own section wins
             let enm = t.add("enm", "Octobre");
             let october2 = t.add("en", "Octobre");
-            t.items
-                .graph
-                .add_ety(october2, EtyMode::Borrowed, Some(0), &[octo], &[0.9]);
+            t.items.graph.add_ety(
+                october2,
+                EtyMode::Borrowed,
+                Some(0),
+                EdgeBasis::Descendants,
+                &[octo],
+                &[0.9],
+            );
             t.process(
                 october2,
                 r#"[{"name": "inh", "args": {"1": "en", "2": "enm", "3": "Octobre"}}]"#,
@@ -1241,9 +1323,14 @@ mod tests {
             assert_eq!(t.parents(october2), ["enm:Octobre"]);
             // but not for a term missing from the data
             t.items.graph.remove_ety(october2);
-            t.items
-                .graph
-                .add_ety(october2, EtyMode::Inherited, Some(0), &[enm], &[0.5]);
+            t.items.graph.add_ety(
+                october2,
+                EtyMode::Inherited,
+                Some(0),
+                EdgeBasis::Descendants,
+                &[enm],
+                &[0.5],
+            );
             t.process(
                 october2,
                 r#"[{"name": "inh", "args": {"1": "en", "2": "enm", "3": "Octobere"}}]"#,
@@ -1365,15 +1452,51 @@ mod tests {
             let prze = t.add("pl", "prze-");
             let przetest = t.add("pl", "przetestować");
             let g = &mut t.items.graph;
-            g.add_ety(test, EtyMode::Derived, Some(0), &[testum], &[1.0]);
-            g.add_ety(preh, EtyMode::Derived, Some(0), &[per_before], &[1.0]);
-            g.add_ety(pre, EtyMode::Derived, Some(0), &[preh], &[1.0]);
-            g.add_ety(pretest, EtyMode::Prefix, Some(1), &[pre, test], &[1.0, 1.0]);
-            g.add_ety(prze, EtyMode::Inherited, Some(0), &[per_before], &[1.0]);
+            g.add_ety(
+                test,
+                EtyMode::Derived,
+                Some(0),
+                EdgeBasis::Template,
+                &[testum],
+                &[1.0],
+            );
+            g.add_ety(
+                preh,
+                EtyMode::Derived,
+                Some(0),
+                EdgeBasis::Template,
+                &[per_before],
+                &[1.0],
+            );
+            g.add_ety(
+                pre,
+                EtyMode::Derived,
+                Some(0),
+                EdgeBasis::Template,
+                &[preh],
+                &[1.0],
+            );
+            g.add_ety(
+                pretest,
+                EtyMode::Prefix,
+                Some(1),
+                EdgeBasis::Template,
+                &[pre, test],
+                &[1.0, 1.0],
+            );
+            g.add_ety(
+                prze,
+                EtyMode::Inherited,
+                Some(0),
+                EdgeBasis::Template,
+                &[per_before],
+                &[1.0],
+            );
             g.add_ety(
                 przetest,
                 EtyMode::Prefix,
                 Some(1),
+                EdgeBasis::Template,
                 &[prze, test],
                 &[1.0, 1.0],
             );
@@ -1401,9 +1524,14 @@ mod tests {
             add_root(&mut t, "ters-", "dry");
             let testum = t.add("la", "testum");
             let test = t.add("en", "test");
-            t.items
-                .graph
-                .add_ety(test, EtyMode::Derived, Some(0), &[testum], &[1.0]);
+            t.items.graph.add_ety(
+                test,
+                EtyMode::Derived,
+                Some(0),
+                EdgeBasis::Template,
+                &[testum],
+                &[1.0],
+            );
             set_roots(&mut t, test, &[("per-", None), ("ters-", None)]);
             t.items.impute_root_etys(&t.sp, &t.embeddings).unwrap();
             assert!(t.items.graph.immediate_ety(testum).is_none());
@@ -1494,9 +1622,14 @@ mod tests {
             let mut t = Setup::new("variant");
             let freo = t.add("ang", "frēo");
             let freoh = t.add("ang", "frēoh");
-            t.items
-                .graph
-                .add_ety(freoh, EtyMode::Form, Some(0), &[freo], &[1.0]);
+            t.items.graph.add_ety(
+                freoh,
+                EtyMode::Form,
+                Some(0),
+                EdgeBasis::FormOf,
+                &[freo],
+                &[1.0],
+            );
             let fre = t.add("enm", "fre");
             t.record(
                 fre,
@@ -1543,9 +1676,14 @@ mod tests {
             t.add("trk-pro", "*bȫrü");
             let flea = t.add("trk-pro", "*bürgä");
             let wolf = t.add("tt", "бүре");
-            t.items
-                .graph
-                .add_ety(wolf, EtyMode::Inherited, Some(0), &[flea], &[1.0]);
+            t.items.graph.add_ety(
+                wolf,
+                EtyMode::Inherited,
+                Some(0),
+                EdgeBasis::Template,
+                &[flea],
+                &[1.0],
+            );
             let mari = t.add("mhr", "пире");
             t.process(
                 mari,
@@ -1664,6 +1802,7 @@ mod tests {
                 limey,
                 EtyMode::MorphologicalDerivation,
                 Some(0),
+                EdgeBasis::Template,
                 &[lime2],
                 &[0.1],
             );

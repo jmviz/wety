@@ -7,6 +7,7 @@ use crate::{
     wiktextract_json::{WiktextractJson, WiktextractJsonItem, WiktextractJsonValidStr},
 };
 use wety_core::{
+    ety_graph::EdgeBasis,
     etymology_templates::EtyMode,
     gloss::Gloss,
     items::ItemId,
@@ -365,8 +366,14 @@ impl Items {
                         mode = EtyMode::MorphologicalDerivation;
                     }
                     {
-                        self.graph
-                            .add_ety(desc_item, mode, Some(0), &[parent], &[confidence]);
+                        self.graph.add_ety(
+                            desc_item,
+                            mode,
+                            Some(0),
+                            EdgeBasis::Descendants,
+                            &[parent],
+                            &[confidence],
+                        );
                     }
                 }
             }

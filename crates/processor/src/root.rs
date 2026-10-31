@@ -12,7 +12,7 @@ use crate::{
     },
 };
 use wety_core::{
-    ety_graph::EtyEdgeAccess,
+    ety_graph::{EdgeBasis, EtyEdgeAccess},
     etymology_templates::EtyMode,
     items::ItemId,
     langterm::{LangTerm, Term},
@@ -315,8 +315,14 @@ impl Items {
             }
             if !root_items.is_empty() {
                 let head = (root_items.len() == 1).then_some(0);
-                self.graph
-                    .add_ety(item_id, EtyMode::Root, head, &root_items, &confidences);
+                self.graph.add_ety(
+                    item_id,
+                    EtyMode::Root,
+                    head,
+                    EdgeBasis::Root,
+                    &root_items,
+                    &confidences,
+                );
             }
         }
 
@@ -377,6 +383,7 @@ impl Items {
                 progenitor,
                 EtyMode::Root,
                 Some(0u8),
+                EdgeBasis::RootVote,
                 &[root_item],
                 &[votes / total],
             );

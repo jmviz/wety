@@ -1,7 +1,7 @@
 # Status
 
-*Updated 2026-10-31. Client work and a processor fix are on `claude/root-vote-fix`, on top
-of `codex/client-ux-audit` (the client work); not deployed.*
+*Updated 2026-10-31. Branch stack, none deployed: `codex/client-ux-audit` (client work),
+then `claude/root-vote-fix` (root fixes), then `claude/claims-core-1`.*
 
 ## What the project promises
 
@@ -12,53 +12,43 @@ and citations from reviewed evidence in the `packages/dating` registry.
 
 - **Site:** wety.org and api.wety.org; only the maintainer merges/deploys `main` and
   `production` ([deploy/README.md](deploy/README.md)).
-- **Graph:** `dab06f67…`, the 2026-09-01 dump; 8,101,979 etymological entries with
-  stable word URLs and homographs. Dates cover 348 codes, including 135 estimated
-  proto-language ends.
+- **Graph:** `dab06f67…`, the 2026-09-01 dump; 8,101,979 etymological entries and
+  9,946,921 edges. Dates cover 348 codes, including 135 estimated proto-language ends.
 - **Research store:** private evidence, artifacts and runs stay in `data/`, backed up
   with `wety-data store`; [provenance](docs/architecture/provenance.md) covers recovery.
 
 ## What changed
 
-The client UX review (a shared doc outside git) is worked through, after reverting
-codex's design additions (`b36265cf`):
-
-- **Cognates** start from the oldest form that is the same word, or its root
-  (*mother*: \*méh₂tēr); a trail lets readers start elsewhere (`root=`).
-- **Every view reads oldest at the top**, the etymology chart included.
-- **Languages:** the reader's languages by default, "all languages" (`all=1`) a choice;
-  same-language formations only on request (`within=1`). One languages panel.
-- **One header line, a title line, one control row**; quieter rows; word details beside
-  the word; dates and evidence in a language view; dark mode; one Tab stop per tree.
-- **Search** folds diacritics, ʰ, subscripts and romanizations and ranks headwords first.
-- **Period labels** have no slashes: dating generation `b0bed444`, no date changed.
-- **Roots (processor, not yet in a graph):** Latin *testum* took PIE \*per- "to go
-  through" from Polish *przetestować*'s prze-, so every *test* tree showed it. A root
-  reached anywhere in a voter's etymology no longer votes; ties impute nothing. A root
-  named under two senses (pro- words: \*per- "before" and "fare") is dropped.
-- **Rust tooling:** clippy and rustfmt are in the toolchain; the workspace is clean,
-  except `processor/src/embeddings.rs`, whose text keys the embedding cache.
-- Checks pass: 42 processor (3 new), 15 core, 7 server and 254 dating tests, dating
-  validation, TypeScript and build.
+- **Etymology claims model adopted** (shared doc "wety etymology claims model",
+  outside git). wety will build trees from attributed claims: alternatives, certainty,
+  credits between sources, automatic synthesis. The doc's work plan is the tracker:
+  14 milestones in four tracks (core, ACD, LiLa, synthesis), one branch each
+  (`claude/claims-<id>`), commits titled `Claims <id>: …`.
+- **core-1 (code done, check pending):** every graph edge records its basis: `etymon`,
+  `template`, `chain`, `mention`, `form_of`, `descendants`, `root`, `root_vote`; the
+  last five are wety's rules. No walk changes. `graph-edges` dumps a graph's edges as
+  TSV for diffing builds. The graph format changed: old graph files no longer load.
+- **Earlier on this stack:** the client UX review is worked through; the root fixes
+  (testum's \*per-, two-sense roots) are in the processor, not yet in a graph.
+- Checks pass: 43 processor, 15 core and 7 server tests; clippy clean.
 
 ## Uncertainties
 
-- The trail rule is measured, not reviewed word by word; "derived" steps can
-  overreach (*chess*) or follow data errors (*robot*).
-- `/cognates` and `/descendants` responses changed shape: deploy server and client
-  together.
-- The root-vote change alters other imputed roots; how many is unknown until a rebuild.
+- `/cognates` and `/descendants` changed shape on the client branch: deploy server and
+  client together, with a rebuilt graph.
+- How many imputed roots the root fixes change is unknown until the rebuild.
 - Research reviews remain model reviews; R2 pruning still needs a live dry run.
 
 ## Next three actions
 
-1. Rebuild the graph (`wety-data run etymology_graph`, about 6 h), compare its imputed
-   roots with `dab06f67`, then publish it with the client work.
-2. Maintainer: review the branch.
-3. Inspect the R2 pruning dry run before the next server deployment.
+1. Rebuild the graph (`wety-data run etymology_graph`, about 6 h) for core-1 and the root
+   fixes at once; diff its `graph-edges` dump against `dab06f67`'s: only `root` and
+   `root_vote` edges may differ. Count edges by basis.
+2. acd-1 and lila-1: retain ACD v2.0 and LiLa's de Vaan data with their curation files.
+3. core-2: the assertion schema, drafted against Wiktionary, ACD and LiLa samples.
 
 ## Decisions needed from the maintainer
 
-- Whether to rebuild and ship the graph with the client work, or ship the client first.
-- Whether to adopt the etymology claims model (a shared design doc outside git):
-  per-link sources, credits and certainty; automatic synthesis; the ACD first.
+- The doc proposes a new Python package, `packages/etymology`, for the schema and
+  converters (a layout change); it stands unless the maintainer objects.
+- Whether to ship the client work before the claims work lands.

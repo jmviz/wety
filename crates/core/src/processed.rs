@@ -746,7 +746,7 @@ mod search_tests {
 #[cfg(test)]
 mod lineage_tests {
     use super::*;
-    use crate::{items::ImputedItem, langterm::Term};
+    use crate::{ety_graph::EdgeBasis, items::ImputedItem, langterm::Term};
     use std::str::FromStr;
 
     fn add(graph: &mut EtyGraph, pool: &mut StringPool, code: &str, term: &str) -> ItemId {
@@ -761,7 +761,14 @@ mod lineage_tests {
 
     fn ety(graph: &mut EtyGraph, item: ItemId, mode: EtyMode, sources: &[ItemId]) {
         let head = (sources.len() == 1).then_some(0);
-        graph.add_ety(item, mode, head, sources, &vec![1.0; sources.len()]);
+        graph.add_ety(
+            item,
+            mode,
+            head,
+            EdgeBasis::Template,
+            sources,
+            &vec![1.0; sources.len()],
+        );
     }
 
     fn view(dist_lang: Lang, desc_langs: &[Lang], within: bool) -> TreeView<'_> {
