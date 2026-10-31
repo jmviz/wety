@@ -60,4 +60,5 @@ codex's design additions (`b36265cf`):
 ## Decisions needed from the maintainer
 
 - Whether to rebuild and ship the graph with the client work, or ship the client first.
-- Whether to model competing and uncertain etymologies (a change to the graph format).
+- Whether to adopt the etymology claims model (a shared design doc outside git):
+  sources, holders and certainty per link; a graph format change.
