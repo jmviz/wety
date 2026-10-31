@@ -70,14 +70,16 @@ mod tests {
 
     #[test]
     fn uses_header_when_configured() {
-        let extractor = ClientIpKeyExtractor::new(Some(HeaderName::from_static("cf-connecting-ip")));
+        let extractor =
+            ClientIpKeyExtractor::new(Some(HeaderName::from_static("cf-connecting-ip")));
         let key = extractor.extract(&request(Some("203.0.113.7"))).unwrap();
         assert_eq!(key, "203.0.113.7".parse::<IpAddr>().unwrap());
     }
 
     #[test]
     fn falls_back_to_peer_without_header() {
-        let extractor = ClientIpKeyExtractor::new(Some(HeaderName::from_static("cf-connecting-ip")));
+        let extractor =
+            ClientIpKeyExtractor::new(Some(HeaderName::from_static("cf-connecting-ip")));
         let key = extractor.extract(&request(None)).unwrap();
         assert_eq!(key, "127.0.0.1".parse::<IpAddr>().unwrap());
     }

@@ -27,7 +27,7 @@ use anyhow::Result;
 use clap::Parser;
 use indicatif::HumanDuration;
 use serde::Deserialize;
-use simd_json::{to_borrowed_value, value::borrowed::Value, ValueAccess};
+use simd_json::{ValueAccess, to_borrowed_value, value::borrowed::Value};
 
 #[derive(Parser)]
 #[clap(author, version, about, long_about = None)]

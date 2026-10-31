@@ -174,7 +174,13 @@ fn main() {
             })
         });
         println!("cognates walk+filter only: {t_walk:?} ({walked} nodes)");
-        let view = TreeView { dist_lang: lang, desc_langs: &desc_langs, within: false, keep: &anc, lean: false };
+        let view = TreeView {
+            dist_lang: lang,
+            desc_langs: &desc_langs,
+            within: false,
+            keep: &anc,
+            lean: false,
+        };
         let (t_build, cog) = best(3, || data.item_cognates_json(item, None, &view));
         let (t_ser, bytes) = best(3, || serde_json::to_vec(&cog).unwrap());
         let cog: Value = serde_json::from_slice(&bytes).unwrap();

@@ -1,7 +1,7 @@
 use crate::{
+    HashMap,
     items::Items,
     wiktextract_json::{WiktextractJson, WiktextractJsonValidStr},
-    HashMap,
 };
 use wety_core::{
     langterm::{LangTerm, Term},
@@ -9,7 +9,7 @@ use wety_core::{
     string_pool::StringPool,
 };
 
-use phf::{phf_set, Set};
+use phf::{Set, phf_set};
 
 #[derive(Default)]
 pub(crate) struct Redirects {

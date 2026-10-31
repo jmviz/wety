@@ -16,8 +16,18 @@ use serde_json::Value;
 type Table = BTreeMap<String, Value>;
 
 fn names(entry: &Value) -> impl Iterator<Item = &str> {
-    let list = |key| entry[key].as_array().into_iter().flatten().filter_map(Value::as_str);
-    entry["canonicalName"].as_str().into_iter().chain(list("aliases")).chain(list("otherNames"))
+    let list = |key| {
+        entry[key]
+            .as_array()
+            .into_iter()
+            .flatten()
+            .filter_map(Value::as_str)
+    };
+    entry["canonicalName"]
+        .as_str()
+        .into_iter()
+        .chain(list("aliases"))
+        .chain(list("otherNames"))
 }
 
 fn main() -> anyhow::Result<()> {
@@ -62,7 +72,11 @@ fn main() -> anyhow::Result<()> {
             continue;
         }
         let name = entry["canonicalName"].as_str().unwrap_or_default();
-        match by_name.get(name).map(|codes| codes.iter().collect::<Vec<_>>()).as_deref() {
+        match by_name
+            .get(name)
+            .map(|codes| codes.iter().collect::<Vec<_>>())
+            .as_deref()
+        {
             Some([successor]) => {
                 retired.insert(code.clone(), (*successor).clone());
                 added += 1;
@@ -74,7 +88,10 @@ fn main() -> anyhow::Result<()> {
         retired.remove(old);
     }
 
-    println!("{added} retired codes mapped; {} without a unique successor:", unresolved.len());
+    println!(
+        "{added} retired codes mapped; {} without a unique successor:",
+        unresolved.len()
+    );
     for code in &unresolved {
         println!("  {code}");
     }
@@ -82,7 +99,10 @@ fn main() -> anyhow::Result<()> {
         println!("dropped (successor retired without a successor): {dropped:?}");
     }
     if !dry_run {
-        std::fs::write(registry_path, serde_json::to_string_pretty(&retired)? + "\n")?;
+        std::fs::write(
+            registry_path,
+            serde_json::to_string_pretty(&retired)? + "\n",
+        )?;
         println!("wrote {registry_path}");
     }
     Ok(())

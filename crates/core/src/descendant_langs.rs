@@ -94,9 +94,13 @@ impl<'de> Visitor<'de> for DescendantLangsVisitor {
             }
         }
         match (offsets, langs) {
-            (Some(offsets), Some(langs)) if pairs.is_empty() => Ok(DescendantLangs { offsets, langs }),
+            (Some(offsets), Some(langs)) if pairs.is_empty() => {
+                Ok(DescendantLangs { offsets, langs })
+            }
             (None, None) => Ok(DescendantLangs::new(pairs)),
-            _ => Err(de::Error::custom("descendant langs mix the CSR and map formats")),
+            _ => Err(de::Error::custom(
+                "descendant langs mix the CSR and map formats",
+            )),
         }
     }
 }

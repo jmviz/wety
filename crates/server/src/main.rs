@@ -1,7 +1,7 @@
 use server::{
-    AppState, Environment, client_ip::ClientIpKeyExtractor, item, item_cognates, item_descendants, item_etymology,
-    item_search_matches, lang, lang_search_matches, periods, periods::DEFAULT_PERIODS_PATH,
-    resolve,
+    AppState, Environment, client_ip::ClientIpKeyExtractor, item, item_cognates, item_descendants,
+    item_etymology, item_search_matches, lang, lang_search_matches, periods,
+    periods::DEFAULT_PERIODS_PATH, resolve,
 };
 
 use std::{env, net::SocketAddr, path::Path, str::FromStr, sync::Arc};
@@ -49,16 +49,23 @@ async fn main() -> Result<()> {
         Ok(path) => path,
         Err(_) => {
             let pointer: serde_json::Value = serde_json::from_slice(&std::fs::read(
-                "data/products/etymology_graph/CURRENT.json"
+                "data/products/etymology_graph/CURRENT.json",
             )?)?;
-            let artifact = pointer["artifact"].as_str().ok_or_else(|| anyhow::anyhow!("missing graph artifact"))?;
-            let entrypoint = pointer["entrypoint"].as_str().ok_or_else(|| anyhow::anyhow!("missing graph entrypoint"))?;
+            let artifact = pointer["artifact"]
+                .as_str()
+                .ok_or_else(|| anyhow::anyhow!("missing graph artifact"))?;
+            let entrypoint = pointer["entrypoint"]
+                .as_str()
+                .ok_or_else(|| anyhow::anyhow!("missing graph entrypoint"))?;
             format!("{artifact}/files/{entrypoint}")
         }
     };
     let periods_path =
         env::var("WETY_PERIODS_PATH").unwrap_or_else(|_| DEFAULT_PERIODS_PATH.to_string());
-    let state = Arc::new(AppState::new(Path::new(&data_path), Path::new(&periods_path))?);
+    let state = Arc::new(AppState::new(
+        Path::new(&data_path),
+        Path::new(&periods_path),
+    )?);
 
     // Behind a proxy every peer address is the proxy's, so the rate limiter
     // must key on the client IP header the proxy sets.

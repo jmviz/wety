@@ -19,7 +19,12 @@ pub struct Args {
         value_parser
     )]
     wiktextract_path: PathBuf,
-    #[clap(short = 's', long, default_value = "data/workspaces/etymology_graph/wety.json.gz", value_parser)]
+    #[clap(
+        short = 's',
+        long,
+        default_value = "data/workspaces/etymology_graph/wety.json.gz",
+        value_parser
+    )]
     serialization_path: PathBuf,
     #[clap(short = 't', long, value_parser)]
     turtle_path: Option<PathBuf>,

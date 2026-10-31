@@ -1,8 +1,4 @@
-use crate::{
-    descendants::RawDescendants,
-    items::Items,
-    redirects::WiktextractJsonRedirect,
-};
+use crate::{descendants::RawDescendants, items::Items, redirects::WiktextractJsonRedirect};
 use wety_core::{
     gloss::Gloss,
     items::{ItemId, RealItem},
@@ -23,7 +19,7 @@ use std::{
 use anyhow::{Ok, Result};
 use bytelines::ByteLines;
 use flate2::read::GzDecoder;
-use simd_json::{to_borrowed_value, ValueAccess};
+use simd_json::{ValueAccess, to_borrowed_value};
 
 /// Returns an iterator over the lines in the file at the given path.
 ///
@@ -171,7 +167,8 @@ impl Items {
             for id in json_item.get_ids(lang) {
                 self.add_id(item_id, id);
             }
-            if is_new_ety { // a new item was added
+            if is_new_ety {
+                // a new item was added
                 // This means that the glosses embedding for a multi-pos item
                 // will be based on the glosses for whichever pos happens to
                 // first in the wiktextract data. $$ This may be good enough or
@@ -179,7 +176,9 @@ impl Items {
                 self.lines.insert(line_number, item_id);
                 let raw_roots = json_item.get_roots(string_pool, lang);
                 if !raw_roots.is_empty() {
-                    self.raw_templates.root.insert(item_id, raw_roots.into_boxed_slice());
+                    self.raw_templates
+                        .root
+                        .insert(item_id, raw_roots.into_boxed_slice());
                 }
                 if let Some(raw_etymology) = json_item.get_etymology(string_pool, lang) {
                     self.raw_templates.ety.insert(item_id, raw_etymology);
@@ -518,9 +517,18 @@ mod tests {
 
     #[test]
     fn ety_labels() {
-        assert_eq!(ety_label(r#"{"etymology_number": "3"}"#).as_deref(), Some("3"));
-        assert_eq!(ety_label(r#"{"etymology_number": 2}"#).as_deref(), Some("2"));
-        assert_eq!(ety_label(r#"{"etymology_number": "1.1"}"#).as_deref(), Some("1.1"));
+        assert_eq!(
+            ety_label(r#"{"etymology_number": "3"}"#).as_deref(),
+            Some("3")
+        );
+        assert_eq!(
+            ety_label(r#"{"etymology_number": 2}"#).as_deref(),
+            Some("2")
+        );
+        assert_eq!(
+            ety_label(r#"{"etymology_number": "1.1"}"#).as_deref(),
+            Some("1.1")
+        );
         assert_eq!(ety_label(r#"{"word": "lime"}"#), None);
     }
 
@@ -547,7 +555,14 @@ mod tests {
                     "derived": [{{"word": "māternus"}}]}}"#
             )
         };
-        for (n, json) in [entry("noun", "it"), entry("noun", "it"), entry("verb", "fr")].iter().enumerate() {
+        for (n, json) in [
+            entry("noun", "it"),
+            entry("noun", "it"),
+            entry("verb", "fr"),
+        ]
+        .iter()
+        .enumerate()
+        {
             let mut bytes = json.as_bytes().to_vec();
             let json = to_borrowed_value(&mut bytes).unwrap();
             items.process_item(&mut sp, &WiktextractJsonItem { json }, n);
@@ -584,7 +599,10 @@ mod tests {
         assert_eq!("non-", clean_template_term("non-<id:not><t:no>"));
         assert_eq!("lītus", clean_template_term("[[lītus|lītoris]]"));
         assert_eq!("lītus", clean_template_term("[[lītus]]"));
-        assert_eq!(parse_pos("augmentative suffix").map(Pos::name), Some("suffix"));
+        assert_eq!(
+            parse_pos("augmentative suffix").map(Pos::name),
+            Some("suffix")
+        );
         assert_eq!(parse_pos("adjective").map(Pos::name), Some("adj"));
         assert_eq!(parse_pos("feminine of {{m|pt|novo}}"), None);
     }

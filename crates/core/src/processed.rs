@@ -6,7 +6,8 @@ use crate::{
     items::{Item, ItemId},
     languages::Lang,
     response::{
-        CognatesJson, DescendantsJson, EtymologyJson, GlossStr, ItemJson, OtherParentJson, TrailStepJson,
+        CognatesJson, DescendantsJson, EtymologyJson, GlossStr, ItemJson, OtherParentJson,
+        TrailStepJson,
     },
     string_pool::StringPool,
 };
@@ -57,7 +58,9 @@ impl Data {
     pub fn serialize(&self, path: &Path) -> Result<()> {
         let t = Instant::now();
         println!("Serializing processed data to {}...", path.display());
-        if let Some(parent) = path.parent() { std::fs::create_dir_all(parent)?; }
+        if let Some(parent) = path.parent() {
+            std::fs::create_dir_all(parent)?;
+        }
         let file = File::create(path)?;
         let should_gz_compress = path.extension().is_some_and(|ext| ext == "gz");
         let writer: Box<dyn Write> = if should_gz_compress {
@@ -121,7 +124,12 @@ impl Data {
     #[must_use]
     pub fn ancestors_in_langs(&self, item: ItemId, langs: &[Lang]) -> Vec<ItemId> {
         if langs.is_empty() {
-            return self.graph.ancestor_edges(item).map(|e| e.parent()).unique().collect();
+            return self
+                .graph
+                .ancestor_edges(item)
+                .map(|e| e.parent())
+                .unique()
+                .collect();
         }
         self.graph.ancestors_in_langs(item, langs).collect()
     }
@@ -198,7 +206,11 @@ impl Data {
     /// language, so limelight and limelighter stay off a tree of English lime
     /// unless asked for.
     #[must_use]
-    pub fn item_descendants_json(&self, item_id: ItemId, view: &TreeView<'_>) -> DescendantsJson<'_> {
+    pub fn item_descendants_json(
+        &self,
+        item_id: ItemId,
+        view: &TreeView<'_>,
+    ) -> DescendantsJson<'_> {
         self.item_descendants_json_inner(item_id, view, None, None)
     }
 
@@ -227,7 +239,10 @@ impl Data {
                 let child_lang = self.item(child).lang();
                 let drawn = desc_langs.is_empty() || desc_langs.contains(&child_lang);
                 let reaches_another = if desc_langs.is_empty() {
-                    self.descendant_langs.get(child).iter().any(|&l| l != item_lang)
+                    self.descendant_langs
+                        .get(child)
+                        .iter()
+                        .any(|&l| l != item_lang)
                 } else {
                     desc_langs
                         .iter()
@@ -282,9 +297,15 @@ impl Data {
     /// from *peh₂- + *-tḗr starts at *peh₂-, the family's natural ancestor.
     #[must_use]
     pub fn default_root(&self, item: ItemId) -> ItemId {
-        let top = *self.lineage(item).last().expect("a trail starts with its item");
+        let top = *self
+            .lineage(item)
+            .last()
+            .expect("a trail starts with its item");
         let roots = self.graph.immediate_ety(top).map_or_else(Vec::new, |e| {
-            e.items.into_iter().filter(|&s| self.is_root_entry(s)).collect_vec()
+            e.items
+                .into_iter()
+                .filter(|&s| self.is_root_entry(s))
+                .collect_vec()
         });
         match roots[..] {
             [root] => root,
@@ -343,7 +364,13 @@ impl Data {
     /// The item or one of its ancestors with this lang code, term and (when
     /// given) link ety, for starting a cognates tree there.
     #[must_use]
-    pub fn ancestor_named(&self, item: ItemId, lang: &str, term: &str, ety: Option<&str>) -> Option<ItemId> {
+    pub fn ancestor_named(
+        &self,
+        item: ItemId,
+        lang: &str,
+        term: &str,
+        ety: Option<&str>,
+    ) -> Option<ItemId> {
         let matches = |id: ItemId| {
             let it = self.item(id);
             it.lang().code() == lang
@@ -370,7 +397,10 @@ impl Data {
         let default_root = self.default_root(item_id);
         let root = root.unwrap_or(default_root);
         let ety_mode = |id: ItemId| self.graph.immediate_ety(id).map(|e| e.mode.as_str());
-        let sources = self.graph.immediate_ety(top).map_or_else(Vec::new, |e| e.items);
+        let sources = self
+            .graph
+            .immediate_ety(top)
+            .map_or_else(Vec::new, |e| e.items);
         // Roots first, then affixes and other ends, leaving out what the
         // trail and its sources already name.
         let (roots, others): (Vec<_>, Vec<_>) = self
@@ -386,9 +416,18 @@ impl Data {
                     ety_mode: ety_mode(id),
                 })
                 .collect(),
-            sources: sources.iter().map(|&id| self.item_json_inner(id, lean)).collect(),
-            ultimate_roots: roots.iter().map(|&id| self.item_json_inner(id, lean)).collect(),
-            ultimate_others: others.iter().map(|&id| self.item_json_inner(id, lean)).collect(),
+            sources: sources
+                .iter()
+                .map(|&id| self.item_json_inner(id, lean))
+                .collect(),
+            ultimate_roots: roots
+                .iter()
+                .map(|&id| self.item_json_inner(id, lean))
+                .collect(),
+            ultimate_others: others
+                .iter()
+                .map(|&id| self.item_json_inner(id, lean))
+                .collect(),
             root,
             default_root,
             total: self.descendant_total(root, TOTAL_CAP),
@@ -505,7 +544,12 @@ impl Data {
             let term = item.term().resolve(&self.string_pool);
             let romanization = item.romanization().map(|r| r.resolve(&self.string_pool));
             // The trie takes no empty key (a term that is all diacritics).
-            for key in std::iter::once(term).chain(romanization).map(fold_term).filter(|k| !k.is_empty()).unique() {
+            for key in std::iter::once(term)
+                .chain(romanization)
+                .map(fold_term)
+                .filter(|k| !k.is_empty())
+                .unique()
+            {
                 lang_terms.entry(key).or_default().push(item_id);
             }
             if let Some(lang_data) = normalized_langs.get_mut(&norm_lang) {
@@ -643,16 +687,30 @@ impl Search {
         let mut items = items.into_iter().map(|id| (key(id), id)).collect_vec();
         items.sort_unstable_by(|a, b| a.0.cmp(&b.0));
         items.truncate(MAX_SEARCH_RESULTS);
-        json!(items.iter().map(|&(_, id)| data.item_json(id)).collect_vec())
+        json!(
+            items
+                .iter()
+                .map(|&(_, id)| data.item_json(id))
+                .collect_vec()
+        )
     }
 }
 
 fn validate_reference_fingerprint(value: Option<&str>, allow_legacy: bool) -> Result<()> {
     match value {
         Some(env!("WETY_REFERENCE_FINGERPRINT")) => Ok(()),
-        Some(_) => anyhow::bail!("Graph language/POS tables differ from this binary; rebuild with the graph's pinned references"),
-        None if allow_legacy => { eprintln!("Loading legacy graph with unverified language/POS identity by explicit opt-in"); Ok(()) },
-        None => anyhow::bail!("Legacy graph has no reference fingerprint; use WETY_ALLOW_LEGACY_GRAPH=1 only after accepting unverified numeric IDs"),
+        Some(_) => anyhow::bail!(
+            "Graph language/POS tables differ from this binary; rebuild with the graph's pinned references"
+        ),
+        None if allow_legacy => {
+            eprintln!(
+                "Loading legacy graph with unverified language/POS identity by explicit opt-in"
+            );
+            Ok(())
+        }
+        None => anyhow::bail!(
+            "Legacy graph has no reference fingerprint; use WETY_ALLOW_LEGACY_GRAPH=1 only after accepting unverified numeric IDs"
+        ),
     }
 }
 
@@ -661,7 +719,9 @@ mod reference_tests {
     use super::validate_reference_fingerprint;
     #[test]
     fn reject_mismatched_and_unidentified_tables() {
-        assert!(validate_reference_fingerprint(Some(env!("WETY_REFERENCE_FINGERPRINT")), false).is_ok());
+        assert!(
+            validate_reference_fingerprint(Some(env!("WETY_REFERENCE_FINGERPRINT")), false).is_ok()
+        );
         assert!(validate_reference_fingerprint(Some("different"), true).is_err());
         assert!(validate_reference_fingerprint(None, false).is_err());
         assert!(validate_reference_fingerprint(None, true).is_ok());
@@ -705,7 +765,13 @@ mod lineage_tests {
     }
 
     fn view(dist_lang: Lang, desc_langs: &[Lang], within: bool) -> TreeView<'_> {
-        TreeView { dist_lang, desc_langs, within, keep: &[], lean: false }
+        TreeView {
+            dist_lang,
+            desc_langs,
+            within,
+            keep: &[],
+            lean: false,
+        }
     }
 
     #[test]
@@ -732,15 +798,27 @@ mod lineage_tests {
         assert_eq!(cognates.trail.len(), 3);
         assert_eq!(cognates.trail[0].ety_mode, Some("inherited"));
         assert_eq!(cognates.trail[2].ety_mode, Some("suffix"));
-        assert_eq!(cognates.sources.iter().map(|s| s.id).collect_vec(), [base, suffix]);
-        let children = cognates.tree.children.iter().map(|c| c.item.id).collect_vec();
+        assert_eq!(
+            cognates.sources.iter().map(|s| s.id).collect_vec(),
+            [base, suffix]
+        );
+        let children = cognates
+            .tree
+            .children
+            .iter()
+            .map(|c| c.item.id)
+            .collect_vec();
         assert!(children.contains(&moder) && children.contains(&matrix));
 
         // A source of the oldest form is a valid starting point; an unrelated
         // word is not.
-        assert_eq!(data.ancestor_named(mother, "ine-pro", "-tḗr", None), Some(suffix));
+        assert_eq!(
+            data.ancestor_named(mother, "ine-pro", "-tḗr", None),
+            Some(suffix)
+        );
         assert_eq!(data.ancestor_named(mother, "la", "mātrīx", None), None);
-        let from_suffix = data.item_cognates_json(mother, Some(suffix), &view(en, &[en, la], false));
+        let from_suffix =
+            data.item_cognates_json(mother, Some(suffix), &view(en, &[en, la], false));
         assert_eq!(from_suffix.root, suffix);
         assert_eq!(from_suffix.tree.item.id, suffix);
     }
@@ -764,7 +842,10 @@ mod lineage_tests {
         assert_eq!((cognates.root, cognates.default_root), (peh2, peh2));
         assert!(cognates.tree.children.iter().any(|c| c.item.id == pastor));
         // The suffix is not a root entry: an affix alone never becomes the default.
-        assert_eq!(data.ancestor_named(pater, "ine-pro", "-tḗr", None), Some(ter));
+        assert_eq!(
+            data.ancestor_named(pater, "ine-pro", "-tḗr", None),
+            Some(ter)
+        );
     }
 
     #[test]
@@ -789,10 +870,19 @@ mod lineage_tests {
         let en = Lang::from_str("en").unwrap();
         let c = data.item_cognates_json(astronomy, None, &view(en, &[en], false));
         assert_eq!(c.root, astronomia);
-        assert_eq!(c.ultimate_roots.iter().map(|i| i.id).collect_vec(), [burn, nem]);
-        assert_eq!(c.ultimate_others.iter().map(|i| i.id).collect_vec(), [ter, eh2]);
+        assert_eq!(
+            c.ultimate_roots.iter().map(|i| i.id).collect_vec(),
+            [burn, nem]
+        );
+        assert_eq!(
+            c.ultimate_others.iter().map(|i| i.id).collect_vec(),
+            [ter, eh2]
+        );
         // An ultimate form is an ancestor, so a link can start the tree there.
-        assert_eq!(data.ancestor_named(astronomy, "ine-pro", "nem-", None), Some(nem));
+        assert_eq!(
+            data.ancestor_named(astronomy, "ine-pro", "nem-", None),
+            Some(nem)
+        );
     }
 
     #[test]

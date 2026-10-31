@@ -134,7 +134,14 @@ mod tests {
     };
     use std::str::FromStr;
 
-    fn real(sp: &mut StringPool, lang: &str, term: &str, page: Option<&str>, label: Option<&str>, ety_num: u8) -> Item {
+    fn real(
+        sp: &mut StringPool,
+        lang: &str,
+        term: &str,
+        page: Option<&str>,
+        label: Option<&str>,
+        ety_num: u8,
+    ) -> Item {
         Item::Real(RealItem {
             ety_num,
             ety_label: label.map(Into::into),
@@ -188,7 +195,9 @@ mod tests {
         let r = |l, t, e| found(data.resolve(&keys, lang(l), t, e));
         assert_eq!(r("en", "lime", Some("2")), Some(ids[1]));
         // several etymologies and no number: ask
-        assert!(matches!(data.resolve(&keys, lang("en"), "lime", None), Resolution::Ambiguous(v) if v.len() == 3));
+        assert!(
+            matches!(data.resolve(&keys, lang("en"), "lime", None), Resolution::Ambiguous(v) if v.len() == 3)
+        );
         // a number the page no longer has: ask
         assert_eq!(r("en", "lime", Some("9")), None);
         // only one item: the number does not matter
@@ -204,8 +213,14 @@ mod tests {
         assert_eq!(r("gem-pro", "kidą", Some("2")), Some(ids[9]));
         // Unicode normalization: decomposed ē
         assert_eq!(r("la", "le\u{304}vis", None), Some(ids[5]));
-        assert!(matches!(data.resolve(&keys, lang("en"), "nonesuch", None), Resolution::NotFound));
-        assert!(matches!(data.resolve(&keys, lang("la"), "lime", None), Resolution::NotFound));
+        assert!(matches!(
+            data.resolve(&keys, lang("en"), "nonesuch", None),
+            Resolution::NotFound
+        ));
+        assert!(matches!(
+            data.resolve(&keys, lang("la"), "lime", None),
+            Resolution::NotFound
+        ));
     }
 
     #[test]

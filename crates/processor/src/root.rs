@@ -213,7 +213,12 @@ impl Items {
     // descend from the root's (an imputed item's may be the root's own).
     // An imputed item may be a derivative in its root's own language (*bʰor-no-m
     // < *bʰer-), unless it is a root or affix itself (*bʰor-).
-    fn may_descend_from_root(&self, string_pool: &StringPool, item: ItemId, root_item: ItemId) -> bool {
+    fn may_descend_from_root(
+        &self,
+        string_pool: &StringPool,
+        item: ItemId,
+        root_item: ItemId,
+    ) -> bool {
         let item = self.get(item);
         let root_lang = self.get(root_item).lang();
         item.lang().strictly_descends_from(root_lang)
@@ -262,8 +267,9 @@ impl Items {
         string_pool: &StringPool,
         embeddings: &Embeddings,
     ) -> Result<()> {
-        let raw_roots: BTreeMap<ItemId, Box<[RawRoot]>> =
-            mem::take(&mut self.raw_templates.root).into_iter().collect();
+        let raw_roots: BTreeMap<ItemId, Box<[RawRoot]>> = mem::take(&mut self.raw_templates.root)
+            .into_iter()
+            .collect();
         let pb = progress_bar(raw_roots.len() * 2, "Imputing root etys")?;
 
         for (&item_id, roots) in &raw_roots {
@@ -335,7 +341,10 @@ impl Items {
                 continue;
             };
             let root_item = **root_item;
-            if rest.first().is_some_and(|(_, next)| cmp(next, best).is_eq()) {
+            if rest
+                .first()
+                .is_some_and(|(_, next)| cmp(next, best).is_eq())
+            {
                 continue;
             }
             // a confidence from the share of the votes
@@ -368,7 +377,11 @@ mod tests {
             .into_iter()
             .map(|r| {
                 (
-                    format!("{}:{}", r.langterm.lang.code(), r.langterm.term.resolve(&sp)),
+                    format!(
+                        "{}:{}",
+                        r.langterm.lang.code(),
+                        r.langterm.term.resolve(&sp)
+                    ),
                     r.sense_id.map(String::from),
                 )
             })
@@ -380,22 +393,28 @@ mod tests {
         let pie = |t: &str, s: Option<&str>| (format!("ine-pro:{t}"), s.map(String::from));
         // several roots, with senses
         assert_eq!(
-            roots(r#"{"etymology_templates": [{"name": "root",
-                "args": {"1": "en", "2": "ine-pro", "3": "*bʰer- (carry)", "4": "*pleh₂k-<id:flat>"}}]}"#),
+            roots(
+                r#"{"etymology_templates": [{"name": "root",
+                "args": {"1": "en", "2": "ine-pro", "3": "*bʰer- (carry)", "4": "*pleh₂k-<id:flat>"}}]}"#
+            ),
             [pie("bʰer-", Some("carry")), pie("pleh₂k-", Some("flat"))]
         );
         assert_eq!(
-            roots(r#"{"etymology_templates": [{"name": "root",
-                "args": {"1": "en", "2": "ine-pro", "3": "*bʰel-", "id": "shiny"}}]}"#),
+            roots(
+                r#"{"etymology_templates": [{"name": "root",
+                "args": {"1": "en", "2": "ine-pro", "3": "*bʰel-", "id": "shiny"}}]}"#
+            ),
             [pie("bʰel-", Some("shiny"))]
         );
         // all root categories, once each
         assert_eq!(
-            roots(r#"{"categories": [
+            roots(
+                r#"{"categories": [
                 "English terms derived from the Proto-Indo-European root *bʰer- (carry)",
                 "English lemmas",
                 "English terms derived from the Proto-Indo-European root *per- (before)",
-                "English terms derived from the Proto-Indo-European root *bʰer- (carry)"]}"#),
+                "English terms derived from the Proto-Indo-European root *bʰer- (carry)"]}"#
+            ),
             [pie("bʰer-", Some("carry")), pie("per-", Some("before"))]
         );
     }

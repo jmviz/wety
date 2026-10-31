@@ -60,10 +60,9 @@ struct Languages {
 
 impl Languages {
     fn new() -> Self {
-        let code2raw_data: BTreeMap<&'static str, RawLangData> = serde_json::from_str(
-            include_str!(env!("WETY_LANGUAGES_JSON")),
-        )
-        .expect("well-formed languages.json");
+        let code2raw_data: BTreeMap<&'static str, RawLangData> =
+            serde_json::from_str(include_str!(env!("WETY_LANGUAGES_JSON")))
+                .expect("well-formed languages.json");
 
         let mut main_code2id = HashMap::default();
         let mut next_id: LangId = 0;
@@ -118,10 +117,9 @@ impl Languages {
             data[id as usize] = lang_data;
         }
 
-        let retired: BTreeMap<&'static str, &'static str> = serde_json::from_str(include_str!(
-            env!("WETY_RETIRED_LANGUAGE_CODES_JSON")
-        ))
-        .expect("well-formed retired-language-codes.json");
+        let retired: BTreeMap<&'static str, &'static str> =
+            serde_json::from_str(include_str!(env!("WETY_RETIRED_LANGUAGE_CODES_JSON")))
+                .expect("well-formed retired-language-codes.json");
         let retired2id = retired
             .into_iter()
             .filter(|(old, _)| !code2id.contains_key(old))

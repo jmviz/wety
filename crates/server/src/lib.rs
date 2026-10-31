@@ -100,9 +100,15 @@ impl AppState {
             periods_path.display()
         );
         if !periods.unknown_codes.is_empty() {
-            tracing::warn!("periods for unknown lang codes ignored: {:?}", periods.unknown_codes);
+            tracing::warn!(
+                "periods for unknown lang codes ignored: {:?}",
+                periods.unknown_codes
+            );
         }
-        let data = Data::deserialize_with_legacy(data_path, std::env::var("WETY_ALLOW_LEGACY_GRAPH").as_deref() == Ok("1"))?;
+        let data = Data::deserialize_with_legacy(
+            data_path,
+            std::env::var("WETY_ALLOW_LEGACY_GRAPH").as_deref() == Ok("1"),
+        )?;
         let graph = graph_version(data_path)?;
         let search = data.build_search();
         let keys = data.build_keys();
@@ -207,7 +213,9 @@ pub struct LangCode(Lang);
 impl<'de> Deserialize<'de> for LangCode {
     fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         let code = String::deserialize(deserializer)?;
-        Lang::from_code(&code).map(LangCode).map_err(D::Error::custom)
+        Lang::from_code(&code)
+            .map(LangCode)
+            .map_err(D::Error::custom)
     }
 }
 
@@ -220,9 +228,9 @@ pub struct GraphQuery {
 /// Numeric ids from another graph would name other items: refuse them, so
 /// the client re-resolves its URL instead of showing the wrong word.
 fn stale_graph(state: &AppState, graph: Option<&str>) -> Option<Response> {
-    graph.filter(|&g| g != state.graph).map(|_| {
-        (StatusCode::CONFLICT, Json(json!({ "graph": state.graph }))).into_response()
-    })
+    graph
+        .filter(|&g| g != state.graph)
+        .map(|_| (StatusCode::CONFLICT, Json(json!({ "graph": state.graph }))).into_response())
 }
 
 #[derive(Deserialize)]
@@ -397,7 +405,9 @@ pub async fn item_cognates(
         .as_deref()
         .and_then(|r| r.split_once(':'))
         .and_then(|(lang, term)| {
-            state.data.ancestor_named(item_id, lang, term, tree_queries.root_ety.as_deref())
+            state
+                .data
+                .ancestor_named(item_id, lang, term, tree_queries.root_ety.as_deref())
         })
         .filter(|&r| r != state.data.default_root(item_id));
     let (dist_lang, desc_langs, within, lean) = tree_queries.canonical(&state.data, item_id);

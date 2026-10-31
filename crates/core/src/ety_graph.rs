@@ -472,7 +472,11 @@ mod tests {
         graph.add_ety(c, EtyMode::Compound, None, &[a, d], &[0.9, 0.9]);
         // lower confidence is weaker
         let removed = graph.break_cycles(|g, item| {
-            let confidence = g.graph.edges(item).map(|e| e.confidence()).fold(1.0, f32::min);
+            let confidence = g
+                .graph
+                .edges(item)
+                .map(|e| e.confidence())
+                .fold(1.0, f32::min);
             std::cmp::Reverse((confidence * 100.0) as u32)
         });
         assert_eq!(removed, 1);

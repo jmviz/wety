@@ -101,8 +101,30 @@ pub(crate) struct Mentions {
 }
 
 const STOPWORDS: [&str; 24] = [
-    "a", "an", "the", "to", "of", "or", "and", "in", "on", "for", "with", "by", "from", "as",
-    "at", "be", "is", "one", "someone", "something", "that", "which", "who", "its",
+    "a",
+    "an",
+    "the",
+    "to",
+    "of",
+    "or",
+    "and",
+    "in",
+    "on",
+    "for",
+    "with",
+    "by",
+    "from",
+    "as",
+    "at",
+    "be",
+    "is",
+    "one",
+    "someone",
+    "something",
+    "that",
+    "which",
+    "who",
+    "its",
 ];
 
 // A term's letters only: no diacritics, asterisks or hyphens (Old High
@@ -169,10 +191,14 @@ impl Items {
         // Descendants sections and "Derived terms" lists
         let mut desc: crate::HashMap<ItemId, Vec<LangTerm>> = crate::HashMap::default();
         for (&item, raw) in &self.raw_templates.desc {
-            desc.entry(item).or_default().extend(raw.langterms().map(|lt| self.key(lt)));
+            desc.entry(item)
+                .or_default()
+                .extend(raw.langterms().map(|lt| self.key(lt)));
         }
         for (&item, derived) in &self.raw_templates.derived {
-            desc.entry(item).or_default().extend(derived.iter().map(|&lt| self.key(lt)));
+            desc.entry(item)
+                .or_default()
+                .extend(derived.iter().map(|&lt| self.key(lt)));
         }
         mentions.desc = desc
             .into_iter()
@@ -360,8 +386,9 @@ impl Items {
                     .zip(candidate_pos)
                     .is_some_and(|(a, b)| a.iter().any(|p| b.contains(p))),
             };
-            let score = embeddings::citation_score(&citer, &embedding, citer_is_child, gloss.as_ref())
-                + if same_pos { SAME_POS_BONUS } else { 0.0 };
+            let score =
+                embeddings::citation_score(&citer, &embedding, citer_is_child, gloss.as_ref())
+                    + if same_pos { SAME_POS_BONUS } else { 0.0 };
             if best.is_none_or(|(_, s)| score > s) {
                 best = Some((candidate, score));
             }
@@ -400,14 +427,12 @@ impl Items {
         let candidates = &candidates;
         // A single candidate can only be rejected for an etymology citation
         // with a continuation to check it against.
-        if candidates.len() == 1
-            && !matches!(citation.relation, Relation::Parent { next: Some(_) })
+        if candidates.len() == 1 && !matches!(citation.relation, Relation::Parent { next: Some(_) })
         {
             self.resolution_stats.count("single candidate");
             let best = self.best_candidate(embeddings, citation, candidates)?;
-            return Ok(best.map_or(Resolution::Missing, |(item, confidence)| Resolution::Found {
-                item,
-                confidence,
+            return Ok(best.map_or(Resolution::Missing, |(item, confidence)| {
+                Resolution::Found { item, confidence }
             }));
         }
         let citer_keys = self.item_keys(citation.citer);
@@ -419,10 +444,12 @@ impl Items {
         if !agreeing.is_empty() {
             self.resolution_stats.count("agreement");
             let best = self.best_candidate(embeddings, citation, &agreeing)?;
-            return Ok(best.map_or(Resolution::Missing, |(item, _)| Resolution::Found {
-                item,
-                confidence: 1.0,
-            }));
+            return Ok(
+                best.map_or(Resolution::Missing, |(item, _)| Resolution::Found {
+                    item,
+                    confidence: 1.0,
+                }),
+            );
         }
         let expected = match citation.relation {
             Relation::Parent { next } => next
@@ -461,15 +488,15 @@ impl Items {
             (Relation::Child, true) => candidates,
             _ => &open,
         };
-        self.resolution_stats.count(match (pool.len(), open.len() < candidates.len()) {
-            (1, true) => "contradiction of the others",
-            (1, false) => "single candidate",
-            _ => "gloss or embedding",
-        });
+        self.resolution_stats
+            .count(match (pool.len(), open.len() < candidates.len()) {
+                (1, true) => "contradiction of the others",
+                (1, false) => "single candidate",
+                _ => "gloss or embedding",
+            });
         let best = self.best_candidate(embeddings, citation, pool)?;
-        Ok(best.map_or(Resolution::Missing, |(item, confidence)| Resolution::Found {
-            item,
-            confidence,
+        Ok(best.map_or(Resolution::Missing, |(item, confidence)| {
+            Resolution::Found { item, confidence }
         }))
     }
 }

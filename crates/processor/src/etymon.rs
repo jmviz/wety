@@ -74,8 +74,9 @@ fn keyword(name: &str) -> Option<Keyword> {
         "deverbal" => Single(M::Deverbal),
         "apheretic" | "apheresis" | "aphetic" => Single(M::ApheticForm),
         "reduplication" | "rdp" | "redup" => Single(M::Reduplication),
-        "abbreviation" | "abbr" | "abbrev" | "syllabic abbreviation" | "sylabbr"
-        | "sylabbrev" => Single(M::Abbreviation),
+        "abbreviation" | "abbr" | "abbrev" | "syllabic abbreviation" | "sylabbr" | "sylabbrev" => {
+            Single(M::Abbreviation)
+        }
         "acronym" | "acro" => Single(M::Acronym),
         "initialism" | "init" => Single(M::Initialism),
         "vrd" => Single(M::Vrddhi),
@@ -224,7 +225,9 @@ fn components_template(
         affixes: affixes.clone().into_boxed_slice(),
         mode: mode.unwrap_or_else(|| affixation_kind(&affixes, n_base_terms)),
         // as for {{af}}, a head only when there is a single base term
-        head: (n_base_terms == 1).then(|| u8::try_from(head).ok()).flatten(),
+        head: (n_base_terms == 1)
+            .then(|| u8::try_from(head).ok())
+            .flatten(),
     })
 }
 
@@ -253,8 +256,7 @@ fn parse_params(
         if keyword == Keyword::Ignored || etymons.is_empty() {
             continue;
         }
-        let etymons: Option<Vec<Etymon>> =
-            etymons.iter().map(|e| parse_etymon(e, lang)).collect();
+        let etymons: Option<Vec<Etymon>> = etymons.iter().map(|e| parse_etymon(e, lang)).collect();
         let Some(etymons) = etymons else {
             return vec![ParsedRawEtyTemplate::Skipped];
         };
@@ -271,7 +273,8 @@ fn parse_params(
             Keyword::Components(mode) => components_template(string_pool, &etymons, mode),
             Keyword::Ignored => unreachable!(),
         };
-        let mut chain = vec![parsed.map_or(ParsedRawEtyTemplate::Skipped, ParsedRawEtyTemplate::Parsed)];
+        let mut chain =
+            vec![parsed.map_or(ParsedRawEtyTemplate::Skipped, ParsedRawEtyTemplate::Parsed)];
         // A single parent's inline etymology continues the chain.
         let single = match keyword {
             Keyword::Single(_) => Some(&etymons[0]),
@@ -414,13 +417,20 @@ mod tests {
         );
         assert_eq!(
             got,
-            [Some((EtyMode::Borrowed, Some(0), vec![lt("es", "cruzado", None)]))]
+            [Some((
+                EtyMode::Borrowed,
+                Some(0),
+                vec![lt("es", "cruzado", None)]
+            ))]
         );
     }
 
     #[test]
     fn compounds_and_explicit_affix_types() {
-        let got = parse(r#"{"1": "en", "2": ":af", "3": "tooth", "4": "brush"}"#, "en");
+        let got = parse(
+            r#"{"1": "en", "2": ":af", "3": "tooth", "4": "brush"}"#,
+            "en",
+        );
         assert_eq!(
             got,
             [Some((
@@ -501,7 +511,10 @@ mod tests {
     #[test]
     fn unusable_etymons() {
         // a family code or unknown prefix
-        assert_eq!(parse(r#"{"1": "en", "2": ":der", "3": "gem:foo"}"#, "en"), [None]);
+        assert_eq!(
+            parse(r#"{"1": "en", "2": ":der", "3": "gem:foo"}"#, "en"),
+            [None]
+        );
         // only categorization
         assert!(parse(r#"{"1": "en", "2": ":root", "3": "ine-pro:*bʰer-"}"#, "en").is_empty());
         assert!(parse(r#"{"1": "en", "id": "example", "tree": "1"}"#, "en").is_empty());

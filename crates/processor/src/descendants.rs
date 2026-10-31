@@ -2,8 +2,8 @@ use crate::{
     HashSet,
     embeddings::Embeddings,
     items::Items,
-    resolve::{Citation, Relation, Resolution},
     progress_bar,
+    resolve::{Citation, Relation, Resolution},
     wiktextract_json::{WiktextractJson, WiktextractJsonItem, WiktextractJsonValidStr},
 };
 use wety_core::{
@@ -173,7 +173,10 @@ fn get_desc_mode(node: &WiktextractJson) -> EtyMode {
         ("borrowed", EtyMode::Borrowed),
         ("transliteration", EtyMode::Transliteration),
         ("derived", EtyMode::MorphologicalDerivation),
-        ("reshaped by analogy or addition of morphemes", EtyMode::Derived),
+        (
+            "reshaped by analogy or addition of morphemes",
+            EtyMode::Derived,
+        ),
     ];
     let tags: Vec<&str> = ["tags", "raw_tags"]
         .into_iter()
@@ -273,8 +276,9 @@ impl Items {
         let n = self.raw_templates.desc.len();
         let pb = progress_bar(n, "Processing descendants")?;
         // in id order, so that the result does not depend on hash-map order
-        let mut raw_templates_desc: Vec<_> =
-            mem::take(&mut self.raw_templates.desc).into_iter().collect();
+        let mut raw_templates_desc: Vec<_> = mem::take(&mut self.raw_templates.desc)
+            .into_iter()
+            .collect();
         raw_templates_desc.sort_unstable_by_key(|(item_id, _)| *item_id);
         for (item_id, desc) in raw_templates_desc {
             self.process_item_raw_descendants(string_pool, embeddings, item_id, &desc)?;

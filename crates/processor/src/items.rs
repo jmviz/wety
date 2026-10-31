@@ -1,4 +1,5 @@
 use crate::{
+    HashMap, HashSet,
     descendants::RawDescendants,
     embeddings::{self, Embeddings},
     etymology::RawEtymology,
@@ -6,7 +7,6 @@ use crate::{
     redirects::Redirects,
     root::RawRoot,
     wiktextract_json::wiktextract_lines,
-    HashMap, HashSet,
 };
 use wety_core::{
     ety_graph::{EtyEdgeAccess, EtyGraph},
@@ -96,7 +96,11 @@ impl Items {
 impl Items {
     // Read the entry names exported by packages/source_tools/entry_names.py:
     // {lang code: {cited term: page title}}.
-    pub(crate) fn load_entry_names(&mut self, string_pool: &mut StringPool, path: &Path) -> Result<()> {
+    pub(crate) fn load_entry_names(
+        &mut self,
+        string_pool: &mut StringPool,
+        path: &Path,
+    ) -> Result<()> {
         let file = std::io::BufReader::new(std::fs::File::open(path)?);
         let entry_names: HashMap<String, HashMap<String, String>> = serde_json::from_reader(file)?;
         for (code, titles) in entry_names {
@@ -308,10 +312,17 @@ impl Items {
         (written != title)
             .then(|| self.dupes.get(&written))
             .flatten()
-            .or_else(|| [written, title, redirect].iter().find_map(|lt| self.pages.get(lt)))
-            .or_else(|| [written, title, redirect].iter().find_map(|lt| self.dupes.get(lt)))
+            .or_else(|| {
+                [written, title, redirect]
+                    .iter()
+                    .find_map(|lt| self.pages.get(lt))
+            })
+            .or_else(|| {
+                [written, title, redirect]
+                    .iter()
+                    .find_map(|lt| self.dupes.get(lt))
+            })
     }
-
 }
 
 impl Items {
@@ -497,7 +508,13 @@ mod tests {
     use std::str::FromStr;
     use wety_core::gloss::Gloss;
 
-    fn add(items: &mut Items, sp: &mut StringPool, lang: &str, term: &str, page: Option<&str>) -> ItemId {
+    fn add(
+        items: &mut Items,
+        sp: &mut StringPool,
+        lang: &str,
+        term: &str,
+        page: Option<&str>,
+    ) -> ItemId {
         let item = RealItem {
             ety_num: 1,
             ety_label: None,
@@ -523,13 +540,24 @@ mod tests {
         let peri = add(&mut items, &mut sp, "grc", "περι-", None);
         let cited_peri = grc.new_langterm(&mut sp, "περῐ-");
         assert_eq!(items.candidates(cited_peri), None);
-        items.entry_names.insert(cited_peri, Term::new(&mut sp, "περι-"));
+        items
+            .entry_names
+            .insert(cited_peri, Term::new(&mut sp, "περι-"));
         assert_eq!(items.candidates(cited_peri), Some(&vec![peri]));
         // as written, by canonical form or by page title
-        assert_eq!(items.candidates(la.new_langterm(&mut sp, "mātrīx")), Some(&vec![matrix]));
-        assert_eq!(items.candidates(la.new_langterm(&mut sp, "matrix")), Some(&vec![matrix]));
+        assert_eq!(
+            items.candidates(la.new_langterm(&mut sp, "mātrīx")),
+            Some(&vec![matrix])
+        );
+        assert_eq!(
+            items.candidates(la.new_langterm(&mut sp, "matrix")),
+            Some(&vec![matrix])
+        );
         // an etymology-only language is looked up under its full language
         let la_new = Lang::from_str("la-new").unwrap();
-        assert_eq!(items.candidates(la_new.new_langterm(&mut sp, "mātrīx")), Some(&vec![matrix]));
+        assert_eq!(
+            items.candidates(la_new.new_langterm(&mut sp, "mātrīx")),
+            Some(&vec![matrix])
+        );
     }
 }

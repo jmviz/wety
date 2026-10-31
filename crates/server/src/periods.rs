@@ -106,7 +106,10 @@ mod tests {
         let served = body(&periods);
         assert_eq!(served["generation"], "abc");
         assert_eq!(served["languages"][0]["lang"]["id"], json!(english.id()));
-        assert_eq!(served["languages"][0]["lang"]["name"], json!(english.name()));
+        assert_eq!(
+            served["languages"][0]["lang"]["name"],
+            json!(english.name())
+        );
         assert_eq!(served["languages"][0]["label"], "c. 1500 CE–present");
         assert_eq!(served["family_splits"][0]["node"], "Indo-European");
     }

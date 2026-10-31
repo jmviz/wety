@@ -1,27 +1,27 @@
 use crate::{
+    HashSet,
     embeddings::Embeddings,
     etymon,
     items::{EmbeddingNeeds, Items},
-    resolve::{Citation, Relation, Resolution},
     progress_bar,
+    resolve::{Citation, Relation, Resolution},
     wiktextract_json::{
         Affix, WiktextractJson, WiktextractJsonItem, WiktextractJsonValidStr, affix_by_hyphens,
         affix_type, clean_template_term, modifier, parse_pos, split_lang_prefix, split_modifiers,
     },
-    HashSet,
 };
 use wety_core::{
-    pos::Pos,
     etymology_templates::{EtyMode, TemplateKind},
     items::ItemId,
     langterm::LangTerm,
     languages::Lang,
+    pos::Pos,
     string_pool::StringPool,
 };
 
 use std::{mem, str::FromStr};
 
-use anyhow::{anyhow, ensure, Ok, Result};
+use anyhow::{Ok, Result, anyhow, ensure};
 use simd_json::ValueAccess;
 
 // models the basic info from a wiktionary etymology template
@@ -39,8 +39,8 @@ pub(crate) struct RawEtyTemplate {
     // revised once the parts are known items (see revise_affixes).
     pub(crate) affixes: Box<[Affix]>,
     pub(crate) refine_mode: bool,
-    pub(crate) mode: EtyMode,              // e.g. Prefix
-    pub(crate) head: Option<u8>,           // e.g. 1 (the index of "do")
+    pub(crate) mode: EtyMode,    // e.g. Prefix
+    pub(crate) head: Option<u8>, // e.g. 1 (the index of "do")
 }
 
 // What a template says of a cited term besides the term: an id naming its
@@ -111,7 +111,10 @@ fn process_derived_kind_json_template(
 
 // What a template gives for the term in arg `key` (see Part).
 fn term_part(args: &WiktextractJson, key: &str, gloss_keys: &[&str]) -> Part {
-    let modifiers = args.get_str(key).map(|arg| split_modifiers(arg).1).unwrap_or_default();
+    let modifiers = args
+        .get_str(key)
+        .map(|arg| split_modifiers(arg).1)
+        .unwrap_or_default();
     let id = modifier(&modifiers, "id").or_else(|| args.get_valid_str("id"));
     let gloss = modifier(&modifiers, "t")
         .or_else(|| modifier(&modifiers, "gloss"))
@@ -371,7 +374,9 @@ fn process_compound_kind_json_template(
                 mode
             },
             // see above
-            head: (n_base_terms == 1).then(|| u8::try_from(head).ok()).flatten(),
+            head: (n_base_terms == 1)
+                .then(|| u8::try_from(head).ok())
+                .flatten(),
         });
     }
     None
@@ -394,7 +399,10 @@ pub(crate) fn validate_ety_template_lang(args: &WiktextractJson, lang: Lang) -> 
     let template_lang = args.get_valid_str("1").ok_or_else(|| {
         anyhow!("ety template does not contain valid \"1\" lang arg: it has args:\n{args}")
     })?;
-    ensure!(template_lang == item_lang, "ety template \"1\" lang arg was {template_lang}, should have matched item lang {item_lang}");
+    ensure!(
+        template_lang == item_lang,
+        "ety template \"1\" lang arg was {template_lang}, should have matched item lang {item_lang}"
+    );
     Ok(())
 }
 
@@ -440,7 +448,10 @@ impl WiktextractJsonItem<'_> {
         self.json
             .get_array("etymology_templates")?
             .iter()
-            .filter(|t| t.get_valid_str("name").is_some_and(|n| matches!(n, "etymon" | "ety")))
+            .filter(|t| {
+                t.get_valid_str("name")
+                    .is_some_and(|n| matches!(n, "etymon" | "ety"))
+            })
             .filter_map(|t| t.get("args"))
             .find(|args| validate_ety_template_lang(args, lang).is_ok())
     }
@@ -454,7 +465,12 @@ impl WiktextractJsonItem<'_> {
             .and_then(|args| args.get_valid_str("id"))
             .into_iter()
             .collect();
-        for template in self.json.get_array("etymology_templates").into_iter().flatten() {
+        for template in self
+            .json
+            .get_array("etymology_templates")
+            .into_iter()
+            .flatten()
+        {
             if template.get_valid_str("name") == Some("etymid")
                 && let Some(args) = template.get("args")
                 && args.get_valid_str("1") == Some(lang.code())
@@ -464,7 +480,12 @@ impl WiktextractJsonItem<'_> {
             }
         }
         for sense in self.json.get_array("senses").into_iter().flatten() {
-            for id in sense.get_array("senseid").into_iter().flatten().filter_map(|id| id.as_str()) {
+            for id in sense
+                .get_array("senseid")
+                .into_iter()
+                .flatten()
+                .filter_map(|id| id.as_str())
+            {
                 let id = id
                     .split_once(':')
                     .filter(|(code, _)| *code == lang.code())
@@ -499,9 +520,9 @@ impl WiktextractJsonItem<'_> {
             let parent = parent.langterms[0];
             let continuation = Vec::from(standard.templates)
                 .into_iter()
-                .skip_while(|t| {
-                    !matches!(t, ParsedRawEtyTemplate::Parsed(c) if *c.langterms == [parent])
-                })
+                .skip_while(
+                    |t| !matches!(t, ParsedRawEtyTemplate::Parsed(c) if *c.langterms == [parent]),
+                )
                 .skip(1);
             templates.extend(continuation);
         }
@@ -585,7 +606,11 @@ impl WiktextractJsonItem<'_> {
         let langterm = lang.new_langterm(string_pool, alt_obj.get_str("word")?);
         let mut ety = RawEtyTemplate::new(langterm, EtyMode::Form);
         if let Some(gloss) = alt_obj.get_str("extra").filter(|g| !g.is_empty()) {
-            ety = ety.with_part(Part { id: None, gloss: Some(gloss.into()), pos: None });
+            ety = ety.with_part(Part {
+                id: None,
+                gloss: Some(gloss.into()),
+                pos: None,
+            });
         }
         Some(vec![ParsedRawEtyTemplate::Parsed(ety)].into())
     }
@@ -658,7 +683,8 @@ impl Items {
             // an earlier stage of the parent's line of descent ("from enm m,
             // from ang o"; not "from French X or Spanish Y", nor parts of a
             // word listed one by one).
-            let derived = |t: &RawEtyTemplate| t.mode.template_kind() == Some(TemplateKind::Derived);
+            let derived =
+                |t: &RawEtyTemplate| t.mode.template_kind() == Some(TemplateKind::Derived);
             let next = match (&template.langterms[..], templates.get(i + 1)) {
                 ([parent], Some(ParsedRawEtyTemplate::Parsed(next))) => match &next.langterms[..] {
                     [source]
@@ -686,7 +712,9 @@ impl Items {
                     // given, or implied by the derivation (a deverbal's source
                     // is a verb)
                     pos: template.parts.get(n).and_then(|p| p.pos).or_else(|| {
-                        (template.mode == EtyMode::Deverbal).then(|| Pos::from_str("verb").ok()).flatten()
+                        (template.mode == EtyMode::Deverbal)
+                            .then(|| Pos::from_str("verb").ok())
+                            .flatten()
                     }),
                     citer: current_item,
                     relation: Relation::Parent { next },
@@ -694,17 +722,13 @@ impl Items {
                 let (ety_item, confidence) =
                     match self.resolve(string_pool, embeddings, &citation)? {
                         Resolution::Found { item, confidence } => (item, confidence),
-                        Resolution::Missing => (
-                            self.impute_item(ety_langterm, item),
-                            0.0,
-                        ),
+                        Resolution::Missing => (self.impute_item(ety_langterm, item), 0.0),
                     };
                 ety_items.push(ety_item);
                 confidences.push(confidence);
             }
             let (mode, head) = self.revise_affixes(template, &ety_items);
-            if !self.set_own_ety(current_item, mode, head, &ety_items, &confidences)
-            {
+            if !self.set_own_ety(current_item, mode, head, &ety_items, &confidences) {
                 return Ok(());
             }
             // Continue with an imputed single parent's own etymology?
@@ -776,7 +800,11 @@ impl Items {
     // A part read as a prefix by its final hyphen may be a root (PIE *peh₂-
     // in *ph₂tḗr = *peh₂- + *-tḗr), which is a base, not an affix. Module:etymon
     // tells these apart by the part's entry; so do we, once parts are items.
-    fn revise_affixes(&self, template: &RawEtyTemplate, ety_items: &[ItemId]) -> (EtyMode, Option<u8>) {
+    fn revise_affixes(
+        &self,
+        template: &RawEtyTemplate,
+        ety_items: &[ItemId],
+    ) -> (EtyMode, Option<u8>) {
         let is_root = |item: ItemId| {
             self.get(item)
                 .pos()
@@ -845,7 +873,8 @@ impl Items {
         let n = self.raw_templates.ety.len();
         let pb = progress_bar(n, "Processing etymologies")?;
         // in id order, so that the result does not depend on hash-map order
-        let mut raw_templates_ety: Vec<_> = mem::take(&mut self.raw_templates.ety).into_iter().collect();
+        let mut raw_templates_ety: Vec<_> =
+            mem::take(&mut self.raw_templates.ety).into_iter().collect();
         raw_templates_ety.sort_unstable_by_key(|(item_id, _)| *item_id);
         for (item_id, ety) in raw_templates_ety {
             self.process_item_raw_etymology(string_pool, embeddings, item_id, &ety)?;
@@ -986,27 +1015,42 @@ mod tests {
         let strs = |v: &[&str]| v.iter().map(|s| (*s).to_owned()).collect::<Vec<_>>();
         // language prefixes and inline modifiers
         assert_eq!(
-            parts("pt", r#"{"1": "pt", "2": "a-<id:privative>", "3": "grc:χρῶμα<t:color>", "4": "-ia"}"#),
+            parts(
+                "pt",
+                r#"{"1": "pt", "2": "a-<id:privative>", "3": "grc:χρῶμα<t:color>", "4": "-ia"}"#
+            ),
             Some((EtyMode::Affix, strs(&["a-", "grc:χρῶμα", "-ia"])))
         );
         // a link to the lemma
         assert_eq!(
-            parts("it", r#"{"1": "it", "2": "la:[[lītus|lītoris]]<t:shore>", "3": "-aneo"}"#),
+            parts(
+                "it",
+                r#"{"1": "it", "2": "la:[[lītus|lītoris]]<t:shore>", "3": "-aneo"}"#
+            ),
             Some((EtyMode::Suffix, strs(&["la:lītus", "-aneo"])))
         );
         // langN= and typeN= count parts from 1
         assert_eq!(
-            parts("en", r#"{"1": "en", "2": "vexillum", "3": "-ology", "lang1": "la"}"#),
+            parts(
+                "en",
+                r#"{"1": "en", "2": "vexillum", "3": "-ology", "lang1": "la"}"#
+            ),
             Some((EtyMode::Suffix, strs(&["la:vexillum", "-ology"])))
         );
         assert_eq!(
-            parts("tl", r#"{"1": "tl", "2": "sa-", "3": "ibabaw", "4": "-um-<type:infix>"}"#)
-                .map(|(mode, _)| mode),
+            parts(
+                "tl",
+                r#"{"1": "tl", "2": "sa-", "3": "ibabaw", "4": "-um-<type:infix>"}"#
+            )
+            .map(|(mode, _)| mode),
             Some(EtyMode::Affix)
         );
         assert_eq!(
-            parts("en", r#"{"1": "en", "2": "bʰer-", "3": "-tis", "type1": "root"}"#)
-                .map(|(mode, _)| mode),
+            parts(
+                "en",
+                r#"{"1": "en", "2": "bʰer-", "3": "-tis", "type1": "root"}"#
+            )
+            .map(|(mode, _)| mode),
             Some(EtyMode::Suffix)
         );
     }
@@ -1095,12 +1139,17 @@ mod tests {
             // parents as "lang:term" (with "?" for an imputed one)
             fn parents(&self, item: ItemId) -> Vec<String> {
                 let ety = self.items.graph.immediate_ety(item);
-                ety.map(|e| e.items).unwrap_or_default()
+                ety.map(|e| e.items)
+                    .unwrap_or_default()
                     .into_iter()
                     .map(|p| {
                         let p = self.items.get(p);
                         let imputed = if p.is_imputed() { "?" } else { "" };
-                        format!("{}:{}{imputed}", p.lang().code(), p.term().resolve(&self.sp))
+                        format!(
+                            "{}:{}{imputed}",
+                            p.lang().code(),
+                            p.term().resolve(&self.sp)
+                        )
                     })
                     .collect()
             }
@@ -1115,12 +1164,18 @@ mod tests {
             let mut t = Setup::new("missing");
             // a borrowing from a term missing from the data (was dropped)
             let rendezvous = t.add("en", "rendezvous");
-            t.process(rendezvous, r#"[{"name": "bor", "args": {"1": "en", "2": "fr", "3": "rendez-vous"}}]"#);
+            t.process(
+                rendezvous,
+                r#"[{"name": "bor", "args": {"1": "en", "2": "fr", "3": "rendez-vous"}}]"#,
+            );
             assert_eq!(t.parents(rendezvous), ["fr:rendez-vous?"]);
             // a compound with a missing part (was dropped)
             t.add("en", "tooth");
             let toothbrush = t.add("en", "toothbrush");
-            t.process(toothbrush, r#"[{"name": "af", "args": {"1": "en", "2": "tooth", "3": "brusch"}}]"#);
+            t.process(
+                toothbrush,
+                r#"[{"name": "af", "args": {"1": "en", "2": "tooth", "3": "brusch"}}]"#,
+            );
             assert_eq!(t.parents(toothbrush), ["en:tooth", "en:brusch?"]);
         }
 
@@ -1131,18 +1186,27 @@ mod tests {
             t.add("la", "muttum");
             // within one line of descent
             let mother = t.add("en", "mother");
-            t.process(mother, r#"[{"name": "inh", "args": {"1": "en", "2": "enm", "3": "moder"}},
-                {"name": "inh", "args": {"1": "en", "2": "ang", "3": "mōdor"}}]"#);
+            t.process(
+                mother,
+                r#"[{"name": "inh", "args": {"1": "en", "2": "enm", "3": "moder"}},
+                {"name": "inh", "args": {"1": "en", "2": "ang", "3": "mōdor"}}]"#,
+            );
             assert_eq!(t.parents(mother), ["enm:moder?"]);
             assert_eq!(t.parents(t.parent(mother)), ["ang:mōdor"]);
             // not across a borrowing, unless {{etymon}} says so
             let mot = t.add("en", "mot");
-            t.process(mot, r#"[{"name": "bor", "args": {"1": "en", "2": "fro", "3": "mot"}},
-                {"name": "der", "args": {"1": "en", "2": "la", "3": "muttum"}}]"#);
+            t.process(
+                mot,
+                r#"[{"name": "bor", "args": {"1": "en", "2": "fro", "3": "mot"}},
+                {"name": "der", "args": {"1": "en", "2": "la", "3": "muttum"}}]"#,
+            );
             assert!(t.parents(t.parent(mot)).is_empty());
             let word = t.add("en", "motword");
-            t.process(word, r#"[{"name": "etymon", "args": {"1": "en", "2": ":bor",
-                "3": "fro:mot<ety:inh<la:muttum>>"}}]"#);
+            t.process(
+                word,
+                r#"[{"name": "etymon", "args": {"1": "en", "2": ":bor",
+                "3": "fro:mot<ety:inh<la:muttum>>"}}]"#,
+            );
             assert_eq!(t.parents(t.parent(word)), ["la:muttum"]);
         }
 
@@ -1152,21 +1216,38 @@ mod tests {
             let octo = t.add("la", "Octōber");
             let octobre = t.add("fro", "octobre");
             let october = t.add("en", "October");
-            t.items.graph.add_ety(octobre, EtyMode::Inherited, Some(0), &[octo], &[0.5]);
+            t.items
+                .graph
+                .add_ety(octobre, EtyMode::Inherited, Some(0), &[octo], &[0.5]);
             // a Descendants list gave the more specific parent: kept
-            t.items.graph.add_ety(october, EtyMode::Borrowed, Some(0), &[octobre], &[0.5]);
-            t.process(october, r#"[{"name": "der", "args": {"1": "en", "2": "la", "3": "Octōber"}}]"#);
+            t.items
+                .graph
+                .add_ety(october, EtyMode::Borrowed, Some(0), &[octobre], &[0.5]);
+            t.process(
+                october,
+                r#"[{"name": "der", "args": {"1": "en", "2": "la", "3": "Octōber"}}]"#,
+            );
             assert_eq!(t.parents(october), ["fro:octobre"]);
             // a different parent: the item's own section wins
             let enm = t.add("enm", "Octobre");
             let october2 = t.add("en", "Octobre");
-            t.items.graph.add_ety(october2, EtyMode::Borrowed, Some(0), &[octo], &[0.9]);
-            t.process(october2, r#"[{"name": "inh", "args": {"1": "en", "2": "enm", "3": "Octobre"}}]"#);
+            t.items
+                .graph
+                .add_ety(october2, EtyMode::Borrowed, Some(0), &[octo], &[0.9]);
+            t.process(
+                october2,
+                r#"[{"name": "inh", "args": {"1": "en", "2": "enm", "3": "Octobre"}}]"#,
+            );
             assert_eq!(t.parents(october2), ["enm:Octobre"]);
             // but not for a term missing from the data
             t.items.graph.remove_ety(october2);
-            t.items.graph.add_ety(october2, EtyMode::Inherited, Some(0), &[enm], &[0.5]);
-            t.process(october2, r#"[{"name": "inh", "args": {"1": "en", "2": "enm", "3": "Octobere"}}]"#);
+            t.items
+                .graph
+                .add_ety(october2, EtyMode::Inherited, Some(0), &[enm], &[0.5]);
+            t.process(
+                october2,
+                r#"[{"name": "inh", "args": {"1": "en", "2": "enm", "3": "Octobere"}}]"#,
+            );
             assert_eq!(t.parents(october2), ["enm:Octobre"]);
         }
 
@@ -1176,10 +1257,16 @@ mod tests {
             t.add("ang", "mōdor");
             let mother = t.add("en", "mother");
             let motherly = t.add("en", "motherly");
-            t.process(mother, r#"[{"name": "inh", "args": {"1": "en", "2": "enm", "3": "moder"}},
-                {"name": "inh", "args": {"1": "en", "2": "ang", "3": "mōdor"}}]"#);
-            t.process(motherly, r#"[{"name": "inh", "args": {"1": "en", "2": "enm", "3": "moder"}},
-                {"name": "inh", "args": {"1": "en", "2": "ang", "3": "modor"}}]"#);
+            t.process(
+                mother,
+                r#"[{"name": "inh", "args": {"1": "en", "2": "enm", "3": "moder"}},
+                {"name": "inh", "args": {"1": "en", "2": "ang", "3": "mōdor"}}]"#,
+            );
+            t.process(
+                motherly,
+                r#"[{"name": "inh", "args": {"1": "en", "2": "enm", "3": "moder"}},
+                {"name": "inh", "args": {"1": "en", "2": "ang", "3": "modor"}}]"#,
+            );
             assert_eq!(t.parent(mother), t.parent(motherly));
             // the first citation's chain is kept
             assert_eq!(t.parents(t.parent(motherly)), ["ang:mōdor"]);
@@ -1194,8 +1281,11 @@ mod tests {
             }
             t.add("ine-pro", "-tḗr");
             let father = t.add("ine-pro", "ph₂tḗr");
-            t.process(father, r#"[{"name": "etymon", "args": {"1": "ine-pro", "2": ":af",
-                "3": "*peh₂-", "4": "*-tḗr"}}]"#);
+            t.process(
+                father,
+                r#"[{"name": "etymon", "args": {"1": "ine-pro", "2": ":af",
+                "3": "*peh₂-", "4": "*-tḗr"}}]"#,
+            );
             let ety = t.items.graph.immediate_ety(father).unwrap();
             assert_eq!((ety.mode, ety.head), (EtyMode::Suffix, Some(0)));
         }
@@ -1207,11 +1297,20 @@ mod tests {
             let mut t = Setup::new("root-of-root");
             let dheh = t.add("ine-pro", "dʰeh₁-");
             let bor = t.add("sla-pro", "bȍrъ");
-            t.process(bor, r#"[{"name": "inh", "args": {"1": "sla-pro", "2": "ine-pro", "3": "*bʰor-"}}]"#);
+            t.process(
+                bor,
+                r#"[{"name": "inh", "args": {"1": "sla-pro", "2": "ine-pro", "3": "*bʰor-"}}]"#,
+            );
             let bhor = t.parent(bor);
             assert!(t.items.get(bhor).is_imputed());
             let langterm = t.items.get(dheh).lang().new_langterm(&mut t.sp, "dʰeh₁-");
-            t.items.raw_templates.root.insert(bor, Box::new([crate::root::RawRoot { langterm, sense_id: None }]));
+            t.items.raw_templates.root.insert(
+                bor,
+                Box::new([crate::root::RawRoot {
+                    langterm,
+                    sense_id: None,
+                }]),
+            );
             t.items.impute_root_etys(&t.sp, &t.embeddings).unwrap();
             assert!(t.items.graph.immediate_ety(bhor).is_none());
         }
@@ -1271,10 +1370,24 @@ mod tests {
             g.add_ety(pre, EtyMode::Derived, Some(0), &[preh], &[1.0]);
             g.add_ety(pretest, EtyMode::Prefix, Some(1), &[pre, test], &[1.0, 1.0]);
             g.add_ety(prze, EtyMode::Inherited, Some(0), &[per_before], &[1.0]);
-            g.add_ety(przetest, EtyMode::Prefix, Some(1), &[prze, test], &[1.0, 1.0]);
+            g.add_ety(
+                przetest,
+                EtyMode::Prefix,
+                Some(1),
+                &[prze, test],
+                &[1.0, 1.0],
+            );
             set_roots(&mut t, test, &[("ters-", None)]);
-            set_roots(&mut t, pretest, &[("per-", Some("before")), ("preh₂-", None)]);
-            set_roots(&mut t, przetest, &[("per-", Some("before")), ("per-", Some("fare"))]);
+            set_roots(
+                &mut t,
+                pretest,
+                &[("per-", Some("before")), ("preh₂-", None)],
+            );
+            set_roots(
+                &mut t,
+                przetest,
+                &[("per-", Some("before")), ("per-", Some("fare"))],
+            );
             t.items.impute_root_etys(&t.sp, &t.embeddings).unwrap();
             assert_eq!(t.parents(testum), ["ine-pro:ters-"]);
         }
@@ -1288,7 +1401,9 @@ mod tests {
             add_root(&mut t, "ters-", "dry");
             let testum = t.add("la", "testum");
             let test = t.add("en", "test");
-            t.items.graph.add_ety(test, EtyMode::Derived, Some(0), &[testum], &[1.0]);
+            t.items
+                .graph
+                .add_ety(test, EtyMode::Derived, Some(0), &[testum], &[1.0]);
             set_roots(&mut t, test, &[("per-", None), ("ters-", None)]);
             t.items.impute_root_etys(&t.sp, &t.embeddings).unwrap();
             assert!(t.items.graph.immediate_ety(testum).is_none());
@@ -1304,12 +1419,24 @@ mod tests {
             let barn_building = t.add_glossed("enm", "bern", "barn, farm building");
             let man = t.add_glossed("enm", "bern", "a man or human");
             let child = t.add_glossed("enm", "bern", "child");
-            t.record(barn_building, r#"[{"name": "af", "args": {"1": "enm", "2": "bere", "3": "-ern"}}]"#);
-            t.record(man, r#"[{"name": "inh", "args": {"1": "enm", "2": "ang", "3": "beorn"}}]"#);
-            t.record(child, r#"[{"name": "inh", "args": {"1": "enm", "2": "ang", "3": "bearn"}}]"#);
+            t.record(
+                barn_building,
+                r#"[{"name": "af", "args": {"1": "enm", "2": "bere", "3": "-ern"}}]"#,
+            );
+            t.record(
+                man,
+                r#"[{"name": "inh", "args": {"1": "enm", "2": "ang", "3": "beorn"}}]"#,
+            );
+            t.record(
+                child,
+                r#"[{"name": "inh", "args": {"1": "enm", "2": "ang", "3": "bearn"}}]"#,
+            );
             let bairn = t.add_glossed("en", "bairn", "a child or baby");
-            t.process(bairn, r#"[{"name": "der", "args": {"1": "en", "2": "enm", "3": "bern"}},
-                {"name": "der", "args": {"1": "en", "2": "ang", "3": "bearn"}}]"#);
+            t.process(
+                bairn,
+                r#"[{"name": "der", "args": {"1": "en", "2": "enm", "3": "bern"}},
+                {"name": "der", "args": {"1": "en", "2": "ang", "3": "bearn"}}]"#,
+            );
             assert_eq!(t.parent(bairn), child);
             let _ = bearn;
         }
@@ -1321,40 +1448,66 @@ mod tests {
             t.add("ang", "bearn");
             t.add("ang", "beorn");
             let man = t.add_glossed("enm", "bern", "a man or human");
-            t.record(man, r#"[{"name": "inh", "args": {"1": "enm", "2": "ang", "3": "beorn"}}]"#);
+            t.record(
+                man,
+                r#"[{"name": "inh", "args": {"1": "enm", "2": "ang", "3": "beorn"}}]"#,
+            );
             let bairn = t.add("en", "bairn");
-            t.process(bairn, r#"[{"name": "der", "args": {"1": "en", "2": "enm", "3": "bern"}},
-                {"name": "der", "args": {"1": "en", "2": "ang", "3": "bearn"}}]"#);
+            t.process(
+                bairn,
+                r#"[{"name": "der", "args": {"1": "en", "2": "enm", "3": "bern"}},
+                {"name": "der", "args": {"1": "en", "2": "ang", "3": "bearn"}}]"#,
+            );
             assert_eq!(t.parents(bairn), ["enm:bern?"]);
             assert_eq!(t.parents(t.parent(bairn)), ["ang:bearn"]);
             // nor is one alike in meaning (a variant with its own entry)
             t.add_glossed("ang", "amǣnsumian", "to excommunicate");
             t.add_glossed("ang", "amānsumian", "to excommunicate");
             let amansen = t.add("enm", "amansen");
-            t.record(amansen, r#"[{"name": "inh", "args": {"1": "enm", "2": "ang", "3": "amānsumian"}}]"#);
+            t.record(
+                amansen,
+                r#"[{"name": "inh", "args": {"1": "enm", "2": "ang", "3": "amānsumian"}}]"#,
+            );
             let amanse = t.add("en", "amanse");
-            t.process(amanse, r#"[{"name": "inh", "args": {"1": "en", "2": "enm", "3": "amansen"}},
-                {"name": "inh", "args": {"1": "en", "2": "ang", "3": "amǣnsumian"}}]"#);
+            t.process(
+                amanse,
+                r#"[{"name": "inh", "args": {"1": "en", "2": "enm", "3": "amansen"}},
+                {"name": "inh", "args": {"1": "en", "2": "ang", "3": "amǣnsumian"}}]"#,
+            );
             assert_eq!(t.parent(amanse), amansen);
             // a part of a word is not checked against the next template
             t.add("la", "re-");
             t.add("la", "pullus");
             let re = t.add("gl", "re-");
-            t.record(re, r#"[{"name": "inh", "args": {"1": "gl", "2": "la", "3": "re-"}}]"#);
+            t.record(
+                re,
+                r#"[{"name": "inh", "args": {"1": "gl", "2": "la", "3": "re-"}}]"#,
+            );
             let repolo = t.add("gl", "repolo");
-            t.process(repolo, r#"[{"name": "affix", "args": {"1": "gl", "2": "re-"}},
-                {"name": "inh", "args": {"1": "gl", "2": "la", "3": "pullus"}}]"#);
+            t.process(
+                repolo,
+                r#"[{"name": "affix", "args": {"1": "gl", "2": "re-"}},
+                {"name": "inh", "args": {"1": "gl", "2": "la", "3": "pullus"}}]"#,
+            );
             assert_eq!(t.parents(repolo), ["gl:re-"]);
             // a spelling variant of the source is not a contradiction
             let mut t = Setup::new("variant");
             let freo = t.add("ang", "frēo");
             let freoh = t.add("ang", "frēoh");
-            t.items.graph.add_ety(freoh, EtyMode::Form, Some(0), &[freo], &[1.0]);
+            t.items
+                .graph
+                .add_ety(freoh, EtyMode::Form, Some(0), &[freo], &[1.0]);
             let fre = t.add("enm", "fre");
-            t.record(fre, r#"[{"name": "inh", "args": {"1": "enm", "2": "ang", "3": "frēoh"}}]"#);
+            t.record(
+                fre,
+                r#"[{"name": "inh", "args": {"1": "enm", "2": "ang", "3": "frēoh"}}]"#,
+            );
             let free = t.add("en", "free");
-            t.process(free, r#"[{"name": "inh", "args": {"1": "en", "2": "enm", "3": "fre"}},
-                {"name": "inh", "args": {"1": "en", "2": "ang", "3": "frēo"}}]"#);
+            t.process(
+                free,
+                r#"[{"name": "inh", "args": {"1": "en", "2": "enm", "3": "fre"}},
+                {"name": "inh", "args": {"1": "en", "2": "ang", "3": "frēo"}}]"#,
+            );
             assert_eq!(t.parent(free), fre);
         }
 
@@ -1365,12 +1518,21 @@ mod tests {
             t.add("odt", "thie");
             t.add("odt", "thio");
             let that = t.add_glossed("dum", "die", "that, those");
-            t.record(that, r#"[{"name": "inh", "args": {"1": "dum", "2": "odt", "3": "thie"}}]"#);
+            t.record(
+                that,
+                r#"[{"name": "inh", "args": {"1": "dum", "2": "odt", "3": "thie"}}]"#,
+            );
             let thigh = t.add_on_page("dum", "dië", Some("die"));
-            t.record(thigh, r#"[{"name": "inh", "args": {"1": "dum", "2": "odt", "3": "thio", "4": "thīo"}}]"#);
+            t.record(
+                thigh,
+                r#"[{"name": "inh", "args": {"1": "dum", "2": "odt", "3": "thio", "4": "thīo"}}]"#,
+            );
             let dij = t.add_glossed("nl", "dij", "thigh");
-            t.process(dij, r#"[{"name": "inh", "args": {"1": "nl", "2": "dum", "3": "die"}},
-                {"name": "inh", "args": {"1": "nl", "2": "odt", "3": "*thio"}}]"#);
+            t.process(
+                dij,
+                r#"[{"name": "inh", "args": {"1": "nl", "2": "dum", "3": "die"}},
+                {"name": "inh", "args": {"1": "nl", "2": "odt", "3": "*thio"}}]"#,
+            );
             assert_eq!(t.parent(dij), thigh);
         }
 
@@ -1381,36 +1543,59 @@ mod tests {
             t.add("trk-pro", "*bȫrü");
             let flea = t.add("trk-pro", "*bürgä");
             let wolf = t.add("tt", "бүре");
-            t.items.graph.add_ety(wolf, EtyMode::Inherited, Some(0), &[flea], &[1.0]);
+            t.items
+                .graph
+                .add_ety(wolf, EtyMode::Inherited, Some(0), &[flea], &[1.0]);
             let mari = t.add("mhr", "пире");
-            t.process(mari, r#"[{"name": "bor", "args": {"1": "mhr", "2": "tt", "3": "бүре"}},
-                {"name": "der", "args": {"1": "mhr", "2": "trk-pro", "3": "*bȫrü"}}]"#);
+            t.process(
+                mari,
+                r#"[{"name": "bor", "args": {"1": "mhr", "2": "tt", "3": "бүре"}},
+                {"name": "der", "args": {"1": "mhr", "2": "trk-pro", "3": "*bȫrü"}}]"#,
+            );
             assert_eq!(t.parent(mari), wolf);
             // spellings that differ only in diacritics or hyphens
             t.add("goh", "selah");
             t.add("goh", "sëlah");
             let sele = t.add("gmh", "sële");
-            t.record(sele, r#"[{"name": "inh", "args": {"1": "gmh", "2": "goh", "3": "sëlah"}}]"#);
+            t.record(
+                sele,
+                r#"[{"name": "inh", "args": {"1": "gmh", "2": "goh", "3": "sëlah"}}]"#,
+            );
             let seehund = t.add("de", "Seehund");
-            t.process(seehund, r#"[{"name": "der", "args": {"1": "de", "2": "gmh", "3": "sële"}},
-                {"name": "der", "args": {"1": "de", "2": "goh", "3": "selah"}}]"#);
+            t.process(
+                seehund,
+                r#"[{"name": "der", "args": {"1": "de", "2": "gmh", "3": "sële"}},
+                {"name": "der", "args": {"1": "de", "2": "goh", "3": "selah"}}]"#,
+            );
             assert_eq!(t.parents(seehund), ["gmh:sële"]);
             t.add("la", "ad-");
             t.add("la", "ad");
             let a = t.add("fro", "a-");
-            t.record(a, r#"[{"name": "inh", "args": {"1": "fro", "2": "la", "3": "ad-"}}]"#);
+            t.record(
+                a,
+                r#"[{"name": "inh", "args": {"1": "fro", "2": "la", "3": "ad-"}}]"#,
+            );
             let amolir = t.add("enm", "amolisshen");
-            t.process(amolir, r#"[{"name": "der", "args": {"1": "enm", "2": "fro", "3": "a-"}},
-                {"name": "der", "args": {"1": "enm", "2": "la", "3": "ad"}}]"#);
+            t.process(
+                amolir,
+                r#"[{"name": "der", "args": {"1": "enm", "2": "fro", "3": "a-"}},
+                {"name": "der", "args": {"1": "enm", "2": "la", "3": "ad"}}]"#,
+            );
             assert_eq!(t.parents(amolir), ["fro:a-"]);
             // a root names a family, not the next step
             t.add("ine-pro", "*bʰer-");
             t.add("ine-pro", "*bʰerǵ-");
             let frigo = t.add("la", "frīgō");
-            t.record(frigo, r#"[{"name": "der", "args": {"1": "la", "2": "ine-pro", "3": "*bʰerǵ-"}}]"#);
+            t.record(
+                frigo,
+                r#"[{"name": "der", "args": {"1": "la", "2": "ine-pro", "3": "*bʰerǵ-"}}]"#,
+            );
             let frighere = t.add("sc", "frighere");
-            t.process(frighere, r#"[{"name": "inh", "args": {"1": "sc", "2": "la", "3": "frīgō"}},
-                {"name": "der", "args": {"1": "sc", "2": "ine-pro", "3": "*bʰer-"}}]"#);
+            t.process(
+                frighere,
+                r#"[{"name": "inh", "args": {"1": "sc", "2": "la", "3": "frīgō"}},
+                {"name": "der", "args": {"1": "sc", "2": "ine-pro", "3": "*bʰer-"}}]"#,
+            );
             assert_eq!(t.parents(frighere), ["la:frīgō"]);
         }
 
@@ -1425,7 +1610,10 @@ mod tests {
             // a sense id
             t.items.add_id(mineral, "quicklime");
             let quick = t.add("en", "limewash");
-            t.process(quick, r#"[{"name": "af", "args": {"1": "en", "2": "lime<id:quicklime>", "3": "wash"}}]"#);
+            t.process(
+                quick,
+                r#"[{"name": "af", "args": {"1": "en", "2": "lime<id:quicklime>", "3": "wash"}}]"#,
+            );
             assert_eq!(t.parent(quick), mineral);
         }
 
@@ -1438,7 +1626,9 @@ mod tests {
             let mut bytes = json.to_string().into_bytes();
             let json = to_borrowed_value(&mut bytes).unwrap();
             let lang = Lang::from_str("enm").unwrap();
-            let ety = WiktextractJsonItem { json }.get_etymology(&mut sp, lang).unwrap();
+            let ety = WiktextractJsonItem { json }
+                .get_etymology(&mut sp, lang)
+                .unwrap();
             let ParsedRawEtyTemplate::Parsed(template) = &ety.templates[0] else {
                 panic!("not parsed");
             };
@@ -1457,7 +1647,10 @@ mod tests {
             t.items.raw_templates.derived.insert(mineral, vec![kiln]);
             t.items.index_mentions();
             let limekiln = t.add("en", "limekiln");
-            t.process(limekiln, r#"[{"name": "af", "args": {"1": "en", "2": "lime", "3": "kiln"}}]"#);
+            t.process(
+                limekiln,
+                r#"[{"name": "af", "args": {"1": "en", "2": "lime", "3": "kiln"}}]"#,
+            );
             assert_eq!(t.parent(limekiln), mineral);
         }
 
@@ -1467,8 +1660,17 @@ mod tests {
             let _lime1 = t.add("en", "lime");
             let lime2 = t.add("en", "lime");
             let limey = t.add("en", "limey");
-            t.items.graph.add_ety(limey, EtyMode::MorphologicalDerivation, Some(0), &[lime2], &[0.1]);
-            t.process(limey, r#"[{"name": "af", "args": {"1": "en", "2": "lime", "3": "-y"}}]"#);
+            t.items.graph.add_ety(
+                limey,
+                EtyMode::MorphologicalDerivation,
+                Some(0),
+                &[lime2],
+                &[0.1],
+            );
+            t.process(
+                limey,
+                r#"[{"name": "af", "args": {"1": "en", "2": "lime", "3": "-y"}}]"#,
+            );
             assert_eq!(t.items.graph.immediate_ety(limey).unwrap().items[0], lime2);
         }
     }
