@@ -265,16 +265,15 @@ impl WiktextractJsonItem<'_> {
                 if let Some(tags) = form.get_array("tags") {
                     let mut t = 0;
                     while let Some(tag) = tags.get(t).as_str() {
-                        if tag == "canonical" {
-                            if let Some(term) = form.get_valid_term("form")
-                                && !should_ignore_term(term)
-                                && self
-                                    .json
-                                    .get_valid_term("word")
-                                    .is_some_and(|word| is_respelling(term, word))
-                            {
-                                return Some(Term::new(string_pool, term));
-                            }
+                        if tag == "canonical"
+                            && let Some(term) = form.get_valid_term("form")
+                            && !should_ignore_term(term)
+                            && self
+                                .json
+                                .get_valid_term("word")
+                                .is_some_and(|word| is_respelling(term, word))
+                        {
+                            return Some(Term::new(string_pool, term));
                         }
                         t += 1;
                     }

@@ -3,6 +3,10 @@
 #![allow(clippy::redundant_closure_for_method_calls)]
 
 mod descendants;
+// The embedding cache is keyed by this file's text, so editing it, even to
+// reformat or to satisfy a lint, discards the cache: hours of embedding.
+#[allow(clippy::large_enum_variant)]
+#[rustfmt::skip]
 pub mod embeddings;
 mod etymology;
 mod etymon;

@@ -16,7 +16,7 @@ pub mod string_pool;
 
 pub use items::ItemId;
 pub use languages::Lang;
-pub use processed::{Data, Search};
+pub use processed::{Data, Search, TreeView};
 
 use xxhash_rust::xxh3::Xxh3Builder;
 

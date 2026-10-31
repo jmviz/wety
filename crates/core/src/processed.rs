@@ -192,44 +192,30 @@ impl Data {
         }
     }
 
-    /// The descendants of `item_id` that reach `desc_langs` (empty: every
+    /// The descendants of `item_id` that reach `view.desc_langs` (empty: every
     /// language). A word formed from a word of its own language is drawn only
-    /// when `within` is set or something below it is in another language, so
-    /// limelight and limelighter stay off a tree of English lime unless asked
-    /// for.
+    /// when `view.within` is set or something below it is in another
+    /// language, so limelight and limelighter stay off a tree of English lime
+    /// unless asked for.
     #[must_use]
-    pub fn item_descendants_json(
-        &self,
-        item_id: ItemId,
-        dist_lang: Lang,
-        desc_langs: &[Lang],
-        within: bool,
-        req_item_ancestors_within_desc_langs: &[ItemId],
-        lean: bool,
-    ) -> DescendantsJson<'_> {
-        self.item_descendants_json_inner(
-            item_id,
-            dist_lang,
-            desc_langs,
-            within,
-            req_item_ancestors_within_desc_langs,
-            lean,
-            None,
-            None,
-        )
+    pub fn item_descendants_json(&self, item_id: ItemId, view: &TreeView<'_>) -> DescendantsJson<'_> {
+        self.item_descendants_json_inner(item_id, view, None, None)
     }
 
     fn item_descendants_json_inner(
         &self,
         item_id: ItemId,
-        dist_lang: Lang,
-        desc_langs: &[Lang],
-        within: bool,
-        req_item_ancestors_within_desc_langs: &[ItemId],
-        lean: bool,
+        view: &TreeView<'_>,
         item_parent_id: Option<ItemId>,
         item_parent_ety_order: Option<u8>,
     ) -> DescendantsJson<'_> {
+        let &TreeView {
+            dist_lang,
+            desc_langs,
+            within,
+            keep: req_item_ancestors_within_desc_langs,
+            lean,
+        } = view;
         let item = self.item(item_id);
         let item_lang = item.lang();
 
@@ -252,16 +238,7 @@ impl Data {
                     || reaches_another
             })
             .map(|e| {
-                self.item_descendants_json_inner(
-                    e.child(),
-                    dist_lang,
-                    desc_langs,
-                    within,
-                    req_item_ancestors_within_desc_langs,
-                    lean,
-                    Some(item_id),
-                    Some(e.order()),
-                )
+                self.item_descendants_json_inner(e.child(), view, Some(item_id), Some(e.order()))
             })
             .collect();
         let descendant_count = children.iter().map(|c| 1 + c.descendant_count).sum();
@@ -379,18 +356,15 @@ impl Data {
     }
 
     /// The descendants of `root` (default: see `default_root`), keeping the
-    /// path to the item visible. Empty `desc_langs` means every language.
+    /// path to the item visible. Empty `view.desc_langs` means every language.
     #[must_use]
     pub fn item_cognates_json(
         &self,
         item_id: ItemId,
         root: Option<ItemId>,
-        dist_lang: Lang,
-        desc_langs: &[Lang],
-        within: bool,
-        req_item_ancestors_within_desc_langs: &[ItemId],
-        lean: bool,
+        view: &TreeView<'_>,
     ) -> CognatesJson<'_> {
+        let lean = view.lean;
         let trail = self.lineage(item_id);
         let top = *trail.last().expect("a trail starts with its item");
         let default_root = self.default_root(item_id);
@@ -418,15 +392,8 @@ impl Data {
             root,
             default_root,
             total: self.descendant_total(root, TOTAL_CAP),
-            all_langs: desc_langs.is_empty(),
-            tree: self.item_descendants_json(
-                root,
-                dist_lang,
-                desc_langs,
-                within,
-                req_item_ancestors_within_desc_langs,
-                lean,
-            ),
+            all_langs: view.desc_langs.is_empty(),
+            tree: self.item_descendants_json(root, view),
         }
     }
 
@@ -455,6 +422,23 @@ impl Data {
             lang_distance: self.item(item_id).lang().distance_from(req_lang),
         }
     }
+}
+
+/// How a descendants or cognates tree is drawn.
+#[derive(Clone, Copy)]
+pub struct TreeView<'a> {
+    /// The language distances are measured from.
+    pub dist_lang: Lang,
+    /// The languages drawn; empty: every language.
+    pub desc_langs: &'a [Lang],
+    /// Whether words formed within a language are drawn (see
+    /// `Data::item_descendants_json`).
+    pub within: bool,
+    /// Items whose children are all kept: the requested item's ancestors
+    /// within `desc_langs`, so the path to it stays visible.
+    pub keep: &'a [ItemId],
+    /// Whether items leave out their glosses.
+    pub lean: bool,
 }
 
 #[derive(Default)]
@@ -665,7 +649,7 @@ impl Search {
 
 fn validate_reference_fingerprint(value: Option<&str>, allow_legacy: bool) -> Result<()> {
     match value {
-        Some(value) if value == env!("WETY_REFERENCE_FINGERPRINT") => Ok(()),
+        Some(env!("WETY_REFERENCE_FINGERPRINT")) => Ok(()),
         Some(_) => anyhow::bail!("Graph language/POS tables differ from this binary; rebuild with the graph's pinned references"),
         None if allow_legacy => { eprintln!("Loading legacy graph with unverified language/POS identity by explicit opt-in"); Ok(()) },
         None => anyhow::bail!("Legacy graph has no reference fingerprint; use WETY_ALLOW_LEGACY_GRAPH=1 only after accepting unverified numeric IDs"),
@@ -720,6 +704,10 @@ mod lineage_tests {
         graph.add_ety(item, mode, head, sources, &vec![1.0; sources.len()]);
     }
 
+    fn view(dist_lang: Lang, desc_langs: &[Lang], within: bool) -> TreeView<'_> {
+        TreeView { dist_lang, desc_langs, within, keep: &[], lean: false }
+    }
+
     #[test]
     fn the_trail_follows_the_same_word_back_to_its_formation() {
         let (mut graph, mut pool) = (EtyGraph::default(), StringPool::default());
@@ -738,7 +726,7 @@ mod lineage_tests {
 
         let en = Lang::from_str("en").unwrap();
         let la = Lang::from_str("la").unwrap();
-        let cognates = data.item_cognates_json(mother, None, en, &[en, la], false, &[], false);
+        let cognates = data.item_cognates_json(mother, None, &view(en, &[en, la], false));
         // No source of *méh₂tēr is a root entry, so the tree starts there.
         assert_eq!((cognates.root, cognates.default_root), (mater, mater));
         assert_eq!(cognates.trail.len(), 3);
@@ -752,7 +740,7 @@ mod lineage_tests {
         // word is not.
         assert_eq!(data.ancestor_named(mother, "ine-pro", "-tḗr", None), Some(suffix));
         assert_eq!(data.ancestor_named(mother, "la", "mātrīx", None), None);
-        let from_suffix = data.item_cognates_json(mother, Some(suffix), en, &[en, la], false, &[], false);
+        let from_suffix = data.item_cognates_json(mother, Some(suffix), &view(en, &[en, la], false));
         assert_eq!(from_suffix.root, suffix);
         assert_eq!(from_suffix.tree.item.id, suffix);
     }
@@ -772,7 +760,7 @@ mod lineage_tests {
         assert_eq!(data.lineage(pater), [pater, ph2ter]);
         assert_eq!(data.default_root(pater), peh2);
         let la = Lang::from_str("la").unwrap();
-        let cognates = data.item_cognates_json(pater, None, la, &[la], false, &[], false);
+        let cognates = data.item_cognates_json(pater, None, &view(la, &[la], false));
         assert_eq!((cognates.root, cognates.default_root), (peh2, peh2));
         assert!(cognates.tree.children.iter().any(|c| c.item.id == pastor));
         // The suffix is not a root entry: an affix alone never becomes the default.
@@ -799,7 +787,7 @@ mod lineage_tests {
         let data = Data::new(pool, graph);
         assert_eq!(data.ultimate_sources(astronomy), [burn, ter, nem, eh2]);
         let en = Lang::from_str("en").unwrap();
-        let c = data.item_cognates_json(astronomy, None, en, &[en], false, &[], false);
+        let c = data.item_cognates_json(astronomy, None, &view(en, &[en], false));
         assert_eq!(c.root, astronomia);
         assert_eq!(c.ultimate_roots.iter().map(|i| i.id).collect_vec(), [burn, nem]);
         assert_eq!(c.ultimate_others.iter().map(|i| i.id).collect_vec(), [ter, eh2]);
@@ -859,17 +847,17 @@ mod lineage_tests {
         let ids = |t: &DescendantsJson<'_>| t.children.iter().map(|c| c.item.id).collect_vec();
         // A same-language child with no descendants elsewhere drops out of a
         // filtered tree, but not out of the every-language one.
-        let filtered = data.item_descendants_json(pater, la, &[fr, la], false, &[], false);
+        let filtered = data.item_descendants_json(pater, &view(la, &[fr, la], false));
         assert_eq!(ids(&filtered), [pere]);
-        let all = data.item_descendants_json(pater, la, &[], true, &[], false);
+        let all = data.item_descendants_json(pater, &view(la, &[], true));
         assert_eq!(all.children.len(), 2);
         assert!(ids(&all).contains(&paternus));
         // Without `within`, a word formed within Latin drops out of the
         // every-language tree too, unless something below it is elsewhere...
-        let all_without = data.item_descendants_json(pater, la, &[], false, &[], false);
+        let all_without = data.item_descendants_json(pater, &view(la, &[], false));
         assert_eq!(ids(&all_without), [pere]);
         // ...and `within` brings it back into a filtered one.
-        let filtered_within = data.item_descendants_json(pater, la, &[fr, la], true, &[], false);
+        let filtered_within = data.item_descendants_json(pater, &view(la, &[fr, la], true));
         assert!(ids(&filtered_within).contains(&paternus));
         assert_eq!(data.descendant_total(pater, TOTAL_CAP), 2);
         assert_eq!(data.descendant_total(pater, 1), 1);

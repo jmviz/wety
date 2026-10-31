@@ -6,7 +6,7 @@ pub mod periods;
 use periods::Periods;
 use serde::{Deserialize, Deserializer, de::Error as _};
 use wety_core::{
-    Data, ItemId, Lang, Search,
+    Data, ItemId, Lang, Search, TreeView,
     keys::{Keys, Resolution},
     processed::{TOTAL_CAP, graph_version},
     response::DescendantsViewJson,
@@ -134,12 +134,17 @@ impl AppState {
                 lean,
             } => {
                 let ancestors = self.data.ancestors_in_langs(*item, desc_langs);
+                let view = TreeView {
+                    dist_lang: *dist_lang,
+                    desc_langs,
+                    within: *within,
+                    keep: &ancestors,
+                    lean: *lean,
+                };
                 serde_json::to_vec(&DescendantsViewJson {
                     total: self.data.descendant_total(*item, TOTAL_CAP),
                     all_langs: desc_langs.is_empty(),
-                    tree: self
-                        .data
-                        .item_descendants_json(*item, *dist_lang, desc_langs, *within, &ancestors, *lean),
+                    tree: self.data.item_descendants_json(*item, &view),
                 })?
             }
             TreeKey::Cognates {
@@ -151,15 +156,14 @@ impl AppState {
                 lean,
             } => {
                 let ancestors = self.data.ancestors_in_langs(*item, desc_langs);
-                serde_json::to_vec(&self.data.item_cognates_json(
-                    *item,
-                    *root,
-                    *dist_lang,
+                let view = TreeView {
+                    dist_lang: *dist_lang,
                     desc_langs,
-                    *within,
-                    &ancestors,
-                    *lean,
-                ))?
+                    within: *within,
+                    keep: &ancestors,
+                    lean: *lean,
+                };
+                serde_json::to_vec(&self.data.item_cognates_json(*item, *root, &view))?
             }
         };
         Ok(Bytes::from(bytes))
