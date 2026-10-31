@@ -47,8 +47,31 @@ impl WiktextractJsonItem<'_> {
     // https://en.wiktionary.org/wiki/Template:PIE_word), else per its root
     // categories, which {{etymon}} and other templates also generate. These
     // indicate ultimate descent from a proto-language term, which we record as
-    // "root" etys. An entry may name several roots (e.g. a compound).
+    // "root" etys. An entry may name several roots (e.g. a compound). An entry
+    // that names one root under several senses does not say which it means:
+    // pro-, per- and prae- words name both *per- (before) and *per- (fare),
+    // since Wiktionary derives *pér, uncertainly, from either. Those roots are
+    // dropped.
     pub(crate) fn get_roots(&self, string_pool: &mut StringPool, lang: Lang) -> Vec<RawRoot> {
+        let mut roots = self.get_named_roots(string_pool, lang);
+        let senses = |langterm| {
+            roots
+                .iter()
+                .filter(|r| r.langterm == langterm)
+                .filter_map(|r| r.sense_id.as_deref())
+                .collect::<HashSet<_>>()
+                .len()
+        };
+        let ambiguous: HashSet<LangTerm> = roots
+            .iter()
+            .map(|r| r.langterm)
+            .filter(|&langterm| senses(langterm) > 1)
+            .collect();
+        roots.retain(|r| !ambiguous.contains(&r.langterm));
+        roots
+    }
+
+    fn get_named_roots(&self, string_pool: &mut StringPool, lang: Lang) -> Vec<RawRoot> {
         if let Some(templates) = self.json.get_array("etymology_templates") {
             for template in templates {
                 if let Some(name) = template.get_valid_str("name")
@@ -416,6 +439,28 @@ mod tests {
                 "English terms derived from the Proto-Indo-European root *bʰer- (carry)"]}"#
             ),
             [pie("bʰer-", Some("carry")), pie("per-", Some("before"))]
+        );
+    }
+
+    #[test]
+    fn a_root_named_under_several_senses_is_dropped() {
+        let pie = |t: &str, s: Option<&str>| (format!("ine-pro:{t}"), s.map(String::from));
+        // en product: pro- (from *pér, from either *per-) + dūcō (*dewk-)
+        assert_eq!(
+            roots(
+                r#"{"categories": [
+                "English terms derived from the Proto-Indo-European root *per- (before)",
+                "English terms derived from the Proto-Indo-European root *per- (fare)",
+                "English terms derived from the Proto-Indo-European root *dewk-"]}"#
+            ),
+            [pie("dewk-", None)]
+        );
+        assert!(
+            roots(
+                r#"{"etymology_templates": [{"name": "root",
+                "args": {"1": "en", "2": "ine-pro", "3": "*per- (before)", "4": "*per-<id:fare>"}}]}"#
+            )
+            .is_empty()
         );
     }
 }

@@ -32,15 +32,13 @@ codex's design additions (`b36265cf`):
   the word; dates and evidence in a language view; dark mode; one Tab stop per tree.
 - **Search** folds diacritics, ʰ, subscripts and romanizations and ranks headwords first.
 - **Period labels** have no slashes: dating generation `b0bed444`, no date changed.
-- **Root votes (processor, not yet in a graph):** a word with no etymology no longer
-  takes a root from its derivatives' prefixes. Latin *testum* got PIE \*per- "to go
-  through" (from Polish *przetestować*'s prze-) over English *test*'s \*ters-, on a
-  lowest-id tie, and every *test* tree showed it. A root reached anywhere in a voter's
-  etymology, as any homograph, no longer votes; tied votes impute nothing.
-- **Rust tooling:** the toolchain now installs clippy and rustfmt; the workspace is
-  clippy-clean and rustfmt-formatted, except `processor/src/embeddings.rs`, whose
-  text keys the embedding cache (any edit discards it). Trees take a `TreeView`.
-- Checks pass: 41 processor (2 new), 15 core, 7 server and 254 dating tests, dating
+- **Roots (processor, not yet in a graph):** Latin *testum* took PIE \*per- "to go
+  through" from Polish *przetestować*'s prze-, so every *test* tree showed it. A root
+  reached anywhere in a voter's etymology no longer votes; ties impute nothing. A root
+  named under two senses (pro- words: \*per- "before" and "fare") is dropped.
+- **Rust tooling:** clippy and rustfmt are in the toolchain; the workspace is clean,
+  except `processor/src/embeddings.rs`, whose text keys the embedding cache.
+- Checks pass: 42 processor (3 new), 15 core, 7 server and 254 dating tests, dating
   validation, TypeScript and build.
 
 ## Uncertainties
@@ -62,3 +60,4 @@ codex's design additions (`b36265cf`):
 ## Decisions needed from the maintainer
 
 - Whether to rebuild and ship the graph with the client work, or ship the client first.
+- Whether to model competing and uncertain etymologies (a change to the graph format).
