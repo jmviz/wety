@@ -28,12 +28,20 @@ struct Args {
     out: PathBuf,
 }
 
+// a few terms hold a tab or a line break
+fn escape(term: &str) -> String {
+    term.replace('\\', "\\\\")
+        .replace('\t', "\\t")
+        .replace('\n', "\\n")
+        .replace('\r', "\\r")
+}
+
 fn key(data: &Data, item: ItemId) -> String {
     let item = data.graph.item(item);
     format!(
         "{}\t{}\t{}\t{}",
         item.lang().code(),
-        item.term().resolve(&data.string_pool),
+        escape(item.term().resolve(&data.string_pool)),
         item.ety_num(),
         if item.is_imputed() {
             "imputed"
