@@ -37,9 +37,11 @@ codex's design additions (`b36265cf`):
   through" (from Polish *przetestować*'s prze-) over English *test*'s \*ters-, on a
   lowest-id tie, and every *test* tree showed it. A root reached anywhere in a voter's
   etymology, as any homograph, no longer votes; tied votes impute nothing.
-- Checks pass: 41 processor (2 new), 13 core, 7 server and 254 dating tests, dating
-  validation, TypeScript and build. Clippy and rustfmt are not installed for the
-  pinned toolchain, so they were not run.
+- **Rust tooling:** the toolchain now installs clippy and rustfmt; the workspace is
+  clippy-clean and rustfmt-formatted, except `processor/src/embeddings.rs`, whose
+  text keys the embedding cache (any edit discards it). Trees take a `TreeView`.
+- Checks pass: 41 processor (2 new), 15 core, 7 server and 254 dating tests, dating
+  validation, TypeScript and build.
 
 ## Uncertainties
 
