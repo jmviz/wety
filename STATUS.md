@@ -1,6 +1,6 @@
 # Status
 
-*Updated 2026-10-30. Client work and a processor fix are on `claude/root-vote-fix`, on top
+*Updated 2026-10-31. Client work and a processor fix are on `claude/root-vote-fix`, on top
 of `codex/client-ux-audit` (the client work); not deployed.*
 
 ## What the project promises
@@ -61,4 +61,4 @@ codex's design additions (`b36265cf`):
 
 - Whether to rebuild and ship the graph with the client work, or ship the client first.
 - Whether to adopt the etymology claims model (a shared design doc outside git):
-  sources, holders and certainty per link; a graph format change.
+  per-link sources, credits and certainty; automatic synthesis; the ACD first.
