@@ -1516,6 +1516,38 @@ mod tests {
         }
 
         #[test]
+        fn root_votes_keep_a_headless_etymology() {
+            // de anderweit = ander + weit has no head, so the head chain of a
+            // derivative stops at it, but its own etymology is no gap to fill
+            let mut t = Setup::new("headless-roots");
+            add_root(&mut t, "dʰeh₁-", "put");
+            let ander = t.add("de", "ander");
+            let weit = t.add("de", "weit");
+            let anderweit = t.add("de", "anderweit");
+            let anderweitig = t.add("de", "anderweitig");
+            let g = &mut t.items.graph;
+            g.add_ety(
+                anderweit,
+                EtyMode::Compound,
+                None,
+                EdgeBasis::Etymon,
+                &[ander, weit],
+                &[0.5, 0.5],
+            );
+            g.add_ety(
+                anderweitig,
+                EtyMode::Suffix,
+                Some(0),
+                EdgeBasis::Template,
+                &[anderweit],
+                &[1.0],
+            );
+            set_roots(&mut t, anderweitig, &[("dʰeh₁-", None)]);
+            t.items.impute_root_etys(&t.sp, &t.embeddings).unwrap();
+            assert_eq!(t.parents(anderweit), ["de:ander", "de:weit"]);
+        }
+
+        #[test]
         fn tied_root_votes_impute_none() {
             // one item naming two roots its chain does not reach: either may be
             // its progenitor's

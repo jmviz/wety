@@ -275,8 +275,9 @@ impl Items {
     // 1. An item with no ety of its own gets its roots as its ety (imputing a
     //    root missing from the data).
     // 2. An item with an ety chain that does not reach one of its roots says
-    //    that the top of its head chain (its head progenitor, which has no ety)
-    //    descends from that root. A root counts as reached when any part of the
+    //    that the top of its head chain (its head progenitor) descends from
+    //    that root, if that has no ety; the chain also stops at an ety without
+    //    a head, such as a compound of two bases. A root counts as reached when any part of the
     //    item's etymology, at any depth, is that root or a homograph of it: the
     //    categories of a derivative also cover its other parts (pl
     //    przetestować, prze- + testować, names *per- (fare) for prze-, whose
@@ -333,7 +334,12 @@ impl Items {
             let Some(progenitors) = self.graph.progenitors(item_id) else {
                 continue;
             };
-            let Some(head_progenitor) = progenitors.head else {
+            // The head chain stops at an etymology without a head (de
+            // anderweit = ander + weit), which is no gap for a root to fill.
+            let Some(head_progenitor) = progenitors
+                .head
+                .filter(|&p| self.graph.immediate_ety(p).is_none())
+            else {
                 continue;
             };
             let reached = self.ancestor_langterms(item_id);
