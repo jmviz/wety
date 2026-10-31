@@ -1,7 +1,7 @@
 use std::{collections::BTreeMap, mem, str::FromStr};
 
 use crate::{
-    HashMap,
+    HashMap, HashSet,
     embeddings::{self, Embeddings},
     etymology::validate_ety_template_lang,
     items::Items,
@@ -12,6 +12,7 @@ use crate::{
     },
 };
 use wety_core::{
+    ety_graph::EtyEdgeAccess,
     etymology_templates::EtyMode,
     items::ItemId,
     langterm::{LangTerm, Term},
@@ -221,6 +222,25 @@ impl Items {
                 && !item.term().resolve(string_pool).ends_with('-'))
     }
 
+    // The langterms of every item in an item's etymology: its parents, theirs
+    // and so on, along every part, not only the head.
+    fn ancestor_langterms(&self, item: ItemId) -> HashSet<LangTerm> {
+        let mut seen = HashSet::default();
+        let mut langterms = HashSet::default();
+        let mut queue = vec![item];
+        while let Some(item) = queue.pop() {
+            for edge in self.graph.parent_edges(item) {
+                let parent = edge.parent();
+                if seen.insert(parent) {
+                    let parent_item = self.get(parent);
+                    langterms.insert(LangTerm::new(parent_item.lang(), parent_item.term()));
+                    queue.push(parent);
+                }
+            }
+        }
+        langterms
+    }
+
     // Root etys are imputed in two passes, each over items in id order so that
     // the result does not depend on hash-map order.
     //
@@ -228,10 +248,15 @@ impl Items {
     //    root missing from the data).
     // 2. An item with an ety chain that does not reach one of its roots says
     //    that the top of its head chain (its head progenitor, which has no ety)
-    //    descends from that root. Many items may speak for the same progenitor,
-    //    not always alike (their categories also cover other parts of their
-    //    ancestry), so each progenitor gets the root most of them name, an item
-    //    naming n unreached roots giving each 1/n of a vote.
+    //    descends from that root. A root counts as reached when any part of the
+    //    item's etymology, at any depth, is that root or a homograph of it: the
+    //    categories of a derivative also cover its other parts (pl
+    //    przetestować, prze- + testować, names *per- (fare) for prze-, whose
+    //    chain reaches *per- (before)), and these must not speak for the base's
+    //    progenitor (la testum). Many items may speak for the same progenitor,
+    //    not always alike, so each progenitor gets the root most of them name,
+    //    an item naming n unreached roots giving each 1/n of a vote. Where the
+    //    votes do not single out one root, the progenitor gets none.
     pub(crate) fn impute_root_etys(
         &mut self,
         string_pool: &StringPool,
@@ -276,11 +301,14 @@ impl Items {
             let Some(head_progenitor) = progenitors.head else {
                 continue;
             };
+            let reached = self.ancestor_langterms(item_id);
             let mut unreached = vec![];
             for root in roots {
                 if let Some((root_item, _)) = self.find_root(embeddings, item_id, root)?
-                    && !progenitors.items.contains(&root_item)
-                    && head_progenitor != root_item
+                    && !reached.contains(&LangTerm::new(
+                        self.get(root_item).lang(),
+                        self.get(root_item).term(),
+                    ))
                     && self.may_descend_from_root(string_pool, head_progenitor, root_item)
                     && !unreached.contains(&root_item)
                 {
@@ -300,13 +328,16 @@ impl Items {
             }
         }
         for (progenitor, roots) in votes {
-            let Some((&root_item, _)) = roots.iter().max_by(|(a, va), (b, vb)| {
-                va.0.total_cmp(&vb.0)
-                    .then(va.1.cmp(&vb.1))
-                    .then(b.cmp(a)) // the lower id on a tie
-            }) else {
+            let cmp = |a: &(f32, u32), b: &(f32, u32)| a.0.total_cmp(&b.0).then(a.1.cmp(&b.1));
+            let mut ranked: Vec<_> = roots.iter().collect();
+            ranked.sort_unstable_by(|(a, va), (b, vb)| cmp(vb, va).then(a.cmp(b)));
+            let [(root_item, best), rest @ ..] = &ranked[..] else {
                 continue;
             };
+            let root_item = **root_item;
+            if rest.first().is_some_and(|(_, next)| cmp(next, best).is_eq()) {
+                continue;
+            }
             // a confidence from the share of the votes
             let (votes, _) = roots[&root_item];
             let total: f32 = roots.values().map(|(v, _)| v).sum();

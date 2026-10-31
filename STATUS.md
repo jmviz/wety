@@ -1,6 +1,7 @@
 # Status
 
-*Updated 2026-10-17. Client work is on `claude/client-ux-audit-findings-c7d2b1`; not deployed.*
+*Updated 2026-10-30. Client work and a processor fix are on `claude/root-vote-fix`, on top
+of `codex/client-ux-audit` (the client work); not deployed.*
 
 ## What the project promises
 
@@ -19,30 +20,26 @@ and citations from reviewed evidence in the `packages/dating` registry.
 
 ## What changed
 
-The client UX review (a shared doc outside git, "wety client UX review") is worked
-through on this branch, after reverting codex's design additions (`b36265cf`):
+The client UX review (a shared doc outside git) is worked through, after reverting
+codex's design additions (`b36265cf`):
 
-- **Cognates** start from the oldest form that is the same word, or the root it is
-  built on (*mother*: \*méh₂tēr; Latin *pater*: \*peh₂-); a trail lets readers start
-  elsewhere (`root=`).
+- **Cognates** start from the oldest form that is the same word, or its root
+  (*mother*: \*méh₂tēr); a trail lets readers start elsewhere (`root=`).
 - **Every view reads oldest at the top**, the etymology chart included.
-- **Languages:** trees use the reader's languages, with "all languages" (`all=1`) a
-  choice; words formed within a language (limelight under lime) only on request
-  (`within=1`). One languages panel replaces three controls.
-- **One header line, a title line, one control row**: the tree starts about a quarter
-  of the way down (was nearly half); the toolbar and help rows are gone.
-- **Quieter rows:** one ink, unmarked inheritance, "+N" branches, meanings on by
-  default and in the chart, dates only where the language changes.
-- **Word details** open beside the word; dates and evidence sit in a language view.
-- **Search** folds diacritics, ʰ, subscripts and romanizations (paternitas, bher,
-  Greek pater now match) and ranks headwords before inflected forms; language search
-  matches any word in a name ("fren" finds Old French).
-- One Tab stop per tree with arrow keys; dark mode; tab titles name the word.
-- **Period labels** have no slashes ("from 9th or 10th century CE", "until c. 1000–500
-  BCE"; Proto-Germanic "c. 500 BCE – 1 CE"): dating generation `b0bed444`, 51 labels
-  reworded, no date changed; store snapshot `7054f5c2`.
-- Checks pass: 13 core, 7 server and 254 dating tests, dating validation (0 errors,
-  no rejected decisions), TypeScript and build; browser-checked on the full graph.
+- **Languages:** the reader's languages by default, "all languages" (`all=1`) a choice;
+  same-language formations only on request (`within=1`). One languages panel.
+- **One header line, a title line, one control row**; quieter rows; word details beside
+  the word; dates and evidence in a language view; dark mode; one Tab stop per tree.
+- **Search** folds diacritics, ʰ, subscripts and romanizations and ranks headwords first.
+- **Period labels** have no slashes: dating generation `b0bed444`, no date changed.
+- **Root votes (processor, not yet in a graph):** a word with no etymology no longer
+  takes a root from its derivatives' prefixes. Latin *testum* got PIE \*per- "to go
+  through" (from Polish *przetestować*'s prze-) over English *test*'s \*ters-, on a
+  lowest-id tie, and every *test* tree showed it. A root reached anywhere in a voter's
+  etymology, as any homograph, no longer votes; tied votes impute nothing.
+- Checks pass: 41 processor (2 new), 13 core, 7 server and 254 dating tests, dating
+  validation, TypeScript and build. Clippy and rustfmt are not installed for the
+  pinned toolchain, so they were not run.
 
 ## Uncertainties
 
@@ -50,15 +47,16 @@ through on this branch, after reverting codex's design additions (`b36265cf`):
   overreach (*chess*) or follow data errors (*robot*).
 - `/cognates` and `/descendants` responses changed shape: deploy server and client
   together.
-- With the browser pane hidden, a blank gap after load could not be checked.
+- The root-vote change alters other imputed roots; how many is unknown until a rebuild.
 - Research reviews remain model reviews; R2 pruning still needs a live dry run.
 
 ## Next three actions
 
-1. Maintainer: restart the API on port 3000 (rebuilt binary), then review the branch.
-2. Merge Descendants into Cognates (start from the word itself), approved for later.
+1. Rebuild the graph (`wety-data run etymology_graph`, about 6 h), compare its imputed
+   roots with `dab06f67`, then publish it with the client work.
+2. Maintainer: review the branch.
 3. Inspect the R2 pruning dry run before the next server deployment.
 
 ## Decisions needed from the maintainer
 
-- Whether `codex/client-ux-audit` is superseded by this branch.
+- Whether to rebuild and ship the graph with the client work, or ship the client first.

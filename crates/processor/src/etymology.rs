@@ -1216,6 +1216,84 @@ mod tests {
             assert!(t.items.graph.immediate_ety(bhor).is_none());
         }
 
+        // A PIE root entry; homograph roots on one page stay separate items.
+        fn add_root(t: &mut Setup, term: &str, id: &str) -> ItemId {
+            let lang = Lang::from_str("ine-pro").unwrap();
+            let item = RealItem {
+                ety_num: 1,
+                ety_label: None,
+                lang,
+                term: Term::new(&mut t.sp, term),
+                pos: vec![Pos::root_pos()],
+                gloss: vec![Gloss::new(&mut t.sp, id)],
+                page_term: None,
+                romanization: None,
+                is_reconstructed: true,
+            };
+            let root = t.items.add_real(item).0;
+            let langterm = lang.new_langterm(&mut t.sp, term);
+            t.items.ids.insert((langterm, Box::from(id)), root);
+            root
+        }
+
+        fn set_roots(t: &mut Setup, item: ItemId, roots: &[(&str, Option<&str>)]) {
+            let lang = Lang::from_str("ine-pro").unwrap();
+            let roots = roots
+                .iter()
+                .map(|&(term, sense)| crate::root::RawRoot {
+                    langterm: lang.new_langterm(&mut t.sp, term),
+                    sense_id: sense.map(Box::from),
+                })
+                .collect();
+            t.items.raw_templates.root.insert(item, roots);
+        }
+
+        #[test]
+        fn a_prefix_root_does_not_root_the_base() {
+            // la testum has no ety; en test names its root, *ters-. Derivatives
+            // of test also name the roots of their prefixes, which their
+            // prefixes reach as another homograph (pl prze- < *per- (before),
+            // named as *per- (fare)) or partway up (en pre- < *preh₂- < *per-).
+            let mut t = Setup::new("prefix-roots");
+            let per_before = add_root(&mut t, "per-", "before");
+            add_root(&mut t, "per-", "fare");
+            let preh = add_root(&mut t, "preh₂-", "before");
+            add_root(&mut t, "ters-", "dry");
+            let testum = t.add("la", "testum");
+            let test = t.add("en", "test");
+            let pre = t.add("en", "pre-");
+            let pretest = t.add("en", "pretest");
+            let prze = t.add("pl", "prze-");
+            let przetest = t.add("pl", "przetestować");
+            let g = &mut t.items.graph;
+            g.add_ety(test, EtyMode::Derived, Some(0), &[testum], &[1.0]);
+            g.add_ety(preh, EtyMode::Derived, Some(0), &[per_before], &[1.0]);
+            g.add_ety(pre, EtyMode::Derived, Some(0), &[preh], &[1.0]);
+            g.add_ety(pretest, EtyMode::Prefix, Some(1), &[pre, test], &[1.0, 1.0]);
+            g.add_ety(prze, EtyMode::Inherited, Some(0), &[per_before], &[1.0]);
+            g.add_ety(przetest, EtyMode::Prefix, Some(1), &[prze, test], &[1.0, 1.0]);
+            set_roots(&mut t, test, &[("ters-", None)]);
+            set_roots(&mut t, pretest, &[("per-", Some("before")), ("preh₂-", None)]);
+            set_roots(&mut t, przetest, &[("per-", Some("before")), ("per-", Some("fare"))]);
+            t.items.impute_root_etys(&t.sp, &t.embeddings).unwrap();
+            assert_eq!(t.parents(testum), ["ine-pro:ters-"]);
+        }
+
+        #[test]
+        fn tied_root_votes_impute_none() {
+            // one item naming two roots its chain does not reach: either may be
+            // its progenitor's
+            let mut t = Setup::new("tied-roots");
+            add_root(&mut t, "per-", "before");
+            add_root(&mut t, "ters-", "dry");
+            let testum = t.add("la", "testum");
+            let test = t.add("en", "test");
+            t.items.graph.add_ety(test, EtyMode::Derived, Some(0), &[testum], &[1.0]);
+            set_roots(&mut t, test, &[("per-", None), ("ters-", None)]);
+            t.items.impute_root_etys(&t.sp, &t.embeddings).unwrap();
+            assert!(t.items.graph.immediate_ety(testum).is_none());
+        }
+
         #[test]
         fn the_continuation_picks_the_homograph() {
             // en bairn < enm bern < ang bearn; enm "bern" has three entries
