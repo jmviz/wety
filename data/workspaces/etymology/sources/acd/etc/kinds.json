@@ -1,0 +1,223 @@
+{
+ "source": "acd",
+ "release": "v2.0",
+ "reviewer": "claude-opus-5-5 (model review, 2026-10-31)",
+ "kinds": [
+  {
+   "where": "cognatesets.csv",
+   "category": "cognate set, main entry (Is_Main_Entry)",
+   "count": 8161,
+   "acd_description": "Comparisons with regular sound correspondences and close semantics, reconstructed at one level of the ACD tree.",
+   "wety_kind": "cognate set",
+   "status": "mapped",
+   "note": "The reconstruction and its reflexes; links are compiled from the ACD tree and marked implied."
+  },
+  {
+   "where": "cognatesets.csv",
+   "category": "cognate set, not a main entry",
+   "count": 2696,
+   "acd_description": "No description in the release; these sets sit under an etymon beside its main entry (affixed or compound forms such as *ma-m-atay under *atay).",
+   "wety_kind": "cognate set",
+   "status": "mapped",
+   "note": "As a cognate set. How a sub-entry relates to its main entry (a derivation from it?) is not documented: listed for acd-2."
+  },
+  {
+   "where": "etyma.csv",
+   "category": "etymon",
+   "count": 8161,
+   "acd_description": "Groups the reconstructions of one etymon at its successive levels.",
+   "wety_kind": "cognate set (levels of one etymon)",
+   "status": "mapped",
+   "note": "Reconstructions of one etymon at successive levels link to each other, compiled from the tree."
+  },
+  {
+   "where": "cognates.csv",
+   "category": "Doublet_Set",
+   "count": 717,
+   "acd_description": "A set of variants that are independently supported by the comparative evidence.",
+   "wety_kind": "doublet",
+   "status": "mapped",
+   "note": "Variants of one word, both endorsed; not competitors."
+  },
+  {
+   "where": "cognates.csv",
+   "category": "Disjunct_Set",
+   "count": 341,
+   "acd_description": "Variants supported only by allowing the overlap of cognate sets; only one can be consistent with the evidence, but it is unclear which.",
+   "wety_kind": "alternative set (exclusive, no preference)",
+   "status": "mapped",
+   "note": "One holder, Blust; never counted twice."
+  },
+  {
+   "where": "cognates.csv",
+   "category": "Doubt (membership)",
+   "count": 0,
+   "acd_description": "Boolean flag on a form's membership in a cognate set.",
+   "wety_kind": "certainty on a membership link: possible",
+   "status": "mapped",
+   "note": "Never true in v2.0."
+  },
+  {
+   "where": "cognatesets.csv",
+   "category": "Doubt (reconstruction)",
+   "count": 0,
+   "acd_description": "Flag indicating (un)certainty of the reconstruction.",
+   "wety_kind": "reconstruction certainty: possible",
+   "status": "mapped",
+   "note": "Never set in v2.0."
+  },
+  {
+   "where": "forms.csv",
+   "category": "Doubt (form)",
+   "count": 0,
+   "acd_description": "Proto-forms are often marked as somewhat doubtful (a \"?\" before the form).",
+   "wety_kind": "reconstruction certainty: possible",
+   "status": "mapped",
+   "note": "Never true in v2.0."
+  },
+  {
+   "where": "cognatesets.csv",
+   "category": "\"(?)\" in a set's gloss",
+   "count": 115,
+   "acd_description": "No column; the gloss of the reconstruction ends in \"(?)\", as in PWMP *andap 'phosphorescent centipede (?)'.",
+   "wety_kind": "form or sense: the sense is doubtful",
+   "status": "mapped",
+   "note": "An attribute of the reconstruction's gloss; it does not lower the link."
+  },
+  {
+   "where": "cognates.csv",
+   "category": "Metathesis",
+   "count": 444,
+   "acd_description": "A process of metathesis is assumed, explaining the apparent irregularity of a cognate.",
+   "wety_kind": "source-native: metathesis",
+   "status": "mapped",
+   "note": "Kept under the ACD's name on the membership link; shown, not followed differently."
+  },
+  {
+   "where": "cognates.csv",
+   "category": "Assimilation",
+   "count": 137,
+   "acd_description": "A process of assimilation is assumed, explaining the apparent irregularity of a cognate.",
+   "wety_kind": "source-native: assimilation",
+   "status": "mapped",
+   "note": "As Metathesis."
+  },
+  {
+   "where": "forms.csv",
+   "category": "Sic",
+   "count": 0,
+   "acd_description": "The form differs from the expected reflex, and a copying mistake has not occurred.",
+   "wety_kind": "source-native: sic",
+   "status": "mapped",
+   "note": "Never true in v2.0."
+  },
+  {
+   "where": "forms.csv",
+   "category": "Loan",
+   "count": 7323,
+   "acd_description": "The form is a loanword.",
+   "wety_kind": "borrowing",
+   "status": "mapped",
+   "note": "The form is not a reflex; with BorrowingTable below."
+  },
+  {
+   "where": "borrowings.csv",
+   "category": "borrowing",
+   "count": 7348,
+   "acd_description": "CLDF BorrowingTable: a borrowed form, in a loan group (Cfset_ID); no source form is given.",
+   "wety_kind": "borrowing from an unnamed source",
+   "status": "mapped",
+   "note": "Source_Form_ID is empty in all 7348 rows; the comment may name the donor."
+  },
+  {
+   "where": "cf.csv",
+   "category": "loan",
+   "count": 998,
+   "acd_description": "Widely distributed loanwords that could be mistaken for native forms.",
+   "wety_kind": "borrowing (CLDF BorrowingTable)",
+   "status": "mapped",
+   "note": "A group of borrowed forms; no reconstruction is endorsed."
+  },
+  {
+   "where": "cf.csv",
+   "category": "noise",
+   "count": 730,
+   "acd_description": "Chance resemblances, considered and rejected.",
+   "wety_kind": "cognacy, rejected",
+   "status": "mapped",
+   "note": "Stance rejects; no unnamed ancestor."
+  },
+  {
+   "where": "cf.csv",
+   "category": "near",
+   "count": 184,
+   "acd_description": "Forms that appear to be historically related but are irregular, and do not yet permit a reconstruction.",
+   "wety_kind": "cognacy, possible",
+   "status": "mapped",
+   "note": "An unnamed ancestor at \"possible\" when the members share no named one."
+  },
+  {
+   "where": "cf.csv",
+   "category": "root",
+   "count": 302,
+   "acd_description": "Submorphemic sound-meaning associations (Brandstetter's Wurzeln), not assigned to a proto-language.",
+   "wety_kind": "source-native: root",
+   "status": "mapped",
+   "note": "Shown, never followed."
+  },
+  {
+   "where": "cf.csv",
+   "category": "also",
+   "count": 150,
+   "acd_description": "Forms related to a cognate set that show some irregularity, given as context.",
+   "wety_kind": "source-native: also",
+   "status": "mapped",
+   "note": "Shown with the set it names (Cognateset_ID)."
+  },
+  {
+   "where": "cf.csv",
+   "category": "Dempwolff_Etymology",
+   "count": 424,
+   "acd_description": "A corresponding (unsupported) reconstruction posited in Dempwolff 1938.",
+   "wety_kind": "Dempwolff's view, reported",
+   "status": "mapped",
+   "note": "Held by Dempwolff 1938; the ACD reports it as unsupported."
+  },
+  {
+   "where": "languages.csv, trees.csv",
+   "category": "Group and the Newick tree",
+   "count": 10,
+   "acd_description": "The assumed internal classification: the ACD's reconstruction levels.",
+   "wety_kind": "the source's tree (a classification claim)",
+   "status": "mapped",
+   "note": "Recorded with the source; compiled links follow it and are flagged where it differs from Wiktionary's."
+  },
+  {
+   "where": "forms.csv, cognates.csv",
+   "category": "Source",
+   "count": 108484,
+   "acd_description": "The source dictionaries a form or a cognate judgement is taken from.",
+   "wety_kind": "credit, role data",
+   "status": "mapped",
+   "note": "Forms cite the dictionary they come from; not credits for the etymology."
+  },
+  {
+   "where": "cognatesets.csv",
+   "category": "Source",
+   "count": 0,
+   "acd_description": "Who is cited for a cognate set.",
+   "wety_kind": "credit, role follows",
+   "status": "mapped",
+   "note": "Count of sets that cite anyone."
+  },
+  {
+   "where": "etyma.csv, cognatesets.csv, cognates.csv",
+   "category": "Comment, Doublet_Comment, Disjunct_Comment",
+   "count": 7534,
+   "acd_description": "Prose notes: arguments, further comparisons, attributions.",
+   "wety_kind": null,
+   "status": "unmapped",
+   "note": "Prose: model extraction (syn-2) may read them; until then shown as notes."
+  }
+ ]
+}

@@ -1,0 +1,63 @@
+{
+ "id": "acd",
+ "title": "Austronesian Comparative Dictionary",
+ "release": "v2.0",
+ "doi": "10.5281/zenodo.14608975",
+ "concept_doi": "10.5281/zenodo.7737547",
+ "published": "2025-01-07",
+ "creators": [
+  "Robert Blust",
+  "Stephen Trussel",
+  "Robert Forkel",
+  "Alexander D. Smith"
+ ],
+ "cite_as": "Robert Blust and Stephen Trussel 2020. The Austronesian Comparative Dictionary. Web edition; CLDF dataset v2.0, doi:10.5281/zenodo.14608975.",
+ "url": "https://acd.clld.org",
+ "repository": "https://github.com/lexibank/acd (archive directory lexibank-acd-16085f2)",
+ "artifact": {
+  "path": "data/artifacts/acd/6141f908af0b7e9733176e838b59e586c092e78f405c874b8dff0baaf3447d01",
+  "artifact_id": "sha256:5dc62b3f216407d4b5b5a01c180ee3dd9da9e0835ce0d8594c6c3af4a644648d",
+  "sha256": "6141f908af0b7e9733176e838b59e586c092e78f405c874b8dff0baaf3447d01",
+  "acquired": "2026-10-31T23:24:04.839403+00:00"
+ },
+ "raw": "data/workspaces/etymology/sources/acd/raw/lexibank-acd-16085f2",
+ "kind_of_work": "set-centric comparative dictionary of the Austronesian family, as a CLDF Wordlist (lexibank, pyetymdict-style tables)",
+ "holder": "Robert Blust (with Stephen Trussel), as the ACD's author; the CLDF conversion is by Forkel and Smith",
+ "date_of_view": "2020 web edition, converted 2023-2025",
+ "coverage": {
+  "etyma": 8161,
+  "cognate_sets": 10857,
+  "cognate_judgements": 121682,
+  "forms": 146733,
+  "varieties": 1022,
+  "proto_languages": 42,
+  "reconstruction_levels": [
+   "PAN",
+   "Formosan",
+   "PMP",
+   "PWMP",
+   "PPH",
+   "PCEMP",
+   "PCMP",
+   "PEMP",
+   "PSHWNG",
+   "POC"
+  ],
+  "cf_groups": {
+   "loan": 998,
+   "noise": 730,
+   "root": 302,
+   "near": 184,
+   "also": 150
+  }
+ },
+ "glottolog": "The release maps its languages with Glottolog v5.1; wety's catalogs read Glottolog 5.3.",
+ "licence": "CC-BY-4.0",
+ "may_display": "everything, with attribution",
+ "may_export": "everything, with attribution",
+ "curation": {
+  "language_map": "etc/languages.json (from etc/languages.reviewed.json and the catalog bundle)",
+  "kind_map": "etc/kinds.json",
+  "orthography_profile": "none yet: ACD writes schwa as e where Wiktionary writes ə (acd-3)"
+ }
+}

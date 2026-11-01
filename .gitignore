@@ -32,7 +32,7 @@ __pycache__/
 !/data/products/dating/language_periods.json
 
 # Small references code reads: build configuration, locks, product pointers, the
-# 2026-09 relocation map, curated catalog inputs.
+# 2026-09 relocation map, curated catalog inputs, etymological sources' curation files.
 !/data/registry/source-lock.json
 !/data/registry/source-recipes.json
 !/data/registry/artifacts.json
@@ -42,6 +42,7 @@ __pycache__/
 !/data/products/iecor/iecor_matches_receipt.json
 !/data/workspaces/catalogs/overrides.json
 !/data/workspaces/catalogs/sources/manifest.json
+!/data/workspaces/etymology/sources/*/etc/**
 
 # The research-data snapshot this commit was made with.
 !/data/SNAPSHOT.json
