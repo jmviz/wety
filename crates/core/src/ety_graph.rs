@@ -80,6 +80,16 @@ pub struct Etymologies {
     pub primary: Option<u8>,
 }
 
+// Of alternatives with these weakest links, the one firmer than every other,
+// if there is one.
+fn primary(weakest: &[Certainty]) -> Option<u8> {
+    let firmest = weakest.iter().min()?;
+    match weakest.iter().positions(|w| w == firmest).collect_vec()[..] {
+        [only] => u8::try_from(only).ok(),
+        _ => None,
+    }
+}
+
 /// One etymology to add: its parents, each with the homograph confidence and
 /// the certainty of its link.
 pub struct NewEtymology<'a> {
@@ -265,7 +275,8 @@ impl EtyGraph {
     }
 
     /// Break every cycle at its weakest link: in each cycle, remove the ety of
-    /// the member that `weakness` ranks greatest. Returns the number of etys
+    /// the member that `weakness` ranks greatest, or only the alternative that
+    /// leads into the cycle when it has others. Returns the number of etys
     /// removed.
     pub fn break_cycles<K: Ord>(&mut self, weakness: impl Fn(&Self, ItemId) -> K) -> usize {
         let mut removed = 0;
@@ -277,11 +288,13 @@ impl EtyGraph {
             scc.sort_unstable(); // a deterministic search order
             let members: HashSet<ItemId> = scc.iter().copied().collect();
             while let Some(cycle) = self.find_cycle(&scc, &members) {
-                let weakest = cycle
-                    .into_iter()
-                    .max_by_key(|&item| (weakness(self, item), item))
+                // each member's parent in the cycle is the next member
+                let (i, &weakest) = cycle
+                    .iter()
+                    .enumerate()
+                    .max_by_key(|&(_, &item)| (weakness(self, item), item))
                     .expect("a cycle has members");
-                self.remove_ety(weakest);
+                self.remove_ety_through(weakest, cycle[(i + 1) % cycle.len()]);
                 removed += 1;
             }
         }
@@ -334,6 +347,47 @@ impl EtyGraph {
         None
     }
 
+    /// Remove the etymology by which an item descends from `parent`, keeping
+    /// its alternatives, if it has any; the primary among those left is chosen
+    /// as add_etymologies chooses it.
+    fn remove_ety_through(&mut self, item: ItemId, parent: ItemId) {
+        let n = self.etymologies.get(&item).map_or(1, |e| e.kinds.len());
+        let Some(ety) = self
+            .parent_edges(item)
+            .find(|e| e.parent() == parent)
+            .map(|e| e.ety())
+            .filter(|_| n > 1)
+        else {
+            self.remove_ety(item);
+            return;
+        };
+        let edge_ids = self.graph.edges(item).map(|e| e.id()).collect_vec();
+        let mut weakest = vec![Certainty::Stated; n - 1];
+        for edge_id in edge_ids {
+            let edge = &mut self.graph[edge_id];
+            if edge.ety == ety {
+                self.graph.remove_edge(edge_id);
+                continue;
+            }
+            if edge.ety > ety {
+                edge.ety -= 1;
+            }
+            let w = &mut weakest[edge.ety as usize];
+            *w = (*w).max(edge.certainty);
+        }
+        if n == 2 {
+            self.etymologies.remove(&item);
+        } else {
+            self.etymologies.insert(
+                item,
+                Etymologies {
+                    kinds: vec![EtyKind::Derivation; n - 1].into_boxed_slice(),
+                    primary: primary(&weakest),
+                },
+            );
+        }
+    }
+
     /// Remove an item's etys (its edges to its parents, of every etymology).
     pub fn remove_ety(&mut self, item: ItemId) {
         let edge_ids = self.graph.edges(item).map(|e| e.id()).collect_vec();
@@ -372,19 +426,15 @@ impl EtyGraph {
             }
         }
         if etys.len() > 1 {
-            let weakest = |new: &NewEtymology<'_>| new.certainties.iter().max().copied();
-            let firmest = etys.iter().map(weakest).min().flatten();
-            let firmest_etys = etys.iter().filter(|e| weakest(e) == firmest).count();
-            let primary = etys
+            let weakest: Vec<Certainty> = etys
                 .iter()
-                .position(|e| weakest(e) == firmest)
-                .filter(|_| firmest_etys == 1)
-                .and_then(|i| u8::try_from(i).ok());
+                .map(|new| new.certainties.iter().max().copied().unwrap_or_default())
+                .collect();
             self.etymologies.insert(
                 item,
                 Etymologies {
                     kinds: vec![EtyKind::Derivation; etys.len()].into_boxed_slice(),
-                    primary,
+                    primary: primary(&weakest),
                 },
             );
         }
@@ -473,57 +523,46 @@ impl Progenitors {
     }
 }
 
-struct Tracker {
-    unexpanded: Vec<ItemId>,
-    progenitors: HashSet<ItemId>,
-    head: Option<ItemId>,
-    expanded: HashSet<ItemId>,
-    cycle_found: bool,
-}
-
 impl EtyGraph {
+    /// The items an item's etymology ends at, along every followed line, and
+    /// the end of its head line. None if the lines run into a cycle; two lines
+    /// may meet (alternatives from one source word) without one.
     #[must_use]
     pub fn progenitors(&self, item: ItemId) -> Option<Progenitors> {
         let immediate_ety = self.immediate_ety(item)?;
-        let head = immediate_ety.head();
-        let mut t = Tracker {
-            unexpanded: immediate_ety.items,
-            progenitors: HashSet::default(),
-            head,
-            expanded: HashSet::default(),
-            cycle_found: false,
-        };
-        self.progenitors_recurse(&mut t);
-        if t.cycle_found {
-            return None;
-        }
-        let head = t.head;
-        Some(Progenitors::new(t.progenitors, head))
-    }
-
-    fn progenitors_recurse(&self, t: &mut Tracker) {
-        while !t.cycle_found
-            && let Some(item) = t.unexpanded.pop()
-        {
-            if !t.expanded.insert(item) {
-                t.cycle_found = true;
-                return;
+        let mut head = immediate_ety.head();
+        let mut progenitors = HashSet::default();
+        let mut done: HashSet<ItemId> = HashSet::default();
+        let mut on_path: HashSet<ItemId> = HashSet::from_iter([item]);
+        let mut path = vec![(item, immediate_ety.items.into_iter())];
+        while let Some((current, parents)) = path.last_mut() {
+            let Some(parent) = parents.next() else {
+                let current = *current;
+                on_path.remove(&current);
+                done.insert(current);
+                path.pop();
+                continue;
+            };
+            if on_path.contains(&parent) {
+                return None;
             }
-            if let Some(immediate_ety) = self.immediate_ety(item) {
-                let ety_head = immediate_ety.head();
-                for &ety_item in &immediate_ety.items {
-                    if t.head.is_some_and(|h| h == item)
-                        && ety_head.is_some_and(|eh| eh == ety_item)
-                    {
-                        t.head = ety_head;
-                    }
-                    t.unexpanded.push(ety_item);
-                }
-                self.progenitors_recurse(t);
+            if done.contains(&parent) {
+                continue;
+            }
+            if let Some(ety) = self.immediate_ety(parent) {
+                on_path.insert(parent);
+                path.push((parent, ety.items.into_iter()));
             } else {
-                t.progenitors.insert(item);
+                progenitors.insert(parent);
+                done.insert(parent);
             }
         }
+        // the head line, up to an item without a head (a compound) or a
+        // progenitor
+        while let Some(next) = head.and_then(|h| self.immediate_ety(h)?.head()) {
+            head = Some(next);
+        }
+        Some(Progenitors::new(progenitors, head))
     }
 
     #[must_use]
@@ -714,6 +753,48 @@ mod tests {
             graph.parent_edges(v).next().unwrap().certainty(),
             Certainty::Possible
         );
+    }
+
+    #[test]
+    fn alternatives_that_meet_are_no_cycle_and_a_cycle_loses_one() {
+        let mut graph = EtyGraph::default();
+        let [w, a, b, c, d] = items(&mut graph, &["w", "a", "b", "c", "d"])[..] else {
+            unreachable!()
+        };
+        let stated = [Certainty::Stated];
+        // "From A or B", both from C: C is reached twice, and is the one
+        // progenitor
+        graph.add_etymologies(w, &[new_ety(&[a], &stated), new_ety(&[b], &stated)]);
+        graph.add_etymologies(a, &[new_ety(&[c], &stated)]);
+        graph.add_etymologies(b, &[new_ety(&[c], &stated)]);
+        let progenitors = graph.progenitors(w).unwrap();
+        assert_eq!((&progenitors.items[..], progenitors.head), (&[c][..], None));
+        // A from W closes a cycle through W's first alternative; breaking it at
+        // W removes that alternative only
+        graph.add_etymologies(a, &[new_ety(&[w], &stated)]);
+        assert!(graph.progenitors(w).is_none());
+        graph.break_cycles(|_, item| u8::from(item == w));
+        assert!(graph.etymologies(w).is_none());
+        let ety = graph.immediate_ety(w).unwrap();
+        assert_eq!((ety.items, ety.head), (vec![b], Some(0)));
+        // of three, the two left keep no primary between them
+        let [x, y, z] = items(&mut graph, &["x", "y", "z"])[..] else {
+            unreachable!()
+        };
+        graph.add_etymologies(
+            d,
+            &[
+                new_ety(&[x], &stated),
+                new_ety(&[y], &stated),
+                new_ety(&[z], &stated),
+            ],
+        );
+        graph.add_etymologies(x, &[new_ety(&[d], &stated)]);
+        graph.break_cycles(|_, item| u8::from(item == d));
+        assert_eq!(graph.etymologies(d).unwrap().primary, None);
+        assert_eq!(graph.immediate_ety(d).unwrap().items, [y, z]);
+        let etys = graph.all_parent_edges(d).map(|e| e.ety()).sorted();
+        assert_eq!(etys.collect_vec(), [0, 1]);
     }
 
     #[test]

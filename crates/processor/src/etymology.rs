@@ -840,6 +840,12 @@ impl Items {
                 Resolution::Found { item, confidence } => (item, confidence),
                 Resolution::Missing => (self.impute_item(ety_langterm, item), 0.0),
             };
+            // two terms that name one item ("from *bratrъ and *bratъ", one
+            // entry) give one parent, unless they are parts of a word
+            // (reduplication)
+            if template.affixes.is_empty() && ety_items.contains(&ety_item) {
+                continue;
+            }
             ety_items.push(ety_item);
             confidences.push(confidence);
             certainties.push(if part.is_some_and(|p| p.uncertain) {
@@ -848,7 +854,10 @@ impl Items {
                 template.certainty
             });
         }
-        let (mode, head) = self.revise_affixes(template, &ety_items);
+        let (mode, mut head) = self.revise_affixes(template, &ety_items);
+        if ety_items.len() == 1 {
+            head = Some(0);
+        }
         Ok(Resolved {
             items: ety_items,
             confidences,
@@ -934,16 +943,17 @@ impl Items {
                 },
                 _ => false,
             };
+            // judged per alternative: one that keeps to entries or is not
+            // weak is reason enough to replace the existing ety
             let loses_entry = etys
                 .iter()
-                .flat_map(|e| &e.items)
-                .any(|&e| self.get(e).is_imputed())
+                .all(|e| e.items.iter().any(|&p| self.get(p).is_imputed()))
                 && existing.items.iter().all(|&e| !self.get(e).is_imputed());
             // a lone {{m}} or a form-of sense, used when there is no
             // etymology proper, is weaker evidence than a Descendants list
             let weak = etys
                 .iter()
-                .any(|e| matches!(e.mode, EtyMode::Mention | EtyMode::Form));
+                .all(|e| matches!(e.mode, EtyMode::Mention | EtyMode::Form));
             if more_specific || loses_entry || weak {
                 return false;
             }
@@ -1385,6 +1395,17 @@ mod tests {
             assert_eq!(t.parents(tiger), ["la:tigris?"]);
             assert_eq!(t.items.graph.etymologies(tiger).unwrap().primary, Some(0));
             assert_eq!(t.items.graph.all_parent_edges(tiger).count(), 2);
+            // two terms joined by "and" naming one entry ("from *bratrъ and
+            // *bratъ"): one parent, the head
+            t.add("sla-pro", "bratrъ");
+            let bratru = t.add("cu", "братръ");
+            t.process(
+                bratru,
+                r#"[{"name": "etymon", "args": {"1": "cu", "2": ":inh<conj:and>",
+                    "3": "sla-pro:*bratrъ", "4": "sla-pro:*bratrъ"}}]"#,
+            );
+            assert_eq!(t.parents(bratru), ["sla-pro:bratrъ"]);
+            assert_eq!(t.items.graph.immediate_ety(bratru).unwrap().head, Some(0));
             // {{unk}}: known to be unknown
             let unk = t.add("ro", "prăștilă");
             t.process(unk, r#"[{"name": "unk", "args": {"1": "ro"}}]"#);
@@ -1520,6 +1541,24 @@ mod tests {
                 r#"[{"name": "inh", "args": {"1": "en", "2": "enm", "3": "Octobere"}}]"#,
             );
             assert_eq!(t.parents(october2), ["enm:Octobre"]);
+            // alternatives, one of them missing from the data, still win:
+            // the other keeps to an entry
+            let ang = t.add("ang", "Æþelbeorht");
+            let albert = t.add("en", "Albert");
+            t.items.graph.add_ety(
+                albert,
+                EtyMode::Borrowed,
+                Some(0),
+                EdgeBasis::Descendants,
+                &[ang],
+                &[0.9],
+            );
+            t.process(
+                albert,
+                r#"[{"name": "etymon", "args": {"1": "en", "2": ":inh", "3": "ang:Æþelbeorht",
+                    "4": ":der", "5": "fro:Albert"}}]"#,
+            );
+            assert_eq!(t.parents(albert), ["ang:Æþelbeorht", "fro:Albert?"]);
         }
 
         #[test]

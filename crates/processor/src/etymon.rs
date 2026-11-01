@@ -284,6 +284,30 @@ fn single_template(
     })
 }
 
+// Terms joined by "and" after one keyword, as one template: several parents,
+// none of them the head.
+fn joined_template(
+    string_pool: &mut StringPool,
+    etymons: &[&Etymon],
+    mode: EtyMode,
+    certainty: Certainty,
+) -> Option<RawEtyTemplate> {
+    let mut langterms = Vec::with_capacity(etymons.len());
+    for etymon in etymons {
+        langterms.push(etymon.lang.new_langterm(string_pool, etymon.term?));
+    }
+    (!langterms.is_empty()).then(|| RawEtyTemplate {
+        langterms: langterms.into_boxed_slice(),
+        parts: etymons.iter().map(|e| e.part()).collect(),
+        continues: false,
+        refine_mode: false,
+        affixes: Box::default(),
+        mode,
+        head: None,
+        certainty,
+    })
+}
+
 // A keyword group: its keyword, its modifiers and its etymons.
 struct Group<'a> {
     keyword: Keyword,
@@ -390,16 +414,18 @@ fn parse_params(
         // may continue it
         let mut found: Vec<(Option<RawEtyTemplate>, Option<&Etymon>)> = vec![];
         match group.keyword {
-            Keyword::Single(mode) if group.joins_by_and() && group.etymons.len() > 1 => {
-                let template =
-                    components_template(string_pool, &group.etymons, Some(mode), certainty).map(
-                        |mut t| {
-                            t.affixes = Box::default();
-                            t.head = None;
-                            t
-                        },
-                    );
-                found.push((template, None));
+            Keyword::Single(mode) if group.joins_by_and() => {
+                // an etymon naming only a language ("de:", "fr:-") gives no
+                // parent
+                let named: Vec<&Etymon> =
+                    group.etymons.iter().filter(|e| e.term.is_some()).collect();
+                found.push(match named[..] {
+                    [single] => (
+                        single_template(string_pool, single, mode, certainty),
+                        Some(single),
+                    ),
+                    _ => (joined_template(string_pool, &named, mode, certainty), None),
+                });
             }
             Keyword::Single(mode) => {
                 for etymon in &group.etymons {
@@ -627,6 +653,32 @@ mod tests {
                 EtyMode::Borrowed,
                 None,
                 vec![lt("fr", "de", Some("of")), lt("la", "dē", Some("of"))]
+            ))]]
+        );
+        // "Borrowed from German inszenieren and French (mettre) en scène": an
+        // etymon naming only a language gives no parent
+        let got = parse_all(
+            r#"{"1": "nl", "2": ":bor<conj:and>", "3": "de:inszenieren", "4": "fr:-"}"#,
+            "nl",
+        );
+        assert_eq!(
+            got,
+            [vec![Some((
+                EtyMode::Borrowed,
+                Some(0),
+                vec![lt("de", "inszenieren", None)]
+            ))]]
+        );
+        let got = parse_all(
+            r#"{"1": "ia", "2": ":bor<conj:and>", "3": "en:conquer", "4": "fr:conquérir", "5": "pt:"}"#,
+            "ia",
+        );
+        assert_eq!(
+            got,
+            [vec![Some((
+                EtyMode::Borrowed,
+                None,
+                vec![lt("en", "conquer", None), lt("fr", "conquérir", None)]
             ))]]
         );
     }
