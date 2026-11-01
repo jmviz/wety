@@ -1,0 +1,128 @@
+[
+ {
+  "id": "19083",
+  "relation": "exact",
+  "code": "phi-pro",
+  "rationale": "Same group by name: ACD's Proto-Philippines and Wiktionary's Proto-Philippine; ACD gives no glottocode and Wiktionary's family phi has none.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-10-31)"
+ },
+ {
+  "id": "19074",
+  "relation": "exact",
+  "code": "poz-cet-pro",
+  "rationale": "Same node by name: Central-Eastern Malayo-Polynesian; neither side has a glottocode the catalog links.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-10-31)"
+ },
+ {
+  "id": "20001",
+  "relation": "exact",
+  "code": "pqe-pro",
+  "rationale": "Same node by name: Eastern Malayo-Polynesian; the catalog gives pqe-pro only family context for east2712.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-10-31)"
+ },
+ {
+  "id": "19084",
+  "relation": "exact",
+  "code": "poz-pol-pro",
+  "rationale": "Proto-Polynesian is poly1242; the catalog also gives that glottocode to Wiktionary's Eastern Polynesian family (poz-pep), which is narrower.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-10-31)"
+ },
+ {
+  "id": "19075",
+  "relation": "exact",
+  "code": "cmc-pro",
+  "rationale": "Same group by name: Chamic; ACD gives no glottocode.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-10-31)"
+ },
+ {
+  "id": "19086",
+  "relation": "exact",
+  "code": "dru-pro",
+  "rationale": "Same name, Proto-Rukai; ACD's glottocode ruka1240 is the Rukai language, and Wiktionary files dru-pro under the family map.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-10-31)"
+ },
+ {
+  "id": "19187",
+  "relation": "exact",
+  "code": "poz-btk-pro",
+  "rationale": "Same group by name: Bungku-Tolaki; ACD gives no glottocode.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-10-31)"
+ },
+ {
+  "id": "19296",
+  "relation": "exact",
+  "code": "poz-lgx-pro",
+  "rationale": "Same group by name: Lampungic; ACD's glottocode lamp1241 and Wiktionary's family glottocode lamp1243 differ, so the lookup missed it.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-10-31)"
+ },
+ {
+  "id": "19092",
+  "relation": "exact",
+  "code": "poz-ssw-pro",
+  "rationale": "Same group by name: South Sulawesi; ACD gives no glottocode.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-10-31)"
+ },
+ {
+  "id": "19094",
+  "relation": "unresolved",
+  "code": null,
+  "rationale": "Wiktionary has no Proto-Western Malayo-Polynesian code; WMP is a geographic grouping, not a subgroup, in Blust's own usage.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-10-31)"
+ },
+ {
+  "id": "19076",
+  "relation": "unresolved",
+  "code": null,
+  "rationale": "Wiktionary has no Proto-Central Malayo-Polynesian code.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-10-31)"
+ },
+ {
+  "id": "19137",
+  "relation": "unresolved",
+  "code": null,
+  "rationale": "Wiktionary has no Proto-Malayo-Javanic code; its Malayo-Sumbawan (poz-msa) and Malayo-Chamic (poz-mcm) are other groupings.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-10-31)"
+ },
+ {
+  "id": "20004",
+  "relation": "unresolved",
+  "code": null,
+  "rationale": "ACD's 'Formosan' is a level of comparison, not a subgroup; Wiktionary has no code for it.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-10-31)"
+ },
+ {
+  "id": "326",
+  "relation": "exact",
+  "code": "ms",
+  "rationale": "ACD's Malay is Wilkinson 1959, standard peninsular Malay; Wiktionary's ms holds Malay as its standard is written. The catalog links no glottocode to ms.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-10-31)"
+ },
+ {
+  "id": "244",
+  "relation": "exact",
+  "code": "bcl",
+  "rationale": "ACD's Bikol is Mintz and del Rosario Britanico 1985, the Naga standard, which is Central Bikol; ACD's glottocode biko1240 names the whole Bikol group.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-10-31)"
+ },
+ {
+  "id": "246",
+  "relation": "exact",
+  "code": "lbk",
+  "rationale": "ACD's Bontok is Reid 1976, Guina-ang Bontok, a Central Bontoc variety; ACD's glottocode bont1247 names all Bontok.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-10-31)"
+ },
+ {
+  "id": "18432",
+  "relation": "exact",
+  "code": "mg",
+  "rationale": "ACD's Malagasy is Richardson 1885, Merina, on which standard Malagasy rests; Wiktionary's mg holds standard Malagasy. The catalog links no glottocode to mg.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-10-31)"
+ },
+ {
+  "id": "722",
+  "relation": "exact",
+  "code": "ljp",
+  "rationale": "Same language: Glottolog lamp1243 is Lampung Api, Wiktionary's ljp; the catalog links no glottocode to ljp.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-10-31)"
+ }
+]

@@ -1,0 +1,36 @@
+{
+ "source": "lila-edl",
+ "rows": [
+  {
+   "id": "PIE",
+   "name": "Proto-Indo-European",
+   "relation": "exact",
+   "code": "ine-pro",
+   "candidates": [],
+   "count": 1394,
+   "basis": "LiLa's lime:language label for de Vaan's PIE reconstructions",
+   "reviewer": "claude-opus-5-5 (model review, 2026-10-31)"
+  },
+  {
+   "id": "PIt",
+   "name": "Proto-Italic",
+   "relation": "exact",
+   "code": "itc-pro",
+   "candidates": [],
+   "count": 1466,
+   "basis": "LiLa's lime:language label for de Vaan's Proto-Italic reconstructions",
+   "reviewer": "claude-opus-5-5 (model review, 2026-10-31)"
+  },
+  {
+   "id": "Latin",
+   "name": "Latin",
+   "relation": "exact",
+   "code": "la",
+   "candidates": [],
+   "count": 1453,
+   "basis": "every ontolex:LexicalEntry in the lexicon is a Latin lemma of de Vaan's, linked to LiLa's Lemma Bank; the data carry no language tag for them",
+   "reviewer": "claude-opus-5-5 (model review, 2026-10-31)"
+  }
+ ],
+ "note": "de Vaan cites Oscan, Umbrian and other Italic and IE forms in his entries, but LiLa encodes only the PIE and Proto-Italic etymons; the language map grows if lila-2 finds other labels."
+}
