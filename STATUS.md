@@ -44,9 +44,10 @@ and citations from reviewed evidence in the `packages/dating` registry.
 
 ## Next three actions
 
-1. acd-1 and lila-1: retain ACD v2.0 and LiLa's de Vaan data with their curation
-   files (awaiting the maintainer's yes to download).
-2. core-2: the assertion schema, drafted against Wiktionary, ACD and LiLa samples.
+1. core-2, the assertion schema, on a branch holding both core-1 and lila-1
+   (`claude/claims-lila-1`, stacked on acd-1, both cut from `921b69a0`; their checks
+   passed). Joining them needs the maintainer's word.
+2. acd-2 and lila-2: the converters, once core-2 lands.
 3. Maintainer: review the stack; ship server, client and graph `a1bdab67` together.
 
 ## Decisions needed from the maintainer
