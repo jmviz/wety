@@ -109,9 +109,9 @@ def canonical_term(d):
     word = d["word"]
     for form in d.get("forms") or []:
         f = form.get("form")
-        if "canonical" in (form.get("tags") or []) and f and "," not in f:
-            if len(f.split()) == len(word.split()):
-                return f
+        tags = form.get("tags") or []
+        if "canonical" in tags and f and "," not in f and len(f.split()) == len(word.split()):
+            return f
     return word
 
 
