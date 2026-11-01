@@ -143,20 +143,20 @@ class Convert(unittest.TestCase):
             counts = result["counts"]
             self.assertEqual(result["errors"], [])
             with gzip.open(tmp / "entry_credits.jsonl.gz", "rt") as f:
-                got = {tuple(d["entry"]): d for d in map(json.loads, f)}
+                got = {(d["page"], d["lang"], d["label"]): d for d in map(json.loads, f)}
         edl = "work:wiktionary:R:itc:EDL"
-        one = {(c["work"], c.get("locator")) for c in got["lupus", "Latin", "1"]["credits"]}
-        two = {(c["work"], c.get("locator")) for c in got["lupus", "Latin", "2"]["credits"]}
+        one = {(c["work"], c.get("locator")) for c in got["lupus", "la", "1"]["credits"]}
+        two = {(c["work"], c.get("locator")) for c in got["lupus", "la", "2"]["credits"]}
         # The redirect R:la:EDL is the same work.
         self.assertIn((edl, "353"), one)
         # A language-wide section; with no template page, no argument is known to be a page.
         self.assertIn(("work:wiktionary:R:la:Gaffiot", None), one)
         self.assertNotIn((edl, "353"), two)
         self.assertEqual(
-            got["lupus", "English", None]["credits"],
+            got["lupus", "en", None]["credits"],
             [{"work": edl, "role": "follows", "scope": "entry", "locator": "10"}],
         )
-        self.assertEqual(got["lupus", "Latin", "1"]["record"], "wiktionary:la:lupus<1>")
+        self.assertEqual(got["lupus", "la", "1"]["record"], "wiktionary:la:lupus#1")
         self.assertEqual(counts["entries with Further reading works"], 2)
         self.assertTrue(any(w.startswith("work:wiktionary:cite:") for w, _ in two))
 

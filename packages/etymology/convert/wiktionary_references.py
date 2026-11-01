@@ -102,26 +102,47 @@ def ety_label(d):
     return label or None
 
 
+def canonical_term(d):
+    """The form the processor names an entry by (`get_canonical_term`): its canonical
+    form ("vocō" on page voco) when it has as many words as the page title, else the
+    page's word."""
+    word = d["word"]
+    for form in d.get("forms") or []:
+        f = form.get("form")
+        if "canonical" in (form.get("tags") or []) and f and "," not in f:
+            if len(f.split()) == len(word.split()):
+                return f
+    return word
+
+
+def ety_num(label):
+    """The processor's etymology number for a label (Wiktionary's number, else 1). It
+    raises the number of an entry whose term and number another page already took."""
+    return int(label) if label and label.isdigit() and int(label) <= 255 else 1
+
+
 def entries(wiktextract, out):
     """One row per entry key (page, language, etymology label), deduplicated as the
-    processor and the core-2 scan do; `ety` says whether any of its lines has an
-    etymology (text or templates)."""
+    processor and the core-2 scan do, with the entry's language code and canonical term;
+    the last field says whether any of its lines has an etymology (text or templates)."""
     seen = {}
     with gzip.open(wiktextract, "rt", encoding="utf-8") as f:
         for line in f:
             d = json.loads(line)
             if not d.get("word") or not d.get("lang_code") or "pos" not in d:
                 continue
+            if "," in d["word"] or "phrase" in d["pos"]:
+                continue  # the processor ignores these (`should_ignore_term`, `_pos`)
             key = (page_title(d), d["lang"], ety_label(d))
             has = bool(d.get("etymology_text") or d.get("etymology_templates"))
             row = seen.get(key)
             if row is None:
-                seen[key] = [d["lang_code"], d["word"], has]
+                seen[key] = [d["lang_code"], canonical_term(d), has]
             elif has:
                 row[2] = True
     with gzip.open(out, "wt", encoding="utf-8") as f:
-        for (page, lang, ety), (code, word, has) in seen.items():
-            f.write(json.dumps([page, lang, ety, code, word, has], ensure_ascii=False) + "\n")
+        for (page, lang, ety), (code, term, has) in seen.items():
+            f.write(json.dumps([page, lang, ety, code, term, has], ensure_ascii=False) + "\n")
     with_ety = sum(1 for r in seen.values() if r[2])
     return {"entries": len(seen), "with an etymology": with_ety}
 
@@ -467,9 +488,15 @@ def works_in(bib, out, body):
     return found
 
 
-def record_id(code, word, ety):
-    """The id core-2's converter gives an entry's word."""
-    return f"{NAME}:{code}:{word}" + (f"<{ety}>" if ety else "")
+def record_id(code, term, label):
+    """The id the processor gives an entry's word (`graph-assertions`), unless another
+    page took its term and number first; (page, code, label) always identify it."""
+    return f"{NAME}:{code}:{term}#{ety_num(label)}"
+
+
+def entry_key(key, code):
+    page, _, label = key
+    return {"page": page, "lang": code, "label": label, "ety_num": ety_num(label)}
 
 
 def convert(sections_path, entries_path, out_dir):
@@ -498,7 +525,7 @@ def convert(sections_path, entries_path, out_dir):
             if (page, lang) in wanted:
                 index[page, lang].append((ety, code, word, has))
     credits = collections.defaultdict(dict)
-    further = collections.defaultdict(set)
+    further = collections.defaultdict(lambda: (None, set()))
     with_section = {}
     for s in sections:
         kind = s["kind"]
@@ -521,7 +548,7 @@ def convert(sections_path, entries_path, out_dir):
                 for wid, loc, _ in found:
                     credits[key].setdefault((wid, loc), (code, word, has))
             else:
-                further[key].update(wid for wid, _, _ in found)
+                further[key] = (code, further[key][1] | {wid for wid, _, _ in found})
     counts["entries with a References section"] = len(with_section)
     counts["entries with an etymology and a References section"] = sum(with_section.values())
     counts["objects"] = out.write(out_dir / "assertions.jsonl")
@@ -530,8 +557,7 @@ def convert(sections_path, entries_path, out_dir):
             code, word, has = next(iter(cs.values()))
             counts["entries credited"] += 1
             counts["entries with an etymology credited"] += has
-            row = {
-                "entry": list(key),
+            row = entry_key(key, code) | {
                 "record": record_id(code, word, key[2]),
                 "etymology": has,
                 "credits": [
@@ -543,10 +569,9 @@ def convert(sections_path, entries_path, out_dir):
             counts["credits"] += len(row["credits"])
             f.write(json.dumps(row, ensure_ascii=False) + "\n")
     with gzip.open(out_dir / "further_reading.jsonl.gz", "wt", encoding="utf-8") as f:
-        for key, ws in further.items():
-            f.write(
-                json.dumps({"entry": list(key), "works": sorted(ws)}, ensure_ascii=False) + "\n"
-            )
+        for key, (code, ws) in further.items():
+            row = entry_key(key, code) | {"works": sorted(ws)}
+            f.write(json.dumps(row, ensure_ascii=False) + "\n")
     counts["entries with Further reading works"] = len(further)
     return {
         "counts": dict(sorted(counts.items())),
