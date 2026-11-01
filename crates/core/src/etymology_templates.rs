@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use strum::{AsRefStr, EnumString, IntoStaticStr};
+use strum::{AsRefStr, EnumIter, EnumString, IntoStaticStr};
 
 #[derive(
     Hash,
@@ -11,6 +11,7 @@ use strum::{AsRefStr, EnumString, IntoStaticStr};
     AsRefStr,
     IntoStaticStr,
     EnumString,
+    EnumIter,
     Serialize,
     Deserialize,
 )]
