@@ -1,10 +1,10 @@
-"""Offline checks of the assertion schema, its cross-record rules and the sample converter."""
+"""Offline checks of the assertion schema, its cross-record rules and the converters."""
 
 import copy
 import unittest
 
 from etymology import assertions as A
-from etymology.convert import wiktionary
+from etymology.convert import acd, wiktionary
 
 SOURCE = {
     "type": "source",
@@ -138,6 +138,30 @@ class Validate(unittest.TestCase):
         objs[10]["in_sets"] = [other["id"]]
         self.assertTrue(any(other["id"] in e for e in A.validate(objs)))
 
+    def test_cognate_set_names_something(self):
+        objs = objects()
+        cs = {
+            "type": "cognate_set",
+            "id": "demo:set",
+            "source": "demo@1",
+            "reconstruction": "demo:wlkos",
+            "members": [],
+        }
+        self.assertEqual(A.validate([*objs, cs]), [])
+        cs["reconstruction"] = None
+        self.assertTrue(any("neither" in e for e in A.validate([*objs, cs])))
+
+    def test_compiled_only_by_a_rule(self):
+        objs = objects()
+        objs[10]["compiled"] = {"from": "tree", "words": "implied by the tree"}
+        errors = A.validate(objs)
+        self.assertTrue(any("compiled, but its asserter is not a rule" in e for e in errors))
+        objs[1]["kind"] = "rule"
+        self.assertEqual(A.validate(objs), [])
+        objs[12]["compiled"] = {"from": "tree", "words": "implied by the tree"}
+        errors = A.validate(objs)
+        self.assertTrue(any("compiled, but its target is not a hypothesis" in e for e in errors))
+
     def test_extensions_are_named_by_a_source(self):
         objs = objects()
         objs[3]["x"] = {"other": {"note": 1}}
@@ -172,6 +196,56 @@ class Registry(unittest.TestCase):
         for key, row in A.extensions().items():
             self.assertIn(row["kind"], ("design", "source-native"), key)
             self.assertTrue(row["means"], key)
+
+
+class AcdTree(unittest.TestCase):
+    """Placing languages on the ACD's tree of reconstruction levels."""
+
+    NEWICK = "(20004,((19083)19094,(19076,(20002,19082)20001)19074)19081)19072"
+    ABBR = {  # noqa: RUF012
+        "19072": "PAN",
+        "20004": "Form.",
+        "19081": "PMP",
+        "19094": "PWMP",
+        "19083": "PPH",
+        "19074": "PCEMP",
+        "19076": "PCMP",
+        "20001": "PEMP",
+        "20002": "PSHWNG",
+        "19082": "POC",
+    }
+
+    def tree(self):
+        languages = {n: {"Abbr": a, "Group": a} for n, a in self.ABBR.items()}
+        languages.update(
+            {
+                "tagalog": {"Group": "PPH"},
+                "paiwan": {"Group": "Form."},
+                "proto-polynesian": {"Group": "POC"},
+            }
+        )
+        levels = set(self.ABBR) - {"20004"}
+        return acd.Tree(self.NEWICK, languages, levels)
+
+    def test_newick(self):
+        parents, root = acd.newick(self.NEWICK)
+        self.assertEqual(root, "19072")
+        self.assertEqual(parents["19083"], "19094")
+        self.assertEqual(parents["20004"], "19072")
+        self.assertEqual(len(parents), 9)
+
+    def test_levels_above(self):
+        t = self.tree()
+        self.assertEqual(t.above("tagalog"), ["19083", "19094", "19081", "19072"])
+        self.assertEqual(t.above("19083"), ["19094", "19081", "19072"])
+        self.assertEqual(t.above("paiwan"), ["19072"], "Formosan is a node, not a level")
+        self.assertEqual(t.above("proto-polynesian")[0], "19082")
+
+    def test_lowest_above(self):
+        t = self.tree()
+        self.assertEqual(t.lowest_above(["tagalog", "proto-polynesian"]), "19081")
+        self.assertEqual(t.lowest_above(["tagalog", "tagalog"]), "19083")
+        self.assertEqual(t.lowest_above(["tagalog", "19072"]), None)
 
 
 class WiktionaryClaims(unittest.TestCase):

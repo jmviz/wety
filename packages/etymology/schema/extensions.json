@@ -33,6 +33,22 @@
    "means": "A cf.csv group's gloss, where the group names no reconstruction to carry it."
   },
   {
+   "source": "acd",
+   "object": "cognate_set",
+   "field": "name",
+   "concept": "cf-group-name",
+   "kind": "source-native",
+   "means": "A cf.csv group's Name: the root (*-bag) of a root group, the heading gloss of a loan group."
+  },
+  {
+   "source": "acd",
+   "object": "cognate_set",
+   "field": "of_set",
+   "concept": "context-forms-of-set",
+   "kind": "source-native",
+   "means": "The cognate set an 'also' group gives irregular forms beside (cf.csv Cognateset_ID)."
+  },
+  {
    "source": "lila-edl",
    "object": "record",
    "field": "lila_lemma",

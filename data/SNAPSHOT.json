@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
-  "snapshot": "a5dc7ba3dc93080d0a28a43562fc50050431197eeaa024c430c036c53136ba25",
-  "taken_at": "2026-11-01T01:08:50+00:00",
+  "snapshot": "fcae329507eb5b96e8c8e2ba65998b1210d20746333bbd93d970886edf928904",
+  "taken_at": "2026-11-01T01:38:53+00:00",
   "root": "/data",
-  "files": 45324,
-  "bytes": 84173192323,
-  "git_commit": "30d6e329e69f6e3925d83a0b5b7a4c9fda3fa027",
-  "note": "core-2: assertion schema v0 samples and checks (acd, lila-edl, wiktionary checks/core-2)"
+  "files": 45329,
+  "bytes": 84331993203,
+  "git_commit": "37b8677088cb2180aeb58222fc30622ba317d505",
+  "note": "acd-2: the whole ACD v2.0 release as assertions (schema v1), with links compiled from its tree (acd checks/acd-2)"
 }

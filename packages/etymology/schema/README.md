@@ -1,4 +1,4 @@
-# Etymology assertions, v0
+# Etymology assertions, v1
 
 Every etymological source enters wety as assertions in one schema,
 [`assertion.schema.json`](assertion.schema.json) (JSON Schema 2020-12). A source's
@@ -27,7 +27,7 @@ links or members that exist.
 | `extraction` | One run of one tool (`parser`, `converter`, `model`) over its inputs, at a git revision | digest |
 | `record` | A word as one source writes it: language (the source's label, its Wiktionary code and the relation from the language map), form, gloss, homograph label, locator; `form` null when only a language is named | `<source name>:<source key>` |
 | `hypothesis` | One word's origin: links whose first child is the word, each later link's child a parent of an earlier one | digest of word and links |
-| `cognate_set` | Forms said to share an origin: a reconstruction, or null when none is named, and members | `<source name>:<source key>` |
+| `cognate_set` | Forms said to share an origin: a reconstruction, or null when none is named, and members (none only when the source lists no forms for its reconstruction) | `<source name>:<source key>` |
 | `alternative_set` | Hypotheses or cognate sets one asserter offers for one word; `exclusive` false means all are right (doublets) | digest of members, exclusivity, preference |
 | `assertion` | An asserter's stance on a hypothesis, cognate set or alternative set: who holds it, hedges, credits, locator, the source's words | digest of source, locator, target, stance |
 
@@ -42,6 +42,13 @@ is `stated`) and the source's words, on a `link` or a cognate set `member` by in
 neither when the extractor could not place it; such a hedge lowers nothing. Doubt about a
 reconstruction itself is the record's `certainty`. A member of an alternative set is
 asserted on its own too, and names the set in `in_sets`, so it is never counted twice.
+
+An assertion is stated unless it carries `compiled`: a wety rule derived its target from
+a source's structure, such as a cognate set placed on the source's tree. `compiled.from`
+locates that structure and `compiled.words` is what readers see ("implied by the ACD's
+tree"). Only an agent of kind `rule` compiles, and only hypotheses; it holds what it
+compiles and credits the source with role `follows`. Two sources that state and compile
+the same link assert the same hypothesis.
 
 A credit names a `work`, a `role` (`follows`, `reports`, `against`, `data`) and a
 `scope` (`inline`, `note`, `entry`), and keeps its locator.
@@ -68,20 +75,29 @@ refuses an undeclared one. Extensions are a waiting room, not a home:
   stay split across extensions.
 - Each converter milestone's check reports the extensions it added and promoted.
 
-## What the samples exercise
+## What the converters exercise
 
-core-2 converted 30 Wiktionary entries, 24 ACD groups (with their doublet and disjunct
-partners) and 20 LiLa etymologies; all validate. Parts of the core only one sample uses:
+core-2 converted 30 Wiktionary entries and 20 LiLa etymologies; acd-2 converts the whole
+ACD v2.0 release. All validate. Parts of the core only one source uses:
 
 | Part | Only in |
 | --- | --- |
-| stance `reports`; credit roles `follows` and `reports`; scopes `note` and `entry`; hedges on links; `probable` | Wiktionary |
-| link relations `ultimate`, `influence`, `unknown`; `head`; records with no form; agents of kind `unnamed`; `quote`; `work.authors`, `work.source` | Wiktionary |
-| credit role `against`; cognate sets with a named reconstruction; alternative sets of cognate sets | ACD |
+| stance `reports`; credit role `reports`; scope `note`; `probable` | Wiktionary |
+| link relations `influence`, `unknown`; `head`; agents of kind `unnamed`; `quote`; `work.authors` | Wiktionary |
+| credit role `against`; cognate sets with a named reconstruction or no members; alternative sets of cognate sets; `compiled`; agents of kind `rule` | ACD |
 | record `certainty` | LiLa (the ACD's Doubt flags are never set in v2.0) |
 
-No sample sets `preference`, `replaces`, or an unplaced hedge.
+No converter sets `preference`, `replaces`, or an unplaced hedge.
 
-Not in v0, by design: matches of records to items, relays, readings, overrides, gradings,
-and links compiled from a source's tree (acd-2). Not representable yet: an origin that
-names no word in any language ("from a call used for dogs", Old Spanish *perro*).
+Not in v1, by design: matches of records to items, relays, readings, overrides and
+gradings. Not representable yet: an origin that names no word in any language ("from a
+call used for dogs", Old Spanish *perro*); and the ACD's doublets and disjuncts between
+forms: alternative sets hold cognate sets, so a variant that is a member of a set stands
+for its whole set, two groups can collapse into one, and a group within one set (a
+reconstruction and its own member) has no alternative set.
+
+## Versions
+
+- **1** (acd-2): `compiled` on assertions; a cognate set may have no members when it
+  names a reconstruction.
+- **0** (core-2): the first schema.
