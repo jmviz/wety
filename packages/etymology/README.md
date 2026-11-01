@@ -72,7 +72,10 @@ The bibliography (`assertions.jsonl`) has a work for every `Template:R:` page th
 a redirect, read from the citation template it calls (authors, or editors when it names
 none; year; title), and for every `{{cite-...}}` line of a References section. Each
 entry's References give credits of role `follows`, scope `entry`
-(`entry_credits.jsonl.gz`, one row per entry with its record id). A section beside the
+(`entry_credits.jsonl.gz`). A row names its entry as the processor does: page title,
+language code, etymology label and number, and the record id `graph-assertions` gives
+the word (`wiktionary:<code>:<term>#<n>`; where another page took the same term and
+number first, the processor raises the number, so join on page, code and label). A section beside the
 etymologies covers every etymology of its language; one under "Etymology N", only that
 one. `<ref>` footnotes are left to the processor (note scope) and Further reading gives
 no credits. Until the processor emits Wiktionary's assertions, the credits wait in that
