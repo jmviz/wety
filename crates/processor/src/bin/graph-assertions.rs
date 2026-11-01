@@ -366,7 +366,10 @@ impl Export<'_> {
                 weakest,
             ));
         }
-        let set = if members.len() > 1 {
+        // A source's alternatives are a set it asserts. A rule's (a root named
+        // under several senses) are the rule's own reading, compiled one by
+        // one: the schema lets a rule compile only hypotheses.
+        let set = if members.len() > 1 && !members[0].1.is_rule() {
             // the source's order of preference, where its hedges fix one
             let ranks = members.iter().map(|m| m.2).collect_vec();
             let preference = (ranks.iter().all_unique()).then(|| {
