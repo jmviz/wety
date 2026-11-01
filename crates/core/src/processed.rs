@@ -32,6 +32,8 @@ use trie_rs::map::{Trie as TrieMap, TrieBuilder as TrieMapBuilder};
 pub struct Data {
     #[serde(default)]
     pub reference_fingerprint: Option<String>,
+    /// The synthesis rules the graph's readings were made with.
+    pub synthesis_rules: u32,
     pub string_pool: StringPool,
     pub graph: EtyGraph,
     pub progenitors: HashMap<ItemId, Progenitors>,
@@ -45,6 +47,7 @@ impl Data {
         let descendant_langs = graph.all_descendant_langs();
         Self {
             reference_fingerprint: Some(env!("WETY_REFERENCE_FINGERPRINT").to_owned()),
+            synthesis_rules: crate::synthesis::SYNTHESIS_RULES,
             string_pool,
             graph,
             progenitors,

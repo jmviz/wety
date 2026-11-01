@@ -3,6 +3,7 @@ use crate::{
     embeddings::Embeddings,
     etymon,
     items::{EmbeddingNeeds, Items},
+    notes::RawNote,
     progress_bar,
     resolve::{Citation, Relation, Resolution},
     wiktextract_json::{
@@ -11,6 +12,7 @@ use crate::{
     },
 };
 use wety_core::{
+    assertions::{Asserted, Credit, Scope},
     ety_graph::{Certainty, EdgeBasis, NewEtymology},
     etymology_templates::{EtyMode, TemplateKind},
     items::ItemId,
@@ -95,6 +97,8 @@ pub(crate) struct RawEtymology {
     // what the templates were read from: {{etymon}}, the classic templates, a
     // lone {{m}} or a form-of sense
     pub(crate) basis: EdgeBasis,
+    // the section's footnotes
+    pub(crate) notes: Box<[RawNote]>,
 }
 
 impl RawEtymology {
@@ -109,6 +113,7 @@ impl RawEtymology {
                 .map(Vec::into_boxed_slice)
                 .collect(),
             basis,
+            notes: Box::default(),
         }
     }
 
@@ -682,7 +687,8 @@ impl WiktextractJsonItem<'_> {
         string_pool: &mut StringPool,
         lang: Lang,
     ) -> Option<RawEtymology> {
-        self.get_etymon_ety(string_pool, lang)
+        let mut ety = self
+            .get_etymon_ety(string_pool, lang)
             .or_else(|| self.get_single_mention_ety(string_pool))
             .or_else(|| match self.get_standard_ety(string_pool, lang) {
                 // a form-of sense still links an entry of unknown origin
@@ -691,7 +697,9 @@ impl WiktextractJsonItem<'_> {
                 }
                 standard => standard,
             })
-            .or_else(|| self.get_form_ety(string_pool, lang))
+            .or_else(|| self.get_form_ety(string_pool, lang))?;
+        ety.notes = self.get_notes();
+        Some(ety)
     }
 }
 
@@ -762,7 +770,12 @@ impl Items {
             return Ok(());
         }
         let resolved: Vec<&Resolved> = firsts.iter().map(|(_, _, r)| r).collect();
-        if !self.set_own_etys(item, raw_etymology.basis, &resolved) {
+        let credits = self.credits(&raw_etymology.notes);
+        let asserted = Asserted {
+            credits: credits.clone(),
+            ..Asserted::default()
+        };
+        if !self.set_own_etys(item, raw_etymology.basis, &resolved, &asserted) {
             return Ok(());
         }
         for (chain, i, resolved) in firsts {
@@ -882,6 +895,7 @@ impl Items {
         mut resolved: Resolved,
     ) -> Result<()> {
         let mut current_item = item;
+        let credits = self.credits(&raw_etymology.notes);
         loop {
             let [parent] = resolved.items[..] else {
                 return Ok(());
@@ -915,7 +929,13 @@ impl Items {
             } else {
                 EdgeBasis::Chain
             };
-            if !self.set_own_etys(current_item, basis, &[&resolved]) {
+            // stated in `item`'s section, under its footnotes
+            let asserted = Asserted {
+                page: Some(item),
+                credits: credits.clone(),
+                inputs: 0,
+            };
+            if !self.set_own_etys(current_item, basis, &[&resolved], &asserted) {
                 return Ok(());
             }
         }
@@ -929,7 +949,13 @@ impl Items {
     // would trade an entry for a term missing from the data, or where the
     // section gives only a mention or a form-of link. Returns whether the
     // etymologies were set.
-    fn set_own_etys(&mut self, item: ItemId, basis: EdgeBasis, etys: &[&Resolved]) -> bool {
+    fn set_own_etys(
+        &mut self,
+        item: ItemId,
+        basis: EdgeBasis,
+        etys: &[&Resolved],
+        asserted: &Asserted,
+    ) -> bool {
         if let Some(existing) = self.graph.immediate_ety(item) {
             // An imputed item is shared by all citations of its term; the first
             // to give it an ety keeps it.
@@ -970,8 +996,30 @@ impl Items {
             })
             .collect();
         self.graph.add_etymologies(item, &new);
+        self.graph
+            .set_asserted(item, vec![asserted.clone(); etys.len()]);
         self.own_ety.insert(item);
         true
+    }
+
+    // A section's footnotes as credits, each work counted once in the graph.
+    fn credits(&mut self, notes: &[RawNote]) -> Box<[Credit]> {
+        notes
+            .iter()
+            .map(|note| {
+                let next = u32::try_from(self.graph.works.len()).expect("fewer than 2^32 works");
+                let work = *self.works.entry(note.work.clone()).or_insert_with(|| {
+                    self.graph.works.push(note.work.clone());
+                    next
+                });
+                Credit {
+                    work,
+                    role: note.role,
+                    scope: Scope::Note,
+                    locator: note.locator.clone(),
+                }
+            })
+            .collect()
     }
 
     // A part read as a prefix by its final hyphen may be a root (PIE *peh₂-
@@ -1237,7 +1285,8 @@ mod tests {
         use super::*;
         use crate::embeddings::{self, Config};
         use wety_core::{
-            ety_graph::EtyEdgeAccess, gloss::Gloss, items::RealItem, langterm::Term, pos::Pos,
+            assertions::Role, ety_graph::EtyEdgeAccess, gloss::Gloss, items::RealItem,
+            langterm::Term, pos::Pos,
         };
 
         struct Setup {
@@ -1578,6 +1627,43 @@ mod tests {
             );
             assert_eq!(t.parents(litanio), ["en:litany", "pl:litania?"]);
             assert_eq!(t.parent(litanio), litany);
+        }
+
+        #[test]
+        fn assertions_record_their_page_and_footnotes() {
+            let mut t = Setup::new("asserted");
+            t.add("ang", "mōdor");
+            let mother = t.add("en", "mother");
+            t.process(
+                mother,
+                r#"[{"name": "inh", "args": {"1": "en", "2": "enm", "3": "moder"}},
+                {"name": "inh", "args": {"1": "en", "2": "ang", "3": "mōdor"}},
+                {"name": "ref", "args": {"1": "<cite>Etymologicon</cite> (1999), page 3"}}]"#,
+            );
+            // stated on its own page, under the section's footnote
+            let own = t.items.graph.asserted(mother, 0).unwrap();
+            assert_eq!(own.page, None);
+            let [credit] = &own.credits[..] else {
+                panic!("one credit")
+            };
+            assert_eq!((credit.role, credit.scope), (Role::Follows, Scope::Note));
+            assert_eq!(credit.locator.as_deref(), Some("page 3"));
+            let work = &t.items.graph.works[credit.work as usize];
+            assert_eq!(
+                (&*work.citation, work.year),
+                ("Etymologicon (1999)", Some(1999))
+            );
+            // the missing parent's etymology: stated in mother's section
+            let moder = t.parent(mother);
+            let chain = t.items.graph.asserted(moder, 0).unwrap();
+            assert_eq!((chain.page, chain.credits.len()), (Some(mother), 1));
+            // an uncredited section on its own page stores nothing
+            let father = t.add("en", "father");
+            t.process(
+                father,
+                r#"[{"name": "inh", "args": {"1": "en", "2": "ang", "3": "mōdor"}}]"#,
+            );
+            assert!(t.items.graph.asserted(father, 0).is_none());
         }
 
         #[test]

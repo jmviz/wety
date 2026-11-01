@@ -9,6 +9,7 @@ use crate::{
     wiktextract_json::wiktextract_lines,
 };
 use wety_core::{
+    assertions::Work,
     ety_graph::{EtyEdgeAccess, EtyGraph},
     etymology_templates::EtyMode,
     items::{ImputedItem, Item, ItemId, RealItem},
@@ -64,6 +65,8 @@ pub(crate) struct Items {
     // imputed item, that of an item citing it), as opposed to another page's
     // Descendants list or a root imputation
     pub(crate) own_ety: HashSet<ItemId>,
+    // each cited work's index in the graph's works
+    pub(crate) works: HashMap<Work, u32>,
     pub(crate) mentions: crate::resolve::Mentions,
     pub(crate) resolution_stats: crate::resolve::ResolutionStats,
     pub(crate) redirects: Redirects,
@@ -83,6 +86,7 @@ impl Items {
             entry_names: EntryNames::default(),
             imputed_titles: HashMap::default(),
             own_ety: HashSet::default(),
+            works: HashMap::default(),
             mentions: crate::resolve::Mentions::default(),
             resolution_stats: crate::resolve::ResolutionStats::default(),
             redirects: Redirects::default(),

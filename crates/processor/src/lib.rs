@@ -11,6 +11,7 @@ pub mod embeddings;
 mod etymology;
 mod etymon;
 mod items;
+mod notes;
 mod redirects;
 mod resolve;
 mod root;

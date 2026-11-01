@@ -1,9 +1,11 @@
 use crate::{
     HashMap, HashSet,
+    assertions::{self, Asserted, Work},
     descendant_langs::DescendantLangs,
     etymology_templates::EtyMode,
     items::{Item, ItemId},
     languages::Lang,
+    synthesis::primary,
 };
 
 use std::collections::VecDeque;
@@ -80,16 +82,6 @@ pub struct Etymologies {
     pub primary: Option<u8>,
 }
 
-// Of alternatives with these weakest links, the one firmer than every other,
-// if there is one.
-fn primary(weakest: &[Certainty]) -> Option<u8> {
-    let firmest = weakest.iter().min()?;
-    match weakest.iter().positions(|w| w == firmest).collect_vec()[..] {
-        [only] => u8::try_from(only).ok(),
-        _ => None,
-    }
-}
-
 /// One etymology to add: its parents, each with the homograph confidence and
 /// the certainty of its link.
 pub struct NewEtymology<'a> {
@@ -131,10 +123,7 @@ impl EdgeBasis {
     /// Whether the edge is wety's reading rather than a link Wiktionary gives.
     #[must_use]
     pub fn is_rule(self) -> bool {
-        matches!(
-            self,
-            Self::Chain | Self::Mention | Self::FormOf | Self::Root | Self::RootVote
-        )
+        assertions::rule(self).is_some()
     }
 }
 
@@ -199,6 +188,11 @@ pub type ItemIndex = u32;
 pub struct EtyGraph {
     pub graph: StableDiGraph<Item, EtyEdgeData, ItemIndex>,
     pub etymologies: HashMap<ItemId, Etymologies>,
+    /// Each etymology's assertion, by etymology number, for items where one
+    /// is not the default (stated on the item's own page, uncredited).
+    pub assertions: HashMap<ItemId, Box<[Asserted]>>,
+    /// The works that assertions credit.
+    pub works: Vec<Work>,
 }
 
 impl EtyGraph {
@@ -375,6 +369,13 @@ impl EtyGraph {
             let w = &mut weakest[edge.ety as usize];
             *w = (*w).max(edge.certainty);
         }
+        if let Some(asserted) = self.assertions.remove(&item) {
+            let mut asserted = asserted.into_vec();
+            if usize::from(ety) < asserted.len() {
+                asserted.remove(usize::from(ety));
+            }
+            self.set_asserted(item, asserted);
+        }
         if n == 2 {
             self.etymologies.remove(&item);
         } else {
@@ -395,6 +396,27 @@ impl EtyGraph {
             self.graph.remove_edge(edge_id);
         }
         self.etymologies.remove(&item);
+        self.assertions.remove(&item);
+    }
+
+    /// Record what each of an item's etymologies' assertions adds to its edges,
+    /// by etymology number (see `assertions`). Written after the etymologies;
+    /// replacing or removing them forgets it.
+    pub fn set_asserted(&mut self, item: ItemId, asserted: Vec<Asserted>) {
+        if asserted.iter().all(Asserted::is_default) {
+            self.assertions.remove(&item);
+        } else {
+            self.assertions.insert(item, asserted.into_boxed_slice());
+        }
+    }
+
+    /// What an etymology's assertion adds to its edges, if anything.
+    #[must_use]
+    pub fn asserted(&self, item: ItemId, ety: u8) -> Option<&Asserted> {
+        self.assertions
+            .get(&item)
+            .and_then(|a| a.get(usize::from(ety)))
+            .filter(|a| !a.is_default())
     }
 
     /// Replace an item's etymologies with `etys`, alternatives one source gives.
@@ -453,6 +475,9 @@ impl EtyGraph {
         }
     }
 
+    /// Give an item one etymology, unless it has one whose links are at least
+    /// as confident. Returns whether it was given.
+    ///
     /// # Panics
     ///
     /// Panics if `confidences` is empty.
@@ -464,7 +489,7 @@ impl EtyGraph {
         basis: EdgeBasis,
         ety_items: &[ItemId],
         confidences: &[f32],
-    ) {
+    ) -> bool {
         // StableGraph allows adding multiple parallel edges from one node to
         // another. So we have to be careful to check for any already existing
         // ety links. If there are some, we keep them and don't add any new
@@ -482,7 +507,7 @@ impl EtyGraph {
                 .max_by(|a, b| a.total_cmp(b))
                 .expect("at least one");
             if min_new_confidence <= &max_old_confidence {
-                return;
+                return false;
             }
             let old_edge_ids = self.graph.edges(item).map(|e| e.id()).collect_vec();
             for old_edge_id in old_edge_ids {
@@ -490,6 +515,7 @@ impl EtyGraph {
             }
         }
         self.etymologies.remove(&item);
+        self.assertions.remove(&item);
 
         for (i, &ety_item, &confidence) in izip!(0u8.., ety_items, confidences) {
             let ety_link = EtyEdgeData {
@@ -503,6 +529,7 @@ impl EtyGraph {
             };
             self.graph.add_edge(item, ety_item, ety_link);
         }
+        true
     }
 }
 
@@ -790,7 +817,15 @@ mod tests {
             ],
         );
         graph.add_etymologies(x, &[new_ety(&[d], &stated)]);
+        // each alternative's assertion, told apart by its page
+        let on = |page| Asserted {
+            page: Some(page),
+            ..Asserted::default()
+        };
+        graph.set_asserted(d, vec![on(x), on(y), on(z)]);
         graph.break_cycles(|_, item| u8::from(item == d));
+        assert_eq!(graph.asserted(d, 0), Some(&on(y)));
+        assert_eq!(graph.asserted(d, 1), Some(&on(z)));
         assert_eq!(graph.etymologies(d).unwrap().primary, None);
         assert_eq!(graph.immediate_ety(d).unwrap().items, [y, z]);
         let etys = graph.all_parent_edges(d).map(|e| e.ety()).sorted();

@@ -12,6 +12,7 @@ use crate::{
     },
 };
 use wety_core::{
+    assertions::Asserted,
     ety_graph::{Certainty, EdgeBasis, EtyEdgeAccess, NewEtymology},
     etymology_templates::EtyMode,
     items::ItemId,
@@ -438,16 +439,22 @@ impl Items {
                 continue;
             }
             // a confidence from the share of the votes
-            let (votes, _) = roots[&root_item];
+            let (votes, voters) = roots[&root_item];
             let total: f32 = roots.values().map(|(v, _)| v).sum();
-            self.graph.add_ety(
+            if self.graph.add_ety(
                 progenitor,
                 EtyMode::Root,
                 Some(0u8),
                 EdgeBasis::RootVote,
                 &[root_item],
                 &[votes / total],
-            );
+            ) {
+                let asserted = Asserted {
+                    inputs: voters,
+                    ..Asserted::default()
+                };
+                self.graph.set_asserted(progenitor, vec![asserted]);
+            }
         }
         pb.finish();
         Ok(())

@@ -7,6 +7,7 @@ use crate::{
     wiktextract_json::{WiktextractJson, WiktextractJsonItem, WiktextractJsonValidStr},
 };
 use wety_core::{
+    assertions::Asserted,
     ety_graph::EdgeBasis,
     etymology_templates::EtyMode,
     gloss::Gloss,
@@ -365,15 +366,20 @@ impl Items {
                     {
                         mode = EtyMode::MorphologicalDerivation;
                     }
-                    {
-                        self.graph.add_ety(
-                            desc_item,
-                            mode,
-                            Some(0),
-                            EdgeBasis::Descendants,
-                            &[parent],
-                            &[confidence],
-                        );
+                    // stated in `item`'s Descendants section
+                    if self.graph.add_ety(
+                        desc_item,
+                        mode,
+                        Some(0),
+                        EdgeBasis::Descendants,
+                        &[parent],
+                        &[confidence],
+                    ) {
+                        let asserted = Asserted {
+                            page: Some(item),
+                            ..Asserted::default()
+                        };
+                        self.graph.set_asserted(desc_item, vec![asserted]);
                     }
                 }
             }
