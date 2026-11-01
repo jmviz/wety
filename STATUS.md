@@ -33,7 +33,7 @@ and citations from reviewed evidence in the `packages/dating` registry.
 - A word's own section now replaces another page's Descendants link unless every
   parent it names is missing from the data (before: unless any is). 2,232 words change
   this way, 2,201 of them compounds and affixations (ro *interfață*: *inter-* + *față*,
-  before "calque of en *interface*").
+  before "calque of en *interface*"); the maintainer approved the rule.
 - Lost root votes (114) are either alternatives that no longer vote for one line, or
   core-1 errors (*tauglich* had PIE \*keyt-, which its derivatives' suffix *-keit* carries).
 
@@ -57,8 +57,6 @@ and citations from reviewed evidence in the `packages/dating` registry.
 
 ## Decisions needed from the maintainer
 
-- Whether a word's own compound should replace a Descendants link when one of its parts
-  is missing from the data (core-3 says yes: 2,232 words).
 - Whether alternative sets may hold records, so the ACD's form-level doublets fit.
 - Whether wety restores LiLa's 7 unlinked etymons from their "Etymology for" comments.
 - Whether to ship the client work before the claims work lands.
