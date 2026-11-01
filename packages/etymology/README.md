@@ -80,9 +80,10 @@ the word (`wiktionary:<code>:<term>#<n>`; where another page took the same term 
 number first, the processor raises the number, so join on page, code and label). A section beside the
 etymologies covers every etymology of its language; one under "Etymology N", only that
 one. `<ref>` footnotes are left to the processor (note scope) and Further reading gives
-no credits. Until the processor emits Wiktionary's assertions, the credits wait in that
-table; `convert` checks each against the schema's `Credit` and the bibliography, and the
-processor will copy an entry's credits onto each assertion the entry endorses.
+no credits. `convert` checks each credit against the schema's `Credit` and the
+bibliography. `graph-assertions --references $C` copies an entry's credits onto each
+assertion its Etymology section states (not its Descendants list, not wety's rules), and
+writes the works they cite; the graph itself does not hold them.
 
 ## Tests
 

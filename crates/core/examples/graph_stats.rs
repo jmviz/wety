@@ -1,5 +1,5 @@
 //! Summary counts for comparing graph builds: cargo run --release --example graph_stats -- PATH
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 use petgraph::visit::IntoEdgeReferences;
 use wety_core::{ety_graph::EtyEdgeAccess, items::Item, processed::Data};
@@ -10,11 +10,14 @@ fn main() -> anyhow::Result<()> {
     let graph = &data.graph;
     let (mut real, mut imputed, mut real_with_ety, mut imputed_with_ety) = (0, 0, 0, 0);
     let mut en_la = [(0, 0); 2]; // (items, with ety) for en, la
+    let (mut langs, mut real_langs) = (BTreeSet::new(), BTreeSet::new());
     for (id, item) in graph.iter() {
         let has_ety = graph.immediate_ety(id).is_some();
+        langs.insert(item.lang().code());
         match item {
             Item::Real(_) => {
                 real += 1;
+                real_langs.insert(item.lang().code());
                 real_with_ety += usize::from(has_ety);
                 for (i, code) in ["en", "la"].iter().enumerate() {
                     if item.lang().code() == *code {
@@ -35,6 +38,11 @@ fn main() -> anyhow::Result<()> {
     }
     println!("real items {real}, with an ety {real_with_ety}");
     println!("imputed items {imputed}, with an ety {imputed_with_ety}");
+    println!(
+        "languages {}, with a real item {}",
+        langs.len(),
+        real_langs.len()
+    );
     println!("en items {}, with an ety {}", en_la[0].0, en_la[0].1);
     println!("la items {}, with an ety {}", en_la[1].0, en_la[1].1);
     println!("edges {}", graph.graph.edge_count());
