@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
-  "snapshot": "a5dc7ba3dc93080d0a28a43562fc50050431197eeaa024c430c036c53136ba25",
-  "taken_at": "2026-11-01T01:08:50+00:00",
+  "snapshot": "c76478bb4fe4f9c61129b83fa56793f0a13864e49a947a4932dcf56c46691c19",
+  "taken_at": "2026-11-01T01:46:13+00:00",
   "root": "/data",
-  "files": 45324,
-  "bytes": 84173192323,
-  "git_commit": "30d6e329e69f6e3925d83a0b5b7a4c9fda3fa027",
-  "note": "core-2: assertion schema v0 samples and checks (acd, lila-edl, wiktionary checks/core-2)"
+  "files": 45334,
+  "bytes": 84334845181,
+  "git_commit": "37b8677088cb2180aeb58222fc30622ba317d505",
+  "note": "lila-2: all of LiLa's de Vaan data as assertions (lila-edl checks/lila-2)"
 }
