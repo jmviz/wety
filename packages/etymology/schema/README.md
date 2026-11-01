@@ -78,7 +78,9 @@ refuses an undeclared one. Extensions are a waiting room, not a home:
 ## What the converters exercise
 
 core-2 converted 30 Wiktionary entries; acd-2 and lila-2 convert the whole ACD v2.0 and
-LiLa releases. All validate. Parts of the core only one source uses:
+LiLa releases; core-5 reads every References section of Wiktionary's pages dump into a
+bibliography of 19,699 works and 992,583 entry-scope credits, which wait in a table
+beside it until the processor emits the assertions they belong on. All validate. Parts of the core only one source uses:
 
 | Part | Only in |
 | --- | --- |

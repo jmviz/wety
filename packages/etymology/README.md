@@ -8,7 +8,9 @@ the work plan are in the shared doc "wety etymology claims model", outside git.
 - `assertions.py`: builds assertion objects (their digest ids) and validates files;
 - `convert/`: one converter per source. `acd` and `lila` read the retained release, whole
   or a sample; `wiktionary` converts claims annotated per entry, for samples, until the
-  processor emits Wiktionary's assertions (core-4);
+  processor emits Wiktionary's assertions (core-4); `wiktionary_references` reads every
+  References section of the pages dump (core-5);
+- `wikitext.py`: pages of a Wiktionary dump, their sections and templates;
 - `language_map.py`, `orthography.py`: curation tools (language maps, comparison keys).
 
 ## A source's directory
@@ -51,6 +53,31 @@ it took:
 ```sh
 uv run --frozen python -m etymology.convert.lila --out $S/lila-edl/checks/lila-2/assertions.jsonl --decisions $S/lila-edl/checks/lila-2/decisions.json
 ```
+
+## Wiktionary's References
+
+wiktextract has no field for References, so `wiktionary_references` reads them from the
+pages dump of the same date (`etc/source.json`, artifact `pages`), in three steps: the
+dump's References and Further reading sections and `Template:R:` pages; wiktextract's
+entry keys (page, language, etymology label); then the bibliography and the credits.
+
+```sh
+C=$S/wiktionary/checks/core-5
+uv run --frozen python -m etymology.convert.wiktionary_references extract <pages dump> --out $C/sections.jsonl.gz --counts $C/extract_counts.json
+uv run --frozen python -m etymology.convert.wiktionary_references entries <raw wiktextract> --out $C/entries.jsonl.gz
+uv run --frozen python -m etymology.convert.wiktionary_references convert $C/sections.jsonl.gz $C/entries.jsonl.gz --out $C
+```
+
+The bibliography (`assertions.jsonl`) has a work for every `Template:R:` page that is not
+a redirect, read from the citation template it calls (authors, or editors when it names
+none; year; title), and for every `{{cite-...}}` line of a References section. Each
+entry's References give credits of role `follows`, scope `entry`
+(`entry_credits.jsonl.gz`, one row per entry with its record id). A section beside the
+etymologies covers every etymology of its language; one under "Etymology N", only that
+one. `<ref>` footnotes are left to the processor (note scope) and Further reading gives
+no credits. Until the processor emits Wiktionary's assertions, the credits wait in that
+table; `convert` checks each against the schema's `Credit` and the bibliography, and the
+processor will copy an entry's credits onto each assertion the entry endorses.
 
 ## Tests
 
