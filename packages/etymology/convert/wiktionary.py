@@ -25,19 +25,25 @@ import re
 from pathlib import Path
 
 from etymology import assertions as A
+from etymology import wikitext
 from etymology.convert import agent, source, work
 
 NAME = "wiktionary"
 EDITORS = "agent:wiktionary-editors"
 TERM = re.compile(r"^([a-z0-9-]+):([^<]+)((?:<[a-z]+:[^>]+>)*)$")
 MODIFIER = re.compile(r"<([a-z]+):([^>]+)>")
-R_LINE = re.compile(r"^\*\s*\{\{(R:[^|}]+)((?:\|[^}]*)?)\}\}", re.MULTILINE)
 
 
-def r_locator(args):
-    """A {{R:...}} template's page or pages argument."""
-    named = dict(a.split("=", 1) for a in args.split("|") if "=" in a)
-    return named.get("page") or named.get("pages")
+def r_templates(references):
+    """(name, page or pages argument) of each {{R:...}} template in References sections
+    outside footnotes, read as the whole-dump reading does (`wiktionary_references`)."""
+    found = []
+    for text in references:
+        body, _ = wikitext.strip_refs(text)
+        for name, args in wikitext.templates(body, "R:"):
+            named = wikitext.named_args(args)
+            found.append((name, named.get("page") or named.get("pages")))
+    return found
 
 
 class Converter:
@@ -130,8 +136,7 @@ class Converter:
         word = self.record(term, key, **fields)
         locator = e["page"] + (f"#Etymology {e['homograph']}" if e.get("homograph") else "")
         entry_credits = []
-        for name, args in R_LINE.findall("\n".join(sample["references_wikitext"])):
-            page = r_locator(args)
+        for name, page in r_templates(sample["references_wikitext"]):
             credit = {"work": self.work(name), "role": "follows", "scope": "entry"}
             if page:
                 credit["locator"] = page
