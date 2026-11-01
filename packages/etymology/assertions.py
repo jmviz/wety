@@ -11,6 +11,9 @@ Ids that a digest makes:
 - an alternative set: its members, exclusivity and preference;
 - an assertion: its source, locator, target and stance;
 - an extraction: its method, tool, revision, dirtiness, inputs, model and reviewer.
+
+An assertion that a wety rule compiled from a source's structure says so in `compiled`;
+only a rule may compile, and only hypotheses.
 """
 
 import argparse
@@ -151,26 +154,33 @@ def extensions():
     return {(r["source"], r["object"], r["field"]): r for r in rows}
 
 
+BRANCHES = {
+    "source": "Source",
+    "agent": "Agent",
+    "work": "Work",
+    "extraction": "Extraction",
+    "record": "Record",
+    "hypothesis": "Hypothesis",
+    "cognate_set": "CognateSet",
+    "alternative_set": "AlternativeSet",
+    "assertion": "Assertion",
+}
+
+
+@cache
+def branch_validator(branch):
+    schema = validator().schema
+    return jsonschema.Draft202012Validator({"$ref": f"#/$defs/{branch}", "$defs": schema["$defs"]})
+
+
 def schema_errors(obj):
     """The schema's complaints about one object, from the branch its `type` selects."""
-    schema = validator().schema
-    branch = {
-        "source": "Source",
-        "agent": "Agent",
-        "work": "Work",
-        "extraction": "Extraction",
-        "record": "Record",
-        "hypothesis": "Hypothesis",
-        "cognate_set": "CognateSet",
-        "alternative_set": "AlternativeSet",
-        "assertion": "Assertion",
-    }.get(obj.get("type"))
+    branch = BRANCHES.get(obj.get("type"))
     if branch is None:
         return [f"unknown type {obj.get('type')!r}"]
-    sub = jsonschema.Draft202012Validator({"$ref": f"#/$defs/{branch}", "$defs": schema["$defs"]})
     return [
         f"{'/'.join(map(str, e.absolute_path)) or '(top)'}: {e.message}"
-        for e in sub.iter_errors(obj)
+        for e in branch_validator(branch).iter_errors(obj)
     ]
 
 
@@ -229,6 +239,8 @@ def cross_errors(objs):
         elif t == "cognate_set":
             if o["reconstruction"] is not None:
                 need(o["reconstruction"], ("record",), i)
+            elif not o["members"]:
+                errors.append(f"{i}: neither a reconstruction nor members")
             for r in o["members"]:
                 need(r, ("record",), i)
         elif t == "alternative_set":
@@ -241,10 +253,14 @@ def cross_errors(objs):
         elif t == "assertion":
             if i != "as:" + digest([o["source"], o["locator"], o["target"], o["stance"]]):
                 errors.append(f"{i}: id is not the digest of source, locator, target, stance")
-            for role in ("asserter", "holder"):
-                need(o[role], ("agent",), i)
+            agents = {role: need(o[role], ("agent",), i) for role in ("asserter", "holder")}
             need(o["extraction"], ("extraction",), i)
             target = need(o["target"], ("hypothesis", "cognate_set", "alternative_set"), i)
+            if "compiled" in o:
+                if agents["asserter"] and agents["asserter"]["kind"] != "rule":
+                    errors.append(f"{i}: compiled, but its asserter is not a rule")
+                if target and target["type"] != "hypothesis":
+                    errors.append(f"{i}: compiled, but its target is not a hypothesis")
             for c in o.get("credits", []):
                 need(c["work"], ("work",), i)
             for alt in o.get("in_sets", []):
@@ -310,6 +326,8 @@ def summary(objs):
                 s["assertions"]["holder is not the asserter"] += 1
             if "in_sets" in o:
                 s["assertions"]["in an alternative set"] += 1
+            if "compiled" in o:
+                s["assertions"]["compiled"] += 1
             for h in o.get("hedges", []):
                 on = "link" if "link" in h else "member" if "member" in h else "unplaced"
                 s["hedges"][f"{h['level']} on {on}"] += 1

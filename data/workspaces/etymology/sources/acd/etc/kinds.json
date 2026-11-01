@@ -19,7 +19,7 @@
    "acd_description": "No description in the release; these sets sit under an etymon beside its main entry (affixed or compound forms such as *ma-m-atay under *atay).",
    "wety_kind": "cognate set",
    "status": "mapped",
-   "note": "As a cognate set. How a sub-entry relates to its main entry (a derivation from it?) is not documented: listed for acd-2."
+   "note": "As a cognate set. acd-2: its reconstruction descends by unstated steps (ultimate) from the main entry's where the tree places it lower; at the same level the tree implies no link (whether it derives from the main entry is not documented)."
   },
   {
    "where": "etyma.csv",

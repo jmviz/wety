@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://wety.org/schema/etymology/assertion/0",
-  "title": "wety etymology assertions, v0",
+  "$id": "https://wety.org/schema/etymology/assertion/1",
+  "title": "wety etymology assertions, v1",
   "description": "One line of an assertions file (JSON Lines). Each line is one object, told apart by `type`. README.md beside this file says what each field means; cross-record rules (ids, references) are checked by etymology.assertions.",
   "oneOf": [
     {"$ref": "#/$defs/Source"},
@@ -231,7 +231,11 @@
         "id": {"$ref": "#/$defs/CognateSetId"},
         "source": {"$ref": "#/$defs/SourceId"},
         "reconstruction": {"anyOf": [{"$ref": "#/$defs/RecordId"}, {"type": "null"}]},
-        "members": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/RecordId"}},
+        "members": {
+          "description": "Empty only when the source gives a reconstruction and lists no forms for it.",
+          "type": "array",
+          "items": {"$ref": "#/$defs/RecordId"}
+        },
         "category": {
           "description": "The source's own name for the kind of set, from its kind map.",
           "type": "string"
@@ -320,6 +324,16 @@
           "type": "string"
         },
         "extraction": {"$ref": "#/$defs/ExtractionId"},
+        "compiled": {
+          "description": "Present when a wety rule compiled the target from a source's structure (a cognate set on the source's tree) rather than anyone stating it; absent: stated.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["from", "words"],
+          "properties": {
+            "from": {"description": "The structure, as a locator in the source.", "type": "string", "minLength": 1},
+            "words": {"description": "What readers see, as \"implied by the ACD's tree\".", "type": "string", "minLength": 1}
+          }
+        },
         "replaces": {"$ref": "#/$defs/AssertionId"},
         "x": {"$ref": "#/$defs/Extensions"}
       }

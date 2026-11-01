@@ -6,7 +6,8 @@ the work plan are in the shared doc "wety etymology claims model", outside git.
 
 - [`schema/`](schema/README.md): the assertion schema, v0, and what it covers;
 - `assertions.py`: builds assertion objects (their digest ids) and validates files;
-- `convert/`: one converter per source. `acd` and `lila` read the retained release;
+- `convert/`: one converter per source. `acd` (the whole release) and `lila` read the
+  retained release;
   `wiktionary` converts claims annotated per entry, for samples, until the processor
   emits Wiktionary's assertions (core-4);
 - `language_map.py`, `orthography.py`: curation tools (language maps, comparison keys).
@@ -25,17 +26,19 @@ as `cldfbench` lays out a dataset:
 
 `raw/` and `checks/` stay in the research store.
 
-## Converting a sample
+## Converting
 
-Each converter takes a sample file and writes an assertions file, which
-`etymology.assertions` validates. The core-2 samples, from the main checkout:
+Each converter writes an assertions file, which `etymology.assertions` validates. The ACD
+converter reads the whole release, compiles the links its tree implies, and writes its
+own counts; `checks/acd-2/acd_counts.py` compares them with the release's tables. The
+LiLa and Wiktionary converters take the core-2 samples. From the main checkout:
 
 ```sh
 S=data/workspaces/etymology/sources
-uv run --frozen python -m etymology.convert.acd $S/acd/checks/core-2/sample.json --out $S/acd/checks/core-2/assertions.jsonl
+uv run --frozen python -m etymology.convert.acd --out $S/acd/checks/acd-2/assertions.jsonl --counts $S/acd/checks/acd-2/converter_counts.json
 uv run --frozen python -m etymology.convert.lila $S/lila-edl/checks/core-2/sample.json --out $S/lila-edl/checks/core-2/assertions.jsonl
 uv run --frozen python -m etymology.convert.wiktionary $S/wiktionary/checks/core-2/sample.json $S/wiktionary/checks/core-2/claims.json --out $S/wiktionary/checks/core-2/assertions.jsonl
-uv run --frozen python -m etymology.assertions --summary $S/*/checks/core-2/assertions.jsonl
+uv run --frozen python -m etymology.assertions --summary $S/acd/checks/acd-2/assertions.jsonl $S/*/checks/core-2/assertions.jsonl
 ```
 
 ## Tests
