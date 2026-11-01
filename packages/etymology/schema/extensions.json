@@ -1,0 +1,84 @@
+{
+ "extensions": [
+  {
+   "source": "acd",
+   "object": "cognate_set",
+   "field": "etymon",
+   "concept": "levels-of-one-etymon",
+   "kind": "source-native",
+   "means": "The ACD etymon grouping a reconstruction's sets at successive levels (etyma.csv)."
+  },
+  {
+   "source": "acd",
+   "object": "cognate_set",
+   "field": "metathesis",
+   "concept": "irregular-member-explained",
+   "kind": "source-native",
+   "means": "Members whose irregularity the ACD explains by metathesis, by index."
+  },
+  {
+   "source": "acd",
+   "object": "cognate_set",
+   "field": "assimilation",
+   "concept": "irregular-member-explained",
+   "kind": "source-native",
+   "means": "Members whose irregularity the ACD explains by assimilation, by index."
+  },
+  {
+   "source": "acd",
+   "object": "cognate_set",
+   "field": "gloss",
+   "concept": "set-gloss",
+   "kind": "source-native",
+   "means": "A cf.csv group's gloss, where the group names no reconstruction to carry it."
+  },
+  {
+   "source": "lila-edl",
+   "object": "record",
+   "field": "lila_lemma",
+   "concept": "lila-lemma-bank-id",
+   "kind": "source-native",
+   "means": "The entry's lemma in LiLa's lemma bank."
+  },
+  {
+   "source": "lila-edl",
+   "object": "record",
+   "field": "forms",
+   "concept": "other-written-forms",
+   "kind": "source-native",
+   "means": "Other written forms of a reconstruction, with their grammatical features."
+  },
+  {
+   "source": "lila-edl",
+   "object": "record",
+   "field": "cognates",
+   "concept": "lila-etymon-cognate-link",
+   "kind": "source-native",
+   "means": "LiLa's cognate links between etymons; their meaning is undocumented."
+  },
+  {
+   "source": "wiktionary",
+   "object": "assertion",
+   "field": "holder_stance",
+   "concept": "holder-stance",
+   "kind": "design",
+   "means": "The holder's own stance when the asserter reports it: 'rejects' for 'denied by De Vaan'."
+  },
+  {
+   "source": "wiktionary",
+   "object": "assertion",
+   "field": "sense",
+   "concept": "link-form-or-sense",
+   "kind": "design",
+   "means": "The sense a link concerns, by link index (the design's 'form or sense' claim kind)."
+  },
+  {
+   "source": "wiktionary",
+   "object": "record",
+   "field": "first_attested",
+   "concept": "date",
+   "kind": "design",
+   "means": "A first attestation, from {{etydate}} or prose (the design's 'date' claim kind)."
+  }
+ ]
+}

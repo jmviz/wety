@@ -25,6 +25,7 @@ from pathlib import Path
 import jsonschema
 
 SCHEMA_PATH = Path(__file__).parent / "schema" / "assertion.schema.json"
+EXTENSIONS_PATH = Path(__file__).parent / "schema" / "extensions.json"
 REPO = Path(__file__).resolve().parents[2]
 ORDER = (
     "source",
@@ -143,6 +144,13 @@ def validator():
     return jsonschema.Draft202012Validator(schema)
 
 
+@cache
+def extensions():
+    """The declared extensions: (source, object type, field) to their registry entry."""
+    rows = json.loads(EXTENSIONS_PATH.read_text())["extensions"]
+    return {(r["source"], r["object"], r["field"]): r for r in rows}
+
+
 def schema_errors(obj):
     """The schema's complaints about one object, from the branch its `type` selects."""
     schema = validator().schema
@@ -167,7 +175,7 @@ def schema_errors(obj):
 
 
 def cross_errors(objs):
-    """What the schema cannot see: uniqueness, references and digests."""
+    """What the schema cannot see: uniqueness, references, digests and declared extensions."""
     errors = []
     by_id = {}
     for o in objs:
@@ -185,9 +193,14 @@ def cross_errors(objs):
     sources = {o["id"].split("@")[0] for o in objs if o["type"] == "source"}
     for o in objs:
         i, t = o["id"], o["type"]
-        for name in o.get("x", {}):
+        for name, ext in o.get("x", {}).items():
             if name not in sources:
                 errors.append(f"{i}: extension {name!r} names no source in this file")
+            for field in ext:
+                if (name, t, field) not in extensions():
+                    errors.append(
+                        f"{i}: x.{name}.{field} is not declared in schema/extensions.json"
+                    )
         if t in ("record", "cognate_set", "assertion"):
             need(o["source"], ("source",), i)
         if t in ("record", "cognate_set") and i.split(":")[0] != o["source"].split("@")[0]:

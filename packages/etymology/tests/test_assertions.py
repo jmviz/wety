@@ -143,6 +143,11 @@ class Validate(unittest.TestCase):
         objs[3]["x"] = {"other": {"note": 1}}
         self.assertTrue(any("names no source" in e for e in A.validate(objs)))
 
+    def test_extensions_are_declared(self):
+        objs = objects()
+        objs[3]["x"] = {"demo": {"note": 1}}
+        self.assertTrue(any("x.demo.note is not declared" in e for e in A.validate(objs)))
+
     def test_writer_refuses_conflicting_objects(self):
         w = A.Writer()
         r = record("lupus", "lupus")
@@ -151,6 +156,22 @@ class Validate(unittest.TestCase):
         r2 = dict(r, form="lupa")
         with self.assertRaises(ValueError):
             w.add(r2)
+
+
+class Registry(unittest.TestCase):
+    """The extension registry: a concept two sources need belongs in the core."""
+
+    def test_no_concept_is_declared_by_two_sources(self):
+        sources = {}
+        for (source, _, _), row in A.extensions().items():
+            sources.setdefault(row["concept"], set()).add(source)
+        shared = {c: sorted(s) for c, s in sources.items() if len(s) > 1}
+        self.assertEqual(shared, {}, "promote these concepts into the core schema")
+
+    def test_rows_are_complete(self):
+        for key, row in A.extensions().items():
+            self.assertIn(row["kind"], ("design", "source-native"), key)
+            self.assertTrue(row["means"], key)
 
 
 class WiktionaryClaims(unittest.TestCase):

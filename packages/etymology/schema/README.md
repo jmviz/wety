@@ -51,22 +51,22 @@ sources' hypotheses share an id only once their records are matched.
 
 ## Extensions
 
-A field only one source needs goes under `x.<source name>` on the object it describes,
-until a second source uses it the same way. In v0:
+A field that only one source needs goes under `x.<source name>` on the object it
+describes. Every extension is declared in [`extensions.json`](extensions.json): its
+source, object and field, the concept it carries (a short id) and its kind. The validator
+refuses an undeclared one. Extensions are a waiting room, not a home:
 
-| Source | Object | Field | What it holds |
-| --- | --- | --- | --- |
-| acd | cognate_set | `etymon` | The etymon grouping the set's levels (etyma.csv) |
-| acd | cognate_set | `metathesis`, `assimilation` | Members whose irregularity the ACD explains so, by index |
-| acd | cognate_set | `gloss` | A cf.csv group's gloss |
-| lila-edl | record | `lila_lemma` | The entry's lemma in LiLa's lemma bank |
-| lila-edl | record | `forms`, `cognates` | Other written forms with their features; LiLa's cognate links between etymons |
-| wiktionary | assertion | `holder_stance` | `rejects` when the editors report that a scholar rejects the hypothesis ("denied by De Vaan") |
-| wiktionary | assertion | `sense` | The sense a link concerns, by link index |
-| wiktionary | record | `first_attested` | A first attestation (`{{etydate}}`, prose) |
-
-`holder_stance`, `sense` and `first_attested` carry concepts the design names (a reported
-rejection; form or sense; date); they move into the core when a second source gives them.
+- **design** extensions carry a concept the claims model already names (a holder's own
+  stance, a link's sense, a date). One enters the core as soon as a second source gives
+  it, in that source's converter milestone.
+- **source-native** extensions carry a category or id whose meaning is the source's own.
+  One enters the core only when another source uses it with the same documented meaning.
+- Before declaring an extension, look in the registry for its concept under another
+  source. If it is there, do not declare it: move the concept into the core in the same
+  change, with every converter that used it, and raise the schema's version.
+- A test fails while two sources declare the same concept, so a shared concept cannot
+  stay split across extensions.
+- Each converter milestone's check reports the extensions it added and promoted.
 
 ## What the samples exercise
 
