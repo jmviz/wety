@@ -943,11 +943,11 @@ impl Items {
                 },
                 _ => false,
             };
-            // judged per alternative: one that keeps to entries or is not
-            // weak is reason enough to replace the existing ety
+            // judged per alternative: one that names an entry or is not weak
+            // is reason enough to replace the existing ety
             let loses_entry = etys
                 .iter()
-                .all(|e| e.items.iter().any(|&p| self.get(p).is_imputed()))
+                .all(|e| e.items.iter().all(|&p| self.get(p).is_imputed()))
                 && existing.items.iter().all(|&e| !self.get(e).is_imputed());
             // a lone {{m}} or a form-of sense, used when there is no
             // etymology proper, is weaker evidence than a Descendants list
@@ -1559,6 +1559,25 @@ mod tests {
                     "4": ":der", "5": "fro:Albert"}}]"#,
             );
             assert_eq!(t.parents(albert), ["ang:Æþelbeorht", "fro:Albert?"]);
+            // so do parents joined by "and", some of them missing
+            let litany = t.add("en", "litany");
+            let grc = t.add("grc", "λιτανεία");
+            let litanio = t.add("eo", "litanio");
+            t.items.graph.add_ety(
+                litanio,
+                EtyMode::Borrowed,
+                Some(0),
+                EdgeBasis::Descendants,
+                &[grc],
+                &[0.9],
+            );
+            t.process(
+                litanio,
+                r#"[{"name": "etymon", "args": {"1": "eo", "2": ":bor<conj:and>", "3": "en:litany",
+                    "4": "pl:litania"}}]"#,
+            );
+            assert_eq!(t.parents(litanio), ["en:litany", "pl:litania?"]);
+            assert_eq!(t.parent(litanio), litany);
         }
 
         #[test]
