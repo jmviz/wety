@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
-  "snapshot": "7054f5c28f86ce93fc7bc3a2a03a2f97c7404039330f5de78ac8da66a1b467f5",
-  "taken_at": "2026-10-18T01:05:19+00:00",
+  "snapshot": "150fa9a3b919b8de2ac9122edc21b4166ced586444a5a401accc5e892e57f242",
+  "taken_at": "2026-11-01T00:11:25+00:00",
   "root": "/data",
-  "files": 45145,
-  "bytes": 82680129282,
-  "git_commit": "b36265cfe2ebf2653895be4dace99fad536c438e",
-  "note": "Dating generation b0bed444: slash-free period labels (branch claude/client-ux-audit-findings-c7d2b1)"
+  "files": 45307,
+  "bytes": 84168611221,
+  "git_commit": "9140b42f449bcb6f272eafcde68ded72de4e9f9d",
+  "note": "core-1: graph a1bdab67 with edge bases; checks in run 813961f0 (branch claude/claims-core-1)"
 }
