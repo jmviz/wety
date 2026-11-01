@@ -24,7 +24,6 @@
 use crate::{
     HashSet,
     embeddings::{self, Embeddings},
-    etymology::ParsedRawEtyTemplate,
     items::Items,
 };
 use wety_core::{
@@ -175,13 +174,8 @@ impl Items {
         let mut mentions = Mentions::default();
         for (&item, ety) in &self.raw_templates.ety {
             let keys: Vec<LangTerm> = ety
-                .templates
-                .iter()
-                .filter_map(|t| match t {
-                    ParsedRawEtyTemplate::Parsed(t) => Some(t.langterms.iter()),
-                    ParsedRawEtyTemplate::Skipped => None,
-                })
-                .flatten()
+                .templates()
+                .flat_map(|t| t.langterms.iter())
                 .map(|&lt| self.key(lt))
                 .collect();
             if !keys.is_empty() {

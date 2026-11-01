@@ -9,13 +9,14 @@
 //! defaults to "1" and the inline modifiers include `<id:...>` (the target
 //! etymology's id), `<aftype:...>` (affix type under ":af") and
 //! `<ety:keyword<etymon>...>` (the etymon's own etymology, given inline when
-//! its page is missing).
+//! its page is missing). A keyword takes modifiers too: `<unc>` (the derivation
+//! is uncertain) and `<conj:...>` (how its terms are joined).
 //!
-//! An entry's {{etymon}} becomes a chain of `ParsedRawEtyTemplate`s, as the
-//! classic templates do: the first is the entry's parent(s), and the rest come
-//! from the inline etymology of a single parent, to be used if that parent has
-//! to be imputed. Of several keyword groups we take the first structural one,
-//! just as we take the first classic template.
+//! An entry's {{etymon}} gives one or more etymologies, alternatives the entry
+//! offers (see parse_params). Each becomes a chain of `ParsedRawEtyTemplate`s,
+//! as the classic templates do: the first is the entry's parent(s), and the
+//! rest come from the inline etymology of a single parent, to be used if that
+//! parent has to be imputed.
 
 use crate::{
     etymology::{ParsedRawEtyTemplate, Part, RawEtyTemplate, affixation_kind},
@@ -24,7 +25,9 @@ use crate::{
         clean_template_term, modifier, parse_pos, split_lang_prefix, split_modifiers,
     },
 };
-use wety_core::{etymology_templates::EtyMode, languages::Lang, string_pool::StringPool};
+use wety_core::{
+    ety_graph::Certainty, etymology_templates::EtyMode, languages::Lang, string_pool::StringPool,
+};
 
 use std::str::FromStr;
 
@@ -88,29 +91,54 @@ fn keyword(name: &str) -> Option<Keyword> {
     })
 }
 
-// A positional arg: a keyword (without its colon and modifiers) or an etymon.
+// A positional arg: a keyword (without its colon) and its modifiers, or an
+// etymon.
 #[derive(Debug, PartialEq)]
 enum Param<'a> {
-    Keyword(&'a str),
+    Keyword(&'a str, Vec<&'a str>),
     Etymon(&'a str),
 }
 
 fn top_level_param(arg: &str) -> Param<'_> {
     match arg.strip_prefix(':') {
-        Some(keyword) => Param::Keyword(split_modifiers(keyword).0.trim()),
+        Some(keyword) => {
+            let (name, modifiers) = split_modifiers(keyword);
+            Param::Keyword(name.trim(), modifiers)
+        }
         None => Param::Etymon(arg),
     }
+}
+
+// Whether a boolean modifier is set: `<unc>` or `<unc:1>`.
+fn flag(modifiers: &[&str], name: &str) -> bool {
+    modifiers.iter().any(|m| {
+        *m == name
+            || m.strip_prefix(name)
+                .and_then(|rest| rest.strip_prefix(':'))
+                .is_some_and(|v| !matches!(v.trim(), "" | "0" | "no" | "false"))
+    })
 }
 
 /// The params of an inline etymology `keyword<<kwmod>><etymon><etymon>:keyword2<etymon>`.
 fn inline_params(s: &str) -> Vec<Param<'_>> {
     let (keyword, _) = split_modifiers(s);
-    let mut params = vec![Param::Keyword(keyword.trim().trim_start_matches(':'))];
+    let mut params = vec![Param::Keyword(
+        keyword.trim().trim_start_matches(':'),
+        vec![],
+    )];
     let mut rest = &s[keyword.len()..];
     while !rest.is_empty() {
         if let Some(after) = rest.strip_prefix("<<") {
             // a keyword modifier, e.g. <<unc>>
-            rest = after.split_once(">>").map_or("", |(_, r)| r);
+            let (modifier, r) = after.split_once(">>").unwrap_or((after, ""));
+            if let Some(Param::Keyword(_, modifiers)) = params
+                .iter_mut()
+                .rev()
+                .find(|p| matches!(p, Param::Keyword(..)))
+            {
+                modifiers.push(modifier);
+            }
+            rest = r;
         } else if rest.starts_with('<') {
             let mut depth = 0usize;
             let mut end = rest.len();
@@ -136,7 +164,7 @@ fn inline_params(s: &str) -> Vec<Param<'_>> {
             let bare_end = rest.find('<').unwrap_or(rest.len());
             let bare = rest[..bare_end].trim();
             if let Some(keyword) = bare.strip_prefix(':') {
-                params.push(Param::Keyword(keyword.trim()));
+                params.push(Param::Keyword(keyword.trim(), vec![]));
             }
             rest = &rest[bare_end..];
         }
@@ -154,6 +182,8 @@ pub(crate) struct Etymon<'a> {
     pos: Option<&'a str>,
     aftype: Option<&'a str>,
     ety: Option<&'a str>,
+    // <unc>: the source is unsure of this term's part in the derivation
+    uncertain: bool,
 }
 
 /// Parse `lang:term<mod:value>...`. Returns None if the prefix is not a
@@ -176,6 +206,7 @@ pub(crate) fn parse_etymon(param: &str, context_lang: Lang) -> Option<Etymon<'_>
         pos: modifier(&modifiers, "pos"),
         aftype: modifier(&modifiers, "aftype"),
         ety: modifier(&modifiers, "ety").filter(|ety| !ety.is_empty()),
+        uncertain: flag(&modifiers, "unc"),
     })
 }
 
@@ -185,6 +216,7 @@ impl Etymon<'_> {
             id: self.id.map(Box::from),
             gloss: self.gloss.map(Box::from),
             pos: self.pos.and_then(parse_pos),
+            uncertain: self.uncertain,
         }
     }
 }
@@ -200,6 +232,7 @@ fn components_template(
     string_pool: &mut StringPool,
     etymons: &[Etymon],
     mode: Option<EtyMode>,
+    certainty: Certainty,
 ) -> Option<RawEtyTemplate> {
     let mut langterms = Vec::with_capacity(etymons.len());
     let mut parts = Vec::with_capacity(etymons.len());
@@ -228,28 +261,94 @@ fn components_template(
         head: (n_base_terms == 1)
             .then(|| u8::try_from(head).ok())
             .flatten(),
+        certainty,
     })
 }
 
-/// Parse a sequence of params into an etymology chain (empty if no keyword
-/// group is usable).
+// One etymon after a keyword that takes one, as a template.
+fn single_template(
+    string_pool: &mut StringPool,
+    etymon: &Etymon,
+    mode: EtyMode,
+    certainty: Certainty,
+) -> Option<RawEtyTemplate> {
+    etymon.term.map(|term| RawEtyTemplate {
+        langterms: Box::new([etymon.lang.new_langterm(string_pool, term)]),
+        parts: Box::new([etymon.part()]),
+        continues: false,
+        affixes: Box::default(),
+        refine_mode: false,
+        mode,
+        head: Some(0),
+        certainty,
+    })
+}
+
+// A keyword group: its keyword, its modifiers and its etymons.
+struct Group<'a> {
+    keyword: Keyword,
+    modifiers: Vec<&'a str>,
+    etymons: Vec<Etymon<'a>>,
+}
+
+impl Group<'_> {
+    // How Module:etymon/text joins this group's terms, and the group to the
+    // next: "or" unless the keyword says otherwise (<conj:and>).
+    fn joins_by_and(&self) -> bool {
+        modifier(&self.modifiers, "conj").is_some_and(|conj| conj == "and")
+    }
+
+    // Whether the group starts a sentence of its own, adding to the
+    // derivation rather than being an alternative to it: a calque-like
+    // keyword (Module:etymon/data's new_sentence), or a surface analysis.
+    fn own_sentence(&self) -> bool {
+        matches!(
+            self.keyword,
+            Keyword::Single(EtyMode::Calque | EtyMode::PartialCalque | EtyMode::SemanticLoan)
+        ) || flag(&self.modifiers, "surf")
+    }
+
+    fn certainty(&self) -> Certainty {
+        if flag(&self.modifiers, "unc") {
+            Certainty::Possible
+        } else {
+            Certainty::Stated
+        }
+    }
+}
+
+/// Parse a sequence of params into the etymologies they give, each a chain of
+/// templates whose first gives the parents (empty if no keyword group is
+/// usable).
+///
+/// Module:etymon/text joins the terms after a keyword, and the keyword groups
+/// of the derivation's sentence, with "or" unless the keyword says `<conj:and>`:
+/// "From French docteur or English doctor", "Possibly borrowed from German
+/// Tiger, or a learned borrowing from Latin tigris". These are alternatives,
+/// each its own etymology. Terms joined by "and" ("Borrowed from French de and
+/// Latin dē") are one etymology with several parents. A calque-like keyword or
+/// a surface analysis starts a sentence of its own and adds to the derivation,
+/// so it is no alternative; it is read only when it comes first, as before.
+/// An inline etymology continues a single parent's chain with its first
+/// alternative.
 fn parse_params(
     string_pool: &mut StringPool,
     params: &[Param],
     lang: Lang,
     depth: usize,
-) -> Vec<ParsedRawEtyTemplate> {
-    let mut groups: Vec<(&str, Vec<&str>)> = vec![];
+) -> Vec<Vec<ParsedRawEtyTemplate>> {
+    let mut raw_groups: Vec<(&str, Vec<&str>, Vec<&str>)> = vec![];
     for param in params {
-        match *param {
-            Param::Keyword(name) => groups.push((name, vec![])),
-            Param::Etymon(etymon) => match groups.last_mut() {
-                Some((_, etymons)) => etymons.push(etymon),
-                None => groups.push(("from", vec![etymon])),
+        match param {
+            Param::Keyword(name, modifiers) => raw_groups.push((name, modifiers.clone(), vec![])),
+            Param::Etymon(etymon) => match raw_groups.last_mut() {
+                Some((_, _, etymons)) => etymons.push(etymon),
+                None => raw_groups.push(("from", vec![], vec![etymon])),
             },
         }
     }
-    for (name, etymons) in groups {
+    let mut groups = vec![];
+    for (name, modifiers, etymons) in raw_groups {
         let Some(keyword) = keyword(name) else {
             continue; // an error on Wiktionary
         };
@@ -258,56 +357,100 @@ fn parse_params(
         }
         let etymons: Option<Vec<Etymon>> = etymons.iter().map(|e| parse_etymon(e, lang)).collect();
         let Some(etymons) = etymons else {
-            return vec![ParsedRawEtyTemplate::Skipped];
+            if groups.is_empty() {
+                return vec![vec![ParsedRawEtyTemplate::Skipped]];
+            }
+            break;
         };
-        let parsed = match keyword {
-            Keyword::Single(mode) => etymons[0].term.map(|term| RawEtyTemplate {
-                langterms: Box::new([etymons[0].lang.new_langterm(string_pool, term)]),
-                parts: Box::new([etymons[0].part()]),
-                continues: false,
-                affixes: Box::default(),
-                refine_mode: false,
-                mode,
-                head: Some(0),
-            }),
-            Keyword::Components(mode) => components_template(string_pool, &etymons, mode),
-            Keyword::Ignored => unreachable!(),
-        };
-        let mut chain =
-            vec![parsed.map_or(ParsedRawEtyTemplate::Skipped, ParsedRawEtyTemplate::Parsed)];
-        // A single parent's inline etymology continues the chain.
-        let single = match keyword {
-            Keyword::Single(_) => Some(&etymons[0]),
-            _ => (etymons.len() == 1).then(|| &etymons[0]),
-        };
-        if let Some(etymon) = single
-            && let Some(ety) = etymon.ety
-            && depth < MAX_INLINE_DEPTH
-        {
-            let inline = inline_params(ety);
-            chain.extend(
-                parse_params(string_pool, &inline, etymon.lang, depth + 1)
-                    .into_iter()
-                    .map(|template| match template {
-                        ParsedRawEtyTemplate::Parsed(mut template) => {
-                            template.continues = true;
-                            ParsedRawEtyTemplate::Parsed(template)
-                        }
-                        skipped @ ParsedRawEtyTemplate::Skipped => skipped,
-                    }),
-            );
-        }
-        return chain;
+        groups.push(Group {
+            keyword,
+            modifiers,
+            etymons,
+        });
     }
-    vec![]
+    let Some(first) = groups.first() else {
+        return vec![];
+    };
+    // the first group, and the groups after it in its sentence joined by "or"
+    let mut chosen = vec![first];
+    if !first.own_sentence() {
+        let mut joined_by_and = first.joins_by_and();
+        for group in groups.iter().skip(1).filter(|g| !g.own_sentence()) {
+            if joined_by_and {
+                break;
+            }
+            chosen.push(group);
+            joined_by_and = group.joins_by_and();
+        }
+    }
+    let mut alternatives = vec![];
+    for group in chosen {
+        let certainty = group.certainty();
+        // each alternative: a template, and the parent whose inline etymology
+        // may continue it
+        let mut found: Vec<(Option<RawEtyTemplate>, Option<&Etymon>)> = vec![];
+        match group.keyword {
+            Keyword::Single(mode) if group.joins_by_and() && group.etymons.len() > 1 => {
+                let template =
+                    components_template(string_pool, &group.etymons, Some(mode), certainty).map(
+                        |mut t| {
+                            t.affixes = Box::default();
+                            t.head = None;
+                            t
+                        },
+                    );
+                found.push((template, None));
+            }
+            Keyword::Single(mode) => {
+                for etymon in &group.etymons {
+                    found.push((
+                        single_template(string_pool, etymon, mode, certainty),
+                        Some(etymon),
+                    ));
+                }
+            }
+            Keyword::Components(mode) => {
+                let template = components_template(string_pool, &group.etymons, mode, certainty);
+                found.push((
+                    template,
+                    (group.etymons.len() == 1).then(|| &group.etymons[0]),
+                ));
+            }
+            Keyword::Ignored => unreachable!(),
+        }
+        for (template, single) in found {
+            let mut chain =
+                vec![template.map_or(ParsedRawEtyTemplate::Skipped, ParsedRawEtyTemplate::Parsed)];
+            // A single parent's inline etymology continues the chain.
+            if let Some(etymon) = single
+                && let Some(ety) = etymon.ety
+                && depth < MAX_INLINE_DEPTH
+            {
+                let inline = inline_params(ety);
+                let first = parse_params(string_pool, &inline, etymon.lang, depth + 1)
+                    .into_iter()
+                    .next()
+                    .unwrap_or_default();
+                chain.extend(first.into_iter().map(|template| match template {
+                    ParsedRawEtyTemplate::Parsed(mut template) => {
+                        template.continues = true;
+                        ParsedRawEtyTemplate::Parsed(template)
+                    }
+                    skipped @ ParsedRawEtyTemplate::Skipped => skipped,
+                }));
+            }
+            alternatives.push(chain);
+        }
+    }
+    alternatives
 }
 
-/// The etymology chain given by an {{etymon}} template's args.
+/// The etymologies given by an {{etymon}} template's args: see parse_params.
 pub(crate) fn parse_etymon_args(
     string_pool: &mut StringPool,
     args: &WiktextractJson,
     lang: Lang,
-) -> Vec<ParsedRawEtyTemplate> {
+) -> Vec<Vec<ParsedRawEtyTemplate>> {
     let mut params = vec![];
     let mut n = 2;
     while let Some(arg) = args.get_valid_str(n.to_string().as_str()) {
@@ -330,11 +473,50 @@ mod tests {
     // for a skipped one
     type Got = Vec<Option<(EtyMode, Option<u8>, Vec<(String, String, Option<String>)>)>>;
 
+    // the first etymology's chain
     fn parse(args: &str, entry_lang: &str) -> Got {
+        parse_all(args, entry_lang)
+            .into_iter()
+            .next()
+            .unwrap_or_default()
+    }
+
+    // every etymology's chain, and the certainty of each first template
+    fn parse_all(args: &str, entry_lang: &str) -> Vec<Got> {
+        parse_with_certainty(args, entry_lang)
+            .into_iter()
+            .map(|(got, _)| got)
+            .collect()
+    }
+
+    fn parse_with_certainty(args: &str, entry_lang: &str) -> Vec<(Got, Vec<Certainty>)> {
         let mut bytes = args.as_bytes().to_vec();
         let args = to_borrowed_value(&mut bytes).unwrap();
         let mut string_pool = StringPool::new();
         parse_etymon_args(&mut string_pool, &args, lang(entry_lang))
+            .into_iter()
+            .map(|chain| {
+                let certainties = match chain.first() {
+                    Some(ParsedRawEtyTemplate::Parsed(t)) => t
+                        .parts
+                        .iter()
+                        .map(|p| {
+                            if p.uncertain {
+                                t.certainty.max(Certainty::Possible)
+                            } else {
+                                t.certainty
+                            }
+                        })
+                        .collect(),
+                    _ => vec![],
+                };
+                (got(&string_pool, chain), certainties)
+            })
+            .collect()
+    }
+
+    fn got(string_pool: &StringPool, chain: Vec<ParsedRawEtyTemplate>) -> Got {
+        chain
             .into_iter()
             .map(|t| match t {
                 ParsedRawEtyTemplate::Parsed(t) => Some((
@@ -346,7 +528,7 @@ mod tests {
                         .map(|(lt, part)| {
                             (
                                 lt.lang.code().to_owned(),
-                                lt.term.resolve(&string_pool).to_owned(),
+                                lt.term.resolve(string_pool).to_owned(),
                                 part.id.as_deref().map(str::to_owned),
                             )
                         })
@@ -409,20 +591,111 @@ mod tests {
     }
 
     #[test]
-    fn alternatives_take_the_first_and_ignored_groups_are_skipped() {
-        let got = parse(
+    fn alternatives_are_etymologies_and_ignored_groups_are_skipped() {
+        let single = |lang: &str, term: &str| {
+            vec![Some((
+                EtyMode::Borrowed,
+                Some(0),
+                vec![lt(lang, term, None)],
+            ))]
+        };
+        // "Borrowed from Spanish and/or Portuguese cruzado"
+        let got = parse_all(
             r#"{"1": "en", "2": ":root", "3": "ine-pro:*bʰer-<id:carry>",
                 "4": ":bor<conj:and/or>", "5": "es:cruzado", "6": "pt:cruzado"}"#,
             "en",
         );
+        assert_eq!(got, [single("es", "cruzado"), single("pt", "cruzado")]);
+        // "From French docteur or English doctor": "or" by default
+        let got = parse_all(
+            r#"{"1": "mg", "2": ":bor", "3": "fr:docteur", "4": "en:doctor"}"#,
+            "mg",
+        );
+        assert_eq!(got, [single("fr", "docteur"), single("en", "doctor")]);
+    }
+
+    #[test]
+    fn terms_joined_by_and_are_one_etymology() {
+        // "Borrowed from French de and Latin dē"
+        let got = parse_all(
+            r#"{"1": "eo", "2": ":bor<conj:and>", "3": "fr:de<id:of>", "4": "la:dē<id:of>"}"#,
+            "eo",
+        );
         assert_eq!(
             got,
-            [Some((
+            [vec![Some((
                 EtyMode::Borrowed,
-                Some(0),
-                vec![lt("es", "cruzado", None)]
-            ))]
+                None,
+                vec![lt("fr", "de", Some("of")), lt("la", "dē", Some("of"))]
+            ))]]
         );
+    }
+
+    #[test]
+    fn groups_of_one_sentence_are_alternatives() {
+        // "Possibly borrowed from German Tiger, or a learned borrowing from
+        // Latin tigris"
+        let got = parse_with_certainty(
+            r#"{"1": "sk", "2": ":bor<unc>", "3": "de:Tiger", "4": ":lbor", "5": "la:tigris"}"#,
+            "sk",
+        );
+        assert_eq!(
+            got,
+            [
+                (
+                    vec![Some((
+                        EtyMode::Borrowed,
+                        Some(0),
+                        vec![lt("de", "Tiger", None)]
+                    ))],
+                    vec![Certainty::Possible]
+                ),
+                (
+                    vec![Some((
+                        EtyMode::LearnedBorrowing,
+                        Some(0),
+                        vec![lt("la", "tigris", None)]
+                    ))],
+                    vec![Certainty::Stated]
+                ),
+            ]
+        );
+        // "From cape + Portuguese verde. Partial calque of Portuguese Cabo
+        // Verde": a calque starts a sentence of its own, adding to the
+        // derivation
+        let got = parse_all(
+            r#"{"1": "en", "2": ":af", "3": "cape", "4": "pt:verde<t:green>",
+                "5": ":pcal", "6": "pt:Cabo Verde"}"#,
+            "en",
+        );
+        assert_eq!(got.len(), 1);
+        assert_eq!(got[0][0].as_ref().unwrap().0, EtyMode::Compound);
+        // and so does a surface analysis
+        let got = parse_all(
+            r#"{"1": "en", "2": ":inh", "3": "enm:abetter", "4": ":af<surf>",
+                "5": "abet", "6": "-er<id:agent noun>"}"#,
+            "en",
+        );
+        assert_eq!(got.len(), 1);
+        // groups joined by "and" add to each other: the first is read
+        let got = parse_all(
+            r#"{"1": "en", "2": ":bor<conj:and>", "3": "fr:a", "4": ":bor", "5": "de:b"}"#,
+            "en",
+        );
+        assert_eq!(got.len(), 1);
+    }
+
+    #[test]
+    fn hedged_terms_are_possible() {
+        let got = parse_with_certainty(
+            r#"{"1": "xka", "id": "left", "2": ":inh", "3": "sa:खुर<t:hoof><unc>"}"#,
+            "xka",
+        );
+        assert_eq!(got[0].1, [Certainty::Possible]);
+        let got = parse_with_certainty(r#"{"1": "ar", "2": ":cal<unc>", "3": "fr:blanche"}"#, "ar");
+        assert_eq!(got[0].1, [Certainty::Possible]);
+        let got = parse_with_certainty(r#"{"1": "es", "2": ":inh", "3": "osp:onze"}"#, "es");
+        assert_eq!(got[0].1, [Certainty::Stated]);
     }
 
     #[test]
@@ -529,9 +802,9 @@ mod tests {
         assert_eq!(
             inline_params("inh<<unc>><fro:mot<id:x>>:bor<la:y>"),
             [
-                Param::Keyword("inh"),
+                Param::Keyword("inh", vec!["unc"]),
                 Param::Etymon("fro:mot<id:x>"),
-                Param::Keyword("bor"),
+                Param::Keyword("bor", vec![]),
                 Param::Etymon("la:y"),
             ]
         );

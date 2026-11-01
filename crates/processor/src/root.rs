@@ -12,7 +12,7 @@ use crate::{
     },
 };
 use wety_core::{
-    ety_graph::{EdgeBasis, EtyEdgeAccess},
+    ety_graph::{Certainty, EdgeBasis, EtyEdgeAccess, NewEtymology},
     etymology_templates::EtyMode,
     items::ItemId,
     langterm::{LangTerm, Term},
@@ -47,28 +47,10 @@ impl WiktextractJsonItem<'_> {
     // https://en.wiktionary.org/wiki/Template:PIE_word), else per its root
     // categories, which {{etymon}} and other templates also generate. These
     // indicate ultimate descent from a proto-language term, which we record as
-    // "root" etys. An entry may name several roots (e.g. a compound). An entry
-    // that names one root under several senses does not say which it means:
-    // pro-, per- and prae- words name both *per- (before) and *per- (fare),
-    // since Wiktionary derives *pér, uncertainly, from either. Those roots are
-    // dropped.
+    // "root" etys. An entry may name several roots (e.g. a compound), or one
+    // root under several senses (see ambiguous_roots).
     pub(crate) fn get_roots(&self, string_pool: &mut StringPool, lang: Lang) -> Vec<RawRoot> {
-        let mut roots = self.get_named_roots(string_pool, lang);
-        let senses = |langterm| {
-            roots
-                .iter()
-                .filter(|r| r.langterm == langterm)
-                .filter_map(|r| r.sense_id.as_deref())
-                .collect::<HashSet<_>>()
-                .len()
-        };
-        let ambiguous: HashSet<LangTerm> = roots
-            .iter()
-            .map(|r| r.langterm)
-            .filter(|&langterm| senses(langterm) > 1)
-            .collect();
-        roots.retain(|r| !ambiguous.contains(&r.langterm));
-        roots
+        self.get_named_roots(string_pool, lang)
     }
 
     fn get_named_roots(&self, string_pool: &mut StringPool, lang: Lang) -> Vec<RawRoot> {
@@ -199,6 +181,62 @@ fn process_json_root_category(
     })
 }
 
+// The roots an entry names under several senses, in the order it names them.
+// Such an entry does not say which it means: pro-, per- and prae- words name
+// both *per- (before) and *per- (fare), since Wiktionary derives *pér,
+// uncertainly, from either.
+fn ambiguous_roots(roots: &[RawRoot]) -> Vec<LangTerm> {
+    let mut ambiguous = vec![];
+    for root in roots {
+        let senses = roots
+            .iter()
+            .filter(|r| r.langterm == root.langterm)
+            .filter_map(|r| r.sense_id.as_deref())
+            .collect::<HashSet<_>>()
+            .len();
+        if senses > 1 && !ambiguous.contains(&root.langterm) {
+            ambiguous.push(root.langterm);
+        }
+    }
+    ambiguous
+}
+
+// The sets of roots an entry may mean: one per choice of sense for each root it
+// names under several, each with every root it names under one. Too many
+// choices give the unambiguous roots alone.
+const MAX_ROOT_ALTERNATIVES: usize = 4;
+
+fn root_alternatives(roots: &[RawRoot]) -> Vec<Vec<&RawRoot>> {
+    let ambiguous = ambiguous_roots(roots);
+    let plain: Vec<&RawRoot> = roots
+        .iter()
+        .filter(|r| !ambiguous.contains(&r.langterm))
+        .collect();
+    let mut alternatives = vec![plain.clone()];
+    for langterm in ambiguous {
+        let mut senses: Vec<&RawRoot> = vec![];
+        for root in roots.iter().filter(|r| r.langterm == langterm) {
+            if !senses.iter().any(|s| s.sense_id == root.sense_id) {
+                senses.push(root);
+            }
+        }
+        alternatives = alternatives
+            .iter()
+            .flat_map(|alt| {
+                senses.iter().map(move |&sense| {
+                    let mut alt = alt.clone();
+                    alt.push(sense);
+                    alt
+                })
+            })
+            .collect();
+    }
+    if alternatives.len() > MAX_ROOT_ALTERNATIVES {
+        return vec![plain];
+    }
+    alternatives
+}
+
 impl Items {
     // The item a root names: by its sense id where that is some root entry's
     // {{etymon}} id, else among homographs the one that best fits the item by
@@ -273,7 +311,8 @@ impl Items {
     // the result does not depend on hash-map order.
     //
     // 1. An item with no ety of its own gets its roots as its ety (imputing a
-    //    root missing from the data).
+    //    root missing from the data). An item naming a root under several
+    //    senses gets one etymology for each, alternatives with no primary.
     // 2. An item with an ety chain that does not reach one of its roots says
     //    that the top of its head chain (its head progenitor) descends from
     //    that root, if that has no ety; the chain also stops at an ety without
@@ -285,7 +324,8 @@ impl Items {
     //    progenitor (la testum). Many items may speak for the same progenitor,
     //    not always alike, so each progenitor gets the root most of them name,
     //    an item naming n unreached roots giving each 1/n of a vote. Where the
-    //    votes do not single out one root, the progenitor gets none.
+    //    votes do not single out one root, the progenitor gets none. A root
+    //    named under several senses is no vote for either.
     pub(crate) fn impute_root_etys(
         &mut self,
         string_pool: &StringPool,
@@ -301,29 +341,43 @@ impl Items {
             if self.graph.immediate_ety(item_id).is_some() {
                 continue;
             }
-            let (mut root_items, mut confidences) = (vec![], vec![]);
-            for root in roots {
-                let (root_item, confidence) = match self.find_root(embeddings, item_id, root)? {
-                    Some(found) => found,
-                    None => (self.impute_item(root.langterm, item_id), 0.0),
-                };
-                if self.may_descend_from_root(string_pool, item_id, root_item)
-                    && !root_items.contains(&root_item)
-                {
-                    root_items.push(root_item);
-                    confidences.push(confidence);
+            let mut alternatives: Vec<(Vec<ItemId>, Vec<f32>)> = vec![];
+            for alternative in root_alternatives(roots) {
+                let (mut root_items, mut confidences) = (vec![], vec![]);
+                for root in alternative {
+                    let (root_item, confidence) = match self.find_root(embeddings, item_id, root)? {
+                        Some(found) => found,
+                        None => (self.impute_item(root.langterm, item_id), 0.0),
+                    };
+                    if self.may_descend_from_root(string_pool, item_id, root_item)
+                        && !root_items.contains(&root_item)
+                    {
+                        root_items.push(root_item);
+                        confidences.push(confidence);
+                    }
+                }
+                if !root_items.is_empty() && !alternatives.iter().any(|(r, _)| *r == root_items) {
+                    alternatives.push((root_items, confidences));
                 }
             }
-            if !root_items.is_empty() {
-                let head = (root_items.len() == 1).then_some(0);
-                self.graph.add_ety(
-                    item_id,
-                    EtyMode::Root,
-                    head,
-                    EdgeBasis::Root,
-                    &root_items,
-                    &confidences,
-                );
+            let certainties: Vec<Vec<Certainty>> = alternatives
+                .iter()
+                .map(|(r, _)| vec![Certainty::Stated; r.len()])
+                .collect();
+            let etys: Vec<NewEtymology> = alternatives
+                .iter()
+                .zip(&certainties)
+                .map(|((root_items, confidences), certainties)| NewEtymology {
+                    mode: EtyMode::Root,
+                    head: (root_items.len() == 1).then_some(0),
+                    basis: EdgeBasis::Root,
+                    items: root_items,
+                    confidences,
+                    certainties,
+                })
+                .collect();
+            if !etys.is_empty() {
+                self.graph.add_etymologies(item_id, &etys);
             }
         }
 
@@ -343,8 +397,9 @@ impl Items {
                 continue;
             };
             let reached = self.ancestor_langterms(item_id);
+            let ambiguous = ambiguous_roots(roots);
             let mut unreached = vec![];
-            for root in roots {
+            for root in roots.iter().filter(|r| !ambiguous.contains(&r.langterm)) {
                 if let Some((root_item, _)) = self.find_root(embeddings, item_id, root)?
                     && !reached.contains(&LangTerm::new(
                         self.get(root_item).lang(),
@@ -456,24 +511,46 @@ mod tests {
     }
 
     #[test]
-    fn a_root_named_under_several_senses_is_dropped() {
-        let pie = |t: &str, s: Option<&str>| (format!("ine-pro:{t}"), s.map(String::from));
+    fn a_root_named_under_several_senses_gives_alternatives() {
         // en product: pro- (from *pér, from either *per-) + dūcō (*dewk-)
+        let mut bytes = r#"{"categories": [
+            "English terms derived from the Proto-Indo-European root *per- (before)",
+            "English terms derived from the Proto-Indo-European root *per- (fare)",
+            "English terms derived from the Proto-Indo-European root *dewk-"]}"#
+            .as_bytes()
+            .to_vec();
+        let json = to_borrowed_value(&mut bytes).unwrap();
+        let mut sp = StringPool::new();
+        let named = WiktextractJsonItem { json }.get_roots(&mut sp, Lang::from_str("en").unwrap());
+        let alternatives: Vec<Vec<String>> = root_alternatives(&named)
+            .into_iter()
+            .map(|alt| {
+                alt.into_iter()
+                    .map(|r| {
+                        format!(
+                            "{}{}",
+                            r.langterm.term.resolve(&sp),
+                            r.sense_id
+                                .as_deref()
+                                .map(|s| format!(" ({s})"))
+                                .unwrap_or_default()
+                        )
+                    })
+                    .collect()
+            })
+            .collect();
         assert_eq!(
-            roots(
-                r#"{"categories": [
-                "English terms derived from the Proto-Indo-European root *per- (before)",
-                "English terms derived from the Proto-Indo-European root *per- (fare)",
-                "English terms derived from the Proto-Indo-European root *dewk-"]}"#
-            ),
-            [pie("dewk-", None)]
+            alternatives,
+            [["dewk-", "per- (before)"], ["dewk-", "per- (fare)"]]
         );
-        assert!(
+        // a {{root}} naming one root under two senses
+        let pie = |t: &str, s: Option<&str>| (format!("ine-pro:{t}"), s.map(String::from));
+        assert_eq!(
             roots(
                 r#"{"etymology_templates": [{"name": "root",
                 "args": {"1": "en", "2": "ine-pro", "3": "*per- (before)", "4": "*per-<id:fare>"}}]}"#
-            )
-            .is_empty()
+            ),
+            [pie("per-", Some("before")), pie("per-", Some("fare"))]
         );
     }
 }

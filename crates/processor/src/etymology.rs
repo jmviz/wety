@@ -11,7 +11,7 @@ use crate::{
     },
 };
 use wety_core::{
-    ety_graph::EdgeBasis,
+    ety_graph::{Certainty, EdgeBasis, NewEtymology},
     etymology_templates::{EtyMode, TemplateKind},
     items::ItemId,
     langterm::LangTerm,
@@ -42,6 +42,9 @@ pub(crate) struct RawEtyTemplate {
     pub(crate) refine_mode: bool,
     pub(crate) mode: EtyMode,    // e.g. Prefix
     pub(crate) head: Option<u8>, // e.g. 1 (the index of "do")
+    // how firmly the template gives its derivation: possible when hedged
+    // (an {{etymon}} keyword's <unc>)
+    pub(crate) certainty: Certainty,
 }
 
 // What a template says of a cited term besides the term: an id naming its
@@ -53,6 +56,8 @@ pub(crate) struct Part {
     pub(crate) id: Option<Box<str>>,
     pub(crate) gloss: Option<Box<str>>,
     pub(crate) pos: Option<Pos>,
+    // the source is unsure of this term's part (an {{etymon}} etymon's <unc>)
+    pub(crate) uncertain: bool,
 }
 
 impl RawEtyTemplate {
@@ -70,6 +75,7 @@ impl RawEtyTemplate {
             refine_mode: false,
             mode,
             head: Some(0),
+            certainty: Certainty::Stated,
         }
     }
 }
@@ -82,7 +88,10 @@ pub(crate) enum ParsedRawEtyTemplate {
 
 #[derive(Hash, Eq, PartialEq, Debug)]
 pub(crate) struct RawEtymology {
-    pub(crate) templates: Box<[ParsedRawEtyTemplate]>,
+    // The etymologies an entry's section gives, alternatives ("from A or B"),
+    // each a chain of templates whose first gives the entry's parents. None:
+    // the section says the origin is unknown ({{unk}}).
+    pub(crate) alternatives: Box<[Box<[ParsedRawEtyTemplate]>]>,
     // what the templates were read from: {{etymon}}, the classic templates, a
     // lone {{m}} or a form-of sense
     pub(crate) basis: EdgeBasis,
@@ -90,10 +99,32 @@ pub(crate) struct RawEtymology {
 
 impl RawEtymology {
     fn new(templates: Vec<ParsedRawEtyTemplate>, basis: EdgeBasis) -> Self {
+        Self::alternatives(vec![templates], basis)
+    }
+
+    fn alternatives(alternatives: Vec<Vec<ParsedRawEtyTemplate>>, basis: EdgeBasis) -> Self {
         Self {
-            templates: templates.into_boxed_slice(),
+            alternatives: alternatives
+                .into_iter()
+                .map(Vec::into_boxed_slice)
+                .collect(),
             basis,
         }
+    }
+
+    fn unknown() -> Self {
+        Self::alternatives(vec![], EdgeBasis::Template)
+    }
+
+    fn is_unknown(&self) -> bool {
+        self.alternatives.is_empty()
+    }
+
+    pub(crate) fn templates(&self) -> impl Iterator<Item = &RawEtyTemplate> {
+        self.alternatives.iter().flatten().filter_map(|t| match t {
+            ParsedRawEtyTemplate::Parsed(template) => Some(template),
+            ParsedRawEtyTemplate::Skipped => None,
+        })
     }
 }
 
@@ -126,6 +157,7 @@ fn term_part(args: &WiktextractJson, key: &str, gloss_keys: &[&str]) -> Part {
         .or_else(|| gloss_keys.iter().find_map(|k| args.get_valid_str(k)));
     let pos = modifier(&modifiers, "pos").or_else(|| args.get_valid_str("pos"));
     Part {
+        uncertain: false,
         id: id.filter(|s| !s.is_empty()).map(Box::from),
         gloss: gloss.filter(|s| !s.is_empty()).map(Box::from),
         pos: pos.and_then(parse_pos),
@@ -154,6 +186,7 @@ fn process_prefix_json_template(
     let ety_term = args.get_valid_term("3")?;
     let ety_term = lang.new_langterm(string_pool, ety_term);
     Some(RawEtyTemplate {
+        certainty: Certainty::Stated,
         langterms: Box::new([ety_prefix, ety_term]),
         parts: Box::default(),
         continues: false,
@@ -174,6 +207,7 @@ fn process_suffix_json_template(
     let ety_suffix = args.get_affix_term("3", &Affix::Suffix)?;
     let ety_suffix = lang.new_langterm(string_pool, &ety_suffix);
     Some(RawEtyTemplate {
+        certainty: Certainty::Stated,
         langterms: Box::new([ety_term, ety_suffix]),
         parts: Box::default(),
         continues: false,
@@ -197,6 +231,7 @@ fn process_circumfix_json_template(
     let ety_circumfix = format!("{ety_prefix} {ety_suffix}");
     let ety_circumfix = lang.new_langterm(string_pool, &ety_circumfix);
     Some(RawEtyTemplate {
+        certainty: Certainty::Stated,
         langterms: Box::new([ety_term, ety_circumfix]),
         parts: Box::default(),
         continues: false,
@@ -218,6 +253,7 @@ fn process_infix_json_template(
     let ety_term = lang.new_langterm(string_pool, ety_term);
     let ety_infix = lang.new_langterm(string_pool, &ety_infix);
     Some(RawEtyTemplate {
+        certainty: Certainty::Stated,
         langterms: Box::new([ety_term, ety_infix]),
         parts: Box::default(),
         continues: false,
@@ -241,6 +277,7 @@ fn process_confix_json_template(
         let ety_term = lang.new_langterm(string_pool, ety2);
         let ety_suffix = lang.new_langterm(string_pool, &ety_suffix);
         return Some(RawEtyTemplate {
+            certainty: Certainty::Stated,
             langterms: Box::new([ety_prefix, ety_term, ety_suffix]),
             parts: Box::default(),
             continues: false,
@@ -253,6 +290,7 @@ fn process_confix_json_template(
     let ety_suffix = format!("-{ety2}");
     let ety_suffix = lang.new_langterm(string_pool, &ety_suffix);
     Some(RawEtyTemplate {
+        certainty: Certainty::Stated,
         langterms: Box::new([ety_prefix, ety_suffix]),
         parts: Box::default(),
         continues: false,
@@ -361,6 +399,7 @@ fn process_compound_kind_json_template(
                 .map(Box::from)
         };
         parts.push(Part {
+            uncertain: false,
             id: part_param("id"),
             gloss: part_param("t").or_else(|| part_param("gloss")),
             pos: part_param("pos").as_deref().and_then(parse_pos),
@@ -368,6 +407,7 @@ fn process_compound_kind_json_template(
     }
     if !ety_langterms.is_empty() {
         return Some(RawEtyTemplate {
+            certainty: Certainty::Stated,
             langterms: ety_langterms.into_boxed_slice(),
             parts: parts.into_boxed_slice(),
             continues: false,
@@ -514,16 +554,18 @@ impl WiktextractJsonItem<'_> {
     // templates are used as before.
     fn get_etymon_ety(&self, string_pool: &mut StringPool, lang: Lang) -> Option<RawEtymology> {
         let args = self.get_etymon_args(lang)?;
-        let mut templates = etymon::parse_etymon_args(string_pool, args, lang);
-        if templates.is_empty() {
+        let mut alternatives = etymon::parse_etymon_args(string_pool, args, lang);
+        if alternatives.is_empty() {
             return None;
         }
-        if let [ParsedRawEtyTemplate::Parsed(parent)] = templates.as_slice()
+        if let [templates] = alternatives.as_mut_slice()
+            && let [ParsedRawEtyTemplate::Parsed(parent)] = templates.as_slice()
             && parent.langterms.len() == 1
             && let Some(standard) = self.get_standard_ety(string_pool, lang)
+            && let Some(chain) = Vec::from(standard.alternatives).into_iter().next()
         {
             let parent = parent.langterms[0];
-            let continuation = Vec::from(standard.templates)
+            let continuation = Vec::from(chain)
                 .into_iter()
                 .skip_while(
                     |t| !matches!(t, ParsedRawEtyTemplate::Parsed(c) if *c.langterms == [parent]),
@@ -531,7 +573,7 @@ impl WiktextractJsonItem<'_> {
                 .skip(1);
             templates.extend(continuation);
         }
-        Some(RawEtymology::new(templates, EdgeBasis::Etymon))
+        Some(RawEtymology::alternatives(alternatives, EdgeBasis::Etymon))
     }
 
     // Many ety sections contain a single {{m}} template and no others, and
@@ -570,20 +612,27 @@ impl WiktextractJsonItem<'_> {
         ))
     }
 
+    // An etymology that opens as unknown ({{unk}}) is read as such. One that
+    // opens as unknown or uncertain ({{unc}}) goes on to conjecture or compare
+    // ("Perhaps from ...", "Compare ..."): no template after it names the
+    // parent. $$ Reading the conjectures as possible etymologies needs their
+    // prose (syn-2).
     fn get_standard_ety(&self, string_pool: &mut StringPool, lang: Lang) -> Option<RawEtymology> {
         let templates = self.json.get_array("etymology_templates")?;
         let mut raw_ety_templates = Vec::with_capacity(templates.len());
         for template in templates {
-            // An etymology that opens as unknown or uncertain ({{unk}},
-            // {{unc}}) goes on to conjecture or compare ("Perhaps from ...",
-            // "Compare ..."): no template after it names the parent.
-            if template
-                .get_valid_str("name")
-                .is_some_and(|name| matches!(name, "unk" | "unknown" | "unc" | "uncertain"))
-                && !raw_ety_templates
-                    .iter()
-                    .any(|t| matches!(t, ParsedRawEtyTemplate::Parsed(_)))
-            {
+            let opens = |names: &[&str]| {
+                template
+                    .get_valid_str("name")
+                    .is_some_and(|name| names.contains(&name))
+                    && !raw_ety_templates
+                        .iter()
+                        .any(|t| matches!(t, ParsedRawEtyTemplate::Parsed(_)))
+            };
+            if opens(&["unk", "unknown"]) {
+                return Some(RawEtymology::unknown());
+            }
+            if opens(&["unc", "uncertain"]) {
                 break;
             }
             if let Some(raw_ety_template) = process_json_ety_template(string_pool, template, lang) {
@@ -616,6 +665,7 @@ impl WiktextractJsonItem<'_> {
         let mut ety = RawEtyTemplate::new(langterm, EtyMode::Form);
         if let Some(gloss) = alt_obj.get_str("extra").filter(|g| !g.is_empty()) {
             ety = ety.with_part(Part {
+                uncertain: false,
                 id: None,
                 gloss: Some(gloss.into()),
                 pos: None,
@@ -634,9 +684,24 @@ impl WiktextractJsonItem<'_> {
     ) -> Option<RawEtymology> {
         self.get_etymon_ety(string_pool, lang)
             .or_else(|| self.get_single_mention_ety(string_pool))
-            .or_else(|| self.get_standard_ety(string_pool, lang))
+            .or_else(|| match self.get_standard_ety(string_pool, lang) {
+                // a form-of sense still links an entry of unknown origin
+                Some(unknown) if unknown.is_unknown() => {
+                    self.get_form_ety(string_pool, lang).or(Some(unknown))
+                }
+                standard => standard,
+            })
             .or_else(|| self.get_form_ety(string_pool, lang))
     }
+}
+
+// The parents one template gives an item, resolved to items.
+struct Resolved {
+    items: Vec<ItemId>,
+    confidences: Vec<f32>,
+    certainties: Vec<Certainty>,
+    mode: EtyMode,
+    head: Option<u8>,
 }
 
 impl Items {
@@ -648,10 +713,7 @@ impl Items {
     ) {
         // The citing item is the item, or an imputed item of its chain, which
         // borrows the item's embeddings.
-        for template in raw_etymology.templates.iter().filter_map(|t| match t {
-            ParsedRawEtyTemplate::Parsed(template) => Some(template),
-            ParsedRawEtyTemplate::Skipped => None,
-        }) {
+        for template in raw_etymology.templates() {
             for (n, &langterm) in template.langterms.iter().enumerate() {
                 if let Some(candidates) = self.candidates(langterm)
                     && candidates.len() > 1
@@ -666,13 +728,14 @@ impl Items {
         }
     }
 
-    // The first parsed template gives the item's parent(s). If that is a
-    // single parent missing from the data (and so imputed), the next template
-    // is taken to give the imputed parent's own parent, and so on, as long as
-    // it is known to (an {{etymon}} inline etymology) or the chain stays within
-    // one line of descent (e.g. en < enm < ang). $$ Language dates would allow
-    // the latter for e.g. Middle English < Latin too. Leading templates that
-    // could not be parsed are passed over.
+    // Each alternative's first parsed template gives the item's parent(s) in
+    // that etymology; the item gets them all as its etymologies at once. If an
+    // alternative names a single parent missing from the data (and so
+    // imputed), its next template is taken to give the imputed parent's own
+    // parent, and so on, as long as it is known to (an {{etymon}} inline
+    // etymology) or the chain stays within one line of descent (e.g. en < enm <
+    // ang). $$ Language dates would allow the latter for e.g. Middle English <
+    // Latin too. Leading templates that could not be parsed are passed over.
     fn process_item_raw_etymology(
         &mut self,
         string_pool: &StringPool,
@@ -680,78 +743,138 @@ impl Items {
         item: ItemId,
         raw_etymology: &RawEtymology,
     ) -> Result<()> {
-        let templates = &*raw_etymology.templates;
-        let mut current_item = item;
-        let mut first = templates
-            .iter()
-            .position(|t| matches!(t, ParsedRawEtyTemplate::Parsed(_)));
-        while let Some(i) = first {
-            let ParsedRawEtyTemplate::Parsed(template) = &templates[i] else {
-                break;
+        if raw_etymology.is_unknown() {
+            self.graph.set_unknown(item);
+            return Ok(());
+        }
+        let mut firsts = vec![];
+        for chain in &raw_etymology.alternatives {
+            let Some(i) = chain
+                .iter()
+                .position(|t| matches!(t, ParsedRawEtyTemplate::Parsed(_)))
+            else {
+                continue;
             };
-            // What the etymology gives as a single parent's own source: the next
-            // template, if it is known to continue the chain, or if both are
-            // derived-kind ({{inh}}, {{bor}}, {{der}}, ...) and the next is in
-            // an earlier stage of the parent's line of descent ("from enm m,
-            // from ang o"; not "from French X or Spanish Y", nor parts of a
-            // word listed one by one).
-            let derived =
-                |t: &RawEtyTemplate| t.mode.template_kind() == Some(TemplateKind::Derived);
-            let next = match (&template.langterms[..], templates.get(i + 1)) {
-                ([parent], Some(ParsedRawEtyTemplate::Parsed(next))) => match &next.langterms[..] {
-                    [source]
-                        if next.continues
-                            || (derived(template)
-                                && derived(next)
-                                && parent
-                                    .lang
-                                    .ety2non()
-                                    .strictly_descends_from(source.lang.ety2non())) =>
-                    {
-                        Some(*source)
-                    }
-                    _ => None,
-                },
+            let resolved = self.resolve_template(string_pool, embeddings, item, item, chain, i)?;
+            firsts.push((chain, i, resolved));
+        }
+        if firsts.is_empty() {
+            return Ok(());
+        }
+        let resolved: Vec<&Resolved> = firsts.iter().map(|(_, _, r)| r).collect();
+        if !self.set_own_etys(item, raw_etymology.basis, &resolved) {
+            return Ok(());
+        }
+        for (chain, i, resolved) in firsts {
+            self.continue_chain(
+                string_pool,
+                embeddings,
+                item,
+                raw_etymology,
+                chain,
+                i,
+                resolved,
+            )?;
+        }
+        Ok(())
+    }
+
+    // The parents a chain's template at `i` gives `current_item`, cited from
+    // `item`'s section.
+    fn resolve_template(
+        &mut self,
+        string_pool: &StringPool,
+        embeddings: &Embeddings,
+        item: ItemId,
+        current_item: ItemId,
+        templates: &[ParsedRawEtyTemplate],
+        i: usize,
+    ) -> Result<Resolved> {
+        let ParsedRawEtyTemplate::Parsed(template) = &templates[i] else {
+            unreachable!("only parsed templates are resolved");
+        };
+        // What the etymology gives as a single parent's own source: the next
+        // template, if it is known to continue the chain, or if both are
+        // derived-kind ({{inh}}, {{bor}}, {{der}}, ...) and the next is in
+        // an earlier stage of the parent's line of descent ("from enm m,
+        // from ang o"; not "from French X or Spanish Y", nor parts of a
+        // word listed one by one).
+        let derived = |t: &RawEtyTemplate| t.mode.template_kind() == Some(TemplateKind::Derived);
+        let next = match (&template.langterms[..], templates.get(i + 1)) {
+            ([parent], Some(ParsedRawEtyTemplate::Parsed(next))) => match &next.langterms[..] {
+                [source]
+                    if next.continues
+                        || (derived(template)
+                            && derived(next)
+                            && parent
+                                .lang
+                                .ety2non()
+                                .strictly_descends_from(source.lang.ety2non())) =>
+                {
+                    Some(*source)
+                }
                 _ => None,
+            },
+            _ => None,
+        };
+        let mut ety_items = Vec::with_capacity(template.langterms.len());
+        let mut confidences = Vec::with_capacity(template.langterms.len());
+        let mut certainties = Vec::with_capacity(template.langterms.len());
+        for (n, &ety_langterm) in template.langterms.iter().enumerate() {
+            let part = template.parts.get(n);
+            let citation = Citation {
+                langterm: ety_langterm,
+                id: part.and_then(|p| p.id.as_deref()),
+                gloss: part.and_then(|p| p.gloss.as_deref()),
+                // given, or implied by the derivation (a deverbal's source
+                // is a verb)
+                pos: part.and_then(|p| p.pos).or_else(|| {
+                    (template.mode == EtyMode::Deverbal)
+                        .then(|| Pos::from_str("verb").ok())
+                        .flatten()
+                }),
+                citer: current_item,
+                relation: Relation::Parent { next },
             };
-            let mut ety_items = Vec::with_capacity(template.langterms.len());
-            let mut confidences = Vec::with_capacity(template.langterms.len());
-            for (n, &ety_langterm) in template.langterms.iter().enumerate() {
-                let citation = Citation {
-                    langterm: ety_langterm,
-                    id: template.parts.get(n).and_then(|p| p.id.as_deref()),
-                    gloss: template.parts.get(n).and_then(|p| p.gloss.as_deref()),
-                    // given, or implied by the derivation (a deverbal's source
-                    // is a verb)
-                    pos: template.parts.get(n).and_then(|p| p.pos).or_else(|| {
-                        (template.mode == EtyMode::Deverbal)
-                            .then(|| Pos::from_str("verb").ok())
-                            .flatten()
-                    }),
-                    citer: current_item,
-                    relation: Relation::Parent { next },
-                };
-                let (ety_item, confidence) =
-                    match self.resolve(string_pool, embeddings, &citation)? {
-                        Resolution::Found { item, confidence } => (item, confidence),
-                        Resolution::Missing => (self.impute_item(ety_langterm, item), 0.0),
-                    };
-                ety_items.push(ety_item);
-                confidences.push(confidence);
-            }
-            let (mode, head) = self.revise_affixes(template, &ety_items);
-            // A later template is stated to give the parent's etymology only
-            // when {{etymon}} gives it inline; otherwise it is read so.
-            let basis = if current_item == item || template.continues {
-                raw_etymology.basis
+            let (ety_item, confidence) = match self.resolve(string_pool, embeddings, &citation)? {
+                Resolution::Found { item, confidence } => (item, confidence),
+                Resolution::Missing => (self.impute_item(ety_langterm, item), 0.0),
+            };
+            ety_items.push(ety_item);
+            confidences.push(confidence);
+            certainties.push(if part.is_some_and(|p| p.uncertain) {
+                template.certainty.max(Certainty::Possible)
             } else {
-                EdgeBasis::Chain
-            };
-            if !self.set_own_ety(current_item, mode, head, basis, &ety_items, &confidences) {
-                return Ok(());
-            }
-            // Continue with an imputed single parent's own etymology?
-            let [parent] = ety_items[..] else {
+                template.certainty
+            });
+        }
+        let (mode, head) = self.revise_affixes(template, &ety_items);
+        Ok(Resolved {
+            items: ety_items,
+            confidences,
+            certainties,
+            mode,
+            head,
+        })
+    }
+
+    // Continue a chain past its template at `i`, which gave `item` the parents
+    // `resolved`: while the single parent is imputed, the next template gives
+    // its own etymology.
+    #[allow(clippy::too_many_arguments)]
+    fn continue_chain(
+        &mut self,
+        string_pool: &StringPool,
+        embeddings: &Embeddings,
+        item: ItemId,
+        raw_etymology: &RawEtymology,
+        templates: &[ParsedRawEtyTemplate],
+        mut i: usize,
+        mut resolved: Resolved,
+    ) -> Result<()> {
+        let mut current_item = item;
+        loop {
+            let [parent] = resolved.items[..] else {
                 return Ok(());
             };
             let next = i + 1;
@@ -770,50 +893,73 @@ impl Items {
                 return Ok(());
             }
             current_item = parent;
-            first = Some(next);
+            i = next;
+            let ParsedRawEtyTemplate::Parsed(template) = &templates[i] else {
+                return Ok(());
+            };
+            resolved =
+                self.resolve_template(string_pool, embeddings, item, current_item, templates, i)?;
+            // A later template is stated to give the parent's etymology only
+            // when {{etymon}} gives it inline; otherwise it is read so.
+            let basis = if template.continues {
+                raw_etymology.basis
+            } else {
+                EdgeBasis::Chain
+            };
+            if !self.set_own_etys(current_item, basis, &[&resolved]) {
+                return Ok(());
+            }
         }
-        Ok(())
     }
 
-    // Set an item's ety from its own etymology section (or, for an imputed
-    // item, from the section of an item citing it). A Descendants list
+    // Set an item's etymologies from its own etymology section (or, for an
+    // imputed item, from the section of an item citing it). A Descendants list
     // may already have given it a parent; the item's own section is preferred,
     // except where that parent is more specific (it descends from the parent
     // named here, e.g. Old French between Latin and English), where the item
     // would trade an entry for a term missing from the data, or where the
-    // section gives only a mention or a form-of link. Returns whether the ety
-    // was set.
-    fn set_own_ety(
-        &mut self,
-        item: ItemId,
-        mode: EtyMode,
-        head: Option<u8>,
-        basis: EdgeBasis,
-        ety_items: &[ItemId],
-        confidences: &[f32],
-    ) -> bool {
+    // section gives only a mention or a form-of link. Returns whether the
+    // etymologies were set.
+    fn set_own_etys(&mut self, item: ItemId, basis: EdgeBasis, etys: &[&Resolved]) -> bool {
         if let Some(existing) = self.graph.immediate_ety(item) {
             // An imputed item is shared by all citations of its term; the first
             // to give it an ety keeps it.
             if self.get(item).is_imputed() {
                 return false;
             }
-            let more_specific = match (&existing.items[..], ety_items) {
-                ([old], [new]) => old != new && self.is_ancestor(*new, *old),
+            let more_specific = match (&existing.items[..], etys) {
+                ([old], [new]) => match new.items[..] {
+                    [new] => *old != new && self.is_ancestor(new, *old),
+                    _ => false,
+                },
                 _ => false,
             };
-            let loses_entry = ety_items.iter().any(|&e| self.get(e).is_imputed())
+            let loses_entry = etys
+                .iter()
+                .flat_map(|e| &e.items)
+                .any(|&e| self.get(e).is_imputed())
                 && existing.items.iter().all(|&e| !self.get(e).is_imputed());
             // a lone {{m}} or a form-of sense, used when there is no
             // etymology proper, is weaker evidence than a Descendants list
-            let weak = matches!(mode, EtyMode::Mention | EtyMode::Form);
+            let weak = etys
+                .iter()
+                .any(|e| matches!(e.mode, EtyMode::Mention | EtyMode::Form));
             if more_specific || loses_entry || weak {
                 return false;
             }
-            self.graph.remove_ety(item);
         }
-        self.graph
-            .add_ety(item, mode, head, basis, ety_items, confidences);
+        let new: Vec<NewEtymology> = etys
+            .iter()
+            .map(|e| NewEtymology {
+                mode: e.mode,
+                head: e.head,
+                basis,
+                items: &e.items,
+                confidences: &e.confidences,
+                certainties: &e.certainties,
+            })
+            .collect();
+        self.graph.add_etymologies(item, &new);
         self.own_ety.insert(item);
         true
     }
@@ -928,7 +1074,8 @@ mod tests {
         let lang = Lang::from_str(lang).unwrap();
         WiktextractJsonItem { json }
             .get_etymology(&mut string_pool, lang)
-            .map_or_else(Vec::new, |ety| Vec::from(ety.templates))
+            .and_then(|ety| Vec::from(ety.alternatives).into_iter().next())
+            .map_or_else(Vec::new, Vec::from)
             .into_iter()
             .map(|t| match t {
                 ParsedRawEtyTemplate::Parsed(t) => Some((
@@ -1209,6 +1356,43 @@ mod tests {
                 r#"[{"name": "af", "args": {"1": "en", "2": "tooth", "3": "brusch"}}]"#,
             );
             assert_eq!(t.parents(toothbrush), ["en:tooth", "en:brusch?"]);
+        }
+
+        #[test]
+        fn alternatives_and_unknown_origins() {
+            let mut t = Setup::new("alternatives");
+            t.add("fr", "docteur");
+            // "From French docteur or English doctor": no primary, both followed,
+            // each continuing its own chain
+            let dokotera = t.add("mg", "dokotera");
+            t.process(
+                dokotera,
+                r#"[{"name": "etymon", "args": {"1": "mg", "2": ":bor", "3": "fr:docteur",
+                    "4": "en:doctor<ety:bor<la:doctor>>"}}]"#,
+            );
+            assert_eq!(t.parents(dokotera), ["fr:docteur", "en:doctor?"]);
+            let etys = t.items.graph.etymologies(dokotera).unwrap();
+            assert_eq!((etys.kinds.len(), etys.primary), (2, None));
+            let doctor = t.items.graph.immediate_ety(dokotera).unwrap().items[1];
+            assert_eq!(t.parents(doctor), ["la:doctor?"]);
+            // "From X, or possibly from Y": X is primary, Y kept but not followed
+            let tiger = t.add("sk", "tiger");
+            t.process(
+                tiger,
+                r#"[{"name": "etymon", "args": {"1": "sk", "2": ":lbor", "3": "la:tigris",
+                    "4": ":bor<unc>", "5": "de:Tiger"}}]"#,
+            );
+            assert_eq!(t.parents(tiger), ["la:tigris?"]);
+            assert_eq!(t.items.graph.etymologies(tiger).unwrap().primary, Some(0));
+            assert_eq!(t.items.graph.all_parent_edges(tiger).count(), 2);
+            // {{unk}}: known to be unknown
+            let unk = t.add("ro", "prăștilă");
+            t.process(unk, r#"[{"name": "unk", "args": {"1": "ro"}}]"#);
+            assert!(t.parents(unk).is_empty());
+            assert_eq!(
+                t.items.graph.etymologies(unk).unwrap().kinds[..],
+                [wety_core::ety_graph::EtyKind::Unknown]
+            );
         }
 
         #[test]
@@ -1799,7 +1983,7 @@ mod tests {
             let ety = WiktextractJsonItem { json }
                 .get_etymology(&mut sp, lang)
                 .unwrap();
-            let ParsedRawEtyTemplate::Parsed(template) = &ety.templates[0] else {
+            let ParsedRawEtyTemplate::Parsed(template) = &ety.alternatives[0][0] else {
                 panic!("not parsed");
             };
             assert_eq!(template.mode, EtyMode::Form);
