@@ -127,6 +127,14 @@
    "concept": "date",
    "kind": "design",
    "means": "A first attestation, from {{etydate}} or prose (the design's 'date' claim kind)."
+  },
+  {
+   "source": "wiktionary",
+   "object": "work",
+   "field": "template",
+   "concept": "reference-template",
+   "kind": "source-native",
+   "means": "The {{R:...}} template (after its redirects) that cites the work in Wiktionary's wikitext; R|<lang> for a reference kept in a language's data module, read through {{R|<lang>|<key>}}."
   }
  ]
 }

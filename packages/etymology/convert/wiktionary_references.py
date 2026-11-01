@@ -8,7 +8,7 @@ matches the wiktextract release (`etc/source.json`, artifact `pages`). Three ste
   under, and the wikitext of every `Template:R:...` page;
 - `entries` lists wiktextract's entries (page, language, etymology label), the keys
   wety's items are made from, and whether each has an etymology;
-- `convert` turns them into a bibliography and credits. Every `Template:R:...` page that
+- `convert` turns them into a bibliography and credits, and checks both (`check`). Every `Template:R:...` page that
   is not a redirect becomes a work, read from the citation template it calls (authors,
   editors when it names no author, year, title); a `{{cite-...}}` line of a References
   section becomes a work too. Each entry's References then give its entry-scope
@@ -74,7 +74,9 @@ def extract(dump, out):
                 kind = KEPT.get(name)
                 if kind and body.strip():
                     row = {"page": title, "lang": lang, "ety": ety, "level": level}
-                    f.write(json.dumps(row | {"kind": kind, "text": body}, ensure_ascii=False) + "\n")
+                    f.write(
+                        json.dumps(row | {"kind": kind, "text": body}, ensure_ascii=False) + "\n"
+                    )
                     counts[f"{kind} sections"] += 1
             counts["language sections"] += len(langs)
     return {
@@ -134,6 +136,12 @@ EXTLINK = re.compile(r"\[(?:https?:)?//[^\s\]]*\s*([^\]]*)\]")
 TAG = re.compile(r"<[^>]*>")
 BOLD = re.compile(r"'{2,}")
 YEAR = re.compile(r"\b(1[0-9]{3}|20[0-9]{2})\b")
+INTERWIKI = re.compile(
+    r"(?<![\w:])(?:w:(?:[a-z]{2,3}(?:-[a-z]{2,8})*:)?|[a-z]{2,3}(?:-[a-z]{2,8})*:)(?=\w)"
+)
+INITIALS = re.compile(r"(?:\w\.\s*)+\w?\.?")
+ETAL = re.compile(r",?\s*\bet\.? al(?:ii|\.)?", re.IGNORECASE)
+EMPTY_QUOTES = re.compile(r"\"\"|“”|«»|''")
 NAMED = re.compile(r"\s*[\w -]+?\s*")
 PAGE_FIELDS = {"page", "pages", "p", "pp"}
 ENTRY_FIELDS = {"entry", "head", "w", "lemma", "word"}
@@ -225,13 +233,19 @@ def citation_call(text):
     return None
 
 
+def unprefix(text):
+    """Text without Module:quote's link prefixes: "w:gl:Antón Santamarina" (a Wikipedia,
+    here Galician) or "ru:Андреев"."""
+    return INTERWIKI.sub("", text)
+
+
 def person_name(name):
-    """ "Vasmer, Max" and "Max Vasmer" alike as "Max Vasmer"; a Wikipedia title's
-    disambiguator ("(linguist)") is dropped."""
-    name = re.sub(r"\s*\([^)]*\)\s*$", "", name).strip(" .,;:")
+    """ "Vasmer, Max" and "Max Vasmer" alike as "Max Vasmer"; link prefixes and a
+    Wikipedia title's disambiguator ("(linguist)") are dropped."""
+    name = re.sub(r"\s*\([^)]*\)\s*$", "", unprefix(name.replace("_", " "))).strip(" ,;:")
     if name.count(",") == 1:
         last, first = (x.strip() for x in name.split(","))
-        if last and first and len(first.split()) <= 3 and not any(c.isdigit() for c in name):
+        if last and first and len(first.split()) <= 4 and not any(c.isdigit() for c in name):
             name = f"{first} {last}"
     return re.sub(r"\s+", " ", name).strip()
 
@@ -239,12 +253,18 @@ def person_name(name):
 def split_people(value):
     """Names in one field: separated by semicolons, "and" (in a few languages), or commas
     between full names."""
+    value = ETAL.sub("", value)
     parts = re.split(r"\s*;\s*|\s+(?:and|und|et|и|&)\s+", value)
     out = []
     for p in parts:
         bits = [b.strip() for b in p.split(",")]
         if len(bits) > 2 and all(" " in b for b in bits if b):
             out += bits
+        elif (
+            len(bits) >= 4 and len(bits) % 2 == 0 and all(INITIALS.fullmatch(b) for b in bits[1::2])
+        ):
+            # "Lytkin, V. I., Gulyaev, E. S.": surnames and initials in turn.
+            out += [f"{bits[i]}, {bits[i + 1]}" for i in range(0, len(bits), 2)]
         else:
             out.append(p)
     names = (person_name(p) for p in out)
@@ -302,10 +322,9 @@ def describe(call):
     edited = not authors
     if edited:
         authors = people(call, "editor")
-    # Module:quote reads a title written "w:..." as a link to Wikipedia.
-    title = expand(call.get("title", "") or call.get("work", "")).removeprefix("w:")
-    if call.get("article") or call.get("chapter"):
-        part = expand(call.get("article", "") or call.get("chapter", ""))
+    title = unprefix(expand(call.get("title", "") or call.get("work", "")))
+    part = EMPTY_QUOTES.sub("", expand(call.get("article", "") or call.get("chapter", "")))
+    if part.strip(" ,"):
         title = f"{part}, in {title}" if title else part
     year = None
     for field in ("year", "date", "year_published"):
@@ -372,7 +391,11 @@ class Bibliography:
         return name
 
     def person(self, name):
-        return self.out.add(agent(f"agent:{slug(name)}", "person", name))
+        """One agent per slug: the first spelling seen ("J. P. Mallory") names it."""
+        aid = f"agent:{slug(name)}"
+        if aid not in self.out.objects:
+            self.out.add(agent(aid, "person", name))
+        return aid
 
     def template_work(self, name):
         """The work an R: template cites, under the name its redirects lead to."""
@@ -405,7 +428,11 @@ class Bibliography:
         if not fields.get("citation"):
             return None
         key = [fields["authors"], fields["title"], fields["year"]]
-        return self.out.add(self.make(f"work:{NAME}:cite:{A.digest(key)}", fields, None))
+        wid = f"work:{NAME}:cite:{A.digest(key)}"
+        if wid not in self.out.objects:
+            # The first citation seen speaks for the others (they differ in place, publisher).
+            self.out.add(self.make(wid, fields, None))
+        return wid
 
     def make(self, wid, fields, fallback):
         w = work(wid, fields.get("citation") or fallback)
@@ -472,14 +499,13 @@ def convert(sections_path, entries_path, out_dir):
                 index[page, lang].append((ety, code, word, has))
     credits = collections.defaultdict(dict)
     further = collections.defaultdict(set)
+    with_section = {}
     for s in sections:
         kind = s["kind"]
         body, notes = wikitext.strip_refs(s["text"])
         counts[f"{kind}: footnotes left to core-4"] += notes
         found = works_in(bib, out, body)
-        targets = [
-            e for e in index.get((s["page"], s["lang"]), []) if s["ety"] in (None, e[0])
-        ]
+        targets = [e for e in index.get((s["page"], s["lang"]), []) if s["ety"] in (None, e[0])]
         counts[f"{kind} sections"] += 1
         for _, _, how in found:
             counts[f"{kind}: cited by {how}"] += 1
@@ -491,10 +517,13 @@ def convert(sections_path, entries_path, out_dir):
         for ety, code, word, has in targets:
             key = (s["page"], s["lang"], ety)
             if kind == "references":
+                with_section[key] = has
                 for wid, loc, _ in found:
                     credits[key].setdefault((wid, loc), (code, word, has))
             else:
                 further[key].update(wid for wid, _, _ in found)
+    counts["entries with a References section"] = len(with_section)
+    counts["entries with an etymology and a References section"] = sum(with_section.values())
     counts["objects"] = out.write(out_dir / "assertions.jsonl")
     with gzip.open(out_dir / "entry_credits.jsonl.gz", "wt", encoding="utf-8") as f:
         for key, cs in credits.items():
@@ -515,9 +544,37 @@ def convert(sections_path, entries_path, out_dir):
             f.write(json.dumps(row, ensure_ascii=False) + "\n")
     with gzip.open(out_dir / "further_reading.jsonl.gz", "wt", encoding="utf-8") as f:
         for key, ws in further.items():
-            f.write(json.dumps({"entry": list(key), "works": sorted(ws)}, ensure_ascii=False) + "\n")
+            f.write(
+                json.dumps({"entry": list(key), "works": sorted(ws)}, ensure_ascii=False) + "\n"
+            )
     counts["entries with Further reading works"] = len(further)
-    return {"counts": dict(sorted(counts.items())), "bibliography": dict(sorted(bib.counts.items()))}
+    return {
+        "counts": dict(sorted(counts.items())),
+        "bibliography": dict(sorted(bib.counts.items())),
+        "errors": check(out_dir),
+    }
+
+
+def check(out_dir):
+    """The bibliography's errors (`etymology.assertions`), then the credit table's: each
+    credit is a schema `Credit` naming a work of the bibliography, each record id a
+    schema `RecordId`. Until core-4 emits Wiktionary's assertions, the credits wait in
+    this table; core-4 copies an entry's credits onto each assertion it endorses."""
+    objs = A.read(out_dir / "assertions.jsonl")
+    errors = A.validate(objs)
+    works = {o["id"] for o in objs if o["type"] == "work"}
+    credit = A.branch_validator("Credit")
+    record = A.branch_validator("RecordId")
+    with gzip.open(out_dir / "entry_credits.jsonl.gz", "rt", encoding="utf-8") as f:
+        for n, line in enumerate(f, 1):
+            d = json.loads(line)
+            if not record.is_valid(d["record"]):
+                errors.append(f"entry_credits line {n}: record id {d['record']!r}")
+            for c in d["credits"]:
+                errors += [f"entry_credits line {n}: {e.message}" for e in credit.iter_errors(c)]
+                if c["work"] not in works:
+                    errors.append(f"entry_credits line {n}: {c['work']} is not in the bibliography")
+    return errors
 
 
 def main(argv=None):
