@@ -855,7 +855,7 @@ impl Items {
             });
         }
         let (mode, mut head) = self.revise_affixes(template, &ety_items);
-        if ety_items.len() == 1 {
+        if template.affixes.is_empty() && ety_items.len() == 1 {
             head = Some(0);
         }
         Ok(Resolved {
