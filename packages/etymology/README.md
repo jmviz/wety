@@ -19,8 +19,9 @@ as `cldfbench` lays out a dataset:
 - `raw/`: the source as published, unpacked from its retained artifact
   (`data/artifacts/<collection>/<sha256>/`, acquired with `wety-sources`);
 - `etc/`: what wety's curators add: `source.json` (the source profile), the language
-  map, the kind map and, where forms need it, an orthography profile. These are
-  reviewed like code and tracked in git;
+  map, the kind map and, where forms need it, an orthography profile and readings of
+  forms a converter's rules cannot read (`forms.json`). These are reviewed like code and
+  tracked in git;
 - `checks/`: what the milestone checks measured, with the samples they read.
 
 `raw/` and `checks/` stay in the research store.
@@ -33,9 +34,19 @@ Each converter takes a sample file and writes an assertions file, which
 ```sh
 S=data/workspaces/etymology/sources
 uv run --frozen python -m etymology.convert.acd $S/acd/checks/core-2/sample.json --out $S/acd/checks/core-2/assertions.jsonl
-uv run --frozen python -m etymology.convert.lila $S/lila-edl/checks/core-2/sample.json --out $S/lila-edl/checks/core-2/assertions.jsonl
+uv run --frozen python -m etymology.convert.lila --sample $S/lila-edl/checks/core-2/sample.json --out $S/lila-edl/checks/core-2/assertions.jsonl
 uv run --frozen python -m etymology.convert.wiktionary $S/wiktionary/checks/core-2/sample.json $S/wiktionary/checks/core-2/claims.json --out $S/wiktionary/checks/core-2/assertions.jsonl
 uv run --frozen python -m etymology.assertions --summary $S/*/checks/core-2/assertions.jsonl
+```
+
+## Converting a whole source
+
+The LiLa converter reads the whole release when it is given no sample (lila-2). Written
+forms its rules cannot read are read in `etc/forms.json`, and it writes every decision
+it took:
+
+```sh
+uv run --frozen python -m etymology.convert.lila --out $S/lila-edl/checks/lila-2/assertions.jsonl --decisions $S/lila-edl/checks/lila-2/decisions.json
 ```
 
 ## Tests

@@ -43,18 +43,50 @@
   {
    "source": "lila-edl",
    "object": "record",
-   "field": "forms",
-   "concept": "other-written-forms",
+   "field": "lila_link",
+   "concept": "lila-etymon-lemma-link",
    "kind": "source-native",
-   "means": "Other written forms of a reconstruction, with their grammatical features."
+   "means": "LiLa's lila_link on an etymon, as written: the lemma ids of the entries it was made for, or 'nan' or '?'."
+  },
+  {
+   "source": "lila-edl",
+   "object": "record",
+   "field": "forms",
+   "concept": "written-forms",
+   "kind": "source-native",
+   "means": "Every form of an etymon as LiLa writes it, read into parts: kind (canonical, other), group (LiLa's form node), form, label, hedge, relation to the record's form (variant, earlier, later, outcome), credit, lexinfo features and the string as written. The first is the record's form. `written` is kept in the store, never served."
+  },
+  {
+   "source": "lila-edl",
+   "object": "record",
+   "field": "features",
+   "concept": "lexinfo-features",
+   "kind": "source-native",
+   "means": "LiLa's lexinfo features on the etymon itself (part of speech, gender), as property=value, its slips corrected."
+  },
+  {
+   "source": "lila-edl",
+   "object": "record",
+   "field": "label",
+   "concept": "lila-label",
+   "kind": "source-native",
+   "means": "LiLa's rdfs:label, where it differs from the record's form. Kept in the store, never served."
+  },
+  {
+   "source": "lila-edl",
+   "object": "record",
+   "field": "comments",
+   "concept": "lila-comments",
+   "kind": "source-native",
+   "means": "LiLa's rdfs:comments as written: its transcription of de Vaan's line, the entry an etymon was made for, its curators' review notes. Kept in the store, never served."
   },
   {
    "source": "lila-edl",
    "object": "record",
    "field": "cognates",
-   "concept": "lila-etymon-cognate-link",
+   "concept": "lila-cognate-link",
    "kind": "source-native",
-   "means": "LiLa's cognate links between etymons; their meaning is undocumented."
+   "means": "LiLa's cognate links (lemonEty:cognate, and the misspelt congnate), as record ids or LiLa lemmas. From an entry, documented (Mambrini and Passarotti 2020, sec. 3.4): the same word under another part of speech, or a duplicate lemma in LiLa. Between etymons, undocumented."
   },
   {
    "source": "wiktionary",

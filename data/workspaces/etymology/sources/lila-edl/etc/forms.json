@@ -1,0 +1,785 @@
+{
+ "about": "Readings of LiLa's written forms that etymology.convert.lila's rules cannot read, the credits LiLa writes in comments, and the works those credits name. Keyed by etymon and the exact string LiLa wrote. A part's relation to the record's form (the first part): variant (another form given with it), earlier, later (stages of a derivation chain), outcome (the Latin word it gives). The written strings are LiLa's data (CC BY-NC-SA 4.0, attribution to de Vaan 2008 and LiLa).",
+ "works": {
+  "schrijver": {
+   "citation": "Schrijver, as de Vaan 2008 cites him; LiLa's data names no work or page"
+  },
+  "liv": {
+   "citation": "LIV (Lexikon der indogermanischen Verben), as de Vaan 2008 cites it; LiLa's data names no edition or page"
+  }
+ },
+ "forms": [
+  {
+   "etymon": "etymon/pie0068",
+   "written": "*h₃rdʰ‑ōs;‑os‑",
+   "parts": [
+    {
+     "form": "*h₃rdʰ‑ōs"
+    },
+    {
+     "form": "*h₃rdʰ‑os‑",
+     "relation": "variant"
+    }
+   ],
+   "decision": "the stem '‑os‑' completed from the first form"
+  },
+  {
+   "etymon": "etymon/pie0141",
+   "written": "*knd‑ro‑;‑no‑",
+   "parts": [
+    {
+     "form": "*knd‑ro‑"
+    },
+    {
+     "form": "*knd‑no‑",
+     "relation": "variant"
+    }
+   ],
+   "decision": "the suffix '‑no‑' completed from the first form"
+  },
+  {
+   "etymon": "etymon/pie0176",
+   "written": "*ḱe;*ḱi",
+   "parts": [
+    {
+     "form": "*ḱe"
+    },
+    {
+     "form": "*ḱi",
+     "relation": "variant"
+    }
+   ],
+   "decision": "several forms in one line, read as written; the first is the record's form"
+  },
+  {
+   "etymon": "etymon/pie0182",
+   "written": "*kel‑n‑H‑ (tʰus Scʰrijver) << *kl‑né/n‑H‑ (tʰus LIV)",
+   "parts": [
+    {
+     "form": "*kel‑n‑H‑",
+     "credit": {
+      "work": "schrijver",
+      "role": "follows"
+     }
+    },
+    {
+     "form": "*kl‑né/n‑H‑",
+     "relation": "earlier",
+     "credit": {
+      "work": "liv",
+      "role": "follows"
+     }
+    }
+   ],
+   "decision": "'thus' credits, h written ʰ by the conversion: Schrijver for the form, LIV for the earlier stage ('<<'); de Vaan follows both"
+  },
+  {
+   "etymon": "etymon/pie0184",
+   "written": "*kel‑n‑H‑ (tʰus Scʰrijver) << *kl‑né/n‑H‑ (tʰus LIV)",
+   "parts": [
+    {
+     "form": "*kel‑n‑H‑",
+     "credit": {
+      "work": "schrijver",
+      "role": "follows"
+     }
+    },
+    {
+     "form": "*kl‑né/n‑H‑",
+     "relation": "earlier",
+     "credit": {
+      "work": "liv",
+      "role": "follows"
+     }
+    }
+   ],
+   "decision": "as pie0182"
+  },
+  {
+   "etymon": "etymon/pie0221",
+   "written": "*ḱl‑n(e)‑i‑ (often replaced by *kli‑n‑)",
+   "parts": [
+    {
+     "form": "*ḱl‑n(e)‑i‑"
+    },
+    {
+     "form": "*kli‑n‑",
+     "relation": "later"
+    }
+   ],
+   "decision": "'often replaced by' gives a later stage"
+  },
+  {
+   "etymon": "etymon/pie0234",
+   "written": "*ḱom (+ ins.)",
+   "parts": [
+    {
+     "form": "*ḱom",
+     "label": "+ ins."
+    }
+   ],
+   "decision": "'(+ ins.)', with the instrumental, is a grammatical label"
+  },
+  {
+   "etymon": "etymon/pie0302",
+   "written": "*de;*do",
+   "parts": [
+    {
+     "form": "*de"
+    },
+    {
+     "form": "*do",
+     "relation": "variant"
+    }
+   ],
+   "decision": "several forms in one line, read as written; the first is the record's form"
+  },
+  {
+   "etymon": "etymon/pie0320",
+   "written": "*di‑n‑ (>> *‑dino‑ )",
+   "parts": [
+    {
+     "form": "*di‑n‑"
+    },
+    {
+     "form": "*‑dino‑",
+     "relation": "later"
+    }
+   ],
+   "decision": "'>>' gives a later stage"
+  },
+  {
+   "etymon": "etymon/pie0321",
+   "written": "*dus;*dui‑",
+   "parts": [
+    {
+     "form": "*dus"
+    },
+    {
+     "form": "*dui‑",
+     "relation": "variant"
+    }
+   ],
+   "decision": "several forms in one line, read as written; the first is the record's form"
+  },
+  {
+   "etymon": "etymon/pie0327",
+   "written": "pr. *dʰi‑dʰh₁‑;aor. *dʰ(é)h₁‑",
+   "parts": [
+    {
+     "form": "*dʰi‑dʰh₁‑",
+     "label": "pr."
+    },
+    {
+     "form": "*dʰ(é)h₁‑",
+     "label": "aor.",
+     "relation": "variant"
+    }
+   ],
+   "decision": "several forms in one line, read as written; the first is the record's form"
+  },
+  {
+   "etymon": "etymon/pie0340",
+   "written": "aor. *d(e)uh₃‑ to *dh₃‑u‑",
+   "parts": [
+    {
+     "form": "*d(e)uh₃‑",
+     "label": "aor."
+    },
+    {
+     "form": "*dh₃‑u‑",
+     "relation": "variant"
+    }
+   ],
+   "decision": "'to' gives no direction in LiLa's data: read as a variant"
+  },
+  {
+   "etymon": "etymon/pie0351",
+   "written": "*h₁e‑*h₁m‑",
+   "parts": [
+    {
+     "form": "*h₁e‑h₁m‑"
+    }
+   ],
+   "decision": "a stray '*' inside the form removed (conversion damage)"
+  },
+  {
+   "etymon": "etymon/pie0396",
+   "written": "*gʷʰen‑dʰ‑;ipv.sg. *gʷʰndʰí",
+   "parts": [
+    {
+     "form": "*gʷʰen‑dʰ‑"
+    },
+    {
+     "form": "*gʷʰndʰí",
+     "label": "ipv.sg.",
+     "relation": "variant"
+    }
+   ],
+   "decision": "several forms in one line, read as written; the first is the record's form"
+  },
+  {
+   "etymon": "etymon/pie0468",
+   "written": "aor. *bʰ(e)h₂u‑;pf. *bʰe‑bʰh₂(o)u‑;‑ppp. *bʰh₂u‑tó‑ (> futūrus)",
+   "parts": [
+    {
+     "form": "*bʰ(e)h₂u‑",
+     "label": "aor."
+    },
+    {
+     "form": "*bʰe‑bʰh₂(o)u‑",
+     "label": "pf.",
+     "relation": "variant"
+    },
+    {
+     "form": "*bʰh₂u‑tó‑",
+     "label": "ppp.",
+     "relation": "variant"
+    },
+    {
+     "form": "futūrus",
+     "relation": "outcome"
+    }
+   ],
+   "decision": "the '‑' before 'ppp.' dropped (conversion damage); '(> futūrus)' names the Latin outcome"
+  },
+  {
+   "etymon": "etymon/pie0474",
+   "written": "*(ǵʰe‑)*ǵʰ(o)u‑",
+   "parts": [
+    {
+     "form": "*(ǵʰe‑)ǵʰ(o)u‑"
+    }
+   ],
+   "decision": "a stray '*' inside the form removed (conversion damage)"
+  },
+  {
+   "etymon": "etymon/pie0495",
+   "written": "*tri‑/*kʷtr‑/ etc. + ‑dḱmt‑h₂ > *tridkmth₂;*kʷdradkmth₂ > *triʔkmth₂;*kʷdraʔkmth₂ > *triʔgmth₂;*kʷdraʔgmth₂ > *trīgmta;*kʷadrāgmta",
+   "parts": [
+    {
+     "form": "*tri‑ + ‑dḱmt‑h₂"
+    },
+    {
+     "form": "*kʷtr‑ + ‑dḱmt‑h₂",
+     "relation": "variant"
+    },
+    {
+     "form": "*tridkmth₂",
+     "relation": "later"
+    },
+    {
+     "form": "*kʷdradkmth₂",
+     "relation": "later"
+    },
+    {
+     "form": "*triʔkmth₂",
+     "relation": "later"
+    },
+    {
+     "form": "*kʷdraʔkmth₂",
+     "relation": "later"
+    },
+    {
+     "form": "*triʔgmth₂",
+     "relation": "later"
+    },
+    {
+     "form": "*kʷdraʔgmth₂",
+     "relation": "later"
+    },
+    {
+     "form": "*trīgmta",
+     "relation": "later"
+    },
+    {
+     "form": "*kʷadrāgmta",
+     "relation": "later"
+    }
+   ],
+   "decision": "a derivation chain for the decads: the compound first, '/ etc.' read as its variants, each '>' stage kept as later"
+  },
+  {
+   "etymon": "etymon/pie0521",
+   "written": "*ǵ(e)us‑ [aor.];*ǵus‑tu‑;*ǵusto‑",
+   "parts": [
+    {
+     "form": "*ǵ(e)us‑",
+     "label": "aor."
+    },
+    {
+     "form": "*ǵus‑tu‑",
+     "relation": "variant"
+    },
+    {
+     "form": "*ǵusto‑",
+     "relation": "variant"
+    }
+   ],
+   "decision": "several forms in one line, read as written; the first is the record's form"
+  },
+  {
+   "etymon": "etymon/pie0533",
+   "written": "*ǵʰ‑di‑es;*ǵʰdi‑es‑tro‑",
+   "parts": [
+    {
+     "form": "*ǵʰ‑di‑es"
+    },
+    {
+     "form": "*ǵʰdi‑es‑tro‑",
+     "relation": "variant"
+    }
+   ],
+   "decision": "several forms in one line, read as written; the first is the record's form"
+  },
+  {
+   "etymon": "etymon/pie0534",
+   "written": "*g/ǵʰe/o‑ * ‑ḱe",
+   "parts": [
+    {
+     "form": "*g/ǵʰe/o‑ + ‑ḱe"
+    }
+   ],
+   "decision": "the lone '*' between two parts read as '+' (conversion damage)"
+  },
+  {
+   "etymon": "etymon/pie0538",
+   "written": "*ǵʰelh₃‑os;‑es‑",
+   "parts": [
+    {
+     "form": "*ǵʰelh₃‑os"
+    },
+    {
+     "form": "*ǵʰelh₃‑es‑",
+     "relation": "variant"
+    }
+   ],
+   "decision": "the stem '‑es‑' completed from the first form"
+  },
+  {
+   "etymon": "etymon/pie0568",
+   "written": "*ngʷ‑ēn;‑n‑os",
+   "parts": [
+    {
+     "form": "*ngʷ‑ēn"
+    },
+    {
+     "form": "*ngʷ‑n‑os",
+     "relation": "variant"
+    }
+   ],
+   "decision": "the ending '‑n‑os' completed from the first form"
+  },
+  {
+   "etymon": "etymon/pie0704",
+   "written": "acc. *h₁mé,*h₁me;dat. *h₁meǵʰio;abl. *h₁med;gen.loc. *h₁moi;*h₁mo‑ [adj.]",
+   "parts": [
+    {
+     "form": "*h₁mé",
+     "label": "acc."
+    },
+    {
+     "form": "*h₁me",
+     "label": "acc.",
+     "relation": "variant"
+    },
+    {
+     "form": "*h₁meǵʰio",
+     "label": "dat.",
+     "relation": "variant"
+    },
+    {
+     "form": "*h₁med",
+     "label": "abl.",
+     "relation": "variant"
+    },
+    {
+     "form": "*h₁moi",
+     "label": "gen.loc.",
+     "relation": "variant"
+    },
+    {
+     "form": "*h₁mo‑",
+     "label": "adj.",
+     "relation": "variant"
+    }
+   ],
+   "decision": "a paradigm in one line, each form with its label"
+  },
+  {
+   "etymon": "etymon/pie0878",
+   "written": "*peh₂u‑ro‑ (or *ph₂eu‑ro‑)",
+   "parts": [
+    {
+     "form": "*peh₂u‑ro‑"
+    },
+    {
+     "form": "*ph₂eu‑ro‑",
+     "relation": "variant"
+    }
+   ],
+   "decision": "'(or ...)' gives a variant"
+  },
+  {
+   "etymon": "etymon/pie0909",
+   "written": "*ped‑tu‑;*pet‑tu‑",
+   "parts": [
+    {
+     "form": "*ped‑tu‑"
+    },
+    {
+     "form": "*pet‑tu‑",
+     "relation": "variant"
+    }
+   ],
+   "decision": "several forms in one line, read as written; the first is the record's form"
+  },
+  {
+   "etymon": "etymon/pie0929",
+   "written": "*pleh₁‑ [aor.];*plh₁‑nó‑;*pl(e)h₁‑ro‑;*‑pleh₁‑t‑",
+   "parts": [
+    {
+     "form": "*pleh₁‑",
+     "label": "aor."
+    },
+    {
+     "form": "*plh₁‑nó‑",
+     "relation": "variant"
+    },
+    {
+     "form": "*pl(e)h₁‑ro‑",
+     "relation": "variant"
+    },
+    {
+     "form": "*‑pleh₁‑t‑",
+     "relation": "variant"
+    }
+   ],
+   "decision": "several forms in one line, read as written; the first is the record's form"
+  },
+  {
+   "etymon": "etymon/pie0953",
+   "written": "*prto‑;*port‑o‑",
+   "parts": [
+    {
+     "form": "*prto‑"
+    },
+    {
+     "form": "*port‑o‑",
+     "relation": "variant"
+    }
+   ],
+   "decision": "several forms in one line, read as written; the first is the record's form"
+  },
+  {
+   "etymon": "etymon/pie0971",
+   "written": "*pro‑*bʰ(h₂)u‑o‑",
+   "parts": [
+    {
+     "form": "*pro‑bʰ(h₂)u‑o‑"
+    }
+   ],
+   "decision": "a stray '*' inside the form removed (conversion damage)"
+  },
+  {
+   "etymon": "etymon/pie0994",
+   "written": "*puH‑o/es‑ [n.];*puH‑to‑;*puH‑tro‑",
+   "parts": [
+    {
+     "form": "*puH‑o/es‑",
+     "label": "n."
+    },
+    {
+     "form": "*puH‑to‑",
+     "relation": "variant"
+    },
+    {
+     "form": "*puH‑tro‑",
+     "relation": "variant"
+    }
+   ],
+   "decision": "several forms in one line, read as written; the first is the record's form"
+  },
+  {
+   "etymon": "etymon/pie1144",
+   "written": "*so [nom.sg.m.];*seh₂ [nom.sg.f.];*tod [nom.acc.sg.n.]",
+   "parts": [
+    {
+     "form": "*so",
+     "label": "nom.sg.m."
+    },
+    {
+     "form": "*seh₂",
+     "label": "nom.sg.f.",
+     "relation": "variant"
+    },
+    {
+     "form": "*tod",
+     "label": "nom.acc.sg.n.",
+     "relation": "variant"
+    }
+   ],
+   "decision": "a paradigm in one line, each form with its label"
+  },
+  {
+   "etymon": "etymon/pie1159",
+   "written": "*suép‑/*sup‑",
+   "parts": [
+    {
+     "form": "*suép‑"
+    },
+    {
+     "form": "*sup‑",
+     "relation": "variant"
+    }
+   ],
+   "decision": "'/' between whole forms gives variants"
+  },
+  {
+   "etymon": "etymon/pie1198",
+   "written": "*stup‑eh₁‑;*stup‑ro‑",
+   "parts": [
+    {
+     "form": "*stup‑eh₁‑"
+    },
+    {
+     "form": "*stup‑ro‑",
+     "relation": "variant"
+    }
+   ],
+   "decision": "several forms in one line, read as written; the first is the record's form"
+  },
+  {
+   "etymon": "etymon/pie1246",
+   "written": "*terh₁‑/*trh₁‑",
+   "parts": [
+    {
+     "form": "*terh₁‑"
+    },
+    {
+     "form": "*trh₁‑",
+     "relation": "variant"
+    }
+   ],
+   "decision": "'/' between whole forms gives variants"
+  },
+  {
+   "etymon": "etymon/pie1364",
+   "written": "*ues‑ti‑;*ues‑to‑",
+   "parts": [
+    {
+     "form": "*ues‑ti‑"
+    },
+    {
+     "form": "*ues‑to‑",
+     "relation": "variant"
+    }
+   ],
+   "decision": "several forms in one line, read as written; the first is the record's form"
+  },
+  {
+   "etymon": "etymon/pie1378",
+   "written": "*u̯eǵ‑eh₁‑;*u̯eǵ‑l‑i‑",
+   "parts": [
+    {
+     "form": "*u̯eǵ‑eh₁‑"
+    },
+    {
+     "form": "*u̯eǵ‑l‑i‑",
+     "relation": "variant"
+    }
+   ],
+   "decision": "several forms in one line, read as written; the first is the record's form"
+  },
+  {
+   "etymon": "etymon/pie1421",
+   "written": "*duei‑ro‑;*dueis‑o‑",
+   "parts": [
+    {
+     "form": "*duei‑ro‑"
+    },
+    {
+     "form": "*dueis‑o‑",
+     "relation": "variant"
+    }
+   ],
+   "decision": "several forms in one line, read as written; the first is the record's form"
+  },
+  {
+   "etymon": "etymon/pie1429",
+   "written": "*gʷr[h₃]*gʷ[rh₃]‑et‑",
+   "parts": [
+    {
+     "form": "*gʷr[h₃]"
+    },
+    {
+     "form": "*gʷ[rh₃]‑et‑",
+     "relation": "variant"
+    }
+   ],
+   "decision": "two forms run together; the brackets mark uncertain segments and stay"
+  },
+  {
+   "etymon": "etymon/pie1457",
+   "written": "**krs‑o‑",
+   "parts": [
+    {
+     "form": "**krs‑o‑"
+    }
+   ],
+   "decision": "'**' kept as written: LiLa's data does not say whether it is a doubled '*' or a marked pre-form"
+  },
+  {
+   "etymon": "etymon/pie1566",
+   "written": "**teḱ‑no‑",
+   "parts": [
+    {
+     "form": "**teḱ‑no‑"
+    }
+   ],
+   "decision": "as pie1457"
+  },
+  {
+   "etymon": "etymon/pit0378",
+   "written": "*X‑þo‑ >> *X‑þāsjo‑",
+   "parts": [
+    {
+     "form": "*X‑þo‑"
+    },
+    {
+     "form": "*X‑þāsjo‑",
+     "relation": "later"
+    }
+   ],
+   "decision": "'>>' gives a later stage"
+  },
+  {
+   "etymon": "etymon/pit0396",
+   "written": "*χw (e)nd‑",
+   "parts": [
+    {
+     "form": "*χw(e)nd‑"
+    }
+   ],
+   "decision": "a stray space inside the form removed (conversion damage)"
+  },
+  {
+   "etymon": "etymon/pit0671",
+   "written": "*(s)lous‑? *(s)loiro‑? *(s)loito‑?",
+   "parts": [
+    {
+     "form": "*(s)lous‑",
+     "hedge": "?"
+    },
+    {
+     "form": "*(s)loiro‑",
+     "hedge": "?",
+     "relation": "variant"
+    },
+    {
+     "form": "*(s)loito‑",
+     "hedge": "?",
+     "relation": "variant"
+    }
+   ],
+   "decision": "three hedged forms in one line"
+  },
+  {
+   "etymon": "etymon/pit0704",
+   "written": "acc. *mē (stressed)",
+   "parts": [
+    {
+     "form": "*mē",
+     "label": "acc. (stressed)"
+    }
+   ],
+   "decision": "'(stressed)' joins the grammatical label"
+  },
+  {
+   "etymon": "etymon/pit0802",
+   "written": "*ne *meijis",
+   "parts": [
+    {
+     "form": "*ne *meijis"
+    }
+   ],
+   "decision": "a phrase of two words, kept as one form"
+  },
+  {
+   "etymon": "etymon/pit0933",
+   "written": "*dwiplo‑ >> *duplo‑",
+   "parts": [
+    {
+     "form": "*dwiplo‑"
+    },
+    {
+     "form": "*duplo‑",
+     "relation": "later"
+    }
+   ],
+   "decision": "'>>' gives a later stage"
+  },
+  {
+   "etymon": "etymon/pit1049",
+   "written": "*roud‑/*rud‑",
+   "parts": [
+    {
+     "form": "*roud‑"
+    },
+    {
+     "form": "*rud‑",
+     "relation": "variant"
+    }
+   ],
+   "decision": "'/' between whole forms gives variants"
+  },
+  {
+   "etymon": "etymon/pit1101",
+   "written": "abl. *sed (>> *sēd)",
+   "parts": [
+    {
+     "form": "*sed",
+     "label": "abl."
+    },
+    {
+     "form": "*sēd",
+     "relation": "later"
+    }
+   ],
+   "decision": "'>>' gives a later stage"
+  },
+  {
+   "etymon": "etymon/pit1241",
+   "written": "*terVno‑ (*teru‑no‑",
+   "parts": [
+    {
+     "form": "*terVno‑"
+    },
+    {
+     "form": "*teru‑no‑",
+     "relation": "variant"
+    }
+   ],
+   "decision": "an unclosed '(' gives a variant (conversion damage)"
+  }
+ ],
+ "comments": [
+  {
+   "etymon": "etymon/pie0137",
+   "written": "*ḱh₂l‑u‑ (Scʰrijver);*ḱlh₁‑u‑ (LIV)",
+   "credits": [
+    {
+     "work": "schrijver",
+     "role": "reports",
+     "form": "*ḱh₂l‑u‑"
+    },
+    {
+     "work": "liv",
+     "role": "reports",
+     "form": "*ḱlh₁‑u‑"
+    }
+   ],
+   "decision": "two reconstructions side by side, each credited (h written ʰ by the conversion): de Vaan reports both"
+  }
+ ]
+}

@@ -68,17 +68,18 @@ refuses an undeclared one. Extensions are a waiting room, not a home:
   stay split across extensions.
 - Each converter milestone's check reports the extensions it added and promoted.
 
-## What the samples exercise
+## What the conversions exercise
 
 core-2 converted 30 Wiktionary entries, 24 ACD groups (with their doublet and disjunct
-partners) and 20 LiLa etymologies; all validate. Parts of the core only one sample uses:
+partners) and 20 LiLa etymologies; lila-2 converts LiLa's whole release (1,437
+etymologies). All validate. Parts of the core only one source uses:
 
 | Part | Only in |
 | --- | --- |
 | stance `reports`; credit roles `follows` and `reports`; scopes `note` and `entry`; hedges on links; `probable` | Wiktionary |
 | link relations `ultimate`, `influence`, `unknown`; `head`; records with no form; agents of kind `unnamed`; `quote`; `work.authors`, `work.source` | Wiktionary |
 | credit role `against`; cognate sets with a named reconstruction; alternative sets of cognate sets | ACD |
-| record `certainty` | LiLa (the ACD's Doubt flags are never set in v2.0) |
+| record `certainty`; `homograph` | LiLa (the ACD's Doubt flags are never set in v2.0) |
 
 No sample sets `preference`, `replaces`, or an unplaced hedge.
 
