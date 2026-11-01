@@ -33,7 +33,7 @@ and citations from reviewed evidence in the `packages/dating` registry.
   links aside. Lone `{{m}}` never fires: the dump has none. Results are in the run's
   `checks/core-1/`. Old graph files no longer load.
 - **Earlier on this stack:** the client UX review is worked through; the root fixes
-  (testum's \*per-, two-sense roots) are in the processor, not yet in a graph.
+  (testum's \*per-, two-sense roots) are in graph `a1bdab67`.
 - Checks pass: 44 processor, 15 core and 7 server tests; clippy clean.
 
 ## Uncertainties
