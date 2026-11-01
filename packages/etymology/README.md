@@ -7,8 +7,10 @@ the work plan are in the shared doc "wety etymology claims model", outside git.
 - [`schema/`](schema/README.md): the assertion schema, v1, and what it covers;
 - `assertions.py`: builds assertion objects (their digest ids) and validates files;
 - `convert/`: one converter per source. `acd` and `lila` read the retained release, whole
-  or a sample; `wiktionary` converts claims annotated per entry, for samples, until the
-  processor emits Wiktionary's assertions (core-4);
+  or a sample; `wiktionary` converts claims a model annotated per entry, for samples.
+  Wiktionary's templates are read by the processor instead: `graph-assertions`
+  (`crates/processor`) writes a graph's assertions in this schema, which
+  `etymology.assertions` validates;
 - `language_map.py`, `orthography.py`: curation tools (language maps, comparison keys).
 
 ## A source's directory
