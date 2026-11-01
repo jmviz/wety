@@ -1,0 +1,24 @@
+{
+ "id": "wiktionary",
+ "title": "English Wiktionary",
+ "release": "2026-09-01",
+ "published": "2026-09-02",
+ "url": "https://en.wiktionary.org",
+ "artifacts": {
+  "wiktextract": "data/artifacts/wiktextract/6da0ba5bf330650cba59911466da388d3f60c69519a50dc9ca71451b0bfba506 (Kaikki's raw wiktextract data of the enwiktionary 20260901 dump)",
+  "pages": "data/artifacts/wiktionary-dump/06acca8138eacb3e8ae9c1d6232f836e37c3bf9b6d582a86693731fe0d336c20 (enwiktionary-20260901-pages-articles.xml.bz2: page wikitext, for References)"
+ },
+ "kind_of_work": "a collaborative dictionary; entry-centric etymologies in templates and prose, and set-centric Descendants sections",
+ "holder": "Wiktionary's editors, per page revision; the views they attribute are held by the scholars named",
+ "licence": "CC-BY-SA-4.0",
+ "licence_note": "Wiktionary's text is dual-licensed CC BY-SA 4.0 and GFDL; wety uses CC BY-SA 4.0.",
+ "may_display": "everything, with attribution and share-alike",
+ "may_export": "under CC BY-SA 4.0",
+ "curation": {
+  "orthography_profile": "etc/orthography-ine-itc.tsv (PIE and Proto-Italic)"
+ },
+ "notes": [
+  "Language labels are Wiktionary's own codes, so no language map is needed.",
+  "Template:etymon's documentation gives \"or\" as the default conjunction of several etymons after one keyword, but glosses |:inh|etymon1|etymon2 as inherited \"from both\". In the core-2 sample only 3 of 5 such groups are alternatives: one is a suffixation written without :af (*věža), one gives two spellings of one word (once)."
+ ]
+}

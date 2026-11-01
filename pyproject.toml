@@ -2,7 +2,7 @@
 name = "wety-workflows"
 version = "0.1.0"
 requires-python = ">=3.12"
-dependencies = ["wety-dating"]
+dependencies = ["rdflib", "wety-dating"]
 
 [project.optional-dependencies]
 extraction = ["wiktextract", "wikitextprocessor"]
@@ -59,9 +59,11 @@ constraint-dependencies = [
   "pydantic-core==2.46.5",
   "pyjwt==2.14.0",
   "pymupdf==1.28.2",
+  "pyparsing==3.3.3",
   "python-multipart==0.0.32",
   "pywin32==312",
   "pywin32-ctypes==0.2.3",
+  "rdflib==7.6.0",
   "referencing==0.37.0",
   "rpds-py==2026.6.3",
   "secretstorage==3.5.0",

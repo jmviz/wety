@@ -1,0 +1,328 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://wety.org/schema/etymology/assertion/0",
+  "title": "wety etymology assertions, v0",
+  "description": "One line of an assertions file (JSON Lines). Each line is one object, told apart by `type`. README.md beside this file says what each field means; cross-record rules (ids, references) are checked by etymology.assertions.",
+  "oneOf": [
+    {"$ref": "#/$defs/Source"},
+    {"$ref": "#/$defs/Agent"},
+    {"$ref": "#/$defs/Work"},
+    {"$ref": "#/$defs/Extraction"},
+    {"$ref": "#/$defs/Record"},
+    {"$ref": "#/$defs/Hypothesis"},
+    {"$ref": "#/$defs/CognateSet"},
+    {"$ref": "#/$defs/AlternativeSet"},
+    {"$ref": "#/$defs/Assertion"}
+  ],
+  "$defs": {
+    "SourceId": {
+      "description": "A source at a version: `<name>@<release>`.",
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*@[^\\s@]+$"
+    },
+    "AgentId": {"type": "string", "pattern": "^agent:[a-z0-9][a-z0-9._@-]*$"},
+    "WorkId": {"type": "string", "pattern": "^work:\\S+$"},
+    "ExtractionId": {"type": "string", "pattern": "^extraction:[a-f0-9]{16}$"},
+    "RecordId": {
+      "description": "`<source name>:<the source's own key>`.",
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*:\\S"
+    },
+    "HypothesisId": {"type": "string", "pattern": "^hyp:[a-f0-9]{16}$"},
+    "CognateSetId": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*:\\S"},
+    "AlternativeSetId": {"type": "string", "pattern": "^alt:[a-f0-9]{16}$"},
+    "AssertionId": {"type": "string", "pattern": "^as:[a-f0-9]{16}$"},
+    "Level": {
+      "description": "Certainty, in the holder's own terms.",
+      "enum": ["stated", "probable", "possible", "doubtful"]
+    },
+    "Mode": {
+      "description": "How a child came from its parents: wety_core's EtyMode names.",
+      "enum": [
+        "derived", "inherited", "borrowed", "learned borrowing", "semi-learned borrowing",
+        "unadapted borrowing", "orthographic borrowing", "semantic loan", "calque",
+        "partial calque", "phono-semantic matching", "undefined derivation",
+        "transliteration", "abbreviation", "adverbial accusative", "contraction",
+        "reduplication", "syncopic form", "rebracketing", "nominalization", "ellipsis",
+        "acronym", "initialism", "conversion", "clipping", "causative", "back-formation",
+        "deverbal", "apocopic form", "aphetic form", "compound", "univerbation", "transfix",
+        "surface analysis", "suffix", "prefix", "infix", "confix", "circumfix", "blend",
+        "affix", "vṛddhi", "vṛddhi-ya", "root", "form", "morphological derivation", "mention"
+      ]
+    },
+    "Extensions": {
+      "description": "Fields only one source needs, under that source's name. README.md lists them.",
+      "type": "object",
+      "propertyNames": {"pattern": "^[a-z0-9][a-z0-9-]*$"},
+      "additionalProperties": {"type": "object"}
+    },
+    "Source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "id", "title", "licence", "may_display", "may_export", "profile"],
+      "properties": {
+        "type": {"const": "source"},
+        "id": {"$ref": "#/$defs/SourceId"},
+        "title": {"type": "string", "minLength": 1},
+        "doi": {"type": "string"},
+        "url": {"type": "string"},
+        "published": {"type": "string"},
+        "licence": {"type": "string", "minLength": 1},
+        "may_display": {"type": "string", "minLength": 1},
+        "may_export": {"type": "string", "minLength": 1},
+        "profile": {
+          "description": "The source profile, relative to the repository root.",
+          "type": "string"
+        },
+        "x": {"$ref": "#/$defs/Extensions"}
+      }
+    },
+    "Agent": {
+      "description": "An asserter or a holder: a person, a group of editors, holders a source does not name, or one of wety's rules or models at a version.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "id", "kind", "name"],
+      "properties": {
+        "type": {"const": "agent"},
+        "id": {"$ref": "#/$defs/AgentId"},
+        "kind": {"enum": ["person", "editors", "unnamed", "rule", "model"]},
+        "name": {"type": "string", "minLength": 1},
+        "x": {"$ref": "#/$defs/Extensions"}
+      }
+    },
+    "Work": {
+      "description": "A work an assertion credits. `source` names it when wety also reads it.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "id", "citation"],
+      "properties": {
+        "type": {"const": "work"},
+        "id": {"$ref": "#/$defs/WorkId"},
+        "citation": {"type": "string", "minLength": 1},
+        "authors": {"type": "array", "items": {"$ref": "#/$defs/AgentId"}},
+        "year": {"type": "integer"},
+        "source": {"$ref": "#/$defs/SourceId"},
+        "x": {"$ref": "#/$defs/Extensions"}
+      }
+    },
+    "Extraction": {
+      "description": "How assertions were obtained: one run of one tool over its inputs.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "id", "method", "tool", "revision", "dirty", "inputs"],
+      "properties": {
+        "type": {"const": "extraction"},
+        "id": {"$ref": "#/$defs/ExtractionId"},
+        "method": {"enum": ["parser", "converter", "model"]},
+        "tool": {"type": "string", "minLength": 1},
+        "revision": {"type": "string", "pattern": "^[a-f0-9]{40}$"},
+        "dirty": {"type": "boolean"},
+        "inputs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["path", "sha256"],
+            "properties": {
+              "path": {"type": "string"},
+              "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+            }
+          }
+        },
+        "model": {"type": "string"},
+        "reviewer": {"type": ["string", "null"]},
+        "x": {"$ref": "#/$defs/Extensions"}
+      },
+      "if": {"properties": {"method": {"const": "model"}}},
+      "then": {"required": ["model", "reviewer"]}
+    },
+    "Language": {
+      "description": "The source's label, and the Wiktionary code its language map gives it.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label", "code", "relation"],
+      "properties": {
+        "label": {"type": "string", "minLength": 1},
+        "code": {"type": ["string", "null"]},
+        "relation": {"enum": ["exact", "subset", "superset", "overlap", "unresolved"]}
+      }
+    },
+    "Hedge": {
+      "description": "A certainty below stated, and the source's words for it.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["level", "words"],
+      "properties": {
+        "level": {"$ref": "#/$defs/Level"},
+        "words": {"type": "string", "minLength": 1}
+      }
+    },
+    "Record": {
+      "description": "A word as one source writes it. `form` null: the source names a language and no word.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "id", "source", "language", "form", "reconstructed"],
+      "properties": {
+        "type": {"const": "record"},
+        "id": {"$ref": "#/$defs/RecordId"},
+        "source": {"$ref": "#/$defs/SourceId"},
+        "language": {"$ref": "#/$defs/Language"},
+        "form": {"type": ["string", "null"]},
+        "reconstructed": {"type": "boolean"},
+        "homograph": {
+          "description": "The source's own label for which of its homographs this is.",
+          "type": "string"
+        },
+        "gloss": {"type": "string"},
+        "locator": {"type": "string"},
+        "certainty": {"$ref": "#/$defs/Hedge", "description": "Of the reconstruction itself."},
+        "x": {"$ref": "#/$defs/Extensions"}
+      }
+    },
+    "Link": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["child", "parents", "relation"],
+      "properties": {
+        "child": {"$ref": "#/$defs/RecordId"},
+        "parents": {"type": "array", "items": {"$ref": "#/$defs/RecordId"}},
+        "relation": {
+          "description": "derivation: a step, by `mode`; ultimate: descends from the parent by unstated steps; influence: shaped by, not descended from; unknown: no origin is known (no parents).",
+          "enum": ["derivation", "ultimate", "influence", "unknown"]
+        },
+        "mode": {"$ref": "#/$defs/Mode"},
+        "head": {"description": "Index of the head among `parents`.", "type": "integer", "minimum": 0}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"relation": {"const": "derivation"}}},
+          "then": {"required": ["mode"], "properties": {"parents": {"minItems": 1}}}
+        },
+        {
+          "if": {"properties": {"relation": {"const": "unknown"}}},
+          "then": {"properties": {"parents": {"maxItems": 0}}, "not": {"required": ["mode"]}}
+        },
+        {
+          "if": {"properties": {"relation": {"enum": ["ultimate", "influence"]}}},
+          "then": {"properties": {"parents": {"minItems": 1}}, "not": {"required": ["mode"]}}
+        }
+      ]
+    },
+    "Hypothesis": {
+      "description": "A proposition about one word's origin: links, the first with the word as child. Its id is a digest of `word` and `links`, so sources that claim the same thing share it.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "id", "word", "links"],
+      "properties": {
+        "type": {"const": "hypothesis"},
+        "id": {"$ref": "#/$defs/HypothesisId"},
+        "word": {"$ref": "#/$defs/RecordId"},
+        "links": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/Link"}}
+      }
+    },
+    "CognateSet": {
+      "description": "Forms said to share an origin: the reconstruction, or null when the source names none.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "id", "source", "reconstruction", "members"],
+      "properties": {
+        "type": {"const": "cognate_set"},
+        "id": {"$ref": "#/$defs/CognateSetId"},
+        "source": {"$ref": "#/$defs/SourceId"},
+        "reconstruction": {"anyOf": [{"$ref": "#/$defs/RecordId"}, {"type": "null"}]},
+        "members": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/RecordId"}},
+        "category": {
+          "description": "The source's own name for the kind of set, from its kind map.",
+          "type": "string"
+        },
+        "x": {"$ref": "#/$defs/Extensions"}
+      }
+    },
+    "AlternativeSet": {
+      "description": "Hypotheses or cognate sets one asserter offers for one word. Exclusive: only one can be right; not exclusive: all are (doublets).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "id", "members", "exclusive", "preference"],
+      "properties": {
+        "type": {"const": "alternative_set"},
+        "id": {"$ref": "#/$defs/AlternativeSetId"},
+        "members": {
+          "type": "array",
+          "minItems": 2,
+          "items": {"anyOf": [{"$ref": "#/$defs/HypothesisId"}, {"$ref": "#/$defs/CognateSetId"}]}
+        },
+        "exclusive": {"type": "boolean"},
+        "preference": {
+          "description": "Members in the asserter's stated order of preference; null when it states none. Order of mention is not a preference.",
+          "anyOf": [{"type": "null"}, {"type": "array", "minItems": 2, "items": {"type": "string"}}]
+        }
+      }
+    },
+    "Credit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["work", "role", "scope"],
+      "properties": {
+        "work": {"$ref": "#/$defs/WorkId"},
+        "role": {"enum": ["follows", "reports", "against", "data"]},
+        "scope": {"enum": ["inline", "note", "entry"]},
+        "locator": {"description": "Where in the work: a page, an entry.", "type": "string"}
+      }
+    },
+    "Assertion": {
+      "description": "An asserter's stance on a hypothesis, a cognate set or an alternative set. Its id is a digest of source, locator, target and stance.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type", "id", "source", "asserter", "holder", "stance", "target", "locator", "extraction"
+      ],
+      "properties": {
+        "type": {"const": "assertion"},
+        "id": {"$ref": "#/$defs/AssertionId"},
+        "source": {"$ref": "#/$defs/SourceId"},
+        "asserter": {"$ref": "#/$defs/AgentId"},
+        "holder": {"$ref": "#/$defs/AgentId"},
+        "stance": {"enum": ["endorses", "reports", "rejects"]},
+        "target": {
+          "anyOf": [
+            {"$ref": "#/$defs/HypothesisId"},
+            {"$ref": "#/$defs/CognateSetId"},
+            {"$ref": "#/$defs/AlternativeSetId"}
+          ]
+        },
+        "in_sets": {
+          "description": "The alternative sets, asserted alongside this assertion, that its target is a member of.",
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/AlternativeSetId"}
+        },
+        "hedges": {
+          "description": "Hedges on the target's parts: `link` or `member` is an index; neither: the hedge could not be placed and lowers nothing.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["level", "words"],
+            "properties": {
+              "level": {"$ref": "#/$defs/Level"},
+              "words": {"type": "string", "minLength": 1},
+              "link": {"type": "integer", "minimum": 0},
+              "member": {"type": "integer", "minimum": 0}
+            },
+            "not": {"required": ["link", "member"]}
+          }
+        },
+        "credits": {"type": "array", "items": {"$ref": "#/$defs/Credit"}},
+        "locator": {"type": "string", "minLength": 1},
+        "quote": {
+          "description": "The source's words for the claim. Kept in the store; served only where the source's licence allows.",
+          "type": "string"
+        },
+        "extraction": {"$ref": "#/$defs/ExtractionId"},
+        "replaces": {"$ref": "#/$defs/AssertionId"},
+        "x": {"$ref": "#/$defs/Extensions"}
+      }
+    }
+  }
+}

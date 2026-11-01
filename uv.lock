@@ -40,9 +40,11 @@ constraints = [
     { name = "pydantic-core", specifier = "==2.46.5" },
     { name = "pyjwt", specifier = "==2.14.0" },
     { name = "pymupdf", specifier = "==1.28.2" },
+    { name = "pyparsing", specifier = "==3.3.3" },
     { name = "python-multipart", specifier = "==0.0.32" },
     { name = "pywin32", specifier = "==312" },
     { name = "pywin32-ctypes", specifier = "==0.2.3" },
+    { name = "rdflib", specifier = "==7.6.0" },
     { name = "referencing", specifier = "==0.37.0" },
     { name = "rpds-py", specifier = "==2026.6.3" },
     { name = "secretstorage", specifier = "==3.5.0" },
@@ -1206,6 +1208,15 @@ wheels = [
 ]
 
 [[package]]
+name = "pyparsing"
+version = "3.3.3"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/e4/11/b213bebff182584360cb8d17c72c1677fec5c5c228de439e63bcf8ab1c8f/pyparsing-3.3.3.tar.gz", hash = "sha256:928ae7e20211f3b6f3915a72f06a0cfd29ab9d24279dd6346b6b1a7146397d36", size = 1050487, upload-time = "2026-09-20T20:59:05.609Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/38/bb/d215ee7c73b61497b28a5503f9f53523f294fcc936762b7caf90e0c1c2b5/pyparsing-3.3.3-py3-none-any.whl", hash = "sha256:ece8c00a69cf01b45d0b1dedabb469c90d8caf996d4fda40f147627a122849a4", size = 126420, upload-time = "2026-09-20T20:59:04.025Z" },
+]
+
+[[package]]
 name = "python-dateutil"
 version = "2.9.0.post0"
 source = { registry = "https://pypi.org/simple" }
@@ -1351,6 +1362,18 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/92/7d/943a04a134a5d333c00d3a77169226defef5e081be9219a765afc176dda0/rapidfuzz-3.14.6-cp315-cp315t-win32.whl", hash = "sha256:15da2b258908eb38853c1a6a58a1d09d9aad9c721e03a68c8ba691cd31dff739", size = 1974478, upload-time = "2026-08-30T21:45:25.475Z" },
     { url = "https://files.pythonhosted.org/packages/21/0e/8356ca3e190e2bcced9b80e374d95b0925c4716b51e65720a55399983f41/rapidfuzz-3.14.6-cp315-cp315t-win_amd64.whl", hash = "sha256:3d502769263318690d4f6638b08483979d1b88cdc7c6f087482eea935fde4031", size = 1823286, upload-time = "2026-08-30T21:45:28.368Z" },
     { url = "https://files.pythonhosted.org/packages/fb/04/a0b0e6324b6384d1ab40feb4d16400af3b3101d38cbd15957edd9d17cbe0/rapidfuzz-3.14.6-cp315-cp315t-win_arm64.whl", hash = "sha256:07c7aa0b1e4b9999a54f9e73317d6743ff85442c8ef7b7fbbe6b190fd37d9e75", size = 1243815, upload-time = "2026-08-30T21:45:31.187Z" },
+]
+
+[[package]]
+name = "rdflib"
+version = "7.6.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pyparsing" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/98/f5/18bb77b7af9526add0c727a3b2048959847dc5fb030913e2918bf384fec3/rdflib-7.6.0.tar.gz", hash = "sha256:6c831288d5e4a5a7ece85d0ccde9877d512a3d0f02d7c06455d00d6d0ea379df", size = 4943826, upload-time = "2026-02-13T07:15:55.938Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/10/c2/6604a71269e0c1bd75656d5a001432d16f2cc5b8c057140ec797155c295e/rdflib-7.6.0-py3-none-any.whl", hash = "sha256:30c0a3ebf4c0e09215f066be7246794b6492e054e782d7ac2a34c9f70a15e0dd", size = 615416, upload-time = "2026-02-13T07:15:46.487Z" },
 ]
 
 [[package]]
@@ -1754,6 +1777,7 @@ name = "wety-workflows"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
+    { name = "rdflib" },
     { name = "wety-dating" },
 ]
 
@@ -1765,6 +1789,7 @@ extraction = [
 
 [package.metadata]
 requires-dist = [
+    { name = "rdflib" },
     { name = "wety-dating", editable = "packages/dating" },
     { name = "wikitextprocessor", marker = "extra == 'extraction'", git = "https://github.com/tatuylonen/wikitextprocessor.git?rev=e3d6d4edb77618f4d6680edc66e3f774bea59820" },
     { name = "wiktextract", marker = "extra == 'extraction'", git = "https://github.com/tatuylonen/wiktextract.git?rev=4be0ca4fc14f41420cd83daa1aaa837dc5073de9" },
