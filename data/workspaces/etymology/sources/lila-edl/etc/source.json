@@ -1,0 +1,65 @@
+{
+ "id": "lila-edl",
+ "title": "The Etymological Dictionary of Latin and the other Italic Languages in LiLa (EDLIL)",
+ "work": "Michiel de Vaan, Etymological Dictionary of Latin and the other Italic Languages, Leiden: Brill, 2008 (Leiden Indo-European Etymological Dictionary Series 7)",
+ "encoding": "Mambrini and Passarotti 2020, 'Representing Etymology in the LiLa Knowledge Base of Linguistic Resources for Latin', Globalex 2020, pp. 20-28",
+ "release": "v1.0",
+ "doi": "10.5281/zenodo.4147500",
+ "published": "2020-10-28",
+ "repository": "https://github.com/CIRCSE/EtymologicalDictionaryLatin (release v1.0, commit cda69dc). master (91fceb5, 2022-01-21) adds one triple, an rdfs:seeAlso on the Lexicon; it is the latest data.",
+ "artifact": {
+  "path": "data/artifacts/lila-edl/bb8aab24321e05d55754e2886af2d2fb51903d6d8706e83b71c55083eb4ed57c",
+  "artifact_id": "sha256:92a765903eb01631cc85d7d3e61d4bc5830d03551d887d66022519c898e9f267",
+  "sha256": "bb8aab24321e05d55754e2886af2d2fb51903d6d8706e83b71c55083eb4ed57c",
+  "acquired": "2026-10-31T23:24:06.613853+00:00"
+ },
+ "live_check": {
+  "path": "data/artifacts/lila-edl-sparql/e4d6681adebf037b44deaf7c48720b8bc98bb004eead385ac907254f00192159",
+  "sha256": "e4d6681adebf037b44deaf7c48720b8bc98bb004eead385ac907254f00192159",
+  "acquired": "2026-10-31T23:27:33.755745+00:00",
+  "what": "SPARQL counts on https://lila-erc.eu/sparql/lila_knowledge_base/sparql: 1,437 Etymology, 2,860 Etymon, 2,653 EtyLink and 1,436 LexicalEntry with a BrillEDL etymology; equal to the release"
+ },
+ "raw": "data/workspaces/etymology/sources/lila-edl/raw/CIRCSE-EtymologicalDictionaryLatin-cda69dc/data/BrillEDL.ttl",
+ "kind_of_work": "entry-centric etymological dictionary, as lemonEty RDF (Turtle): per Latin lemma, a chain of reconstructed etymons and inheritance links",
+ "holder": "Michiel de Vaan (2008); LiLa (Mambrini, Passarotti) as the encoder",
+ "coverage": {
+  "triples": 57518,
+  "etymologies": 1437,
+  "lexical_entries": 1453,
+  "entries_with_an_etymology": 1436,
+  "etymons": {
+   "PIE": 1394,
+   "PIt": 1466
+  },
+  "ety_links": 2653,
+  "link_types": {
+   "inheritance": 2653
+  },
+  "etymologies_by_etymons": {
+   "PIE and PIt": 1216,
+   "PIt only": 194,
+   "PIE only": 27
+  },
+  "cognate_links": 225,
+  "forms_hedged_with_?": 185,
+  "etymologies_with_a_hedged_form": 158
+ },
+ "what_it_lacks": [
+  "de Vaan's text: discussion, glosses, certainty words, cited scholars (Brill's copyright)",
+  "any link type but inheritance; borrowings and derivations inside Latin are not encoded",
+  "language tags on the Latin entries; Oscan, Umbrian and other cognates de Vaan cites"
+ ],
+ "notes": [
+  "Some writtenRep values hold more than a form: derivation chains with '>', grammatical labels ('acc.', 'aor.'), and two credits ('thus Schrijver', 'thus LIV') on -cellō; lila-2 must split them.",
+  "The conversion turned some h into ʰ outside forms ('tʰus Scʰrijver', 'ʰabēre'), wrote h₃ as a plain 3 in bōs, and typed a Greek omicron in *koχο‑.",
+  "One etymon uses the misspelt property lemonEty:congnate."
+ ],
+ "licence": "CC-BY-NC-SA-4.0",
+ "licence_note": "The repository's LICENSE and README give CC BY-NC-SA 4.0 for the data; the Zenodo record's metadata says CC BY 4.0. wety follows the stricter terms, which the maintainer accepted on 2026-10-31.",
+ "may_display": "the structured links and forms, with attribution to de Vaan 2008 and LiLa; non-commercial; share-alike on anything built from them",
+ "may_export": "under CC BY-NC-SA 4.0 only",
+ "curation": {
+  "language_map": "etc/languages.json",
+  "orthography_profile": "etc/orthography.tsv, compared with data/workspaces/etymology/sources/wiktionary/etc/orthography-ine-itc.tsv"
+ }
+}
