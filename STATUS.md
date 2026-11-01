@@ -1,7 +1,8 @@
 # Status
 
 *Updated 2026-10-31. Branch stack, none deployed: `codex/client-ux-audit` (client work),
-then `claude/root-vote-fix` (root fixes), then `claude/claims-core-1`.*
+then `claude/root-vote-fix` (root fixes), then `claude/claims-core-1`, then
+`claude/claims-acd-1`, then `claude/claims-lila-1`.*
 
 ## What the project promises
 
@@ -20,35 +21,44 @@ and citations from reviewed evidence in the `packages/dating` registry.
 ## What changed
 
 - **Etymology claims model adopted** (shared doc "wety etymology claims model",
-  outside git). wety will build trees from attributed claims: alternatives, certainty,
-  credits between sources, automatic synthesis. The doc's work plan is the tracker:
-  14 milestones in four tracks (core, ACD, LiLa, synthesis), one branch each
-  (`claude/claims-<id>`), commits titled `Claims <id>: …`.
-- **core-1 (code done, check pending):** every graph edge records its basis: `etymon`,
-  `template`, `chain`, `mention`, `form_of`, `descendants`, `root`, `root_vote`; the
-  last five are wety's rules. No walk changes. `graph-edges` dumps a graph's edges as
-  TSV for diffing builds. The graph format changed: old graph files no longer load.
-- **Earlier on this stack:** the client UX review is worked through; the root fixes
-  (testum's \*per-, two-sense roots) are in the processor, not yet in a graph.
-- Checks pass: 43 processor, 15 core and 7 server tests; clippy clean.
+  outside git). Its work plan is the tracker: one branch per milestone, commits titled
+  `Claims <id>: …`.
+- **core-1 (code done, rebuild running):** every graph edge records its basis. The
+  graph format changed: old graph files no longer load.
+- **acd-1 (check passed):** ACD v2.0 (Zenodo 14608975) retained, with its source
+  profile, kind map and language map in `data/workspaces/etymology/sources/acd/etc/`,
+  which git now tracks for every source, by the maintainer's decision.
+  920 of 1,022 ACD varieties (90.0%) and 15 of 42 proto-languages have an exact
+  Wiktionary code; 20 ACD sets are paired with Wiktionary reconstructions. v2.0 sets
+  none of its `Doubt` flags.
+- **lila-1 (check passed):** LiLa's de Vaan data (Zenodo 4147500, the latest)
+  retained: all 1,437 etymologies, as on the live endpoint. De Vaan's and
+  Wiktionary's PIE and Proto-Italic spellings get comparison keys from orthography
+  profiles: all 20 same-reconstruction pairs in a sample share a key, and 9 of 9 held
+  out once one rule for Proto-Italic fricatives was added (6 before). LiLa encodes
+  no certainty beyond 185 "?" forms, and no credits.
+- Checks pass: 43 processor, 15 core, 7 server and 16 new `packages/etymology` tests.
 
 ## Uncertainties
 
 - `/cognates` and `/descendants` changed shape on the client branch: deploy server and
   client together, with a rebuilt graph.
 - How many imputed roots the root fixes change is unknown until the rebuild.
-- Research reviews remain model reviews; R2 pruning still needs a live dry run.
+- Language-map and pair reviews are model reviews. A form key alone pairs ACD
+  homographs wrongly (4 of 24 drawn); gloss and reflexes must weigh in (acd-3).
+- The store snapshot does not yet hold the ACD and LiLa data; it waits for the rebuild.
 
 ## Next three actions
 
-1. Rebuild the graph (`wety-data run etymology_graph`, about 6 h) for core-1 and the root
-   fixes at once; diff its `graph-edges` dump against `dab06f67`'s: only `root` and
-   `root_vote` edges may differ. Count edges by basis.
-2. acd-1 and lila-1: retain ACD v2.0 and LiLa's de Vaan data with their curation files.
-3. core-2: the assertion schema, drafted against Wiktionary, ACD and LiLa samples.
+1. Finish the core-1 rebuild; diff its `graph-edges` dump against `dab06f67`'s (only
+   `root` and `root_vote` edges may differ); count edges by basis. Then snapshot the
+   store and commit `data/SNAPSHOT.json`.
+2. core-2: the assertion schema, drafted against 30 Wiktionary entries, the 20 ACD
+   sets and the 20 LiLa etymologies now in the store.
+3. acd-2 and lila-2: the converters, once core-2 lands.
 
 ## Decisions needed from the maintainer
 
-- The doc proposes a new Python package, `packages/etymology`, for the schema and
-  converters (a layout change); it stands unless the maintainer objects.
+- `claude/claims-lila-1` is cut from `claude/claims-acd-1`, which starts
+  `packages/etymology`, rather than from core-1.
 - Whether to ship the client work before the claims work lands.
