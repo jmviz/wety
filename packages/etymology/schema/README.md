@@ -77,8 +77,8 @@ refuses an undeclared one. Extensions are a waiting room, not a home:
 
 ## What the converters exercise
 
-core-2 converted 30 Wiktionary entries and 20 LiLa etymologies; acd-2 converts the whole
-ACD v2.0 release. All validate. Parts of the core only one source uses:
+core-2 converted 30 Wiktionary entries; acd-2 and lila-2 convert the whole ACD v2.0 and
+LiLa releases. All validate. Parts of the core only one source uses:
 
 | Part | Only in |
 | --- | --- |

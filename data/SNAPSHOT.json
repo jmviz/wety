@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
-  "snapshot": "fcae329507eb5b96e8c8e2ba65998b1210d20746333bbd93d970886edf928904",
-  "taken_at": "2026-11-01T01:38:53+00:00",
+  "snapshot": "c76478bb4fe4f9c61129b83fa56793f0a13864e49a947a4932dcf56c46691c19",
+  "taken_at": "2026-11-01T01:46:13+00:00",
   "root": "/data",
-  "files": 45329,
-  "bytes": 84331993203,
+  "files": 45334,
+  "bytes": 84334845181,
   "git_commit": "37b8677088cb2180aeb58222fc30622ba317d505",
-  "note": "acd-2: the whole ACD v2.0 release as assertions (schema v1), with links compiled from its tree (acd checks/acd-2)"
+  "note": "lila-2: all of LiLa's de Vaan data as assertions (lila-edl checks/lila-2)"
 }
