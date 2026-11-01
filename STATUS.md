@@ -26,10 +26,10 @@ and citations from reviewed evidence in the `packages/dating` registry.
 - **core-5 done:** Wiktionary's References sections are read from the 2026-09-01 pages
   dump (`etymology.convert.wiktionary_references`). 477,436 of the 2,796,096 entries
   with an etymology (17.1%) have References citing a work, which gives 990,292
-  entry-scope credits. 668,329 (23.9%) have a References section at all. The
+  entry-scope credits. 668,329 (23.9%) have a References section. The
   bibliography holds 19,699 works: 9,862 from `Template:R:` pages, read from the
   citation template each calls (7,081 with authors), and 9,338 from `{{cite-...}}`
-  lines. It validates with 0 errors.
+  lines; 0 validation errors.
 - The credits wait in a table, one row per entry keyed as core-4's records (page, code,
   label, `ety_num`), checked against the schema's `Credit`. core-4 will copy them onto
   the assertions each entry endorses; the join is not checked yet.
