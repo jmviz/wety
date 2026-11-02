@@ -16,6 +16,7 @@ the work plan are in the shared doc "wety etymology claims model", outside git.
 - `wikitext.py`: pages of a Wiktionary dump, their sections and templates;
 - `language_map.py`, `orthography.py`: curation tools (language maps, comparison keys);
 - `match_acd.py`: ACD records matched to Wiktionary's, and relays (below).
+- `match_lila.py`: LiLa's records matched to Wiktionary's, and relays (below).
 
 ## A source's directory
 
@@ -109,6 +110,24 @@ candidate's descendants in wety, an attested form by its gloss. Equal fits stay
 `candidates`. The relay rule, `agent:wety-relay-acd@1`, compares by ancestry, since the
 ACD links a reflex straight to its set's reconstruction. The docstrings of `Matcher` and
 `Relayer` give the rules in full.
+
+## Matching LiLa to Wiktionary
+
+`match_lila.py` (lila-3) matches LiLa's de Vaan records to Wiktionary's records, which
+stand for wety's items, and relays Wiktionary's credits to de Vaan (2008) to his
+assertions in LiLa. It reads a graph's assertion export (`graph-assertions`) and the
+lila-2 assertions; both must lie in the checkout, so hard-link them in a worktree:
+
+```sh
+uv run --frozen python -m etymology.match_lila --export data/runs/<run>/checks/core-4-references/assertions.jsonl.gz --out $S/lila-edl/checks/lila-3
+uv run --frozen python -m etymology.match_lila --out $S/lila-edl/checks/lila-3 --review
+```
+
+The first writes `assertions.jsonl` (the matches, the relays and what they refer to),
+`relays.json` (every crediting assertion and what became of it), `result.json` and
+`sample.json` (100 matches to review). The second adds the precision of the judged
+sample, `review.json`, to `result.json`. The rule, `agent:wety-match-lila@1`, and what
+each match weighs are in the module's docstring.
 
 ## Tests
 
