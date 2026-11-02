@@ -64,7 +64,8 @@ def lila_objects():
 
 
 def wiktionary_lines():
-    """lupus < *lukʷos < *wĺ̥kʷos, crediting de Vaan with a page; two serō; the root
+    """lupus < *lukʷos < *wĺ̥kʷos, crediting de Vaan with a page, beside a homograph lupus
+    of no stated origin; two serō; the root
     *strew-; an Umbrian word crediting de Vaan; another lukʷos-like imputed record."""
     src = {"type": "source", "id": WIKT, "title": "Wiktionary", "licence": "x"}
     src.update(may_display="x", may_export="x", profile="x")
@@ -75,6 +76,7 @@ def wiktionary_lines():
         k: record(WIKT, k, form, code, code)
         for k, form, code in (
             ("la:lupus#1", "lupus", "la"),
+            ("la:lupus#2", "lupus", "la"),
             ("itc-pro:lukʷos#1", "lukʷos", "itc-pro"),
             ("ine-pro:wĺ̥kʷos#1", "wĺ̥kʷos", "ine-pro"),
             ("la:serō#1", "serō", "la"),
@@ -136,6 +138,22 @@ class Keys(unittest.TestCase):
         )
         self.assertIsNone(M.compare_keys(({"kieie"}, {"kieie", "ki"}), ({"ki"}, {"ki"})))
 
+    def test_length_and_palatals(self):
+        lila = M.variants(Profile.read(M.LILA / "etc/orthography.tsv"))
+        wikt = M.variants(Profile.read(M.WIKTIONARY_PROFILE))
+        m = M.Matcher.__new__(M.Matcher)
+        m.profiles = {"lila": lila, "wikt": wikt}
+
+        def compare(a, b):
+            return m.proto_keys(a, "lila").compare(m.proto_keys(b, "wikt"))
+
+        self.assertEqual(compare("*wēlo‑", "welō"), "loose")
+        self.assertEqual(compare("*frāter‑", "frātēr"), "loose")
+        self.assertEqual(compare("*spondā‑", "sponda"), "equal")
+        self.assertEqual(compare("*ǵlh₂‑i‑", "gl̥Hyós"), "loose")
+        self.assertEqual(compare("*h₂eḱ‑os", "h₂éḱos"), "equal")
+        self.assertEqual(compare("*tepē‑", "tepēō"), "near")
+
     def test_shapes(self):
         self.assertEqual(M.shape("*streu‑e/o‑", True), "stem")
         self.assertEqual(M.shape("*lukʷo‑", True), "stem")
@@ -172,9 +190,17 @@ class Match(unittest.TestCase):
         self.assertEqual(r["lila-edl:etymon/pit1"]["found"], ["wiktionary:itc-pro:lukʷos#1"])
         self.assertEqual(
             r["lila-edl:etymon/pit1"]["basis"],
-            {"key": "near", "reflexes": {"shared": 1, "cited": 1}},
+            {
+                "key": "near",
+                "reflexes": {"shared": 1, "cited": 1},
+                "ancestors": {"shared": 1, "cited": 1},
+            },
         )
         self.assertEqual(r["lila-edl:etymon/pie1"]["found"], ["wiktionary:ine-pro:wĺ̥kʷos#1"])
+
+    def test_ancestry_decides_a_homograph(self):
+        r = self.results["lila-edl:la1"]
+        self.assertEqual(r["basis"], {"key": "equal", "ancestors": {"shared": 2, "cited": 2}})
 
     def test_homographs_stay_candidates(self):
         m = next(o for o in self.matcher.objects(EXTRACTION["id"]) if o["record"] == "lila-edl:la2")

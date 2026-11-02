@@ -11,14 +11,14 @@ grapheme	ʰ	h	aspiration
 grapheme	ʷ	u	labialization: kʷ and ku̯ fold together
 grapheme	w	u	non-syllabic u: w, u̯ and u fold together
 grapheme	y	i	non-syllabic i: y, j, i̯ and i fold together
-grapheme	́		acute: accent, or palatal on ḱ ǵ
+grapheme	́		acute: accent (the palatals ḱ ǵ have rows of their own)
 grapheme	̀		grave accent
 grapheme	̂		circumflex
-grapheme	̄		macron: length is not compared
+grapheme	̄	ː	macron: length, compared only when both forms mark length somewhere
 grapheme	̆		breve
 grapheme	̥		ring below: syllabic resonant
 grapheme	̯		inverted breve below: non-syllabic
-grapheme	̑		inverted breve above: palatal k̑
+grapheme	̑		inverted breve above (the palatals k̑ g̑ have rows of their own)
 grapheme	̣		dot below: syllabic resonant ḷ
 grapheme	θ	θ	Proto-Italic voiceless dental fricative
 grapheme	χ	χ	Proto-Italic voiceless velar fricative
@@ -27,9 +27,9 @@ ending	os		o-stem nominative
 ending	om		o-stem neuter
 ending	s		nominative
 ending	m		accusative or neuter
-ending	o		first person singular *‑ō
-ending	eo		first person singular of a causative *‑eō
-ending	or		deponent first person singular *‑ōr
+ending	oː		first person singular *‑ō
+ending	eoː		first person singular of a causative *‑eō
+ending	oːr		deponent first person singular *‑ōr
 ending	eti		third person singular *‑eti, a PIE verb's citation form
 ending	etor		mediopassive third person singular *‑etor
 grapheme	j	i	Wiktionary writes Proto-Italic y as j (*jekʷor)
@@ -38,3 +38,5 @@ grapheme	β	f	Wiktionary writes Proto-Italic *f between vowels as its voiced all
 grapheme	ð	θ	Wiktionary writes Proto-Italic *θ between vowels as ð (*arðōs)
 grapheme	ɣ	χ	Wiktionary writes Proto-Italic *χ between vowels as ɣ
 grapheme	h	χ	Wiktionary writes Proto-Italic *χ as h (*hundō); PIE uses no bare h
+grapheme	ḱ	K	palatal: ḱ and k are not folded
+grapheme	ǵ	G	palatal: ǵ and g are not folded
