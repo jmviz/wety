@@ -155,6 +155,13 @@ class Keys(unittest.TestCase):
         self.assertEqual(compare("*tepē‑", "tepēō"), "near")
         self.assertEqual(compare("*plāng‑e/o‑", "plāngō"), "equal")
 
+    def test_change_kinds(self):
+        self.assertEqual(M.change_kind(("a", "b"), "a"), "resolved")
+        self.assertEqual(M.change_kind(("a", "b"), "c"), "resolved outside the candidates")
+        self.assertEqual(M.change_kind("a", None), "lost: was a target")
+        self.assertEqual(M.change_kind(None, "a"), "gained")
+        self.assertEqual(M.change_kind("a", ("a", "b")), "target to ambiguous")
+
     def test_shapes(self):
         self.assertEqual(M.shape("*streu‑e/o‑", True), "stem")
         self.assertEqual(M.shape("*lukʷo‑", True), "stem")

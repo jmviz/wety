@@ -787,6 +787,90 @@ def sample(matcher, objs):
     return rows
 
 
+def outcome(m):
+    """A match object's outcome: its target, or its candidates; None for no match."""
+    if m is None:
+        return None
+    return m["target"] if "target" in m else tuple(m["candidates"])
+
+
+def change_kind(before, after):
+    if before is None:
+        return "gained"
+    if after is None:
+        return "lost: was a target" if isinstance(before, str) else "lost: was ambiguous"
+    if isinstance(before, str):
+        return "retargeted" if isinstance(after, str) else "target to ambiguous"
+    if isinstance(after, str):
+        return "resolved" if after in before else "resolved outside the candidates"
+    return "candidates changed"
+
+
+def changes(matcher, objs, earlier):
+    """Every LiLa record whose match differs from an earlier check's, with what a
+    reviewer needs, and what became of that check's reviewed sample."""
+    lila, wikt = matcher.lila, matcher.wikt
+    before = {o["record"]: o for o in A.read(earlier / "assertions.jsonl") if o["type"] == "match"}
+    after = {o["record"]: o for o in objs if o["type"] == "match"}
+    rows = []
+    for rid in sorted(set(before) | set(after)):
+        b, a = outcome(before.get(rid)), outcome(after.get(rid))
+        if a == b:
+            continue
+        r = lila.records[rid]
+        ext = r.get("x", {}).get(NAME, {})
+        involved = sorted({x for o in (a, b) if o for x in ([o] if isinstance(o, str) else o)})
+        rows.append(
+            {
+                "record": rid,
+                "kind": KINDS[r["language"]["code"]],
+                "change": change_kind(b, a),
+                "form": r["form"],
+                "entry": [c for c in ext.get("comments", []) if c.startswith("Etymology for")],
+                "ancestors": sorted(lila.records[x]["form"] for x in lila.ancestors.get(rid, ())),
+                "reflexes": sorted(lila.records[x]["form"] for x in lila.reflexes.get(rid, ())),
+                "before": b,
+                "after": a,
+                "basis": after[rid]["basis"] if rid in after else None,
+                "wiktionary_parents": {w: sorted(wikt.parents.get(w, ())) for w in involved},
+                "judgement": None,
+                "cause": None,
+            }
+        )
+    sample = {}
+    review = earlier / "review.json"
+    if review.exists():
+        for r in json.loads(review.read_text())["rows"]:
+            kept = outcome(after.get(r["record"])) == r["target"]
+            key = f"{r['judgement']}, {'kept' if kept else 'changed'}"
+            sample.setdefault(key, []).append(r["record"])
+    counts = collections.Counter(f"{r['kind']}: {r['change']}" for r in rows)
+    return rows, dict(sorted(counts.items())), {k: len(v) for k, v in sample.items()}
+
+
+def change_precision(rows):
+    """Of the judged changes, how many leave the record right: a target that stands for
+    de Vaan's word, candidates among which it is, or no match where none was right."""
+    judged = [r for r in rows if r["judgement"]]
+    by = collections.defaultdict(collections.Counter)
+    for r in judged:
+        after = r["after"]
+        shape = "target" if isinstance(after, str) else "candidates" if after else "no match"
+        by[shape][r["judgement"]] += 1
+    right = sum(r["judgement"] == "right" for r in judged)
+    return {
+        "reviewed": len(judged),
+        "right": right,
+        "precision": round(right / len(judged), 3) if judged else None,
+        "by outcome": {k: dict(v) for k, v in by.items()},
+        "wrong": [
+            {"record": r["record"], "form": r["form"], "after": r["after"], "cause": r["cause"]}
+            for r in judged
+            if r["judgement"] != "right"
+        ],
+    }
+
+
 def precision(rows):
     judged = [r for r in rows if r["judgement"]]
     by_kind = collections.defaultdict(collections.Counter)
@@ -810,14 +894,27 @@ def main(argv=None):
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     p.add_argument("--export", type=Path, help="a graph's assertion export (graph-assertions)")
     p.add_argument("--out", type=Path, required=True, help="the check directory")
-    p.add_argument("--review", action="store_true", help="only add the reviewed sample's precision")
+    p.add_argument(
+        "--compare", type=Path, help="an earlier check directory: write what changed against it"
+    )
+    p.add_argument(
+        "--review",
+        action="store_true",
+        help="only add the precision of the judged sample (review.json) and changes (changes.json)",
+    )
     args = p.parse_args(argv)
     result_path = args.out / "result.json"
     if args.review:
         result = json.loads(result_path.read_text())
-        result["review"] = precision(json.loads((args.out / "review.json").read_text())["rows"])
+        if (args.out / "review.json").exists():
+            rows = json.loads((args.out / "review.json").read_text())["rows"]
+            result["review"] = precision(rows)
+            print(json.dumps(result["review"], ensure_ascii=False, indent=1))
+        if (args.out / "changes.json").exists():
+            rows = json.loads((args.out / "changes.json").read_text())["rows"]
+            result["changes"]["review"] = change_precision(rows)
+            print(json.dumps(result["changes"]["review"], ensure_ascii=False, indent=1))
         result_path.write_text(json.dumps(result, ensure_ascii=False, indent=1) + "\n")
-        print(json.dumps(result["review"], ensure_ascii=False, indent=1))
         return
     lila_path = LILA / "checks/lila-2/assertions.jsonl"
     profiles = (LILA / "etc/orthography.tsv", WIKTIONARY_PROFILE)
@@ -863,6 +960,18 @@ def main(argv=None):
             w["id"]: w["citation"] for w in sorted(wikt.works.values(), key=lambda w: w["id"])
         },
     }
+    if args.compare:
+        rows, counts, earlier_sample = changes(matcher, objs, args.compare)
+        against = str(args.compare.resolve().relative_to(A.REPO))
+        result["changes"] = {
+            "against": against,
+            "records": len(rows),
+            "by kind": counts,
+            "earlier reviewed sample": earlier_sample,
+        }
+        (args.out / "changes.json").write_text(
+            json.dumps({"against": against, "rows": rows}, ensure_ascii=False, indent=1) + "\n"
+        )
     result_path.write_text(json.dumps(result, ensure_ascii=False, indent=1) + "\n")
     (args.out / "relays.json").write_text(
         json.dumps(relayer.rows, ensure_ascii=False, indent=1) + "\n"
