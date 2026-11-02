@@ -153,6 +153,7 @@ class Keys(unittest.TestCase):
         self.assertEqual(compare("*ǵlh₂‑i‑", "gl̥Hyós"), "loose")
         self.assertEqual(compare("*h₂eḱ‑os", "h₂éḱos"), "equal")
         self.assertEqual(compare("*tepē‑", "tepēō"), "near")
+        self.assertEqual(compare("*plāng‑e/o‑", "plāngō"), "equal")
 
     def test_shapes(self):
         self.assertEqual(M.shape("*streu‑e/o‑", True), "stem")

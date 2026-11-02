@@ -263,6 +263,11 @@ def shape(form, lila):
 SHAPES = {"affix": {"affix"}, "stem": {"word"}, "bare": {"root", "word"}}
 
 
+def long_enough(k):
+    """A cut key of `NEAR_LENGTH` segments at least, the length mark not counted."""
+    return len(k.replace(LENGTH, "")) >= NEAR_LENGTH
+
+
 def compare_keys(a, b):
     """`equal` when two forms share a key as written, `near` when one of them needs an
     ending cut (de Vaan's stem *lukʷo‑ against Wiktionary's *lukʷos), `cut` when both do
@@ -271,9 +276,9 @@ def compare_keys(a, b):
     written, every key)."""
     if a[0] & b[0]:
         return "equal"
-    if any(len(k) >= NEAR_LENGTH for k in a[0] & b[1] | a[1] & b[0]):
+    if any(long_enough(k) for k in a[0] & b[1] | a[1] & b[0]):
         return "near"
-    if any(len(k) >= NEAR_LENGTH for k in a[1] & b[1]):
+    if any(long_enough(k) for k in a[1] & b[1]):
         return "cut"
     return None
 
@@ -312,8 +317,9 @@ class ProtoKeys:
     loose: tuple
 
     def compare(self, other):
-        """Vowel length counts when both forms mark length somewhere (de Vaan's *wēlo‑
-        against *welō, not *spondā‑ against an unmarked *sponda), palatals always (*ǵlh₂‑i‑
+        """Vowel length counts, but for a final vowel's, when both forms mark length
+        somewhere (de Vaan's *wēlo‑ against *welō, not *spondā‑ against an unmarked
+        *sponda, nor *plāng‑e/o‑ against *plāngō), palatals always (*ǵlh₂‑i‑
         against *gl̥Hyós). Keys that agree only once both are folded are `loose`; like
         `cut` ones, they stand only with shared evidence (*frāter‑ against *frātēr)."""
         strict = (
@@ -355,8 +361,13 @@ class Matcher:
         profiles = self.profiles[side]
 
         def pair(name):
+            # A final vowel's length is the citation form's (de Vaan's thematic *‑e/o‑
+            # against Wiktionary's *‑ō), not the word's: it is not compared.
             every, written = profiles[name]
-            return frozenset(key(form, written).keys), frozenset(key(form, every).keys)
+            return tuple(
+                frozenset(k.removesuffix(LENGTH) for k in key(form, p).keys)
+                for p in (written, every)
+            )
 
         marks = MACRON in unicodedata.normalize("NFD", form)
         return ProtoKeys(pair("length") if marks else None, pair("palatal"), pair("loose"))
@@ -444,8 +455,11 @@ class Matcher:
             if ancestry:
                 basis["ancestors"] = ancestry
             shared = sum(basis.get(k, {}).get("shared", 0) for k in ("reflexes", "ancestors"))
-            # Keys that both needed a cut, or agree only loosely, need shared evidence.
-            if strength not in ("cut", "loose") or shared:
+            # Keys that both needed a cut, or agree only loosely, need shared evidence:
+            # a shared reflex when de Vaan cites any (an ancestor shared at the root does
+            # not license *lēg‑ against *legō), else a shared ancestor.
+            direct = basis["reflexes"]["shared"] if reflexes else shared
+            if strength not in ("cut", "loose") or direct:
                 ranked.append((shared, strength == "equal", c, basis))
         if not ranked:
             return None
