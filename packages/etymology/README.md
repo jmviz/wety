@@ -8,7 +8,8 @@ the work plan are in the shared doc "wety etymology claims model", outside git.
 - `assertions.py`: builds assertion objects (their digest ids) and validates files;
 - `convert/`: one converter per source. `acd` and `lila` read the retained release, whole
   or a sample; `wiktionary` converts claims a model annotated per entry, for samples;
-  `wiktionary_references` reads every References section of the pages dump (core-5).
+  `wiktionary_references` reads every References section of the pages dump (core-5),
+  for the graph build.
   Wiktionary's templates are read by the processor instead: `graph-assertions`
   (`crates/processor`) writes a graph's assertions in this schema, which
   `etymology.assertions` validates;
@@ -58,32 +59,27 @@ uv run --frozen python -m etymology.convert.lila --out $S/lila-edl/checks/lila-2
 
 ## Wiktionary's References
 
-wiktextract has no field for References, so `wiktionary_references` reads them from the
-pages dump of the same date (`etc/source.json`, artifact `pages`), in three steps: the
-dump's References and Further reading sections and `Template:R:` pages; wiktextract's
-entry keys (page, language, etymology label); then the bibliography and the credits.
+wiktextract has no field for References, so the workflow `wiktionary_references` reads
+them from the pages dump of the same date (`etc/source.json`, artifact `pages`) and
+writes the product the graph build reads:
 
 ```sh
-C=$S/wiktionary/checks/core-5
-uv run --frozen python -m etymology.convert.wiktionary_references extract <pages dump> --out $C/sections.jsonl.gz --counts $C/extract_counts.json
-uv run --frozen python -m etymology.convert.wiktionary_references entries <raw wiktextract> --out $C/entries.jsonl.gz
-uv run --frozen python -m etymology.convert.wiktionary_references convert $C/sections.jsonl.gz $C/entries.jsonl.gz --out $C
+uv run --frozen wety-data run wiktionary_references
 ```
 
-The bibliography (`assertions.jsonl`) has a work for every `Template:R:` page that is not
-a redirect, read from the citation template it calls (authors, or editors when it names
-none; year; title), and for every `{{cite-...}}` line of a References section. Each
-entry's References give credits of role `follows`, scope `entry`
-(`entry_credits.jsonl.gz`). A row names its entry as the processor does: page title,
-language code, etymology label and number, and the record id `graph-assertions` gives
-the word (`wiktionary:<code>:<term>#<n>`; where another page took the same term and
-number first, the processor raises the number, so join on page, code and label). A section beside the
-etymologies covers every etymology of its language; one under "Etymology N", only that
-one. `<ref>` footnotes are left to the processor (note scope) and Further reading gives
-no credits. `convert` checks each credit against the schema's `Credit` and the
-bibliography. `graph-assertions --references $C` copies an entry's credits onto each
-assertion its Etymology section states (not its Descendants list, not wety's rules), and
-writes the works they cite; the graph itself does not hold them.
+`extract` keeps the dump's References and Further reading sections and its
+`Template:R:` pages; `convert` writes the bibliography (`bibliography.jsonl`) and each
+References section's credits (`section_credits.jsonl.gz`), and checks them. The
+bibliography has a work for every `Template:R:` page that is not a redirect, read from
+the citation template it calls (authors, or editors when it names none; year; title),
+and for every `{{cite-...}}` line of a References section. A section's works are credits
+of role `follows`, scope `entry`, keyed by page, language heading and etymology label
+(none for a section beside the etymologies). The processor joins them to its own items:
+a section under "Etymology N" covers that etymology, one beside the etymologies every
+etymology of its language, and an item's own section's assertions carry them, unless a
+rule reads the section. `<ref>` footnotes are left to the processor (note scope);
+Further reading gives no credits and is kept the same way
+(`further_reading.jsonl.gz`).
 
 ## Tests
 
