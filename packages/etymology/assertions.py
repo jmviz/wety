@@ -40,6 +40,8 @@ ORDER = (
     "cognate_set",
     "alternative_set",
     "assertion",
+    "match",
+    "relay",
 )
 
 
@@ -164,6 +166,8 @@ BRANCHES = {
     "cognate_set": "CognateSet",
     "alternative_set": "AlternativeSet",
     "assertion": "Assertion",
+    "match": "Match",
+    "relay": "Relay",
 }
 
 
@@ -280,7 +284,53 @@ def cross_errors(objs):
                     target["type"] != "cognate_set" or h["member"] >= len(target["members"])
                 ):
                     errors.append(f"{i}: hedge on member {h['member']}, which its target lacks")
+        elif t == "match":
+            body = [o["record"], o.get("target"), o.get("candidates"), o["holder"]]
+            if i != "match:" + digest(body):
+                errors.append(f"{i}: id is not the digest of record, target, candidates, holder")
+            need(o["record"], ("record",), i)
+            for r in [o["target"]] if "target" in o else o["candidates"]:
+                need(r, ("record",), i)
+            need(o["holder"], ("agent",), i)
+            if "extraction" in o:
+                need(o["extraction"], ("extraction",), i)
+        elif t == "relay":
+            if i != "relay:" + digest([o["assertion"], o["relays"]]):
+                errors.append(f"{i}: id is not the digest of its two assertions")
+            crediting = need(o["assertion"], ("assertion",), i)
+            need(o["relays"], ("assertion",), i)
+            need(o["work"], ("work",), i)
+            need(o["holder"], ("agent",), i)
+            if crediting and o["work"] not in {c["work"] for c in crediting.get("credits", [])}:
+                errors.append(f"{i}: its assertion does not credit {o['work']}")
     return errors
+
+
+def match(record, holder, score, basis, target=None, candidates=None, extraction=None):
+    """A match object, its id the digest of record, target, candidates and holder."""
+    m = {"type": "match", "record": record, "holder": holder, "score": score, "basis": basis}
+    if target is not None:
+        m["target"] = target
+    if candidates is not None:
+        m["candidates"] = candidates
+    if extraction is not None:
+        m["extraction"] = extraction
+    return {"id": "match:" + digest([record, target, candidates, holder]), **m}
+
+
+def relay(assertion, relays, work, holder, differences=()):
+    """A relay object; no differences means the two assertions agree."""
+    r = {
+        "type": "relay",
+        "assertion": assertion,
+        "relays": relays,
+        "work": work,
+        "holder": holder,
+        "agrees": not differences,
+    }
+    if differences:
+        r["differences"] = list(differences)
+    return {"id": "relay:" + digest([assertion, relays]), **r}
 
 
 def read(path):

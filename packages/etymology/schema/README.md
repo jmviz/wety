@@ -1,4 +1,4 @@
-# Etymology assertions, v1
+# Etymology assertions, v2
 
 Every etymological source enters wety as assertions in one schema,
 [`assertion.schema.json`](assertion.schema.json) (JSON Schema 2020-12). A source's
@@ -30,6 +30,8 @@ links or members that exist.
 | `cognate_set` | Forms said to share an origin: a reconstruction, or null when none is named, and members (none only when the source lists no forms for its reconstruction) | `<source name>:<source key>` |
 | `alternative_set` | Hypotheses or cognate sets one asserter offers for one word; `exclusive` false means all are right (doublets) | digest of members, exclusivity, preference |
 | `assertion` | An asserter's stance on a hypothesis, cognate set or alternative set: who holds it, hedges, credits, locator, the source's words | digest of source, locator, target, stance |
+| `match` | A record matched to another source's record for the same word (in wety, a Wiktionary record, standing for an item), held by a matcher rule or a reviewer, with a score and what it weighed; or, with `candidates` instead of a `target`, left unmatched between equal fits | digest of record, target, candidates, holder |
+| `relay` | An assertion that credits a work wety reads directly, linked to that work's own assertion of the same hypothesis; whether they agree, and if not how they differ | digest of the two assertions |
 
 A link has a `child`, `parents` and a `relation`: `derivation` (with a `mode`, wety_core's
 EtyMode names, and optionally the `head` parent), `ultimate` (descends from the parent by
@@ -53,8 +55,18 @@ the same link assert the same hypothesis.
 A credit names a `work`, a `role` (`follows`, `reports`, `against`, `data`) and a
 `scope` (`inline`, `note`, `entry`), and keeps its locator.
 
-Records stay in their source's terms: matching them to wety's items comes later, so two
-sources' hypotheses share an id only once their records are matched.
+Records stay in their source's terms. A `match` links a record to a Wiktionary record,
+which stands for wety's item; only a language mapped `exact` may match. Its `basis` says
+what it weighed: the forms' comparison keys (`equal`, `near`, `different`), the gloss
+similarity, and of the reflexes the record's source cites, how many are the target's
+descendants in wety. A record that fits two candidates equally names both and has no
+target, rather than being guessed into one. Two sources' hypotheses about the same word
+share an id only once their records are rewritten through matches.
+
+A `relay` links an assertion that credits a work (Wiktionary following de Vaan) to the
+work's own assertion, which wety reads directly; they stay two assertions. `agrees`
+false lists the `differences` (`parents`, `relation`, `mode`, `hedge`, `edition`,
+`locator`): Wiktionary misquotes the work or follows another version of it.
 
 ## Extensions
 
@@ -91,8 +103,7 @@ beside it until the processor emits the assertions they belong on. All validate.
 
 No converter sets `preference`, `replaces`, or an unplaced hedge.
 
-Not in v1, by design: matches of records to items, relays, readings, overrides and
-gradings. Not representable yet: an origin that names no word in any language ("from a
+Not in v2, by design: readings, overrides and gradings. Not representable yet: an origin that names no word in any language ("from a
 call used for dogs", Old Spanish *perro*); and the ACD's doublets and disjuncts between
 forms: alternative sets hold cognate sets, so a variant that is a member of a set stands
 for its whole set, two groups can collapse into one, and a group within one set (a
@@ -100,6 +111,7 @@ reconstruction and its own member) has no alternative set.
 
 ## Versions
 
+- **2** (acd-3, lila-3): `match` and `relay`.
 - **1** (acd-2): `compiled` on assertions; a cognate set may have no members when it
   names a reconstruction.
 - **0** (core-2): the first schema.

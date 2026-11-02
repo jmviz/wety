@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://wety.org/schema/etymology/assertion/1",
-  "title": "wety etymology assertions, v1",
+  "$id": "https://wety.org/schema/etymology/assertion/2",
+  "title": "wety etymology assertions, v2",
   "description": "One line of an assertions file (JSON Lines). Each line is one object, told apart by `type`. README.md beside this file says what each field means; cross-record rules (ids, references) are checked by etymology.assertions.",
   "oneOf": [
     {"$ref": "#/$defs/Source"},
@@ -12,7 +12,9 @@
     {"$ref": "#/$defs/Hypothesis"},
     {"$ref": "#/$defs/CognateSet"},
     {"$ref": "#/$defs/AlternativeSet"},
-    {"$ref": "#/$defs/Assertion"}
+    {"$ref": "#/$defs/Assertion"},
+    {"$ref": "#/$defs/Match"},
+    {"$ref": "#/$defs/Relay"}
   ],
   "$defs": {
     "SourceId": {
@@ -32,6 +34,8 @@
     "CognateSetId": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*:\\S"},
     "AlternativeSetId": {"type": "string", "pattern": "^alt:[a-f0-9]{16}$"},
     "AssertionId": {"type": "string", "pattern": "^as:[a-f0-9]{16}$"},
+    "MatchId": {"type": "string", "pattern": "^match:[a-f0-9]{16}$"},
+    "RelayId": {"type": "string", "pattern": "^relay:[a-f0-9]{16}$"},
     "Level": {
       "description": "Certainty, in the holder's own terms.",
       "enum": ["stated", "probable", "possible", "doubtful"]
@@ -337,6 +341,69 @@
         "replaces": {"$ref": "#/$defs/AssertionId"},
         "x": {"$ref": "#/$defs/Extensions"}
       }
+    },
+    "Match": {
+      "description": "A record matched to a record of another source that stands for the same word: in wety, a Wiktionary record, which stands for an item. Held by a matcher rule or a reviewer. With no `target`, the record fits several `candidates` equally and stays unmatched. Its id is a digest of record, target, candidates and holder.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "id", "record", "holder", "score", "basis"],
+      "oneOf": [
+        {"required": ["target"], "not": {"required": ["candidates"]}},
+        {"required": ["candidates"], "not": {"required": ["target"]}}
+      ],
+      "properties": {
+        "type": {"const": "match"},
+        "id": {"$ref": "#/$defs/MatchId"},
+        "record": {"$ref": "#/$defs/RecordId"},
+        "target": {"$ref": "#/$defs/RecordId"},
+        "candidates": {"type": "array", "minItems": 2, "items": {"$ref": "#/$defs/RecordId"}},
+        "holder": {"$ref": "#/$defs/AgentId"},
+        "score": {"type": "number", "minimum": 0, "maximum": 1},
+        "basis": {
+          "description": "What the match weighed: the comparison keys of the two forms, the gloss similarity, and how many of the reflexes the record's source cites are the target's descendants in wety.",
+          "type": "object",
+          "additionalProperties": false,
+          "minProperties": 1,
+          "properties": {
+            "key": {"enum": ["equal", "near", "different"]},
+            "gloss": {"type": "number", "minimum": -1, "maximum": 1},
+            "reflexes": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["shared", "cited"],
+              "properties": {
+                "shared": {"type": "integer", "minimum": 0},
+                "cited": {"type": "integer", "minimum": 0}
+              }
+            }
+          }
+        },
+        "extraction": {"$ref": "#/$defs/ExtractionId"}
+      }
+    },
+    "Relay": {
+      "description": "An assertion that credits a work wety also reads directly, linked to that work's own assertion of the same hypothesis (after matching), not merged with it. `agrees` false: they differ, and `differences` say how. Its id is a digest of the two assertions.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "id", "assertion", "relays", "work", "holder", "agrees"],
+      "properties": {
+        "type": {"const": "relay"},
+        "id": {"$ref": "#/$defs/RelayId"},
+        "assertion": {"description": "The crediting assertion.", "$ref": "#/$defs/AssertionId"},
+        "relays": {"description": "The work's own assertion.", "$ref": "#/$defs/AssertionId"},
+        "work": {"$ref": "#/$defs/WorkId"},
+        "holder": {"description": "The rule or reviewer that linked them.", "$ref": "#/$defs/AgentId"},
+        "agrees": {"type": "boolean"},
+        "differences": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"enum": ["parents", "relation", "mode", "hedge", "edition", "locator"]}
+        }
+      },
+      "if": {"properties": {"agrees": {"const": false}}},
+      "then": {"required": ["differences"]},
+      "else": {"not": {"required": ["differences"]}}
     }
   }
 }

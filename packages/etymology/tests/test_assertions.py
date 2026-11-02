@@ -172,6 +172,37 @@ class Validate(unittest.TestCase):
         objs[3]["x"] = {"demo": {"note": 1}}
         self.assertTrue(any("x.demo.note is not declared" in e for e in A.validate(objs)))
 
+    def test_matches_and_relays(self):
+        objs = objects()
+        lupus, h, a1 = objs[3], objs[7], objs[10]
+        wikt = record("lupus-wikt", "lupus")
+        rule = {"type": "agent", "id": "agent:wety-match-demo@1", "kind": "rule", "name": "x"}
+        work = {"type": "work", "id": "work:demo:edl", "citation": "De Vaan (2008)"}
+        crediting = A.assertion(
+            "demo@1",
+            "elsewhere",
+            h["id"],
+            "endorses",
+            asserter="agent:demo",
+            holder="agent:demo",
+            extraction=EXTRACTION["id"],
+            credits=[{"work": work["id"], "role": "follows", "scope": "entry"}],
+        )
+        m = A.match(lupus["id"], rule["id"], 0.9, {"key": "equal"}, target=wikt["id"])
+        unclear = A.match(
+            lupus["id"], rule["id"], 0.5, {"key": "equal"}, candidates=[wikt["id"], lupus["id"]]
+        )
+        agrees = A.relay(crediting["id"], a1["id"], work["id"], rule["id"])
+        differs = A.relay(a1["id"], crediting["id"], work["id"], rule["id"], ["hedge"])
+        good = objs + [wikt, rule, work, crediting, m, unclear, agrees]
+        self.assertEqual(A.validate(good), [])
+        # a1 credits no work, so it relays nothing
+        self.assertIn("does not credit", " ".join(A.validate(good + [differs])))
+        both = dict(m, candidates=[wikt["id"], lupus["id"]])
+        self.assertTrue(A.validate(objs + [wikt, rule, both]))
+        silent = dict(agrees, agrees=False)
+        self.assertTrue(A.validate(good[:-1] + [silent]))
+
     def test_writer_refuses_conflicting_objects(self):
         w = A.Writer()
         r = record("lupus", "lupus")
