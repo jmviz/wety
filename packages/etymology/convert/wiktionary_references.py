@@ -1,20 +1,24 @@
 """Wiktionary's References sections, read from page wikitext: entry-scope credits (core-5).
 
 wiktextract has no field for References, so they are read from the pages dump that
-matches the wiktextract release (`etc/source.json`, artifact `pages`). Three steps:
+matches the wiktextract release (`etc/source.json`, artifact `pages`), by the
+`wiktionary_references` workflow. Two steps:
 
 - `extract` reads the dump once and keeps every References and Further reading section
   of the entry and reconstruction namespaces, with the language and etymology it sits
   under, and the wikitext of every `Template:R:...` page;
-- `entries` lists wiktextract's entries (page, language, etymology label), the keys
-  wety's items are made from, and whether each has an etymology;
-- `convert` turns them into a bibliography and credits, and checks both (`check`). Every `Template:R:...` page that
-  is not a redirect becomes a work, read from the citation template it calls (authors,
-  editors when it names no author, year, title); a `{{cite-...}}` line of a References
-  section becomes a work too. Each entry's References then give its entry-scope
-  credits, role `follows`: a section beside the etymologies covers every etymology of
-  its language, one under "Etymology N" only that one. Further reading lists what a
-  reader may consult, not what the editors did, and gives no credits; it is counted.
+- `convert` turns them into a bibliography and each section's credits, and checks both
+  (`check`). Every `Template:R:...` page that is not a redirect becomes a work, read
+  from the citation template it calls (authors, editors when it names no author, year,
+  title); a `{{cite-...}}` line of a References section becomes a work too. A
+  References section's works are credits of role `follows`, scope `entry`, keyed by the
+  section's page, language heading and etymology label (none for a section beside the
+  etymologies). Further reading lists what a reader may consult, not what the editors
+  did, and gives no credits; it is kept the same way.
+
+Which entries a section covers is the processor's to say, from its own items: one
+under "Etymology N" covers that etymology, one beside the etymologies every etymology
+of its language.
 
 A credit's locator is the page the template's arguments give, else the headword
 ("s.v. lupus"): which argument is which is read from the template's own citation call.
@@ -84,67 +88,6 @@ def extract(dump, out):
         "counts": dict(sorted(counts.items())),
         "headings": dict(headings.most_common(40)),
     }
-
-
-def page_title(d):
-    """The page a wiktextract entry comes from: reconstructions live in their namespace."""
-    word = d["word"]
-    reconstructed = any("reconstruction" in (s.get("tags") or []) for s in d.get("senses") or [])
-    if reconstructed:
-        return f"Reconstruction:{d['lang']}/{word.removeprefix('*')}"
-    return word
-
-
-def ety_label(d):
-    """wiktextract's etymology_number as the processor reads it (`get_ety_label`)."""
-    v = d.get("etymology_number")
-    label = str(v).strip() if v is not None else ""
-    return label or None
-
-
-def canonical_term(d):
-    """The form the processor names an entry by (`get_canonical_term`): its canonical
-    form ("vocō" on page voco) when it has as many words as the page title, else the
-    page's word."""
-    word = d["word"]
-    for form in d.get("forms") or []:
-        f = form.get("form")
-        tags = form.get("tags") or []
-        if "canonical" in tags and f and "," not in f and len(f.split()) == len(word.split()):
-            return f
-    return word
-
-
-def ety_num(label):
-    """The processor's etymology number for a label (Wiktionary's number, else 1). It
-    raises the number of an entry whose term and number another page already took."""
-    return int(label) if label and label.isdigit() and int(label) <= 255 else 1
-
-
-def entries(wiktextract, out):
-    """One row per entry key (page, language, etymology label), deduplicated as the
-    processor and the core-2 scan do, with the entry's language code and canonical term;
-    the last field says whether any of its lines has an etymology (text or templates)."""
-    seen = {}
-    with gzip.open(wiktextract, "rt", encoding="utf-8") as f:
-        for line in f:
-            d = json.loads(line)
-            if not d.get("word") or not d.get("lang_code") or "pos" not in d:
-                continue
-            if "," in d["word"] or "phrase" in d["pos"]:
-                continue  # the processor ignores these (`should_ignore_term`, `_pos`)
-            key = (page_title(d), d["lang"], ety_label(d))
-            has = bool(d.get("etymology_text") or d.get("etymology_templates"))
-            row = seen.get(key)
-            if row is None:
-                seen[key] = [d["lang_code"], canonical_term(d), has]
-            elif has:
-                row[2] = True
-    with gzip.open(out, "wt", encoding="utf-8") as f:
-        for (page, lang, ety), (code, term, has) in seen.items():
-            f.write(json.dumps([page, lang, ety, code, term, has], ensure_ascii=False) + "\n")
-    with_ety = sum(1 for r in seen.values() if r[2])
-    return {"entries": len(seen), "with an etymology": with_ety}
 
 
 # The citation call of an R: template page.
@@ -488,24 +431,14 @@ def works_in(bib, out, body):
     return found
 
 
-def record_id(code, term, label):
-    """The id the processor gives an entry's word (`graph-assertions`), unless another
-    page took its term and number first; (page, code, label) always identify it."""
-    return f"{NAME}:{code}:{term}#{ety_num(label)}"
-
-
-def entry_key(key, code):
-    page, _, label = key
-    return {"page": page, "lang": code, "label": label, "ety_num": ety_num(label)}
-
-
-def convert(sections_path, entries_path, out_dir):
-    """Write the bibliography (`assertions.jsonl`), each entry's credits
-    (`entry_credits.jsonl.gz`) and its Further reading works; return the counts."""
+def convert(sections_path, dump, out_dir):
+    """Write the bibliography (`bibliography.jsonl`), each References section's credits
+    (`section_credits.jsonl.gz`) and each Further reading section's works; return the
+    counts. The extraction record names the dump `extract` read."""
     out = A.Writer()
     out.add(source(NAME))
     tool = "packages/etymology/convert/wiktionary_references.py"
-    out.add(A.extraction("parser", tool, [sections_path, entries_path]))
+    out.add(A.extraction("parser", tool, [dump]))
     out.add(agent(EDITORS, "editors", "Wiktionary's editors"))
     templates, sections = [], []
     with gzip.open(sections_path, "rt", encoding="utf-8") as f:
@@ -515,51 +448,33 @@ def convert(sections_path, entries_path, out_dir):
     bib = Bibliography(templates, out)
     bib.seed()
     counts = collections.Counter()
-    wanted = {(s["page"], s["lang"]) for s in sections}
-    index = collections.defaultdict(list)
-    with gzip.open(entries_path, "rt", encoding="utf-8") as f:
-        for line in f:
-            page, lang, ety, code, word, has = json.loads(line)
-            counts["entries"] += 1
-            counts["entries with an etymology"] += has
-            if (page, lang) in wanted:
-                index[page, lang].append((ety, code, word, has))
     credits = collections.defaultdict(dict)
-    further = collections.defaultdict(lambda: (None, set()))
-    with_section = {}
+    further = collections.defaultdict(set)
     for s in sections:
         kind = s["kind"]
         body, notes = wikitext.strip_refs(s["text"])
         counts[f"{kind}: footnotes left to core-4"] += notes
         found = works_in(bib, out, body)
-        targets = [e for e in index.get((s["page"], s["lang"]), []) if s["ety"] in (None, e[0])]
         counts[f"{kind} sections"] += 1
         for _, _, how in found:
             counts[f"{kind}: cited by {how}"] += 1
         found = [f for f in found if f[0]]
-        if found:
-            counts[f"{kind} sections citing a work"] += 1
-            if not targets:
-                counts[f"{kind} sections citing a work, with no wiktextract entry"] += 1
-        for ety, code, word, has in targets:
-            key = (s["page"], s["lang"], ety)
-            if kind == "references":
-                with_section[key] = has
-                for wid, loc, _ in found:
-                    credits[key].setdefault((wid, loc), (code, word, has))
-            else:
-                further[key] = (code, further[key][1] | {wid for wid, _, _ in found})
-    counts["entries with a References section"] = len(with_section)
-    counts["entries with an etymology and a References section"] = sum(with_section.values())
-    counts["objects"] = out.write(out_dir / "assertions.jsonl")
-    with gzip.open(out_dir / "entry_credits.jsonl.gz", "wt", encoding="utf-8") as f:
-        for key, cs in credits.items():
-            code, word, has = next(iter(cs.values()))
-            counts["entries credited"] += 1
-            counts["entries with an etymology credited"] += has
-            row = entry_key(key, code) | {
-                "record": record_id(code, word, key[2]),
-                "etymology": has,
+        if not found:
+            continue
+        counts[f"{kind} sections citing a work"] += 1
+        key = (s["page"], s["lang"], s["ety"])
+        if kind == "references":
+            for wid, loc, _ in found:
+                credits[key].setdefault((wid, loc), None)
+        else:
+            further[key] |= {wid for wid, _, _ in found}
+    counts["objects"] = out.write(out_dir / "bibliography.jsonl")
+    with gzip.open(out_dir / "section_credits.jsonl.gz", "wt", encoding="utf-8") as f:
+        for (page, lang, ety), cs in credits.items():
+            row = {
+                "page": page,
+                "lang": lang,
+                "ety": ety,
                 "credits": [
                     {"work": wid, "role": "follows", "scope": "entry"}
                     | ({"locator": loc} if loc else {})
@@ -568,11 +483,11 @@ def convert(sections_path, entries_path, out_dir):
             }
             counts["credits"] += len(row["credits"])
             f.write(json.dumps(row, ensure_ascii=False) + "\n")
+    counts["sections credited"] = len(credits)
     with gzip.open(out_dir / "further_reading.jsonl.gz", "wt", encoding="utf-8") as f:
-        for key, (code, ws) in further.items():
-            row = entry_key(key, code) | {"works": sorted(ws)}
+        for (page, lang, ety), ws in further.items():
+            row = {"page": page, "lang": lang, "ety": ety, "works": sorted(ws)}
             f.write(json.dumps(row, ensure_ascii=False) + "\n")
-    counts["entries with Further reading works"] = len(further)
     return {
         "counts": dict(sorted(counts.items())),
         "bibliography": dict(sorted(bib.counts.items())),
@@ -582,23 +497,19 @@ def convert(sections_path, entries_path, out_dir):
 
 def check(out_dir):
     """The bibliography's errors (`etymology.assertions`), then the credit table's: each
-    credit is a schema `Credit` naming a work of the bibliography, each record id a
-    schema `RecordId`. Until core-4 emits Wiktionary's assertions, the credits wait in
-    this table; core-4 copies an entry's credits onto each assertion it endorses."""
-    objs = A.read(out_dir / "assertions.jsonl")
+    credit is a schema `Credit` naming a work of the bibliography."""
+    objs = A.read(out_dir / "bibliography.jsonl")
     errors = A.validate(objs)
     works = {o["id"] for o in objs if o["type"] == "work"}
     credit = A.branch_validator("Credit")
-    record = A.branch_validator("RecordId")
-    with gzip.open(out_dir / "entry_credits.jsonl.gz", "rt", encoding="utf-8") as f:
+    with gzip.open(out_dir / "section_credits.jsonl.gz", "rt", encoding="utf-8") as f:
         for n, line in enumerate(f, 1):
-            d = json.loads(line)
-            if not record.is_valid(d["record"]):
-                errors.append(f"entry_credits line {n}: record id {d['record']!r}")
-            for c in d["credits"]:
-                errors += [f"entry_credits line {n}: {e.message}" for e in credit.iter_errors(c)]
+            for c in json.loads(line)["credits"]:
+                errors += [f"section_credits line {n}: {e.message}" for e in credit.iter_errors(c)]
                 if c["work"] not in works:
-                    errors.append(f"entry_credits line {n}: {c['work']} is not in the bibliography")
+                    errors.append(
+                        f"section_credits line {n}: {c['work']} is not in the bibliography"
+                    )
     return errors
 
 
@@ -609,20 +520,17 @@ def main(argv=None):
     e.add_argument("dump", type=Path, help="pages-articles XML (.bz2 or plain)")
     e.add_argument("--out", type=Path, required=True, help="sections, .jsonl.gz")
     e.add_argument("--counts", type=Path, help="where to write what was read")
-    n = sub.add_parser("entries", help="wiktextract's entry keys")
-    n.add_argument("wiktextract", type=Path, help="raw wiktextract data, .jsonl.gz")
-    n.add_argument("--out", type=Path, required=True, help="entries, .jsonl.gz")
-    c = sub.add_parser("convert", help="the bibliography and the entry-scope credits")
+    c = sub.add_parser("convert", help="the bibliography and each section's credits")
     c.add_argument("sections", type=Path, help="extract's output")
-    c.add_argument("entries", type=Path, help="entries' output")
+    c.add_argument("--dump", type=Path, required=True, help="the dump extract read")
     c.add_argument("--out", type=Path, required=True, help="directory to write into")
     args = p.parse_args(argv)
     if args.step == "convert":
-        result = convert(args.sections, args.entries, args.out)
+        result = convert(args.sections, args.dump, args.out)
         (args.out / "convert_counts.json").write_text(json.dumps(result, indent=1) + "\n")
         print(json.dumps(result, indent=1))
-    elif args.step == "entries":
-        print(json.dumps(entries(args.wiktextract, args.out)))
+        if result["errors"]:
+            raise SystemExit(f"{len(result['errors'])} errors")
     else:
         result = extract(args.dump, args.out)
         text = json.dumps(result, ensure_ascii=False, indent=1)

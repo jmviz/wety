@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "mode": "artifact",
+  "collection": "wiktionary-references",
+  "product": "wiktionary_references",
+  "inputs": {
+    "pages": "data/artifacts/wiktionary-dump/06acca8138eacb3e8ae9c1d6232f836e37c3bf9b6d582a86693731fe0d336c20/files/source"
+  },
+  "commands": [
+    [
+      "{python}",
+      "-m",
+      "etymology.convert.wiktionary_references",
+      "extract",
+      "{input_pages}",
+      "--out",
+      "{output}/sections.jsonl.gz",
+      "--counts",
+      "{output}/extract_counts.json"
+    ],
+    [
+      "{python}",
+      "-m",
+      "etymology.convert.wiktionary_references",
+      "convert",
+      "{output}/sections.jsonl.gz",
+      "--dump",
+      "{input_pages}",
+      "--out",
+      "{output}"
+    ]
+  ],
+  "required_outputs": [
+    "bibliography.jsonl",
+    "section_credits.jsonl.gz",
+    "further_reading.jsonl.gz"
+  ],
+  "entrypoint": "section_credits.jsonl.gz"
+}

@@ -132,33 +132,27 @@ class Convert(unittest.TestCase):
                     )
             with gzip.open(tmp / "sections.jsonl.gz", "wt") as f:
                 f.writelines(json.dumps(r) + "\n" for r in rows)
-            with gzip.open(tmp / "entries.jsonl.gz", "wt") as f:
-                for row in (
-                    ["lupus", "Latin", "1", "la", "lupus", True],
-                    ["lupus", "Latin", "2", "la", "lupus", True],
-                    ["lupus", "English", None, "en", "lupus", True],
-                ):
-                    f.write(json.dumps(row) + "\n")
-            result = R.convert(tmp / "sections.jsonl.gz", tmp / "entries.jsonl.gz", tmp)
+            result = R.convert(tmp / "sections.jsonl.gz", tmp / "sections.jsonl.gz", tmp)
             counts = result["counts"]
             self.assertEqual(result["errors"], [])
-            with gzip.open(tmp / "entry_credits.jsonl.gz", "rt") as f:
-                got = {(d["page"], d["lang"], d["label"]): d for d in map(json.loads, f)}
+            with gzip.open(tmp / "section_credits.jsonl.gz", "rt") as f:
+                got = {(d["page"], d["lang"], d["ety"]): d for d in map(json.loads, f)}
         edl = "work:wiktionary:R:itc:EDL"
-        one = {(c["work"], c.get("locator")) for c in got["lupus", "la", "1"]["credits"]}
-        two = {(c["work"], c.get("locator")) for c in got["lupus", "la", "2"]["credits"]}
+        one = {(c["work"], c.get("locator")) for c in got["lupus", "Latin", "1"]["credits"]}
         # The redirect R:la:EDL is the same work.
         self.assertIn((edl, "353"), one)
-        # A language-wide section; with no template page, no argument is known to be a page.
-        self.assertIn(("work:wiktionary:R:la:Gaffiot", None), one)
-        self.assertNotIn((edl, "353"), two)
+        # Etymology 2 has no References of its own: the language-wide section covers it,
+        # which the processor applies. With no template page, no argument is a page.
+        self.assertNotIn(("lupus", "Latin", "2"), got)
+        wide = {(c["work"], c.get("locator")) for c in got["lupus", "Latin", None]["credits"]}
+        self.assertIn(("work:wiktionary:R:la:Gaffiot", None), wide)
+        self.assertNotIn((edl, "353"), wide)
         self.assertEqual(
-            got["lupus", "en", None]["credits"],
+            got["lupus", "English", None]["credits"],
             [{"work": edl, "role": "follows", "scope": "entry", "locator": "10"}],
         )
-        self.assertEqual(got["lupus", "la", "1"]["record"], "wiktionary:la:lupus#1")
-        self.assertEqual(counts["entries with Further reading works"], 2)
-        self.assertTrue(any(w.startswith("work:wiktionary:cite:") for w, _ in two))
+        self.assertEqual(counts["further sections citing a work"], 1)
+        self.assertTrue(any(w.startswith("work:wiktionary:cite:") for w, _ in wide))
 
 
 if __name__ == "__main__":
