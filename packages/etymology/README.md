@@ -4,7 +4,7 @@ This package holds the assertion schema, the converters that turn each etymologi
 source into assertions, and the curation tools those converters read. The design and
 the work plan are in the shared doc "wety etymology claims model", outside git.
 
-- [`schema/`](schema/README.md): the assertion schema, v1, and what it covers;
+- [`schema/`](schema/README.md): the assertion schema, v2, and what it covers;
 - `assertions.py`: builds assertion objects (their digest ids) and validates files;
 - `convert/`: one converter per source. `acd` and `lila` read the retained release, whole
   or a sample; `wiktionary` converts claims a model annotated per entry, for samples;
@@ -14,7 +14,8 @@ the work plan are in the shared doc "wety etymology claims model", outside git.
   (`crates/processor`) writes a graph's assertions in this schema, which
   `etymology.assertions` validates;
 - `wikitext.py`: pages of a Wiktionary dump, their sections and templates;
-- `language_map.py`, `orthography.py`: curation tools (language maps, comparison keys).
+- `language_map.py`, `orthography.py`: curation tools (language maps, comparison keys);
+- `match_lila.py`: LiLa's records matched to Wiktionary's, and relays (below).
 
 ## A source's directory
 
@@ -80,6 +81,24 @@ etymology of its language, and an item's own section's assertions carry them, un
 rule reads the section. `<ref>` footnotes are left to the processor (note scope);
 Further reading gives no credits and is kept the same way
 (`further_reading.jsonl.gz`).
+
+## Matching LiLa to Wiktionary
+
+`match_lila.py` (lila-3) matches LiLa's de Vaan records to Wiktionary's records, which
+stand for wety's items, and relays Wiktionary's credits to de Vaan (2008) to his
+assertions in LiLa. It reads a graph's assertion export (`graph-assertions`) and the
+lila-2 assertions; both must lie in the checkout, so hard-link them in a worktree:
+
+```sh
+uv run --frozen python -m etymology.match_lila --export data/runs/<run>/checks/core-4-references/assertions.jsonl.gz --out $S/lila-edl/checks/lila-3
+uv run --frozen python -m etymology.match_lila --out $S/lila-edl/checks/lila-3 --review
+```
+
+The first writes `assertions.jsonl` (the matches, the relays and what they refer to),
+`relays.json` (every crediting assertion and what became of it), `result.json` and
+`sample.json` (100 matches to review). The second adds the precision of the judged
+sample, `review.json`, to `result.json`. The rule, `agent:wety-match-lila@1`, and what
+each match weighs are in the module's docstring.
 
 ## Tests
 
