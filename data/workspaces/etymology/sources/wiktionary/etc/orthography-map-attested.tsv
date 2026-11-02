@@ -1,0 +1,26 @@
+# Wiktionary's Austronesian entries (acd-3), in each language's practical orthography.
+# Compared with acd/etc/orthography-attested.tsv.
+Kind	Grapheme	Key	Note
+grapheme	-		morpheme boundary
+grapheme	<		infix bracket
+grapheme	>		infix bracket
+grapheme	́		acute: stress
+grapheme	̀		grave accent
+grapheme	̂		circumflex
+grapheme	̄		macron: length
+grapheme	̆		breve
+grapheme	̈		diaeresis
+grapheme	̣		dot below: retroflex or other; written differently by each orthography
+grapheme	̌		caron
+grapheme	ː		length mark
+grapheme	:		length mark
+grapheme	ŋ	ng	velar nasal: most practical orthographies write ng
+grapheme	ə	e	schwa: practical orthographies of Malay, Indonesian and Javanese write e
+grapheme	ʔ	ʔ	glottal stop
+grapheme	Ɂ	ʔ	glottal stop (capital form)
+grapheme	ʻ	ʔ	ʻokina: glottal stop in Hawaiian, Samoan, Tongan
+grapheme	ʼ	ʔ	apostrophe letter: glottal stop
+grapheme	'	ʔ	apostrophe: glottal stop
+grapheme	’	ʔ	right quotation mark: glottal stop
+grapheme	̃		tilde (ñ in Spanish loans)
+grapheme	̇		dot above (Old Javanese ṅ, ṙ)

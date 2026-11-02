@@ -1,0 +1,32 @@
+# Wiktionary's Austronesian reconstructions (acd-3). Compared with acd/etc/orthography.tsv.
+Kind	Grapheme	Key	Note
+grapheme	*		reconstruction mark
+grapheme	-		morpheme boundary
+grapheme	<		infix bracket
+grapheme	>		infix bracket
+grapheme	́		acute: stress is not compared
+grapheme	̀		grave accent
+grapheme	̄		macron: length is not compared
+grapheme	ː		length mark
+grapheme	̆		breve
+grapheme	ə	e	schwa: the ACD writes PAN and PMP schwa as e, Wiktionary as ə
+grapheme	ñ	ñ	palatal nasal (n with tilde, one grapheme)
+grapheme	ŋ	ŋ	velar nasal
+grapheme	ʔ	ʔ	glottal stop
+grapheme	Ɂ	ʔ	glottal stop (capital form)
+grapheme	C	C	a distinct PAN segment, not lower-cased
+grapheme	S	S	a distinct PAN segment, not lower-cased
+grapheme	R	R	a distinct PAN segment, not lower-cased
+grapheme	N	N	a distinct PAN segment, not lower-cased
+grapheme	Z	Z	a distinct PAN segment, not lower-cased
+grapheme	D	D	a distinct PAN segment, not lower-cased
+grapheme	T	T	a distinct PAN segment, not lower-cased
+grapheme	L	L	a distinct PAN segment, not lower-cased
+grapheme	H	H	a distinct PAN segment, not lower-cased
+grapheme	A	A	a distinct PAN segment, not lower-cased
+grapheme	ʀ	R	Wiktionary writes some proto-languages' *R as ʀ
+grapheme	₁		homograph subscript
+grapheme	₂		homograph subscript
+grapheme	ǝ	e	turned e, written for schwa
+grapheme	ә	e	Cyrillic schwa, written for schwa
+grapheme	ɡ	g	IPA g
