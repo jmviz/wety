@@ -4,7 +4,7 @@
 then `claude/root-vote-fix` (root fixes), then `claude/claims-core-1`, then
 `claude/claims-core-2` (acd-1, lila-1, core-2, acd-2, lila-2), then
 `claude/claims-core-3`, then `claude/claims-core-4` (core-5 merged in), then
-`claude/claims-core-6`.*
+`claude/claims-core-6` (acd-3 and lila-3 merged in).*
 
 ## What the project promises
 
@@ -24,34 +24,35 @@ and citations from reviewed evidence in the `packages/dating` registry.
 
 ## What changed
 
-- **core-6 (Wiktionary's part):** the etymology chart draws a word's alternatives as
-  separate "or" branches (all when none is preferred, else behind "or N more"), dashes
-  possible and doubtful links with a "?", underlines modes a wety rule inferred and shows
-  "origin unknown". Word details list each origin with who asserts it (Wiktionary's
-  editors and on which page, or the wety rule) and the works it follows, from a new
-  `/origin/:id`. Descendants rows no longer name another alternative's parent as a
-  co-parent. Checked in the browser on *doubt*, *elk*, *lupus*, *cats* and *douten*.
-- **References in the graph** (core-4): a `wiktionary_references` workflow product the
-  graph build reads; 562,108 entry credits on 349,671 assertions. The superseded join's
-  outputs are deleted from the store.
+- **core-6 (Wiktionary's part):** the chart draws alternatives as "or" branches, dashes
+  uncertain links and marks rule-inferred modes; word details list each origin with who
+  asserts it and its credits (`/origin/:id`).
+- **acd-3, lila-3:** ACD and LiLa records matched to wety's items. 16,586 Wiktionary words
+  in 502 codes carry an ACD record, and 1,309 Latin entries plus 1,557 Proto-Italic and
+  PIE etymons a de Vaan record; precision 98 of 100 in each. Of 1,202 claims crediting
+  the ACD, 355 agree with it and 18 differ; of 576 crediting de Vaan (2008), 45 agree in
+  substance and 52 differ. Schema v2 adds matches and relays; v3 (approved) records a
+  match's ancestry, which matcher v2 is being taught in the two sessions.
 
 ## Uncertainties
 
 - core-6 is not finished: "disputed", "whose view", the `view`/`floor` tree parameters,
-  "implied by the ACD's tree" and "possibly related" in Cognates need a second source
-  (acd-3, lila-3) or were not built.
+  "implied by the ACD's tree" and "possibly related" in Cognates wait for syn-1, which
+  brings the matched sources into the build.
+- wiktextract drops most footnotes (38 credits to de Vaan in the graph, about 3,257
+  sections citing him in the dump) and keeps no position for any: parsing the Wiktionary
+  HTML dump directly, a project the maintainer envisions, would recover both.
+- acd-2 left out 12,629 ACD reconstructions that are in no cognate set.
 - *lupus* keeps its Descendants reading: its own section names a language but no word
   ("possibly borrowed from an Osco-Umbrian language"), which wety cannot represent yet.
-- Inline citations and the place of a footnote within a section need the Wiktionary HTML
-  dump parsed directly, a separate project the maintainer envisions.
 - `/cognates` and `/descendants` changed shape on the client branch: ship server, client
   and graph together.
 
 ## Next three actions
 
-1. acd-3 and lila-3: match ACD and LiLa records to items.
-2. Finish core-6 once a second source is in: disputed, whose view, implied links.
-3. syn-2: model extraction of prose citations and conjectures.
+1. Merge matcher v2 (ancestry) from the acd-3 and lila-3 sessions.
+2. syn-1: synthesis tiers 3–4 with both sources in the build; the generation report.
+3. Finish core-6 on top: disputed, whose view, implied links; then syn-2.
 
 ## Decisions needed from the maintainer
 
