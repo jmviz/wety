@@ -13,6 +13,7 @@ import {
   Etymology,
   Item,
   Lang,
+  Origin,
   TreeKind,
   TreeRequest,
   WordLink,
@@ -186,6 +187,11 @@ export const forest = createMemo<Forest | null>(() => {
   return f;
 });
 
+// A chart word's parents in every one of its etymologies.
+function etymologyParents(e: Etymology): Etymology[] {
+  return e.etymologies.flatMap((a) => a.parents);
+}
+
 // Languages of the fetched (unfiltered) tree with counts, for the settings
 // sidebar; stable across filter changes so hidden languages stay in place.
 export const treeLangs = createMemo<LangCount[]>(() => {
@@ -199,7 +205,7 @@ export const treeLangs = createMemo<LangCount[]>(() => {
     kids();
   };
   const visitD = (d: Descendants) => visit(d.item, () => d.children.forEach(visitD));
-  const visitE = (e: Etymology) => visit(e.item, () => e.parents.forEach(visitE));
+  const visitE = (e: Etymology) => visit(e.item, () => etymologyParents(e).forEach(visitE));
   if (Array.isArray(t)) t.forEach(visitD);
   else visitE(t);
   return [...counts.values()].sort(
@@ -219,8 +225,10 @@ export const treeModes = createMemo<Map<string, number>>(() => {
     d.children.forEach(visitD);
   };
   const visitE = (e: Etymology) => {
-    if (e.parents.length) count(e.etyMode);
-    e.parents.forEach(visitE);
+    for (const a of e.etymologies) {
+      if (a.parents.length) count(a.mode);
+      a.parents.forEach(visitE);
+    }
   };
   if (Array.isArray(t)) t.forEach(visitD);
   else visitE(t);
@@ -280,7 +288,7 @@ function resolveLink(link: WordLink): Promise<Resolved> {
 function langsOfTree(t: Etymology | Descendants[], out: Map<string, Lang>) {
   const visitE = (e: Etymology) => {
     out.set(e.item.lang.code, e.item.lang);
-    e.parents.forEach(visitE);
+    etymologyParents(e).forEach(visitE);
   };
   const visitD = (d: Descendants) => {
     out.set(d.item.lang.code, d.item.lang);
@@ -460,6 +468,17 @@ function sameLink(a: WordLink, b: WordLink): boolean {
     a.rootEty === b.rootEty &&
     a.descLangs.join(" ") === b.descLangs.join(" ")
   );
+}
+
+// A word's etymologies with their assertions, for word details.
+const originCache = new Map<number, Promise<Origin>>();
+export function fetchOrigin(id: number): Promise<Origin> {
+  let p = originCache.get(id);
+  if (!p) {
+    p = fetchJson(`${API}/origin/${id}?graph=${graph}`).then(({ body }) => body as Origin);
+    originCache.set(id, p);
+  }
+  return p;
 }
 
 // Lazily fetched full items (for nodes whose glosses were left out).

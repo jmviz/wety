@@ -123,14 +123,91 @@ pub struct DescendantsViewJson<'a> {
     pub tree: DescendantsJson<'a>,
 }
 
+/// A word in an etymology chart, with every etymology it has.
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct EtymologyJson<'a> {
     pub item: ItemJson<'a>,
-    pub ety_mode: Option<&'static str>,
+    /// Its place among its child's parents.
     pub ety_order: u8,
-    pub parents: Vec<EtymologyJson<'a>>,
     pub lang_distance: Option<usize>,
+    /// How firmly its child is said to come from it, when not stated outright.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub certainty: Option<&'static str>,
+    /// One etymology, or alternatives one source gives ("from A or B");
+    /// none when nothing is recorded.
+    pub etymologies: Vec<EtyJson<'a>>,
+    /// The etymology walks follow; null when it has several and none is
+    /// preferred, and walks follow each.
+    pub primary: Option<u8>,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct EtyJson<'a> {
+    /// "derivation", or "unknown": the source says no origin is known.
+    pub kind: &'static str,
+    pub mode: Option<&'static str>,
+    /// Whether a wety rule reads it rather than a source stating it.
+    pub inferred: bool,
+    pub parents: Vec<EtymologyJson<'a>>,
+}
+
+/// A word's etymologies with who asserts each and on what grounds, as served
+/// at `/origin/:id`.
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct OriginJson<'a> {
+    pub primary: Option<u8>,
+    pub hypotheses: Vec<HypothesisJson<'a>>,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct HypothesisJson<'a> {
+    pub kind: &'static str,
+    pub mode: Option<&'static str>,
+    pub parents: Vec<LinkJson<'a>>,
+    pub asserted: AssertionJson<'a>,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LinkJson<'a> {
+    pub item: ItemJson<'a>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub certainty: Option<&'static str>,
+    /// The part the word is built on, when its parents are parts.
+    pub head: bool,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AssertionJson<'a> {
+    /// "wiktionary-editors", or the wety rule that reads it (`wety-form-of@1`).
+    pub by: &'static str,
+    /// Who that is, for readers.
+    pub by_name: &'static str,
+    /// For a rule: what it inferred the etymology from.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub words: Option<String>,
+    /// The page that states it: the word's own, or another's (its Descendants
+    /// list, the entry citing a missing word).
+    pub page: ItemJson<'a>,
+    pub section: &'static str,
+    pub credits: Vec<CreditJson<'a>>,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CreditJson<'a> {
+    pub citation: &'a str,
+    pub year: Option<u16>,
+    pub locator: Option<&'a str>,
+    /// follows, reports, against or data
+    pub role: &'static str,
+    /// inline, note (a footnote) or entry (the entry's References)
+    pub scope: &'static str,
 }
 
 impl Lang {

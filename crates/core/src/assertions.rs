@@ -12,7 +12,7 @@ use crate::{ety_graph::EdgeBasis, items::ItemId};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use sha2::{Digest, Sha256};
-use strum::AsRefStr;
+use strum::{AsRefStr, IntoStaticStr};
 
 /// What one etymology's assertion adds to its edges.
 #[derive(Serialize, Deserialize, Clone, Debug, Default, PartialEq)]
@@ -53,7 +53,9 @@ pub struct Credit {
     pub locator: Option<Box<str>>,
 }
 
-#[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq, Hash, AsRefStr)]
+#[derive(
+    Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq, Hash, AsRefStr, IntoStaticStr,
+)]
 #[serde(rename_all = "snake_case")]
 #[strum(serialize_all = "snake_case")]
 pub enum Role {
@@ -67,7 +69,9 @@ pub enum Role {
     Data,
 }
 
-#[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq, Hash, AsRefStr)]
+#[derive(
+    Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq, Hash, AsRefStr, IntoStaticStr,
+)]
 #[serde(rename_all = "snake_case")]
 #[strum(serialize_all = "snake_case")]
 pub enum Scope {
@@ -111,6 +115,49 @@ pub fn rule(basis: EdgeBasis) -> Option<&'static str> {
         EdgeBasis::RootVote => "wety-root-vote@1",
         EdgeBasis::Etymon | EdgeBasis::Template | EdgeBasis::Descendants => return None,
     })
+}
+
+/// What a rule reads, for readers.
+#[must_use]
+pub fn rule_name(rule: &str) -> &'static str {
+    match rule.split('@').next() {
+        Some("wety-chain") => {
+            "wety's chain rule: a later template read as the etymology of a missing parent before it"
+        }
+        Some("wety-mention") => {
+            "wety's mention rule: a lone {{m}}, in a section with no other etymology template"
+        }
+        Some("wety-form-of") => "wety's form-of rule: an entry's form-of or alt-of sense",
+        Some("wety-root") => {
+            "wety's root rule: an entry's {{root}} or root category, for an entry with no other etymology"
+        }
+        _ => {
+            "wety's root vote: the root most of a progenitor's derivatives name, for a progenitor with no etymology"
+        }
+    }
+}
+
+/// How a rule's reading is described: what it inferred the etymology from.
+#[must_use]
+pub fn compiled_words(inputs: u32) -> String {
+    match inputs {
+        0 => "inferred by wety".to_owned(),
+        1 => "inferred by wety from 1 derivative's root categories".to_owned(),
+        n => format!("inferred by wety from {n} derivatives' root categories"),
+    }
+}
+
+/// The part of a page that states an etymology of this basis.
+#[must_use]
+pub fn section(basis: EdgeBasis) -> &'static str {
+    match basis {
+        EdgeBasis::Etymon | EdgeBasis::Template | EdgeBasis::Chain | EdgeBasis::Mention => {
+            "Etymology"
+        }
+        EdgeBasis::Descendants => "Descendants",
+        EdgeBasis::FormOf => "senses",
+        EdgeBasis::Root | EdgeBasis::RootVote => "categories",
+    }
 }
 
 #[cfg(test)]

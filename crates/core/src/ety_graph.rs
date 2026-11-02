@@ -17,7 +17,7 @@ use petgraph::{
     visit::{EdgeRef, IntoEdgeReferences, IntoNodeReferences},
 };
 use serde::{Deserialize, Serialize};
-use strum::{AsRefStr, EnumIter};
+use strum::{AsRefStr, EnumIter, IntoStaticStr};
 
 pub type EtyEdge<'a> = EdgeReference<'a, EtyEdgeData>;
 
@@ -50,6 +50,7 @@ pub struct EtyEdgeData {
     Clone,
     Default,
     AsRefStr,
+    IntoStaticStr,
     EnumIter,
 )]
 #[strum(serialize_all = "snake_case")]
@@ -61,7 +62,9 @@ pub enum Certainty {
     Doubtful,
 }
 
-#[derive(Serialize, Deserialize, Hash, Eq, PartialEq, Debug, Copy, Clone, AsRefStr)]
+#[derive(
+    Serialize, Deserialize, Hash, Eq, PartialEq, Debug, Copy, Clone, AsRefStr, IntoStaticStr,
+)]
 #[strum(serialize_all = "snake_case")]
 pub enum EtyKind {
     /// parents, by a mode

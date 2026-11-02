@@ -246,6 +246,62 @@
   font-size: 0.85em;
 }
 
+/* Origin: each etymology, who states it, and the works it follows. */
+.popover-origin {
+  list-style: none;
+  margin: 0.3em 0;
+  padding: 0;
+}
+
+.popover-origin > li + li {
+  margin-top: 0.4em;
+}
+
+.popover-origin .popover-ety {
+  margin: 0;
+}
+
+.ety-or {
+  font-variant: small-caps;
+  color: var(--muted);
+}
+
+.origin-by {
+  font-size: 0.85em;
+  color: var(--muted);
+  margin: 0.2em 0.6em 0;
+}
+
+.origin-by .ety-lang {
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.03em;
+}
+
+.origin-by .ety-term {
+  color: var(--ink);
+}
+
+.origin-source {
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.origin-credits {
+  list-style: none;
+  margin: 0.15em 0 0;
+  padding: 0;
+}
+
+.origin-credits li {
+  color: var(--ink);
+  padding-left: 0.8em;
+  text-indent: -0.8em;
+}
+
+.credit-cite {
+  font-style: italic;
+}
+
 .popover-actions {
   display: flex;
   flex-wrap: wrap;

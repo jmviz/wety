@@ -1,13 +1,14 @@
 use crate::{
-    HashMap, HashSet,
+    HashMap, HashSet, assertions,
     descendant_langs::DescendantLangs,
+    ety_graph::{Certainty, EtyEdge, EtyKind},
     ety_graph::{EtyEdgeAccess, EtyGraph, Progenitors},
     etymology_templates::EtyMode,
     items::{Item, ItemId},
     languages::Lang,
     response::{
-        CognatesJson, DescendantsJson, EtymologyJson, GlossStr, ItemJson, OtherParentJson,
-        TrailStepJson,
+        AssertionJson, CognatesJson, CreditJson, DescendantsJson, EtyJson, EtymologyJson, GlossStr,
+        HypothesisJson, ItemJson, LinkJson, OriginJson, OtherParentJson, TrailStepJson,
     },
     string_pool::StringPool,
 };
@@ -261,13 +262,21 @@ impl Data {
             .collect();
         let descendant_count = children.iter().map(|c| 1 + c.descendant_count).sum();
 
-        let mut ety_mode = None;
-        let other_parents = self
-            .graph
-            .parent_edges(item_id)
-            .inspect(|e| {
-                ety_mode = Some(e.mode());
-            })
+        // The etymology the row is drawn under: that of its tree parent, or
+        // for a root, its first followed one. Its other parents are those of
+        // the same etymology; another alternative's are not co-parents.
+        let edges = self.graph.parent_edges(item_id).collect_vec();
+        let ety = item_parent_id
+            .and_then(|p| edges.iter().find(|e| e.parent() == p))
+            .or_else(|| edges.iter().min_by_key(|e| e.ety()))
+            .map(EtyEdgeAccess::ety);
+        let edges = edges
+            .into_iter()
+            .filter(|e| Some(e.ety()) == ety)
+            .collect_vec();
+        let ety_mode = edges.first().map(EtyEdgeAccess::mode);
+        let other_parents = edges
+            .into_iter()
             .filter(|&e| item_parent_id != Some(e.parent()))
             .map(|e| OtherParentJson {
                 item: self.item_json_inner(e.parent(), lean),
@@ -439,29 +448,135 @@ impl Data {
         }
     }
 
+    /// An item's etymologies, numbered as the graph numbers them, each with
+    /// its edges in order, and the one walks follow. An unknown origin is one
+    /// etymology with no edges.
+    fn etymologies_of(&self, item: ItemId) -> (Vec<(EtyKind, Vec<EtyEdge<'_>>)>, Option<u8>) {
+        let mut etys: Vec<(EtyKind, Vec<EtyEdge<'_>>)> = match self.graph.etymologies(item) {
+            Some(e) => e.kinds.iter().map(|&k| (k, vec![])).collect(),
+            None => vec![],
+        };
+        for e in self.graph.all_parent_edges(item) {
+            let n = usize::from(e.ety());
+            if etys.len() <= n {
+                etys.resize_with(n + 1, || (EtyKind::Derivation, vec![]));
+            }
+            etys[n].1.push(e);
+        }
+        for (_, edges) in &mut etys {
+            edges.sort_unstable_by_key(EtyEdgeAccess::order);
+        }
+        let primary = match self.graph.etymologies(item) {
+            Some(e) => e.primary,
+            None => (!etys.is_empty()).then_some(0),
+        };
+        (etys, primary)
+    }
+
+    /// The etymology chart above an item: each of its etymologies, and theirs.
     #[must_use]
-    pub fn item_etymology_json(
+    pub fn item_etymology_json(&self, item_id: ItemId, req_lang: Lang) -> EtymologyJson<'_> {
+        self.etymology_node(item_id, 0, None, req_lang)
+    }
+
+    fn etymology_node(
         &self,
         item_id: ItemId,
-        item_ety_order: u8,
+        ety_order: u8,
+        certainty: Option<Certainty>,
         req_lang: Lang,
     ) -> EtymologyJson<'_> {
-        let mut ety_mode = None;
-        let parents = self
-            .graph
-            .parent_edges(item_id)
-            .map(|e| {
-                ety_mode = Some(e.mode());
-                self.item_etymology_json(e.parent(), e.order(), req_lang)
-            })
-            .collect();
-
+        let (etys, primary) = self.etymologies_of(item_id);
         EtymologyJson {
             item: self.item_json(item_id),
-            ety_mode: ety_mode.map(|m| m.as_str()),
-            ety_order: item_ety_order,
-            parents,
+            ety_order,
             lang_distance: self.item(item_id).lang().distance_from(req_lang),
+            certainty: certainty
+                .filter(|&c| c != Certainty::Stated)
+                .map(Into::into),
+            etymologies: etys
+                .iter()
+                .map(|(kind, edges)| EtyJson {
+                    kind: (*kind).into(),
+                    mode: edges.first().map(|e| e.mode().as_str()),
+                    inferred: edges.first().is_some_and(|e| e.basis().is_rule()),
+                    parents: edges
+                        .iter()
+                        .map(|e| {
+                            self.etymology_node(
+                                e.parent(),
+                                e.order(),
+                                Some(e.certainty()),
+                                req_lang,
+                            )
+                        })
+                        .collect(),
+                })
+                .collect(),
+            primary,
+        }
+    }
+
+    /// An item's etymologies with who asserts each, where, and on what works.
+    #[must_use]
+    pub fn item_origin_json(&self, item_id: ItemId) -> OriginJson<'_> {
+        let (etys, primary) = self.etymologies_of(item_id);
+        let hypotheses = etys
+            .iter()
+            .enumerate()
+            .map(|(n, (kind, edges))| {
+                let asserted = u8::try_from(n)
+                    .ok()
+                    .and_then(|n| self.graph.asserted(item_id, n));
+                // an unknown origin is stated in the word's own section
+                let basis = edges
+                    .first()
+                    .map_or(crate::ety_graph::EdgeBasis::Template, |e| e.basis());
+                let rule = assertions::rule(basis);
+                HypothesisJson {
+                    kind: (*kind).into(),
+                    mode: edges.first().map(|e| e.mode().as_str()),
+                    parents: edges
+                        .iter()
+                        .map(|e| LinkJson {
+                            item: self.item_json_inner(e.parent(), true),
+                            certainty: (e.certainty() != Certainty::Stated)
+                                .then(|| e.certainty().into()),
+                            head: e.head(),
+                        })
+                        .collect(),
+                    asserted: AssertionJson {
+                        by: rule.unwrap_or("wiktionary-editors"),
+                        by_name: rule.map_or("Wiktionary's editors", assertions::rule_name),
+                        words: rule
+                            .map(|_| assertions::compiled_words(asserted.map_or(0, |a| a.inputs))),
+                        page: self.item_json_inner(
+                            asserted.and_then(|a| a.page).unwrap_or(item_id),
+                            true,
+                        ),
+                        section: assertions::section(basis),
+                        credits: asserted
+                            .map(|a| &a.credits[..])
+                            .unwrap_or_default()
+                            .iter()
+                            .map(|c| {
+                                let work = &self.graph.works[c.work as usize];
+                                CreditJson {
+                                    citation: &work.citation,
+                                    year: work.year,
+                                    locator: c.locator.as_deref(),
+                                    role: c.role.into(),
+                                    scope: c.scope.into(),
+                                }
+                            })
+                            .collect(),
+                    },
+                }
+            })
+            .collect();
+        OriginJson {
+            primary,
+            hypotheses,
         }
     }
 }
@@ -961,5 +1076,91 @@ mod lineage_tests {
         assert!(ids(&filtered_within).contains(&paternus));
         assert_eq!(data.descendant_total(pater, TOTAL_CAP), 2);
         assert_eq!(data.descendant_total(pater, 1), 1);
+    }
+
+    #[test]
+    fn alternatives_are_drawn_apart_and_say_who_asserts_them() {
+        use crate::{
+            assertions::{Asserted, Credit, Role, Scope, Work},
+            ety_graph::{Certainty, NewEtymology},
+        };
+        let (mut graph, mut pool) = (EtyGraph::default(), StringPool::default());
+        let doubt = add(&mut graph, &mut pool, "en", "doubt");
+        let douten = add(&mut graph, &mut pool, "enm", "douten");
+        let doute = add(&mut graph, &mut pool, "enm", "doute");
+        // "from douten, or possibly doute"
+        graph.add_etymologies(
+            doubt,
+            &[
+                NewEtymology {
+                    mode: EtyMode::Inherited,
+                    head: Some(0),
+                    basis: EdgeBasis::Etymon,
+                    items: &[douten],
+                    confidences: &[1.0],
+                    certainties: &[Certainty::Stated],
+                },
+                NewEtymology {
+                    mode: EtyMode::Inherited,
+                    head: Some(0),
+                    basis: EdgeBasis::Etymon,
+                    items: &[doute],
+                    confidences: &[1.0],
+                    certainties: &[Certainty::Possible],
+                },
+            ],
+        );
+        graph.works.push(Work {
+            id: "work:wiktionary:R:OED".into(),
+            citation: "OED".into(),
+            year: None,
+        });
+        let credited = Asserted {
+            credits: Box::new([Credit {
+                work: 0,
+                role: Role::Follows,
+                scope: Scope::Entry,
+                locator: None,
+            }]),
+            ..Asserted::default()
+        };
+        graph.set_asserted(doubt, vec![credited.clone(), credited]);
+        let unk = add(&mut graph, &mut pool, "ro", "prăștilă");
+        graph.set_unknown(unk);
+        let data = Data::new(pool, graph);
+        let en = Lang::from_str("en").unwrap();
+
+        let chart = data.item_etymology_json(doubt, en);
+        assert_eq!(chart.primary, Some(0));
+        let alts: Vec<_> = chart
+            .etymologies
+            .iter()
+            .map(|e| (e.mode, e.parents.len(), e.parents[0].certainty))
+            .collect();
+        assert_eq!(
+            alts,
+            [
+                (Some("inherited"), 1, None),
+                (Some("inherited"), 1, Some("possible"))
+            ]
+        );
+        let unknown = data.item_etymology_json(unk, en);
+        assert_eq!(unknown.etymologies[0].kind, "unknown");
+
+        let origin = data.item_origin_json(doubt);
+        assert_eq!(origin.hypotheses.len(), 2);
+        let asserted = &origin.hypotheses[1].asserted;
+        assert_eq!(
+            (asserted.by, asserted.section, asserted.page.id),
+            ("wiktionary-editors", "Etymology", doubt)
+        );
+        assert_eq!(
+            (asserted.credits[0].citation, asserted.credits[0].scope),
+            ("OED", "entry")
+        );
+
+        // under douten, doute is another alternative, not a co-parent
+        let tree = data.item_descendants_json(douten, &view(en, &[], true));
+        assert!(tree.children[0].other_parents.is_empty());
     }
 }

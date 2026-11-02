@@ -212,7 +212,7 @@ fn main() {
             desc.len()
         );
         let (t_e, ety) = best(3, || {
-            serde_json::to_vec(&data.item_etymology_json(item, 0, lang)).unwrap()
+            serde_json::to_vec(&data.item_etymology_json(item, lang)).unwrap()
         });
         println!(
             "etymology build + serialize: {t_e:?} ({} nodes)",

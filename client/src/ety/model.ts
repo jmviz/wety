@@ -17,12 +17,21 @@ import {
 } from "solid-js";
 import {
   Descendants,
+  EtyAlternative,
   Etymology,
   Item,
   Lang,
   OtherParent,
   TreeKind,
 } from "../search/types";
+
+// One of a chart node's etymologies, without its parents (they are the
+// node's `children` whose `alt` it is).
+export interface Alternative {
+  kind: EtyAlternative["kind"];
+  mode: string | null;
+  inferred: boolean;
+}
 
 export interface LangCount {
   lang: Lang;
@@ -34,8 +43,16 @@ export interface TreeNode {
   item: Item;
   langDistance: number;
   // How this node derives from its parent (outline) / from its `children`,
-  // which are its etymological parents (chart).
+  // which are its etymological parents (chart): in the chart, the mode of
+  // its shown etymology.
   etyMode: string | null;
+  // Chart only. The node's etymologies, the one shown first (the primary,
+  // or the first when none of several is preferred), which of its child's
+  // etymologies it is a parent in, and how firmly.
+  alternatives: Alternative[];
+  primary: number | null;
+  alt: number | null;
+  certainty: string | null;
   otherParents: OtherParent[];
   // Position of the tree parent among all parents of this item (outline).
   parentEtyOrder: number | null;
@@ -81,6 +98,10 @@ interface RawNode {
   item: Item;
   langDistance: number;
   etyMode: string | null;
+  alternatives: Alternative[];
+  primary: number | null;
+  alt: number | null;
+  certainty: string | null;
   otherParents: OtherParent[];
   parentEtyOrder: number | null;
   etyOrder: number | null;
@@ -93,6 +114,10 @@ function rawFromDescendants(d: Descendants): RawNode {
     item: d.item,
     langDistance: d.langDistance,
     etyMode: d.etyMode,
+    alternatives: [],
+    primary: null,
+    alt: null,
+    certainty: null,
     otherParents: d.otherParents ?? [],
     parentEtyOrder: d.parentEtyOrder,
     etyOrder: null,
@@ -101,15 +126,19 @@ function rawFromDescendants(d: Descendants): RawNode {
   };
 }
 
-function rawFromEtymology(e: Etymology): RawNode {
+function rawFromEtymology(e: Etymology, alt: number | null = null): RawNode {
   return {
     item: e.item,
     langDistance: e.langDistance,
-    etyMode: e.etyMode,
+    etyMode: e.etymologies[e.primary ?? 0]?.mode ?? null,
+    alternatives: e.etymologies.map(({ kind, mode, inferred }) => ({ kind, mode, inferred })),
+    primary: e.primary,
+    alt,
+    certainty: e.certainty ?? null,
     otherParents: [],
     parentEtyOrder: null,
     etyOrder: e.etyOrder,
-    children: e.parents.map(rawFromEtymology),
+    children: e.etymologies.flatMap((a, i) => a.parents.map((p) => rawFromEtymology(p, i))),
     hoisted: false,
   };
 }
@@ -118,7 +147,8 @@ function rawFromEtymology(e: Etymology): RawNode {
 // before) and splice out nodes in hidden languages, hoisting their children.
 // An outline node's mode is the edge from its tree parent; a root's is the
 // edge to parents outside the tree, so it never drops the root. A chart
-// node's mode is the edge to its sources, which are its children.
+// node's sources are its children, each in one of its etymologies, whose
+// mode decides.
 function applyFilters(
   nodes: RawNode[],
   filters: TreeFilters,
@@ -129,7 +159,13 @@ function applyFilters(
   const out: RawNode[] = [];
   for (const n of nodes) {
     if (kind !== TreeKind.Etymology && !roots && disabled(n)) continue;
-    const children = kind === TreeKind.Etymology && disabled(n) ? [] : n.children;
+    const children =
+      kind === TreeKind.Etymology
+        ? n.children.filter((c) => {
+            const mode = n.alternatives[c.alt ?? 0]?.mode;
+            return !(mode && filters.disabledEtyModes.has(mode));
+          })
+        : n.children;
     if (filters.hiddenLangs.has(n.item.lang.id)) {
       for (const c of applyFilters(children, filters, kind, false)) {
         c.hoisted = true;
@@ -179,6 +215,10 @@ export function buildForest(
       item: raw.item,
       langDistance: raw.langDistance,
       etyMode: raw.etyMode,
+      alternatives: raw.alternatives,
+      primary: raw.primary,
+      alt: raw.alt,
+      certainty: raw.certainty,
       otherParents: raw.otherParents,
       parentEtyOrder: raw.parentEtyOrder,
       etyOrder: raw.etyOrder,
@@ -269,7 +309,7 @@ function byDisplay(a: TreeNode, b: TreeNode): number {
 }
 
 function byEtyOrder(a: TreeNode, b: TreeNode): number {
-  return (a.etyOrder ?? 0) - (b.etyOrder ?? 0);
+  return (a.alt ?? 0) - (b.alt ?? 0) || (a.etyOrder ?? 0) - (b.etyOrder ?? 0);
 }
 
 // ---------------------------------------------------------------------------
@@ -392,6 +432,7 @@ export function visibleRowCount(forest: Forest): number {
 export interface EtySource {
   item: Item;
   langDistance: number;
+  certainty?: string;
 }
 
 // All etymological parents of an outline node, in wiktionary order: the tree
@@ -410,13 +451,7 @@ export function outlineSources(node: TreeNode): EtySource[] {
   return sources;
 }
 
-// Parents of a chart (etymology) node are its `children`.
-export function chartSources(node: TreeNode): EtySource[] {
-  return node.children.map((c) => ({ item: c.item, langDistance: c.langDistance }));
-}
-
-export function sourcesOf(forest: Forest, node: TreeNode): EtySource[] {
-  return forest.kind === TreeKind.Etymology
-    ? chartSources(node)
-    : outlineSources(node);
+// Whether a link is drawn as uncertain: dashed, its word marked "?".
+export function isUncertain(node: TreeNode): boolean {
+  return node.certainty === "possible" || node.certainty === "doubtful";
 }

@@ -130,7 +130,7 @@ impl AppState {
         let bytes = match key {
             TreeKey::Etymology { item } => {
                 let lang = self.data.lang(*item);
-                serde_json::to_vec(&self.data.item_etymology_json(*item, 0, lang))?
+                serde_json::to_vec(&self.data.item_etymology_json(*item, lang))?
             }
             TreeKey::Descendants {
                 item,
@@ -314,6 +314,21 @@ pub async fn item(
         return StatusCode::NOT_FOUND.into_response();
     }
     Json(state.data.item_json(item_id)).into_response()
+}
+
+/// A word's etymologies with who asserts each, where, and the works credited.
+pub async fn item_origin(
+    State(state): State<Arc<AppState>>,
+    Path(item_id): Path<ItemId>,
+    Query(query): Query<GraphQuery>,
+) -> Response {
+    if let Some(stale) = stale_graph(&state, query.graph.as_deref()) {
+        return stale;
+    }
+    if !state.data.has_item(item_id) {
+        return StatusCode::NOT_FOUND.into_response();
+    }
+    Json(state.data.item_origin_json(item_id)).into_response()
 }
 
 pub async fn item_etymology(

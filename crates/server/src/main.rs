@@ -1,6 +1,6 @@
 use server::{
     AppState, Environment, client_ip::ClientIpKeyExtractor, item, item_cognates, item_descendants,
-    item_etymology, item_search_matches, lang, lang_search_matches, periods,
+    item_etymology, item_origin, item_search_matches, lang, lang_search_matches, periods,
     periods::DEFAULT_PERIODS_PATH, resolve,
 };
 
@@ -88,6 +88,7 @@ async fn main() -> Result<()> {
         .route("/lang/:lang", get(lang))
         .route("/cognates/:item", get(item_cognates))
         .route("/etymology/:item", get(item_etymology))
+        .route("/origin/:item", get(item_origin))
         .route("/descendants/:item", get(item_descendants))
         .route("/periods", get(periods))
         .with_state(state)

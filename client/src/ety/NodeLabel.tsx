@@ -1,5 +1,5 @@
 import { term } from "../search/types";
-import { TreeNode, outlineSources } from "./model";
+import { TreeNode, isUncertain, outlineSources } from "./model";
 import { etyModeShort, etyPrep } from "./etyMode";
 import { showGlosses } from "../state";
 import { BASIS_NAME, periodOf } from "./periods";
@@ -50,7 +50,14 @@ export default function NodeLabel(props: NodeLabelProps) {
         aria-haspopup="dialog"
       >
         <LangName lang={item().lang} short={shortLangsInTree()} />{" "}
-        <span class="term">{term(item())}</span>
+        <span class="term">
+          {term(item())}
+          <Show when={isUncertain(props.node)}>
+            <span class="uncertain-mark" title={`${props.node.certainty} source`}>
+              ?
+            </span>
+          </Show>
+        </span>
         <Show when={item().romanization}>
           {" "}
           <span class="romanization">{item().romanization}</span>

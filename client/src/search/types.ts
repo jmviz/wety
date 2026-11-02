@@ -28,12 +28,62 @@ export function term(item: Item): string {
   return item.reconstructed ? `*${item.term}` : item.term;
 }
 
+// A word in the etymology chart with each of its etymologies: one, or
+// alternatives one source gives ("from A or B").
 export interface Etymology {
   item: Item;
-  etyMode: string | null;
   etyOrder: number;
-  parents: Etymology[];
   langDistance: number;
+  // How firmly its child is said to come from it, when not stated outright:
+  // "probable", "possible" or "doubtful".
+  certainty?: string;
+  etymologies: EtyAlternative[];
+  // The etymology walks follow; null when none of several is preferred.
+  primary: number | null;
+}
+
+export interface EtyAlternative {
+  // "unknown": the source says no origin is known.
+  kind: "derivation" | "unknown";
+  mode: string | null;
+  // Read by a wety rule rather than stated by a source.
+  inferred: boolean;
+  parents: Etymology[];
+}
+
+// A word's etymologies with who asserts each (`/origin/:id`).
+export interface Origin {
+  primary: number | null;
+  hypotheses: Hypothesis[];
+}
+
+export interface Hypothesis {
+  kind: "derivation" | "unknown";
+  mode: string | null;
+  parents: { item: Item; certainty?: string; head: boolean }[];
+  asserted: Assertion;
+}
+
+export interface Assertion {
+  // "wiktionary-editors", or the wety rule that reads it ("wety-form-of@1").
+  by: string;
+  byName: string;
+  // For a rule: what it inferred the etymology from.
+  words?: string;
+  // The page that states it: the word's own, or another's.
+  page: Item;
+  section: string;
+  credits: Credit[];
+}
+
+export interface Credit {
+  citation: string;
+  year: number | null;
+  locator: string | null;
+  // "follows", "reports", "against" or "data"
+  role: string;
+  // "inline", "note" (a footnote) or "entry" (the entry's References)
+  scope: string;
 }
 
 export interface OtherParent {

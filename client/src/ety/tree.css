@@ -451,6 +451,53 @@
   min-height: 0.3em;
 }
 
+/* Alternatives: each a branch of its own, joined like sources but marked
+   "or"; a rule's reading is underlined, an uncertain link dashed. */
+.chart li.chart-alt {
+  padding-top: 0;
+}
+
+.chart-or {
+  font-style: normal;
+  font-variant: small-caps;
+  color: var(--ink);
+}
+
+.chart-alts-toggle {
+  font: inherit;
+  color: var(--muted);
+  background: none;
+  border: 0;
+  padding: 0 0.2em;
+  cursor: pointer;
+  text-decoration: underline dotted;
+}
+
+.chart-alts-toggle:hover {
+  color: var(--ink);
+}
+
+.chart-mode .inferred {
+  text-decoration: underline dotted;
+  cursor: help;
+}
+
+.chart li.uncertain::before,
+.chart li.uncertain::after {
+  border-bottom-style: dashed;
+  border-left-style: dashed;
+  border-right-style: dashed;
+}
+
+.chart ul:has(> li.uncertain:only-child)::before {
+  border-left-style: dashed;
+}
+
+.uncertain-mark {
+  color: var(--muted);
+  margin-left: 0.1em;
+}
+
 /* Dates (behind the "dates" toggle) -------------------------------------- */
 
 .tree-view .period {

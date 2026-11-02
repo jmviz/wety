@@ -1,6 +1,6 @@
 import "./popover.css";
-import { Item, TreeKind, term } from "../search/types";
-import { EtySource, TreeNode, sourcesOf } from "./model";
+import { Assertion, Credit, Hypothesis, Item, TreeKind, term } from "../search/types";
+import { EtySource, TreeNode } from "./model";
 import { LangName, shortLangsInDetails } from "./langName";
 import { etyModeRep, etyModeShort, etyPrep } from "./etyMode";
 import { BASIS_NAME, LangPeriod, METHOD_NAME, PeriodEvidence, formatLocator, periodOf } from "./periods";
@@ -11,7 +11,7 @@ import {
   close,
   isFinePointer,
 } from "./popover";
-import { forest, fetchItem } from "../state";
+import { forest, fetchItem, fetchOrigin } from "../state";
 import { useGoTo } from "../search/navigate";
 import {
   For,
@@ -228,19 +228,12 @@ export default function NodePopover() {
                   </ol>
                 )}
               </Show>
-              {/* In an outline, the word's way back up the tree; in the chart
-                  (which is itself the lineage), and for a tree's root, its
-                  sources. */}
-              <Show
-                when={forest()?.kind !== TreeKind.Etymology && node().parent}
-                fallback={
-                  <Show when={node().etyMode && sourcesOf(forest()!, node()).length}>
-                    <div class="popover-ety">{etyLine(node().etyMode!, sourcesOf(forest()!, node()))}</div>
-                  </Show>
-                }
-              >
+              {/* In an outline, the word's way back up the tree (the chart is
+                  itself the lineage); then its origin, with who says so. */}
+              <Show when={forest()?.kind !== TreeKind.Etymology && node().parent}>
                 <Lineage node={node()} />
               </Show>
+              <OriginList item={item()} />
               <div class="popover-actions">
                 <button onClick={() => go("descendants", item())}>Descendants</button>
                 <button onClick={() => go("cognates", item())}>Cognates</button>
@@ -310,6 +303,114 @@ function Lineage(props: { node: TreeNode }) {
   );
 }
 
+// The word's etymologies, each with who states it, where, and the works they
+// follow: "from Latin lupus · Wiktionary's editors, following De Vaan (2008),
+// p. 353". Several are alternatives, "or".
+function OriginList(props: { item: Item }) {
+  const [origin] = createResource(() => props.item.id, fetchOrigin);
+  const hypotheses = () => origin()?.hypotheses ?? [];
+  return (
+    <Show when={hypotheses().length > 0}>
+      <ol class="popover-origin" aria-label="origin">
+        <For each={hypotheses()}>
+          {(h, i) => (
+            <li>
+              <div class="popover-ety">
+                <Show when={i() > 0}>
+                  <span class="ety-or">or </span>
+                </Show>
+                <Show when={h.kind !== "unknown"} fallback={<span class="ety-mode">origin unknown</span>}>
+                  {etyLine(
+                    h.mode!,
+                    h.parents.map((p) => ({ item: p.item, langDistance: 0, certainty: p.certainty }))
+                  )}
+                </Show>
+                <Show when={hypotheses().length > 1 && origin()!.primary === i()}>
+                  <span class="popover-muted"> · preferred</span>
+                </Show>
+              </div>
+              <AssertedBy asserted={h.asserted} item={props.item} hypothesis={h} />
+            </li>
+          )}
+        </For>
+      </ol>
+    </Show>
+  );
+}
+
+// "stated by Wiktionary's editors, in the Descendants of Latin lupus", or a
+// rule's reading: "inferred by wety from a form-of sense".
+function AssertedBy(props: { asserted: Assertion; item: Item; hypothesis: Hypothesis }) {
+  const a = () => props.asserted;
+  const elsewhere = () => a().page.id !== props.item.id;
+  const page = () => (
+    <>
+      <LangName lang={a().page.lang} short={shortLangsInDetails()} class="ety-lang" />{" "}
+      <span class="ety-term">{term(a().page)}</span>
+    </>
+  );
+  const where = () => {
+    if (a().by !== "wiktionary-editors") {
+      if (a().section === "senses") return <> from a form-of sense</>;
+      if (a().section === "categories" && !a().words?.includes(" from ")) return <> from its root category</>;
+      if (elsewhere()) return <> from the etymology of {page()}</>;
+      return null;
+    }
+    if (a().section === "Descendants") return <>, in the Descendants of {page()}</>;
+    if (elsewhere()) return <>, in the etymology of {page()}</>;
+    return null;
+  };
+  const roles = (role: string) => a().credits.filter((c) => c.role === role);
+  return (
+    <div class="origin-by">
+      <span title={a().byName}>
+        {a().by === "wiktionary-editors" ? "stated by Wiktionary's editors" : a().words}
+      </span>
+      {where()}
+      <Show when={a().page.url}>
+        {" "}
+        <a class="origin-source" href={a().page.url!} target="_blank" rel="noopener noreferrer">
+          ↗
+        </a>
+      </Show>
+      <Show when={roles("follows").length}>
+        <CreditList head="following" credits={roles("follows")} />
+      </Show>
+      <Show when={roles("data").length}>
+        <CreditList head="dated after" credits={roles("data")} />
+      </Show>
+    </div>
+  );
+}
+
+const SCOPE_NAME: Record<string, string> = {
+  note: "footnote",
+  entry: "References",
+  inline: "in the text",
+};
+
+// A page given as a bare number reads "p. 353"; anything else as written.
+function creditLocator(locator: string): string {
+  return /^\d[\d–-]*$/.test(locator) ? `p. ${locator}` : locator;
+}
+
+function CreditList(props: { head: string; credits: Credit[] }) {
+  return (
+    <ul class="origin-credits">
+      <span class="popover-muted">{props.head}:</span>
+      <For each={props.credits}>
+        {(c) => (
+          <li>
+            <span class="credit-cite">{c.citation}</span>
+            <Show when={c.locator}>{(l) => <>, {creditLocator(l())}</>}</Show>
+            <span class="popover-muted"> · {SCOPE_NAME[c.scope] ?? c.scope}</span>
+          </li>
+        )}
+      </For>
+    </ul>
+  );
+}
+
 // "borrowed from Latin status + -ālis"
 export function etyLine(mode: string, sources: EtySource[]): JSX.Element {
   const parts: JSX.Element[] = [];
@@ -325,6 +426,8 @@ export function etyLine(mode: string, sources: EtySource[]): JSX.Element {
       prevLang = s.item.lang.id;
     }
     parts.push(<span class="ety-term">{term(s.item)}</span>);
+    if (s.certainty === "possible" || s.certainty === "doubtful")
+      parts.push(<span class="uncertain-mark" title={`${s.certainty} source`}>?</span>);
   });
   return (
     <>

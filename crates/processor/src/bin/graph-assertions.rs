@@ -116,35 +116,6 @@ fn extraction(receipt: &Path) -> Result<Value> {
     Ok(e)
 }
 
-fn rule_name(rule: &str) -> &'static str {
-    match rule.split('@').next() {
-        Some("wety-chain") => {
-            "wety's chain rule: a later template read as the etymology of a missing parent before it"
-        }
-        Some("wety-mention") => {
-            "wety's mention rule: a lone {{m}}, in a section with no other etymology template"
-        }
-        Some("wety-form-of") => "wety's form-of rule: an entry's form-of or alt-of sense",
-        Some("wety-root") => {
-            "wety's root rule: an entry's {{root}} or root category, for an entry with no other etymology"
-        }
-        _ => {
-            "wety's root vote: the root most of a progenitor's derivatives name, for a progenitor with no etymology"
-        }
-    }
-}
-
-fn section(basis: EdgeBasis) -> &'static str {
-    match basis {
-        EdgeBasis::Etymon | EdgeBasis::Template | EdgeBasis::Chain | EdgeBasis::Mention => {
-            "Etymology"
-        }
-        EdgeBasis::Descendants => "Descendants",
-        EdgeBasis::FormOf => "senses",
-        EdgeBasis::Root | EdgeBasis::RootVote => "categories",
-    }
-}
-
 // The bibliography the build read (its run receipt names it): each work's
 // full object, with the agents it names.
 #[derive(Default)]
@@ -284,7 +255,7 @@ impl Export<'_> {
         in_set: Option<&str>,
     ) -> Result<()> {
         let page = asserted.and_then(|a| a.page).unwrap_or(item);
-        let locator = format!("{}/{}", self.record_id(page), section(basis));
+        let locator = format!("{}/{}", self.record_id(page), assertions::section(basis));
         let stance = "endorses";
         let id = format!(
             "as:{}",
@@ -334,12 +305,7 @@ impl Export<'_> {
         }
         if let Some(rule) = rule {
             // a rule credits what it read: the source's own structure
-            let inputs = asserted.map_or(0, |a| a.inputs);
-            let words = if inputs > 0 {
-                format!("inferred by wety from {inputs} derivatives' root categories")
-            } else {
-                "inferred by wety".to_owned()
-            };
+            let words = assertions::compiled_words(asserted.map_or(0, |a| a.inputs));
             a["compiled"] = json!({"from": locator, "words": words});
             credits.push(json!({"work": self.work, "role": "follows", "scope": "entry"}));
             self.count(format!("assertions by {rule}"));
@@ -488,7 +454,7 @@ fn main() -> Result<()> {
     ];
     for basis in rules {
         let rule = assertions::rule(basis).context("a rule")?;
-        out.add(json!({"type": "agent", "id": format!("agent:{rule}"), "kind": "rule", "name": rule_name(rule)}))?;
+        out.add(json!({"type": "agent", "id": format!("agent:{rule}"), "kind": "rule", "name": assertions::rule_name(rule)}))?;
     }
     // what a rule credits: Wiktionary itself
     let work = out.add(json!({
