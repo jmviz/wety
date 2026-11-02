@@ -82,16 +82,34 @@ def acd_objects():
         "ilo": acd_record("4", "break", "kutú", "break, snap"),
         "hand": acd_record("3", "hand", "kamáy", "hand"),
         "duck": acd_record("3", "duck", "papan", "Philippine duck"),
+        "kin": acd_record("3", "kin", "bata", "kinsman"),
+        "nit": acd_record("3", "nit", "lisa", "nit"),
+        "infix": acd_record("3", "infix", "-um-", "actor focus"),
+        "root": acd_record("1", "root", "*wakaR", "root"),
+        "root2": acd_record("1", "root2", "*akaR", "root"),
+        "ms-root": acd_record("2", "root", "akar", "root"),
+        "ms-root2": acd_record("2", "root2", "akar", "root"),
+        "ilo-root": acd_record("4", "root", "ramut", "root"),
+        "ilo-root2": acd_record("4", "root2", "ramut", "root"),
     }
     sets = [
         {"type": "cognate_set", "id": "acd:1_1", "source": ACD_SRC, "category": "cognate set",
          "reconstruction": r["louse"]["id"], "members": [r["ms"]["id"], r["tl"]["id"]]},
         {"type": "cognate_set", "id": "acd:2_1", "source": ACD_SRC, "category": "cognate set",
          "reconstruction": r["break"]["id"], "members": [r["ilo"]["id"]]},
+        {"type": "cognate_set", "id": "acd:3_1", "source": ACD_SRC, "category": "cognate set",
+         "reconstruction": r["root"]["id"], "members": [r["ms-root"]["id"], r["ilo-root"]["id"]]},
+        {"type": "cognate_set", "id": "acd:4_1", "source": ACD_SRC, "category": "cognate set",
+         "reconstruction": r["root2"]["id"], "members": [r["ms-root2"]["id"], r["ilo-root2"]["id"]]},
     ]  # fmt: skip
+    sets[0]["members"] += [r["kin"]["id"], r["nit"]["id"]]
     rule = "agent:wety-acd-tree@1"
     links = []
-    for child, parent in (("ms", "louse"), ("tl", "louse"), ("ilo", "break")):
+    for child, parent in (
+        ("ms", "louse"), ("tl", "louse"), ("ilo", "break"), ("kin", "louse"), ("nit", "louse"),
+        ("ms-root", "root"), ("ms-root2", "root2"), ("ilo-root", "root"),
+        ("ilo-root2", "root2"),
+    ):  # fmt: skip
         links += inherits(r[child]["id"], r[parent]["id"], ACD_SRC, rule)
     return r, [*r.values(), *sets, *links]
 
@@ -104,12 +122,25 @@ def wiktionary_objects():
         "kamay": wk_record("tl", "kamay"),
         "papan1": wk_record("tl", "papan", 1),
         "papan2": wk_record("tl", "papan", 2),
+        "other": wk_record("poz-pro", "baqi"),
+        "bata": wk_record("tl", "bata", imputed=True),
+        "lisa1": wk_record("tl", "lisa", 1),
+        "lisa2": wk_record("tl", "lisa", 2),
+        "infix": wk_record("tl", "-um-"),
+        "prefix": wk_record("tl", "um-"),
+        "root": wk_record("poz-pro", "wakaʀ"),
+        "akar": wk_record("ms", "akar"),
+        "ramut": wk_record("ilo", "ramut"),
     }
     editors = "agent:wiktionary-editors"
     credit = [{"work": "work:wiktionary:R:map:ACD", "role": "follows", "scope": "entry"}]
     objs = [*r.values()]
     objs += inherits(r["ms"]["id"], r["kutu"]["id"], WK_SRC, editors)
     objs += inherits(r["tl"]["id"], r["kutu"]["id"], WK_SRC, editors, credits=credit)
+    objs += inherits(r["bata"]["id"], r["other"]["id"], WK_SRC, editors)
+    objs += inherits(r["lisa1"]["id"], r["kutu"]["id"], WK_SRC, editors)
+    objs += inherits(r["akar"]["id"], r["root"]["id"], WK_SRC, editors)
+    objs += inherits(r["ramut"]["id"], r["root"]["id"], WK_SRC, editors)
     objs.append({"type": "work", "id": "work:wiktionary:R:map:ACD", "citation": "{{R:map:ACD}}"})
     glosses = [
         {"code": "poz-pro", "word": "kutu", "canonical": None, "ety": "", "glosses": ["louse"]},
@@ -155,8 +186,29 @@ class Matching(unittest.TestCase):
         d = m.run()
         what, target, basis = d[ar["louse"]["id"]]
         self.assertEqual((what, target), ("match", wr["kutu"]["id"]))
-        self.assertEqual(basis["reflexes"], {"shared": 2, "cited": 2})
-        self.assertEqual(d[ar["break"]["id"]][:2], ("unmatched", "a homograph fits better"))
+        self.assertEqual(basis["reflexes"], {"shared": 3, "cited": 4})
+        self.assertEqual(d[ar["break"]["id"]][:2], ("unmatched", "another ACD record fits better"))
+
+    def test_an_equal_key_beats_a_near_one(self):
+        ar, wr, _acd, _wikt, m = setup()
+        d = m.run()
+        self.assertEqual(d[ar["root"]["id"]][:2], ("match", wr["root"]["id"]))
+        self.assertEqual(d[ar["root2"]["id"]][:2], ("unmatched", "another ACD record fits better"))
+
+    def test_affix_shape(self):
+        ar, wr, _acd, _wikt, m = setup()
+        self.assertEqual(m.run()[ar["infix"]["id"]][:2], ("match", wr["infix"]["id"]))
+
+    def test_ancestors(self):
+        ar, wr, _acd, _wikt, m = setup()
+        d = m.run()
+        # Wiktionary derives its bata from another PMP word than the ACD's *kutu₁
+        self.assertEqual(
+            d[ar["kin"]["id"]][:2], ("unmatched", "candidates whose ancestry contradicts the ACD")
+        )
+        what, target, basis = d[ar["nit"]["id"]]
+        self.assertEqual((what, target), ("match", wr["lisa1"]["id"]))
+        self.assertEqual(basis["ancestors"], {"shared": 1, "cited": 1})
 
     def test_attested(self):
         ar, wr, _acd, _wikt, m = setup()
