@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://wety.org/schema/etymology/assertion/2",
-  "title": "wety etymology assertions, v2",
+  "$id": "https://wety.org/schema/etymology/assertion/3",
+  "title": "wety etymology assertions, v3",
   "description": "One line of an assertions file (JSON Lines). Each line is one object, told apart by `type`. README.md beside this file says what each field means; cross-record rules (ids, references) are checked by etymology.assertions.",
   "oneOf": [
     {"$ref": "#/$defs/Source"},
@@ -360,7 +360,7 @@
         "holder": {"$ref": "#/$defs/AgentId"},
         "score": {"type": "number", "minimum": 0, "maximum": 1},
         "basis": {
-          "description": "What the match weighed: the comparison keys of the two forms, the gloss similarity, and how many of the reflexes the record's source cites are the target's descendants in wety.",
+          "description": "What the match weighed: the comparison keys of the two forms, the gloss similarity, how many of the reflexes the record's source cites are the target's descendants in wety, and how many of the record's ancestors in its source, where matched, are the target's ancestors in wety.",
           "type": "object",
           "additionalProperties": false,
           "minProperties": 1,
@@ -368,6 +368,16 @@
             "key": {"enum": ["equal", "near", "different"]},
             "gloss": {"type": "number", "minimum": -1, "maximum": 1},
             "reflexes": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["shared", "cited"],
+              "properties": {
+                "shared": {"type": "integer", "minimum": 0},
+                "cited": {"type": "integer", "minimum": 0}
+              }
+            },
+            "ancestors": {
+              "description": "Of the record's ancestors in its source that are matched (`cited`), how many are the target's ancestors in wety (`shared`).",
               "type": "object",
               "additionalProperties": false,
               "required": ["shared", "cited"],

@@ -188,7 +188,8 @@ class Validate(unittest.TestCase):
             extraction=EXTRACTION["id"],
             credits=[{"work": work["id"], "role": "follows", "scope": "entry"}],
         )
-        m = A.match(lupus["id"], rule["id"], 0.9, {"key": "equal"}, target=wikt["id"])
+        basis = {"key": "equal", "ancestors": {"shared": 1, "cited": 1}}
+        m = A.match(lupus["id"], rule["id"], 0.9, basis, target=wikt["id"])
         unclear = A.match(
             lupus["id"], rule["id"], 0.5, {"key": "equal"}, candidates=[wikt["id"], lupus["id"]]
         )

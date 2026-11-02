@@ -1,4 +1,4 @@
-# Etymology assertions, v2
+# Etymology assertions, v3
 
 Every etymological source enters wety as assertions in one schema,
 [`assertion.schema.json`](assertion.schema.json) (JSON Schema 2020-12). A source's
@@ -58,8 +58,11 @@ A credit names a `work`, a `role` (`follows`, `reports`, `against`, `data`) and 
 Records stay in their source's terms. A `match` links a record to a Wiktionary record,
 which stands for wety's item; only a language mapped `exact` may match. Its `basis` says
 what it weighed: the forms' comparison keys (`equal`, `near`, `different`), the gloss
-similarity, and of the reflexes the record's source cites, how many are the target's
-descendants in wety. A record that fits two candidates equally names both and has no
+similarity, of the reflexes the record's source cites how many are the target's
+descendants in wety (`reflexes`), and of the record's ancestors in its source that are
+matched how many are the target's ancestors in wety (`ancestors`): a Latin entry whose
+matched etymon is among one homograph's ancestors, a reflex whose set's reconstruction
+is. A record that fits two candidates equally names both and has no
 target, rather than being guessed into one. Two sources' hypotheses about the same word
 share an id only once their records are rewritten through matches.
 
@@ -103,7 +106,7 @@ beside it until the processor emits the assertions they belong on. All validate.
 
 No converter sets `preference`, `replaces`, or an unplaced hedge.
 
-Not in v2, by design: readings, overrides and gradings. Not representable yet: an origin that names no word in any language ("from a
+Not in v3, by design: readings, overrides and gradings. Not representable yet: an origin that names no word in any language ("from a
 call used for dogs", Old Spanish *perro*); and the ACD's doublets and disjuncts between
 forms: alternative sets hold cognate sets, so a variant that is a member of a set stands
 for its whole set, two groups can collapse into one, and a group within one set (a
@@ -111,6 +114,7 @@ reconstruction and its own member) has no alternative set.
 
 ## Versions
 
+- **3**: a match's `basis` records `ancestors`.
 - **2** (acd-3, lila-3): `match` and `relay`.
 - **1** (acd-2): `compiled` on assertions; a cognate set may have no members when it
   names a reconstruction.

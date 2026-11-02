@@ -4,7 +4,7 @@ This package holds the assertion schema, the converters that turn each etymologi
 source into assertions, and the curation tools those converters read. The design and
 the work plan are in the shared doc "wety etymology claims model", outside git.
 
-- [`schema/`](schema/README.md): the assertion schema, v2, and what it covers;
+- [`schema/`](schema/README.md): the assertion schema, v3, and what it covers;
 - `assertions.py`: builds assertion objects (their digest ids) and validates files;
 - `convert/`: one converter per source. `acd` and `lila` read the retained release, whole
   or a sample; `wiktionary` converts claims a model annotated per entry, for samples;
