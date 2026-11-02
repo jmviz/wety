@@ -119,14 +119,16 @@ assertions in LiLa. It reads a graph's assertion export (`graph-assertions`) and
 lila-2 assertions; both must lie in the checkout, so hard-link them in a worktree:
 
 ```sh
-uv run --frozen python -m etymology.match_lila --export data/runs/<run>/checks/core-4-references/assertions.jsonl.gz --out $S/lila-edl/checks/lila-3-ancestry
+uv run --frozen python -m etymology.match_lila --export data/runs/<run>/checks/core-4-references/assertions.jsonl.gz --out $S/lila-edl/checks/lila-3-ancestry --compare $S/lila-edl/checks/lila-3
 uv run --frozen python -m etymology.match_lila --out $S/lila-edl/checks/lila-3-ancestry --review
 ```
 
 The first writes `assertions.jsonl` (the matches, the relays and what they refer to),
 `relays.json` (every crediting assertion and what became of it), `result.json` and
-`sample.json` (100 matches to review). The second adds the precision of the judged
-sample, `review.json`, to `result.json`. The rule, `agent:wety-match-lila@2`, and what
+`sample.json` (100 matches to review); with `--compare`, also `changes.json`, every
+record whose match differs from an earlier check's, and what became of that check's
+reviewed sample. The second adds to `result.json` the precision of whatever has been
+judged: the sample (`review.json`) and the changes (`changes.json`). The rule, `agent:wety-match-lila@2`, and what
 each match weighs (form and comparison key, cited reflexes, ancestors) are in the
 module's docstring. v1's reviewed outputs stay in `lila-3/`.
 
