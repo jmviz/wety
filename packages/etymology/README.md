@@ -113,9 +113,10 @@ in wety; every record by how many of its matched ACD ancestors are its candidate
 ancestors in wety (`basis.ancestors`, so reconstructions are matched first, in rounds),
 and by its gloss. A candidate whose ancestry names other words at an ACD ancestor's level
 is taken only when its gloss confirms it. Equal fits stay `candidates`; of several ACD
-records fitting one Wiktionary record (homographs, doublets), the best is matched, an
-equal key beating a near one. v1, which weighed no ancestors, is reviewed in
-`checks/acd-3/`. The relay rule, `agent:wety-relay-acd@1`, compares by ancestry, since the
+records fitting one Wiktionary record (homographs, doublets), the best is matched (by
+shared reflexes, then an equal key over a near one). A shared ancestor vouches for a
+gloss that shares nothing with the record's only when it fits the ancestor's gloss. v1,
+which weighed no ancestors, is reviewed in `checks/acd-3/`, v2 in `checks/acd-3-ancestry/`. The relay rule, `agent:wety-relay-acd@1`, compares by ancestry, since the
 ACD links a reflex straight to its set's reconstruction. The docstrings of `Matcher` and
 `Relayer` give the rules in full.
 
