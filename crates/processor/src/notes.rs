@@ -10,7 +10,7 @@ use simd_json::ValueAccess;
 use std::sync::LazyLock;
 
 use regex::Regex;
-use wety_core::assertions::{Role, Work};
+use wety_core::assertions::{Role, Work, digest};
 
 /// A footnote: the work it cites, where in it, and what for.
 #[derive(Hash, Eq, PartialEq, Debug, Clone)]
@@ -67,6 +67,7 @@ pub(crate) fn parse_citation(html: &str, role: Role) -> Option<RawNote> {
     let year = YEAR.captures(work).and_then(|c| c[1].parse::<u16>().ok());
     Some(RawNote {
         work: Work {
+            id: format!("work:wiktionary:{}", digest(&serde_json::json!(work))).into(),
             citation: work.into(),
             year,
         },

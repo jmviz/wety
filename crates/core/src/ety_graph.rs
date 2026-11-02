@@ -463,8 +463,10 @@ impl EtyGraph {
     }
 
     /// Record that an item's origin is unknown, if nothing gives it parents.
-    pub fn set_unknown(&mut self, item: ItemId) {
-        if self.graph.edges(item).next().is_none() {
+    /// Returns whether it was recorded.
+    pub fn set_unknown(&mut self, item: ItemId) -> bool {
+        let unknown = self.graph.edges(item).next().is_none();
+        if unknown {
             self.etymologies.insert(
                 item,
                 Etymologies {
@@ -473,6 +475,7 @@ impl EtyGraph {
                 },
             );
         }
+        unknown
     }
 
     /// Give an item one etymology, unless it has one whose links are at least

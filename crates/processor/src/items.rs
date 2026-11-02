@@ -5,6 +5,7 @@ use crate::{
     etymology::RawEtymology,
     progress_bar,
     redirects::Redirects,
+    references::References,
     root::RawRoot,
     wiktextract_json::wiktextract_lines,
 };
@@ -23,6 +24,18 @@ use std::{collections::hash_map::Entry, mem, path::Path};
 
 use anyhow::{Ok, Result};
 use simd_json::{ValueAccess, to_borrowed_value};
+
+/// A work's index in the graph's works, adding it the first time it is cited.
+pub(crate) fn intern(
+    index: &mut HashMap<Box<str>, u32>,
+    works: &mut Vec<Work>,
+    work: &Work,
+) -> u32 {
+    *index.entry(work.id.clone()).or_insert_with(|| {
+        works.push(work.clone());
+        u32::try_from(works.len() - 1).expect("fewer than 2^32 works")
+    })
+}
 
 #[derive(Default)]
 pub(crate) struct RawTemplates {
@@ -65,8 +78,9 @@ pub(crate) struct Items {
     // imputed item, that of an item citing it), as opposed to another page's
     // Descendants list or a root imputation
     pub(crate) own_ety: HashSet<ItemId>,
-    // each cited work's index in the graph's works
-    pub(crate) works: HashMap<Work, u32>,
+    // each cited work's index in the graph's works, by its id
+    pub(crate) works: HashMap<Box<str>, u32>,
+    pub(crate) references: References,
     pub(crate) mentions: crate::resolve::Mentions,
     pub(crate) resolution_stats: crate::resolve::ResolutionStats,
     pub(crate) redirects: Redirects,
@@ -87,6 +101,7 @@ impl Items {
             imputed_titles: HashMap::default(),
             own_ety: HashSet::default(),
             works: HashMap::default(),
+            references: References::default(),
             mentions: crate::resolve::Mentions::default(),
             resolution_stats: crate::resolve::ResolutionStats::default(),
             redirects: Redirects::default(),

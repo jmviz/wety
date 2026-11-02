@@ -164,6 +164,7 @@ impl Items {
                 is_reconstructed: json_item.is_reconstructed(),
             };
             let (item_id, is_new_ety) = self.add_real(item);
+            self.references.cover(item_id, json_item);
             for id in json_item.get_ids(lang) {
                 self.add_id(item_id, id);
             }
@@ -291,7 +292,7 @@ impl WiktextractJsonItem<'_> {
         None
     }
 
-    fn get_ety_label(&self) -> Option<Box<str>> {
+    pub(crate) fn get_ety_label(&self) -> Option<Box<str>> {
         // If langterm has multiple ety's, then 'etymology_number' is present:
         // "1", "2", ... or, on some Semitic pages, "1.1", "1.2", ... (older
         // dumps gave plain integers). Otherwise this key is missing: most
@@ -333,7 +334,7 @@ impl WiktextractJsonItem<'_> {
         None
     }
 
-    fn is_reconstructed(&self) -> bool {
+    pub(crate) fn is_reconstructed(&self) -> bool {
         self.json
             .get_array("senses")
             .into_iter()

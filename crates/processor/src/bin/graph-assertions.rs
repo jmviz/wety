@@ -6,18 +6,17 @@
 // editors on the page whose section states it, or compiled by a wety rule; a
 // word's alternatives form an exclusive alternative set. Ids are digests as
 // `etymology.assertions` computes them, so that module validates the output.
-// Given the References that `etymology.convert.wiktionary_references` read, an
-// entry's credits go on each assertion its Etymology section states.
+// Works are written as the bibliography the build read gives them.
 //
 // cargo run --release --bin graph-assertions -- GRAPH RECEIPT OUT.jsonl.gz \
-//     --counts counts.json [--references DIR] [--every 1000]
+//     --counts counts.json [--every 1000]
 
 #[global_allocator]
 static ALLOC: snmalloc_rs::SnMalloc = snmalloc_rs::SnMalloc;
 
 use wety_core::{
     HashSet,
-    assertions::{self, Asserted},
+    assertions::{self, Asserted, Work, digest},
     ety_graph::{Certainty, EdgeBasis, EtyEdgeAccess, EtyKind},
     etymology_templates::EtyMode,
     items::ItemId,
@@ -33,10 +32,9 @@ use std::{
 
 use anyhow::{Context, Result};
 use clap::Parser;
-use flate2::{Compression, read::GzDecoder, write::GzEncoder};
+use flate2::{Compression, write::GzEncoder};
 use itertools::Itertools;
 use serde_json::{Value, json};
-use sha2::{Digest, Sha256};
 
 const SOURCE_NAME: &str = "wiktionary";
 const PROFILE: &str = "data/workspaces/etymology/sources/wiktionary/etc/source.json";
@@ -53,22 +51,10 @@ struct Args {
     /// Where to write counts and sizes
     #[clap(long)]
     counts: Option<PathBuf>,
-    /// The References of the same dump: the directory where
-    /// `etymology.convert.wiktionary_references convert` wrote its
-    /// bibliography and entry credits
-    #[clap(long)]
-    references: Option<PathBuf>,
     /// Write only every nth word's assertions, with what they refer to: a
     /// sample small enough to validate
     #[clap(long)]
     every: Option<usize>,
-}
-
-// As etymology.assertions.digest: the sha256 of the value as compact JSON with
-// sorted keys (serde_json's maps are sorted), first 16 hex digits.
-fn digest(value: &Value) -> String {
-    let hash = Sha256::digest(value.to_string().as_bytes());
-    hash.iter().take(8).map(|b| format!("{b:02x}")).collect()
 }
 
 struct Writer {
@@ -159,78 +145,40 @@ fn section(basis: EdgeBasis) -> &'static str {
     }
 }
 
-// Each entry's References credits, by the item the entry names, and the
-// bibliography's works and agents they refer to.
+// The bibliography the build read (its run receipt names it): each work's
+// full object, with the agents it names.
 #[derive(Default)]
-struct References {
-    credits: HashMap<ItemId, Vec<Value>>,
+struct Bibliography {
     objects: HashMap<String, Value>,
 }
 
-impl References {
-    // An entry is keyed as the processor keys an item: language code,
-    // canonical term (from its record id) and Wiktionary's etymology label.
-    // Several items share a key only on a root page with several roots; an
-    // entry's References cover them all.
-    fn read(dir: &Path, data: &Data, counts: &mut BTreeMap<String, u64>) -> Result<Self> {
-        let mut items: HashMap<(&str, &str, Option<&str>), Vec<ItemId>> = HashMap::new();
-        for (id, item) in data.graph.iter() {
-            if !item.is_imputed() {
-                let key = (
-                    item.lang().code(),
-                    item.term().resolve(&data.string_pool),
-                    item.ety_label(),
-                );
-                items.entry(key).or_default().push(id);
-            }
-        }
-        let mut refs = References::default();
-        let path = dir.join("entry_credits.jsonl.gz");
-        let file = File::open(&path).with_context(|| path.display().to_string())?;
-        for line in BufReader::new(GzDecoder::new(file)).lines() {
-            let row: Value = serde_json::from_str(&line?)?;
-            let record = row["record"].as_str().context("a record")?;
-            let (code, rest) = record
-                .strip_prefix(&format!("{SOURCE_NAME}:"))
-                .and_then(|r| r.split_once(':'))
-                .context("a record id")?;
-            let (term, _) = rest.rsplit_once('#').context("a record id")?;
-            let key = (code, term, row["label"].as_str());
-            let Some(ids) = items.get(&key) else {
-                *counts
-                    .entry("entries credited, not in the graph".into())
-                    .or_default() += 1;
-                continue;
-            };
-            *counts
-                .entry("entries credited, in the graph".into())
-                .or_default() += 1;
-            let credits = row["credits"].as_array().context("credits")?;
-            for &id in ids {
-                refs.credits
-                    .entry(id)
-                    .or_default()
-                    .extend(credits.iter().cloned());
-            }
-        }
-        let path = dir.join("assertions.jsonl");
-        let file = File::open(&path).with_context(|| path.display().to_string())?;
-        for line in BufReader::new(file).lines() {
+impl Bibliography {
+    fn read(receipt: &Path) -> Result<Self> {
+        let r: Value = serde_json::from_reader(File::open(receipt)?)?;
+        let mut bib = Self::default();
+        let Some(path) = r["inputs"]["bibliography"]["path"].as_str() else {
+            return Ok(bib);
+        };
+        for line in BufReader::new(File::open(path).context(path.to_owned())?).lines() {
             let object: Value = serde_json::from_str(&line?)?;
             if matches!(object["type"].as_str(), Some("work" | "agent")) {
                 let id = object["id"].as_str().context("an id")?.to_owned();
-                refs.objects.insert(id, object);
+                bib.objects.insert(id, object);
             }
         }
-        Ok(refs)
+        Ok(bib)
     }
 
-    // A work of the bibliography, with the agents it names.
-    fn write(&self, out: &mut Writer, work: &str) -> Result<()> {
-        let object = self
-            .objects
-            .get(work)
-            .context("a work of the bibliography")?;
+    // A work as the bibliography gives it, else as the graph cites it.
+    fn write(&self, out: &mut Writer, work: &Work) -> Result<()> {
+        let Some(object) = self.objects.get(&*work.id) else {
+            let mut o = json!({"type": "work", "id": work.id, "citation": work.citation});
+            if let Some(year) = work.year {
+                o["year"] = json!(year);
+            }
+            out.add(o)?;
+            return Ok(());
+        };
         for key in ["authors", "editors"] {
             for agent in object[key].as_array().into_iter().flatten() {
                 let agent = agent.as_str().context("an agent id")?;
@@ -244,7 +192,6 @@ impl References {
 
 struct Export<'a> {
     data: &'a Data,
-    references: &'a References,
     source: String,
     extraction: String,
     work: String,
@@ -365,7 +312,7 @@ impl Export<'_> {
         let mut credits = vec![];
         for c in asserted.map(|a| &a.credits[..]).unwrap_or_default() {
             let mut credit = json!({
-                "work": work_id(&self.data.graph.works[c.work as usize].citation),
+                "work": self.data.graph.works[c.work as usize].id,
                 "role": c.role.as_ref(),
                 "scope": c.scope.as_ref(),
             });
@@ -379,25 +326,11 @@ impl Export<'_> {
             ));
             credits.push(credit);
         }
-        if !credits.is_empty() {
-            self.count("assertions credited: note");
-        }
-        // the References of the page that states it, in its Etymology section
-        let references = self.references;
-        if rule.is_none()
-            && page == item
-            && section(basis) == "Etymology"
-            && let Some(entry) = references.credits.get(&item)
+        for scope in asserted
+            .map(|a| a.credits.iter().map(|c| c.scope).unique().collect_vec())
+            .unwrap_or_default()
         {
-            for credit in entry {
-                references.write(out, credit["work"].as_str().context("a work")?)?;
-                self.count(format!(
-                    "credits: entry ({})",
-                    credit["role"].as_str().context("a role")?
-                ));
-                credits.push(credit.clone());
-            }
-            self.count("assertions credited: entry");
+            self.count(format!("assertions credited: {}", scope.as_ref()));
         }
         if let Some(rule) = rule {
             // a rule credits what it read: the source's own structure
@@ -440,12 +373,13 @@ impl Export<'_> {
         if etymologies.is_some_and(|e| e.kinds[..] == [EtyKind::Unknown]) {
             let target = self.hypothesis(out, item, &[])?;
             self.count("words of unknown origin");
+            let asserted = graph.asserted(item, 0).cloned();
             return self.assertion(
                 out,
                 item,
                 EdgeBasis::Template,
                 &target,
-                None,
+                asserted.as_ref(),
                 Certainty::Stated,
                 None,
             );
@@ -527,10 +461,6 @@ impl Export<'_> {
     }
 }
 
-fn work_id(citation: &str) -> String {
-    format!("work:{SOURCE_NAME}:{}", digest(&json!(citation)))
-}
-
 fn main() -> Result<()> {
     let args = Args::parse();
     let data = Data::deserialize(&args.graph)?;
@@ -567,25 +497,16 @@ fn main() -> Result<()> {
         "citation": "English Wiktionary, dump of 2026-09-01",
         "source": source,
     }))?;
+    let bibliography = Bibliography::read(&args.receipt)?;
     for w in &data.graph.works {
-        let mut o = json!({"type": "work", "id": work_id(&w.citation), "citation": w.citation});
-        if let Some(year) = w.year {
-            o["year"] = json!(year);
-        }
-        out.add(o)?;
+        bibliography.write(&mut out, w)?;
     }
-    let mut counts = BTreeMap::new();
-    let references = match &args.references {
-        Some(dir) => References::read(dir, &data, &mut counts)?,
-        None => References::default(),
-    };
     let mut export = Export {
         data: &data,
-        references: &references,
         source,
         extraction,
         work,
-        counts,
+        counts: BTreeMap::new(),
     };
     let mut words: HashSet<ItemId> = HashSet::default();
     for (item, _) in data.graph.iter() {
@@ -636,11 +557,5 @@ mod tests {
         for mode in EtyMode::iter() {
             assert!(modes.contains(&json!(mode.as_ref())), "{}", mode.as_ref());
         }
-    }
-
-    #[test]
-    fn digests_are_those_of_the_python_package() {
-        // etymology.assertions.digest(["wiktionary", "x", "ü"])
-        assert_eq!(digest(&json!(["wiktionary", "x", "ü"])), "1f3d79a50b5e6bbb");
     }
 }

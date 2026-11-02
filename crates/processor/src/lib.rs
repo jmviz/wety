@@ -13,6 +13,7 @@ mod etymon;
 mod items;
 mod notes;
 mod redirects;
+mod references;
 mod resolve;
 mod root;
 pub mod turtle;
@@ -22,7 +23,7 @@ pub use crate::wiktextract_json::wiktextract_lines;
 use wety_core::string_pool::StringPool;
 pub use wety_core::{self, Data, HashMap, HashSet, ItemId, Lang, Search};
 
-use crate::items::Items;
+use crate::{items::Items, references::References};
 
 use std::{convert::TryFrom, path::Path, time::Instant};
 
@@ -51,6 +52,7 @@ pub fn process_wiktextract(
     serialization_path: &Path,
     turtle_path: Option<&Path>,
     entry_names_path: Option<&Path>,
+    references_paths: Option<(&Path, &Path)>,
     embeddings_config: &embeddings::Config,
 ) -> Result<()> {
     let mut t = Instant::now();
@@ -64,7 +66,21 @@ pub fn process_wiktextract(
         items.load_entry_names(&mut string_pool, entry_names_path)?;
         println!("Loaded {} entry names.", items.entry_names.len());
     }
+    if let Some((sections, bibliography)) = references_paths {
+        items.references = References::load(sections, bibliography)?;
+        println!(
+            "Loaded {} References sections.",
+            items.references.sections()
+        );
+    }
     items.process_wiktextract_lines(&mut string_pool, wiktextract_path)?;
+    if references_paths.is_some() {
+        println!(
+            "{} References sections cover {} items.",
+            items.references.covering(),
+            items.references.items()
+        );
+    }
     println!("Finished. Took {}.", HumanDuration(t.elapsed()));
     let embeddings =
         items.generate_embeddings(&string_pool, wiktextract_path, embeddings_config)?;

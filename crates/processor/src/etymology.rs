@@ -2,7 +2,7 @@ use crate::{
     HashSet,
     embeddings::Embeddings,
     etymon,
-    items::{EmbeddingNeeds, Items},
+    items::{EmbeddingNeeds, Items, intern},
     notes::RawNote,
     progress_bar,
     resolve::{Citation, Relation, Resolution},
@@ -12,7 +12,7 @@ use crate::{
     },
 };
 use wety_core::{
-    assertions::{Asserted, Credit, Scope},
+    assertions::{self, Asserted, Credit, Scope},
     ety_graph::{Certainty, EdgeBasis, NewEtymology},
     etymology_templates::{EtyMode, TemplateKind},
     items::ItemId,
@@ -752,7 +752,16 @@ impl Items {
         raw_etymology: &RawEtymology,
     ) -> Result<()> {
         if raw_etymology.is_unknown() {
-            self.graph.set_unknown(item);
+            if self.graph.set_unknown(item) {
+                let credits = self.own_credits(item, raw_etymology.basis, &raw_etymology.notes)?;
+                self.graph.set_asserted(
+                    item,
+                    vec![Asserted {
+                        credits,
+                        ..Asserted::default()
+                    }],
+                );
+            }
             return Ok(());
         }
         let mut firsts = vec![];
@@ -770,9 +779,8 @@ impl Items {
             return Ok(());
         }
         let resolved: Vec<&Resolved> = firsts.iter().map(|(_, _, r)| r).collect();
-        let credits = self.credits(&raw_etymology.notes);
         let asserted = Asserted {
-            credits: credits.clone(),
+            credits: self.own_credits(item, raw_etymology.basis, &raw_etymology.notes)?,
             ..Asserted::default()
         };
         if !self.set_own_etys(item, raw_etymology.basis, &resolved, &asserted) {
@@ -1006,20 +1014,28 @@ impl Items {
     fn credits(&mut self, notes: &[RawNote]) -> Box<[Credit]> {
         notes
             .iter()
-            .map(|note| {
-                let next = u32::try_from(self.graph.works.len()).expect("fewer than 2^32 works");
-                let work = *self.works.entry(note.work.clone()).or_insert_with(|| {
-                    self.graph.works.push(note.work.clone());
-                    next
-                });
-                Credit {
-                    work,
-                    role: note.role,
-                    scope: Scope::Note,
-                    locator: note.locator.clone(),
-                }
+            .map(|note| Credit {
+                work: intern(&mut self.works, &mut self.graph.works, &note.work),
+                role: note.role,
+                scope: Scope::Note,
+                locator: note.locator.clone(),
             })
             .collect()
+    }
+
+    // What the item's own section asserts credits: its footnotes and, unless
+    // a rule reads the section, the entry's References.
+    fn own_credits(
+        &mut self,
+        item: ItemId,
+        basis: EdgeBasis,
+        notes: &[RawNote],
+    ) -> Result<Box<[Credit]>> {
+        let mut credits = Vec::from(self.credits(notes));
+        if assertions::rule(basis).is_none() {
+            credits.extend(self.entry_credits(item)?);
+        }
+        Ok(credits.into_boxed_slice())
     }
 
     // A part read as a prefix by its final hyphen may be a root (PIE *peh₂-
@@ -1664,6 +1680,93 @@ mod tests {
                 r#"[{"name": "inh", "args": {"1": "en", "2": "ang", "3": "mōdor"}}]"#,
             );
             assert!(t.items.graph.asserted(father, 0).is_none());
+        }
+
+        #[test]
+        fn entries_credit_their_references() {
+            use crate::references::References;
+            use std::io::Write;
+            let dir = std::env::temp_dir().join("wety-references-test");
+            std::fs::create_dir_all(&dir).unwrap();
+            let sections = dir.join("section_credits.jsonl.gz");
+            let mut f = flate2::write::GzEncoder::new(
+                std::fs::File::create(&sections).unwrap(),
+                flate2::Compression::default(),
+            );
+            // one section under Etymology 1, one beside the etymologies
+            writeln!(
+                f,
+                r#"{{"page": "lupus", "lang": "Latin", "ety": "1", "credits": [{{"work": "work:wiktionary:R:itc:EDL", "role": "follows", "scope": "entry", "locator": "353"}}]}}
+{{"page": "lupus", "lang": "Latin", "ety": null, "credits": [{{"work": "work:wiktionary:R:la:Gaffiot", "role": "follows", "scope": "entry"}}]}}"#
+            )
+            .unwrap();
+            f.finish().unwrap();
+            let bibliography = dir.join("bibliography.jsonl");
+            std::fs::write(
+                &bibliography,
+                r#"{"type": "work", "id": "work:wiktionary:R:itc:EDL", "citation": "De Vaan (2008)", "year": 2008}
+{"type": "work", "id": "work:wiktionary:R:la:Gaffiot", "citation": "Gaffiot (1934)", "year": 1934}
+"#,
+            )
+            .unwrap();
+            let mut t = Setup::new("references");
+            t.items.references = References::load(&sections, &bibliography).unwrap();
+            t.add("itc-pro", "lukʷos");
+            let entry = |t: &mut Setup, label: &str| {
+                let item = t
+                    .items
+                    .add_real(RealItem {
+                        ety_num: label.parse().unwrap(),
+                        ety_label: Some(label.into()),
+                        lang: Lang::from_str("la").unwrap(),
+                        term: Term::new(&mut t.sp, "lupus"),
+                        pos: vec![Pos::from_str("noun").unwrap()],
+                        gloss: vec![Gloss::new(&mut t.sp, "x")],
+                        page_term: None,
+                        romanization: None,
+                        is_reconstructed: false,
+                    })
+                    .0;
+                let mut bytes =
+                    format!(r#"{{"word": "lupus", "lang": "Latin", "etymology_number": {label}}}"#)
+                        .into_bytes();
+                let json = to_borrowed_value(&mut bytes).unwrap();
+                t.items
+                    .references
+                    .cover(item, &WiktextractJsonItem { json });
+                item
+            };
+            let one = entry(&mut t, "1");
+            let two = entry(&mut t, "2");
+            t.process(
+                one,
+                r#"[{"name": "inh", "args": {"1": "la", "2": "itc-pro", "3": "*lukʷos"}}]"#,
+            );
+            t.process(two, r#"[{"name": "unk", "args": {"1": "la"}}]"#);
+            let works = |item| {
+                let asserted = t.items.graph.asserted(item, 0).unwrap();
+                asserted
+                    .credits
+                    .iter()
+                    .map(|c| {
+                        assert_eq!((c.role, c.scope), (Role::Follows, Scope::Entry));
+                        (
+                            &*t.items.graph.works[c.work as usize].id,
+                            c.locator.as_deref(),
+                        )
+                    })
+                    .collect::<Vec<_>>()
+            };
+            assert_eq!(
+                works(one),
+                [
+                    ("work:wiktionary:R:itc:EDL", Some("353")),
+                    ("work:wiktionary:R:la:Gaffiot", None)
+                ]
+            );
+            // an unknown origin is credited too; each work is one in the graph
+            assert_eq!(works(two), [("work:wiktionary:R:la:Gaffiot", None)]);
+            assert_eq!(t.items.graph.works.len(), 2);
         }
 
         #[test]

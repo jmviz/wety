@@ -31,6 +31,12 @@ pub struct Args {
     /// Page titles of cited terms (packages/source_tools/entry_names.py)
     #[clap(short = 'e', long, value_parser)]
     entry_names: Option<PathBuf>,
+    /// Each References section's credits (the wiktionary_references workflow)
+    #[clap(long, value_parser, requires = "bibliography")]
+    references: Option<PathBuf>,
+    /// The works those credits cite (the same workflow)
+    #[clap(long, value_parser, requires = "references")]
+    bibliography: Option<PathBuf>,
     #[clap(short = 'm', long, default_value = embeddings::DEFAULT_MODEL, value_parser)]
     embeddings_model: String,
     #[clap(short = 'r', long, default_value = embeddings::DEFAULT_MODEL_REVISION, value_parser)]
@@ -60,6 +66,7 @@ fn main() -> Result<()> {
         &args.serialization_path,
         args.turtle_path.as_deref(),
         args.entry_names.as_deref(),
+        args.references.as_deref().zip(args.bibliography.as_deref()),
         &embeddings_config,
     )?;
 

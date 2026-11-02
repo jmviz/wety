@@ -10,6 +10,8 @@
 use crate::{ety_graph::EdgeBasis, items::ItemId};
 
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
+use sha2::{Digest, Sha256};
 use strum::AsRefStr;
 
 /// What one etymology's assertion adds to its edges.
@@ -52,6 +54,7 @@ pub struct Credit {
 }
 
 #[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq, Hash, AsRefStr)]
+#[serde(rename_all = "snake_case")]
 #[strum(serialize_all = "snake_case")]
 pub enum Role {
     /// the asserter adopts the work's view, or cites it after a claim
@@ -64,7 +67,8 @@ pub enum Role {
     Data,
 }
 
-#[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq, AsRefStr)]
+#[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq, Hash, AsRefStr)]
+#[serde(rename_all = "snake_case")]
 #[strum(serialize_all = "snake_case")]
 pub enum Scope {
     /// named in the claim
@@ -78,9 +82,21 @@ pub enum Scope {
 /// A cited work, as the source renders its citation.
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, Hash)]
 pub struct Work {
+    /// Its id in the assertion schema: a bibliography's (`work:wiktionary:R:...`),
+    /// or the digest of a footnote's citation.
+    pub id: Box<str>,
     pub citation: Box<str>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub year: Option<u16>,
+}
+
+/// An id as `etymology.assertions.digest` computes it: the sha256 of the value
+/// as compact JSON with sorted keys (serde_json's maps are sorted), first 16 hex
+/// digits.
+#[must_use]
+pub fn digest(value: &Value) -> String {
+    let hash = Sha256::digest(value.to_string().as_bytes());
+    hash.iter().take(8).map(|b| format!("{b:02x}")).collect()
 }
 
 /// A wety rule that asserts etymologies, at its version. Bumping a version
@@ -95,4 +111,16 @@ pub fn rule(basis: EdgeBasis) -> Option<&'static str> {
         EdgeBasis::RootVote => "wety-root-vote@1",
         EdgeBasis::Etymon | EdgeBasis::Template | EdgeBasis::Descendants => return None,
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+
+    #[test]
+    fn digests_are_those_of_the_python_package() {
+        // etymology.assertions.digest(["wiktionary", "x", "ü"])
+        assert_eq!(digest(&json!(["wiktionary", "x", "ü"])), "1f3d79a50b5e6bbb");
+    }
 }
