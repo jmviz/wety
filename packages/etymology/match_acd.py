@@ -448,19 +448,21 @@ class Matcher:
     A reconstruction needs a shared reflex, a shared ancestor or a gloss similarity of
     at least `GLOSS_MIN`; one at a near key needs two shared reflexes. An attested form
     is taken unless its gloss shares nothing with the ACD's (both known) and no ancestor
-    is shared, and is passed over for any candidate whose gloss is not a mismatch (an
-    imputed reconstruction such as PMP *ba#1? stands for every homograph cited under
-    that title, so a shared ancestor alone cannot outweigh the gloss). Candidates rank
-    by key (equal before near), shared reflexes, shared ancestors, then gloss, which
-    must be closer by `MARGIN` to decide; a Wiktionary entry is preferred to an imputed
-    record (a word wety knows only from citations) with the same evidence; otherwise
-    equal fits are left as candidates.
+    is shared (a shared ancestor vouches for a gloss that shares nothing with the
+    record's only when it fits that ancestor's gloss in the ACD), and is passed over for
+    any candidate whose gloss is not a mismatch (an imputed reconstruction such as PMP
+    *ba#1? stands for every homograph cited under that title, so a shared ancestor alone
+    cannot outweigh the gloss). Candidates rank by shared reflexes, key (equal before
+    near), shared ancestors, then gloss, which must be closer by `MARGIN` to decide;
+    a Wiktionary entry is preferred to an imputed record (a word wety knows only from
+    citations) with the same evidence; otherwise equal fits are left as candidates.
 
     Reconstructions are matched first, in rounds, so that their ancestors' matches can
     be weighed (until no match changes, at most `ROUNDS`); then attested forms. Of
     several ACD records with different forms that fit one Wiktionary record (homographs
-    such as *kutu₁ and *kutu₂, or doublets such as *wakaR and *akaR), only the best by the
-    same ranking is matched; equal fits are left unmatched. Records with the very same
+    such as *kutu₁ and *kutu₂, or doublets such as *wakaR and *akaR, which share as many
+    reflexes, so that the equal key decides), only the best by the same ranking is
+    matched; equal fits are left unmatched. Records with the very same
     form are one word, and are kept together.
     """
 
@@ -550,8 +552,9 @@ class Matcher:
         return *same_shape(found), "near"
 
     def ancestry(self, r, w):
-        """(shared, cited, contradicted) for a candidate: of the record's matched ACD
-        ancestors, how many are the candidate's ancestors in wety; and whether the
+        """(shared, cited, contradicted, fit) for a candidate: of the record's matched ACD
+        ancestors, how many are the candidate's ancestors in wety; how well the
+        candidate's gloss fits the best of those shared ancestors' glosses; and whether the
         candidate's ancestry contradicts the ACD's: it has words in the language of some
         of the record's ACD ancestors, and none of those ancestors finds its match or a
         `compatible` key among them (a record in two of the ACD's sets agrees with
@@ -584,7 +587,14 @@ class Matcher:
                 for k in ka
                 for j in self.keys("wiktionary", True, x["form"])
             )
-        return len(targets & mine), len(targets), bool(compared) and not agreed
+        gloss = self.wikt.gloss(w)
+        fits = [
+            gloss_similarity(self.acd.records[a].get("gloss"), gloss)
+            for a in ancestors
+            if a in self.matched and twin(self.matched[a]) in mine
+        ]
+        fit = max((f for f in fits if f is not None), default=None)
+        return len(targets & mine), len(targets), bool(compared) and not agreed, fit
 
     def evaluate(self, r):
         """Each candidate's basis and whether its ancestry contradicts the ACD; None for
@@ -606,10 +616,10 @@ class Matcher:
                 descendants = self.wiktionary_reflexes(w)
                 shared = sum(any((c, k) in descendants for k in ks) for c, ks in cited)
                 basis["reflexes"] = {"shared": shared, "cited": len(cited)}
-            shared, n, contradicted = self.ancestry(r, w)
+            shared, n, contradicted, fit = self.ancestry(r, w)
             if n:
                 basis["ancestors"] = {"shared": shared, "cited": n}
-            out.append((w, basis, contradicted))
+            out.append((w, basis, {"contradicted": contradicted, "fit": fit}))
         return out
 
     @staticmethod
@@ -624,26 +634,31 @@ class Matcher:
             return round(0.35 * k + 0.35 * support + 0.15 * g + 0.15 * a, 2)
         return round(0.5 * k + 0.3 * g + 0.2 * a, 2)
 
-    def eligible(self, basis, reconstructed, contradicted):
+    def eligible(self, basis, reconstructed, ancestry):
         g = basis.get("gloss")
-        if contradicted:
-            confirmed = g is not None and g >= self.GLOSS_MIN
-            if reconstructed:
-                confirmed |= basis["reflexes"]["shared"] >= 1
-            return confirmed
-        anc = basis.get("ancestors", {}).get("shared", 0)
+        # a shared ancestor vouches for a candidate whose gloss shares nothing with the
+        # record's only when that gloss fits the ancestor's own in the ACD
+        mismatch = g == 0 and (ancestry["fit"] or 0) < self.GLOSS_MIN
+        anc = basis.get("ancestors", {}).get("shared", 0) >= 1 and not mismatch
         if reconstructed:
             shared = basis["reflexes"]["shared"]
             if basis["key"] == "near":
-                return shared >= 2
-            return shared >= 1 or anc >= 1 or (g is not None and g >= self.GLOSS_MIN)
-        return g is None or g > 0 or anc >= 1
+                ok = shared >= 2
+            else:
+                ok = shared >= 1 or anc or (g is not None and g >= self.GLOSS_MIN)
+        else:
+            ok = g is None or g > 0 or anc
+        if ok and ancestry["contradicted"]:
+            ok = (g is not None and g >= self.GLOSS_MIN) or (
+                reconstructed and basis["reflexes"]["shared"] >= 1
+            )
+        return ok
 
     @staticmethod
     def rank(w, basis):
         return (
-            basis["key"] == "equal",
             basis.get("reflexes", {}).get("shared", 0),
+            basis["key"] == "equal",
             basis.get("ancestors", {}).get("shared", 0),
             basis.get("gloss") or 0,
             not w.endswith("?"),
@@ -668,7 +683,7 @@ class Matcher:
         if not r["reconstructed"] and any(b.get("gloss", 1) > 0 for _, b in ok):
             ok = [(w, b) for w, b in ok if b.get("gloss", 1) > 0]
         if not ok:
-            if all(c for _, _, c in found):
+            if all(c["contradicted"] for _, _, c in found):
                 return ("unmatched", "candidates whose ancestry contradicts the ACD", found[0][1])
             return ("unmatched", "candidates without support", found[0][1])
         ok.sort(key=lambda x: self.rank(*x), reverse=True)
