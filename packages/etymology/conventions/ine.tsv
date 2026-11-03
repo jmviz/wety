@@ -1,0 +1,30 @@
+# Indo-European reconstructions as the Leiden series and Wiktionary write them: the notation
+# de Vaan (2008) in LiLa and Wiktionary's PIE and Proto-Italic share. A source's profile
+# includes it and adds its own rows.
+Kind	Grapheme	Key	Note
+grapheme	*		reconstruction mark
+grapheme	-		morpheme boundary
+grapheme	‑		morpheme boundary (non-breaking hyphen)
+grapheme	h₁	H	laryngeals fold to H
+grapheme	h₂	H	
+grapheme	h₃	H	
+grapheme	H	H	a laryngeal of unknown colour
+grapheme	ʰ	h	aspiration
+grapheme	ʷ	u	labialization: kʷ and ku̯ fold together
+grapheme	w	u	non-syllabic u: w, u̯ and u fold together
+grapheme	y	i	non-syllabic i: y, j, i̯ and i fold together
+grapheme	́		acute: accent (the palatals ḱ ǵ have rows of their own)
+grapheme	̀		grave accent
+grapheme	̂		circumflex
+grapheme	̄	ː	macron: length, compared only when both forms mark length somewhere
+grapheme	̆		breve
+grapheme	̥		ring below: syllabic resonant
+grapheme	̯		inverted breve below: non-syllabic
+grapheme	̑		inverted breve above (the palatals k̑ g̑ have rows of their own)
+grapheme	̣		dot below: syllabic resonant ḷ
+grapheme	θ	θ	Proto-Italic voiceless dental fricative
+grapheme	χ	χ	Proto-Italic voiceless velar fricative
+grapheme	j	i	non-syllabic i written j (de Vaan; Wiktionary in Proto-Italic)
+grapheme	z	s	Proto-Italic *z, the voiced allophone of *s
+grapheme	ḱ	K	palatal: ḱ and k are not folded
+grapheme	ǵ	G	palatal: ǵ and g are not folded

@@ -12,6 +12,9 @@ A profile is a TSV file with the columns Kind, Grapheme, Key and Note:
   lower case; any other character not listed is kept and reported as unknown.
 - `ending` rows name an ending (in key graphemes) that may be cut from the end of a
   key: a stem vowel, or a citation form's inflection. Each cut adds a key.
+- `include` rows name a convention, a profile in `conventions/` that several sources
+  write in (`ine`: the Leiden series' and Wiktionary's Indo-European notation). Its rows
+  come first; the source's own rows may replace a grapheme's key.
 
 Notation the key reads in every source: `(x)` marks an optional segment and `a/b`
 alternative segments, each expanded both ways and counted as uncertain; ` / ` and
@@ -23,6 +26,8 @@ import unicodedata
 from dataclasses import dataclass, field
 from pathlib import Path
 
+CONVENTIONS = Path(__file__).parent / "conventions"
+
 
 @dataclass(frozen=True)
 class Profile:
@@ -31,18 +36,23 @@ class Profile:
 
     @classmethod
     def read(cls, path):
-        graphemes, endings = {}, []
+        graphemes, endings, own = {}, [], set()
         with Path(path).open(newline="") as f:
             for row in csv.DictReader(
                 (line for line in f if not line.startswith("#")), delimiter="\t"
             ):
                 grapheme = unicodedata.normalize("NFD", row["Grapheme"])
                 if row["Kind"] == "grapheme":
-                    if grapheme in graphemes:
+                    if grapheme in own:
                         raise ValueError("grapheme listed twice: " + row["Grapheme"])
+                    own.add(grapheme)
                     graphemes[grapheme] = row["Key"] or ""
                 elif row["Kind"] == "ending":
                     endings.append(grapheme)
+                elif row["Kind"] == "include":
+                    convention = cls.read(CONVENTIONS / f"{row['Grapheme']}.tsv")
+                    graphemes = {**convention.graphemes, **graphemes}
+                    endings = [*convention.endings, *endings]
                 else:
                     raise ValueError("unknown kind " + row["Kind"])
         return cls(graphemes, tuple(endings))

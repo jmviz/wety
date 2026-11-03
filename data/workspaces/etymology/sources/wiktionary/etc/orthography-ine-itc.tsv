@@ -1,28 +1,6 @@
 # Wiktionary's PIE (ine-pro) and Proto-Italic (itc-pro) reconstructions.
 Kind	Grapheme	Key	Note
-grapheme	*		reconstruction mark
-grapheme	-		morpheme boundary
-grapheme	‑		morpheme boundary (non-breaking hyphen)
-grapheme	h₁	H	laryngeals fold to H
-grapheme	h₂	H	
-grapheme	h₃	H	
-grapheme	H	H	a laryngeal of unknown colour
-grapheme	ʰ	h	aspiration
-grapheme	ʷ	u	labialization: kʷ and ku̯ fold together
-grapheme	w	u	non-syllabic u: w, u̯ and u fold together
-grapheme	y	i	non-syllabic i: y, j, i̯ and i fold together
-grapheme	́		acute: accent (the palatals ḱ ǵ have rows of their own)
-grapheme	̀		grave accent
-grapheme	̂		circumflex
-grapheme	̄	ː	macron: length, compared only when both forms mark length somewhere
-grapheme	̆		breve
-grapheme	̥		ring below: syllabic resonant
-grapheme	̯		inverted breve below: non-syllabic
-grapheme	̑		inverted breve above (the palatals k̑ g̑ have rows of their own)
-grapheme	̣		dot below: syllabic resonant ḷ
-grapheme	θ	θ	Proto-Italic voiceless dental fricative
-grapheme	χ	χ	Proto-Italic voiceless velar fricative
-grapheme	z	s	Wiktionary's Proto-Italic *z (as in *korzō) is the voiced allophone of *s
+include	ine		the notation of packages/etymology/conventions/ine.tsv
 ending	os		o-stem nominative
 ending	om		o-stem neuter
 ending	s		nominative
@@ -32,11 +10,8 @@ ending	eoː		first person singular of a causative *‑eō
 ending	oːr		deponent first person singular *‑ōr
 ending	eti		third person singular *‑eti, a PIE verb's citation form
 ending	etor		mediopassive third person singular *‑etor
-grapheme	j	i	Wiktionary writes Proto-Italic y as j (*jekʷor)
 grapheme	ə	H	older notation for a laryngeal
 grapheme	β	f	Wiktionary writes Proto-Italic *f between vowels as its voiced allophone β (*proβos)
 grapheme	ð	θ	Wiktionary writes Proto-Italic *θ between vowels as ð (*arðōs)
 grapheme	ɣ	χ	Wiktionary writes Proto-Italic *χ between vowels as ɣ
 grapheme	h	χ	Wiktionary writes Proto-Italic *χ as h (*hundō); PIE uses no bare h
-grapheme	ḱ	K	palatal: ḱ and k are not folded
-grapheme	ǵ	G	palatal: ǵ and g are not folded

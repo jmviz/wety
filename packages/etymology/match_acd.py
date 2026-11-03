@@ -14,7 +14,9 @@ Steps, each writing into a work directory so that later steps rerun quickly:
   own assertion on the same word, read through the matches, by `agent:wety-relay-acd@1`
   (`Relayer`). It writes the check's files and a sample of matches to review, or, given
   an earlier run's check directory (`--previous`), what changed against it: a sample of
-  the changed matches and the earlier reviewed sample with each match's outcome now.
+  the changed matches. Every run is scored against the judgements of all earlier
+  reviews (`etc/judgements.jsonl`, `etymology.matching`);
+- `review`: adds a check's judged `review.json` to those judgements.
 
 v1 of the matcher (acd-3) weighed no ancestors, compared affixes by key alone and let a
 near-key doublet tie an equal-key record; its reviewed outputs stay in `checks/acd-3/`.
@@ -30,7 +32,6 @@ import gzip
 import json
 import random
 import re
-import subprocess
 import unicodedata
 from functools import cached_property
 from pathlib import Path
@@ -38,6 +39,7 @@ from pathlib import Path
 from etymology import assertions as A
 from etymology import orthography
 from etymology.assertions import REPO
+from etymology.matching import Judgements, closure, harvest_into, lines
 
 WIKTIONARY_EXPORT = (
     REPO
@@ -51,6 +53,7 @@ PROFILES = {
     ("wiktionary", True): SOURCES / "wiktionary/etc/orthography-map.tsv",
     ("wiktionary", False): SOURCES / "wiktionary/etc/orthography-map-attested.tsv",
 }
+JUDGEMENTS = ACD / "etc/judgements.jsonl"
 RULE = "agent:wety-match-acd@3"
 RELAY_RULE = "agent:wety-relay-acd@1"
 RECORD_CODE = re.compile(r"^wiktionary:([^:]+):")
@@ -75,12 +78,6 @@ def record_code(record_id):
     return m.group(1) if m else None
 
 
-def lines(path):
-    """The lines of a gzipped file, decompressed by gzip(1), which is faster than Python's."""
-    with subprocess.Popen(["gzip", "-dc", str(path)], stdout=subprocess.PIPE, bufsize=1 << 20) as p:
-        yield from p.stdout
-
-
 def scan_export(export, codes, out):
     """The Austronesian part of a graph's assertion export, to `out` (JSON Lines, gzipped).
 
@@ -89,7 +86,7 @@ def scan_export(export, codes, out):
     hypothesis, or that credit a work (filtered once every hypothesis is known). A second
     pass adds the other records the kept hypotheses name."""
     keep, assertions, kept_hyps, named = [], [], set(), set()
-    for line in lines(export):
+    for line in lines(export, binary=True):
         o = json.loads(line)
         t = o["type"]
         if t == "record":
@@ -108,7 +105,7 @@ def scan_export(export, codes, out):
             keep.append(o)
     keep += [a for a in assertions if a["target"] in kept_hyps or a["target"].startswith("alt:")]
     missing = {r for r in named if record_code(r) not in codes}
-    for line in lines(export):
+    for line in lines(export, binary=True):
         if line.startswith(b'{"form"') or b'"type":"record"' in line:
             o = json.loads(line)
             if o["type"] == "record" and o["id"] in missing:
@@ -127,7 +124,7 @@ def scan_glosses(wiktextract, codes, out):
     wanted = {c.encode() for c in codes}
     n = 0
     with gzip.open(out, "wt", encoding="utf-8") as f:
-        for line in lines(wiktextract):
+        for line in lines(wiktextract, binary=True):
             if not wanted.intersection(LANG_CODE.findall(line)):
                 continue
             d = json.loads(line)
@@ -943,50 +940,6 @@ class Relayer:
         return relays, outcomes
 
 
-def references(o):
-    """The ids an object refers to."""
-    t = o["type"]
-    refs = []
-    if t in ("record", "cognate_set", "assertion"):
-        refs.append(o["source"])
-    if t == "work":
-        refs += o.get("authors", [])
-    elif t == "hypothesis":
-        refs += [r for link in o["links"] for r in (link["child"], *link["parents"])]
-    elif t == "cognate_set":
-        refs += [r for r in [o["reconstruction"], *o["members"]] if r]
-    elif t == "alternative_set":
-        refs += o["members"]
-    elif t == "assertion":
-        refs += [o["asserter"], o["holder"], o["extraction"], o["target"]]
-        refs += [c["work"] for c in o.get("credits", [])] + o.get("in_sets", [])
-        refs += [o["replaces"]] if "replaces" in o else []
-    elif t == "match":
-        refs += [o["record"], o["holder"], *o.get("candidates", [])]
-        refs += [o[k] for k in ("target", "extraction") if k in o]
-    elif t == "relay":
-        refs += [o["assertion"], o["relays"], o["work"], o["holder"]]
-    return refs
-
-
-def closure(seeds, *lookups):
-    """The seeds with every object they refer to, transitively."""
-    out = A.Writer()
-    todo = list(seeds)
-    while todo:
-        o = todo.pop()
-        if o["id"] in out.objects:
-            continue
-        out.add(o)
-        for ref in references(o):
-            if ref not in out.objects:
-                found = next((lk[ref] for lk in lookups if ref in lk), None)
-                if found is None:
-                    raise KeyError(f"{o['id']} refers to {ref}, which no input holds")
-                todo.append(found)
-    return out
-
-
 def level(acd, record):
     """A record's place in the ACD's tree: a reconstruction's own level, an attested
     form's lowest level above it."""
@@ -1109,17 +1062,16 @@ def run(args):
     counts["objects"] = n
     counts["reconstruction rounds"] = matcher.changes
     if args.previous:
-        changes, sample, recheck = compare(args.previous, rows, matches, acd, wikt, args.seed)
+        changes, sample = compare(args.previous, rows, matches, acd, wikt, args.seed)
         counts["changes"] = changes
         (out / "changed-sample.json").write_text(
             json.dumps(sample, ensure_ascii=False, indent=1) + "\n"
         )
-        (out / "previous-sample.json").write_text(
-            json.dumps(recheck, ensure_ascii=False, indent=1) + "\n"
-        )
     else:
         sample = draw_sample(matches, acd, wikt, args.seed)
         (out / "sample.json").write_text(json.dumps(sample, ensure_ascii=False, indent=1) + "\n")
+    found = {x["record"]: x["detail"] for x in rows if x["outcome"] in ("match", "ambiguous")}
+    counts["judgements"] = Judgements.read(JUDGEMENTS).score(found)
     (out / "counts.json").write_text(json.dumps(counts, ensure_ascii=False, indent=1) + "\n")
 
 
@@ -1192,9 +1144,9 @@ def draw_sample(matches, acd, wikt, seed, n=100):
 
 
 def compare(previous, rows, matches, acd, wikt, seed, n=100):
-    """What changed against an earlier run's check directory: its decisions and its
-    reviewed sample. Returns the counts, a sample of changed matches (gained or
-    retargeted) to review, and the earlier sample with each match's outcome now."""
+    """What changed against an earlier run's check directory's decisions. Returns the
+    counts and a sample of changed matches (gained or retargeted) to review. Earlier
+    reviews are checked through the judgements (`JUDGEMENTS`), not here."""
     with gzip.open(previous / "decisions.jsonl.gz", "rt", encoding="utf-8") as f:
         before = {x["record"]: x for x in map(json.loads, f)}
     now = {x["record"]: x for x in rows}
@@ -1234,26 +1186,8 @@ def compare(previous, rows, matches, acd, wikt, seed, n=100):
         e = review_entry(by_record[rid], acd, wikt)
         e["before"] = {"outcome": before[rid]["outcome"], "detail": before[rid]["detail"]}
         sample.append(e)
-    # a fresh run reviews a sample of its matches, a run with `--previous` its changes
-    review = json.loads((previous / "review.json").read_text())
-    reviewed = review["sample"] if "sample" in review else review["changed_sample"]
-    recheck = []
-    for e in reviewed:
-        x = now[e["acd"]["record"]]
-        recheck.append(
-            {
-                "match": e["match"],
-                "record": e["acd"]["record"],
-                "form": e["acd"]["form"],
-                "target before": e["wiktionary"]["record"],
-                "verdict before": e["verdict"],
-                "outcome now": x["outcome"],
-                "detail now": x["detail"],
-                "same": x["outcome"] == "match" and x["detail"] == e["wiktionary"]["record"],
-            }
-        )
     counts = {k: dict(sorted(v.items())) for k, v in sorted(counts.items())}
-    return counts, sample, recheck
+    return counts, sample
 
 
 def main(argv=None):
@@ -1276,9 +1210,14 @@ def main(argv=None):
         type=Path,
         help="an earlier run's check directory: review what changed instead of a fresh sample",
     )
+    r = sub.add_parser("review", help="add a check's judged review.json to the judgements")
+    r.add_argument("--out", type=Path, required=True, help="the check directory")
     args = p.parse_args(argv)
     if args.step == "run":
         run(args)
+    if args.step == "review":
+        n = harvest_into(JUDGEMENTS, [args.out / "review.json"])
+        print(f"{JUDGEMENTS}: {n} new judgements")
     if args.step == "scan":
         args.work.mkdir(parents=True, exist_ok=True)
         codes = austronesian_codes()
