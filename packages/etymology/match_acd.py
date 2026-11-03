@@ -21,7 +21,9 @@ Steps, each writing into a work directory so that later steps rerun quickly:
 v4 keeps v3's candidates and eligibility, and decides among the eligible by learnt
 weights (`matching.Linkage`, fitted to every eligible pair with judged pairs held at
 their label) instead of a fixed ranking: a score is a probability, the best candidate
-stands alone when it beats the next by `MARGIN` bits. Reviewers' judgements decide the
+stands alone when it beats the next by `MARGIN` bits. Eligibility still accepts, with no
+threshold on the probability: fitted on these pairs, EM splits them by gloss, not by
+word, and a threshold turned away 4,395 of v3's attested matches. Reviewers' judgements decide the
 pairs they cover; each check is also scored on judgements held out of the fit, and
 lists hard cases (`hard.json`) for a reviewer or a model.
 
@@ -87,7 +89,6 @@ FIELDS = {
     "entry": ("entry", "imputed"),
 }
 MISSING = {"lineage": "none cited", "gloss": "unknown"}
-THRESHOLD = 0.5  # a candidate's probability of being the record's word, to be kept
 MARGIN = 0.3  # log2 odds by which the best candidate must beat the next to stand alone
 FIT_ROUNDS = 3  # rounds that refit the weights; later ones keep them, so decisions settle
 LABEL_WEIGHT = 100  # how many unjudged pairs a judged pair counts as, in the fit
@@ -778,12 +779,13 @@ class Matcher:
         ]
         if not scored:
             return ("unmatched", "candidates judged other words", opts[0][1])
-        kept = decide(scored, THRESHOLD, MARGIN)
+        # Eligibility accepts; the weights only choose among the eligible.
+        kept = decide(scored, 0, MARGIN)
         judged = self.judgements.choose(rid, [w for w, _ in scored])
         if judged and judged != kept:
             self.overridden[rid], kept = kept, judged
         if not kept:
-            return ("unmatched", "candidates below the threshold", opts[0][1])
+            return ("unmatched", "candidates judged other words", opts[0][1])
         self.scores[rid] = round(max(dict(scored)[w] for w in kept), 3)
         if len(kept) == 1:
             return ("match", kept[0], bases[kept[0]])
