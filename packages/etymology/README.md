@@ -96,16 +96,18 @@ from the wiktextract data it was built from; `run` writes the `match` and `relay
 with everything they refer to, every record's outcome (`decisions.jsonl.gz`), every
 crediting assertion's outcome (`relays.json`), counts and a sample of 100 matches to
 review; given an earlier run's check directory (`--previous`), it reviews what changed
-instead (`changed-sample.json`). Every run is scored against the judgements of all
-earlier reviews (`counts.json`, `judgements`); `review` adds a check's judged
-`review.json` to them. From a checkout whose `data/` holds the inputs:
+instead (`changed-sample.json`), and the ties and least probable targets for a reviewer
+(`hard.json`). Every run is scored against the judgements of all earlier reviews
+(`counts.json`: `judgements`, and `held out`, five folds scored on judgements the fit did
+not see); `review` adds a check's judged `review.json` and `hard.json` to them. From a
+checkout whose `data/` holds the inputs:
 
 ```sh
-W=<a work directory>; C=$S/acd/checks/acd-3-v3
+W=<a work directory>; C=$S/acd/checks/acd-3-v4
 E=data/runs/ccaf05246fcb466f94916b3f5ae6654a/checks/core-4-references/assertions.jsonl.gz
 X=data/artifacts/wiktextract/6da0ba5bf330650cba59911466da388d3f60c69519a50dc9ca71451b0bfba506/files/raw-wiktextract-data.jsonl.gz
 uv run --frozen python -m etymology.match_acd scan --export $E --wiktextract $X --work $W
-uv run --frozen python -m etymology.match_acd run --acd $S/acd/checks/acd-2/assertions.jsonl --export $E --wiktextract $X --work $W --out $C --previous $S/acd/checks/acd-3-ancestry
+uv run --frozen python -m etymology.match_acd run --acd $S/acd/checks/acd-2/assertions.jsonl --export $E --wiktextract $X --work $W --out $C --previous $S/acd/checks/acd-3-v3
 uv run --frozen python -m etymology.match_acd review --out $C
 ```
 
@@ -124,7 +126,10 @@ records fitting one Wiktionary record (homographs, doublets), the best is matche
 shared reflexes, then an equal key over a near one). A shared ancestor vouches for a
 gloss that shares nothing with the record's only when it fits the ancestor's gloss, and
 a fitting gloss stands against the shared ancestor of a candidate Wiktionary only cites
-(often its entry under another spelling). v1, which weighed no ancestors, is reviewed in
+(often its entry under another spelling). v4 decides as v3 does, except that reviewers'
+judgements decide the pairs they cover; its score is the probability learnt weights
+(`matching.Linkage`) give the match. Letting the weights decide did worse than v3's
+ranking (`checks/acd-3-v4-trial/`). v1, which weighed no ancestors, is reviewed in
 `checks/acd-3/`, v2 in `checks/acd-3-ancestry/`, v3 in `checks/acd-3-v3/`. The relay rule, `agent:wety-relay-acd@1`, compares by ancestry, since the
 ACD links a reflex straight to its set's reconstruction. The docstrings of `Matcher` and
 `Relayer` give the rules in full.
@@ -137,23 +142,27 @@ assertions in LiLa. It reads a graph's assertion export (`graph-assertions`) and
 lila-2 assertions; both must lie in the checkout, so hard-link them in a worktree:
 
 ```sh
-C=$S/lila-edl/checks/lila-3-linkage
-uv run --frozen python -m etymology.match_lila --export data/runs/<run>/checks/core-4-references/assertions.jsonl.gz --out $C --compare $S/lila-edl/checks/lila-3-ancestry
+C=$S/lila-edl/checks/lila-3-v4
+uv run --frozen python -m etymology.match_lila --export data/runs/<run>/checks/core-4-references/assertions.jsonl.gz --out $C --compare $S/lila-edl/checks/lila-3-linkage
 uv run --frozen python -m etymology.match_lila --out $C --review
-uv run --frozen python -m etymology.notation $C/pairs.json --out $S/lila-edl/etc/substitutions-wiktionary.tsv --note "de Vaan's keys (LiLa) against Wiktionary's"
+uv run --frozen python -m etymology.notation $C/pairs.json --out $S/lila-edl/etc/substitutions-wiktionary.tsv --note "de Vaan's keys (LiLa) against Wiktionary's, from judged pairs"
 ```
 
 The first writes `assertions.jsonl` (the matches, the relays and what they refer to),
 `relays.json` (every crediting assertion and what became of it), `result.json` (counts,
-the learnt weights, and the score against the judgements), `sample.json` (matches to
-review where no judgement decides them, stratified by kind, key and lineage, and records
-left unmatched, for recall) and `pairs.json` (confirmed pairs for `notation`); with
+the learnt weights, the score against the judgements, what the judgements decided, and
+the held-out score), `sample.json` (matches to review where no judgement decides them,
+stratified by kind, key and lineage, and records left unmatched, for recall), `hard.json`
+(ties and targets of low probability) and `pairs.json` (the judged etymon pairs, for
+`notation`); with
 `--compare`, also `changes.json`, every record whose match differs from an earlier
-check's. The second, once a reviewer has judged the sample (`review.json`) or the
-changes, adds their precision to `result.json` and their judgements to
-`etc/judgements.jsonl`. The third mines the substitutions table the next run's distance
-reads. The rule, `agent:wety-match-lila@3`, is in the module's docstring. v1's reviewed
-outputs stay in `lila-3/`, v2's in `lila-3-ancestry/`.
+check's. The second, once a reviewer has judged the sample (`review.json`), the changes
+or the hard cases, adds their precision to `result.json` and their judgements to
+`etc/judgements.jsonl` (an `answer` names the right record where the rule found none).
+The third mines the substitutions table the next run's distance reads. The rule,
+`agent:wety-match-lila@4`, is in the module's docstring. Earlier rules' reviewed outputs
+stay in `lila-3/` (v1), `lila-3-ancestry/` (v2) and `lila-3-linkage/` (v3), and v4's
+trials in `lila-3-v4-trial/` and `lila-3-v4-trial2/`.
 
 ## What the matchers share
 
@@ -163,16 +172,26 @@ adapter (its records, their lineage, its forms) and not another thousand lines:
 - **Judgements.** A source's `etc/judgements.jsonl` keeps every reviewed judgement on
   a pair (record, Wiktionary record: the same word or not; or the word is among these
   candidates), apart from the rule that proposed it. Every run is scored against all of
-  them: target precision, recall of judged matches, and each regression. `harvest`
-  reads review files into it; a review only judges what the judgements do not decide.
+  them: target precision, recall of judged matches, and each regression. Judgements
+  also decide the pairs they cover (`choose`), so each check is scored on judgements
+  held out of the fit too (`split`, `pooled`). `harvest` reads review files into it; a
+  review only judges what the judgements do not decide.
 - **Weighing.** `Linkage` weighs categorical evidence as Fellegi and Sunter's record
   linkage does: per field and level, log2(m/u), learnt by EM from every candidate pair
-  with judged pairs held at their label. A score is a probability, so one threshold
-  serves every kind of evidence; a level is weighed, never a gate.
+  with judged pairs held at their label and the weights bound to their levels' order.
+  A score is a probability. Fitted alone, EM finds another split than "one word or
+  not" (lineage-connected pairs in LiLa, glosses in the ACD), so judged pairs weigh
+  heavily, and conditions that are not additive (a weak key needs a shared reflex and
+  a common stem class) stay conditions.
 - **Decisions.** `decide` keeps the best candidate when it reaches the threshold and
   beats the next by a margin, else every tied one; `assign` keeps a source's
   homographs from sharing a target.
-- **Notation.** `notation.py` aligns the keys of confirmed pairs, counts what differs,
+- **Triangulation.** `triangulate` checks three sources' matches against each other with
+  no review: where a record of each reaches Wiktionary and the two are linked directly,
+  both routes should arrive at one record, and the share that do not bounds the
+  matchers' summed error from below. No third source with lexical data overlaps LiLa or
+  the ACD yet (IE-CoR is in the store only as languages).
+- **Notation.** `notation.py` aligns the keys of judged pairs, counts what differs,
   and writes a substitutions table per source pair (`etc/substitutions-<other>.tsv`);
   `Distance` reads it, so a difference seen often (a laryngeal one source writes and
   the other drops) costs little. A curator moves a difference into the source's
