@@ -82,16 +82,41 @@ def acd_objects():
         "ilo": acd_record("4", "break", "kutú", "break, snap"),
         "hand": acd_record("3", "hand", "kamáy", "hand"),
         "duck": acd_record("3", "duck", "papan", "Philippine duck"),
+        "kin": acd_record("3", "kin", "bata", "kinsman"),
+        "nit": acd_record("3", "nit", "lisa", "nit"),
+        "infix": acd_record("3", "infix", "-um-", "actor focus"),
+        "root": acd_record("1", "root", "*wakaR", "root"),
+        "root2": acd_record("1", "root2", "*akaR", "root"),
+        "ms-root": acd_record("2", "root", "akar", "root"),
+        "ms-root2": acd_record("2", "root2", "akar", "root"),
+        "ilo-root": acd_record("4", "root", "ramut", "root"),
+        "ilo-root2": acd_record("4", "root2", "ramut", "root"),
+        "comb": acd_record("3", "comb", "sukláy", "comb"),
+        "ilo-louse": acd_record("4", "louse", "kúto", "louse"),
+        "fork": acd_record("1", "fork", "*saŋa", "fork of a branch"),
+        "ms-fork": acd_record("2", "fork", "saŋa", "fork"),
+        "pa": acd_record("1", "pa", "*pa", "still, yet"),
     }
     sets = [
         {"type": "cognate_set", "id": "acd:1_1", "source": ACD_SRC, "category": "cognate set",
          "reconstruction": r["louse"]["id"], "members": [r["ms"]["id"], r["tl"]["id"]]},
         {"type": "cognate_set", "id": "acd:2_1", "source": ACD_SRC, "category": "cognate set",
          "reconstruction": r["break"]["id"], "members": [r["ilo"]["id"]]},
+        {"type": "cognate_set", "id": "acd:3_1", "source": ACD_SRC, "category": "cognate set",
+         "reconstruction": r["root"]["id"], "members": [r["ms-root"]["id"], r["ilo-root"]["id"]]},
+        {"type": "cognate_set", "id": "acd:4_1", "source": ACD_SRC, "category": "cognate set",
+         "reconstruction": r["root2"]["id"], "members": [r["ms-root2"]["id"], r["ilo-root2"]["id"]]},
+        {"type": "cognate_set", "id": "acd:5_1", "source": ACD_SRC, "category": "cognate set",
+         "reconstruction": r["fork"]["id"], "members": [r["ms-fork"]["id"]]},
     ]  # fmt: skip
+    sets[0]["members"] += [r["kin"]["id"], r["nit"]["id"], r["comb"]["id"], r["ilo-louse"]["id"]]
     rule = "agent:wety-acd-tree@1"
     links = []
-    for child, parent in (("ms", "louse"), ("tl", "louse"), ("ilo", "break")):
+    for child, parent in (
+        ("ms", "louse"), ("tl", "louse"), ("ilo", "break"), ("kin", "louse"), ("nit", "louse"),
+        ("ms-root", "root"), ("ms-root2", "root2"), ("ilo-root", "root"),
+        ("ilo-root2", "root2"), ("comb", "louse"), ("ilo-louse", "louse"), ("ms-fork", "fork"),
+    ):  # fmt: skip
         links += inherits(r[child]["id"], r[parent]["id"], ACD_SRC, rule)
     return r, [*r.values(), *sets, *links]
 
@@ -104,16 +129,46 @@ def wiktionary_objects():
         "kamay": wk_record("tl", "kamay"),
         "papan1": wk_record("tl", "papan", 1),
         "papan2": wk_record("tl", "papan", 2),
+        "other": wk_record("poz-pro", "baqi"),
+        "bata": wk_record("tl", "bata", imputed=True),
+        "lisa1": wk_record("tl", "lisa", 1),
+        "lisa2": wk_record("tl", "lisa", 2),
+        "infix": wk_record("tl", "-um-"),
+        "prefix": wk_record("tl", "um-"),
+        "root": wk_record("poz-pro", "wakaʀ"),
+        "akar": wk_record("ms", "akar"),
+        "ramut": wk_record("ilo", "ramut"),
+        # an entry, and Wiktionary's citation of it under another spelling
+        "suklay": wk_record("tl", "suklay"),
+        "suklay?": wk_record("tl", "sukláy", imputed=True),
+        # PMP *kutu₁ as Wiktionary reconstructs it, another form, the same gloss
+        "huktu": wk_record("poz-pro", "huktu"),
+        "ilo-kuto": wk_record("ilo", "kuto", imputed=True),
+        # a bound stem, and Wiktionary's citation of it as a word
+        "sanga-": wk_record("poz-pro", "saŋa-"),
+        "sanga?": wk_record("poz-pro", "saŋa", imputed=True),
+        "ms-sanga": wk_record("ms", "sanga"),
+        "pa-": wk_record("poz-pro", "pa-"),
+        "pa?": wk_record("poz-pro", "pa", imputed=True),
     }
     editors = "agent:wiktionary-editors"
     credit = [{"work": "work:wiktionary:R:map:ACD", "role": "follows", "scope": "entry"}]
     objs = [*r.values()]
     objs += inherits(r["ms"]["id"], r["kutu"]["id"], WK_SRC, editors)
     objs += inherits(r["tl"]["id"], r["kutu"]["id"], WK_SRC, editors, credits=credit)
+    objs += inherits(r["bata"]["id"], r["other"]["id"], WK_SRC, editors)
+    objs += inherits(r["lisa1"]["id"], r["kutu"]["id"], WK_SRC, editors)
+    objs += inherits(r["akar"]["id"], r["root"]["id"], WK_SRC, editors)
+    objs += inherits(r["ramut"]["id"], r["root"]["id"], WK_SRC, editors)
+    objs += inherits(r["suklay?"]["id"], r["kutu"]["id"], WK_SRC, editors)
+    objs += inherits(r["ilo-kuto"]["id"], r["huktu"]["id"], WK_SRC, editors)
+    objs += inherits(r["ms-sanga"]["id"], r["sanga-"]["id"], WK_SRC, editors)
     objs.append({"type": "work", "id": "work:wiktionary:R:map:ACD", "citation": "{{R:map:ACD}}"})
     glosses = [
         {"code": "poz-pro", "word": "kutu", "canonical": None, "ety": "", "glosses": ["louse"]},
         {"code": "tl", "word": "kamay", "canonical": None, "ety": "", "glosses": ["hand"]},
+        {"code": "tl", "word": "suklay", "canonical": None, "ety": "", "glosses": ["comb"]},
+        {"code": "poz-pro", "word": "huktu", "canonical": None, "ety": "", "glosses": ["louse"]},
     ]
     return r, objs, glosses
 
@@ -155,8 +210,47 @@ class Matching(unittest.TestCase):
         d = m.run()
         what, target, basis = d[ar["louse"]["id"]]
         self.assertEqual((what, target), ("match", wr["kutu"]["id"]))
-        self.assertEqual(basis["reflexes"], {"shared": 2, "cited": 2})
-        self.assertEqual(d[ar["break"]["id"]][:2], ("unmatched", "a homograph fits better"))
+        self.assertEqual(basis["reflexes"], {"shared": 4, "cited": 6})
+        self.assertEqual(d[ar["break"]["id"]][:2], ("unmatched", "another ACD record fits better"))
+
+    def test_an_equal_key_beats_a_near_one(self):
+        ar, wr, _acd, _wikt, m = setup()
+        d = m.run()
+        self.assertEqual(d[ar["root"]["id"]][:2], ("match", wr["root"]["id"]))
+        self.assertEqual(d[ar["root2"]["id"]][:2], ("unmatched", "another ACD record fits better"))
+
+    def test_affix_shape(self):
+        ar, wr, _acd, _wikt, m = setup()
+        self.assertEqual(m.run()[ar["infix"]["id"]][:2], ("match", wr["infix"]["id"]))
+
+    def test_ancestors(self):
+        ar, wr, _acd, _wikt, m = setup()
+        d = m.run()
+        # Wiktionary derives its bata from another PMP word than the ACD's *kutu₁
+        self.assertEqual(
+            d[ar["kin"]["id"]][:2], ("unmatched", "candidates whose ancestry contradicts the ACD")
+        )
+        what, target, basis = d[ar["nit"]["id"]]
+        self.assertEqual((what, target), ("match", wr["lisa1"]["id"]))
+        self.assertEqual(basis["ancestors"], {"shared": 1, "cited": 1})
+
+    def test_ancestors_reconstructed_otherwise(self):
+        ar, wr, _acd, _wikt, m = setup()
+        # Wiktionary's PMP ancestor has another form than the ACD's but the same gloss:
+        # one etymon reconstructed two ways, not a contradiction
+        self.assertEqual(m.run()[ar["ilo-louse"]["id"]][:2], ("match", wr["ilo-kuto"]["id"]))
+
+    def test_entry_over_its_citation(self):
+        ar, wr, _acd, _wikt, m = setup()
+        # the cited spelling shares the ancestor, the entry has the gloss
+        self.assertEqual(m.run()[ar["comb"]["id"]][:2], ("match", wr["suklay"]["id"]))
+
+    def test_bound_stem(self):
+        ar, wr, _acd, _wikt, m = setup()
+        d = m.run()
+        self.assertEqual(d[ar["fork"]["id"]][:2], ("match", wr["sanga-"]["id"]))
+        # too short to tell a bound stem from a prefix
+        self.assertNotEqual(d[ar["pa"]["id"]][:2], ("match", wr["pa-"]["id"]))
 
     def test_attested(self):
         ar, wr, _acd, _wikt, m = setup()
