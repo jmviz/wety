@@ -6,9 +6,15 @@
 {"candidate": "wiktionary:ine-pro:h₂m̥bʰikʷolós#1?", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pie0047", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:h₂énkos#1", "cause": "lost a right match: de Vaan writes the palatal (*h₂(e)nḱ‑o‑, ancus), Wiktionary *h₂énkos with k, and no reflex is shared", "check": "lila-3-ancestry", "record": "lila-edl:etymon/pie0048", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
 {"candidate": "wiktionary:ine-pro:h₂éng-ul-(o-)#1?", "cause": null, "check": "lila-3-v4-trial2", "record": "lila-edl:etymon/pie0051", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:ine-pro:h₂enh₁-slo-s#1?", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pie0052", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:ine-pro:h₂énti#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pie0058", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:ine-pro:h₂éHsh₂#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pie0067", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:h₁r̥h₁-yé-ti#1?", "cause": "none of the candidates is arca's *h₂erk-eh₂", "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pie0069", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": false}
 {"candidate": "wiktionary:ine-pro:h₁r̥h₁-éye-ti#1?", "cause": "none of the candidates is arca's *h₂erk-eh₂", "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pie0069", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": false}
+{"candidate": "wiktionary:ine-pro:h₂erk-eh₂#1?", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pie0069", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:h₂r̥h₃-eh₂#1?", "cause": "none of the candidates is arca's *h₂erk-eh₂", "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pie0069", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": false}
+{"candidate": "wiktionary:ine-pro:h₂ér-ti-s ~ *h₂r̥-téy-s#1?", "cause": "missed: ars's *h₂r‑tí‑ is Wiktionary's *h₂ér-ti-s ~ *h₂r̥-téy-s", "check": "lila-3-v4", "record": "lila-edl:etymon/pie0081", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:ine-pro:h₂r̥tús#1?", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pie0082", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:h₁ers-o/h₂-#1?", "cause": "de Vaan's optional (ḱ) read away: *h₂(e)r(ḱ)‑s (arx) took *h₁ers‑, another root; v1's *h₂érk‑s was right but now needs shared evidence", "check": "lila-3-ancestry", "record": "lila-edl:etymon/pie0086", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": false}
 {"candidate": "wiktionary:ine-pro:h₁ews-ós#1?", "cause": "no candidate is the word for 'ear'", "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pie0096", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": false}
 {"candidate": "wiktionary:ine-pro:h₁éws-e-ti#1?", "cause": "no candidate is the word for 'ear'", "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pie0096", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": false}
@@ -16,9 +22,11 @@
 {"candidate": "wiktionary:ine-pro:h₂ews-e-ti#1?", "cause": "no candidate is the word for 'ear'", "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pie0096", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": false}
 {"candidate": "wiktionary:ine-pro:h₂ews-ye-ti#1?", "cause": "no candidate is the word for 'ear'", "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pie0096", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": false}
 {"candidate": "wiktionary:ine-pro:h₂éwsōs#1", "cause": "no candidate is the word for 'ear'", "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pie0096", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": false}
+{"candidate": "wiktionary:ine-pro:h₂ew-eh₁-(ye)-#1?", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pie0102", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:h₂eḱ-stí-#1?", "cause": "*h₂eḱ-stí- is not the axle word *h₂eḱs-", "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pie0106", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": false}
 {"candidate": "wiktionary:ine-pro:gʷṓws#1", "cause": null, "check": "lila-3-v4-trial2", "record": "lila-edl:etymon/pie0118", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:keHid-o-s#1?", "cause": "neither noun is caedō's root *keh₂id‑; the verb was dropped", "check": "lila-3-v4-trial2", "record": "lila-edl:etymon/pie0125", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": false}
+{"candidate": "wiktionary:ine-pro:kéHi-de-ti#1?", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pie0125", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:kéHidos#1?", "cause": "neither noun is caedō's root *keh₂id‑; the verb was dropped", "check": "lila-3-v4-trial2", "record": "lila-edl:etymon/pie0125", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": false}
 {"candidate": "wiktionary:ine-pro:(s)ḱeh₁i-r-#1?", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:etymon/pie0128", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": false}
 {"candidate": "wiktionary:ine-pro:(s)ḱeh₃i-ro-s#1?", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:etymon/pie0128", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": false}
@@ -32,6 +40,7 @@
 {"candidate": "wiktionary:ine-pro:kérp-e-ti#1?", "cause": null, "check": "lila-3", "record": "lila-edl:etymon/pie0156", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
 {"candidate": "wiktionary:ine-pro:ḱs-trom#1?", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pie0161", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:ḱh₃tós#1?", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:etymon/pie0167", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
+{"candidate": "wiktionary:ine-pro:(s)kowh₁éyeti#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pie0174", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"among": ["wiktionary:ine-pro:(s)kowh₁-os#1?", "wiktionary:ine-pro:ków(H)-o-s#1?"], "cause": "lost the right candidate *ków(H)os (cavus): de Vaan writes *ḱouH‑ó‑ with the palatal", "check": "lila-3-ancestry", "record": "lila-edl:etymon/pie0175", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
 {"candidate": "wiktionary:ine-pro:ḱel-yo-#1?", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:etymon/pie0180", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": false}
 {"candidate": "wiktionary:ine-pro:ḱēl-is#1?", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:etymon/pie0180", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": false}
@@ -39,16 +48,20 @@
 {"candidate": "wiktionary:ine-pro:(s)ker-s-#1?", "cause": "candidates are derivatives of *(s)ker‑ (*(s)ker‑s‑, *(s)kér(H)ō, *sker‑e‑ti), not de Vaan's *(s)ker‑(d‑); the root itself is excluded by shape", "check": "lila-3-ancestry", "record": "lila-edl:etymon/pie0193", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": false}
 {"candidate": "wiktionary:ine-pro:(s)kér(H)-ō#1?", "cause": "candidates are derivatives of *(s)ker‑ (*(s)ker‑s‑, *(s)kér(H)ō, *sker‑e‑ti), not de Vaan's *(s)ker‑(d‑); the root itself is excluded by shape", "check": "lila-3-ancestry", "record": "lila-edl:etymon/pie0193", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": false}
 {"candidate": "wiktionary:ine-pro:sker-e-ti#1?", "cause": "candidates are derivatives of *(s)ker‑ (*(s)ker‑s‑, *(s)kér(H)ō, *sker‑e‑ti), not de Vaan's *(s)ker‑(d‑); the root itself is excluded by shape", "check": "lila-3-ancestry", "record": "lila-edl:etymon/pie0193", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": false}
+{"candidate": "wiktionary:ine-pro:ḱer-ēs#1?", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pie0195", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:ḱer-h₂-#1?", "cause": "de Vaan's lengthened o-stem *ḱērh₂‑o‑ (cernuus) took *ḱer‑h₂‑, the extended root", "check": "lila-3-ancestry", "record": "lila-edl:etymon/pie0197", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": false}
 {"candidate": "wiktionary:ine-pro:ḱel-yo-#1?", "cause": null, "check": "lila-3", "record": "lila-edl:etymon/pie0204", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
+{"candidate": "wiktionary:ine-pro:kl̥H-mṓ#1?", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pie0212", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:kleh₂u-de-ti#1?", "cause": "lost a right match: *kleh₂u‑d‑ is *kleh₂u-de-ti", "check": "lila-3-v4-trial2", "record": "lila-edl:etymon/pie0215", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:ḱl̥néyti#1", "cause": null, "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pie0221", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:ḱléytreh₂#1", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pie0222", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"among": ["wiktionary:ine-pro:kʷelh₁-o-m#1?", "wiktionary:ine-pro:kʷélh₁-e-ti#1?", "wiktionary:ine-pro:kʷélh₁eti#1?"], "cause": null, "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pie0230", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"among": ["wiktionary:ine-pro:kʷélh₁-e-ti#1?", "wiktionary:ine-pro:kʷélh₁eti#1?"], "cause": null, "check": "lila-3-v4-trial2", "record": "lila-edl:etymon/pie0230", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:ine-pro:gʷm̥yéti#1", "cause": "the ti-stem noun *gʷm‑ti‑ (contiō) against the verb *gʷm̥yéti", "check": "lila-3-v4", "record": "lila-edl:etymon/pie0242", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": false}
 {"among": ["wiktionary:ine-pro:(s)k(o)rt-o-#1?", "wiktionary:ine-pro:(s)kor-tós#1?", "wiktionary:ine-pro:(s)kr̥-tós#1?", "wiktionary:ine-pro:(s)kr̥tós#1?", "wiktionary:ine-pro:kr̥t-eh₂#1?"], "cause": null, "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pie0255", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:ḱréddʰeh₁ti#1", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pie0264", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"among": ["wiktionary:ine-pro:(s)krep-#1?", "wiktionary:ine-pro:krep-#1"], "cause": "lost the likely right candidate *(s)krep‑ (crepō): de Vaan writes *ḱrep‑ with the palatal", "check": "lila-3-ancestry", "record": "lila-edl:etymon/pie0267", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
+{"candidate": "wiktionary:ine-pro:krey-dʰrom#1?", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pie0270", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:ḱolh₂-m-#1?", "cause": "lost a right match: *ḱolh₂‑mo‑ is *ḱolh₂-m-", "check": "lila-3-v4-trial2", "record": "lila-edl:etymon/pie0284", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:kʷolpeh₂#1?", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pie0285", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:kuH-l-#1?", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:etymon/pie0287", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
@@ -65,6 +78,7 @@
 {"candidate": "wiktionary:ine-pro:déh₃nom#1", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pie0335", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:dr̥m-yé-ti#1?", "cause": null, "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pie0336", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:déwkti#1", "cause": null, "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pie0338", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:ine-pro:h₁ēgʷʰ-ryo-s#1?", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pie0345", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"among": ["wiktionary:ine-pro:h₁eǵ-#1", "wiktionary:ine-pro:h₂eǵ-#1", "wiktionary:ine-pro:h₂eǵ-#2", "wiktionary:ine-pro:h₂eǵ-#3"], "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:etymon/pie0350", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
 {"candidate": "wiktionary:ine-pro:h₂eḱ-u-#1?", "cause": null, "check": "lila-3-v4-trial2", "record": "lila-edl:etymon/pie0358", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"among": ["wiktionary:ine-pro:h₃roǵ-ó-s#1?", "wiktionary:ine-pro:h₃roǵós#1"], "cause": null, "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pie0361", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
@@ -86,6 +100,7 @@
 {"candidate": "wiktionary:ine-pro:morwís#1", "cause": null, "check": "lila-3", "record": "lila-edl:etymon/pie0442", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
 {"candidate": "wiktionary:ine-pro:bʰorH-ye-ti#1?", "cause": null, "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pie0446", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:bʰértis#1", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pie0447", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:ine-pro:bʰerHǵós#1", "cause": "another formation: *bʰrHǵ‑s‑e/ino‑ (fraxinus) against the adjective *bʰerHǵós", "check": "lila-3-v4", "record": "lila-edl:etymon/pie0457", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": false}
 {"candidate": "wiktionary:ine-pro:gʰréndʰ-(e)-ti#1?", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pie0459", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:gʷʰréndʰ-e-ti#1?", "cause": null, "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pie0459", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:bʰruHg-ye-ti#1?", "cause": null, "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pie0464", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
@@ -97,9 +112,11 @@
 {"candidate": "wiktionary:ine-pro:gen-#1?", "cause": "de Vaan's cover symbol G (*Gen(H)‑, gemō) is read as plain g: *gen‑ is chosen over *ǵen‑ by a guess", "check": "lila-3-ancestry", "record": "lila-edl:etymon/pie0488", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": false}
 {"candidate": "wiktionary:ine-pro:ǵénus#1", "cause": null, "check": "lila-3", "record": "lila-edl:etymon/pie0489", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
 {"candidate": "wiktionary:ine-pro:gl̥Hy-ó-s#1?", "cause": "the palatal is not compared (ǵ = g): de Vaan's *ǵlh₂‑i‑ (glīs 'dormouse') took *gl̥Hyós of the root *gleyH‑; Wiktionary derives glīs from *ǵl̥h₂ōws, and no cited reflex is shared", "check": "lila-3", "record": "lila-edl:etymon/pie0498", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": false}
+{"candidate": "wiktionary:ine-pro:ǵl̥h₂ōws#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pie0501", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"among": ["wiktionary:ine-pro:(h₂)grómos#1?", "wiktionary:ine-pro:h₂gr-om-#1?"], "cause": "lost the right candidate *(h₂)grómos (grūmus): de Vaan writes *h₂ǵr‑ōm‑o‑ with the palatal", "check": "lila-3-ancestry", "record": "lila-edl:etymon/pie0514", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
 {"candidate": "wiktionary:ine-pro:gʷer(h₂)-d-#1?", "cause": "another formation: the o-stem adjective *gʷrd‑o‑ (gurdus) aligned with the extended root *gʷer(h₂)-d-", "check": "lila-3-linkage", "record": "lila-edl:etymon/pie0520", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": false}
 {"candidate": "wiktionary:ine-pro:h₂enh₁-slo-s#1?", "cause": null, "check": "lila-3", "record": "lila-edl:etymon/pie0525", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
+{"candidate": "wiktionary:ine-pro:ǵʰéyōm#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pie0535", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:ǵʰh₂i-éh₂-ye-ti#1?", "cause": null, "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pie0536", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:gʰr̥yéti#1", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pie0541", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:gʰēr-i-#1?", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:etymon/pie0541", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": false}
@@ -109,6 +126,8 @@
 {"candidate": "wiktionary:ine-pro:sékʷ-e-ti#1?", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pie0570", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:yók-o-s#1?", "cause": null, "check": "lila-3", "record": "lila-edl:etymon/pie0578", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
 {"candidate": "wiktionary:ine-pro:h₁éysh₂-eh₂#1?", "cause": null, "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pie0580", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:ine-pro:h₂yéwHō#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pie0598", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:ine-pro:dr̥ḱ-h₂eḱru#1?", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pie0605", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"among": ["wiktionary:ine-pro:légʰ-e-ti#1?", "wiktionary:ine-pro:légʰeti#1?"], "cause": null, "check": "lila-3-v4-trial2", "record": "lila-edl:etymon/pie0624", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"among": ["wiktionary:ine-pro:légʰ-e-ti#1?", "wiktionary:ine-pro:légʰeti#1?", "wiktionary:ine-pro:légʰos#1?"], "cause": null, "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pie0624", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:lubʰ-eh₁-(ye)-ti#1?", "cause": null, "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pie0637", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
@@ -126,7 +145,9 @@
 {"among": ["wiktionary:ine-pro:udréh₂#1", "wiktionary:ine-pro:udrós#1"], "cause": null, "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pie0674", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:mh₂ḱtós#1?", "cause": "another formation: *mh₂ḱ‑(e/o‑) (mactus) against the participle *mh₂ḱtós", "check": "lila-3-linkage", "record": "lila-edl:etymon/pie0680", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": false}
 {"among": ["wiktionary:ine-pro:mn̥-éh₁-(ye)-ti#1?", "wiktionary:ine-pro:mn̥-éh₁-ye-ti#1?", "wiktionary:ine-pro:m̥n-éh₁ye-ti#1?"], "cause": null, "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pie0692", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:ine-pro:mn̥-éh₁-(ye)-ti#1?", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pie0692", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:món-wo-s#1?", "cause": null, "check": "lila-3-v4-trial2", "record": "lila-edl:etymon/pie0694", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": false}
+{"candidate": "wiktionary:ine-pro:mórǵs#1", "cause": "another formation: the n-stem *mrǵ‑n‑ (margō) against the root noun *mórǵs", "check": "lila-3-v4", "record": "lila-edl:etymon/pie0698", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": false}
 {"candidate": "wiktionary:ine-pro:(s)méh₂-se-ti#1?", "cause": null, "check": "lila-3-v4-trial2", "record": "lila-edl:etymon/pie0700", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": false}
 {"candidate": "wiktionary:ine-pro:meh₁treh₂#1?", "cause": "*meh₁treh₂ 'measure' is not *méh₂tēr 'mother'", "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pie0702", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": false}
 {"candidate": "wiktionary:ine-pro:méh₂tēr#1", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pie0702", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
@@ -143,8 +164,10 @@
 {"candidate": "wiktionary:ine-pro:h₂nnéḱti#1?", "cause": null, "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pie0778", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:néh₂s#1", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pie0779", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:(s)néHtr̥#1", "cause": "another formation: the ih₂-stem *(s)nh₁‑tr‑ih₂‑ against *(s)néHtr̥", "check": "lila-3-v4-trial2", "record": "lila-edl:etymon/pie0784", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": false}
+{"candidate": "wiktionary:ine-pro:néḱ-s#1?", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pie0797", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"among": ["wiktionary:ine-pro:snéygʷʰ-e-ti#1?", "wiktionary:ine-pro:snéygʷʰeti#1"], "cause": null, "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pie0803", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:(s)néh₂ti#1", "cause": null, "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pie0805", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:ine-pro:noḱéyeti#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pie0806", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:h₁nómn̥#1", "cause": null, "check": "lila-3-v4-trial2", "record": "lila-edl:etymon/pie0807", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:nos-éye-ti#1?", "cause": "the verb *nos-éye-ti is not the pronoun *nōs: a cut citation ending without lineage", "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pie0808", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": false}
 {"candidate": "wiktionary:ine-pro:ǵn̥h₃sḱéti#1", "cause": "lost a right match: *ǵnh₃‑sḱé‑ is *ǵn̥h₃sḱéti", "check": "lila-3-v4-trial2", "record": "lila-edl:etymon/pie0809", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
@@ -165,6 +188,7 @@
 {"candidate": "wiktionary:ine-pro:peḱ-#1", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pie0890", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:tpḗrsneh₂#1", "cause": "lost a right match: *tspērsn‑h₂‑ is *tpḗrsneh₂", "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pie0905", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"among": ["wiktionary:ine-pro:pl-eh₂-k-#1?", "wiktionary:ine-pro:pleh₂k-#1?"], "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:etymon/pie0921", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
+{"candidate": "wiktionary:ine-pro:tḱéyti#1", "cause": "another formation: the nasal present *tḱ‑i‑n‑ against the root present *tḱéyti", "check": "lila-3-v4", "record": "lila-edl:etymon/pie0945", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": false}
 {"candidate": "wiktionary:ine-pro:póntoh₁s#1", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pie0946", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:pr̥so-#1?", "cause": null, "check": "lila-3", "record": "lila-edl:etymon/pie0951", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
 {"candidate": "wiktionary:ine-pro:pr̥sḱéti#1", "cause": null, "check": "lila-3-v4-trial2", "record": "lila-edl:etymon/pie0954", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
@@ -175,6 +199,7 @@
 {"among": ["wiktionary:ine-pro:plus-o-s#1?", "wiktionary:ine-pro:plús-eh₂#1?"], "cause": null, "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pie0984", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:pléwmō#1", "cause": null, "check": "lila-3-v4-trial2", "record": "lila-edl:etymon/pie0986", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:péh₂wr̥#1", "cause": null, "check": "lila-3", "record": "lila-edl:etymon/pie0992", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
+{"candidate": "wiktionary:ine-pro:puH-ró-s#1?", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pie0993", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:kʷetwóres#1", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pie1000", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:pénkʷe#1", "cause": null, "check": "lila-3", "record": "lila-edl:etymon/pie1006", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
 {"candidate": "wiktionary:ine-pro:kʷé(h₁)y-e-ti#1?", "cause": "the verb *kʷéy-e-ti is not the particle *kʷe", "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pie1007", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": false}
@@ -187,9 +212,11 @@
 {"candidate": "wiktionary:ine-pro:Hróth₂-eh₂#1?", "cause": null, "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pie1047", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:HréwdHti#1", "cause": null, "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pie1049", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:Hrunépti#1", "cause": null, "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pie1054", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:ine-pro:h₃rew-e-ti#1?", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pie1056", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"among": ["wiktionary:ine-pro:(H)réwH-e-ti#1?", "wiktionary:ine-pro:rewh₁os#1?"], "cause": null, "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pie1057", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:(H)réwH-e-ti#1?", "cause": null, "check": "lila-3-v4-trial2", "record": "lila-edl:etymon/pie1057", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:sh₂éytlom#1", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pie1062", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:ine-pro:seh₁y-to-m#1?", "cause": "saeta's *séh₂i‑to‑ took *seh₁y-to-m, from *seh₁- 'sow'", "check": "lila-3-v4", "record": "lila-edl:etymon/pie1064", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": false}
 {"candidate": "wiktionary:ine-pro:séh₂g-ye-ti#1?", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:etymon/pie1066", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": false}
 {"candidate": "wiktionary:ine-pro:séh₂gyeti#1", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:etymon/pie1066", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": false}
 {"candidate": "wiktionary:ine-pro:sḗh₂l#1", "cause": "lost a right match: *sē̆h₂‑l‑s is *sḗh₂l 'salt'", "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pie1067", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
@@ -198,6 +225,7 @@
 {"candidate": "wiktionary:ine-pro:skinédti#1", "cause": null, "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pie1089", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:ski-yé-ti#1?", "cause": null, "check": "lila-3-v4-trial2", "record": "lila-edl:etymon/pie1090", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:sedéh₁yeti#1?", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pie1104", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:ine-pro:swéḱs#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pie1126", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:sem-h₂-lo-#1?", "cause": "another stem: the i-stem *smh₂‑el‑i‑ against *sem-h₂-lo-", "check": "lila-3-v4-trial2", "record": "lila-edl:etymon/pie1133", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": false}
 {"candidate": "wiktionary:ine-pro:(s)ḱeh₁i-r-#1?", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:etymon/pie1134", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": false}
 {"candidate": "wiktionary:ine-pro:(s)ḱeh₃i-ro-s#1?", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:etymon/pie1134", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": false}
@@ -232,6 +260,7 @@
 {"candidate": "wiktionary:ine-pro:towh₂-éye-ti#1?", "cause": null, "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pie1276", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:(s)tunédti#1", "cause": null, "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pie1279", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:trosdos#1?", "cause": null, "check": "lila-3-v4-trial2", "record": "lila-edl:etymon/pie1280", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:ine-pro:h₁élḱos#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pie1284", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:Heh₃l-én-eh₂#1?", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pie1286", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:h₃nóbʰōl#1", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pie1288", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:h₂ṓms#1", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pie1291", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
@@ -240,14 +269,21 @@
 {"candidate": "wiktionary:ine-pro:h₃éw-e-ti#1?", "cause": null, "check": "lila-3-v4-trial2", "record": "lila-edl:etymon/pie1299", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:h₁oyHw-éh₂#1?", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pie1312", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:h₂wl̥h₁éh₁yeti#1?", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pie1320", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:ine-pro:wódʰ-s ~ *wédʰ-s#1?", "cause": "missed: vas's *uodʰ‑s is *wódʰ-s ~ *wédʰ-s", "check": "lila-3-v4", "record": "lila-edl:etymon/pie1327", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:wl̥néh₃ti#1?", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pie1335", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:h₂wéh₁n̥ts#1", "cause": null, "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pie1344", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": false}
 {"among": ["wiktionary:ine-pro:werdʰom#1", "wiktionary:ine-pro:wér-dʰe-ti#1?"], "cause": "lost a right candidate: *uerh₁‑dʰh₁‑o‑ is *werdʰom", "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pie1349", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:werdʰom#1", "cause": null, "check": "lila-3-v4-trial2", "record": "lila-edl:etymon/pie1349", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:wérsēn#1", "cause": null, "check": "lila-3-v4-trial2", "record": "lila-edl:etymon/pie1353", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:ine-pro:wértetor#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pie1356", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:ine-pro:wéstis#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pie1366", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:weth₂-#1", "cause": null, "check": "lila-3", "record": "lila-edl:etymon/pie1367", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
+{"candidate": "wiktionary:ine-pro:wip-rós#1?", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pie1371", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:ine-pro:wík-s#1?", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pie1372", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:ine-pro:weyḱ-#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pie1374", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:wid-éh₁-yeti#1?", "cause": null, "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pie1375", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:h₁widʰéwh₂#1", "cause": "another formation: the adjective *h₁ui‑dʰh₁‑eu‑o‑ (viduus) against the noun *h₁widʰéwh₂ 'widow'", "check": "lila-3-linkage", "record": "lila-edl:etymon/pie1376", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": false}
+{"candidate": "wiktionary:ine-pro:wi-né-k-ti ~ *wi-n-k-énti#1?", "cause": "missed: vinciō's nasal present *ui‑n‑k‑ is *wi-né-k-ti", "check": "lila-3-v4", "record": "lila-edl:etymon/pie1381", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"among": ["wiktionary:ine-pro:weyh₁-neh₂#1?", "wiktionary:ine-pro:weyh₁-no-#1?"], "cause": null, "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pie1383", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:wisgéh₂#1?", "cause": null, "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pie1388", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:gʷíh₃weti#1", "cause": null, "check": "lila-3-v4-trial2", "record": "lila-edl:etymon/pie1397", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
@@ -259,6 +295,7 @@
 {"among": ["wiktionary:ine-pro:ḱr̥s-ó-s#1?", "wiktionary:ine-pro:ḱr̥sós#1"], "cause": "lost the right candidates *ḱr̥sós (currus): de Vaan writes **krs‑o‑ with plain k", "check": "lila-3-ancestry", "record": "lila-edl:etymon/pie1457", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
 {"candidate": "wiktionary:ine-pro:deḱm̥tós#1?", "cause": null, "check": "lila-3-v4-trial2", "record": "lila-edl:etymon/pie1458", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:dl̥h₁-yé-ti#1?", "cause": null, "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pie1464", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:ine-pro:ǵneh₃-ri-#1?", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pie1475", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"among": ["wiktionary:ine-pro:h₁énteros#1", "wiktionary:ine-pro:h₂énteros#1"], "cause": null, "check": "lila-3-v4-trial2", "record": "lila-edl:etymon/pie1478", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:legʰ-to-s#1?", "cause": "another stem: the tu-stem *legʰ‑tu‑ (lectus 'bed') against the to-adjective *legʰ-to-s", "check": "lila-3-linkage", "record": "lila-edl:etymon/pie1485", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": false}
 {"among": ["wiktionary:ine-pro:lowk-éye-ti#1?", "wiktionary:ine-pro:lowkéyeti#1"], "cause": null, "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pie1490", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
@@ -268,9 +305,11 @@
 {"candidate": "wiktionary:ine-pro:kʷtwr̥-#1", "cause": null, "check": "lila-3-v4-trial2", "record": "lila-edl:etymon/pie1527", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": false}
 {"candidate": "wiktionary:ine-pro:ksow-éye-ti#1?", "cause": null, "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pie1537", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:septḿ̥#1", "cause": null, "check": "lila-3-v4-trial2", "record": "lila-edl:etymon/pie1541", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": false}
+{"candidate": "wiktionary:ine-pro:speḱ-#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pie1550", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:stnéh₂ti#1", "cause": null, "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pie1551", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:suh₂d-éye-ti#1?", "cause": null, "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pie1557", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:upér#1", "cause": null, "check": "lila-3-v4-trial2", "record": "lila-edl:etymon/pie1559", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": false}
+{"candidate": "wiktionary:ine-pro:sh₂ltós#1?", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pie1562", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:ine-pro:tri-#1", "cause": null, "check": "lila-3-v4-trial2", "record": "lila-edl:etymon/pie1569", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": false}
 {"candidate": "wiktionary:ine-pro:uh₂dʰ-om#1?", "cause": null, "check": "lila-3", "record": "lila-edl:etymon/pie1574", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
 {"among": ["wiktionary:ine-pro:woǵ-éye-ti#1?", "wiktionary:ine-pro:woǵéyeti#1"], "cause": null, "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pie1575", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
@@ -285,9 +324,16 @@
 {"candidate": "wiktionary:itc-pro:anats#1", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pit0046", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:amβikʷolos#1?", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pit0047", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:angos#1?", "cause": null, "check": "lila-3-v4-trial2", "record": "lila-edl:etymon/pit0049", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": false}
+{"candidate": "wiktionary:itc-pro:anɣō#1?", "cause": "missed: angō's *ange/o‑ is *anɣō (Wiktionary's ɣ for g)", "check": "lila-3-v4", "record": "lila-edl:etymon/pit0049", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:itc-pro:angulos#1?", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pit0051", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:api-#1?", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:etymon/pit0064", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
 {"candidate": "wiktionary:itc-pro:apjō#1?", "cause": "*ap‑(e)i‑ (apīscor) took the verb *apjō, which shares its reflex, over *api-, judged its match, which shares its ancestor: a shared reflex outranks a shared ancestor", "check": "lila-3-linkage", "record": "lila-edl:etymon/pit0064", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": false}
+{"candidate": "wiktionary:itc-pro:arkeō#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pit0070", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:itc-pro:ariēts#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pit0077", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:itc-pro:armos#1?", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pit0079", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:itc-pro:araō#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pit0080", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:auzom#1", "cause": null, "check": "lila-3", "record": "lila-edl:etymon/pit0098", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
+{"candidate": "wiktionary:itc-pro:austeros#1?", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pit0099", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:dwenos#1", "cause": null, "check": "lila-3", "record": "lila-edl:etymon/pit0117", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
 {"candidate": "wiktionary:itc-pro:kak(k)āō#1?", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pit0122", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:kailom#1", "cause": null, "check": "lila-3", "record": "lila-edl:etymon/pit0127", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
@@ -299,6 +345,8 @@
 {"candidate": "wiktionary:itc-pro:klādēs#1?", "cause": "lost a right match: *klādē‑ is *klādēs", "check": "lila-3-v4-trial2", "record": "lila-edl:etymon/pit0210", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:kneiɣʷēō#1", "cause": null, "check": "lila-3", "record": "lila-edl:etymon/pit0238", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
 {"candidate": "wiktionary:itc-pro:kornū#1", "cause": null, "check": "lila-3", "record": "lila-edl:etymon/pit0251", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
+{"candidate": "wiktionary:itc-pro:kriznis#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pit0271", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:itc-pro:koinā#1?", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pit0291", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:dekəm#1", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pit0308", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:dekēt#1", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pit0309", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:diskō#1", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pit0323", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
@@ -311,23 +359,31 @@
 {"candidate": "wiktionary:itc-pro:feβros#1?", "cause": null, "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pit0411", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:fuiō#1", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pit0419", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:flūō#1", "cause": "lost a right match: *flow‑e/o‑ is *flūō", "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pit0431", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:itc-pro:for(i)dā#1?", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pit0438", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:foris#1", "cause": "lost a right match: *fwor‑(i‑) is *foris", "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pit0441", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:forom#1", "cause": "lost a right match: *fworo‑ is *forom", "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pit0449", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:frakēs#1?", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pit0451", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:itc-pro:frātēr#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pit0455", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:frios#1?", "cause": null, "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pit0463", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": false}
 {"candidate": "wiktionary:itc-pro:folgēō#1?", "cause": null, "check": "lila-3-v4-trial2", "record": "lila-edl:etymon/pit0470", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:fuzwos#1?", "cause": null, "check": "lila-3", "record": "lila-edl:etymon/pit0479", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
 {"candidate": "wiktionary:itc-pro:fuskos#1?", "cause": null, "check": "lila-3", "record": "lila-edl:etymon/pit0480", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
+{"candidate": "wiktionary:itc-pro:gnōriā#1?", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pit0500", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:itc-pro:grāmen#1?", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pit0507", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:gʷordos#1?", "cause": null, "check": "lila-3", "record": "lila-edl:etymon/pit0520", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
 {"candidate": "wiktionary:itc-pro:haβēō#1", "cause": null, "check": "lila-3", "record": "lila-edl:etymon/pit0522", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
+{"candidate": "wiktionary:itc-pro:ho#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pit0534", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:horzdeom#1?", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pit0540", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:hostipotis#1", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pit0544", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:jānos#1?", "cause": "another stem: de Vaan's u-stem *jānu‑ (iānus) against the o-stem *jānos", "check": "lila-3-linkage", "record": "lila-edl:etymon/pit0550", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": false}
 {"candidate": "wiktionary:itc-pro:iðei#1", "cause": null, "check": "lila-3", "record": "lila-edl:etymon/pit0551", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
 {"candidate": "wiktionary:itc-pro:engʷnis#1", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pit0555", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"among": ["wiktionary:itc-pro:en#1", "wiktionary:itc-pro:en-#1"], "cause": null, "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pit0561", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:itc-pro:steigō#1?", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pit0572", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:itc-pro:e(s)peso#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pit0579", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:dju-βās#1?", "cause": "lost a right match: *dju‑faos is *dju-βās", "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pit0588", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:juwenkos#1", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pit0597", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:itc-pro:juwō#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pit0598", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:iow-#1?", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pit0599", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:jougestos#1?", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pit0600", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:lakeros#1?", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pit0603", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
@@ -344,10 +400,12 @@
 {"candidate": "wiktionary:itc-pro:(w)likʷēō#1?", "cause": null, "check": "lila-3-v4-trial2", "record": "lila-edl:etymon/pit0653", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:slīwēō#1?", "cause": "another formation: the o-stem adjective *(s)leiwo‑ (līvidus) against the stative verb *slīwēō", "check": "lila-3-linkage", "record": "lila-edl:etymon/pit0657", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": false}
 {"candidate": "wiktionary:itc-pro:liksos#1?", "cause": null, "check": "lila-3-v4-trial2", "record": "lila-edl:etymon/pit0658", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:itc-pro:luklom#1?", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pit0662", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:luktos#1?", "cause": null, "check": "lila-3", "record": "lila-edl:etymon/pit0663", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
 {"candidate": "wiktionary:itc-pro:louk-#1?", "cause": "the root *louk- rather than lūx's noun *louks", "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pit0676", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": false}
 {"candidate": "wiktionary:itc-pro:medēōr#1", "cause": null, "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pit0705", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:mentis#1", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pit0713", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:itc-pro:mēns#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pit0715", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:məntom#1?", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pit0716", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:meselā#1?", "cause": "lost a right match: *mesVlā‑ is *meselā", "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pit0721", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:Menezwā#1", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pit0735", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
@@ -356,27 +414,39 @@
 {"candidate": "wiktionary:itc-pro:mordeō#1", "cause": null, "check": "lila-3", "record": "lila-edl:etymon/pit0753", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
 {"among": ["wiktionary:itc-pro:ne#1", "wiktionary:itc-pro:nē#1"], "cause": null, "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pit0786", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"among": ["wiktionary:itc-pro:ne#1", "wiktionary:itc-pro:nē#1"], "cause": null, "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pit0788", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:itc-pro:nei#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pit0798", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:knīdōs#1?", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pit0799", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:(s)nāō#1", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pit0805", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:gnōskō#1", "cause": null, "check": "lila-3-v4-trial2", "record": "lila-edl:etymon/pit0809", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:nown̥#1", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pit0811", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:kelōs#1?", "cause": null, "check": "lila-3-v4-trial2", "record": "lila-edl:etymon/pit0828", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": false}
+{"candidate": "wiktionary:itc-pro:okris#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pit0830", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:odō#1?", "cause": null, "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pit0834", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:onos#1", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pit0839", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:itc-pro:orβos#1?", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pit0849", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:ordō#1?", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pit0851", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:itc-pro:palamā#1?", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pit0864", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:pandō#1", "cause": null, "check": "lila-3-v4-trial2", "record": "lila-edl:etymon/pit0867", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:parezā#1", "cause": "lost a right match: *parVsā‑ is *parezā", "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pit0876", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:itc-pro:pauros#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pit0878", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:patos#1?", "cause": "another formation: the verb stem *pat‑i‑ (patior) against the participle *patos", "check": "lila-3-linkage", "record": "lila-edl:etymon/pit0883", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": false}
 {"candidate": "wiktionary:itc-pro:pawoparos#1?", "cause": null, "check": "lila-3", "record": "lila-edl:etymon/pit0885", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
 {"candidate": "wiktionary:itc-pro:peznis#1?", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pit0899", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:per#1", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pit0902", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:itc-pro:persnā#1?", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pit0905", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:itc-pro:petō#1?", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pit0910", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:pīos#1", "cause": null, "check": "lila-3-v4-trial2", "record": "lila-edl:etymon/pit0919", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:itc-pro:piks#1?", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pit0920", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:plāngō#1?", "cause": null, "check": "lila-3", "record": "lila-edl:etymon/pit0922", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
+{"candidate": "wiktionary:itc-pro:plānos#1?", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pit0924", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:plēō#1", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:etymon/pit0929", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
 {"candidate": "wiktionary:itc-pro:plouksmā#1?", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pit0931", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:plēōs#1", "cause": null, "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pit0934", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:itc-pro:poln-#1?", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pit0939", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:itc-pro:porkos#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pit0950", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"among": ["wiktionary:itc-pro:prai#1", "wiktionary:itc-pro:prai-#1", "wiktionary:itc-pro:prāi#1?"], "cause": null, "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pit0959", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:stōlo-#1?", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:etymon/pit0960", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
+{"candidate": "wiktionary:itc-pro:prijos#1?", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pit0967", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"among": ["wiktionary:itc-pro:pro-#1", "wiktionary:itc-pro:prō#1"], "cause": null, "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pit0969", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:plumō#1?", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pit0986", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:poimeks#1?", "cause": "lost a right match: *poim‑Vk‑ is *poimeks", "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pit0990", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
@@ -385,6 +455,7 @@
 {"candidate": "wiktionary:itc-pro:razdō#1?", "cause": null, "check": "lila-3", "record": "lila-edl:etymon/pit1011", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
 {"candidate": "wiktionary:itc-pro:rē(z)mos#1?", "cause": null, "check": "lila-3", "record": "lila-edl:etymon/pit1023", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
 {"candidate": "wiktionary:itc-pro:regō#1?", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:etymon/pit1032", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": false}
+{"candidate": "wiktionary:itc-pro:ruðros#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pit1048", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:sekaō#1", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pit1102", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:sentiō#1", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pit1111", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:sēros#1?", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:etymon/pit1122", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
@@ -398,6 +469,7 @@
 {"candidate": "wiktionary:itc-pro:supemos#1?", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pit1213", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"among": ["wiktionary:itc-pro:(s)taðlā#1?", "wiktionary:itc-pro:taðlā#1"], "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:etymon/pit1221", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
 {"candidate": "wiktionary:itc-pro:taðlā#1", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pit1221", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:itc-pro:tendō#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pit1238", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:temazros#1?", "cause": "another stem: the ā-stem *temasrā‑ (tenebrae) against the o-stem adjective *temazros", "check": "lila-3-linkage", "record": "lila-edl:etymon/pit1239", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": false}
 {"candidate": "wiktionary:itc-pro:tūβos#1?", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pit1254", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:tongeō#1?", "cause": null, "check": "lila-3", "record": "lila-edl:etymon/pit1259", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
@@ -406,7 +478,9 @@
 {"candidate": "wiktionary:itc-pro:troudō#1", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pit1274", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:ouðer#1?", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pit1281", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:ūmo-#1?", "cause": null, "check": "lila-3", "record": "lila-edl:etymon/pit1290", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
+{"candidate": "wiktionary:itc-pro:omesos#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pit1291", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:kʷom#1", "cause": null, "check": "lila-3-v4-trial2", "record": "lila-edl:etymon/pit1292", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:itc-pro:ongʷō#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pit1297", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:wogeō#1?", "cause": null, "check": "lila-3-v4-trial", "record": "lila-edl:etymon/pit1333", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:welō#1", "cause": "vowel length is not compared: de Vaan's stem *wēlo‑ (for vēlōx) took the verb *welō 'to want'; Wiktionary derives vēlōx from *h₂weh₁‑, and no cited reflex is shared", "check": "lila-3", "record": "lila-edl:etymon/pit1336", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": false}
 {"candidate": "wiktionary:itc-pro:wē̆ntos#1", "cause": null, "check": "lila-3", "record": "lila-edl:etymon/pit1344", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
@@ -416,51 +490,91 @@
 {"candidate": "wiktionary:itc-pro:wīkəntī#1", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pit1379", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:wiks#1?", "cause": null, "check": "lila-3", "record": "lila-edl:etymon/pit1398", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
 {"candidate": "wiktionary:itc-pro:feiðō#1", "cause": null, "check": "lila-3", "record": "lila-edl:etymon/pit1455", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
+{"candidate": "wiktionary:itc-pro:gāwiðos#1?", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pit1459", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:itc-pro:glouβ(s)mā#1?", "cause": null, "check": "lila-3-v4", "record": "lila-edl:etymon/pit1460", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:itc-pro:pāzēō#1", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:etymon/pit1465", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": false}
 {"candidate": "wiktionary:itc-pro:kʷī#1?", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:etymon/pit1469", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": false}
 {"candidate": "wiktionary:itc-pro:wōks#1", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:etymon/pit1589", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:la:acerbus#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:la0011", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:la:acus#2", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la0016", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
+{"among": ["wiktionary:la:amma#1", "wiktionary:la:amma#2"], "cause": "de Vaan's etymons are the ancestors of this homograph", "check": "lila-3-v4", "record": "lila-edl:la0061", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:la:amma#1", "cause": "de Vaan's etymons are the ancestors of this homograph", "check": "lila-3-v4", "record": "lila-edl:la0061", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:la:amō#1", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la0063", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
 {"candidate": "wiktionary:la:anculus#1", "cause": null, "check": "lila-3", "record": "lila-edl:la0070", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
+{"candidate": "wiktionary:la:arguō#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:la0107", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:la:artus#1", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la0113", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
 {"candidate": "wiktionary:la:artus#2", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la0114", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
 {"candidate": "wiktionary:la:at#1", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la0128", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
 {"candidate": "wiktionary:la:aveō#1", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la0145", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
+{"among": ["wiktionary:la:barba#1", "wiktionary:la:barba#2"], "cause": "de Vaan's etymons are the ancestors of this homograph", "check": "lila-3-v4", "record": "lila-edl:la0158", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:la:barba#1", "cause": "de Vaan's etymons are the ancestors of this homograph", "check": "lila-3-v4", "record": "lila-edl:la0158", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"among": ["wiktionary:la:brevis#1", "wiktionary:la:brevis#4"], "cause": "de Vaan's etymons are the ancestors of this homograph", "check": "lila-3-v4", "record": "lila-edl:la0175", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:la:brevis#1", "cause": "de Vaan's etymons are the ancestors of this homograph", "check": "lila-3-v4", "record": "lila-edl:la0175", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:la:caelum#1", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la0191", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
 {"candidate": "wiktionary:la:callis#1", "cause": null, "check": "lila-3", "record": "lila-edl:la0204", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
 {"candidate": "wiktionary:la:calō#1", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la0206", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
 {"candidate": "wiktionary:la:calvus#1", "cause": null, "check": "lila-3", "record": "lila-edl:la0209", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
 {"candidate": "wiktionary:la:capiō#1", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la0220", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
+{"among": ["wiktionary:la:carō#1", "wiktionary:la:carō#2"], "cause": "de Vaan's etymons are the ancestors of this homograph", "check": "lila-3-v4", "record": "lila-edl:la0233", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:la:carō#1", "cause": "de Vaan's etymons are the ancestors of this homograph", "check": "lila-3-v4", "record": "lila-edl:la0233", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:la:carpō#1", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la0235", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
+{"candidate": "wiktionary:la:cāseus#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:la0240", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:la:catus#1", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la0249", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
 {"candidate": "wiktionary:la:-ce#1", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la0259", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
+{"among": ["wiktionary:la:-ceps#1", "wiktionary:la:-ceps#2"], "cause": "de Vaan's etymons are the ancestors of this homograph", "check": "lila-3-v4", "record": "lila-edl:la0274", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:la:-ceps#2", "cause": "de Vaan's etymons are the ancestors of this homograph", "check": "lila-3-v4", "record": "lila-edl:la0274", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:la:cernō#1", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la0279", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
+{"candidate": "wiktionary:la:cervus#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:la0283", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:la:coquō#1", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la0354", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
+{"candidate": "wiktionary:la:corium#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:la0359", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:la:coxa#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:la0372", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:la:crābrō#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:la0373", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:la:crūs#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:la0394", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:la:cūdō#1", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la0401", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
 {"candidate": "wiktionary:la:cuius#3", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la0402", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
 {"candidate": "wiktionary:la:cum#2", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la0410", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
 {"candidate": "wiktionary:la:cumulus#1", "cause": null, "check": "lila-3", "record": "lila-edl:la0412", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
 {"candidate": "wiktionary:la:discō#1", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la0458", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
+{"among": ["wiktionary:la:dolō#1", "wiktionary:la:dolō#2", "wiktionary:la:dolō#3"], "cause": "de Vaan's etymons are the ancestors of this homograph", "check": "lila-3-v4", "record": "lila-edl:la0468", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:la:dolō#1", "cause": "de Vaan's etymons are the ancestors of this homograph", "check": "lila-3-v4", "record": "lila-edl:la0468", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:la:dolus#1", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la0469", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
 {"candidate": "wiktionary:la:domō#1", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la0471", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
 {"candidate": "wiktionary:la:dūrus#1", "cause": null, "check": "lila-3", "record": "lila-edl:la0483", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
 {"candidate": "wiktionary:la:en#3", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la0494", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
 {"candidate": "wiktionary:la:eō#1", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la0499", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
+{"among": ["wiktionary:la:errō#1", "wiktionary:la:errō#2"], "cause": "de Vaan's etymons are the ancestors of this homograph", "check": "lila-3-v4", "record": "lila-edl:la0505", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:la:errō#1", "cause": "de Vaan's etymons are the ancestors of this homograph", "check": "lila-3-v4", "record": "lila-edl:la0505", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:la:ex#1", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la0510", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
 {"candidate": "wiktionary:la:exsul#1", "cause": null, "check": "lila-3", "record": "lila-edl:la0512", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
+{"candidate": "wiktionary:la:fateor#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:la0533", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:la:fatīgō#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:la0534", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:la:ferō#1", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la0560", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
 {"candidate": "wiktionary:la:fētus#1", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la0569", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
 {"candidate": "wiktionary:la:firmus#1", "cause": null, "check": "lila-3", "record": "lila-edl:la0583", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
 {"candidate": "wiktionary:la:foedus#2", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la0602", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
+{"among": ["wiktionary:la:forō#1", "wiktionary:la:forō#2"], "cause": "de Vaan's etymons are the ancestors of this homograph", "check": "lila-3-v4", "record": "lila-edl:la0618", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:la:forō#1", "cause": "de Vaan's etymons are the ancestors of this homograph", "check": "lila-3-v4", "record": "lila-edl:la0618", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:la:fors#1", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la0619", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
 {"candidate": "wiktionary:la:fortis#1", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la0620", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
+{"among": ["wiktionary:la:fūcus#1", "wiktionary:la:fūcus#2"], "cause": "de Vaan's etymons are the ancestors of this homograph", "check": "lila-3-v4", "record": "lila-edl:la0645", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:la:fūcus#2", "cause": "de Vaan's etymons are the ancestors of this homograph", "check": "lila-3-v4", "record": "lila-edl:la0645", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:la:fugiō#1", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la0646", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
+{"candidate": "wiktionary:la:fuī#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:la0647", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:la:fundō#1", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la0656", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
+{"candidate": "wiktionary:la:genū̆#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:la0685", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"among": ["wiktionary:la:gnāvus#1", "wiktionary:la:nāvus#1"], "cause": "spellings of one word", "check": "lila-3-v4", "record": "lila-edl:la0707", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:la:gustus#1", "cause": null, "check": "lila-3", "record": "lila-edl:la0730", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
+{"among": ["wiktionary:la:arundō#1", "wiktionary:la:harundō#1"], "cause": "spellings of one word", "check": "lila-3-v4", "record": "lila-edl:la0741", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:la:helluō#1", "cause": null, "check": "lila-3", "record": "lila-edl:la0748", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
 {"candidate": "wiktionary:la:helvus#1", "cause": null, "check": "lila-3", "record": "lila-edl:la0749", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
 {"candidate": "wiktionary:la:horreō#1", "cause": null, "check": "lila-3", "record": "lila-edl:la0769", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
 {"candidate": "wiktionary:la:humus#1", "cause": null, "check": "lila-3", "record": "lila-edl:la0775", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
+{"candidate": "wiktionary:la:ianitrīcēs#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:la0778", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:la:ibī̆#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:la0780", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"among": ["wiktionary:la:ignōrō#1", "wiktionary:la:ignōrō#2"], "cause": "de Vaan's etymons are the ancestors of this homograph", "check": "lila-3-v4", "record": "lila-edl:la0789", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:la:ignōrō#1", "cause": "de Vaan's etymons are the ancestors of this homograph", "check": "lila-3-v4", "record": "lila-edl:la0789", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"among": ["wiktionary:la:īmus#1", "wiktionary:la:īmus#2"], "cause": "de Vaan's etymons are the ancestors of this homograph", "check": "lila-3-v4", "record": "lila-edl:la0798", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:la:īmus#1", "cause": "de Vaan's etymons are the ancestors of this homograph", "check": "lila-3-v4", "record": "lila-edl:la0798", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:la:in-#1", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la0800", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
 {"candidate": "wiktionary:la:iūs#2", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la0838", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
 {"candidate": "wiktionary:la:iūs#1", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la0839", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
@@ -468,6 +582,8 @@
 {"candidate": "wiktionary:la:legō#1", "cause": null, "check": "lila-3", "record": "lila-edl:la0884", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
 {"candidate": "wiktionary:la:lēnis#1", "cause": null, "check": "lila-3", "record": "lila-edl:la0886", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
 {"candidate": "wiktionary:la:lēvir#1", "cause": null, "check": "lila-3", "record": "lila-edl:la0895", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
+{"among": ["wiktionary:la:licet#1", "wiktionary:la:licet#2"], "cause": "de Vaan's etymons are the ancestors of this homograph", "check": "lila-3-v4", "record": "lila-edl:la0904", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:la:licet#1", "cause": "de Vaan's etymons are the ancestors of this homograph", "check": "lila-3-v4", "record": "lila-edl:la0904", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:la:liēn#1", "cause": null, "check": "lila-3", "record": "lila-edl:la0906", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
 {"candidate": "wiktionary:la:ligō#2", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la0908", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
 {"among": ["wiktionary:la:līmus#2", "wiktionary:la:līmus#3"], "cause": null, "check": "lila-3-linkage", "record": "lila-edl:la0914", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
@@ -475,59 +591,120 @@
 {"candidate": "wiktionary:la:līvidus#1", "cause": null, "check": "lila-3", "record": "lila-edl:la0929", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
 {"candidate": "wiktionary:la:lixa#1", "cause": null, "check": "lila-3-v4-trial", "record": "lila-edl:la0930", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:la:lūdō#1", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la0942", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
+{"among": ["wiktionary:la:luō#1", "wiktionary:la:luō#2"], "cause": "de Vaan's etymons are the ancestors of this homograph", "check": "lila-3-v4", "record": "lila-edl:la0948", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:la:luō#1", "cause": "de Vaan's etymons are the ancestors of this homograph", "check": "lila-3-v4", "record": "lila-edl:la0948", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:la:lūridus#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:la0951", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:la:lū̆xus#1", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la0957", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
+{"among": ["wiktionary:la:mālus#2", "wiktionary:la:mālus#3"], "cause": "de Vaan's etymons are the ancestors of this homograph", "check": "lila-3-v4", "record": "lila-edl:la0969", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:la:mālus#3", "cause": "de Vaan's etymons are the ancestors of this homograph", "check": "lila-3-v4", "record": "lila-edl:la0969", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"among": ["wiktionary:la:mandō#2", "wiktionary:la:mandō#3"], "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la0973", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
 {"candidate": "wiktionary:la:mare#1", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la0979", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
+{"candidate": "wiktionary:la:mateola#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:la0984", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"among": ["wiktionary:la:mēnsa#1", "wiktionary:la:mēnsa#2"], "cause": "de Vaan's etymons are the ancestors of this homograph", "check": "lila-3-v4", "record": "lila-edl:la0999", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:la:mēnsa#1", "cause": "de Vaan's etymons are the ancestors of this homograph", "check": "lila-3-v4", "record": "lila-edl:la0999", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"among": ["wiktionary:la:meō#1", "wiktionary:la:meō#2"], "cause": "de Vaan's etymons are the ancestors of this homograph", "check": "lila-3-v4", "record": "lila-edl:la1002", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:la:meō#1", "cause": "de Vaan's etymons are the ancestors of this homograph", "check": "lila-3-v4", "record": "lila-edl:la1002", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:la:mīlle#1", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la1020", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
 {"candidate": "wiktionary:la:minor#1", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la1023", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
 {"candidate": "wiktionary:la:molō#1", "cause": null, "check": "lila-3", "record": "lila-edl:la1034", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
 {"candidate": "wiktionary:la:moneō#1", "cause": null, "check": "lila-3", "record": "lila-edl:la1035", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
+{"among": ["wiktionary:la:mundus#1", "wiktionary:la:mundus#2"], "cause": "de Vaan's etymons are the ancestors of this homograph", "check": "lila-3-v4", "record": "lila-edl:la1055", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:la:mundus#1", "cause": "de Vaan's etymons are the ancestors of this homograph", "check": "lila-3-v4", "record": "lila-edl:la1055", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:la:musca#1", "cause": null, "check": "lila-3", "record": "lila-edl:la1061", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
+{"among": ["wiktionary:la:mūtō#1", "wiktionary:la:mūtō#2"], "cause": "de Vaan's etymons are the ancestors of this homograph", "check": "lila-3-v4", "record": "lila-edl:la1065", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:la:mūtō#1", "cause": "de Vaan's etymons are the ancestors of this homograph", "check": "lila-3-v4", "record": "lila-edl:la1065", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:la:natis#1", "cause": null, "check": "lila-3", "record": "lila-edl:la1074", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
 {"candidate": "wiktionary:la:nē#1", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la1080", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
 {"candidate": "wiktionary:la:nē#2", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:la1080#prtcl", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"among": ["wiktionary:la:neō#1", "wiktionary:la:neō#2"], "cause": "de Vaan's etymons are the ancestors of this homograph", "check": "lila-3-v4", "record": "lila-edl:la1086", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:la:neō#1", "cause": "de Vaan's etymons are the ancestors of this homograph", "check": "lila-3-v4", "record": "lila-edl:la1086", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"among": ["wiktionary:la:nox#1", "wiktionary:la:nox#2"], "cause": "de Vaan's etymons are the ancestors of this homograph", "check": "lila-3-v4", "record": "lila-edl:la1114", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:la:nox#1", "cause": "de Vaan's etymons are the ancestors of this homograph", "check": "lila-3-v4", "record": "lila-edl:la1114", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:la:nūdus#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:la1117", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:la:omnis#1", "cause": null, "check": "lila-3", "record": "lila-edl:la1145", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
 {"candidate": "wiktionary:la:operiō#1", "cause": null, "check": "lila-3", "record": "lila-edl:la1148", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
 {"candidate": "wiktionary:la:ōrdior#1", "cause": null, "check": "lila-3", "record": "lila-edl:la1160", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
+{"candidate": "wiktionary:la:ōvum#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:la1170", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:la:pandō#1", "cause": null, "check": "lila-3-v4-trial", "record": "lila-edl:la1184", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"among": ["wiktionary:la:parcō#1", "wiktionary:la:parcō#2"], "cause": "de Vaan's etymons are the ancestors of this homograph", "check": "lila-3-v4", "record": "lila-edl:la1191", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:la:parcō#1", "cause": "de Vaan's etymons are the ancestors of this homograph", "check": "lila-3-v4", "record": "lila-edl:la1191", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"among": ["wiktionary:la:pariō#1", "wiktionary:la:pariō#2"], "cause": "de Vaan's etymons are the ancestors of this homograph", "check": "lila-3-v4", "record": "lila-edl:la1194", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:la:pariō#1", "cause": "de Vaan's etymons are the ancestors of this homograph", "check": "lila-3-v4", "record": "lila-edl:la1194", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:la:parō#1", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la1195", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
 {"candidate": "wiktionary:la:pateō#1", "cause": null, "check": "lila-3", "record": "lila-edl:la1202", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
+{"candidate": "wiktionary:la:pectus#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:la1213", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:la:pendō#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:la1221", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:la:perna#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:la1230", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:la:pessum#1", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la1235", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
+{"among": ["wiktionary:la:pīnsō#1", "wiktionary:la:pīnsō#2"], "cause": "de Vaan's etymons are the ancestors of this homograph", "check": "lila-3-v4", "record": "lila-edl:la1247", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:la:pīnsō#1", "cause": "de Vaan's etymons are the ancestors of this homograph", "check": "lila-3-v4", "record": "lila-edl:la1247", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:la:pix#1", "cause": null, "check": "lila-3", "record": "lila-edl:la1254", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
+{"candidate": "wiktionary:la:plaudō#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:la1260", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:la:po-#1", "cause": null, "check": "lila-3", "record": "lila-edl:la1274", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
 {"candidate": "wiktionary:la:poliō#1", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la1275", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
 {"candidate": "wiktionary:la:pōtus#1", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la1298", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
 {"candidate": "wiktionary:la:prae#1", "cause": null, "check": "lila-3", "record": "lila-edl:la1299", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
+{"candidate": "wiktionary:la:pruīna#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:la1322", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"among": ["wiktionary:la:pullus#1", "wiktionary:la:pullus#2"], "cause": "de Vaan's etymons are the ancestors of this homograph", "check": "lila-3-v4", "record": "lila-edl:la1330", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:la:pullus#1", "cause": "de Vaan's etymons are the ancestors of this homograph", "check": "lila-3-v4", "record": "lila-edl:la1330", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:la:pūs#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:la1342", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:la:putō#1", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la1345", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
+{"among": ["wiktionary:la:putus#1", "wiktionary:la:putus#2"], "cause": "de Vaan's etymons are the ancestors of this homograph", "check": "lila-3-v4", "record": "lila-edl:la1346", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:la:putus#1", "cause": "de Vaan's etymons are the ancestors of this homograph", "check": "lila-3-v4", "record": "lila-edl:la1346", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:la:quī#1", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la1355", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
 {"candidate": "wiktionary:la:quot#1", "cause": null, "check": "lila-3", "record": "lila-edl:la1360", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
+{"candidate": "wiktionary:la:rēmus#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:la1381", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:la:rīpa#1", "cause": null, "check": "lila-3", "record": "lila-edl:la1399", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
 {"candidate": "wiktionary:la:rōbus#1", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la1404", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
 {"candidate": "wiktionary:la:ruō#2", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la1422", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
+{"among": ["wiktionary:la:saliō#1", "wiktionary:la:saliō#2"], "cause": "de Vaan's etymons are the ancestors of this homograph", "check": "lila-3-v4", "record": "lila-edl:la1437", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:la:saliō#1", "cause": "de Vaan's etymons are the ancestors of this homograph", "check": "lila-3-v4", "record": "lila-edl:la1437", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:la:satis#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:la1450", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:la:scabō#1", "cause": null, "check": "lila-3", "record": "lila-edl:la1453", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
+{"candidate": "wiktionary:la:scapulae#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:la1458", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:la:sciō#1", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la1464", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
 {"candidate": "wiktionary:la:scirpus#1", "cause": null, "check": "lila-3", "record": "lila-edl:la1466", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
 {"candidate": "wiktionary:la:secus#1", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la1482", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
 {"candidate": "wiktionary:la:secus#2", "cause": null, "check": "lila-3-linkage", "record": "lila-edl:la1482#adv", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:la:serō#1", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la1496", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
 {"among": ["wiktionary:la:serō#2", "wiktionary:la:serō#3"], "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la1497", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
+{"candidate": "wiktionary:la:signum#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:la1514", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:la:situs#3", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la1529", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
+{"among": ["wiktionary:la:sonō#1", "wiktionary:la:sonō#2", "wiktionary:la:sonō#3"], "cause": "de Vaan's etymons are the ancestors of this homograph", "check": "lila-3-v4", "record": "lila-edl:la1545", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:la:sonō#1", "cause": "de Vaan's etymons are the ancestors of this homograph", "check": "lila-3-v4", "record": "lila-edl:la1545", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:la:sopor#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:la1547", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"among": ["wiktionary:la:sparus#1", "wiktionary:la:sparus#2"], "cause": "de Vaan's etymons are the ancestors of this homograph", "check": "lila-3-v4", "record": "lila-edl:la1556", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:la:sparus#1", "cause": "de Vaan's etymons are the ancestors of this homograph", "check": "lila-3-v4", "record": "lila-edl:la1556", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:la:stō#1", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la1588", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
 {"candidate": "wiktionary:la:suāsum#1", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la1600", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
+{"candidate": "wiktionary:la:sūdus#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:la1607", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:la:sulpur#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:la1613", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:la:sum#1", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la1614", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
 {"candidate": "wiktionary:la:summus#1", "cause": null, "check": "lila-3", "record": "lila-edl:la1615", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
 {"candidate": "wiktionary:la:suō#2", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la1616", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
 {"candidate": "wiktionary:la:tālus#1", "cause": null, "check": "lila-3", "record": "lila-edl:la1632", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
 {"candidate": "wiktionary:la:tendō#1", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la1648", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
 {"candidate": "wiktionary:la:tepeō#1", "cause": null, "check": "lila-3", "record": "lila-edl:la1653", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
+{"candidate": "wiktionary:la:terō#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:la1659", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:la:testis#1", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la1664", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
+{"candidate": "wiktionary:la:tingō#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:la1672", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:la:tonō#1", "cause": null, "check": "lila-3", "record": "lila-edl:la1680", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
+{"candidate": "wiktionary:la:ūber#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:la1716", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:la:ubī̆#1", "cause": null, "check": "lila-3", "record": "lila-edl:la1717", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
 {"candidate": "wiktionary:la:ulmus#1", "cause": null, "check": "lila-3", "record": "lila-edl:la1720", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
+{"among": ["wiktionary:la:uncus#1", "wiktionary:la:uncus#2"], "cause": "de Vaan's etymons are the ancestors of this homograph", "check": "lila-3-v4", "record": "lila-edl:la1730", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:la:uncus#1", "cause": "de Vaan's etymons are the ancestors of this homograph", "check": "lila-3-v4", "record": "lila-edl:la1730", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:la:urbs#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:la1738", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:la:uter#1", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la1747", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
 {"candidate": "wiktionary:la:uter#2", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la1748", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
+{"candidate": "wiktionary:la:venter#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:la1793", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:la:ventus#1", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la1794", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
 {"candidate": "wiktionary:la:vēnum#1", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la1795", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}
+{"candidate": "wiktionary:la:verbera#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:la1798", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:la:vergō#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:la1801", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"among": ["wiktionary:la:vertō#1", "wiktionary:la:vortō#1"], "cause": "spellings of one word", "check": "lila-3-v4", "record": "lila-edl:la1806", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"among": ["wiktionary:la:vetō#1", "wiktionary:la:votō#1"], "cause": "spellings of one word", "check": "lila-3-v4", "record": "lila-edl:la1820", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
+{"candidate": "wiktionary:la:vībicēs#1", "cause": null, "check": "lila-3-v4", "record": "lila-edl:la1825", "reviewer": "claude-opus-5-5 (model review, 2026-11-03)", "same": true}
 {"candidate": "wiktionary:la:vieō#1", "cause": null, "check": "lila-3", "record": "lila-edl:la1832", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
 {"candidate": "wiktionary:la:vīpera#1", "cause": null, "check": "lila-3", "record": "lila-edl:la1840", "reviewer": "claude-opus-5-5 (model review, 2026-11-01)", "same": true}
 {"candidate": "wiktionary:la:vireō#1", "cause": null, "check": "lila-3-ancestry", "record": "lila-edl:la1842", "reviewer": "claude-opus-5-5 (model review, 2026-11-02)", "same": true}

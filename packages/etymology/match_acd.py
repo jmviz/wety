@@ -749,7 +749,12 @@ class Matcher:
             return ("unmatched", "Wiktionary's words with this key have another shape", None)
         if not found:
             return ("unmatched", "no Wiktionary record with this key", None)
-        ok = [(w, b) for w, b, c in found if self.eligible(b, r["reconstructed"], c)]
+        # a pair a reviewer judged the same word needs no eligibility
+        ok = [
+            (w, b)
+            for w, b, c in found
+            if self.eligible(b, r["reconstructed"], c) or self.judgements.label(r["id"], w)
+        ]
         if not r["reconstructed"] and any(b.get("gloss", 1) > 0 for _, b in ok):
             ok = [(w, b) for w, b in ok if b.get("gloss", 1) > 0]
         if not ok:
@@ -856,6 +861,22 @@ class Matcher:
                 by_target[target][self.acd.records[rid]["form"]].append(rid)
         for target, groups in by_target.items():
             if len(groups) < 2:
+                continue
+            judged = [
+                f
+                for f, rids in groups.items()
+                if any(self.judgements.label(x, target) for x in rids)
+            ]
+            if judged:
+                # a reviewer's judgement decides between the ACD's records too
+                for form, rids in groups.items():
+                    if form not in judged:
+                        for x in rids:
+                            decisions[x] = (
+                                "unmatched",
+                                "another ACD record is judged its match",
+                                decisions[x][2],
+                            )
                 continue
             rank = {
                 form: max(self.rank(self.acd.records[x], target, decisions[x][2]) for x in rids)
