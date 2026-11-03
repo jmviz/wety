@@ -188,6 +188,18 @@ class Keys(unittest.TestCase):
         self.assertEqual(M.shape("porso-", False), "word")
         self.assertEqual(M.shape("-kelos", False), "affix")
 
+    def test_stem_classes(self):
+        def apart(a, b):
+            return not M.stem_classes(a, True) & M.stem_classes(b, False)
+
+        self.assertTrue(apart("*jānu‑", "jānos"))  # a u-stem, an o-stem
+        self.assertTrue(apart("*(s)leiwo‑", "slīwēō"))  # an adjective, a verb
+        self.assertFalse(apart("*lukʷo‑", "lukʷos"))
+        self.assertFalse(apart("*trem‑e/o‑", "tremō"))
+        self.assertFalse(apart("*ones‑", "onos"))  # an s-stem neuter in *‑os
+        self.assertFalse(apart("*kʷerkʷu/o‑", "kʷerkus"))  # either ending
+        self.assertFalse(apart("*uert‑e/o‑", "wértetor"))
+
     def test_latin_readings(self):
         self.assertEqual(M.latin_keys("ve/ortō", M.LATIN_NEAR), {"verto", "vorto"})
         self.assertIn("laevir", M.latin_keys("lēvir/laevir", M.LATIN_NEAR))
@@ -244,6 +256,20 @@ class Match(unittest.TestCase):
         (pair,) = self.matcher.etymon_pairs(record)
         self.assertEqual(pair[1], {"key": "close", "lineage": "a reflex shared"})
         self.assertEqual(pair[2]["key"], "different")
+
+    def test_judgements_decide_what_they_cover(self):
+        judgements = M.Judgements(
+            [
+                {"record": "lila-edl:la2", "candidate": "wiktionary:la:serō#2", "same": True},
+                {"record": "lila-edl:la1", "candidate": "wiktionary:la:lupus#1", "same": False},
+            ]
+        )
+        profiles = (M.LILA / "etc/orthography.tsv", M.WIKTIONARY_PROFILE)
+        m = M.Matcher(self.lila, self.wikt, *map(Profile.read, profiles), judgements, fit=False)
+        r = m.run()
+        self.assertEqual(r["lila-edl:la2"]["found"], ["wiktionary:la:serō#2"])
+        self.assertEqual(r["lila-edl:la1"]["found"], ["wiktionary:la:lupus#2"])
+        self.assertIn("lila-edl:la2", m.overridden)
 
     def test_a_stem_does_not_match_a_root(self):
         self.assertIsNone(self.results["lila-edl:etymon/pie2"])

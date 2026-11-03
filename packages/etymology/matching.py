@@ -19,6 +19,7 @@ import argparse
 import collections
 import json
 import math
+import random
 import subprocess
 from pathlib import Path
 
@@ -157,6 +158,32 @@ class Judgements:
         row = self.pairs.get((record, candidate))
         return None if row is None else row["same"]
 
+    def choose(self, record, candidates):
+        """What the judgements decide among a record's candidates: those judged the
+        record's word, or failing any, those of a judged set of candidates that holds
+        it; None when they decide nothing."""
+        same = [c for c in candidates if self.label(record, c)]
+        if same:
+            return sorted(same)
+        for row in self.among.get(record, []):
+            kept = sorted(set(row["among"]) & set(candidates))
+            if kept and len(kept) < len(candidates):
+                return kept
+        return None
+
+    def split(self, folds, seed):
+        """The judgements in `folds` parts by record, at random: [(training, held out)]."""
+        records = sorted({r["record"] for r in self.rows()})
+        random.Random(seed).shuffle(records)
+        part = {r: i % folds for i, r in enumerate(records)}
+        return [
+            (
+                Judgements(r for r in self.rows() if part[r["record"]] != k),
+                Judgements(r for r in self.rows() if part[r["record"]] == k),
+            )
+            for k in range(folds)
+        ]
+
     def verdict(self, record, found):
         """`right`, `wrong`, `missed` (no match where a match or a candidate set was judged
         right) or None (not judged)."""
@@ -208,6 +235,8 @@ class Judgements:
         hit = sum(outcome(results.get(r)) in self.same(r) for r in records if self.same(r))
         return {
             "judgements": len(self.pairs) + sum(map(len, self.among.values())),
+            "judged matches": judged_same,
+            "judged matches found": hit,
             "records judged": len(records),
             "by outcome": {k: dict(sorted(v.items())) for k, v in sorted(by.items())},
             "target precision": round(t["right"] / (t["right"] + t["wrong"]), 3)
@@ -224,6 +253,26 @@ class Judgements:
         ]
         rows += [self.pairs[(record, c)] for c in self.same(record)]
         return next((r["cause"] for r in rows if r and r.get("cause")), None)
+
+
+def pooled(scores):
+    """Held-out scores of several folds, added up."""
+    by = collections.defaultdict(collections.Counter)
+    for s in scores:
+        for shape, counts in s["by outcome"].items():
+            by[shape].update(counts)
+    t = by["target"]
+    judged_same = sum(s["judged matches"] for s in scores)
+    hit = sum(s["judged matches found"] for s in scores)
+    return {
+        "folds": len(scores),
+        "by outcome": {k: dict(sorted(v.items())) for k, v in sorted(by.items())},
+        "target precision": round(t["right"] / (t["right"] + t["wrong"]), 3)
+        if t["right"] + t["wrong"]
+        else None,
+        "recall of judged matches": round(hit / judged_same, 3) if judged_same else None,
+        "regressions": [r for s in scores for r in s["regressions"]],
+    }
 
 
 def harvest(path):

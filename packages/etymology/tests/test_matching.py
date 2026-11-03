@@ -45,6 +45,16 @@ class Judgements(unittest.TestCase):
         self.assertEqual(s["target precision"], 0.5)
         self.assertEqual({r["record"] for r in s["regressions"]}, {"r2", "r3"})
 
+    def test_choose_and_split(self):
+        self.assertEqual(self.j.choose("r1", ["w1", "w7"]), ["w1"])
+        self.assertEqual(self.j.choose("r3", ["w3", "w4", "w5"]), ["w3", "w4"])
+        self.assertIsNone(self.j.choose("r9", ["w1"]))
+        folds = self.j.split(2, 1)
+        self.assertEqual(sum(len(test.rows()) for _, test in folds), len(self.j.rows()))
+        for training, test in folds:
+            seen = {r["record"] for r in training.rows()}
+            self.assertFalse(seen & {r["record"] for r in test.rows()})
+
     def test_a_later_row_replaces_an_earlier(self):
         self.assertTrue(self.j.add(judged("r2", "w2", True)))
         self.assertFalse(self.j.add(judged("r2", "w2", True)))
