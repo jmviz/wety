@@ -7,6 +7,7 @@ from pathlib import Path
 
 from etymology import assertions as A
 from etymology import match_lila as M
+from etymology.notation import Distance
 from etymology.orthography import Profile
 from test_assertions import EXTRACTION
 
@@ -34,6 +35,19 @@ def lila_objects():
     pie = record("lila-edl@v1.0", "etymon/pie1", "*ulkʷo‑", "ine-pro", "Proto-Indo-European")
     stem = record("lila-edl@v1.0", "etymon/pie2", "*streu‑e/o‑", "ine-pro", "Proto-Indo-European")
     sero = record("lila-edl@v1.0", "la2", "serō", "la", "Latin")
+    lex = record("lila-edl@v1.0", "la3", "lēx", "la", "Latin")
+    leg = record("lila-edl@v1.0", "etymon/pit2", "*lēg‑", "itc-pro", "Proto-Italic")
+    h2 = A.hypothesis(
+        lex["id"],
+        [
+            {
+                "child": lex["id"],
+                "parents": [leg["id"]],
+                "relation": "derivation",
+                "mode": "inherited",
+            }
+        ],
+    )
     h = A.hypothesis(
         lupus["id"],
         [
@@ -60,7 +74,7 @@ def lila_objects():
         holder=agent["id"],
         extraction=EXTRACTION["id"],
     )
-    return [src, agent, EXTRACTION, lupus, pit, pie, stem, sero, h, a]
+    return [src, agent, EXTRACTION, lupus, pit, pie, stem, sero, lex, leg, h, h2, a]
 
 
 def wiktionary_lines():
@@ -84,12 +98,15 @@ def wiktionary_lines():
             ("ine-pro:strew-#1", "strew-", "ine-pro"),
             ("xum:tota#1", "tota", "xum"),
             ("itc-pro:touta#1", "toutā", "itc-pro"),
+            ("la:lēx#1", "lēx", "la"),
+            ("itc-pro:lēks#1", "lēks", "itc-pro"),
         )
     }
     links = [
         ("la:lupus#1", "itc-pro:lukʷos#1"),
         ("itc-pro:lukʷos#1", "ine-pro:wĺ̥kʷos#1"),
         ("xum:tota#1", "itc-pro:touta#1"),
+        ("la:lēx#1", "itc-pro:lēks#1"),
     ]
     hyps = [
         A.hypothesis(
@@ -120,7 +137,7 @@ def wiktionary_lines():
             ],
         )
         for h in hyps
-        if h["word"] != rec["itc-pro:lukʷos#1"]["id"]
+        if h["word"] not in (rec["itc-pro:lukʷos#1"]["id"], rec["la:lēx#1"]["id"])
     ]
     objs = [src, editors, EXTRACTION, edl, other, *rec.values(), *hyps, *asserts]
     return [json.dumps(o, ensure_ascii=False, separators=(",", ":")) + "\n" for o in objs]
@@ -185,7 +202,11 @@ class Match(unittest.TestCase):
             self.wikt = M.Wiktionary(path)
         self.lila = M.Lila(lila_objects())
         profiles = (M.LILA / "etc/orthography.tsv", M.WIKTIONARY_PROFILE)
-        self.matcher = M.Matcher(self.lila, self.wikt, *map(Profile.read, profiles))
+        # unfitted weights: five pairs teach EM nothing; a learnt cost for g against k
+        distance = Distance({("g", "k"): 0.2})
+        self.matcher = M.Matcher(
+            self.lila, self.wikt, *map(Profile.read, profiles), distance=distance, fit=False
+        )
         self.results = self.matcher.run()
 
     def test_scan_keeps_what_credits_de_vaan(self):
@@ -215,6 +236,15 @@ class Match(unittest.TestCase):
         self.assertNotIn("target", m)
         self.assertEqual(m["candidates"], ["wiktionary:la:serō#1", "wiktionary:la:serō#2"])
 
+    def test_lineage_finds_an_etymon_written_otherwise(self):
+        """lēx's target puts de Vaan's *lēg‑ at Wiktionary's *lēks, whose key differs."""
+        self.assertEqual(self.results["lila-edl:la3"]["found"], ["wiktionary:la:lēx#1"])
+        record = self.lila.records["lila-edl:etymon/pit2"]
+        self.assertEqual(self.matcher.structural(record), {"wiktionary:itc-pro:lēks#1"})
+        (pair,) = self.matcher.etymon_pairs(record)
+        self.assertEqual(pair[1], {"key": "close", "lineage": "a reflex shared"})
+        self.assertEqual(pair[2]["key"], "different")
+
     def test_a_stem_does_not_match_a_root(self):
         self.assertIsNone(self.results["lila-edl:etymon/pie2"])
 
@@ -228,7 +258,7 @@ class Match(unittest.TestCase):
         rule = {"type": "agent", "id": M.RULE, "kind": "rule", "name": "matcher"}
         made = [rule, *self.matcher.objects(EXTRACTION["id"]), *relays]
         pool = {o["id"]: o for o in [*self.lila.objs.values(), *self.wikt.objects(), *made]}
-        objs = list(M.closure(made, pool).values())
+        objs = list(M.closure(made, pool).objects.values())
         self.assertEqual(A.validate(objs), [])
 
 

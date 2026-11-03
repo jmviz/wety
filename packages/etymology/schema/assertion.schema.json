@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://wety.org/schema/etymology/assertion/3",
-  "title": "wety etymology assertions, v3",
+  "$id": "https://wety.org/schema/etymology/assertion/4",
+  "title": "wety etymology assertions, v4",
   "description": "One line of an assertions file (JSON Lines). Each line is one object, told apart by `type`. README.md beside this file says what each field means; cross-record rules (ids, references) are checked by etymology.assertions.",
   "oneOf": [
     {"$ref": "#/$defs/Source"},
@@ -408,7 +408,7 @@
           "type": "array",
           "minItems": 1,
           "uniqueItems": true,
-          "items": {"enum": ["parents", "relation", "mode", "hedge", "edition", "locator"]}
+          "items": {"enum": ["parents", "form", "relation", "mode", "hedge", "edition", "locator"]}
         }
       },
       "if": {"properties": {"agrees": {"const": false}}},

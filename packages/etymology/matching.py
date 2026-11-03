@@ -317,69 +317,90 @@ class Linkage:
     none. For a field and level, `m` is the probability of the level among pairs that
     stand for one word, `u` among pairs that do not; a pair's weight is the sum of
     log2(m/u) over its fields, and its probability follows from the prior. `fit` learns
-    m, u and the prior by EM from all candidate pairs, with judged pairs held at their
-    label. Fields must be roughly independent given the class: evidence that counts
-    the same thing twice (reflexes and ancestors both count matched lineage) belongs in
-    one field. A field's `missing` level (no evidence either way) starts at weight 0.
-    Unfitted, the weights fall evenly from the strongest level to the weakest."""
+    the weights and the prior by EM from all candidate pairs, with judged pairs held at
+    their label. EM alone may find another split of the pairs than "one word or not",
+    so the order of the levels binds it: a level's weight never exceeds a stronger
+    one's (pooled adjacent violators). Fields must be roughly independent given the
+    class: evidence that counts the same thing twice (reflexes and ancestors both count
+    matched lineage) belongs in one field. A field's `missing` level (no evidence either
+    way) is outside the order. Unfitted, the weights fall evenly from +1 to -1 bits, and
+    a missing level weighs 0."""
 
     SMOOTH = 0.5
 
     def __init__(self, fields, missing=None):
-        self.fields = fields
-        self.m, self.u = {}, {}
+        self.fields, self.missing = fields, missing or {}
+        self.w = {}
         for f, levels in fields.items():
-            graded = [lv for lv in levels if lv != (missing or {}).get(f)]
+            graded = self.graded(f)
             n = len(graded)
-            total = n * (n + 1) / 2
-            self.m[f] = {lv: (n - i) / total for i, lv in enumerate(graded)}
-            self.u[f] = {lv: (i + 1) / total for i, lv in enumerate(graded)}
-            if len(graded) < len(levels):
-                # as likely among matches as among non-matches, renormalised
-                self.m[f] = {lv: p * n / (n + 1) for lv, p in self.m[f].items()}
-                self.u[f] = {lv: p * n / (n + 1) for lv, p in self.u[f].items()}
-                self.m[f][missing[f]] = self.u[f][missing[f]] = 1 / (n + 1)
+            self.w[f] = {lv: 1 - 2 * i / (n - 1) if n > 1 else 0 for i, lv in enumerate(graded)}
+            self.w[f].update({lv: 0.0 for lv in levels if lv not in graded})
         self.prior = 0.5
 
+    def graded(self, f):
+        return [lv for lv in self.fields[f] if lv != self.missing.get(f)]
+
     def weight(self, features):
-        return sum(math.log2(self.m[f][lv] / self.u[f][lv]) for f, lv in features.items())
+        return sum(self.w[f][lv] for f, lv in features.items())
 
     def probability(self, features):
         w = self.weight(features) + math.log2(self.prior / (1 - self.prior))
         return 1 / (1 + 2**-w)
 
-    def fit(self, pairs, labels=None, iterations=100):
+    def fit(self, pairs, labels=None, iterations=100, label_weight=1):
         """`pairs` is a list of feature dicts, `labels` a parallel list of True, False or
-        None (not judged)."""
+        None (not judged); a judged pair counts `label_weight` times."""
+        if not pairs:
+            return self
         labels = labels or [None] * len(pairs)
+        n = [label_weight if lab is not None else 1 for lab in labels]
         for _ in range(iterations):
             g = [
                 1.0 if lab is True else 0.0 if lab is False else self.probability(p)
                 for p, lab in zip(pairs, labels)
             ]
-            total = sum(g)
+            total = sum(gi * ni for gi, ni in zip(g, n))
+            size = sum(n)
             for f, levels in self.fields.items():
-                mc = collections.Counter()
-                uc = collections.Counter()
-                for p, gi in zip(pairs, g):
-                    mc[p[f]] += gi
-                    uc[p[f]] += 1 - gi
+                mc, uc = collections.Counter(), collections.Counter()
+                for p, gi, ni in zip(pairs, g, n):
+                    mc[p[f]] += gi * ni
+                    uc[p[f]] += (1 - gi) * ni
                 ms = total + self.SMOOTH * len(levels)
-                us = len(pairs) - total + self.SMOOTH * len(levels)
-                self.m[f] = {lv: (mc[lv] + self.SMOOTH) / ms for lv in levels}
-                self.u[f] = {lv: (uc[lv] + self.SMOOTH) / us for lv in levels}
-            self.prior = min(max(total / len(pairs), 0.01), 0.99) if pairs else 0.5
+                us = size - total + self.SMOOTH * len(levels)
+                w = {
+                    lv: math.log2(((mc[lv] + self.SMOOTH) / ms) / ((uc[lv] + self.SMOOTH) / us))
+                    for lv in levels
+                }
+                graded = self.graded(f)
+                ordered = descending(
+                    [w[lv] for lv in graded], [mc[lv] + uc[lv] + 1 for lv in graded]
+                )
+                w.update(zip(graded, ordered))
+                self.w[f] = w
+            self.prior = min(max(total / size, 0.01), 0.99)
         return self
 
     def table(self):
         """The learnt weights, for a check's result."""
         return {
             "prior": round(self.prior, 3),
-            "weights": {
-                f: {lv: round(math.log2(self.m[f][lv] / self.u[f][lv]), 2) for lv in levels}
-                for f, levels in self.fields.items()
-            },
+            "weights": {f: {lv: round(w, 2) for lv, w in ws.items()} for f, ws in self.w.items()},
         }
+
+
+def descending(values, weights):
+    """The non-increasing sequence nearest `values` (least squares, `weights`): the pool
+    adjacent violators algorithm."""
+    blocks = []  # [mean, weight, length]
+    for v, w in zip(values, weights):
+        blocks.append([v, w, 1])
+        while len(blocks) > 1 and blocks[-2][0] < blocks[-1][0]:
+            v2, w2, n2 = blocks.pop()
+            v1, w1, n1 = blocks.pop()
+            blocks.append([(v1 * w1 + v2 * w2) / (w1 + w2), w1 + w2, n1 + n2])
+    return [v for v, _, n in blocks for _ in range(n)]
 
 
 def decide(scored, threshold, margin):

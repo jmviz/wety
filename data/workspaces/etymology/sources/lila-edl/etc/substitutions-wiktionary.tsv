@@ -1,0 +1,101 @@
+# de Vaan's comparison keys (LiLa) against Wiktionary's PIE and Proto-Italic ones, every ending cut. A bootstrap: the pairs are an exploratory v3 run's lineage alignments (key distance up to 0.34, a shared reflex), unreviewed; the next refresh mines lila-3-linkage/pairs.json.
+# Mined by etymology.notation from 358 pairs in data/workspaces/etymology/sources/lila-edl/checks/lila-3-linkage/bootstrap-pairs.json:
+# the differences between their closest keys. Cost 0.25 when seen 5 times or more;
+# ∅ is no character.
+From	To	Count	Cost	Examples
+∅	e	65	0.25	*h₂ens‑h₂‑ : h₂emseh₂; *h₂enHt‑h₂‑ : h₂énHteh₂; *h₂r(ḱ)‑h₂‑ : h₂erk-eh₂
+i	∅	33	0.25	*h₂enh₂‑ti‑ : h₂énh₂ts; *(s)keh₂u‑l‑i‑ : keh₂ulós; *dʰeh₁‑s‑io‑ : dʰéh₁s
+∅	i	32	0.25	*h₂eḱ‑eh₁‑ : h₂eḱ-éh₁-ye-ti; *ḱlh₁‑eh₁‑ : ḱl̥h₁-éh₁-ye-ti; *ḱns‑eh₁‑ : ḱn̥s-éh₁-ye-ti
+∅	H	18	0.25	*dʰeh₁‑l‑o‑ : dʰeh₁-l-éh₂; *bʰodʰ‑i‑ : bʰódʰh₂ey; *bʰori‑d‑ : bʰor-id-eh₂
+H	∅	17	0.25	*h₂elbʰ‑o- : albʰós; *h₂mbʰi‑kʷolh₁‑os : h₂m̥bʰikʷolós; *h₂erh₃‑ie/o‑ : h₂éryeti
+e	o	17	0.25	*h₂eu(‑)s‑ : h₂ṓws; *ǵen‑u : ǵónu; *iekʷ‑r/n‑ : yókʷr̥
+∅	t	17	0.25	*ḱred‑dʰeh₁‑ : ḱréddʰeh₁ti; *deuk‑e/o‑ : déwkti; *dʰi‑n‑ǵʰ‑ : dʰinéǵʰti
+o	e	14	0.25	*ḱerh₁/₃‑os : ḱer-ēs; *ḱloi‑uo‑ : ḱleywós; *ḱolh₂‑mo‑ : ḱélh₂m̥
+e	∅	13	0.25	*gʷeh₃‑u‑s : gʷṓws; *bʰleuH‑(e/o‑) : bʰluH-yé-ti; *ǵʰeh₁ro‑ + ‑ēd‑ : ǵʰeh₁ros
+u	∅	13	0.25	*kur‑u̯o‑ : (s)kr̥-wós; *d(e)uh₃‑ : deh₃-; *gʷʰrend(ʰ)‑e/o‑ : gʰréndʰ-(e)-ti
+a	∅	11	0.25	*ala‑ : alō; *frī̆‑ā‑ : frios; *lala : lālo-
+n	∅	10	0.25	*ḱuōn : ḱwṓ; *Gen(H)‑ : gem-; *plu‑mon‑ : pléwmō
+∅	a	10	0.25	*kak(k)‑ : kak(k)āō; *klowā‑ : kloākā; *fēlo‑ : fēlājō
+∅	o	9	0.25	*h₃d‑nt‑ : h₃dónts; *h₂mlǵ‑eie‑ : h₂molǵ-éye-ti; *mū̆s‑ko‑ : mows-ko-s
+o	∅	6	0.25	*ḱor(h₂)‑uo‑ : (s)kr̥-wós; *kruh₂‑ōs : kréwh₂s; *touh₂‑eie‑ : tuh₂-éh₁(ye)-ti
+t	∅	6	0.25	*gʷm‑ti‑ : gʷm̥yéti; *nebʰ‑tu‑ : nébʰos; *p(e)tḱ‑ : peḱ-
+s	∅	5	0.25	*tspērsn‑h₂‑ : tpḗrsneh₂; *sē̆h₂‑l‑s : sḗh₂l; *h₂stēr‑s : h₂stḗr
+d	t	4	0.4	*ambi‑drewo‑ : ambitruwō; *gʷland(i) : glānts; *la/eped‑ : lapets
+e	i	4	0.4	*bʰleuH‑(e/o‑) : bʰluH-yé-ti; *ǵeh₂u‑edʰ‑ : geh₂widʰh₁-os; *legno‑ : lignom
+k	∅	4	0.4	*prḱ‑sk‑e/o‑ : pr̥sḱéti; *dikske/o‑ : diskō; *ek + *ke : eks
+v	e	4	0.4	*jougVsto‑ : jougestos; *mesVlā‑ : meselā; *parVsā‑ : parezā
+H	o	3	0.55	*gʷeh₃‑u‑s : gʷṓws; *nHt‑ : not-; *h₃neh₃‑mn : h₁nómn̥
+b	f	3	0.55	*ambi : amβi-; *ambi‑k⁽ʷ⁾olo‑ : amβikʷolos; *skambno‑ : skaβnom
+d	∅	3	0.55	*dḱmtom : ḱm̥tóm; *ǵʰeh₁ro‑ + ‑ēd‑ : ǵʰeh₁ros; *dui‑dḱmt‑ih₁ : wídḱm̥ti
+e	u	3	0.55	*h₂eng‑(e)lo‑ : h₂éng-ul-(o-); *ambi‑drewo‑ : ambitruwō; *ang(e)lo‑ : angulos
+g	χ	3	0.55	*ange/o‑ : anɣō; *angʷ‑i‑ : anɣʷis; *worg‑eje/o‑ : worɣeō
+g	∅	3	0.55	*speig‑ : spey-; *frūg‑je/o‑ : frūjōr; *gʷo/erā‑ : worā
+n	m	3	0.55	*h₂ens‑h₂‑ : h₂emseh₂; *gene/o‑ : gemō; *ru‑n‑p‑ : rumpō
+o	H	3	0.55	*(s)kuot‑i‑ : (s)kuh₁t-yé-ti; *h₁ui‑dʰh₁‑eu‑o‑ : h₁widʰéwh₂; *eitor : eitər
+∅	k	3	0.55	*luk‑(e/o‑) : luk-s-ḱós; *sue(h₁‑)dʰh₁‑ : swe-dʰh₁-sḱ-; *wrād‑ī‑ : wrādīks
+∅	n	3	0.55	*l(e)ip‑o‑ : lip-nó-s; *Hh₃‑o/es‑ : Hh₃es-(e)no-s; *l(e)ipo‑ : lipnos
+∅	s	3	0.55	*luk‑(e/o‑) : luk-s-ḱós; *sue(h₁‑)dʰh₁‑ : swe-dʰh₁-sḱ-; *misro‑ : misseros
+∅	u	3	0.55	*se : swé; *ōk‑ : ōkus; *sol‑ē‑ : swoldēō
+d	b	2	0.7	*dʰolH‑io‑ : bʰol-yo-m; *dʰuh₂‑ie‑ : bʰuHyéti
+d	θ	2	0.7	*krezde/o‑ : krezðō; *londwo‑ : lonðwos
+e	H	2	0.7	*seh₂i‑tlo‑ : sh₂éytlom; *wīkentī : wīkəntī
+e	a	2	0.7	*h₂elbʰ‑o- : albʰós; *kele/o‑ : kalō
+g	k	2	0.7	*lēg‑ : lēks; *rēg‑ : rēks
+h	∅	2	0.7	*ḱiesdʰ‑ : ḱye-sd-é-ti; *(s)tr(o)sdʰo‑ : trosdos
+i	e	2	0.7	*Hriǵ‑(i)o‑ : h₃réǵeti; *fifro‑ : feβros
+k	g	2	0.7	**teḱ‑no‑ : teg-no-; *sekno‑ : segnom
+m	n	2	0.7	*g(e)mro‑ : genros; *sm‑kair/so‑ : senkairos
+m	∅	2	0.7	*u̯r(e)h₂‑(d‑)mo‑ : wréh₂ds; *skambno‑ : skaβnom
+s	r	2	0.7	*kates‑wā‑ : katerwā; *gnōsia : gnōriā
+t	k	2	0.7	*smatlo‑ : smaklom; *sai‑tlo‑ : saiklom
+∅	d	2	0.7	*dū : dūdom; *sol‑ē‑ : swoldēō
+∅	r	2	0.7	*ǵneh₃‑s‑ : ǵneh₃-ri-; *pig‑ē‑ : pigros
+∅	⁽	2	0.7	*gʷlh₂‑n‑d(ʰ)‑(i)‑ : gʷl̥h₂-nd⁽ʰ⁾-is; *ue‑k⁽ʷ⁾sp‑er‑o‑ : wek⁽ʷ⁾speros
+∅	⁾	2	0.7	*gʷlh₂‑n‑d(ʰ)‑(i)‑ : gʷl̥h₂-nd⁽ʰ⁾-is; *ue‑k⁽ʷ⁾sp‑er‑o‑ : wek⁽ʷ⁾speros
+H	a	1	0.85	*kh₂p‑i‑ : kapyéti
+H	e	1	0.85	*seh₂i‑tlo‑ : sh₂éytlom
+H	i	1	0.85	*skh₁‑i(e/o)‑ : ski-yé-ti
+H	u	1	0.85	*h₂u̯ŕ̥s‑en‑ : wérsēn
+a	e	1	0.85	*sup(a)mo‑ : supemos
+a	o	1	0.85	*gnāske‑ : gnōskō
+b	p	1	0.85	*ueib‑ : weyp-
+c	∅	1	0.85	*pelna‑C‑ : pelnō
+d	þ	1	0.85	*sīd/þos‑ : sīþos
+e	m	1	0.85	*plh₂‑em‑h₂‑ : pl̥h₂meh₂
+e	v	1	0.85	*kale/owo‑ : kalVwos
+f	b	1	0.85	*fafā‑ : fabā
+g	i	1	0.85	*agje/o‑ : ajjō
+g	n	1	0.85	*h₁legʷʰ‑u‑ : h₁léngʰus
+i	o	1	0.85	*ple/o(H)is : plēōs
+i	u	1	0.85	*ti(H) : túh₂
+k	s	1	0.85	*χe/irk‑to‑ : herztos
+l	n	1	0.85	*kē̆li/elā‑ : kelnā
+l	∅	1	0.85	*(ks)nowātlo‑ : (k)snow-ā-
+m	e	1	0.85	*plh₂‑em‑h₂‑ : pl̥h₂meh₂
+m	p	1	0.85	*h₁e/om‑o‑ : h₂epó
+m	t	1	0.85	*h₁éd‑mi : h₁édti
+n	i	1	0.85	*(H)uēnh₁‑ : weyh₁-
+o	a	1	0.85	*dom‑o/u‑no‑ : domanos
+p	H	1	0.85	*t(e)mp‑lo‑ : temh₁-lom
+p	a	1	0.85	*t(e)mp‑lo‑ : temalom
+p	t	1	0.85	*ḱrep‑ : kret-
+p	∅	1	0.85	*po‑sine/o‑ : sinō
+r	∅	1	0.85	*mēms‑ro‑ : mḗms
+s	i	1	0.85	*ǵneh₃‑s‑ : ǵneh₃-ri-
+t	s	1	0.85	*gʷrh₂‑u‑to‑ : gʷréh₂us
+u	a	1	0.85	*genu‑ : genā
+u	e	1	0.85	*h₂u̯ŕ̥s‑en‑ : wérsēn
+u	f	1	0.85	*χwormo‑ : formos
+u	g	1	0.85	*h₁legʷʰ‑u‑ : h₁léngʰus
+u	k	1	0.85	*klowā‑ : kloākā
+u	o	1	0.85	*kʷum : kʷom
+u	s	1	0.85	*h₃ngʰ‑u‑ : h₃nṓgʰs
+v	∅	1	0.85	*supV : supo
+θ	d	1	0.85	*nowo/eþo‑ : nogʷedos
+θ	f	1	0.85	*rouþos : rouβos
+θ	s	1	0.85	*aiþ‑ : aiss
+χ	∅	1	0.85	*χwormo‑ : formos
+∅	g	1	0.85	*nowo/eþo‑ : nogʷedos
+∅	h	1	0.85	*h₃r(e)ud‑H‑ : h₃rewH-dʰ(h₁)e-ti
+∅	x	1	0.85	*pusl‑ : puslex
+∅	χ	1	0.85	*wow‑eje/o‑ : woɣʷeō

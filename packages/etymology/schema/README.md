@@ -1,4 +1,4 @@
-# Etymology assertions, v3
+# Etymology assertions, v4
 
 Every etymological source enters wety as assertions in one schema,
 [`assertion.schema.json`](assertion.schema.json) (JSON Schema 2020-12). A source's
@@ -68,8 +68,12 @@ share an id only once their records are rewritten through matches.
 
 A `relay` links an assertion that credits a work (Wiktionary following de Vaan) to the
 work's own assertion, which wety reads directly; they stay two assertions. `agrees`
-false lists the `differences` (`parents`, `relation`, `mode`, `hedge`, `edition`,
-`locator`): Wiktionary misquotes the work or follows another version of it.
+false lists the `differences` (`parents`, `form`, `relation`, `mode`, `hedge`,
+`edition`, `locator`): Wiktionary misquotes the work or follows another version of it.
+`form` says that the two name the same parent, matched by lineage, but reconstruct it
+otherwise: a match whose `key` is `different` aligns two records that stand in the same
+place of a word's lineage, which is how two scholars' reconstructions of one word can
+be compared at all.
 
 ## Extensions
 
@@ -106,7 +110,7 @@ beside it until the processor emits the assertions they belong on. All validate.
 
 No converter sets `preference`, `replaces`, or an unplaced hedge.
 
-Not in v3, by design: readings, overrides and gradings. Not representable yet: an origin that names no word in any language ("from a
+Not in v4, by design: readings, overrides and gradings. Not representable yet: an origin that names no word in any language ("from a
 call used for dogs", Old Spanish *perro*); and the ACD's doublets and disjuncts between
 forms: alternative sets hold cognate sets, so a variant that is a member of a set stands
 for its whole set, two groups can collapse into one, and a group within one set (a
@@ -114,6 +118,7 @@ reconstruction and its own member) has no alternative set.
 
 ## Versions
 
+- **4**: a relay's `differences` include `form`.
 - **3**: a match's `basis` records `ancestors`.
 - **2** (acd-3, lila-3): `match` and `relay`.
 - **1** (acd-2): `compiled` on assertions; a cognate set may have no members when it

@@ -69,11 +69,12 @@ class Judgements(unittest.TestCase):
         self.assertEqual(j.verdict("e", "w6"), "right")
 
 
-class Weighing(unittest.TestCase):
-    FIELDS = {"key": ("equal", "near", "far"), "lineage": ("shared", "none shared", "none cited")}
+FIELDS = {"key": ("equal", "near", "far"), "lineage": ("shared", "none shared", "none cited")}
 
+
+class Weighing(unittest.TestCase):
     def test_unfitted_weights_fall_and_missing_weighs_nothing(self):
-        m = M.Linkage(self.FIELDS, {"lineage": "none cited"})
+        m = M.Linkage(FIELDS, {"lineage": "none cited"})
         t = m.table()["weights"]
         self.assertGreater(t["key"]["equal"], t["key"]["near"])
         self.assertGreater(t["key"]["near"], t["key"]["far"])
@@ -90,7 +91,7 @@ class Weighing(unittest.TestCase):
                 key = rng.choices(["equal", "near", "far"], [1, 3, 6])[0]
                 lineage = rng.choices(["shared", "none shared"], [1, 9])[0]
             pairs.append({"key": key, "lineage": lineage})
-        m = M.Linkage(self.FIELDS).fit(pairs)
+        m = M.Linkage(FIELDS).fit(pairs)
         self.assertGreater(m.probability({"key": "equal", "lineage": "shared"}), 0.9)
         self.assertLess(m.probability({"key": "far", "lineage": "none shared"}), 0.1)
         self.assertAlmostEqual(m.prior, 0.6, delta=0.1)
@@ -107,8 +108,7 @@ class Weighing(unittest.TestCase):
 
 class Notation(unittest.TestCase):
     def test_align_and_differences(self):
-        d, pairs = N.align("leKs", "leGs")
-        self.assertEqual(d, 1)
+        self.assertEqual(N.align("leKs", "leGs")[0], 1)
         self.assertEqual(N.differences("leKs", "leGs"), [("K", "G")])
         self.assertEqual(N.differences("Hster", "ster"), [("H", N.GAP)])
 

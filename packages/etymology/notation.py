@@ -96,8 +96,8 @@ class Distance:
 
 
 def mine(pairs):
-    """`pairs` are (key set of one source, key set of the other, label) for confirmed
-    matches. The differences between each pair's closest keys, with how often each is
+    """`pairs` are (key set of one source, key set of the other, label) for matches
+    other evidence confirms. The differences between each pair's closest keys, with how often each is
     seen and examples."""
     counts, examples = collections.Counter(), collections.defaultdict(list)
     plain = Distance()
@@ -105,12 +105,12 @@ def mine(pairs):
         _, a, b = closest(keys_a, keys_b, plain)
         if a is None or a == b:
             continue
-        for d in set(differences(a, b)):
+        for d in sorted(set(differences(a, b))):
             counts[d] += 1
             if len(examples[d]) < 3:
                 examples[d].append(label)
     rows = []
-    for (x, y), n in counts.most_common():
+    for (x, y), n in sorted(counts.items(), key=lambda t: (-t[1], t[0])):
         cost = LOW if n >= OFTEN else round(1 - (1 - LOW) * n / OFTEN, 2)
         rows.append(
             {"From": x, "To": y, "Count": n, "Cost": cost, "Examples": "; ".join(examples[(x, y)])}
@@ -137,7 +137,7 @@ def main(argv=None):
     source = args.pairs.resolve().relative_to(A.REPO)
     header = [
         args.note,
-        f"Mined by etymology.notation from {len(pairs)} confirmed pairs in {source}:",
+        f"Mined by etymology.notation from {len(pairs)} pairs in {source}:",
         f"the differences between their closest keys. Cost {LOW} when seen {OFTEN} times or more;",
         f"{GAP} is no character.",
     ]

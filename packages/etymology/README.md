@@ -4,7 +4,7 @@ This package holds the assertion schema, the converters that turn each etymologi
 source into assertions, and the curation tools those converters read. The design and
 the work plan are in the shared doc "wety etymology claims model", outside git.
 
-- [`schema/`](schema/README.md): the assertion schema, v3, and what it covers;
+- [`schema/`](schema/README.md): the assertion schema, v4, and what it covers;
 - `assertions.py`: builds assertion objects (their digest ids) and validates files;
 - `convert/`: one converter per source. `acd` and `lila` read the retained release, whole
   or a sample; `wiktionary` converts claims a model annotated per entry, for samples;
@@ -15,6 +15,10 @@ the work plan are in the shared doc "wety etymology claims model", outside git.
   `etymology.assertions` validates;
 - `wikitext.py`: pages of a Wiktionary dump, their sections and templates;
 - `language_map.py`, `orthography.py`: curation tools (language maps, comparison keys);
+  `conventions/`: orthography profiles several sources write in, which a source's
+  profile includes;
+- `matching.py`: what every matcher shares (below); `notation.py`: how two sources'
+  keys differ where they are matched, mined into a distance;
 - `match_acd.py`: ACD records matched to Wiktionary's, and relays (below).
 - `match_lila.py`: LiLa's records matched to Wiktionary's, and relays (below).
 
@@ -92,8 +96,9 @@ from the wiktextract data it was built from; `run` writes the `match` and `relay
 with everything they refer to, every record's outcome (`decisions.jsonl.gz`), every
 crediting assertion's outcome (`relays.json`), counts and a sample of 100 matches to
 review; given an earlier run's check directory (`--previous`), it reviews what changed
-instead (`changed-sample.json`, and `previous-sample.json`: the earlier reviewed sample
-with each match's outcome now). From a checkout whose `data/` holds the inputs:
+instead (`changed-sample.json`). Every run is scored against the judgements of all
+earlier reviews (`counts.json`, `judgements`); `review` adds a check's judged
+`review.json` to them. From a checkout whose `data/` holds the inputs:
 
 ```sh
 W=<a work directory>; C=$S/acd/checks/acd-3-v3
@@ -101,6 +106,7 @@ E=data/runs/ccaf05246fcb466f94916b3f5ae6654a/checks/core-4-references/assertions
 X=data/artifacts/wiktextract/6da0ba5bf330650cba59911466da388d3f60c69519a50dc9ca71451b0bfba506/files/raw-wiktextract-data.jsonl.gz
 uv run --frozen python -m etymology.match_acd scan --export $E --wiktextract $X --work $W
 uv run --frozen python -m etymology.match_acd run --acd $S/acd/checks/acd-2/assertions.jsonl --export $E --wiktextract $X --work $W --out $C --previous $S/acd/checks/acd-3-ancestry
+uv run --frozen python -m etymology.match_acd review --out $C
 ```
 
 The matcher, rule `agent:wety-match-acd@3`, takes only languages the ACD's map calls
@@ -131,18 +137,47 @@ assertions in LiLa. It reads a graph's assertion export (`graph-assertions`) and
 lila-2 assertions; both must lie in the checkout, so hard-link them in a worktree:
 
 ```sh
-uv run --frozen python -m etymology.match_lila --export data/runs/<run>/checks/core-4-references/assertions.jsonl.gz --out $S/lila-edl/checks/lila-3-ancestry --compare $S/lila-edl/checks/lila-3
-uv run --frozen python -m etymology.match_lila --out $S/lila-edl/checks/lila-3-ancestry --review
+C=$S/lila-edl/checks/lila-3-linkage
+uv run --frozen python -m etymology.match_lila --export data/runs/<run>/checks/core-4-references/assertions.jsonl.gz --out $C --compare $S/lila-edl/checks/lila-3-ancestry
+uv run --frozen python -m etymology.match_lila --out $C --review
+uv run --frozen python -m etymology.notation $C/pairs.json --out $S/lila-edl/etc/substitutions-wiktionary.tsv --note "de Vaan's keys (LiLa) against Wiktionary's"
 ```
 
 The first writes `assertions.jsonl` (the matches, the relays and what they refer to),
-`relays.json` (every crediting assertion and what became of it), `result.json` and
-`sample.json` (100 matches to review); with `--compare`, also `changes.json`, every
-record whose match differs from an earlier check's, and what became of that check's
-reviewed sample. The second adds to `result.json` the precision of whatever has been
-judged: the sample (`review.json`) and the changes (`changes.json`). The rule, `agent:wety-match-lila@2`, and what
-each match weighs (form and comparison key, cited reflexes, ancestors) are in the
-module's docstring. v1's reviewed outputs stay in `lila-3/`.
+`relays.json` (every crediting assertion and what became of it), `result.json` (counts,
+the learnt weights, and the score against the judgements), `sample.json` (matches to
+review where no judgement decides them, stratified by kind, key and lineage, and records
+left unmatched, for recall) and `pairs.json` (confirmed pairs for `notation`); with
+`--compare`, also `changes.json`, every record whose match differs from an earlier
+check's. The second, once a reviewer has judged the sample (`review.json`) or the
+changes, adds their precision to `result.json` and their judgements to
+`etc/judgements.jsonl`. The third mines the substitutions table the next run's distance
+reads. The rule, `agent:wety-match-lila@3`, is in the module's docstring. v1's reviewed
+outputs stay in `lila-3/`, v2's in `lila-3-ancestry/`.
+
+## What the matchers share
+
+`matching.py` holds what every matcher needs, so that a new source's matcher is an
+adapter (its records, their lineage, its forms) and not another thousand lines:
+
+- **Judgements.** A source's `etc/judgements.jsonl` keeps every reviewed judgement on
+  a pair (record, Wiktionary record: the same word or not; or the word is among these
+  candidates), apart from the rule that proposed it. Every run is scored against all of
+  them: target precision, recall of judged matches, and each regression. `harvest`
+  reads review files into it; a review only judges what the judgements do not decide.
+- **Weighing.** `Linkage` weighs categorical evidence as Fellegi and Sunter's record
+  linkage does: per field and level, log2(m/u), learnt by EM from every candidate pair
+  with judged pairs held at their label. A score is a probability, so one threshold
+  serves every kind of evidence; a level is weighed, never a gate.
+- **Decisions.** `decide` keeps the best candidate when it reaches the threshold and
+  beats the next by a margin, else every tied one; `assign` keeps a source's
+  homographs from sharing a target.
+- **Notation.** `notation.py` aligns the keys of confirmed pairs, counts what differs,
+  and writes a substitutions table per source pair (`etc/substitutions-<other>.tsv`);
+  `Distance` reads it, so a difference seen often (a laryngeal one source writes and
+  the other drops) costs little. A curator moves a difference into the source's
+  orthography profile once it is plainly notation. A profile may `include` a convention
+  in `conventions/` (`ine`: the Indo-European notation de Vaan and Wiktionary share).
 
 ## Tests
 
