@@ -1234,7 +1234,9 @@ def compare(previous, rows, matches, acd, wikt, seed, n=100):
         e = review_entry(by_record[rid], acd, wikt)
         e["before"] = {"outcome": before[rid]["outcome"], "detail": before[rid]["detail"]}
         sample.append(e)
-    reviewed = json.loads((previous / "review.json").read_text())["sample"]
+    # a fresh run reviews a sample of its matches, a run with `--previous` its changes
+    review = json.loads((previous / "review.json").read_text())
+    reviewed = review["sample"] if "sample" in review else review["changed_sample"]
     recheck = []
     for e in reviewed:
         x = now[e["acd"]["record"]]
