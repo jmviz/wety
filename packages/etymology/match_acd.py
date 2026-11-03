@@ -8,7 +8,7 @@ Steps, each writing into a work directory so that later steps rerun quickly:
   a work, every work and agent), and the glosses of Austronesian entries from the
   wiktextract data the graph was built from;
 - `run`: each ACD record of a language the ACD's language map calls `exact` matched to
-  a Wiktionary record of that code, by the rule `agent:wety-match-acd@2` (`Matcher`:
+  a Wiktionary record of that code, by the rule `agent:wety-match-acd@3` (`Matcher`:
   comparison keys and shape, gloss, the reflexes the ACD cites and the record's
   ancestors); then each Wiktionary assertion that credits the ACD linked to the ACD's
   own assertion on the same word, read through the matches, by `agent:wety-relay-acd@1`
@@ -18,6 +18,10 @@ Steps, each writing into a work directory so that later steps rerun quickly:
 
 v1 of the matcher (acd-3) weighed no ancestors, compared affixes by key alone and let a
 near-key doublet tie an equal-key record; its reviewed outputs stay in `checks/acd-3/`.
+v2 (`checks/acd-3-ancestry/`) let a cited spelling's shared ancestor outrank its entry's
+gloss, took a Wiktionary ancestor of another form as another word whatever its gloss,
+and kept a reconstruction from Wiktionary's bound stem (*saŋa-) when a citation of it as
+a word (*saŋa) had the same shape.
 """
 
 import argparse
@@ -47,7 +51,7 @@ PROFILES = {
     ("wiktionary", True): SOURCES / "wiktionary/etc/orthography-map.tsv",
     ("wiktionary", False): SOURCES / "wiktionary/etc/orthography-map-attested.tsv",
 }
-RULE = "agent:wety-match-acd@2"
+RULE = "agent:wety-match-acd@3"
 RELAY_RULE = "agent:wety-relay-acd@1"
 RECORD_CODE = re.compile(r"^wiktionary:([^:]+):")
 LANG_CODE = re.compile(rb'"lang_code": "([^"]+)"')
@@ -421,13 +425,15 @@ class Wiktionary:
 
 
 class Matcher:
-    """The rule `wety-match-acd@2`: each ACD record of an `exact` language to a Wiktionary
+    """The rule `wety-match-acd@3`: each ACD record of an `exact` language to a Wiktionary
     record of the same code.
 
     Candidates are the Wiktionary records of that code and shape (word, prefix, suffix,
     infix: `shape`; when none has the same shape, a word may stand for an affix and an
     affix for a word, as one source writes a bound stem *tuRa- or an enclitic -mo that
-    the other writes as a word, but two kinds of affix never meet) whose comparison key
+    the other writes as a word, but two kinds of affix never meet; so may they for a
+    reconstruction of four or more segments whose own shape has only imputed records,
+    since Wiktionary writes the stem *saŋa- and cites it as *saŋa) whose comparison key
     equals the ACD record's; failing that, for an
     attested form, whose loose key (glottal stops dropped) does; failing that, for a
     reconstruction, whose key is one edit away. Each candidate is weighed by:
@@ -439,7 +445,9 @@ class Matcher:
       sub-entry's main entry, and theirs) that are matched, how many are the
       candidate's ancestors in wety (an imputed record for the same entry counts as
       it). A candidate whose ancestry in wety has words in an ACD ancestor's language,
-      none of them that ancestor's match or of a `compatible` key, contradicts the ACD
+      none of them that ancestor's match, of a `compatible` key or of a gloss that fits
+      the ancestor's (similarity `GLOSS_MIN`: *bətik 'tattoo' for the ACD's *batek
+      'mottled design, as of a tattoo', one etymon reconstructed two ways), contradicts the ACD
       (matched or not, so this reaches further than the basis): it is taken only when
       its gloss (similarity `GLOSS_MIN`) or, for a reconstruction, a shared reflex shows
       it is the same word, the two sources then differing on its origin;
@@ -453,9 +461,12 @@ class Matcher:
     any candidate whose gloss is not a mismatch (an imputed reconstruction such as PMP
     *ba#1? stands for every homograph cited under that title, so a shared ancestor alone
     cannot outweigh the gloss). Candidates rank by shared reflexes, key (equal before
-    near), shared ancestors, then gloss, which must be closer by `MARGIN` to decide;
-    a Wiktionary entry is preferred to an imputed record (a word wety knows only from
-    citations) with the same evidence; otherwise equal fits are left as candidates.
+    near), shared ancestors, then gloss, which must be closer by `MARGIN` to decide. A
+    fitting gloss stands against a shared ancestor of a candidate without a gloss: an
+    imputed record (a word wety knows only from citations) may be Wiktionary's citation
+    of an entry under another spelling (bener for bĕnĕr) whose own etymology names no
+    ancestor. With the same evidence, the record's shape is preferred, then a Wiktionary
+    entry to an imputed record; otherwise equal fits are left as candidates.
 
     Reconstructions are matched first, in rounds, so that their ancestors' matches can
     be weighed (until no match changes, at most `ROUNDS`); then attested forms. Of
@@ -532,8 +543,9 @@ class Matcher:
 
         def same_shape(ws):
             same = {w for w in ws if self.shapes[w] == form_shape}
-            if not same:
-                same = {w for w in ws if WORD in (form_shape, self.shapes[w])}
+            stem = r["reconstructed"] and max(map(len, ks), default=0) >= 4
+            if not same or (stem and all(w.endswith("?") for w in same)):
+                same |= {w for w in ws if WORD in (form_shape, self.shapes[w])}
             return same, bool(ws)
 
         found = set().union(*(self.index[code].get(k, ()) for k in ks)) if ks else set()
@@ -561,7 +573,8 @@ class Matcher:
         Wiktionary if one of them does). Affixes are not compared, since a derivative
         names its affix as an ancestor beside its base: none of Wiktionary's, and none of
         the ACD's with a leading hyphen (its trailing-hyphen ancestors are bound stems,
-        *tuRa- 'sibling')."""
+        *tuRa- 'sibling'). A Wiktionary ancestor whose gloss fits the ACD ancestor's
+        agrees with it, whatever its form."""
         ancestors = self.acd.ancestors(r["id"])
         targets = {twin(self.matched[a]) for a in ancestors if a in self.matched}
         mine = self.wiktionary_ancestors(w)
@@ -586,6 +599,10 @@ class Matcher:
                 for x in same_lang
                 for k in ka
                 for j in self.keys("wiktionary", True, x["form"])
+            ) or any(
+                (gloss_similarity(self.acd.records[a].get("gloss"), self.wikt.gloss(x["id"])) or 0)
+                >= self.GLOSS_MIN
+                for x in same_lang
             )
         gloss = self.wikt.gloss(w)
         fits = [
@@ -654,20 +671,28 @@ class Matcher:
             )
         return ok
 
-    @staticmethod
-    def rank(w, basis):
+    def rank(self, r, w, basis):
+        g = basis.get("gloss")
         return (
             basis.get("reflexes", {}).get("shared", 0),
             basis["key"] == "equal",
             basis.get("ancestors", {}).get("shared", 0),
-            basis.get("gloss") or 0,
+            g or 0,
+            self.shapes[w] == shape(r["form"]),
             not w.endswith("?"),
+            g is not None,
         )
 
     def beats(self, a, b):
-        """Whether rank `a` is a better fit than rank `b`."""
-        if a[:3] != b[:3]:
-            return a[:3] > b[:3]
+        """Whether rank `a` is a better fit than rank `b`. A fitting gloss stands against
+        a shared ancestor of a candidate without a gloss: Wiktionary cites a spelling
+        (bener) of an entry (bĕnĕr) whose own etymology does not name the ancestor."""
+        if a[:2] != b[:2]:
+            return a[:2] > b[:2]
+        lo, hi = sorted((a, b), key=lambda x: x[2])
+        offset = lo[2] < hi[2] and lo[3] >= self.GLOSS_MIN and not hi[6]
+        if a[2] != b[2] and not offset:
+            return a[2] > b[2]
         return a[3] - b[3] >= self.MARGIN
 
     def decide(self, r):
@@ -686,15 +711,16 @@ class Matcher:
             if all(c["contradicted"] for _, _, c in found):
                 return ("unmatched", "candidates whose ancestry contradicts the ACD", found[0][1])
             return ("unmatched", "candidates without support", found[0][1])
-        ok.sort(key=lambda x: self.rank(*x), reverse=True)
-        if len(ok) == 1:
-            return ("match", ok[0][0], ok[0][1])
-        (w1, b1), (w2, b2) = ok[:2]
-        r1, r2 = self.rank(w1, b1), self.rank(w2, b2)
-        if self.beats(r1, r2) or (r1[:4] == r2[:4] and r1[4] != r2[4]):
-            return ("match", w1, b1)
-        tied = [w for w, b in ok if not self.beats(r1, self.rank(w, b))]
-        return ("ambiguous", tied, b1)
+        ranks = {w: self.rank(r, w, b) for w, b in ok}
+
+        def better(a, b):
+            return self.beats(a, b) or (a[:4] == b[:4] and a[4:6] > b[4:6])
+
+        for w, b in ok:
+            if all(o == w or better(ranks[w], ranks[o]) for o in ranks):
+                return ("match", w, b)
+        tied = sorted(w for w in ranks if not any(self.beats(ranks[o], ranks[w]) for o in ranks))
+        return ("ambiguous", tied, dict(ok)[tied[0]])
 
     def run(self):
         reconstructions = [r for r in self.acd.records.values() if r["reconstructed"]]
@@ -725,7 +751,7 @@ class Matcher:
             if len(groups) < 2:
                 continue
             rank = {
-                form: max(self.rank(target, decisions[x][2]) for x in rids)
+                form: max(self.rank(self.acd.records[x], target, decisions[x][2]) for x in rids)
                 for form, rids in groups.items()
             }
             winners = [f for f in groups if not any(self.beats(rank[o], rank[f]) for o in groups)]
@@ -999,7 +1025,7 @@ def run(args):
     for agent_id, name in (
         (
             RULE,
-            "wety's ACD matcher, v2: ACD records to Wiktionary records by key, gloss, reflexes and ancestors",
+            "wety's ACD matcher, v3: ACD records to Wiktionary records by key, gloss, reflexes and ancestors",
         ),
         (
             RELAY_RULE,

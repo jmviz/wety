@@ -96,27 +96,30 @@ instead (`changed-sample.json`, and `previous-sample.json`: the earlier reviewed
 with each match's outcome now). From a checkout whose `data/` holds the inputs:
 
 ```sh
-W=<a work directory>; C=$S/acd/checks/acd-3-ancestry
+W=<a work directory>; C=$S/acd/checks/acd-3-v3
 E=data/runs/ccaf05246fcb466f94916b3f5ae6654a/checks/core-4-references/assertions.jsonl.gz
 X=data/artifacts/wiktextract/6da0ba5bf330650cba59911466da388d3f60c69519a50dc9ca71451b0bfba506/files/raw-wiktextract-data.jsonl.gz
 uv run --frozen python -m etymology.match_acd scan --export $E --wiktextract $X --work $W
-uv run --frozen python -m etymology.match_acd run --acd $S/acd/checks/acd-2/assertions.jsonl --export $E --wiktextract $X --work $W --out $C --previous $S/acd/checks/acd-3
+uv run --frozen python -m etymology.match_acd run --acd $S/acd/checks/acd-2/assertions.jsonl --export $E --wiktextract $X --work $W --out $C --previous $S/acd/checks/acd-3-ancestry
 ```
 
-The matcher, rule `agent:wety-match-acd@2`, takes only languages the ACD's map calls
+The matcher, rule `agent:wety-match-acd@3`, takes only languages the ACD's map calls
 `exact`. Forms are compared by comparison keys, from one orthography profile per source
 for reconstructions (`acd/etc/orthography.tsv`, `wiktionary/etc/orthography-map.tsv`)
 and one for attested forms (`orthography-attested.tsv`, `orthography-map-attested.tsv`);
-an affix meets only an affix of its kind (or a word, failing one). A reconstruction is
+an affix meets only an affix of its kind (or a word, failing one, or for a reconstruction
+whose shape has only records Wiktionary cites, Wiktionary's bound stems). A reconstruction is
 weighed by how many of the reflexes the ACD cites for it are its candidate's descendants
 in wety; every record by how many of its matched ACD ancestors are its candidate's
 ancestors in wety (`basis.ancestors`, so reconstructions are matched first, in rounds),
-and by its gloss. A candidate whose ancestry names other words at an ACD ancestor's level
-is taken only when its gloss confirms it. Equal fits stay `candidates`; of several ACD
+and by its gloss. A candidate whose ancestry names other words at an ACD ancestor's level,
+of another key and gloss, is taken only when its gloss confirms it. Equal fits stay `candidates`; of several ACD
 records fitting one Wiktionary record (homographs, doublets), the best is matched (by
 shared reflexes, then an equal key over a near one). A shared ancestor vouches for a
-gloss that shares nothing with the record's only when it fits the ancestor's gloss. v1,
-which weighed no ancestors, is reviewed in `checks/acd-3/`, v2 in `checks/acd-3-ancestry/`. The relay rule, `agent:wety-relay-acd@1`, compares by ancestry, since the
+gloss that shares nothing with the record's only when it fits the ancestor's gloss, and
+a fitting gloss stands against the shared ancestor of a candidate Wiktionary only cites
+(often its entry under another spelling). v1, which weighed no ancestors, is reviewed in
+`checks/acd-3/`, v2 in `checks/acd-3-ancestry/`, v3 in `checks/acd-3-v3/`. The relay rule, `agent:wety-relay-acd@1`, compares by ancestry, since the
 ACD links a reflex straight to its set's reconstruction. The docstrings of `Matcher` and
 `Relayer` give the rules in full.
 
