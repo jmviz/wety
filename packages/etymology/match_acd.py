@@ -18,14 +18,16 @@ Steps, each writing into a work directory so that later steps rerun quickly:
   reviews (`etc/judgements.jsonl`, `etymology.matching`);
 - `review`: adds a check's judged `review.json` to those judgements.
 
-v4 keeps v3's candidates and eligibility, and decides among the eligible by learnt
-weights (`matching.Linkage`, fitted to every eligible pair with judged pairs held at
-their label) instead of a fixed ranking: a score is a probability, the best candidate
-stands alone when it beats the next by `MARGIN` bits. Eligibility still accepts, with no
-threshold on the probability: fitted on these pairs, EM splits them by gloss, not by
-word, and a threshold turned away 4,395 of v3's attested matches. Reviewers' judgements decide the
-pairs they cover; each check is also scored on judgements held out of the fit, and
-lists hard cases (`hard.json`) for a reviewer or a model.
+v4 decides as v3 does, and adds what the shared module gives: reviewers' judgements
+decide the pairs they cover (a pair judged another word is no candidate, one judged the
+same word is the match); the score is the probability learnt weights give the match
+(`matching.Linkage`, fitted to every eligible pair, judged pairs held at their label);
+each check is scored on judgements held out of the fit; and `hard.json` lists ties and
+the least probable targets for a reviewer or a model. Two trials that let the weights
+decide (`checks/acd-3-v4-trial/`) did worse than v3's ranking: fitted on these pairs,
+EM splits them by gloss rather than by word, so a probability threshold turned away
+4,395 attested matches, and without one, ranking by the weights took homographs' other
+senses (Malay batu 'stone' for 'mile'): 37 of 44 changes right, against v3's 32 of 32.
 
 v1 of the matcher (acd-3) weighed no ancestors, compared affixes by key alone and let a
 near-key doublet tie an equal-key record; its reviewed outputs stay in `checks/acd-3/`.
@@ -52,10 +54,8 @@ from etymology.matching import (
     Judgements,
     Linkage,
     closure,
-    decide,
     harvest_into,
     lines,
-    logit,
     pooled,
 )
 
@@ -89,11 +89,11 @@ FIELDS = {
     "entry": ("entry", "imputed"),
 }
 MISSING = {"lineage": "none cited", "gloss": "unknown"}
-MARGIN = 0.3  # log2 odds by which the best candidate must beat the next to stand alone
-FIT_ROUNDS = 3  # rounds that refit the weights; later ones keep them, so decisions settle
+FIT_ROUNDS = 3  # rounds that refit the weights
 LABEL_WEIGHT = 100  # how many unjudged pairs a judged pair counts as, in the fit
 HARD = 0.8  # a target below this probability is a hard case
 FOLDS = 5
+HARD_LIMIT = 200
 RELAY_RULE = "agent:wety-relay-acd@1"
 RECORD_CODE = re.compile(r"^wiktionary:([^:]+):")
 LANG_CODE = re.compile(rb'"lang_code": "([^"]+)"')
@@ -496,8 +496,13 @@ class Matcher:
     record's only when it fits that ancestor's gloss in the ACD), and is passed over for
     any candidate whose gloss is not a mismatch (an imputed reconstruction such as PMP
     *ba#1? stands for every homograph cited under that title, so a shared ancestor alone
-    cannot outweigh the gloss). Among the eligible, the weights decide (key, lineage, gloss,
-    shape, entry or imputed record); equal fits are left as candidates.
+    cannot outweigh the gloss). Candidates rank by shared reflexes, key (equal before
+    near), shared ancestors, then gloss, which must be closer by `GLOSS_MARGIN` to decide. A
+    fitting gloss stands against a shared ancestor of a candidate without a gloss: an
+    imputed record (a word wety knows only from citations) may be Wiktionary's citation
+    of an entry under another spelling (bener for bĕnĕr) whose own etymology names no
+    ancestor. With the same evidence, the record's shape is preferred, then a Wiktionary
+    entry to an imputed record; otherwise equal fits are left as candidates.
 
     Reconstructions are matched first, in rounds, so that their ancestors' matches can
     be weighed (until no match changes, at most `ROUNDS`); then attested forms. Of
@@ -507,14 +512,13 @@ class Matcher:
     matched; equal fits are left unmatched. Records with the very same
     form are one word, and are kept together.
 
-    Eligibility is v3's rule, kept as a condition, since weights add up and cannot say
-    that a gloss mismatch with a vouching ancestor, or a contradicting ancestry, makes
-    another word. Among the eligible, v4 decides by learnt weights (see the module's
-    docstring) where v3 ranked by shared reflexes, key, ancestors, then gloss.
+    Reviewers' judgements decide the pairs they cover, and the score is the learnt
+    weights' probability (see the module's docstring).
     """
 
     GLOSS_MIN = 0.25
-    ROUNDS = 8
+    GLOSS_MARGIN = 0.2
+    ROUNDS = 6
 
     def __init__(
         self, acd, wiktionary, keys, language_map=None, exact=None, judgements=None, learn=True
@@ -765,28 +769,55 @@ class Matcher:
             label_weight=LABEL_WEIGHT,
         )
 
+    def rank(self, r, w, basis):
+        g = basis.get("gloss")
+        return (
+            basis.get("reflexes", {}).get("shared", 0),
+            basis["key"] == "equal",
+            basis.get("ancestors", {}).get("shared", 0),
+            g or 0,
+            self.shapes[w] == shape(r["form"]),
+            not w.endswith("?"),
+            g is not None,
+        )
+
+    def beats(self, a, b):
+        """Whether rank `a` is a better fit than rank `b`. A fitting gloss stands against
+        a shared ancestor of a candidate without a gloss: Wiktionary cites a spelling
+        (bener) of an entry (bĕnĕr) whose own etymology does not name the ancestor."""
+        if a[:2] != b[:2]:
+            return a[:2] > b[:2]
+        lo, hi = sorted((a, b), key=lambda x: x[2])
+        offset = lo[2] < hi[2] and lo[3] >= self.GLOSS_MIN and not hi[6]
+        if a[2] != b[2] and not offset:
+            return a[2] > b[2]
+        return a[3] - b[3] >= self.GLOSS_MARGIN
+
     def decide(self, r, opts, model):
         """("match", target, basis) | ("ambiguous", candidates, basis) | ("unmatched", why,
-        basis). Reviewers' judgements decide the pairs they cover."""
+        basis). Reviewers' judgements decide the pairs they cover; the rest is ranked as
+        v3 ranked it. The score is the weights' probability."""
         if isinstance(opts, tuple):
             return opts
         rid = r["id"]
+        opts = [o for o in opts if self.judgements.label(rid, o[0]) is not False]
+        if not opts:
+            return ("unmatched", "candidates judged other words", None)
         bases = {w: b for w, b, _ in opts}
-        scored = [
-            (w, model.probability(f))
-            for w, _, f in opts
-            if self.judgements.label(rid, w) is not False
-        ]
-        if not scored:
-            return ("unmatched", "candidates judged other words", opts[0][1])
-        # Eligibility accepts; the weights only choose among the eligible.
-        kept = decide(scored, 0, MARGIN)
-        judged = self.judgements.choose(rid, [w for w, _ in scored])
+        ranks = {w: self.rank(r, w, b) for w, b, _ in opts}
+
+        def better(a, b):
+            return self.beats(a, b) or (a[:4] == b[:4] and a[4:6] > b[4:6])
+
+        kept = next(
+            ([w] for w in bases if all(o == w or better(ranks[w], ranks[o]) for o in ranks)),
+            None,
+        ) or sorted(w for w in ranks if not any(self.beats(ranks[o], ranks[w]) for o in ranks))
+        judged = self.judgements.choose(rid, list(bases))
         if judged and judged != kept:
             self.overridden[rid], kept = kept, judged
-        if not kept:
-            return ("unmatched", "candidates judged other words", opts[0][1])
-        self.scores[rid] = round(max(dict(scored)[w] for w in kept), 3)
+        probability = {w: model.probability(f) for w, _, f in opts}
+        self.scores[rid] = round(max(probability[w] for w in kept), 3)
         if len(kept) == 1:
             return ("match", kept[0], bases[kept[0]])
         return ("ambiguous", kept, bases[kept[0]])
@@ -818,7 +849,7 @@ class Matcher:
 
     def resolve_homographs(self, decisions):
         """Of the ACD's records with different forms matched to one Wiktionary record
-        (homographs, doublets), keep the most probable, by `MARGIN`."""
+        (homographs, doublets), keep the best fit."""
         by_target = collections.defaultdict(lambda: collections.defaultdict(list))
         for rid, (what, target, basis) in decisions.items():
             if what == "match" and self.acd.records[rid]["reconstructed"]:
@@ -826,9 +857,11 @@ class Matcher:
         for target, groups in by_target.items():
             if len(groups) < 2:
                 continue
-            best = {form: max(self.scores[x] for x in rids) for form, rids in groups.items()}
-            top = max(map(logit, best.values()))
-            winners = [f for f in groups if top - logit(best[f]) < MARGIN]
+            rank = {
+                form: max(self.rank(self.acd.records[x], target, decisions[x][2]) for x in rids)
+                for form, rids in groups.items()
+            }
+            winners = [f for f in groups if not any(self.beats(rank[o], rank[f]) for o in groups)]
             for form, rids in groups.items():
                 if form in winners and len(winners) == 1:
                     continue
@@ -1235,8 +1268,8 @@ def held_out(acd, wikt, keys, language_map, judgements):
 
 def hard_cases(decisions, matcher, acd, wikt):
     """What the weights barely decide and no judgement decides, for a reviewer or a
-    model: each candidate of a tie, then targets below probability `HARD`; judged as a
-    sample is (`verdict` on the Wiktionary record)."""
+    model: each candidate of a tie, then the `HARD_LIMIT` least probable targets below
+    `HARD`; judged as a sample is (`verdict` on the Wiktionary record)."""
     ties, weak = [], []
     for rid, (what, found, basis) in sorted(decisions.items()):
         if what not in ("match", "ambiguous") or matcher.judgements.verdict(rid, found):
@@ -1247,8 +1280,11 @@ def hard_cases(decisions, matcher, acd, wikt):
                 m = {"id": None, "record": rid, "target": w, "score": score, "basis": basis}
                 ties.append(review_entry(m, acd, wikt))
         elif score < HARD:
-            m = {"id": None, "record": rid, "target": found, "score": score, "basis": basis}
-            weak.append(review_entry(m, acd, wikt))
+            weak.append((score, rid, found, basis))
+    weak = [
+        review_entry({"id": None, "record": rid, "target": w, "score": p, "basis": b}, acd, wikt)
+        for p, rid, w, b in sorted(weak)[:HARD_LIMIT]
+    ]
     return ties + weak
 
 
