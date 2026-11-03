@@ -308,7 +308,7 @@ def harvest(path):
             }
         )
 
-    for key in ("sample", "changed_sample"):
+    for key in ("sample", "changed_sample", "hard"):
         # the ACD's reviews: a verdict on a match's target
         for e in doc.get(key, []):
             if e.get("verdict") in ("right", "wrong"):

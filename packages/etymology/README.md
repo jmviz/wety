@@ -109,7 +109,7 @@ uv run --frozen python -m etymology.match_acd run --acd $S/acd/checks/acd-2/asse
 uv run --frozen python -m etymology.match_acd review --out $C
 ```
 
-The matcher, rule `agent:wety-match-acd@3`, takes only languages the ACD's map calls
+The matcher, rule `agent:wety-match-acd@4`, takes only languages the ACD's map calls
 `exact`. Forms are compared by comparison keys, from one orthography profile per source
 for reconstructions (`acd/etc/orthography.tsv`, `wiktionary/etc/orthography-map.tsv`)
 and one for attested forms (`orthography-attested.tsv`, `orthography-map-attested.tsv`);

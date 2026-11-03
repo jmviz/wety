@@ -8,7 +8,7 @@ Steps, each writing into a work directory so that later steps rerun quickly:
   a work, every work and agent), and the glosses of Austronesian entries from the
   wiktextract data the graph was built from;
 - `run`: each ACD record of a language the ACD's language map calls `exact` matched to
-  a Wiktionary record of that code, by the rule `agent:wety-match-acd@3` (`Matcher`:
+  a Wiktionary record of that code, by the rule `agent:wety-match-acd@4` (`Matcher`:
   comparison keys and shape, gloss, the reflexes the ACD cites and the record's
   ancestors); then each Wiktionary assertion that credits the ACD linked to the ACD's
   own assertion on the same word, read through the matches, by `agent:wety-relay-acd@1`
@@ -17,6 +17,13 @@ Steps, each writing into a work directory so that later steps rerun quickly:
   the changed matches. Every run is scored against the judgements of all earlier
   reviews (`etc/judgements.jsonl`, `etymology.matching`);
 - `review`: adds a check's judged `review.json` to those judgements.
+
+v4 keeps v3's candidates and eligibility, and decides among the eligible by learnt
+weights (`matching.Linkage`, fitted to every eligible pair with judged pairs held at
+their label) instead of a fixed ranking: a score is a probability, the best candidate
+stands alone when it beats the next by `MARGIN` bits. Reviewers' judgements decide the
+pairs they cover; each check is also scored on judgements held out of the fit, and
+lists hard cases (`hard.json`) for a reviewer or a model.
 
 v1 of the matcher (acd-3) weighed no ancestors, compared affixes by key alone and let a
 near-key doublet tie an equal-key record; its reviewed outputs stay in `checks/acd-3/`.
@@ -39,7 +46,16 @@ from pathlib import Path
 from etymology import assertions as A
 from etymology import orthography
 from etymology.assertions import REPO
-from etymology.matching import Judgements, closure, harvest_into, lines
+from etymology.matching import (
+    Judgements,
+    Linkage,
+    closure,
+    decide,
+    harvest_into,
+    lines,
+    logit,
+    pooled,
+)
 
 WIKTIONARY_EXPORT = (
     REPO
@@ -54,7 +70,29 @@ PROFILES = {
     ("wiktionary", False): SOURCES / "wiktionary/etc/orthography-map-attested.tsv",
 }
 JUDGEMENTS = ACD / "etc/judgements.jsonl"
-RULE = "agent:wety-match-acd@3"
+RULE = "agent:wety-match-acd@4"
+# What a pair's evidence may be, strongest first (`matching.Linkage`). Reflexes and
+# ancestors both count matched lineage, so they are one field.
+FIELDS = {
+    "key": ("equal", "near"),
+    "lineage": (
+        "reflexes shared",
+        "a reflex shared",
+        "an ancestor shared",
+        "cited, none shared",
+        "none cited",
+    ),
+    "gloss": ("close", "fits", "some", "none", "unknown"),
+    "shape": ("same", "other"),
+    "entry": ("entry", "imputed"),
+}
+MISSING = {"lineage": "none cited", "gloss": "unknown"}
+THRESHOLD = 0.5  # a candidate's probability of being the record's word, to be kept
+MARGIN = 0.3  # log2 odds by which the best candidate must beat the next to stand alone
+FIT_ROUNDS = 3  # rounds that refit the weights; later ones keep them, so decisions settle
+LABEL_WEIGHT = 100  # how many unjudged pairs a judged pair counts as, in the fit
+HARD = 0.8  # a target below this probability is a hard case
+FOLDS = 5
 RELAY_RULE = "agent:wety-relay-acd@1"
 RECORD_CODE = re.compile(r"^wiktionary:([^:]+):")
 LANG_CODE = re.compile(rb'"lang_code": "([^"]+)"')
@@ -422,7 +460,7 @@ class Wiktionary:
 
 
 class Matcher:
-    """The rule `wety-match-acd@3`: each ACD record of an `exact` language to a Wiktionary
+    """The rule `wety-match-acd@4`: each ACD record of an `exact` language to a Wiktionary
     record of the same code.
 
     Candidates are the Wiktionary records of that code and shape (word, prefix, suffix,
@@ -457,13 +495,8 @@ class Matcher:
     record's only when it fits that ancestor's gloss in the ACD), and is passed over for
     any candidate whose gloss is not a mismatch (an imputed reconstruction such as PMP
     *ba#1? stands for every homograph cited under that title, so a shared ancestor alone
-    cannot outweigh the gloss). Candidates rank by shared reflexes, key (equal before
-    near), shared ancestors, then gloss, which must be closer by `MARGIN` to decide. A
-    fitting gloss stands against a shared ancestor of a candidate without a gloss: an
-    imputed record (a word wety knows only from citations) may be Wiktionary's citation
-    of an entry under another spelling (bener for bĕnĕr) whose own etymology names no
-    ancestor. With the same evidence, the record's shape is preferred, then a Wiktionary
-    entry to an imputed record; otherwise equal fits are left as candidates.
+    cannot outweigh the gloss). Among the eligible, the weights decide (key, lineage, gloss,
+    shape, entry or imputed record); equal fits are left as candidates.
 
     Reconstructions are matched first, in rounds, so that their ancestors' matches can
     be weighed (until no match changes, at most `ROUNDS`); then attested forms. Of
@@ -472,14 +505,23 @@ class Matcher:
     reflexes, so that the equal key decides), only the best by the same ranking is
     matched; equal fits are left unmatched. Records with the very same
     form are one word, and are kept together.
+
+    Eligibility is v3's rule, kept as a condition, since weights add up and cannot say
+    that a gloss mismatch with a vouching ancestor, or a contradicting ancestry, makes
+    another word. Among the eligible, v4 decides by learnt weights (see the module's
+    docstring) where v3 ranked by shared reflexes, key, ancestors, then gloss.
     """
 
     GLOSS_MIN = 0.25
-    MARGIN = 0.2
-    ROUNDS = 6
+    ROUNDS = 8
 
-    def __init__(self, acd, wiktionary, keys, language_map=None, exact=None):
+    def __init__(
+        self, acd, wiktionary, keys, language_map=None, exact=None, judgements=None, learn=True
+    ):
         self.acd, self.wikt, self.keys = acd, wiktionary, keys
+        self.judgements = judgements or Judgements()
+        self.learn = learn
+        self.models = {k: Linkage(FIELDS, MISSING) for k in ("reconstruction", "attested")}
         self.exact = exact or {
             r["code"]
             for r in json.loads(Path(language_map).read_text())["rows"]
@@ -636,18 +678,6 @@ class Matcher:
             out.append((w, basis, {"contradicted": contradicted, "fit": fit}))
         return out
 
-    @staticmethod
-    def score(basis, reconstructed):
-        k = 1.0 if basis["key"] == "equal" else 0.5
-        g = basis.get("gloss", 0)
-        anc = basis.get("ancestors")
-        a = anc["shared"] / anc["cited"] if anc else 0
-        if reconstructed:
-            rx = basis["reflexes"]
-            support = min(1.0, rx["shared"] / max(1, min(rx["cited"], 3)))
-            return round(0.35 * k + 0.35 * support + 0.15 * g + 0.15 * a, 2)
-        return round(0.5 * k + 0.3 * g + 0.2 * a, 2)
-
     def eligible(self, basis, reconstructed, ancestry):
         g = basis.get("gloss")
         # a shared ancestor vouches for a candidate whose gloss shares nothing with the
@@ -668,32 +698,45 @@ class Matcher:
             )
         return ok
 
-    def rank(self, r, w, basis):
-        g = basis.get("gloss")
-        return (
-            basis.get("reflexes", {}).get("shared", 0),
-            basis["key"] == "equal",
-            basis.get("ancestors", {}).get("shared", 0),
-            g or 0,
-            self.shapes[w] == shape(r["form"]),
-            not w.endswith("?"),
-            g is not None,
+    def features(self, r, w, basis):
+        """A candidate's evidence as `Linkage` levels."""
+        rx = basis.get("reflexes", {}).get("shared", 0)
+        an = basis.get("ancestors", {}).get("shared", 0)
+        cited = sum(basis.get(k, {}).get("cited", 0) for k in ("reflexes", "ancestors"))
+        lineage = (
+            "reflexes shared"
+            if rx >= 2
+            else "a reflex shared"
+            if rx
+            else "an ancestor shared"
+            if an
+            else "cited, none shared"
+            if cited
+            else "none cited"
         )
+        g = basis.get("gloss")
+        gloss = (
+            "unknown"
+            if g is None
+            else "close"
+            if g >= 0.5
+            else "fits"
+            if g >= self.GLOSS_MIN
+            else "some"
+            if g > 0
+            else "none"
+        )
+        return {
+            "key": basis["key"],
+            "lineage": lineage,
+            "gloss": gloss,
+            "shape": "same" if self.shapes[w] == shape(r["form"]) else "other",
+            "entry": "imputed" if w.endswith("?") else "entry",
+        }
 
-    def beats(self, a, b):
-        """Whether rank `a` is a better fit than rank `b`. A fitting gloss stands against
-        a shared ancestor of a candidate without a gloss: Wiktionary cites a spelling
-        (bener) of an entry (bĕnĕr) whose own etymology does not name the ancestor."""
-        if a[:2] != b[:2]:
-            return a[:2] > b[:2]
-        lo, hi = sorted((a, b), key=lambda x: x[2])
-        offset = lo[2] < hi[2] and lo[3] >= self.GLOSS_MIN and not hi[6]
-        if a[2] != b[2] and not offset:
-            return a[2] > b[2]
-        return a[3] - b[3] >= self.MARGIN
-
-    def decide(self, r):
-        """("match", target, basis) | ("ambiguous", candidates, basis) | ("unmatched", why, basis)."""
+    def options(self, r):
+        """A record's eligible candidates as (candidate, basis, features), or the
+        outcome when it has none."""
         found = self.evaluate(r)
         if found is None:
             return ("skipped", "language not exact", None)
@@ -708,38 +751,72 @@ class Matcher:
             if all(c["contradicted"] for _, _, c in found):
                 return ("unmatched", "candidates whose ancestry contradicts the ACD", found[0][1])
             return ("unmatched", "candidates without support", found[0][1])
-        ranks = {w: self.rank(r, w, b) for w, b in ok}
+        return [(w, b, self.features(r, w, b)) for w, b in ok]
 
-        def better(a, b):
-            return self.beats(a, b) or (a[:4] == b[:4] and a[4:6] > b[4:6])
+    def fit(self, model, options):
+        """Fits a model to the eligible pairs, judged pairs held at their label."""
+        if not self.learn:
+            return
+        flat = [(rid, w, f) for rid, o in options.items() if isinstance(o, list) for w, _, f in o]
+        model.fit(
+            [f for _, _, f in flat],
+            [self.judgements.label(rid, w) for rid, w, _ in flat],
+            label_weight=LABEL_WEIGHT,
+        )
 
-        for w, b in ok:
-            if all(o == w or better(ranks[w], ranks[o]) for o in ranks):
-                return ("match", w, b)
-        tied = sorted(w for w in ranks if not any(self.beats(ranks[o], ranks[w]) for o in ranks))
-        return ("ambiguous", tied, dict(ok)[tied[0]])
+    def decide(self, r, opts, model):
+        """("match", target, basis) | ("ambiguous", candidates, basis) | ("unmatched", why,
+        basis). Reviewers' judgements decide the pairs they cover."""
+        if isinstance(opts, tuple):
+            return opts
+        rid = r["id"]
+        bases = {w: b for w, b, _ in opts}
+        scored = [
+            (w, model.probability(f))
+            for w, _, f in opts
+            if self.judgements.label(rid, w) is not False
+        ]
+        if not scored:
+            return ("unmatched", "candidates judged other words", opts[0][1])
+        kept = decide(scored, THRESHOLD, MARGIN)
+        judged = self.judgements.choose(rid, [w for w, _ in scored])
+        if judged and judged != kept:
+            self.overridden[rid], kept = kept, judged
+        if not kept:
+            return ("unmatched", "candidates below the threshold", opts[0][1])
+        self.scores[rid] = round(max(dict(scored)[w] for w in kept), 3)
+        if len(kept) == 1:
+            return ("match", kept[0], bases[kept[0]])
+        return ("ambiguous", kept, bases[kept[0]])
 
     def run(self):
         reconstructions = [r for r in self.acd.records.values() if r["reconstructed"]]
         decisions = {}
         self.rounds, self.changes = 0, []
-        for _ in range(self.ROUNDS):
+        self.scores, self.overridden = {}, {}
+        model = self.models["reconstruction"]
+        for n in range(self.ROUNDS):
             self.rounds += 1
-            decisions = {r["id"]: self.decide(r) for r in reconstructions}
+            options = {r["id"]: self.options(r) for r in reconstructions}
+            if n < FIT_ROUNDS:
+                self.fit(model, options)
+            decisions = {r["id"]: self.decide(r, options[r["id"]], model) for r in reconstructions}
             self.resolve_homographs(decisions)
             matched = {rid: d[1] for rid, d in decisions.items() if d[0] == "match"}
             self.changes.append(len(set(matched.items()) ^ set(self.matched.items())))
-            if matched == self.matched:
+            if matched == self.matched and n >= FIT_ROUNDS:
                 break
             self.matched = matched
-        for r in self.acd.records.values():
-            if not r["reconstructed"]:
-                decisions[r["id"]] = self.decide(r)
+        attested = [r for r in self.acd.records.values() if not r["reconstructed"]]
+        options = {r["id"]: self.options(r) for r in attested}
+        self.fit(self.models["attested"], options)
+        for r in attested:
+            decisions[r["id"]] = self.decide(r, options[r["id"]], self.models["attested"])
         return decisions
 
     def resolve_homographs(self, decisions):
         """Of the ACD's records with different forms matched to one Wiktionary record
-        (homographs, doublets), keep the best fit."""
+        (homographs, doublets), keep the most probable, by `MARGIN`."""
         by_target = collections.defaultdict(lambda: collections.defaultdict(list))
         for rid, (what, target, basis) in decisions.items():
             if what == "match" and self.acd.records[rid]["reconstructed"]:
@@ -747,11 +824,9 @@ class Matcher:
         for target, groups in by_target.items():
             if len(groups) < 2:
                 continue
-            rank = {
-                form: max(self.rank(self.acd.records[x], target, decisions[x][2]) for x in rids)
-                for form, rids in groups.items()
-            }
-            winners = [f for f in groups if not any(self.beats(rank[o], rank[f]) for o in groups)]
+            best = {form: max(self.scores[x] for x in rids) for form, rids in groups.items()}
+            top = max(map(logit, best.values()))
+            winners = [f for f in groups if top - logit(best[f]) < MARGIN]
             for form, rids in groups.items():
                 if form in winners and len(winners) == 1:
                     continue
@@ -967,12 +1042,13 @@ def run(args):
         read_lines(args.work / "wiktionary.jsonl.gz"), read_lines(args.work / "glosses.jsonl.gz")
     )
     language_map = ACD / "etc/languages.json"
-    matcher = Matcher(acd, wikt, keys, language_map)
+    judgements = Judgements.read(JUDGEMENTS)
+    matcher = Matcher(acd, wikt, keys, language_map, judgements=judgements)
     decisions = matcher.run()
     extraction = A.extraction(
         "converter",
         "packages/etymology/match_acd.py",
-        [args.acd, args.export, args.wiktextract, language_map, *PROFILES.values()],
+        [args.acd, args.export, args.wiktextract, language_map, *PROFILES.values(), JUDGEMENTS],
     )
     new = {extraction["id"]: extraction}
     for agent_id, name in (
@@ -993,7 +1069,7 @@ def run(args):
             m = A.match(
                 rid,
                 RULE,
-                Matcher.score(basis, r["reconstructed"]),
+                matcher.scores[rid],
                 basis,
                 target=target,
                 extraction=extraction["id"],
@@ -1002,7 +1078,7 @@ def run(args):
             m = A.match(
                 rid,
                 RULE,
-                Matcher.score(basis, r["reconstructed"]),
+                matcher.scores[rid],
                 basis,
                 candidates=sorted(target),
                 extraction=extraction["id"],
@@ -1071,7 +1147,15 @@ def run(args):
         sample = draw_sample(matches, acd, wikt, args.seed)
         (out / "sample.json").write_text(json.dumps(sample, ensure_ascii=False, indent=1) + "\n")
     found = {x["record"]: x["detail"] for x in rows if x["outcome"] in ("match", "ambiguous")}
-    counts["judgements"] = Judgements.read(JUDGEMENTS).score(found)
+    counts["judgements"] = judgements.score(found)
+    counts["weights"] = {k: m.table() for k, m in matcher.models.items()}
+    counts["decided by judgements"] = {
+        rid: {"weights": before, "judged": decisions[rid][1]}
+        for rid, before in sorted(matcher.overridden.items())
+    }
+    counts["held out"] = held_out(acd, wikt, keys, language_map, judgements)
+    hard = hard_cases(decisions, matcher, acd, wikt)
+    (out / "hard.json").write_text(json.dumps({"hard": hard}, ensure_ascii=False, indent=1) + "\n")
     (out / "counts.json").write_text(json.dumps(counts, ensure_ascii=False, indent=1) + "\n")
 
 
@@ -1134,6 +1218,36 @@ def review_entry(m, acd, wikt):
         "verdict": None,
         "cause": None,
     }
+
+
+def held_out(acd, wikt, keys, language_map, judgements):
+    """The matcher scored on judgements it did not see: in each of `FOLDS` folds it
+    learns from the others' judgements and is scored on the fold's."""
+    scores = []
+    for training, test in judgements.split(FOLDS, 20261101):
+        d = Matcher(acd, wikt, keys, language_map, judgements=training).run()
+        found = {rid: x[1] for rid, x in d.items() if x[0] in ("match", "ambiguous")}
+        scores.append(test.score(found))
+    return pooled(scores)
+
+
+def hard_cases(decisions, matcher, acd, wikt):
+    """What the weights barely decide and no judgement decides, for a reviewer or a
+    model: each candidate of a tie, then targets below probability `HARD`; judged as a
+    sample is (`verdict` on the Wiktionary record)."""
+    ties, weak = [], []
+    for rid, (what, found, basis) in sorted(decisions.items()):
+        if what not in ("match", "ambiguous") or matcher.judgements.verdict(rid, found):
+            continue
+        score = matcher.scores[rid]
+        if what == "ambiguous":
+            for w in found:
+                m = {"id": None, "record": rid, "target": w, "score": score, "basis": basis}
+                ties.append(review_entry(m, acd, wikt))
+        elif score < HARD:
+            m = {"id": None, "record": rid, "target": found, "score": score, "basis": basis}
+            weak.append(review_entry(m, acd, wikt))
+    return ties + weak
 
 
 def draw_sample(matches, acd, wikt, seed, n=100):
@@ -1210,13 +1324,16 @@ def main(argv=None):
         type=Path,
         help="an earlier run's check directory: review what changed instead of a fresh sample",
     )
-    r = sub.add_parser("review", help="add a check's judged review.json to the judgements")
+    r = sub.add_parser(
+        "review", help="add a check's judged review.json and hard.json to the judgements"
+    )
     r.add_argument("--out", type=Path, required=True, help="the check directory")
     args = p.parse_args(argv)
     if args.step == "run":
         run(args)
     if args.step == "review":
-        n = harvest_into(JUDGEMENTS, [args.out / "review.json"])
+        reviews = [args.out / f for f in ("review.json", "hard.json")]
+        n = harvest_into(JUDGEMENTS, [r for r in reviews if r.exists()])
         print(f"{JUDGEMENTS}: {n} new judgements")
     if args.step == "scan":
         args.work.mkdir(parents=True, exist_ok=True)

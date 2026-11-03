@@ -178,7 +178,9 @@ def setup():
     wr, wobjs, glosses = wiktionary_objects()
     acd = Acd(aobjs, tree=Tree())
     wikt = Wiktionary(wobjs, glosses)
-    matcher = Matcher(acd, wikt, KEYS, language_map=None, exact={c for _, c in LANGS.values()})
+    # unfitted weights: a few pairs teach EM nothing
+    exact = {c for _, c in LANGS.values()}
+    matcher = Matcher(acd, wikt, KEYS, language_map=None, exact=exact, learn=False)
     return ar, wr, acd, wikt, matcher
 
 
