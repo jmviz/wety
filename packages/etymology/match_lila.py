@@ -289,7 +289,8 @@ SHAPES = {"affix": {"affix"}, "stem": {"word"}, "bare": {"root", "word"}}
 LILA_STEMS = [
     (r"(e/o|ie/o|je/o|eie|eje|ije/o|-e)$", {"verb"}),
     (r"-ne?-[^-]+$", {"verb", "cons"}),  # a nasal present, *bʰi‑n‑d‑
-    (r"ē$", {"verb"}),
+    (r"ē$", {"verb", "i", "cons"}),  # a stative, or an ē-stem noun (*klādē‑)
+    (r"e$", {"verb"}),  # a thematic stem, *ǵnh₃‑sḱé‑
     (r"(h₂|h₁|h₃|h)$", {"a", "cons", "verb"}),  # an ā-stem, a root, a present
     (r"(eh₂|ā|a)$", {"a", "o", "verb"}),  # ā-stems, o-stems' feminines, ā-verbs
     (r"o$", {"o", "a"}),
@@ -297,7 +298,9 @@ LILA_STEMS = [
     (r"(i|ī|ih|ih₁|ih₂)$", {"i", "verb", "cons"}),  # i-stems, i-presents
 ]
 WIKTIONARY_STEMS = [
-    (r"(ti|tor|ēt|et)$", {"verb"}),  # third persons, active and mediopassive
+    # third persons, active and mediopassive, of a verb built on a root or stem that
+    # de Vaan cites bare (*kleh₂u‑d‑, *kleh₂u-de-ti)
+    (r"(ti|tor|ēt|et)$", {"verb", "cons"}),
     (r"(or|ō|ōr|eō|āō|ēō|iō)$", {"verb", "cons"}),  # first persons; n-, r-stems in *‑ō(r)
     (r"(yos|yo-s|yom|ios|io)$", {"o", "i", "cons"}),
     (r"(os|o-s|om|o-m|o-|o)$", {"o", "a", "cons"}),
@@ -315,7 +318,7 @@ def stem_classes(form, lila):
     f = unicodedata.normalize("NFD", form)
     f = "".join(c for c in f if not unicodedata.combining(c) or c == MACRON)
     f = unicodedata.normalize("NFC", f).lower()
-    f = re.sub(r"[*()⁽⁾\s]", "", f.replace("‑", "-")).rstrip("-")
+    f = re.sub(r"[*()⁽⁾?\s]", "", f.replace("‑", "-")).rstrip("-")
     if not f:
         return set()
     alternatives = re.search(r"(\w+)/(\w+)$", f)
@@ -649,7 +652,7 @@ class Matcher:
                 continue
             # Nor, short of an equal key, when the two endings allow no common stem class:
             # such a key agrees on the root, and the ending tells one formation from
-            # another (*nōs is no *nos-éye-ti, for all that a cut ending makes them near).
+            # another (*lukʷo‑ is no *lukʷéyeti, for all that a cut ending makes them near).
             mine = stem_classes(record["form"], True)
             theirs = stem_classes(self.wikt.records[c]["form"], False)
             if strength != "equal" and not mine & theirs:
