@@ -1,26 +1,34 @@
 # de Vaan's comparison keys (LiLa) against Wiktionary's PIE and Proto-Italic ones, every ending cut, from the etymon pairs reviewers judged the same word (etc/judgements.jsonl).
-# Mined by etymology.notation from 157 pairs in data/workspaces/etymology/sources/lila-edl/checks/lila-3-v4/judged-pairs.json:
+# Mined by etymology.notation from 232 pairs in data/workspaces/etymology/sources/lila-edl/checks/lila-3-v4/judged-pairs.json:
 # the differences between their closest keys. Cost 0.25 when seen 5 times or more;
 # ∅ is no character.
 From	To	Count	Cost	Examples
-∅	e	20	0.25	*ḱlei‑tro/h₂‑ : ḱléytreh₂; *ku̯olp‑h₂‑ : kʷolpeh₂; *bʰr‑ti‑ : bʰértis
-∅	i	14	0.25	*h₂eḱ‑eh₁‑ : h₂eḱ-éh₁-ye-ti; *ḱlh₁‑eh₁‑ : ḱl̥h₁-éh₁-ye-ti; *ḱns‑eh₁‑ : ḱn̥s-éh₁-ye-ti
-i	∅	10	0.25	*anati‑ : anats; *fwije/o‑ : fuiō; *χor(s)d‑ejo‑ : horzdeom
-∅	t	7	0.25	*ḱred‑dʰeh₁‑ : ḱréddʰeh₁ti; *sp(i)uH‑ie/o‑ : stpuH-ie-; *tm‑n(e)‑h₁‑ : tm̥-ne-h₁-ti
-e	o	5	0.25	*iekʷ‑r/n‑ : yókʷr̥; *newn̥ : nown̥; *ones‑ : onos
+∅	i	40	0.25	*h₂eḱ‑eh₁‑ : h₂eḱ-éh₁-ye-ti; *ḱlh₁‑eh₁‑ : ḱl̥h₁-éh₁-ye-ti; *ḱns‑eh₁‑ : ḱn̥s-éh₁-ye-ti
+∅	e	38	0.25	*ḱlei‑tro/h₂‑ : ḱléytreh₂; *ku̯olp‑h₂‑ : kʷolpeh₂; *bʰi‑n‑d‑ : bʰinédti
+∅	t	27	0.25	*ḱl‑n(e)‑i‑ : ḱl̥néyti; *ḱred‑dʰeh₁‑ : ḱréddʰeh₁ti; *di‑d(e)h₃‑ : dédeh₃ti
+i	∅	12	0.25	*anati‑ : anats; *fwije/o‑ : fuiō; *χor(s)d‑ejo‑ : horzdeom
+∅	H	9	0.25	*h₁eis‑h₂‑ : h₁éysh₂-eh₂; *u̯l(e)ikʷ‑s‑ : wlikʷ-s-o/eh₂-; *meh₁‑to‑ : méh₁-teh₂
+e	o	6	0.25	*iekʷ‑r/n‑ : yókʷr̥; *newn̥ : nown̥; *ones‑ : onos
+e	∅	6	0.25	*deḱ‑eh₁‑ : dḱ-eh₁-(yé)-ti; *ǵʰer‑i‑ : gʰr̥yéti; *h₂om‑es‑ : h₂ṓms
+a	∅	5	0.25	*lala : lālo-; *lowa‑ : lowō; *lina‑ : linō
+u	∅	5	0.25	*kur‑u̯o‑ : (s)kr̥-wós; *gʷʰrend(ʰ)‑e/o‑ : gʰréndʰ-(e)-ti; *fwor‑(i‑) : foris
 ∅	o	5	0.25	*h₃d‑nt‑ : h₃dónts; *mū̆s‑ko‑ : mows-ko-s; *pónt‑h₁‑s : póntoh₁s
-e	∅	4	0.4	*ǵʰer‑i‑ : gʰr̥yéti; *h₂om‑es‑ : h₂ṓms; *leiþra‑ : līðrā
 o	e	4	0.4	*doh₃‑no‑ : déh₃nom; *loid‑ : leyd-; *h₁oh₁ḱ‑u‑ : HéHḱus
+v	e	4	0.4	*jougVsto‑ : jougestos; *mesVlā‑ : meselā; *parVsā‑ : parezā
 H	∅	3	0.55	*h₂mbʰi‑kʷolh₁‑os : h₂m̥bʰikʷolós; *Hneh₂‑s‑ : néh₂s; *gʷelh₁‑ie/o‑ : gʷél-ye-ti
-∅	H	3	0.55	*Heh₃l‑én‑ : Heh₃l-én-eh₂; *dekm : dekəm; *mnto‑ : məntom
+n	∅	3	0.55	*ḱuōn : ḱwṓ; *ord‑n‑ : ordō; *plu‑mōn : plumō
+s	∅	3	0.55	*tspērsn‑h₂‑ : tpḗrsneh₂; *sē̆h₂‑l‑s : sḗh₂l; *h₂stēr‑s : h₂stḗr
 ∅	a	3	0.55	*kak(k)‑ : kak(k)āō; *menes‑wo‑ : Menezwā; *plou(k)‑smo‑ : plouksmā
-a	∅	2	0.7	*lowa‑ : lowō; *tauf‑o‑ : tūβos
 e	H	2	0.7	*seh₂i‑tlo‑ : sh₂éytlom; *wīkentī : wīkəntī
-n	∅	2	0.7	*ord‑n‑ : ordō; *plu‑mōn : plumō
+i	e	2	0.7	*di‑d(e)h₃‑ : dédeh₃ti; *fifro‑ : feβros
+o	∅	2	0.7	*flow‑e/o‑ : flūō; *dju‑faos : dju-βās
 t	∅	2	0.7	*p(e)tḱ‑ : peḱ-; *petsni‑ : peznis
-u	∅	2	0.7	*gʷʰrend(ʰ)‑e/o‑ : gʰréndʰ-(e)-ti; *wōkʷs : wōks
 H	e	1	0.85	*seh₂i‑tlo‑ : sh₂éytlom
 a	e	1	0.85	*sup(a)mo‑ : supemos
 b	f	1	0.85	*ambi‑k⁽ʷ⁾olo‑ : amβikʷolos
+e	m	1	0.85	*plh₂‑em‑h₂‑ : pl̥h₂meh₂
+e	s	1	0.85	*h₁és‑nt‑s : h₁sónts
+i	o	1	0.85	*ple/o(H)is : plēōs
 k	∅	1	0.85	*dikske/o‑ : diskō
-v	e	1	0.85	*jougVsto‑ : jougestos
+m	e	1	0.85	*plh₂‑em‑h₂‑ : pl̥h₂meh₂
+s	o	1	0.85	*h₁és‑nt‑s : h₁sónts

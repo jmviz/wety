@@ -288,6 +288,7 @@ SHAPES = {"affix": {"affix"}, "stem": {"word"}, "bare": {"root", "word"}}
 # allows both (Wiktionary's *‑os is an o-stem's or an s-stem neuter's).
 LILA_STEMS = [
     (r"(e/o|ie/o|je/o|eie|eje|ije/o|-e)$", {"verb"}),
+    (r"-ne?-[^-]+$", {"verb", "cons"}),  # a nasal present, *bʰi‑n‑d‑
     (r"ē$", {"verb"}),
     (r"(h₂|h₁|h₃|h)$", {"a", "cons", "verb"}),  # an ā-stem, a root, a present
     (r"(eh₂|ā|a)$", {"a", "o", "verb"}),  # ā-stems, o-stems' feminines, ā-verbs
@@ -296,8 +297,8 @@ LILA_STEMS = [
     (r"(i|ī|ih|ih₁|ih₂)$", {"i", "verb", "cons"}),  # i-stems, i-presents
 ]
 WIKTIONARY_STEMS = [
-    # verbs (active, mediopassive, first person), and n- and r-stems in *‑ō(r), *‑or
-    (r"(eti|yeti|ti|tor|or|ō|ōr|eō|āō|ēō|iō|ēt|et)$", {"verb", "cons"}),
+    (r"(ti|tor|ēt|et)$", {"verb"}),  # third persons, active and mediopassive
+    (r"(or|ō|ōr|eō|āō|ēō|iō)$", {"verb", "cons"}),  # first persons; n-, r-stems in *‑ō(r)
     (r"(yos|yo-s|yom|ios|io)$", {"o", "i", "cons"}),
     (r"(os|o-s|om|o-m|o-|o)$", {"o", "a", "cons"}),
     (r"(wis|wus|us|u-s|u-|u)$", {"u", "i"}),
@@ -422,9 +423,10 @@ KEY_BASIS = {"equal": "equal", "near": "near", "cut": "near", "loose": "near", "
 THRESHOLD = 0.5  # a candidate's probability of being the record's word, to be kept
 MARGIN = 0.3  # log2 odds by which the best candidate must beat the next to stand alone
 # The learnt key distance below which a record's lineage may align it, chosen on the
-# judgements held out (lila-3-v4: 0.1, 0.125, 0.15 gave precision 0.969, 0.966, 0.963
-# and recall 0.929, 0.955, 0.967).
-CLOSE = 0.125
+# judgements held out (lila-3-v4, 465 judgements: 0.1, 0.125, 0.15, 0.2 gave precision
+# 0.958, 0.952, 0.953, 0.941 and recall 0.849, 0.861, 0.875, 0.875 before stem classes
+# applied short of an equal key; 0.125 and 0.15 then gave 0.953, 0.954 and 0.945, 0.957).
+CLOSE = 0.15
 ROUNDS = 12
 FIT_ROUNDS = 3
 LABEL_WEIGHT = 100  # how many unjudged pairs a judged pair counts as, in the fit
@@ -645,21 +647,33 @@ class Matcher:
             direct = basis["reflexes"]["shared"] if reflexes else (ancestry or {}).get("shared")
             if strength in WEAK and not direct:
                 continue
-            # Nor when the two endings allow no common stem class: a weak key agrees on
-            # the root, and the ending is what tells a formation from another.
+            # Nor, short of an equal key, when the two endings allow no common stem class:
+            # such a key agrees on the root, and the ending tells one formation from
+            # another (*nōs is no *nos-éye-ti, for all that a cut ending makes them near).
             mine = stem_classes(record["form"], True)
-            if strength in WEAK and not mine & stem_classes(self.wikt.records[c]["form"], False):
+            theirs = stem_classes(self.wikt.records[c]["form"], False)
+            if strength != "equal" and not mine & theirs:
                 continue
             features = {"key": strength, "lineage": lineage(basis)}
             out.append((c, features, basis))
         return out
 
     def pairs(self, record):
+        """A record's candidates: those its key or lineage finds, and any a reviewer
+        judged its word that no rule finds (*ḱuōn and *ḱwṓ once the distance is
+        stricter), which the judgement then decides."""
         if record["language"]["relation"] != "exact" or not record["form"]:
             return []
-        if record["language"]["code"] == "la":
-            return self.latin_pairs(record)
-        return self.etymon_pairs(record)
+        latin = record["language"]["code"] == "la"
+        out = self.latin_pairs(record) if latin else self.etymon_pairs(record)
+        for c in sorted(self.judgements.same(record["id"]) - {c for c, _, _ in out}):
+            if c in self.wikt.records:
+                strength = "near"
+                if not latin and c in self.keys:
+                    strength = self.lila_keys[record["id"]].compare(self.keys[c]) or "close"
+                basis = {"key": KEY_BASIS.get(strength, strength)}
+                out.append((c, {"key": strength, "lineage": "none cited"}, basis))
+        return out
 
     def decide(self, pairs, fit=True):
         """Fits each model to every candidate pair, judged pairs held at their label

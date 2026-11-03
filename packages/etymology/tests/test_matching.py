@@ -116,6 +116,15 @@ class Weighing(unittest.TestCase):
         self.assertEqual(found, {"sow": ["w2"], "join": ["w1"]})
 
 
+class Triangles(unittest.TestCase):
+    def test_a_triangle_that_disagrees_has_a_wrong_link(self):
+        a_to_w = {"a1": "w1", "a2": "w2", "a3": "w3"}
+        b_to_w = {"b1": "w1", "b2": "w9"}
+        t = M.triangulate(a_to_w, b_to_w, {"a1": "b1", "a2": "b2", "a3": "b3"})
+        self.assertEqual((t["triangles"], t["agree"], t["disagree"]), (2, 1, 1))
+        self.assertEqual(t["summed error rate, at least"], 0.5)
+
+
 class Notation(unittest.TestCase):
     def test_align_and_differences(self):
         self.assertEqual(N.align("leKs", "leGs")[0], 1)

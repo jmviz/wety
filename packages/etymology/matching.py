@@ -1,6 +1,7 @@
 """What every matcher shares: reading an export, the closure of what objects refer to,
 reviewed judgements and the regression check they give, a Fellegi–Sunter weighing of
-evidence, and the assignment of a source's homographs.
+evidence, the assignment of a source's homographs, and triangulation: three sources'
+matches checked against each other without review.
 
 A match is decided per record pair by evidence of several kinds (comparison keys,
 reflexes, ancestors, glosses, shape). `Linkage` turns each kind's level into a weight
@@ -450,6 +451,33 @@ def descending(values, weights):
             v1, w1, n1 = blocks.pop()
             blocks.append([(v1 * w1 + v2 * w2) / (w1 + w2), w1 + w2, n1 + n2])
     return [v for v, _, n in blocks for _ in range(n)]
+
+
+def triangulate(a_to_w, b_to_w, a_to_b):
+    """Three sources checked against each other, with no review: `a_to_w` and `b_to_w`
+    map two sources' records to Wiktionary's, `a_to_b` maps the first's records to the
+    second's (a direct match, or the two citing each other). Where all three links
+    exist, the two routes to Wiktionary should arrive at one record; a triangle that
+    does not has at least one wrong link, so the share of such triangles is a lower
+    bound on the summed error rates of the three matchers. Returns the counts and the
+    triangles that disagree."""
+    agree, disagree = 0, []
+    for a, b in sorted(a_to_b.items()):
+        wa, wb = a_to_w.get(a), b_to_w.get(b)
+        if wa is None or wb is None:
+            continue
+        if wa == wb:
+            agree += 1
+        else:
+            disagree.append({"a": a, "b": b, "a to wiktionary": wa, "b to wiktionary": wb})
+    n = agree + len(disagree)
+    return {
+        "triangles": n,
+        "agree": agree,
+        "disagree": len(disagree),
+        "summed error rate, at least": round(len(disagree) / n, 3) if n else None,
+        "disagreements": disagree,
+    }
 
 
 def decide(scored, threshold, margin):
