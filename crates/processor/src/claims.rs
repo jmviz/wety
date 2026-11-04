@@ -410,9 +410,24 @@ impl Items {
             .map(|(ety, _)| ety)
     }
 
-    // An etymology of `item` with one parent that is the claimed single
-    // parent's ancestor or descendant along followed links.
+    // An etymology of `item` the claim refines or is refined by: one that
+    // names every claimed parent and more (the claim names the base of a
+    // formation, the etymology its parts), or one with a single parent that
+    // is the claimed single parent's ancestor or descendant along followed
+    // links.
     fn ety_refined_by(&self, item: ItemId, parents: &[ItemId]) -> Option<u8> {
+        let by_ety = self
+            .graph
+            .all_parent_edges(item)
+            .into_group_map_by(|e| e.ety());
+        if let Some((&ety, _)) = by_ety.iter().find(|(_, edges)| {
+            edges.len() > parents.len()
+                && parents
+                    .iter()
+                    .all(|p| edges.iter().any(|e| e.parent() == *p))
+        }) {
+            return Some(ety);
+        }
         let &[claimed] = parents else {
             return None;
         };
@@ -424,9 +439,7 @@ impl Items {
                 .collect()
         };
         let of_claimed = ancestors(claimed);
-        self.graph
-            .all_parent_edges(item)
-            .into_group_map_by(|e| e.ety())
+        by_ety
             .into_iter()
             .filter_map(|(ety, edges)| match edges[..] {
                 [e] => Some((ety, e.parent())),
@@ -608,6 +621,17 @@ mod tests {
         let canis = add(&mut items, &mut sp, "la", "canis");
         let kwon = add(&mut items, &mut sp, "ine-pro", "ḱwṓ");
         let other = add(&mut items, &mut sp, "ine-pro", "kan-");
+        let purgo = add(&mut items, &mut sp, "la", "pūrgō");
+        let pur = add(&mut items, &mut sp, "itc-pro", "pūr");
+        let igo = add(&mut items, &mut sp, "la", "-igō");
+        items.graph.add_ety(
+            purgo,
+            EtyMode::Suffix,
+            Some(0),
+            EdgeBasis::Etymon,
+            &[pur, igo],
+            &[1.0, 1.0],
+        );
         for (child, parent) in [(lupus, lukos), (canis, kwon)] {
             items.graph.add_ety(
                 child,
@@ -637,6 +661,8 @@ mod tests {
                 devaan.clone(),
                 json!({"type": "hypothesis", "id": "hyp:1", "links": [link("l:lupus", "l:lukos"), link("l:lukos", "l:wlkos")]}),
                 json!({"type": "hypothesis", "id": "hyp:2", "links": [link("l:canis", "l:kan")]}),
+                json!({"type": "hypothesis", "id": "hyp:4", "links": [link("l:purgo", "l:pur")]}),
+                assertion("as:4", "hyp:4", "agent:de-vaan"),
                 assertion("as:1", "hyp:1", "agent:de-vaan"),
                 assertion("as:2", "hyp:2", "agent:de-vaan"),
             ],
@@ -651,6 +677,8 @@ mod tests {
                 matched("l:canis", "wiktionary:la:canis#1"),
                 matched("l:kan", "wiktionary:ine-pro:kan-#1"),
                 matched("l:kwon", "wiktionary:ine-pro:ḱwṓ#1"),
+                matched("l:purgo", "wiktionary:la:pūrgō#1"),
+                matched("l:pur", "wiktionary:itc-pro:pūr#1"),
                 devaan,
                 json!({"type": "hypothesis", "id": "hyp:w", "links": [link("wiktionary:la:lupus#1", "wiktionary:itc-pro:lukʷos#1")]}),
                 assertion("as:w", "hyp:w", "agent:wiktionary-editors"),
@@ -683,6 +711,9 @@ mod tests {
         // still two origins on canis, Wiktionary's and de Vaan's
         assert!(graph.claims[&canis].iter().any(|c| c.compiled));
         assert_eq!(counts["links: same"], 2);
+        // pūrgō: de Vaan names the base of Wiktionary's pūr + -igō
+        assert_eq!(graph.claims[&purgo][0].relation, Relation::Refines);
+        assert_eq!(graph.ety_count(purgo), 1);
         assert_eq!(counts["links: competes"], 2);
         let _ = other;
     }
