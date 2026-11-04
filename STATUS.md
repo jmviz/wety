@@ -15,7 +15,7 @@ and citations from reviewed evidence in the `packages/dating` registry.
 
 - **Site:** wety.org and api.wety.org; only the maintainer merges/deploys `main` and
   `production` ([deploy/README.md](deploy/README.md)).
-- **Graph:** `dab06f67…` live, from the 2026-09-01 dump. The stack adopts `2526e555…`:
+- **Graph:** `dab06f67…` live, from the 2026-09-01 dump. The stack adopts `15c68ef6…`:
   10.1 million words, 9.95 million links, 6,003 languages, each entry's References, and
   the ACD's and de Vaan's claims; it needs the stack's server and client.
   Dates cover 348 codes, 135 estimated proto-language ends.
@@ -28,19 +28,19 @@ and citations from reviewed evidence in the `packages/dating` registry.
   receipted workflows (`etymology_assertions`, `acd_claims`, `lila_claims`). 11,476
   words carry claims: 1,248 read by consensus, 5 by preference, 152 unsettled (disputed,
   awaiting syn-2's model tier); review 53 of 55 right. Word details show other sources'
-  claims and how the primary was chosen; the chart badges disputed words. First
-  generation report: `data/runs/18d9bfc7ca8f43a4a080f7166f8d9f81/checks/syn-1/`.
-- **acd-3, lila-3 (matchers v4):** 2,216 ACD reconstructions and 15,713 attested forms,
-  1,380 Latin entries and 1,796 de Vaan etymons matched to wety's items; held-out
-  precision 0.962 (ACD) and 0.925 (LiLa). Schema v4 adds the relay difference `form`.
+  claims and how the primary was chosen; the chart badges disputed words. LiLa gives
+  every link the type inheritance, so schema v5 marks its mode uniform and nothing
+  compares a mode against it. Report: `data/runs/aa966f3bd0dc4142915995f2fb7462dd/checks/syn-1/`.
+- **acd-3, lila-3 (matchers v4):** 17,929 ACD and 3,176 LiLa records matched to wety's
+  items; held-out precision 0.962 (ACD) and 0.925 (LiLa).
 
 ## Uncertainties
 
 - Not built: "whose view", the `view`/`floor` tree parameters, "possibly related" in
-  Cognates, source-only items for unmatched records (110,240 links dropped). LiLa's
-  converter writes every link as inherited, so mode differences with de Vaan are
-  artifacts. The ACD adds only compiled credits: none of its stated borrowings is fully
-  matched.
+  Cognates, source-only items for unmatched records (110,240 links dropped). The ACD adds
+  only compiled credits: none of its stated borrowings is fully matched. Wiktionary's
+  `{{der}}` along a line of descent stays "derived": it mostly marks learned borrowings,
+  names and new formations, so ancestry alone does not make it inherited.
 - wiktextract drops most footnotes (38 credits to de Vaan in the graph, about 3,257
   sections citing him in the dump) and keeps no position for any: parsing the Wiktionary
   HTML dump directly, a project the maintainer envisions, would recover both.
@@ -53,7 +53,7 @@ and citations from reviewed evidence in the `packages/dating` registry.
 ## Next three actions
 
 1. syn-2: the model tier for the 152 unsettled words; prose citations and conjectures.
-2. LiLa modes (state none rather than "inherited") and source-only items.
+2. Source-only items for records with no match.
 3. Whose view and the tree parameters (core-6's rest).
 
 ## Decisions needed from the maintainer
