@@ -10,7 +10,12 @@
     "references": "data/artifacts/wiktionary-references/5fc55739b19288a06eec1178ede33bbaac280799289c5b3d31cc5552a46d8d30/files/section_credits.jsonl.gz",
     "bibliography": "data/artifacts/wiktionary-references/5fc55739b19288a06eec1178ede33bbaac280799289c5b3d31cc5552a46d8d30/files/bibliography.jsonl",
     "pos": "crates/core/src/pos_phf.rs",
-    "model": "data/registry/embedding-model.json"
+    "model": "data/registry/embedding-model.json",
+    "acd_assertions": "data/artifacts/acd-claims/37e9d826b2b270c3d7be36fa1093dca7d4972ab0b8c5a541d59a30c0e7832ba3/files/acd.jsonl",
+    "acd_matches": "data/artifacts/acd-claims/37e9d826b2b270c3d7be36fa1093dca7d4972ab0b8c5a541d59a30c0e7832ba3/files/matches/assertions.jsonl",
+    "lila_assertions": "data/artifacts/lila-claims/814a00373fc843d375e4a4239ece554959bb7af5c47282626429fec654c2bb5c/files/lila.jsonl",
+    "lila_matches": "data/artifacts/lila-claims/814a00373fc843d375e4a4239ece554959bb7af5c47282626429fec654c2bb5c/files/matches/assertions.jsonl",
+    "overrides": "data/workspaces/etymology/sources/wiktionary/etc/overrides.json"
   },
   "commands": [
     [
@@ -38,6 +43,14 @@
       "{input_references}",
       "--bibliography",
       "{input_bibliography}",
+      "--claims",
+      "{input_acd_assertions}",
+      "{input_acd_matches}",
+      "--claims",
+      "{input_lila_assertions}",
+      "{input_lila_matches}",
+      "--overrides",
+      "{input_overrides}",
       "--embeddings-model",
       "ibm-granite/granite-embedding-small-english-r2",
       "--embeddings-model-revision",

@@ -1,0 +1,4 @@
+{
+  "description": "Reviewers' overrides of words' readings (claims model, synthesis tier 1): each names a word (record id), the parents of the chosen etymology as record ids (null: no primary), the reviewer, a rationale, and the digest of the word's evidence it was chosen against; a stale digest leaves it unapplied.",
+  "overrides": []
+}
