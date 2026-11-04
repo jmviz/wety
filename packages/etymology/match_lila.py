@@ -1161,6 +1161,7 @@ def mining_pairs(matcher):
 def main(argv=None):
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     p.add_argument("--export", type=Path, help="a graph's assertion export (graph-assertions)")
+    p.add_argument("--lila", type=Path, help="LiLa's assertions, as `convert.lila` wrote them")
     p.add_argument("--out", type=Path, required=True, help="the check directory")
     p.add_argument(
         "--compare", type=Path, help="an earlier check directory: write what changed against it"
@@ -1189,7 +1190,9 @@ def main(argv=None):
         print(f"{n} new judgements; regressions: {len(result['judgements']['regressions'])}")
         result_path.write_text(json.dumps(result, ensure_ascii=False, indent=1) + "\n")
         return
-    lila_path = LILA / "checks/lila-2/assertions.jsonl"
+    if args.export is None or args.lila is None:
+        p.error("matching needs --export and --lila")
+    lila_path = args.lila
     profiles = (LILA / "etc/orthography.tsv", WIKTIONARY_PROFILE)
     inputs = [args.export, lila_path, *profiles, JUDGEMENTS, SUBSTITUTIONS]
     extraction = A.extraction(

@@ -59,10 +59,6 @@ from etymology.matching import (
     pooled,
 )
 
-WIKTIONARY_EXPORT = (
-    REPO
-    / "data/artifacts/wiktionary-export/2d98b7aa0c9965e1492db2e242ead832fe7e3c161e1f1a27c1d177135c6df2b7/files"
-)
 SOURCES = REPO / "data/workspaces/etymology/sources"
 ACD = SOURCES / "acd"
 PROFILES = {
@@ -99,11 +95,12 @@ RECORD_CODE = re.compile(r"^wiktionary:([^:]+):")
 LANG_CODE = re.compile(rb'"lang_code": "([^"]+)"')
 
 
-def austronesian_codes(export=WIKTIONARY_EXPORT, language_map=ACD / "etc/languages.json"):
+def austronesian_codes(languages, families_path, language_map=ACD / "etc/languages.json"):
     """Wiktionary's codes of the Austronesian family (languages whose family is `map` or
-    below it, and its proto-languages), with every code the ACD's language map names."""
-    langs = json.loads((export / "languages.json").read_text())
-    fams = json.loads((export / "families.json").read_text())
+    below it, and its proto-languages), with every code the ACD's language map names, from
+    Wiktionary's language and family data (`languages.json`, `families.json`)."""
+    langs = json.loads(Path(languages).read_text())
+    fams = json.loads(Path(families_path).read_text())
     families = {f for f, v in fams.items() if f == "map" or "map" in v["superfamilies"]}
     codes = {c for c, v in langs.items() if v.get("family") in families}
     codes |= {fams[f]["protoLanguage"] for f in families if fams[f].get("protoLanguage")}
@@ -1370,6 +1367,8 @@ def main(argv=None):
     s.add_argument("--export", type=Path, required=True, help="a graph's assertions.jsonl.gz")
     s.add_argument("--wiktextract", type=Path, required=True, help="raw-wiktextract-data.jsonl.gz")
     s.add_argument("--work", type=Path, required=True, help="the work directory")
+    s.add_argument("--languages", type=Path, required=True, help="Wiktionary's languages.json")
+    s.add_argument("--families", type=Path, required=True, help="Wiktionary's families.json")
     s.add_argument("--only", choices=["export", "glosses"])
     m = sub.add_parser("run", help="match, relay, and write the check's files")
     m.add_argument("--acd", type=Path, required=True, help="the ACD's assertions (acd-2)")
@@ -1396,7 +1395,7 @@ def main(argv=None):
         print(f"{JUDGEMENTS}: {n} new judgements")
     if args.step == "scan":
         args.work.mkdir(parents=True, exist_ok=True)
-        codes = austronesian_codes()
+        codes = austronesian_codes(args.languages, args.families)
         if args.only != "glosses":
             n = scan_export(args.export, codes, args.work / "wiktionary.jsonl.gz")
             print(f"wiktionary.jsonl.gz: {n} objects")

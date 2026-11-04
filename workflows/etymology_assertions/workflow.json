@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "mode": "artifact",
+  "collection": "etymology-assertions",
+  "product": "etymology_assertions",
+  "inputs": {
+    "graph": "data/artifacts/etymology-graph/3da0f0c9159cf10e92fb0b5d97ef3ecfba7484fb08e62306fa5664c3d043eec2/files/wety.json.gz",
+    "graph_receipt": "data/runs/ccaf05246fcb466f94916b3f5ae6654a/receipt.json",
+    "bibliography": "data/artifacts/wiktionary-references/5fc55739b19288a06eec1178ede33bbaac280799289c5b3d31cc5552a46d8d30/files/bibliography.jsonl",
+    "profile": "data/workspaces/etymology/sources/wiktionary/etc/source.json"
+  },
+  "commands": [
+    [
+      "cargo",
+      "run",
+      "--locked",
+      "--release",
+      "-p",
+      "processor",
+      "--bin",
+      "graph-assertions",
+      "--",
+      "{input_graph}",
+      "{input_graph_receipt}",
+      "{output}/assertions.jsonl.gz",
+      "--counts",
+      "{output}/counts.json"
+    ]
+  ],
+  "required_outputs": [
+    "assertions.jsonl.gz",
+    "counts.json"
+  ],
+  "entrypoint": "assertions.jsonl.gz"
+}

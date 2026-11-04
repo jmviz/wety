@@ -106,7 +106,8 @@ checkout whose `data/` holds the inputs:
 W=<a work directory>; C=$S/acd/checks/acd-3-v4
 E=data/runs/ccaf05246fcb466f94916b3f5ae6654a/checks/core-4-references/assertions.jsonl.gz
 X=data/artifacts/wiktextract/6da0ba5bf330650cba59911466da388d3f60c69519a50dc9ca71451b0bfba506/files/raw-wiktextract-data.jsonl.gz
-uv run --frozen python -m etymology.match_acd scan --export $E --wiktextract $X --work $W
+L=data/artifacts/wiktionary-export/2d98b7aa0c9965e1492db2e242ead832fe7e3c161e1f1a27c1d177135c6df2b7/files
+uv run --frozen python -m etymology.match_acd scan --export $E --wiktextract $X --languages $L/languages.json --families $L/families.json --work $W
 uv run --frozen python -m etymology.match_acd run --acd $S/acd/checks/acd-2/assertions.jsonl --export $E --wiktextract $X --work $W --out $C --previous $S/acd/checks/acd-3-v3
 uv run --frozen python -m etymology.match_acd review --out $C
 ```
@@ -143,7 +144,7 @@ lila-2 assertions; both must lie in the checkout, so hard-link them in a worktre
 
 ```sh
 C=$S/lila-edl/checks/lila-3-v4
-uv run --frozen python -m etymology.match_lila --export data/runs/<run>/checks/core-4-references/assertions.jsonl.gz --out $C --compare $S/lila-edl/checks/lila-3-linkage
+uv run --frozen python -m etymology.match_lila --export data/runs/<run>/checks/core-4-references/assertions.jsonl.gz --lila $S/lila-edl/checks/lila-2/assertions.jsonl --out $C --compare $S/lila-edl/checks/lila-3-linkage
 uv run --frozen python -m etymology.match_lila --out $C --review
 uv run --frozen python -m etymology.notation $C/pairs.json --out $S/lila-edl/etc/substitutions-wiktionary.tsv --note "de Vaan's keys (LiLa) against Wiktionary's, from judged pairs"
 ```
