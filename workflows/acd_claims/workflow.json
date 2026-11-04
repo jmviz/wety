@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "mode": "artifact",
+  "collection": "acd-claims",
+  "product": "acd_claims",
+  "inputs": {
+    "export": "data/artifacts/etymology-assertions/6ca7304f4d675e0cae180247c8825e3083cf916d684fd2e4f1d4e72b1fff8374/files/assertions.jsonl.gz",
+    "wiktextract": "data/artifacts/wiktextract/6da0ba5bf330650cba59911466da388d3f60c69519a50dc9ca71451b0bfba506/files/raw-wiktextract-data.jsonl.gz",
+    "languages": "data/artifacts/wiktionary-export/2d98b7aa0c9965e1492db2e242ead832fe7e3c161e1f1a27c1d177135c6df2b7/files/languages.json",
+    "families": "data/artifacts/wiktionary-export/2d98b7aa0c9965e1492db2e242ead832fe7e3c161e1f1a27c1d177135c6df2b7/files/families.json",
+    "cldf_languages_csv": "data/workspaces/etymology/sources/acd/raw/lexibank-acd-16085f2/cldf/languages.csv",
+    "cldf_media_csv": "data/workspaces/etymology/sources/acd/raw/lexibank-acd-16085f2/cldf/media.csv",
+    "cldf_forms_csv": "data/workspaces/etymology/sources/acd/raw/lexibank-acd-16085f2/cldf/forms.csv",
+    "cldf_cognatesets_csv": "data/workspaces/etymology/sources/acd/raw/lexibank-acd-16085f2/cldf/cognatesets.csv",
+    "cldf_cognates_csv": "data/workspaces/etymology/sources/acd/raw/lexibank-acd-16085f2/cldf/cognates.csv",
+    "cldf_cf_csv": "data/workspaces/etymology/sources/acd/raw/lexibank-acd-16085f2/cldf/cf.csv",
+    "cldf_cfitems_csv": "data/workspaces/etymology/sources/acd/raw/lexibank-acd-16085f2/cldf/cfitems.csv",
+    "cldf_borrowings_csv": "data/workspaces/etymology/sources/acd/raw/lexibank-acd-16085f2/cldf/borrowings.csv",
+    "cldf_sources_bib": "data/workspaces/etymology/sources/acd/raw/lexibank-acd-16085f2/cldf/sources.bib",
+    "acd_languages": "data/workspaces/etymology/sources/acd/etc/languages.json",
+    "acd_kinds": "data/workspaces/etymology/sources/acd/etc/kinds.json",
+    "acd_source": "data/workspaces/etymology/sources/acd/etc/source.json",
+    "acd_orthography": "data/workspaces/etymology/sources/acd/etc/orthography.tsv",
+    "acd_orthography_attested": "data/workspaces/etymology/sources/acd/etc/orthography-attested.tsv",
+    "acd_judgements": "data/workspaces/etymology/sources/acd/etc/judgements.jsonl",
+    "wiktionary_orthography_map": "data/workspaces/etymology/sources/wiktionary/etc/orthography-map.tsv",
+    "wiktionary_orthography_map_attested": "data/workspaces/etymology/sources/wiktionary/etc/orthography-map-attested.tsv"
+  },
+  "commands": [
+    [
+      "{python}",
+      "-m",
+      "etymology.convert.acd",
+      "--out",
+      "{output}/acd.jsonl",
+      "--counts",
+      "{output}/acd_counts.json"
+    ],
+    [
+      "{python}",
+      "-m",
+      "etymology.match_acd",
+      "scan",
+      "--export",
+      "{input_export}",
+      "--wiktextract",
+      "{input_wiktextract}",
+      "--languages",
+      "{input_languages}",
+      "--families",
+      "{input_families}",
+      "--work",
+      "{output}/work"
+    ],
+    [
+      "{python}",
+      "-m",
+      "etymology.match_acd",
+      "run",
+      "--acd",
+      "{output}/acd.jsonl",
+      "--export",
+      "{input_export}",
+      "--wiktextract",
+      "{input_wiktextract}",
+      "--work",
+      "{output}/work",
+      "--out",
+      "{output}/matches"
+    ]
+  ],
+  "validation": [
+    [
+      "{python}",
+      "-m",
+      "etymology.assertions",
+      "{output}/acd.jsonl",
+      "{output}/matches/assertions.jsonl"
+    ]
+  ],
+  "required_outputs": [
+    "acd.jsonl",
+    "matches/assertions.jsonl"
+  ],
+  "entrypoint": "matches/assertions.jsonl"
+}

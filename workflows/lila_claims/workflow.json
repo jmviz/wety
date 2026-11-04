@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "mode": "artifact",
+  "collection": "lila-claims",
+  "product": "lila_claims",
+  "inputs": {
+    "export": "data/artifacts/etymology-assertions/6ca7304f4d675e0cae180247c8825e3083cf916d684fd2e4f1d4e72b1fff8374/files/assertions.jsonl.gz",
+    "ttl": "data/workspaces/etymology/sources/lila-edl/raw/CIRCSE-EtymologicalDictionaryLatin-cda69dc/data/BrillEDL.ttl",
+    "lila_languages": "data/workspaces/etymology/sources/lila-edl/etc/languages.json",
+    "lila_forms": "data/workspaces/etymology/sources/lila-edl/etc/forms.json",
+    "lila_source": "data/workspaces/etymology/sources/lila-edl/etc/source.json",
+    "lila_orthography": "data/workspaces/etymology/sources/lila-edl/etc/orthography.tsv",
+    "lila_judgements": "data/workspaces/etymology/sources/lila-edl/etc/judgements.jsonl",
+    "lila_substitutions_wiktionary": "data/workspaces/etymology/sources/lila-edl/etc/substitutions-wiktionary.tsv",
+    "wiktionary_orthography_ine_itc": "data/workspaces/etymology/sources/wiktionary/etc/orthography-ine-itc.tsv"
+  },
+  "commands": [
+    [
+      "{python}",
+      "-m",
+      "etymology.convert.lila",
+      "--out",
+      "{output}/lila.jsonl",
+      "--decisions",
+      "{output}/decisions.json"
+    ],
+    [
+      "{python}",
+      "-m",
+      "etymology.match_lila",
+      "--export",
+      "{input_export}",
+      "--lila",
+      "{output}/lila.jsonl",
+      "--out",
+      "{output}/matches"
+    ]
+  ],
+  "validation": [
+    [
+      "{python}",
+      "-m",
+      "etymology.assertions",
+      "{output}/lila.jsonl",
+      "{output}/matches/assertions.jsonl"
+    ]
+  ],
+  "required_outputs": [
+    "lila.jsonl",
+    "matches/assertions.jsonl"
+  ],
+  "entrypoint": "matches/assertions.jsonl"
+}
