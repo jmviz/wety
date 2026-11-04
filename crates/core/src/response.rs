@@ -140,6 +140,18 @@ pub struct EtymologyJson<'a> {
     /// The etymology walks follow; null when it has several and none is
     /// preferred, and walks follow each.
     pub primary: Option<u8>,
+    /// How the primary was chosen, when not by one lineage.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reading: Option<ReadingJson>,
+}
+
+/// How a word's primary was chosen: the tier (`consensus`, `preference`,
+/// `unsettled`, `override`) and whether independent origins dispute it.
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ReadingJson {
+    pub tier: &'static str,
+    pub disputed: bool,
 }
 
 #[derive(Serialize)]
@@ -150,6 +162,8 @@ pub struct EtyJson<'a> {
     pub mode: Option<&'static str>,
     /// Whether a wety rule reads it rather than a source stating it.
     pub inferred: bool,
+    /// Whether only another source than Wiktionary gives it.
+    pub source: bool,
     pub parents: Vec<EtymologyJson<'a>>,
 }
 
@@ -159,6 +173,7 @@ pub struct EtyJson<'a> {
 #[serde(rename_all = "camelCase")]
 pub struct OriginJson<'a> {
     pub primary: Option<u8>,
+    pub reading: ReadingJson,
     pub hypotheses: Vec<HypothesisJson<'a>>,
 }
 
@@ -168,7 +183,32 @@ pub struct HypothesisJson<'a> {
     pub kind: &'static str,
     pub mode: Option<&'static str>,
     pub parents: Vec<LinkJson<'a>>,
-    pub asserted: AssertionJson<'a>,
+    /// Wiktionary's assertion of it (its editors', or a wety rule's reading
+    /// of Wiktionary); none when only another source gives it.
+    pub asserted: Option<AssertionJson<'a>>,
+    /// Other sources' claims about it.
+    pub claims: Vec<ClaimJson<'a>>,
+}
+
+/// Another source's claim about one of a word's etymologies.
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ClaimJson<'a> {
+    /// The asserter's id (`agent:de-vaan`) and name.
+    pub by: &'a str,
+    pub by_name: &'a str,
+    /// endorses, reports or rejects
+    pub stance: &'static str,
+    /// same, refines or competes: how it stands to the etymology
+    pub relation: &'static str,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub certainty: Option<&'static str>,
+    /// The claim's own mode, when it is not the etymology's.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub mode: Option<&'static str>,
+    /// Whether a wety rule compiled it from the source's structure.
+    pub compiled: bool,
+    pub locator: &'a str,
 }
 
 #[derive(Serialize)]
@@ -188,6 +228,9 @@ pub struct AssertionJson<'a> {
     pub by: &'static str,
     /// Who that is, for readers.
     pub by_name: &'static str,
+    /// The source a relay found it follows, by name.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub following: Option<&'a str>,
     /// For a rule: what it inferred the etymology from.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub words: Option<String>,

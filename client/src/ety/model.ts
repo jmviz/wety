@@ -22,6 +22,7 @@ import {
   Item,
   Lang,
   OtherParent,
+  Reading,
   TreeKind,
 } from "../search/types";
 
@@ -31,6 +32,8 @@ export interface Alternative {
   kind: EtyAlternative["kind"];
   mode: string | null;
   inferred: boolean;
+  // Given only by another source than Wiktionary.
+  source: boolean;
 }
 
 export interface LangCount {
@@ -51,6 +54,8 @@ export interface TreeNode {
   // etymologies it is a parent in, and how firmly.
   alternatives: Alternative[];
   primary: number | null;
+  // How the primary was chosen, when not by one lineage (chart only).
+  reading: Reading | null;
   alt: number | null;
   certainty: string | null;
   otherParents: OtherParent[];
@@ -100,6 +105,7 @@ interface RawNode {
   etyMode: string | null;
   alternatives: Alternative[];
   primary: number | null;
+  reading: Reading | null;
   alt: number | null;
   certainty: string | null;
   otherParents: OtherParent[];
@@ -116,6 +122,7 @@ function rawFromDescendants(d: Descendants): RawNode {
     etyMode: d.etyMode,
     alternatives: [],
     primary: null,
+    reading: null,
     alt: null,
     certainty: null,
     otherParents: d.otherParents ?? [],
@@ -131,8 +138,14 @@ function rawFromEtymology(e: Etymology, alt: number | null = null): RawNode {
     item: e.item,
     langDistance: e.langDistance,
     etyMode: e.etymologies[e.primary ?? 0]?.mode ?? null,
-    alternatives: e.etymologies.map(({ kind, mode, inferred }) => ({ kind, mode, inferred })),
+    alternatives: e.etymologies.map(({ kind, mode, inferred, source }) => ({
+      kind,
+      mode,
+      inferred,
+      source,
+    })),
     primary: e.primary,
+    reading: e.reading ?? null,
     alt,
     certainty: e.certainty ?? null,
     otherParents: [],
@@ -217,6 +230,7 @@ export function buildForest(
       etyMode: raw.etyMode,
       alternatives: raw.alternatives,
       primary: raw.primary,
+      reading: raw.reading,
       alt: raw.alt,
       certainty: raw.certainty,
       otherParents: raw.otherParents,

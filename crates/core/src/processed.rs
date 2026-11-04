@@ -1,16 +1,18 @@
 use crate::{
     HashMap, HashSet, assertions,
     descendant_langs::DescendantLangs,
-    ety_graph::{Certainty, EtyEdge, EtyKind},
+    ety_graph::{Certainty, EdgeBasis, EtyEdge, EtyKind},
     ety_graph::{EtyEdgeAccess, EtyGraph, Progenitors},
     etymology_templates::EtyMode,
     items::{Item, ItemId},
     languages::Lang,
     response::{
-        AssertionJson, CognatesJson, CreditJson, DescendantsJson, EtyJson, EtymologyJson, GlossStr,
-        HypothesisJson, ItemJson, LinkJson, OriginJson, OtherParentJson, TrailStepJson,
+        AssertionJson, ClaimJson, CognatesJson, CreditJson, DescendantsJson, EtyJson,
+        EtymologyJson, GlossStr, HypothesisJson, ItemJson, LinkJson, OriginJson, OtherParentJson,
+        ReadingJson, TrailStepJson,
     },
     string_pool::StringPool,
+    synthesis::Reading,
 };
 
 use std::{
@@ -500,6 +502,9 @@ impl Data {
                     kind: (*kind).into(),
                     mode: edges.first().map(|e| e.mode().as_str()),
                     inferred: edges.first().is_some_and(|e| e.basis().is_rule()),
+                    source: edges
+                        .first()
+                        .is_some_and(|e| e.basis() == EdgeBasis::Source),
                     parents: edges
                         .iter()
                         .map(|e| {
@@ -514,6 +519,12 @@ impl Data {
                 })
                 .collect(),
             primary,
+            reading: self
+                .graph
+                .etymologies(item_id)
+                .map(|e| e.reading)
+                .filter(|r| *r != Reading::default())
+                .map(reading_json),
         }
     }
 
@@ -529,10 +540,28 @@ impl Data {
                     .ok()
                     .and_then(|n| self.graph.asserted(item_id, n));
                 // an unknown origin is stated in the word's own section
-                let basis = edges
-                    .first()
-                    .map_or(crate::ety_graph::EdgeBasis::Template, |e| e.basis());
+                let basis = edges.first().map_or(EdgeBasis::Template, |e| e.basis());
                 let rule = assertions::rule(basis);
+                let ety = u8::try_from(n).unwrap_or(u8::MAX);
+                let agent = |i: u32| self.graph.agents.get(i as usize);
+                let claims = self
+                    .graph
+                    .claims
+                    .get(&item_id)
+                    .into_iter()
+                    .flatten()
+                    .filter(|c| c.ety == ety)
+                    .map(|c| ClaimJson {
+                        by: agent(c.agent).map_or("", |a| &a.id),
+                        by_name: agent(c.agent).map_or("", |a| &a.name),
+                        stance: c.stance.into(),
+                        relation: c.relation.into(),
+                        certainty: (c.certainty != Certainty::Stated).then(|| c.certainty.into()),
+                        mode: c.mode.map(|m| m.as_str()),
+                        compiled: c.compiled,
+                        locator: &c.locator,
+                    })
+                    .collect();
                 HypothesisJson {
                     kind: (*kind).into(),
                     mode: edges.first().map(|e| e.mode().as_str()),
@@ -545,9 +574,14 @@ impl Data {
                             head: e.head(),
                         })
                         .collect(),
-                    asserted: AssertionJson {
+                    claims,
+                    asserted: (basis != EdgeBasis::Source).then(|| AssertionJson {
                         by: rule.unwrap_or("wiktionary-editors"),
                         by_name: rule.map_or("Wiktionary's editors", assertions::rule_name),
+                        following: asserted
+                            .and_then(|a| a.origin)
+                            .and_then(agent)
+                            .map(|a| &*a.name),
                         words: rule
                             .map(|_| assertions::compiled_words(asserted.map_or(0, |a| a.inputs))),
                         page: self.item_json_inner(
@@ -570,14 +604,27 @@ impl Data {
                                 }
                             })
                             .collect(),
-                    },
+                    }),
                 }
             })
             .collect();
         OriginJson {
             primary,
+            reading: reading_json(
+                self.graph
+                    .etymologies(item_id)
+                    .map(|e| e.reading)
+                    .unwrap_or_default(),
+            ),
             hypotheses,
         }
+    }
+}
+
+fn reading_json(reading: Reading) -> ReadingJson {
+    ReadingJson {
+        tier: reading.tier.into(),
+        disputed: reading.disputed,
     }
 }
 
@@ -1149,7 +1196,7 @@ mod lineage_tests {
 
         let origin = data.item_origin_json(doubt);
         assert_eq!(origin.hypotheses.len(), 2);
-        let asserted = &origin.hypotheses[1].asserted;
+        let asserted = origin.hypotheses[1].asserted.as_ref().unwrap();
         assert_eq!(
             (asserted.by, asserted.section, asserted.page.id),
             ("wiktionary-editors", "Etymology", doubt)

@@ -84,6 +84,11 @@ function ChartNode(props: { node: TreeNode }) {
       </div>
       <Show when={above}>
         <div class="chart-mode">
+          <Show when={n.reading?.disputed}>
+            <span class="disputed-badge" title="independent sources disagree">
+              disputed
+            </span>{" "}
+          </Show>
           <Show
             when={count > 1 && all()}
             fallback={
@@ -145,8 +150,14 @@ function AltMode(props: { alt: Alternative | undefined }) {
         >
           <Show when={a().mode && (a().mode !== "inherited" || a().inferred)}>
             <span
-              classList={{ inferred: a().inferred }}
-              title={a().inferred ? "inferred by wety, not stated by a source" : undefined}
+              classList={{ inferred: a().inferred, "from-source": a().source }}
+              title={
+                a().inferred
+                  ? "inferred by wety, not stated by a source"
+                  : a().source
+                    ? "given by another source, not Wiktionary"
+                    : undefined
+              }
             >
               {etyModeRep(a().mode!)}
             </span>

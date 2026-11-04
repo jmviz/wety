@@ -373,3 +373,23 @@
   font-style: italic;
   font-size: 0.92em;
 }
+
+/* How the primary was chosen, and other sources' claims. */
+.origin-reading {
+  font-size: 0.85em;
+  color: var(--muted);
+  margin: 0.3em 0 0;
+}
+
+.disputed-badge {
+  font-variant: small-caps;
+  letter-spacing: 0.03em;
+  color: var(--ink);
+  border: var(--line) solid var(--rule);
+  border-radius: 0.3em;
+  padding: 0 0.3em;
+}
+
+.origin-claim .claim-by {
+  color: var(--ink);
+}

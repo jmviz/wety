@@ -1,5 +1,5 @@
 import "./popover.css";
-import { Assertion, Credit, Hypothesis, Item, TreeKind, term } from "../search/types";
+import { Assertion, Claim, Credit, Item, Reading, TreeKind, term } from "../search/types";
 import { EtySource, TreeNode } from "./model";
 import { LangName, shortLangsInDetails } from "./langName";
 import { etyModeRep, etyModeShort, etyPrep } from "./etyMode";
@@ -303,14 +303,33 @@ function Lineage(props: { node: TreeNode }) {
   );
 }
 
+// What the reader is told about how the primary was chosen.
+const READING_NAME: Record<Reading["tier"], string | null> = {
+  one_lineage: null,
+  consensus: "sources agree",
+  preference: "preferred: the only firm one",
+  unsettled: "sources disagree; none preferred",
+  override: "chosen by a reviewer",
+};
+
 // The word's etymologies, each with who states it, where, and the works they
 // follow: "from Latin lupus · Wiktionary's editors, following De Vaan (2008),
-// p. 353". Several are alternatives, "or".
+// p. 353"; then what other sources say of it ("also Michiel de Vaan"). Several
+// are alternatives, "or".
 function OriginList(props: { item: Item }) {
   const [origin] = createResource(() => props.item.id, fetchOrigin);
   const hypotheses = () => origin()?.hypotheses ?? [];
+  const reading = () => origin()?.reading;
   return (
     <Show when={hypotheses().length > 0}>
+      <Show when={reading() && (READING_NAME[reading()!.tier] || reading()!.disputed)}>
+        <div class="origin-reading">
+          <Show when={reading()!.disputed}>
+            <span class="disputed-badge">disputed</span>{" "}
+          </Show>
+          {READING_NAME[reading()!.tier]}
+        </div>
+      </Show>
       <ol class="popover-origin" aria-label="origin">
         <For each={hypotheses()}>
           {(h, i) => (
@@ -329,7 +348,10 @@ function OriginList(props: { item: Item }) {
                   <span class="popover-muted"> · preferred</span>
                 </Show>
               </div>
-              <AssertedBy asserted={h.asserted} item={props.item} hypothesis={h} />
+              <Show when={h.asserted}>
+                {(a) => <AssertedBy asserted={a()} item={props.item} />}
+              </Show>
+              <For each={h.claims}>{(c) => <ClaimLine claim={c} />}</For>
             </li>
           )}
         </For>
@@ -340,7 +362,7 @@ function OriginList(props: { item: Item }) {
 
 // "stated by Wiktionary's editors, in the Descendants of Latin lupus", or a
 // rule's reading: "inferred by wety from a form-of sense".
-function AssertedBy(props: { asserted: Assertion; item: Item; hypothesis: Hypothesis }) {
+function AssertedBy(props: { asserted: Assertion; item: Item }) {
   const a = () => props.asserted;
   const elsewhere = () => a().page.id !== props.item.id;
   const page = () => (
@@ -373,12 +395,38 @@ function AssertedBy(props: { asserted: Assertion; item: Item; hypothesis: Hypoth
           ↗
         </a>
       </Show>
+      <Show when={a().following}>
+        {(f) => <>, following {f()}</>}
+      </Show>
       <Show when={roles("follows").length}>
         <CreditList head="following" credits={roles("follows")} />
       </Show>
       <Show when={roles("data").length}>
         <CreditList head="dated after" credits={roles("data")} />
       </Show>
+    </div>
+  );
+}
+
+// Another source's claim: "also Michiel de Vaan (etymology/12)", "Michiel de
+// Vaan: inherited" where its mode differs, "rejected by ...".
+function ClaimLine(props: { claim: Claim }) {
+  const c = () => props.claim;
+  const verb = () =>
+    c().stance === "rejects"
+      ? "rejected by"
+      : c().relation === "competes"
+        ? "given by"
+        : c().relation === "refines"
+          ? "refined by"
+          : "also";
+  return (
+    <div class="origin-by origin-claim">
+      {verb()} <span class="claim-by">{c().byName}</span>
+      <Show when={c().compiled}> (implied by its structure)</Show>
+      <Show when={c().mode}>{(m) => <>, as {m()}</>}</Show>
+      <Show when={c().certainty}>{(cert) => <>, {cert()}</>}</Show>
+      <span class="popover-muted"> · {c().locator}</span>
     </div>
   );
 }

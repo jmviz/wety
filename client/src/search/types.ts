@@ -40,6 +40,15 @@ export interface Etymology {
   etymologies: EtyAlternative[];
   // The etymology walks follow; null when none of several is preferred.
   primary: number | null;
+  // How the primary was chosen, when not by one lineage.
+  reading?: Reading;
+}
+
+// "consensus": every origin endorses it; "preference": origins disagree and
+// only one is firm; "unsettled": no primary yet; "override": a reviewer's.
+export interface Reading {
+  tier: "one_lineage" | "consensus" | "preference" | "unsettled" | "override";
+  disputed: boolean;
 }
 
 export interface EtyAlternative {
@@ -48,12 +57,15 @@ export interface EtyAlternative {
   mode: string | null;
   // Read by a wety rule rather than stated by a source.
   inferred: boolean;
+  // Given only by another source than Wiktionary.
+  source: boolean;
   parents: Etymology[];
 }
 
 // A word's etymologies with who asserts each (`/origin/:id`).
 export interface Origin {
   primary: number | null;
+  reading: Reading;
   hypotheses: Hypothesis[];
 }
 
@@ -61,13 +73,31 @@ export interface Hypothesis {
   kind: "derivation" | "unknown";
   mode: string | null;
   parents: { item: Item; certainty?: string; head: boolean }[];
-  asserted: Assertion;
+  // Wiktionary's assertion; none when only another source gives it.
+  asserted: Assertion | null;
+  // Other sources' claims about it.
+  claims: Claim[];
+}
+
+export interface Claim {
+  by: string;
+  byName: string;
+  stance: "endorses" | "reports" | "rejects";
+  // How it stands to the etymology: the same parents, a refinement, or its own.
+  relation: "same" | "refines" | "competes";
+  certainty?: string;
+  // The claim's own mode, when it is not the etymology's.
+  mode?: string;
+  compiled: boolean;
+  locator: string;
 }
 
 export interface Assertion {
   // "wiktionary-editors", or the wety rule that reads it ("wety-form-of@1").
   by: string;
   byName: string;
+  // The source a relay found it follows.
+  following?: string;
   // For a rule: what it inferred the etymology from.
   words?: string;
   // The page that states it: the word's own, or another's.
