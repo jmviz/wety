@@ -199,6 +199,23 @@ adapter (its records, their lineage, its forms) and not another thousand lines:
   orthography profile once it is plainly notation. A profile may `include` a convention
   in `conventions/` (`ine`: the Indo-European notation de Vaan and Wiktionary share).
 
+## Claims in the graph build
+
+Each source enters the graph as a claims product: `wety-data run acd_claims` and
+`lila_claims` convert the source's release and match it against the graph's assertion
+export (`wety-data run etymology_assertions`), and the graph build reads both, with
+`sources/wiktionary/etc/overrides.json` (reviewers' overrides of words' readings). The
+processor joins a claim to the words its records are matched to and reads each word it
+touches by synthesis tiers (one lineage, consensus, preference, else unsettled);
+`crates/processor/src/claims.rs` gives the rules. After a build, its generation report:
+
+```sh
+target/release/graph-edges <graph> edges.tsv --readings readings.jsonl
+LC_ALL=C sort edges.tsv > new.tsv   # and the previous generation's dump, sorted, as old.tsv
+LC_ALL=C comm -3 old.tsv new.tsv > diff.tsv
+uv run --frozen python -m etymology.generation_report readings.jsonl diff.tsv --matches <each claims product's matches/assertions.jsonl> --out <dir>
+```
+
 ## Tests
 
 ```sh

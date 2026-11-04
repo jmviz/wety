@@ -4,7 +4,7 @@
 then `claude/root-vote-fix` (root fixes), then `claude/claims-core-1`, then
 `claude/claims-core-2` (acd-1, lila-1, core-2, acd-2, lila-2), then
 `claude/claims-core-3`, then `claude/claims-core-4` (core-5 merged in), then
-`claude/claims-core-6` (acd-3 and lila-3 merged in).*
+`claude/claims-core-6` (acd-3 and lila-3 merged in), then `claude/claims-syn-1`.*
 
 ## What the project promises
 
@@ -15,32 +15,32 @@ and citations from reviewed evidence in the `packages/dating` registry.
 
 - **Site:** wety.org and api.wety.org; only the maintainer merges/deploys `main` and
   `production` ([deploy/README.md](deploy/README.md)).
-- **Graph:** `dab06f67…` live, from the 2026-09-01 dump. The stack adopts `3da0f0c9…`:
-  10.1 million words and 0.8 million cited-only ones, 9.95 million links, 6,003
-  languages, with each entry's References; it needs the stack's server and client.
+- **Graph:** `dab06f67…` live, from the 2026-09-01 dump. The stack adopts `2526e555…`:
+  10.1 million words, 9.95 million links, 6,003 languages, each entry's References, and
+  the ACD's and de Vaan's claims; it needs the stack's server and client.
   Dates cover 348 codes, 135 estimated proto-language ends.
 - **Research store:** private evidence, artifacts and runs in `data/`, backed up with
   `wety-data store`; [provenance](docs/architecture/provenance.md).
 
 ## What changed
 
-- **core-6 (Wiktionary's part):** the chart draws alternatives as "or" branches, dashes
-  uncertain links and marks rule-inferred modes; word details list each origin with who
-  asserts it and its credits (`/origin/:id`).
-- **acd-3, lila-3 (matchers v4):** ACD and LiLa records matched to wety's items, weighing
-  keys, glosses, shared reflexes and ancestry (schema v3), with learnt weights and
-  reviewers' judgements deciding. ACD: 2,216 reconstructions and 15,713 attested forms
-  matched; held-out target precision 0.962. LiLa: 1,380 Latin entries, 964 Proto-Italic
-  and 832 PIE etymons; held-out precision 0.925, reviewed sample 112 of 118. Of 1,202
-  claims crediting the ACD, 355 agree with it and 21 differ. Schema v4 adds the relay
-  difference `form` (one parent, reconstructed otherwise). Checks:
-  `data/workspaces/etymology/sources/{acd,lila-edl}/checks/{acd,lila}-3-v4/`.
+- **syn-1:** the graph build reads the ACD's and LiLa's claims through three new
+  receipted workflows (`etymology_assertions`, `acd_claims`, `lila_claims`). 11,476
+  words carry claims: 1,248 read by consensus, 5 by preference, 152 unsettled (disputed,
+  awaiting syn-2's model tier); review 53 of 55 right. Word details show other sources'
+  claims and how the primary was chosen; the chart badges disputed words. First
+  generation report: `data/runs/18d9bfc7ca8f43a4a080f7166f8d9f81/checks/syn-1/`.
+- **acd-3, lila-3 (matchers v4):** 2,216 ACD reconstructions and 15,713 attested forms,
+  1,380 Latin entries and 1,796 de Vaan etymons matched to wety's items; held-out
+  precision 0.962 (ACD) and 0.925 (LiLa). Schema v4 adds the relay difference `form`.
 
 ## Uncertainties
 
-- core-6 is not finished: "disputed", "whose view", the `view`/`floor` tree parameters,
-  "implied by the ACD's tree" and "possibly related" in Cognates wait for syn-1, which
-  brings the matched sources into the build.
+- Not built: "whose view", the `view`/`floor` tree parameters, "possibly related" in
+  Cognates, source-only items for unmatched records (110,240 links dropped). LiLa's
+  converter writes every link as inherited, so mode differences with de Vaan are
+  artifacts. The ACD adds only compiled credits: none of its stated borrowings is fully
+  matched.
 - wiktextract drops most footnotes (38 credits to de Vaan in the graph, about 3,257
   sections citing him in the dump) and keeps no position for any: parsing the Wiktionary
   HTML dump directly, a project the maintainer envisions, would recover both.
@@ -52,9 +52,9 @@ and citations from reviewed evidence in the `packages/dating` registry.
 
 ## Next three actions
 
-1. syn-1: synthesis tiers 3–4 with both sources in the build; the generation report.
-2. Finish core-6 on top: disputed, whose view, implied links.
-3. syn-2: model extraction of prose citations and conjectures.
+1. syn-2: the model tier for the 152 unsettled words; prose citations and conjectures.
+2. LiLa modes (state none rather than "inherited") and source-only items.
+3. Whose view and the tree parameters (core-6's rest).
 
 ## Decisions needed from the maintainer
 
