@@ -478,8 +478,10 @@ impl Items {
                     ev.origins.push(c.origin);
                     ev.firmest = ev.firmest.min(c.certainty);
                 }
+                // a rule's compiled reading is a credit, not an origin: it
+                // counts only for an etymology nothing else asserts
                 Stance::Endorses => {
-                    ev.origins.push(c.origin);
+                    ev.origins.push(u32::MAX);
                     ev.firmest = ev.firmest.min(c.certainty);
                 }
                 Stance::Rejects => ev.rejected_by.push(c.origin),
@@ -487,6 +489,9 @@ impl Items {
             }
         }
         for ev in &mut etys {
+            if !ev.rule {
+                ev.origins.retain(|&o| o != u32::MAX);
+            }
             ev.origins.sort_unstable();
             ev.origins.dedup();
         }
@@ -618,9 +623,17 @@ mod tests {
         let link = |child: &str, parent: &str| json!({"child": child, "parents": [parent], "relation": "derivation", "mode": "inherited"});
         let devaan = json!({"type": "agent", "id": "agent:de-vaan", "kind": "person", "name": "Michiel de Vaan"});
         let assertion = |id: &str, target: &str, asserter: &str| json!({"type": "assertion", "id": id, "target": target, "stance": "endorses", "asserter": asserter, "locator": "x"});
+        let rule = json!({"type": "agent", "id": "agent:wety-tree@1", "kind": "rule", "name": "a tree rule"});
         write(
             &dir.join("lila.jsonl"),
             &[
+                rule,
+                json!({"type": "hypothesis", "id": "hyp:3", "links": [link("l:canis", "l:kwon")]}),
+                {
+                    let mut c = assertion("as:3", "hyp:3", "agent:wety-tree@1");
+                    c["compiled"] = json!({"from": "tree", "words": "implied"});
+                    c
+                },
                 devaan.clone(),
                 json!({"type": "hypothesis", "id": "hyp:1", "links": [link("l:lupus", "l:lukos"), link("l:lukos", "l:wlkos")]}),
                 json!({"type": "hypothesis", "id": "hyp:2", "links": [link("l:canis", "l:kan")]}),
@@ -637,6 +650,7 @@ mod tests {
                 matched("l:wlkos", "wiktionary:ine-pro:wĺ̥kʷos#1"),
                 matched("l:canis", "wiktionary:la:canis#1"),
                 matched("l:kan", "wiktionary:ine-pro:kan-#1"),
+                matched("l:kwon", "wiktionary:ine-pro:ḱwṓ#1"),
                 devaan,
                 json!({"type": "hypothesis", "id": "hyp:w", "links": [link("wiktionary:la:lupus#1", "wiktionary:itc-pro:lukʷos#1")]}),
                 assertion("as:w", "hyp:w", "agent:wiktionary-editors"),
@@ -652,7 +666,8 @@ mod tests {
         let graph = &items.graph;
         // lupus: de Vaan's link is Wiktionary's, which follows him: one origin
         assert_eq!(graph.claims[&lupus][0].relation, Relation::Same);
-        assert_eq!(graph.asserted(lupus, 0).and_then(|a| a.origin), Some(1));
+        let origin = graph.asserted(lupus, 0).and_then(|a| a.origin).unwrap();
+        assert_eq!(&*graph.agents[origin as usize].id, "agent:de-vaan");
         assert!(graph.etymologies(lupus).is_none());
         // *lukʷos had no etymology: de Vaan's is its own
         assert_eq!(graph.claims[&lukos][0].relation, Relation::Competes);
@@ -664,7 +679,10 @@ mod tests {
             (None, Tier::Unsettled)
         );
         assert!(reading.reading.disputed);
-        assert_eq!(counts["links: same"], 1);
+        // a rule's compiled link, the same as Wiktionary's, is a credit only:
+        // still two origins on canis, Wiktionary's and de Vaan's
+        assert!(graph.claims[&canis].iter().any(|c| c.compiled));
+        assert_eq!(counts["links: same"], 2);
         assert_eq!(counts["links: competes"], 2);
         let _ = other;
     }
