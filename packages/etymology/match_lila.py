@@ -1,22 +1,50 @@
 """LiLa's de Vaan records matched to Wiktionary's, and Wiktionary's credits to de Vaan relayed.
 
-Matching (rule `agent:wety-match-lila@1`). Only a language LiLa's map gives as `exact`
-matches, against Wiktionary records of the same code; a real entry is preferred to an
-imputed one (`#n?`), which is a candidate only when no entry fits.
+Matching (rule `agent:wety-match-lila@4`). Only a language LiLa's map gives as `exact`
+matches, against Wiktionary records of the same code. Each candidate pair is described
+by its evidence, and `matching.Linkage` weighs it: how close the two forms are (`key`),
+how much of the record's lineage in de Vaan's chains wety shares (`lineage`: its cited
+reflexes, the Latin entries whose etymology in LiLa runs through it, among the
+candidate's descendants; its ancestors' targets among the candidate's ancestors), and
+for an etymon whether the candidate is an entry or a record wety knows only from
+citations. The weights are learnt by EM from every candidate pair, judged pairs
+(`etc/judgements.jsonl`) held at their label, so a pair's score is the probability that
+the two records stand for one word. A candidate of probability `THRESHOLD` or more that
+beats the next by `MARGIN` is the target; candidates within the margin of each other
+stay candidates. De Vaan's homographs (records of one form and language) do not share a
+target (`matching.assign`): when serō 'sow' takes one homograph, serō 'join' loses it
+from its tied candidates. Rounds repeat, each weighing the targets the last decided,
+until nothing changes.
 
-- A Latin entry matches by its form: `equal` when the forms are the same once LiLa's
-  notation for variants (`ve/ortō`, `(h)olus`) is expanded, `near` when they are the same
-  without vowel length, breves and j/i. De Vaan cites no reflexes for a Latin entry, and
-  LiLa gives no glosses, so the form is all a Latin match weighs: homographs (Wiktionary's
-  Etymology 1 and 2, de Vaan's serō 1 and 2) stay candidates.
-- An etymon (a Proto-Italic or PIE reconstruction) is compared with every Wiktionary
-  record of its language by the comparison keys of the two orthography profiles. Its
-  cited reflexes are the Latin entries whose etymology in LiLa runs through it; one is
-  shared when wety holds a Latin word of that form among the candidate's descendants.
-  The candidates whose keys are equal are ranked by shared reflexes; one ahead of the
-  rest is the target, a tie keeps them all as candidates. LiLa's etymon-to-etymon
+- A Latin entry's candidates are Wiktionary's of the same form: `equal` once LiLa's
+  notation for variants (`ve/ortō`, `(h)olus`) is expanded, `near` without vowel length,
+  breves and j/i. A real entry is preferred to an imputed record (`#n?`), a lemma to a
+  form-of entry, and a candidate of the same case. Its lineage is its etymons' targets.
+- An etymon's (a Proto-Italic or PIE reconstruction's) candidates come two ways. By key:
+  Wiktionary's records whose comparison keys agree (see `ProtoKeys`: palatals kept, vowel
+  length compared when both forms mark it; `cut` when both lose an ending, `loose` when
+  they agree only once length and palatals are folded). By lineage: the records of its
+  language above the targets of the records below it in de Vaan's chains, where wety
+  places his etymon whatever its form; such a candidate is kept when its key is `close`,
+  within `CLOSE` by the learnt distance (`notation.Distance`, costs mined from confirmed
+  pairs in `etc/substitutions-wiktionary.tsv`). Its match then has the key `different`:
+  the same word, reconstructed otherwise (*lēg‑ against *lēks), which a relay reports
+  as a `form` difference. A stem never matches a root (`shape`). LiLa's etymon-to-etymon
   cognate links tie a derivative to the head of de Vaan's line, not to reflexes, so they
   are not weighed. Glosses are not weighed: LiLa has none.
+
+A weak key (cut, loose, close) is a candidate only when the two endings allow a common
+stem class (`stem_classes`): it agrees on the root, and the ending tells one formation
+from another (*jānu‑ is not *jānos). Reviewers' judgements decide the pairs they cover:
+a pair judged another word is no candidate, and a pair judged the same word is the
+match (`overridden` keeps what the weights alone decided). Since the judgements train
+the weights too, each check also scores the matcher on judgements it did not see
+(`held_out`), and lists the records the weights leave undecided or barely decide
+(`hard_cases`) for a reviewer or a model to settle.
+
+A match whose outcome would differ without its lineage "rests on lineage": wety's own
+etymology decided it, so a relay through it cannot confirm that etymology, and relays
+count such agreements apart.
 
 Relaying (same rule). An assertion of Wiktionary's that credits de Vaan (2008), by its
 References template `R:itc:EDL` or a footnote citing the book, is linked to de Vaan's
@@ -31,19 +59,33 @@ import collections
 import json
 import random
 import re
-import subprocess
 import unicodedata
+from dataclasses import dataclass
 from pathlib import Path
 
 from etymology import assertions as A
 from etymology.convert import SOURCES
+from etymology.matching import (
+    Judgements,
+    Linkage,
+    assign,
+    closure,
+    decide,
+    found_in,
+    harvest_into,
+    lines,
+    pooled,
+)
+from etymology.notation import Distance, closest
 from etymology.orthography import Profile, key
 
 NAME = "lila-edl"
-RULE = "agent:wety-match-lila@1"
+RULE = "agent:wety-match-lila@4"
 LILA = SOURCES / NAME
 WIKTIONARY_PROFILE = SOURCES / "wiktionary/etc/orthography-ine-itc.tsv"
 EDL = "work:wiktionary:R:itc:EDL"
+JUDGEMENTS = LILA / "etc/judgements.jsonl"
+SUBSTITUTIONS = LILA / "etc/substitutions-wiktionary.tsv"
 # Wiktionary codes of de Vaan's records (LiLa's language map) and of the languages a
 # Latin word descends through from them in wety.
 CODES = re.compile(r'"code":"(la|ine-pro|itc-[a-z]+)"')
@@ -54,6 +96,7 @@ CONTEXT = ('"type":"source"', '"type":"agent"', '"type":"extraction"')
 HYPHENS = {"‑": "-", "-": "-"}
 LATIN_EQUAL = Profile({**HYPHENS, "\u0304": "\u0304", "\u0306": "\u0306"}, ())
 NEAR_LENGTH = 3
+LENGTH = "ː"  # the key of the macron in the orthography profiles
 LATIN_NEAR = Profile({**HYPHENS, "\u0304": "", "\u0306": "", "\u0301": "", "j": "i"}, ())
 
 
@@ -63,17 +106,6 @@ def de_vaan_2008(work):
         return True
     c = work.get("citation", "")
     return "Vaan" in c and "Etymological Dictionary of Latin" in c
-
-
-def lines(path):
-    path = Path(path)
-    if path.suffix != ".gz":
-        with path.open(encoding="utf-8") as f:
-            yield from f
-        return
-    with subprocess.Popen(["gzip", "-dc", str(path)], stdout=subprocess.PIPE) as p:
-        for line in p.stdout:
-            yield line.decode()
 
 
 class Wiktionary:
@@ -86,12 +118,15 @@ class Wiktionary:
         self.alternatives, self.crediting, self.context = {}, {}, {}
         self.scan(path)
         self.children = collections.defaultdict(set)
+        self.parents = collections.defaultdict(set)
         self.form_of = set()
         self.by_code = collections.defaultdict(list)
+        self.cache = {}
         for h in self.hypotheses.values():
             for link in h["links"]:
                 for p in link["parents"]:
                     self.children[p].add(link["child"])
+                    self.parents[link["child"]].add(p)
                 if link.get("mode") == "form":
                     self.form_of.add(link["child"])
         for r in self.records.values():
@@ -168,31 +203,49 @@ class Wiktionary:
 
     def descendants(self, rid, code="la"):
         """The records of `code` that descend from `rid` in wety, by any chain of links."""
-        seen, todo, out = {rid}, [rid], set()
-        while todo:
-            for c in self.children.get(todo.pop(), ()):
-                if c not in seen:
-                    seen.add(c)
-                    todo.append(c)
-                    if self.records.get(c, {}).get("language", {}).get("code") == code:
-                        out.add(c)
-        return out
+        if (rid, code) not in self.cache:
+            self.cache[rid, code] = frozenset(
+                c
+                for c in reach(rid, self.children)
+                if self.records.get(c, {}).get("language", {}).get("code") == code
+            )
+        return self.cache[rid, code]
+
+    def ancestors(self, rid):
+        """The records `rid` descends from in wety, by any chain of links."""
+        if rid not in self.cache:
+            self.cache[rid] = frozenset(reach(rid, self.parents))
+        return self.cache[rid]
+
+
+def reach(rid, edges):
+    seen, todo = {rid}, [rid]
+    while todo:
+        for c in edges.get(todo.pop(), ()):
+            if c not in seen:
+                seen.add(c)
+                todo.append(c)
+    return seen - {rid}
 
 
 class Lila:
     """LiLa's de Vaan as lila-2 converted it: records, hypotheses, de Vaan's assertions,
-    and each etymon's cited reflexes."""
+    each etymon's cited reflexes and each record's ancestors (the etymons above it in
+    any of de Vaan's chains)."""
 
     def __init__(self, objs):
         self.objs = {o["id"]: o for o in objs}
         self.records = {i: o for i, o in self.objs.items() if o["type"] == "record"}
         self.reflexes = collections.defaultdict(set)
+        self.ancestors = collections.defaultdict(set)
         self.by_word = collections.defaultdict(list)
         for o in self.objs.values():
             if o["type"] == "hypothesis":
-                for link in o["links"]:
-                    for p in link["parents"]:
-                        self.reflexes[p].add(o["word"])
+                chain = [o["word"]] + [p for link in o["links"] for p in link["parents"]]
+                for i, r in enumerate(chain):
+                    self.ancestors[r].update(chain[i + 1 :])
+                    if i:
+                        self.reflexes[r].add(o["word"])
             elif o["type"] == "assertion" and self.objs[o["target"]]["type"] == "hypothesis":
                 self.by_word[self.objs[o["target"]]["word"]].append(o)
 
@@ -229,6 +282,64 @@ def shape(form, lila):
 SHAPES = {"affix": {"affix"}, "stem": {"word"}, "bare": {"root", "word"}}
 
 
+# The stem classes a reconstruction's ending allows, most specific pattern first. De
+# Vaan cites stems (*jānu‑, *lukʷo‑, *trem‑e/o‑), Wiktionary nominatives, first persons
+# and roots (*jānos, *lukʷos, *tremō, *trem-); an ending that two classes write alike
+# allows both (Wiktionary's *‑os is an o-stem's or an s-stem neuter's).
+LILA_STEMS = [
+    (r"(e/o|ie/o|je/o|eie|eje|ije/o|-e)$", {"verb"}),
+    (r"-ne?-[^-]+$", {"verb", "cons"}),  # a nasal present, *bʰi‑n‑d‑
+    (r"ē$", {"verb", "i", "cons"}),  # a stative, or an ē-stem noun (*klādē‑)
+    (r"e$", {"verb"}),  # a thematic stem, *ǵnh₃‑sḱé‑
+    (r"(h₂|h₁|h₃|h)$", {"a", "cons", "verb"}),  # an ā-stem, a root, a present
+    (r"(eh₂|ā|a)$", {"a", "o", "verb"}),  # ā-stems, o-stems' feminines, ā-verbs
+    (r"o$", {"o", "a"}),
+    (r"u$", {"u", "i"}),  # Latin makes u-stem adjectives i-stems (suāvis)
+    (r"(i|ī|ih|ih₁|ih₂)$", {"i", "verb", "cons"}),  # i-stems, i-presents
+]
+WIKTIONARY_STEMS = [
+    # third persons, active and mediopassive, of a verb built on a root or stem that
+    # de Vaan cites bare (*kleh₂u‑d‑, *kleh₂u-de-ti)
+    (r"(ti|tor|ēt|et)$", {"verb", "cons"}),
+    (r"(or|ō|ōr|eō|āō|ēō|iō)$", {"verb", "cons"}),  # first persons; n-, r-stems in *‑ō(r)
+    (r"(yos|yo-s|yom|ios|io)$", {"o", "i", "cons"}),
+    (r"(os|o-s|om|o-m|o-|o)$", {"o", "a", "cons"}),
+    (r"(wis|wus|us|u-s|u-|u)$", {"u", "i"}),
+    (r"(is|i-s|i-|i|ī|ey|ts)$", {"i", "cons"}),  # i-stems, which continue consonant stems
+    (r"(eh₂s|eh₂|ah₂|h₂|ā|a)$", {"a", "o", "cons"}),
+]
+
+
+def stem_classes(form, lila):
+    """The stem classes a reconstruction's ending allows: `o`, `a`, `u`, `i`, `cons`
+    (a consonant stem or root) and `verb`. Two forms whose classes are disjoint are
+    different formations of a root, whatever their keys say (*jānu‑ and *jānos, the
+    adjective *(s)leiwo‑ and the verb *slīwēō)."""
+    f = unicodedata.normalize("NFD", form)
+    f = "".join(c for c in f if not unicodedata.combining(c) or c == MACRON)
+    f = unicodedata.normalize("NFC", f).lower()
+    f = re.sub(r"[*()⁽⁾?\s]", "", f.replace("‑", "-")).rstrip("-")
+    if not f:
+        return set()
+    alternatives = re.search(r"(\w+)/(\w+)$", f)
+    if alternatives and not re.search(LILA_STEMS[0][0], f):
+        # de Vaan's *kʷerkʷu/o‑, *kalamo/i‑: either ending
+        a, b = alternatives.groups()
+        stem = f[: alternatives.start()]
+        return stem_classes(stem + a, lila) | stem_classes(stem + b, lila)
+    for pattern, classes in LILA_STEMS if lila else WIKTIONARY_STEMS:
+        if re.search(pattern, f):
+            return classes
+    if lila:
+        return {"cons"}
+    return {"cons", "verb", "i"} if form.rstrip().endswith("-") else {"cons", "i"}
+
+
+def long_enough(k):
+    """A cut key of `NEAR_LENGTH` segments at least, the length mark not counted."""
+    return len(k.replace(LENGTH, "")) >= NEAR_LENGTH
+
+
 def compare_keys(a, b):
     """`equal` when two forms share a key as written, `near` when one of them needs an
     ending cut (de Vaan's stem *lukʷo‑ against Wiktionary's *lukʷos), `cut` when both do
@@ -237,20 +348,117 @@ def compare_keys(a, b):
     written, every key)."""
     if a[0] & b[0]:
         return "equal"
-    if any(len(k) >= NEAR_LENGTH for k in a[0] & b[1] | a[1] & b[0]):
+    if any(long_enough(k) for k in a[0] & b[1] | a[1] & b[0]):
         return "near"
-    if any(len(k) >= NEAR_LENGTH for k in a[1] & b[1]):
+    if any(long_enough(k) for k in a[1] & b[1]):
         return "cut"
     return None
 
 
+MACRON = "\u0304"
+
+
+FOLD = {LENGTH: "", "K": "k", "G": "g"}
+
+
+def fold(text, marks):
+    for k in marks:
+        text = text.replace(k, FOLD[k])
+    return text
+
+
+def variants(profile):
+    """A profile in three strictnesses, each as (with its endings, with none): `length`
+    as written, `palatal` without vowel length, `loose` without the palatals either."""
+    out = {}
+    for name, marks in (("length", ()), ("palatal", (LENGTH,)), ("loose", tuple(FOLD))):
+        p = Profile(
+            {g: fold(k, marks) for g, k in profile.graphemes.items()},
+            tuple(fold(e, marks) for e in profile.endings),
+        )
+        out[name] = (p, Profile(p.graphemes, ()))
+    return out
+
+
+@dataclass(frozen=True)
+class ProtoKeys:
+    """A reconstruction's keys in each strictness; `length` only when it marks length."""
+
+    length: tuple | None
+    palatal: tuple
+    loose: tuple
+
+    def compare(self, other):
+        """Vowel length counts, but for a final vowel's, when both forms mark length
+        somewhere (de Vaan's *wēlo‑ against *welō, not *spondā‑ against an unmarked
+        *sponda, nor *plāng‑e/o‑ against *plāngō), palatals always (*ǵlh₂‑i‑
+        against *gl̥Hyós). Keys that agree only once both are folded are `loose`; like
+        `cut` ones, they stand only with shared evidence (*frāter‑ against *frātēr)."""
+        strict = (
+            compare_keys(self.length, other.length)
+            if self.length and other.length
+            else compare_keys(self.palatal, other.palatal)
+        )
+        if strict:
+            return strict
+        return "loose" if compare_keys(self.loose, other.loose) else None
+
+
+# What a pair's evidence may be, strongest first (`matching.Linkage`). Reflexes and
+# ancestors both count matched lineage, so they are one field.
+LATIN_FIELDS = {
+    "key": ("equal", "near"),
+    "lineage": ("an ancestor shared", "cited, none shared", "none cited"),
+}
+ETYMON_FIELDS = {
+    "key": ("equal", "near", "cut", "loose", "close"),
+    "lineage": (
+        "reflexes shared",
+        "a reflex shared",
+        "an ancestor shared",
+        "cited, none shared",
+        "none cited",
+    ),
+}
+WEAK = ("cut", "loose", "close")
+# The schema's name for each key level.
+KEY_BASIS = {"equal": "equal", "near": "near", "cut": "near", "loose": "near", "close": "different"}
+THRESHOLD = 0.5  # a candidate's probability of being the record's word, to be kept
+MARGIN = 0.3  # log2 odds by which the best candidate must beat the next to stand alone
+# The learnt key distance below which a record's lineage may align it, chosen on the
+# judgements held out (lila-3-v4, 465 judgements: 0.1, 0.125, 0.15, 0.2 gave precision
+# 0.958, 0.952, 0.953, 0.941 and recall 0.849, 0.861, 0.875, 0.875 before stem classes
+# applied short of an equal key; 0.125 and 0.15 then gave 0.953, 0.954 and 0.945, 0.957).
+CLOSE = 0.15
+ROUNDS = 12
+FIT_ROUNDS = 3
+LABEL_WEIGHT = 100  # how many unjudged pairs a judged pair counts as, in the fit
+
+
+def lineage(basis):
+    """A pair's lineage level, from its basis."""
+    rx = basis.get("reflexes", {}).get("shared", 0)
+    an = basis.get("ancestors", {}).get("shared", 0)
+    cited = sum(basis.get(k, {}).get("cited", 0) for k in ("reflexes", "ancestors"))
+    if rx >= 2:
+        return "reflexes shared"
+    if rx:
+        return "a reflex shared"
+    if an:
+        return "an ancestor shared"
+    return "cited, none shared" if cited else "none cited"
+
+
 class Matcher:
-    def __init__(self, lila, wikt, lila_profile, wikt_profile):
+    """The rule `wety-match-lila@3` (see the module's docstring)."""
+
+    def __init__(
+        self, lila, wikt, lila_profile, wikt_profile, judgements=None, distance=None, fit=True
+    ):
         self.lila, self.wikt = lila, wikt
-        self.profiles = {
-            "lila": (lila_profile, Profile(lila_profile.graphemes, ())),
-            "wikt": (wikt_profile, Profile(wikt_profile.graphemes, ())),
-        }
+        self.judgements = judgements or Judgements()
+        self.distance = distance or Distance()
+        self.profiles = {"lila": variants(lila_profile), "wikt": variants(wikt_profile)}
         self.latin = {"equal": collections.defaultdict(set), "near": collections.defaultdict(set)}
         for rid in wikt.by_code["la"]:
             form = wikt.records[rid]["form"]
@@ -266,14 +474,58 @@ class Matcher:
                 form = wikt.records[rid]["form"]
                 if form:
                     self.keys[rid] = self.proto_keys(form, "wikt")
-                    for k in self.keys[rid][1]:
+                    for k in self.keys[rid].loose[1]:
                         self.proto[code][k].add(rid)
-        self.results = {}
+        self.lila_keys = {
+            rid: self.proto_keys(r["form"], "lila")
+            for rid, r in lila.records.items()
+            if r["language"]["code"] != "la" and r["form"]
+        }
+        # each LiLa record's records below it in de Vaan's chains
+        self.below = collections.defaultdict(set)
+        for rid, ancestors in lila.ancestors.items():
+            for a in ancestors:
+                self.below[a].add(rid)
+        self.reflex_candidates = {
+            rid: set(self.latin_candidates(r)[1])
+            for rid, r in lila.records.items()
+            if r["language"]["code"] == "la" and r["form"]
+        }
+        self.groups = self.homographs()
+        missing = {"lineage": "none cited"}
+        self.models = {
+            "la": Linkage(LATIN_FIELDS, missing),
+            "proto": Linkage(ETYMON_FIELDS, missing),
+        }
+        self.fit = fit
+        self.results, self.rounds = {}, []
 
     def proto_keys(self, form, side):
-        """A reconstruction's keys as written and with every ending cut too."""
-        every, written = self.profiles[side]
-        return frozenset(key(form, written).keys), frozenset(key(form, every).keys)
+        """A reconstruction's keys in each strictness, as written and with every ending
+        cut too."""
+        profiles = self.profiles[side]
+
+        def pair(name):
+            # A final vowel's length is the citation form's (de Vaan's thematic *‑e/o‑
+            # against Wiktionary's *‑ō), not the word's: it is not compared.
+            every, written = profiles[name]
+            return tuple(
+                frozenset(k.removesuffix(LENGTH) for k in key(form, p).keys)
+                for p in (written, every)
+            )
+
+        marks = MACRON in unicodedata.normalize("NFD", form)
+        return ProtoKeys(pair("length") if marks else None, pair("palatal"), pair("loose"))
+
+    def homographs(self):
+        """LiLa's records that share a form and a language: de Vaan's distinct words of one
+        form, which `matching.assign` keeps from sharing a target."""
+        by = collections.defaultdict(list)
+        for rid, r in self.lila.records.items():
+            if r["form"]:
+                f = unicodedata.normalize("NFC", r["form"])
+                by[(r["language"]["code"], f)].append(rid)
+        return [sorted(g) for g in by.values() if len(g) > 1]
 
     def target(self, lila_record):
         res = self.results.get(lila_record)
@@ -305,59 +557,204 @@ class Matcher:
                 return strength, self.prefer_entries(same_case or found, self.wikt.form_of)
         return None, []
 
-    def match_latin(self, record):
+    def ancestry(self, record, candidate):
+        """Of the record's ancestors in LiLa that have a target, how many are among the
+        candidate's ancestors in wety; None when de Vaan gives the record no ancestor."""
+        mine = self.lila.ancestors.get(record["id"])
+        if not mine:
+            return None
+        cited = [t for t in map(self.target, mine) if t]
+        theirs = self.wikt.ancestors(candidate) if cited else set()
+        return {"shared": sum(t in theirs for t in cited), "cited": len(cited)}
+
+    def latin_pairs(self, record):
         strength, found = self.latin_candidates(record)
-        if not found:
-            return None
-        score = 0.9 if strength == "equal" else 0.7
-        return {"found": found, "score": score, "basis": {"key": strength}}
+        out = []
+        for c in found:
+            basis = {"key": strength}
+            ancestry = self.ancestry(record, c)
+            if ancestry:
+                basis["ancestors"] = ancestry
+            out.append((c, {"key": strength, "lineage": lineage(basis)}, basis))
+        return out
 
-    def match_etymon(self, record):
+    def structural(self, record):
+        """The Wiktionary records of the record's language above the targets of the LiLa
+        records below it: where wety's lineage puts de Vaan's etymon, whatever its form."""
         code = record["language"]["code"]
-        lila_keys = self.proto_keys(record["form"], "lila")
-        shapes = SHAPES[shape(record["form"], True)]
-        found = {}
-        for k in lila_keys[1]:
-            for r in self.proto[code].get(k, ()):
-                if r not in found and shape(self.wikt.records[r]["form"], False) in shapes:
-                    strength = compare_keys(lila_keys, self.keys[r])
-                    if strength:
-                        found[r] = strength
-        if not found:
-            return None
-        reflexes = sorted(self.lila.reflexes.get(record["id"], ()))
-        reflex_candidates = {
-            r: set(self.latin_candidates(self.lila.records[r])[1]) for r in reflexes
-        }
-        ranked = []
-        for c, strength in found.items():
-            desc = self.wikt.descendants(c)
-            shared = sum(bool(cands & desc) for cands in reflex_candidates.values())
-            # Keys that both needed a cut stand only with a shared reflex behind them.
-            if strength != "cut" or shared:
-                ranked.append((shared, strength == "equal", c))
-        if not ranked:
-            return None
-        ranked.sort(key=lambda t: (-t[0], -t[1], t[2]))
-        top = [t for t in ranked if t[:2] == ranked[0][:2]]
-        shared, equal = top[0][:2]
-        basis = {"key": "equal" if equal else "near"}
-        if reflexes:
-            basis["reflexes"] = {"shared": shared, "cited": len(reflexes)}
-        score = (0.6 if equal else 0.5) + (0.4 * shared / len(reflexes) if reflexes else 0)
-        return {"found": [t[2] for t in top], "score": round(score, 3), "basis": basis}
+        out = set()
+        for below in self.below.get(record["id"], ()):
+            t = self.target(below)
+            if t:
+                out |= {
+                    a
+                    for a in self.wikt.ancestors(t)
+                    if self.wikt.records.get(a, {}).get("language", {}).get("code") == code
+                }
+        return out
 
-    def match(self, record):
+    def etymon_pairs(self, record):
+        """Candidates by key; failing any, by lineage (`structural`), kept when their key
+        is within `CLOSE` by the learnt distance. Lineage fills the gaps keys leave, and
+        never outranks a key: an entry wety places there does not displace a record of
+        de Vaan's own form."""
+        code = record["language"]["code"]
+        mine = self.lila_keys[record["id"]]
+        shapes = SHAPES[shape(record["form"], True)]
+
+        def fits(r):
+            return shape(self.wikt.records[r]["form"], False) in shapes
+
+        by_key = {}
+        for k in mine.loose[1]:
+            for r in self.proto[code].get(k, ()):
+                if r not in by_key and fits(r):
+                    strength = mine.compare(self.keys[r])
+                    if strength:
+                        by_key[r] = strength
+        out = self.weigh(record, by_key)
+        if out:
+            return out
+        by_lineage = {}
+        for r in self.structural(record):
+            if r in self.keys and fits(r):
+                strength = mine.compare(self.keys[r])
+                if not strength:
+                    d, _, _ = closest(
+                        {k for k in mine.loose[1] if long_enough(k)},
+                        {k for k in self.keys[r].loose[1] if long_enough(k)},
+                        self.distance,
+                    )
+                    strength = "close" if d is not None and d <= CLOSE else None
+                if strength:
+                    by_lineage[r] = strength
+        return self.weigh(record, by_lineage)
+
+    def weigh(self, record, found):
+        """Each candidate's evidence and basis."""
+        reflexes = sorted(self.lila.reflexes.get(record["id"], ()))
+        out = []
+        for c, strength in sorted(found.items()):
+            desc = self.wikt.descendants(c)
+            basis = {"key": KEY_BASIS[strength]}
+            if reflexes:
+                shared = sum(bool(self.reflex_candidates.get(r, set()) & desc) for r in reflexes)
+                basis["reflexes"] = {"shared": shared, "cited": len(reflexes)}
+            ancestry = self.ancestry(record, c)
+            if ancestry:
+                basis["ancestors"] = ancestry
+            # A weak key is a candidate only with shared lineage behind it: a shared reflex
+            # when de Vaan cites any (an ancestor shared at the root does not make *lēg‑
+            # *legō), else a shared ancestor. Weights add up, so they cannot say that a
+            # weak key and no lineage together make another word; this does.
+            direct = basis["reflexes"]["shared"] if reflexes else (ancestry or {}).get("shared")
+            if strength in WEAK and not direct:
+                continue
+            # Nor, short of an equal key, when the two endings allow no common stem class:
+            # such a key agrees on the root, and the ending tells one formation from
+            # another (*lukʷo‑ is no *lukʷéyeti, for all that a cut ending makes them near).
+            mine = stem_classes(record["form"], True)
+            theirs = stem_classes(self.wikt.records[c]["form"], False)
+            if strength != "equal" and not mine & theirs:
+                continue
+            features = {"key": strength, "lineage": lineage(basis)}
+            out.append((c, features, basis))
+        return out
+
+    def pairs(self, record):
+        """A record's candidates: those its key or lineage finds, and any a reviewer
+        judged its word that no rule finds (*ḱuōn and *ḱwṓ once the distance is
+        stricter), which the judgement then decides."""
         if record["language"]["relation"] != "exact" or not record["form"]:
-            return None
-        if record["language"]["code"] == "la":
-            return self.match_latin(record)
-        return self.match_etymon(record)
+            return []
+        latin = record["language"]["code"] == "la"
+        out = self.latin_pairs(record) if latin else self.etymon_pairs(record)
+        for c in sorted(self.judgements.same(record["id"]) - {c for c, _, _ in out}):
+            if c in self.wikt.records:
+                strength = "near"
+                if not latin and c in self.keys:
+                    strength = self.lila_keys[record["id"]].compare(self.keys[c]) or "close"
+                basis = {"key": KEY_BASIS.get(strength, strength)}
+                out.append((c, {"key": strength, "lineage": "none cited"}, basis))
+        return out
+
+    def decide(self, pairs, fit=True):
+        """Fits each model to every candidate pair, judged pairs held at their label
+        (unless `fit` is false or the matcher does not fit), and decides every record
+        (`matching.assign`), reviewers' judgements first. `overridden` keeps what the
+        weights alone decided where a judgement decided otherwise."""
+        results, self.overridden = {}, {}
+        for name, codes in (("la", ("la",)), ("proto", ("itc-pro", "ine-pro"))):
+            model = self.models[name]
+            mine = {
+                rid: ps
+                for rid, ps in pairs.items()
+                if self.lila.records[rid]["language"]["code"] in codes
+            }
+            # Pairs found by lineage are admitted by their own conditions (distance, stem
+            # class, a shared reflex); fitted with the rest, their lineage would teach
+            # the weights that a shared reflex says little.
+            flat = [
+                (rid, c, f) for rid, ps in mine.items() for c, f, _ in ps if f["key"] != "close"
+            ]
+            if fit and self.fit:
+                model.fit(
+                    [f for _, _, f in flat],
+                    [self.judgements.label(rid, c) for rid, c, _ in flat],
+                    label_weight=LABEL_WEIGHT,
+                )
+            # A pair a reviewer judged another word is no candidate.
+            scored = {
+                rid: [
+                    (c, model.probability(f))
+                    for c, f, _ in ps
+                    if self.judgements.label(rid, c) is not False
+                ]
+                for rid, ps in mine.items()
+            }
+            scored = {rid: ps for rid, ps in scored.items() if ps}
+            found = assign(self.groups, scored, THRESHOLD, MARGIN)
+            for rid, ps in mine.items():
+                kept = found.get(rid) or []
+                # A pair a reviewer judged the same word is the match, and a candidate set
+                # a reviewer judged to hold the word narrows to it.
+                judged = self.judgements.choose(rid, [c for c, _ in scored.get(rid, ())])
+                if judged and judged != kept:
+                    kept, self.overridden[rid] = judged, kept
+                if not kept:
+                    results[rid] = None
+                    continue
+                _, f, basis = next(p for p in ps if p[0] == kept[0])
+                # whether the decision rests on lineage: without it, would it stand?
+                plain = [(c, model.probability({**f2, "lineage": "none cited"})) for c, f2, _ in ps]
+                results[rid] = {
+                    "found": kept,
+                    "score": round(max(dict(scored[rid])[c] for c in kept), 3),
+                    "basis": basis,
+                    "features": f,
+                    "rests on lineage": decide(plain, THRESHOLD, MARGIN) != kept,
+                }
+        return results
 
     def run(self):
-        """Every LiLa record's match result, Latin entries first (etymons weigh them)."""
-        for rid, r in sorted(self.lila.records.items()):
-            self.results[rid] = self.match(r)
+        """Every LiLa record's match result. Each round weighs the targets the round before
+        decided (ancestors for a record, targets below an etymon for its structural
+        candidates). The first `FIT_ROUNDS` refit the weights; later ones keep them, so
+        that the decisions settle, until a round decides as one before it."""
+        seen = []
+        for n in range(ROUNDS):
+            pairs = {rid: self.pairs(r) for rid, r in sorted(self.lila.records.items())}
+            results = self.decide(pairs, fit=n < FIT_ROUNDS)
+            changed = sum(
+                (results.get(r) or {}).get("found") != (self.results.get(r) or {}).get("found")
+                for r in results
+            )
+            self.results = results
+            self.rounds.append(changed)
+            state = {r: (v or {}).get("found") for r, v in results.items()}
+            if n >= FIT_ROUNDS and state in seen:
+                break
+            seen.append(state)
         return self.results
 
     def objects(self, extraction):
@@ -376,7 +773,7 @@ class Matcher:
             )
 
 
-SUBSTANCE = ("parents", "relation", "mode", "hedge", "edition")
+SUBSTANCE = ("parents", "form", "relation", "mode", "hedge", "edition")
 
 
 class Relayer:
@@ -424,6 +821,8 @@ class Relayer:
         - `parents`: Wiktionary's parent is none of de Vaan's ancestors, or it names
           several (a morphological analysis where LiLa gives one etymon); a parent found
           further up de Vaan's chain is not a difference (Wiktionary skips a step).
+        - `form`: Wiktionary's parent is de Vaan's ancestor, aligned by lineage, but
+          reconstructed otherwise (the match's key is `different`: *lēks against *lēg‑).
         - `relation`: Wiktionary says the origin is unknown, or only an influence.
         - `mode`: Wiktionary's step is not an inheritance (LiLa's are all inheritances).
         - `hedge`: one of the two doubts the parent and the other does not.
@@ -445,6 +844,8 @@ class Relayer:
                 j = targets.index(parents[0])
                 if j:
                     kind = "agrees, skipping a step of de Vaan's chain"
+                if self.results[ancestors[j]]["basis"]["key"] == "different":
+                    differences.append("form")
                 hedged = any(h.get("link") == 0 for h in a.get("hedges", []))
                 doubted = "certainty" in self.lila.records[ancestors[j]]
                 if hedged != doubted:
@@ -473,7 +874,7 @@ class Relayer:
         if self.target(same[0]) is None:
             mine = self.matcher.proto_keys(self.lila.records[same[0]]["form"], "lila")
             theirs = self.matcher.proto_keys(self.wikt.records[parent]["form"], "wikt")
-            if mine[1] & theirs[1]:
+            if mine.loose[1] & theirs.loose[1]:
                 return "de Vaan's etymon is unmatched; its key shares a cut form with Wiktionary's"
             return "another reconstruction (de Vaan's etymon is unmatched)"
         return "another reconstruction (de Vaan's etymon matches another record)"
@@ -510,10 +911,10 @@ class Relayer:
             for la, ancestors in self.chain(rid):
                 differences, kind = self.compare(a, link, ancestors, la)
                 if differences is None:
-                    candidate = (99, la, None, kind)
+                    candidate = (99, la, None, kind, ancestors)
                 else:
                     weight = sum(d in SUBSTANCE for d in differences)
-                    candidate = (weight, la, differences, kind)
+                    candidate = (weight, la, differences, kind, ancestors)
                 if best is None or candidate[0] < best[0]:
                     best = candidate
         if best is None:
@@ -521,8 +922,16 @@ class Relayer:
                 "no LiLa counterpart: the matched record is in no etymology of de Vaan's"
             )
             return
-        _, la, differences, kind = best
+        _, la, differences, kind, ancestors = best
         row["lila"], row["kind"] = la["id"], kind
+        # A match that wety's own lineage decided cannot confirm that lineage: the
+        # comparison is marked when the word's match, or its parent's, rests on it.
+        involved = [rid for rid in mine] + [
+            r for r in ancestors if self.target(r) in link["parents"]
+        ]
+        row["rests on lineage"] = any(
+            (self.results.get(r) or {}).get("rests on lineage") for r in involved
+        )
         if differences is None:
             row["outcome"] = "not compared: " + kind
             return
@@ -538,44 +947,11 @@ class Relayer:
         self.relays.append(A.relay(a["id"], la["id"], credit["work"], RULE, differences))
 
 
-def references(o):
-    """The ids an object refers to."""
-    t = o["type"]
-    if t == "record":
-        yield o["source"]
-    elif t == "work":
-        yield from o.get("authors", ())
-    elif t == "hypothesis":
-        for link in o["links"]:
-            yield link["child"]
-            yield from link["parents"]
-    elif t == "alternative_set":
-        yield from o["members"]
-    elif t == "assertion":
-        yield from (o["source"], o["asserter"], o["holder"], o["target"], o["extraction"])
-        yield from (c["work"] for c in o.get("credits", ()))
-        yield from o.get("in_sets", ())
-    elif t == "match":
-        yield from (o["record"], o["holder"], *o.get("candidates", ()))
-        yield from (o[k] for k in ("target", "extraction") if k in o)
-    elif t == "relay":
-        yield from (o["assertion"], o["relays"], o["work"], o["holder"])
-
-
-def closure(seeds, pool):
-    """`seeds` and every object they refer to, by way of `pool`."""
-    out, todo = {}, list(seeds)
-    while todo:
-        o = todo.pop()
-        if o["id"] in out:
-            continue
-        out[o["id"]] = o
-        todo.extend(pool[r] for r in references(o) if r not in out)
-    return out
-
-
 KINDS = {"la": "Latin entry", "itc-pro": "Proto-Italic etymon", "ine-pro": "PIE etymon"}
 REVIEW_SIZE = 100
+UNMATCHED_SIZE = 20
+FOLDS = 5
+HARD = 0.8  # a target below this probability is a hard case
 REVIEW_SEED = 20261101
 
 
@@ -619,6 +995,9 @@ def relay_counts(rows):
             "agree": sum(not r["differences"] for r in chosen),
             "differ only in locator": sum(r["differences"] == ["locator"] for r in chosen),
             "differ in substance": len(substance),
+            "agree in substance, by a match resting on Wiktionary's lineage": sum(
+                r["rests on lineage"] for r in chosen if r not in substance
+            ),
             "differences": dict(
                 collections.Counter(d for r in chosen for d in r["differences"]).most_common()
             ),
@@ -627,81 +1006,201 @@ def relay_counts(rows):
     return out
 
 
+def review_row(matcher, record, m):
+    """A record and what it found, as a reviewer reads them."""
+    lila, wikt = matcher.lila, matcher.wikt
+    r = lila.records[record]
+    ext = r.get("x", {}).get(NAME, {})
+    found = outcome(m)
+    involved = [found] if isinstance(found, str) else list(found or ())
+    return {
+        "record": record,
+        "kind": KINDS[r["language"]["code"]],
+        "form": r["form"],
+        "entry": [c for c in ext.get("comments", []) if c.startswith("Etymology for")],
+        "ancestors": sorted(lila.records[x]["form"] for x in lila.ancestors.get(record, ())),
+        "reflexes": sorted(lila.records[x]["form"] for x in lila.reflexes.get(record, ())),
+        "found": found,
+        "score": m and m["score"],
+        "basis": m and m["basis"],
+        "wiktionary_parents": {w: sorted(wikt.parents.get(w, ())) for w in involved},
+        "judgement": None,
+        "answer": None,
+        "cause": None,
+    }
+
+
 def sample(matcher, objs):
-    """A random sample of the matches that name a target, with what a reviewer needs."""
-    wikt, lila = matcher.wikt, matcher.lila
-    targeted = sorted(o["id"] for o in objs if o["type"] == "match" and "target" in o)
-    chosen = random.Random(REVIEW_SEED).sample(targeted, REVIEW_SIZE)
-    by_id = {o["id"]: o for o in objs}
-    parents = collections.defaultdict(set)
-    for h in wikt.hypotheses.values():
-        for link in h["links"]:
-            parents[link["child"]].update(link["parents"])
+    """Matches to review, drawn where the judgements say nothing yet: `REVIEW_SIZE` with a
+    target, stratified by kind, key and lineage so that rare kinds of evidence are read
+    too, and `UNMATCHED_SIZE` records left unmatched, for recall."""
+    rng = random.Random(REVIEW_SEED)
+    matches = {o["record"]: o for o in objs if o["type"] == "match"}
+    strata = collections.defaultdict(list)
+    for rid, m in sorted(matches.items()):
+        if "target" in m and matcher.judgements.verdict(rid, m["target"]) is None:
+            res = matcher.results[rid]
+            kind = matcher.lila.records[rid]["language"]["code"]
+            strata[(kind, res["features"]["key"], res["features"]["lineage"])].append(rid)
+    total = sum(map(len, strata.values()))
+    # every stratum gets one, the rest in proportion to size
+    quota = {k: 1 + round((REVIEW_SIZE - len(strata)) * len(v) / total) for k, v in strata.items()}
+    chosen = [
+        rid for k, v in sorted(strata.items()) for rid in rng.sample(v, min(quota[k], len(v)))
+    ]
+    unmatched = sorted(
+        rid
+        for rid, r in matcher.lila.records.items()
+        if rid not in matches and r["form"] and r["language"]["relation"] == "exact"
+    )
+    chosen += rng.sample(unmatched, min(UNMATCHED_SIZE, len(unmatched)))
+    return [review_row(matcher, rid, matches.get(rid)) for rid in chosen]
+
+
+def outcome(m):
+    """A match object's outcome: its target, or its candidates; None for no match."""
+    if m is None:
+        return None
+    return m["target"] if "target" in m else tuple(m["candidates"])
+
+
+def change_kind(before, after):
+    if before is None:
+        return "gained"
+    if after is None:
+        return "lost: was a target" if isinstance(before, str) else "lost: was ambiguous"
+    if isinstance(before, str):
+        return "retargeted" if isinstance(after, str) else "target to ambiguous"
+    if isinstance(after, str):
+        return "resolved" if after in before else "resolved outside the candidates"
+    return "candidates changed"
+
+
+def changes(matcher, objs, earlier):
+    """Every LiLa record whose match differs from an earlier check's, as a reviewer reads
+    it. Earlier reviews are checked through the judgements, not here."""
+    before = {o["record"]: o for o in A.read(earlier / "assertions.jsonl") if o["type"] == "match"}
+    after = {o["record"]: o for o in objs if o["type"] == "match"}
     rows = []
-    for mid in chosen:
-        m = by_id[mid]
-        r = lila.records[m["record"]]
-        ext = r.get("x", {}).get(NAME, {})
-        rows.append(
-            {
-                "match": mid,
-                "record": r["id"],
-                "kind": KINDS[r["language"]["code"]],
-                "form": r["form"],
-                "entry": [c for c in ext.get("comments", []) if c.startswith("Etymology for")],
-                "reflexes": sorted(lila.records[x]["form"] for x in lila.reflexes.get(r["id"], ())),
-                "target": m["target"],
-                "target_parents": sorted(parents.get(m["target"], ())),
-                "target_latin_descendants": sorted(wikt.descendants(m["target"]))[:12],
-                "score": m["score"],
-                "basis": m["basis"],
-                "judgement": None,
-                "cause": None,
-            }
-        )
-    return rows
+    for rid in sorted(set(before) | set(after)):
+        b, a = outcome(before.get(rid)), outcome(after.get(rid))
+        if a == b:
+            continue
+        row = review_row(matcher, rid, after.get(rid))
+        row["change"] = change_kind(b, a)
+        row["before"], row["after"] = b, a
+        row["judged"] = matcher.judgements.verdict(rid, a)
+        rows.append(row)
+    counts = collections.Counter(f"{r['kind']}: {r['change']}" for r in rows)
+    return rows, dict(sorted(counts.items()))
 
 
 def precision(rows):
+    """Of a review's judged rows, how many leave the record right: a target that stands
+    for de Vaan's word, candidates among which it is, or no match where none does."""
     judged = [r for r in rows if r["judgement"]]
-    by_kind = collections.defaultdict(collections.Counter)
+    by = collections.defaultdict(collections.Counter)
     for r in judged:
-        by_kind[r["kind"]][r["judgement"]] += 1
+        found = r["found"]
+        shape = "target" if isinstance(found, str) else "candidates" if found else "no match"
+        by[f"{r['kind']}, {shape}"][r["judgement"]] += 1
     right = sum(r["judgement"] == "right" for r in judged)
     return {
         "reviewed": len(judged),
         "right": right,
         "precision": round(right / len(judged), 3) if judged else None,
-        "by kind": {k: dict(v) for k, v in by_kind.items()},
+        "by kind and outcome": {k: dict(v) for k, v in sorted(by.items())},
         "wrong": [
-            {"record": r["record"], "form": r["form"], "target": r["target"], "cause": r["cause"]}
+            {"record": r["record"], "form": r["form"], "found": r["found"], "cause": r["cause"]}
             for r in judged
             if r["judgement"] != "right"
         ],
     }
 
 
+def held_out(lila, wikt, profiles, judgements, distance):
+    """The matcher scored on judgements it did not see: in each of `FOLDS` folds it
+    learns from the others' judgements, and is scored on the fold's."""
+    scores = []
+    for training, test in judgements.split(FOLDS, REVIEW_SEED):
+        m = Matcher(lila, wikt, *profiles, training, distance)
+        m.run()
+        scores.append(test.score({r: res["found"] for r, res in m.results.items() if res}))
+    return pooled(scores)
+
+
+def hard_cases(matcher):
+    """The records the weights leave undecided or barely decide, and no judgement
+    decides, for a reviewer or a model to settle: ties first, then targets of
+    probability below `HARD`."""
+    rows = []
+    for rid, res in sorted(matcher.results.items()):
+        if not res or matcher.judgements.verdict(rid, res["found"]) is not None:
+            continue
+        found = res["found"]
+        if len(found) > 1 or res["score"] < HARD:
+            m = {"score": res["score"], "basis": res["basis"]}
+            m.update({"target": found[0]} if len(found) == 1 else {"candidates": found})
+            rows.append((len(found) == 1, review_row(matcher, rid, m)))
+    return [row for _, row in sorted(rows, key=lambda t: (t[0], t[1]["kind"], t[1]["record"]))]
+
+
+def mining_pairs(matcher):
+    """Pairs for `etymology.notation`: every etymon pair a reviewer judged the same
+    word, with both forms' keys (every ending cut). Only judged pairs: mining a matcher's
+    own unreviewed alignments would teach the distance its own mistakes."""
+    out = []
+    for (rid, t), row in sorted(matcher.judgements.pairs.items()):
+        if row["same"] and rid in matcher.lila_keys and t in matcher.keys:
+            mine, theirs = matcher.lila_keys[rid], matcher.keys[t]
+            label = f"{matcher.lila.records[rid]['form']} : {matcher.wikt.records[t]['form']}"
+            out.append([sorted(mine.loose[1]), sorted(theirs.loose[1]), label])
+    return out
+
+
 def main(argv=None):
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     p.add_argument("--export", type=Path, help="a graph's assertion export (graph-assertions)")
     p.add_argument("--out", type=Path, required=True, help="the check directory")
-    p.add_argument("--review", action="store_true", help="only add the reviewed sample's precision")
+    p.add_argument(
+        "--compare", type=Path, help="an earlier check directory: write what changed against it"
+    )
+    p.add_argument(
+        "--review",
+        action="store_true",
+        help="only add the judged sample (review.json) and changes (changes.json) to the "
+        "judgements, and score the check against them",
+    )
     args = p.parse_args(argv)
     result_path = args.out / "result.json"
     if args.review:
         result = json.loads(result_path.read_text())
-        result["review"] = precision(json.loads((args.out / "review.json").read_text())["rows"])
+        reviews = [args.out / f for f in ("review.json", "changes.json", "hard.json")]
+        reviews = [r for r in reviews if r.exists()]
+        for r in reviews:
+            rows = json.loads(r.read_text())["rows"]
+            result[f"precision of {r.name}"] = precision(rows)
+            print(
+                r.name, json.dumps(result[f"precision of {r.name}"], ensure_ascii=False, indent=1)
+            )
+        n = harvest_into(JUDGEMENTS, reviews)
+        found = found_in(A.read(args.out / "assertions.jsonl"))
+        result["judgements"] = Judgements.read(JUDGEMENTS).score(found)
+        print(f"{n} new judgements; regressions: {len(result['judgements']['regressions'])}")
         result_path.write_text(json.dumps(result, ensure_ascii=False, indent=1) + "\n")
-        print(json.dumps(result["review"], ensure_ascii=False, indent=1))
         return
     lila_path = LILA / "checks/lila-2/assertions.jsonl"
     profiles = (LILA / "etc/orthography.tsv", WIKTIONARY_PROFILE)
+    inputs = [args.export, lila_path, *profiles, JUDGEMENTS, SUBSTITUTIONS]
     extraction = A.extraction(
-        "converter", "packages/etymology/match_lila.py", [args.export, lila_path, *profiles]
+        "converter", "packages/etymology/match_lila.py", [i for i in inputs if i.exists()]
     )
     wikt = Wiktionary(args.export)
     lila = Lila(A.read(lila_path))
-    matcher = Matcher(lila, wikt, *map(Profile.read, profiles))
+    judgements = Judgements.read(JUDGEMENTS)
+    profile_objs = [Profile.read(p) for p in profiles]
+    distance = Distance.read(SUBSTITUTIONS)
+    matcher = Matcher(lila, wikt, *profile_objs, judgements, distance)
     matcher.run()
     relayer = Relayer(matcher)
     relayer.run()
@@ -709,15 +1208,14 @@ def main(argv=None):
         "type": "agent",
         "id": RULE,
         "kind": "rule",
-        "name": "wety's LiLa matcher, v1: de Vaan's records in LiLa matched to Wiktionary's "
-        "by form, comparison key and cited reflexes, and Wiktionary's credits to de Vaan "
-        "(2008) relayed to his assertions in LiLa",
+        "name": "wety's LiLa matcher, v3: de Vaan's records in LiLa matched to Wiktionary's "
+        "by form, comparison key, learnt key distance, cited reflexes and ancestors, weighed "
+        "as Fellegi and Sunter do and learnt from the judgements; and Wiktionary's credits to "
+        "de Vaan (2008) relayed to his assertions in LiLa",
     }
     made = [rule, extraction, *matcher.objects(extraction["id"]), *relayer.relays]
     pool = {o["id"]: o for o in [*lila.objs.values(), *wikt.objects(), *made]}
-    out = A.Writer()
-    for o in closure(made, pool).values():
-        out.add(o)
+    out = closure(made, pool)
     args.out.mkdir(parents=True, exist_ok=True)
     n = out.write(args.out / "assertions.jsonl")
     objs = list(out.objects.values())
@@ -726,29 +1224,45 @@ def main(argv=None):
         "milestone": "lila-3",
         "question": "Which of LiLa's de Vaan records stand for which of wety's items, and do "
         "Wiktionary's assertions that credit de Vaan (2008) say what de Vaan says?",
-        "done_when": "match precision on a reviewed sample of 100; relays that agree and "
-        "that differ; the consistency report",
         "extraction": extraction["id"],
         "objects": n,
         "errors": len(errors),
         "matches": match_counts(lila, matcher.results),
+        "rounds": matcher.rounds,
+        "weights": {name: m.table() for name, m in matcher.models.items()},
+        "resting on lineage": dict(
+            collections.Counter(
+                f"{KINDS[lila.records[r]['language']['code']]}: {res['rests on lineage']}"
+                for r, res in matcher.results.items()
+                if res
+            )
+        ),
+        "judgements": judgements.score(found_in(objs)),
+        "decided by judgements": {
+            rid: {"weights": before, "judged": matcher.results[rid]["found"]}
+            for rid, before in sorted(matcher.overridden.items())
+        },
+        "held out": held_out(lila, wikt, profile_objs, judgements, distance),
         "relays": relay_counts(relayer.rows),
         "de Vaan's works in the graph": {
             w["id"]: w["citation"] for w in sorted(wikt.works.values(), key=lambda w: w["id"])
         },
     }
-    result_path.write_text(json.dumps(result, ensure_ascii=False, indent=1) + "\n")
-    (args.out / "relays.json").write_text(
-        json.dumps(relayer.rows, ensure_ascii=False, indent=1) + "\n"
-    )
-    (args.out / "sample.json").write_text(
-        json.dumps(
-            {"seed": REVIEW_SEED, "size": REVIEW_SIZE, "rows": sample(matcher, objs)},
-            ensure_ascii=False,
-            indent=1,
+    if args.compare:
+        rows, counts = changes(matcher, objs, args.compare)
+        against = str(args.compare.resolve().relative_to(A.REPO))
+        result["changes"] = {"against": against, "records": len(rows), "by kind": counts}
+        (args.out / "changes.json").write_text(
+            json.dumps({"against": against, "rows": rows}, ensure_ascii=False, indent=1) + "\n"
         )
-        + "\n"
-    )
+    result_path.write_text(json.dumps(result, ensure_ascii=False, indent=1) + "\n")
+    for name, data in (
+        ("relays.json", relayer.rows),
+        ("sample.json", {"seed": REVIEW_SEED, "rows": sample(matcher, objs)}),
+        ("pairs.json", mining_pairs(matcher)),
+        ("hard.json", {"rows": hard_cases(matcher)}),
+    ):
+        (args.out / name).write_text(json.dumps(data, ensure_ascii=False, indent=1) + "\n")
     print(f"{args.out}: {n} objects, {len(errors)} errors")
     for e in errors[:20]:
         print("  " + e)

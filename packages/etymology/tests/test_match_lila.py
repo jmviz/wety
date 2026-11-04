@@ -7,6 +7,7 @@ from pathlib import Path
 
 from etymology import assertions as A
 from etymology import match_lila as M
+from etymology.notation import Distance
 from etymology.orthography import Profile
 from test_assertions import EXTRACTION
 
@@ -34,6 +35,19 @@ def lila_objects():
     pie = record("lila-edl@v1.0", "etymon/pie1", "*ulkʷo‑", "ine-pro", "Proto-Indo-European")
     stem = record("lila-edl@v1.0", "etymon/pie2", "*streu‑e/o‑", "ine-pro", "Proto-Indo-European")
     sero = record("lila-edl@v1.0", "la2", "serō", "la", "Latin")
+    lex = record("lila-edl@v1.0", "la3", "lēx", "la", "Latin")
+    leg = record("lila-edl@v1.0", "etymon/pit2", "*lēg‑", "itc-pro", "Proto-Italic")
+    h2 = A.hypothesis(
+        lex["id"],
+        [
+            {
+                "child": lex["id"],
+                "parents": [leg["id"]],
+                "relation": "derivation",
+                "mode": "inherited",
+            }
+        ],
+    )
     h = A.hypothesis(
         lupus["id"],
         [
@@ -60,11 +74,12 @@ def lila_objects():
         holder=agent["id"],
         extraction=EXTRACTION["id"],
     )
-    return [src, agent, EXTRACTION, lupus, pit, pie, stem, sero, h, a]
+    return [src, agent, EXTRACTION, lupus, pit, pie, stem, sero, lex, leg, h, h2, a]
 
 
 def wiktionary_lines():
-    """lupus < *lukʷos < *wĺ̥kʷos, crediting de Vaan with a page; two serō; the root
+    """lupus < *lukʷos < *wĺ̥kʷos, crediting de Vaan with a page, beside a homograph lupus
+    of no stated origin; two serō; the root
     *strew-; an Umbrian word crediting de Vaan; another lukʷos-like imputed record."""
     src = {"type": "source", "id": WIKT, "title": "Wiktionary", "licence": "x"}
     src.update(may_display="x", may_export="x", profile="x")
@@ -75,6 +90,7 @@ def wiktionary_lines():
         k: record(WIKT, k, form, code, code)
         for k, form, code in (
             ("la:lupus#1", "lupus", "la"),
+            ("la:lupus#2", "lupus", "la"),
             ("itc-pro:lukʷos#1", "lukʷos", "itc-pro"),
             ("ine-pro:wĺ̥kʷos#1", "wĺ̥kʷos", "ine-pro"),
             ("la:serō#1", "serō", "la"),
@@ -82,12 +98,15 @@ def wiktionary_lines():
             ("ine-pro:strew-#1", "strew-", "ine-pro"),
             ("xum:tota#1", "tota", "xum"),
             ("itc-pro:touta#1", "toutā", "itc-pro"),
+            ("la:lēx#1", "lēx", "la"),
+            ("itc-pro:lēks#1", "lēks", "itc-pro"),
         )
     }
     links = [
         ("la:lupus#1", "itc-pro:lukʷos#1"),
         ("itc-pro:lukʷos#1", "ine-pro:wĺ̥kʷos#1"),
         ("xum:tota#1", "itc-pro:touta#1"),
+        ("la:lēx#1", "itc-pro:lēks#1"),
     ]
     hyps = [
         A.hypothesis(
@@ -118,7 +137,7 @@ def wiktionary_lines():
             ],
         )
         for h in hyps
-        if h["word"] != rec["itc-pro:lukʷos#1"]["id"]
+        if h["word"] not in (rec["itc-pro:lukʷos#1"]["id"], rec["la:lēx#1"]["id"])
     ]
     objs = [src, editors, EXTRACTION, edl, other, *rec.values(), *hyps, *asserts]
     return [json.dumps(o, ensure_ascii=False, separators=(",", ":")) + "\n" for o in objs]
@@ -136,6 +155,30 @@ class Keys(unittest.TestCase):
         )
         self.assertIsNone(M.compare_keys(({"kieie"}, {"kieie", "ki"}), ({"ki"}, {"ki"})))
 
+    def test_length_and_palatals(self):
+        lila = M.variants(Profile.read(M.LILA / "etc/orthography.tsv"))
+        wikt = M.variants(Profile.read(M.WIKTIONARY_PROFILE))
+        m = M.Matcher.__new__(M.Matcher)
+        m.profiles = {"lila": lila, "wikt": wikt}
+
+        def compare(a, b):
+            return m.proto_keys(a, "lila").compare(m.proto_keys(b, "wikt"))
+
+        self.assertEqual(compare("*wēlo‑", "welō"), "loose")
+        self.assertEqual(compare("*frāter‑", "frātēr"), "loose")
+        self.assertEqual(compare("*spondā‑", "sponda"), "equal")
+        self.assertEqual(compare("*ǵlh₂‑i‑", "gl̥Hyós"), "loose")
+        self.assertEqual(compare("*h₂eḱ‑os", "h₂éḱos"), "equal")
+        self.assertEqual(compare("*tepē‑", "tepēō"), "near")
+        self.assertEqual(compare("*plāng‑e/o‑", "plāngō"), "equal")
+
+    def test_change_kinds(self):
+        self.assertEqual(M.change_kind(("a", "b"), "a"), "resolved")
+        self.assertEqual(M.change_kind(("a", "b"), "c"), "resolved outside the candidates")
+        self.assertEqual(M.change_kind("a", None), "lost: was a target")
+        self.assertEqual(M.change_kind(None, "a"), "gained")
+        self.assertEqual(M.change_kind("a", ("a", "b")), "target to ambiguous")
+
     def test_shapes(self):
         self.assertEqual(M.shape("*streu‑e/o‑", True), "stem")
         self.assertEqual(M.shape("*lukʷo‑", True), "stem")
@@ -144,6 +187,18 @@ class Keys(unittest.TestCase):
         self.assertEqual(M.shape("strew-", False), "root")
         self.assertEqual(M.shape("porso-", False), "word")
         self.assertEqual(M.shape("-kelos", False), "affix")
+
+    def test_stem_classes(self):
+        def apart(a, b):
+            return not M.stem_classes(a, True) & M.stem_classes(b, False)
+
+        self.assertTrue(apart("*jānu‑", "jānos"))  # a u-stem, an o-stem
+        self.assertTrue(apart("*(s)leiwo‑", "slīwēō"))  # an adjective, a verb
+        self.assertFalse(apart("*lukʷo‑", "lukʷos"))
+        self.assertFalse(apart("*trem‑e/o‑", "tremō"))
+        self.assertFalse(apart("*ones‑", "onos"))  # an s-stem neuter in *‑os
+        self.assertFalse(apart("*kʷerkʷu/o‑", "kʷerkus"))  # either ending
+        self.assertFalse(apart("*uert‑e/o‑", "wértetor"))
 
     def test_latin_readings(self):
         self.assertEqual(M.latin_keys("ve/ortō", M.LATIN_NEAR), {"verto", "vorto"})
@@ -159,7 +214,11 @@ class Match(unittest.TestCase):
             self.wikt = M.Wiktionary(path)
         self.lila = M.Lila(lila_objects())
         profiles = (M.LILA / "etc/orthography.tsv", M.WIKTIONARY_PROFILE)
-        self.matcher = M.Matcher(self.lila, self.wikt, *map(Profile.read, profiles))
+        # unfitted weights: five pairs teach EM nothing; a learnt cost for g against k
+        distance = Distance({("g", "k"): 0.2})
+        self.matcher = M.Matcher(
+            self.lila, self.wikt, *map(Profile.read, profiles), distance=distance, fit=False
+        )
         self.results = self.matcher.run()
 
     def test_scan_keeps_what_credits_de_vaan(self):
@@ -172,14 +231,45 @@ class Match(unittest.TestCase):
         self.assertEqual(r["lila-edl:etymon/pit1"]["found"], ["wiktionary:itc-pro:lukʷos#1"])
         self.assertEqual(
             r["lila-edl:etymon/pit1"]["basis"],
-            {"key": "near", "reflexes": {"shared": 1, "cited": 1}},
+            {
+                "key": "near",
+                "reflexes": {"shared": 1, "cited": 1},
+                "ancestors": {"shared": 1, "cited": 1},
+            },
         )
         self.assertEqual(r["lila-edl:etymon/pie1"]["found"], ["wiktionary:ine-pro:wĺ̥kʷos#1"])
+
+    def test_ancestry_decides_a_homograph(self):
+        r = self.results["lila-edl:la1"]
+        self.assertEqual(r["basis"], {"key": "equal", "ancestors": {"shared": 2, "cited": 2}})
 
     def test_homographs_stay_candidates(self):
         m = next(o for o in self.matcher.objects(EXTRACTION["id"]) if o["record"] == "lila-edl:la2")
         self.assertNotIn("target", m)
         self.assertEqual(m["candidates"], ["wiktionary:la:serō#1", "wiktionary:la:serō#2"])
+
+    def test_lineage_finds_an_etymon_written_otherwise(self):
+        """lēx's target puts de Vaan's *lēg‑ at Wiktionary's *lēks, whose key differs."""
+        self.assertEqual(self.results["lila-edl:la3"]["found"], ["wiktionary:la:lēx#1"])
+        record = self.lila.records["lila-edl:etymon/pit2"]
+        self.assertEqual(self.matcher.structural(record), {"wiktionary:itc-pro:lēks#1"})
+        (pair,) = self.matcher.etymon_pairs(record)
+        self.assertEqual(pair[1], {"key": "close", "lineage": "a reflex shared"})
+        self.assertEqual(pair[2]["key"], "different")
+
+    def test_judgements_decide_what_they_cover(self):
+        judgements = M.Judgements(
+            [
+                {"record": "lila-edl:la2", "candidate": "wiktionary:la:serō#2", "same": True},
+                {"record": "lila-edl:la1", "candidate": "wiktionary:la:lupus#1", "same": False},
+            ]
+        )
+        profiles = (M.LILA / "etc/orthography.tsv", M.WIKTIONARY_PROFILE)
+        m = M.Matcher(self.lila, self.wikt, *map(Profile.read, profiles), judgements, fit=False)
+        r = m.run()
+        self.assertEqual(r["lila-edl:la2"]["found"], ["wiktionary:la:serō#2"])
+        self.assertEqual(r["lila-edl:la1"]["found"], ["wiktionary:la:lupus#2"])
+        self.assertIn("lila-edl:la2", m.overridden)
 
     def test_a_stem_does_not_match_a_root(self):
         self.assertIsNone(self.results["lila-edl:etymon/pie2"])
@@ -194,7 +284,7 @@ class Match(unittest.TestCase):
         rule = {"type": "agent", "id": M.RULE, "kind": "rule", "name": "matcher"}
         made = [rule, *self.matcher.objects(EXTRACTION["id"]), *relays]
         pool = {o["id"]: o for o in [*self.lila.objs.values(), *self.wikt.objects(), *made]}
-        objs = list(M.closure(made, pool).values())
+        objs = list(M.closure(made, pool).objects.values())
         self.assertEqual(A.validate(objs), [])
 
 

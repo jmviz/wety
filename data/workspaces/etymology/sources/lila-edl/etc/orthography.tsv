@@ -1,34 +1,12 @@
 # de Vaan 2008 as LiLa writes it: PIE and Proto-Italic reconstructions.
 Kind	Grapheme	Key	Note
-grapheme	*		reconstruction mark
-grapheme	-		morpheme boundary
-grapheme	‑		morpheme boundary (non-breaking hyphen)
-grapheme	h₁	H	laryngeals fold to H
-grapheme	h₂	H	
-grapheme	h₃	H	
-grapheme	H	H	a laryngeal of unknown colour
-grapheme	ʰ	h	aspiration
-grapheme	ʷ	u	labialization: kʷ and ku̯ fold together
-grapheme	w	u	non-syllabic u: w, u̯ and u fold together
-grapheme	y	i	non-syllabic i: y, j, i̯ and i fold together
-grapheme	́		acute: accent, or palatal on ḱ ǵ
-grapheme	̀		grave accent
-grapheme	̂		circumflex
-grapheme	̄		macron: length is not compared
-grapheme	̆		breve
-grapheme	̥		ring below: syllabic resonant
-grapheme	̯		inverted breve below: non-syllabic
-grapheme	̑		inverted breve above: palatal k̑
-grapheme	̣		dot below: syllabic resonant ḷ
-grapheme	θ	θ	Proto-Italic voiceless dental fricative
-grapheme	χ	χ	Proto-Italic voiceless velar fricative
+include	ine		the notation of packages/etymology/conventions/ine.tsv
 grapheme	β	β	Proto-Italic voiced labial fricative
 grapheme	ð	ð	Proto-Italic voiced dental fricative
 grapheme	ɣ	ɣ	Proto-Italic voiced velar fricative
 grapheme	h₁/₂	H	laryngeal h₁ or h₂
 grapheme	h₁/₃	H	laryngeal h₁ or h₃
 grapheme	h₂/₃	H	laryngeal h₂ or h₃
-grapheme	j	i	de Vaan's j is Wiktionary's y
 grapheme	þ	θ	de Vaan's þ is Wiktionary's θ
 grapheme	+		compound boundary
 grapheme	.		
@@ -40,4 +18,5 @@ ending	o		o-stem vowel of a cited stem (*lukʷo‑)
 ending	e		thematic vowel of a cited verb stem (*trem‑e/o‑)
 ending	eie		causative and iterative stem *‑eje‑
 grapheme	ο	o	Greek omicron typed for o (*koχο‑)
-grapheme	z	s	de Vaan writes Proto-Italic *z (*mezge/o‑) for the voiced allophone of *s, as Wiktionary does
+grapheme	k̑	K	palatal k̑, as ḱ
+grapheme	g̑	G	palatal g̑, as ǵ
