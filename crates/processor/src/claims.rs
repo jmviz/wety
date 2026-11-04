@@ -7,7 +7,9 @@
 // matched. Against the child's etymologies it is the same (same parents), a
 // refinement (one parent the other's ancestor) or a competitor, which becomes
 // an etymology of its own. A wety rule's compiled link competes only where the
-// word has no etymology. A Wiktionary assertion whose relay finds that it
+// word has no etymology. A source that fills a link's mode uniformly (LiLa's
+// every link is "inheritance") states no mode: its claims dispute none, and an
+// etymology only it gives is an undefined derivation. A Wiktionary assertion whose relay finds that it
 // follows the source takes the source's assertion as its origin.
 
 use crate::items::Items;
@@ -63,7 +65,8 @@ fn certainty(level: &str) -> Option<Certainty> {
 struct Link {
     child: ItemId,
     parents: Vec<ItemId>,
-    mode: EtyMode,
+    /// None: the source states no mode.
+    mode: Option<EtyMode>,
     certainty: Certainty,
     agent: u32,
     stance: Stance,
@@ -187,6 +190,12 @@ impl Items {
             let objs = read_jsonl(source.assertions)?;
             let mut hypotheses: HashMap<&str, &Value> = HashMap::default();
             let mut agents: HashMap<&str, &Value> = HashMap::default();
+            let uniform_mode = objs.iter().any(|o| {
+                o["type"] == "source"
+                    && o["uniform"]
+                        .as_array()
+                        .is_some_and(|u| u.iter().any(|f| f == "mode"))
+            });
             for o in &objs {
                 match o["type"].as_str() {
                     Some("hypothesis") => {
@@ -213,9 +222,10 @@ impl Items {
                 for (n, link) in h["links"].as_array().context("links")?.iter().enumerate() {
                     count("links asserted");
                     let mode = match link["relation"].as_str() {
-                        Some("ultimate") => EtyMode::Root,
+                        Some("ultimate") => Some(EtyMode::Root),
+                        Some("derivation") if uniform_mode => None,
                         Some("derivation") => {
-                            EtyMode::from_str(link["mode"].as_str().context("a mode")?)?
+                            Some(EtyMode::from_str(link["mode"].as_str().context("a mode")?)?)
                         }
                         _ => {
                             count("links: relation not a derivation");
@@ -341,7 +351,7 @@ impl Items {
                 self.graph.push_etymology(
                     link.child,
                     &NewEtymology {
-                        mode: link.mode,
+                        mode: link.mode.unwrap_or(EtyMode::UndefinedDerivation),
                         head: (n == 1).then_some(0),
                         basis: EdgeBasis::Source,
                         items: &link.parents,
@@ -363,7 +373,7 @@ impl Items {
                 stance: link.stance,
                 relation,
                 certainty: link.certainty,
-                mode: (ety_mode != Some(link.mode)).then_some(link.mode),
+                mode: link.mode.filter(|&m| ety_mode != Some(m)),
                 compiled: link.compiled,
                 assertion: link.assertion,
                 locator: link.locator,
@@ -651,6 +661,8 @@ mod tests {
         write(
             &dir.join("lila.jsonl"),
             &[
+                // like LiLa, every link "inheritance": no mode stated
+                json!({"type": "source", "id": "lila-edl@v1.0", "uniform": ["mode"]}),
                 rule,
                 json!({"type": "hypothesis", "id": "hyp:3", "links": [link("l:canis", "l:kwon")]}),
                 {
@@ -700,6 +712,11 @@ mod tests {
         // *lukʷos had no etymology: de Vaan's is its own
         assert_eq!(graph.claims[&lukos][0].relation, Relation::Competes);
         assert_eq!(graph.immediate_ety(lukos).unwrap().items, [wlkos]);
+        assert_eq!(
+            graph.immediate_ety(lukos).unwrap().mode,
+            EtyMode::UndefinedDerivation
+        );
+        assert!(graph.claims[&lupus][0].mode.is_none());
         // canis: two origins, firmly apart
         let reading = graph.etymologies(canis).unwrap();
         assert_eq!(

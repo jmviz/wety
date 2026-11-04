@@ -27,7 +27,7 @@ def source(name):
         "may_export": p["may_export"],
         "profile": f"data/workspaces/etymology/sources/{name}/etc/source.json",
     }
-    for key in ("doi", "url", "published"):
+    for key in ("doi", "url", "published", "uniform"):
         if p.get(key):
             s[key] = p[key]
     return s

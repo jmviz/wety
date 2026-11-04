@@ -236,6 +236,8 @@ class Lila:
     def __init__(self, objs):
         self.objs = {o["id"]: o for o in objs}
         self.records = {i: o for i, o in self.objs.items() if o["type"] == "record"}
+        # the fields LiLa fills with one value throughout: nothing is compared on them
+        self.uniform = {f for o in objs if o["type"] == "source" for f in o.get("uniform", [])}
         self.reflexes = collections.defaultdict(set)
         self.ancestors = collections.defaultdict(set)
         self.by_word = collections.defaultdict(list)
@@ -858,7 +860,11 @@ class Relayer:
             else:
                 differences.append("parents")
                 kind = self.parent_kind(parents[0], ancestors)
-            if link["relation"] == "derivation" and link["mode"] != "inherited":
+            if (
+                "mode" not in self.lila.uniform
+                and link["relation"] == "derivation"
+                and link["mode"] != "inherited"
+            ):
                 differences.append("mode")
         if self.credit(a).get("locator"):
             differences.append("locator")

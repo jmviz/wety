@@ -52,7 +52,8 @@
  "notes": [
   "Some writtenRep values hold more than a form: derivation chains with '>', grammatical labels ('acc.', 'aor.'), and two credits ('thus Schrijver', 'thus LIV') on -cellō; lila-2 must split them.",
   "The conversion turned some h into ʰ outside forms ('tʰus Scʰrijver', 'ʰabēre'), wrote h₃ as a plain 3 in bōs, and typed a Greek omicron in *koχο‑.",
-  "One etymon uses the misspelt property lemonEty:congnate."
+  "One etymon uses the misspelt property lemonEty:congnate.",
+  "Every link has the type inheritance (coverage.link_types), links to bare roots and stems included: the type tells inheritance from nothing, so the profile names `mode` uniform and wety compares no mode against LiLa's."
  ],
  "licence": "CC-BY-NC-SA-4.0",
  "licence_note": "The repository's LICENSE and README give CC BY-NC-SA 4.0 for the data; the Zenodo record's metadata says CC BY 4.0. wety follows the stricter terms, which the maintainer accepted on 2026-10-31.",
@@ -61,5 +62,8 @@
  "curation": {
   "language_map": "etc/languages.json",
   "orthography_profile": "etc/orthography.tsv, compared with data/workspaces/etymology/sources/wiktionary/etc/orthography-ine-itc.tsv"
- }
+ },
+ "uniform": [
+  "mode"
+ ]
 }

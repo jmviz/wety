@@ -204,6 +204,13 @@ class Validate(unittest.TestCase):
         silent = dict(agrees, agrees=False)
         self.assertTrue(A.validate(good[:-1] + [silent]))
 
+    def test_a_source_names_its_uniform_fields(self):
+        objs = objects()
+        objs[0] = dict(SOURCE, uniform=["mode"])
+        self.assertEqual(A.validate(objs), [])
+        objs[0] = dict(SOURCE, uniform=["gloss"])
+        self.assertTrue(A.validate(objs))
+
     def test_writer_refuses_conflicting_objects(self):
         w = A.Writer()
         r = record("lupus", "lupus")

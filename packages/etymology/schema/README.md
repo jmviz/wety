@@ -1,4 +1,4 @@
-# Etymology assertions, v4
+# Etymology assertions, v5
 
 Every etymological source enters wety as assertions in one schema,
 [`assertion.schema.json`](assertion.schema.json) (JSON Schema 2020-12). A source's
@@ -51,6 +51,11 @@ locates that structure and `compiled.words` is what readers see ("implied by the
 tree"). Only an agent of kind `rule` compiles, and only hypotheses; it holds what it
 compiles and credits the source with role `follows`. Two sources that state and compile
 the same link assert the same hypothesis.
+
+A source's `uniform` names the fields it fills with one value throughout. LiLa gives
+every link the type "inheritance", links to bare roots and stems included, so its `mode`
+tells inheritance from nothing: matchers and the graph build compare no mode against it,
+and an etymology only it gives is drawn as an undefined derivation.
 
 A credit names a `work`, a `role` (`follows`, `reports`, `against`, `data`) and a
 `scope` (`inline`, `note`, `entry`), and keeps its locator.
@@ -110,7 +115,7 @@ beside it until the processor emits the assertions they belong on. All validate.
 
 No converter sets `preference`, `replaces`, or an unplaced hedge.
 
-Not in v4, by design: readings, overrides and gradings. Not representable yet: an origin that names no word in any language ("from a
+Not in v5, by design: readings, overrides and gradings. Not representable yet: an origin that names no word in any language ("from a
 call used for dogs", Old Spanish *perro*); and the ACD's doublets and disjuncts between
 forms: alternative sets hold cognate sets, so a variant that is a member of a set stands
 for its whole set, two groups can collapse into one, and a group within one set (a
@@ -118,6 +123,7 @@ reconstruction and its own member) has no alternative set.
 
 ## Versions
 
+- **5**: a source may name the fields it fills `uniform`ly.
 - **4**: a relay's `differences` include `form`.
 - **3**: a match's `basis` records `ancestors`.
 - **2** (acd-3, lila-3): `match` and `relay`.
