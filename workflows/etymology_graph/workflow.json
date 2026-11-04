@@ -13,8 +13,8 @@
     "model": "data/registry/embedding-model.json",
     "acd_assertions": "data/artifacts/acd-claims/37e9d826b2b270c3d7be36fa1093dca7d4972ab0b8c5a541d59a30c0e7832ba3/files/acd.jsonl",
     "acd_matches": "data/artifacts/acd-claims/37e9d826b2b270c3d7be36fa1093dca7d4972ab0b8c5a541d59a30c0e7832ba3/files/matches/assertions.jsonl",
-    "lila_assertions": "data/artifacts/lila-claims/814a00373fc843d375e4a4239ece554959bb7af5c47282626429fec654c2bb5c/files/lila.jsonl",
-    "lila_matches": "data/artifacts/lila-claims/814a00373fc843d375e4a4239ece554959bb7af5c47282626429fec654c2bb5c/files/matches/assertions.jsonl",
+    "lila_assertions": "data/artifacts/lila-claims/c562dd52479257b92de08b17c9817722dd108d8f433784c2ef5a95f5b8003486/files/lila.jsonl",
+    "lila_matches": "data/artifacts/lila-claims/c562dd52479257b92de08b17c9817722dd108d8f433784c2ef5a95f5b8003486/files/matches/assertions.jsonl",
     "overrides": "data/workspaces/etymology/sources/wiktionary/etc/overrides.json"
   },
   "commands": [
