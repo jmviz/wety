@@ -1,6 +1,6 @@
 # Status
 
-*Updated 2026-11-01. Branch stack, none deployed: `codex/client-ux-audit` (client work),
+*Updated 2026-11-03. Branch stack, none deployed: `codex/client-ux-audit` (client work),
 then `claude/root-vote-fix` (root fixes), then `claude/claims-core-1`, then
 `claude/claims-core-2` (acd-1, lila-1, core-2, acd-2, lila-2), then
 `claude/claims-core-3`, then `claude/claims-core-4` (core-5 merged in), then
@@ -27,12 +27,14 @@ and citations from reviewed evidence in the `packages/dating` registry.
 - **core-6 (Wiktionary's part):** the chart draws alternatives as "or" branches, dashes
   uncertain links and marks rule-inferred modes; word details list each origin with who
   asserts it and its credits (`/origin/:id`).
-- **acd-3, lila-3:** ACD and LiLa records matched to wety's items. 16,586 Wiktionary words
-  in 502 codes carry an ACD record, and 1,309 Latin entries plus 1,557 Proto-Italic and
-  PIE etymons a de Vaan record; precision 98 of 100 in each. Of 1,202 claims crediting
-  the ACD, 355 agree with it and 18 differ; of 576 crediting de Vaan (2008), 45 agree in
-  substance and 52 differ. Schema v2 adds matches and relays; v3 (approved) records a
-  match's ancestry, which matcher v2 is being taught in the two sessions.
+- **acd-3, lila-3 (matchers v4):** ACD and LiLa records matched to wety's items, weighing
+  keys, glosses, shared reflexes and ancestry (schema v3), with learnt weights and
+  reviewers' judgements deciding. ACD: 2,216 reconstructions and 15,713 attested forms
+  matched; held-out target precision 0.962. LiLa: 1,380 Latin entries, 964 Proto-Italic
+  and 832 PIE etymons; held-out precision 0.925, reviewed sample 112 of 118. Of 1,202
+  claims crediting the ACD, 355 agree with it and 21 differ. Schema v4 adds the relay
+  difference `form` (one parent, reconstructed otherwise). Checks:
+  `data/workspaces/etymology/sources/{acd,lila-edl}/checks/{acd,lila}-3-v4/`.
 
 ## Uncertainties
 
@@ -50,9 +52,9 @@ and citations from reviewed evidence in the `packages/dating` registry.
 
 ## Next three actions
 
-1. Merge matcher v2 (ancestry) from the acd-3 and lila-3 sessions.
-2. syn-1: synthesis tiers 3–4 with both sources in the build; the generation report.
-3. Finish core-6 on top: disputed, whose view, implied links; then syn-2.
+1. syn-1: synthesis tiers 3–4 with both sources in the build; the generation report.
+2. Finish core-6 on top: disputed, whose view, implied links.
+3. syn-2: model extraction of prose citations and conjectures.
 
 ## Decisions needed from the maintainer
 
