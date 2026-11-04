@@ -1,11 +1,11 @@
 use crate::{
     HashMap, HashSet,
-    assertions::{self, Asserted, Work},
+    assertions::{self, Agent, Asserted, Claim, Work},
     descendant_langs::DescendantLangs,
     etymology_templates::EtyMode,
     items::{Item, ItemId},
     languages::Lang,
-    synthesis::primary,
+    synthesis::{Reading, primary},
 };
 
 use std::collections::VecDeque;
@@ -83,6 +83,10 @@ pub struct Etymologies {
     /// The etymology walks follow. None: the source prefers none, and walks
     /// follow every alternative.
     pub primary: Option<u8>,
+    /// How the primary was chosen. The default, one lineage, is that of every
+    /// item not listed.
+    #[serde(default)]
+    pub reading: Reading,
 }
 
 /// One etymology to add: its parents, each with the homograph confidence and
@@ -120,6 +124,9 @@ pub enum EdgeBasis {
     /// the root that most of a progenitor's derivatives name, for a progenitor
     /// with no etymology
     RootVote,
+    /// a claim of another source, its records matched to items: an etymology
+    /// Wiktionary does not give (see `EtyGraph::claims`)
+    Source,
 }
 
 impl EdgeBasis {
@@ -196,6 +203,10 @@ pub struct EtyGraph {
     pub assertions: HashMap<ItemId, Box<[Asserted]>>,
     /// The works that assertions credit.
     pub works: Vec<Work>,
+    /// Other sources' claims about items' etymologies, for items they matched.
+    pub claims: HashMap<ItemId, Box<[Claim]>>,
+    /// The asserters and origins that claims and relays name.
+    pub agents: Vec<Agent>,
 }
 
 impl EtyGraph {
@@ -379,6 +390,20 @@ impl EtyGraph {
             }
             self.set_asserted(item, asserted);
         }
+        if let Some(claims) = self.claims.remove(&item) {
+            let claims: Box<[Claim]> = claims
+                .into_vec()
+                .into_iter()
+                .filter(|c| c.ety != ety)
+                .map(|c| Claim {
+                    ety: if c.ety > ety { c.ety - 1 } else { c.ety },
+                    ..c
+                })
+                .collect();
+            if !claims.is_empty() {
+                self.claims.insert(item, claims);
+            }
+        }
         if n == 2 {
             self.etymologies.remove(&item);
         } else {
@@ -387,6 +412,7 @@ impl EtyGraph {
                 Etymologies {
                     kinds: vec![EtyKind::Derivation; n - 1].into_boxed_slice(),
                     primary: primary(&weakest),
+                    reading: Reading::default(),
                 },
             );
         }
@@ -400,6 +426,7 @@ impl EtyGraph {
         }
         self.etymologies.remove(&item);
         self.assertions.remove(&item);
+        self.claims.remove(&item);
     }
 
     /// Record what each of an item's etymologies' assertions adds to its edges,
@@ -460,9 +487,69 @@ impl EtyGraph {
                 Etymologies {
                     kinds: vec![EtyKind::Derivation; etys.len()].into_boxed_slice(),
                     primary: primary(&weakest),
+                    reading: Reading::default(),
                 },
             );
         }
+    }
+
+    /// The number of etymologies an item has (an unknown origin is one).
+    #[must_use]
+    pub fn ety_count(&self, item: ItemId) -> usize {
+        match self.etymologies.get(&item) {
+            Some(e) => e.kinds.len(),
+            None => usize::from(self.graph.edges(item).next().is_some()),
+        }
+    }
+
+    /// Add one etymology to an item's, as another alternative (or its first),
+    /// keeping theirs and their assertions; returns its number. Its reading is
+    /// left to synthesis: the primary stays what it was, and an item that had
+    /// one etymology keeps following it.
+    ///
+    /// # Panics
+    ///
+    /// Panics past 255 parents or etymologies.
+    pub fn push_etymology(&mut self, item: ItemId, new: &NewEtymology<'_>) -> u8 {
+        let n = self.ety_count(item);
+        let ety = u8::try_from(n).expect("at most 255 etymologies");
+        let mut order = self
+            .graph
+            .edges(item)
+            .map(|e| e.weight().order + 1)
+            .max()
+            .unwrap_or(0);
+        for (i, &parent, &confidence, &certainty) in
+            izip!(0u8.., new.items, new.confidences, new.certainties)
+        {
+            let data = EtyEdgeData {
+                mode: new.mode,
+                order,
+                head: new.head == Some(i),
+                basis: new.basis,
+                ety,
+                certainty,
+                confidence,
+            };
+            self.graph.add_edge(item, parent, data);
+            order = order.checked_add(1).expect("at most 255 parents");
+        }
+        if n > 0 {
+            let old = self.etymologies.remove(&item);
+            let mut kinds = old
+                .as_ref()
+                .map_or_else(|| vec![EtyKind::Derivation; n], |e| e.kinds.to_vec());
+            kinds.push(EtyKind::Derivation);
+            self.etymologies.insert(
+                item,
+                Etymologies {
+                    kinds: kinds.into_boxed_slice(),
+                    primary: old.map_or(Some(0), |e| e.primary),
+                    reading: Reading::default(),
+                },
+            );
+        }
+        ety
     }
 
     /// Record that an item's origin is unknown, if nothing gives it parents.
@@ -475,6 +562,7 @@ impl EtyGraph {
                 Etymologies {
                     kinds: Box::new([EtyKind::Unknown]),
                     primary: Some(0),
+                    reading: Reading::default(),
                 },
             );
         }
@@ -522,6 +610,7 @@ impl EtyGraph {
         }
         self.etymologies.remove(&item);
         self.assertions.remove(&item);
+        self.claims.remove(&item);
 
         for (i, &ety_item, &confidence) in izip!(0u8.., ety_items, confidences) {
             let ety_link = EtyEdgeData {

@@ -941,7 +941,7 @@ impl Items {
             let asserted = Asserted {
                 page: Some(item),
                 credits: credits.clone(),
-                inputs: 0,
+                ..Asserted::default()
             };
             if !self.set_own_etys(current_item, basis, &[&resolved], &asserted) {
                 return Ok(());

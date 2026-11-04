@@ -351,14 +351,19 @@ impl Export<'_> {
             );
         }
         let mut by_ety: BTreeMap<u8, Vec<_>> = BTreeMap::new();
-        for e in graph.all_parent_edges(item).sorted_by_key(|e| e.order()) {
+        // an etymology only another source gives is that source's assertion
+        for e in graph
+            .all_parent_edges(item)
+            .filter(|e| e.basis() != EdgeBasis::Source)
+            .sorted_by_key(|e| e.order())
+        {
             by_ety.entry(e.ety()).or_default().push(e);
         }
         if by_ety.is_empty() {
             return Ok(());
         }
         let mut members = vec![];
-        for edges in by_ety.values() {
+        for (&ety, edges) in &by_ety {
             let parents = edges
                 .iter()
                 .map(|e| (e.parent(), e.mode(), e.head()))
@@ -372,6 +377,7 @@ impl Export<'_> {
                 self.hypothesis(out, item, &parents)?,
                 edges[0].basis(),
                 weakest,
+                ety,
             ));
         }
         // A source's alternatives are a set it asserts. A rule's (a root named
@@ -411,8 +417,8 @@ impl Export<'_> {
         } else {
             None
         };
-        for (n, (target, basis, certainty)) in members.into_iter().enumerate() {
-            let asserted = graph.asserted(item, u8::try_from(n)?).cloned();
+        for (target, basis, certainty, ety) in members {
+            let asserted = graph.asserted(item, ety).cloned();
             self.assertion(
                 out,
                 item,

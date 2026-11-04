@@ -1,7 +1,7 @@
 #[global_allocator]
 static ALLOC: snmalloc_rs::SnMalloc = snmalloc_rs::SnMalloc;
 
-use processor::{embeddings, process_wiktextract};
+use processor::{ClaimsSource, embeddings, process_wiktextract};
 
 use std::{path::PathBuf, time::Instant};
 
@@ -37,6 +37,13 @@ pub struct Args {
     /// The works those credits cite (the same workflow)
     #[clap(long, value_parser, requires = "references")]
     bibliography: Option<PathBuf>,
+    /// Another source's claims: its assertions and its matches to Wiktionary's
+    /// records (a claims workflow's product), as two paths; repeatable
+    #[clap(long, value_parser, number_of_values = 2, multiple_occurrences = true, value_names = &["ASSERTIONS", "MATCHES"])]
+    claims: Vec<PathBuf>,
+    /// Reviewers' overrides of words' readings
+    #[clap(long, value_parser)]
+    overrides: Option<PathBuf>,
     #[clap(short = 'm', long, default_value = embeddings::DEFAULT_MODEL, value_parser)]
     embeddings_model: String,
     #[clap(short = 'r', long, default_value = embeddings::DEFAULT_MODEL_REVISION, value_parser)]
@@ -67,6 +74,15 @@ fn main() -> Result<()> {
         args.turtle_path.as_deref(),
         args.entry_names.as_deref(),
         args.references.as_deref().zip(args.bibliography.as_deref()),
+        &args
+            .claims
+            .chunks(2)
+            .map(|c| ClaimsSource {
+                assertions: &c[0],
+                matches: &c[1],
+            })
+            .collect::<Vec<_>>(),
+        args.overrides.as_deref(),
         &embeddings_config,
     )?;
 

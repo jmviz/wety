@@ -7,7 +7,12 @@
 //! credit; only the others are stored. `graph-assertions` writes the assertions
 //! out in the assertion schema (packages/etymology/schema).
 
-use crate::{ety_graph::EdgeBasis, items::ItemId};
+use crate::{
+    ety_graph::{Certainty, EdgeBasis},
+    etymology_templates::EtyMode,
+    items::{Item, ItemId},
+    string_pool::StringPool,
+};
 
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -27,6 +32,11 @@ pub struct Asserted {
     /// How many inputs a rule read: the derivatives voting for a root.
     #[serde(default, skip_serializing_if = "is_zero")]
     pub inputs: u32,
+    /// The agent (index into the graph's agents) whose own assertion of the
+    /// same etymology this one relays, when a relay found that they agree:
+    /// the assertion's origin. None: it is its own origin.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub origin: Option<u32>,
 }
 
 #[allow(clippy::trivially_copy_pass_by_ref)]
@@ -83,6 +93,81 @@ pub enum Scope {
     Entry,
 }
 
+/// Who asserts what another source says about an item's etymology: a source
+/// other than Wiktionary (its editors, a scholar) or a wety rule reading that
+/// source's structure.
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
+pub struct Agent {
+    /// Its id in the assertion schema (`agent:de-vaan`).
+    pub id: Box<str>,
+    pub name: Box<str>,
+    /// "person", "editors", "rule", ...
+    pub kind: Box<str>,
+}
+
+#[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq, AsRefStr, IntoStaticStr)]
+#[serde(rename_all = "snake_case")]
+#[strum(serialize_all = "snake_case")]
+pub enum Stance {
+    Endorses,
+    Reports,
+    Rejects,
+}
+
+/// How a claim stands to the etymology it is attached to.
+#[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq, AsRefStr, IntoStaticStr)]
+#[serde(rename_all = "snake_case")]
+#[strum(serialize_all = "snake_case")]
+pub enum Relation {
+    /// the same parents
+    Same,
+    /// a parent that is the other's ancestor or descendant: compatible, the
+    /// fuller kept, both credited
+    Refines,
+    /// other parents: the claim is an etymology of its own
+    Competes,
+}
+
+/// Another source's claim about one of an item's etymologies: one link of a
+/// hypothesis it asserts, its records matched to items.
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
+pub struct Claim {
+    /// The etymology it is about.
+    pub ety: u8,
+    /// Index into the graph's agents: the asserter.
+    pub agent: u32,
+    /// Index into the graph's agents: where the claim originates. The
+    /// asserter, unless a relay finds it follows another's assertion.
+    pub origin: u32,
+    pub stance: Stance,
+    pub relation: Relation,
+    /// The claim's own certainty of the link (its hedges).
+    pub certainty: Certainty,
+    /// The claim's mode, when it is not the etymology's.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub mode: Option<EtyMode>,
+    /// Whether a wety rule compiled it from the source's structure.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub compiled: bool,
+    /// Its assertion's id in the assertion schema.
+    pub assertion: Box<str>,
+    /// Where in the source.
+    pub locator: Box<str>,
+}
+
+/// The id `graph-assertions` gives an item's record:
+/// `wiktionary:<code>:<term>#<n>`, with `?` for an item imputed from citations.
+#[must_use]
+pub fn record_id(item: &Item, string_pool: &StringPool) -> String {
+    format!(
+        "wiktionary:{}:{}#{}{}",
+        item.lang().code(),
+        item.term().resolve(string_pool),
+        item.ety_num(),
+        if item.is_imputed() { "?" } else { "" }
+    )
+}
+
 /// A cited work, as the source renders its citation.
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, Hash)]
 pub struct Work {
@@ -113,7 +198,9 @@ pub fn rule(basis: EdgeBasis) -> Option<&'static str> {
         EdgeBasis::FormOf => "wety-form-of@1",
         EdgeBasis::Root => "wety-root@1",
         EdgeBasis::RootVote => "wety-root-vote@1",
-        EdgeBasis::Etymon | EdgeBasis::Template | EdgeBasis::Descendants => return None,
+        EdgeBasis::Etymon | EdgeBasis::Template | EdgeBasis::Descendants | EdgeBasis::Source => {
+            return None;
+        }
     })
 }
 
@@ -155,6 +242,7 @@ pub fn section(basis: EdgeBasis) -> &'static str {
             "Etymology"
         }
         EdgeBasis::Descendants => "Descendants",
+        EdgeBasis::Source => "the source's entry",
         EdgeBasis::FormOf => "senses",
         EdgeBasis::Root | EdgeBasis::RootVote => "categories",
     }

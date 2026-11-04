@@ -2,6 +2,7 @@
 
 #![allow(clippy::redundant_closure_for_method_calls)]
 
+mod claims;
 mod descendants;
 // The embedding cache is keyed by this file's text, so editing it, even to
 // reformat or to satisfy a lint, discards the cache: hours of embedding.
@@ -23,6 +24,7 @@ pub use crate::wiktextract_json::wiktextract_lines;
 use wety_core::string_pool::StringPool;
 pub use wety_core::{self, Data, HashMap, HashSet, ItemId, Lang, Search};
 
+pub use crate::claims::ClaimsSource;
 use crate::{items::Items, references::References};
 
 use std::{convert::TryFrom, path::Path, time::Instant};
@@ -47,12 +49,15 @@ pub(crate) fn progress_bar(n: usize, message: &str) -> Result<ProgressBar> {
 ///
 /// Will return `Err` if any unexpected issue arises parsing the wiktextract
 /// data or writing to Turtle file.
+#[allow(clippy::too_many_arguments)]
 pub fn process_wiktextract(
     wiktextract_path: &Path,
     serialization_path: &Path,
     turtle_path: Option<&Path>,
     entry_names_path: Option<&Path>,
     references_paths: Option<(&Path, &Path)>,
+    claims: &[ClaimsSource],
+    overrides: Option<&Path>,
     embeddings_config: &embeddings::Config,
 ) -> Result<()> {
     let mut t = Instant::now();
@@ -89,6 +94,13 @@ pub fn process_wiktextract(
     items.generate_ety_graph(&string_pool, &embeddings)?;
     items.renumber_imputed_dupes(&string_pool);
     println!("Finished. Took {}.", HumanDuration(t.elapsed()));
+    if !claims.is_empty() || overrides.is_some() {
+        t = Instant::now();
+        println!("Joining other sources' claims...");
+        let counts = items.apply_claims(&string_pool, claims, overrides)?;
+        println!("{}", serde_json::to_string_pretty(&counts)?);
+        println!("Finished. Took {}.", HumanDuration(t.elapsed()));
+    }
     let data = Data::new(string_pool, items.graph);
     if let Some(turtle_path) = turtle_path {
         turtle::write_turtle(&data, turtle_path)?;

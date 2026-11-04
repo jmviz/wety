@@ -496,7 +496,7 @@ impl Items {
     // Break each cycle at its weakest ety: weakest a root imputation, then a
     // link from another page's Descendants list, then a mention or form-of
     // link, then an item's own etymology; among equals, the least confident.
-    fn break_cycles(&mut self) {
+    pub(crate) fn break_cycles(&mut self) {
         let own_ety = &self.own_ety;
         let removed = self.graph.break_cycles(|graph, item| {
             let Some(ety) = graph.immediate_ety(item) else {
