@@ -54,8 +54,16 @@ uv run --frozen wety-data run etymology_graph
 This invokes the Rust processor with the selected Wiktextract dump, writes to a run
 staging directory, validates the graph with matching compiled language/POS tables,
 then publishes an immutable artifact and `data/products/etymology_graph/CURRENT.json`.
-It takes hours on a full dump: about six on an M1 Pro for the 2026-09-01 Kaikki data
-(10.9M entries), almost all of it embedding. Model files are cached by Hugging Face; the
+Besides the dump it reads products of other workflows, pinned in its `workflow.json`:
+`wiktionary_references` (each entry's References, from the pages dump of the same
+date), `acd_claims` and `lila_claims` (other sources' claims, matched against
+`etymology_assertions`, the previous graph's assertion export), and the reviewers'
+overrides in `data/workspaces/etymology/sources/wiktionary/etc/overrides.json`. For a
+new dump, rebuild in that order: References, the graph, its export, the claims, the
+graph again ([packages/etymology](packages/etymology/README.md)).
+With the embedding cache warm it takes about 30 minutes on an M1 Pro; a cold cache for
+the 2026-09-01 Kaikki data (10.9M entries) took about six hours, almost all of it
+embedding. Model files are cached by Hugging Face; the
 model revision and expected local file hashes are recorded in
 `data/registry/embedding-model.json`. On macOS the embedding model runs on the GPU
 (Metal) automatically; elsewhere it runs on the CPU unless the workflow command adds the

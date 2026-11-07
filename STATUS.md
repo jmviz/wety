@@ -1,6 +1,6 @@
 # Status
 
-*Updated 2026-11-03. Branch stack, none deployed: `codex/client-ux-audit` (client work),
+*Updated 2026-11-07. Branch stack, none deployed: `codex/client-ux-audit` (client work),
 then `claude/root-vote-fix` (root fixes), then `claude/claims-core-1`, then
 `claude/claims-core-2` (acd-1, lila-1, core-2, acd-2, lila-2), then
 `claude/claims-core-3`, then `claude/claims-core-4` (core-5 merged in), then
@@ -43,18 +43,19 @@ and citations from reviewed evidence in the `packages/dating` registry.
   names and new formations, so ancestry alone does not make it inherited.
 - wiktextract drops most footnotes (38 credits to de Vaan in the graph, about 3,257
   sections citing him in the dump) and keeps no position for any: parsing the Wiktionary
-  HTML dump directly, a project the maintainer envisions, would recover both.
+  HTML dump directly, the planned rework, would recover both.
 - acd-2 left out 12,629 ACD reconstructions that are in no cognate set.
-- *lupus* keeps its Descendants reading: its own section names a language but no word
-  ("possibly borrowed from an Osco-Umbrian language"), which wety cannot represent yet.
-- `/cognates` and `/descendants` changed shape on the client branch: ship server, client
-  and graph together.
+- An origin naming a language but no word ("possibly from an Osco-Umbrian language",
+  *lupus*) cannot be represented yet.
+- The server, client and graph change shape together: ship them in one release.
 
 ## Next three actions
 
-1. syn-2: the model tier for the 152 unsettled words; prose citations and conjectures.
-2. Source-only items for records with no match.
-3. Whose view and the tree parameters (core-6's rest).
+1. Release: publish graph `15c68ef6…` (`deploy/publish-graph.sh`), commit
+   `deploy/graph.json`, merge the stack into `main`.
+2. Rework the processor to read Wiktionary's Enterprise HTML and wikitext dumps
+   directly; syn-2 (the model tier, prose citations) folds into it.
+3. Source-only items for records with no match; whose view and the tree parameters.
 
 ## Decisions needed from the maintainer
 
