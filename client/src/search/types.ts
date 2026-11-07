@@ -90,6 +90,8 @@ export interface Claim {
   mode?: string;
   compiled: boolean;
   locator: string;
+  // The source's page for it, when it has one.
+  url?: string;
 }
 
 export interface Assertion {

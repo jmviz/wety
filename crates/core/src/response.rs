@@ -209,6 +209,9 @@ pub struct ClaimJson<'a> {
     /// Whether a wety rule compiled it from the source's structure.
     pub compiled: bool,
     pub locator: &'a str,
+    /// Where the source shows the claim online, when its locator names a page.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub url: Option<String>,
 }
 
 #[derive(Serialize)]
