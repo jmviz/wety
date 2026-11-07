@@ -158,13 +158,87 @@ kbd {
   font-size: 0.85rem;
 }
 
-.hint a {
+// Quiet small-caps links to the about page and the code: on the right of a
+// word page's masthead line, and at the foot of the home page.
+.masthead-links,
+.colophon {
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.08em;
+  font-size: 0.95rem;
+}
+
+.masthead-links {
+  margin-left: auto;
+}
+
+.colophon {
+  display: flex;
+  justify-content: center;
+  gap: 1.4em;
+  margin-top: auto;
+  padding: 0 1rem 1.5rem;
+}
+
+// The home page fills the window, so its foot sits at the bottom.
+#root:has(> .colophon) {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.masthead-links a,
+.colophon a {
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.masthead-links a:hover,
+.colophon a:hover {
+  color: var(--ink);
+}
+
+@media (max-width: 600px) {
+  .masthead-links {
+    display: none;
+  }
+}
+
+// The about page: a short column of prose.
+.about {
+  max-width: 36rem;
+  margin: 0 auto;
+  padding: 2rem 1rem 4rem;
+}
+
+.about h1 {
+  font-size: 1.7rem;
+  line-height: 1.2;
+  margin: 0 0 1rem;
+}
+
+.about h2 {
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.08em;
+  font-size: 1.1rem;
+  color: var(--muted);
+  margin: 2rem 0 0.4rem;
+}
+
+.about ul {
+  padding-left: 1.2em;
+}
+
+.about li + li {
+  margin-top: 0.4em;
+}
+
+.about a {
   color: var(--ink);
   text-decoration: none;
   border-bottom: 1px dotted var(--faint);
 }
 
-.hint a:hover {
+.about a:hover {
   border-bottom-color: var(--ink);
 }
 

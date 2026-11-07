@@ -14,6 +14,11 @@ const indexRoute = createRoute({
   path: "/",
 });
 
+const aboutRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/about",
+});
+
 // `/<view>/<lang code>/<term>`; the term is a splat because it may contain
 // "/". App reads the location itself (see `parseWordHref`), so these routes
 // only need to match.
@@ -34,6 +39,7 @@ const cognatesRoute = createRoute({
 
 const routeTree = rootRoute.addChildren([
   indexRoute,
+  aboutRoute,
   etymologyRoute,
   descendantsRoute,
   cognatesRoute,

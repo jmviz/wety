@@ -6,6 +6,7 @@ import { TreeKind, term } from "./search/types";
 import OutlineTree from "./ety/OutlineTree";
 import ChartTree from "./ety/ChartTree";
 import NodePopover from "./ety/NodePopover";
+import About, { GITHUB } from "./About";
 import { clearView, forest, lastRequest, loadFromPath, loadError, loading } from "./state";
 
 import { Show, createEffect, on } from "solid-js";
@@ -22,7 +23,7 @@ export default function App() {
     on(
       () => location().pathname + location().searchStr,
       (path) => {
-        if (path === "/") return clearView();
+        if (path === "/" || path === "/about") return clearView();
         // Adopt the word's canonical URL (current language code, displayed
         // term) without adding a history entry.
         loadFromPath(path).then((canonical) => {
@@ -34,11 +35,12 @@ export default function App() {
   );
 
   const home = () => location().pathname === "/";
+  const about = () => location().pathname === "/about";
 
   // The tab names the word, so history and bookmarks tell words apart.
   createEffect(() => {
     const r = lastRequest();
-    document.title = r ? `${term(r.item)} · ${r.item.lang.name} · wety` : "wety";
+    document.title = r ? `${term(r.item)} · ${r.item.lang.name} · wety` : about() ? "about · wety" : "wety";
   });
 
   return (
@@ -52,15 +54,18 @@ export default function App() {
         </Show>
         <SearchBox />
         <Show when={home()}>
-          <p class="hint">
-            Try <Example href="/cognates/en/mother?ety=1">mother</Example>,{" "}
-            <Example href="/cognates/en/sugar">sugar</Example> or{" "}
-            <Example href="/cognates/la/pater">Latin pater</Example>. Type a language name
-            first to search in it.
-          </p>
+          <p class="hint">Type a language name first to search in it.</p>
+        </Show>
+        <Show when={!home() && !about()}>
+          <nav class="masthead-links" aria-label="site">
+            <Link to="/about">about</Link>
+          </nav>
         </Show>
       </header>
-      <Show when={!home()}>
+      <Show when={about()}>
+        <About />
+      </Show>
+      <Show when={!home() && !about()}>
         <section class="view" aria-label="word">
           <WordTitle />
           <ViewBar />
@@ -94,24 +99,16 @@ export default function App() {
           <p class="empty">Nothing to show for this word.</p>
         </Show>
       </main>
+      <Show when={home()}>
+        <footer class="colophon">
+          <Link to="/about">about</Link>
+          <a href={GITHUB} target="_blank" rel="noopener noreferrer">
+            GitHub
+          </a>
+        </footer>
+      </Show>
       <NodePopover />
     </>
-  );
-}
-
-// A word on the home page, opened in place.
-function Example(props: { href: string; children: string }) {
-  const router = useRouter();
-  return (
-    <a
-      href={props.href}
-      onClick={(e) => {
-        e.preventDefault();
-        router.history.push(props.href);
-      }}
-    >
-      {props.children}
-    </a>
   );
 }
 
