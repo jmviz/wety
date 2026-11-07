@@ -305,26 +305,49 @@ impl Data {
         self.graph.descendant_edges(root).take(cap).count()
     }
 
-    /// Where a cognates tree starts by default: the last step of the item's
-    /// trail, or the root it is formed from when exactly one of its sources is
-    /// a root entry (a term ending, not starting, with a hyphen): PIE *ph₂tḗr
-    /// from *peh₂- + *-tḗr starts at *peh₂-, the family's natural ancestor.
+    /// Where a cognates tree starts by default: as far back as the item's
+    /// head line goes. Each step takes an etymology's sole source, else its
+    /// head, else its one root entry (a term ending, not starting, with a
+    /// hyphen): English tabula ← Latin tabula ← Proto-Italic *taðlā ← PIE
+    /// *(s)th₂-dʰló-m ← *steh₂-. The line ends at a word with no source or a
+    /// compound with neither (ἀστρονομία from ἄστρον + νομή). The tree starts
+    /// at the oldest word on it that the trail shows, so the reader sees where.
     #[must_use]
     pub fn default_root(&self, item: ItemId) -> ItemId {
-        let top = *self
-            .lineage(item)
-            .last()
-            .expect("a trail starts with its item");
-        let roots = self.graph.immediate_ety(top).map_or_else(Vec::new, |e| {
-            e.items
-                .into_iter()
+        let trail = self.lineage(item);
+        let top = *trail.last().expect("a trail starts with its item");
+        let mut shown: HashSet<ItemId> = trail.into_iter().collect();
+        shown.extend(
+            self.graph
+                .immediate_ety(top)
+                .map_or_else(Vec::new, |e| e.items),
+        );
+        shown.extend(self.ultimate_sources(item));
+        let mut root = item;
+        let mut seen = HashSet::from_iter([item]);
+        let mut current = item;
+        while let Some(ety) = self.graph.immediate_ety(current) {
+            let roots = ety
+                .items
+                .iter()
+                .copied()
                 .filter(|&s| self.is_root_entry(s))
-                .collect_vec()
-        });
-        match roots[..] {
-            [root] => root,
-            _ => top,
+                .collect_vec();
+            let next = match (&ety.items[..], ety.head, &roots[..]) {
+                ([source], _, _) => *source,
+                (_, Some(head), _) => ety.items[usize::from(head)],
+                (_, None, [root]) => *root,
+                _ => break,
+            };
+            if !seen.insert(next) {
+                break;
+            }
+            if shown.contains(&next) {
+                root = next;
+            }
+            current = next;
         }
+        root
     }
 
     /// The item's ultimate ancestors, in the order its etymology names them:
@@ -1018,6 +1041,29 @@ mod lineage_tests {
             data.ancestor_named(pater, "ine-pro", "-tḗr", None),
             Some(ter)
         );
+    }
+
+    #[test]
+    fn the_tree_starts_as_far_back_as_the_head_line_goes() {
+        let (mut graph, mut pool) = (EtyGraph::default(), StringPool::default());
+        let tabula_en = add(&mut graph, &mut pool, "en", "tabula");
+        let tabula = add(&mut graph, &mut pool, "la", "tabula");
+        let tadla = add(&mut graph, &mut pool, "itc-pro", "taðlā");
+        let stem = add(&mut graph, &mut pool, "ine-pro", "(s)th₂-dʰló-m");
+        let steh2 = add(&mut graph, &mut pool, "ine-pro", "steh₂-");
+        let suffix = add(&mut graph, &mut pool, "ine-pro", "-dʰlom");
+        ety(&mut graph, tabula_en, EtyMode::LearnedBorrowing, &[tabula]);
+        ety(&mut graph, tabula, EtyMode::Inherited, &[tadla]);
+        ety(&mut graph, tadla, EtyMode::UndefinedDerivation, &[stem]);
+        ety(&mut graph, stem, EtyMode::Suffix, &[steh2, suffix]);
+        let data = Data::new(pool, graph);
+        // The trail stops at the new formation; the tree goes on to the root.
+        assert_eq!(data.lineage(tabula_en), [tabula_en, tabula, tadla]);
+        assert_eq!(data.default_root(tabula_en), steh2);
+        let en = Lang::from_str("en").unwrap();
+        let c = data.item_cognates_json(tabula_en, None, &view(en, &[en], false));
+        assert_eq!((c.root, c.default_root), (steh2, steh2));
+        assert_eq!(c.ultimate_roots.iter().map(|i| i.id).collect_vec(), [steh2]);
     }
 
     #[test]
