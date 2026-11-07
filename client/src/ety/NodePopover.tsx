@@ -17,6 +17,7 @@ import {
   For,
   JSX,
   Show,
+  Suspense,
   createEffect,
   createResource,
   createSignal,
@@ -209,9 +210,10 @@ export default function NodePopover() {
                   </span>
                 </Show>
               </div>
-              <Show when={full.loading}>
-                <div class="popover-muted">…</div>
-              </Show>
+              {/* The app sits in the router's Suspense boundary: without
+                  one of their own, these reads would blank the whole page
+                  while a word's details load. */}
+              <Suspense fallback={<div class="popover-muted">…</div>}>
               <Show when={glosses()}>
                 {(g) => (
                   <ol class="popover-glosses">
@@ -228,12 +230,15 @@ export default function NodePopover() {
                   </ol>
                 )}
               </Show>
+              </Suspense>
               {/* In an outline, the word's way back up the tree (the chart is
                   itself the lineage); then its origin, with who says so. */}
               <Show when={forest()?.kind !== TreeKind.Etymology && node().parent}>
                 <Lineage node={node()} />
               </Show>
-              <OriginList item={item()} />
+              <Suspense>
+                <OriginList item={item()} />
+              </Suspense>
               <div class="popover-actions">
                 <button onClick={() => go("descendants", item())}>Descendants</button>
                 <button onClick={() => go("cognates", item())}>Cognates</button>
