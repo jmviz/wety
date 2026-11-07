@@ -1,10 +1,8 @@
 # Status
 
-*Updated 2026-11-07. Branch stack, none deployed: `codex/client-ux-audit` (client work),
-then `claude/root-vote-fix` (root fixes), then `claude/claims-core-1`, then
-`claude/claims-core-2` (acd-1, lila-1, core-2, acd-2, lila-2), then
-`claude/claims-core-3`, then `claude/claims-core-4` (core-5 merged in), then
-`claude/claims-core-6` (acd-3 and lila-3 merged in), then `claude/claims-syn-1`.*
+*Updated 2026-11-07. Released: `main` and `production` at 75546f07 carry the client work,
+the root fixes and the claims model (core-1 to core-6, acd-1 to acd-3, lila-1 to lila-3,
+syn-1).*
 
 ## What the project promises
 
@@ -15,9 +13,9 @@ and citations from reviewed evidence in the `packages/dating` registry.
 
 - **Site:** wety.org and api.wety.org; only the maintainer merges/deploys `main` and
   `production` ([deploy/README.md](deploy/README.md)).
-- **Graph:** `dab06f67…` live, from the 2026-09-01 dump. The stack adopts `15c68ef6…`:
-  10.1 million words, 9.95 million links, 6,003 languages, each entry's References, and
-  the ACD's and de Vaan's claims; it needs the stack's server and client.
+- **Graph:** `15c68ef6…` live, from the 2026-09-01 dump: 10.1 million words, 9.95
+  million links, 6,003 languages, each entry's References, and the ACD's and de Vaan's
+  claims.
   Dates cover 348 codes, 135 estimated proto-language ends.
 - **Research store:** private evidence, artifacts and runs in `data/`, backed up with
   `wety-data store`; [provenance](docs/architecture/provenance.md).
@@ -47,18 +45,15 @@ and citations from reviewed evidence in the `packages/dating` registry.
 - acd-2 left out 12,629 ACD reconstructions that are in no cognate set.
 - An origin naming a language but no word ("possibly from an Osco-Umbrian language",
   *lupus*) cannot be represented yet.
-- The server, client and graph change shape together: ship them in one release.
 
 ## Next three actions
 
-1. Release: publish graph `15c68ef6…` (`deploy/publish-graph.sh`), commit
-   `deploy/graph.json`, merge the stack into `main`.
-2. Rework the processor to read Wiktionary's Enterprise HTML and wikitext dumps
+1. Rework the processor to read Wiktionary's Enterprise HTML and wikitext dumps
    directly; syn-2 (the model tier, prose citations) folds into it.
-3. Source-only items for records with no match; whose view and the tree parameters.
+2. Source-only items for records with no match.
+3. Whose view and the tree parameters (core-6's rest).
 
 ## Decisions needed from the maintainer
 
 - Whether alternative sets may hold records, so the ACD's form-level doublets fit.
 - Whether wety restores LiLa's 7 unlinked etymons from their "Etymology for" comments.
-- Whether to ship the client work before the claims work lands.
