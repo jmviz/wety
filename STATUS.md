@@ -26,9 +26,10 @@ and citations from reviewed evidence in the `packages/dating` registry.
   - Hovering a tree no longer blanks the page: word details' fetches suspended the
     router's page-wide Suspense boundary since core-6; they now suspend locally.
   - Cognates trees start as far back as the word's head line goes (sole source, else
-    head, else the one root; never a suffix): tabula and table at PIE *steh₂-, sugar at
-    *ḱorkeh₂; a headless compound still stops it (astronomy at ἀστρονομία).
-  - Other sources' claims link to their page: LiLa's EDL etymology, the ACD's cognate set.
+    head, else the one root; never a suffix or a possible/doubtful link): tabula and
+    table at PIE *steh₂-, sugar at *ḱorkeh₂; wolf stops at *wĺ̥kʷos, astronomy at
+    ἀστρονομία (a headless compound).
+  - Other sources' claims link to the site that shows them ("via LiLa ↗", "via ACD ↗").
   - An about page (sources, licences, GitHub); no example words on the home page.
 - **syn-1:** the graph build reads the ACD's and LiLa's claims; 11,476 words carry
   claims (1,248 consensus, 5 preference, 152 unsettled). Report:
@@ -58,7 +59,7 @@ and citations from reviewed evidence in the `packages/dating` registry.
 ## Decisions needed from the maintainer
 
 - Merge `client-polish`. Deeper default roots make large trees (tabula: 76,217 words
-  unfiltered) and follow disputed or doubtful links (wolf starts at *stel-).
+  unfiltered).
 
 - Whether alternative sets may hold records, so the ACD's form-level doublets fit.
 - Whether wety restores LiLa's 7 unlinked etymons from their "Etymology for" comments.
