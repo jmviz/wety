@@ -310,8 +310,9 @@ impl Data {
     /// head, else its one root entry (a term ending, not starting, with a
     /// hyphen): English tabula ← Latin tabula ← Proto-Italic *taðlā ← PIE
     /// *(s)th₂-dʰló-m ← *steh₂-. The line ends at a word with no source, a
-    /// compound with neither (ἀστρονομία from ἄστρον + νομή), or before a
-    /// suffix (*méh₂tēr, whose only recorded source is *-tḗr). The tree starts
+    /// compound with neither (ἀστρονομία from ἄστρον + νομή), before a
+    /// suffix (*méh₂tēr, whose only recorded source is *-tḗr), or before a
+    /// possible or doubtful link (*wĺ̥kʷos, possibly from *wl̥kʷós). The tree starts
     /// at the oldest word on it that the trail shows, so the reader sees where.
     #[must_use]
     pub fn default_root(&self, item: ItemId) -> ItemId {
@@ -340,8 +341,13 @@ impl Data {
                 (_, None, [root]) => *root,
                 _ => break,
             };
-            // A suffix's descendants are every word it formed, not a family.
-            if self.term(next).starts_with('-') || !seen.insert(next) {
+            // A suffix's descendants are every word it formed, not a family;
+            // a possible or doubtful link is no ground to start a family.
+            let dubious = self.graph.parent_edges(current).any(|e| {
+                e.parent() == next
+                    && matches!(e.certainty(), Certainty::Possible | Certainty::Doubtful)
+            });
+            if dubious || self.term(next).starts_with('-') || !seen.insert(next) {
                 break;
             }
             if shown.contains(&next) {
@@ -1118,6 +1124,25 @@ mod lineage_tests {
         ety(&mut graph, mother, EtyMode::Inherited, &[mater]);
         ety(&mut graph, mater, EtyMode::Suffix, &[suffix]);
         assert_eq!(Data::new(pool, graph).default_root(mother), mater);
+
+        // Nor does a possible source.
+        let (mut graph, mut pool) = (EtyGraph::default(), StringPool::default());
+        let wolf = add(&mut graph, &mut pool, "gem-pro", "wulfaz");
+        let wlkwos = add(&mut graph, &mut pool, "ine-pro", "wĺ̥kʷos");
+        let source = add(&mut graph, &mut pool, "ine-pro", "wl̥kʷós");
+        ety(&mut graph, wolf, EtyMode::Inherited, &[wlkwos]);
+        ety(
+            &mut graph,
+            wlkwos,
+            EtyMode::MorphologicalDerivation,
+            &[source],
+        );
+        for e in graph.graph.edge_weights_mut() {
+            if e.mode == EtyMode::MorphologicalDerivation {
+                e.certainty = Certainty::Possible;
+            }
+        }
+        assert_eq!(Data::new(pool, graph).default_root(wolf), wlkwos);
     }
 
     #[test]
