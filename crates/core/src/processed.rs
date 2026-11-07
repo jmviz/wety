@@ -9,7 +9,7 @@ use crate::{
     response::{
         AssertionJson, ClaimJson, CognatesJson, CreditJson, DescendantsJson, EtyJson,
         EtymologyJson, GlossStr, HypothesisJson, ItemJson, LinkJson, OriginJson, OtherParentJson,
-        ReadingJson, TrailStepJson,
+        ReadingJson, SourcePageJson, TrailStepJson,
     },
     string_pool::StringPool,
     synthesis::Reading,
@@ -591,7 +591,7 @@ impl Data {
                         mode: c.mode.map(|m| m.as_str()),
                         compiled: c.compiled,
                         locator: &c.locator,
-                        url: claim_url(&c.locator),
+                        page: claim_page(&c.locator),
                     })
                     .collect();
                 HypothesisJson {
@@ -925,45 +925,54 @@ mod reference_tests {
     }
 }
 
-/// The page a claim's source shows it on, from the locator schemes of the
-/// sources wety reads claims from: LiLa's EDL names an etymology
-/// (`etymology/1352`), the ACD a row of its CLDF tables, of which a cognate
-/// set or an etymon has a page (`cognatesets.csv#24748_1`, `etyma.csv#24758`).
-fn claim_url(locator: &str) -> Option<String> {
+/// The page a claim's source shows it on, with the site's name, from the
+/// locator schemes of the sources wety reads claims from: LiLa's EDL names an
+/// etymology (`etymology/1352`), the ACD a row of its CLDF tables, of which a
+/// cognate set or an etymon has a page (`cognatesets.csv#24748_1`,
+/// `etyma.csv#24758`).
+fn claim_page(locator: &str) -> Option<SourcePageJson> {
     let digits = |s: &str| !s.is_empty() && s.bytes().all(|b| b.is_ascii_digit());
     if let Some(n) = locator.strip_prefix("etymology/").filter(|n| digits(n)) {
-        return Some(format!(
-            "http://lila-erc.eu/data/lexicalResources/BrillEDL/id/etymology/{n}"
-        ));
+        return Some(SourcePageJson {
+            site: "LiLa",
+            url: format!("http://lila-erc.eu/data/lexicalResources/BrillEDL/id/etymology/{n}"),
+        });
     }
     let set = locator
         .strip_prefix("cognatesets.csv#")
         .map(|id| id.split_once('_').map_or(id, |(set, _)| set))
         .or_else(|| locator.strip_prefix("etyma.csv#"))
         .filter(|n| digits(n))?;
-    Some(format!("https://acd.clld.org/cognatesets/{set}"))
+    Some(SourcePageJson {
+        site: "ACD",
+        url: format!("https://acd.clld.org/cognatesets/{set}"),
+    })
 }
 
 #[cfg(test)]
-mod claim_url_tests {
-    use super::claim_url;
+mod claim_page_tests {
+    use super::claim_page;
 
     #[test]
     fn locators_that_name_a_page_link_to_it() {
+        let page = |l: &str| claim_page(l).map(|p| (p.site, p.url));
         assert_eq!(
-            claim_url("etymology/1352").as_deref(),
-            Some("http://lila-erc.eu/data/lexicalResources/BrillEDL/id/etymology/1352")
+            page("etymology/1352"),
+            Some((
+                "LiLa",
+                "http://lila-erc.eu/data/lexicalResources/BrillEDL/id/etymology/1352".into()
+            ))
         );
         assert_eq!(
-            claim_url("cognatesets.csv#24748_1").as_deref(),
-            Some("https://acd.clld.org/cognatesets/24748")
+            page("cognatesets.csv#24748_1"),
+            Some(("ACD", "https://acd.clld.org/cognatesets/24748".into()))
         );
         assert_eq!(
-            claim_url("etyma.csv#24758").as_deref(),
-            Some("https://acd.clld.org/cognatesets/24758")
+            page("etyma.csv#24758"),
+            Some(("ACD", "https://acd.clld.org/cognatesets/24758".into()))
         );
-        assert_eq!(claim_url("cognates.csv#560"), None);
-        assert_eq!(claim_url("wiktionary:la:domus#Etymology"), None);
+        assert_eq!(page("cognates.csv#560"), None);
+        assert_eq!(page("wiktionary:la:domus#Etymology"), None);
     }
 }
 

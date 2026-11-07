@@ -211,7 +211,14 @@ pub struct ClaimJson<'a> {
     pub locator: &'a str,
     /// Where the source shows the claim online, when its locator names a page.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub url: Option<String>,
+    pub page: Option<SourcePageJson>,
+}
+
+/// A source's page online: the site's short name (LiLa) and the address.
+#[derive(Serialize)]
+pub struct SourcePageJson {
+    pub site: &'static str,
+    pub url: String,
 }
 
 #[derive(Serialize)]

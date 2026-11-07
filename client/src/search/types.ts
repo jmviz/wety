@@ -90,8 +90,8 @@ export interface Claim {
   mode?: string;
   compiled: boolean;
   locator: string;
-  // The source's page for it, when it has one.
-  url?: string;
+  // The source's page for it, when it has one, and the site's name ("LiLa").
+  page?: { site: string; url: string };
 }
 
 export interface Assertion {

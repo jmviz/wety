@@ -413,8 +413,8 @@ function AssertedBy(props: { asserted: Assertion; item: Item }) {
   );
 }
 
-// Another source's claim: "also Michiel de Vaan ↗", linking to the source's
-// page for it (else naming its locator), "given by Michiel de Vaan, as
+// Another source's claim: "also Michiel de Vaan, via LiLa ↗", linking to the
+// site that shows it (else naming its locator), "given by Michiel de Vaan, as
 // inherited" where its mode differs, "rejected by ...".
 function ClaimLine(props: { claim: Claim }) {
   const c = () => props.claim;
@@ -432,12 +432,12 @@ function ClaimLine(props: { claim: Claim }) {
       <Show when={c().compiled}> (implied by its structure)</Show>
       <Show when={c().mode}>{(m) => <>, as {m()}</>}</Show>
       <Show when={c().certainty}>{(cert) => <>, {cert()}</>}</Show>
-      <Show when={c().url} fallback={<span class="popover-muted"> · {c().locator}</span>}>
-        {(url) => (
+      <Show when={c().page} fallback={<span class="popover-muted"> · {c().locator}</span>}>
+        {(page) => (
           <>
-            {" "}
-            <a class="origin-source" href={url()} target="_blank" rel="noopener noreferrer" title={c().locator}>
-              ↗
+            ,{" "}
+            <a class="origin-source" href={page().url} target="_blank" rel="noopener noreferrer" title={c().locator}>
+              via {page().site} ↗
             </a>
           </>
         )}
