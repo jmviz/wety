@@ -309,8 +309,9 @@ impl Data {
     /// head line goes. Each step takes an etymology's sole source, else its
     /// head, else its one root entry (a term ending, not starting, with a
     /// hyphen): English tabula ← Latin tabula ← Proto-Italic *taðlā ← PIE
-    /// *(s)th₂-dʰló-m ← *steh₂-. The line ends at a word with no source or a
-    /// compound with neither (ἀστρονομία from ἄστρον + νομή). The tree starts
+    /// *(s)th₂-dʰló-m ← *steh₂-. The line ends at a word with no source, a
+    /// compound with neither (ἀστρονομία from ἄστρον + νομή), or before a
+    /// suffix (*méh₂tēr, whose only recorded source is *-tḗr). The tree starts
     /// at the oldest word on it that the trail shows, so the reader sees where.
     #[must_use]
     pub fn default_root(&self, item: ItemId) -> ItemId {
@@ -339,7 +340,8 @@ impl Data {
                 (_, None, [root]) => *root,
                 _ => break,
             };
-            if !seen.insert(next) {
+            // A suffix's descendants are every word it formed, not a family.
+            if self.term(next).starts_with('-') || !seen.insert(next) {
                 break;
             }
             if shown.contains(&next) {
@@ -1107,6 +1109,15 @@ mod lineage_tests {
         let c = data.item_cognates_json(tabula_en, None, &view(en, &[en], false));
         assert_eq!((c.root, c.default_root), (steh2, steh2));
         assert_eq!(c.ultimate_roots.iter().map(|i| i.id).collect_vec(), [steh2]);
+
+        // A suffix that is a word's only source does not start it.
+        let (mut graph, mut pool) = (EtyGraph::default(), StringPool::default());
+        let mother = add(&mut graph, &mut pool, "en", "mother");
+        let mater = add(&mut graph, &mut pool, "ine-pro", "méh₂tēr");
+        let suffix = add(&mut graph, &mut pool, "ine-pro", "-tḗr");
+        ety(&mut graph, mother, EtyMode::Inherited, &[mater]);
+        ety(&mut graph, mater, EtyMode::Suffix, &[suffix]);
+        assert_eq!(Data::new(pool, graph).default_root(mother), mater);
     }
 
     #[test]
