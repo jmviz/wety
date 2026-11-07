@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "artifact_id": "sha256:dab06f674f92a4962ecf4c25d60f64a3e4b52e062522b1e862b6c7dbec43f73f",
-  "object": "graphs/ae906337e4d6a52a0286ae837386a78cdfb5e9298ef33be216d440e03b041a54/wety.json.gz",
+  "artifact_id": "sha256:15c68ef6d17e75557d684b44bf8b1ce49bc13ba34a8f06df077d1a0352f6916b",
+  "object": "graphs/8b3bb12cc228853dbdd5a72af29f567f7599f9168fa8361688b3bde46d1b397b/wety.json.gz",
   "file": "wety.json.gz",
-  "sha256": "ae906337e4d6a52a0286ae837386a78cdfb5e9298ef33be216d440e03b041a54",
-  "bytes": 585022308
+  "sha256": "8b3bb12cc228853dbdd5a72af29f567f7599f9168fa8361688b3bde46d1b397b",
+  "bytes": 625120483
 }
