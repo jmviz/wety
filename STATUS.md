@@ -1,8 +1,7 @@
 # Status
 
-*Updated 2026-11-07. Released: `main` and `production` at 75546f07 carry the client work,
-the root fixes and the claims model (core-1 to core-6, acd-1 to acd-3, lila-1 to lila-3,
-syn-1). Branch `client-polish` (unmerged) holds the fixes below.*
+*Updated 2026-11-07. `main` carries the client work, the root fixes, the claims model
+(core-1 to core-6, acd-1 to acd-3, lila-1 to lila-3, syn-1) and client-polish.*
 
 ## What the project promises
 
@@ -22,7 +21,7 @@ and citations from reviewed evidence in the `packages/dating` registry.
 
 ## What changed
 
-- **client-polish** (server and client; restart the API, rebuild the site):
+- **client-polish:**
   - Hovering a tree no longer blanks the page: word details' fetches suspended the
     router's page-wide Suspense boundary since core-6; they now suspend locally.
   - Cognates trees start as far back as the word's head line goes (sole source, else
@@ -46,6 +45,7 @@ and citations from reviewed evidence in the `packages/dating` registry.
   sections citing him in the dump) and keeps no position for any: parsing the Wiktionary
   HTML dump directly, the planned rework, would recover both.
 - acd-2 left out 12,629 ACD reconstructions that are in no cognate set.
+- Deeper default Cognates roots make large trees (tabula: 76,217 words unfiltered).
 - An origin naming a language but no word ("possibly from an Osco-Umbrian language",
   *lupus*) cannot be represented yet.
 
@@ -57,9 +57,6 @@ and citations from reviewed evidence in the `packages/dating` registry.
 3. Whose view and the tree parameters (core-6's rest).
 
 ## Decisions needed from the maintainer
-
-- Merge `client-polish`. Deeper default roots make large trees (tabula: 76,217 words
-  unfiltered).
 
 - Whether alternative sets may hold records, so the ACD's form-level doublets fit.
 - Whether wety restores LiLa's 7 unlinked etymons from their "Etymology for" comments.
