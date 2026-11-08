@@ -3,7 +3,9 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from source_tools.wiktionary_html import dump_pages
+import gzip
+
+from source_tools.wiktionary_html import dump_pages, salvage
 
 DUMP = """<mediawiki>
   <page>
@@ -71,6 +73,18 @@ class DumpPages(unittest.TestCase):
                 ("Reconstruction:Proto-Germanic/empty", 93, 7, ""),
             ],
         )
+
+
+class Salvage(unittest.TestCase):
+    def test_cut_off_file_keeps_whole_lines(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "pages.ndjson.gz"
+            whole = gzip.compress(b'{"identifier": 1}\n{"identifier": 2}\n')
+            path.write_bytes(whole + gzip.compress(b'{"identifier": 3}\n')[:-12])
+            self.assertEqual(salvage(path), {1, 2})
+            with gzip.open(path, "at") as f:
+                f.write('{"identifier": 4}\n')
+            self.assertEqual(salvage(path), {1, 2, 4})
 
 
 if __name__ == "__main__":
