@@ -55,6 +55,32 @@ class ReviewToolTests(unittest.TestCase):
             who["label"], "gpt-6.1-sol (high effort, Codex CLI on ChatGPT subscription)"
         )
 
+    def test_usage_reads_codex_turns_and_claude_attempts(self):
+        codex = {"turns": [{"input_tokens": 1000, "cached_input_tokens": 900, "output_tokens": 50}]}
+        self.assertEqual(
+            review_tools.usage_line(codex), "Usage 1,000 input tokens (900 cached), 50 output."
+        )
+        claude = {
+            "turns": 100,
+            "attempts": [
+                {"attempt": 1, "usage": None, "turns": None},
+                {
+                    "attempt": 2,
+                    "turns": 100,
+                    "usage": {
+                        "input_tokens": 10,
+                        "cache_creation_input_tokens": 90,
+                        "cache_read_input_tokens": 900,
+                        "output_tokens": 50,
+                    },
+                },
+            ],
+        }
+        self.assertEqual(
+            review_tools.usage_line(claude),
+            "Usage attempt 2: 1,000 input tokens (900 cached), 50 output, 100 turns.",
+        )
+
     def test_citations_parse_to_authors_and_year(self):
         authors, year = review_tools.parse_citation(
             "Auderset, Sandra, Simon J. Greenhill & Eric W. Campbell. 2023. Title."

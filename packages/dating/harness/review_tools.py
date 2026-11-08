@@ -268,6 +268,29 @@ def publish(run, review_path=None) -> dict:
     }
 
 
+def usage_line(recorded) -> str:
+    """Token usage from a run's usage.json. Codex lists its turns; a Claude run records
+    each attempt's terminal usage, which a resumed attempt does not add to the earlier
+    ones, so attempts are listed separately."""
+    if isinstance(recorded.get("turns"), list):
+        t = recorded["turns"][0] if recorded["turns"] else None
+        if t:
+            return f"Usage {t['input_tokens']:,} input tokens ({t.get('cached_input_tokens', 0):,} cached), {t['output_tokens']:,} output."
+        return "Usage not recorded."
+    parts = []
+    for a in recorded.get("attempts") or []:
+        u = a.get("usage")
+        if not u:
+            continue
+        cached = u.get("cache_read_input_tokens", 0)
+        total = u.get("input_tokens", 0) + u.get("cache_creation_input_tokens", 0) + cached
+        parts.append(
+            f"attempt {a['attempt']}: {total:,} input tokens ({cached:,} cached), "
+            f"{u.get('output_tokens', 0):,} output, {a.get('turns')} turns"
+        )
+    return ("Usage " + "; ".join(parts) + ".") if parts else "Usage not recorded."
+
+
 def run_readme(run, title, notes, reviewer=None) -> str:
     """README.md for a reviewed run: researcher, budget, outcome, then the notes."""
     from .frontier_tools import check
@@ -278,10 +301,7 @@ def run_readme(run, title, notes, reviewer=None) -> str:
     r = json.loads((run / "run.json").read_text())
     used = r.get("active_seconds_used") or r.get("elapsed_seconds") or 0
     status = (r.get("attempts") or [{}])[-1].get("status") or r.get("status")
-    turns = []
-    if (run / "usage.json").exists():
-        turns = json.loads((run / "usage.json").read_text()).get("turns") or []
-    t = turns[0] if turns else None
+    recorded = json.loads((run / "usage.json").read_text()) if (run / "usage.json").exists() else {}
     actions = (
         sum(1 for _ in open(run / "tool-events.jsonl"))
         if (run / "tool-events.jsonl").exists()
@@ -298,11 +318,7 @@ def run_readme(run, title, notes, reviewer=None) -> str:
             for x in (run / "requests.jsonl").read_text().split("\n")
             if x.strip()
         ]
-    usage = (
-        f"Usage {t['input_tokens']:,} input tokens ({t.get('cached_input_tokens', 0):,} cached), {t['output_tokens']:,} output."
-        if t
-        else "Usage not recorded."
-    )
+    usage = usage_line(recorded)
     cli = f", {who['cli']}" if who["cli"] else ""
     text = f"""# {title}
 
