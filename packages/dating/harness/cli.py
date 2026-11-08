@@ -23,6 +23,7 @@ dating ledger erratum PACKET --field F --correct TEXT --basis TEXT   record a co
 dating brief SPEC.json                       batch brief from a prompt template (period or proto)
 dating review RUN JUDGMENTS.json [--reviewer NAME]   coordinator-review/review.json from judgments
 dating publish RUN [--review PATH]           packet, import, adopt, publish, validate, export (one reviewed run)
+dating chapters RUN [--apply]                which chapter of an edited volume each of a published run's claims quotes (ledger)
 dating run-readme RUN --title T --notes FILE  the run's README.md (researcher, budget, outcome, notes)
 dating review-summary RUN [--pages DIR]      one block per assertion; render the pages proposed defaults cite
 dating adopt-clades SPEC.json                proto ends from deposited trees' clades (exact taxon sets)
@@ -327,6 +328,13 @@ def cmd_publish(args) -> None:
     print(json.dumps(publish(args.run, args.review), indent=2, ensure_ascii=False))
 
 
+def cmd_chapters(args) -> None:
+    from .review_tools import record_chapters
+
+    found = record_chapters(args.run, reviewer=args.reviewer, apply=args.apply)
+    print(json.dumps(found, indent=2, ensure_ascii=False))
+
+
 def cmd_run_readme(args) -> None:
     from .review_tools import run_readme
 
@@ -464,6 +472,11 @@ def main() -> None:
     p.add_argument("run")
     p.add_argument("--review", help="default: RUN/coordinator-review/review.json")
     p.set_defaults(fn=cmd_publish)
+    p = sub.add_parser("chapters")
+    p.add_argument("run")
+    p.add_argument("--apply", action="store_true", help="write them to the ledger")
+    p.add_argument("--reviewer", help="default: WETY_REVIEWER")
+    p.set_defaults(fn=cmd_chapters)
     p = sub.add_parser("run-readme")
     p.add_argument("run")
     p.add_argument("--title", required=True)
@@ -529,6 +542,7 @@ def main() -> None:
         "ledger",
         "publish",
         "adopt-clades",
+        "chapters",
     }:
         with locked(DATA_DIR + "/_pipeline"):
             args.fn(args)

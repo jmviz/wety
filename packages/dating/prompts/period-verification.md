@@ -103,14 +103,21 @@ different eras or units (e.g. "1250 BC – AD 220"), give {"form": "duration", "
 {"value": 1250, "unit": "BCE"}, "end": {"value": 220, "unit": "CE"}, ...}; an endpoint
 has only value and unit. Never convert to other years yourself; conversion is
 programmatic. "To 900" is an end with no stated start: say so; do not invent a start.
-check normalizes every native_time as the registry will and reports what it rejects;
-a supported assertion needs a stated time.
+Ages counted back from the present: "around 2000 years ago" is unit years_ago (ka_ago
+for thousands), "2500 BP" unit BP, with "present": the year only if the source itself
+states it. Never supply a present yourself (not the publication year, 1950 or 2000):
+the reviewer applies the registry's labeled conventions. check normalizes every
+native_time as the registry will and reports what it rejects; a supported assertion
+needs a stated time.
 
 Events and roles: conventional_period (role convention) for a named stage's
 periodization; first_attestation / last_attestation (role observation) for dated
 surviving texts; documentary_sampling (role observation) for an attestation window
-stated as one span ("attested from the 3rd c. BCE to the 5th c. CE") or a database
-documentation window; conventional_period with role hypothesis and method expert_estimate for a
+stated as one span ("attested from the 3rd c. BCE to the 5th c. CE"), a database
+documentation window, or the date of a language's only record ("known only from a
+list recorded in 1821"). A dated record of a language with other, earlier or later,
+records is not its documentary window: it is first_attestation if the source makes it
+the earliest, last_attestation if the latest, otherwise context; conventional_period with role hypothesis and method expert_estimate for a
 proto-stage dating; composition (role hypothesis) for when texts transmitted orally or
 known only from much later copies were composed (the Vedas, the Avesta), and
 manuscript_production for the date of a surviving copy; native_transmission_end

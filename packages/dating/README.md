@@ -105,10 +105,15 @@ hand; `withdraw SUBJECT EVENT --reviewer R --rationale TEXT` retracts one, keepi
 with the reason, e.g. so an attestation window can replace a database documentation
 window in the display.
 
-Decisions, withdrawals, registered sources and errata are append-only events in
-`data/workspaces/dating/_ledger/` (`harness/ledger.py`): `dating ledger status`, `ledger
+Decisions, withdrawals, registered sources, chapters and errata are append-only events
+in `data/workspaces/dating/_ledger/` (`harness/ledger.py`): `dating ledger status`, `ledger
 erratum PACKET --field F --correct TEXT --basis TEXT` (a correction to an imported
-packet), `ledger resolve-source`.
+packet), `ledger resolve-source`. A supplied holding is one source record (the volume);
+a claim quoting a chapter of an edited volume gets a `chapter` record (its authors,
+year, title and citation, from the researcher's citation of the assertion), which the
+display credits instead of the volume's editors. `publish` records them; `dating
+chapters RUN --apply` does so for a run published earlier. Chapters stay out of the
+claims and the decision digests.
 
 Sources a researcher cannot reach (paywalled handbooks and papers) are supplied by the
 maintainer, usually through Zotero: `dating holdings zotero ITEMKEY...` retains the PDF

@@ -555,7 +555,7 @@
       "event": "crown_divergence",
       "node": "Proto-Yukaghir",
       "role": "hypothesis",
-      "source": "Edward Vajda 2024",
+      "source": "Nikolaeva 2024",
       "subject_id": "wikt:qfa-yuk-pro"
     },
     {
@@ -1239,7 +1239,7 @@
       "event": "crown_divergence",
       "node": "Proto-Hellenic",
       "role": "hypothesis",
-      "source": "Klein et al. 2017",
+      "source": "Sowa 2017",
       "subject_id": "wikt:grk-pro"
     },
     {
@@ -36793,7 +36793,7 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:fff5df92fe6ca543"
     }
   ],
-  "generation": "4c23f0e6b53bfb69f29a49cf986377bcc4e376e441f78c4a5a6462a3f698536c",
+  "generation": "7467cf5a42050050a4dab2ec92ae1bfa09cc95848240ed766af96fa9312fcd2b",
   "languages": [
     {
       "alternatives": [],
@@ -36981,7 +36981,7 @@
       "alternatives": [
         {
           "basis": "attested",
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Asia and the Americas. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Hale, Mark. 2008. “Avestan.” In Roger D. Woodard (ed.), The Ancient Languages of Asia and the Americas, pp. 101–122. Cambridge: Cambridge University Press. First published 2008.",
           "claim_id": "ev_period_332ce8288e4c1f235aede3d1cec11f5a1510f30f",
           "end": null,
           "event": "manuscript_production",
@@ -36990,7 +36990,7 @@
           "method": "manuscript_dating",
           "quote": "There are uncertainties regarding both the dating and the geographical provenance of the\nsurviving Avestan texts. The oldest manuscript is quite young (manuscript K7a, dating from\nAD 1278) and therefore of little assistance in resolving these matters.",
           "role": "observation",
-          "source": "Woodard 2008",
+          "source": "Hale 2008",
           "start": {
             "earliest": 1278,
             "latest": 1278
@@ -37020,14 +37020,14 @@
       "code": "ae",
       "evidence": [
         {
-          "citation": "Klein, Jared S. (ed.); Joseph, Brian D. (ed.); Fritz, Matthias (ed.) (2017) Handbook of comparative and historical Indo-European linguistics. Vol. 1. Berlin ; Boston, De Gruyter Mouton.",
+          "citation": "Skjærvø, Prods Oktor. 2017. “The documentation of Iranian.” In Jared Klein, Brian Joseph and Matthias Fritz (eds.), in cooperation with Mark Wenthe, Handbook of Comparative and Historical Indo-European Linguistics, vol. 1, 471–481. Berlin/Boston: De Gruyter Mouton.",
           "claim_id": "ev_period_36d4a58af06f1814d86db772bb6fed449e077b2d",
           "event": "composition",
           "locator": "{\"page\": \"472\", \"pdf_page\": 484}",
           "method": "expert_estimate",
           "quote": "The Avestan languages are known from the Avesta, the sacred book of the Zoroastrians,\na collection of mostly ritual texts presumably orally composed in the 2nd and 1st millen-\nnia BCE.",
           "role": "hypothesis",
-          "source": "Klein et al. 2017",
+          "source": "Skjærvø 2017",
           "url": null
         }
       ],
@@ -37087,7 +37087,7 @@
       "alternatives": [
         {
           "basis": "composition",
-          "citation": "Klein, Jared S. (ed.); Joseph, Brian D. (ed.); Fritz, Matthias (ed.) (2017) Handbook of comparative and historical Indo-European linguistics. Vol. 1. Berlin ; Boston, De Gruyter Mouton.",
+          "citation": "Skjærvø, Prods Oktor. 2017. “The documentation of Iranian.” In Jared Klein, Brian Joseph and Matthias Fritz (eds.), in cooperation with Mark Wenthe, Handbook of Comparative and Historical Indo-European Linguistics, vol. 1, 471–481. Berlin/Boston: De Gruyter Mouton.",
           "claim_id": "ev_period_34bb1e7adfac33334318e3b894de7115a0242cbc",
           "end": {
             "earliest": -1999,
@@ -37099,7 +37099,7 @@
           "method": "expert_estimate",
           "quote": "Old Avestan, linguistically close to Old Indic (Rigvedic), should probably be dated\nto the late 2nd millennium BCE, and Young Avestan, closer to Old Persian, to the early\n1st millennium.",
           "role": "hypothesis",
-          "source": "Klein et al. 2017",
+          "source": "Skjærvø 2017",
           "start": {
             "earliest": -1999,
             "latest": -1000
@@ -37162,7 +37162,7 @@
         },
         {
           "basis": "composition",
-          "citation": "Klein, Jared S. (ed.); Joseph, Brian D. (ed.); Fritz, Matthias (ed.) (2017) Handbook of comparative and historical Indo-European linguistics. Vol. 1. Berlin ; Boston, De Gruyter Mouton.",
+          "citation": "Skjærvø, Prods Oktor. 2017. “The documentation of Iranian.” In Jared Klein, Brian Joseph and Matthias Fritz (eds.), in cooperation with Mark Wenthe, Handbook of Comparative and Historical Indo-European Linguistics, vol. 1, 471–481. Berlin/Boston: De Gruyter Mouton.",
           "claim_id": "ev_period_aca9516fc2170bf7535bb6817c5eda7baedec3f8",
           "end": {
             "earliest": -999,
@@ -37174,7 +37174,7 @@
           "method": "expert_estimate",
           "quote": "Old Avestan, linguistically close to Old Indic (Rigvedic), should probably be dated\nto the late 2nd millennium BCE, and Young Avestan, closer to Old Persian, to the early\n1st millennium.",
           "role": "hypothesis",
-          "source": "Klein et al. 2017",
+          "source": "Skjærvø 2017",
           "start": {
             "earliest": -999,
             "latest": 0
@@ -37750,7 +37750,7 @@
       "alternatives": [
         {
           "basis": "conventional",
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Mesopotamia, Egypt and Aksum. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Supplied copy is the 2010 reprint. Chapters cited by author in the locator.",
+          "citation": "Huehnergard, John, and Christopher Woods. 2008. “Akkadian and Eblaite.” In Roger D. Woodard (ed.), The Ancient Languages of Mesopotamia, Egypt and Aksum, 83–152. Cambridge: Cambridge University Press. Supplied 2010 reprint.",
           "claim_id": "ev_period_d81bd9cc1fcd588a54f2f5c2bb94a4bb4c7e9ef4",
           "end": {
             "earliest": -1999,
@@ -37762,7 +37762,7 @@
           "method": "scholarly_periodization",
           "quote": "The earliest such major subphase, Old \nAkkadian, the language spoken by the Sargonic kings, refers collectively to the texts from the \nearliest attestation of Akkadian (mid-third millennium) to the beginning of the second mil-\nlennium.",
           "role": "convention",
-          "source": "Woodard 2008",
+          "source": "Huehnergard & Woods 2008",
           "start": {
             "earliest": -2999,
             "latest": -2000
@@ -38037,14 +38037,14 @@
       "code": "arc",
       "evidence": [
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Syria-Palestine and Arabia. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Creason, Stuart. 2008. “Aramaic.” In Roger D. Woodard (ed.), The Ancient Languages of Syria-Palestine and Arabia, 108–144. Cambridge: Cambridge University Press.",
           "claim_id": "ev_period_068e141895df864fb1718a108d69bfdb63e687fb",
           "event": "first_attestation",
           "locator": "{\"page\": \"109\", \"pdf_page\": 131}",
           "method": "scholarly_documentation",
           "quote": "Though Aramaic was spoken during the second millennium BC, the ﬁrst extant texts appear\nat the beginning of the ﬁrst millennium.",
           "role": "observation",
-          "source": "Woodard 2008",
+          "source": "Creason 2008",
           "url": null
         }
       ],
@@ -38140,7 +38140,7 @@
       "alternatives": [
         {
           "basis": "attested",
-          "citation": "Weninger, Stefan (ed.), in collaboration with Geoffrey Khan, Michael P. Streck and Janet C. E. Watson. 2011. The Semitic Languages: An International Handbook. Handbücher zur Sprach- und Kommunikationswissenschaft 36. Berlin and Boston: De Gruyter Mouton. Chapters cited: Bogdan Burtea, \"Mandaic\"; Abraham Tal, \"Samaritan Aramaic\"; Michael Sokoloff, \"Jewish Babylonian Aramaic\" and \"Jewish Palestinian Aramaic\"; Matthew Morgenstern, \"Christian Palestinian Aramaic\"; Charles G. Häberl, \"Neo-Mandaic\".",
+          "citation": "Morgenstern, Matthew. 2011. Christian Palestinian Aramaic. In Stefan Weninger (ed.), The Semitic Languages: An International Handbook (HSK 36), 628ff. Berlin/Boston: De Gruyter Mouton. doi:10.1515/9783110251586.",
           "claim_id": "ev_period_c0ebaf03ec69b9c794ed638820d8427661cfb60a",
           "end": {
             "earliest": 1201,
@@ -38152,7 +38152,7 @@
           "method": "scholarly_description",
           "quote": "the form of Palestinian Aramaic (PA) employed by the Christian Melkite community\nin Palestine from around the 5th to the 13th centuries.",
           "role": "observation",
-          "source": "Stefan Weninger 2011",
+          "source": "Morgenstern 2011",
           "start": {
             "earliest": 401,
             "latest": 500
@@ -38211,14 +38211,14 @@
       "code": "arc-imp",
       "evidence": [
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Syria-Palestine and Arabia. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Creason, Stuart. 2008. “Aramaic.” In Roger D. Woodard (ed.), The Ancient Languages of Syria-Palestine and Arabia, 108–144. Cambridge: Cambridge University Press. First edition.",
           "claim_id": "ev_period_3b91f49605830bf73f3c150784725e958c63b7ea",
           "event": "conventional_period",
           "locator": "{\"page\": \"109\", \"pdf_page\": 131}",
           "method": "scholarly_periodization",
           "quote": "Imperial or Ofﬁcial Aramaic (600–200 BC)",
           "role": "convention",
-          "source": "Woodard 2008",
+          "source": "Creason 2008",
           "url": null
         }
       ],
@@ -38275,14 +38275,14 @@
       "code": "arc-old",
       "evidence": [
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Syria-Palestine and Arabia. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Creason, Stuart. 2008. “Aramaic.” In Roger D. Woodard (ed.), The Ancient Languages of Syria-Palestine and Arabia, 108–144. Cambridge: Cambridge University Press. First edition.",
           "claim_id": "ev_period_0d3201635fcd221d4b62395badeaf7e3394b7b30",
           "event": "conventional_period",
           "locator": "{\"page\": \"109\", \"pdf_page\": 131}",
           "method": "scholarly_periodization",
           "quote": "Old Aramaic (950–600 BC)",
           "role": "convention",
-          "source": "Woodard 2008",
+          "source": "Creason 2008",
           "url": null
         }
       ],
@@ -39636,7 +39636,7 @@
       "alternatives": [
         {
           "basis": "estimated",
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Asia and the Americas. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Jamison, Stephanie W.. 2008. “Sanskrit.” In Roger D. Woodard (ed.), The Ancient Languages of Asia and the Americas, pp. 6–32. Cambridge: Cambridge University Press. First published 2008 (regional reprint of the 2004 encyclopedia chapter).",
           "claim_id": "ev_period_ad45f77b91f012b64ec12708eef6711488518107",
           "end": null,
           "event": "formation",
@@ -39645,7 +39645,7 @@
           "method": "expert_estimate",
           "quote": "Around 500 BC the Sanskrit then current among cultivated\nspeakers received a magniﬁcent description by the grammarian P¯an. ini in his treatise, the\nAs.t.¯adhy¯ay¯ı (“[Work] consisting of eight chapters”), whose level of detail and theoretical\nsophistication has not been equaled to this day.",
           "role": "hypothesis",
-          "source": "Woodard 2008",
+          "source": "Jamison 2008",
           "start": {
             "earliest": -499,
             "latest": -499
@@ -39759,7 +39759,7 @@
           "method": "scholarly_description",
           "quote": "The Classical period covers roughly the seventeenth to the nine-\nteenth centuries",
           "role": "convention",
-          "source": "Juha Janhunen 2003",
+          "source": "Janhunen 2003",
           "url": null
         }
       ],
@@ -39803,7 +39803,7 @@
         },
         {
           "basis": "attested",
-          "citation": "Klein, Jared S. (ed.); Joseph, Brian D. (ed.); Fritz, Matthias (ed.) (2017) Handbook of comparative and historical Indo-European linguistics. Vol. 3. Berlin ; Boston, De Gruyter Mouton.",
+          "citation": "de Simone, Carlo. 2018. “Messapic.” In Jared Klein, Brian Joseph, and Matthias Fritz (eds.), Handbook of Comparative and Historical Indo-European Linguistics, vol. 3, 1839–1850. Berlin/Boston: De Gruyter Mouton. https://doi.org/10.1515/9783110542431-024.",
           "claim_id": "ev_period_91b70b1dde60b37c81e498b80b49e6ae2a4132de",
           "end": null,
           "event": "first_attestation",
@@ -39812,7 +39812,7 @@
           "method": "philological_attestation",
           "quote": "The name “Messapic” traditionally designates the pre-Roman language of the 2nd Augus-\ntan region, Apulia et Calabria. But, according to the current state of our knowledge, this\nname (“Messapic language”) is better confined to the inscriptions of the actual Salento\npeninsula, i.e. south of a hypothetical line connecting Brindisi-Taranto: only in this re-\ngion is the name of the Messapians (Messāpii, Mεσσάπιοι: the “genuine” Messapians;\ncf. de Simone 1984 on the Daunia) found in ancient sources (Krahe 1937: 20−27, 1955:\n14−15; de Simone 1979; Lombardo 1991: 52−53; on the sources in general: Lombardo\n[ed.] 1992), and indigenous inscriptions (about 600 texts of differing lengths) are attested\nhere since about the middle of the 6th century BCE (cf. now MLM I−II; Marchesini\n1999).",
           "role": "observation",
-          "source": "Klein et al. 2017",
+          "source": "de Simone 2018",
           "start": {
             "earliest": -599,
             "latest": -500
@@ -39824,7 +39824,7 @@
       "code": "cms",
       "evidence": [
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Europe. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Woodard, Roger D. 2008. “Language in ancient Europe: an introduction.” In Roger D. Woodard (ed.), The Ancient Languages of Europe, 1–13. Cambridge: Cambridge University Press.",
           "claim_id": "ev_period_0d986bec197f802207fd6c8afddafb4443418130",
           "event": "documentary_sampling",
           "locator": "{\"page\": \"11\", \"pdf_page\": 33, \"section\": \"7. Messapic\"}",
@@ -39888,14 +39888,14 @@
       "code": "cop",
       "evidence": [
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Mesopotamia, Egypt and Aksum. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Supplied copy is the 2010 reprint. Chapters cited by author in the locator.",
+          "citation": "Loprieno, Antonio. 2008. “Egyptian and Coptic.” In Roger D. Woodard (ed.), The Ancient Languages of Mesopotamia, Egypt and Aksum, 153–210. Cambridge: Cambridge University Press. Supplied 2010 reprint.",
           "claim_id": "ev_period_ca4d50130742f4ef13afbad097d2a33a41cd5bd8",
           "event": "conventional_period",
           "locator": "{\"page\": \"155\", \"pdf_page\": 87}",
           "method": "scholarly_periodization",
           "quote": "Coptic (fourth to fourteenth century AD)",
           "role": "convention",
-          "source": "Woodard 2008",
+          "source": "Loprieno 2008",
           "url": null
         }
       ],
@@ -40178,14 +40178,14 @@
       "code": "cu-bgm",
       "evidence": [
         {
-          "citation": "Klein, Jared S. (ed.); Joseph, Brian D. (ed.); Fritz, Matthias (ed.) (2017) Handbook of comparative and historical Indo-European linguistics. Vol. 3. Berlin ; Boston, De Gruyter Mouton.",
+          "citation": "Langston, Keith. 2018. “The documentation of Slavic.” In Jared Klein, Brian Joseph and Matthias Fritz (eds.), Handbook of Comparative and Historical Indo-European Linguistics, vol. 3, 1397–1413. Berlin/Boston: De Gruyter Mouton.",
           "claim_id": "ev_period_5a3211ce587be924c03707f3d1f6865349d66d6e",
           "event": "first_attestation",
           "locator": "{\"page\": \"1404\", \"pdf_page\": 18}",
           "method": "documentary_attestation",
           "quote": "Beginning in the 12th century, we have numerous texts with enough innovative re-\ngional features that they are classified as Bulgarian or Macedonian recensions of Old\nChurch Slavic, or simply as Middle Bulgarian.",
           "role": "observation",
-          "source": "Klein et al. 2017",
+          "source": "Langston 2018",
           "url": null
         }
       ],
@@ -40375,14 +40375,14 @@
       "code": "dlm",
       "evidence": [
         {
-          "citation": "Klein, Jared S. (ed.); Joseph, Brian D. (ed.); Fritz, Matthias (ed.) (2017) Handbook of comparative and historical Indo-European linguistics. Vol. 2. Berlin ; Boston, De Gruyter Mouton.",
+          "citation": "Bossong, Georg. 2017. “The evolution of Italic.” In Jared Klein, Brian Joseph and Matthias Fritz (eds.), in cooperation with Mark Wenthe, Handbook of Comparative and Historical Indo-European Linguistics, vol. 2, 858–874. Berlin/Boston: De Gruyter Mouton.",
           "claim_id": "ev_period_66a087a1233546312a936449a36608a294b17ed5",
           "event": "native_transmission_end",
           "locator": "{\"page\": \"862\", \"pdf_page\": 142}",
           "method": "expert_estimate",
           "quote": "From the 6th century CE on, Avar and later Slavic invasions pushed Latin\nback to the coastal cities where it developed into Dalmatian. This Romance language,\nespecially the dialects of Ragusa (Dubrovnik) and Vegliot (Krk) played an important\nrole in Mediterranean trade until the 15th century. It survived until 1898 when the last\nspeaker of Vegliot died. Dalmatian was completely replaced by Croatian.",
           "role": "hypothesis",
-          "source": "Klein et al. 2017",
+          "source": "Bossong 2017",
           "url": null
         }
       ],
@@ -40672,14 +40672,14 @@
       "code": "egx-dem",
       "evidence": [
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Mesopotamia, Egypt and Aksum. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Supplied copy is the 2010 reprint. Chapters cited by author in the locator.",
+          "citation": "Loprieno, Antonio. 2008. “Egyptian and Coptic.” In Roger D. Woodard (ed.), The Ancient Languages of Mesopotamia, Egypt and Aksum, 153–210. Cambridge: Cambridge University Press. Supplied 2010 reprint.",
           "claim_id": "ev_period_6e5423d5721deae83506aec23ee167ffeb561ae4",
           "event": "conventional_period",
           "locator": "{\"page\": \"155\", \"pdf_page\": 87}",
           "method": "scholarly_periodization",
           "quote": "Demotic (seventh century BC to fifth century AD)",
           "role": "convention",
-          "source": "Woodard 2008",
+          "source": "Loprieno 2008",
           "url": null
         }
       ],
@@ -40726,14 +40726,14 @@
       "code": "egy-lat",
       "evidence": [
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Mesopotamia, Egypt and Aksum. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Supplied copy is the 2010 reprint. Chapters cited by author in the locator.",
+          "citation": "Loprieno, Antonio. 2008. “Egyptian and Coptic.” In Roger D. Woodard (ed.), The Ancient Languages of Mesopotamia, Egypt and Aksum, 153–210. Cambridge: Cambridge University Press. Supplied 2010 reprint.",
           "claim_id": "ev_period_3a0ca379f411004d9ada4510a693b4a516c6d57f",
           "event": "conventional_period",
           "locator": "{\"page\": \"154\", \"pdf_page\": 87}",
           "method": "scholarly_periodization",
           "quote": "Late Egyptian (1300-700 BC)",
           "role": "convention",
-          "source": "Woodard 2008",
+          "source": "Loprieno 2008",
           "url": null
         }
       ],
@@ -40834,14 +40834,14 @@
       "code": "egy-old",
       "evidence": [
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Mesopotamia, Egypt and Aksum. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Supplied copy is the 2010 reprint. Chapters cited by author in the locator.",
+          "citation": "Loprieno, Antonio. 2008. “Egyptian and Coptic.” In Roger D. Woodard (ed.), The Ancient Languages of Mesopotamia, Egypt and Aksum, 153–210. Cambridge: Cambridge University Press. Supplied 2010 reprint.",
           "claim_id": "ev_period_656c3f75c455587d7e26a9d6f988dcd2891cd27c",
           "event": "conventional_period",
           "locator": "{\"page\": \"154\", \"pdf_page\": 87}",
           "method": "scholarly_periodization",
           "quote": "Old Egyptian (Edel 1955_;964)· \"y~; 1 ases are as follows: \nIntermediate Period (3000-2000 BCJ Th anguage of the Old Kingdom and of the First \n",
           "role": "convention",
-          "source": "Woodard 2008",
+          "source": "Loprieno 2008",
           "url": null
         }
       ],
@@ -40866,25 +40866,25 @@
       "code": "elx",
       "evidence": [
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Mesopotamia, Egypt and Aksum. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Supplied copy is the 2010 reprint. Chapters cited by author in the locator.",
+          "citation": "Stolper, Matthew W. 2008. “Elamite.” In Roger D. Woodard (ed.), The Ancient Languages of Mesopotamia, Egypt and Aksum, 47–82. Cambridge: Cambridge University Press. Supplied 2010 reprint.",
           "claim_id": "ev_period_3f8a714d108d156f91bdc4ca3a936389cb2a1e8c",
           "event": "first_attestation",
           "locator": "{\"page\": \"47\", \"pdf_page\": 33}",
           "method": "textual_attestation",
           "quote": "Texts in Elamite come from the modern provinces of Khuzestan and Pars, in southwestern \nIran. Most are from ancient Susa and the plains of Khuzestan around it, from ancient \nPersepolis and Anshan (modern Tall-i Malyan) in the high valleys of Pars, from sites on the \nway between Susiana and the Persepolis--Anshan area, or from the coast ofFars. Achaemenid \nmultilingual rock inscriptions of c. 520-450 BC with Elamite versions are also found in \ncentral western Iran, near Ramadan, and in eastern Turkey, near Van. Elamite texts on day \ntablets from c. 600-550 BC have been found at the Assyrian city of Nineveh, in northeastern \nIraq, at the Urartian fortress at modern Armavir Blur in Armenia, and at Old Kandahar in \nmodern Afghanistan. The oldest dated texts are from about 2300 BC, the latest from about \n350 BC.",
           "role": "observation",
-          "source": "Woodard 2008",
+          "source": "Stolper 2008",
           "url": null
         },
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Mesopotamia, Egypt and Aksum. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Supplied copy is the 2010 reprint. Chapters cited by author in the locator.",
+          "citation": "Stolper, Matthew W. 2008. “Elamite.” In Roger D. Woodard (ed.), The Ancient Languages of Mesopotamia, Egypt and Aksum, 47–82. Cambridge: Cambridge University Press. Supplied 2010 reprint.",
           "claim_id": "ev_period_7b359f5843367c0271b1a1fd6b39a81445d06568",
           "event": "last_attestation",
           "locator": "{\"page\": \"47\", \"pdf_page\": 33}",
           "method": "textual_attestation",
           "quote": "Texts in Elamite come from the modern provinces of Khuzestan and Pars, in southwestern \nIran. Most are from ancient Susa and the plains of Khuzestan around it, from ancient \nPersepolis and Anshan (modern Tall-i Malyan) in the high valleys of Pars, from sites on the \nway between Susiana and the Persepolis--Anshan area, or from the coast ofFars. Achaemenid \nmultilingual rock inscriptions of c. 520-450 BC with Elamite versions are also found in \ncentral western Iran, near Ramadan, and in eastern Turkey, near Van. Elamite texts on day \ntablets from c. 600-550 BC have been found at the Assyrian city of Nineveh, in northeastern \nIraq, at the Urartian fortress at modern Armavir Blur in Armenia, and at Old Kandahar in \nmodern Afghanistan. The oldest dated texts are from about 2300 BC, the latest from about \n350 BC.",
           "role": "observation",
-          "source": "Woodard 2008",
+          "source": "Stolper 2008",
           "url": null
         }
       ],
@@ -40960,14 +40960,14 @@
       "code": "elx-ach",
       "evidence": [
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Mesopotamia, Egypt and Aksum. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Supplied copy is the 2010 reprint. Chapters cited by author in the locator.",
+          "citation": "Stolper, Matthew W. 2008. “Elamite.” In Roger D. Woodard (ed.), The Ancient Languages of Mesopotamia, Egypt and Aksum, 47–82. Cambridge: Cambridge University Press. Supplied 2010 reprint.",
           "claim_id": "ev_period_9cbeccd98810aa1c4d47d3d69bd8837d1a5db27d",
           "event": "conventional_period",
           "locator": "{\"page\": \"50\", \"pdf_page\": 35}",
           "method": "scholarly_periodization",
           "quote": "Achaemenid Elamite (550-330 BC)",
           "role": "convention",
-          "source": "Woodard 2008",
+          "source": "Stolper 2008",
           "url": null
         }
       ],
@@ -40992,14 +40992,14 @@
       "code": "elx-mid",
       "evidence": [
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Mesopotamia, Egypt and Aksum. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Supplied copy is the 2010 reprint. Chapters cited by author in the locator.",
+          "citation": "Stolper, Matthew W. 2008. “Elamite.” In Roger D. Woodard (ed.), The Ancient Languages of Mesopotamia, Egypt and Aksum, 47–82. Cambridge: Cambridge University Press. Supplied 2010 reprint.",
           "claim_id": "ev_period_c2951b348df4d3e0f81d09273078e61b5ff59a80",
           "event": "conventional_period",
           "locator": "{\"page\": \"49\", \"pdf_page\": 34}",
           "method": "scholarly_periodization",
           "quote": "Middle Elamite (c. 1500-1000 BC)",
           "role": "convention",
-          "source": "Woodard 2008",
+          "source": "Stolper 2008",
           "url": null
         }
       ],
@@ -41024,14 +41024,14 @@
       "code": "elx-neo",
       "evidence": [
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Mesopotamia, Egypt and Aksum. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Supplied copy is the 2010 reprint. Chapters cited by author in the locator.",
+          "citation": "Stolper, Matthew W. 2008. “Elamite.” In Roger D. Woodard (ed.), The Ancient Languages of Mesopotamia, Egypt and Aksum, 47–82. Cambridge: Cambridge University Press. Supplied 2010 reprint.",
           "claim_id": "ev_period_60dba9c0cd6e4c1439c8ab5c87871035541164f3",
           "event": "conventional_period",
           "locator": "{\"page\": \"49\", \"pdf_page\": 34}",
           "method": "scholarly_periodization",
           "quote": "Neo-Elamite (c. 1000-550 BC)",
           "role": "convention",
-          "source": "Woodard 2008",
+          "source": "Stolper 2008",
           "url": null
         }
       ],
@@ -41056,14 +41056,14 @@
       "code": "elx-old",
       "evidence": [
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Mesopotamia, Egypt and Aksum. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Supplied copy is the 2010 reprint. Chapters cited by author in the locator.",
+          "citation": "Stolper, Matthew W. 2008. “Elamite.” In Roger D. Woodard (ed.), The Ancient Languages of Mesopotamia, Egypt and Aksum, 47–82. Cambridge: Cambridge University Press. Supplied 2010 reprint.",
           "claim_id": "ev_period_e27ff8b021d1afddf4674de3df4acaed0221ed60",
           "event": "conventional_period",
           "locator": "{\"page\": \"48\", \"pdf_page\": 34}",
           "method": "scholarly_periodization",
           "quote": "OldElamite (c. 2600-1500BC)",
           "role": "convention",
-          "source": "Woodard 2008",
+          "source": "Stolper 2008",
           "url": null
         }
       ],
@@ -41340,25 +41340,25 @@
       "code": "ett",
       "evidence": [
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Europe. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Rix, Helmut. 2008. Etruscan. In Roger D. Woodard (ed.), The Ancient Languages of Europe, pp. 141–164. Cambridge: Cambridge University Press. First regional paperback edition.",
           "claim_id": "ev_period_fd98cc49e4b0608613b3dfcc1bbadff3b992b0c3",
           "event": "first_attestation",
           "locator": "{\"page\": \"141\", \"pdf_page\": 165}",
           "method": "scholarly_attestation",
           "quote": "Etruscan, the language of the Etruscans, is attested between 700 BC and AD 50 in the\narea of northwest central Italy between the Arno, the Tiber, and the Tyrrhenian Sea.",
           "role": "observation",
-          "source": "Woodard 2008",
+          "source": "Rix 2008",
           "url": null
         },
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Europe. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Rix, Helmut. 2008. Etruscan. In Roger D. Woodard (ed.), The Ancient Languages of Europe, pp. 141–164. Cambridge: Cambridge University Press. First regional paperback edition.",
           "claim_id": "ev_period_8fa3063ea850cd39fd88a8fb40381e02123e8649",
           "event": "last_attestation",
           "locator": "{\"page\": \"141\", \"pdf_page\": 165}",
           "method": "scholarly_attestation",
           "quote": "Etruscan, the language of the Etruscans, is attested between 700 BC and AD 50 in the\narea of northwest central Italy between the Arno, the Tiber, and the Tyrrhenian Sea.",
           "role": "observation",
-          "source": "Woodard 2008",
+          "source": "Rix 2008",
           "url": null
         }
       ],
@@ -41465,7 +41465,7 @@
           "method": "scholarly_periodization",
           "quote": "700-900 \n900-1 100 \nl lOQ.-1300 \n1300-1600 \n1600-1900 \n1900-present \nTransition from Middle Persian \nEarliest NP, Ghaznavids; Shahname of Ferdowsi of Tus \nENP, Mongols: in twelfth century: relative dialectal homogeneity \nand standardization, Persian international language in Eastern \nCaliphate \n\"Classical Persian\", Turko-Mongols to Safavids: considerable \nstandard reached; earlier features may occur in emulation of \n\"Classical\" style - thereafter slower shifts",
           "role": "convention",
-          "source": "Windfuhr 2009",
+          "source": "Windfuhr & Perry 2009",
           "url": null
         }
       ],
@@ -41870,14 +41870,14 @@
       "code": "gez",
       "evidence": [
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Mesopotamia, Egypt and Aksum. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Supplied copy is the 2010 reprint. Chapters cited by author in the locator.",
+          "citation": "Gragg, Gene. 2008. “Ge’ez (Aksum).” In Roger D. Woodard (ed.), The Ancient Languages of Mesopotamia, Egypt and Aksum, 211–237. Cambridge: Cambridge University Press. Supplied 2010 reprint.",
           "claim_id": "ev_period_e9736261aa27091a5e652d85456a392d74db77ed",
           "event": "native_transmission_end",
           "locator": "{\"page\": \"212\", \"pdf_page\": 116}",
           "method": "expert_estimate",
           "quote": "Ge'ez disappeared as a spoken language \nprobably some time before the tenth century AD, but continued as the liturgical language \nof the Ethiopian Orthodox Church, and as the only official written language of Ethiopia \npractically up to the end of the nineteenth century.",
           "role": "hypothesis",
-          "source": "Woodard 2008",
+          "source": "Gragg 2008",
           "url": null
         }
       ],
@@ -41899,7 +41899,7 @@
       "code": "gkm",
       "evidence": [
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Europe. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Woodard, Roger D. 2008. Attic Greek. In Roger D. Woodard (ed.), The Ancient Languages of Europe, 14–49. 1st paperback-volume edition. Cambridge: Cambridge University Press. Reprinted from the 2004 encyclopedia.",
           "claim_id": "ev_period_05b8b5e148aff3f9b75ce62ecc41aa33cd1a2264",
           "event": "conventional_period",
           "locator": "{\"page\": \"14\", \"pdf_page\": 36}",
@@ -42206,7 +42206,7 @@
       "alternatives": [
         {
           "basis": "attested",
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Europe. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Woodard, Roger D. 2008. Greek dialects. In Roger D. Woodard (ed.), The Ancient Languages of Europe, pp. 50–72. Cambridge: Cambridge University Press. First regional paperback edition.",
           "claim_id": "ev_period_dad5f4fa1d132e7f8a7f2bbebbb29a29ee5f57ed",
           "end": {
             "earliest": -1199,
@@ -42227,7 +42227,7 @@
       "code": "gmy",
       "evidence": [
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Europe. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Woodard, Roger D. 2008. Attic Greek. In Roger D. Woodard (ed.), The Ancient Languages of Europe, pp. 14–49. Cambridge: Cambridge University Press. First regional paperback edition.",
           "claim_id": "ev_period_0c6d58be974aafa6934639bcdb7da6dbbc07752e",
           "event": "first_attestation",
           "locator": "{\"page\": \"14\", \"pdf_page\": 36}",
@@ -42238,7 +42238,7 @@
           "url": null
         },
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Europe. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Woodard, Roger D. 2008. Attic Greek. In Roger D. Woodard (ed.), The Ancient Languages of Europe, pp. 14–49. Cambridge: Cambridge University Press. First regional paperback edition.",
           "claim_id": "ev_period_096041656e4c1bc6ef2fbffcad0c040b879e1ad9",
           "event": "last_attestation",
           "locator": "{\"page\": \"14\", \"pdf_page\": 36}",
@@ -42373,7 +42373,7 @@
       "code": "got",
       "evidence": [
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Europe. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Woodard, Roger D. 2008. Preface. In Roger D. Woodard (ed.), The Ancient Languages of Europe, pp. xv–xviii. Cambridge: Cambridge University Press. First regional paperback edition.",
           "claim_id": "ev_period_89f8a0537e61c48680e0023bbb6c716ea5987d5a",
           "event": "first_attestation",
           "locator": "{\"page\": \"xvi\", \"pdf_page\": 18}",
@@ -42484,7 +42484,7 @@
       "code": "grc-koi",
       "evidence": [
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Europe. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Woodard, Roger D. 2008. Attic Greek. In Roger D. Woodard (ed.), The Ancient Languages of Europe, 14–49. 1st paperback-volume edition. Cambridge: Cambridge University Press. Reprinted from the 2004 encyclopedia.",
           "claim_id": "ev_period_5a4b9bc582e3434039f899ecf1f1747108fa01f1",
           "event": "conventional_period",
           "locator": "{\"page\": \"14\", \"pdf_page\": 36}",
@@ -42516,14 +42516,14 @@
       "code": "grk-pro",
       "evidence": [
         {
-          "citation": "Klein, Jared S. (ed.); Joseph, Brian D. (ed.); Fritz, Matthias (ed.) (2017) Handbook of comparative and historical Indo-European linguistics. Vol. 1. Berlin ; Boston, De Gruyter Mouton.",
+          "citation": "Sowa, Wojciech. 2017. The dialectology of Greek. In Klein, Joseph & Fritz (eds.), Handbook of Comparative and Historical Indo-European Linguistics, vol. 1, pp. 710–716, especially.",
           "claim_id": "ev_period_5ae2056ad759c2a6e89724ea69f8f96fd3b8f2ee",
           "event": "crown_divergence",
           "locator": "{\"pdf_page\": 726, \"printed_page\": \"714\", \"section\": \"44 The dialectology of Greek, §5\", \"start\": 2168948, \"end\": 2169054}",
           "method": "comparative_reconstruction",
           "quote": "In the period after the Greek tribes appeared in\nGreece (ca. 1900 BCE) the first dialectal split occurred.",
           "role": "hypothesis",
-          "source": "Klein et al. 2017",
+          "source": "Sowa 2017",
           "url": null
         }
       ],
@@ -42545,14 +42545,14 @@
       "code": "hbo",
       "evidence": [
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Syria-Palestine and Arabia. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "McCarter, P. Kyle, Jr. 2008. “Hebrew.” In Roger D. Woodard (ed.), The Ancient Languages of Syria-Palestine and Arabia, 36–81. Cambridge: Cambridge University Press. First edition.",
           "claim_id": "ev_period_1a3a1a229063f7c98fef9bcb4b39e2509f38aeec",
           "event": "conventional_period",
           "locator": "{\"page\": \"36\", \"pdf_page\": 58}",
           "method": "scholarly_periodization",
           "quote": "No extant inscription that can be identiﬁed speciﬁcally as Hebrew antedates the tenth\ncentury BC, and Hebrew inscriptions in signiﬁcant numbers do not begin to appear before\nthe early eighth century BC. Nevertheless, the Hebrew of the Iron Age inscriptions that do\nsurvive,especiallythosefromJudah,isessentiallythesameastheHebrewfoundinthebiblical\nPrimary History (Genesis–2 Kings) and the original portions of the books of the pre-exilic\nprophets.ThisformofHebrewconstitutestheclassicalphaseofthelanguage,whichisknown\nas Classical or Biblical Hebrew (BH) and corresponds to the speech of the kingdom of Judah\nfrom its formation to the Babylonian Exile (c. tenth–sixth centuries BC).",
           "role": "convention",
-          "source": "Woodard 2008",
+          "source": "McCarter 2008",
           "url": null
         }
       ],
@@ -42614,7 +42614,7 @@
         },
         {
           "basis": "attested",
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Asia Minor. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Watkins, Calvert. 2008. Hittite. In Roger D. Woodard (ed.), The Ancient Languages of Asia Minor, 6–30. 1st paperback-volume edition. Cambridge: Cambridge University Press. Reprinted from the 2004 encyclopedia.",
           "claim_id": "ev_period_d8de3c646ee790eb0ccc7e968594025e23b2d4cc",
           "end": {
             "earliest": -1299,
@@ -42626,13 +42626,13 @@
           "method": "scholarly_attestation_survey",
           "quote": "The Hittite language is preserved for us on clay tablets written in a cuneiform syllabary,\nthe archives of the palace or central authority in the capital city of Hattusas (Bo˘gazk¨oy,\nnow Bo˘gazkale), and a few other urban centers like Mas¸at, Ortak¨oy, and Kus¸aklı, the tablets\nthemselves written over the period from the seventeenth/sixteenth to the end of the thir-\nteenth century.",
           "role": "observation",
-          "source": "Woodard 2008",
+          "source": "Watkins 2008",
           "start": null,
           "url": null
         },
         {
           "basis": "attested",
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Asia Minor. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Watkins, Calvert. 2008. Hittite. In Roger D. Woodard (ed.), The Ancient Languages of Asia Minor, 6–30. 1st paperback-volume edition. Cambridge: Cambridge University Press. Reprinted from the 2004 encyclopedia.",
           "claim_id": "ev_period_ee3e95601d2a1c5b5eec0955e7cc0d214f764cd7",
           "end": null,
           "event": "first_attestation",
@@ -42641,7 +42641,7 @@
           "method": "scholarly_attestation_survey",
           "quote": "The speakers of Hittite were in place in Central Anatolia by the nineteenth–eighteenth\ncentury BC, since a few words of the language (notably iˇsh˘iul- “contract”) appear in Old\nAssyrian documents from the merchant colonies like K¯arum Kaneˇs, Hittite Neˇsaˇs, modern\nK¨ultepe.",
           "role": "observation",
-          "source": "Woodard 2008",
+          "source": "Watkins 2008",
           "start": {
             "earliest": -1899,
             "latest": -1700
@@ -42831,14 +42831,14 @@
       "code": "inc-pro",
       "evidence": [
         {
-          "citation": "Kapović, Mate (ed.). 2017. The Indo-European Languages. 2nd ed. Routledge Language Family Series. Abingdon and New York: Routledge (paperback issue 2019). Chapters cited by author in the locator.",
+          "citation": "Kulikov, Leonid. 2017. “Indo-Aryan.” In Mate Kapović (ed.), The Indo-European Languages, 2nd ed., pp. 214–262. London/New York: Routledge. At.",
           "claim_id": "ev_period_86944c10beef84ed823c5028c7b03945fbcf4424",
           "event": "conventional_period",
           "locator": "{\"page\": \"214\", \"pdf_page\": 235}",
           "method": "expert_estimate",
           "quote": "The Indo-Aryan-speaking peoples probably came to the Indian subcontinent from the \nNorth-West, entering the greater Punjab (where the oldest Vedic text, the R̥gveda, was \ncomposed) by the end of the first half of the second millennium BC. In that epoch, Pro-\nto-Indo-Aryan was a single language (still very close to Proto-Iranian), which started to \nsplit into dialects essentially after the arrival in India.",
           "role": "hypothesis",
-          "source": "Kapović 2017",
+          "source": "Kulikov 2017",
           "url": null
         }
       ],
@@ -43019,7 +43019,7 @@
         },
         {
           "basis": "estimated",
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Europe. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Hoenigswald, Henry M., and Roger D. Woodard, with a discussion of syntax by James P. T. Clackson. 2008. Indo-European. In Roger D. Woodard (ed.), The Ancient Languages of Europe, 230–246. 1st paperback-volume edition. Cambridge: Cambridge University Press. Reprinted from the 2004 encyclopedia.",
           "claim_id": "ev_period_c3fc127327d342c311ad05d418d02dbced283f11",
           "end": {
             "earliest": -4999,
@@ -43031,7 +43031,7 @@
           "method": "expert_estimate",
           "quote": "Proto-Indo-European (PIE) may well have been spoken somewhere in the Black Sea area\nbefore the middle of the ﬁfth millennium BC.",
           "role": "hypothesis",
-          "source": "Woodard 2008",
+          "source": "Hoenigswald & Woodard 2008",
           "start": null,
           "url": null
         }
@@ -43114,25 +43114,25 @@
       "code": "inm",
       "evidence": [
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Syria-Palestine and Arabia. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Nebes, Norbert, and Peter Stein. 2008. “Ancient South Arabian.” In Roger D. Woodard (ed.), The Ancient Languages of Syria-Palestine and Arabia, 145–178. Cambridge: Cambridge University Press. First edition.",
           "claim_id": "ev_period_522432f26df353cfb8fcea042b7bc3a2614c1b90",
           "event": "first_attestation",
           "locator": "{\"page\": \"146\", \"pdf_page\": 168}",
           "method": "textual_attestation",
           "quote": "The ﬁrst inscriptions written in the Minaic dialect appear at about the same time as the\nearliest Sabaic written evidence (eighth century BC) – though in smaller numbers – and\ncome from the ancient cities along the large Wadi Mad¯ab, which lies to the northwest of\nM¯arib. Minaic trading colonies, and thus Minaic inscriptions, are also found outside South\nArabia, as in the ancient oasis of Ded¯an (the present-day al-‘Ul¯a in Saudi Arabia), and even\nbeyond the Arabian peninsula, as on the island of Delos and in Egypt, in testimony to the\npresence of Minaic merchants far to the north. Minaic disappears as a dialect around the\nend of the second century BC.",
           "role": "observation",
-          "source": "Woodard 2008",
+          "source": "Nebes & Stein 2008",
           "url": null
         },
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Syria-Palestine and Arabia. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Nebes, Norbert, and Peter Stein. 2008. “Ancient South Arabian.” In Roger D. Woodard (ed.), The Ancient Languages of Syria-Palestine and Arabia, 145–178. Cambridge: Cambridge University Press. First edition.",
           "claim_id": "ev_period_cb03a6f38cd3bb55206738e042cff34e480f2426",
           "event": "last_attestation",
           "locator": "{\"page\": \"146\", \"pdf_page\": 168}",
           "method": "textual_attestation",
           "quote": "The ﬁrst inscriptions written in the Minaic dialect appear at about the same time as the\nearliest Sabaic written evidence (eighth century BC) – though in smaller numbers – and\ncome from the ancient cities along the large Wadi Mad¯ab, which lies to the northwest of\nM¯arib. Minaic trading colonies, and thus Minaic inscriptions, are also found outside South\nArabia, as in the ancient oasis of Ded¯an (the present-day al-‘Ul¯a in Saudi Arabia), and even\nbeyond the Arabian peninsula, as on the island of Delos and in Egypt, in testimony to the\npresence of Minaic merchants far to the north. Minaic disappears as a dialect around the\nend of the second century BC.",
           "role": "observation",
-          "source": "Woodard 2008",
+          "source": "Nebes & Stein 2008",
           "url": null
         }
       ],
@@ -43308,14 +43308,14 @@
       "code": "itc-ala",
       "evidence": [
         {
-          "citation": "Kapović, Mate (ed.). 2017. The Indo-European Languages. 2nd ed. Routledge Language Family Series. Abingdon and New York: Routledge (paperback issue 2019). Chapters cited by author in the locator.",
+          "citation": "Wallace, Rex. 2017. Italic. In Mate Kapović (ed.), The Indo-European Languages, 2nd ed., 317–351. Abingdon and New York: Routledge.",
           "claim_id": "ev_period_1bb897911ae30674e524c4d34049d40a7e649811",
           "event": "conventional_period",
           "locator": "{\"page\": \"322\", \"pdf_page\": 343}",
           "method": "scholarly_periodization",
           "quote": "Very Old Latin (VOLat.), ca. 650–400 BCE",
           "role": "convention",
-          "source": "Kapović 2017",
+          "source": "Wallace 2017",
           "url": null
         }
       ],
@@ -43340,14 +43340,14 @@
       "code": "itc-ola",
       "evidence": [
         {
-          "citation": "Kapović, Mate (ed.). 2017. The Indo-European Languages. 2nd ed. Routledge Language Family Series. Abingdon and New York: Routledge (paperback issue 2019). Chapters cited by author in the locator.",
+          "citation": "Wallace, Rex. 2017. Italic. In Mate Kapović (ed.), The Indo-European Languages, 2nd ed., 317–351. Abingdon and New York: Routledge.",
           "claim_id": "ev_period_304bdafc04ff3f61637f34e9e49723ca97ffcdd3",
           "event": "conventional_period",
           "locator": "{\"page\": \"322\", \"pdf_page\": 343}",
           "method": "scholarly_periodization",
           "quote": "Old Latin (OLat.), ca. 400–100 BCE",
           "role": "convention",
-          "source": "Kapović 2017",
+          "source": "Wallace 2017",
           "url": null
         }
       ],
@@ -43596,7 +43596,7 @@
       "alternatives": [
         {
           "basis": "conventional",
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Asia Minor. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Tuite, Kevin. 2008. Early Georgian. In Roger D. Woodard (ed.), The Ancient Languages of Asia Minor, pp. 145–165. Cambridge: Cambridge University Press. First regional paperback edition.",
           "claim_id": "ev_period_e4f99cc5c8efa22fd721fe7bb50a84a59925fcd2",
           "end": {
             "earliest": 1701,
@@ -43608,7 +43608,7 @@
           "method": "scholarly_periodization",
           "quote": "Middle Georgian:\n12th–18th centuries",
           "role": "convention",
-          "source": "Woodard 2008",
+          "source": "Tuite 2008",
           "start": {
             "earliest": 1101,
             "latest": 1200
@@ -43620,14 +43620,14 @@
       "code": "ka-mid",
       "evidence": [
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Asia Minor. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Tuite, Kevin. 2008. “Early Georgian.” In Roger D. Woodard (ed.), The Ancient Languages of Asia Minor, 145–165. Cambridge: Cambridge University Press.",
           "claim_id": "ev_period_76477fb6fb6da8aaf13ac619e6189ce8aadf4275",
           "event": "conventional_period",
           "locator": "{\"page\": \"146\", \"pdf_page\": 169}",
           "method": "scholarly_periodization",
           "quote": "Middle Georgian:\n12th–18th centuries",
           "role": "convention",
-          "source": "Woodard 2008",
+          "source": "Tuite 2008",
           "url": null
         }
       ],
@@ -43737,7 +43737,7 @@
       "alternatives": [
         {
           "basis": "attested",
-          "citation": "Windfuhr, Gernot, and John R. Perry. 2009. “Persian and Tajik.” In Gernot Windfuhr (ed.), The Iranian Languages, 416–544. London and New York: Routledge.",
+          "citation": "Emmerick, Ronald E. 2009. “Khotanese and Tumshuqese.” In Gernot Windfuhr (ed.), The Iranian Languages, 377–415. London/New York: Routledge.",
           "claim_id": "ev_period_51440bd7696c4088e8d3333fb1de930488bffa23",
           "end": {
             "earliest": 901,
@@ -43749,7 +43749,7 @@
           "method": "scholarly_synthesis",
           "quote": "Relatively little original Khotanese literature has survived, but we have among other \nitems a charming version of the Ramayal)a, some lyrical verses, a substantial fragment of \na metrical composition containing a love story, the description of a journey through \nGilgit and Chilas to Kashmir, and some literary epistles. \nThe bulk of the extant documents all appear to date from the period between the \nseventh and the tenth century CE, but some fragments have been dated on palaeo­\ngraphical grounds to the fifth and sixth centuries CE (for details, see Emmerick 1992a). ",
           "role": "observation",
-          "source": "Windfuhr 2009",
+          "source": "Emmerick 2009",
           "start": {
             "earliest": 601,
             "latest": 700
@@ -43758,7 +43758,7 @@
         },
         {
           "basis": "attested",
-          "citation": "Windfuhr, Gernot, and John R. Perry. 2009. “Persian and Tajik.” In Gernot Windfuhr (ed.), The Iranian Languages, 416–544. London and New York: Routledge.",
+          "citation": "Emmerick, Ronald E. 2009. “Khotanese and Tumshuqese.” In Gernot Windfuhr (ed.), The Iranian Languages, 377–415. London/New York: Routledge.",
           "claim_id": "ev_period_f0f7edd0e140f4aed2feb497ea8e8438bd1c5d42",
           "end": {
             "earliest": 501,
@@ -43770,7 +43770,7 @@
           "method": "palaeographic_dating",
           "quote": "Relatively little original Khotanese literature has survived, but we have among other \nitems a charming version of the Ramayal)a, some lyrical verses, a substantial fragment of \na metrical composition containing a love story, the description of a journey through \nGilgit and Chilas to Kashmir, and some literary epistles. \nThe bulk of the extant documents all appear to date from the period between the \nseventh and the tenth century CE, but some fragments have been dated on palaeo­\ngraphical grounds to the fifth and sixth centuries CE (for details, see Emmerick 1992a). ",
           "role": "observation",
-          "source": "Windfuhr 2009",
+          "source": "Emmerick 2009",
           "start": {
             "earliest": 401,
             "latest": 500
@@ -43782,14 +43782,14 @@
       "code": "kho",
       "evidence": [
         {
-          "citation": "Windfuhr, Gernot, and John R. Perry. 2009. “Persian and Tajik.” In Gernot Windfuhr (ed.), The Iranian Languages, 416–544. London and New York: Routledge.",
+          "citation": "Emmerick, Ronald E. 2009. “Khotanese and Tumshuqese.” In Gernot Windfuhr (ed.), The Iranian Languages, 377–415. London/New York: Routledge.",
           "claim_id": "ev_period_64726fedc3d8b09d82bfae2f7bceec49e74f566d",
           "event": "last_attestation",
           "locator": "{\"page\": \"411\", \"pdf_page\": 486}",
           "method": "scholarly_synthesis",
           "quote": "We have no direct evidence concerning the demise of Tumshuqese and Khotanese, but it \nis probably significant that no Khotanese text can be dated to later than the tenth century, \nwhereas the language was flourishing throughout the century.",
           "role": "observation",
-          "source": "Windfuhr 2009",
+          "source": "Emmerick 2009",
           "url": null
         }
       ],
@@ -43843,14 +43843,14 @@
       "code": "kho-lat",
       "evidence": [
         {
-          "citation": "Klein, Jared S. (ed.); Joseph, Brian D. (ed.); Fritz, Matthias (ed.) (2017) Handbook of comparative and historical Indo-European linguistics. Vol. 1. Berlin ; Boston, De Gruyter Mouton.",
+          "citation": "Skjærvø, Prods Oktor. 2017. “The documentation of Iranian.” In Jared Klein, Brian Joseph, and Matthias Fritz (eds.), Handbook of Comparative and Historical Indo-European Linguistics, vol.1, 471–481. Berlin/Boston: De Gruyter Mouton.",
           "claim_id": "ev_period_dfe606e9a30c154fedea9c9356cd4a6ed655ada6",
           "event": "documentary_sampling",
           "locator": "{\"page\": \"476\", \"pdf_page\": 488}",
           "method": "scholarly_synthesis",
           "quote": "Late Khotanese known from Buddhist\ntexts and letters (9th−10th centuries).",
           "role": "observation",
-          "source": "Klein et al. 2017",
+          "source": "Skjærvø 2017",
           "url": null
         }
       ],
@@ -43934,7 +43934,7 @@
         },
         {
           "basis": "attested",
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Europe. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Clackson, James P. T. 2008. Latin. In Roger D. Woodard (ed.), The Ancient Languages of Europe, 73–95. 1st paperback-volume edition. Cambridge: Cambridge University Press. Reprinted from the 2004 encyclopedia.",
           "claim_id": "ev_period_9ca216e232c741a6dd03f827555343c6777ed9a8",
           "end": null,
           "event": "first_attestation",
@@ -43943,7 +43943,7 @@
           "method": "scholarly_attestation_survey",
           "quote": "Latin has a long history. The earliest documents date from the seventh century BC, and\nthere is a continuous literary tradition from the third century BC through to the medieval\nperiod.Thefollowingchronologicalstagesofthelanguagearegenerallyrecognized,although\nthere is no clear agreement on exact dating:",
           "role": "observation",
-          "source": "Woodard 2008",
+          "source": "Clackson 2008",
           "start": {
             "earliest": -699,
             "latest": -600
@@ -43955,14 +43955,14 @@
       "code": "la",
       "evidence": [
         {
-          "citation": "Kapović, Mate (ed.). 2017. The Indo-European Languages. 2nd ed. Routledge Language Family Series. Abingdon and New York: Routledge (paperback issue 2019). Chapters cited by author in the locator.",
+          "citation": "Wallace, Rex. 2017. Italic. In Mate Kapović (ed.), The Indo-European Languages, 2nd ed., 317–351. Abingdon and New York: Routledge.",
           "claim_id": "ev_period_f1e86916783e999faaa9bca8806fefeca703ec54",
           "event": "first_attestation",
           "locator": "Rex Wallace, 'Italic', p. 322 (PDF p. 343); page image checked",
           "method": "scholarly_attestation_summary",
           "quote": "Although it is impossible to say when Latin and the other Italic languages began to \ndiverge, we can pinpoint the date of the earliest inscriptions. They go back to the middle \nof the 7th century BCE.",
           "role": "observation",
-          "source": "Kapović 2017",
+          "source": "Wallace 2017",
           "url": null
         }
       ],
@@ -44057,7 +44057,7 @@
       "alternatives": [
         {
           "basis": "conventional",
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Europe. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Clackson, James P. T. 2008. Latin. In Roger D. Woodard (ed.), The Ancient Languages of Europe, pp. 73–95. Cambridge: Cambridge University Press. First regional paperback edition.",
           "claim_id": "ev_period_2004a9c0bff7b999024b9588c4dec6739dd5fbc0",
           "end": {
             "earliest": 14,
@@ -44069,7 +44069,7 @@
           "method": "scholarly_periodization",
           "quote": "Classical Latin: The language of ofﬁcial inscriptions and literature from c. 100 BC to\nc. AD 14.",
           "role": "convention",
-          "source": "Woodard 2008",
+          "source": "Clackson 2008",
           "start": {
             "earliest": -99,
             "latest": -99
@@ -44081,14 +44081,14 @@
       "code": "la-cla",
       "evidence": [
         {
-          "citation": "Kapović, Mate (ed.). 2017. The Indo-European Languages. 2nd ed. Routledge Language Family Series. Abingdon and New York: Routledge (paperback issue 2019). Chapters cited by author in the locator.",
+          "citation": "Wallace, Rex. 2017. Italic. In Mate Kapović (ed.), The Indo-European Languages, 2nd ed., 317–351. Abingdon and New York: Routledge.",
           "claim_id": "ev_period_abc766d85ee6b2ef78deda7ece44d3b30eb2601e",
           "event": "conventional_period",
           "locator": "{\"page\": \"322\", \"pdf_page\": 343}",
           "method": "scholarly_periodization",
           "quote": "Classical Latin (Class. Lat.), ca. 100 BCE–200 CE",
           "role": "convention",
-          "source": "Kapović 2017",
+          "source": "Wallace 2017",
           "url": null
         }
       ],
@@ -44113,14 +44113,14 @@
       "code": "la-lat",
       "evidence": [
         {
-          "citation": "Kapović, Mate (ed.). 2017. The Indo-European Languages. 2nd ed. Routledge Language Family Series. Abingdon and New York: Routledge (paperback issue 2019). Chapters cited by author in the locator.",
+          "citation": "Wallace, Rex. 2017. Italic. In Mate Kapović (ed.), The Indo-European Languages, 2nd ed., 317–351. Abingdon and New York: Routledge.",
           "claim_id": "ev_period_b01dcb8bfbd08a7da2511e631884c183ce7e4c05",
           "event": "conventional_period",
           "locator": "{\"page\": \"322\", \"pdf_page\": 343}",
           "method": "scholarly_periodization",
           "quote": "Late Latin (Late Lat.), ca. 200–600 CE",
           "role": "convention",
-          "source": "Kapović 2017",
+          "source": "Wallace 2017",
           "url": null
         }
       ],
@@ -44177,14 +44177,14 @@
       "code": "lng",
       "evidence": [
         {
-          "citation": "Klein, Jared S. (ed.); Joseph, Brian D. (ed.); Fritz, Matthias (ed.) (2017) Handbook of comparative and historical Indo-European linguistics. Vol. 2. Berlin ; Boston, De Gruyter Mouton.",
+          "citation": "Nedoma, Robert. 2017. “The documentation of Germanic.” In Jared Klein, Brian Joseph, and Matthias Fritz (eds.), Handbook of Comparative and Historical Indo-European Linguistics, vol. 2, 875–888. Berlin/Boston: De Gruyter Mouton. https://doi.org/10.1515/9783110523874-008.",
           "claim_id": "ev_period_c183b32ff2f1794ad61e16a5fa6cb969df4f9cf8",
           "event": "documentary_sampling",
           "locator": "{\"page\": \"883\", \"pdf_page\": 163, \"section\": \"4.6 Minor WGmc. languages\"}",
           "method": "philological_attestation",
           "quote": "Langobardic is a Trümmersprache: except for three 6th c. runic inscriptions, the only\nextant material consists of vernacular appellatives and names in Nebenüberlieferung\n(6th−10th c.; cf. Francovich Onesti 1999).",
           "role": "observation",
-          "source": "Klein et al. 2017",
+          "source": "Nedoma 2017",
           "url": null
         }
       ],
@@ -44295,14 +44295,14 @@
       "code": "ltc-ear",
       "evidence": [
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Asia and the Americas. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Peyraube, Alain. 2008. “Ancient Chinese.” In Roger D. Woodard (ed.), The Ancient Languages of Asia and the Americas, pp. 136–162. Cambridge: Cambridge University Press. First published 2008 (regional reprint of the 2004 encyclopedia chapter).",
           "claim_id": "ev_period_1ed21068f976d119ba4583c12423802115921d0e",
           "event": "conventional_period",
           "locator": "{\"page\": \"137\", \"pdf_page\": 159}",
           "method": "scholarly_periodization",
           "quote": "(ii) Early Middle Chinese (replacing\nKarlgren’s “Ancient Chinese”), which represents the literary pronunciation of the sixth cen-\ntury AD;",
           "role": "convention",
-          "source": "Woodard 2008",
+          "source": "Peyraube 2008",
           "url": null
         }
       ],
@@ -44325,7 +44325,7 @@
       "alternatives": [
         {
           "basis": "conventional",
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Asia and the Americas. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Peyraube, Alain. 2008. “Ancient Chinese.” In Roger D. Woodard (ed.), The Ancient Languages of Asia and the Americas, 136–162. Cambridge: Cambridge University Press.",
           "claim_id": "ev_period_451de80cb39ece7aab8858cbfd98a921dc2f2c5d",
           "end": {
             "earliest": -220,
@@ -44337,7 +44337,7 @@
           "method": "scholarly_periodization",
           "quote": "It is essentially the classical language par excellence – that of the Warring States period\n(475–221 BC) – that will be discussed in this chapter.",
           "role": "convention",
-          "source": "Woodard 2008",
+          "source": "Peyraube 2008",
           "start": {
             "earliest": -474,
             "latest": -474
@@ -44349,14 +44349,14 @@
       "code": "lzh",
       "evidence": [
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Asia and the Americas. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Peyraube, Alain. 2008. “Ancient Chinese.” In Roger D. Woodard (ed.), The Ancient Languages of Asia and the Americas, 136–162. Cambridge: Cambridge University Press.",
           "claim_id": "ev_period_46c47fad3263ace9a30a152a066568cd71d49563",
           "event": "conventional_period",
           "locator": "{\"page\": \"137\", \"pdf_page\": 159}",
           "method": "scholarly_periodization",
           "quote": "(iii) Late Archaic, the Classical Chinese par\nexcellence, comprising such well-known texts as the Analects of Confucius, and Mencius\n(ﬁfth–second BC)",
           "role": "convention",
-          "source": "Woodard 2008",
+          "source": "Peyraube 2008",
           "url": null
         }
       ],
@@ -44825,7 +44825,7 @@
       "alternatives": [
         {
           "basis": "attested",
-          "citation": "Weninger, Stefan (ed.), in collaboration with Geoffrey Khan, Michael P. Streck and Janet C. E. Watson. 2011. The Semitic Languages: An International Handbook. Handbücher zur Sprach- und Kommunikationswissenschaft 36. Berlin and Boston: De Gruyter Mouton. Chapters cited: Bogdan Burtea, \"Mandaic\"; Abraham Tal, \"Samaritan Aramaic\"; Michael Sokoloff, \"Jewish Babylonian Aramaic\" and \"Jewish Palestinian Aramaic\"; Matthew Morgenstern, \"Christian Palestinian Aramaic\"; Charles G. Häberl, \"Neo-Mandaic\".",
+          "citation": "Burtea, Bogdan. 2011. Mandaic. In Stefan Weninger (ed.), in collaboration with Geoffrey Khan, Michael P. Streck & Janet C. E. Watson, The Semitic Languages: An International Handbook (HSK 36), 670ff. Berlin/Boston: De Gruyter Mouton. doi:10.1515/9783110251586.",
           "claim_id": "ev_period_acebf0d036a5bfa52d08c25b3c0488f6e7f0cf34",
           "end": {
             "earliest": 701,
@@ -44837,7 +44837,7 @@
           "method": "scholarly_description",
           "quote": "The oldest Mandaic texts known are the short incantation formulae on magic bowls\nand on metal (lead, gold and silver) amulets which date to between the 3rd and 8th\ncenturies A.D.",
           "role": "observation",
-          "source": "Stefan Weninger 2011",
+          "source": "Burtea 2011",
           "start": {
             "earliest": 201,
             "latest": 300
@@ -44846,7 +44846,7 @@
         },
         {
           "basis": "attested",
-          "citation": "Weninger, Stefan (ed.), in collaboration with Geoffrey Khan, Michael P. Streck and Janet C. E. Watson. 2011. The Semitic Languages: An International Handbook. Handbücher zur Sprach- und Kommunikationswissenschaft 36. Berlin and Boston: De Gruyter Mouton. Chapters cited: Bogdan Burtea, \"Mandaic\"; Abraham Tal, \"Samaritan Aramaic\"; Michael Sokoloff, \"Jewish Babylonian Aramaic\" and \"Jewish Palestinian Aramaic\"; Matthew Morgenstern, \"Christian Palestinian Aramaic\"; Charles G. Häberl, \"Neo-Mandaic\".",
+          "citation": "Burtea, Bogdan. 2011. Mandaic. In Stefan Weninger (ed.), in collaboration with Geoffrey Khan, Michael P. Streck & Janet C. E. Watson, The Semitic Languages: An International Handbook (HSK 36), 670ff. Berlin/Boston: De Gruyter Mouton. doi:10.1515/9783110251586.",
           "claim_id": "ev_period_0d07d5a89987be0c310fdda4c3d649957fd2a15f",
           "end": null,
           "event": "manuscript_production",
@@ -44855,7 +44855,7 @@
           "method": "scholarly_description",
           "quote": "the oldest Mandaic\nmanuscript dates to the beginning of the 16th century (Ms. Marsh 691 copied in 1529\nby Adam Zihrun)",
           "role": "observation",
-          "source": "Stefan Weninger 2011",
+          "source": "Burtea 2011",
           "start": {
             "earliest": 1529,
             "latest": 1529
@@ -44867,14 +44867,14 @@
       "code": "myz",
       "evidence": [
         {
-          "citation": "Weninger, Stefan (ed.), in collaboration with Geoffrey Khan, Michael P. Streck and Janet C. E. Watson. 2011. The Semitic Languages: An International Handbook. Handbücher zur Sprach- und Kommunikationswissenschaft 36. Berlin and Boston: De Gruyter Mouton. Chapters cited: Bogdan Burtea, \"Mandaic\"; Abraham Tal, \"Samaritan Aramaic\"; Michael Sokoloff, \"Jewish Babylonian Aramaic\" and \"Jewish Palestinian Aramaic\"; Matthew Morgenstern, \"Christian Palestinian Aramaic\"; Charles G. Häberl, \"Neo-Mandaic\".",
+          "citation": "Burtea, Bogdan. 2011. Mandaic. In Stefan Weninger (ed.), in collaboration with Geoffrey Khan, Michael P. Streck & Janet C. E. Watson, The Semitic Languages: An International Handbook (HSK 36), 670ff. Berlin/Boston: De Gruyter Mouton. doi:10.1515/9783110251586.",
           "claim_id": "ev_period_f4ef330785eb447650b9e2385e86588f3f88c6af",
           "event": "conventional_period",
           "locator": "{\"page\": \"671\", \"pdf_page\": 683, \"section\": \"1.1\"}",
           "method": "scholarly_description",
           "quote": "Both Mandaic and the Jewish language of the Babylonian\nTalmud reached their peak in the period between the 3rd century and the rise of the\nIslam in the 7th century. In this period emerged the liturgical songs and prayers of the\noldest, poetical portion of Mandaic literature. The elaborate style and ‘pure’ grammati-\ncal features of the period recommend the term ‘Classical’ Mandaic.",
           "role": "convention",
-          "source": "Stefan Weninger 2011",
+          "source": "Burtea 2011",
           "url": "https://doi.org/10.1515/9783110251586"
         }
       ],
@@ -45314,14 +45314,14 @@
       "code": "obt",
       "evidence": [
         {
-          "citation": "Klein, Jared S. (ed.); Joseph, Brian D. (ed.); Fritz, Matthias (ed.) (2017) Handbook of comparative and historical Indo-European linguistics. Vol. 2. Berlin ; Boston, De Gruyter Mouton.",
+          "citation": "Vath, Bernd, and Sabine Ziegler. 2017. “The documentation of Celtic.” In Jared Klein, Brian Joseph and Matthias Fritz (eds.), in cooperation with Mark Wenthe, Handbook of Comparative and Historical Indo-European Linguistics, vol. 2, 1168–1188. Berlin/Boston: De Gruyter Mouton.",
           "claim_id": "ev_period_56c01f21f6fc7fe7a75b00c9ef85d4c0efef2937",
           "event": "first_attestation",
           "locator": "{\"page\": \"1179\", \"pdf_page\": 459}",
           "method": "scholarly_documentation",
           "quote": "The earliest surviving manuscript containing instances of\nOld Breton is the Leiden Leechbook (cf. Falileyev and Owen 2005) from the end of the\n8th century.",
           "role": "observation",
-          "source": "Klein et al. 2017",
+          "source": "Vath & Ziegler 2017",
           "url": null
         }
       ],
@@ -45538,14 +45538,14 @@
       "code": "oge",
       "evidence": [
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Asia Minor. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Tuite, Kevin. 2008. “Early Georgian.” In Roger D. Woodard (ed.), The Ancient Languages of Asia Minor, 145–165. Cambridge: Cambridge University Press.",
           "claim_id": "ev_period_dc0ef4fe447d0e2f2b15bdee638fafd40808a7b1",
           "event": "conventional_period",
           "locator": "{\"page\": \"146\", \"pdf_page\": 169}",
           "method": "scholarly_periodization",
           "quote": "Early Old Georgian (EG):\n5th–8th centuries\nClassical Old Georgian (COG)\n9th–11th centuries",
           "role": "convention",
-          "source": "Woodard 2008",
+          "source": "Tuite 2008",
           "url": null
         }
       ],
@@ -46314,25 +46314,25 @@
       "code": "osc",
       "evidence": [
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Europe. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Wallace, Rex E. 2008. Sabellian languages. In Roger D. Woodard (ed.), The Ancient Languages of Europe, pp. 96–123. Cambridge: Cambridge University Press. First regional paperback edition.",
           "claim_id": "ev_period_910815e0ca3328763c10dce400ad3890592929fb",
           "event": "first_attestation",
           "locator": "{\"page\": \"97\", \"pdf_page\": 120}",
           "method": "scholarly_attestation",
           "quote": "Oscan owns the largest corpus of texts, approximately six hundred and ﬁfty inscriptions.\nThey cover a span of six hundred years, from the sixth century BC to the ﬁrst century AD.",
           "role": "observation",
-          "source": "Woodard 2008",
+          "source": "Wallace 2008",
           "url": null
         },
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Europe. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Wallace, Rex E. 2008. Sabellian languages. In Roger D. Woodard (ed.), The Ancient Languages of Europe, pp. 96–123. Cambridge: Cambridge University Press. First regional paperback edition.",
           "claim_id": "ev_period_bf0dac4573ce544a79973e3a5f25191d3e8f54bc",
           "event": "last_attestation",
           "locator": "{\"page\": \"97\", \"pdf_page\": 120}",
           "method": "scholarly_attestation",
           "quote": "Oscan owns the largest corpus of texts, approximately six hundred and ﬁfty inscriptions.\nThey cover a span of six hundred years, from the sixth century BC to the ﬁrst century AD.",
           "role": "observation",
-          "source": "Woodard 2008",
+          "source": "Wallace 2008",
           "url": null
         }
       ],
@@ -46494,14 +46494,14 @@
       "code": "ota",
       "evidence": [
         {
-          "citation": "Kerslake, Celia. 2022. “Ottoman Turkish.” In Lars Johanson and Éva Á. Csató (eds.), The Turkic Languages, 2nd ed., 174–194. London and New York: Routledge. https://doi.org/10.4324/9781003243809.",
+          "citation": "Kerslake, Celia. 2022. “Ottoman Turkish.” In Lars Johanson and Éva Á. Csató (eds.), The Turkic Languages, 2nd ed., 174–194. London/New York: Routledge. doi:10.4324/9781003243809.",
           "claim_id": "ev_period_3af43595126b6eb0a9e42ff2f0f2dc11cc9c66dd",
           "event": "conventional_period",
           "locator": "{\"page\": \"176\", \"pdf_page\": 201}",
           "method": "scholarly_periodization",
           "quote": "Middle Ottoman: sixteenth to eighteenth centuries\nNew Ottoman: nineteenth century to 1928",
           "role": "convention",
-          "source": "Johanson & Csató 2021",
+          "source": "Kerslake 2022",
           "url": "https://doi.org/10.4324/9781003243809"
         }
       ],
@@ -46660,14 +46660,14 @@
       "code": "otk-ork",
       "evidence": [
         {
-          "citation": "Kerslake, Celia. 2022. “Ottoman Turkish.” In Lars Johanson and Éva Á. Csató (eds.), The Turkic Languages, 2nd ed., 174–194. London and New York: Routledge. https://doi.org/10.4324/9781003243809.",
+          "citation": "Johanson, Lars. 2022. “The history of Turkic.” In Lars Johanson and Éva Á. Csató (eds.), The Turkic Languages, 2nd ed., 83–120. London/New York: Routledge.",
           "claim_id": "ev_period_bae207ac42c7f8356a252d9bdbe460f6ce5fbaeb",
           "event": "first_attestation",
           "locator": "{\"page\": \"86\", \"pdf_page\": 111}",
           "method": "scholarly_synthesis",
           "quote": "The earliest known records, documented from the eighth century onward, are inscrip­\ntions on stone steles in present-day Mongolia’s Orkhon valley, in honor of rulers of \nthe second Türk kaghanate.",
           "role": "observation",
-          "source": "Johanson & Csató 2021",
+          "source": "Johanson 2022",
           "url": "https://doi.org/10.4324/9781003243809"
         }
       ],
@@ -46687,7 +46687,7 @@
       "alternatives": [
         {
           "basis": "conventional",
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Asia and the Americas. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Steever, Sanford B.. 2008. “Old Tamil.” In Roger D. Woodard (ed.), The Ancient Languages of Asia and the Americas, pp. 50–75. Cambridge: Cambridge University Press. First published 2008 (regional reprint of the 2004 encyclopedia chapter).",
           "claim_id": "ev_period_bf7f787451dcf9743339d8fb5f605be2e1a9e194",
           "end": {
             "earliest": 601,
@@ -46699,7 +46699,7 @@
           "method": "scholarly_periodization",
           "quote": "The era of Old Tamil extends until roughly the seventh century AD, a period of transition\nto Medieval Tamil.",
           "role": "convention",
-          "source": "Woodard 2008",
+          "source": "Steever 2008",
           "start": null,
           "url": null
         }
@@ -46708,14 +46708,14 @@
       "code": "oty",
       "evidence": [
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Asia and the Americas. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Steever, Sanford B.. 2008. “Old Tamil.” In Roger D. Woodard (ed.), The Ancient Languages of Asia and the Americas, pp. 50–75. Cambridge: Cambridge University Press. First published 2008 (regional reprint of the 2004 encyclopedia chapter).",
           "claim_id": "ev_period_cc55e3ab84ae56d6fc0fa3cbff79d2315ba86915",
           "event": "first_attestation",
           "locator": "{\"page\": \"50\", \"pdf_page\": 72}",
           "method": "inscriptional_dating",
           "quote": "Old Tamil stands alongside Sanskrit as one of India’s two classical languages. First attested\nabout 254 BC, Old Tamil is the oldest recorded member of the Dravidian languages, a\nfamily which today encompasses twenty-four distinct languages.",
           "role": "observation",
-          "source": "Woodard 2008",
+          "source": "Steever 2008",
           "url": null
         }
       ],
@@ -46782,7 +46782,7 @@
         },
         {
           "basis": "attested",
-          "citation": "Klein, Jared S. (ed.); Joseph, Brian D. (ed.); Fritz, Matthias (ed.) (2017) Handbook of comparative and historical Indo-European linguistics. Vol. 2. Berlin ; Boston, De Gruyter Mouton.",
+          "citation": "Vath, Bernd, and Sabine Ziegler. 2017. “The documentation of Celtic.” In Jared Klein, Brian Joseph and Matthias Fritz (eds.), in cooperation with Mark Wenthe, Handbook of Comparative and Historical Indo-European Linguistics, vol. 2, 1168–1188. Berlin/Boston: De Gruyter Mouton.",
           "claim_id": "ev_period_d11275d86cf5c705c3ce30d0d1f080dec3a8b29e",
           "end": null,
           "event": "first_attestation",
@@ -46791,7 +46791,7 @@
           "method": "scholarly_documentation",
           "quote": "From that time on Old Welsh glosses are attested in\nseveral Latin manuscripts (cf. Falileyev 2008; Huws 2000), the oldest of these, the so-\ncalled “surexit”-memorandum, is from the beginning or the first half of the 9th c. and\ncontains words like tutri ‘king of peoples’ (cf. Gaul. Toutorix, Falileyev 2008, 91).",
           "role": "observation",
-          "source": "Klein et al. 2017",
+          "source": "Vath & Ziegler 2017",
           "start": {
             "earliest": 801,
             "latest": 900
@@ -46861,14 +46861,14 @@
       "code": "pal",
       "evidence": [
         {
-          "citation": "Windfuhr, Gernot, and John R. Perry. 2009. “Persian and Tajik.” In Gernot Windfuhr (ed.), The Iranian Languages, 416–544. London and New York: Routledge.",
+          "citation": "Skjærvø, Prods Oktor. 2009. “Old Iranian.” In Gernot Windfuhr (ed.), The Iranian Languages, 43–195. London and New York: Routledge.",
           "claim_id": "ev_period_6648401d78469039c3becf8ebca6782edc09b87b",
           "event": "first_attestation",
           "locator": "{\"page\": \"47\", \"pdf_page\": 122}",
           "method": "historical_textual_attestation",
           "quote": "(sixth-fourth centuries) was already about to change to 'proto-Middle Persian', the pre­\ndecessor of Middle Persian as known from the first century BeE on, as we can see from the \nlate inscriptions, in which 'wrong' orthography, especially endings, are common (Skjcerv0 \n1999: 1 58-61).",
           "role": "observation",
-          "source": "Windfuhr 2009",
+          "source": "Skjærvø 2009",
           "url": null
         }
       ],
@@ -46921,7 +46921,7 @@
       "alternatives": [
         {
           "basis": "attested",
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Asia and the Americas. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Schmitt, Rüdiger. 2008. “Old Persian.” In Roger D. Woodard (ed.), The Ancient Languages of Asia and the Americas, pp. 76–100. Cambridge: Cambridge University Press. First published 2008.",
           "claim_id": "ev_period_9a7df863bbc6892503a4a6fc7b5c5ea46e88321a",
           "end": null,
           "event": "first_attestation",
@@ -46930,7 +46930,7 @@
           "method": "inscriptional_dating",
           "quote": "The only direct and authentic sources available for the Old Persian language are the\ncuneiform inscriptions on durable objects (rock, stone, metal, rarely clay tablets) ranging\nover the period from Darius I (522–486 BC) to Artaxerxes III (359/8–338/7 BC), but dating\nin the main from the reigns of Darius I and Xerxes I (486–465 BC).",
           "role": "observation",
-          "source": "Woodard 2008",
+          "source": "Schmitt 2008",
           "start": {
             "earliest": -521,
             "latest": -485
@@ -46942,14 +46942,14 @@
       "code": "peo",
       "evidence": [
         {
-          "citation": "Kapović, Mate (ed.). 2017. The Indo-European Languages. 2nd ed. Routledge Language Family Series. Abingdon and New York: Routledge (paperback issue 2019). Chapters cited by author in the locator.",
+          "citation": "Sims-Williams, Nicholas. 2017. “Iranian.” In Mate Kapović (ed.), The Indo-European Languages, 2nd ed., pp. 263–286. London and New York: Routledge.",
           "claim_id": "ev_period_42f105a1d9a2ac266e41023528e1953654eb84fb",
           "event": "documentary_sampling",
           "locator": "{\"page\": \"266\", \"pdf_page\": 287}",
           "method": "inscriptional_dating",
           "quote": "Old Persian, which is known from inscriptions of the Achaemenian period (sixth to \nfourth centuries B.C.E.), represents a later stage of linguistic development as well as \na different dialect from the language of the Avesta.",
           "role": "observation",
-          "source": "Kapović 2017",
+          "source": "Sims-Williams 2017",
           "url": null
         }
       ],
@@ -46972,7 +46972,7 @@
       "alternatives": [
         {
           "basis": "attested",
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Asia and the Americas. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Jamison, Stephanie W.. 2008. “Middle Indic.” In Roger D. Woodard (ed.), The Ancient Languages of Asia and the Americas, pp. 33–49. Cambridge: Cambridge University Press. First published 2008 (regional reprint of the 2004 encyclopedia chapter).",
           "claim_id": "ev_period_7a96dbbdfa2b9f1486551c13782b885bb78f31f1",
           "end": {
             "earliest": 1,
@@ -46984,7 +46984,7 @@
           "method": "manuscript_dating",
           "quote": "Figure 3.1 Part of\nscroll manuscript of the\nAnuvatapta-gatha or\n‘‘Songs of Lake\nAnavatapta’’ in Gandhari\nPrakrit,c.firstcentury AD",
           "role": "observation",
-          "source": "Woodard 2008",
+          "source": "Jamison 2008",
           "start": {
             "earliest": 1,
             "latest": 100
@@ -46993,7 +46993,7 @@
         },
         {
           "basis": "attested",
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Asia and the Americas. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Jamison, Stephanie W.. 2008. “Middle Indic.” In Roger D. Woodard (ed.), The Ancient Languages of Asia and the Americas, pp. 33–49. Cambridge: Cambridge University Press. First published 2008 (regional reprint of the 2004 encyclopedia chapter).",
           "claim_id": "ev_period_bffd35f99154fd30f11d96befee85983de9bc9c5",
           "end": {
             "earliest": 201,
@@ -47005,7 +47005,7 @@
           "method": "document_dating",
           "quote": "Post-A´sokan Kharos.t.h¯ı inscriptions of the Northwest ﬁnd, to some degree, their linguistic\ncontinuation in a large cache of third-century AD documents on wood, paper, and leather,\ndiscovered in Niya in Central Asia (the so-called Niya Documents), and in a fragmentary\nmanuscript of the Dharmapada also found in Central Asia. The language of these texts\nhas been denominated G¯andh¯ar¯ı, and recently announced ﬁnds of Buddhist texts appear\nto document its use at an earlier date than heretofore known.",
           "role": "observation",
-          "source": "Woodard 2008",
+          "source": "Jamison 2008",
           "start": {
             "earliest": 201,
             "latest": 300
@@ -47065,7 +47065,7 @@
       "alternatives": [
         {
           "basis": "attested",
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Europe. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Woodard, Roger D. 2008. “Language in ancient Europe: an introduction.” In Roger D. Woodard (ed.), The Ancient Languages of Europe, 1–13. Cambridge: Cambridge University Press. First separate regional edition, derived from The Cambridge Encyclopedia of the World's Ancient Languages (2004).",
           "claim_id": "ev_period_9ac7a6aad792e018ab4233c0f35831d14b5c851c",
           "end": null,
           "event": "first_attestation",
@@ -47083,7 +47083,7 @@
         },
         {
           "basis": "attested",
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Europe. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Woodard, Roger D. 2008. “Language in ancient Europe: an introduction.” In Roger D. Woodard (ed.), The Ancient Languages of Europe, 1–13. Cambridge: Cambridge University Press. First separate regional edition, derived from The Cambridge Encyclopedia of the World's Ancient Languages (2004).",
           "claim_id": "ev_period_b74bf3896bc0f84912a30cfa60ec5d844eed09c2",
           "end": null,
           "event": "first_attestation",
@@ -47165,14 +47165,14 @@
       "code": "phn",
       "evidence": [
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Syria-Palestine and Arabia. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Hackett, Jo Ann. 2008. “Phoenician and Punic.” In Roger D. Woodard (ed.), The Ancient Languages of Syria-Palestine and Arabia, 82–102. Cambridge: Cambridge University Press. First edition.",
           "claim_id": "ev_period_f3509af71141bded13dd7b05b88d71cae454c8f1",
           "event": "first_attestation",
           "locator": "{\"page\": \"83\", \"pdf_page\": 105}",
           "method": "textual_attestation",
           "quote": "Even the earliest Phoenician inscriptions of the tenth–ninth centuries BC show evidence\nof dialectal differences.",
           "role": "observation",
-          "source": "Woodard 2008",
+          "source": "Hackett 2008",
           "url": null
         }
       ],
@@ -47194,25 +47194,25 @@
       "code": "plq",
       "evidence": [
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Asia Minor. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Melchert, H. Craig. 2008. Palaic. In Roger D. Woodard (ed.), The Ancient Languages of Asia Minor, pp. 40–45. Cambridge: Cambridge University Press. First regional paperback edition.",
           "claim_id": "ev_period_98e54c0471411c0b97bd8dba6a3ae733d0ccc6c4",
           "event": "first_attestation",
           "locator": "{\"page\": \"40\", \"pdf_page\": 63}",
           "method": "scholarly_attestation",
           "quote": "Palaic is attested in scarcely a dozen ritual fragments from the cuneiform\narchives of the ancient Hittite capital Hattuˇsa (modern Bo˘gazk¨oy). The documents are\ncontemporary with the Hittite (sixteenth to thirteenth centuries BC), including a couple of\nmanuscripts from the Old Hittite period.",
           "role": "observation",
-          "source": "Woodard 2008",
+          "source": "Melchert 2008",
           "url": null
         },
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Asia Minor. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Melchert, H. Craig. 2008. Palaic. In Roger D. Woodard (ed.), The Ancient Languages of Asia Minor, pp. 40–45. Cambridge: Cambridge University Press. First regional paperback edition.",
           "claim_id": "ev_period_912720cf1b423c76515072ed8a0641c2fd804b3b",
           "event": "last_attestation",
           "locator": "{\"page\": \"40\", \"pdf_page\": 63}",
           "method": "scholarly_attestation",
           "quote": "Palaic is attested in scarcely a dozen ritual fragments from the cuneiform\narchives of the ancient Hittite capital Hattuˇsa (modern Bo˘gazk¨oy). The documents are\ncontemporary with the Hittite (sixteenth to thirteenth centuries BC), including a couple of\nmanuscripts from the Old Hittite period.",
           "role": "observation",
-          "source": "Woodard 2008",
+          "source": "Melchert 2008",
           "url": null
         }
       ],
@@ -47235,7 +47235,7 @@
       "alternatives": [
         {
           "basis": "last_speaker",
-          "citation": "Klein, Jared S. (ed.); Joseph, Brian D. (ed.); Fritz, Matthias (ed.) (2017) Handbook of comparative and historical Indo-European linguistics. Vol. 3. Berlin ; Boston, De Gruyter Mouton.",
+          "citation": "Langston, Keith. 2018. “The documentation of Slavic.” In Jared Klein, Brian Joseph and Matthias Fritz (eds.), in cooperation with Mark Wenthe, Handbook of Comparative and Historical Indo-European Linguistics, vol. 3, 1397–1413. Berlin/Boston: De Gruyter Mouton.",
           "claim_id": "ev_period_708ec8206644b5274228301cfb9f2009ddef8983",
           "end": {
             "earliest": 1701,
@@ -47247,7 +47247,7 @@
           "method": "expert_estimate",
           "quote": "Polabian died out in\nthe first half of the 18th century and is attested only fragmentarily, mostly in lists of\nwords and phrases that were collected when the language was already moribund (see\nPolański 1993).",
           "role": "hypothesis",
-          "source": "Klein et al. 2017",
+          "source": "Langston 2018",
           "start": null,
           "url": null
         }
@@ -48044,14 +48044,14 @@
       "code": "qfa-yuk-pro",
       "evidence": [
         {
-          "citation": "Vajda, Edward. 2024. The Yeniseian language family. In Edward Vajda (ed.), The Languages and Linguistics of Northern Asia, Volume 1: Language Families (The World of Linguistics 10.1), 365–480. Berlin/Boston: De Gruyter Mouton. ISBN 978-3-11-055403-8.",
+          "citation": "Nikolaeva, Irina. 2024. The Yukaghir language family. In Edward Vajda (ed.), The Languages and Linguistics of Northern Asia, Volume 1: Language Families (The World of Linguistics 10.1), 307-364. Berlin/Boston: De Gruyter Mouton. ISBN 978-3-11-055403-8.",
           "claim_id": "ev_period_2d4e1e2cdffd8e5f6c0e47071451e31dcdebec73",
           "event": "crown_divergence",
           "locator": "{\"page\": \"359\", \"pdf_page\": 374, \"text_offset_of_dated_line\": 998420}",
           "method": "expert_estimate",
           "quote": "may reflect a rather ancient division of the Yukaghir linguistic area into two linguistic \nsub-branches, possibly from around 2000 years ago.",
           "role": "hypothesis",
-          "source": "Edward Vajda 2024",
+          "source": "Nikolaeva 2024",
           "url": null
         }
       ],
@@ -48105,14 +48105,14 @@
       "code": "qwm-arm",
       "evidence": [
         {
-          "citation": "Kerslake, Celia. 2022. “Ottoman Turkish.” In Lars Johanson and Éva Á. Csató (eds.), The Turkic Languages, 2nd ed., 174–194. London and New York: Routledge. https://doi.org/10.4324/9781003243809.",
+          "citation": "Berta, Árpád, and Éva Á. Csató. 2022. “Middle Kipchak.” In Lars Johanson and Éva Á. Csató (eds.), The Turkic Languages, 2nd ed., 152–159. London/New York: Routledge. https://doi.org/10.4324/9781003243809-10.",
           "claim_id": "ev_period_278275d8b431a1da650dd05748376d0c20be5bc7",
           "event": "documentary_sampling",
           "locator": "{\"page\": \"152\", \"pdf_page\": 177}",
           "method": "philological_attestation",
           "quote": "Kipchak texts in Armenian script mostly date from the sixteenth and seventeenth cen­\nturies and belong to descendants of a Crimean Armenian community that had adopted \nthe Kipchak language and migrated to the territories of Ukraine and Poland.",
           "role": "observation",
-          "source": "Johanson & Csató 2021",
+          "source": "Berta & Csató 2022",
           "url": "https://doi.org/10.4324/9781003243809"
         }
       ],
@@ -48137,14 +48137,14 @@
       "code": "qwm-mam",
       "evidence": [
         {
-          "citation": "Kerslake, Celia. 2022. “Ottoman Turkish.” In Lars Johanson and Éva Á. Csató (eds.), The Turkic Languages, 2nd ed., 174–194. London and New York: Routledge. https://doi.org/10.4324/9781003243809.",
+          "citation": "Berta, Árpád, and Éva Á. Csató. 2022. “Middle Kipchak.” In Lars Johanson and Éva Á. Csató (eds.), The Turkic Languages, 2nd ed., 152–159. London/New York: Routledge. https://doi.org/10.4324/9781003243809-10.",
           "claim_id": "ev_period_251ed674d5b7352889c5d21e38fedc36325622eb",
           "event": "documentary_sampling",
           "locator": "{\"page\": \"152\", \"pdf_page\": 177}",
           "method": "philological_attestation",
           "quote": "Several Mamluk sources in Arabic script are descriptions of the Kipchak language: \ndictionaries and grammars, written in the fourteenth and fifteenth centuries in Egypt \nand Syria under the Mamluk dynasty.",
           "role": "observation",
-          "source": "Johanson & Csató 2021",
+          "source": "Berta & Csató 2022",
           "url": "https://doi.org/10.4324/9781003243809"
         }
       ],
@@ -48300,14 +48300,14 @@
       "code": "sa-rig",
       "evidence": [
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Asia and the Americas. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Jamison, Stephanie W. 2008. “Sanskrit.” In Roger D. Woodard (ed.), The Ancient Languages of Asia and the Americas, pp. 6–32. Cambridge: Cambridge University Press. First published 2008 (regional reprint of the 2004 encyclopedia chapter).",
           "claim_id": "ev_period_7d219b456ace493de366ef03b1c4c7b40147bbdb",
           "event": "composition",
           "locator": "{\"page\": \"6\", \"pdf_page\": 28}",
           "method": "expert_estimate",
           "quote": "The oldest Veda is the \u0002Rgveda (Rig-veda), a compilation of 1,028 hymns which took shape\naround 1500 BC in northwest India, though the composition and collection of hymns clearly\noccupied several centuries.",
           "role": "hypothesis",
-          "source": "Woodard 2008",
+          "source": "Jamison 2008",
           "url": null
         }
       ],
@@ -48428,7 +48428,7 @@
       "alternatives": [
         {
           "basis": "attested",
-          "citation": "Weninger, Stefan (ed.), in collaboration with Geoffrey Khan, Michael P. Streck and Janet C. E. Watson. 2011. The Semitic Languages: An International Handbook. Handbücher zur Sprach- und Kommunikationswissenschaft 36. Berlin and Boston: De Gruyter Mouton. Chapters cited: Bogdan Burtea, \"Mandaic\"; Abraham Tal, \"Samaritan Aramaic\"; Michael Sokoloff, \"Jewish Babylonian Aramaic\" and \"Jewish Palestinian Aramaic\"; Matthew Morgenstern, \"Christian Palestinian Aramaic\"; Charles G. Häberl, \"Neo-Mandaic\".",
+          "citation": "Tal, Abraham. 2011. Samaritan Aramaic. In Stefan Weninger (ed.), The Semitic Languages: An International Handbook (HSK 36), 619ff. Berlin/Boston: De Gruyter Mouton. doi:10.1515/9783110251586.",
           "claim_id": "ev_period_7dadb6714f1587cefd2ce37d688fe2097655e76e",
           "end": {
             "earliest": 1000,
@@ -48440,7 +48440,7 @@
           "method": "scholarly_description",
           "quote": "Aramaic continued to be com-\nmonly used as a written language until the 10th century C.E., and appears sporadically\nin later liturgical compositions.",
           "role": "observation",
-          "source": "Stefan Weninger 2011",
+          "source": "Tal 2011",
           "start": null,
           "url": "https://doi.org/10.1515/9783110251586"
         }
@@ -48449,14 +48449,14 @@
       "code": "sam",
       "evidence": [
         {
-          "citation": "Weninger, Stefan (ed.), in collaboration with Geoffrey Khan, Michael P. Streck and Janet C. E. Watson. 2011. The Semitic Languages: An International Handbook. Handbücher zur Sprach- und Kommunikationswissenschaft 36. Berlin and Boston: De Gruyter Mouton. Chapters cited: Bogdan Burtea, \"Mandaic\"; Abraham Tal, \"Samaritan Aramaic\"; Michael Sokoloff, \"Jewish Babylonian Aramaic\" and \"Jewish Palestinian Aramaic\"; Matthew Morgenstern, \"Christian Palestinian Aramaic\"; Charles G. Häberl, \"Neo-Mandaic\".",
+          "citation": "Tal, Abraham. 2011. Samaritan Aramaic. In Stefan Weninger (ed.), The Semitic Languages: An International Handbook (HSK 36), 619ff. Berlin/Boston: De Gruyter Mouton. doi:10.1515/9783110251586.",
           "claim_id": "ev_period_22e9e4f1068adb812e32e7205b031d2e72422d58",
           "event": "first_attestation",
           "locator": "{\"page\": \"620\", \"pdf_page\": 632, \"section\": \"1.3 Documents\"}",
           "method": "scholarly_description",
           "quote": "The earliest extant Samaritan Aramaic documents date to the 4th century C.E.",
           "role": "observation",
-          "source": "Stefan Weninger 2011",
+          "source": "Tal 2011",
           "url": "https://doi.org/10.1515/9783110251586"
         },
         {
@@ -48524,14 +48524,14 @@
       "code": "scx",
       "evidence": [
         {
-          "citation": "Klein, Jared S. (ed.); Joseph, Brian D. (ed.); Fritz, Matthias (ed.) (2017) Handbook of comparative and historical Indo-European linguistics. Vol. 3. Berlin ; Boston, De Gruyter Mouton.",
+          "citation": "Hartmann, Markus. 2017. “105. Siculian.” In Jared Klein, Brian Joseph and Matthias Fritz (eds.), Handbook of Comparative and Historical Indo-European Linguistics, vol. 3, pp. 1854–1857. Berlin/Boston: De Gruyter Mouton. https://doi.org/10.1515/9783110542431-026.",
           "claim_id": "ev_period_2af0a3b8d9b827c004d2135048709a29d93d04a4",
           "event": "documentary_sampling",
           "locator": "{\"page\": \"1854\", \"pdf_page\": 468}",
           "method": "scholarly_description",
           "quote": "Siculian (or Sicel) was the language spoken by the inhabitants of central and eastern\nSicily, documented from the end of the 6th century to the 4th century BCE.",
           "role": "observation",
-          "source": "Klein et al. 2017",
+          "source": "Hartmann 2017",
           "url": null
         }
       ],
@@ -48628,7 +48628,7 @@
       "alternatives": [
         {
           "basis": "attested",
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Europe. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Woodard, Roger D. 2008. Language in ancient Europe: an introduction. In Roger D. Woodard (ed.), The Ancient Languages of Europe, 1–13. 1st paperback-volume edition. Cambridge: Cambridge University Press.",
           "claim_id": "ev_period_40780ebc5f9347029d225514dc81aa673f34ac8a",
           "end": null,
           "event": "first_attestation",
@@ -48685,7 +48685,7 @@
         },
         {
           "basis": "attested",
-          "citation": "Kapović, Mate (ed.). 2017. The Indo-European Languages. 2nd ed. Routledge Language Family Series. Abingdon and New York: Routledge (paperback issue 2019). Chapters cited by author in the locator.",
+          "citation": "Sims-Williams, Patrick. 2017. Celtic. In Mate Kapović (ed.), The Indo-European Languages, 2nd ed., 352–386. Abingdon and New York: Routledge.",
           "claim_id": "ev_period_cdee37886b6aee18bc5d5d9eb522ecedf2debc0f",
           "end": null,
           "event": "first_attestation",
@@ -48694,7 +48694,7 @@
           "method": "scholarly_attestation_summary",
           "quote": "The earliest extant manuscripts containing Old \nIrish (glosses and short texts) are eighth century, but it is probable that some texts extant \nin late manuscripts were written down towards the end of the sixth century.",
           "role": "observation",
-          "source": "Kapović 2017",
+          "source": "Sims-Williams 2017",
           "start": {
             "earliest": 701,
             "latest": 800
@@ -49358,14 +49358,14 @@
       "code": "sux",
       "evidence": [
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Mesopotamia, Egypt and Aksum. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Supplied copy is the 2010 reprint. Chapters cited by author in the locator.",
+          "citation": "Michalowski, Piotr. 2008. “Sumerian.” In Roger D. Woodard (ed.), The Ancient Languages of Mesopotamia, Egypt and Aksum, 6–46. Cambridge: Cambridge University Press. Supplied 2010 reprint.",
           "claim_id": "ev_period_0f4ec1ea4460aa9bbbd76526a409cb32bb80ca8b",
           "event": "first_attestation",
           "locator": "{\"page\": \"6\", \"pdf_page\": 13}",
           "method": "textual_attestation",
           "quote": "The oldest Sumerian texts - perhaps even th \nld \n. \napproximately five thousand cla tablets~ \ne o est wrmen ~~~ known to us - are the \nof the city ofUruk, written in y \nound diScarde~ m debns m the ceremonial center \nwhich are dated around 3200 ~nCea~ly fo~m of the cuneiform script (see §2). These tablets, \ncontent, into two general ro \n' ave een senated, on the basis of script, format, and \nthe site: Uruk Nand lii al~ho up~ ~:mesponding, in theory, to archeological levels from \n",
           "role": "observation",
-          "source": "Woodard 2008",
+          "source": "Michalowski 2008",
           "url": null
         }
       ],
@@ -49759,7 +49759,7 @@
       "alternatives": [
         {
           "basis": "attested",
-          "citation": "Weninger, Stefan (ed.), in collaboration with Geoffrey Khan, Michael P. Streck and Janet C. E. Watson. 2011. The Semitic Languages: An International Handbook. Handbücher zur Sprach- und Kommunikationswissenschaft 36. Berlin and Boston: De Gruyter Mouton. Chapters cited: Bogdan Burtea, \"Mandaic\"; Abraham Tal, \"Samaritan Aramaic\"; Michael Sokoloff, \"Jewish Babylonian Aramaic\" and \"Jewish Palestinian Aramaic\"; Matthew Morgenstern, \"Christian Palestinian Aramaic\"; Charles G. Häberl, \"Neo-Mandaic\".",
+          "citation": "Sokoloff, Michael. 2011. Jewish Babylonian Aramaic. In Stefan Weninger (ed.), The Semitic Languages: An International Handbook (HSK 36), 660ff. Berlin/Boston: De Gruyter Mouton. doi:10.1515/9783110251586.",
           "claim_id": "ev_period_3edf0d7183c4a0d61360a51b6e86a8c0a4966f59",
           "end": {
             "earliest": 1001,
@@ -49771,7 +49771,7 @@
           "method": "scholarly_description",
           "quote": "This chapter discusses salient features of the grammar and vocabulary of Jewish Babylo-\nnian Aramaic as written from the 3rd to the 11th century.",
           "role": "observation",
-          "source": "Stefan Weninger 2011",
+          "source": "Sokoloff 2011",
           "start": {
             "earliest": 201,
             "latest": 300
@@ -49873,14 +49873,14 @@
       "code": "trk-oat",
       "evidence": [
         {
-          "citation": "Kerslake, Celia. 2022. “Ottoman Turkish.” In Lars Johanson and Éva Á. Csató (eds.), The Turkic Languages, 2nd ed., 174–194. London and New York: Routledge. https://doi.org/10.4324/9781003243809.",
+          "citation": "Kerslake, Celia. 2022. “Ottoman Turkish.” In Lars Johanson and Éva Á. Csató (eds.), The Turkic Languages, 2nd ed., 174–194. London/New York: Routledge. doi:10.4324/9781003243809.",
           "claim_id": "ev_period_47ce72f91aadbd9753051569e9aa248bff33bec3",
           "event": "conventional_period",
           "locator": "{\"page\": \"176\", \"pdf_page\": 201}",
           "method": "scholarly_periodization",
           "quote": "Old Ottoman: thirteenth to fifteenth centuries",
           "role": "convention",
-          "source": "Johanson & Csató 2021",
+          "source": "Kerslake 2022",
           "url": "https://doi.org/10.4324/9781003243809"
         }
       ],
@@ -49903,7 +49903,7 @@
       "alternatives": [
         {
           "basis": "estimated",
-          "citation": "Kerslake, Celia. 2022. “Ottoman Turkish.” In Lars Johanson and Éva Á. Csató (eds.), The Turkic Languages, 2nd ed., 174–194. London and New York: Routledge. https://doi.org/10.4324/9781003243809.",
+          "citation": "Robbeets, Martine. 2022. “Transeurasian.” In Lars Johanson and Éva Á. Csató (eds.), The Turkic Languages, 2nd ed., 75–82. London and New York: Routledge.",
           "claim_id": "ev_period_6a894ff844fe6b6da5300f7082d78a7a899c2b20",
           "end": {
             "earliest": -4999,
@@ -49915,7 +49915,7 @@
           "method": "expert_estimate",
           "quote": "Proto-Turkic was \nprobably spoken by populations spreading westward in the fifth millennium bc, with the \ntransition of the Xinglongwa (6200–5400 bc) and Zhaobaogou cultures 5400–4700 bc) \ninto the Hongshan culture (4700–2900 bc) (Robbeets et al. under review).",
           "role": "hypothesis",
-          "source": "Johanson & Csató 2021",
+          "source": "Robbeets 2022",
           "start": {
             "earliest": -4999,
             "latest": -4000
@@ -50355,25 +50355,25 @@
       "code": "uga",
       "evidence": [
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Syria-Palestine and Arabia. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Pardee, Dennis. 2008. “Ugaritic.” In Roger D. Woodard (ed.), The Ancient Languages of Syria-Palestine and Arabia, 5–35. Cambridge: Cambridge University Press. First edition.",
           "claim_id": "ev_period_4e1957618767ceac9fcda05f8fb6cba2af16f858",
           "event": "first_attestation",
           "locator": "{\"page\": \"5\", \"pdf_page\": 27}",
           "method": "textual_attestation",
           "quote": "Ugaritic is a one-period language, attested only for the last part of the Late Bronze Age,\napproximately 1300–1190 BC.",
           "role": "observation",
-          "source": "Woodard 2008",
+          "source": "Pardee 2008",
           "url": null
         },
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Syria-Palestine and Arabia. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Pardee, Dennis. 2008. “Ugaritic.” In Roger D. Woodard (ed.), The Ancient Languages of Syria-Palestine and Arabia, 5–35. Cambridge: Cambridge University Press. First edition.",
           "claim_id": "ev_period_df602a2fa964413e685451e86ab63b21e8cf90f3",
           "event": "last_attestation",
           "locator": "{\"page\": \"5\", \"pdf_page\": 27}",
           "method": "textual_attestation",
           "quote": "Ugaritic is a one-period language, attested only for the last part of the Late Bronze Age,\napproximately 1300–1190 BC.",
           "role": "observation",
-          "source": "Woodard 2008",
+          "source": "Pardee 2008",
           "url": null
         }
       ],
@@ -50788,7 +50788,7 @@
       "alternatives": [
         {
           "basis": "composition",
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Asia and the Americas. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Jamison, Stephanie W. 2008. “Sanskrit.” In Roger D. Woodard (ed.), The Ancient Languages of Asia and the Americas, 6–32. Cambridge: Cambridge University Press. First published 2008.",
           "claim_id": "ev_period_e338d8e386851804261f7539d0ad5bbbedad78c1",
           "end": {
             "earliest": -499,
@@ -50800,7 +50800,7 @@
           "method": "expert_estimate",
           "quote": "Though the composition of Vedic texts can be dated with fair conﬁdence to the period of\nc. 1500–500 BC, direct records of them are only found several millennia later. The “texts”\nwere transmitted orally, with minimal alteration, and even after they were also committed\nto writing, the manuscripts were perishable and less reliable than the oral tradition.\n",
           "role": "hypothesis",
-          "source": "Woodard 2008",
+          "source": "Jamison 2008",
           "start": {
             "earliest": -1499,
             "latest": -1499
@@ -50812,14 +50812,14 @@
       "code": "vsn",
       "evidence": [
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Asia and the Americas. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Jamison, Stephanie W. 2008. “Sanskrit.” In Roger D. Woodard (ed.), The Ancient Languages of Asia and the Americas, pp. 6–32. Cambridge: Cambridge University Press. First published 2008 (regional reprint of the 2004 encyclopedia chapter).",
           "claim_id": "ev_period_ee56e0f73cdde50a3d43b9eea511a11f13c3ba14",
           "event": "composition",
           "locator": "{\"page\": \"6\", \"pdf_page\": 28}",
           "method": "expert_estimate",
           "quote": "Though the composition of Vedic texts can be dated with fair conﬁdence to the period of\nc. 1500–500 BC, direct records of them are only found several millennia later. The “texts”\nwere transmitted orally, with minimal alteration, and even after they were also committed\nto writing, the manuscripts were perishable and less reliable than the oral tradition.",
           "role": "hypothesis",
-          "source": "Woodard 2008",
+          "source": "Jamison 2008",
           "url": null
         }
       ],
@@ -51257,25 +51257,25 @@
       "code": "xbc",
       "evidence": [
         {
-          "citation": "Klein, Jared S. (ed.); Joseph, Brian D. (ed.); Fritz, Matthias (ed.) (2017) Handbook of comparative and historical Indo-European linguistics. Vol. 1. Berlin ; Boston, De Gruyter Mouton.",
+          "citation": "Skjærvø, Prods Oktor. 2017. “The documentation of Iranian.” In Jared Klein, Brian Joseph, and Matthias Fritz (eds.), Handbook of Comparative and Historical Indo-European Linguistics, vol.1, 471–481. Berlin/Boston: De Gruyter Mouton.",
           "claim_id": "ev_period_442529a60f0ec3a482196be1e751a0e0aba1a43a",
           "event": "first_attestation",
           "locator": "{\"page\": \"476\", \"pdf_page\": 488}",
           "method": "scholarly_synthesis",
           "quote": "Bactrian, known from inscriptions (from 2nd cent.) and a large corpus of documents\n(3rd−8th cents.; Sims-Williams 2000−2007).",
           "role": "observation",
-          "source": "Klein et al. 2017",
+          "source": "Skjærvø 2017",
           "url": null
         },
         {
-          "citation": "Klein, Jared S. (ed.); Joseph, Brian D. (ed.); Fritz, Matthias (ed.) (2017) Handbook of comparative and historical Indo-European linguistics. Vol. 1. Berlin ; Boston, De Gruyter Mouton.",
+          "citation": "Skjærvø, Prods Oktor. 2017. “The documentation of Iranian.” In Jared Klein, Brian Joseph, and Matthias Fritz (eds.), Handbook of Comparative and Historical Indo-European Linguistics, vol.1, 471–481. Berlin/Boston: De Gruyter Mouton.",
           "claim_id": "ev_period_ef5c7245f415a4d4fc37a8f974be0fbfa0e551af",
           "event": "last_attestation",
           "locator": "{\"page\": \"476\", \"pdf_page\": 488}",
           "method": "scholarly_synthesis",
           "quote": "Bactrian, known from inscriptions (from 2nd cent.) and a large corpus of documents\n(3rd−8th cents.; Sims-Williams 2000−2007).",
           "role": "observation",
-          "source": "Klein et al. 2017",
+          "source": "Skjærvø 2017",
           "url": null
         }
       ],
@@ -51332,14 +51332,14 @@
       "code": "xbo-dan",
       "evidence": [
         {
-          "citation": "Kerslake, Celia. 2022. “Ottoman Turkish.” In Lars Johanson and Éva Á. Csató (eds.), The Turkic Languages, 2nd ed., 174–194. London and New York: Routledge. https://doi.org/10.4324/9781003243809.",
+          "citation": "Agyagási, Klára. 2022. “Chuvash.” In Lars Johanson and Éva Á. Csató (eds.), The Turkic Languages, 2nd ed., 460–478. London/New York: Routledge. https://doi.org/10.4324/9781003243809-30.",
           "claim_id": "ev_period_89a03abbd265f43d46b4993610e91c5eac068be0",
           "event": "native_transmission_end",
           "locator": "{\"page\": \"460\", \"pdf_page\": 485}",
           "method": "expert_estimate",
           "quote": "Its closest and most certainly identifiable relative besides the dialect of the \nVolga Bulghar inscriptions was Danube Bulghar. The latter, which may have been related \nto Khazar, died out by the tenth century.",
           "role": "hypothesis",
-          "source": "Johanson & Csató 2021",
+          "source": "Agyagási 2022",
           "url": "https://doi.org/10.4324/9781003243809"
         }
       ],
@@ -51361,14 +51361,14 @@
       "code": "xbo-vol",
       "evidence": [
         {
-          "citation": "Kerslake, Celia. 2022. “Ottoman Turkish.” In Lars Johanson and Éva Á. Csató (eds.), The Turkic Languages, 2nd ed., 174–194. London and New York: Routledge. https://doi.org/10.4324/9781003243809.",
+          "citation": "Károly, László. 2022. “West Old Turkic.” In Lars Johanson and Éva Á. Csató (eds.), The Turkic Languages, 2nd ed., 145–151. London/New York: Routledge. https://doi.org/10.4324/9781003243809-9.",
           "claim_id": "ev_period_ac1a5e4c07f69609e712abf441997e8cf4d69bc7",
           "event": "documentary_sampling",
           "locator": "{\"page\": \"145\", \"pdf_page\": 170}",
           "method": "philological_attestation",
           "quote": "The Volga Bulghar inscriptions from the thirteenth to the fourteenth century represent \na Middle Turkic language of the Chuvash type.",
           "role": "observation",
-          "source": "Johanson & Csató 2021",
+          "source": "Károly 2022",
           "url": "https://doi.org/10.4324/9781003243809"
         }
       ],
@@ -51393,25 +51393,25 @@
       "code": "xce",
       "evidence": [
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Europe. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Eska, Joseph F. 2008. Continental Celtic. In Roger D. Woodard (ed.), The Ancient Languages of Europe, pp. 165–188. Cambridge: Cambridge University Press. First regional paperback edition.",
           "claim_id": "ev_period_be55436bc27ce973e31e0bc2c0e981eb5719e0e4",
           "event": "first_attestation",
           "locator": "{\"page\": \"165\", \"pdf_page\": 189}",
           "method": "scholarly_attestation",
           "quote": "Though the last to be attested, from c. 200 BC to the second century AD,\nHispano-Celtic is, by and large, the most conservative variety of Continental Celtic.",
           "role": "observation",
-          "source": "Woodard 2008",
+          "source": "Eska 2008",
           "url": null
         },
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Europe. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Eska, Joseph F. 2008. Continental Celtic. In Roger D. Woodard (ed.), The Ancient Languages of Europe, pp. 165–188. Cambridge: Cambridge University Press. First regional paperback edition.",
           "claim_id": "ev_period_b0ba112c93e3120db7b30d69c3bb12111e5a6f4e",
           "event": "last_attestation",
           "locator": "{\"page\": \"165\", \"pdf_page\": 189}",
           "method": "scholarly_attestation",
           "quote": "Though the last to be attested, from c. 200 BC to the second century AD,\nHispano-Celtic is, by and large, the most conservative variety of Continental Celtic.",
           "role": "observation",
-          "source": "Woodard 2008",
+          "source": "Eska 2008",
           "url": null
         }
       ],
@@ -51436,14 +51436,14 @@
       "code": "xcl",
       "evidence": [
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Asia Minor. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Clackson, James P. T. 2008. Classical Armenian. In Roger D. Woodard (ed.), The Ancient Languages of Asia Minor, pp. 124–144. Cambridge: Cambridge University Press. First regional paperback edition.",
           "claim_id": "ev_period_87165ba6ea089abcc963e91cac45fe63c95657ea",
           "event": "first_attestation",
           "locator": "{\"page\": \"125\", \"pdf_page\": 148}",
           "method": "scholarly_attestation",
           "quote": "We have no record of the Armenian\nlanguagebeforetheﬁfthcenturyAD.TheOldPersian,Greek,andRomansourcesdomention\na number of prominent Armenians by name, but unfortunately the majority of these names\nare Iranian in origin, for example, D¯adrˇsi- (in Darius’ B¯ısot¯un inscription), Tigranes, and\nTiridates. Other names are either Urartian (Haldita- in the B¯ısot¯un inscription) or obscure\nand unknown in literate times in Armenia (Araxa- in the B¯ısot¯un inscription).\nArmenia ofﬁcially adopted Christianity in the early years of the fourth century AD (the\ntraditionaldateis301–304).ConversiontoChristianityprovidedtheimpetusforthecreation\nof an alphabet (see below) and the translation of the Bible into the Armenian language in\nthe ﬁfth century. The Bible translation and the historical and theological works of the ﬁfth\ncentury provided the model for the classical language, which was the medium of educated\nwritten discourse for Armenians until the nineteenth century, and is still used as a liturgical\nlanguage in the Armenian Church.",
           "role": "observation",
-          "source": "Woodard 2008",
+          "source": "Clackson 2008",
           "url": null
         }
       ],
@@ -51465,14 +51465,14 @@
       "code": "xco",
       "evidence": [
         {
-          "citation": "Windfuhr, Gernot, and John R. Perry. 2009. “Persian and Tajik.” In Gernot Windfuhr (ed.), The Iranian Languages, 416–544. London and New York: Routledge.",
+          "citation": "Durkin-Meisterernst, Desmond. 2009. “Khwarezmian.” In Gernot Windfuhr (ed.), The Iranian Languages, 336–376. First edition. London and New York: Routledge.",
           "claim_id": "ev_period_85205daeb53157e17e8610f9862e185d7302ff64",
           "event": "native_transmission_end",
           "locator": "{\"page\": \"336\", \"pdf_page\": 411}",
           "method": "expert_estimate",
           "quote": "The sources date from the pre-Sasanian period (some of those in Khwarezmian script) \nto the Islamic period when, sometime after the fourteenth century CE, the language died \nout.",
           "role": "hypothesis",
-          "source": "Windfuhr 2009",
+          "source": "Durkin-Meisterernst 2009",
           "url": null
         }
       ],
@@ -51641,25 +51641,25 @@
       "code": "xeb",
       "evidence": [
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Mesopotamia, Egypt and Aksum. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Supplied copy is the 2010 reprint. Chapters cited by author in the locator.",
+          "citation": "Huehnergard, John, and Christopher Woods. 2008. “Akkadian and Eblaite.” In Roger D. Woodard (ed.), The Ancient Languages of Mesopotamia, Egypt and Aksum, 83–152. Cambridge: Cambridge University Press. Supplied 2010 reprint.",
           "claim_id": "ev_period_6cbfad52a4f84af92d9f4bf0025cf889612007c3",
           "event": "first_attestation",
           "locator": "{\"page\": \"83\", \"pdf_page\": 51}",
           "method": "textual_attestation",
           "quote": "Contemporaneous with the date of Old Akkadian materials, c. 2400 BC, are the thousands \nof texts excavated at Ebla in northwest Syria. Although the majority of these texts were \nwritten in Sumerian, many were written in a Semitic language, referred to as Eblaite, which \nhas striking similarities to Old Akkadian. Eblaite is attested in bilingual (Sumero-Eblaite) \nlexical texts, administrative documents, treaties, incantations, and several literary texts, \nsome of which have parallel versions from the Mesopotamian sites of AbU ~aliibikh and Fara \n(Suruppak). Eblaite is attested only for a few generations during the middle of the third \nmillennium; thus, the historical development of the language cannot be traced.",
           "role": "observation",
-          "source": "Woodard 2008",
+          "source": "Huehnergard & Woods 2008",
           "url": null
         },
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Mesopotamia, Egypt and Aksum. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Supplied copy is the 2010 reprint. Chapters cited by author in the locator.",
+          "citation": "Huehnergard, John, and Christopher Woods. 2008. “Akkadian and Eblaite.” In Roger D. Woodard (ed.), The Ancient Languages of Mesopotamia, Egypt and Aksum, 83–152. Cambridge: Cambridge University Press. Supplied 2010 reprint.",
           "claim_id": "ev_period_48c2341ed6364ab67fff5cd60a8b1ecc7e410367",
           "event": "last_attestation",
           "locator": "{\"page\": \"83\", \"pdf_page\": 51}",
           "method": "textual_attestation",
           "quote": "Contemporaneous with the date of Old Akkadian materials, c. 2400 BC, are the thousands \nof texts excavated at Ebla in northwest Syria. Although the majority of these texts were \nwritten in Sumerian, many were written in a Semitic language, referred to as Eblaite, which \nhas striking similarities to Old Akkadian. Eblaite is attested in bilingual (Sumero-Eblaite) \nlexical texts, administrative documents, treaties, incantations, and several literary texts, \nsome of which have parallel versions from the Mesopotamian sites of AbU ~aliibikh and Fara \n(Suruppak). Eblaite is attested only for a few generations during the middle of the third \nmillennium; thus, the historical development of the language cannot be traced.",
           "role": "observation",
-          "source": "Woodard 2008",
+          "source": "Huehnergard & Woods 2008",
           "url": null
         }
       ],
@@ -51684,14 +51684,14 @@
       "code": "xep",
       "evidence": [
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Asia and the Americas. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Kaufman, Terrence, and John Justeson. 2008. “Epi-Olmec (Zapotec appendix).” In Roger D. Woodard (ed.), The Ancient Languages of Asia and the Americas, pp. 193–233. Cambridge: Cambridge University Press. First published 2008 (regional reprint of the 2004 encyclopedia chapter).",
           "claim_id": "ev_period_44dfae3b921e2ed4b1dc0713cf0c9e2c9332bc41",
           "event": "first_attestation",
           "locator": "{\"page\": \"193\", \"pdf_page\": 215}",
           "method": "inscriptional_dating",
           "quote": "The Epi-Olmec language is the most ancient attested member of the Mije-Sokean family\n(c. 300 BCE to at least 533 CE).",
           "role": "observation",
-          "source": "Woodard 2008",
+          "source": "Kaufman & Justeson 2008",
           "url": null
         }
       ],
@@ -51944,14 +51944,14 @@
       "code": "xhd",
       "evidence": [
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Syria-Palestine and Arabia. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Nebes, Norbert, and Peter Stein. 2008. “Ancient South Arabian.” In Roger D. Woodard (ed.), The Ancient Languages of Syria-Palestine and Arabia, pp. 145–178. Cambridge: Cambridge University Press. First paperback edition.",
           "claim_id": "ev_period_3a6648d7b79f580dfc3a1facf3e026b38990c4d0",
           "event": "last_attestation",
           "locator": "{\"page\": \"146\", \"pdf_page\": 168}",
           "method": "scholarly_description",
           "quote": "At the beginning of the fourth century AD the Himyar incorpo-\nrate Hadramawt into their area of control, after which the epigraphic documentation of\nHadramitic likewise ends and is replaced by Sabaic.",
           "role": "observation",
-          "source": "Woodard 2008",
+          "source": "Nebes & Stein 2008",
           "url": null
         }
       ],
@@ -52024,14 +52024,14 @@
       "code": "xhu",
       "evidence": [
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Asia Minor. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Wilhelm, Gernot. 2008. Hurrian. In Roger D. Woodard (ed.), The Ancient Languages of Asia Minor, pp. 81–104. Cambridge: Cambridge University Press. First regional paperback edition.",
           "claim_id": "ev_period_503005d8d7aef6a08835db8cdb7a468267ca3623",
           "event": "first_attestation",
           "locator": "{\"page\": \"81\", \"pdf_page\": 104}",
           "method": "scholarly_attestation",
           "quote": "HurrianisﬁrstattestedinafewwordsandpersonalorplacenamesmentionedinAkkadian\ntexts of the Akkade period (twenty-third to twenty-second centuries BC).",
           "role": "observation",
-          "source": "Woodard 2008",
+          "source": "Wilhelm 2008",
           "url": null
         }
       ],
@@ -52096,25 +52096,25 @@
       "code": "xld",
       "evidence": [
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Asia Minor. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Melchert, H. Craig. 2008. Lydian. In Roger D. Woodard (ed.), The Ancient Languages of Asia Minor, pp. 56–63. Cambridge: Cambridge University Press. First regional paperback edition.",
           "claim_id": "ev_period_dde9e8ac07d5ae78d3b7f8ee0c89c23ebf54ce7e",
           "event": "first_attestation",
           "locator": "{\"page\": \"56\", \"pdf_page\": 79}",
           "method": "scholarly_attestation",
           "quote": "The land called Lydia in Greek sources lay during the ﬁrst millennium BC on the west\ncentral coast of Anatolia, centering on the River Hermos (modern Gediz), with its capital\nat Sardis (near modern Turgutlu). The indigenous language is attested in grafﬁti and on\ncoins from the end of the eighth or beginning of the seventh century down to the third,\nbut well-preserved inscriptions of signiﬁcant length are presently limited to the ﬁfth and\nfourth centuries, during the period of Persian domination. Lydian texts are thus effectively\ncontemporaneous with those in Lycian.",
           "role": "observation",
-          "source": "Woodard 2008",
+          "source": "Melchert 2008",
           "url": null
         },
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Asia Minor. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Melchert, H. Craig. 2008. Lydian. In Roger D. Woodard (ed.), The Ancient Languages of Asia Minor, pp. 56–63. Cambridge: Cambridge University Press. First regional paperback edition.",
           "claim_id": "ev_period_7af291f87b85f70801e1003a69a43efa94512529",
           "event": "last_attestation",
           "locator": "{\"page\": \"56\", \"pdf_page\": 79}",
           "method": "scholarly_attestation",
           "quote": "The land called Lydia in Greek sources lay during the ﬁrst millennium BC on the west\ncentral coast of Anatolia, centering on the River Hermos (modern Gediz), with its capital\nat Sardis (near modern Turgutlu). The indigenous language is attested in grafﬁti and on\ncoins from the end of the eighth or beginning of the seventh century down to the third,\nbut well-preserved inscriptions of signiﬁcant length are presently limited to the ﬁfth and\nfourth centuries, during the period of Persian domination. Lydian texts are thus effectively\ncontemporaneous with those in Lycian.",
           "role": "observation",
-          "source": "Woodard 2008",
+          "source": "Melchert 2008",
           "url": null
         }
       ],
@@ -52139,25 +52139,25 @@
       "code": "xlp",
       "evidence": [
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Europe. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Eska, Joseph F. 2008. Continental Celtic. In Roger D. Woodard (ed.), The Ancient Languages of Europe, pp. 165–188. Cambridge: Cambridge University Press. First regional paperback edition.",
           "claim_id": "ev_period_cd9195981cf653d8b720483b2835f5a92ea6b0ea",
           "event": "first_attestation",
           "locator": "{\"page\": \"165\", \"pdf_page\": 189}",
           "method": "scholarly_attestation",
           "quote": "The earliest records are found in Lepontic,\nwhich is attested from c. 600 BC to the end of the millennium.",
           "role": "observation",
-          "source": "Woodard 2008",
+          "source": "Eska 2008",
           "url": null
         },
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Europe. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Eska, Joseph F. 2008. Continental Celtic. In Roger D. Woodard (ed.), The Ancient Languages of Europe, pp. 165–188. Cambridge: Cambridge University Press. First regional paperback edition.",
           "claim_id": "ev_period_cb0442ccc91086d3342a6aed09eebd851df2109a",
           "event": "last_attestation",
           "locator": "{\"page\": \"165\", \"pdf_page\": 189}",
           "method": "scholarly_attestation",
           "quote": "The earliest records are found in Lepontic,\nwhich is attested from c. 600 BC to the end of the millennium.",
           "role": "observation",
-          "source": "Woodard 2008",
+          "source": "Eska 2008",
           "url": null
         }
       ],
@@ -52182,14 +52182,14 @@
       "code": "xls",
       "evidence": [
         {
-          "citation": "Klein, Jared S. (ed.); Joseph, Brian D. (ed.); Fritz, Matthias (ed.) (2017) Handbook of comparative and historical Indo-European linguistics. Vol. 3. Berlin ; Boston, De Gruyter Mouton.",
+          "citation": "Stifter, David. 2017. “106. Lusitanian.” In Jared Klein, Brian Joseph and Matthias Fritz (eds.), Handbook of Comparative and Historical Indo-European Linguistics, vol. 3, pp. 1857–1862. Berlin/Boston: De Gruyter Mouton. https://doi.org/10.1515/9783110542431-027.",
           "claim_id": "ev_period_ef886574c977a67c3459f851bbd3a08b5044deda",
           "event": "documentary_sampling",
           "locator": "{\"page\": \"1858\", \"pdf_page\": 472}",
           "method": "scholarly_description",
           "quote": "All documents are written in the Roman script. The possible time-frame for the in-\nscriptions extends from the 1st c. BCE to the 2nd c. CE, but due to the lack of archaeo-\nlogical contexts the chronology remains conjectural; dating the texts on linguistic\ngrounds is circular.\nThe limited corpus creates several methodological problems: there probably never\nexisted a written literary standard for Lus.;",
           "role": "observation",
-          "source": "Klein et al. 2017",
+          "source": "Stifter 2017",
           "url": null
         }
       ],
@@ -52246,14 +52246,14 @@
       "code": "xmn",
       "evidence": [
         {
-          "citation": "Windfuhr, Gernot, and John R. Perry. 2009. “Persian and Tajik.” In Gernot Windfuhr (ed.), The Iranian Languages, 416–544. London and New York: Routledge.",
+          "citation": "Skjærvø, Prods Oktor. 2009. “Middle West Iranian.” In Gernot Windfuhr (ed.), The Iranian Languages, 196–278. London/New York: Routledge.",
           "claim_id": "ev_period_32dce519a2b1e0d3195515cb28e9ce7d21e5bd37",
           "event": "composition",
           "locator": "{\"page\": \"197\", \"pdf_page\": 272, \"scope_page\": \"196\", \"scope_pdf_page\": 271}",
           "method": "expert_estimate",
           "quote": "The earliest Manichean texts may have been composed in the mid-third century, but \nthe manuscripts are much later",
           "role": "hypothesis",
-          "source": "Windfuhr 2009",
+          "source": "Skjærvø 2009",
           "url": null
         }
       ],
@@ -52343,25 +52343,25 @@
       "code": "xna",
       "evidence": [
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Syria-Palestine and Arabia. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Macdonald, M. C. A. 2008. “Ancient North Arabian.” In Roger D. Woodard (ed.), The Ancient Languages of Syria-Palestine and Arabia, 179–224. Cambridge: Cambridge University Press. First edition.",
           "claim_id": "ev_period_ae3ad74393ba3b314b48651deb820b01f3fb4e14",
           "event": "first_attestation",
           "locator": "{\"page\": \"181\", \"pdf_page\": 203}",
           "method": "textual_attestation",
           "quote": "Ancient North Arabian is made up of a number of interrelated dialects, attested only in\ninscriptions. These are dated roughly between the eighth century BC and fourth century\nAD, after which the language disappears from the record.",
           "role": "observation",
-          "source": "Woodard 2008",
+          "source": "Macdonald 2008",
           "url": null
         },
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Syria-Palestine and Arabia. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Macdonald, M. C. A. 2008. “Ancient North Arabian.” In Roger D. Woodard (ed.), The Ancient Languages of Syria-Palestine and Arabia, 179–224. Cambridge: Cambridge University Press. First edition.",
           "claim_id": "ev_period_7eb357c50c274d2f4245c473eea8c85c66623a8b",
           "event": "last_attestation",
           "locator": "{\"page\": \"181\", \"pdf_page\": 203}",
           "method": "textual_attestation",
           "quote": "Ancient North Arabian is made up of a number of interrelated dialects, attested only in\ninscriptions. These are dated roughly between the eighth century BC and fourth century\nAD, after which the language disappears from the record.",
           "role": "observation",
-          "source": "Woodard 2008",
+          "source": "Macdonald 2008",
           "url": null
         }
       ],
@@ -52514,7 +52514,7 @@
       "alternatives": [
         {
           "basis": "last_speaker",
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Asia Minor. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Brixhe, Claude. 2008. ‘Phrygian’. In Roger D. Woodard (ed.), The Ancient Languages of Asia Minor, 69–80. Cambridge: Cambridge University Press.",
           "claim_id": "ev_period_8549839ce6e40c05168a3f6330ddaddff1ec2f0f",
           "end": {
             "earliest": 601,
@@ -52526,7 +52526,7 @@
           "method": "expert_estimate",
           "quote": "The ancient sources last speak of the Phrygian language in the ﬁfth century AD (see\nFriedrich 1941, col. 868–869); but it is quite possible that it was not actually eliminated until\nthe Arab incursions in the seventh century (Brixhe 1987:11).",
           "role": "hypothesis",
-          "source": "Woodard 2008",
+          "source": "Brixhe 2008",
           "start": null,
           "url": null
         }
@@ -52606,7 +52606,7 @@
           "method": "scholarly_description",
           "quote": "Arin, Pumpokol, and Assan were documented only in the 1730s.",
           "role": "observation",
-          "source": "Edward Vajda 2024",
+          "source": "Vajda 2024",
           "url": null
         }
       ],
@@ -52660,25 +52660,25 @@
       "code": "xpu",
       "evidence": [
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Syria-Palestine and Arabia. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Hackett, Jo Ann. 2008. “Phoenician and Punic.” In Roger D. Woodard (ed.), The Ancient Languages of Syria-Palestine and Arabia, 82–102. Cambridge: Cambridge University Press. First edition.",
           "claim_id": "ev_period_e2473e7ce2f33ce1adadf489eb1fa4384fde005e",
           "event": "first_attestation",
           "locator": "{\"page\": \"83\", \"pdf_page\": 105}",
           "method": "textual_attestation",
           "quote": "The dialect of the Phoenician colony at Carthage and of inscriptions found throughout\nthe Carthaginian empire is referred to as Punic, for which we have evidence beginning in\nthe sixth century BC.",
           "role": "observation",
-          "source": "Woodard 2008",
+          "source": "Hackett 2008",
           "url": null
         },
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Syria-Palestine and Arabia. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Hackett, Jo Ann. 2008. “Phoenician and Punic.” In Roger D. Woodard (ed.), The Ancient Languages of Syria-Palestine and Arabia, 82–102. Cambridge: Cambridge University Press. First edition.",
           "claim_id": "ev_period_0dd7a170b18904e14208499a5f804cbf58f5a6ae",
           "event": "last_attestation",
           "locator": "{\"page\": \"83\", \"pdf_page\": 105}",
           "method": "textual_attestation",
           "quote": "Punic inscriptions date\nas late as the second century AD, and there are even later Latino-Punic inscriptions, Punic\nwritten in Latin script, that date to the fourth–ﬁfth centuries AD.",
           "role": "observation",
-          "source": "Woodard 2008",
+          "source": "Hackett 2008",
           "url": null
         }
       ],
@@ -52703,14 +52703,14 @@
       "code": "xqa",
       "evidence": [
         {
-          "citation": "Kerslake, Celia. 2022. “Ottoman Turkish.” In Lars Johanson and Éva Á. Csató (eds.), The Turkic Languages, 2nd ed., 174–194. London and New York: Routledge. https://doi.org/10.4324/9781003243809.",
+          "citation": "Johanson, Lars. 2022. “East Old Turkic.” In Lars Johanson and Éva Á. Csató (eds.), The Turkic Languages, 2nd ed., 132–144. London and New York: Routledge.",
           "claim_id": "ev_period_26f3de1f2326f3f7717642238061763c1ed0d380",
           "event": "documentary_sampling",
           "locator": "{\"page\": \"132\", \"pdf_page\": 157}",
           "method": "scholarly_corpus_description",
           "quote": "Eleventh-century texts from the Karakhanid state, mostly written in Arabic script.",
           "role": "observation",
-          "source": "Johanson & Csató 2021",
+          "source": "Johanson 2022",
           "url": "https://doi.org/10.4324/9781003243809"
         }
       ],
@@ -52788,7 +52788,7 @@
           "method": "scholarly_description",
           "quote": "Arin, Pumpokol, and Assan were documented only in the 1730s.",
           "role": "observation",
-          "source": "Edward Vajda 2024",
+          "source": "Vajda 2024",
           "start": {
             "earliest": 1730,
             "latest": 1730
@@ -52883,14 +52883,14 @@
       "code": "xsa",
       "evidence": [
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Syria-Palestine and Arabia. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Nebes, Norbert, and Peter Stein. 2008. “Ancient South Arabian.” In Roger D. Woodard (ed.), The Ancient Languages of Syria-Palestine and Arabia, 145–178. Cambridge: Cambridge University Press. First edition.",
           "claim_id": "ev_period_bd49b0fa12b25f1126bcd92f1a2a9e7024c61d5e",
           "event": "first_attestation",
           "locator": "{\"page\": \"145\", \"pdf_page\": 167}",
           "method": "textual_attestation",
           "quote": "The ﬁrst Sabaic inscriptions begin in the eighth century BC; the ﬁrst Sabaic monuments\nof any length that can be dated reliably by a synchronism with Assyrian sources are to be\nplaced in the early seventh century BC (Wissmann 1982:148).",
           "role": "observation",
-          "source": "Woodard 2008",
+          "source": "Nebes & Stein 2008",
           "url": null
         },
         {
@@ -52926,14 +52926,14 @@
       "code": "xsv",
       "evidence": [
         {
-          "citation": "Klein, Jared S. (ed.); Joseph, Brian D. (ed.); Fritz, Matthias (ed.) (2017) Handbook of comparative and historical Indo-European linguistics. Vol. 3. Berlin ; Boston, De Gruyter Mouton.",
+          "citation": "Gelumbeckaitė, Jolanta. 2018. “The dialectology of Baltic.” In Jared Klein, Brian Joseph and Matthias Fritz (eds.), Handbook of Comparative and Historical Indo-European Linguistics, vol. 3, 1698–1711. Berlin/Boston: De Gruyter Mouton.",
           "claim_id": "ev_period_6ad1953531f643239f5247ad8b7d877fbfb81bb3",
           "event": "native_transmission_end",
           "locator": "{\"page\": \"1699\", \"pdf_page\": 313}",
           "method": "expert_estimate",
           "quote": "Yotvingian, sometimes treated as a\ndialect of OPr. (Schmid 1976: 16R), became extinct at the end of the 16th c.",
           "role": "hypothesis",
-          "source": "Klein et al. 2017",
+          "source": "Gelumbeckaitė 2018",
           "url": null
         }
       ],
@@ -52955,14 +52955,14 @@
       "code": "xtg",
       "evidence": [
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Europe. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Eska, Joseph F. 2008. Continental Celtic. In Roger D. Woodard (ed.), The Ancient Languages of Europe, pp. 165–188. Cambridge: Cambridge University Press. First regional paperback edition.",
           "claim_id": "ev_period_1372d0e405b0adb79cb77659d5deec79bf1a1195",
           "event": "first_attestation",
           "locator": "{\"page\": \"165\", \"pdf_page\": 189}",
           "method": "scholarly_attestation",
           "quote": "Transalpine Gaulish, ﬁrst attested in the third\ncentury BC, was engraved in Greek characters until it gave way after the Roman conquest to\nRoman characters.",
           "role": "observation",
-          "source": "Woodard 2008",
+          "source": "Eska 2008",
           "url": null
         }
       ],
@@ -53064,25 +53064,25 @@
       "code": "xur",
       "evidence": [
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Asia Minor. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Wilhelm, Gernot. 2008. Urartian. In Roger D. Woodard (ed.), The Ancient Languages of Asia Minor, pp. 105–123. Cambridge: Cambridge University Press. First regional paperback edition.",
           "claim_id": "ev_period_7b039b402577be5cc60c2cac5e87902b8058e54e",
           "event": "first_attestation",
           "locator": "{\"page\": \"106\", \"pdf_page\": 129}",
           "method": "scholarly_attestation",
           "quote": "The earliest Urartian inscriptions can be dated to approximately 820 BC, and the latest\nwere written during the last decades of the seventh century BC.",
           "role": "observation",
-          "source": "Woodard 2008",
+          "source": "Wilhelm 2008",
           "url": null
         },
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Asia Minor. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Wilhelm, Gernot. 2008. Urartian. In Roger D. Woodard (ed.), The Ancient Languages of Asia Minor, pp. 105–123. Cambridge: Cambridge University Press. First regional paperback edition.",
           "claim_id": "ev_period_06971c7036bbfcb73f292013f7a1591d7e6a551f",
           "event": "last_attestation",
           "locator": "{\"page\": \"106\", \"pdf_page\": 129}",
           "method": "scholarly_attestation",
           "quote": "The earliest Urartian inscriptions can be dated to approximately 820 BC, and the latest\nwere written during the last decades of the seventh century BC.",
           "role": "observation",
-          "source": "Woodard 2008",
+          "source": "Wilhelm 2008",
           "url": null
         }
       ],
@@ -53107,25 +53107,25 @@
       "code": "xve",
       "evidence": [
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Europe. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Wallace, Rex E. 2008. Venetic. In Roger D. Woodard (ed.), The Ancient Languages of Europe, pp. 124–140. Cambridge: Cambridge University Press. First regional paperback edition.",
           "claim_id": "ev_period_d6b7e14b48a4b855482788c742f8b6de63d71970",
           "event": "first_attestation",
           "locator": "{\"page\": \"124\", \"pdf_page\": 148}",
           "method": "scholarly_attestation",
           "quote": "The Venetic language is attested by approximately 350 inscriptions that have come to light\nin the territory of pre-Roman Venetia in northeastern Italy. The inscriptions cover a span of\nnearly ﬁve hundred years, dating from the ﬁnal quarter of the sixth century to the middle of\nthe ﬁrst century BC.",
           "role": "observation",
-          "source": "Woodard 2008",
+          "source": "Wallace 2008",
           "url": null
         },
         {
-          "citation": "Woodard, Roger D. (ed.). 2008. The Ancient Languages of Europe. Cambridge: Cambridge University Press. Paperback volume reprinting chapters of The Cambridge Encyclopedia of the World's Ancient Languages (2004). Chapters cited by author in the locator.",
+          "citation": "Wallace, Rex E. 2008. Venetic. In Roger D. Woodard (ed.), The Ancient Languages of Europe, pp. 124–140. Cambridge: Cambridge University Press. First regional paperback edition.",
           "claim_id": "ev_period_4a7042816831b97f5c1abe50d341f0c88db28765",
           "event": "last_attestation",
           "locator": "{\"page\": \"124\", \"pdf_page\": 148}",
           "method": "scholarly_attestation",
           "quote": "The Venetic language is attested by approximately 350 inscriptions that have come to light\nin the territory of pre-Roman Venetia in northeastern Italy. The inscriptions cover a span of\nnearly ﬁve hundred years, dating from the ﬁnal quarter of the sixth century to the middle of\nthe ﬁrst century BC.",
           "role": "observation",
-          "source": "Woodard 2008",
+          "source": "Wallace 2008",
           "url": null
         }
       ],
@@ -53226,7 +53226,7 @@
           "method": "expert_estimate",
           "quote": "Yugh survived into the 20th century in \nthe villages of Vorogovo and Yartsevo, located on the Yenisei upriver from the southern-\nmost Kets, losing its last known fluent speaker by 1972.",
           "role": "hypothesis",
-          "source": "Edward Vajda 2024",
+          "source": "Vajda 2024",
           "url": null
         }
       ],

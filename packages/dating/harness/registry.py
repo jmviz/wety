@@ -312,6 +312,9 @@ def validate_bundle(bundle):
         claims[c["id"]] = c
         if c["source_id"] not in sources:
             errors.append("missing source " + c["source_id"])
+        ch = (bundle.get("chapters") or {}).get(c["id"])
+        if ch and (ch["source_id"] != c["source_id"] or not ch["authors"] or not ch["title"]):
+            errors.append("chapter does not match its claim's source: " + c["id"])
         if c["status"] == "supported":
             errors += validate_span(c)
             if c["assessment"]["textual"] == "exact_span" and any(
@@ -623,6 +626,12 @@ def build_bundle():
     relations_path = Path(DATA_DIR) / "_constraints/relations.json"
     relations = json.loads(relations_path.read_text()) if relations_path.exists() else []
     context["relative_constraints_digest"] = digest(relations)
+    from . import ledger
+
+    # Which chapter of an edited volume a claim quotes: authorship for display only, so
+    # it stays out of the claims, their sources and the decision digests.
+    chapters = ledger.current("chapter")[0]
+    context["chapters_digest"] = digest(chapters)
     fingerprint = evidence_digest(claims, context)
     by_id = {c["id"]: c for c in claims}
     by_catalog = defaultdict(list)
@@ -633,8 +642,6 @@ def build_bundle():
         by_subject[c["subject"]["id"]].append(c["id"])
     decisions = []
     rejected = []
-    from . import ledger
-
     current, conflicts = ledger.current("decision")
     for key, competing in sorted(conflicts.items()):
         for raw in competing:
@@ -752,6 +759,7 @@ def build_bundle():
         "research_graph": research_graph,
         "pilot_coverage": coverage,
         "sources": sources,
+        "chapters": chapters,
         "records": records,
         "view": view,
         "review_queue": queue,

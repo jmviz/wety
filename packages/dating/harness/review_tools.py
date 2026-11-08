@@ -237,6 +237,116 @@ def review_from_judgments(run, judgments, reviewer=None) -> dict:
     return {"review": str(out), "claims": len(claims), "adopted_codes": len(review["adopt"])}
 
 
+CHAPTER_BOUNDARY = re.compile(r"[.”’\"']\s+(?:Chapter\s+[\dIVXLivxl]+\s+)?[Ii]n:?\s+(?=\S)")
+
+
+def chapter_of(citation):
+    """{authors, year, title, citation} when a citation names a chapter of an edited
+    volume ("Burtea, Bogdan. 2011. Mandaic. In Stefan Weninger (ed.), ..."), else None.
+    Authors are "Surname, Given", the first as the citation writes it."""
+    m = re.match(
+        r"(?P<authors>.+?)\.?\s+(?P<year>(?:1[5-9]|20)\d\d)[a-z]?\.\s+(?P<rest>.+)", citation
+    )
+    if not m:
+        return None
+    rest = m["rest"]
+    b = CHAPTER_BOUNDARY.search(rest)
+    if not b or not re.search(r"\(eds?\.\)", rest[b.end() :]):
+        return None
+    title = re.sub(r"^\d+\.\s+", "", rest[: b.start() + 1].strip(" .“”‘’'\""))  # "105. Siculian"
+    if not title:
+        return None
+    # "..., with a discussion of syntax by X" credits a part, not an author.
+    written = re.sub(r",?\s+with\b.*", "", m["authors"])
+    suffix = re.compile(r"^(?:Jr|Sr|II|III|IV)\.?$")
+
+    def given(g):
+        return g + "." if re.search(r"\b[A-Z]$", g) else g  # "Stephanie W" -> "Stephanie W."
+
+    def inverted(n):  # "Roger D. Woodard" -> "Woodard, Roger D."
+        words = n.split()
+        return f"{words[-1]}, {given(' '.join(words[:-1]))}" if len(words) > 1 else n
+
+    authors = []
+    for n in re.split(r"\s*(?:&|\band\b|;)\s*", written):
+        parts = [p.strip() for p in n.split(",") if p.strip()]
+        if not parts:
+            continue
+        if len(parts) == 1:
+            authors.append(inverted(parts[0]))
+            continue
+        # Surname first ("de Simone, Carlo"), then a suffix or further "Given Surname"s.
+        first = [parts[1]] + [p for p in parts[2:] if suffix.match(p)]
+        authors.append(f"{parts[0]}, {given(' '.join(first))}")
+        authors += [inverted(p) for p in parts[2:] if not suffix.match(p)]
+    # A trailing locator ("p. 359.", "§1.") is the claim's, not the chapter's.
+    cit = re.sub(r"[.,;]?\s+(?:pp?\.|§)\s*[\w–\-—, ()]+\.?$", "", citation.strip()).rstrip()
+    return {
+        "authors": authors,
+        "year": int(m["year"]),
+        "title": title,
+        "citation": cit if cit.endswith(".") else cit + ".",
+    }
+
+
+def run_chapters(run, review=None, reviewer=None) -> list[dict]:
+    """The chapter of an edited volume each imported claim of a run quotes, from the
+    researcher's citation of the assertion (the review's `chapters`, keyed by assertion,
+    overrides it; null drops one). Only maintainer-supplied holdings, whose one source
+    record names the volume, need them; a source registered for the chapter itself
+    needs none."""
+    from .registry import load_evidence
+    from .store import load_sources
+
+    run = Path(run)
+    review = review or json.loads((run / "coordinator-review/review.json").read_text())
+    reviewer = reviewer_name(reviewer)
+    overrides = review.get("chapters", {})
+    by = {r["id"]: r for r in rows(run)}
+    state = json.loads((run / "tools-state.json").read_text())["sources"]
+    sources = load_sources()
+    out = []
+    for c in load_evidence():
+        p = c.get("provenance") or {}
+        if Path(p.get("research_run") or "").name != run.name or p.get("assertion_id") not in by:
+            continue
+        a = by[p["assertion_id"]]
+        if not state.get(a["source_id"], {}).get("holding"):
+            continue
+        chapter = overrides.get(a["id"], chapter_of(a.get("citation") or ""))
+        if not chapter:
+            continue
+        source = sources.get(c["source_id"], {})
+        surnames = lambda xs: [x.split(",")[0].split()[-1].lower() for x in xs]
+        if surnames(chapter["authors"]) == surnames(source.get("authors") or []) and (
+            chapter["title"].lower() in (source.get("title") or "").lower()
+        ):
+            continue  # the source record is the chapter
+        out.append(
+            {
+                "claim_id": c["id"],
+                "source_id": c["source_id"],
+                **{k: chapter[k] for k in ("authors", "year", "title", "citation")},
+                "assertion": f"{run.name}/{a['id']}",
+                "reviewer": reviewer,
+            }
+        )
+    return out
+
+
+def record_chapters(run, review=None, reviewer=None, apply=False) -> dict:
+    """Write each claim's chapter to the ledger (kind `chapter`, keyed by claim)."""
+    from . import ledger
+
+    found = run_chapters(run, review, reviewer)
+    if apply and found:
+        ledger.append(
+            [{"kind": "chapter", "key": ch["claim_id"], "op": "put", "record": ch} for ch in found],
+            reason=f"chapters of edited volumes quoted by {Path(run).name}",
+        )
+    return {"applied": apply, "chapters": found}
+
+
 def publish(run, review_path=None) -> dict:
     """Packet, import, publish, adopt, publish, validate, export: one reviewed run."""
     from .periods import write_periods
@@ -249,6 +359,7 @@ def publish(run, review_path=None) -> dict:
     review = json.loads(Path(review_path or run / "coordinator-review/review.json").read_text())
     packet = write(build(run, review))
     imported = import_evidence(Path(packet["packet"]) / "claims.json")
+    chapters = record_chapters(run, review, apply=True)["chapters"]
     synthesize()
     adopted = adopt(review)
     synthesize()
@@ -262,6 +373,7 @@ def publish(run, review_path=None) -> dict:
     return {
         "packet": packet["packet"],
         "imported": imported["imported"],
+        "chapters": len(chapters),
         "adopted": adopted,
         "rejected": [r["decision"]["subject_id"] for r in rejected],
         "codes": len(periods),

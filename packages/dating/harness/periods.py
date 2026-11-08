@@ -250,8 +250,24 @@ def basis(claims, reconstructed):
     return "attested"
 
 
+class Attribution:
+    """Who a claim cites: its registered source, or the chapter of an edited volume
+    that the claim quotes (the ledger's `chapter` records), credited to the chapter's
+    authors and citation while the volume's identifiers are kept."""
+
+    def __init__(self, sources, chapters):
+        self.sources, self.chapters = sources, chapters
+
+    def of(self, claim):
+        source = self.sources.get(claim["source_id"], {})
+        ch = self.chapters.get(claim["id"])
+        if not ch:
+            return source
+        return {**source, **{k: ch[k] for k in ("authors", "year", "title", "citation")}}
+
+
 def evidence_entry(claim, sources):
-    source = sources.get(claim["source_id"], {})
+    source = sources.of(claim)
     span = (claim.get("spans") or [{}])[0]
     return {
         "claim_id": claim["id"],
@@ -539,14 +555,14 @@ def family_split(claim, sources):
         },
         "epoch": o.get("present") or (o.get("epoch_interpretation") or {}).get("epoch"),
         "analysis": claim.get("analysis_id"),
-        "source": short_source(sources.get(claim["source_id"], {})),
+        "source": short_source(sources.of(claim)),
         "role": claim["role"],
     }
 
 
 def export_periods(bundle, generation=None):
     claims = {c["id"]: c for c in bundle["claims"]}
-    sources = bundle["sources"]
+    sources = Attribution(bundle["sources"], bundle.get("chapters") or {})
     adopted = {}
     extra = {}  # reviewed alternative crown ages, shown beside a proto default
     for d in bundle["decisions"]:
