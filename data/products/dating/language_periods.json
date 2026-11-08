@@ -36703,7 +36703,7 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:fff5df92fe6ca543"
     }
   ],
-  "generation": "042499f7eb44371b80f4b25aee342d2ea0d4bccc76150a3bb0f2067a70379ce5",
+  "generation": "1e18064b36a64c29b66930f4ff0784bf5975561ce6ced56d92dc3505331249e6",
   "languages": [
     {
       "alternatives": [],
@@ -37971,6 +37971,13 @@
             "own": true
           },
           {
+            "basis": "last_speaker",
+            "code": "arc-cpa",
+            "label": "until c. 8th or 9th century CE",
+            "name": "Christian Palestinian Aramaic",
+            "own": false
+          },
+          {
             "basis": "conventional",
             "code": "arc-imp",
             "label": "600–200 BCE",
@@ -38008,16 +38015,16 @@
           {
             "basis": "conventional",
             "code": "tmr",
-            "label": "c. 200–900 CE",
+            "label": "3rd–11th century CE",
             "name": "Jewish Babylonian Aramaic",
             "own": false
           }
         ],
         "end": {
-          "earliest": 900,
-          "latest": 900
+          "earliest": 1001,
+          "latest": 1100
         },
-        "label": "c. 1000 or 950 BCE – 900 CE",
+        "label": "c. 1000 or 950 BCE – 11th century CE",
         "ongoing": false,
         "partial": true,
         "start": {
@@ -38026,7 +38033,6 @@
         },
         "undated": [
           "arc-bib",
-          "arc-cpa",
           "arc-hat",
           "arc-nab"
         ]
@@ -38038,6 +38044,75 @@
           "earliest": -999,
           "latest": 0
         }
+      }
+    },
+    {
+      "alternatives": [
+        {
+          "basis": "attested",
+          "citation": "Weninger, Stefan (ed.), in collaboration with Geoffrey Khan, Michael P. Streck and Janet C. E. Watson. 2011. The Semitic Languages: An International Handbook. Handbücher zur Sprach- und Kommunikationswissenschaft 36. Berlin and Boston: De Gruyter Mouton. Chapters cited: Bogdan Burtea, \"Mandaic\"; Abraham Tal, \"Samaritan Aramaic\"; Michael Sokoloff, \"Jewish Babylonian Aramaic\" and \"Jewish Palestinian Aramaic\"; Matthew Morgenstern, \"Christian Palestinian Aramaic\"; Charles G. Häberl, \"Neo-Mandaic\".",
+          "claim_id": "ev_period_c0ebaf03ec69b9c794ed638820d8427661cfb60a",
+          "end": {
+            "earliest": 1201,
+            "latest": 1300
+          },
+          "event": "literary_use",
+          "label": "c. 5th–13th century CE",
+          "locator": "{\"page\": \"628\", \"pdf_page\": 640, \"section\": \"1. Introduction\"}",
+          "method": "scholarly_description",
+          "quote": "the form of Palestinian Aramaic (PA) employed by the Christian Melkite community\nin Palestine from around the 5th to the 13th centuries.",
+          "role": "observation",
+          "source": "Stefan Weninger 2011",
+          "start": {
+            "earliest": 401,
+            "latest": 500
+          },
+          "url": "https://doi.org/10.1515/9783110251586"
+        },
+        {
+          "basis": "attested",
+          "citation": "Gzella, Holger. 2025. Christian Palestinian Aramaic between Greek and Arabic. In Aaron D. Hornkohl, Nadia Vidro, Janet C. E. Watson, Eleanor Coghill, Magdalen M. Connolly & Benjamin M. Outhwaite (eds.), Interconnected Traditions: Semitic Languages, Literatures, and Cultures—A Festschrift for Geoffrey Khan, Volume 1: Hebrew and the Wider Semitic World, 747–770. Cambridge, UK: Open Book Publishers. doi:10.11647/OBP.0463.27.",
+          "claim_id": "ev_period_2b41a9457d2c8f7be7d7f163a9b8522c199ccb1e",
+          "end": {
+            "earliest": 1300,
+            "latest": 1300
+          },
+          "event": "manuscript_production",
+          "label": "until 1300 CE",
+          "locator": "{\"page\": \"757\", \"pdf_page\": 792}",
+          "method": "scholarly_description",
+          "quote": "The manuscript transmission of \nChristian Palestinian Aramaic continued until the thirteenth cen-\ntury",
+          "role": "observation",
+          "source": "Holger Gzella 2025",
+          "start": null,
+          "url": "https://doi.org/10.11647/OBP.0463"
+        }
+      ],
+      "basis": "last_speaker",
+      "code": "arc-cpa",
+      "evidence": [
+        {
+          "citation": "Gzella, Holger. 2025. Christian Palestinian Aramaic between Greek and Arabic. In Aaron D. Hornkohl, Nadia Vidro, Janet C. E. Watson, Eleanor Coghill, Magdalen M. Connolly & Benjamin M. Outhwaite (eds.), Interconnected Traditions: Semitic Languages, Literatures, and Cultures—A Festschrift for Geoffrey Khan, Volume 1: Hebrew and the Wider Semitic World, 747–770. Cambridge, UK: Open Book Publishers. doi:10.11647/OBP.0463.27.",
+          "claim_id": "ev_period_66e881319ab4330d86d2aeba95f5080d43ed0fa9",
+          "event": "native_transmission_end",
+          "locator": "{\"page\": \"748\", \"pdf_page\": 783}",
+          "method": "expert_estimate",
+          "quote": "corpus of Christian Palestinian Aramaic exclusively consists of \ntranslations from Greek, which results in a substantial number of \nlexical borrowings. Its roots in a regional Aramaic vernacular, \nwhich was spoken until about the eighth or ninth century CE",
+          "role": "hypothesis",
+          "source": "Holger Gzella 2025",
+          "url": "https://doi.org/10.11647/OBP.0463"
+        }
+      ],
+      "kind": "stage",
+      "label": "until c. 8th or 9th century CE",
+      "name": "Christian Palestinian Aramaic",
+      "spoken": {
+        "end": {
+          "earliest": 701,
+          "latest": 900
+        },
+        "ongoing": false,
+        "start": null
       }
     },
     {
@@ -39542,6 +39617,38 @@
         },
         "ongoing": false,
         "start": null
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "conventional",
+      "code": "cmg",
+      "evidence": [
+        {
+          "citation": "Janhunen, Juha. 2003. Written Mongol. In Juha Janhunen (ed.), The Mongolic Languages (Routledge Language Family Series), 30–56. London: Routledge (first published 2003).",
+          "claim_id": "ev_period_da4e23e9cb3f8c2e919673e70b90ab58391fd642",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"32\", \"pdf_page\": 63, \"section\": \"Periodization\"}",
+          "method": "scholarly_description",
+          "quote": "The Classical period covers roughly the seventeenth to the nine-\nteenth centuries",
+          "role": "convention",
+          "source": "Juha Janhunen 2003",
+          "url": null
+        }
+      ],
+      "kind": "stage",
+      "label": "c. 17th–19th century CE",
+      "name": "Classical Mongolian",
+      "spoken": {
+        "end": {
+          "earliest": 1801,
+          "latest": 1900
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 1601,
+          "latest": 1700
+        }
       }
     },
     {
@@ -43234,7 +43341,26 @@
       }
     },
     {
-      "alternatives": [],
+      "alternatives": [
+        {
+          "basis": "attested",
+          "citation": "Fassberg, Steven E. 2021. Jewish Palestinian Aramaic: Chronology, Geography, and Typology. Aramaic Studies 19. doi:10.1163/17455227-bja10015. (Abstract.)",
+          "claim_id": "ev_period_861cb85a5561586504347e606963ccb201b3590c",
+          "end": null,
+          "event": "first_attestation",
+          "label": "from c. 3rd or 4th century CE",
+          "locator": "{\"page\": \"abstract\", \"pdf_page\": null, \"note\": \"article abstract (maintainer-supplied Zotero abstract), read offsets 0–873\"}",
+          "method": "scholarly_description",
+          "quote": "Jewish Palestinian Aramaic was the language of the Jews of Palestine and is identifiable from around the third or fourth centuries CE",
+          "role": "observation",
+          "source": "Steven E. Fassberg 2021",
+          "start": {
+            "earliest": 201,
+            "latest": 400
+          },
+          "url": "https://doi.org/10.1163/17455227-bja10015"
+        }
+      ],
       "basis": "conventional",
       "code": "jpa",
       "evidence": [
@@ -44475,6 +44601,78 @@
         },
         "ongoing": false,
         "start": null
+      }
+    },
+    {
+      "alternatives": [
+        {
+          "basis": "attested",
+          "citation": "Weninger, Stefan (ed.), in collaboration with Geoffrey Khan, Michael P. Streck and Janet C. E. Watson. 2011. The Semitic Languages: An International Handbook. Handbücher zur Sprach- und Kommunikationswissenschaft 36. Berlin and Boston: De Gruyter Mouton. Chapters cited: Bogdan Burtea, \"Mandaic\"; Abraham Tal, \"Samaritan Aramaic\"; Michael Sokoloff, \"Jewish Babylonian Aramaic\" and \"Jewish Palestinian Aramaic\"; Matthew Morgenstern, \"Christian Palestinian Aramaic\"; Charles G. Häberl, \"Neo-Mandaic\".",
+          "claim_id": "ev_period_acebf0d036a5bfa52d08c25b3c0488f6e7f0cf34",
+          "end": {
+            "earliest": 701,
+            "latest": 800
+          },
+          "event": "documentary_sampling",
+          "label": "3rd–8th century CE",
+          "locator": "{\"page\": \"671\", \"pdf_page\": 683, \"section\": \"1.2 Textual sources of Classical Mandaic\"}",
+          "method": "scholarly_description",
+          "quote": "The oldest Mandaic texts known are the short incantation formulae on magic bowls\nand on metal (lead, gold and silver) amulets which date to between the 3rd and 8th\ncenturies A.D.",
+          "role": "observation",
+          "source": "Stefan Weninger 2011",
+          "start": {
+            "earliest": 201,
+            "latest": 300
+          },
+          "url": "https://doi.org/10.1515/9783110251586"
+        },
+        {
+          "basis": "attested",
+          "citation": "Weninger, Stefan (ed.), in collaboration with Geoffrey Khan, Michael P. Streck and Janet C. E. Watson. 2011. The Semitic Languages: An International Handbook. Handbücher zur Sprach- und Kommunikationswissenschaft 36. Berlin and Boston: De Gruyter Mouton. Chapters cited: Bogdan Burtea, \"Mandaic\"; Abraham Tal, \"Samaritan Aramaic\"; Michael Sokoloff, \"Jewish Babylonian Aramaic\" and \"Jewish Palestinian Aramaic\"; Matthew Morgenstern, \"Christian Palestinian Aramaic\"; Charles G. Häberl, \"Neo-Mandaic\".",
+          "claim_id": "ev_period_0d07d5a89987be0c310fdda4c3d649957fd2a15f",
+          "end": null,
+          "event": "manuscript_production",
+          "label": "from 1529 CE",
+          "locator": "{\"page\": \"671\", \"pdf_page\": 683, \"section\": \"1.2\"}",
+          "method": "scholarly_description",
+          "quote": "the oldest Mandaic\nmanuscript dates to the beginning of the 16th century (Ms. Marsh 691 copied in 1529\nby Adam Zihrun)",
+          "role": "observation",
+          "source": "Stefan Weninger 2011",
+          "start": {
+            "earliest": 1529,
+            "latest": 1529
+          },
+          "url": "https://doi.org/10.1515/9783110251586"
+        }
+      ],
+      "basis": "conventional",
+      "code": "myz",
+      "evidence": [
+        {
+          "citation": "Weninger, Stefan (ed.), in collaboration with Geoffrey Khan, Michael P. Streck and Janet C. E. Watson. 2011. The Semitic Languages: An International Handbook. Handbücher zur Sprach- und Kommunikationswissenschaft 36. Berlin and Boston: De Gruyter Mouton. Chapters cited: Bogdan Burtea, \"Mandaic\"; Abraham Tal, \"Samaritan Aramaic\"; Michael Sokoloff, \"Jewish Babylonian Aramaic\" and \"Jewish Palestinian Aramaic\"; Matthew Morgenstern, \"Christian Palestinian Aramaic\"; Charles G. Häberl, \"Neo-Mandaic\".",
+          "claim_id": "ev_period_f4ef330785eb447650b9e2385e86588f3f88c6af",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"671\", \"pdf_page\": 683, \"section\": \"1.1\"}",
+          "method": "scholarly_description",
+          "quote": "Both Mandaic and the Jewish language of the Babylonian\nTalmud reached their peak in the period between the 3rd century and the rise of the\nIslam in the 7th century. In this period emerged the liturgical songs and prayers of the\noldest, poetical portion of Mandaic literature. The elaborate style and ‘pure’ grammati-\ncal features of the period recommend the term ‘Classical’ Mandaic.",
+          "role": "convention",
+          "source": "Stefan Weninger 2011",
+          "url": "https://doi.org/10.1515/9783110251586"
+        }
+      ],
+      "kind": "stage",
+      "label": "3rd–7th century CE",
+      "name": "Classical Mandaic",
+      "spoken": {
+        "end": {
+          "earliest": 601,
+          "latest": 700
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 201,
+          "latest": 300
+        }
       }
     },
     {
@@ -45778,6 +45976,57 @@
       }
     },
     {
+      "alternatives": [
+        {
+          "basis": "attested",
+          "citation": "van Gerven Oei, Vincent W. J. 2024. Old Nubian. In Solange Ashby & Willeke Wendrich (eds.), UCLA Encyclopedia of Egyptology. Los Angeles. ISSN 2693-7425. doi:10.5070/G9.3919 (Version 1, June 2024).",
+          "claim_id": "ev_period_139a25f19ceb48c04d104bb0f66b25e3199872a4",
+          "end": null,
+          "event": "first_attestation",
+          "label": "from 795 CE",
+          "locator": "{\"page\": \"2\", \"pdf_page\": 4}",
+          "method": "scholarly_description",
+          "quote": "The earliest \ndatable Old Nubian text is a graffito from Es-\nSebū‘ from 795 CE.",
+          "role": "observation",
+          "source": "Vincent W. J. van Gerven Oei 2024",
+          "start": {
+            "earliest": 795,
+            "latest": 795
+          },
+          "url": "https://doi.org/10.5070/g9.3919"
+        }
+      ],
+      "basis": "attested",
+      "code": "onw",
+      "evidence": [
+        {
+          "citation": "van Gerven Oei, Vincent W. J. 2024. Old Nubian. In Solange Ashby & Willeke Wendrich (eds.), UCLA Encyclopedia of Egyptology. Los Angeles. ISSN 2693-7425. doi:10.5070/G9.3919 (Version 1, June 2024).",
+          "claim_id": "ev_period_b4536b9988891769adf4c2371bb03b83aff88469",
+          "event": "documentary_sampling",
+          "locator": "{\"page\": \"1\", \"pdf_page\": 3}",
+          "method": "scholarly_description",
+          "quote": "literary language \nattested in texts from the Nubian \nkingdoms of Nobadia and Makuria \nin the Middle Nile Valley between the late \neighth and fifteenth centuries CE.",
+          "role": "observation",
+          "source": "Vincent W. J. van Gerven Oei 2024",
+          "url": "https://doi.org/10.5070/g9.3919"
+        }
+      ],
+      "kind": "attested",
+      "label": "8th–15th century CE",
+      "name": "Old Nubian",
+      "spoken": {
+        "end": {
+          "earliest": 1401,
+          "latest": 1500
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 701,
+          "latest": 800
+        }
+      }
+    },
+    {
       "alternatives": [],
       "basis": "conventional",
       "code": "orv",
@@ -46054,7 +46303,109 @@
       }
     },
     {
-      "alternatives": [],
+      "alternatives": [
+        {
+          "basis": "attested",
+          "citation": "Erdal, Marcel. 2004. A Grammar of Old Turkic. Handbook of Oriental Studies, Section 8: Central Asia, 3. Leiden: Brill. doi:10.1163/9789047403968.",
+          "claim_id": "ev_period_7faf841fe0f621e11464a47cd07657d6cf17568d",
+          "end": null,
+          "event": "first_attestation",
+          "label": "from 7th century CE",
+          "locator": "{\"page\": \"4\", \"pdf_page\": 12, \"section\": \"1.1\"}",
+          "method": "scholarly_description",
+          "quote": "The earliest of these documents have been \ndated into the first half of the 7th century; they are thus the earliest \nsources containing Old Turkic phrases",
+          "role": "observation",
+          "source": "Marcel Erdal 2004",
+          "start": {
+            "earliest": 601,
+            "latest": 700
+          },
+          "url": "https://doi.org/10.1163/9789047403968"
+        }
+      ],
+      "basis": "attested",
+      "code": "otk",
+      "evidence": [
+        {
+          "citation": "Erdal, Marcel. 2004. A Grammar of Old Turkic. Handbook of Oriental Studies, Section 8: Central Asia, 3. Leiden: Brill. doi:10.1163/9789047403968.",
+          "claim_id": "ev_period_10e6464922900fb08e14800d94aa70357d34414c",
+          "event": "documentary_sampling",
+          "locator": "{\"page\": \"6\", \"pdf_page\": 14, \"section\": \"1.2\"}",
+          "method": "scholarly_description",
+          "quote": "1) Two hundred odd inscriptions in the Old Turkic runiform script, \npresumably 7th to 10th century.",
+          "role": "observation",
+          "source": "Marcel Erdal 2004",
+          "url": "https://doi.org/10.1163/9789047403968"
+        }
+      ],
+      "kind": "attested",
+      "label": "c. 7th–10th century CE",
+      "name": "Old Turkic",
+      "span": {
+        "components": [
+          {
+            "basis": "attested",
+            "code": "otk",
+            "label": "c. 7th–10th century CE",
+            "name": "Old Turkic",
+            "own": true
+          },
+          {
+            "basis": "attested",
+            "code": "otk-ork",
+            "label": "from 8th century CE",
+            "name": "Orkhon Turkic",
+            "own": false
+          }
+        ],
+        "end": {
+          "earliest": 901,
+          "latest": 1000
+        },
+        "label": "c. 7th–10th century CE",
+        "ongoing": false,
+        "partial": true,
+        "start": {
+          "earliest": 601,
+          "latest": 700
+        },
+        "undated": [
+          "otk-kir"
+        ]
+      },
+      "spoken": {
+        "end": {
+          "earliest": 901,
+          "latest": 1000
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 601,
+          "latest": 700
+        }
+      }
+    },
+    {
+      "alternatives": [
+        {
+          "basis": "attested",
+          "citation": "Erdal, Marcel. 2004. A Grammar of Old Turkic. Handbook of Oriental Studies, Section 8: Central Asia, 3. Leiden: Brill. doi:10.1163/9789047403968.",
+          "claim_id": "ev_period_3969309359ffb93283c6c2ef5cae0e57d0d8b7f1",
+          "end": null,
+          "event": "first_attestation",
+          "label": "from c. 720 CE",
+          "locator": "{\"page\": \"4\", \"pdf_page\": 12, \"section\": \"1.1\"}",
+          "method": "scholarly_description",
+          "quote": "The earliest readable, understandable and datable Turkic texts are the \nofficial inscriptions of the second Turk kaghanate, the Orkhon \ninscriptions, the first of which appears to have been from slightly before \n720 A.D.",
+          "role": "observation",
+          "source": "Marcel Erdal 2004",
+          "start": {
+            "earliest": null,
+            "latest": 720
+          },
+          "url": "https://doi.org/10.1163/9789047403968"
+        }
+      ],
       "basis": "attested",
       "code": "otk-ork",
       "evidence": [
@@ -46127,6 +46478,35 @@
         "start": {
           "earliest": -253,
           "latest": -253
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "attested",
+      "code": "oui",
+      "evidence": [
+        {
+          "citation": "Erdal, Marcel. 2004. A Grammar of Old Turkic. Handbook of Oriental Studies, Section 8: Central Asia, 3. Leiden: Brill. doi:10.1163/9789047403968.",
+          "claim_id": "ev_period_734e40946be1a52a39533a23d2005678147f3628",
+          "event": "first_attestation",
+          "locator": "{\"page\": \"7\", \"pdf_page\": 15, \"section\": \"1.2\"}",
+          "method": "scholarly_description",
+          "quote": "2) Old Uygur9 manuscripts from the eastern part of present-day \nXinjiang and Gansu (China), from the 9th century on",
+          "role": "observation",
+          "source": "Marcel Erdal 2004",
+          "url": "https://doi.org/10.1163/9789047403968"
+        }
+      ],
+      "kind": "attested",
+      "label": "from 9th century CE",
+      "name": "Old Uyghur",
+      "spoken": {
+        "end": null,
+        "ongoing": false,
+        "start": {
+          "earliest": 801,
+          "latest": 900
         }
       }
     },
@@ -47776,6 +48156,68 @@
       }
     },
     {
+      "alternatives": [
+        {
+          "basis": "attested",
+          "citation": "Weninger, Stefan (ed.), in collaboration with Geoffrey Khan, Michael P. Streck and Janet C. E. Watson. 2011. The Semitic Languages: An International Handbook. Handbücher zur Sprach- und Kommunikationswissenschaft 36. Berlin and Boston: De Gruyter Mouton. Chapters cited: Bogdan Burtea, \"Mandaic\"; Abraham Tal, \"Samaritan Aramaic\"; Michael Sokoloff, \"Jewish Babylonian Aramaic\" and \"Jewish Palestinian Aramaic\"; Matthew Morgenstern, \"Christian Palestinian Aramaic\"; Charles G. Häberl, \"Neo-Mandaic\".",
+          "claim_id": "ev_period_7dadb6714f1587cefd2ce37d688fe2097655e76e",
+          "end": {
+            "earliest": 1000,
+            "latest": 1000
+          },
+          "event": "literary_use",
+          "label": "until 1000 CE",
+          "locator": "{\"page\": \"620\", \"pdf_page\": 632, \"section\": \"Abstract\"}",
+          "method": "scholarly_description",
+          "quote": "Aramaic continued to be com-\nmonly used as a written language until the 10th century C.E., and appears sporadically\nin later liturgical compositions.",
+          "role": "observation",
+          "source": "Stefan Weninger 2011",
+          "start": null,
+          "url": "https://doi.org/10.1515/9783110251586"
+        }
+      ],
+      "basis": "last_speaker",
+      "code": "sam",
+      "evidence": [
+        {
+          "citation": "Weninger, Stefan (ed.), in collaboration with Geoffrey Khan, Michael P. Streck and Janet C. E. Watson. 2011. The Semitic Languages: An International Handbook. Handbücher zur Sprach- und Kommunikationswissenschaft 36. Berlin and Boston: De Gruyter Mouton. Chapters cited: Bogdan Burtea, \"Mandaic\"; Abraham Tal, \"Samaritan Aramaic\"; Michael Sokoloff, \"Jewish Babylonian Aramaic\" and \"Jewish Palestinian Aramaic\"; Matthew Morgenstern, \"Christian Palestinian Aramaic\"; Charles G. Häberl, \"Neo-Mandaic\".",
+          "claim_id": "ev_period_22e9e4f1068adb812e32e7205b031d2e72422d58",
+          "event": "first_attestation",
+          "locator": "{\"page\": \"620\", \"pdf_page\": 632, \"section\": \"1.3 Documents\"}",
+          "method": "scholarly_description",
+          "quote": "The earliest extant Samaritan Aramaic documents date to the 4th century C.E.",
+          "role": "observation",
+          "source": "Stefan Weninger 2011",
+          "url": "https://doi.org/10.1515/9783110251586"
+        },
+        {
+          "citation": "Ben-Ḥayyim, Ze'ev, with assistance from Abraham Tal. 2000. A Grammar of Samaritan Hebrew: Based on the Recitation of the Law in Comparison with the Tiberian and Other Jewish Traditions. Revised edition in English. Jerusalem: The Hebrew University Magnes Press; Winona Lake, IN: Eisenbrauns. ISBN 1-57506-047-7.",
+          "claim_id": "ev_period_3a46cf20bcd0696baaf62fcd8833ccdd4fe82dde",
+          "event": "native_transmission_end",
+          "locator": "{\"page\": \"29\", \"pdf_page\": 48, \"section\": \"1.0.1\"}",
+          "method": "expert_estimate",
+          "quote": "since Aramaic ceased being spoken by the Samaritans —\nat about the end of the tenth century and the onset of the eleventh",
+          "role": "hypothesis",
+          "source": "Ze'ev Ben-Ḥayyim & Abraham Tal 2000",
+          "url": null
+        }
+      ],
+      "kind": "stage",
+      "label": "c. 4th – 10th or 11th century CE",
+      "name": "Samaritan Aramaic",
+      "spoken": {
+        "end": {
+          "earliest": 901,
+          "latest": 1100
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 301,
+          "latest": 400
+        }
+      }
+    },
+    {
       "alternatives": [],
       "basis": "attested",
       "code": "scn-old",
@@ -49045,34 +49487,77 @@
       }
     },
     {
-      "alternatives": [],
-      "basis": "conventional",
-      "code": "tmr",
-      "evidence": [
+      "alternatives": [
         {
+          "basis": "attested",
+          "citation": "Weninger, Stefan (ed.), in collaboration with Geoffrey Khan, Michael P. Streck and Janet C. E. Watson. 2011. The Semitic Languages: An International Handbook. Handbücher zur Sprach- und Kommunikationswissenschaft 36. Berlin and Boston: De Gruyter Mouton. Chapters cited: Bogdan Burtea, \"Mandaic\"; Abraham Tal, \"Samaritan Aramaic\"; Michael Sokoloff, \"Jewish Babylonian Aramaic\" and \"Jewish Palestinian Aramaic\"; Matthew Morgenstern, \"Christian Palestinian Aramaic\"; Charles G. Häberl, \"Neo-Mandaic\".",
+          "claim_id": "ev_period_3edf0d7183c4a0d61360a51b6e86a8c0a4966f59",
+          "end": {
+            "earliest": 1001,
+            "latest": 1100
+          },
+          "event": "documentary_sampling",
+          "label": "3rd–11th century CE",
+          "locator": "{\"page\": \"660\", \"pdf_page\": 672, \"section\": \"Abstract\"}",
+          "method": "scholarly_description",
+          "quote": "This chapter discusses salient features of the grammar and vocabulary of Jewish Babylo-\nnian Aramaic as written from the 3rd to the 11th century.",
+          "role": "observation",
+          "source": "Stefan Weninger 2011",
+          "start": {
+            "earliest": 201,
+            "latest": 300
+          },
+          "url": "https://doi.org/10.1515/9783110251586"
+        },
+        {
+          "basis": "conventional",
           "citation": "Damsma, Alinda. 2018. “The Aramaic of the Zohar: The Status Quaestionis.” In Lily Kahn (ed.), Jewish Languages in Historical Perspective (IJS Studies in Judaica), pp. 9–38. Leiden: Brill. Submitted author manuscript retained at UCL, numbered p. 1, note 1; final typeset pagination not inspected.",
           "claim_id": "ev_period_b4e09d7edf9fd58b701205c2d3d25414e9ecdc56",
+          "end": {
+            "earliest": 900,
+            "latest": 900
+          },
           "event": "conventional_period",
+          "label": "c. 200–900 CE",
           "locator": "{\"page\": \"1 (submitted manuscript pagination), note 1; published chapter pp. 9–38\", \"pdf_page\": 1}",
           "method": "scholarly_periodization",
           "quote": "JBA = Jewish Babylonian Aramaic. This dialect was used in Babylonia from about 200 CE until 900 CE (one of \nits sub-dialects is BTA= Babylonian Talmudic Aramaic, the main dialect employed in the Babylonian Talmud).",
           "role": "convention",
           "source": "Damsma 2018",
+          "start": {
+            "earliest": 200,
+            "latest": 200
+          },
           "url": "https://discovery.ucl.ac.uk/10088406/1/The%20Aramaic%20of%20the%20Zohar.pdf"
         }
       ],
+      "basis": "conventional",
+      "code": "tmr",
+      "evidence": [
+        {
+          "citation": "Sokoloff, Michael. 2002. A Dictionary of Jewish Babylonian Aramaic of the Talmudic and Geonic Periods. Ramat-Gan: Bar Ilan University Press; Baltimore/London: Johns Hopkins University Press. ISBN 0-8018-7233-2.",
+          "claim_id": "ev_period_57c3fb65294dc79805c49ea00622639fee60a59e",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"13\", \"pdf_page\": 12, \"section\": \"Introduction 0.1\"}",
+          "method": "scholarly_description",
+          "quote": "Jewish Babylonian Aramaic• was the spoken and written language of the Jewish \ncommunities in parts of what are today Iraq and Iran during the Sasanian and post-Sasanian \nPeriods (3rd- 11th cents. CE)",
+          "role": "convention",
+          "source": "Michael Sokoloff 2002",
+          "url": "https://doi.org/10.56021/9780801872334"
+        }
+      ],
       "kind": "stage",
-      "label": "c. 200–900 CE",
+      "label": "3rd–11th century CE",
       "name": "Jewish Babylonian Aramaic",
       "spoken": {
         "end": {
-          "earliest": 900,
-          "latest": 900
+          "earliest": 1001,
+          "latest": 1100
         },
         "ongoing": false,
         "start": {
-          "earliest": 200,
-          "latest": 200
+          "earliest": 201,
+          "latest": 300
         }
       }
     },
@@ -51382,34 +51867,67 @@
       }
     },
     {
-      "alternatives": [],
-      "basis": "attested",
-      "code": "xmr",
-      "evidence": [
+      "alternatives": [
         {
+          "basis": "attested",
           "citation": "Rilly, Claude, and Alex de Voogt. 2012. The Meroitic Language and Writing System. Cambridge: Cambridge University Press. DOI: 10.1017/CBO9780511920028. Repository abstract, HAL halshs-01482445, deposited 2017.",
           "claim_id": "ev_period_a43ebd002b97a16ab9a4900b705610e7abffc9bd",
+          "end": {
+            "earliest": 400,
+            "latest": 400
+          },
           "event": "documentary_sampling",
+          "label": "c. 300 BCE – 400 CE",
           "locator": "{\"start\": 11039, \"end\": 11240, \"section\": \"HAL repository abstract\"}",
           "method": "secondary_report",
           "quote": "This book provides an introduction to the Meroitic language and writing system, which was used between circa 300 BC and AD 400 in the Kingdom of Meroe, located in what is now Sudan and Egyptian Nubia. ",
           "role": "observation",
           "source": "Rilly 2012",
+          "start": {
+            "earliest": -299,
+            "latest": -299
+          },
           "url": "https://shs.hal.science/halshs-01482445"
         }
       ],
+      "basis": "attested",
+      "code": "xmr",
+      "evidence": [
+        {
+          "citation": "Rilly, Claude & Alex de Voogt. 2012. The Meroitic Language and Writing System. Cambridge: Cambridge University Press. doi:10.1017/CBO9780511920028.",
+          "claim_id": "ev_period_1114dddd32a48e5ee6f88bcf3de0874cef8f7567",
+          "event": "first_attestation",
+          "locator": "{\"page\": \"6\", \"pdf_page\": 20}",
+          "method": "scholarly_description",
+          "quote": "From the second century BC onward, the development of the language \ncan be traced in its entirety through the Meroitic writing system.",
+          "role": "observation",
+          "source": "Claude Rilly & Alex de Voogt 2012",
+          "url": "https://doi.org/10.1017/cbo9780511920028"
+        },
+        {
+          "citation": "Rilly, Claude & Alex de Voogt. 2012. The Meroitic Language and Writing System. Cambridge: Cambridge University Press. doi:10.1017/CBO9780511920028.",
+          "claim_id": "ev_period_501c70fc03c1286c4e330ef4c4bf761e917fdb66",
+          "event": "last_attestation",
+          "locator": "{\"page\": \"8\", \"pdf_page\": 22}",
+          "method": "scholarly_description",
+          "quote": "is considered the latest attestation of Meroitic writing. It was \nthought to date to the fourth century, but a new analysis of the succes-\nsion of kings (see FHN III: 1103–1107) by László Török has now placed the \ninscription around AD 420.",
+          "role": "observation",
+          "source": "Claude Rilly & Alex de Voogt 2012",
+          "url": "https://doi.org/10.1017/cbo9780511920028"
+        }
+      ],
       "kind": "attested",
-      "label": "c. 300 BCE – 400 CE",
+      "label": "c. 2nd century BCE – 420 CE",
       "name": "Meroitic",
       "spoken": {
         "end": {
-          "earliest": 400,
-          "latest": 400
+          "earliest": 420,
+          "latest": 420
         },
         "ongoing": false,
         "start": {
-          "earliest": -299,
-          "latest": -299
+          "earliest": -199,
+          "latest": -100
         }
       }
     },
@@ -51671,6 +52189,38 @@
     },
     {
       "alternatives": [],
+      "basis": "attested",
+      "code": "xpm",
+      "evidence": [
+        {
+          "citation": "Vajda, Edward. 2024. The Yeniseian language family. In Edward Vajda (ed.), The Languages and Linguistics of Northern Asia, Volume 1: Language Families (The World of Linguistics 10.1), 365–480. Berlin/Boston: De Gruyter Mouton. ISBN 978-3-11-055403-8.",
+          "claim_id": "ev_period_d5966567fb40f4674a9c2bcb5d0da43344eaefee",
+          "event": "documentary_sampling",
+          "locator": "{\"page\": \"366\", \"pdf_page\": 381, \"section\": \"8.1\"}",
+          "method": "scholarly_description",
+          "quote": "Arin, Pumpokol, and Assan were documented only in the 1730s.",
+          "role": "observation",
+          "source": "Edward Vajda 2024",
+          "url": null
+        }
+      ],
+      "kind": "attested",
+      "label": "1730–1739 CE",
+      "name": "Pumpokol",
+      "spoken": {
+        "end": {
+          "earliest": 1739,
+          "latest": 1739
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 1730,
+          "latest": 1730
+        }
+      }
+    },
+    {
+      "alternatives": [],
       "basis": "last_speaker",
       "code": "xpq",
       "evidence": [
@@ -51817,7 +52367,29 @@
       }
     },
     {
-      "alternatives": [],
+      "alternatives": [
+        {
+          "basis": "attested",
+          "citation": "Vajda, Edward. 2024. The Yeniseian language family. In Edward Vajda (ed.), The Languages and Linguistics of Northern Asia, Volume 1: Language Families (The World of Linguistics 10.1), 365–480. Berlin/Boston: De Gruyter Mouton. ISBN 978-3-11-055403-8.",
+          "claim_id": "ev_period_fd57a6c8cf60fb886aafeb3372f9eda882d8af0f",
+          "end": {
+            "earliest": 1739,
+            "latest": 1739
+          },
+          "event": "documentary_sampling",
+          "label": "1730–1739 CE",
+          "locator": "{\"page\": \"366\", \"pdf_page\": 381, \"section\": \"8.1\"}",
+          "method": "scholarly_description",
+          "quote": "Arin, Pumpokol, and Assan were documented only in the 1730s.",
+          "role": "observation",
+          "source": "Edward Vajda 2024",
+          "start": {
+            "earliest": 1730,
+            "latest": 1730
+          },
+          "url": null
+        }
+      ],
       "basis": "last_speaker",
       "code": "xrn",
       "evidence": [
@@ -52226,7 +52798,7 @@
     },
     {
       "alternatives": [],
-      "basis": "attested",
+      "basis": "last_speaker",
       "code": "yug",
       "evidence": [
         {
@@ -52239,13 +52811,27 @@
           "role": "observation",
           "source": "Fries 2024",
           "url": "https://kups.ub.uni-koeln.de/79569/1/dia.23030.fri.pdf"
+        },
+        {
+          "citation": "Vajda, Edward. 2024. The Yeniseian language family. In Edward Vajda (ed.), The Languages and Linguistics of Northern Asia, Volume 1: Language Families (The World of Linguistics 10.1), 365–480. Berlin/Boston: De Gruyter Mouton. ISBN 978-3-11-055403-8.",
+          "claim_id": "ev_period_de1d179472fb6ef7ab8e5d54d9c324a4efa92a29",
+          "event": "native_transmission_end",
+          "locator": "{\"page\": \"366\", \"pdf_page\": 381, \"section\": \"8.1\"}",
+          "method": "expert_estimate",
+          "quote": "Yugh survived into the 20th century in \nthe villages of Vorogovo and Yartsevo, located on the Yenisei upriver from the southern-\nmost Kets, losing its last known fluent speaker by 1972.",
+          "role": "hypothesis",
+          "source": "Edward Vajda 2024",
+          "url": null
         }
       ],
-      "kind": "attested",
-      "label": "from 18th century CE",
+      "kind": "stage",
+      "label": "18th century – 1972 CE",
       "name": "Yug",
       "spoken": {
-        "end": null,
+        "end": {
+          "earliest": null,
+          "latest": 1972
+        },
         "ongoing": false,
         "start": {
           "earliest": 1701,
