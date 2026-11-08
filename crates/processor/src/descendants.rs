@@ -129,7 +129,7 @@ fn desc_line(string_pool: &mut StringPool, node: &Json) -> RawDescLineKind {
             .get_valid_str("1")
             .and_then(|code| Lang::from_str(code).ok())
     {
-        let (terms, modes): (Vec<_>, Vec<_>) = (2..)
+        let (mut terms, mut modes): (Vec<_>, Vec<_>) = (2..)
             .map_while(|n| args.get_str(n.to_string().as_str()).map(|t| (n - 1, t)))
             .filter_map(|(i, term)| {
                 let term = clean_template_term(term.trim());
@@ -137,6 +137,25 @@ fn desc_line(string_pool: &mut StringPool, node: &Json) -> RawDescLineKind {
                     .then(|| (Term::new(string_pool, term), desc_mode(args, i)))
             })
             .unzip();
+        // further forms the line links in the same language:
+        // "{{desc|be|обро́ць|абро́ць}}; {{l|be|абро́т|g=m}}", with the line's flags
+        for link in calls
+            .iter()
+            .filter(|c| {
+                c.get_str("name")
+                    .is_some_and(|n| LINK_TEMPLATES.contains(&n))
+            })
+            .filter_map(|c| c.get("args"))
+            .filter(|a| a.get_valid_str("1") == Some(lang.code()))
+        {
+            if let Some(term) = link.get_valid_term("2") {
+                let term = Term::new(string_pool, term);
+                if !terms.contains(&term) {
+                    terms.push(term);
+                    modes.push(desc_mode(args, 0));
+                }
+            }
+        }
         if terms.is_empty() {
             return RawDescLineKind::BareLang { lang };
         }
@@ -501,6 +520,19 @@ mod tests {
             [EtyMode::Inherited, EtyMode::LearnedBorrowing]
         );
         assert_eq!(modes(&lines[4]), [EtyMode::MorphologicalDerivation]);
+    }
+
+    #[test]
+    fn forms_a_desc_line_links_are_its_terms_too() {
+        let (sp, lines) = lines(
+            r#"{"pos": [{"descendants": [
+                {"text": "Belarusian: обро́ць, абро́ць; абро́т", "calls": [
+                    {"name": "desc", "args": {"1": "be", "2": "обро́ць", "3": "абро́ць"}},
+                    {"name": "l", "args": {"1": "be", "2": "абро́т", "g": "m"}},
+                    {"name": "l", "args": {"1": "ru", "2": "оброть"}}]}
+            ]}]}"#,
+        );
+        assert_eq!(terms(&sp, &lines[0]), ["обро́ць", "абро́ць", "абро́т"]);
     }
 
     #[test]
