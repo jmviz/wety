@@ -1,7 +1,7 @@
 #[global_allocator]
 static ALLOC: snmalloc_rs::SnMalloc = snmalloc_rs::SnMalloc;
 
-use processor::{ClaimsSource, embeddings, process_wiktextract};
+use processor::{ClaimsSource, embeddings, process_entries};
 
 use std::{path::PathBuf, time::Instant};
 
@@ -12,13 +12,12 @@ use indicatif::HumanDuration;
 #[derive(Parser)]
 #[clap(author, version, about, long_about = None)]
 pub struct Args {
-    #[clap(
-        short = 'w',
-        long,
-        default_value = "data/artifacts/wiktextract/legacy/files/raw-wiktextract-data.jsonl.gz",
-        value_parser
-    )]
-    wiktextract_path: PathBuf,
+    /// wety's entries of Wiktionary (`wiktionary-entries --out`)
+    #[clap(long, value_parser)]
+    entries: PathBuf,
+    /// The dump's redirects (`wiktionary-entries --redirects`)
+    #[clap(long, value_parser)]
+    redirects: Option<PathBuf>,
     #[clap(
         short = 's',
         long,
@@ -28,7 +27,7 @@ pub struct Args {
     serialization_path: PathBuf,
     #[clap(short = 't', long, value_parser)]
     turtle_path: Option<PathBuf>,
-    /// Page titles of cited terms (packages/source_tools/entry_names.py)
+    /// The entry names mentions link to (`wiktionary-entries --entry-names`)
     #[clap(short = 'e', long, value_parser)]
     entry_names: Option<PathBuf>,
     /// Each References section's credits (the wiktionary_references workflow)
@@ -68,8 +67,9 @@ fn main() -> Result<()> {
         batch_size: args.embeddings_batch_size,
         cache_path: args.embeddings_cache_path,
     };
-    process_wiktextract(
-        &args.wiktextract_path,
+    process_entries(
+        &args.entries,
+        args.redirects.as_deref(),
         &args.serialization_path,
         args.turtle_path.as_deref(),
         args.entry_names.as_deref(),

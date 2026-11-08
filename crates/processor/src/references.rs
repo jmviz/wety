@@ -7,8 +7,8 @@
 // from.
 
 use crate::{
+    entries::EntryPos,
     items::{Items, intern},
-    wiktextract_json::{WiktextractJsonItem, WiktextractJsonValidStr},
 };
 
 use wety_core::{
@@ -18,7 +18,6 @@ use wety_core::{
 };
 
 use std::{
-    borrow::Cow,
     fs::File,
     io::{BufRead, BufReader},
     path::Path,
@@ -110,27 +109,16 @@ impl References {
         self.items.len()
     }
 
-    // The sections covering the line an item was read from: those of its
+    // The sections covering the entry an item was read from: those of its
     // page and language, under its etymology or beside them all.
-    pub(crate) fn cover(&mut self, item: ItemId, json_item: &WiktextractJsonItem) {
-        let (Some(word), Some(lang)) = (
-            json_item.json.get_valid_str("word"),
-            json_item.json.get_valid_str("lang"),
-        ) else {
+    pub(crate) fn cover(&mut self, item: ItemId, entry: &EntryPos) {
+        let (Some(page), Some(lang)) = (entry.page(), entry.lang_heading()) else {
             return;
         };
-        let page = if json_item.is_reconstructed() {
-            Cow::Owned(format!(
-                "Reconstruction:{lang}/{}",
-                word.trim_start_matches('*')
-            ))
-        } else {
-            Cow::Borrowed(word)
-        };
-        let Some(sections) = self.sections.get(&*page) else {
+        let Some(sections) = self.sections.get(page) else {
             return;
         };
-        let label = json_item.get_ety_label();
+        let label = entry.get_ety_label();
         for (n, (heading, ety, credits)) in sections.iter().enumerate() {
             if &**heading == lang && (ety.is_none() || ety.as_deref() == label.as_deref()) {
                 let found = self.items.entry(item).or_default();
@@ -139,7 +127,7 @@ impl References {
                         found.push(credit.clone());
                     }
                 }
-                self.covering.insert(((*page).into(), n));
+                self.covering.insert((page.into(), n));
             }
         }
     }

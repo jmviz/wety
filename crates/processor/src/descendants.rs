@@ -1,10 +1,10 @@
 use crate::{
     HashSet,
     embeddings::Embeddings,
+    entries::{EntryPos, Json, JsonStr, clean_template_term},
     items::Items,
     progress_bar,
     resolve::{Citation, Relation, Resolution},
-    wiktextract_json::{WiktextractJson, WiktextractJsonItem, WiktextractJsonValidStr},
 };
 use wety_core::{
     assertions::Asserted,
@@ -77,118 +77,159 @@ struct RawDesc {
     terms: Box<[Term]>,
     modes: Box<[EtyMode]>,
 }
-impl WiktextractJsonItem<'_> {
+impl EntryPos<'_> {
+    /// The Descendants section under this part of speech.
     pub(crate) fn get_descendants(&self, string_pool: &mut StringPool) -> Option<RawDescendants> {
-        let json_descendants = self.json.get_array("descendants")?;
-        let mut descendants: Vec<RawDescLine> = vec![];
-        flatten_desc_nodes(string_pool, json_descendants, 1, &mut descendants);
-        (!descendants.is_empty()).then_some(())?;
-        Some(descendants.into())
+        lines_of(string_pool, self.pos.get_array("descendants")?)
+    }
+
+    /// The Descendants section beside the parts of speech, for the whole entry.
+    pub(crate) fn get_entry_descendants(
+        &self,
+        string_pool: &mut StringPool,
+    ) -> Option<RawDescendants> {
+        lines_of(string_pool, self.entry.get_array("descendants")?)
     }
 }
 
-// Wiktextract gives a Descendants section as a tree with one node per term.
-// A line naming several terms, e.g. "{{desc|enm|lam|lame}}", becomes sibling
-// nodes that each carry a copy of the line's sub-lines. We flatten the tree
-// back into lines with depths, regrouping such siblings into one multi-term
-// line so that the shared sub-lines hang only from its first term.
-fn flatten_desc_nodes(
-    string_pool: &mut StringPool,
-    nodes: &[WiktextractJson],
-    depth: u8,
-    lines: &mut Vec<RawDescLine>,
-) {
-    let mut i = 0;
-    while i < nodes.len() {
-        let mut j = i + 1;
-        while j < nodes.len() && same_desc_line(&nodes[i], &nodes[j]) {
-            j += 1;
+// The entries give a Descendants section as a tree of list items, each with its
+// text, its template calls and its links.
+fn lines_of(string_pool: &mut StringPool, nodes: &[Json]) -> Option<RawDescendants> {
+    let mut lines = vec![];
+    flatten(string_pool, nodes, 1, &mut lines);
+    (!lines.is_empty()).then(|| lines.into())
+}
+
+fn flatten(string_pool: &mut StringPool, nodes: &[Json], depth: u8, lines: &mut Vec<RawDescLine>) {
+    for node in nodes {
+        lines.push(RawDescLine {
+            depth,
+            kind: desc_line(string_pool, node),
+        });
+        if let Some(children) = node.get_array("children") {
+            flatten(string_pool, children, depth.saturating_add(1), lines);
         }
-        lines.push(process_json_desc_line(string_pool, &nodes[i..j], depth));
-        if let Some(children) = nodes[i].get_array("descendants") {
-            flatten_desc_nodes(string_pool, children, depth.saturating_add(1), lines);
-        }
-        i = j;
     }
 }
 
-// Only siblings with identical, non-empty sub-lines are taken to be one line:
-// childless siblings in the same language are as often separate lines (e.g.
-// the list of derivations on a PIE root page).
-fn same_desc_line(a: &WiktextractJson, b: &WiktextractJson) -> bool {
-    a.get_valid_term("word").is_some()
-        && b.get_valid_term("word").is_some()
-        && a.get_str("lang_code") == b.get_str("lang_code")
-        && a.get_array("descendants").is_some_and(|c| !c.is_empty())
-        && a.get("descendants") == b.get("descendants")
-}
+const DESC_TEMPLATES: [&str; 4] = ["desc", "descendant", "desctree", "descendants tree"];
+const LINK_TEMPLATES: [&str; 3] = ["l", "link", "ll"];
 
-fn process_json_desc_line(
-    string_pool: &mut StringPool,
-    nodes: &[WiktextractJson],
-    depth: u8,
-) -> RawDescLine {
-    let first = &nodes[0];
-    let lang = first
-        .get_valid_str("lang_code")
-        .and_then(|code| Lang::from_str(code).ok());
-    let kind = match (lang, first.get_valid_term("word")) {
-        (Some(lang), Some(_)) => {
-            let (terms, modes): (Vec<_>, Vec<_>) = nodes
-                .iter()
-                .filter_map(|node| {
-                    let term = Term::new(string_pool, node.get_valid_term("word")?);
-                    Some((term, get_desc_mode(node)))
-                })
-                .unzip();
-            let desc = RawDesc {
-                lang,
-                terms: terms.into_boxed_slice(),
-                modes: modes.into_boxed_slice(),
-            };
-            RawDescLineKind::Desc { desc }
+fn desc_line(string_pool: &mut StringPool, node: &Json) -> RawDescLineKind {
+    let calls = node
+        .get_array("calls")
+        .map(Vec::as_slice)
+        .unwrap_or_default();
+    // {{desc|enm|lam|lame|bor=1}}: a language, its terms, each with its mode
+    if let Some(call) = calls.iter().find(|c| {
+        c.get_str("name")
+            .is_some_and(|n| DESC_TEMPLATES.contains(&n))
+    }) && let Some(args) = call.get("args")
+        && let Some(lang) = args
+            .get_valid_str("1")
+            .and_then(|code| Lang::from_str(code).ok())
+    {
+        let (terms, modes): (Vec<_>, Vec<_>) = (2..)
+            .map_while(|n| args.get_str(n.to_string().as_str()).map(|t| (n - 1, t)))
+            .filter_map(|(i, term)| {
+                let term = clean_template_term(term.trim());
+                (!term.is_empty() && term != "-")
+                    .then(|| (Term::new(string_pool, term), desc_mode(args, i)))
+            })
+            .unzip();
+        if terms.is_empty() {
+            return RawDescLineKind::BareLang { lang };
         }
-        // e.g. {{desc|osp|-}}, or a family heading like "East Slavic"
-        (Some(lang), None) => RawDescLineKind::BareLang { lang },
-        // headings without a language, e.g. "Unsorted formations",
-        // "Borrowings"; Wiktextract gives these lang_code "unknown"
-        (None, None) => match first.get_valid_str("lang") {
-            Some(text) => RawDescLineKind::BareText {
-                text: Gloss::new(string_pool, text),
+        let desc = RawDesc {
+            lang,
+            terms: terms.into_boxed_slice(),
+            modes: modes.into_boxed_slice(),
+        };
+        return RawDescLineKind::Desc { desc };
+    }
+    // * {{l|en|foo}}
+    if let Some(call) = calls.iter().find(|c| {
+        c.get_str("name")
+            .is_some_and(|n| LINK_TEMPLATES.contains(&n))
+    }) && let Some(args) = call.get("args")
+        && let Some(lang) = args
+            .get_valid_str("1")
+            .and_then(|code| Lang::from_str(code).ok())
+        && let Some(term) = args.get_valid_term("2")
+    {
+        let desc = RawDesc {
+            lang,
+            terms: vec![Term::new(string_pool, term)].into_boxed_slice(),
+            modes: vec![EtyMode::Inherited].into_boxed_slice(),
+        };
+        return RawDescLineKind::Desc { desc };
+    }
+    let text = node.get_str("text").unwrap_or_default().trim();
+    // An item another page's {{desctree}} drew: its links name the terms (the
+    // pages Wiktionary computed for them), the anchors their language; "→" marks
+    // a borrowing.
+    if calls.is_empty()
+        && let Some(links) = node.get_array("links")
+        && let Some(anchor) = links.first().and_then(|l| l.get_str("anchor"))
+        && let Some(lang) = Lang::from_name(anchor).ok()
+    {
+        let mode = if text.starts_with('→') {
+            EtyMode::Borrowed
+        } else {
+            EtyMode::Inherited
+        };
+        let terms: Vec<Term> = links
+            .iter()
+            .filter(|l| l.get_str("anchor") == Some(anchor))
+            .filter_map(|l| l.get_valid_term("page"))
+            .map(|page| Term::new(string_pool, page))
+            .collect();
+        let modes = vec![mode; terms.len()];
+        let desc = RawDesc {
+            lang,
+            terms: terms.into_boxed_slice(),
+            modes: modes.into_boxed_slice(),
+        };
+        return RawDescLineKind::Desc { desc };
+    }
+    // headings: a language or family ("Old French:"), or text ("Unsorted
+    // formations")
+    let heading = text.trim_end_matches(':').trim();
+    if calls.is_empty() && !heading.is_empty() {
+        return match Lang::from_name(heading).ok() {
+            Some(lang) => RawDescLineKind::BareLang { lang },
+            None => RawDescLineKind::BareText {
+                text: Gloss::new(string_pool, heading),
             },
-            None => RawDescLineKind::Other,
-        },
-        (None, Some(_)) => RawDescLineKind::Other,
-    };
-    RawDescLine { depth, kind }
+        };
+    }
+    RawDescLineKind::Other
 }
 
-// The {{desc}} flags (bor=1, clq=1, der=1, ...) survive only as tags.
-fn get_desc_mode(node: &WiktextractJson) -> EtyMode {
+// A {{desc}} term's mode, from its flags: per term (bor2=1) or for all (bor=1).
+fn desc_mode(args: &Json, term: usize) -> EtyMode {
     // most specific first
-    const MODES: [(&str, EtyMode); 9] = [
-        ("partial calque", EtyMode::PartialCalque),
-        ("calque", EtyMode::Calque),
-        ("semantic loan", EtyMode::SemanticLoan),
-        ("semi-learned borrowing", EtyMode::SemiLearnedBorrowing),
-        ("learned borrowing", EtyMode::LearnedBorrowing),
-        ("borrowed", EtyMode::Borrowed),
-        ("transliteration", EtyMode::Transliteration),
-        ("derived", EtyMode::MorphologicalDerivation),
-        (
-            "reshaped by analogy or addition of morphemes",
-            EtyMode::Derived,
-        ),
+    const FLAGS: [(&str, EtyMode); 11] = [
+        ("pclq", EtyMode::PartialCalque),
+        ("pcal", EtyMode::PartialCalque),
+        ("clq", EtyMode::Calque),
+        ("cal", EtyMode::Calque),
+        ("sml", EtyMode::SemanticLoan),
+        ("slb", EtyMode::SemiLearnedBorrowing),
+        ("lbor", EtyMode::LearnedBorrowing),
+        ("bor", EtyMode::Borrowed),
+        ("translit", EtyMode::Transliteration),
+        // shown as "⇒", "reshaped by analogy or addition of morphemes"
+        ("der", EtyMode::MorphologicalDerivation),
+        ("inh", EtyMode::Inherited),
     ];
-    let tags: Vec<&str> = ["tags", "raw_tags"]
-        .into_iter()
-        .filter_map(|key| node.get_array(key))
-        .flatten()
-        .filter_map(|tag| tag.as_str())
-        .collect();
-    MODES
+    let set = |key: &str| {
+        args.get_valid_str(key)
+            .is_some_and(|v| v != "0" && v != "no")
+    };
+    FLAGS
         .iter()
-        .find(|(tag, _)| tags.contains(tag))
+        .find(|(flag, _)| set(&format!("{flag}{term}")) || set(flag))
         .map_or(EtyMode::Inherited, |&(_, mode)| mode)
 }
 
@@ -391,15 +432,11 @@ impl Items {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use simd_json::to_borrowed_value;
+    use crate::entries::test_entry;
 
     fn lines(json: &str) -> (StringPool, Vec<RawDescLine>) {
-        let mut bytes = json.as_bytes().to_vec();
-        let value = to_borrowed_value(&mut bytes).unwrap();
         let mut string_pool = StringPool::new();
-        let item = WiktextractJsonItem { json: value };
-        let lines = item
-            .get_descendants(&mut string_pool)
+        let lines = test_entry::with(json, |item| item.get_descendants(&mut string_pool))
             .map_or_else(Vec::new, |d| Vec::from(d.lines));
         (string_pool, lines)
     }
@@ -415,12 +452,22 @@ mod tests {
         }
     }
 
+    fn modes(line: &RawDescLine) -> Vec<EtyMode> {
+        match &line.kind {
+            RawDescLineKind::Desc { desc } => desc.modes.to_vec(),
+            _ => panic!("expected a desc line"),
+        }
+    }
+
     #[test]
-    fn multi_term_line_is_regrouped() {
+    fn a_line_with_several_terms_is_one_line() {
         let (sp, lines) = lines(
-            r#"{"descendants": [{"lang_code": "ang", "word": "lām", "descendants": [
-                {"lang_code": "enm", "word": "lam", "descendants": [{"lang_code": "en", "word": "loam"}]},
-                {"lang_code": "enm", "word": "lame", "descendants": [{"lang_code": "en", "word": "loam"}]}
+            r#"{"pos": [{"descendants": [
+                {"text": "Old English: lām", "calls": [{"name": "desc", "args": {"1": "ang", "2": "lām"}}], "children": [
+                    {"text": "Middle English: lam, lame", "calls": [{"name": "desc", "args": {"1": "enm", "2": "lam", "3": "lame"}}], "children": [
+                        {"text": "English: loam", "calls": [{"name": "desc", "args": {"1": "en", "2": "loam"}}]}
+                    ]}
+                ]}
             ]}]}"#,
         );
         let got: Vec<_> = lines.iter().map(|l| (l.depth, terms(&sp, l))).collect();
@@ -435,49 +482,41 @@ mod tests {
     }
 
     #[test]
-    fn childless_siblings_stay_separate_lines() {
-        let (sp, lines) = lines(
-            r#"{"descendants": [
-                {"lang_code": "ine-pro", "word": "*mneh₂-", "tags": ["derived"]},
-                {"lang_code": "ine-pro", "word": "*mn̥-tó", "tags": ["derived"]}
-            ]}"#,
+    fn flags_give_modes_per_term_or_for_all() {
+        let (_, lines) = lines(
+            r#"{"pos": [{"descendants": [
+                {"text": "Borrowings:", "calls": [], "children": [
+                    {"text": "Finnish: kuningas", "calls": [{"name": "desc", "args": {"1": "fi", "2": "kuningas", "bor": "1"}}]},
+                    {"text": "German: Halbinsel", "calls": [{"name": "desc", "args": {"1": "de", "2": "Halbinsel", "clq": "1"}}]},
+                    {"text": "Russian: вода́, вода", "calls": [{"name": "desc", "args": {"1": "ru", "2": "вода́", "3": "вода", "lbor2": "1"}}]},
+                    {"text": "Proto-Indo-European: *mn̥-tó", "calls": [{"name": "desc", "args": {"1": "ine-pro", "2": "*mn̥-tó", "der": "1"}}]}
+                ]}
+            ]}]}"#,
         );
-        assert_eq!(lines.len(), 2);
-        assert_eq!(terms(&sp, &lines[0]), ["mneh₂-"]);
-        match &lines[0].kind {
-            RawDescLineKind::Desc { desc } => {
-                assert_eq!(&*desc.modes, [EtyMode::MorphologicalDerivation]);
-            }
-            _ => panic!("expected a desc line"),
-        }
+        assert!(matches!(lines[0].kind, RawDescLineKind::BareText { .. }));
+        assert_eq!(modes(&lines[1]), [EtyMode::Borrowed]);
+        assert_eq!(modes(&lines[2]), [EtyMode::Calque]);
+        assert_eq!(
+            modes(&lines[3]),
+            [EtyMode::Inherited, EtyMode::LearnedBorrowing]
+        );
+        assert_eq!(modes(&lines[4]), [EtyMode::MorphologicalDerivation]);
     }
 
     #[test]
-    fn headings_and_modes() {
-        let (_, lines) = lines(
-            r#"{"descendants": [
-                {"lang_code": "unknown", "lang": "Borrowings", "descendants": [
-                    {"lang_code": "fi", "word": "kuningas", "raw_tags": ["borrowed"]},
-                    {"lang_code": "de", "word": "Halbinsel", "tags": ["calque"]},
-                    {"lang_code": "ru", "word": "вода́", "raw_tags": ["learned borrowing", "borrowed"]}
-                ]}
-            ]}"#,
+    fn items_another_page_drew_are_read_from_their_links() {
+        let (sp, lines) = lines(
+            r#"{"pos": [{"descendants": [
+                {"text": "Sicilian: lupu", "calls": [{"name": "desctree", "args": {"1": "scn", "2": "lupu"}}], "children": [
+                    {"text": "→ Maltese: lupu", "calls": [], "links": [{"page": "lupu", "anchor": "Maltese"}]}
+                ]},
+                {"text": "Old French:", "calls": []},
+                {"text": "Balkan Romance:", "calls": []}
+            ]}]}"#,
         );
-        assert!(matches!(lines[0].kind, RawDescLineKind::BareText { .. }));
-        let modes: Vec<_> = lines[1..]
-            .iter()
-            .map(|l| match &l.kind {
-                RawDescLineKind::Desc { desc } => (l.depth, desc.modes[0]),
-                _ => panic!("expected a desc line"),
-            })
-            .collect();
-        assert_eq!(
-            modes,
-            [
-                (2, EtyMode::Borrowed),
-                (2, EtyMode::Calque),
-                (2, EtyMode::LearnedBorrowing),
-            ]
-        );
+        assert_eq!(terms(&sp, &lines[1]), ["lupu"]);
+        assert_eq!(modes(&lines[1]), [EtyMode::Borrowed]);
+        assert!(matches!(lines[2].kind, RawDescLineKind::BareLang { .. }));
+        assert!(matches!(lines[3].kind, RawDescLineKind::BareText { .. }));
     }
 }

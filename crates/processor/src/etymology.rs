@@ -1,15 +1,15 @@
 use crate::{
     HashSet,
     embeddings::Embeddings,
+    entries::{
+        Affix, EntryPos, Json, JsonStr, affix_by_hyphens, affix_type, clean_template_term,
+        modifier, parse_pos, split_lang_prefix, split_modifiers,
+    },
     etymon,
     items::{EmbeddingNeeds, Items, intern},
     notes::RawNote,
     progress_bar,
     resolve::{Citation, Relation, Resolution},
-    wiktextract_json::{
-        Affix, WiktextractJson, WiktextractJsonItem, WiktextractJsonValidStr, affix_by_hyphens,
-        affix_type, clean_template_term, modifier, parse_pos, split_lang_prefix, split_modifiers,
-    },
 };
 use wety_core::{
     assertions::{self, Asserted, Credit, Scope},
@@ -135,7 +135,7 @@ impl RawEtymology {
 
 fn process_derived_kind_json_template(
     string_pool: &mut StringPool,
-    args: &WiktextractJson,
+    args: &Json,
     mode: EtyMode,
 ) -> Option<RawEtyTemplate> {
     let mut ety_lang = args.get_valid_str("2")?;
@@ -151,7 +151,7 @@ fn process_derived_kind_json_template(
 }
 
 // What a template gives for the term in arg `key` (see Part).
-fn term_part(args: &WiktextractJson, key: &str, gloss_keys: &[&str]) -> Part {
+fn term_part(args: &Json, key: &str, gloss_keys: &[&str]) -> Part {
     let modifiers = args
         .get_str(key)
         .map(|arg| split_modifiers(arg).1)
@@ -171,7 +171,7 @@ fn term_part(args: &WiktextractJson, key: &str, gloss_keys: &[&str]) -> Part {
 
 fn process_abbrev_kind_json_template(
     string_pool: &mut StringPool,
-    args: &WiktextractJson,
+    args: &Json,
     mode: EtyMode,
     lang: Lang,
 ) -> Option<RawEtyTemplate> {
@@ -183,7 +183,7 @@ fn process_abbrev_kind_json_template(
 
 fn process_prefix_json_template(
     string_pool: &mut StringPool,
-    args: &WiktextractJson,
+    args: &Json,
     lang: Lang,
 ) -> Option<RawEtyTemplate> {
     let ety_prefix = args.get_affix_term("2", &Affix::Prefix)?;
@@ -204,7 +204,7 @@ fn process_prefix_json_template(
 
 fn process_suffix_json_template(
     string_pool: &mut StringPool,
-    args: &WiktextractJson,
+    args: &Json,
     lang: Lang,
 ) -> Option<RawEtyTemplate> {
     let ety_term = args.get_valid_term("2")?;
@@ -225,7 +225,7 @@ fn process_suffix_json_template(
 
 fn process_circumfix_json_template(
     string_pool: &mut StringPool,
-    args: &WiktextractJson,
+    args: &Json,
     lang: Lang,
 ) -> Option<RawEtyTemplate> {
     let ety_prefix = args.get_affix_term("2", &Affix::Prefix)?;
@@ -249,7 +249,7 @@ fn process_circumfix_json_template(
 
 fn process_infix_json_template(
     string_pool: &mut StringPool,
-    args: &WiktextractJson,
+    args: &Json,
     lang: Lang,
 ) -> Option<RawEtyTemplate> {
     let ety_term = args.get_valid_term("2")?;
@@ -271,7 +271,7 @@ fn process_infix_json_template(
 
 fn process_confix_json_template(
     string_pool: &mut StringPool,
-    args: &WiktextractJson,
+    args: &Json,
     lang: Lang,
 ) -> Option<RawEtyTemplate> {
     let ety_prefix = args.get_affix_term("2", &Affix::Prefix)?;
@@ -352,7 +352,7 @@ pub(crate) fn affixation_kind(affixes: &[Affix], n_base_terms: usize) -> EtyMode
 // https://en.wiktionary.org/wiki/Template:affix.
 fn process_compound_kind_json_template(
     string_pool: &mut StringPool,
-    args: &WiktextractJson,
+    args: &Json,
     mode: EtyMode,
     lang: Lang,
 ) -> Option<RawEtyTemplate> {
@@ -434,7 +434,7 @@ fn process_compound_kind_json_template(
 
 fn process_vrddhi_kind_json_template(
     string_pool: &mut StringPool,
-    args: &WiktextractJson,
+    args: &Json,
     ety_mode: EtyMode,
 ) -> Option<RawEtyTemplate> {
     let ety_lang = args.get_valid_str("1")?;
@@ -444,7 +444,7 @@ fn process_vrddhi_kind_json_template(
     Some(RawEtyTemplate::new(ety_langterm, ety_mode))
 }
 
-pub(crate) fn validate_ety_template_lang(args: &WiktextractJson, lang: Lang) -> Result<()> {
+pub(crate) fn validate_ety_template_lang(args: &Json, lang: Lang) -> Result<()> {
     let item_lang = lang.code();
     let template_lang = args.get_valid_str("1").ok_or_else(|| {
         anyhow!("ety template does not contain valid \"1\" lang arg: it has args:\n{args}")
@@ -458,7 +458,7 @@ pub(crate) fn validate_ety_template_lang(args: &WiktextractJson, lang: Lang) -> 
 
 fn process_json_ety_template(
     string_pool: &mut StringPool,
-    template: &WiktextractJson,
+    template: &Json,
     lang: Lang,
 ) -> Option<RawEtyTemplate> {
     let name = template.get_valid_str("name")?;
@@ -491,12 +491,11 @@ fn process_json_ety_template(
     }
 }
 
-impl WiktextractJsonItem<'_> {
+impl EntryPos<'_> {
     // The args of the entry's {{etymon}} (or {{ety}}) template for its own
     // language. A page section rarely has more than one; we take the first.
-    fn get_etymon_args(&self, lang: Lang) -> Option<&WiktextractJson<'_>> {
-        self.json
-            .get_array("etymology_templates")?
+    fn get_etymon_args(&self, lang: Lang) -> Option<&Json<'_>> {
+        self.templates
             .iter()
             .filter(|t| {
                 t.get_valid_str("name")
@@ -507,20 +506,14 @@ impl WiktextractJsonItem<'_> {
     }
 
     /// The ids this entry declares, by which references can name it: its
-    /// {{etymon}} id=, its {{etymid}} ids and its senses' {{senseid}}s
-    /// (which Wiktextract prefixes with the language code).
+    /// {{etymon}} id=, its {{etymid}} ids and its senses' {{senseid}}s.
     pub(crate) fn get_ids(&self, lang: Lang) -> Vec<&str> {
         let mut ids: Vec<&str> = self
             .get_etymon_args(lang)
             .and_then(|args| args.get_valid_str("id"))
             .into_iter()
             .collect();
-        for template in self
-            .json
-            .get_array("etymology_templates")
-            .into_iter()
-            .flatten()
-        {
+        for template in self.templates {
             if template.get_valid_str("name") == Some("etymid")
                 && let Some(args) = template.get("args")
                 && args.get_valid_str("1") == Some(lang.code())
@@ -529,9 +522,9 @@ impl WiktextractJsonItem<'_> {
                 ids.push(id);
             }
         }
-        for sense in self.json.get_array("senses").into_iter().flatten() {
+        for sense in self.pos.get_array("senses").into_iter().flatten() {
             for id in sense
-                .get_array("senseid")
+                .get_array("senseids")
                 .into_iter()
                 .flatten()
                 .filter_map(|id| id.as_str())
@@ -587,8 +580,7 @@ impl WiktextractJsonItem<'_> {
         // Since we handle {{root}} separately, we still want to get etys where
         // there is say one {{root}} then one "From {{m..."
         let mut templates = self
-            .json
-            .get_array("etymology_templates")?
+            .templates
             .iter()
             .filter(|t| t.get_valid_str("name").is_some_and(|n| n != "root"));
         // i.e. we want exactly 1 non-root template
@@ -623,9 +615,10 @@ impl WiktextractJsonItem<'_> {
     // parent. $$ Reading the conjectures as possible etymologies needs their
     // prose (syn-2).
     fn get_standard_ety(&self, string_pool: &mut StringPool, lang: Lang) -> Option<RawEtymology> {
-        let templates = self.json.get_array("etymology_templates")?;
+        let templates = self.templates;
+        (!templates.is_empty()).then_some(())?;
         let mut raw_ety_templates = Vec::with_capacity(templates.len());
-        for template in templates {
+        for &template in templates {
             let opens = |names: &[&str]| {
                 template
                     .get_valid_str("name")
@@ -650,25 +643,21 @@ impl WiktextractJsonItem<'_> {
             .then(|| RawEtymology::new(raw_ety_templates, EdgeBasis::Template))
     }
 
-    // if no ety section or no templates, as a fallback we see if term
-    // is listed as a "form_of" (item.senses[0].form_of[0].word)
-    // or "alt_of" (item.senses[0].alt_of[0].word) another term.
-    // e.g. "happenin'" is listed as an alt_of of "happening". Its "extra",
-    // where given, glosses the term (enm bern: alt_of barn, "child").
+    // if no ety section or no templates, as a fallback we see if the first sense
+    // is a form-of definition (an alternative form, an inflection) of another
+    // term: e.g. "happenin'" is an alternative form of "happening".
     fn get_form_ety(&self, string_pool: &mut StringPool, lang: Lang) -> Option<RawEtymology> {
-        let alt_obj = self
-            .json
+        let target = self
+            .pos
             .get_array("senses")
             .and_then(|senses| senses.first())
-            .and_then(|sense| {
-                sense
-                    .get_array("alt_of")
-                    .or_else(|| sense.get_array("form_of"))
-            })
-            .and_then(|alt_list| alt_list.first())?;
-        let langterm = lang.new_langterm(string_pool, alt_obj.get_str("word")?);
+            .and_then(|sense| sense.get_array("form_of"))
+            .and_then(|targets| targets.first())?;
+        let term = target.get_valid_term("term")?;
+        let langterm = lang.new_langterm(string_pool, term);
         let mut ety = RawEtyTemplate::new(langterm, EtyMode::Form);
-        if let Some(gloss) = alt_obj.get_str("extra").filter(|g| !g.is_empty()) {
+        // the gloss the definition gives the term (enm bern: of barn, "child")
+        if let Some(gloss) = target.get_valid_str("gloss") {
             ety = ety.with_part(Part {
                 uncertain: false,
                 id: None,
@@ -1129,7 +1118,7 @@ impl Items {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use simd_json::to_borrowed_value;
+    use crate::entries::test_entry;
 
     // (mode, [term]) for each template in the chain; None for a skipped one
     fn chain(json: &str) -> Vec<Option<(EtyMode, Vec<String>)>> {
@@ -1142,12 +1131,9 @@ mod tests {
     }
 
     fn chain_with(lang: &str, json: &str, codes: bool) -> Vec<Option<(EtyMode, Vec<String>)>> {
-        let mut bytes = json.as_bytes().to_vec();
-        let json = to_borrowed_value(&mut bytes).unwrap();
         let mut string_pool = StringPool::new();
         let lang = Lang::from_str(lang).unwrap();
-        WiktextractJsonItem { json }
-            .get_etymology(&mut string_pool, lang)
+        test_entry::with(json, |e| e.get_etymology(&mut string_pool, lang))
             .and_then(|ety| Vec::from(ety.alternatives).into_iter().next())
             .map_or_else(Vec::new, Vec::from)
             .into_iter()
@@ -1347,13 +1333,12 @@ mod tests {
             }
 
             fn process(&mut self, item: ItemId, templates: &str) {
+                self.process_entry(item, &format!(r#"{{"etymology_templates": {templates}}}"#));
+            }
+
+            fn process_entry(&mut self, item: ItemId, json: &str) {
                 let lang = self.items.get(item).lang();
-                let json = format!(r#"{{"etymology_templates": {templates}}}"#);
-                let mut bytes = json.into_bytes();
-                let json = to_borrowed_value(&mut bytes).unwrap();
-                let ety = WiktextractJsonItem { json }
-                    .get_etymology(&mut self.sp, lang)
-                    .unwrap();
+                let ety = test_entry::with(json, |e| e.get_etymology(&mut self.sp, lang)).unwrap();
                 self.items
                     .process_item_raw_etymology(&self.sp, &self.embeddings, item, &ety)
                     .unwrap();
@@ -1364,11 +1349,7 @@ mod tests {
             fn record(&mut self, item: ItemId, templates: &str) {
                 let lang = self.items.get(item).lang();
                 let json = format!(r#"{{"etymology_templates": {templates}}}"#);
-                let mut bytes = json.into_bytes();
-                let json = to_borrowed_value(&mut bytes).unwrap();
-                let ety = WiktextractJsonItem { json }
-                    .get_etymology(&mut self.sp, lang)
-                    .unwrap();
+                let ety = test_entry::with(&json, |e| e.get_etymology(&mut self.sp, lang)).unwrap();
                 self.items.raw_templates.ety.insert(item, ety);
                 self.items.index_mentions();
             }
@@ -1650,11 +1631,15 @@ mod tests {
             let mut t = Setup::new("asserted");
             t.add("ang", "mōdor");
             let mother = t.add("en", "mother");
-            t.process(
+            t.process_entry(
                 mother,
-                r#"[{"name": "inh", "args": {"1": "en", "2": "enm", "3": "moder"}},
-                {"name": "inh", "args": {"1": "en", "2": "ang", "3": "mōdor"}},
-                {"name": "ref", "args": {"1": "<cite>Etymologicon</cite> (1999), page 3"}}]"#,
+                r#"{"etymology_templates": [
+                    {"name": "inh", "args": {"1": "en", "2": "enm", "3": "moder"}},
+                    {"name": "inh", "args": {"1": "en", "2": "ang", "3": "mōdor"}}],
+                "etymology": {
+                    "blocks": [{"kind": "paragraph", "text": "From moder, from mōdor.", "spans": [
+                        {"kind": "ref", "start": 23, "note": "cite_note-1"}]}],
+                    "notes": [{"id": "cite_note-1", "text": "Etymologicon (1999), page 3", "calls": []}]}}"#,
             );
             // stated on its own page, under the section's footnote
             let own = t.items.graph.asserted(mother, 0).unwrap();
@@ -1727,13 +1712,10 @@ mod tests {
                         is_reconstructed: false,
                     })
                     .0;
-                let mut bytes =
-                    format!(r#"{{"word": "lupus", "lang": "Latin", "etymology_number": {label}}}"#)
-                        .into_bytes();
-                let json = to_borrowed_value(&mut bytes).unwrap();
-                t.items
-                    .references
-                    .cover(item, &WiktextractJsonItem { json });
+                let json = format!(
+                    r#"{{"page": "lupus", "lang_heading": "Latin", "ety_label": "{label}"}}"#
+                );
+                test_entry::with(&json, |e| t.items.references.cover(item, e));
                 item
             };
             let one = entry(&mut t, "1");
@@ -2222,14 +2204,10 @@ mod tests {
         fn an_alternative_form_cites_its_lemma_with_the_gloss() {
             // the gloss decides between enm barn "child" and barn "barn"
             let mut sp = StringPool::new();
-            let json = r#"{"senses": [{"glosses": ["alternative form of barn (“child”)"],
-                "alt_of": [{"word": "barn", "extra": "child"}]}]}"#;
-            let mut bytes = json.to_string().into_bytes();
-            let json = to_borrowed_value(&mut bytes).unwrap();
+            let json = r#"{"pos": [{"senses": [{"gloss": "alternative form of barn (“child”)",
+                "form_of": [{"lang": "enm", "term": "barn", "gloss": "child"}]}]}]}"#;
             let lang = Lang::from_str("enm").unwrap();
-            let ety = WiktextractJsonItem { json }
-                .get_etymology(&mut sp, lang)
-                .unwrap();
+            let ety = test_entry::with(json, |e| e.get_etymology(&mut sp, lang)).unwrap();
             let ParsedRawEtyTemplate::Parsed(template) = &ety.alternatives[0][0] else {
                 panic!("not parsed");
             };

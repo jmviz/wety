@@ -19,11 +19,11 @@
 //! parent has to be imputed.
 
 use crate::{
-    etymology::{ParsedRawEtyTemplate, Part, RawEtyTemplate, affixation_kind},
-    wiktextract_json::{
-        Affix, WiktextractJson, WiktextractJsonValidStr, affix_by_hyphens, affix_type,
-        clean_template_term, modifier, parse_pos, split_lang_prefix, split_modifiers,
+    entries::{
+        Affix, Json, JsonStr, affix_by_hyphens, affix_type, clean_template_term, modifier,
+        parse_pos, split_lang_prefix, split_modifiers,
     },
+    etymology::{ParsedRawEtyTemplate, Part, RawEtyTemplate, affixation_kind},
 };
 use wety_core::{
     ety_graph::Certainty, etymology_templates::EtyMode, languages::Lang, string_pool::StringPool,
@@ -474,7 +474,7 @@ fn parse_params(
 /// The etymologies given by an {{etymon}} template's args: see parse_params.
 pub(crate) fn parse_etymon_args(
     string_pool: &mut StringPool,
-    args: &WiktextractJson,
+    args: &Json,
     lang: Lang,
 ) -> Vec<Vec<ParsedRawEtyTemplate>> {
     let mut params = vec![];
@@ -848,7 +848,7 @@ mod tests {
     #[test]
     fn modifier_splitting() {
         assert_eq!(
-            crate::wiktextract_json::split_modifiers("a<id:x><ety:inh<b<t:c>>>"),
+            crate::entries::split_modifiers("a<id:x><ety:inh<b<t:c>>>"),
             ("a", vec!["id:x", "ety:inh<b<t:c>>"])
         );
         assert_eq!(

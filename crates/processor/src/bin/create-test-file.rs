@@ -1,6 +1,6 @@
 // Run from workspace root.
 //
-// Expects a CSV file with lang_code,term columns indicating requested items for test file.
+// Expects a CSV file with lang_code,page columns naming the entries for a test file.
 //
 // See:
 //
@@ -14,7 +14,7 @@
 #[global_allocator]
 static ALLOC: snmalloc_rs::SnMalloc = snmalloc_rs::SnMalloc;
 
-use processor::wiktextract_lines;
+use processor::entry_lines;
 
 use std::{
     fs::File,
@@ -33,14 +33,13 @@ use simd_json::{ValueAccess, to_borrowed_value, value::borrowed::Value};
 #[clap(author, version, about, long_about = None)]
 pub struct Args {
     #[clap(
-        help = "Path to CSV file with lang_code,term columns indicating requested items for test file"
+        help = "Path to CSV file with lang_code,page columns naming the entries for the test file"
     )]
     csv: PathBuf,
     #[clap(
         short = 'f',
         long,
-        default_value = "data/artifacts/wiktextract/legacy/files/raw-wiktextract-data.jsonl.gz",
-        help = "Path to full wiktextract raw data file",
+        help = "Path to the full entries file (wiktionary-entries --out)",
         value_parser
     )]
     full: PathBuf,
@@ -65,8 +64,8 @@ struct RequestedItems {
 
 impl RequestedItems {
     fn matches(&self, json: &Value) -> bool {
-        if let Some(lang) = json.get_str("lang_code")
-            && let Some(term) = json.get_str("word")
+        if let Some(lang) = json.get_str("lang")
+            && let Some(term) = json.get_str("page")
         {
             return self
                 .items
@@ -105,7 +104,7 @@ fn main() -> Result<()> {
 
     let mut n = 0;
 
-    for mut line in wiktextract_lines(&args.full)? {
+    for mut line in entry_lines(&args.full)? {
         let json = to_borrowed_value(&mut line)?;
         if requested_items.matches(&json) {
             serde_json::to_writer(&mut test_file, &json)?;

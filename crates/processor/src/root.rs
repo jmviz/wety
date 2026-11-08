@@ -3,13 +3,10 @@ use std::{collections::BTreeMap, mem, str::FromStr};
 use crate::{
     HashMap, HashSet,
     embeddings::{self, Embeddings},
+    entries::{EntryPos, Json, JsonStr, clean_template_term, modifier, split_modifiers},
     etymology::validate_ety_template_lang,
     items::Items,
     progress_bar,
-    wiktextract_json::{
-        WiktextractJson, WiktextractJsonItem, WiktextractJsonValidStr, clean_template_term,
-        modifier, split_modifiers,
-    },
 };
 use wety_core::{
     assertions::Asserted,
@@ -41,7 +38,7 @@ enum RootKind {
     Word,
 }
 
-impl WiktextractJsonItem<'_> {
+impl EntryPos<'_> {
     // The roots an entry descends from, per its first {{root}}-like template
     // (https://en.wiktionary.org/wiki/Template:root, and the similar
     // https://en.wiktionary.org/wiki/Template:word and
@@ -55,8 +52,8 @@ impl WiktextractJsonItem<'_> {
     }
 
     fn get_named_roots(&self, string_pool: &mut StringPool, lang: Lang) -> Vec<RawRoot> {
-        if let Some(templates) = self.json.get_array("etymology_templates") {
-            for template in templates {
+        {
+            for &template in self.templates {
                 if let Some(name) = template.get_valid_str("name")
                     && let Some(args) = template.get("args")
                 {
@@ -76,13 +73,7 @@ impl WiktextractJsonItem<'_> {
         // e.g. "English terms derived from the Proto-Indo-European root *dʰeh₁-"
         // or "English terms derived from the Proto-Indo-European root *bʰel- (shiny)"
         let mut roots: Vec<RawRoot> = vec![];
-        for category in self
-            .json
-            .get_array("categories")
-            .into_iter()
-            .flatten()
-            .filter_map(|c| c.as_str())
-        {
+        for category in self.categories() {
             if let Some(root) = process_json_root_category(string_pool, category, lang)
                 && !roots.contains(&root)
             {
@@ -101,7 +92,7 @@ impl WiktextractJsonItem<'_> {
 // in the case of {{word}}. The roots are args "3", "4", ...
 fn process_root_template(
     string_pool: &mut StringPool,
-    args: &WiktextractJson,
+    args: &Json,
     lang: Lang,
     kind: &RootKind,
 ) -> Vec<RawRoot> {
@@ -143,7 +134,7 @@ fn process_root_template(
 // https://en.wiktionary.org/wiki/Template:PIE_word
 fn process_pie_word_template(
     string_pool: &mut StringPool,
-    args: &WiktextractJson,
+    args: &Json,
     lang: Lang,
 ) -> Vec<RawRoot> {
     if validate_ety_template_lang(args, lang).is_err() {
@@ -464,26 +455,25 @@ impl Items {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use simd_json::to_borrowed_value;
+    use crate::entries::test_entry;
 
     fn roots(json: &str) -> Vec<(String, Option<String>)> {
-        let mut bytes = json.as_bytes().to_vec();
-        let json = to_borrowed_value(&mut bytes).unwrap();
         let mut sp = StringPool::new();
-        WiktextractJsonItem { json }
-            .get_roots(&mut sp, Lang::from_str("en").unwrap())
-            .into_iter()
-            .map(|r| {
-                (
-                    format!(
-                        "{}:{}",
-                        r.langterm.lang.code(),
-                        r.langterm.term.resolve(&sp)
-                    ),
-                    r.sense_id.map(String::from),
-                )
-            })
-            .collect()
+        test_entry::with(json, |e| {
+            e.get_roots(&mut sp, Lang::from_str("en").unwrap())
+        })
+        .into_iter()
+        .map(|r| {
+            (
+                format!(
+                    "{}:{}",
+                    r.langterm.lang.code(),
+                    r.langterm.term.resolve(&sp)
+                ),
+                r.sense_id.map(String::from),
+            )
+        })
+        .collect()
     }
 
     #[test]
@@ -520,15 +510,14 @@ mod tests {
     #[test]
     fn a_root_named_under_several_senses_gives_alternatives() {
         // en product: pro- (from *pér, from either *per-) + dūcō (*dewk-)
-        let mut bytes = r#"{"categories": [
+        let json = r#"{"categories": [
             "English terms derived from the Proto-Indo-European root *per- (before)",
             "English terms derived from the Proto-Indo-European root *per- (fare)",
-            "English terms derived from the Proto-Indo-European root *dewk-"]}"#
-            .as_bytes()
-            .to_vec();
-        let json = to_borrowed_value(&mut bytes).unwrap();
+            "English terms derived from the Proto-Indo-European root *dewk-"]}"#;
         let mut sp = StringPool::new();
-        let named = WiktextractJsonItem { json }.get_roots(&mut sp, Lang::from_str("en").unwrap());
+        let named = test_entry::with(json, |e| {
+            e.get_roots(&mut sp, Lang::from_str("en").unwrap())
+        });
         let alternatives: Vec<Vec<String>> = root_alternatives(&named)
             .into_iter()
             .map(|alt| {
