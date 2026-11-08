@@ -2,7 +2,7 @@
 
 *Updated 2026-11-08. `main` carries the client work, the root fixes, the claims model
 (core-1 to core-6, acd-1 to acd-3, lila-1 to lila-3, syn-1) and client-polish. Branch
-`wiktionary-entries` (unmerged) carries x-1 and x-2 of the rework below.*
+`wiktionary-entries` (unmerged) carries x-1 to x-4 of the rework below.*
 
 ## What the project promises
 
@@ -21,45 +21,44 @@ and citations from reviewed evidence in the `packages/dating` registry.
 
 ## What changed
 
-- **Reading Wiktionary directly (x-1, x-2; plan "Read Wiktionary's HTML and wikitext
-  dumps directly" in the project's plans):**
-  - Acquired the 2026-11-01 Wikimedia Enterprise snapshot of en.wiktionary (21.99 GB,
-    9.9 million pages, HTML and wikitext of each revision; `source_tools.enterprise`)
-    and the pages-articles dump of the same date. Enterprise has no Reconstruction
-    namespace: `source_tools.wiktionary_html` fetches those 46,395 pages' HTML by
-    revision, within Wikimedia's rate limits.
-  - `crates/wiktionary-entries` turns the snapshot into 11.47 million entries in 13
-    minutes: each etymology's prose with its templates and footnotes at their
-    offsets, the footnotes' bodies, `{{ety}}` trees, link targets (entry names),
-    mentions, senses, headwords and descendants. Nothing reads them yet.
-  - Against Kaikki's wiktextract on unchanged pages: entries 99.86 %, parts of speech
-    98.2 %, first glosses 98.7 %, canonical forms 97.2 %, descendant terms 97.6 %,
-    etymology calls 99.5 % (counting mentions written by wrapper templates). Report:
-    `data/workspaces/etymology/sources/wiktionary/checks/x-2/result.json`.
+- **Reading Wiktionary directly (plan "Read Wiktionary's HTML and wikitext dumps
+  directly" in the project's plans; x-1 to x-4, branch `wiktionary-entries`):**
+  - Sources of 2026-11-01: the Wikimedia Enterprise snapshot (HTML and wikitext of 9.9
+    million pages), the Reconstruction pages Enterprise lacks (46,385, fetched by
+    revision), the pages-articles dump (redirects, References) and its language export.
+  - `crates/wiktionary-entries` (workflow `wiktionary_entries`, 15 minutes) writes 11.5
+    million entries: each etymology's prose with templates and footnotes at their
+    offsets, footnote bodies, `{{ety}}` trees, mentions with their entry names, senses,
+    headwords, descendants.
+  - The graph build reads the entries instead of Kaikki's wiktextract. A trial graph
+    (`52eeb23d…`, not adopted) keeps 95.1 % of the live graph's edges and has 4.7 % more
+    (10.42M): 384k form-of links, 88k lone `{{m}}` etymologies wiktextract skipped, and
+    more immediate parents. Report:
+    `data/workspaces/etymology/sources/wiktionary/checks/x-4/result.json`.
 
 ## Uncertainties
 
 - Not built: "whose view", the `view`/`floor` tree parameters, "possibly related" in
-  Cognates, source-only items for unmatched records (110,240 links dropped). Wiktionary's
-  `{{der}}` along a line of descent stays "derived".
-- The graph still reads wiktextract, which drops most footnotes (38 credits to de Vaan,
-  about 3,257 sections citing him) and every position; the entries keep both.
-- A wrapper template's own calls (`{{ko-etym-sino}}` → `{{etymid}}`) reach the entries
-  only as mentions.
-- The language export must come from the snapshot's dump: 1,873 headings name
-  languages added since 2026-09-01.
+  Cognates, source-only items for unmatched records (110,240 links dropped).
+- Trial graph: about 11,000 Korean, Vietnamese and Japanese entries lose their Chinese
+  parent (`{{CJKV}}` lists name a page of several homographs); 77,630 imputed words
+  wiktextract invented from Descendants lists are gone. Other sources' claims attach
+  less until they are matched again on the new record ids.
+- Footnote credits are read with their offsets but not yet credited with them (x-5).
 - acd-2 left out 12,629 ACD reconstructions that are in no cognate set.
-- Deeper default Cognates roots make large trees (tabula: 76,217 words unfiltered).
 
 ## Next three actions
 
-1. x-4: the processor reads the entries instead of wiktextract (design in the plan);
-   graph diff against `15c68ef6…`.
-2. x-5: footnote credits with position and References from the same extraction;
-   then syn-2 (model reading of prose) on the entries' spans.
+1. Finish x-4: rerun `etymology_assertions`, `acd_claims` and `lila_claims` on the
+   trial graph, rebuild, and resolve the `{{CJKV}}` descendants; then adopt.
+2. x-5: footnote credits with position and References from the entries; then syn-2
+   (model reading of prose) on the entries' spans.
 3. Source-only items for records with no match.
 
 ## Decisions needed from the maintainer
 
+- Whether `data/registry/inputs.json` selects the 2026-11-01 language export
+  (`wiktionary-export/57d16abe…`: 12 languages added, `aga` retired). It also feeds the
+  catalogs and the dating harness, so it means a catalog rebuild.
 - Whether alternative sets may hold records, so the ACD's form-level doublets fit.
 - Whether wety restores LiLa's 7 unlinked etymons from their "Etymology for" comments.
