@@ -86,6 +86,26 @@ pub fn link(element: &scraper::node::Element) -> Option<Link> {
     })
 }
 
+/// A mention element (`<i class="mention" lang="..">`): its language, text and link.
+pub fn mention_of(element: ElementRef, lang: &str) -> Mention {
+    Mention {
+        lang: lang.to_string(),
+        term: element.text().collect::<String>().trim().to_string(),
+        link: element
+            .select(&crate::page::A)
+            .next()
+            .and_then(|a| link(a.value())),
+    }
+}
+
+/// The mention in or at `element`, if any.
+pub fn mention(element: ElementRef) -> Option<Mention> {
+    std::iter::once(element)
+        .chain(element.descendants().filter_map(ElementRef::wrap))
+        .find(|e| e.value().classes().any(|c| c == "mention") && e.value().attr("lang").is_some())
+        .map(|e| mention_of(e, e.value().attr("lang").expect("checked")))
+}
+
 pub fn is_transclusion(element: &scraper::node::Element) -> bool {
     element
         .attr("typeof")
@@ -221,14 +241,7 @@ impl Renderer<'_> {
             && let Some(&i) = self.open.last()
             && let Span::Template { mentions, .. } = &mut self.spans[i]
         {
-            mentions.push(Mention {
-                lang: lang.to_string(),
-                term: element.text().collect::<String>().trim().to_string(),
-                link: element
-                    .select(&crate::page::A)
-                    .next()
-                    .and_then(|a| link(a.value())),
-            });
+            mentions.push(mention_of(element, lang));
         }
         if name == "br" {
             self.push("\n");

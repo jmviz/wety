@@ -41,6 +41,9 @@ pub struct PosBlock {
     pub pos: Option<&'static str>,
     /// Headwords as rendered (`.headword`).
     pub headword: Vec<String>,
+    /// Their transliterations (`.headword-tr`).
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub headword_tr: Vec<String>,
     /// Template calls on the headword line.
     pub head: Vec<Call>,
     pub senses: Vec<Sense>,
@@ -57,6 +60,9 @@ pub struct Sense {
     pub gloss: String,
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub senseids: Vec<String>,
+    /// What a form-of definition points at (`.form-of-definition-link`).
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub form_of: Vec<Mention>,
     pub calls: Vec<Call>,
 }
 

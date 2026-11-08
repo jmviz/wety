@@ -12,7 +12,7 @@ use wety_core::languages::Lang;
 
 use crate::{
     model::{Block, Call, Counts, Descendant, Entry, Note, PosBlock, Section, Sense, Span},
-    render::{Transclusions, calls, is_transclusion, render},
+    render::{Transclusions, calls, is_transclusion, mention, render},
 };
 
 fn sel(s: &str) -> Selector {
@@ -29,6 +29,8 @@ static HEADWORD: LazyLock<Selector> = LazyLock::new(|| sel(".headword"));
 static TRANSCLUSION: LazyLock<Selector> = LazyLock::new(|| sel("[data-mw]"));
 static SENSEID: LazyLock<Selector> = LazyLock::new(|| sel(".senseid[data-id]"));
 static LI: LazyLock<Selector> = LazyLock::new(|| sel("li"));
+static FORM_OF: LazyLock<Selector> = LazyLock::new(|| sel(".form-of-definition-link"));
+static HEADWORD_TR: LazyLock<Selector> = LazyLock::new(|| sel(".headword-tr"));
 
 static POS_HEADINGS: LazyLock<HashMap<String, &'static str>> = LazyLock::new(|| {
     let map: HashMap<String, String> = serde_json::from_str(include_str!("pos_headings.json"))
@@ -406,10 +408,16 @@ fn senses(list: ElementRef, depth: u8, out: &mut Vec<Sense>, tx: &Transclusions)
             .filter_map(|e| e.value().attr("data-id").map(str::to_string))
             .collect();
         senseids.dedup();
+        let form_of = li
+            .select(&FORM_OF)
+            .filter(|e| !has_ancestor_below(*e, li, &["ol", "ul", "dl"]))
+            .filter_map(mention)
+            .collect();
         out.push(Sense {
             depth,
             gloss: r.text,
             senseids,
+            form_of,
             calls: calls_within(li, &["ol", "ul", "dl"]),
         });
         for sub in li.child_elements().filter(|e| e.value().name() == "ol") {
@@ -449,6 +457,11 @@ fn pos_block(sec: &Sec, counts: &mut Counts, tx: &Transclusions) -> PosBlock {
                 .filter(|h| !h.is_empty())
                 .collect();
             block.head = calls_within(e, &[]);
+            block.headword_tr = e
+                .select(&HEADWORD_TR)
+                .map(|t| t.text().collect::<String>().trim().to_string())
+                .filter(|t| !t.is_empty())
+                .collect();
         } else if e.value().name() == "ol" && block.senses.is_empty() {
             senses(e, 0, &mut block.senses, tx);
         }
@@ -617,4 +630,37 @@ fn contains_pos(sec: &Sec) -> bool {
     sec.children
         .iter()
         .any(|c| is_pos(c) || (etymology_label(&c.title).is_none() && contains_pos(c)))
+}
+
+/// (language, term as shown, page) of each mention in the entry whose page name is not
+/// the term itself: the entry names Lua computed (`popīna` → `popina`). A
+/// reconstruction's page is compared by its part after the language.
+pub fn entry_names(entry: &Entry) -> Vec<(String, String, String)> {
+    let mut out = vec![];
+    let mut add = |m: &crate::model::Mention| {
+        let Some(link) = &m.link else { return };
+        let page = link
+            .page
+            .strip_prefix("Reconstruction:")
+            .and_then(|p| p.split_once('/'))
+            .map_or(link.page.as_str(), |(_, t)| t);
+        let term = m.term.strip_prefix('*').unwrap_or(&m.term);
+        if !term.is_empty() && term != page {
+            out.push((m.lang.clone(), m.term.clone(), link.page.clone()));
+        }
+    };
+    for block in entry.etymology.iter().flat_map(|e| &e.blocks) {
+        for span in &block.spans {
+            if let Span::Template { mentions, .. } = span {
+                mentions.iter().for_each(&mut add);
+            }
+        }
+    }
+    for pos in &entry.pos {
+        pos.senses
+            .iter()
+            .flat_map(|s| &s.form_of)
+            .for_each(&mut add);
+    }
+    out
 }
