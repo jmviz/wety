@@ -155,6 +155,11 @@ pub struct Note {
 pub struct Descendant {
     pub text: String,
     pub calls: Vec<Call>,
+    /// For an item with no calls of its own: the template whose output it is, such as
+    /// a `{{desctree}}` drawing another page's list, or `{{CJKV}}` listing a word's
+    /// Sino-Xenic readings.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub via: Option<String>,
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub links: Vec<Link>,
     #[serde(skip_serializing_if = "Vec::is_empty")]

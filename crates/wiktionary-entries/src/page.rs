@@ -340,21 +340,52 @@ fn item_links(li: ElementRef) -> Vec<crate::model::Link> {
         .collect()
 }
 
-fn descendants(list: ElementRef, given: &ItemCalls, tx: &Transclusions) -> Vec<Descendant> {
+/// The template whose output `e` is: the nearest element at or above it that Parsoid
+/// marks as part of a transclusion.
+fn rendered_by(e: ElementRef, tx: &Transclusions) -> Option<String> {
+    std::iter::once(*e)
+        .chain(e.ancestors())
+        .filter_map(|n| n.value().as_element()?.attr("about"))
+        .find_map(|about| tx.calls_of(about)?.first().map(|c| c.name.clone()))
+}
+
+/// The items of `list`. An item with no calls of its own was rendered by the template
+/// of the item it hangs under (`{{desctree}}` drawing another page's list), else by the
+/// transclusion around it (`{{CJKV}}`): `parent` names the former.
+fn descendants(
+    list: ElementRef,
+    given: &ItemCalls,
+    tx: &Transclusions,
+    parent: Option<&str>,
+) -> Vec<Descendant> {
     list.child_elements()
         .filter(|li| li.value().name() == "li")
-        .map(|li| Descendant {
-            text: render(li, true, tx).text,
-            calls: given
+        .map(|li| {
+            let calls = given
                 .get(&li.id())
                 .cloned()
-                .unwrap_or_else(|| calls_within(li, &["ul", "ol", "dl"])),
-            links: item_links(li),
-            children: li
+                .unwrap_or_else(|| calls_within(li, &["ul", "ol", "dl"]));
+            let via = if calls.is_empty() {
+                parent.map(str::to_string).or_else(|| rendered_by(li, tx))
+            } else {
+                None
+            };
+            let own = calls
+                .first()
+                .map(|c| c.name.clone())
+                .or_else(|| via.clone());
+            let children = li
                 .child_elements()
                 .filter(|e| matches!(e.value().name(), "ul" | "ol"))
-                .flat_map(|e| descendants(e, given, tx))
-                .collect(),
+                .flat_map(|e| descendants(e, given, tx, own.as_deref()))
+                .collect();
+            Descendant {
+                text: render(li, true, tx).text,
+                calls,
+                via,
+                links: item_links(li),
+                children,
+            }
         })
         .collect()
 }
@@ -382,7 +413,7 @@ fn descendant_lists(sec: &Sec, counts: &mut Counts, tx: &Transclusions) -> Vec<D
             }
         }
         match e.value().name() {
-            "ul" | "ol" => out.extend(descendants(e, given, tx)),
+            "ul" | "ol" => out.extend(descendants(e, given, tx, None)),
             "section" => {}
             _ => e
                 .child_elements()

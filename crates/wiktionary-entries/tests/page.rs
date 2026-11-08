@@ -168,7 +168,9 @@ fn wrapped_descendants_get_their_lines_calls() {
     let d = e[0]["pos"][0]["descendants"].as_array().unwrap();
     assert_eq!(d[0]["calls"][0]["args"]["2"], "cane");
     assert_eq!(d[1]["calls"][0]["name"], "desctree");
-    // Rendered from another page: text and links, no calls.
+    // Rendered from another page: text and links, no calls, and what drew it.
     assert_eq!(d[1]["children"][0]["calls"], json!([]));
+    assert_eq!(d[1]["children"][0]["via"], "desctree");
+    assert_eq!(d[0].get("via"), None);
     assert_eq!(d[1]["children"][0]["links"][0]["page"], "chien");
 }

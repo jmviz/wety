@@ -157,6 +157,11 @@ impl Transclusions {
         }
     }
 
+    /// The calls of the transclusion `about` names.
+    pub fn calls_of(&self, about: &str) -> Option<&[Call]> {
+        self.calls.get(about).map(Vec::as_slice)
+    }
+
     /// The span that opens for `about` here, if it names a transclusion.
     pub fn span(&self, about: &str, at: usize) -> Option<Span> {
         let calls = self.calls.get(about)?.clone();
