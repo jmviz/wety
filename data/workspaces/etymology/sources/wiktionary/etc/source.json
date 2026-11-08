@@ -8,7 +8,7 @@
   "enterprise": "data/artifacts/wiktionary-enterprise/b856838f580c72a1672b2b658078fff8943723d1f1514e9d15d0680d8a3db62a (Wikimedia Enterprise snapshot enwiktionary_namespace_0, 2026-11-01T00:18Z: HTML and wikitext of each page)",
   "reconstruction": "data/artifacts/wiktionary-reconstruction-html/457d06c097649fc8f0241f87cfffaf66377d4db5f2ec2e27b0df52ee8e20bebd (Reconstruction pages' HTML at the pages dump's revisions)",
   "pages": "data/artifacts/wiktionary-dump/ae476c69023c5cf20389497529bcb55928826174140225f89e0c9241b234cc94 (enwiktionary-20261101-pages-articles.xml.bz2: redirects, References, the language export)",
-  "entries": "data/artifacts/wiktionary-entries/ca8625ecf7f49d6d25ba07e0e4de7ae1a44dccce90e4c578eb2c5cf047fdabef (wety's entries, crates/wiktionary-entries)"
+  "entries": "data/artifacts/wiktionary-entries/466445a2b9d76a586ab53d059f8c9895b4f31141f20b1666f0d2c33aec73bd06 (wety's entries, crates/wiktionary-entries)"
  },
  "kind_of_work": "a collaborative dictionary; entry-centric etymologies in templates and prose, and set-centric Descendants sections",
  "holder": "Wiktionary's editors, per page revision; the views they attribute are held by the scholars named",
