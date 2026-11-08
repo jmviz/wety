@@ -91,7 +91,7 @@ Further reading gives no credits and is kept the same way
 `match_acd.py` (acd-3) links the ACD's records to Wiktionary's, which stand for wety's
 items, and Wiktionary's assertions that credit the ACD to the ACD's own. `scan` keeps the
 Austronesian part of a graph's assertion export and the glosses of Austronesian entries
-from the wiktextract data it was built from; `run` writes the `match` and `relay` objects
+from the entries it was built from (`wiktionary_entries`); `run` writes the `match` and `relay` objects
 with everything they refer to, every record's outcome (`decisions.jsonl.gz`), every
 crediting assertion's outcome (`relays.json`), counts and a sample of 100 matches to
 review; given an earlier run's check directory (`--previous`), it reviews what changed
@@ -104,10 +104,10 @@ checkout whose `data/` holds the inputs:
 ```sh
 W=<a work directory>; C=$S/acd/checks/acd-3-v4
 E=data/runs/ccaf05246fcb466f94916b3f5ae6654a/checks/core-4-references/assertions.jsonl.gz
-X=data/artifacts/wiktextract/6da0ba5bf330650cba59911466da388d3f60c69519a50dc9ca71451b0bfba506/files/raw-wiktextract-data.jsonl.gz
+X=data/artifacts/wiktionary-entries/466445a2b9d76a586ab53d059f8c9895b4f31141f20b1666f0d2c33aec73bd06/files/entries.jsonl.gz
 L=data/artifacts/wiktionary-export/2d98b7aa0c9965e1492db2e242ead832fe7e3c161e1f1a27c1d177135c6df2b7/files
-uv run --frozen python -m etymology.match_acd scan --export $E --wiktextract $X --languages $L/languages.json --families $L/families.json --work $W
-uv run --frozen python -m etymology.match_acd run --acd $S/acd/checks/acd-2/assertions.jsonl --export $E --wiktextract $X --work $W --out $C --previous $S/acd/checks/acd-3-v3
+uv run --frozen python -m etymology.match_acd scan --export $E --entries $X --languages $L/languages.json --families $L/families.json --work $W
+uv run --frozen python -m etymology.match_acd run --acd $S/acd/checks/acd-2/assertions.jsonl --export $E --entries $X --work $W --out $C --previous $S/acd/checks/acd-3-v3
 uv run --frozen python -m etymology.match_acd review --out $C
 ```
 
