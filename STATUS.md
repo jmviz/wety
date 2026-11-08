@@ -1,7 +1,8 @@
 # Status
 
-*Updated 2026-11-07. `main` carries the client work, the root fixes, the claims model
-(core-1 to core-6, acd-1 to acd-3, lila-1 to lila-3, syn-1) and client-polish.*
+*Updated 2026-11-08. `main` carries the client work, the root fixes, the claims model
+(core-1 to core-6, acd-1 to acd-3, lila-1 to lila-3, syn-1) and client-polish. Branch
+`wiktionary-entries` (unmerged) carries x-1 and x-2 of the rework below.*
 
 ## What the project promises
 
@@ -14,47 +15,49 @@ and citations from reviewed evidence in the `packages/dating` registry.
   `production` ([deploy/README.md](deploy/README.md)).
 - **Graph:** `15c68ef6…` live, from the 2026-09-01 dump: 10.1 million words, 9.95
   million links, 6,003 languages, each entry's References, and the ACD's and de Vaan's
-  claims.
-  Dates cover 348 codes, 135 estimated proto-language ends.
+  claims. Dates cover 348 codes, 135 estimated proto-language ends.
 - **Research store:** private evidence, artifacts and runs in `data/`, backed up with
   `wety-data store`; [provenance](docs/architecture/provenance.md).
 
 ## What changed
 
-- **client-polish:**
-  - Hovering a tree no longer blanks the page: word details' fetches suspended the
-    router's page-wide Suspense boundary since core-6; they now suspend locally.
-  - Cognates trees start as far back as the word's head line goes (sole source, else
-    head, else the one root; never a suffix or a possible/doubtful link): tabula and
-    table at PIE *steh₂-, sugar at *ḱorkeh₂; wolf stops at *wĺ̥kʷos, astronomy at
-    ἀστρονομία (a headless compound).
-  - Other sources' claims link to the site that shows them ("via LiLa ↗", "via ACD ↗").
-  - An about page (sources, licences, GitHub); no example words on the home page.
-- **syn-1:** the graph build reads the ACD's and LiLa's claims; 11,476 words carry
-  claims (1,248 consensus, 5 preference, 152 unsettled). Report:
-  `data/runs/aa966f3bd0dc4142915995f2fb7462dd/checks/syn-1/`.
+- **Reading Wiktionary directly (x-1, x-2; plan "Read Wiktionary's HTML and wikitext
+  dumps directly" in the project's plans):**
+  - Acquired the 2026-11-01 Wikimedia Enterprise snapshot of en.wiktionary (21.99 GB,
+    9.9 million pages, HTML and wikitext of each revision; `source_tools.enterprise`)
+    and the pages-articles dump of the same date. Enterprise has no Reconstruction
+    namespace: `source_tools.wiktionary_html` fetches those 46,395 pages' HTML by
+    revision, within Wikimedia's rate limits.
+  - `crates/wiktionary-entries` turns the snapshot into 11.47 million entries in 13
+    minutes: each etymology's prose with its templates and footnotes at their
+    offsets, the footnotes' bodies, `{{ety}}` trees, link targets (entry names),
+    mentions, senses, headwords and descendants. Nothing reads them yet.
+  - Against Kaikki's wiktextract on unchanged pages: entries 99.86 %, parts of speech
+    98.2 %, first glosses 98.7 %, canonical forms 97.2 %, descendant terms 97.6 %,
+    etymology calls 99.5 % (counting mentions written by wrapper templates). Report:
+    `data/workspaces/etymology/sources/wiktionary/checks/x-2/result.json`.
 
 ## Uncertainties
 
 - Not built: "whose view", the `view`/`floor` tree parameters, "possibly related" in
-  Cognates, source-only items for unmatched records (110,240 links dropped). The ACD adds
-  only compiled credits: none of its stated borrowings is fully matched. Wiktionary's
-  `{{der}}` along a line of descent stays "derived": it mostly marks learned borrowings,
-  names and new formations, so ancestry alone does not make it inherited.
-- wiktextract drops most footnotes (38 credits to de Vaan in the graph, about 3,257
-  sections citing him in the dump) and keeps no position for any: parsing the Wiktionary
-  HTML dump directly, the planned rework, would recover both.
+  Cognates, source-only items for unmatched records (110,240 links dropped). Wiktionary's
+  `{{der}}` along a line of descent stays "derived".
+- The graph still reads wiktextract, which drops most footnotes (38 credits to de Vaan,
+  about 3,257 sections citing him) and every position; the entries keep both.
+- A wrapper template's own calls (`{{ko-etym-sino}}` → `{{etymid}}`) reach the entries
+  only as mentions.
+- The language export must come from the snapshot's dump: 1,873 headings name
+  languages added since 2026-09-01.
 - acd-2 left out 12,629 ACD reconstructions that are in no cognate set.
 - Deeper default Cognates roots make large trees (tabula: 76,217 words unfiltered).
-- An origin naming a language but no word ("possibly from an Osco-Umbrian language",
-  *lupus*) cannot be represented yet.
 
 ## Next three actions
 
-1. Rework the processor to read Wiktionary's Enterprise HTML and wikitext dumps
-   directly; syn-2 (the model tier, prose citations) folds into it.
-2. Source-only items for records with no match.
-3. Whose view and the tree parameters (core-6's rest).
+1. x-4: the processor reads the entries instead of wiktextract (design in the plan);
+   graph diff against `15c68ef6…`.
+2. x-5: footnote credits with position and References from the same extraction;
+   then syn-2 (model reading of prose) on the entries' spans.
+3. Source-only items for records with no match.
 
 ## Decisions needed from the maintainer
 
