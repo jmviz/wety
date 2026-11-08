@@ -295,6 +295,11 @@ fn item_calls(wrapper: ElementRef) -> Option<ItemCalls> {
             lines.last_mut().expect("a line").1.push(call);
         }
     }
+    let flat: Vec<Vec<Call>> = lines
+        .iter()
+        .filter(|(text, _)| text.trim_start().starts_with(['*', '#', ':']))
+        .map(|(_, calls)| calls.clone())
+        .collect();
     // Nest lines by their markers' depth.
     let mut stack: Vec<(usize, Line)> = vec![(
         0,
@@ -330,7 +335,68 @@ fn item_calls(wrapper: ElementRef) -> Option<ItemCalls> {
     }
     let root = stack.pop().expect("the root").1;
     let mut out = ItemCalls::new();
-    align(&top_items(wrapper), root.children, &mut out).then_some(out)
+    if align(&top_items(wrapper), root.children, &mut out) {
+        return Some(out);
+    }
+    pair_in_order(wrapper, &flat)
+}
+
+/// How far ahead an item looks for its line: past headings and the like.
+const LOOKAHEAD: usize = 6;
+
+/// When the nesting does not pair up (a `:*` line nests otherwise in the HTML): the
+/// items in document order, each with the next line, within a few, one of whose terms
+/// its text shows. An item no line matches was rendered from elsewhere and keeps no
+/// calls. `None` when no item matches.
+fn pair_in_order(wrapper: ElementRef, lines: &[Vec<Call>]) -> Option<ItemCalls> {
+    let mut out = ItemCalls::new();
+    let mut next = 0;
+    for li in wrapper
+        .descendants()
+        .filter_map(ElementRef::wrap)
+        .filter(|e| e.value().name() == "li" && e.id() != wrapper.id())
+    {
+        let text = own_text(li);
+        let found =
+            (next..lines.len().min(next + LOOKAHEAD)).find(|&k| shows_a_term(&lines[k], &text));
+        if let Some(k) = found {
+            out.insert(li.id(), lines[k].clone());
+            next = k + 1;
+        }
+    }
+    (!out.is_empty()).then_some(out)
+}
+
+/// An item's text without its nested lists.
+fn own_text(li: ElementRef) -> String {
+    li.descendants()
+        .filter(|n| {
+            !n.ancestors().take_while(|a| a.id() != li.id()).any(|a| {
+                a.value()
+                    .as_element()
+                    .is_some_and(|e| matches!(e.name(), "ul" | "ol" | "dl"))
+            })
+        })
+        .filter_map(|n| n.value().as_text().map(|t| t.to_string()))
+        .collect()
+}
+
+/// Whether `text` shows a term one of the calls gives (positional arguments from 2).
+fn shows_a_term(calls: &[Call], text: &str) -> bool {
+    calls.iter().any(|call| {
+        call.args
+            .iter()
+            .filter(|(k, _)| k.parse::<usize>().is_ok_and(|n| n >= 2))
+            .any(|(_, v)| {
+                let term = v
+                    .split('<')
+                    .next()
+                    .unwrap_or(v)
+                    .trim()
+                    .trim_start_matches('*');
+                term.chars().count() > 0 && term != "-" && text.contains(term)
+            })
+    })
 }
 
 fn item_links(li: ElementRef) -> Vec<crate::model::Link> {

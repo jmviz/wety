@@ -174,3 +174,27 @@ fn wrapped_descendants_get_their_lines_calls() {
     assert_eq!(d[0].get("via"), None);
     assert_eq!(d[1]["children"][0]["links"][0]["page"], "chien");
 }
+
+#[test]
+fn a_list_whose_nesting_does_not_pair_is_paired_in_order() {
+    // "* → Norwegian:" then ":* Bokmål: {{l|nb|jurist}}" nests otherwise in the HTML
+    let page = r##"<!DOCTYPE html><html><body>
+<section><h2 id="Latin">Latin</h2><section><h3 id="Noun">Noun</h3><p><strong class="headword">iurista</strong></p><ol><li>jurist</li></ol>
+<section><h4 id="Descendants">Descendants</h4>
+<div about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"col-top","href":"./Template:col-top"},"params":{},"i":0}},"\n* ",{"template":{"target":{"wt":"desc","href":"./Template:desc"},"params":{"1":{"wt":"ca"},"2":{"wt":"jurista"}},"i":1}},"\n* → Norwegian:\n:* Bokmål: ",{"template":{"target":{"wt":"l","href":"./Template:l"},"params":{"1":{"wt":"nb"},"2":{"wt":"jurist"}},"i":2}},"\n* ",{"template":{"target":{"wt":"desc","href":"./Template:desc"},"params":{"1":{"wt":"ru"},"2":{"wt":"юри́ст"},"bor":{"wt":"1"}},"i":3}},"\n"]}'><ul><li>Catalan: jurista</li><li>→ Norwegian:</li></ul><dl><dd><ul><li>Bokmål: jurist</li></ul></dd></dl><ul><li>→ Russian: юри́ст</li></ul></div>
+</section></section></section></body></html>"##;
+    let info = PageInfo {
+        title: "iurista",
+        page_id: 1,
+        rev: 1,
+        ns: 0,
+    };
+    let languages = Languages::from_pairs([("Latin", "la")]);
+    let mut counts = Counts::default();
+    let e = entries(&info, page, &languages, &mut counts);
+    let d = serde_json::to_value(&e[0].pos[0].descendants).unwrap();
+    assert_eq!(d[0]["calls"][0]["args"]["2"], "jurista");
+    assert_eq!(d[1]["calls"], json!([]));
+    assert_eq!(d[2]["calls"][0]["args"]["2"], "jurist");
+    assert_eq!(d[3]["calls"][0]["args"]["2"], "юри́ст");
+}
