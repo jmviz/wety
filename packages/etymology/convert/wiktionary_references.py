@@ -1,8 +1,7 @@
 """Wiktionary's References sections, read from page wikitext: entry-scope credits (core-5).
 
-wiktextract has no field for References, so they are read from the pages dump that
-matches the wiktextract release (`etc/source.json`, artifact `pages`), by the
-`wiktionary_references` workflow. Two steps:
+They are read from the pages dump of the entries' date (`etc/source.json`, artifact
+`pages`), by the `wiktionary_references` workflow. Two steps:
 
 - `extract` reads the dump once and keeps every References and Further reading section
   of the entry and reconstruction namespaces, with the language and etymology it sits

@@ -65,8 +65,7 @@ uv run --frozen python -m etymology.convert.lila --out $S/lila-edl/checks/lila-2
 
 ## Wiktionary's References
 
-wiktextract has no field for References, so the workflow `wiktionary_references` reads
-them from the pages dump of the same date (`etc/source.json`, artifact `pages`) and
+The workflow `wiktionary_references` reads them from the pages dump of the entries' date (`etc/source.json`, artifact `pages`) and
 writes the product the graph build reads:
 
 ```sh
