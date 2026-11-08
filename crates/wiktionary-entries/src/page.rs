@@ -418,6 +418,23 @@ fn senses(list: ElementRef, depth: u8, out: &mut Vec<Sense>, tx: &Transclusions)
     }
 }
 
+/// A headword's text without ruby readings (`水(すい)道(どう)` is 水道).
+fn headword_text(h: ElementRef) -> String {
+    h.descendants()
+        .filter_map(|n| n.value().as_text().map(|t| (n, t)))
+        .filter(|(n, _)| {
+            !n.ancestors().take_while(|a| a.id() != h.id()).any(|a| {
+                a.value()
+                    .as_element()
+                    .is_some_and(|e| matches!(e.name(), "rt" | "rp"))
+            })
+        })
+        .map(|(_, t)| &**t)
+        .collect::<String>()
+        .trim()
+        .to_string()
+}
+
 fn pos_block(sec: &Sec, counts: &mut Counts, tx: &Transclusions) -> PosBlock {
     let mut block = PosBlock {
         heading: sec.title.clone(),
@@ -428,7 +445,7 @@ fn pos_block(sec: &Sec, counts: &mut Counts, tx: &Transclusions) -> PosBlock {
         if block.headword.is_empty() && e.select(&HEADWORD).next().is_some() {
             block.headword = e
                 .select(&HEADWORD)
-                .map(|h| h.text().collect::<String>().trim().to_string())
+                .map(|h| headword_text(h))
                 .filter(|h| !h.is_empty())
                 .collect();
             block.head = calls_within(e, &[]);
