@@ -541,6 +541,24 @@
       "subject_id": "wikt:aav-pro"
     },
     {
+      "analysis": "nikolaeva2024_yukaghir",
+      "claim_id": "ev_period_2d4e1e2cdffd8e5f6c0e47071451e31dcdebec73",
+      "epoch": null,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Yukaghir",
+      "role": "hypothesis",
+      "source": "Edward Vajda 2024",
+      "subject_id": "wikt:qfa-yuk-pro"
+    },
+    {
       "analysis": "kettunen_vaula_1938_chronology_reported_kallio2006",
       "claim_id": "ev_period_2e15264aaa85c4ffd26d15350bc42dc01aa5a5cf",
       "epoch": null,
@@ -36775,7 +36793,7 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:fff5df92fe6ca543"
     }
   ],
-  "generation": "ba50917856d8d8db474305c8ae350a46c678f0197223690c3f935e6d4bde5c42",
+  "generation": "4c23f0e6b53bfb69f29a49cf986377bcc4e376e441f78c4a5a6462a3f698536c",
   "languages": [
     {
       "alternatives": [],
@@ -45932,6 +45950,38 @@
       }
     },
     {
+      "alternatives": [],
+      "basis": "attested",
+      "code": "omk",
+      "evidence": [
+        {
+          "citation": "Nikolaeva, Irina. 2006. A Historical Dictionary of Yukaghir. Trends in Linguistics, Documentation 25. Berlin and New York: Mouton de Gruyter.",
+          "claim_id": "ev_period_cbb70a11f4600fe97c9b60c4f99f9f30481f63f0",
+          "event": "documentary_sampling",
+          "locator": "{\"page\": \"24\", \"pdf_page\": 38, \"text_offset\": 62701}",
+          "method": "scholarly_description",
+          "quote": "The recording \nwas made in 1821 on the river Malyj Anjuj (Wrangel 1841: 81). Matjuskin's \nmaterials represent two Cyrillic-based word lists, the so-called Cuvan list \n(about 210 words) and the Omok list (134 words), plus five Cuvan sentences.",
+          "role": "observation",
+          "source": "Irina Nikolaeva 2006",
+          "url": "https://doi.org/10.1515/9783110892840"
+        }
+      ],
+      "kind": "attested",
+      "label": "1821 CE",
+      "name": "Omok",
+      "spoken": {
+        "end": {
+          "earliest": 1821,
+          "latest": 1821
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 1821,
+          "latest": 1821
+        }
+      }
+    },
+    {
       "alternatives": [
         {
           "basis": "estimated",
@@ -47970,29 +48020,48 @@
       }
     },
     {
-      "alternatives": [],
-      "basis": "estimated",
-      "code": "qfa-yuk-pro",
-      "evidence": [
+      "alternatives": [
         {
+          "basis": "estimated",
           "citation": "Automated dating of the world's language families based on lexical similarity",
           "claim_id": "ev_period_4463ffb1797fbfe144380825dfe84fc938b93e23",
+          "end": {
+            "earliest": -27,
+            "latest": -27
+          },
           "event": "crown_divergence",
+          "label": "until c. 30 BCE",
           "locator": "{\"table\": \"Table 4\", \"row\": \"Yukaghir\", \"page\": 855, \"pdf_page\": 16, \"character_start\": 62190, \"character_end\": 62217, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
           "method": "lexicostatistic",
           "quote": "Yukaghir\n1\n2 (2)\n24.28\n2027",
           "role": "hypothesis",
           "source": "Eric W. Holman et al. 2011",
+          "start": null,
           "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
         }
       ],
+      "basis": "estimated",
+      "code": "qfa-yuk-pro",
+      "evidence": [
+        {
+          "citation": "Vajda, Edward. 2024. The Yeniseian language family. In Edward Vajda (ed.), The Languages and Linguistics of Northern Asia, Volume 1: Language Families (The World of Linguistics 10.1), 365–480. Berlin/Boston: De Gruyter Mouton. ISBN 978-3-11-055403-8.",
+          "claim_id": "ev_period_2d4e1e2cdffd8e5f6c0e47071451e31dcdebec73",
+          "event": "crown_divergence",
+          "locator": "{\"page\": \"359\", \"pdf_page\": 374, \"text_offset_of_dated_line\": 998420}",
+          "method": "expert_estimate",
+          "quote": "may reflect a rather ancient division of the Yukaghir linguistic area into two linguistic \nsub-branches, possibly from around 2000 years ago.",
+          "role": "hypothesis",
+          "source": "Edward Vajda 2024",
+          "url": null
+        }
+      ],
       "kind": "proto",
-      "label": "until c. 30 BCE",
+      "label": "until c. 50 BCE",
       "name": "Proto-Yukaghir",
       "spoken": {
         "end": {
-          "earliest": -27,
-          "latest": -27
+          "earliest": -50,
+          "latest": -50
         },
         "ongoing": false,
         "start": null
@@ -51448,6 +51517,35 @@
         "start": {
           "earliest": 1001,
           "latest": 1100
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "attested",
+      "code": "xcv",
+      "evidence": [
+        {
+          "citation": "Nikolaeva, Irina. 2006. A Historical Dictionary of Yukaghir. Trends in Linguistics, Documentation 25. Berlin and New York: Mouton de Gruyter.",
+          "claim_id": "ev_period_0530cd482747882d3528964372e35eeb97587624",
+          "event": "first_attestation",
+          "locator": "{\"page\": \"24\", \"pdf_page\": 38, \"text_offset\": 62701}",
+          "method": "scholarly_description",
+          "quote": "The recording \nwas made in 1821 on the river Malyj Anjuj (Wrangel 1841: 81). Matjuskin's \nmaterials represent two Cyrillic-based word lists, the so-called Cuvan list \n(about 210 words) and the Omok list (134 words), plus five Cuvan sentences.",
+          "role": "observation",
+          "source": "Irina Nikolaeva 2006",
+          "url": "https://doi.org/10.1515/9783110892840"
+        }
+      ],
+      "kind": "attested",
+      "label": "from 1821 CE",
+      "name": "Chuvan",
+      "spoken": {
+        "end": null,
+        "ongoing": false,
+        "start": {
+          "earliest": 1821,
+          "latest": 1821
         }
       }
     },
