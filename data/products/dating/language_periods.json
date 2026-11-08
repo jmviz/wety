@@ -487,6 +487,24 @@
       "subject_id": "wikt:xgn-pro"
     },
     {
+      "analysis": "abondolo2023_uralic_intro",
+      "claim_id": "ev_period_2a3af072fcefe15f3ca5e69d07c23bbff2941d4a",
+      "epoch": null,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Samoyedic",
+      "role": "hypothesis",
+      "source": "Abondolo & Valijärvi 2023",
+      "subject_id": "wikt:syd-pro"
+    },
+    {
       "analysis": "bellwood-2019-linguistic-depth",
       "claim_id": "ev_period_2b3a6438d51aecb28933506fe6c33901aaed372a",
       "epoch": 1950,
@@ -683,6 +701,24 @@
       "role": "hypothesis",
       "source": "Mary Walworth 2012",
       "subject_id": "wikt:poz-pep-pro"
+    },
+    {
+      "analysis": "abondolo2023_uralic_intro",
+      "claim_id": "ev_period_3821b1b855f036f539dac4ccf47086adb8dd6ebf",
+      "epoch": null,
+      "estimate": {
+        "interval_type": null,
+        "lower": -2550,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": -2050
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Uralic",
+      "role": "hypothesis",
+      "source": "Abondolo & Valijärvi 2023",
+      "subject_id": "wikt:urj-pro"
     },
     {
       "analysis": "mari-loan-chronology",
@@ -1133,6 +1169,24 @@
       "role": "hypothesis",
       "source": "Eric W. Holman et al. 2011",
       "subject_id": "wikt:urj-mdv-pro"
+    },
+    {
+      "analysis": "bartens2000_proto_permic",
+      "claim_id": "ev_period_54053ecb235baa6dc03192b5f67cc9c379e6f546",
+      "epoch": null,
+      "estimate": {
+        "interval_type": null,
+        "lower": 701,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": 800
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Permic",
+      "role": "hypothesis",
+      "source": "Raija Bartens 2000",
+      "subject_id": "wikt:urj-prm-pro"
     },
     {
       "analysis": "grant-2005-historical-correlation",
@@ -2769,7 +2823,7 @@
       "event": "crown_divergence",
       "node": "MRCA(KirantiKhaling, KirantiKulung)",
       "role": "posterior",
-      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "source": "Laurent Sagart et al. 2019",
       "subject_id": "sagart2019_relaxed_fbd:clade:0062223b43c1241a"
     },
     {
@@ -3183,7 +3237,7 @@
       "event": "crown_divergence",
       "node": "MRCA(Estonian, Finnish, Hungarian, Karelian, Khanty, Komi, Livonian, Mansi, Mari, Mordvin, Nenets, Northern_Sami, Selkup, Skolt_Sami, Udmurt, Ume_Sami, Veps)",
       "role": "posterior",
-      "source": "Cultural and climatic changes shape the evolutionary history of the Uralic languages 2013",
+      "source": "Terhi Honkola et al. 2013",
       "subject_id": "honkola2013_beast:clade:03f80525ffe69ed2"
     },
     {
@@ -3255,7 +3309,7 @@
       "event": "crown_divergence",
       "node": "MRCA(Estonian, Finnish, Karelian, Livonian, Veps)",
       "role": "posterior",
-      "source": "Cultural and climatic changes shape the evolutionary history of the Uralic languages 2013",
+      "source": "Terhi Honkola et al. 2013",
       "subject_id": "honkola2013_beast:clade:04c94a172f161426"
     },
     {
@@ -3651,7 +3705,7 @@
       "event": "crown_divergence",
       "node": "MRCA(BodicTshangla, BurmishAchang, BurmishAtsi, BurmishBola, BurmishLashi, BurmishMaru, BurmishOldBurmese, BurmishRangoon, BurmishXiandao, ChepangChepang, DengDarangTaraon, DengYidu, KhroskyabsWobzi, KirantiBahing, KirantiBantawa, KirantiHayu, KirantiKhaling, KirantiKulung, KirantiLimbu, KirantiThulung, LoloishLisu, NungicDulong, QiangicZhaba, Tangut, TaniBokar, TibetanAlike, TibetanBatang, TibetanLhasa, TibetanOldTibetan, TibetanXiahe, TibetoKinauriBunan, TibetoKinauriByangsi, TibetoKinauriRongpo, rGyalrongDaofu, rGyalrongJaphug, rGyalrongMaerkang)",
       "role": "posterior",
-      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "source": "Laurent Sagart et al. 2019",
       "subject_id": "sagart2019_relaxed_fbd:clade:0774b939e8ad3866"
     },
     {
@@ -5757,7 +5811,7 @@
       "event": "crown_divergence",
       "node": "MRCA(Northern_Sami, Ume_Sami)",
       "role": "posterior",
-      "source": "Cultural and climatic changes shape the evolutionary history of the Uralic languages 2013",
+      "source": "Terhi Honkola et al. 2013",
       "subject_id": "honkola2013_beast:clade:179e98b64ecb08f1"
     },
     {
@@ -6693,7 +6747,7 @@
       "event": "crown_divergence",
       "node": "MRCA(BurmishBola, BurmishMaru)",
       "role": "posterior",
-      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "source": "Laurent Sagart et al. 2019",
       "subject_id": "sagart2019_relaxed_fbd:clade:1e36a1bc4c5a9fe4"
     },
     {
@@ -7107,7 +7161,7 @@
       "event": "crown_divergence",
       "node": "MRCA(BodicTshangla, DengDarangTaraon, DengYidu, TaniBokar)",
       "role": "posterior",
-      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "source": "Laurent Sagart et al. 2019",
       "subject_id": "sagart2019_relaxed_fbd:clade:21c9146e2b7eb831"
     },
     {
@@ -7179,7 +7233,7 @@
       "event": "crown_divergence",
       "node": "MRCA(BurmishAchang, BurmishAtsi, BurmishBola, BurmishLashi, BurmishMaru, BurmishOldBurmese, BurmishRangoon, BurmishXiandao, LoloishLisu)",
       "role": "posterior",
-      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "source": "Laurent Sagart et al. 2019",
       "subject_id": "sagart2019_relaxed_fbd:clade:22457144ae50bfd0"
     },
     {
@@ -7269,7 +7323,7 @@
       "event": "crown_divergence",
       "node": "MRCA(BurmishAtsi, BurmishBola, BurmishMaru)",
       "role": "posterior",
-      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "source": "Laurent Sagart et al. 2019",
       "subject_id": "sagart2019_relaxed_fbd:clade:22a9f8ebcabafcdd"
     },
     {
@@ -10293,7 +10347,7 @@
       "event": "crown_divergence",
       "node": "MRCA(ChinHakha, Karbi, MizoLushai, NagaUkhrul)",
       "role": "posterior",
-      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "source": "Laurent Sagart et al. 2019",
       "subject_id": "sagart2019_relaxed_fbd:clade:37afc51b7998eb6d"
     },
     {
@@ -10887,7 +10941,7 @@
       "event": "crown_divergence",
       "node": "MRCA(SiniticBeijing, SiniticChaozhou, SiniticGuangzhou, SiniticJieyang, SiniticLonggang, SiniticXingning)",
       "role": "posterior",
-      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "source": "Laurent Sagart et al. 2019",
       "subject_id": "sagart2019_relaxed_fbd:clade:3e4d73603fad2ba7"
     },
     {
@@ -12417,7 +12471,7 @@
       "event": "crown_divergence",
       "node": "MRCA(BurmishAchang, BurmishAtsi, BurmishBola, BurmishLashi, BurmishMaru, BurmishOldBurmese, BurmishRangoon, BurmishXiandao, KhroskyabsWobzi, LoloishLisu, QiangicZhaba, Tangut, rGyalrongDaofu, rGyalrongJaphug, rGyalrongMaerkang)",
       "role": "posterior",
-      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "source": "Laurent Sagart et al. 2019",
       "subject_id": "sagart2019_relaxed_fbd:clade:48f71aef44feb3f8"
     },
     {
@@ -12453,7 +12507,7 @@
       "event": "crown_divergence",
       "node": "MRCA(KhroskyabsWobzi, Tangut, rGyalrongDaofu)",
       "role": "posterior",
-      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "source": "Laurent Sagart et al. 2019",
       "subject_id": "sagart2019_relaxed_fbd:clade:4930ef7cf6660d67"
     },
     {
@@ -13497,7 +13551,7 @@
       "event": "crown_divergence",
       "node": "MRCA(Estonian, Finnish, Karelian, Livonian, Mari, Mordvin, Northern_Sami, Skolt_Sami, Ume_Sami, Veps)",
       "role": "posterior",
-      "source": "Cultural and climatic changes shape the evolutionary history of the Uralic languages 2013",
+      "source": "Terhi Honkola et al. 2013",
       "subject_id": "honkola2013_beast:clade:50a1662a05c41126"
     },
     {
@@ -13623,7 +13677,7 @@
       "event": "crown_divergence",
       "node": "MRCA(Komi, Udmurt)",
       "role": "posterior",
-      "source": "Cultural and climatic changes shape the evolutionary history of the Uralic languages 2013",
+      "source": "Terhi Honkola et al. 2013",
       "subject_id": "honkola2013_beast:clade:51ff0ee4b72e9a06"
     },
     {
@@ -14271,7 +14325,7 @@
       "event": "crown_divergence",
       "node": "MRCA(KirantiBahing, KirantiBantawa, KirantiHayu, KirantiKhaling, KirantiKulung, KirantiLimbu, KirantiThulung)",
       "role": "posterior",
-      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "source": "Laurent Sagart et al. 2019",
       "subject_id": "sagart2019_relaxed_fbd:clade:570084978762ce58"
     },
     {
@@ -14685,7 +14739,7 @@
       "event": "crown_divergence",
       "node": "MRCA(KirantiBahing, KirantiKhaling, KirantiKulung, KirantiThulung)",
       "role": "posterior",
-      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "source": "Laurent Sagart et al. 2019",
       "subject_id": "sagart2019_relaxed_fbd:clade:5a740bf0b368c6f3"
     },
     {
@@ -15603,7 +15657,7 @@
       "event": "crown_divergence",
       "node": "MRCA(rGyalrongJaphug, rGyalrongMaerkang)",
       "role": "posterior",
-      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "source": "Laurent Sagart et al. 2019",
       "subject_id": "sagart2019_relaxed_fbd:clade:60af2b3e314495df"
     },
     {
@@ -15621,7 +15675,7 @@
       "event": "crown_divergence",
       "node": "MRCA(BurmishAchang, BurmishAtsi, BurmishBola, BurmishLashi, BurmishMaru, BurmishOldBurmese, BurmishRangoon, BurmishXiandao, KhroskyabsWobzi, LoloishLisu, NungicDulong, QiangicZhaba, Tangut, TibetanAlike, TibetanBatang, TibetanLhasa, TibetanOldTibetan, TibetanXiahe, TibetoKinauriBunan, TibetoKinauriByangsi, TibetoKinauriRongpo, rGyalrongDaofu, rGyalrongJaphug, rGyalrongMaerkang)",
       "role": "posterior",
-      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "source": "Laurent Sagart et al. 2019",
       "subject_id": "sagart2019_relaxed_fbd:clade:611d4cc26c42126a"
     },
     {
@@ -16179,7 +16233,7 @@
       "event": "crown_divergence",
       "node": "MRCA(SiniticChaozhou, SiniticGuangzhou, SiniticJieyang, SiniticLonggang, SiniticXingning)",
       "role": "posterior",
-      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "source": "Laurent Sagart et al. 2019",
       "subject_id": "sagart2019_relaxed_fbd:clade:65b3509c29f3f7ca"
     },
     {
@@ -17709,7 +17763,7 @@
       "event": "crown_divergence",
       "node": "MRCA(KhroskyabsWobzi, QiangicZhaba, Tangut, rGyalrongDaofu, rGyalrongJaphug, rGyalrongMaerkang)",
       "role": "posterior",
-      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "source": "Laurent Sagart et al. 2019",
       "subject_id": "sagart2019_relaxed_fbd:clade:724b94af56a9d883"
     },
     {
@@ -17853,7 +17907,7 @@
       "event": "crown_divergence",
       "node": "MRCA(Finnish, Karelian, Veps)",
       "role": "posterior",
-      "source": "Cultural and climatic changes shape the evolutionary history of the Uralic languages 2013",
+      "source": "Terhi Honkola et al. 2013",
       "subject_id": "honkola2013_beast:clade:733e7191ca73c4c8"
     },
     {
@@ -17943,7 +17997,7 @@
       "event": "crown_divergence",
       "node": "MRCA(KirantiBahing, KirantiThulung)",
       "role": "posterior",
-      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "source": "Laurent Sagart et al. 2019",
       "subject_id": "sagart2019_relaxed_fbd:clade:73b75ef740406241"
     },
     {
@@ -18339,7 +18393,7 @@
       "event": "crown_divergence",
       "node": "MRCA(GaroGaro, JingphoJingpho, Rabha, SiniticBeijing, SiniticChaozhou, SiniticGuangzhou, SiniticJieyang, SiniticLonggang, SiniticOldChinese, SiniticXingning)",
       "role": "posterior",
-      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "source": "Laurent Sagart et al. 2019",
       "subject_id": "sagart2019_relaxed_fbd:clade:7695396230ebc239"
     },
     {
@@ -18897,7 +18951,7 @@
       "event": "crown_divergence",
       "node": "MRCA(ChinHakha, MizoLushai, NagaUkhrul)",
       "role": "posterior",
-      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "source": "Laurent Sagart et al. 2019",
       "subject_id": "sagart2019_relaxed_fbd:clade:79b10a0cc87fb52f"
     },
     {
@@ -19761,7 +19815,7 @@
       "event": "crown_divergence",
       "node": "MRCA(DengDarangTaraon, DengYidu, TaniBokar)",
       "role": "posterior",
-      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "source": "Laurent Sagart et al. 2019",
       "subject_id": "sagart2019_relaxed_fbd:clade:7f6a05699daa6c0d"
     },
     {
@@ -19869,7 +19923,7 @@
       "event": "crown_divergence",
       "node": "MRCA(TibetanAlike, TibetanXiahe)",
       "role": "posterior",
-      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "source": "Laurent Sagart et al. 2019",
       "subject_id": "sagart2019_relaxed_fbd:clade:7feb7a1627ecb61d"
     },
     {
@@ -19923,7 +19977,7 @@
       "event": "crown_divergence",
       "node": "MRCA(BurmishAchang, BurmishAtsi, BurmishBola, BurmishLashi, BurmishMaru, BurmishOldBurmese, BurmishRangoon, BurmishXiandao, KhroskyabsWobzi, LoloishLisu, QiangicZhaba, Tangut, TibetanAlike, TibetanBatang, TibetanLhasa, TibetanOldTibetan, TibetanXiahe, rGyalrongDaofu, rGyalrongJaphug, rGyalrongMaerkang)",
       "role": "posterior",
-      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "source": "Laurent Sagart et al. 2019",
       "subject_id": "sagart2019_relaxed_fbd:clade:8012c9ce11620d18"
     },
     {
@@ -20265,7 +20319,7 @@
       "event": "crown_divergence",
       "node": "MRCA(BurmishAtsi, BurmishBola, BurmishLashi, BurmishMaru)",
       "role": "posterior",
-      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "source": "Laurent Sagart et al. 2019",
       "subject_id": "sagart2019_relaxed_fbd:clade:821f8cfefdfb8c55"
     },
     {
@@ -20373,7 +20427,7 @@
       "event": "crown_divergence",
       "node": "MRCA(GaroGaro, Rabha)",
       "role": "posterior",
-      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "source": "Laurent Sagart et al. 2019",
       "subject_id": "sagart2019_relaxed_fbd:clade:82d99173276a918c"
     },
     {
@@ -20679,7 +20733,7 @@
       "event": "crown_divergence",
       "node": "MRCA(BodicTshangla, BurmishAchang, BurmishAtsi, BurmishBola, BurmishLashi, BurmishMaru, BurmishOldBurmese, BurmishRangoon, BurmishXiandao, ChepangChepang, ChinHakha, DengDarangTaraon, DengYidu, GaroGaro, JingphoJingpho, Karbi, KhroskyabsWobzi, KirantiBahing, KirantiBantawa, KirantiHayu, KirantiKhaling, KirantiKulung, KirantiLimbu, KirantiThulung, LoloishLisu, MizoLushai, NagaUkhrul, NungicDulong, QiangicZhaba, Rabha, SiniticBeijing, SiniticChaozhou, SiniticGuangzhou, SiniticJieyang, SiniticLonggang, SiniticOldChinese, SiniticXingning, Tangut, TaniBokar, TibetanAlike, TibetanBatang, TibetanLhasa, TibetanOldTibetan, TibetanXiahe, TibetoKinauriBunan, TibetoKinauriByangsi, TibetoKinauriRongpo, rGyalrongDaofu, rGyalrongJaphug, rGyalrongMaerkang)",
       "role": "posterior",
-      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "source": "Laurent Sagart et al. 2019",
       "subject_id": "sagart2019_relaxed_fbd:clade:85fc284e79c8f396"
     },
     {
@@ -20751,7 +20805,7 @@
       "event": "crown_divergence",
       "node": "MRCA(BurmishAchang, BurmishXiandao)",
       "role": "posterior",
-      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "source": "Laurent Sagart et al. 2019",
       "subject_id": "sagart2019_relaxed_fbd:clade:8700d19bd5ee5f48"
     },
     {
@@ -21597,7 +21651,7 @@
       "event": "crown_divergence",
       "node": "MRCA(BurmishAchang, BurmishAtsi, BurmishBola, BurmishLashi, BurmishMaru, BurmishXiandao)",
       "role": "posterior",
-      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "source": "Laurent Sagart et al. 2019",
       "subject_id": "sagart2019_relaxed_fbd:clade:8cf838849e101c21"
     },
     {
@@ -21687,7 +21741,7 @@
       "event": "crown_divergence",
       "node": "MRCA(TibetanAlike, TibetanBatang, TibetanLhasa, TibetanXiahe)",
       "role": "posterior",
-      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "source": "Laurent Sagart et al. 2019",
       "subject_id": "sagart2019_relaxed_fbd:clade:8d80d110371c2885"
     },
     {
@@ -21741,7 +21795,7 @@
       "event": "crown_divergence",
       "node": "MRCA(Estonian, Finnish, Karelian, Komi, Livonian, Mari, Mordvin, Northern_Sami, Skolt_Sami, Udmurt, Ume_Sami, Veps)",
       "role": "posterior",
-      "source": "Cultural and climatic changes shape the evolutionary history of the Uralic languages 2013",
+      "source": "Terhi Honkola et al. 2013",
       "subject_id": "honkola2013_beast:clade:8e3aa81f5c58105b"
     },
     {
@@ -22515,7 +22569,7 @@
       "event": "crown_divergence",
       "node": "MRCA(SiniticBeijing, SiniticChaozhou, SiniticGuangzhou, SiniticJieyang, SiniticLonggang, SiniticOldChinese, SiniticXingning)",
       "role": "posterior",
-      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "source": "Laurent Sagart et al. 2019",
       "subject_id": "sagart2019_relaxed_fbd:clade:93667a9682375bf1"
     },
     {
@@ -22623,7 +22677,7 @@
       "event": "crown_divergence",
       "node": "MRCA(BodicTshangla, DengDarangTaraon, DengYidu, KirantiBahing, KirantiBantawa, KirantiHayu, KirantiKhaling, KirantiKulung, KirantiLimbu, KirantiThulung, TaniBokar)",
       "role": "posterior",
-      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "source": "Laurent Sagart et al. 2019",
       "subject_id": "sagart2019_relaxed_fbd:clade:93fcedc9a680d544"
     },
     {
@@ -22659,7 +22713,7 @@
       "event": "crown_divergence",
       "node": "MRCA(Northern_Sami, Skolt_Sami, Ume_Sami)",
       "role": "posterior",
-      "source": "Cultural and climatic changes shape the evolutionary history of the Uralic languages 2013",
+      "source": "Terhi Honkola et al. 2013",
       "subject_id": "honkola2013_beast:clade:942a95830fb9568c"
     },
     {
@@ -22677,7 +22731,7 @@
       "event": "crown_divergence",
       "node": "MRCA(Estonian, Livonian)",
       "role": "posterior",
-      "source": "Cultural and climatic changes shape the evolutionary history of the Uralic languages 2013",
+      "source": "Terhi Honkola et al. 2013",
       "subject_id": "honkola2013_beast:clade:942aa371b78bc88b"
     },
     {
@@ -22875,7 +22929,7 @@
       "event": "crown_divergence",
       "node": "MRCA(Khanty, Mansi)",
       "role": "posterior",
-      "source": "Cultural and climatic changes shape the evolutionary history of the Uralic languages 2013",
+      "source": "Terhi Honkola et al. 2013",
       "subject_id": "honkola2013_beast:clade:9576ed8214561d75"
     },
     {
@@ -22893,7 +22947,7 @@
       "event": "crown_divergence",
       "node": "MRCA(KirantiBantawa, KirantiLimbu)",
       "role": "posterior",
-      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "source": "Laurent Sagart et al. 2019",
       "subject_id": "sagart2019_relaxed_fbd:clade:95935d6b4bfcc294"
     },
     {
@@ -24639,7 +24693,7 @@
       "event": "crown_divergence",
       "node": "MRCA(BurmishOldBurmese, BurmishRangoon)",
       "role": "posterior",
-      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "source": "Laurent Sagart et al. 2019",
       "subject_id": "sagart2019_relaxed_fbd:clade:a457f1863863a565"
     },
     {
@@ -25197,7 +25251,7 @@
       "event": "crown_divergence",
       "node": "MRCA(KirantiBahing, KirantiBantawa, KirantiKhaling, KirantiKulung, KirantiLimbu, KirantiThulung)",
       "role": "posterior",
-      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "source": "Laurent Sagart et al. 2019",
       "subject_id": "sagart2019_relaxed_fbd:clade:a95ef5fde2f3bddb"
     },
     {
@@ -25539,7 +25593,7 @@
       "event": "crown_divergence",
       "node": "MRCA(Nenets, Selkup)",
       "role": "posterior",
-      "source": "Cultural and climatic changes shape the evolutionary history of the Uralic languages 2013",
+      "source": "Terhi Honkola et al. 2013",
       "subject_id": "honkola2013_beast:clade:abc4147990769def"
     },
     {
@@ -25611,7 +25665,7 @@
       "event": "crown_divergence",
       "node": "MRCA(BurmishAchang, BurmishAtsi, BurmishBola, BurmishLashi, BurmishMaru, BurmishOldBurmese, BurmishRangoon, BurmishXiandao, KhroskyabsWobzi, LoloishLisu, NungicDulong, QiangicZhaba, Tangut, TibetanAlike, TibetanBatang, TibetanLhasa, TibetanOldTibetan, TibetanXiahe, rGyalrongDaofu, rGyalrongJaphug, rGyalrongMaerkang)",
       "role": "posterior",
-      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "source": "Laurent Sagart et al. 2019",
       "subject_id": "sagart2019_relaxed_fbd:clade:ac05c99327920422"
     },
     {
@@ -26043,7 +26097,7 @@
       "event": "crown_divergence",
       "node": "MRCA(Karelian, Veps)",
       "role": "posterior",
-      "source": "Cultural and climatic changes shape the evolutionary history of the Uralic languages 2013",
+      "source": "Terhi Honkola et al. 2013",
       "subject_id": "honkola2013_beast:clade:aeb8ae061d2b5215"
     },
     {
@@ -26853,7 +26907,7 @@
       "event": "crown_divergence",
       "node": "MRCA(Estonian, Finnish, Hungarian, Karelian, Khanty, Komi, Livonian, Mansi, Mari, Mordvin, Northern_Sami, Skolt_Sami, Udmurt, Ume_Sami, Veps)",
       "role": "posterior",
-      "source": "Cultural and climatic changes shape the evolutionary history of the Uralic languages 2013",
+      "source": "Terhi Honkola et al. 2013",
       "subject_id": "honkola2013_beast:clade:b4a19567a52337fc"
     },
     {
@@ -27303,7 +27357,7 @@
       "event": "crown_divergence",
       "node": "MRCA(GaroGaro, JingphoJingpho, Rabha)",
       "role": "posterior",
-      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "source": "Laurent Sagart et al. 2019",
       "subject_id": "sagart2019_relaxed_fbd:clade:b83975bb2a11fb4a"
     },
     {
@@ -27483,7 +27537,7 @@
       "event": "crown_divergence",
       "node": "MRCA(DengDarangTaraon, DengYidu)",
       "role": "posterior",
-      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "source": "Laurent Sagart et al. 2019",
       "subject_id": "sagart2019_relaxed_fbd:clade:b9e9d1efab220078"
     },
     {
@@ -28113,7 +28167,7 @@
       "event": "crown_divergence",
       "node": "MRCA(SiniticChaozhou, SiniticJieyang)",
       "role": "posterior",
-      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "source": "Laurent Sagart et al. 2019",
       "subject_id": "sagart2019_relaxed_fbd:clade:be1c707ff7776dd9"
     },
     {
@@ -29553,7 +29607,7 @@
       "event": "crown_divergence",
       "node": "MRCA(KhroskyabsWobzi, Tangut, rGyalrongDaofu, rGyalrongJaphug, rGyalrongMaerkang)",
       "role": "posterior",
-      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "source": "Laurent Sagart et al. 2019",
       "subject_id": "sagart2019_relaxed_fbd:clade:c9f2d9b736f51c31"
     },
     {
@@ -30849,7 +30903,7 @@
       "event": "crown_divergence",
       "node": "MRCA(SiniticLonggang, SiniticXingning)",
       "role": "posterior",
-      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "source": "Laurent Sagart et al. 2019",
       "subject_id": "sagart2019_relaxed_fbd:clade:d2ce6f8350c7a8f0"
     },
     {
@@ -31713,7 +31767,7 @@
       "event": "crown_divergence",
       "node": "MRCA(TibetoKinauriByangsi, TibetoKinauriRongpo)",
       "role": "posterior",
-      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "source": "Laurent Sagart et al. 2019",
       "subject_id": "sagart2019_relaxed_fbd:clade:dafe8621d9ce99a5"
     },
     {
@@ -32181,7 +32235,7 @@
       "event": "crown_divergence",
       "node": "MRCA(TibetoKinauriBunan, TibetoKinauriByangsi, TibetoKinauriRongpo)",
       "role": "posterior",
-      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "source": "Laurent Sagart et al. 2019",
       "subject_id": "sagart2019_relaxed_fbd:clade:ddce35e3569bc6d8"
     },
     {
@@ -32451,7 +32505,7 @@
       "event": "crown_divergence",
       "node": "MRCA(Hungarian, Khanty, Mansi)",
       "role": "posterior",
-      "source": "Cultural and climatic changes shape the evolutionary history of the Uralic languages 2013",
+      "source": "Terhi Honkola et al. 2013",
       "subject_id": "honkola2013_beast:clade:df6c358ded9cdc60"
     },
     {
@@ -32775,7 +32829,7 @@
       "event": "crown_divergence",
       "node": "MRCA(ChinHakha, MizoLushai)",
       "role": "posterior",
-      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "source": "Laurent Sagart et al. 2019",
       "subject_id": "sagart2019_relaxed_fbd:clade:e0ed31321593b630"
     },
     {
@@ -33531,7 +33585,7 @@
       "event": "crown_divergence",
       "node": "MRCA(TibetanAlike, TibetanBatang, TibetanLhasa, TibetanOldTibetan, TibetanXiahe)",
       "role": "posterior",
-      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "source": "Laurent Sagart et al. 2019",
       "subject_id": "sagart2019_relaxed_fbd:clade:e60bfec14186684f"
     },
     {
@@ -33675,7 +33729,7 @@
       "event": "crown_divergence",
       "node": "MRCA(Estonian, Finnish, Karelian, Livonian, Northern_Sami, Skolt_Sami, Ume_Sami, Veps)",
       "role": "posterior",
-      "source": "Cultural and climatic changes shape the evolutionary history of the Uralic languages 2013",
+      "source": "Terhi Honkola et al. 2013",
       "subject_id": "honkola2013_beast:clade:e72fdbdca699dc2b"
     },
     {
@@ -33963,7 +34017,7 @@
       "event": "crown_divergence",
       "node": "MRCA(BodicTshangla, BurmishAchang, BurmishAtsi, BurmishBola, BurmishLashi, BurmishMaru, BurmishOldBurmese, BurmishRangoon, BurmishXiandao, ChepangChepang, ChinHakha, DengDarangTaraon, DengYidu, Karbi, KhroskyabsWobzi, KirantiBahing, KirantiBantawa, KirantiHayu, KirantiKhaling, KirantiKulung, KirantiLimbu, KirantiThulung, LoloishLisu, MizoLushai, NagaUkhrul, NungicDulong, QiangicZhaba, Tangut, TaniBokar, TibetanAlike, TibetanBatang, TibetanLhasa, TibetanOldTibetan, TibetanXiahe, TibetoKinauriBunan, TibetoKinauriByangsi, TibetoKinauriRongpo, rGyalrongDaofu, rGyalrongJaphug, rGyalrongMaerkang)",
       "role": "posterior",
-      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "source": "Laurent Sagart et al. 2019",
       "subject_id": "sagart2019_relaxed_fbd:clade:e8a3a428140f1114"
     },
     {
@@ -34089,7 +34143,7 @@
       "event": "crown_divergence",
       "node": "MRCA(Estonian, Finnish, Karelian, Livonian, Mordvin, Northern_Sami, Skolt_Sami, Ume_Sami, Veps)",
       "role": "posterior",
-      "source": "Cultural and climatic changes shape the evolutionary history of the Uralic languages 2013",
+      "source": "Terhi Honkola et al. 2013",
       "subject_id": "honkola2013_beast:clade:e95d352cce8f903a"
     },
     {
@@ -34233,7 +34287,7 @@
       "event": "crown_divergence",
       "node": "MRCA(BurmishAchang, BurmishAtsi, BurmishBola, BurmishLashi, BurmishMaru, BurmishOldBurmese, BurmishRangoon, BurmishXiandao)",
       "role": "posterior",
-      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "source": "Laurent Sagart et al. 2019",
       "subject_id": "sagart2019_relaxed_fbd:clade:ea7aeb0a9cf93fa3"
     },
     {
@@ -35259,7 +35313,7 @@
       "event": "crown_divergence",
       "node": "MRCA(BodicTshangla, ChepangChepang, DengDarangTaraon, DengYidu, KirantiBahing, KirantiBantawa, KirantiHayu, KirantiKhaling, KirantiKulung, KirantiLimbu, KirantiThulung, TaniBokar)",
       "role": "posterior",
-      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "source": "Laurent Sagart et al. 2019",
       "subject_id": "sagart2019_relaxed_fbd:clade:f24ece1ecfe670a2"
     },
     {
@@ -35331,7 +35385,7 @@
       "event": "crown_divergence",
       "node": "MRCA(TibetanBatang, TibetanLhasa)",
       "role": "posterior",
-      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "source": "Laurent Sagart et al. 2019",
       "subject_id": "sagart2019_relaxed_fbd:clade:f30b4f96b05d5205"
     },
     {
@@ -35529,7 +35583,7 @@
       "event": "crown_divergence",
       "node": "MRCA(SiniticGuangzhou, SiniticLonggang, SiniticXingning)",
       "role": "posterior",
-      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "source": "Laurent Sagart et al. 2019",
       "subject_id": "sagart2019_relaxed_fbd:clade:f4c9794bb65b5b31"
     },
     {
@@ -36519,7 +36573,7 @@
       "event": "crown_divergence",
       "node": "MRCA(KhroskyabsWobzi, rGyalrongDaofu)",
       "role": "posterior",
-      "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+      "source": "Laurent Sagart et al. 2019",
       "subject_id": "sagart2019_relaxed_fbd:clade:fde5e0867979fae2"
     },
     {
@@ -36793,7 +36847,7 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:fff5df92fe6ca543"
     }
   ],
-  "generation": "e67e8491615140924c2bc6f60fb59311c68daa93a72f3fdf2e2fa26b047e6404",
+  "generation": "48fc554e9606ba4b6b6ea8659bb23cb062a1517f7daaefeef38ea2d35a99e75d",
   "languages": [
     {
       "alternatives": [],
@@ -39681,6 +39735,12 @@
           "url": "https://journal.fi/fuf/article/download/89967/57637"
         }
       ],
+      "frame": {
+        "in_frame": false,
+        "name": "Honkola et al. 2013",
+        "note": "Honkola et al. sample a single Mari variety, so their tree has no Proto-Mari breakup; Holopainen & Metsäranta 2020's bound is kept.",
+        "root": "urj-pro"
+      },
       "kind": "proto",
       "label": "until after c. 1300 CE",
       "name": "Proto-Mari",
@@ -41635,6 +41695,24 @@
         {
           "basis": "estimated",
           "citation": "Kallio, Petri. 2006. Suomen kantakielten absoluuttista kronologiaa. Virittäjä 110(1): 2–25.",
+          "claim_id": "ev_period_35d66fffa53efab278f2e0437d9b63779439a316",
+          "end": {
+            "earliest": -2999,
+            "latest": -2999
+          },
+          "event": "crown_divergence",
+          "label": "until c. 3000 BCE",
+          "locator": "{\"pdf_page\": 1, \"printed_page\": \"2\", \"table\": \"1\", \"column\": \"Sm.-ugr. (Finno-Ugrian)\", \"visual_checked\": true}",
+          "method": "expert_estimate",
+          "quote": "Korhonen 1981 4000 eKr. 3000 eKr. 2000 eKr.\n1500 eKr. 1000 eKr.      1 jKr.",
+          "role": "hypothesis",
+          "source": "Petri Kallio 2006",
+          "start": null,
+          "url": "https://www.kotikielenseura.fi/virittaja/hakemistot/jutut/2006_2.pdf"
+        },
+        {
+          "basis": "estimated",
+          "citation": "Kallio, Petri. 2006. Suomen kantakielten absoluuttista kronologiaa. Virittäjä 110(1): 2–25.",
           "claim_id": "ev_period_508e56ffc2ce6f350718098f26ea6e0526bc5a46",
           "end": {
             "earliest": -2499,
@@ -41707,26 +41785,39 @@
       ],
       "basis": "estimated",
       "code": "fiu-pro",
+      "estimate": {
+        "interval": "95% HPD 3420–750 BCE",
+        "statistic": "mean",
+        "text": "1990 BCE",
+        "value": -1992
+      },
       "evidence": [
         {
-          "citation": "Kallio, Petri. 2006. Suomen kantakielten absoluuttista kronologiaa. Virittäjä 110(1): 2–25.",
-          "claim_id": "ev_period_35d66fffa53efab278f2e0437d9b63779439a316",
+          "citation": "Cultural and climatic changes shape the evolutionary history of the Uralic languages",
+          "claim_id": "ev_tree_b4a19567a52337fc3f4dfff7dfd4076ad99601235866dffc5c4f03b88b9c6cbc",
           "event": "crown_divergence",
-          "locator": "{\"pdf_page\": 1, \"printed_page\": \"2\", \"table\": \"1\", \"column\": \"Sm.-ugr. (Finno-Ugrian)\", \"visual_checked\": true}",
-          "method": "expert_estimate",
-          "quote": "Korhonen 1981 4000 eKr. 3000 eKr. 2000 eKr.\n1500 eKr. 1000 eKr.      1 jKr.",
-          "role": "hypothesis",
-          "source": "Petri Kallio 2006",
-          "url": "https://www.kotikielenseura.fi/virittaja/hakemistot/jutut/2006_2.pdf"
+          "locator": null,
+          "method": "phylogenetic",
+          "node": "MRCA(Estonian, Finnish, Hungarian, Karelian, Khanty, Komi, Livonian, Mansi, Mari, Mordvin, Northern_Sami, Skolt_Sami, Udmurt, Ume_Sami, Veps)",
+          "proto_mapping": "Every sampled Uralic language but the Samoyedic ones: Ugric, Permic, Mari, Mordvin, Saami and Finnic, the branches Wiktionary's Proto-Finno-Ugric covers, so its crown is that node's breakup.",
+          "quote": null,
+          "role": "posterior",
+          "source": "Terhi Honkola et al. 2013",
+          "url": "https://bedlan.net/wp-content/uploads/2019/05/honkola_et_al_2013_cultural_and_climatic.pdf"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Honkola et al. 2013",
+        "root": "urj-pro"
+      },
       "kind": "proto",
-      "label": "until c. 3000 BCE",
+      "label": "until c. 1990 BCE",
       "name": "Proto-Finno-Ugric",
       "spoken": {
         "end": {
-          "earliest": -2999,
-          "latest": -2999
+          "earliest": -3421,
+          "latest": -745
         },
         "ongoing": false,
         "start": null
@@ -49325,7 +49416,7 @@
           "proto_mapping": "The root of Sagart et al.'s tree: its 50 sampled varieties include Sinitic (Old Chinese and modern Chinese) and the Tibeto-Burman subgroups, so its crown is the breakup of Proto-Sino-Tibetan in this analysis.",
           "quote": null,
           "role": "posterior",
-          "source": "Dated language phylogenies shed light on the ancestry of Sino-Tibetan 2019",
+          "source": "Laurent Sagart et al. 2019",
           "start": null,
           "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC6534992/fullTextXML"
         }
@@ -49550,10 +49641,15 @@
           "proto_mapping": "The clade contains Eastern (Skolt) and Western Saami (North, Ume). Support 1.0; not a calibrated node.",
           "quote": null,
           "role": "posterior",
-          "source": "Cultural and climatic changes shape the evolutionary history of the Uralic languages 2013",
+          "source": "Terhi Honkola et al. 2013",
           "url": "https://bedlan.net/wp-content/uploads/2019/05/honkola_et_al_2013_cultural_and_climatic.pdf"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Honkola et al. 2013",
+        "root": "urj-pro"
+      },
       "kind": "proto",
       "label": "until c. 1140 CE",
       "name": "Proto-Samic",
@@ -49572,14 +49668,14 @@
       "code": "sog",
       "evidence": [
         {
-          "citation": "Yoshida, Yutaka. 2016. “Sogdian Language i. Description.” Encyclopædia Iranica, online edition, published 11 November 2016, updated 18 November 2016. https://www.iranicaonline.org/articles/sogdian-language-01 (accessed 5 October 2026).",
+          "citation": "Yoshida, Yutaka. 2016. “Sogdian Language i. Description.” Encyclopædia Iranica, online edition, published 11 November 20",
           "claim_id": "ev_period_a47756ad11102e72e2401021b66042cf7900f216",
           "event": "last_attestation",
           "locator": "{\"start\": 4768, \"end\": 5245, \"section\": \"Materials and publications\"}",
           "method": "scholarly_documentation",
           "quote": "Apart from the so-called Ancient Letters of the early 4th century, inscriptions discovered in Kultobe in Kazakhstan (see Sims-Williams et al., 2007; 1st-2nd century CE?) and in the Upper Indus valleys (see Sims-Williams, 1989/1992 and 2000, Yoshida, 2013; 5th century?), the bulk of Sogdian materials dates back to the 7th to early 11th centuries. The latest datable material is the inscription of 1026 CE discovered in Kyrgyzstan (Livshits, 2008, p. 379, idem, 2015, p. 290).",
           "role": "observation",
-          "source": "Yoshida, Yutaka. 2016. “Sogdian Language i. Description.” Encyclopædia Iranica, online edition, published 11 November 20",
+          "source": "Yutaka Yoshida 2016",
           "url": "https://www.iranicaonline.org/articles/sogdian-language-01"
         }
       ],
@@ -49793,6 +49889,42 @@
       "alternatives": [
         {
           "basis": "estimated",
+          "citation": "Abondolo, Daniel & Riitta-Liisa Valijärvi. 2023. Introduction to the Uralic languages, with special reference to Finnish and Hungarian. In Daniel Abondolo & Riitta-Liisa Valijärvi (eds.), The Uralic Languages, 2nd edn, chapter 1. London: Routledge. doi:10.4324/9781315625096.",
+          "claim_id": "ev_period_2a3af072fcefe15f3ca5e69d07c23bbff2941d4a",
+          "end": {
+            "earliest": 450,
+            "latest": 450
+          },
+          "event": "crown_divergence",
+          "label": "until c. 450 CE",
+          "locator": "{\"page\": \"14\", \"pdf_page\": 33}",
+          "method": "expert_estimate",
+          "quote": "separation of Proto-Samoyedic ca 2500 BP and the beginning of a spread of Samoyedic \nforms of speech northwards, with concomitant differentiation, ca 1500 BP.",
+          "role": "hypothesis",
+          "source": "Abondolo & Valijärvi 2023",
+          "start": null,
+          "url": "https://doi.org/10.4324/9781315625096"
+        },
+        {
+          "basis": "estimated",
+          "citation": "Häkkinen, Jaakko. 2009. Kantauralin ajoitus ja paikannus: perustelut puntarissa. Suomalais-Ugrilaisen Seuran Aikakauskirja 92: 9–56.",
+          "claim_id": "ev_period_2eab079550fbfdea2bcd8c828a29cf3e4adf1f79",
+          "end": {
+            "earliest": -99,
+            "latest": 0
+          },
+          "event": "crown_divergence",
+          "label": "until c. 1st century BCE",
+          "locator": "{\"pdf_page\": 24, \"printed_page\": \"32\", \"cited_page\": \"Janhunen 1998: 476\", \"visual_checked\": true}",
+          "method": "expert_estimate",
+          "quote": "(kantasamojedin hajoaminen ajoitetaan karkeasti hieman ajanlaskun alkua varhaisem-\nmaksi; Janhunen 1998: 476).",
+          "role": "hypothesis",
+          "source": "Jaakko Häkkinen 2009",
+          "start": null,
+          "url": "https://journal.fi/susa/article/download/82020/41214"
+        },
+        {
+          "basis": "estimated",
           "citation": "Automated dating of the world's language families based on lexical similarity",
           "claim_id": "ev_period_3e89b5312b95c346870073c3ffc739aab23ce4c0",
           "end": {
@@ -49812,26 +49944,39 @@
       ],
       "basis": "estimated",
       "code": "syd-pro",
+      "estimate": {
+        "interval": "95% HPD 240–50 BCE",
+        "statistic": "mean",
+        "text": "150 BCE",
+        "value": -145
+      },
       "evidence": [
         {
-          "citation": "Häkkinen, Jaakko. 2009. Kantauralin ajoitus ja paikannus: perustelut puntarissa. Suomalais-Ugrilaisen Seuran Aikakauskirja 92: 9–56.",
-          "claim_id": "ev_period_2eab079550fbfdea2bcd8c828a29cf3e4adf1f79",
+          "citation": "Cultural and climatic changes shape the evolutionary history of the Uralic languages",
+          "claim_id": "ev_tree_abc4147990769def23acedd228e6272dc1f895ecabbb9bb833ee3bdecf45a09c",
           "event": "crown_divergence",
-          "locator": "{\"pdf_page\": 24, \"printed_page\": \"32\", \"cited_page\": \"Janhunen 1998: 476\", \"visual_checked\": true}",
-          "method": "expert_estimate",
-          "quote": "(kantasamojedin hajoaminen ajoitetaan karkeasti hieman ajanlaskun alkua varhaisem-\nmaksi; Janhunen 1998: 476).",
-          "role": "hypothesis",
-          "source": "Jaakko Häkkinen 2009",
-          "url": "https://journal.fi/susa/article/download/82020/41214"
+          "locator": null,
+          "method": "phylogenetic",
+          "node": "MRCA(Nenets, Selkup)",
+          "proto_mapping": "Nenets (Northern Samoyedic) and Selkup (Southern Samoyedic) span the traditional North/South division of Samoyedic, so their common ancestor's split is the breakup of Proto-Samoyedic; Nganasan, Enets and the extinct southern languages are not sampled.",
+          "quote": null,
+          "role": "posterior",
+          "source": "Terhi Honkola et al. 2013",
+          "url": "https://bedlan.net/wp-content/uploads/2019/05/honkola_et_al_2013_cultural_and_climatic.pdf"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Honkola et al. 2013",
+        "root": "urj-pro"
+      },
       "kind": "proto",
-      "label": "until c. 1st century BCE",
+      "label": "until c. 150 BCE",
       "name": "Proto-Samoyedic",
       "spoken": {
         "end": {
-          "earliest": -99,
-          "latest": 0
+          "earliest": -239,
+          "latest": -50
         },
         "ongoing": false,
         "start": null
@@ -50818,10 +50963,15 @@
           "proto_mapping": "The clade contains northern (Finnish, Karelian, Veps) and southern Finnic (Estonian, Livonian). Support 1.0; not a calibrated node.",
           "quote": null,
           "role": "posterior",
-          "source": "Cultural and climatic changes shape the evolutionary history of the Uralic languages 2013",
+          "source": "Terhi Honkola et al. 2013",
           "url": "https://bedlan.net/wp-content/uploads/2019/05/honkola_et_al_2013_cultural_and_climatic.pdf"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Honkola et al. 2013",
+        "root": "urj-pro"
+      },
       "kind": "proto",
       "label": "until c. 740 CE",
       "name": "Proto-Finnic",
@@ -50925,30 +51075,61 @@
           "source": "Petri Kallio 2006",
           "start": null,
           "url": "https://www.kotikielenseura.fi/virittaja/hakemistot/jutut/2006_2.pdf"
-        }
-      ],
-      "basis": "estimated",
-      "code": "urj-fpr-pro",
-      "evidence": [
+        },
         {
+          "basis": "estimated",
           "citation": "Kallio, Petri. 2006. Suomen kantakielten absoluuttista kronologiaa. Virittäjä 110(1): 2–25.",
           "claim_id": "ev_period_96afdcf9e4cc055ff42829c1808b5f56a868edc8",
+          "end": {
+            "earliest": -1999,
+            "latest": -1999
+          },
           "event": "crown_divergence",
+          "label": "until c. 2000 BCE",
           "locator": "{\"pdf_page\": 1, \"printed_page\": \"2\", \"table\": \"1\", \"column\": \"Sm.-perm. (Finno-Permic)\", \"visual_checked\": true}",
           "method": "expert_estimate",
           "quote": "Korhonen 1981 4000 eKr. 3000 eKr. 2000 eKr.\n1500 eKr. 1000 eKr.      1 jKr.",
           "role": "hypothesis",
           "source": "Petri Kallio 2006",
+          "start": null,
           "url": "https://www.kotikielenseura.fi/virittaja/hakemistot/jutut/2006_2.pdf"
         }
       ],
+      "basis": "estimated",
+      "code": "urj-fpr-pro",
+      "estimate": {
+        "interval": "95% HPD 2980–670 BCE",
+        "statistic": "mean",
+        "text": "1750 BCE",
+        "value": -1749
+      },
+      "evidence": [
+        {
+          "citation": "Cultural and climatic changes shape the evolutionary history of the Uralic languages",
+          "claim_id": "ev_tree_8e3aa81f5c58105bae982817cd869703587b13b966ed380a41859d8933bbcc67",
+          "event": "crown_divergence",
+          "locator": null,
+          "method": "phylogenetic",
+          "node": "MRCA(Estonian, Finnish, Karelian, Komi, Livonian, Mari, Mordvin, Northern_Sami, Skolt_Sami, Udmurt, Ume_Sami, Veps)",
+          "proto_mapping": "Permic, Mari, Mordvin, Saami and Finnic: the branches Wiktionary's Proto-Finno-Permic covers, so its crown is that node's breakup.",
+          "quote": null,
+          "role": "posterior",
+          "source": "Terhi Honkola et al. 2013",
+          "url": "https://bedlan.net/wp-content/uploads/2019/05/honkola_et_al_2013_cultural_and_climatic.pdf"
+        }
+      ],
+      "frame": {
+        "in_frame": true,
+        "name": "Honkola et al. 2013",
+        "root": "urj-pro"
+      },
       "kind": "proto",
-      "label": "until c. 2000 BCE",
+      "label": "until c. 1750 BCE",
       "name": "Proto-Finno-Permic",
       "spoken": {
         "end": {
-          "earliest": -1999,
-          "latest": -1999
+          "earliest": -2978,
+          "latest": -665
         },
         "ongoing": false,
         "start": null
@@ -51008,6 +51189,12 @@
           "url": "https://journal.fi/fuf/article/download/85674/44638"
         }
       ],
+      "frame": {
+        "in_frame": false,
+        "name": "Honkola et al. 2013",
+        "note": "Honkola et al. sample a single Mordvin variety, so their tree has no Proto-Mordvin breakup; Häkkinen 2012's date is kept.",
+        "root": "urj-pro"
+      },
       "kind": "proto",
       "label": "until c. 1000 CE",
       "name": "Proto-Mordvinic",
@@ -51022,6 +51209,27 @@
     },
     {
       "alternatives": [
+        {
+          "basis": "estimated",
+          "citation": "Parpola, Asko. 2017. Finnish vatsa ~ Sanskrit vatsá- and the formation of Indo-Iranian and Uralic languages. Journal de la Société Finno-Ougrienne 96:245–286. https://doi.org/10.33340/susa.70229",
+          "claim_id": "ev_period_8c9e45574e6fc4d63b5c857ef14a36f1bb476cd0",
+          "end": {
+            "earliest": -199,
+            "latest": -199
+          },
+          "event": "conventional_period",
+          "label": "c. 800–200 BCE",
+          "locator": "{\"pdf_page\": 10, \"page_label\": \"254\", \"section\": \"archaeological correlations\", \"text_start\": 21784, \"text_end\": 21953}",
+          "method": "archaeological_correlation",
+          "quote": "In the ninth century BCE, the \nPrikazan culture developed into the powerful Ananʹino culture (800–200 BCE) \n(Fig. 7), which undoubtedly had Proto-Permic as its language.",
+          "role": "hypothesis",
+          "source": "Parpola 2017",
+          "start": {
+            "earliest": -799,
+            "latest": -799
+          },
+          "url": "https://journal.fi/susa/article/download/70229/31259"
+        },
         {
           "basis": "estimated",
           "citation": "Automated dating of the world's language families based on lexical similarity",
@@ -51057,40 +51265,87 @@
           "source": "Raija Bartens 2000",
           "start": null,
           "url": "https://doi.org/10.33341/sus.238"
+        },
+        {
+          "basis": "estimated",
+          "citation": "Bartens, Raija. 2000. Permiläisten kielten rakenne ja kehitys. Suomalais-Ugrilaisen Seuran Toimituksia 238. Helsinki: Suomalais-Ugrilainen Seura.",
+          "claim_id": "ev_period_54053ecb235baa6dc03192b5f67cc9c379e6f546",
+          "end": {
+            "earliest": 701,
+            "latest": 800
+          },
+          "event": "crown_divergence",
+          "label": "until c. 8th century CE",
+          "locator": "{\"page\": \"13\", \"pdf_page\": 13}",
+          "method": "comparative_reconstruction",
+          "quote": "laajalla alueella, 700-luvulla alkoi kantapermiläinen kielimuoto kuitenkin hajota \neteläiseksi udmurtiksi ja pohjoisten alueiden komiksi.",
+          "role": "hypothesis",
+          "source": "Raija Bartens 2000",
+          "start": null,
+          "url": "https://doi.org/10.33341/sus.238"
         }
       ],
       "basis": "estimated",
       "code": "urj-prm-pro",
+      "estimate": {
+        "interval": "95% HPD 660–850 CE",
+        "statistic": "mean",
+        "text": "760 CE",
+        "value": 757
+      },
       "evidence": [
         {
-          "citation": "Parpola, Asko. 2017. Finnish vatsa ~ Sanskrit vatsá- and the formation of Indo-Iranian and Uralic languages. Journal de la Société Finno-Ougrienne 96:245–286. https://doi.org/10.33340/susa.70229",
-          "claim_id": "ev_period_8c9e45574e6fc4d63b5c857ef14a36f1bb476cd0",
-          "event": "conventional_period",
-          "locator": "{\"pdf_page\": 10, \"page_label\": \"254\", \"section\": \"archaeological correlations\", \"text_start\": 21784, \"text_end\": 21953}",
-          "method": "archaeological_correlation",
-          "quote": "In the ninth century BCE, the \nPrikazan culture developed into the powerful Ananʹino culture (800–200 BCE) \n(Fig. 7), which undoubtedly had Proto-Permic as its language.",
-          "role": "hypothesis",
-          "source": "Parpola 2017",
-          "url": "https://journal.fi/susa/article/download/70229/31259"
+          "citation": "Cultural and climatic changes shape the evolutionary history of the Uralic languages",
+          "claim_id": "ev_tree_51ff0ee4b72e9a06c289fb4b2f48e9634e859de22e52e649fe2c8824b7c24e82",
+          "event": "crown_divergence",
+          "locator": null,
+          "method": "phylogenetic",
+          "node": "MRCA(Komi, Udmurt)",
+          "proto_mapping": "The clade holds Komi and Udmurt, the two Permic branches, so its crown is the breakup of Proto-Permic.",
+          "quote": null,
+          "role": "posterior",
+          "source": "Terhi Honkola et al. 2013",
+          "url": "https://bedlan.net/wp-content/uploads/2019/05/honkola_et_al_2013_cultural_and_climatic.pdf"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Honkola et al. 2013",
+        "root": "urj-pro"
+      },
       "kind": "proto",
-      "label": "c. 800–200 BCE",
+      "label": "until c. 760 CE",
       "name": "Proto-Permic",
       "spoken": {
         "end": {
-          "earliest": -199,
-          "latest": -199
+          "earliest": 662,
+          "latest": 850
         },
         "ongoing": false,
-        "start": {
-          "earliest": -799,
-          "latest": -799
-        }
+        "start": null
       }
     },
     {
-      "alternatives": [],
+      "alternatives": [
+        {
+          "basis": "estimated",
+          "citation": "Abondolo, Daniel & Riitta-Liisa Valijärvi. 2023. Introduction to the Uralic languages, with special reference to Finnish and Hungarian. In Daniel Abondolo & Riitta-Liisa Valijärvi (eds.), The Uralic Languages, 2nd edn, chapter 1. London: Routledge. doi:10.4324/9781315625096.",
+          "claim_id": "ev_period_3821b1b855f036f539dac4ccf47086adb8dd6ebf",
+          "end": {
+            "earliest": -2550,
+            "latest": -2050
+          },
+          "event": "crown_divergence",
+          "label": "until c. 2550–2050 BCE",
+          "locator": "{\"page\": \"4\", \"pdf_page\": 23}",
+          "method": "expert_estimate",
+          "quote": "an initial dispersal ca 4,000‒4,500 years ago, \nstarting east of the Urals",
+          "role": "hypothesis",
+          "source": "Abondolo & Valijärvi 2023",
+          "start": null,
+          "url": "https://doi.org/10.4324/9781315625096"
+        }
+      ],
       "basis": "estimated",
       "code": "urj-pro",
       "estimate": {
@@ -51110,10 +51365,15 @@
           "proto_mapping": "The root: its 17 sampled descendants include Samoyed (Nenets, Selkup), Ugric (Hungarian, Khanty, Mansi), Permic, Mari, Mordvin, Saami and Finnic, so its crown is the breakup of Proto-Uralic.",
           "quote": null,
           "role": "posterior",
-          "source": "Cultural and climatic changes shape the evolutionary history of the Uralic languages 2013",
+          "source": "Terhi Honkola et al. 2013",
           "url": "https://bedlan.net/wp-content/uploads/2019/05/honkola_et_al_2013_cultural_and_climatic.pdf"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Honkola et al. 2013",
+        "root": "urj-pro"
+      },
       "kind": "proto",
       "label": "until c. 3320 BCE",
       "name": "Proto-Uralic",
@@ -51129,23 +51389,23 @@
           {
             "basis": "estimated",
             "code": "fiu-pro",
-            "label": "until c. 3000 BCE",
+            "label": "until c. 1990 BCE",
             "name": "Proto-Finno-Ugric",
             "own": false
           },
           {
             "basis": "estimated",
             "code": "urj-fpr-pro",
-            "label": "until c. 2000 BCE",
+            "label": "until c. 1750 BCE",
             "name": "Proto-Finno-Permic",
             "own": false
           }
         ],
         "end": {
-          "earliest": -1999,
-          "latest": -1380
+          "earliest": -2978,
+          "latest": -665
         },
-        "label": "until c. 2000–1380 BCE",
+        "label": "until c. 2980–670 BCE",
         "ongoing": false,
         "partial": true,
         "start": null,
@@ -51161,29 +51421,61 @@
       }
     },
     {
-      "alternatives": [],
-      "basis": "estimated",
-      "code": "urj-ugr-pro",
-      "evidence": [
+      "alternatives": [
         {
+          "basis": "estimated",
           "citation": "Blažek, Václav. 2012. Was there a Volgaic unity within Finno-Ugric? Finnisch-Ugrische Forschungen 61:29–91, pp.33–34. DOI 10.33339/fuf.85681.",
           "claim_id": "ev_period_3b306e4da065de300ad8507f7d3ef67f5e21532d",
+          "end": {
+            "earliest": -1479,
+            "latest": -1479
+          },
           "event": "crown_divergence",
+          "label": "until c. 1480 BCE",
           "locator": "{\"pdf_page\": 6, \"printed_page\": 34, \"description\": \"Tree diagram, node ugric\", \"start\": 6938, \"page_image_sha256\": \"3310d2358b87eaa39bb600d3ea13e893e62443e063c3d00016653db0c12c3735\"}",
           "method": "lexicostatistic",
           "quote": "Hungarian\n45.3%/-1480\nMansi North\nUgric",
           "role": "hypothesis",
           "source": "Václav Blažek 2012",
+          "start": null,
           "url": "https://journal.fi/fuf/article/download/85681/44641"
         }
       ],
+      "basis": "estimated",
+      "code": "urj-ugr-pro",
+      "estimate": {
+        "interval": "95% HPD 2950 BCE – 260 CE",
+        "statistic": "mean",
+        "text": "1330 BCE",
+        "value": -1331
+      },
+      "evidence": [
+        {
+          "citation": "Cultural and climatic changes shape the evolutionary history of the Uralic languages",
+          "claim_id": "ev_tree_df6c358ded9cdc609428ed7636c30284c86788f0d069ce534f3aacff4353de31",
+          "event": "crown_divergence",
+          "locator": null,
+          "method": "phylogenetic",
+          "node": "MRCA(Hungarian, Khanty, Mansi)",
+          "proto_mapping": "The clade holds Hungarian, Khanty and Mansi, all three Ugric branches, so its crown is the breakup of Proto-Ugric.",
+          "quote": null,
+          "role": "posterior",
+          "source": "Terhi Honkola et al. 2013",
+          "url": "https://bedlan.net/wp-content/uploads/2019/05/honkola_et_al_2013_cultural_and_climatic.pdf"
+        }
+      ],
+      "frame": {
+        "in_frame": true,
+        "name": "Honkola et al. 2013",
+        "root": "urj-pro"
+      },
       "kind": "proto",
-      "label": "until c. 1480 BCE",
+      "label": "until c. 1330 BCE",
       "name": "Proto-Ugric",
       "spoken": {
         "end": {
-          "earliest": -1479,
-          "latest": -1479
+          "earliest": -2945,
+          "latest": 260
         },
         "ongoing": false,
         "start": null
@@ -52894,14 +53186,14 @@
       "code": "xno",
       "evidence": [
         {
-          "citation": "Rothwell, William. 2006. “Anglo-French and the Anglo-Norman Dictionary.” General Editor's prefatory material for the Anglo-Norman Dictionary, 2nd edition, A–E; online republication, Anglo-Norman Dictionary, Aberystwyth University, with 2017 editorial note. https://anglo-norman.net/anglo-french/ (accessed 5 October 2026).",
+          "citation": "Rothwell, William. 2006. “Anglo-French and the Anglo-Norman Dictionary.” General Editor's prefatory material for the Ang",
           "claim_id": "ev_period_b417af4eae8d2aed968dc5132b4183647c39fc47",
           "event": "conventional_period",
           "locator": "{\"start\": 1356, \"end\": 1491, \"section\": \"Opening definition\"}",
           "method": "scholarly_periodization",
           "quote": "Anglo-Norman is the term commonly used for the variety of French used in Britain between 1066 and the middle of the fifteenth century.",
           "role": "convention",
-          "source": "Rothwell, William. 2006. “Anglo-French and the Anglo-Norman Dictionary.” General Editor's prefatory material for the Ang",
+          "source": "William Rothwell 2006",
           "url": "https://anglo-norman.net/anglo-french/"
         }
       ],
