@@ -4,7 +4,7 @@
   "collection": "acd-claims",
   "product": "acd_claims",
   "inputs": {
-    "export": "data/artifacts/etymology-assertions/6ca7304f4d675e0cae180247c8825e3083cf916d684fd2e4f1d4e72b1fff8374/files/assertions.jsonl.gz",
+    "export": "data/artifacts/etymology-assertions/36786d12b44c13eb349447a67bcab6f69f24cec7ed06aa6a25449da24a54071d/files/assertions.jsonl.gz",
     "entries": "data/artifacts/wiktionary-entries/466445a2b9d76a586ab53d059f8c9895b4f31141f20b1666f0d2c33aec73bd06/files/entries.jsonl.gz",
     "languages": "data/artifacts/wiktionary-export/2d98b7aa0c9965e1492db2e242ead832fe7e3c161e1f1a27c1d177135c6df2b7/files/languages.json",
     "families": "data/artifacts/wiktionary-export/2d98b7aa0c9965e1492db2e242ead832fe7e3c161e1f1a27c1d177135c6df2b7/files/families.json",
