@@ -95,15 +95,25 @@ pub fn mention_of(element: ElementRef, lang: &str) -> Mention {
             .select(&crate::page::A)
             .next()
             .and_then(|a| link(a.value())),
+        gloss: None,
     }
 }
 
-/// The mention in or at `element`, if any.
+/// The mention in or at `element`, if any, with the gloss `element` shows for it.
 pub fn mention(element: ElementRef) -> Option<Mention> {
-    std::iter::once(element)
+    let found = std::iter::once(element)
         .chain(element.descendants().filter_map(ElementRef::wrap))
-        .find(|e| e.value().classes().any(|c| c == "mention") && e.value().attr("lang").is_some())
-        .map(|e| mention_of(e, e.value().attr("lang").expect("checked")))
+        .find(|e| {
+            e.value().classes().any(|c| c == "mention") && e.value().attr("lang").is_some()
+        })?;
+    let mut m = mention_of(found, found.value().attr("lang").expect("checked"));
+    m.gloss = element
+        .descendants()
+        .filter_map(ElementRef::wrap)
+        .find(|e| e.value().classes().any(|c| c == "mention-gloss"))
+        .map(|g| g.text().collect::<String>().trim().to_string())
+        .filter(|g| !g.is_empty());
+    Some(m)
 }
 
 pub fn is_transclusion(element: &scraper::node::Element) -> bool {

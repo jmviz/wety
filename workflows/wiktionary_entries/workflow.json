@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "mode": "artifact",
+  "collection": "wiktionary-entries",
+  "product": "wiktionary_entries",
+  "inputs": {
+    "enterprise": "data/artifacts/wiktionary-enterprise/b856838f580c72a1672b2b658078fff8943723d1f1514e9d15d0680d8a3db62a/files/source",
+    "reconstruction": "data/artifacts/wiktionary-reconstruction-html/457d06c097649fc8f0241f87cfffaf66377d4db5f2ec2e27b0df52ee8e20bebd/files/pages.ndjson.gz",
+    "dump": "data/artifacts/wiktionary-dump/ae476c69023c5cf20389497529bcb55928826174140225f89e0c9241b234cc94/files/source",
+    "languages": "data/artifacts/wiktionary-export/57d16abeffbce475ff189e0734fd8937eab8d7417b1ee08273e746b43b350cb0/files/languages.json"
+  },
+  "commands": [
+    [
+      "cargo",
+      "run",
+      "--locked",
+      "--release",
+      "-p",
+      "wety-wiktionary-entries",
+      "--bin",
+      "wiktionary-entries",
+      "--",
+      "--enterprise",
+      "{input_enterprise}",
+      "--records",
+      "{input_reconstruction}",
+      "--dump",
+      "{input_dump}",
+      "--languages",
+      "{input_languages}",
+      "--out",
+      "{output}/entries.jsonl.gz",
+      "--redirects",
+      "{output}/redirects.tsv.gz",
+      "--entry-names",
+      "{output}/entry_names.tsv.gz",
+      "--counts",
+      "{output}/counts.json"
+    ]
+  ],
+  "required_outputs": [
+    "entries.jsonl.gz",
+    "redirects.tsv.gz",
+    "entry_names.tsv.gz",
+    "counts.json"
+  ],
+  "entrypoint": "entries.jsonl.gz"
+}

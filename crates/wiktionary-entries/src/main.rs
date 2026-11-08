@@ -14,7 +14,7 @@ use rayon::prelude::*;
 use wety_wiktionary_entries::{
     dump::redirects_in,
     model::Counts,
-    page::{PageInfo, entries, entry_names},
+    page::{Languages, PageInfo, entries, entry_names},
     records::{Record, each_line},
 };
 
@@ -28,6 +28,10 @@ struct Args {
     /// NDJSON.gz files of page records in the same shape.
     #[clap(long, multiple_occurrences = true)]
     records: Vec<PathBuf>,
+    /// The language export (`languages.json`) of the dump of the same date: language
+    /// headings to codes.
+    #[clap(long)]
+    languages: PathBuf,
     /// The entries file to write (JSON lines, gzipped).
     #[clap(long)]
     out: PathBuf,
@@ -109,6 +113,7 @@ fn main() -> Result<()> {
         None => None,
     };
     let limit = args.limit;
+    let languages = Languages::load(&args.languages)?;
     let redirects = match (args.dump.clone(), args.redirects.clone()) {
         (Some(dump), Some(to)) => Some(thread::spawn(move || -> Result<usize> {
             let found = redirects_in(&dump, &[0, 118])?;
@@ -177,7 +182,7 @@ fn main() -> Result<()> {
                     rev: record.version.identifier,
                     ns: record.namespace.as_ref().map_or(0, |n| n.identifier),
                 };
-                let found = entries(&info, &record.article_body.html, &mut c);
+                let found = entries(&info, &record.article_body.html, &languages, &mut c);
                 let lines = found
                     .iter()
                     .filter_map(|e| serde_json::to_string(e).ok())

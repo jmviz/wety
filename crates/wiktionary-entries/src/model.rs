@@ -16,7 +16,7 @@ pub struct Entry {
     pub rev: u64,
     pub ns: i64,
     /// Wiktionary's code for the heading's language; `None` if the name is unknown.
-    pub lang: Option<&'static str>,
+    pub lang: Option<String>,
     pub lang_heading: String,
     /// "2" for "Etymology 2"; `None` for an unnumbered or absent etymology heading.
     pub ety_label: Option<String>,
@@ -127,6 +127,10 @@ pub struct Mention {
     pub term: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub link: Option<Link>,
+    /// The gloss shown with it, where the mention's container holds one (a form-of
+    /// definition's "(“child”)").
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub gloss: Option<String>,
 }
 
 /// A wiki link's target page: the entry name Lua computed for a term.

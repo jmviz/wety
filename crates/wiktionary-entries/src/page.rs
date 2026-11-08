@@ -8,7 +8,6 @@ use std::{
 use scraper::{ElementRef, Html, Selector};
 use serde_json::Value;
 use sha2::{Digest, Sha256};
-use wety_core::languages::Lang;
 
 use crate::{
     model::{Block, Call, Counts, Descendant, Entry, Note, PosBlock, Section, Sense, Span},
@@ -514,6 +513,36 @@ fn notes(doc: &Html, tx: &Transclusions) -> HashMap<String, Note> {
         .collect()
 }
 
+/// Language headings to codes: the canonical names of a Wiktionary language export
+/// (`languages.json`, from the dump of the snapshot's date).
+#[derive(Default)]
+pub struct Languages(HashMap<String, String>);
+
+impl Languages {
+    /// # Errors
+    ///
+    /// When the file cannot be read or is not an export's `languages.json`.
+    pub fn load(path: &std::path::Path) -> anyhow::Result<Self> {
+        let raw: HashMap<String, Value> = serde_json::from_slice(&std::fs::read(path)?)?;
+        Ok(Self::from_pairs(raw.iter().filter_map(|(code, data)| {
+            Some((data.get("canonicalName")?.as_str()?, code.as_str()))
+        })))
+    }
+
+    pub fn from_pairs<'a>(pairs: impl IntoIterator<Item = (&'a str, &'a str)>) -> Self {
+        Self(
+            pairs
+                .into_iter()
+                .map(|(name, code)| (name.to_string(), code.to_string()))
+                .collect(),
+        )
+    }
+
+    fn code(&self, name: &str) -> Option<String> {
+        self.0.get(name).cloned()
+    }
+}
+
 /// Identity of the page the HTML belongs to.
 pub struct PageInfo<'a> {
     pub title: &'a str,
@@ -523,7 +552,12 @@ pub struct PageInfo<'a> {
 }
 
 /// The page's entries: one per language section, or per numbered etymology in it.
-pub fn entries(info: &PageInfo, html: &str, counts: &mut Counts) -> Vec<Entry> {
+pub fn entries(
+    info: &PageInfo,
+    html: &str,
+    languages: &Languages,
+    counts: &mut Counts,
+) -> Vec<Entry> {
     let doc = Html::parse_document(html);
     let Some(body) = doc.select(&BODY).next() else {
         counts.add("pages without body", 1);
@@ -533,7 +567,7 @@ pub fn entries(info: &PageInfo, html: &str, counts: &mut Counts) -> Vec<Entry> {
     let notes = notes(&doc, &tx);
     let mut out = vec![];
     for lang_sec in sections(body).iter().filter(|s| s.level == 2) {
-        let lang = Lang::from_name(&lang_sec.title).ok().map(|l| l.code());
+        let lang = languages.code(&lang_sec.title);
         if lang.is_none() {
             counts.add("language headings unknown", 1);
         }
@@ -542,7 +576,7 @@ pub fn entries(info: &PageInfo, html: &str, counts: &mut Counts) -> Vec<Entry> {
             page_id: info.page_id,
             rev: info.rev,
             ns: info.ns,
-            lang,
+            lang: lang.clone(),
             lang_heading: lang_sec.title.clone(),
             ety_label: label,
             categories: categories(lang_sec),

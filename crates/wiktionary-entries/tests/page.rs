@@ -3,7 +3,7 @@
 use serde_json::{Value, json};
 use wety_wiktionary_entries::{
     model::Counts,
-    page::{PageInfo, entries},
+    page::{Languages, PageInfo, entries},
 };
 
 const PAGE: &str = r##"<!DOCTYPE html><html><head></head><body>
@@ -22,7 +22,7 @@ const PAGE: &str = r##"<!DOCTYPE html><html><head></head><body>
 <section data-mw-section-id="5"><h3 id="Etymology_2">Etymology 2</h3>
 <p>Unknown.<link rel="mw:PageProp/Category" href="./Category:Latin_terms_derived_from_the_PIE_root_*kan-" about="#mwt9" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"root","href":"./Template:root"},"params":{"1":{"wt":"la"},"2":{"wt":"ine-pro"},"3":{"wt":"*kan-"}},"i":0}}]}'/></p>
 <section data-mw-section-id="6"><h4 id="Pronunciation">Pronunciation</h4>
-<section data-mw-section-id="10"><h5 id="Verb">Verb</h5><p><strong class="headword">canis</strong></p><ol><li><span class="form-of-definition use-with-mention">second-person singular of <span class="form-of-definition-link"><i class="Latn mention" lang="la"><a rel="mw:WikiLink" href="./cano#Latin">canō</a></i></span></span></li></ol></section></section>
+<section data-mw-section-id="10"><h5 id="Verb">Verb</h5><p><strong class="headword">canis</strong></p><ol><li><span class="form-of-definition use-with-mention">second-person singular of <span class="form-of-definition-link"><i class="Latn mention" lang="la"><a rel="mw:WikiLink" href="./cano#Latin">canō</a></i> <span class="mention-gloss-paren">(</span><span class="mention-gloss">to sing</span><span class="mention-gloss-paren">)</span></span></span></li></ol></section></section>
 </section>
 <section data-mw-section-id="7"><h3 id="References">References</h3>
 <ol class="mw-references references"><li id="cite_note-1"><span class="mw-reference-text">A. Author (2000) <i>A Book</i></span></li></ol>
@@ -38,7 +38,8 @@ fn run() -> (Vec<Value>, Counts) {
         ns: 0,
     };
     let mut counts = Counts::default();
-    let out = entries(&info, PAGE, &mut counts)
+    let languages = Languages::from_pairs([("Latin", "la")]);
+    let out = entries(&info, PAGE, &languages, &mut counts)
         .iter()
         .map(|e| serde_json::to_value(e).unwrap())
         .collect();
@@ -56,7 +57,7 @@ fn numbered_etymologies_are_entries() {
     assert_eq!(e[1]["pos"][0]["pos"], "verb");
     assert_eq!(
         e[1]["pos"][0]["senses"][0]["form_of"][0],
-        json!({"lang": "la", "term": "canō", "link": {"page": "cano", "anchor": "Latin"}})
+        json!({"lang": "la", "term": "canō", "link": {"page": "cano", "anchor": "Latin"}, "gloss": "to sing"})
     );
     // {{root}} renders only a category; its call is a zero-width span.
     let span = &e[1]["etymology"]["blocks"][0]["spans"][0];
