@@ -456,6 +456,11 @@ fn descendants(
         .collect()
 }
 
+/// Templates that name a descendant: a Derived terms section using them (on a
+/// reconstructed root's page, `* {{l|ine-pro||*wēd-o-s}}` then `** {{desc|gem-pro|*wētaz}}`)
+/// is read as a Descendants section too.
+const DESC_TEMPLATES: [&str; 4] = ["desc", "descendant", "desctree", "descendants tree"];
+
 /// The top-level lists of a Descendants section, through wrappers such as {{top4}}.
 fn descendant_lists(sec: &Sec, counts: &mut Counts, tx: &Transclusions) -> Vec<Descendant> {
     fn find(
@@ -579,9 +584,21 @@ fn pos_block(sec: &Sec, counts: &mut Counts, tx: &Transclusions) -> PosBlock {
             "Descendants" => block
                 .descendants
                 .extend(descendant_lists(child, counts, tx)),
-            "Derived terms" => block
-                .derived
-                .extend(own_elements(child).flat_map(|e| calls_within(e, &[]))),
+            "Derived terms" => {
+                let calls: Vec<Call> = own_elements(child)
+                    .flat_map(|e| calls_within(e, &[]))
+                    .collect();
+                // A root's derived terms list their descendants too: read as a tree
+                if calls
+                    .iter()
+                    .any(|c| DESC_TEMPLATES.contains(&c.name.as_str()))
+                {
+                    block
+                        .descendants
+                        .extend(descendant_lists(child, counts, tx));
+                }
+                block.derived.extend(calls);
+            }
             _ => {}
         }
     }

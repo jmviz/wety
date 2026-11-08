@@ -198,3 +198,24 @@ fn a_list_whose_nesting_does_not_pair_is_paired_in_order() {
     assert_eq!(d[2]["calls"][0]["args"]["2"], "jurist");
     assert_eq!(d[3]["calls"][0]["args"]["2"], "юри́ст");
 }
+
+#[test]
+fn a_roots_derived_terms_with_descendants_are_read_as_a_tree() {
+    let page = r##"<!DOCTYPE html><html><body>
+<section><h2 id="Proto-Indo-European">Proto-Indo-European</h2><section><h3 id="Root">Root</h3><p><strong class="headword">*wed-</strong></p><ol><li>water</li></ol>
+<section><h4 id="Derived_terms">Derived terms</h4>
+<ul><li><i class="mention" lang="ine-pro" about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"l","href":"./Template:l"},"params":{"1":{"wt":"ine-pro"},"2":{"wt":""},"3":{"wt":"*wēd-o-s"}},"i":0}}]}'>*wēd-o-s</i><ul><li><span about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"desc","href":"./Template:desc"},"params":{"1":{"wt":"gem-pro"},"2":{"wt":"*wētaz"}},"i":0}}]}'>Proto-Germanic: *wētaz</span></li></ul></li></ul>
+</section></section></section></body></html>"##;
+    let info = PageInfo {
+        title: "Reconstruction:Proto-Indo-European/wed-",
+        page_id: 1,
+        rev: 1,
+        ns: 118,
+    };
+    let languages = Languages::from_pairs([("Proto-Indo-European", "ine-pro")]);
+    let mut counts = Counts::default();
+    let e = entries(&info, page, &languages, &mut counts);
+    let d = serde_json::to_value(&e[0].pos[0].descendants).unwrap();
+    assert_eq!(d[0]["calls"][0]["name"], "l");
+    assert_eq!(d[0]["children"][0]["calls"][0]["args"]["2"], "*wētaz");
+}

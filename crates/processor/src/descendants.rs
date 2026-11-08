@@ -186,7 +186,8 @@ fn desc_line(string_pool: &mut StringPool, node: &Json) -> RawDescLineKind {
         && let Some(lang) = args
             .get_valid_str("1")
             .and_then(|code| Lang::from_str(code).ok())
-        && let Some(term) = args.get_valid_term("2")
+        // {{l|ine-pro||*wēd-o-s}}: no page to link, the term as shown
+        && let Some(term) = args.get_valid_term("2").or_else(|| args.get_valid_term("3"))
     {
         let desc = RawDesc {
             lang,
@@ -532,6 +533,21 @@ mod tests {
             [EtyMode::Inherited, EtyMode::LearnedBorrowing]
         );
         assert_eq!(modes(&lines[4]), [EtyMode::MorphologicalDerivation]);
+    }
+
+    #[test]
+    fn a_roots_derived_term_shown_unlinked_is_a_line() {
+        let (sp, lines) = lines(
+            r#"{"pos": [{"descendants": [
+                {"text": "*wēd-o-s", "calls": [{"name": "l", "args": {"1": "ine-pro", "2": "", "3": "*wēd-o-s"}}], "children": [
+                    {"text": "Proto-Germanic: *wētaz", "calls": [{"name": "desc", "args": {"1": "gem-pro", "2": "*wētaz"}}]}]}
+            ]}]}"#,
+        );
+        assert_eq!(terms(&sp, &lines[0]), ["wēd-o-s"]);
+        assert_eq!(
+            (lines[1].depth, terms(&sp, &lines[1])),
+            (2, vec!["wētaz".to_owned()])
+        );
     }
 
     #[test]
