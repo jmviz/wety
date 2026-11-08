@@ -606,6 +606,43 @@ class ZoteroTests(Sandbox):
         with self.assertRaises(ValueError):
             self.client.leave_collection("BOOK0001", "NOTWETY1")
 
+    def test_a_book_answering_a_trashed_chapter_joins_its_topic_collection(self):
+        periods = self.client.ensure_collection(["wety", "dating", "periods"])
+        FakeZotero.state["items"]["CHAP0001"] = {
+            "key": "CHAP0001",
+            "version": 1,
+            "data": {
+                "key": "CHAP0001",
+                "itemType": "bookSection",
+                "title": "A Chapter",
+                "collections": [periods],
+                "tags": [],
+                "deleted": 1,
+            },
+        }
+        [result] = holdings.ingest_zotero_item(self.client, "BOOK0001")
+        queue = holdings.load(holdings.REQUESTS, "requests")
+        queue["requests"]["doi:10.9/chap"] = {
+            "key": "doi:10.9/chap",
+            "title": "A Chapter",
+            "status": "supplied",
+            "holding": result["holding"],
+            "zotero": {"item_key": "CHAP0001"},
+            "asks": [],
+        }
+        holdings.atomic_json(holdings.REQUESTS, queue)
+        holdings.untag_supplied(self.client)
+        book = FakeZotero.state["items"]["BOOK0001"]["data"]["collections"]
+        self.assertIn(periods, book)
+        self.assertIn(self.client.find_collection(["wety", "holdings"]), book)
+        # Emptied from the trash: the topic the request was filed under still applies.
+        protos = self.client.ensure_collection(["wety", "dating", "protos"])
+        del FakeZotero.state["items"]["CHAP0001"]
+        queue["requests"]["doi:10.9/chap"]["zotero"]["topic"] = "protos"
+        holdings.atomic_json(holdings.REQUESTS, queue)
+        holdings.untag_supplied(self.client)
+        self.assertIn(protos, FakeZotero.state["items"]["BOOK0001"]["data"]["collections"])
+
     def test_push_uses_resolved_records_and_completes_its_own_items_only(self):
         root = self.repo / "data/workspaces/dating/_research/run"
         root.mkdir(parents=True)

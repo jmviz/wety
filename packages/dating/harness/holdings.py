@@ -1015,7 +1015,13 @@ def push_requests(client, topic="periods"):
                 ],
             )
             set_status(
-                r, "filed", zotero={"item_key": item_key, "reused_existing_item": bool(existing)}
+                r,
+                "filed",
+                zotero={
+                    "item_key": item_key,
+                    "reused_existing_item": bool(existing),
+                    "topic": topic,
+                },
             )
             filed.append({"request": key, "zotero_item": item_key, "reused": bool(existing)})
             atomic_json(REQUESTS, queue)  # each filing survives a later failure
@@ -1148,23 +1154,48 @@ def add_contents_notes(client, apply=False):
 def untag_supplied(client):
     """After ingest: every holding's Zotero item, and every supplied or declined request's
     item, leaves wety/needs-fulltext and loses the needs tags; holdings' items join
-    wety/holdings and are tagged wety:ingested (topic collections stay)."""
+    wety/holdings and are tagged wety:ingested (topic collections stay). A holding that
+    answers a request on another item (the whole book for a requested chapter, which the
+    maintainer may have trashed or deleted) joins that item's topic collections under
+    wety/dating, or the topic the request was filed under."""
     queue = client.find_collection(["wety", "needs-fulltext"])
     shelf = client.ensure_collection(["wety", "holdings"])
-    keys = {
-        h["zotero"]["item_key"]
-        for h in load(HOLDINGS, "holdings")["holdings"].values()
-        if h.get("zotero")
-    }
+    holdings = load(HOLDINGS, "holdings")["holdings"]
+    keys = {h["zotero"]["item_key"] for h in holdings.values() if h.get("zotero")}
     from .zotero import ZoteroError
 
-    def live(key):
+    def fetch(key):
         try:
-            return not client.item(key)["data"].get("deleted")
+            return client.item(key)["data"]
         except ZoteroError as e:
             if "404" not in str(e):
                 raise
-            return False
+            return None
+
+    def live(key):
+        data = fetch(key)
+        return bool(data) and not data.get("deleted")
+
+    topics = set()
+    dating = client.find_collection(["wety", "dating"])
+    if dating:
+        existing = client.collections()
+        grew = {dating}
+        while grew:
+            grew = {c["key"] for c in existing if c["data"].get("parentCollection") in grew}
+            topics |= grew
+    answered = {}
+    for r in load(REQUESTS, "requests")["requests"].values():
+        h = holdings.get(r.get("holding") or "")
+        z = r.get("zotero") or {}
+        if r["status"] == "supplied" and h and h.get("zotero") and z.get("item_key"):
+            if z["item_key"] != h["zotero"]["item_key"]:
+                answered.setdefault(h["zotero"]["item_key"], []).append(z)
+
+    def topic_of(z):
+        live = {c for c in (fetch(z["item_key"]) or {}).get("collections", []) if c in topics}
+        filed = z.get("topic") and client.find_collection(["wety", "dating", z["topic"]])
+        return live | ({filed} if filed else set())
 
     done = []
     for key in sorted(keys):
@@ -1172,7 +1203,8 @@ def untag_supplied(client):
             continue
         for tag in (NEEDS_FULLTEXT, NEEDS_PART):
             client.remove_tag(key, tag)
-        client.add_to_item(key, collections=[shelf], tags=[SUPPLIED])
+        topic = {c for z in answered.get(key, []) for c in topic_of(z)}
+        client.add_to_item(key, collections=[shelf, *sorted(topic)], tags=[SUPPLIED])
         if queue:
             client.leave_collection(key, queue)
         done.append(key)
