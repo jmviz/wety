@@ -181,6 +181,24 @@
       "subject_id": "wikt:afa-pro"
     },
     {
+      "analysis": "klimov1998_glottochronology",
+      "claim_id": "ev_period_1930625fe00b63d259405c3f000edfc9fa132ae3",
+      "epoch": null,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Kartvelian",
+      "role": "hypothesis",
+      "source": "Georgij A. Klimov 1998",
+      "subject_id": "wikt:ccs-pro"
+    },
+    {
       "analysis": "holman2011-asjp-ethnologue16-s092-r072",
       "claim_id": "ev_period_1b95d644bfa7ddb57530a676608031dc6fa4c572",
       "epoch": 2000,
@@ -953,6 +971,24 @@
       "role": "hypothesis",
       "source": "George Starostin 2003",
       "subject_id": "wikt:khi-kho-pro"
+    },
+    {
+      "analysis": "bartens2000_proto_permic",
+      "claim_id": "ev_period_4a04e688cb1a012af3e4845abb448d05ad8a23da",
+      "epoch": null,
+      "estimate": {
+        "interval_type": null,
+        "lower": 700,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": 799
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Permic",
+      "role": "hypothesis",
+      "source": "Raija Bartens 2000",
+      "subject_id": "wikt:urj-prm-pro"
     },
     {
       "analysis": "holman2011-asjp-ethnologue16-s092-r072",
@@ -1909,6 +1945,24 @@
       "subject_id": "wikt:iro-nor-pro"
     },
     {
+      "analysis": "janhunen2003_proto_mongolic",
+      "claim_id": "ev_period_b493f282c94cd890b038e3d68464575f81f71897",
+      "epoch": null,
+      "estimate": {
+        "interval_type": null,
+        "lower": null,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": null
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Mongolic",
+      "role": "hypothesis",
+      "source": "Juha Janhunen 2003",
+      "subject_id": "wikt:xgn-pro"
+    },
+    {
       "analysis": "taagepera_1994_chronology_reported_kallio2006",
       "claim_id": "ev_period_b630bbc2abfcd6ada83bfe0b4ef1363d3fb7b891",
       "epoch": null,
@@ -2303,6 +2357,24 @@
       "role": "hypothesis",
       "source": "Anthony P. Grant 2005",
       "subject_id": "wikt:cmc-pro"
+    },
+    {
+      "analysis": "klimov1998_glottochronology",
+      "claim_id": "ev_period_dd8c7112204999e04526e1593dabdfaacefd4f6f",
+      "epoch": null,
+      "estimate": {
+        "interval_type": null,
+        "lower": -999,
+        "mean": null,
+        "median": null,
+        "probability": null,
+        "upper": 0
+      },
+      "event": "crown_divergence",
+      "node": "Proto-Georgian-Zan",
+      "role": "hypothesis",
+      "source": "Georgij A. Klimov 1998",
+      "subject_id": "wikt:ccs-gzn-pro"
     },
     {
       "analysis": "wu2022-tibet-arunachal-covarion-relaxed-bdss",
@@ -36703,7 +36775,7 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:fff5df92fe6ca543"
     }
   ],
-  "generation": "b8dcf162964b5e4b53cf55c4e39d40795cf940a3af2362a97e219b144b14c9c0",
+  "generation": "cf1b32b2dc37523c85bde87742d0e8ff08f81121f915c391047361d509ae8881",
   "languages": [
     {
       "alternatives": [],
@@ -39094,7 +39166,26 @@
       }
     },
     {
-      "alternatives": [],
+      "alternatives": [
+        {
+          "basis": "estimated",
+          "citation": "Klimov, Georgij A. 1998. Etymological Dictionary of the Kartvelian Languages. Trends in Linguistics, Documentation 16. Berlin and New York: Mouton de Gruyter.",
+          "claim_id": "ev_period_dd8c7112204999e04526e1593dabdfaacefd4f6f",
+          "end": {
+            "earliest": -999,
+            "latest": 0
+          },
+          "event": "crown_divergence",
+          "label": "until c. 1st millennium BCE",
+          "locator": "{\"page\": \"IX\", \"pdf_page\": 9, \"offsets\": [9900, 10300]}",
+          "method": "lexicostatistic",
+          "quote": "Swadesh, the absolute time of separate development can be fixed for these\nlanguages at approximately 2,600 and 4,200 years, respectively. In other\nwords, the Georgian-Zan complex should have begun to disintegrate at the\nbeginning of the first millennium B.C., while the differentiation of\nGeorgian-Zan and Svan should date from a period not later than the last\ncenturies of the third millennium B.C.",
+          "role": "hypothesis",
+          "source": "Georgij A. Klimov 1998",
+          "start": null,
+          "url": "https://doi.org/10.1515/9783110806618"
+        }
+      ],
       "basis": "estimated",
       "code": "ccs-gzn-pro",
       "estimate": {
@@ -39132,6 +39223,24 @@
     },
     {
       "alternatives": [
+        {
+          "basis": "estimated",
+          "citation": "Klimov, Georgij A. 1998. Etymological Dictionary of the Kartvelian Languages. Trends in Linguistics, Documentation 16. Berlin and New York: Mouton de Gruyter.",
+          "claim_id": "ev_period_1930625fe00b63d259405c3f000edfc9fa132ae3",
+          "end": {
+            "earliest": null,
+            "latest": -2000
+          },
+          "event": "crown_divergence",
+          "label": "until c. 2001 BCE",
+          "locator": "{\"page\": \"IX\", \"pdf_page\": 9, \"offsets\": [9900, 10300]}",
+          "method": "lexicostatistic",
+          "quote": "Swadesh, the absolute time of separate development can be fixed for these\nlanguages at approximately 2,600 and 4,200 years, respectively. In other\nwords, the Georgian-Zan complex should have begun to disintegrate at the\nbeginning of the first millennium B.C., while the differentiation of\nGeorgian-Zan and Svan should date from a period not later than the last\ncenturies of the third millennium B.C.",
+          "role": "hypothesis",
+          "source": "Georgij A. Klimov 1998",
+          "start": null,
+          "url": "https://doi.org/10.1515/9783110806618"
+        },
         {
           "basis": "estimated",
           "citation": "Klein, Jared S. (ed.); Joseph, Brian D. (ed.); Fritz, Matthias (ed.) (2017) Handbook of comparative and historical Indo-European linguistics. Vol. 1. Berlin ; Boston, De Gruyter Mouton.",
@@ -43743,6 +43852,49 @@
       }
     },
     {
+      "alternatives": [],
+      "basis": "last_speaker",
+      "code": "kla",
+      "evidence": [
+        {
+          "citation": "Golla, Victor. 2011. California Indian Languages. Berkeley, Los Angeles and London: University of California Press.",
+          "claim_id": "ev_period_34195468620b1d022dba774264faebb6f60fbed5",
+          "event": "first_attestation",
+          "locator": "{\"page\": \"134\", \"pdf_page\": 148, \"offsets\": [593952, 594090]}",
+          "method": "scholarly_description",
+          "quote": "The earliest attestation of Klamath-Modoc is a vocabulary \nof Modoc (“Lutuami”) collected by Horatio Hale in 1841 \nduring the Wilkes Expedition (1846:569–629).",
+          "role": "observation",
+          "source": "Victor Golla 2011",
+          "url": "https://doi.org/10.1525/9780520949522"
+        },
+        {
+          "citation": "Golla, Victor. 2011. California Indian Languages. Berkeley, Los Angeles and London: University of California Press.",
+          "claim_id": "ev_period_4e8d718dddfd6bd2103802731cccaa5b9b4d5dcf",
+          "event": "native_transmission_end",
+          "locator": "{\"page\": \"133\", \"pdf_page\": 147, \"offsets\": [590865, 590933]}",
+          "method": "scholarly_description",
+          "quote": "As of 2006 there were no fl uent native speakers of either \ndialect.",
+          "role": "hypothesis",
+          "source": "Victor Golla 2011",
+          "url": "https://doi.org/10.1525/9780520949522"
+        }
+      ],
+      "kind": "stage",
+      "label": "1841–2006 CE",
+      "name": "Klamath-Modoc",
+      "spoken": {
+        "end": {
+          "earliest": null,
+          "latest": 2006
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 1841,
+          "latest": 1841
+        }
+      }
+    },
+    {
       "alternatives": [
         {
           "basis": "attested",
@@ -44460,6 +44612,54 @@
         "start": {
           "earliest": -999,
           "latest": -999
+        }
+      }
+    },
+    {
+      "alternatives": [
+        {
+          "basis": "attested",
+          "citation": "Drechsel, Emanuel J. 1997. Mobilian Jargon: Linguistic and Sociohistorical Aspects of a Native American Pidgin. Oxford Studies in Language Contact. Oxford: Clarendon Press.",
+          "claim_id": "ev_period_22b2ab2a1033d2c9075479dd1951765555a97199",
+          "end": null,
+          "event": "first_attestation",
+          "label": "from 1700 CE",
+          "locator": "{\"page\": \"57\", \"pdf_page\": 83, \"offsets\": [181606, 181848]}",
+          "method": "scholarly_description",
+          "quote": "Perhaps the first to record any details about Mobilian Jargon was the \nFrench Jesuit priest Paul du Ru, who—while serving on one of the first \nmajor French explorations of the lower Mississippi River valley in 1700— \nleft the following inkling:",
+          "role": "observation",
+          "source": "Emanuel J. Drechsel 1997",
+          "start": {
+            "earliest": 1700,
+            "latest": 1700
+          },
+          "url": "https://doi.org/10.1093/oso/9780198240334.001.0001"
+        }
+      ],
+      "basis": "attested",
+      "code": "mod",
+      "evidence": [
+        {
+          "citation": "Drechsel, Emanuel J. 1997. Mobilian Jargon: Linguistic and Sociohistorical Aspects of a Native American Pidgin. Oxford Studies in Language Contact. Oxford: Clarendon Press.",
+          "claim_id": "ev_period_3b0953abe39feb0b2fbe14793a274d33f9189439",
+          "event": "first_attestation",
+          "locator": "{\"page\": \"81\", \"pdf_page\": 107, \"offsets\": [249741, 249930]}",
+          "method": "scholarly_description",
+          "quote": "The first reference to what was clearly Mobilian Jargon, \ndated 1699 and provided by the French explorer Pierre Le Moyne, Sieur \nd’Iberville, already listed the Chickasaw among its speakers",
+          "role": "observation",
+          "source": "Emanuel J. Drechsel 1997",
+          "url": "https://doi.org/10.1093/oso/9780198240334.001.0001"
+        }
+      ],
+      "kind": "attested",
+      "label": "from 1699 CE",
+      "name": "Mobilian",
+      "spoken": {
+        "end": null,
+        "ongoing": false,
+        "start": {
+          "earliest": 1699,
+          "latest": 1699
         }
       }
     },
@@ -50365,6 +50565,42 @@
           "source": "Eric W. Holman et al. 2011",
           "start": null,
           "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
+        },
+        {
+          "basis": "estimated",
+          "citation": "Bartens, Raija. 2000. Permiläisten kielten rakenne ja kehitys. Suomalais-Ugrilaisen Seuran Toimituksia 238. Helsinki: Suomalais-Ugrilainen Seura.",
+          "claim_id": "ev_period_4a04e688cb1a012af3e4845abb448d05ad8a23da",
+          "end": {
+            "earliest": 700,
+            "latest": 799
+          },
+          "event": "crown_divergence",
+          "label": "until c. 700–799 CE",
+          "locator": "{\"page\": \"13\", \"pdf_page\": 13, \"offsets\": [19811, 19949]}",
+          "method": "comparative_reconstruction",
+          "quote": "700-luvulla alkoi kantapermiläinen kielimuoto kuitenkin hajota \neteläiseksi udmurtiksi ja pohjoisten alueiden komiksi.",
+          "role": "hypothesis",
+          "source": "Raija Bartens 2000",
+          "start": null,
+          "url": "https://doi.org/10.33341/sus.238"
+        },
+        {
+          "basis": "estimated",
+          "citation": "Bartens, Raija. 2000. Permiläisten kielten rakenne ja kehitys. Suomalais-Ugrilaisen Seuran Toimituksia 238. Helsinki: Suomalais-Ugrilainen Seura.",
+          "claim_id": "ev_period_f07a5df89b04e0807dadcc6992011de8d3915e1f",
+          "end": null,
+          "event": "conventional_period",
+          "label": "from c. 1000 CE",
+          "locator": "{\"page\": \"11\", \"pdf_page\": 11, \"offsets\": [13585, 13715]}",
+          "method": "archaeological_correlation",
+          "quote": "Kantapermin kausi jatkui vielä ensimmäisen \nvuosituhannen jKr. puoliväliin ja sen jälkeenkin.",
+          "role": "hypothesis",
+          "source": "Raija Bartens 2000",
+          "start": {
+            "earliest": 1000,
+            "latest": 1000
+          },
+          "url": "https://doi.org/10.33341/sus.238"
         }
       ],
       "basis": "estimated",
@@ -50594,6 +50830,78 @@
         "start": {
           "earliest": 1601,
           "latest": 1700
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "attested",
+      "code": "wao",
+      "evidence": [
+        {
+          "citation": "Golla, Victor. 2011. California Indian Languages. Berkeley, Los Angeles and London: University of California Press.",
+          "claim_id": "ev_period_f573d796268634f8f97ea1aacf3b4437af2f8e87",
+          "event": "first_attestation",
+          "locator": "{\"page\": \"191\", \"pdf_page\": 205, \"offsets\": [845322, 845529]}",
+          "method": "scholarly_description",
+          "quote": "The fi rst attestation \nof the language was a vocabulary of the Knight’s Valley \nvariety of Mishewal that was collected in the early 1850s by \nJohn Russell Bartlett, published in Powers (1877:483–489).",
+          "role": "observation",
+          "source": "Victor Golla 2011",
+          "url": "https://doi.org/10.1525/9780520949522"
+        }
+      ],
+      "kind": "attested",
+      "label": "from c. 1850–1853 CE",
+      "name": "Wappo",
+      "spoken": {
+        "end": null,
+        "ongoing": false,
+        "start": {
+          "earliest": 1850,
+          "latest": 1853
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "last_speaker",
+      "code": "wiy",
+      "evidence": [
+        {
+          "citation": "Golla, Victor. 2011. California Indian Languages. Berkeley, Los Angeles and London: University of California Press.",
+          "claim_id": "ev_period_767c92daeb6a05251dd2a76bd7566df669e3cfd4",
+          "event": "first_attestation",
+          "locator": "{\"page\": \"63\", \"pdf_page\": 77, \"offsets\": [285512, 285617]}",
+          "method": "scholarly_description",
+          "quote": "Humboldt Bay) collected by George Gibbs during the McKee \nExpedition in 1851, published by Schoolcraft",
+          "role": "observation",
+          "source": "Victor Golla 2011",
+          "url": "https://doi.org/10.1525/9780520949522"
+        },
+        {
+          "citation": "Golla, Victor. 2011. California Indian Languages. Berkeley, Los Angeles and London: University of California Press.",
+          "claim_id": "ev_period_b9024f573fa6e08afa97ca0725f7a71aed234e11",
+          "event": "native_transmission_end",
+          "locator": "{\"page\": \"63\", \"pdf_page\": 77, \"offsets\": [286405, 286568]}",
+          "method": "scholarly_description",
+          "quote": "In 1956–1959 the UC Berkeley linguist \nKarl Teeter worked with Della Prince, an Eel River Wiyot \nand the last fl uent speaker of the language, who died in \n1962.",
+          "role": "hypothesis",
+          "source": "Victor Golla 2011",
+          "url": "https://doi.org/10.1525/9780520949522"
+        }
+      ],
+      "kind": "stage",
+      "label": "1851–1962 CE",
+      "name": "Wiyot",
+      "spoken": {
+        "end": {
+          "earliest": 1962,
+          "latest": 1962
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 1851,
+          "latest": 1851
         }
       }
     },
@@ -51503,6 +51811,24 @@
           "source": "George Starostin 2010",
           "start": null,
           "url": "https://starlingdb.org/new100/Lexicostatistics.htm"
+        },
+        {
+          "basis": "estimated",
+          "citation": "Janhunen, Juha. 2003. Proto-Mongolic. In Juha Janhunen (ed.), The Mongolic Languages (Routledge Language Family Series 5), 1–29. London and New York: Routledge.",
+          "claim_id": "ev_period_b493f282c94cd890b038e3d68464575f81f71897",
+          "end": {
+            "earliest": 1300,
+            "latest": null
+          },
+          "event": "crown_divergence",
+          "label": "until after c. 1300 CE",
+          "locator": "{\"page\": \"1\", \"pdf_page\": 32, \"offsets\": [51595, 51932]}",
+          "method": "expert_estimate",
+          "quote": "The absolute dating of Proto-Mongolic depends on when, exactly, the linguistic unity\nof its speakers ended. For historical reasons it is commonly assumed that this happened\nonly after the geographical dispersal of the ancient Mongols under Chinggis Khan and\nhis heirs, in any case not earlier than the thirteenth century.",
+          "role": "hypothesis",
+          "source": "Juha Janhunen 2003",
+          "start": null,
+          "url": null
         }
       ],
       "basis": "estimated",
@@ -52943,6 +53269,38 @@
         "start": {
           "earliest": 1301,
           "latest": 1400
+        }
+      }
+    },
+    {
+      "alternatives": [],
+      "basis": "conventional",
+      "code": "zle-mru",
+      "evidence": [
+        {
+          "citation": "Hill, Steven P. 1977. The N-Factor and Russian Prepositions: Their Development in 11th–20th Century Texts. Slavistic Printings and Reprintings 118. The Hague, Paris and New York: Mouton.",
+          "claim_id": "ev_period_19b93632b091ccf87a9d34c15327a0365dad5755",
+          "event": "conventional_period",
+          "locator": "{\"page\": \"261\", \"pdf_page\": 261, \"offsets\": [577990, 578260]}",
+          "method": "scholarly_description",
+          "quote": "This second \nperiod, covering the fifteenth through the seventeenth century, also coin-\ncides, roughly speaking, with the concept of \"Middle Russian\" as used \nby historical grammarians like Vinokur (1945: gl. 7).",
+          "role": "convention",
+          "source": "Steven P. Hill 1977",
+          "url": "https://doi.org/10.1515/9783110801910"
+        }
+      ],
+      "kind": "stage",
+      "label": "c. 15th–17th century CE",
+      "name": "Middle Russian",
+      "spoken": {
+        "end": {
+          "earliest": 1601,
+          "latest": 1700
+        },
+        "ongoing": false,
+        "start": {
+          "earliest": 1401,
+          "latest": 1500
         }
       }
     },
