@@ -436,5 +436,13 @@ def main():
     text+="pub(crate) static POS: OrderedSet<&'static str> = phf_ordered_set! {\n"
     text+=''.join(f'    "{pos}",\n' for pos in order)+'};\n'
     target.write_text(text)
+    write_headings()
+
+# The entries reader maps a part-of-speech heading (lowercased) to its POS code.
+def write_headings():
+    import json
+    from workflow_tools.paths import REPO
+    target=REPO/'crates/wiktionary-entries/src/pos_headings.json'
+    target.write_text(json.dumps({k:v['pos'] for k,v in sorted(part_of_speech_map.items())},indent=1)+'\n')
 
 if __name__=='__main__':main()
