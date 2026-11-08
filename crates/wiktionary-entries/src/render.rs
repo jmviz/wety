@@ -170,6 +170,15 @@ impl Renderer<'_> {
         let e = element.value();
         let name = e.name();
         if SKIPPED.contains(&name) || (self.skip_lists && !root && LISTS.contains(&name)) {
+            // A template that renders only categories ({{root}}) still has its call.
+            if SKIPPED.contains(&name)
+                && let Some(about) = e.attr("about")
+                && !self.about.contains_key(about)
+                && let Some(span) = self.page.span(about, self.chars)
+            {
+                self.about.insert(about.to_string(), self.spans.len());
+                self.spans.push(span);
+            }
             return;
         }
         if is_ref(e) {

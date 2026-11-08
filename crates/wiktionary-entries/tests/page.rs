@@ -20,8 +20,9 @@ const PAGE: &str = r##"<!DOCTYPE html><html><head></head><body>
 <div about="#mwt6" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"top2","href":"./Template:top2"},"params":{},"i":0}},"\n* ",{"template":{"target":{"wt":"desc","href":"./Template:desc"},"params":{"1":{"wt":"it"},"2":{"wt":"cane"}},"i":1}},"\n* ",{"template":{"target":{"wt":"desctree","href":"./Template:desctree"},"params":{"1":{"wt":"fro"},"2":{"wt":"chien"}},"i":2}},"\n"]}'><ul><li>Italian: <a rel="mw:WikiLink" href="./cane#Italian">cane</a></li><li>Old French: <a rel="mw:WikiLink" href="./chien#Old_French">chien</a><ul><li>French: <a rel="mw:WikiLink" href="./chien#French">chien</a></li></ul></li></ul></div>
 </section></section></section>
 <section data-mw-section-id="5"><h3 id="Etymology_2">Etymology 2</h3>
-<p>Unknown.</p>
-<section data-mw-section-id="6"><h4 id="Verb">Verb</h4><p><strong class="headword">canis</strong></p><ol><li>second-person singular of <i>canō</i></li></ol></section>
+<p>Unknown.<link rel="mw:PageProp/Category" href="./Category:Latin_terms_derived_from_the_PIE_root_*kan-" about="#mwt9" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"root","href":"./Template:root"},"params":{"1":{"wt":"la"},"2":{"wt":"ine-pro"},"3":{"wt":"*kan-"}},"i":0}}]}'/></p>
+<section data-mw-section-id="6"><h4 id="Pronunciation">Pronunciation</h4>
+<section data-mw-section-id="10"><h5 id="Verb">Verb</h5><p><strong class="headword">canis</strong></p><ol><li>second-person singular of <i>canō</i></li></ol></section></section>
 </section>
 <section data-mw-section-id="7"><h3 id="References">References</h3>
 <ol class="mw-references references"><li id="cite_note-1"><span class="mw-reference-text">A. Author (2000) <i>A Book</i></span></li></ol>
@@ -51,7 +52,15 @@ fn numbered_etymologies_are_entries() {
     assert_eq!(e[0]["lang"], "la");
     assert_eq!(e[0]["ety_label"], "1");
     assert_eq!(e[1]["ety_label"], "2");
+    // Under a Pronunciation heading.
     assert_eq!(e[1]["pos"][0]["pos"], "verb");
+    // {{root}} renders only a category; its call is a zero-width span.
+    let span = &e[1]["etymology"]["blocks"][0]["spans"][0];
+    assert_eq!(
+        (span["start"].as_u64(), span["end"].as_u64()),
+        (Some(8), Some(8))
+    );
+    assert_eq!(span["calls"][0]["name"], "root");
     assert_eq!(e[2]["lang"], Value::Null);
     assert_eq!(counts.0["language headings unknown"], 1);
     // The References beside both etymologies cover each.

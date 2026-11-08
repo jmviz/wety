@@ -538,7 +538,7 @@ pub fn entries(info: &PageInfo, html: &str, counts: &mut Counts) -> Vec<Entry> {
         let numbered = lang_sec
             .children
             .iter()
-            .any(|c| etymology_label(&c.title).is_some() && c.children.iter().any(is_pos));
+            .any(|c| etymology_label(&c.title).is_some() && contains_pos(c));
         let lang_refs = lang_sec
             .children
             .iter()
@@ -603,7 +603,18 @@ fn fill(
                 .extend(descendant_lists(child, counts, tx)),
             "References" => entry.references = Some(section(child, notes, tx)),
             "Further reading" => entry.further_reading = Some(section(child, notes, tx)),
+            // Parts of speech may sit under another heading ("Pronunciation 2").
+            title if etymology_label(title).is_none() => {
+                fill(entry, &child.children, notes, counts, tx)
+            }
             _ => {}
         }
     }
+}
+
+/// Whether a part of speech lies below `sec`, other than under a further etymology.
+fn contains_pos(sec: &Sec) -> bool {
+    sec.children
+        .iter()
+        .any(|c| is_pos(c) || (etymology_label(&c.title).is_none() && contains_pos(c)))
 }
