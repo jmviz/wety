@@ -115,7 +115,19 @@ fn flatten(string_pool: &mut StringPool, nodes: &[Json], depth: u8, lines: &mut 
 const DESC_TEMPLATES: [&str; 4] = ["desc", "descendant", "desctree", "descendants tree"];
 const LINK_TEMPLATES: [&str; 3] = ["l", "link", "ll"];
 
+/// Templates whose list gives a word's readings in other languages, not its
+/// descendants: {{CJKV}} lists the Sino-Xenic readings of a Chinese word, written
+/// with its characters, which may be Japanese coinages Chinese borrowed, or native
+/// words written with the same characters.
+const READING_LISTS: [&str; 1] = ["cjkv"];
+
 fn desc_line(string_pool: &mut StringPool, node: &Json) -> RawDescLineKind {
+    if node
+        .get_str("via")
+        .is_some_and(|via| READING_LISTS.contains(&via.to_lowercase().as_str()))
+    {
+        return RawDescLineKind::Other;
+    }
     let calls = node
         .get_array("calls")
         .map(Vec::as_slice)
@@ -520,6 +532,19 @@ mod tests {
             [EtyMode::Inherited, EtyMode::LearnedBorrowing]
         );
         assert_eq!(modes(&lines[4]), [EtyMode::MorphologicalDerivation]);
+    }
+
+    #[test]
+    fn sino_xenic_readings_are_not_descendants() {
+        let (_, lines) = lines(
+            r#"{"pos": [{"descendants": [
+                {"text": "→ Japanese: 孝敬(こうけい) (kōkei)", "calls": [], "via": "cJKV",
+                    "links": [{"page": "孝敬", "anchor": "Japanese"}]},
+                {"text": "→ Vietnamese: căn", "calls": [{"name": "desc", "args": {"1": "vi", "2": "căn", "bor": "1"}}]}
+            ]}]}"#,
+        );
+        assert!(matches!(lines[0].kind, RawDescLineKind::Other));
+        assert_eq!(modes(&lines[1]), [EtyMode::Borrowed]);
     }
 
     #[test]
