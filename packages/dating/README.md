@@ -33,6 +33,18 @@ Current state and next steps: [STATUS.md](../../STATUS.md). Per-family results:
 * Texts transmitted orally and known only from much later copies (the Vedas, the Avesta) are dated by event `composition`; an adopted composition window is shown, basis `composition`, only when the code has no adopted period or attestation.
 * A proto-language (a code Wiktionary names "Proto-…", whether filed as reconstructed, attested like Proto-Norse, or as a variety like Proto-Romance) may end at a crown age: a decision on its code with event `crown_divergence` may select a supported crown claim of a sampled clade (two or more taxa) when its `proto_mapping` says why the sampled taxa cover the family. The clade claim stays about the clade; the export shows the crown interval as the proto stage's estimated end, never as its start or as a daughter's beginning. A source that dates the family's breakup itself (a family age, an article's node age) may also give the crown claim; an article's Bayesian node age names its sampled descendants. Each estimate carries its method. A posterior's label names the central value its source reports (the mean when it reports a mean, else the median), never a midpoint computed here, with the interval beside it; an estimate given only as an interval is labeled by the interval. A crown decision may list reviewed crown ages of trees (`proto_alternatives`, each with its own `proto_mapping`) shown beside the default, whatever kind of estimate the default is.
 
+* Dates shown across a family must be coherent (`harness/consistency.py`). Along
+  Wiktionary's ancestry no proto-language may end after its descendant ends or begins
+  (clear conflicts only; the tree checks the display and never supplies a date), and
+  `validate` fails on a violation. A family's chronology frame (`dating frame ROOT`, ledger
+  kind `frame`) names the one study, or one author's consistent system, whose estimates
+  its proto-languages show: where the frame has an adopted estimate it is displayed and
+  other adopted estimates stand beside it; a code the frame dates but whose default comes
+  from elsewhere fails validation unless the frame lists it as an exception with a reason.
+  Proto-languages outside the frame say so. Choosing frames is the reviewer's judgment
+  (coverage, exact clade mapping, method, reception, agreement with attested anchors);
+  `dating consistency` lists each family's mix.
+
 The [catalog cross-reference audit](../catalogs/critique.md) covers the identity layer. Catalog correspondence never licenses automatic chronological transfer.
 
 ## Review

@@ -370,6 +370,13 @@
   padding-left: 1.1em;
 }
 
+/* A proto-language dated outside its family's chronology frame. */
+.popover-period .period-off-frame {
+  margin-top: 0.2em;
+  color: var(--muted);
+  font-style: italic;
+}
+
 .popover-period .period-quote {
   display: -webkit-box;
   -webkit-line-clamp: 3;

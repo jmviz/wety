@@ -36793,7 +36793,7 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:fff5df92fe6ca543"
     }
   ],
-  "generation": "7467cf5a42050050a4dab2ec92ae1bfa09cc95848240ed766af96fa9312fcd2b",
+  "generation": "e67e8491615140924c2bc6f60fb59311c68daa93a72f3fdf2e2fa26b047e6404",
   "languages": [
     {
       "alternatives": [],
@@ -37302,6 +37302,11 @@
           "url": "https://starling.rinet.ru/Texts/fleming.pdf"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Militarev 2005 and 2022",
+        "root": "afa-pro"
+      },
       "kind": "proto",
       "label": "until c. 9970 BCE",
       "name": "Proto-Afroasiatic",
@@ -38440,6 +38445,11 @@
           "url": "https://www.uaf.edu/alc/history/2016/papers/2010-geolingconservNDprehistory_2011.pdf"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Kari 2010",
+        "root": "xnd-pro"
+      },
       "kind": "proto",
       "label": "until c. 950 BCE – 50 CE",
       "name": "Proto-Athabaskan",
@@ -38506,6 +38516,11 @@
           "url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs41559-018-0489-3/MediaObjects/41559_2018_489_MOESM4_ESM.txt"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Bouckaert et al. 2018",
+        "root": "aus-pam-pro"
+      },
       "kind": "proto",
       "label": "until c. 130 BCE",
       "name": "Proto-Central New South Wales",
@@ -38543,6 +38558,11 @@
           "url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs41559-018-0489-3/MediaObjects/41559_2018_489_MOESM4_ESM.txt"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Bouckaert et al. 2018",
+        "root": "aus-pam-pro"
+      },
       "kind": "proto",
       "label": "until c. 3630 BCE",
       "name": "Proto-Pama-Nyungan",
@@ -38733,6 +38753,11 @@
           "url": "http://urn.kb.se/resolve?urn=urn:nbn:se:su:diva-220000"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Heggarty et al. 2023",
+        "root": "ine-pro"
+      },
       "kind": "proto",
       "label": "until c. 440 BCE",
       "name": "Proto-Baltic",
@@ -38781,6 +38806,11 @@
           "url": "https://www.sav.sk/journals/uploads/06301136AsianAndAfricanStudies_1_2022_01_Militarev.A_ReconstructingaCulturalLexiconForPreHistoryBerberZoonymsofAfrasianAfro-AsiaticOrigin.pdf"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Militarev 2005 and 2022",
+        "root": "afa-pro"
+      },
       "kind": "proto",
       "label": "until c. 1050 BCE",
       "name": "Proto-Berber",
@@ -38988,6 +39018,11 @@
           "url": "https://ijhess.com/index.php/ijhess/article/download/192/169"
         }
       ],
+      "frame": {
+        "in_frame": false,
+        "name": "Blust 2013 and Pawley 2007",
+        "root": "map-pro"
+      },
       "kind": "proto",
       "label": "until c. 703 CE",
       "name": "Proto-Batak",
@@ -39227,6 +39262,11 @@
           "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC10689496/fullTextXML"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Gavashelishvili et al. 2023",
+        "root": "ccs-pro"
+      },
       "kind": "proto",
       "label": "until c. 670 BCE",
       "name": "Proto-Georgian-Zan",
@@ -39319,6 +39359,11 @@
           "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC10689496/fullTextXML"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Gavashelishvili et al. 2023",
+        "root": "ccs-pro"
+      },
       "kind": "proto",
       "label": "until c. 5690 BCE",
       "name": "Proto-Kartvelian",
@@ -39385,6 +39430,11 @@
           "url": "https://pressto.amu.edu.pl/index.php/linpo/article/download/45468/39849"
         }
       ],
+      "frame": {
+        "in_frame": false,
+        "name": "Militarev 2005 and 2022",
+        "root": "afa-pro"
+      },
       "kind": "proto",
       "label": "until c. 4050 BCE",
       "name": "Proto-Central Chadic",
@@ -39433,6 +39483,11 @@
           "url": "https://pressto.amu.edu.pl/index.php/linpo/article/download/45468/39849"
         }
       ],
+      "frame": {
+        "in_frame": false,
+        "name": "Militarev 2005 and 2022",
+        "root": "afa-pro"
+      },
       "kind": "proto",
       "label": "until c. 5130 BCE",
       "name": "Proto-Chadic",
@@ -39462,6 +39517,12 @@
           "url": "https://repository.uwtsd.ac.uk/id/eprint/1543/1/JK4.pdf"
         }
       ],
+      "frame": {
+        "in_frame": false,
+        "name": "Heggarty et al. 2023",
+        "note": "Heggarty et al. sample no Celtiberian or Lepontic, so their Celtic crown need not be Proto-Celtic's breakup; Koch 2020's period is kept.",
+        "root": "ine-pro"
+      },
       "kind": "proto",
       "label": "c. 1200–900 BCE",
       "name": "Proto-Celtic",
@@ -39734,6 +39795,11 @@
           "url": "https://openresearch-repository.anu.edu.au/bitstreams/1872be1e-c8bf-41a1-b1b3-3434b40a6498/download"
         }
       ],
+      "frame": {
+        "in_frame": false,
+        "name": "Blust 2013 and Pawley 2007",
+        "root": "map-pro"
+      },
       "kind": "proto",
       "label": "until c. 10th century CE",
       "name": "Proto-Chamic",
@@ -40237,6 +40303,11 @@
           "url": "https://starling.rinet.ru/Texts/fleming.pdf"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Militarev 2005 and 2022",
+        "root": "afa-pro"
+      },
       "kind": "proto",
       "label": "until c. 6510 BCE",
       "name": "Proto-Cushitic",
@@ -40285,6 +40356,11 @@
           "url": "https://journals.pan.pl/Content/114144/PDF/FoliaOrientalia%2056-19%206Bla%C5%BEek.pdf?handler=pdf"
         }
       ],
+      "frame": {
+        "in_frame": false,
+        "name": "Militarev 2005 and 2022",
+        "root": "afa-pro"
+      },
       "kind": "proto",
       "label": "until c. 1950 BCE",
       "name": "Proto-South Cushitic",
@@ -40471,6 +40547,11 @@
           "url": "https://doi.org/10.1098/rsos.171504"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Kolipakam et al. 2018",
+        "root": "dra-pro"
+      },
       "kind": "proto",
       "label": "until c. 60 CE",
       "name": "Proto-North Dravidian",
@@ -40508,6 +40589,11 @@
           "url": "https://doi.org/10.1098/rsos.171504"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Kolipakam et al. 2018",
+        "root": "dra-pro"
+      },
       "kind": "proto",
       "label": "until c. 2430 BCE",
       "name": "Proto-Dravidian",
@@ -40545,6 +40631,11 @@
           "url": "https://doi.org/10.1098/rsos.171504"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Kolipakam et al. 2018",
+        "root": "dra-pro"
+      },
       "kind": "proto",
       "label": "until c. 560 BCE",
       "name": "Proto-South Dravidian I",
@@ -40582,6 +40673,11 @@
           "url": "https://doi.org/10.1098/rsos.171504"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Kolipakam et al. 2018",
+        "root": "dra-pro"
+      },
       "kind": "proto",
       "label": "until c. 410 BCE",
       "name": "Proto-South Dravidian II",
@@ -41809,20 +41905,39 @@
       "alternatives": [
         {
           "basis": "estimated",
+          "citation": "Koch, J. T. 2020. Celto-Germanic: Later Prehistory and Post-Proto-Indo-European Vocabulary in the North and West. Aberystwyth: University of Wales Centre for Advanced Welsh and Celtic Studies. ISBN 978-1-907029-32-5.",
+          "claim_id": "ev_period_c5afa5d379b81b5bbee06c8c6a4fbd8cde2546b4",
+          "end": {
+            "earliest": -299,
+            "latest": 1
+          },
+          "event": "conventional_period",
+          "label": "c. 500 BCE – 1 CE",
+          "locator": "{\"start\": 180214, \"end\": 180432, \"page\": 46}",
+          "method": "expert_estimate",
+          "quote": "Proto-Celtic and Proto-Germanic were not contemporary. Their \ndates probably did not even overlap. As explained above, Proto-\nGermanic is provisionally dated here to ~500/400–300 BC/AD 1 \nand Proto-Celtic ~1200–900 BC.",
+          "role": "hypothesis",
+          "source": "Koch 2020",
+          "start": {
+            "earliest": -499,
+            "latest": -399
+          },
+          "url": "https://repository.uwtsd.ac.uk/id/eprint/1543/1/JK4.pdf"
+        }
+      ],
+      "basis": "estimated",
+      "code": "gem-pro",
+      "estimate": {
+        "interval": "95% HPD 870 BCE – 70 CE",
+        "statistic": "median",
+        "text": "340 BCE",
+        "value": -337
+      },
+      "evidence": [
+        {
           "citation": "Language trees with sampled ancestors support a hybrid model for the origin of Indo-European languages",
           "claim_id": "ev_tree_ba49c741a1b552603d8aa27ea356b34fbf847252986f6a748d7910cbf8322ca3",
-          "end": {
-            "earliest": -865,
-            "latest": 69
-          },
-          "estimate": {
-            "interval": "95% HPD 870 BCE – 70 CE",
-            "statistic": "median",
-            "text": "340 BCE",
-            "value": -337
-          },
           "event": "crown_divergence",
-          "label": "until c. 340 BCE",
           "locator": null,
           "method": "phylogenetic",
           "node": "MRCA(Danish, Dutch, Elfdalian, English, Faroese, Flemish, Frisian, German, GermanBernese, Gothic, Icelandic, Luxembourgish, MiddleDutch, MiddleHighGerman, NorwegianBokmal, NorwegianNynorsk, OldEnglish, OldFrisian, OldHighGerman, OldIcelandic, OldSaxon, OldSwedish, Swedish)",
@@ -41830,38 +41945,24 @@
           "quote": null,
           "role": "posterior",
           "source": "Paul Heggarty et al. 2023",
-          "start": null,
           "url": "http://urn.kb.se/resolve?urn=urn:nbn:se:su:diva-220000"
         }
       ],
-      "basis": "estimated",
-      "code": "gem-pro",
-      "evidence": [
-        {
-          "citation": "Koch, J. T. 2020. Celto-Germanic: Later Prehistory and Post-Proto-Indo-European Vocabulary in the North and West. Aberystwyth: University of Wales Centre for Advanced Welsh and Celtic Studies. ISBN 978-1-907029-32-5.",
-          "claim_id": "ev_period_c5afa5d379b81b5bbee06c8c6a4fbd8cde2546b4",
-          "event": "conventional_period",
-          "locator": "{\"start\": 180214, \"end\": 180432, \"page\": 46}",
-          "method": "expert_estimate",
-          "quote": "Proto-Celtic and Proto-Germanic were not contemporary. Their \ndates probably did not even overlap. As explained above, Proto-\nGermanic is provisionally dated here to ~500/400–300 BC/AD 1 \nand Proto-Celtic ~1200–900 BC.",
-          "role": "hypothesis",
-          "source": "Koch 2020",
-          "url": "https://repository.uwtsd.ac.uk/id/eprint/1543/1/JK4.pdf"
-        }
-      ],
+      "frame": {
+        "in_frame": true,
+        "name": "Heggarty et al. 2023",
+        "root": "ine-pro"
+      },
       "kind": "proto",
-      "label": "c. 500 BCE – 1 CE",
+      "label": "until c. 340 BCE",
       "name": "Proto-Germanic",
       "spoken": {
         "end": {
-          "earliest": -299,
-          "latest": 1
+          "earliest": -865,
+          "latest": 69
         },
         "ongoing": false,
-        "start": {
-          "earliest": -499,
-          "latest": -399
-        }
+        "start": null
       }
     },
     {
@@ -42153,6 +42254,11 @@
           "url": "http://urn.kb.se/resolve?urn=urn:nbn:se:su:diva-220000"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Heggarty et al. 2023",
+        "root": "ine-pro"
+      },
       "kind": "proto",
       "label": "until c. 730 CE",
       "name": "Proto-Norse",
@@ -42190,6 +42296,11 @@
           "url": "http://urn.kb.se/resolve?urn=urn:nbn:se:su:diva-220000"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Heggarty et al. 2023",
+        "root": "ine-pro"
+      },
       "kind": "proto",
       "label": "until c. 270 CE",
       "name": "Proto-West Germanic",
@@ -42511,29 +42622,61 @@
       }
     },
     {
-      "alternatives": [],
-      "basis": "estimated",
-      "code": "grk-pro",
-      "evidence": [
+      "alternatives": [
         {
+          "basis": "estimated",
           "citation": "Sowa, Wojciech. 2017. The dialectology of Greek. In Klein, Joseph & Fritz (eds.), Handbook of Comparative and Historical Indo-European Linguistics, vol. 1, pp. 710–716, especially.",
           "claim_id": "ev_period_5ae2056ad759c2a6e89724ea69f8f96fd3b8f2ee",
+          "end": {
+            "earliest": -1899,
+            "latest": null
+          },
           "event": "crown_divergence",
+          "label": "until after c. 1900 BCE",
           "locator": "{\"pdf_page\": 726, \"printed_page\": \"714\", \"section\": \"44 The dialectology of Greek, §5\", \"start\": 2168948, \"end\": 2169054}",
           "method": "comparative_reconstruction",
           "quote": "In the period after the Greek tribes appeared in\nGreece (ca. 1900 BCE) the first dialectal split occurred.",
           "role": "hypothesis",
           "source": "Sowa 2017",
+          "start": null,
           "url": null
         }
       ],
+      "basis": "estimated",
+      "code": "grk-pro",
+      "estimate": {
+        "interval": "95% HPD 1610–1220 BCE",
+        "statistic": "median",
+        "text": "1360 BCE",
+        "value": -1364
+      },
+      "evidence": [
+        {
+          "citation": "Language trees with sampled ancestors support a hybrid model for the origin of Indo-European languages",
+          "claim_id": "ev_tree_2f7586a43db673e3004241b71ff6b8f8d52d4894e73a89c919b2503c0e089b18",
+          "event": "crown_divergence",
+          "locator": null,
+          "method": "phylogenetic",
+          "node": "MRCA(AncientGreek, Greek, GreekCappodocian, GreekCypriot, GreekItaliot, GreekPontic, MycenaeanGreek, NTGreek, TsakonianPeloponnese, TsakonianPropontis)",
+          "proto_mapping": "The clade holds Mycenaean, Ancient and later Greek and Tsakonian, the descendant of Laconian Doric: the main Greek dialect groups, so its crown is the breakup of Proto-Greek.",
+          "quote": null,
+          "role": "posterior",
+          "source": "Paul Heggarty et al. 2023",
+          "url": "http://urn.kb.se/resolve?urn=urn:nbn:se:su:diva-220000"
+        }
+      ],
+      "frame": {
+        "in_frame": true,
+        "name": "Heggarty et al. 2023",
+        "root": "ine-pro"
+      },
       "kind": "proto",
-      "label": "until after c. 1900 BCE",
+      "label": "until c. 1360 BCE",
       "name": "Proto-Hellenic",
       "spoken": {
         "end": {
-          "earliest": -1899,
-          "latest": null
+          "earliest": -1609,
+          "latest": -1218
         },
         "ongoing": false,
         "start": null
@@ -42691,35 +42834,6 @@
       }
     },
     {
-      "alternatives": [],
-      "basis": "estimated",
-      "code": "hmn-pro",
-      "evidence": [
-        {
-          "citation": "Automated dating of the world's language families based on lexical similarity",
-          "claim_id": "ev_period_363d17ad02160d6a2abd1558f8f1877931f73d5c",
-          "event": "crown_divergence",
-          "locator": "{\"table\": \"Table 4\", \"row\": \"Hmongic\", \"page\": 854, \"pdf_page\": 15, \"character_start\": 60543, \"character_end\": 60570, \"columns\": [\"Group\", \"Pairs\", \"Subgroups\", \"Similarity\", \"Date\"]}",
-          "method": "lexicostatistic",
-          "quote": "Hmongic\n21\n4 (5)\n14.84\n2777",
-          "role": "hypothesis",
-          "source": "Eric W. Holman et al. 2011",
-          "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
-        }
-      ],
-      "kind": "proto",
-      "label": "until c. 780 BCE",
-      "name": "Proto-Hmongic",
-      "spoken": {
-        "end": {
-          "earliest": -777,
-          "latest": -777
-        },
-        "ongoing": false,
-        "start": null
-      }
-    },
-    {
       "alternatives": [
         {
           "basis": "estimated",
@@ -42813,6 +42927,11 @@
           "url": "http://urn.kb.se/resolve?urn=urn:nbn:se:su:diva-220000"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Heggarty et al. 2023",
+        "root": "ine-pro"
+      },
       "kind": "proto",
       "label": "until c. 3520 BCE",
       "name": "Proto-Indo-Iranian",
@@ -42842,6 +42961,12 @@
           "url": null
         }
       ],
+      "frame": {
+        "in_frame": false,
+        "name": "Heggarty et al. 2023",
+        "note": "Heggarty et al.'s clade with early Vedic also holds Nuristani languages, so it does not date Proto-Indo-Aryan alone; Kulikov 2017's estimate is kept.",
+        "root": "ine-pro"
+      },
       "kind": "proto",
       "label": "c. 1500 BCE",
       "name": "Proto-Indo-Aryan",
@@ -42882,6 +43007,11 @@
           "url": "http://urn.kb.se/resolve?urn=urn:nbn:se:su:diva-220000"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Heggarty et al. 2023",
+        "root": "ine-pro"
+      },
       "kind": "proto",
       "label": "until c. 2620 BCE",
       "name": "Proto-Anatolian",
@@ -42919,6 +43049,11 @@
           "url": "http://urn.kb.se/resolve?urn=urn:nbn:se:su:diva-220000"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Heggarty et al. 2023",
+        "root": "ine-pro"
+      },
       "kind": "proto",
       "label": "until c. 1660 BCE",
       "name": "Proto-Balto-Slavic",
@@ -43059,6 +43194,11 @@
           "url": "http://urn.kb.se/resolve?urn=urn:nbn:se:su:diva-220000"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Heggarty et al. 2023",
+        "root": "ine-pro"
+      },
       "kind": "proto",
       "label": "until c. 6120 BCE",
       "name": "Proto-Indo-European",
@@ -43096,6 +43236,11 @@
           "url": "http://urn.kb.se/resolve?urn=urn:nbn:se:su:diva-220000"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Heggarty et al. 2023",
+        "root": "ine-pro"
+      },
       "kind": "proto",
       "label": "until c. 170 CE",
       "name": "Proto-Tocharian",
@@ -43176,6 +43321,11 @@
           "url": "http://urn.kb.se/resolve?urn=urn:nbn:se:su:diva-220000"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Heggarty et al. 2023",
+        "root": "ine-pro"
+      },
       "kind": "proto",
       "label": "until c. 2110 BCE",
       "name": "Proto-Iranian",
@@ -43224,6 +43374,11 @@
           "url": "https://archive.org/download/symposiumonchero00fent/symposiumonchero00fent.pdf"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Lounsbury 1961",
+        "root": "iro-pro"
+      },
       "kind": "proto",
       "label": "until c. 450 BCE – 50 CE",
       "name": "Proto-North Iroquoian",
@@ -43290,6 +43445,11 @@
           "url": "https://archive.org/download/symposiumonchero00fent/symposiumonchero00fent.pdf"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Lounsbury 1961",
+        "root": "iro-pro"
+      },
       "kind": "proto",
       "label": "until c. 1850–1550 BCE",
       "name": "Proto-Iroquoian",
@@ -43391,6 +43551,11 @@
           "url": "http://urn.kb.se/resolve?urn=urn:nbn:se:su:diva-220000"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Heggarty et al. 2023",
+        "root": "ine-pro"
+      },
       "kind": "proto",
       "label": "until c. 1430 BCE",
       "name": "Proto-Italic",
@@ -43543,6 +43708,11 @@
           "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/3203502"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Lee & Hasegawa 2011",
+        "root": "jpx-pro"
+      },
       "kind": "proto",
       "label": "until c. 170 BCE",
       "name": "Proto-Japonic",
@@ -43580,6 +43750,11 @@
           "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/3203502"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Lee & Hasegawa 2011",
+        "root": "jpx-pro"
+      },
       "kind": "proto",
       "label": "until c. 950 CE",
       "name": "Proto-Ryukyuan",
@@ -43663,6 +43838,11 @@
           "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
         }
       ],
+      "frame": {
+        "in_frame": false,
+        "name": "Zhang et al. 2019",
+        "root": "sit-pro"
+      },
       "kind": "proto",
       "label": "until c. 350 BCE",
       "name": "Proto-Karen",
@@ -44392,6 +44572,11 @@
           "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
         }
       ],
+      "frame": {
+        "in_frame": false,
+        "name": "Blust 2013 and Pawley 2007",
+        "root": "map-pro"
+      },
       "kind": "proto",
       "label": "until c. 660 BCE",
       "name": "Proto-Atayalic",
@@ -44443,6 +44628,11 @@
           "url": "https://openresearch-repository.anu.edu.au/bitstreams/acb0151b-ebb5-4941-8f29-8f61a28c777e/download"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Blust 2013 and Pawley 2007",
+        "root": "map-pro"
+      },
       "kind": "proto",
       "label": "c. 4050–3550 BCE",
       "name": "Proto-Austronesian",
@@ -46017,6 +46207,11 @@
           "url": "https://linguistics.ucsb.edu/sites/default/files/sitefiles/people/campbell/Campbell-2013-Internal_divers_and_subgrouping_Chatino.pdf"
         }
       ],
+      "frame": {
+        "in_frame": false,
+        "name": "Holman et al. 2011 (ASJP)",
+        "root": "omq-pro"
+      },
       "kind": "proto",
       "label": "until c. 950–1350 CE",
       "name": "Proto-Chatino",
@@ -46046,6 +46241,11 @@
           "url": "https://pure.mpg.de/rest/items/item_3524862_2/component/file_3524863/content"
         }
       ],
+      "frame": {
+        "in_frame": false,
+        "name": "Holman et al. 2011 (ASJP)",
+        "root": "omq-pro"
+      },
       "kind": "proto",
       "label": "until c. 1950–1550 BCE",
       "name": "Proto-Mixtecan",
@@ -46075,6 +46275,11 @@
           "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Holman et al. 2011 (ASJP)",
+        "root": "omq-pro"
+      },
       "kind": "proto",
       "label": "until c. 4590 BCE",
       "name": "Proto-Oto-Manguean",
@@ -46104,6 +46309,11 @@
           "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Holman et al. 2011 (ASJP)",
+        "root": "omq-pro"
+      },
       "kind": "proto",
       "label": "until c. 1150 BCE",
       "name": "Proto-Zapotecan",
@@ -46133,6 +46343,11 @@
           "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Holman et al. 2011 (ASJP)",
+        "root": "omq-pro"
+      },
       "kind": "proto",
       "label": "until c. 320 CE",
       "name": "Proto-Zapotec",
@@ -46213,6 +46428,11 @@
           "url": "https://benjamins.com/catalog/z.145.12bla"
         }
       ],
+      "frame": {
+        "in_frame": false,
+        "name": "Militarev 2005 and 2022",
+        "root": "afa-pro"
+      },
       "kind": "proto",
       "label": "until c. 5th millennium BCE",
       "name": "Proto-Omotic",
@@ -47147,6 +47367,11 @@
           "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
         }
       ],
+      "frame": {
+        "in_frame": false,
+        "name": "Blust 2013 and Pawley 2007",
+        "root": "map-pro"
+      },
       "kind": "proto",
       "label": "until c. 170 CE",
       "name": "Proto-Philippine",
@@ -47299,6 +47524,11 @@
           "url": "https://doi.org/10.2478/mjss-2018-0009"
         }
       ],
+      "frame": {
+        "in_frame": false,
+        "name": "Blust 2013 and Pawley 2007",
+        "root": "map-pro"
+      },
       "kind": "proto",
       "label": "until c. 380–640 CE",
       "name": "Proto-Bungku-Tolaki",
@@ -47347,6 +47577,11 @@
           "url": "https://openresearch-repository.anu.edu.au/bitstreams/b907d75d-7bd0-405c-8084-c2d6e6c81289/download"
         }
       ],
+      "frame": {
+        "in_frame": false,
+        "name": "Blust 2013 and Pawley 2007",
+        "root": "map-pro"
+      },
       "kind": "proto",
       "label": "until c. 1550 BCE",
       "name": "Proto-Central-Eastern Malayo-Polynesian",
@@ -47376,6 +47611,11 @@
           "url": "https://doi.org/10.22459/TA50.2019.13"
         }
       ],
+      "frame": {
+        "in_frame": false,
+        "name": "Blust 2013 and Pawley 2007",
+        "root": "map-pro"
+      },
       "kind": "proto",
       "label": "until c. 50 BCE",
       "name": "Proto-Halmahera-Cenderawasih",
@@ -47405,6 +47645,11 @@
           "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
         }
       ],
+      "frame": {
+        "in_frame": false,
+        "name": "Blust 2013 and Pawley 2007",
+        "root": "map-pro"
+      },
       "kind": "proto",
       "label": "until c. 4 BCE",
       "name": "Proto-Malayo-Chamic",
@@ -47434,6 +47679,11 @@
           "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
         }
       ],
+      "frame": {
+        "in_frame": false,
+        "name": "Blust 2013 and Pawley 2007",
+        "root": "map-pro"
+      },
       "kind": "proto",
       "label": "until c. 160 CE",
       "name": "Proto-Malayo-Sumbawan",
@@ -47482,6 +47732,11 @@
           "url": "https://doi.org/10.22459/TA26.2007.02"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Blust 2013 and Pawley 2007",
+        "root": "map-pro"
+      },
       "kind": "proto",
       "label": "c. 1450–1150 BCE",
       "name": "Proto-Oceanic",
@@ -47533,6 +47788,11 @@
           "url": "https://scholarspace.manoa.hawaii.edu/bitstreams/b2aeb54c-f3c5-445f-9fdf-92117b36519a/download"
         }
       ],
+      "frame": {
+        "in_frame": false,
+        "name": "Blust 2013 and Pawley 2007",
+        "root": "map-pro"
+      },
       "kind": "proto",
       "label": "until c. 1190–1293 CE",
       "name": "Proto-Eastern Polynesian",
@@ -47562,6 +47822,11 @@
           "url": "https://doi.org/10.22459/TA26.2007.02"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Blust 2013 and Pawley 2007",
+        "root": "map-pro"
+      },
       "kind": "proto",
       "label": "c. 50 BCE – 450 CE",
       "name": "Proto-Polynesian",
@@ -47637,6 +47902,11 @@
           "url": "https://openresearch-repository.anu.edu.au/bitstreams/acb0151b-ebb5-4941-8f29-8f61a28c777e/download"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Blust 2013 and Pawley 2007",
+        "root": "map-pro"
+      },
       "kind": "proto",
       "label": "c. 2550–2050 BCE",
       "name": "Proto-Malayo-Polynesian",
@@ -47669,6 +47939,11 @@
           "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
         }
       ],
+      "frame": {
+        "in_frame": false,
+        "name": "Blust 2013 and Pawley 2007",
+        "root": "map-pro"
+      },
       "kind": "proto",
       "label": "until c. 1030 CE",
       "name": "Proto-South Sulawesi",
@@ -47698,6 +47973,11 @@
           "url": "https://repository.ubn.ru.nl/bitstream/handle/2066/94255/94255-OA.pdf?sequence=1&isAllowed=y"
         }
       ],
+      "frame": {
+        "in_frame": false,
+        "name": "Blust 2013 and Pawley 2007",
+        "root": "map-pro"
+      },
       "kind": "proto",
       "label": "until c. 1800 BCE",
       "name": "Proto-Eastern Malayo-Polynesian",
@@ -47825,6 +48105,11 @@
           "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10616200/"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Tao et al. 2023",
+        "root": "qfa-tak-pro"
+      },
       "kind": "proto",
       "label": "until c. 800 CE",
       "name": "Proto-Hlai",
@@ -47862,6 +48147,11 @@
           "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10616200/"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Tao et al. 2023",
+        "root": "qfa-tak-pro"
+      },
       "kind": "proto",
       "label": "until c. 2090 BCE",
       "name": "Proto-Kra-Dai",
@@ -47928,6 +48218,11 @@
           "url": "https://starling.rinet.ru/confer/Blazhek-2019.pdf"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Blažek 2019",
+        "root": "qfa-yen-pro"
+      },
       "kind": "proto",
       "label": "until c. 830 BCE",
       "name": "Proto-Yeniseian",
@@ -48007,6 +48302,11 @@
           "url": "https://starling.rinet.ru/confer/Blazhek-2019.pdf"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Blažek 2019",
+        "root": "qfa-yen-pro"
+      },
       "kind": "proto",
       "label": "until c. 1300 CE",
       "name": "Proto-Ketic",
@@ -48220,6 +48520,11 @@
           "url": "http://urn.kb.se/resolve?urn=urn:nbn:se:su:diva-220000"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Heggarty et al. 2023",
+        "root": "ine-pro"
+      },
       "kind": "proto",
       "label": "until c. 160 CE",
       "name": "Proto-Romance",
@@ -48575,6 +48880,11 @@
           "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC2839953/"
         }
       ],
+      "frame": {
+        "in_frame": false,
+        "name": "Militarev 2005 and 2022",
+        "root": "afa-pro"
+      },
       "kind": "proto",
       "label": "until c. 3810 BCE",
       "name": "Proto-Semitic",
@@ -48612,6 +48922,11 @@
           "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC2839953/"
         }
       ],
+      "frame": {
+        "in_frame": false,
+        "name": "Militarev 2005 and 2022",
+        "root": "afa-pro"
+      },
       "kind": "proto",
       "label": "until c. 3360 BCE",
       "name": "Proto-West Semitic",
@@ -48812,6 +49127,11 @@
           "url": "https://doi.org/10.1038/s41586-019-1153-z"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Zhang et al. 2019",
+        "root": "sit-pro"
+      },
       "kind": "proto",
       "label": "until c. 770 CE",
       "name": "Proto-Central Naga",
@@ -48843,6 +49163,11 @@
           "url": "https://pure.mpg.de/rest/items/item_3383165_9/component/file_3383218/content"
         }
       ],
+      "frame": {
+        "in_frame": false,
+        "name": "Zhang et al. 2019",
+        "root": "sit-pro"
+      },
       "kind": "proto",
       "label": "until c. 1750–90 BCE",
       "name": "Proto-Bodish",
@@ -48880,6 +49205,11 @@
           "url": "https://doi.org/10.1038/s41586-019-1153-z"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Zhang et al. 2019",
+        "root": "sit-pro"
+      },
       "kind": "proto",
       "label": "until c. 780 CE",
       "name": "Proto-Ersuic",
@@ -48911,6 +49241,11 @@
           "url": "https://pure.mpg.de/rest/items/item_3383165_9/component/file_3383218/content"
         }
       ],
+      "frame": {
+        "in_frame": false,
+        "name": "Zhang et al. 2019",
+        "root": "sit-pro"
+      },
       "kind": "proto",
       "label": "until c. 150–1360 CE",
       "name": "Proto-Western Kho-Bwa",
@@ -48948,6 +49283,11 @@
           "url": "https://doi.org/10.1038/s41586-019-1153-z"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Zhang et al. 2019",
+        "root": "sit-pro"
+      },
       "kind": "proto",
       "label": "until c. 1460 CE",
       "name": "Proto-Naish",
@@ -49013,6 +49353,11 @@
           "url": "https://doi.org/10.1038/s41586-019-1153-z"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Zhang et al. 2019",
+        "root": "sit-pro"
+      },
       "kind": "proto",
       "label": "until c. 3920 BCE",
       "name": "Proto-Sino-Tibetan",
@@ -49077,6 +49422,11 @@
           "url": "https://doi.org/10.1038/s41586-019-1153-z"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Zhang et al. 2019",
+        "root": "sit-pro"
+      },
       "kind": "proto",
       "label": "until c. 750 CE",
       "name": "Proto-Tamangic",
@@ -49122,20 +49472,36 @@
       "alternatives": [
         {
           "basis": "estimated",
+          "citation": "Fortson, Benjamin W., IV. 2010. Indo-European Language and Culture: An Introduction. 2nd ed. Blackwell Textbooks in Linguistics 19. Chichester and Malden, MA: Wiley-Blackwell. (Supplied copy is a reflowed e-book without printed page numbers; cited by section.)",
+          "claim_id": "ev_period_408efd22ce16f5dbed723dc9cb1f948a951add7f",
+          "end": {
+            "earliest": 800,
+            "latest": 1000
+          },
+          "event": "conventional_period",
+          "label": "until c. 800–1000 CE",
+          "locator": "§18.29 (e-book PDF p. 430)",
+          "method": "expert_estimate",
+          "quote": "18.29. The yers are still preserved in Old Church Slavonic, but around the end of the\nCommon Slavic period (c. AD 800–1000), they began to be lost as a category: certain ones\nweakened and disappeared, while others strengthened and became full mid or low vowels.",
+          "role": "hypothesis",
+          "source": "Fortson 2010",
+          "start": null,
+          "url": null
+        }
+      ],
+      "basis": "estimated",
+      "code": "sla-pro",
+      "estimate": {
+        "interval": "95% HPD 160–780 CE",
+        "statistic": "median",
+        "text": "510 CE",
+        "value": 507
+      },
+      "evidence": [
+        {
           "citation": "Language trees with sampled ancestors support a hybrid model for the origin of Indo-European languages",
           "claim_id": "ev_tree_b8772c20e2dee2a4feae1e547b1ae96acafbcca2372aab51be58bcd58a40bb98",
-          "end": {
-            "earliest": 163,
-            "latest": 778
-          },
-          "estimate": {
-            "interval": "95% HPD 160–780 CE",
-            "statistic": "median",
-            "text": "510 CE",
-            "value": 507
-          },
           "event": "crown_divergence",
-          "label": "until c. 510 CE",
           "locator": null,
           "method": "phylogenetic",
           "node": "MRCA(Belarusian, Bulgarian, Czech, Kashubian, Macedonian, MacedonianSuho, MacedonianVisoka, OldChurchSlavonic, OldCzech, OldNovgorod, OldPolish, Polabian, Polish, Russian, Rusyn, SerboCroatian, Slovak, Slovene, SloveneEarlyModern, SloveneKostel, SorbianLower, SorbianUpper, Ukrainian)",
@@ -49143,32 +49509,21 @@
           "quote": null,
           "role": "posterior",
           "source": "Paul Heggarty et al. 2023",
-          "start": null,
           "url": "http://urn.kb.se/resolve?urn=urn:nbn:se:su:diva-220000"
         }
       ],
-      "basis": "estimated",
-      "code": "sla-pro",
-      "evidence": [
-        {
-          "citation": "Fortson, Benjamin W., IV. 2010. Indo-European Language and Culture: An Introduction. 2nd ed. Blackwell Textbooks in Linguistics 19. Chichester and Malden, MA: Wiley-Blackwell. (Supplied copy is a reflowed e-book without printed page numbers; cited by section.)",
-          "claim_id": "ev_period_408efd22ce16f5dbed723dc9cb1f948a951add7f",
-          "event": "conventional_period",
-          "locator": "§18.29 (e-book PDF p. 430)",
-          "method": "expert_estimate",
-          "quote": "18.29. The yers are still preserved in Old Church Slavonic, but around the end of the\nCommon Slavic period (c. AD 800–1000), they began to be lost as a category: certain ones\nweakened and disappeared, while others strengthened and became full mid or low vowels.",
-          "role": "hypothesis",
-          "source": "Fortson 2010",
-          "url": null
-        }
-      ],
+      "frame": {
+        "in_frame": true,
+        "name": "Heggarty et al. 2023",
+        "root": "ine-pro"
+      },
       "kind": "proto",
-      "label": "until c. 800–1000 CE",
+      "label": "until c. 510 CE",
       "name": "Proto-Slavic",
       "spoken": {
         "end": {
-          "earliest": 800,
-          "latest": 1000
+          "earliest": 163,
+          "latest": 778
         },
         "ongoing": false,
         "start": null
@@ -49308,6 +49663,11 @@
           "url": "http://urn.kb.se/resolve?urn=urn:nbn:se:su:diva-220000"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Heggarty et al. 2023",
+        "root": "ine-pro"
+      },
       "kind": "proto",
       "label": "until c. 930 CE",
       "name": "Proto-Albanian",
@@ -49502,6 +49862,11 @@
           "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10616200/"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Tao et al. 2023",
+        "root": "qfa-tak-pro"
+      },
       "kind": "proto",
       "label": "until c. 590 CE",
       "name": "Proto-Tai",
@@ -49539,6 +49904,11 @@
           "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10616200/"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Tao et al. 2023",
+        "root": "qfa-tak-pro"
+      },
       "kind": "proto",
       "label": "until c. 1130 CE",
       "name": "Proto-Southwestern Tai",
@@ -49576,6 +49946,11 @@
           "url": "https://doi.org/10.1038/s41586-019-1153-z"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Zhang et al. 2019",
+        "root": "sit-pro"
+      },
       "kind": "proto",
       "label": "until c. 510 CE",
       "name": "Proto-Bodo-Garo",
@@ -49613,6 +49988,11 @@
           "url": "https://doi.org/10.1038/s41586-019-1153-z"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Zhang et al. 2019",
+        "root": "sit-pro"
+      },
       "kind": "proto",
       "label": "until c. 580 CE",
       "name": "Proto-Burmish",
@@ -49650,6 +50030,11 @@
           "url": "https://doi.org/10.1038/s41586-019-1153-z"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Zhang et al. 2019",
+        "root": "sit-pro"
+      },
       "kind": "proto",
       "label": "until c. 40 CE",
       "name": "Proto-Kuki-Chin",
@@ -49687,6 +50072,11 @@
           "url": "https://doi.org/10.1038/s41586-019-1153-z"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Zhang et al. 2019",
+        "root": "sit-pro"
+      },
       "kind": "proto",
       "label": "until c. 18 CE",
       "name": "Proto-Lolo-Burmese",
@@ -49743,6 +50133,11 @@
           "url": "https://doi.org/10.1038/s41586-019-1153-z"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Zhang et al. 2019",
+        "root": "sit-pro"
+      },
       "kind": "proto",
       "label": "until c. 2720 BCE",
       "name": "Proto-Tibeto-Burman",
@@ -49855,6 +50250,11 @@
           "url": "https://pure.mpg.de/rest/items/item_3194861_3/component/file_3194866/content"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Savelyev & Robbeets 2020",
+        "root": "trk-pro"
+      },
       "kind": "proto",
       "label": "until c. 470 CE",
       "name": "Proto-Common Turkic",
@@ -49946,6 +50346,11 @@
           "url": "https://pure.mpg.de/rest/items/item_3194861_3/component/file_3194866/content"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Savelyev & Robbeets 2020",
+        "root": "trk-pro"
+      },
       "kind": "proto",
       "label": "until c. 70 BCE",
       "name": "Proto-Turkic",
@@ -52434,6 +52839,11 @@
           "url": "https://www.uaf.edu/alc/history/2016/papers/2010-geolingconservNDprehistory_2011.pdf"
         }
       ],
+      "frame": {
+        "in_frame": true,
+        "name": "Kari 2010",
+        "root": "xnd-pro"
+      },
       "kind": "proto",
       "label": "until c. 2550 BCE",
       "name": "Proto-Na-Dene",

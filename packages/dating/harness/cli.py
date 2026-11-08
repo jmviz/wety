@@ -23,6 +23,8 @@ dating ledger erratum PACKET --field F --correct TEXT --basis TEXT   record a co
 dating brief SPEC.json                       batch brief from a prompt template (period or proto)
 dating review RUN JUDGMENTS.json [--reviewer NAME]   coordinator-review/review.json from judgments
 dating publish RUN [--review PATH]           packet, import, adopt, publish, validate, export (one reviewed run)
+dating frame ROOT --name N --study ID [--exception CODE REASON] --rationale R   a family's chronology frame (ledger)
+dating consistency                           ordering checks and chronology frames per family
 dating chapters RUN [--apply]                which chapter of an edited volume each of a published run's claims quotes (ledger)
 dating run-readme RUN --title T --notes FILE  the run's README.md (researcher, budget, outcome, notes)
 dating review-summary RUN [--pages DIR]      one block per assertion; render the pages proposed defaults cite
@@ -328,6 +330,35 @@ def cmd_publish(args) -> None:
     print(json.dumps(publish(args.run, args.review), indent=2, ensure_ascii=False))
 
 
+def cmd_frame(args) -> None:
+    from . import ledger
+    from .review_tools import reviewer_name
+
+    record = {
+        "root": args.root,
+        "name": args.name,
+        "study_ids": args.study,
+        "rationale": args.rationale,
+        "reviewer": reviewer_name(args.reviewer),
+        "exceptions": dict(args.exception or []),
+    }
+    ledger.append(
+        [{"kind": "frame", "key": args.root, "op": "put", "record": record}],
+        reason=f"chronology frame for {args.root}",
+    )
+    print(json.dumps(record, indent=2, ensure_ascii=False))
+
+
+def cmd_consistency(args) -> None:
+    from workflow_tools.paths import selected
+
+    from .consistency import report
+    from .registry import current_bundle
+
+    langs = json.loads(selected("wiktionary_languages").read_text())
+    print(json.dumps(report(current_bundle(), langs), indent=2, ensure_ascii=False))
+
+
 def cmd_chapters(args) -> None:
     from .review_tools import record_chapters
 
@@ -472,6 +503,22 @@ def main() -> None:
     p.add_argument("run")
     p.add_argument("--review", help="default: RUN/coordinator-review/review.json")
     p.set_defaults(fn=cmd_publish)
+    p = sub.add_parser("frame")
+    p.add_argument("root", help="the family's root code, e.g. ine-pro")
+    p.add_argument("--name", required=True, help='e.g. "Heggarty et al. 2023"')
+    p.add_argument("--study", action="append", required=True, help="study id; repeatable")
+    p.add_argument("--rationale", required=True)
+    p.add_argument(
+        "--exception",
+        nargs=2,
+        action="append",
+        metavar=("CODE", "REASON"),
+        help="a code the frame dates whose default stays from another study",
+    )
+    p.add_argument("--reviewer", help="default: WETY_REVIEWER")
+    p.set_defaults(fn=cmd_frame)
+    p = sub.add_parser("consistency")
+    p.set_defaults(fn=cmd_consistency)
     p = sub.add_parser("chapters")
     p.add_argument("run")
     p.add_argument("--apply", action="store_true", help="write them to the ledger")
@@ -543,6 +590,7 @@ def main() -> None:
         "publish",
         "adopt-clades",
         "chapters",
+        "frame",
     }:
         with locked(DATA_DIR + "/_pipeline"):
             args.fn(args)
