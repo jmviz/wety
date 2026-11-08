@@ -36775,7 +36775,7 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:fff5df92fe6ca543"
     }
   ],
-  "generation": "cf1b32b2dc37523c85bde87742d0e8ff08f81121f915c391047361d509ae8881",
+  "generation": "f4f0e6b4b4f2b69f6c23898fcdeffbdd92973b57146f50121e3e8a5286b2e518",
   "languages": [
     {
       "alternatives": [],
@@ -50582,24 +50582,6 @@
           "role": "hypothesis",
           "source": "Raija Bartens 2000",
           "start": null,
-          "url": "https://doi.org/10.33341/sus.238"
-        },
-        {
-          "basis": "estimated",
-          "citation": "Bartens, Raija. 2000. Permiläisten kielten rakenne ja kehitys. Suomalais-Ugrilaisen Seuran Toimituksia 238. Helsinki: Suomalais-Ugrilainen Seura.",
-          "claim_id": "ev_period_f07a5df89b04e0807dadcc6992011de8d3915e1f",
-          "end": null,
-          "event": "conventional_period",
-          "label": "from c. 1000 CE",
-          "locator": "{\"page\": \"11\", \"pdf_page\": 11, \"offsets\": [13585, 13715]}",
-          "method": "archaeological_correlation",
-          "quote": "Kantapermin kausi jatkui vielä ensimmäisen \nvuosituhannen jKr. puoliväliin ja sen jälkeenkin.",
-          "role": "hypothesis",
-          "source": "Raija Bartens 2000",
-          "start": {
-            "earliest": 1000,
-            "latest": 1000
-          },
           "url": "https://doi.org/10.33341/sus.238"
         }
       ],
