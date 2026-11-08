@@ -1,15 +1,15 @@
 use std::{
     collections::{HashMap, HashSet},
     fs::{self, File},
-    io::{BufWriter, Write},
-    path::PathBuf,
+    io::{BufRead, BufReader, BufWriter, Write},
+    path::{Path, PathBuf},
     sync::mpsc::sync_channel,
     thread,
 };
 
 use anyhow::{Result, bail};
 use clap::Parser;
-use flate2::{Compression, write::GzEncoder};
+use flate2::{Compression, read::MultiGzDecoder, write::GzEncoder};
 use rayon::prelude::*;
 use wety_wiktionary_entries::{
     model::Counts,
@@ -42,6 +42,40 @@ struct Args {
 }
 
 const BATCH: usize = 256;
+
+#[derive(serde::Deserialize)]
+struct Key {
+    page_id: u64,
+    rev: u64,
+}
+
+/// Copy `from` to `to`, keeping one record per page: its highest revision, first seen.
+/// A record's entries are consecutive lines with one (page, revision). Returns the
+/// number of lines dropped.
+fn keep_latest(from: &Path, to: &Path, latest: &HashMap<u64, u64>) -> Result<u64> {
+    let reader = BufReader::with_capacity(1 << 20, MultiGzDecoder::new(File::open(from)?));
+    let mut out = GzEncoder::new(BufWriter::new(File::create(to)?), Compression::fast());
+    let (mut done, mut current, mut keep, mut dropped) = (HashSet::new(), None, false, 0);
+    for line in reader.lines() {
+        let line = line?;
+        let key: Key = serde_json::from_str(&line)?;
+        if current != Some((key.page_id, key.rev)) {
+            if let (Some((id, _)), true) = (current, keep) {
+                done.insert(id);
+            }
+            current = Some((key.page_id, key.rev));
+            keep = latest.get(&key.page_id) == Some(&key.rev) && !done.contains(&key.page_id);
+        }
+        if keep {
+            out.write_all(line.as_bytes())?;
+            out.write_all(b"\n")?;
+        } else {
+            dropped += 1;
+        }
+    }
+    out.finish()?.flush()?;
+    Ok(dropped)
+}
 
 /// A record's page and revision, its entries as JSON lines, and what it counted.
 type Processed = (Option<(u64, u64)>, Vec<String>, Counts);
@@ -82,10 +116,9 @@ fn main() -> Result<()> {
         Ok(())
     });
 
-    let mut out = GzEncoder::new(
-        BufWriter::new(File::create(&args.out)?),
-        Compression::fast(),
-    );
+    // Every record's entries go here first; superseded revisions are dropped after.
+    let partial = args.out.with_extension("partial.gz");
+    let mut out = GzEncoder::new(BufWriter::new(File::create(&partial)?), Compression::fast());
     let mut counts = Counts::default();
     let mut revisions: HashMap<u64, u64> = HashMap::new();
     for batch in rx {
@@ -126,23 +159,28 @@ fn main() -> Result<()> {
             })
             .collect();
         for (page, lines, c) in results {
+            counts.merge(c);
             if let Some((id, rev)) = page
                 && let Some(seen) = revisions.insert(id, rev)
             {
-                // Enterprise repeats < 1 % of pages; the entries reader keeps the
-                // highest revision (x-2 writes every record).
+                // Enterprise repeats about 1 % of pages.
                 counts.add("records repeating a page", 1);
                 revisions.insert(id, seen.max(rev));
+                if seen == rev {
+                    continue;
+                }
             }
             for line in lines {
                 out.write_all(line.as_bytes())?;
                 out.write_all(b"\n")?;
             }
-            counts.merge(c);
         }
     }
     reader.join().expect("the reader thread")?;
     out.finish()?.flush()?;
+    let dropped = keep_latest(&partial, &args.out, &revisions)?;
+    counts.add("entries of superseded records dropped", dropped);
+    fs::remove_file(&partial)?;
     fs::write(
         &args.counts,
         serde_json::to_string_pretty(&counts.0)? + "\n",
