@@ -99,6 +99,10 @@ pub enum Span {
         calls: Vec<Call>,
         #[serde(skip_serializing_if = "Vec::is_empty")]
         links: Vec<Link>,
+        /// Output of a transclusion an earlier span already opened (its calls are
+        /// counted there).
+        #[serde(skip_serializing_if = "std::ops::Not::not")]
+        continued: bool,
     },
     /// A footnote marker; `note` names a [`Note`].
     Ref { start: usize, note: String },

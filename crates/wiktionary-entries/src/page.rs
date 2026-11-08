@@ -12,7 +12,7 @@ use wety_core::languages::Lang;
 
 use crate::{
     model::{Block, Call, Counts, Descendant, Entry, Note, PosBlock, Section, Sense, Span},
-    render::{calls, is_transclusion, render},
+    render::{Transclusions, calls, is_transclusion, render},
 };
 
 fn sel(s: &str) -> Selector {
@@ -121,7 +121,7 @@ fn digest(value: &impl serde::Serialize) -> String {
 }
 
 /// A section's prose as blocks, with the trees and footnote bodies it holds.
-fn section(sec: &Sec, notes: &HashMap<String, Note>) -> Section {
+fn section(sec: &Sec, notes: &HashMap<String, Note>, tx: &Transclusions) -> Section {
     let mut blocks = vec![];
     let mut trees = vec![];
     for e in own_elements(sec) {
@@ -137,11 +137,24 @@ fn section(sec: &Sec, notes: &HashMap<String, Note>) -> Section {
                 trees.push(v);
             }
         }
+        // A drawn tree's text is not prose: its block keeps only the calls.
+        if e.value().attr("data-ety-tree-json").is_some()
+            || e.value().classes().any(|c| c == "etytree")
+        {
+            if let Some(span) = e.value().attr("about").and_then(|a| tx.span(a, 0)) {
+                blocks.push(Block {
+                    kind: "tree",
+                    depth: 0,
+                    text: String::new(),
+                    spans: vec![span],
+                });
+            }
+            continue;
+        }
         match e.value().name() {
-            "ul" | "ol" | "dl" => list_blocks(e, 0, &mut blocks),
-            "p" => push_block(&mut blocks, "paragraph", 0, e, true),
-            _ if e.value().attr("data-ety-tree-json").is_some() => {}
-            _ => push_block(&mut blocks, "other", 0, e, true),
+            "ul" | "ol" | "dl" => list_blocks(e, 0, &mut blocks, tx),
+            "p" => push_block(&mut blocks, "paragraph", 0, e, true, tx),
+            _ => push_block(&mut blocks, "other", 0, e, true, tx),
         }
     }
     let mut cited = vec![];
@@ -172,8 +185,9 @@ fn push_block(
     depth: u8,
     e: ElementRef,
     skip_lists: bool,
+    tx: &Transclusions,
 ) {
-    let r = render(e, skip_lists);
+    let r = render(e, skip_lists, tx);
     if !r.text.is_empty() || !r.spans.is_empty() {
         blocks.push(Block {
             kind,
@@ -184,17 +198,17 @@ fn push_block(
     }
 }
 
-fn list_blocks(list: ElementRef, depth: u8, blocks: &mut Vec<Block>) {
+fn list_blocks(list: ElementRef, depth: u8, blocks: &mut Vec<Block>, tx: &Transclusions) {
     for item in list.child_elements() {
         if !matches!(item.value().name(), "li" | "dd" | "dt") {
             continue;
         }
-        push_block(blocks, "item", depth, item, true);
+        push_block(blocks, "item", depth, item, true, tx);
         for sub in item
             .child_elements()
             .filter(|e| matches!(e.value().name(), "ul" | "ol" | "dl"))
         {
-            list_blocks(sub, depth + 1, blocks);
+            list_blocks(sub, depth + 1, blocks, tx);
         }
     }
 }
@@ -322,11 +336,11 @@ fn item_links(li: ElementRef) -> Vec<crate::model::Link> {
         .collect()
 }
 
-fn descendants(list: ElementRef, given: &ItemCalls) -> Vec<Descendant> {
+fn descendants(list: ElementRef, given: &ItemCalls, tx: &Transclusions) -> Vec<Descendant> {
     list.child_elements()
         .filter(|li| li.value().name() == "li")
         .map(|li| Descendant {
-            text: render(li, true).text,
+            text: render(li, true, tx).text,
             calls: given
                 .get(&li.id())
                 .cloned()
@@ -335,15 +349,21 @@ fn descendants(list: ElementRef, given: &ItemCalls) -> Vec<Descendant> {
             children: li
                 .child_elements()
                 .filter(|e| matches!(e.value().name(), "ul" | "ol"))
-                .flat_map(|e| descendants(e, given))
+                .flat_map(|e| descendants(e, given, tx))
                 .collect(),
         })
         .collect()
 }
 
 /// The top-level lists of a Descendants section, through wrappers such as {{top4}}.
-fn descendant_lists(sec: &Sec, counts: &mut Counts) -> Vec<Descendant> {
-    fn find(e: ElementRef, given: &mut ItemCalls, counts: &mut Counts, out: &mut Vec<Descendant>) {
+fn descendant_lists(sec: &Sec, counts: &mut Counts, tx: &Transclusions) -> Vec<Descendant> {
+    fn find(
+        e: ElementRef,
+        given: &mut ItemCalls,
+        counts: &mut Counts,
+        out: &mut Vec<Descendant>,
+        tx: &Transclusions,
+    ) {
         if is_transclusion(e.value()) && e.select(&LI).next().is_some() {
             match item_calls(e) {
                 Some(found) => given.extend(found),
@@ -358,23 +378,25 @@ fn descendant_lists(sec: &Sec, counts: &mut Counts) -> Vec<Descendant> {
             }
         }
         match e.value().name() {
-            "ul" | "ol" => out.extend(descendants(e, given)),
+            "ul" | "ol" => out.extend(descendants(e, given, tx)),
             "section" => {}
-            _ => e.child_elements().for_each(|c| find(c, given, counts, out)),
+            _ => e
+                .child_elements()
+                .for_each(|c| find(c, given, counts, out, tx)),
         }
     }
     let mut out = vec![];
     let mut given = ItemCalls::new();
-    own_elements(sec).for_each(|e| find(e, &mut given, counts, &mut out));
+    own_elements(sec).for_each(|e| find(e, &mut given, counts, &mut out, tx));
     out
 }
 
-fn senses(list: ElementRef, depth: u8, out: &mut Vec<Sense>) {
+fn senses(list: ElementRef, depth: u8, out: &mut Vec<Sense>, tx: &Transclusions) {
     for li in list.child_elements().filter(|e| e.value().name() == "li") {
         if li.value().classes().any(|c| c == "mw-empty-elt") {
             continue;
         }
-        let r = render(li, true);
+        let r = render(li, true, tx);
         let mut senseids: Vec<String> = std::iter::once(li)
             .filter(|e| e.value().classes().any(|c| c == "senseid"))
             .chain(
@@ -391,12 +413,12 @@ fn senses(list: ElementRef, depth: u8, out: &mut Vec<Sense>) {
             calls: calls_within(li, &["ol", "ul", "dl"]),
         });
         for sub in li.child_elements().filter(|e| e.value().name() == "ol") {
-            senses(sub, depth + 1, out);
+            senses(sub, depth + 1, out, tx);
         }
     }
 }
 
-fn pos_block(sec: &Sec, counts: &mut Counts) -> PosBlock {
+fn pos_block(sec: &Sec, counts: &mut Counts, tx: &Transclusions) -> PosBlock {
     let mut block = PosBlock {
         heading: sec.title.clone(),
         pos: pos_code(&sec.title),
@@ -411,12 +433,14 @@ fn pos_block(sec: &Sec, counts: &mut Counts) -> PosBlock {
                 .collect();
             block.head = calls_within(e, &[]);
         } else if e.value().name() == "ol" && block.senses.is_empty() {
-            senses(e, 0, &mut block.senses);
+            senses(e, 0, &mut block.senses, tx);
         }
     }
     for child in &sec.children {
         match child.title.as_str() {
-            "Descendants" => block.descendants.extend(descendant_lists(child, counts)),
+            "Descendants" => block
+                .descendants
+                .extend(descendant_lists(child, counts, tx)),
             "Derived terms" => block
                 .derived
                 .extend(own_elements(child).flat_map(|e| calls_within(e, &[]))),
@@ -442,12 +466,12 @@ fn categories(sec: &Sec) -> Vec<String> {
         .collect()
 }
 
-fn notes(doc: &Html) -> HashMap<String, Note> {
+fn notes(doc: &Html, tx: &Transclusions) -> HashMap<String, Note> {
     doc.select(&NOTES)
         .filter_map(|li| {
             let id = li.value().attr("id")?.to_string();
             let body = li.select(&NOTE_TEXT).next()?;
-            let text = render(body, false).text;
+            let text = render(body, false, tx).text;
             Some((
                 id.clone(),
                 Note {
@@ -475,7 +499,8 @@ pub fn entries(info: &PageInfo, html: &str, counts: &mut Counts) -> Vec<Entry> {
         counts.add("pages without body", 1);
         return vec![];
     };
-    let notes = notes(&doc);
+    let tx = Transclusions::of(body);
+    let notes = notes(&doc, &tx);
     let mut out = vec![];
     for lang_sec in sections(body).iter().filter(|s| s.level == 2) {
         let lang = Lang::from_name(&lang_sec.title).ok().map(|l| l.code());
@@ -501,12 +526,12 @@ pub fn entries(info: &PageInfo, html: &str, counts: &mut Counts) -> Vec<Entry> {
             .children
             .iter()
             .find(|c| c.title == "References")
-            .map(|c| section(c, &notes));
+            .map(|c| section(c, &notes, &tx));
         let lang_further = lang_sec
             .children
             .iter()
             .find(|c| c.title == "Further reading")
-            .map(|c| section(c, &notes));
+            .map(|c| section(c, &notes, &tx));
         if numbered {
             counts.add("languages with numbered etymologies", 1);
             for ety in &lang_sec.children {
@@ -517,8 +542,8 @@ pub fn entries(info: &PageInfo, html: &str, counts: &mut Counts) -> Vec<Entry> {
                     continue;
                 };
                 let mut entry = base(label);
-                entry.etymology = Some(section(ety, &notes));
-                fill(&mut entry, &ety.children, &notes, counts);
+                entry.etymology = Some(section(ety, &notes, &tx));
+                fill(&mut entry, &ety.children, &notes, counts, &tx);
                 if entry.references.is_none() {
                     entry.language_references = lang_refs.clone();
                 }
@@ -533,8 +558,8 @@ pub fn entries(info: &PageInfo, html: &str, counts: &mut Counts) -> Vec<Entry> {
                 .iter()
                 .find(|c| etymology_label(&c.title).is_some());
             let mut entry = base(ety.and_then(|e| etymology_label(&e.title)).flatten());
-            entry.etymology = ety.map(|e| section(e, &notes));
-            fill(&mut entry, &lang_sec.children, &notes, counts);
+            entry.etymology = ety.map(|e| section(e, &notes, &tx));
+            fill(&mut entry, &lang_sec.children, &notes, counts, &tx);
             out.push(entry);
         }
     }
@@ -543,16 +568,24 @@ pub fn entries(info: &PageInfo, html: &str, counts: &mut Counts) -> Vec<Entry> {
 }
 
 /// Parts of speech and the sections beside them.
-fn fill(entry: &mut Entry, children: &[Sec], notes: &HashMap<String, Note>, counts: &mut Counts) {
+fn fill(
+    entry: &mut Entry,
+    children: &[Sec],
+    notes: &HashMap<String, Note>,
+    counts: &mut Counts,
+    tx: &Transclusions,
+) {
     for child in children {
         if is_pos(child) {
-            entry.pos.push(pos_block(child, counts));
+            entry.pos.push(pos_block(child, counts, tx));
             continue;
         }
         match child.title.as_str() {
-            "Descendants" => entry.descendants.extend(descendant_lists(child, counts)),
-            "References" => entry.references = Some(section(child, notes)),
-            "Further reading" => entry.further_reading = Some(section(child, notes)),
+            "Descendants" => entry
+                .descendants
+                .extend(descendant_lists(child, counts, tx)),
+            "References" => entry.references = Some(section(child, notes, tx)),
+            "Further reading" => entry.further_reading = Some(section(child, notes, tx)),
             _ => {}
         }
     }

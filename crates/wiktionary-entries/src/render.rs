@@ -1,6 +1,9 @@
 //! Parsoid HTML to text with positioned template and footnote spans.
 
-use std::collections::{BTreeMap, HashMap};
+use std::{
+    cell::RefCell,
+    collections::{BTreeMap, HashMap, HashSet},
+};
 
 use scraper::{ElementRef, Node};
 use serde_json::Value;
@@ -95,6 +98,49 @@ fn is_ref(element: &scraper::node::Element) -> bool {
         .is_some_and(|t| t.contains("mw:Extension/ref"))
 }
 
+/// A page's transclusions by `about` id. Parsoid gives a transclusion's first element
+/// its `data-mw`; the elements after it that continue its output share only the id,
+/// and may sit in other blocks (an `{{ety}}` tree, then the prose it writes).
+#[derive(Default)]
+pub struct Transclusions {
+    calls: HashMap<String, Vec<Call>>,
+    /// Ids already given a span: a later span of one is `continued`.
+    seen: RefCell<HashSet<String>>,
+}
+
+impl Transclusions {
+    pub fn of(root: ElementRef) -> Self {
+        let calls = root
+            .descendants()
+            .filter_map(ElementRef::wrap)
+            .filter(|e| is_transclusion(e.value()))
+            .filter_map(|e| {
+                Some((
+                    e.value().attr("about")?.to_string(),
+                    calls(e.value().attr("data-mw")?),
+                ))
+            })
+            .collect();
+        Self {
+            calls,
+            seen: RefCell::default(),
+        }
+    }
+
+    /// The span that opens for `about` here, if it names a transclusion.
+    pub fn span(&self, about: &str, at: usize) -> Option<Span> {
+        let calls = self.calls.get(about)?.clone();
+        let continued = !self.seen.borrow_mut().insert(about.to_string());
+        Some(Span::Template {
+            start: at,
+            end: at,
+            calls,
+            links: vec![],
+            continued,
+        })
+    }
+}
+
 /// Text and spans of one block.
 #[derive(Default)]
 pub struct Rendered {
@@ -102,8 +148,8 @@ pub struct Rendered {
     pub spans: Vec<Span>,
 }
 
-#[derive(Default)]
-struct Renderer {
+struct Renderer<'p> {
+    page: &'p Transclusions,
     text: String,
     chars: usize,
     spans: Vec<Span>,
@@ -114,7 +160,7 @@ struct Renderer {
     skip_lists: bool,
 }
 
-impl Renderer {
+impl Renderer<'_> {
     fn push(&mut self, s: &str) {
         self.text.push_str(s);
         self.chars += s.chars().count();
@@ -144,14 +190,8 @@ impl Renderer {
         if let Some(about) = e.attr("about") {
             if let Some(&i) = self.about.get(about) {
                 opened = Some(i);
-            } else if is_transclusion(e) {
-                let calls = e.attr("data-mw").map(calls).unwrap_or_default();
-                self.spans.push(Span::Template {
-                    start: self.chars,
-                    end: self.chars,
-                    calls,
-                    links: vec![],
-                });
+            } else if let Some(span) = self.page.span(about, self.chars) {
+                self.spans.push(span);
                 let i = self.spans.len() - 1;
                 self.about.insert(about.to_string(), i);
                 opened = Some(i);
@@ -187,10 +227,15 @@ impl Renderer {
 
 /// Render `element`; nested lists are left out when `skip_lists` (they are blocks of
 /// their own). Text is trimmed, and offsets with it.
-pub fn render(element: ElementRef, skip_lists: bool) -> Rendered {
+pub fn render(element: ElementRef, skip_lists: bool, page: &Transclusions) -> Rendered {
     let mut r = Renderer {
+        page,
+        text: String::new(),
+        chars: 0,
+        spans: vec![],
+        open: vec![],
+        about: HashMap::new(),
         skip_lists,
-        ..Renderer::default()
     };
     r.walk(element, true);
     let lead = r.text.chars().take_while(|c| c.is_whitespace()).count();
