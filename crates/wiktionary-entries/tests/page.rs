@@ -146,6 +146,10 @@ fn senses_headwords_and_categories() {
             .unwrap()
             .contains(&json!("Latin nouns"))
     );
+    // A numbered etymology has its own categories only.
+    let second = e[1]["categories"].as_array().unwrap();
+    assert!(!second.contains(&json!("Latin nouns")));
+    assert!(second.contains(&json!("Latin terms derived from the PIE root *kan-")));
 }
 
 #[test]

@@ -572,6 +572,8 @@ pub fn entries(info: &PageInfo, html: &str, counts: &mut Counts) -> Vec<Entry> {
                     continue;
                 };
                 let mut entry = base(label);
+                // Its own: a root category of one etymology is not another's.
+                entry.categories = categories(ety);
                 entry.etymology = Some(section(ety, &notes, &tx));
                 fill(&mut entry, &ety.children, &notes, counts, &tx);
                 if entry.references.is_none() {

@@ -31,6 +31,8 @@ pub struct Entry {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub language_references: Option<Section>,
     pub further_reading: Option<Section>,
+    /// The categories the entry's section puts the page in: a numbered etymology's
+    /// own, else the language section's.
     pub categories: Vec<String>,
 }
 
