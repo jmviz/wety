@@ -149,6 +149,13 @@ fn desc_line(string_pool: &mut StringPool, node: &Json) -> RawDescLineKind {
                     .then(|| (Term::new(string_pool, term), desc_mode(args, i)))
             })
             .unzip();
+        // {{desc|itc-pro|alt=*wedrom}}: a term given only as shown
+        if terms.is_empty()
+            && let Some(alt) = args.get_valid_term("alt")
+        {
+            terms.push(Term::new(string_pool, alt));
+            modes.push(desc_mode(args, 1));
+        }
         // further forms the line links in the same language:
         // "{{desc|be|обро́ць|абро́ць}}; {{l|be|абро́т|g=m}}", with the line's flags
         for link in calls
@@ -548,6 +555,18 @@ mod tests {
             (lines[1].depth, terms(&sp, &lines[1])),
             (2, vec!["wētaz".to_owned()])
         );
+    }
+
+    #[test]
+    fn a_term_given_only_as_alt_is_the_lines_term() {
+        let (sp, lines) = lines(
+            r#"{"pos": [{"descendants": [
+                {"text": "Proto-Italic: *wedrom", "calls": [{"name": "desc", "args": {"1": "itc-pro", "alt": "*wedrom"}}]},
+                {"text": "Proto-Iranian:", "calls": [{"name": "desc", "args": {"1": "ira-pro", "2": ""}}]}
+            ]}]}"#,
+        );
+        assert_eq!(terms(&sp, &lines[0]), ["wedrom"]);
+        assert!(matches!(lines[1].kind, RawDescLineKind::BareLang { .. }));
     }
 
     #[test]

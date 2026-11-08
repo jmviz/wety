@@ -12,10 +12,10 @@
     "bibliography": "data/artifacts/wiktionary-references/88cbcaebc576d8e9766fa1fa217b9bd12f03573dfe724985a71deb00c1f3d752/files/bibliography.jsonl",
     "pos": "crates/core/src/pos_phf.rs",
     "model": "data/registry/embedding-model.json",
-    "acd_assertions": "data/artifacts/acd-claims/37e9d826b2b270c3d7be36fa1093dca7d4972ab0b8c5a541d59a30c0e7832ba3/files/acd.jsonl",
-    "acd_matches": "data/artifacts/acd-claims/37e9d826b2b270c3d7be36fa1093dca7d4972ab0b8c5a541d59a30c0e7832ba3/files/matches/assertions.jsonl",
-    "lila_assertions": "data/artifacts/lila-claims/c562dd52479257b92de08b17c9817722dd108d8f433784c2ef5a95f5b8003486/files/lila.jsonl",
-    "lila_matches": "data/artifacts/lila-claims/c562dd52479257b92de08b17c9817722dd108d8f433784c2ef5a95f5b8003486/files/matches/assertions.jsonl",
+    "acd_assertions": "data/artifacts/acd-claims/47f2d2deba59624547a1ff15c6a93aa0b6d74cb704a7cd3ea69aa6c54885ae2d/files/acd.jsonl",
+    "acd_matches": "data/artifacts/acd-claims/47f2d2deba59624547a1ff15c6a93aa0b6d74cb704a7cd3ea69aa6c54885ae2d/files/matches/assertions.jsonl",
+    "lila_assertions": "data/artifacts/lila-claims/0a01d1931c254189d4c1f7dc1eda73c6deaf56a4cb67d59eed885a3fd6997813/files/lila.jsonl",
+    "lila_matches": "data/artifacts/lila-claims/0a01d1931c254189d4c1f7dc1eda73c6deaf56a4cb67d59eed885a3fd6997813/files/matches/assertions.jsonl",
     "overrides": "data/workspaces/etymology/sources/wiktionary/etc/overrides.json"
   },
   "commands": [
