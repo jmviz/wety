@@ -28,7 +28,10 @@ static HEADWORD: LazyLock<Selector> = LazyLock::new(|| sel(".headword"));
 static TRANSCLUSION: LazyLock<Selector> = LazyLock::new(|| sel("[data-mw]"));
 static SENSEID: LazyLock<Selector> = LazyLock::new(|| sel(".senseid[data-id]"));
 static LI: LazyLock<Selector> = LazyLock::new(|| sel("li"));
-static FORM_OF: LazyLock<Selector> = LazyLock::new(|| sel(".form-of-definition-link"));
+// A form-of definition's target: Module:form of's link, or the mention of a template
+// that only marks itself as a use-with-mention ({{eo-form of}}: "imperative of lui").
+static FORM_OF: LazyLock<Selector> =
+    LazyLock::new(|| sel(".form-of-definition-link, .use-with-mention"));
 static HEADWORD_TR: LazyLock<Selector> = LazyLock::new(|| sel(".headword-tr"));
 
 static POS_HEADINGS: LazyLock<HashMap<String, &'static str>> = LazyLock::new(|| {
@@ -407,11 +410,20 @@ fn senses(list: ElementRef, depth: u8, out: &mut Vec<Sense>, tx: &Transclusions)
             .filter_map(|e| e.value().attr("data-id").map(str::to_string))
             .collect();
         senseids.dedup();
-        let form_of = li
+        let mut form_of: Vec<crate::model::Mention> = vec![];
+        for found in li
             .select(&FORM_OF)
             .filter(|e| !has_ancestor_below(*e, li, &["ol", "ul", "dl"]))
             .filter_map(mention)
-            .collect();
+        {
+            // a definition marked both ways names its target twice
+            if !form_of
+                .iter()
+                .any(|m| m.lang == found.lang && m.term == found.term)
+            {
+                form_of.push(found);
+            }
+        }
         out.push(Sense {
             depth,
             gloss: r.text,
