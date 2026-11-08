@@ -8,7 +8,7 @@ use std::{
 use scraper::{ElementRef, Node};
 use serde_json::Value;
 
-use crate::model::{Call, Link, Span};
+use crate::model::{Call, Link, Mention, Span};
 
 /// Elements whose content is not prose.
 const SKIPPED: [&str; 5] = ["link", "style", "meta", "script", "noscript"];
@@ -136,6 +136,7 @@ impl Transclusions {
             end: at,
             calls,
             links: vec![],
+            mentions: vec![],
             continued,
         })
     }
@@ -214,6 +215,20 @@ impl Renderer<'_> {
             && let Span::Template { links, .. } = &mut self.spans[i]
         {
             links.push(l);
+        }
+        if let Some(lang) = e.attr("lang")
+            && e.classes().any(|c| c == "mention")
+            && let Some(&i) = self.open.last()
+            && let Span::Template { mentions, .. } = &mut self.spans[i]
+        {
+            mentions.push(Mention {
+                lang: lang.to_string(),
+                term: element.text().collect::<String>().trim().to_string(),
+                link: element
+                    .select(&crate::page::A)
+                    .next()
+                    .and_then(|a| link(a.value())),
+            });
         }
         if name == "br" {
             self.push("\n");

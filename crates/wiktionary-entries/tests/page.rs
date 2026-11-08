@@ -12,7 +12,7 @@ const PAGE: &str = r##"<!DOCTYPE html><html><head></head><body>
 <section data-mw-section-id="2"><h3 id="Etymology_1">Etymology 1</h3>
 <ul class="etymonid" data-ety-tree-json='{"term":"canis","lang":"la","children":[]}' about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"ety","href":"./Template:ety"},"params":{"1":{"wt":"la"},"2":{"wt":":inh"},"3":{"wt":"itc-pro:*kwon"}},"i":0}}]}'></ul>
 <p about="#mwt1">Inherited.</p>
-<p>From <span class="etyl" about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"inh","href":"./Template:inh"},"params":{"1":{"wt":"la"},"2":{"wt":"itc-pro"},"3":{"wt":"*kwon"}},"i":0}}]}'>Proto-Italic</span><span about="#mwt2"> </span><i about="#mwt2"><a rel="mw:WikiLink" href="./Reconstruction:Proto-Italic/kwon" class="new">*kwon</a></i>, perhaps.<sup typeof="mw:Extension/ref" data-mw='{"name":"ref"}'><a href="./canis#cite_note-1">[1]</a></sup> Compare <i about="#mwt3" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"Cog","href":"./Template:cog"},"params":{"1":{"wt":"grc"},"2":{"wt":"κύων"}},"i":0}}]}'><a rel="mw:WikiLink" href="./%CE%BA%CF%8D%CF%89%CE%BD#Ancient_Greek">κύων</a></i>.</p>
+<p>From <span class="etyl" about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"inh","href":"./Template:inh"},"params":{"1":{"wt":"la"},"2":{"wt":"itc-pro"},"3":{"wt":"*kwon"}},"i":0}}]}'>Proto-Italic</span><span about="#mwt2"> </span><i about="#mwt2"><a rel="mw:WikiLink" href="./Reconstruction:Proto-Italic/kwon" class="new">*kwon</a></i>, perhaps.<sup typeof="mw:Extension/ref" data-mw='{"name":"ref"}'><a href="./canis#cite_note-1">[1]</a></sup> Compare <i class="Latn mention" lang="grc" about="#mwt3" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"Cog","href":"./Template:cog"},"params":{"1":{"wt":"grc"},"2":{"wt":"κύων"}},"i":0}}]}'><a rel="mw:WikiLink" href="./%CE%BA%CF%8D%CF%89%CE%BD#Ancient_Greek">κύων</a></i>.</p>
 <section data-mw-section-id="3"><h4 id="Noun">Noun</h4>
 <p><span class="headword-line" about="#mwt4" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"la-noun","href":"./Template:la-noun"},"params":{"1":{"wt":"canis&lt;3&gt;"}},"i":0}}]}'><strong class="Latn headword" lang="la">ca<ruby>nis<rp>(</rp><rt>x</rt><rp>)</rp></ruby></strong></span><link rel="mw:PageProp/Category" href="./Category:Latin_nouns#CANIS"/></p>
 <ol><li>dog<ol><li>hound</li></ol></li><li class="senseid" data-id="Q1" about="#mwt5" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"senseid","href":"./Template:senseid"},"params":{"1":{"wt":"la"},"2":{"wt":"Q1"}},"i":0}}," the Dog Star"]}'>the Dog Star</li></ol>
@@ -109,6 +109,10 @@ fn etymology_prose_keeps_templates_footnotes_and_trees() {
     assert_eq!(
         spans[2]["links"][0],
         json!({"page": "κύων", "anchor": "Ancient Greek"})
+    );
+    assert_eq!(
+        spans[2]["mentions"][0],
+        json!({"lang": "grc", "term": "κύων", "link": {"page": "κύων", "anchor": "Ancient Greek"}})
     );
     assert_eq!(ety["notes"][0]["text"], "A. Author (2000) A Book");
     assert_eq!(ety["digest"].as_str().unwrap().len(), 32);

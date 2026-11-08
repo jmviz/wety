@@ -99,6 +99,10 @@ pub enum Span {
         calls: Vec<Call>,
         #[serde(skip_serializing_if = "Vec::is_empty")]
         links: Vec<Link>,
+        /// Terms the transclusion shows as mentions, including those a wrapper template
+        /// writes through calls of its own that `data-mw` does not list.
+        #[serde(skip_serializing_if = "Vec::is_empty")]
+        mentions: Vec<Mention>,
         /// Output of a transclusion an earlier span already opened (its calls are
         /// counted there).
         #[serde(skip_serializing_if = "std::ops::Not::not")]
@@ -106,6 +110,15 @@ pub enum Span {
     },
     /// A footnote marker; `note` names a [`Note`].
     Ref { start: usize, note: String },
+}
+
+/// A term as a template shows it: `<i class="mention" lang="eo">`.
+#[derive(Serialize, Debug, Clone)]
+pub struct Mention {
+    pub lang: String,
+    pub term: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub link: Option<Link>,
 }
 
 /// A wiki link's target page: the entry name Lua computed for a term.
