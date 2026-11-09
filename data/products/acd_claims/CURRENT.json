@@ -1,6 +1,6 @@
 {
-  "artifact": "data/artifacts/acd-claims/c2a3c929e4fb48747e3e2f5ca0b0527210b6871fe3cb0e0224dfdf4ca062da50",
+  "artifact": "data/artifacts/acd-claims/f9e49ae633f5e1abadececf58e025376c8dc487d9e3af1c9488c654eb783e015",
   "entrypoint": "matches/assertions.jsonl",
-  "run_id": "70dc210d12124cc3a26c7802d40e5bcb",
+  "run_id": "0b012842912242218f716f3387abf7af",
   "schema_version": 1
 }

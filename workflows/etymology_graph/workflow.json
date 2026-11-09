@@ -12,8 +12,8 @@
     "bibliography": "data/artifacts/wiktionary-references/88cbcaebc576d8e9766fa1fa217b9bd12f03573dfe724985a71deb00c1f3d752/files/bibliography.jsonl",
     "pos": "crates/core/src/pos_phf.rs",
     "model": "data/registry/embedding-model.json",
-    "acd_assertions": "data/artifacts/acd-claims/c2a3c929e4fb48747e3e2f5ca0b0527210b6871fe3cb0e0224dfdf4ca062da50/files/acd.jsonl",
-    "acd_matches": "data/artifacts/acd-claims/c2a3c929e4fb48747e3e2f5ca0b0527210b6871fe3cb0e0224dfdf4ca062da50/files/matches/assertions.jsonl",
+    "acd_assertions": "data/artifacts/acd-claims/f9e49ae633f5e1abadececf58e025376c8dc487d9e3af1c9488c654eb783e015/files/acd.jsonl",
+    "acd_matches": "data/artifacts/acd-claims/f9e49ae633f5e1abadececf58e025376c8dc487d9e3af1c9488c654eb783e015/files/matches/assertions.jsonl",
     "lila_assertions": "data/artifacts/lila-claims/9862738c574e70e5772531043c64b8adf7ba1fc309242e49f8982e46adfac4ef/files/lila.jsonl",
     "lila_matches": "data/artifacts/lila-claims/9862738c574e70e5772531043c64b8adf7ba1fc309242e49f8982e46adfac4ef/files/matches/assertions.jsonl",
     "overrides": "data/workspaces/etymology/sources/wiktionary/etc/overrides.json"
