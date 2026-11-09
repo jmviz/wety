@@ -941,8 +941,10 @@ impl Items {
     // Set an item's etymologies from its own etymology section (or, for an
     // imputed item, from the section of an item citing it). A Descendants list
     // may already have given it a parent; the item's own section is preferred,
-    // except where that parent is more specific (it descends from the parent
-    // named here, e.g. Old French between Latin and English), where the item
+    // except where that parent is more specific (a later stage descending from
+    // the parent named here, e.g. Old French between Latin and English; not a
+    // derivative of it in its own language, as Middle English tablen "to board"
+    // of table, whose Descendants list names English table), where the item
     // would trade an entry for a term missing from the data, or where the
     // section gives only a mention or a form-of link. Returns whether the
     // etymologies were set.
@@ -961,7 +963,9 @@ impl Items {
             }
             let more_specific = match (&existing.items[..], etys) {
                 ([old], [new]) => match new.items[..] {
-                    [new] => *old != new && self.is_ancestor(new, *old),
+                    [new] => {
+                        self.get(*old).lang() != self.get(new).lang() && self.is_ancestor(new, *old)
+                    }
                     _ => false,
                 },
                 _ => false,
@@ -1556,6 +1560,32 @@ mod tests {
                 r#"[{"name": "der", "args": {"1": "en", "2": "la", "3": "Octōber"}}]"#,
             );
             assert_eq!(t.parents(october), ["fro:octobre"]);
+            // a derivative of the parent in its own language is not a later
+            // stage: the item's own section wins
+            let table = t.add("enm", "table");
+            let tablen = t.add("enm", "tablen");
+            let table_en = t.add("en", "table");
+            t.items.graph.add_ety(
+                tablen,
+                EtyMode::Suffix,
+                Some(0),
+                EdgeBasis::Template,
+                &[table],
+                &[0.5],
+            );
+            t.items.graph.add_ety(
+                table_en,
+                EtyMode::Inherited,
+                Some(0),
+                EdgeBasis::Descendants,
+                &[tablen],
+                &[0.5],
+            );
+            t.process(
+                table_en,
+                r#"[{"name": "inh", "args": {"1": "en", "2": "enm", "3": "table"}}]"#,
+            );
+            assert_eq!(t.parents(table_en), ["enm:table"]);
             // a different parent: the item's own section wins
             let enm = t.add("enm", "Octobre");
             let october2 = t.add("en", "Octobre");
