@@ -36847,7 +36847,7 @@
       "subject_id": "grollemund2015_bantu_mcc:clade:fff5df92fe6ca543"
     }
   ],
-  "generation": "48fc554e9606ba4b6b6ea8659bb23cb062a1517f7daaefeef38ea2d35a99e75d",
+  "generation": "b7d33358b42c1b224155cbfe39007fafca5c334bdc9e44bce9bf7d6950a974f0",
   "languages": [
     {
       "alternatives": [],
@@ -38535,7 +38535,7 @@
       ],
       "kind": "proto",
       "label": "until c. 240 CE",
-      "name": "Proto-Arawa",
+      "name": "Proto-Arawan",
       "spoken": {
         "end": {
           "earliest": 236,
@@ -42104,7 +42104,7 @@
       ],
       "kind": "stage",
       "label": "4th–14th century CE",
-      "name": "Byzantine Greek",
+      "name": "Medieval Greek",
       "spoken": {
         "end": {
           "earliest": 1301,
@@ -42631,7 +42631,7 @@
             "basis": "conventional",
             "code": "gkm",
             "label": "4th–14th century CE",
-            "name": "Byzantine Greek",
+            "name": "Medieval Greek",
             "own": false
           },
           {
@@ -45193,7 +45193,7 @@
       ],
       "kind": "proto",
       "label": "until c. 1000 BCE",
-      "name": "Proto-Mixe-Zoque",
+      "name": "Proto-Mixe-Zoquean",
       "spoken": {
         "end": {
           "earliest": -999,
@@ -49652,7 +49652,7 @@
       },
       "kind": "proto",
       "label": "until c. 1140 CE",
-      "name": "Proto-Samic",
+      "name": "Proto-Sami",
       "spoken": {
         "end": {
           "earliest": 632,
