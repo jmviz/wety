@@ -4,7 +4,7 @@
   "collection": "lila-claims",
   "product": "lila_claims",
   "inputs": {
-    "export": "data/artifacts/etymology-assertions/36786d12b44c13eb349447a67bcab6f69f24cec7ed06aa6a25449da24a54071d/files/assertions.jsonl.gz",
+    "export": "data/artifacts/etymology-assertions/a2c5f05718126cb52a689f29c3a4284e40303741595f92473f824b0765ec0c9d/files/assertions.jsonl.gz",
     "ttl": "data/workspaces/etymology/sources/lila-edl/raw/CIRCSE-EtymologicalDictionaryLatin-cda69dc/data/BrillEDL.ttl",
     "lila_languages": "data/workspaces/etymology/sources/lila-edl/etc/languages.json",
     "lila_forms": "data/workspaces/etymology/sources/lila-edl/etc/forms.json",
