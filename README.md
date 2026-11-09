@@ -1,113 +1,106 @@
 # [wety](https://www.wety.org/)
 
-Wiktionary etymologies, language catalog linking, and a provenance-rich registry of
-chronological claims. Rust builds and serves the etymological graph; Python manages
-catalog and dating research. Workflows can invoke either stack through explicit CLIs.
+wety (for *Wiktionary etymologies*) draws the history of words as trees. Look up a
+word in any language and see:
 
-## Layout
+- **Etymology:** where it came from, back through its ancestors;
+- **Descendants:** the words that came from it, in every language;
+- **Cognates:** its relatives, the descendants of an ancestor it shares with them.
 
-- `crates/{core,processor,server}`: Rust libraries, graph processor, API server.
-- `packages/{catalogs,dating,source_tools,workflow_tools}`: Python domain code and shared tooling.
-- `workflows/`: executable workflow definitions; algorithms stay in their packages/crates.
-- `data/`: the private research store (artifacts, research workspaces, product selections, receipts,
-  caches, archives), backed up with `wety-data store`; git tracks only the files listed in `.gitignore`.
-- `client/`: frontend. `experiments/`: exploratory notebooks.
+The trees come from the etymology sections of [English Wiktionary](https://en.wiktionary.org/):
+about 10 million words in 6,000 languages. wety adds what other scholarly sources say
+about the same words, where they cover them (so far the
+[Austronesian Comparative Dictionary](https://acd.clld.org/) and de Vaan's Latin
+etymological dictionary through [LiLa](https://lila-erc.eu/)), and shows when each
+language was spoken, with the published sources for each date.
 
-**Current state and next steps: [STATUS.md](STATUS.md).** Rules for agents:
-[AGENTS.md](AGENTS.md). See also [repository layout](docs/architecture/layout.md)
-and [source acquisition and recovery](docs/architecture/provenance.md).
-The scientific contracts remain in [catalogs](packages/catalogs/README.md) and
-[dating](packages/dating/README.md). Catalog correspondence never licenses automatic
-chronological transfer.
+## How it works
 
-## Setup and offline checks
+```mermaid
+flowchart LR
+    W[Wiktionary dump] --> P[processor]
+    S[other sources:<br/>ACD, LiLa] --> E[claims matched<br/>to Wiktionary]
+    E --> P
+    D[language dates<br/>research] --> G
+    P --> G[(graph)]
+    G --> A[API server] --> C[website]
+```
 
-Run from the repository root. Python 3.12+ and `uv` are required. The root `uv.lock`
-is authoritative; Rust uses `Cargo.lock` and the dated `rust-toolchain.toml`.
+1. **The processor** (Rust) reads a dump of Wiktionary and turns every entry's
+   etymology into links between words: inherited from, borrowed from, derived from,
+   compounded of. It resolves which page and which etymology each mention means, and
+   writes one graph file.
+2. **Other sources** (Python) are converted into the same form, matched to
+   Wiktionary's words, and built into the graph alongside Wiktionary's own claims.
+   Where sources disagree, the graph keeps both and says which reading is shown.
+3. **Language dates** come from a research registry of published sources: for each
+   language, a period, how it was dated, and citations.
+4. **The API server** (Rust) loads the graph into memory and answers the website's
+   questions: a word's tree, its details, search.
+5. **The website** (SolidJS) draws the trees.
+
+Each step that produces data is a *workflow* with recorded inputs and outputs, so a
+graph can be traced back to exactly what it was built from.
+
+## What is where
+
+| Directory | What it holds |
+| --- | --- |
+| [`crates/core`](crates/core) | The graph's data structures, shared by the processor and the server |
+| [`crates/processor`](crates/processor) | Builds the graph from Wiktionary and the other sources |
+| [`crates/server`](crates/server) | The API behind api.wety.org |
+| [`client/`](client/README.md) | The website, wety.org |
+| [`packages/etymology`](packages/etymology/README.md) | Other etymological sources: converters, the claims schema, matching to Wiktionary |
+| [`packages/dating`](packages/dating/README.md) | The research registry of language dates |
+| [`packages/catalogs`](packages/catalogs/README.md) | Links between Wiktionary's language codes and other catalogs (Glottolog, ISO 639, Wikidata) |
+| `packages/source_tools`, `packages/workflow_tools` | Downloading sources; running workflows and keeping their records (`wety-data`) |
+| [`workflows/`](workflows) | One definition per data-producing step |
+| [`data/`](docs/architecture/provenance.md) | Research data. Git holds only what the site is built from; the rest is a private, backed-up store |
+| [`deploy/`](deploy/README.md) | How wety.org and its API are deployed |
+| [`docs/`](docs) | [Building and serving the graph](docs/graph.md), [repository layout](docs/architecture/layout.md), [where data comes from and how it is kept](docs/architecture/provenance.md) |
+
+## Running it
+
+You need Rust (the version is pinned in `rust-toolchain.toml`), Python 3.12+ with
+[uv](https://docs.astral.sh/uv/), and Node.js for the website.
+
+Run the API server, then the website against it:
+
+```sh
+cargo run --locked --release --bin server        # http://127.0.0.1:3000
+cd client && npm install && npm run dev           # http://127.0.0.1:8000
+```
+
+The server needs a built graph. Building one takes the research data (or a Wiktionary
+dump of your own) and from half an hour to several hours:
+[building and serving the graph](docs/graph.md). A fresh clone gets the research data
+from the store with `uv run --frozen wety-data store restore` (access required; see
+[provenance](docs/architecture/provenance.md#setting-up-the-store)).
+
+Tests:
 
 ```sh
 uv sync --frozen
-uv run --frozen wety-data run catalogs
-uv run --frozen wety-data run dating
-uv run --frozen python -m unittest discover -s packages/catalogs/tests
+cargo test --locked -p wety-core --lib
+cargo check --locked --workspace
+uv run --frozen python -m unittest discover -s packages/etymology/tests
 uv run --frozen python -m unittest discover -s packages/dating/tests
+uv run --frozen python -m unittest discover -s packages/catalogs/tests
 uv run --frozen python -m unittest discover -s packages/workflow_tools/tests
 uv run --frozen python -m unittest discover -s packages/source_tools/tests
-uv run --frozen python -m unittest discover -s packages/etymology/tests
-cargo check --locked --workspace
-cargo test --locked -p wety-core --lib
 ```
 
-Catalog/dating builds and tests use existing local source material and make no model
-calls. A fresh checkout needs `data/` restored from the research store first
-(`uv run --frozen wety-data store restore --target DIR`, then `wety-data store sync DIR
-data --apply`; setup in [provenance](docs/architecture/provenance.md#setting-up-the-store)).
-Run `wety-data verify-all` to check adopted artifacts. Source refresh is always a
-separate, deliberate command.
+## Contributing
 
-## Build an etymological graph
+wety reads Wiktionary by rule, so some links are wrong or missing. Corrections to an
+etymology belong on Wiktionary, where they reach wety with its next update. Problems
+with wety itself are welcome as [issues](https://github.com/jmviz/wety/issues).
 
-```sh
-uv run --frozen wety-data run etymology_graph
-```
+Work on wety is mostly done with AI coding agents; their instructions are in
+[AGENTS.md](AGENTS.md).
 
-This invokes the Rust processor with the selected Wiktextract dump, writes to a run
-staging directory, validates the graph with matching compiled language/POS tables,
-then publishes an immutable artifact and `data/products/etymology_graph/CURRENT.json`.
-Besides the dump it reads products of other workflows, pinned in its `workflow.json`:
-`wiktionary_references` (each entry's References, from the pages dump of the same
-date), `acd_claims` and `lila_claims` (other sources' claims, matched against
-`etymology_assertions`, the previous graph's assertion export), and the reviewers'
-overrides in `data/workspaces/etymology/sources/wiktionary/etc/overrides.json`. For a
-new dump, rebuild in that order: References, the graph, its export, the claims, the
-graph again ([packages/etymology](packages/etymology/README.md)).
-With the embedding cache warm it takes about 30 minutes on an M1 Pro; a cold cache for
-the 2026-09-01 Kaikki data (10.9M entries) took about six hours, almost all of it
-embedding. Model files are cached by Hugging Face; the
-model revision and expected local file hashes are recorded in
-`data/registry/embedding-model.json`. On macOS the embedding model runs on the GPU
-(Metal) automatically; elsewhere it runs on the CPU unless the workflow command adds the
-`cuda`, `accelerate` or `mkl` feature (that change becomes part of the run receipt).
-Texts are embedded in length-sorted sub-batches with masked mean pooling, so an
-embedding does not depend on the other texts in its batch.
+## Licence
 
-For direct development use, `cargo run --locked --release --bin processor -- --help`
-shows explicit input/output/model options. Direct CLI runs do not create a workflow
-receipt. Embedding revisions must be immutable commits; computed caches are separated
-by model revision and embedding implementation. The old unkeyed cache is preserved
-but is not reused automatically. A lower embedding batch size can reduce memory use.
-
-## Serve a graph
-
-```sh
-cargo run --locked --release --bin server
-```
-
-This serves the graph selected by `data/products/etymology_graph/CURRENT.json`; set
-`WETY_GRAPH_PATH` to serve another graph file. A graph whose language/POS fingerprint
-differs from the server binary's is rejected. The server listens on port 3000 (set
-`WETY_PORT` to change it). See [client development](client/README.md) and
-[deployment](deploy/README.md).
-
-## Links
-
-Shared links name a word by language code, term and, when Wiktionary numbers the
-page's etymologies, that number: `/etymology/en/lime?ety=3`,
-`/cognates/en/lime?ety=3&lang=la&lang=grc`. A cognates tree starts by default at the
-oldest form that is the same word (inherited or borrowed), or at the root that form is
-built on (Latin pater starts at PIE \*peh₂-); `root=ine-pro:ph₂tḗr` (with `rootEty`
-when needed) names another of the word's ancestors to start from. Without `lang`,
-trees show the reader's languages; `all=1` shows every language, and `within=1` adds
-words formed from a word of the same language (limelight under lime). The client
-resolves links with
-`/resolve?lang=en&term=lime&ety=3`, which also lists the word's homographs. Numeric
-item and language IDs are positions in one build and never appear in shared links;
-the client sends the graph version (`graph=`) with numeric item IDs, and the server
-answers 409 if they belong to another graph. When a new Wiktionary language export
-is selected, record the codes it retired so links naming them keep working:
-
-```sh
-cargo run --locked -p wety-core --example retired_language_codes -- PREVIOUS/files/languages.json
-```
-
-This updates `data/registry/retired-language-codes.json`.
+The code is under the [MIT licence](LICENSE.md). Wiktionary's content is under
+[CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/); the other sources keep
+their own licences, listed on [wety.org/about](https://www.wety.org/about).

@@ -65,7 +65,7 @@ Three layers, each with one job.
    product pointers, the relocation map, curated catalog inputs, each etymological
    source's curation files under `data/workspaces/etymology/sources/*/etc/`); the
    snapshot pointer `data/SNAPSHOT.json`; and human-readable research records (briefs,
-   run READMEs, family pages, STATUS). The exact list is `.gitignore`.
+   run READMEs, family pages). The exact list is `.gitignore`.
 2. **The research store (private):** everything else under `data/`: retained texts,
    artifacts and receipts, evidence, the editorial ledger, runs, packets, generations.
    It is backed up as restic snapshots (deduplicated, encrypted) by `wety-data store`

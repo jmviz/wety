@@ -2,6 +2,8 @@
 .env
 .venv/
 .claude/
+# The private work tracker (jmviz/wety-work), cloned in every checkout: AGENTS.md.
+.work/
 .github/*
 !.github/workflows/
 .DS_Store

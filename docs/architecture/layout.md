@@ -5,6 +5,7 @@
 | `crates/{core,processor,server}` | Rust libraries, graph transformation and service |
 | `packages/catalogs` | Catalog assertions, cross-reference builder and IE-CoR proposals |
 | `packages/dating` | Dating harness, schemas, benchmarks and domain documentation |
+| `packages/etymology` | Other etymological sources: claims schema, converters, matching to Wiktionary |
 | `packages/source_tools` | Download and export implementations |
 | `packages/workflow_tools` | Paths, receipts, artifact verification, local execution and the research store |
 | `workflows/` | Stack-neutral executable workflow definitions |

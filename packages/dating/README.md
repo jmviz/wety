@@ -17,8 +17,7 @@ phylogenetic node dates divergence among particular sampled lineages under a mod
 These are different estimands. Neither the comparative method nor a lexical clock
 makes a parent-family crown date the beginning of every descendant language.
 
-Current state and next steps: [STATUS.md](../../STATUS.md). Per-family results:
-[families/](families/).
+Per-family results: [families/](families/).
 
 ## Scientific contract
 
