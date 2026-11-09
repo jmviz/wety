@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
-  "snapshot": "74545d85855d6b9c8a40f18e27d8303fceaf12856602f1a3e1ebd2d19ed6a322",
-  "taken_at": "2026-11-08T22:31:57+00:00",
+  "snapshot": "8389f6a0cdda979de19541825b05c60e277ec320f3b46f14a25e14a6b1eaec7c",
+  "taken_at": "2026-11-09T02:15:48+00:00",
   "root": "/data",
-  "files": 45799,
-  "bytes": 100021255113,
-  "git_commit": "662c076be1f7da48cf930c75b22fa05e70a6d1be",
-  "note": "wiktionary-entries x-1 to x-4: Enterprise snapshot, entries, trial graphs"
+  "files": 45977,
+  "bytes": 119129760977,
+  "git_commit": "25e5ba87258860e67ce989a781e55ede8ef86eee",
+  "note": "wiktionary-entries x-4: adopted graph 546e8406, rematched claims"
 }
