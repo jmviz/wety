@@ -108,6 +108,27 @@ class LabelTests(unittest.TestCase):
 
 
 class PeriodExportTests(unittest.TestCase):
+    def test_a_claim_from_a_chapter_cites_the_chapter(self):
+        claims = [claim("a", "myz", "conventional_period", "convention", years(201, 700))]
+        b = bundle(claims, ["a"])
+        b["sources"] = {
+            **SOURCES,
+            "src_bc": {**SOURCES["src_bc"], "citation": "Volume.", "doi": "10.1/v"},
+        }
+        b["chapters"] = {
+            "a": {
+                "claim_id": "a",
+                "source_id": "src_bc",
+                "authors": ["Burtea, Bogdan"],
+                "year": 2011,
+                "title": "Mandaic",
+                "citation": "Burtea, Bogdan. 2011. Mandaic. In S. Weninger (ed.), Volume.",
+            }
+        }
+        (myz,) = export_periods(b, "gen")["languages"]
+        self.assertEqual(myz["evidence"][0]["source"], "Burtea 2011")
+        self.assertTrue(myz["evidence"][0]["citation"].startswith("Burtea, Bogdan. 2011."))
+
     def test_conventional_period_with_alternative_kept_separate(self):
         claims = [
             claim(

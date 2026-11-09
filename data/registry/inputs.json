@@ -1,6 +1,6 @@
 {
-  "wiktionary_languages": "data/artifacts/wiktionary-export/2d98b7aa0c9965e1492db2e242ead832fe7e3c161e1f1a27c1d177135c6df2b7/files/languages.json",
-  "wiktionary_families": "data/artifacts/wiktionary-export/2d98b7aa0c9965e1492db2e242ead832fe7e3c161e1f1a27c1d177135c6df2b7/files/families.json",
+  "wiktionary_languages": "data/artifacts/wiktionary-export/57d16abeffbce475ff189e0734fd8937eab8d7417b1ee08273e746b43b350cb0/files/languages.json",
+  "wiktionary_families": "data/artifacts/wiktionary-export/57d16abeffbce475ff189e0734fd8937eab8d7417b1ee08273e746b43b350cb0/files/families.json",
   "glottolog_cldf": "data/artifacts/glottolog/5.3/files/glottolog/cldf",
   "iecor_languages": "data/artifacts/iecor/legacy/files/languages.csv",
   "wiktionary_entry_names": "data/artifacts/wiktionary-entry-names/d582e4fa2711817b60516203d77f940045bb9bb150aab437d9e4825abd5e12c1/files/entry_names.json",

@@ -2,12 +2,12 @@ use crate::{
     HashMap, HashSet,
     descendants::RawDescendants,
     embeddings::{self, Embeddings},
+    entries::{EntryPos, clean_template_term, entry_lines},
     etymology::RawEtymology,
     progress_bar,
     redirects::Redirects,
     references::References,
     root::RawRoot,
-    wiktextract_json::wiktextract_lines,
 };
 use wety_core::{
     assertions::Work,
@@ -53,8 +53,8 @@ type Ids = HashMap<(LangTerm, Box<str>), ItemId>;
 // cited langterm -> the page title Wiktionary links it to, where different,
 // e.g. la mātrīx -> matrix
 pub(crate) type EntryNames = HashMap<LangTerm, Term>;
-// wiktextract line -> the item it is (a part of speech) of
-type Lines = HashMap<usize, ItemId>;
+// (entries line, part of speech in it) -> the item it is (a part of speech) of
+type Lines = HashMap<(usize, usize), ItemId>;
 
 #[derive(Default)]
 pub(crate) struct EmbeddingNeeds {
@@ -113,26 +113,47 @@ impl Items {
 }
 
 impl Items {
-    // Read the entry names exported by packages/source_tools/entry_names.py:
-    // {lang code: {cited term: page title}}.
+    // Read the entry names mentions link to (`wiktionary-entries --entry-names`):
+    // language, term as shown, page and how often, per line. A term linked to
+    // several pages takes the one it is linked to most often; a reconstruction's
+    // page is named by its part after the language.
     pub(crate) fn load_entry_names(
         &mut self,
         string_pool: &mut StringPool,
         path: &Path,
     ) -> Result<()> {
-        let file = std::io::BufReader::new(std::fs::File::open(path)?);
-        let entry_names: HashMap<String, HashMap<String, String>> = serde_json::from_reader(file)?;
-        for (code, titles) in entry_names {
+        let mut best: HashMap<LangTerm, (u64, Term)> = HashMap::default();
+        for line in entry_lines(path)? {
+            let line = String::from_utf8_lossy(&line);
+            let fields: Vec<&str> = line.split('\t').collect();
+            let [code, term, page, count] = fields[..] else {
+                continue;
+            };
             let Some(lang) = code.parse::<Lang>().ok() else {
                 continue;
             };
-            for (term, title) in titles {
-                self.entry_names.insert(
-                    lang.new_langterm(string_pool, &term),
-                    Term::new(string_pool, &title),
-                );
+            let term = clean_template_term(term);
+            let page = page
+                .strip_prefix("Reconstruction:")
+                .and_then(|p| p.split_once('/'))
+                .map_or(page, |(_, t)| t);
+            if term.is_empty() || page.is_empty() || term == page {
+                continue;
+            }
+            let count: u64 = count.parse().unwrap_or(0);
+            let langterm = lang.new_langterm(string_pool, term);
+            let page = Term::new(string_pool, page);
+            match best.get(&langterm) {
+                Some(&(n, _)) if n >= count => {}
+                _ => {
+                    best.insert(langterm, (count, page));
+                }
             }
         }
+        self.entry_names.extend(
+            best.into_iter()
+                .map(|(langterm, (_, page))| (langterm, page)),
+        );
         Ok(())
     }
 
@@ -406,13 +427,12 @@ impl Items {
         }
     }
 
-    // We go through the wiktextract file again, embedding the texts of the
-    // items that need it (from all their parts of speech) and the citations'
-    // glosses.
+    // We go through the entries again, embedding the texts of the items that
+    // need it (from all their parts of speech) and the citations' glosses.
     pub(crate) fn generate_embeddings(
         &self,
         string_pool: &StringPool,
-        wiktextract_path: &Path,
+        entries_path: &Path,
         embeddings_config: &embeddings::Config,
     ) -> Result<Embeddings> {
         let mut embeddings = Embeddings::new(embeddings_config)?;
@@ -430,27 +450,37 @@ impl Items {
         );
         // each item's etymology text and glosses, from all its lines
         let mut texts: HashMap<ItemId, (Option<String>, Vec<String>)> = HashMap::default();
-        for (line_number, mut line) in wiktextract_lines(wiktextract_path)?.enumerate() {
-            if let Some(&item_id) = self.lines.get(&line_number)
-                && needs.items.contains(&item_id)
-            {
-                let json_item = to_borrowed_value(&mut line)?;
+        // most lines name no item that needs embedding: parse only those that do
+        let wanted_lines: HashSet<usize> = self
+            .lines
+            .iter()
+            .filter(|(_, item_id)| needs.items.contains(item_id))
+            .map(|(&(line, _), _)| line)
+            .collect();
+        for (line_number, mut line) in entry_lines(entries_path)?.enumerate() {
+            if !wanted_lines.contains(&line_number) {
+                continue;
+            }
+            let wanted = |n: usize| {
+                self.lines
+                    .get(&(line_number, n))
+                    .filter(|item_id| needs.items.contains(item_id))
+                    .copied()
+            };
+            let entry = to_borrowed_value(&mut line)?;
+            let templates = [];
+            for (n, pos) in entry.get_array("pos").into_iter().flatten().enumerate() {
+                let Some(item_id) = wanted(n) else { continue };
+                let item = EntryPos {
+                    entry: &entry,
+                    pos,
+                    templates: &templates,
+                };
                 let (ety, glosses) = texts.entry(item_id).or_default();
                 if ety.is_none() {
-                    *ety = json_item
-                        .get_str("etymology_text")
-                        .filter(|t| !t.is_empty())
-                        .map(str::to_owned);
+                    *ety = item.etymology_text();
                 }
-                glosses.extend(
-                    json_item
-                        .get_array("senses")
-                        .into_iter()
-                        .flatten()
-                        .filter_map(|sense| sense.get_array("glosses")?.first()?.as_str())
-                        .filter(|gloss| !gloss.is_empty())
-                        .map(str::to_owned),
-                );
+                glosses.extend(item.glosses().map(str::to_owned));
             }
         }
         let mut items: Vec<_> = texts.into_iter().collect();

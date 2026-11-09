@@ -6,6 +6,7 @@ members = [
     "crates/core",
     "crates/processor",
     "crates/server",
+    "crates/wiktionary-entries",
 ]
 resolver = "2"
 

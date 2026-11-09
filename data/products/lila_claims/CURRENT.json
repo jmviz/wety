@@ -1,6 +1,6 @@
 {
-  "artifact": "data/artifacts/lila-claims/c562dd52479257b92de08b17c9817722dd108d8f433784c2ef5a95f5b8003486",
+  "artifact": "data/artifacts/lila-claims/9862738c574e70e5772531043c64b8adf7ba1fc309242e49f8982e46adfac4ef",
   "entrypoint": "matches/assertions.jsonl",
-  "run_id": "89a2f31ad7134dfc9ba3521b9d6db251",
+  "run_id": "32b7040c089e4fddaa977257141b41cd",
   "schema_version": 1
 }

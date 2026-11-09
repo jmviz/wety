@@ -6,7 +6,7 @@ Steps, each writing into a work directory so that later steps rerun quickly:
 - `scan`: the Austronesian part of a graph's assertion export (records of an Austronesian
   language, the hypotheses that name one, the assertions on those hypotheses or crediting
   a work, every work and agent), and the glosses of Austronesian entries from the
-  wiktextract data the graph was built from;
+  entries the graph was built from (`wiktionary_entries`);
 - `run`: each ACD record of a language the ACD's language map calls `exact` matched to
   a Wiktionary record of that code, by the rule `agent:wety-match-acd@4` (`Matcher`:
   comparison keys and shape, gloss, the reflexes the ACD cites and the record's
@@ -92,7 +92,7 @@ FOLDS = 5
 HARD_LIMIT = 200
 RELAY_RULE = "agent:wety-relay-acd@1"
 RECORD_CODE = re.compile(r"^wiktionary:([^:]+):")
-LANG_CODE = re.compile(rb'"lang_code": "([^"]+)"')
+LANG_CODE = re.compile(rb'"lang":"([^"]+)"')
 
 
 def austronesian_codes(languages, families_path, language_map=ACD / "etc/languages.json"):
@@ -151,37 +151,51 @@ def scan_export(export, codes, out):
     return len(keep)
 
 
-def scan_glosses(wiktextract, codes, out):
-    """The glosses of every Austronesian entry in wiktextract's data, keyed by code, page
-    title and etymology number, to `out` (JSON Lines, gzipped).
+def scan_glosses(entries, codes, out):
+    """The glosses of every Austronesian entry, one row per part of speech, keyed by code,
+    page title and etymology label, to `out` (JSON Lines, gzipped).
 
     The graph's own record ids key a word by its canonical form, which for Austronesian
-    entries is almost always the page title; the canonical form is kept beside it."""
+    entries is almost always the page title; the first rendered headword is kept beside
+    it. A reconstruction's page is named by its part after the language."""
     wanted = {c.encode() for c in codes}
     n = 0
     with gzip.open(out, "wt", encoding="utf-8") as f:
-        for line in lines(wiktextract, binary=True):
-            if not wanted.intersection(LANG_CODE.findall(line)):
+        for line in lines(entries, binary=True):
+            if not wanted.intersection(LANG_CODE.findall(line[:2000])):
                 continue
-            d = json.loads(line)
-            if d.get("lang_code") not in codes:
+            e = json.loads(line)
+            if e.get("lang") not in codes:
                 continue
-            canonical = next(
-                (x["form"] for x in d.get("forms", []) if "canonical" in x.get("tags", [])), None
-            )
-            glosses = [g for s in d.get("senses", []) for g in s.get("glosses", [])[-1:]]
-            row = {
-                "code": d["lang_code"],
-                "word": d.get("word"),
-                "canonical": canonical,
-                "ety": str(d.get("etymology_number") or ""),
-                "pos": d.get("pos"),
-                "glosses": glosses,
-                "etymology": d.get("etymology_text"),
-            }
-            f.write(json.dumps(row, ensure_ascii=False) + "\n")
-            n += 1
+            page = e["page"]
+            if e.get("ns") == 118 and "/" in page:
+                page = page.split("/", 1)[1]
+            blocks = (e.get("etymology") or {}).get("blocks", [])
+            etymology = "\n".join(b["text"] for b in blocks if b.get("text")) or None
+            for pos in e.get("pos", []):
+                headword = next(iter(pos.get("headword", [])), None)
+                row = {
+                    "code": e["lang"],
+                    "word": page,
+                    "canonical": headword.lstrip("*") if headword else None,
+                    "ety": e.get("ety_label") or "",
+                    "pos": pos.get("pos"),
+                    "glosses": [
+                        drop_labels(s["gloss"]) for s in pos.get("senses", []) if s.get("gloss")
+                    ],
+                    "etymology": etymology,
+                }
+                f.write(json.dumps(row, ensure_ascii=False) + "\n")
+                n += 1
     return n
+
+
+LABELS = re.compile(r"^(\([^)]*\)\s*)+")
+
+
+def drop_labels(gloss):
+    """A gloss without the labels it opens with: "(zoology) a wolf" is "a wolf"."""
+    return LABELS.sub("", gloss.strip())
 
 
 STOP = {
@@ -1101,7 +1115,7 @@ def run(args):
     extraction = A.extraction(
         "converter",
         "packages/etymology/match_acd.py",
-        [args.acd, args.export, args.wiktextract, language_map, *PROFILES.values(), JUDGEMENTS],
+        [args.acd, args.export, args.entries, language_map, *PROFILES.values(), JUDGEMENTS],
     )
     new = {extraction["id"]: extraction}
     for agent_id, name in (
@@ -1365,7 +1379,9 @@ def main(argv=None):
     sub = p.add_subparsers(dest="step", required=True)
     s = sub.add_parser("scan", help="the Austronesian part of the export, and its glosses")
     s.add_argument("--export", type=Path, required=True, help="a graph's assertions.jsonl.gz")
-    s.add_argument("--wiktextract", type=Path, required=True, help="raw-wiktextract-data.jsonl.gz")
+    s.add_argument(
+        "--entries", type=Path, required=True, help="wety's entries (wiktionary_entries)"
+    )
     s.add_argument("--work", type=Path, required=True, help="the work directory")
     s.add_argument("--languages", type=Path, required=True, help="Wiktionary's languages.json")
     s.add_argument("--families", type=Path, required=True, help="Wiktionary's families.json")
@@ -1373,7 +1389,9 @@ def main(argv=None):
     m = sub.add_parser("run", help="match, relay, and write the check's files")
     m.add_argument("--acd", type=Path, required=True, help="the ACD's assertions (acd-2)")
     m.add_argument("--export", type=Path, required=True, help="the graph's assertions.jsonl.gz")
-    m.add_argument("--wiktextract", type=Path, required=True, help="raw-wiktextract-data.jsonl.gz")
+    m.add_argument(
+        "--entries", type=Path, required=True, help="wety's entries (wiktionary_entries)"
+    )
     m.add_argument("--work", type=Path, required=True, help="the work directory `scan` wrote")
     m.add_argument("--out", type=Path, required=True, help="the check directory")
     m.add_argument("--seed", type=int, default=20261101)
@@ -1400,7 +1418,7 @@ def main(argv=None):
             n = scan_export(args.export, codes, args.work / "wiktionary.jsonl.gz")
             print(f"wiktionary.jsonl.gz: {n} objects")
         if args.only != "export":
-            n = scan_glosses(args.wiktextract, codes, args.work / "glosses.jsonl.gz")
+            n = scan_glosses(args.entries, codes, args.work / "glosses.jsonl.gz")
             print(f"glosses.jsonl.gz: {n} entries")
 
 

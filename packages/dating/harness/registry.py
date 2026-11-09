@@ -287,6 +287,13 @@ def validate_bundle(bundle):
             f"source {key} was registered differently by concurrent sessions; "
             "resolve with `dating ledger resolve-source`"
         )
+    for root, f in (bundle.get("frames") or {}).items():
+        if f.get("root") != root or not f.get("name") or not f.get("study_ids"):
+            errors.append(f"frame {root}: needs its root, a name and study ids")
+        if not (f.get("rationale") or "").strip() or not (f.get("reviewer") or "").strip():
+            errors.append(f"frame {root}: needs a reviewer and rationale")
+        if any(not (why or "").strip() for why in (f.get("exceptions") or {}).values()):
+            errors.append(f"frame {root}: each exception needs a reason")
     checked_analyses = {}
     reproduced = {}
     if bundle.get("pilot_coverage", {}).get("packet_errors"):
@@ -312,6 +319,9 @@ def validate_bundle(bundle):
         claims[c["id"]] = c
         if c["source_id"] not in sources:
             errors.append("missing source " + c["source_id"])
+        ch = (bundle.get("chapters") or {}).get(c["id"])
+        if ch and (ch["source_id"] != c["source_id"] or not ch["authors"] or not ch["title"]):
+            errors.append("chapter does not match its claim's source: " + c["id"])
         if c["status"] == "supported":
             errors += validate_span(c)
             if c["assessment"]["textual"] == "exact_span" and any(
@@ -623,6 +633,17 @@ def build_bundle():
     relations_path = Path(DATA_DIR) / "_constraints/relations.json"
     relations = json.loads(relations_path.read_text()) if relations_path.exists() else []
     context["relative_constraints_digest"] = digest(relations)
+    from . import ledger
+
+    # Which chapter of an edited volume a claim quotes: authorship for display only, so
+    # it stays out of the claims, their sources and the decision digests.
+    chapters = ledger.current("chapter")[0]
+    context["chapters_digest"] = digest(chapters)
+    # A family's chronology frame: which study's estimates its nodes show
+    # (harness/consistency.py). Like chapters, it selects among decisions for display
+    # and stays out of the decision digests.
+    frames = ledger.current("frame")[0]
+    context["frames_digest"] = digest(frames)
     fingerprint = evidence_digest(claims, context)
     by_id = {c["id"]: c for c in claims}
     by_catalog = defaultdict(list)
@@ -633,8 +654,6 @@ def build_bundle():
         by_subject[c["subject"]["id"]].append(c["id"])
     decisions = []
     rejected = []
-    from . import ledger
-
     current, conflicts = ledger.current("decision")
     for key, competing in sorted(conflicts.items()):
         for raw in competing:
@@ -752,6 +771,8 @@ def build_bundle():
         "research_graph": research_graph,
         "pilot_coverage": coverage,
         "sources": sources,
+        "chapters": chapters,
+        "frames": frames,
         "records": records,
         "view": view,
         "review_queue": queue,

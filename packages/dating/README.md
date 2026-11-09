@@ -32,6 +32,18 @@ Per-family results: [families/](families/).
 * Texts transmitted orally and known only from much later copies (the Vedas, the Avesta) are dated by event `composition`; an adopted composition window is shown, basis `composition`, only when the code has no adopted period or attestation.
 * A proto-language (a code Wiktionary names "Proto-…", whether filed as reconstructed, attested like Proto-Norse, or as a variety like Proto-Romance) may end at a crown age: a decision on its code with event `crown_divergence` may select a supported crown claim of a sampled clade (two or more taxa) when its `proto_mapping` says why the sampled taxa cover the family. The clade claim stays about the clade; the export shows the crown interval as the proto stage's estimated end, never as its start or as a daughter's beginning. A source that dates the family's breakup itself (a family age, an article's node age) may also give the crown claim; an article's Bayesian node age names its sampled descendants. Each estimate carries its method. A posterior's label names the central value its source reports (the mean when it reports a mean, else the median), never a midpoint computed here, with the interval beside it; an estimate given only as an interval is labeled by the interval. A crown decision may list reviewed crown ages of trees (`proto_alternatives`, each with its own `proto_mapping`) shown beside the default, whatever kind of estimate the default is.
 
+* Dates shown across a family must be coherent (`harness/consistency.py`). Along
+  Wiktionary's ancestry no proto-language may end after its descendant ends or begins
+  (clear conflicts only; the tree checks the display and never supplies a date), and
+  `validate` fails on a violation. A family's chronology frame (`dating frame ROOT`, ledger
+  kind `frame`) names the one study, or one author's consistent system, whose estimates
+  its proto-languages show: where the frame has an adopted estimate it is displayed and
+  other adopted estimates stand beside it; a code the frame dates but whose default comes
+  from elsewhere fails validation unless the frame lists it as an exception with a reason.
+  Proto-languages outside the frame say so. Choosing frames is the reviewer's judgment
+  (coverage, exact clade mapping, method, reception, agreement with attested anchors);
+  `dating consistency` lists each family's mix.
+
 The [catalog cross-reference audit](../catalogs/critique.md) covers the identity layer. Catalog correspondence never licenses automatic chronological transfer.
 
 ## Review
@@ -104,10 +116,15 @@ hand; `withdraw SUBJECT EVENT --reviewer R --rationale TEXT` retracts one, keepi
 with the reason, e.g. so an attestation window can replace a database documentation
 window in the display.
 
-Decisions, withdrawals, registered sources and errata are append-only events in
-`data/workspaces/dating/_ledger/` (`harness/ledger.py`): `dating ledger status`, `ledger
+Decisions, withdrawals, registered sources, chapters and errata are append-only events
+in `data/workspaces/dating/_ledger/` (`harness/ledger.py`): `dating ledger status`, `ledger
 erratum PACKET --field F --correct TEXT --basis TEXT` (a correction to an imported
-packet), `ledger resolve-source`.
+packet), `ledger resolve-source`. A supplied holding is one source record (the volume);
+a claim quoting a chapter of an edited volume gets a `chapter` record (its authors,
+year, title and citation, from the researcher's citation of the assertion), which the
+display credits instead of the volume's editors. `publish` records them; `dating
+chapters RUN --apply` does so for a run published earlier. Chapters stay out of the
+claims and the decision digests.
 
 Sources a researcher cannot reach (paywalled handbooks and papers) are supplied by the
 maintainer, usually through Zotero: `dating holdings zotero ITEMKEY...` retains the PDF

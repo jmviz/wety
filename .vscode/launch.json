@@ -16,7 +16,7 @@
         }
       },
       "args": [
-        "--wiktextract-path=${workspaceFolder}/workflows/etymology_graph/fixtures/minimal.jsonl",
+        "--entries=${workspaceFolder}/workflows/etymology_graph/fixtures/minimal.jsonl",
         "--serialization-path=${workspaceFolder}/data/workspaces/etymology_graph/debug.json",
         "--turtle-path=${workspaceFolder}/data/workspaces/etymology_graph/debug.ttl",
         "--embeddings-cache-path=${workspaceFolder}/data/cache/embeddings/debug"

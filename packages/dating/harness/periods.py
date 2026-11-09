@@ -250,8 +250,24 @@ def basis(claims, reconstructed):
     return "attested"
 
 
+class Attribution:
+    """Who a claim cites: its registered source, or the chapter of an edited volume
+    that the claim quotes (the ledger's `chapter` records), credited to the chapter's
+    authors and citation while the volume's identifiers are kept."""
+
+    def __init__(self, sources, chapters):
+        self.sources, self.chapters = sources, chapters
+
+    def of(self, claim):
+        source = self.sources.get(claim["source_id"], {})
+        ch = self.chapters.get(claim["id"])
+        if not ch:
+            return source
+        return {**source, **{k: ch[k] for k in ("authors", "year", "title", "citation")}}
+
+
 def evidence_entry(claim, sources):
-    source = sources.get(claim["source_id"], {})
+    source = sources.of(claim)
     span = (claim.get("spans") or [{}])[0]
     return {
         "claim_id": claim["id"],
@@ -539,14 +555,21 @@ def family_split(claim, sources):
         },
         "epoch": o.get("present") or (o.get("epoch_interpretation") or {}).get("epoch"),
         "analysis": claim.get("analysis_id"),
-        "source": short_source(sources.get(claim["source_id"], {})),
+        "source": short_source(sources.of(claim)),
         "role": claim["role"],
     }
 
 
-def export_periods(bundle, generation=None):
+def export_periods(bundle, generation=None, langs=None):
+    from .consistency import frame_root, in_frame, is_estimate
+
     claims = {c["id"]: c for c in bundle["claims"]}
-    sources = bundle["sources"]
+    sources = Attribution(bundle["sources"], bundle.get("chapters") or {})
+    frames = bundle.get("frames") or {}
+    if frames and langs is None:
+        from workflow_tools.paths import selected
+
+        langs = json.loads(selected("wiktionary_languages").read_text())
     adopted = {}
     extra = {}  # reviewed alternative crown ages, shown beside a proto default
     for d in bundle["decisions"]:
@@ -578,7 +601,16 @@ def export_periods(bundle, generation=None):
         view = bundle["view"].get(code)
         if view is None:
             continue
-        used = {c["id"] for c in adopted[code]}
+        # A frame dates a family's proto-languages; attested languages keep their own.
+        root = frame_root(langs, code, frames) if frames and is_proto_language(view) else None
+        frame = frames.get(root)
+        shown, beside = adopted[code], []
+        if frame and any(is_estimate(c) and in_frame(c, frame) for c in shown):
+            # The family's chronology frame dates this code: its estimate is shown and
+            # other adopted estimates stand beside it.
+            beside = [c for c in shown if is_estimate(c) and not in_frame(c, frame)]
+            shown = [c for c in shown if c not in beside]
+        used = {c["id"] for c in shown}
         others = [
             claims[i]
             for i in view["evidence_ids"]
@@ -586,8 +618,21 @@ def export_periods(bundle, generation=None):
             and claims[i]["status"] == "supported"
             and claims[i]["subject"]["mapping"] == "exact"
         ]
-        record = period_record(code, adopted[code], extra.get(code, []) + others, view, sources)
+        record = period_record(code, shown, extra.get(code, []) + beside + others, view, sources)
         if record:
+            estimates = [claims[e["claim_id"]] for e in record["evidence"]]
+            estimates = [c for c in estimates if is_estimate(c)]
+            if frame and estimates:
+                record["frame"] = {
+                    "root": root,
+                    "name": frame["name"],
+                    "in_frame": all(in_frame(c, frame) for c in estimates),
+                    **(
+                        {"note": frame["exceptions"][code]}
+                        if code in frame.get("exceptions", {})
+                        else {}
+                    ),
+                }
             languages.append(record)
     add_spans(languages, bundle["view"])
     splits = [

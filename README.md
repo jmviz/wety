@@ -18,7 +18,7 @@ language was spoken, with the published sources for each date.
 
 ```mermaid
 flowchart LR
-    W[Wiktionary dump] --> P[processor]
+    W[Wiktionary dumps] --> X[entries] --> P[processor]
     S[other sources:<br/>ACD, LiLa] --> E[claims matched<br/>to Wiktionary]
     E --> P
     D[language dates<br/>research] --> G
@@ -26,18 +26,20 @@ flowchart LR
     G --> A[API server] --> C[website]
 ```
 
-1. **The processor** (Rust) reads a dump of Wiktionary and turns every entry's
-   etymology into links between words: inherited from, borrowed from, derived from,
-   compounded of. It resolves which page and which etymology each mention means, and
-   writes one graph file.
-2. **Other sources** (Python) are converted into the same form, matched to
+1. **The entries extractor** (Rust) reads one month's dumps of Wiktionary (the rendered
+   pages and their wikitext) and writes every entry as structured data: its etymology's
+   prose with each template and footnote in place, its senses, its descendants.
+2. **The processor** (Rust) turns every entry's etymology into links between words:
+   inherited from, borrowed from, derived from, compounded of. It resolves which page and
+   which etymology each mention means, and writes one graph file.
+3. **Other sources** (Python) are converted into the same form, matched to
    Wiktionary's words, and built into the graph alongside Wiktionary's own claims.
    Where sources disagree, the graph keeps both and says which reading is shown.
-3. **Language dates** come from a research registry of published sources: for each
+4. **Language dates** come from a research registry of published sources: for each
    language, a period, how it was dated, and citations.
-4. **The API server** (Rust) loads the graph into memory and answers the website's
+5. **The API server** (Rust) loads the graph into memory and answers the website's
    questions: a word's tree, its details, search.
-5. **The website** (SolidJS) draws the trees.
+6. **The website** (SolidJS) draws the trees.
 
 Each step that produces data is a *workflow* with recorded inputs and outputs, so a
 graph can be traced back to exactly what it was built from.
@@ -46,8 +48,9 @@ graph can be traced back to exactly what it was built from.
 
 | Directory | What it holds |
 | --- | --- |
+| [`crates/wiktionary-entries`](crates/wiktionary-entries) | Reads Wiktionary's dumps into wety's entries |
 | [`crates/core`](crates/core) | The graph's data structures, shared by the processor and the server |
-| [`crates/processor`](crates/processor) | Builds the graph from Wiktionary and the other sources |
+| [`crates/processor`](crates/processor) | Builds the graph from the entries and the other sources |
 | [`crates/server`](crates/server) | The API behind api.wety.org |
 | [`client/`](client/README.md) | The website, wety.org |
 | [`packages/etymology`](packages/etymology/README.md) | Other etymological sources: converters, the claims schema, matching to Wiktionary |
@@ -71,8 +74,8 @@ cargo run --locked --release --bin server        # http://127.0.0.1:3000
 cd client && npm install && npm run dev           # http://127.0.0.1:8000
 ```
 
-The server needs a built graph. Building one takes the research data (or a Wiktionary
-dump of your own) and from half an hour to several hours:
+The server needs a built graph. Building one takes the research data (or Wiktionary
+dumps of your own) and from half an hour to several hours:
 [building and serving the graph](docs/graph.md). A fresh clone gets the research data
 from the store with `uv run --frozen wety-data store restore` (access required; see
 [provenance](docs/architecture/provenance.md#setting-up-the-store)).
@@ -82,6 +85,7 @@ Tests:
 ```sh
 uv sync --frozen
 cargo test --locked -p wety-core --lib
+cargo test --locked -p wety-wiktionary-entries
 cargo check --locked --workspace
 uv run --frozen python -m unittest discover -s packages/etymology/tests
 uv run --frozen python -m unittest discover -s packages/dating/tests

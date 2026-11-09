@@ -31,48 +31,48 @@
    "url": "https://id.loc.gov/vocabulary/iso639-5.tsv"
   },
   "wikidata_codes.json": {
-   "items": 11973,
+   "items": 11978,
    "queries": [
     {
-     "at": "2026-10-04T04:57:30+00:00",
+     "at": "2026-11-09T02:51:38+00:00",
      "property": "P218",
      "query": "SELECT ?item ?v WHERE { ?item wdt:P218 ?v . }",
      "rows": 186
     },
     {
-     "at": "2026-10-04T04:57:30+00:00",
+     "at": "2026-11-09T02:51:38+00:00",
      "property": "P219",
      "query": "SELECT ?item ?v WHERE { ?item wdt:P219 ?v . }",
-     "rows": 507
+     "rows": 506
     },
     {
-     "at": "2026-10-04T04:57:31+00:00",
+     "at": "2026-11-09T02:51:40+00:00",
      "property": "P220",
      "query": "SELECT ?item ?v WHERE { ?item wdt:P220 ?v . }",
-     "rows": 8275
+     "rows": 8274
     },
     {
-     "at": "2026-10-04T04:57:31+00:00",
+     "at": "2026-11-09T02:51:40+00:00",
      "property": "P1798",
      "query": "SELECT ?item ?v WHERE { ?item wdt:P1798 ?v . }",
      "rows": 116
     },
     {
-     "at": "2026-10-04T04:57:32+00:00",
+     "at": "2026-11-09T02:51:41+00:00",
      "property": "P1394",
      "query": "SELECT ?item ?v WHERE { ?item wdt:P1394 ?v . }",
-     "rows": 11923
+     "rows": 11924
     }
    ],
-   "retrieved": "2026-10-04T04:57:32+00:00",
-   "sha256": "836078aaf7249cfbc752c4043ecefedf2d2c679edb25dc70aebfea12564f3f15",
+   "retrieved": "2026-11-09T02:51:41+00:00",
+   "sha256": "a96c199bd5d5bc8b247ff5301b1d53c21cc9c67515610dffa9794da0de375042",
    "url": "https://query.wikidata.org/sparql"
   },
   "wikidata_items.json": {
    "batches": 32,
    "inputs": {
-    "families.json": "8ee81c6cb78ceb619ee54598553a937c8d63ac39eb188a87a9b176568f44e63c",
-    "languages.json": "97596c9de4ea77aa141454c1da57a4ac4e257544e4a0594f2dfc8eb82e52266f"
+    "families.json": "970b32807794556c5c3e0e471a2a9f6448c0a8d3942e7391317d679609ea6d3c",
+    "languages.json": "4362988ec9600767dc7644d7b4c717e81be8fdc8cc1cc9d1cf1a9327b40f2cf1"
    },
    "properties": {
     "P1232": "linguist_list",
@@ -92,10 +92,10 @@
     "P580": "start_time",
     "P582": "end_time"
    },
-   "queried_items": 9540,
+   "queried_items": 9557,
    "redirected_items": 80,
-   "retrieved": "2026-10-04T04:58:19+00:00",
-   "sha256": "49e2655a48cfb55c58b9ae2105ada1ad474f488cf21c722a09897cfff97be73d",
+   "retrieved": "2026-11-09T02:53:34+00:00",
+   "sha256": "58c21d774a13e428306770feaf9ce8856929508d548c2c2a06bac5479cddd624",
    "url": "https://query.wikidata.org/sparql"
   },
   "wikidata_statements.json": {
@@ -110,5 +110,5 @@
    "url": "https://www.wikidata.org/w/api.php"
   }
  },
- "last_run": "2026-10-04T05:01:21+00:00"
+ "last_run": "2026-11-09T02:53:34+00:00"
 }

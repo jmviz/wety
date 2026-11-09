@@ -1,0 +1,22 @@
+[package]
+name = "wety-wiktionary-entries"
+version = "0.1.0"
+edition = "2024"
+
+[[bin]]
+name = "wiktionary-entries"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = {workspace = true}
+bzip2 = "0.6"
+flate2 = {workspace = true}
+serde = {workspace = true}
+serde_json = {workspace = true}
+ego-tree = "0.11"
+clap = { version = "3.2.17", features = ["derive"] }
+rayon = "1.12"
+scraper = "0.29"
+sha2 = "0.10"
+tar = "0.4.40"
+urlencoding = "2.1.2"

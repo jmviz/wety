@@ -1,0 +1,44 @@
+{
+  "completed_at": "2026-11-08T04:50:43.062988+00:00",
+  "dependencies": {
+    "wikitextprocessor": {
+      "origin": {
+        "url": "https://github.com/tatuylonen/wikitextprocessor.git",
+        "vcs_info": {
+          "commit_id": "e3d6d4edb77618f4d6680edc66e3f774bea59820",
+          "vcs": "git"
+        }
+      },
+      "version": "0.4.96"
+    },
+    "wiktextract": {
+      "origin": {
+        "url": "https://github.com/tatuylonen/wiktextract.git",
+        "vcs_info": {
+          "commit_id": "4be0ca4fc14f41420cd83daa1aaa837dc5073de9",
+          "requested_revision": "4be0ca4fc14f41420cd83daa1aaa837dc5073de9",
+          "vcs": "git"
+        }
+      },
+      "version": "1.99.7"
+    }
+  },
+  "dependency_lock_sha256": "9eab6f44ebe70f77346ec5db15089aedba5e63daf82bc8c31e5a1910d0508e92",
+  "dump": {
+    "name": "enwiktionary-20261101-pages-articles.xml.bz2",
+    "sha256": "ae476c69023c5cf20389497529bcb55928826174140225f89e0c9241b234cc94",
+    "url": "https://dumps.wikimedia.org/enwiktionary/20261101/enwiktionary-20261101-pages-articles.xml.bz2"
+  },
+  "exporter_sha256": "f90c210df8d29e34b06bb4713a5b32d5b58e511fafb3e4933e22219f4f540322",
+  "limitations": [
+    "Dump-level provenance; individual upstream module revisions must be recovered from the dump if needed."
+  ],
+  "lua_sha256": "f39427f5918d2a529fbd2cfec42b994ff42bbdbff895aff496e388c38cffeba1",
+  "outputs": {
+    "families.json": "970b32807794556c5c3e0e471a2a9f6448c0a8d3942e7391317d679609ea6d3c",
+    "languages.json": "4362988ec9600767dc7644d7b4c717e81be8fdc8cc1cc9d1cf1a9327b40f2cf1"
+  },
+  "python": "3.13.5 (main, Jun 12 2025, 12:22:43) [Clang 20.1.4 ]",
+  "schema_version": 1,
+  "started_at": "2026-11-08T04:21:28.216471+00:00"
+}

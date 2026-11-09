@@ -17,21 +17,31 @@ Such correspondences are not shown elsewhere either, for now (decided 2026-11-08
 uv run --frozen wety-data run etymology_graph
 ```
 
-This invokes the Rust processor with the selected Wiktextract dump, writes to a run
+This invokes the Rust processor with wety's entries of Wiktionary, writes to a run
 staging directory, validates the graph with matching compiled language/POS tables,
 then publishes an immutable artifact and `data/products/etymology_graph/CURRENT.json`.
-Besides the dump it reads products of other workflows, pinned in its `workflow.json`:
-`wiktionary_references` (each entry's References, from the pages dump of the same
-date), `acd_claims` and `lila_claims` (other sources' claims, matched against
+It reads products of other workflows, pinned in its `workflow.json`:
+`wiktionary_entries` (the entries, the dump's redirects and the entry names mentions
+link to), `wiktionary_references` (each entry's References, from the pages dump of the
+same date), `acd_claims` and `lila_claims` (other sources' claims, matched against
 `etymology_assertions`, the previous graph's assertion export), and the reviewers'
 overrides in `data/workspaces/etymology/sources/wiktionary/etc/overrides.json`. For a
-new dump, rebuild in that order: References, the graph, its export, the claims, the
-graph again ([packages/etymology](../packages/etymology/README.md)).
+new dump, rebuild in that order: entries, References, the graph, its export, the
+claims, the graph again ([packages/etymology](../packages/etymology/README.md)).
 
-With the embedding cache warm it takes about 30 minutes on an M1 Pro; a cold cache for
-the 2026-09-01 Kaikki data (10.9M entries) took about six hours, almost all of it
-embedding. Model files are cached by Hugging Face; the model revision and expected
-local file hashes are recorded in `data/registry/embedding-model.json`. On macOS the
+`uv run --frozen wety-data run wiktionary_entries` runs `crates/wiktionary-entries` on
+one date's sources: the Wikimedia Enterprise snapshot of en.wiktionary
+(`python -m source_tools.enterprise snapshot enwiktionary_namespace_0`, a free account;
+only the current month can be downloaded), the Reconstruction pages' HTML at the
+pages-articles dump's revisions (`python -m source_tools.wiktionary_html`, which
+Enterprise does not serve), the pages-articles dump itself (redirects) and the language
+export made from it. It takes about 15 minutes; the entries format is documented in
+`crates/wiktionary-entries/src/model.rs`.
+
+With the embedding cache warm the graph build takes about 30 minutes on an M1 Pro; a
+cold cache for 10.9M entries took about six hours, almost all of it embedding. Model
+files are cached by Hugging Face; the model revision and expected local file hashes are
+recorded in `data/registry/embedding-model.json`. On macOS the
 embedding model runs on the GPU (Metal) automatically; elsewhere it runs on the CPU
 unless the workflow command adds the `cuda`, `accelerate` or `mkl` feature (that change
 becomes part of the run receipt). Texts are embedded in length-sorted sub-batches with

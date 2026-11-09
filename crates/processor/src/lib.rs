@@ -1,4 +1,4 @@
-//! WIP attempt to digest etymologies from wiktextract data
+//! Etymologies from wety's entries of Wiktionary (`crates/wiktionary-entries`) into a graph
 
 #![allow(clippy::redundant_closure_for_method_calls)]
 
@@ -9,6 +9,7 @@ mod descendants;
 #[allow(clippy::large_enum_variant)]
 #[rustfmt::skip]
 pub mod embeddings;
+mod entries;
 mod etymology;
 mod etymon;
 mod items;
@@ -18,8 +19,7 @@ mod references;
 mod resolve;
 mod root;
 pub mod turtle;
-mod wiktextract_json;
-pub use crate::wiktextract_json::wiktextract_lines;
+pub use crate::entries::entry_lines;
 
 use wety_core::string_pool::StringPool;
 pub use wety_core::{self, Data, HashMap, HashSet, ItemId, Lang, Search};
@@ -47,11 +47,12 @@ pub(crate) fn progress_bar(n: usize, message: &str) -> Result<ProgressBar> {
 
 /// # Errors
 ///
-/// Will return `Err` if any unexpected issue arises parsing the wiktextract
-/// data or writing to Turtle file.
+/// Will return `Err` if any unexpected issue arises reading the entries or
+/// writing to Turtle file.
 #[allow(clippy::too_many_arguments)]
-pub fn process_wiktextract(
-    wiktextract_path: &Path,
+pub fn process_entries(
+    entries_path: &Path,
+    redirects_path: Option<&Path>,
     serialization_path: &Path,
     turtle_path: Option<&Path>,
     entry_names_path: Option<&Path>,
@@ -61,10 +62,7 @@ pub fn process_wiktextract(
     embeddings_config: &embeddings::Config,
 ) -> Result<()> {
     let mut t = Instant::now();
-    println!(
-        "Processing raw wiktextract data from {}...",
-        wiktextract_path.display()
-    );
+    println!("Processing entries from {}...", entries_path.display());
     let mut string_pool = StringPool::new();
     let mut items = Items::new()?;
     if let Some(entry_names_path) = entry_names_path {
@@ -78,7 +76,10 @@ pub fn process_wiktextract(
             items.references.sections()
         );
     }
-    items.process_wiktextract_lines(&mut string_pool, wiktextract_path)?;
+    if let Some(redirects_path) = redirects_path {
+        items.process_redirects(&mut string_pool, redirects_path)?;
+    }
+    items.process_entries(&mut string_pool, entries_path)?;
     if references_paths.is_some() {
         println!(
             "{} References sections cover {} items.",
@@ -87,8 +88,7 @@ pub fn process_wiktextract(
         );
     }
     println!("Finished. Took {}.", HumanDuration(t.elapsed()));
-    let embeddings =
-        items.generate_embeddings(&string_pool, wiktextract_path, embeddings_config)?;
+    let embeddings = items.generate_embeddings(&string_pool, entries_path, embeddings_config)?;
     t = Instant::now();
     println!("Generating ety graph...");
     items.generate_ety_graph(&string_pool, &embeddings)?;

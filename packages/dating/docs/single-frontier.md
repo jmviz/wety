@@ -35,9 +35,9 @@ configuration. Select `--profile NAME` at preparation; legacy role overrides and
 
 | Profile | Access | Model | Initial effort |
 | --- | --- | --- | --- |
-| `codex-sol` **default** | Codex CLI (pinned, bundled), personal ChatGPT subscription | `gpt-6.1-sol` | `high`, standard service tier; cached web search for discovery |
+| `claude-opus` **default** | Claude Agent SDK, personal Claude subscription | `claude-opus-5-5` | `high`, adaptive thinking; Claude's WebSearch for discovery |
+| `codex-sol` | Codex CLI (pinned, bundled), personal ChatGPT subscription | `gpt-6.1-sol` | `high`, standard service tier; cached web search for discovery; the default until 2026-11-07 |
 | `codex-astra` | Same transport | `gpt-6-astra` | `high`; the default until 2026-10-06 |
-| `claude-opus` | Claude Agent SDK, personal Claude subscription | `claude-opus-5` | `high`, adaptive thinking |
 | `openrouter-astra` | Explicitly selected paid OpenRouter API | `openai/gpt-6-astra` | `high` |
 | `openrouter-opus` | Explicitly selected paid OpenRouter API | `anthropic/claude-opus-5` | `high` |
 

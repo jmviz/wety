@@ -1,8 +1,4 @@
-use crate::{
-    HashMap,
-    items::Items,
-    wiktextract_json::{WiktextractJson, WiktextractJsonValidStr},
-};
+use crate::{HashMap, items::Items};
 use wety_core::{
     langterm::{LangTerm, Term},
     languages::Lang,
@@ -45,21 +41,14 @@ static IGNORED_REDIRECTS: Set<&'static str> = phf_set! {
     "Wiktionary", "Thesaurus", "Module", "Template"
 };
 
-pub(crate) struct WiktextractJsonRedirect<'a> {
-    pub(crate) json: WiktextractJson<'a>,
-}
-
 impl Items {
     pub(crate) fn process_redirect(
         &mut self,
         string_pool: &mut StringPool,
-        redirect: &WiktextractJsonRedirect,
+        from_title: &str,
+        to_title: &str,
     ) {
-        // cf. https://github.com/tatuylonen/wiktextract/blob/master/wiktwords
-
-        if let Some(from_title) = redirect.json.get_valid_str("title")
-            && let Some(to_title) = redirect.json.get_valid_str("redirect")
-        {
+        if !from_title.is_empty() && !to_title.is_empty() {
             for title in [from_title, to_title] {
                 if let Some(colon) = title.find(':')
                     && let Some(namespace) = title.get(..colon)

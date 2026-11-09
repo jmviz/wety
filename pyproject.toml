@@ -32,7 +32,7 @@ constraint-dependencies = [
   "anyio==4.15.1",
   "attrs==26.1.0",
   "cffi==2.1.1",
-  "claude-agent-sdk==0.2.154",
+  "claude-agent-sdk==0.2.179",
   "click==8.5.0",
   "cryptography==50.0.1",
   "docstring-parser==0.18.0",

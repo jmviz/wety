@@ -6,6 +6,8 @@ from pathlib import Path
 import re
 import shutil
 import tempfile
+import urllib.error
+import urllib.parse
 import urllib.request
 import uuid
 import zipfile
@@ -23,20 +25,45 @@ def safe_extract_zip(archive,destination):
                 raise ValueError('unsafe archive member '+info.filename)
         z.extractall(destination)
 
-def acquire(url,collection,*,expected_sha256=None,version=None,license=None,headers=None):
+def download(url,p,headers,authorization,attempts):
+    """Write url's body to p. `authorization` (a callable, asked again on each attempt) goes
+    only to url's own host: an unredirected header does not follow a redirect, and
+    presigned storage URLs reject one. A broken transfer resumes with Range while the
+    ETag holds. Returns (first response's status, headers, final URL, request)."""
+    first=None
+    for attempt in range(attempts):
+        offset=p.stat().st_size if p.exists() else 0
+        request=urllib.request.Request(url,headers={'User-Agent':USER_AGENT,**(headers or {}),**({'Range':f'bytes={offset}-'} if offset else {})})
+        if authorization:request.add_unredirected_header('Authorization',authorization())
+        try:
+            with urllib.request.urlopen(request,timeout=300) as response:
+                if first is None:first=(response.status,response.headers,response.geturl(),request)
+                elif response.headers.get('ETag')!=first[1].get('ETag'):raise ValueError('source changed while resuming (ETag differs)')
+                if offset and response.status!=206:raise ValueError('server ignored Range; cannot resume')
+                with p.open('ab' if offset else 'wb') as f:shutil.copyfileobj(response,f,1024*1024)
+            length=first[1].get('Content-Length')
+            if length and p.stat().st_size!=int(length):raise OSError(f'short body: {p.stat().st_size} of {length} bytes')
+            return first
+        except urllib.error.HTTPError as e:
+            if e.code==416 and first and p.stat().st_size==int(first[1].get('Content-Length') or -1):return first
+            raise
+        except OSError:
+            if attempt+1==attempts:raise
+
+def acquire(url,collection,*,expected_sha256=None,version=None,license=None,headers=None,authorization=None,attempts=1,provenance=None):
     if not re.fullmatch(r'[a-z0-9][a-z0-9_-]*',collection):raise ValueError('invalid collection name')
     if not url.startswith('https://'):raise ValueError('HTTPS source URL required')
     cache=DATA/'cache/downloads';cache.mkdir(parents=True,exist_ok=True)
     started=now()
     with tempfile.TemporaryDirectory(dir=cache) as tmp:
         tmp=Path(tmp);(tmp/'files').mkdir();p=tmp/'files/source'
-        request=urllib.request.Request(url,headers={'User-Agent':USER_AGENT,**(headers or {})})
-        with urllib.request.urlopen(request,timeout=300) as response,p.open('wb') as f:
-            shutil.copyfileobj(response,f,1024*1024)
-            metadata={'requested_url':url,'final_url':response.geturl(),'started_at':started,'completed_at':now(),
-                'http_status':response.status,'response_headers':{k:v for k,v in response.headers.items() if k.lower() in ('etag','last-modified','content-type','content-length')},
-                'upstream_version':version,'license':license,'completeness':'complete HTTP response; source coverage unassessed',
-                'request_headers':{k:v for k,v in request.header_items() if k.lower() in ('accept','user-agent')}}
+        status,response_headers,final_url,request=download(url,p,headers,authorization,attempts)
+        # A redirect behind authorization is a presigned URL: its query is a signature.
+        if authorization:final_url=urllib.parse.urlsplit(final_url)._replace(query='').geturl()
+        metadata={'requested_url':url,'final_url':final_url,'started_at':started,'completed_at':now(),
+            'http_status':status,'response_headers':{k:v for k,v in response_headers.items() if k.lower() in ('etag','last-modified','content-type','content-length')},
+            'upstream_version':version,'license':license,'completeness':'complete HTTP response; source coverage unassessed',
+            'request_headers':{k:v for k,v in request.header_items() if k.lower() in ('accept','user-agent')},**(provenance or {})}
         checksum=sha(p)
         if expected_sha256 and checksum!=expected_sha256:raise ValueError('download checksum does not match lock')
         m=manifest(tmp,collection,'source',metadata)

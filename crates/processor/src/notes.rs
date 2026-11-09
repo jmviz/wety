@@ -1,9 +1,9 @@
-// Footnotes of an etymology section, as credits. wiktextract keeps each <ref>
-// of the section as a "ref" template whose argument is the rendered citation,
-// and an {{etydate}}'s reference as its "ref" argument. Citations inside the
-// prose ("Kroonen (2013)") are not templates; reading them is model work.
+// Footnotes of an etymology section, as credits: each note the section's prose
+// cites, from the entry's `notes`. A note whose marker stands inside an
+// {{etydate}} supports a date. Citations inside the prose ("Kroonen (2013)") are
+// not notes; reading them is model work.
 
-use crate::wiktextract_json::{WiktextractJsonItem, WiktextractJsonValidStr};
+use crate::entries::EntryPos;
 
 use simd_json::ValueAccess;
 
@@ -76,28 +76,53 @@ pub(crate) fn parse_citation(html: &str, role: Role) -> Option<RawNote> {
     })
 }
 
-impl WiktextractJsonItem<'_> {
-    /// The section's footnotes: a "ref" cites a work for the etymology, an
-    /// {{etydate}}'s ref for a date.
+impl EntryPos<'_> {
+    /// The section's footnotes, each work once.
     pub(crate) fn get_notes(&self) -> Box<[RawNote]> {
-        let Some(templates) = self.json.get_array("etymology_templates") else {
+        let Some(etymology) = self.entry.get("etymology") else {
             return Box::default();
         };
+        let mut roles: Vec<(&str, Role)> = vec![];
+        for block in etymology.get_array("blocks").into_iter().flatten() {
+            let spans = block
+                .get_array("spans")
+                .map(Vec::as_slice)
+                .unwrap_or_default();
+            // the {{etydate}} spans of the block, as (start, end)
+            let dates: Vec<(u64, u64)> = spans
+                .iter()
+                .filter(|s| {
+                    s.get_array("calls")
+                        .into_iter()
+                        .flatten()
+                        .any(|c| c.get_str("name") == Some("etydate"))
+                })
+                .filter_map(|s| Some((s.get_u64("start")?, s.get_u64("end")?)))
+                .collect();
+            for span in spans.iter().filter(|s| s.get_str("kind") == Some("ref")) {
+                let (Some(note), Some(at)) = (span.get_str("note"), span.get_u64("start")) else {
+                    continue;
+                };
+                let role = if dates.iter().any(|&(start, end)| start <= at && at <= end) {
+                    Role::Data
+                } else {
+                    Role::Follows
+                };
+                if !roles.iter().any(|(n, _)| *n == note) {
+                    roles.push((note, role));
+                }
+            }
+        }
         let mut notes: Vec<RawNote> = vec![];
-        for template in templates {
-            let Some(args) = template.get("args") else {
+        for body in etymology.get_array("notes").into_iter().flatten() {
+            let (Some(id), Some(text)) = (body.get_str("id"), body.get_str("text")) else {
                 continue;
             };
-            let found = match template.get_valid_str("name") {
-                Some("ref") => args
-                    .get_valid_str("1")
-                    .and_then(|c| parse_citation(c, Role::Follows)),
-                Some("etydate") => args
-                    .get_valid_str("ref")
-                    .and_then(|c| parse_citation(c, Role::Data)),
-                _ => None,
-            };
-            if let Some(note) = found
+            let role = roles
+                .iter()
+                .find(|(n, _)| *n == id)
+                .map_or(Role::Follows, |&(_, r)| r);
+            if let Some(note) = parse_citation(text, role)
                 && !notes.contains(&note)
             {
                 notes.push(note);
@@ -110,6 +135,28 @@ impl WiktextractJsonItem<'_> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::entries::test_entry;
+
+    #[test]
+    fn a_note_inside_an_etydate_supports_the_date() {
+        let json = r#"{"etymology": {
+            "blocks": [{"kind": "paragraph", "text": "From x, first attested in 1923.", "spans": [
+                {"kind": "ref", "start": 6, "note": "cite_note-a"},
+                {"kind": "template", "start": 8, "end": 30, "calls": [{"name": "etydate", "args": {"1": "1923"}}]},
+                {"kind": "ref", "start": 30, "note": "cite_note-b"}]}],
+            "notes": [
+                {"id": "cite_note-a", "text": "A. Author (2000), A Book, page 3", "calls": []},
+                {"id": "cite_note-b", "text": "B. Writer (1923), Novel", "calls": []}]}}"#;
+        let notes = test_entry::with(json, |e| e.get_notes());
+        let roles: Vec<_> = notes.iter().map(|n| (&*n.work.citation, n.role)).collect();
+        assert_eq!(
+            roles,
+            [
+                ("A. Author (2000), A Book", Role::Follows),
+                ("B. Writer (1923), Novel", Role::Data)
+            ]
+        );
+    }
 
     fn read(html: &str) -> (String, Option<u16>, Option<String>) {
         let note = parse_citation(html, Role::Follows).unwrap();
