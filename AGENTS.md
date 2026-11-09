@@ -114,15 +114,19 @@ in the main checkout, the first entry of `git worktree list`
 - Without the main checkout, restore `data/` from the store (`wety-data store restore`,
   then `sync`); if the store is not configured either, report it rather than
   re-acquiring sources. Do not pipe restic into `head` (it can leave a stale lock).
-- Serving another graph: set `WETY_GRAPH_PATH`; one graph needs about 5 GB of memory.
 
-## The local site
+## Local servers
 
-The maintainer checks work in a local API server (`target/release/server`, port 3000,
-about five minutes to load a graph) and the Vite dev client (`client/`, port 8000 or the
-next free one, against the local API through `.env.development`). Leave them running
-between turns: start them detached (`nohup … &`), restart the server after Rust
-changes, and do not stop them at the end of a task.
+Servers running on this machine may belong to other sessions: never stop or restart one
+you did not start. To show the maintainer your work, start your own from your checkout
+on free ports and give them the URL:
+
+```sh
+WETY_PORT=3010 cargo run --locked --release --bin server   # WETY_GRAPH_PATH for another graph
+cd client && VITE_API_BASE_URL=http://127.0.0.1:3010 npm run dev -- --port 8010
+```
+
+Stop it when they are done: a server holds its graph in memory (about 5 GB).
 
 ## Documents
 
