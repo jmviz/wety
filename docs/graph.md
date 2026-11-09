@@ -8,7 +8,8 @@ that share something else are not descent and must not become edges, however
 tree-like they look on Wiktionary: `{{CJKV}}` lists how a Chinese word's characters are
 read in Japanese, Korean and Vietnamese, and a listed word may be a native word written
 with the same characters, or a Japanese coinage that Chinese borrowed. Treat any
-template that lists forms across languages without asserting derivation the same way.
+template that lists forms across languages without asserting derivation the same way
+(`READING_LISTS` in `crates/processor/src/descendants.rs`).
 Such correspondences are not shown elsewhere either, for now (decided 2026-11-08).
 
 ## Build

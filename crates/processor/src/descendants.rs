@@ -118,7 +118,8 @@ const LINK_TEMPLATES: [&str; 3] = ["l", "link", "ll"];
 /// Templates whose list gives a word's readings in other languages, not its
 /// descendants: {{CJKV}} lists the Sino-Xenic readings of a Chinese word, written
 /// with its characters, which may be Japanese coinages Chinese borrowed, or native
-/// words written with the same characters.
+/// words written with the same characters. The graph holds derivation only:
+/// docs/graph.md, "What an edge means".
 const READING_LISTS: [&str; 1] = ["cjkv"];
 
 fn desc_line(string_pool: &mut StringPool, node: &Json) -> RawDescLineKind {
