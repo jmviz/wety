@@ -2,7 +2,7 @@
 
 *Updated 2026-11-08. `main` carries the client work, the root fixes, the claims model
 (core-1 to core-6, acd-1 to acd-3, lila-1 to lila-3, syn-1) and client-polish. Branch
-`wiktionary-entries` (unmerged) carries x-1 to x-4 of the rework below (x-4: graph adopted on the branch).*
+`wiktionary-entries` (unmerged) carries x-1 to x-4 of the rework below (x-4: graph adopted).*
 
 ## What the project promises
 
