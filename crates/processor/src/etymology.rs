@@ -941,11 +941,10 @@ impl Items {
     // Set an item's etymologies from its own etymology section (or, for an
     // imputed item, from the section of an item citing it). A Descendants list
     // may already have given it a parent; the item's own section is preferred,
-    // except where that parent is more specific (a later stage descending from
-    // the parent named here, e.g. Old French between Latin and English; not a
-    // derivative of it in its own language, as Middle English tablen "to board"
-    // of table, whose Descendants list names English table), where the item
-    // would trade an entry for a term missing from the data, or where the
+    // except where that parent is more specific (it descends from the parent
+    // named here: a later stage, e.g. Old French between Latin and English, or
+    // a derivative, e.g. a PIE stem where the section names its root), where
+    // the item would trade an entry for a term missing from the data, or where the
     // section gives only a mention or a form-of link. Returns whether the
     // etymologies were set.
     fn set_own_etys(
@@ -961,10 +960,30 @@ impl Items {
             if self.get(item).is_imputed() {
                 return false;
             }
+            // A derivative in the parent's own language is not more specific
+            // where the section says the item was inherited or borrowed from an
+            // attested word: it names the very word (English table inherited
+            // from Middle English table, which the Descendants list of its
+            // derivative tablen "to board" also names).
+            let names_the_word = |new: &Resolved, parent: ItemId| {
+                matches!(
+                    new.mode,
+                    EtyMode::Inherited
+                        | EtyMode::Borrowed
+                        | EtyMode::LearnedBorrowing
+                        | EtyMode::SemiLearnedBorrowing
+                        | EtyMode::UnadaptedBorrowing
+                        | EtyMode::OrthographicBorrowing
+                ) && !self.get(parent).is_reconstructed()
+                    && !self.get(parent).is_imputed()
+            };
             let more_specific = match (&existing.items[..], etys) {
-                ([old], [new]) => match new.items[..] {
+                ([old], [new_ety]) => match new_ety.items[..] {
                     [new] => {
-                        self.get(*old).lang() != self.get(new).lang() && self.is_ancestor(new, *old)
+                        *old != new
+                            && self.is_ancestor(new, *old)
+                            && !(self.get(*old).lang() == self.get(new).lang()
+                                && names_the_word(new_ety, new))
                     }
                     _ => false,
                 },
@@ -1560,8 +1579,33 @@ mod tests {
                 r#"[{"name": "der", "args": {"1": "en", "2": "la", "3": "Octōber"}}]"#,
             );
             assert_eq!(t.parents(october), ["fro:octobre"]);
-            // a derivative of the parent in its own language is not a later
-            // stage: the item's own section wins
+            // a derivative of the parent in its own language: kept where the
+            // section names only a base it was derived from...
+            let arbor = t.add("la", "arbor");
+            let arboreus = t.add("la", "arboreus");
+            let arboreous = t.add("en", "arboreous");
+            t.items.graph.add_ety(
+                arboreus,
+                EtyMode::Suffix,
+                Some(0),
+                EdgeBasis::Template,
+                &[arbor],
+                &[0.5],
+            );
+            t.items.graph.add_ety(
+                arboreous,
+                EtyMode::Borrowed,
+                Some(0),
+                EdgeBasis::Descendants,
+                &[arboreus],
+                &[0.5],
+            );
+            t.process(
+                arboreous,
+                r#"[{"name": "der", "args": {"1": "en", "2": "la", "3": "arbor"}}]"#,
+            );
+            assert_eq!(t.parents(arboreous), ["la:arboreus"]);
+            // ...but not where it says the item was inherited from that word
             let table = t.add("enm", "table");
             let tablen = t.add("enm", "tablen");
             let table_en = t.add("en", "table");
