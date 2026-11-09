@@ -124,6 +124,17 @@ not affect restoring elsewhere.
   `wety-data store sync WORKTREE/data MAIN/data --apply`: missing files are cloned,
   nothing is overwritten, and a file that differs is reported as a conflict (append-only
   areas should never conflict; derived products are regenerated with `dating synthesize`).
+  Which conflicts to resolve:
+  - `data/products/*` and derived workspace files (such as
+    `workspaces/dating/<glottocode>/languoids.json`) belong to the branch the main
+    checkout has checked out: leave them. The immutable generation artifacts they derive
+    from copy without conflict.
+  - Refreshed catalog sources (`workspaces/catalogs/sources/*`) must not overwrite the
+    main checkout's while its tracked manifest names the old hashes; but snapshots are
+    taken from the main checkout, so left alone they miss the backup. File them in
+    `MAIN/data/archive/catalog-source-history/<sha256 of the new manifest.json>/`
+    (`cp -c`), the layout `source_tools.catalog_sources` uses when it supersedes a set.
+  - Files only your own work writes (a check's `result.json`) can be copied over.
 - New machine or lost data: clone the repository, set up the store as above (skip
   `restic init`), then `wety-data store restore --target DIR` (an empty directory
   anywhere), `wety-data store sync DIR data --apply`, `uv run --frozen wety-data

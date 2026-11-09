@@ -31,8 +31,9 @@ At the start of a session:
    your branch still shows on the board.
 2. `git -C .work pull -q --rebase`.
 3. If a stream names your branch (`grep -l "^branch: $(git branch --show-current)$"
-   .work/streams/*.md`), read it, and raise its *Needs you* questions when the
-   maintainer is present.
+   .work/streams/*.md`), read it and the inbox items addressed to it
+   (`grep -l "^for: <slug>$" .work/inbox/*.md`; act on them, then delete them), and
+   raise its *Needs you* questions when the maintainer is present.
 
 While working:
 
@@ -117,6 +118,12 @@ in the main checkout, the first entry of `git worktree list`
 
 ## Documents
 
+- When you learn something the next person needs, write it where they will meet it:
+  the code's doc comment, the tool's output or error message, the prompt the model
+  reads, the component's README or docs. AGENTS.md files hold only how agents work. Do
+  not use a harness's own memory store for wety: other harnesses never see it. A note
+  another live branch needs before yours lands goes into an inbox item addressed to its
+  stream (`for:`).
 - Work state lives in the tracker, history in git. Do not write dated reports, session
   logs or next-steps documents in the repository.
 - A new document replaces or merges an existing one.

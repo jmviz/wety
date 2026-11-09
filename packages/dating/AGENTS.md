@@ -6,6 +6,11 @@ dating research in `data/workspaces/dating/`.
 - The contract is [README.md](README.md). Each family has one page in
   [families/](families/) giving the current reading, with corrections applied.
 - Format the package with `ruff format`.
+- Research runs use the maintainer's subscription profiles (`llm.config.json`). Never
+  fall back to a paid API profile (OpenRouter) without asking.
+- Conflicting sources on a date are the reviewer's to settle, with a recorded
+  rationale ([model-review policy](docs/model-review.md)); do not leave them as
+  questions for the maintainer.
 - Use the harness commands for research workflow steps (`dating brief`, `review`,
   `publish`, `run-readme`, `review-summary`, `adopt-clades`, `ledger`); a step done twice
   belongs in the harness, not in a session script. Set `WETY_REVIEWER` to name the

@@ -1,5 +1,16 @@
 # Building and serving the graph
 
+## What an edge means
+
+An edge says that one word descends from or is formed from another: inherited,
+borrowed, derived, compounded, calqued. The graph holds derivation only. Lists of forms
+that share something else are not descent and must not become edges, however
+tree-like they look on Wiktionary: `{{CJKV}}` lists how a Chinese word's characters are
+read in Japanese, Korean and Vietnamese, and a listed word may be a native word written
+with the same characters, or a Japanese coinage that Chinese borrowed. Treat any
+template that lists forms across languages without asserting derivation the same way.
+Such correspondences are not shown elsewhere either, for now (decided 2026-11-08).
+
 ## Build
 
 ```sh
