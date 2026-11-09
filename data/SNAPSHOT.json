@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
-  "snapshot": "9cedaa483ccbd264ef195eb1862a8a8bf945f8437075500105d5e2756eb50e32",
-  "taken_at": "2026-11-09T04:06:08+00:00",
+  "snapshot": "7bfd2c6c6d4cc47e1dc3429a34c2a51c388d9c04675cd5d9a4ed331f88db632f",
+  "taken_at": "2026-11-09T07:15:02+00:00",
   "root": "/data",
-  "files": 46593,
-  "bytes": 122523778051,
+  "files": 46624,
+  "bytes": 126557292774,
   "git_commit": "5fa4a03a2eef6ab15434ef483289e89c8dad9fda",
-  "note": "wiktionary-entries: everything from the 2026-11-01 dumps (catalogs 910a7c8a, dating b7d33358, ACD claims f9e49ae6, graph e57570a3); merged language-dating-contd"
+  "note": "wiktionary-entries: graph a81fe1d4 (own etymologies over derivatives' Descendants lists)"
 }
