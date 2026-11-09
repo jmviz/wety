@@ -2,7 +2,7 @@
 
 *Updated 2026-11-09. `main` carries the client work, the root fixes, the claims model
 and client-polish. Branch `wiktionary-entries` (unmerged) carries the rework below
-(x-1 to x-4, graph adopted) and has merged `language-dating-contd`.*
+(x-1 to x-4, graph `e57570a3…` adopted) and has merged `language-dating-contd`.*
 
 ## What the project promises
 
@@ -24,10 +24,16 @@ and citations from reviewed evidence in the `packages/dating` registry.
   directly"):** sources of 2026-11-01 (Wikimedia Enterprise snapshot, Reconstruction
   pages by revision, pages-articles dump); `crates/wiktionary-entries` writes 11.5
   million entries with prose, templates and footnotes at their offsets; the graph build
-  reads them instead of Kaikki's wiktextract. Branch graph `546e8406…`: 10.44M links
-  (+4.9 %), 95.2 % of the live graph's kept; claims rematched (14,065 words carry them).
-  `{{CJKV}}` Sino-Xenic readings give no link. Report:
+  reads them instead of Kaikki's wiktextract. 10.44M links (+4.9 %), 95.2 % of the live
+  graph's kept; claims rematched (14,065 words carry them). `{{CJKV}}` Sino-Xenic
+  readings give no link. Report:
   `data/workspaces/etymology/sources/wiktionary/checks/x-4/result.json`.
+- **One dump date for everything:** the 2026-11-01 language table (12 languages added,
+  Aguano retired) feeds catalogs 910a7c8a, dating b7d33358 and the branch graph
+  `e57570a3…` (against `546e8406…`: 269 links added, 153 removed, mostly Wiktionary's new
+  Proto-Eastern Algonquian between Proto-Algonquian and its eastern descendants). The
+  switch staled 410 dating decisions through digests, four renames and one ancestor
+  only; re-adopted unchanged, and the same 362 codes keep their periods.
 - **Dating (`language-dating-contd`):** the maintainer's supplied sources read in four
   batches (15 codes gained a period); claims quoting a chapter credit its author;
   chronology frames: a proto-language may not end after its descendant, and each
@@ -46,8 +52,8 @@ and citations from reviewed evidence in the `packages/dating` registry.
 
 ## Next three actions
 
-1. Select the 2026-11-01 language export, regenerate catalogs, dating and the graph
-   together.
+1. Maintainer checks the branch graph locally (server and client running), then merges
+   and deploys (`deploy/graph.json` still names `15c68ef6…`).
 2. x-5: footnote credits with position; then syn-2 on the entries' spans.
 3. Source-only items for records with no match.
 
