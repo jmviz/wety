@@ -1,5 +1,5 @@
 import "./tree.css";
-import { Forest, TreeNode, openPathTo } from "./model";
+import { Forest, TreeNode, isUncertain, openPathTo } from "./model";
 import NodeLabel from "./NodeLabel";
 import { hoverEnter, hoverLeave, pin, popover } from "./popover";
 import { term } from "../search/types";
@@ -176,6 +176,8 @@ function Node(props: { node: TreeNode }) {
         leaf: !branch,
         "same-lang": n.sameLangAsParent,
         hoisted: n.hoisted,
+        uncertain: isUncertain(n),
+        "possibly-related": n.standing === "other",
         selected: n.isSelected,
         "on-path": n.onSelectedPath,
       }}

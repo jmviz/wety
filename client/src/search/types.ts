@@ -122,7 +122,15 @@ export interface OtherParent {
   item: Item;
   etyOrder: number;
   langDistance: number;
+  // How firmly the word is said to come from it, when not stated outright.
+  certainty?: string;
 }
+
+// For a word with several etymologies, where the one its row is drawn under
+// stands: preferred; "unsettled", none is (the word is drawn under each);
+// "other", another is (the word is drawn there only as possibly related,
+// without its descendants).
+export type Standing = "preferred" | "unsettled" | "other";
 
 export interface Descendants {
   item: Item;
@@ -133,6 +141,18 @@ export interface Descendants {
   etyMode: string | null;
   otherParents: OtherParent[];
   parentEtyOrder: number | null;
+  // How firmly the word is said to come from its tree parent.
+  certainty?: string;
+  standing?: Standing;
+  // The word's other etymologies.
+  alternatives?: OtherEty[];
+}
+
+export interface OtherEty {
+  kind: "derivation" | "unknown";
+  mode: string | null;
+  preferred: boolean;
+  parents: OtherParent[];
 }
 
 // One step of a word's trail back to its oldest form that is the same word.
@@ -145,7 +165,8 @@ export interface TrailStep {
 // word, with the word's trail and the sources of the trail's last step.
 export interface Cognates {
   trail: TrailStep[];
-  sources: Item[];
+  // By etymology: one, or alternatives none of which is preferred.
+  sources: Item[][];
   // The word's ultimate ancestors not already on the trail or among its
   // sources, in etymology order: root entries, then affixes and the like.
   ultimateRoots: Item[];

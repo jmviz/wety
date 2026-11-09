@@ -14,8 +14,9 @@ interface ChartTreeProps {
 // the bottom, its sources above it, theirs above them. Layout and connectors
 // are pure CSS (flex rows plus border pseudo-elements); the derivation mode
 // sits on the connector. A word's alternative etymologies ("from A or B") are
-// branches of their own, each with its mode and "or"; an uncertain link is
-// dashed.
+// panels of their own, each with its mode, an "or" on the junction between
+// them, so they never read as one etymology's several sources; an uncertain
+// link is dashed.
 export default function ChartTree(props: ChartTreeProps) {
   let rootEl!: HTMLDivElement;
 
@@ -102,8 +103,13 @@ function ChartNode(props: { node: TreeNode }) {
               </>
             }
           >
-            <button class="chart-alts-toggle" onClick={() => setAll(false)}>
-              {n.primary === null ? `${count} alternatives, none preferred` : `${count} alternatives`}
+            <button
+              class="chart-alts-toggle"
+              title={n.primary === null ? "Show only the first" : "Show only the preferred one"}
+              onClick={() => setAll(false)}
+            >
+              {`${count} alternative etymologies`}
+              {n.primary === null && ", none preferred"}
             </button>
           </Show>
         </div>
@@ -112,13 +118,18 @@ function ChartNode(props: { node: TreeNode }) {
             <For each={n.alternatives}>
               {(a, i) => (
                 <li class="chart-alt" classList={{ preferred: i() === n.primary }}>
-                  <div class="chart-mode">
-                    <Show when={i() > 0}>
-                      <span class="chart-or">or</span>{" "}
-                    </Show>
-                    <AltMode alt={a} />
+                  <Show when={i() > 0}>
+                    <span class="chart-or">or</span>
+                  </Show>
+                  <div class="chart-alt-panel">
+                    <div class="chart-mode">
+                      <Show when={i() === n.primary}>
+                        <span class="chart-alt-tag">preferred</span>{" "}
+                      </Show>
+                      <AltMode alt={a} />
+                    </div>
+                    <Sources nodes={parentsIn(i())} />
                   </div>
-                  <Sources nodes={parentsIn(i())} />
                 </li>
               )}
             </For>

@@ -8,8 +8,8 @@ use crate::{
     languages::Lang,
     response::{
         AssertionJson, ClaimJson, CognatesJson, CreditJson, DescendantsJson, EtyJson,
-        EtymologyJson, GlossStr, HypothesisJson, ItemJson, LinkJson, OriginJson, OtherParentJson,
-        ReadingJson, SourcePageJson, TrailStepJson,
+        EtymologyJson, GlossStr, HypothesisJson, ItemJson, LinkJson, OriginJson, OtherEtyJson,
+        OtherParentJson, ReadingJson, SourcePageJson, TrailStepJson,
     },
     string_pool::StringPool,
     synthesis::Reading,
@@ -217,15 +217,18 @@ impl Data {
         item_id: ItemId,
         view: &TreeView<'_>,
     ) -> DescendantsJson<'_> {
-        self.item_descendants_json_inner(item_id, view, None, None)
+        self.item_descendants_json_inner(item_id, view, None)
     }
 
+    /// `via`: the edge from the item to its tree parent; none for the root.
+    /// An edge walks do not follow draws the item as possibly related to its
+    /// parent, without its descendants (they are drawn under the etymology
+    /// it is said to have).
     fn item_descendants_json_inner(
         &self,
         item_id: ItemId,
         view: &TreeView<'_>,
-        item_parent_id: Option<ItemId>,
-        item_parent_ety_order: Option<u8>,
+        via: Option<EtyEdge<'_>>,
     ) -> DescendantsJson<'_> {
         let &TreeView {
             dist_lang,
@@ -236,10 +239,12 @@ impl Data {
         } = view;
         let item = self.item(item_id);
         let item_lang = item.lang();
+        let expand = via.is_none_or(|e| self.graph.follows(e));
 
-        let children: Vec<DescendantsJson<'_>> = self
+        let mut children: Vec<DescendantsJson<'_>> = self
             .graph
             .child_edges(item_id)
+            .filter(|_| expand)
             .filter(|e| {
                 let child = e.child();
                 let child_lang = self.item(child).lang();
@@ -258,43 +263,80 @@ impl Data {
                     || (drawn && (within || child_lang != item_lang))
                     || reaches_another
             })
-            .map(|e| {
-                self.item_descendants_json_inner(e.child(), view, Some(item_id), Some(e.order()))
-            })
+            .map(|e| self.item_descendants_json_inner(e.child(), view, Some(e)))
             .collect();
+        // Words possibly related: drawn where their language is, unless the
+        // walk already draws them here.
+        let followed: HashSet<ItemId> =
+            self.graph.child_edges(item_id).map(|e| e.child()).collect();
+        children.extend(
+            self.graph
+                .unfollowed_child_edges(item_id)
+                .filter(|_| expand)
+                .filter(|e| !followed.contains(&e.child()))
+                .filter(|e| {
+                    let child_lang = self.item(e.child()).lang();
+                    (desc_langs.is_empty() || desc_langs.contains(&child_lang))
+                        && (within || child_lang != item_lang)
+                })
+                .unique_by(|e| e.child())
+                .map(|e| self.item_descendants_json_inner(e.child(), view, Some(e))),
+        );
         let descendant_count = children.iter().map(|c| 1 + c.descendant_count).sum();
 
-        // The etymology the row is drawn under: that of its tree parent, or
-        // for a root, its first followed one. Its other parents are those of
-        // the same etymology; another alternative's are not co-parents.
-        let edges = self.graph.parent_edges(item_id).collect_vec();
-        let ety = item_parent_id
-            .and_then(|p| edges.iter().find(|e| e.parent() == p))
-            .or_else(|| edges.iter().min_by_key(|e| e.ety()))
-            .map(EtyEdgeAccess::ety);
-        let edges = edges
-            .into_iter()
-            .filter(|e| Some(e.ety()) == ety)
-            .collect_vec();
-        let ety_mode = edges.first().map(EtyEdgeAccess::mode);
-        let other_parents = edges
-            .into_iter()
-            .filter(|&e| item_parent_id != Some(e.parent()))
-            .map(|e| OtherParentJson {
-                item: self.item_json_inner(e.parent(), lean),
-                ety_order: e.order(),
-                lang_distance: self.item(e.parent()).lang().distance_from(dist_lang),
-            })
-            .collect();
+        // The etymology the row is drawn under: that of its tree edge, or for
+        // a root, the one walks follow (the first, when none is preferred).
+        // Its other parents are those of the same etymology; another
+        // etymology's are not co-parents but alternatives.
+        let (etys, primary) = self.etymologies_of(item_id);
+        let drawn = via.map(|e| e.ety()).or(primary).or_else(|| {
+            etys.iter()
+                .position(|(_, edges)| !edges.is_empty())
+                .and_then(|i| u8::try_from(i).ok())
+        });
+        let parent_json = |e: &EtyEdge<'_>| OtherParentJson {
+            item: self.item_json_inner(e.parent(), lean),
+            ety_order: e.order(),
+            lang_distance: self.item(e.parent()).lang().distance_from(dist_lang),
+            certainty: certainty_json(e.certainty()),
+        };
+        let mut ety_mode = None;
+        let mut other_parents = vec![];
+        let mut alternatives = vec![];
+        for (n, (kind, edges)) in etys.iter().enumerate() {
+            if u8::try_from(n).ok() == drawn {
+                ety_mode = edges.first().map(|e| e.mode().as_str());
+                other_parents = edges
+                    .iter()
+                    .filter(|e| via.is_none_or(|v| v.parent() != e.parent()))
+                    .map(parent_json)
+                    .collect();
+            } else {
+                alternatives.push(OtherEtyJson {
+                    kind: (*kind).into(),
+                    mode: edges.first().map(|e| e.mode().as_str()),
+                    preferred: primary.is_some_and(|p| usize::from(p) == n),
+                    parents: edges.iter().map(parent_json).collect(),
+                });
+            }
+        }
+        let standing = (etys.len() > 1).then(|| match primary {
+            None => "unsettled",
+            Some(p) if Some(p) == drawn => "preferred",
+            Some(_) => "other",
+        });
 
         DescendantsJson {
             item: self.item_json_inner(item_id, lean),
             children,
             descendant_count,
             lang_distance: item_lang.distance_from(dist_lang),
-            ety_mode: ety_mode.map(|m| m.as_str()),
+            ety_mode,
             other_parents,
-            parent_ety_order: item_parent_ety_order,
+            parent_ety_order: via.map(|e| e.order()),
+            certainty: via.and_then(|e| certainty_json(e.certainty())),
+            standing,
+            alternatives,
         }
     }
 
@@ -446,6 +488,17 @@ impl Data {
             .graph
             .immediate_ety(top)
             .map_or_else(Vec::new, |e| e.items);
+        // By etymology: alternatives none of which is preferred are told apart.
+        let mut edges = self.graph.parent_edges(top).collect_vec();
+        edges.sort_unstable_by_key(|e| (e.ety(), e.order()));
+        let source_etys = edges
+            .chunk_by(|a, b| a.ety() == b.ety())
+            .map(|ety| {
+                ety.iter()
+                    .map(|e| self.item_json_inner(e.parent(), lean))
+                    .collect()
+            })
+            .collect();
         // Roots first, then affixes and other ends, leaving out what the
         // trail and its sources already name.
         let (roots, others): (Vec<_>, Vec<_>) = self
@@ -461,10 +514,7 @@ impl Data {
                     ety_mode: ety_mode(id),
                 })
                 .collect(),
-            sources: sources
-                .iter()
-                .map(|&id| self.item_json_inner(id, lean))
-                .collect(),
+            sources: source_etys,
             ultimate_roots: roots
                 .iter()
                 .map(|&id| self.item_json_inner(id, lean))
@@ -651,6 +701,10 @@ impl Data {
             hypotheses,
         }
     }
+}
+
+fn certainty_json(certainty: Certainty) -> Option<&'static str> {
+    (certainty != Certainty::Stated).then(|| certainty.into())
 }
 
 fn reading_json(reading: Reading) -> ReadingJson {
@@ -1054,8 +1108,12 @@ mod lineage_tests {
         assert_eq!(cognates.trail[0].ety_mode, Some("inherited"));
         assert_eq!(cognates.trail[2].ety_mode, Some("suffix"));
         assert_eq!(
-            cognates.sources.iter().map(|s| s.id).collect_vec(),
-            [base, suffix]
+            cognates
+                .sources
+                .iter()
+                .map(|ety| ety.iter().map(|s| s.id).collect_vec())
+                .collect_vec(),
+            [[base, suffix]]
         );
         let children = cognates
             .tree
@@ -1342,6 +1400,76 @@ mod lineage_tests {
 
         // under douten, doute is another alternative, not a co-parent
         let tree = data.item_descendants_json(douten, &view(en, &[], true));
-        assert!(tree.children[0].other_parents.is_empty());
+        let row = &tree.children[0];
+        assert!(row.other_parents.is_empty());
+        assert_eq!((row.standing, row.certainty), (Some("preferred"), None));
+        let alt = &row.alternatives[..];
+        assert_eq!(alt.len(), 1);
+        assert_eq!(
+            (
+                alt[0].preferred,
+                alt[0].parents[0].item.id,
+                alt[0].parents[0].certainty
+            ),
+            (false, doute, Some("possible"))
+        );
+        // under doute, doubt is possibly related: drawn, marked, not expanded
+        let tree = data.item_descendants_json(doute, &view(en, &[], true));
+        let row = &tree.children[0];
+        assert_eq!(row.item.id, doubt);
+        assert_eq!(
+            (row.standing, row.certainty),
+            (Some("other"), Some("possible"))
+        );
+        assert_eq!(row.ety_mode, Some("inherited"));
+        assert!(row.alternatives[0].preferred);
+    }
+
+    #[test]
+    fn a_word_with_no_preferred_etymology_is_drawn_under_each() {
+        use crate::ety_graph::{Certainty, NewEtymology};
+        let (mut graph, mut pool) = (EtyGraph::default(), StringPool::default());
+        let marhaz = add(&mut graph, &mut pool, "gem-pro", "marhaz");
+        let miere = add(&mut graph, &mut pool, "ang", "mīere");
+        let mearh = add(&mut graph, &mut pool, "ang", "mearh");
+        let mare = add(&mut graph, &mut pool, "enm", "mare");
+        let mare_en = add(&mut graph, &mut pool, "en", "mare");
+        ety(&mut graph, miere, EtyMode::Inherited, &[marhaz]);
+        ety(&mut graph, mearh, EtyMode::Inherited, &[marhaz]);
+        ety(&mut graph, mare_en, EtyMode::Inherited, &[mare]);
+        let one = |items| NewEtymology {
+            mode: EtyMode::Inherited,
+            head: Some(0),
+            basis: EdgeBasis::Template,
+            items,
+            confidences: &[1.0],
+            certainties: &[Certainty::Stated],
+        };
+        // "from mīere or mearh"
+        graph.add_etymologies(mare, &[one(&[miere]), one(&[mearh])]);
+        let data = Data::new(pool, graph);
+        let en = Lang::from_str("en").unwrap();
+        let tree = data.item_descendants_json(marhaz, &view(en, &[], true));
+        for (old, other) in [(miere, mearh), (mearh, miere)] {
+            let under = tree.children.iter().find(|c| c.item.id == old).unwrap();
+            let row = &under.children[0];
+            assert_eq!((row.item.id, row.standing), (mare, Some("unsettled")));
+            assert_eq!(row.alternatives[0].parents[0].item.id, other);
+            assert!(!row.alternatives[0].preferred);
+            assert_eq!(row.children[0].item.id, mare_en);
+        }
+        // as a root, it is drawn under its first, the other an alternative
+        let root = data.item_descendants_json(mare, &view(en, &[], true));
+        assert_eq!(root.other_parents[0].item.id, miere);
+        assert_eq!(root.alternatives[0].parents[0].item.id, mearh);
+        // the trail ends there, with its sources told apart
+        let c = data.item_cognates_json(mare_en, None, &view(en, &[], true));
+        assert_eq!(
+            c.sources
+                .iter()
+                .map(|ety| ety.iter().map(|s| s.id).collect_vec())
+                .collect_vec(),
+            [[miere], [mearh]]
+        );
     }
 }

@@ -1,4 +1,4 @@
-import { term } from "../search/types";
+import { Item, term } from "../search/types";
 import { TreeNode, isUncertain, outlineSources } from "./model";
 import { etyModeShort, etyPrep } from "./etyMode";
 import { showGlosses } from "../state";
@@ -28,7 +28,7 @@ export default function NodeLabel(props: NodeLabelProps) {
       ? props.node.otherParents
           .slice()
           .sort((a, b) => a.etyOrder - b.etyOrder)
-          .map((p) => ({ item: p.item, langDistance: p.langDistance }))
+          .map((p) => ({ item: p.item, langDistance: p.langDistance, certainty: p.certainty }))
       : outlineSources(props.node);
   const gloss = () => item().gloss?.[0];
   // Dates belong to languages: show them where the language changes.
@@ -85,12 +85,30 @@ export default function NodeLabel(props: NodeLabelProps) {
                 {i() === 0 && !props.node.parent
                   ? etyPrep(props.node.etyMode!)
                   : " + "}
-                <span class="mode-src">
-                  <Show when={s.item.lang.id !== item().lang.id}>
-                    <LangName lang={s.item.lang} short={shortLangsInTree()} />{" "}
-                  </Show>
-                  {term(s.item)}
-                </span>
+                <Source item={s.item} certainty={s.certainty} lang={item().lang.id} />
+              </>
+            )}
+          </For>
+        </span>
+      </Show>
+      <Show when={props.inlineMode && props.node.otherEtys.length}>
+        <span class="mode alts" title={standingTitle[props.node.standing ?? "preferred"]}>
+          <For each={props.node.otherEtys}>
+            {(e, i) => (
+              <>
+                {i() > 0 && " "}
+                <span class="alt-or">{e.preferred ? "preferred" : "or"}</span>{" "}
+                <Show when={e.kind !== "unknown"} fallback="origin unknown">
+                  {e.mode && etyModeShort(e.mode)}
+                  <For each={e.parents}>
+                    {(p, j) => (
+                      <>
+                        {j() === 0 ? etyPrep(e.mode ?? "derived") : " + "}
+                        <Source item={p.item} certainty={p.certainty} lang={item().lang.id} />
+                      </>
+                    )}
+                  </For>
+                </Show>
               </>
             )}
           </For>
@@ -100,5 +118,30 @@ export default function NodeLabel(props: NodeLabelProps) {
         <span class="gloss">{gloss()}</span>
       </Show>
     </>
+  );
+}
+
+const standingTitle = {
+  preferred: "other etymologies given for this word, less favoured",
+  unsettled: "sources give several etymologies and prefer none: the word is drawn under each",
+  other:
+    "drawn here for an etymology another is preferred to; its descendants are drawn under the preferred one",
+};
+
+// A source named on a row: its language when not the row's, its term, and
+// "?" when the link is possible or doubtful.
+function Source(props: { item: Item; certainty?: string; lang: number }) {
+  return (
+    <span class="mode-src">
+      <Show when={props.item.lang.id !== props.lang}>
+        <LangName lang={props.item.lang} short={shortLangsInTree()} />{" "}
+      </Show>
+      {term(props.item)}
+      <Show when={props.certainty === "possible" || props.certainty === "doubtful"}>
+        <span class="uncertain-mark" title={`${props.certainty} source`}>
+          ?
+        </span>
+      </Show>
+    </span>
   );
 }

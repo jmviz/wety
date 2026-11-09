@@ -65,6 +65,9 @@ pub struct OtherParentJson<'a> {
     pub item: ItemJson<'a>,
     pub ety_order: u8,
     pub lang_distance: Option<usize>,
+    /// How firmly the word is said to come from it, when not stated outright.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub certainty: Option<&'static str>,
 }
 
 #[derive(Serialize)]
@@ -79,6 +82,30 @@ pub struct DescendantsJson<'a> {
     pub ety_mode: Option<&'static str>,
     pub other_parents: Vec<OtherParentJson<'a>>,
     pub parent_ety_order: Option<u8>,
+    /// How firmly the word is said to come from its tree parent, when not
+    /// stated outright.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub certainty: Option<&'static str>,
+    /// For a word with several etymologies, where the one it is drawn under
+    /// stands: `preferred`, `unsettled` (none is preferred, and the word is
+    /// drawn under each) or `other` (another is preferred: the word is drawn
+    /// here only as possibly related, without its descendants).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub standing: Option<&'static str>,
+    /// The word's other etymologies, in order.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub alternatives: Vec<OtherEtyJson<'a>>,
+}
+
+/// One of a descendants row's other etymologies.
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct OtherEtyJson<'a> {
+    /// "derivation", or "unknown": the source says no origin is known.
+    pub kind: &'static str,
+    pub mode: Option<&'static str>,
+    pub preferred: bool,
+    pub parents: Vec<OtherParentJson<'a>>,
 }
 
 /// One step of a word's trail: the item and the mode of its own etymology.
@@ -96,7 +123,9 @@ pub struct TrailStepJson<'a> {
 #[serde(rename_all = "camelCase")]
 pub struct CognatesJson<'a> {
     pub trail: Vec<TrailStepJson<'a>>,
-    pub sources: Vec<ItemJson<'a>>,
+    /// The sources of the trail's last step, by etymology: one, or
+    /// alternatives none of which is preferred ("from A or B").
+    pub sources: Vec<Vec<ItemJson<'a>>>,
     /// The item's ultimate ancestors not already on the trail or among its
     /// sources, in etymology order: root entries, then the rest (affixes,
     /// words with no recorded source).

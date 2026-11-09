@@ -726,6 +726,15 @@ impl EtyGraph {
             .filter(|&e| self.follows(e))
     }
 
+    /// The edges from `item` to children that name it in an etymology another
+    /// of theirs is preferred to: words it is possibly related to, which walks
+    /// do not follow.
+    pub fn unfollowed_child_edges(&self, item: ItemId) -> impl Iterator<Item = EtyEdge<'_>> + '_ {
+        self.graph
+            .edges_directed(item, Direction::Incoming)
+            .filter(|&e| !self.follows(e))
+    }
+
     /// Iterate breadth-first over the edges connecting `item` and its descendants.
     pub fn descendant_edges(&self, item: ItemId) -> impl Iterator<Item = EtyEdge<'_>> + '_ {
         DescendantEdgeIterator {

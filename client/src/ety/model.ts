@@ -21,8 +21,10 @@ import {
   Etymology,
   Item,
   Lang,
+  OtherEty,
   OtherParent,
   Reading,
+  Standing,
   TreeKind,
 } from "../search/types";
 
@@ -59,6 +61,10 @@ export interface TreeNode {
   alt: number | null;
   certainty: string | null;
   otherParents: OtherParent[];
+  // Outline only: for a word with several etymologies, where the one it is
+  // drawn under stands, and its others.
+  standing: Standing | null;
+  otherEtys: OtherEty[];
   // Position of the tree parent among all parents of this item (outline).
   parentEtyOrder: number | null;
   // Position of this item among its child's parents (chart).
@@ -109,6 +115,8 @@ interface RawNode {
   alt: number | null;
   certainty: string | null;
   otherParents: OtherParent[];
+  standing: Standing | null;
+  otherEtys: OtherEty[];
   parentEtyOrder: number | null;
   etyOrder: number | null;
   children: RawNode[];
@@ -124,8 +132,10 @@ function rawFromDescendants(d: Descendants): RawNode {
     primary: null,
     reading: null,
     alt: null,
-    certainty: null,
+    certainty: d.certainty ?? null,
     otherParents: d.otherParents ?? [],
+    standing: d.standing ?? null,
+    otherEtys: d.alternatives ?? [],
     parentEtyOrder: d.parentEtyOrder,
     etyOrder: null,
     children: d.children.map(rawFromDescendants),
@@ -149,6 +159,8 @@ function rawFromEtymology(e: Etymology, alt: number | null = null): RawNode {
     alt,
     certainty: e.certainty ?? null,
     otherParents: [],
+    standing: null,
+    otherEtys: [],
     parentEtyOrder: null,
     etyOrder: e.etyOrder,
     children: e.etymologies.flatMap((a, i) => a.parents.map((p) => rawFromEtymology(p, i))),
@@ -234,6 +246,8 @@ export function buildForest(
       alt: raw.alt,
       certainty: raw.certainty,
       otherParents: raw.otherParents,
+      standing: raw.standing,
+      otherEtys: raw.otherEtys,
       parentEtyOrder: raw.parentEtyOrder,
       etyOrder: raw.etyOrder,
       parent,
@@ -311,10 +325,12 @@ function bump(map: Map<number, LangCount>, lang: Lang, n: number) {
 }
 
 // Stable display order for descendants: the searched item's ancestry first,
-// then closest languages, then the biggest subtrees, then alphabetical.
+// then closest languages, then the biggest subtrees, then alphabetical; words
+// only possibly related last.
 function byDisplay(a: TreeNode, b: TreeNode): number {
   return (
     +b.onSelectedPath - +a.onSelectedPath ||
+    +(a.standing === "other") - +(b.standing === "other") ||
     a.langDistance - b.langDistance ||
     b.descendantCount - a.descendantCount ||
     a.item.lang.name.localeCompare(b.item.lang.name) ||
@@ -455,7 +471,7 @@ export function outlineSources(node: TreeNode): EtySource[] {
   const sources: EtySource[] = node.otherParents
     .slice()
     .sort((a, b) => a.etyOrder - b.etyOrder)
-    .map((p) => ({ item: p.item, langDistance: p.langDistance }));
+    .map((p) => ({ item: p.item, langDistance: p.langDistance, certainty: p.certainty }));
   if (node.parent && node.parentEtyOrder !== null) {
     sources.splice(node.parentEtyOrder, 0, {
       item: node.parent.item,

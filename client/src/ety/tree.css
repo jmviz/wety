@@ -232,6 +232,33 @@
   border-top-style: dashed;
 }
 
+/* A possible or doubtful link, and a word drawn only as possibly related
+   (another of its etymologies is preferred): a dashed stub; the latter's row
+   muted. */
+.tree ul > li.node.uncertain::after,
+.tree ul > li.node.possibly-related::after {
+  border-top-style: dashed;
+}
+
+.tree li.node.possibly-related > .row {
+  opacity: 0.7;
+}
+
+/* A word's other etymologies, after the one it is drawn under. */
+.tree-view .mode.alts {
+  cursor: help;
+}
+
+.alt-or {
+  font-style: normal;
+  font-variant: all-small-caps;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+  border: var(--line) solid var(--rule);
+  border-radius: 0.6em;
+  padding: 0 0.35em;
+}
+
 .tree details > summary {
   list-style: none;
   cursor: pointer;
@@ -451,15 +478,54 @@
   min-height: 0.3em;
 }
 
-/* Alternatives: each a branch of its own, joined like sources but marked
-   "or"; a rule's reading is underlined, an uncertain link dashed. */
+/* Alternatives: each a tinted panel of its own, an "or" on the junction
+   between neighbours, so they never read as one etymology's sources; a
+   rule's reading is underlined, an uncertain link dashed. */
 .chart li.chart-alt {
   padding-top: 0;
+  padding-inline: 1.1em;
+}
+
+.chart-alt-panel {
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  background: var(--wash);
+  border: var(--line) dashed var(--rule);
+  border-radius: 0.6em;
+  padding: 0.7em 0.6em 0.4em;
+}
+
+.chart li.chart-alt.preferred > .chart-alt-panel {
+  border-style: solid;
+}
+
+.chart-alt-panel > .chart-mode {
+  padding-bottom: 0;
 }
 
 .chart-or {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  transform: translate(-50%, 50%);
+  z-index: 1;
+  font-size: 0.8em;
+  font-variant: all-small-caps;
+  letter-spacing: 0.06em;
+  font-weight: bold;
+  line-height: 1;
+  color: var(--ink);
+  background: var(--paper);
+  border: var(--line) solid var(--faint);
+  border-radius: 1em;
+  padding: 0.2em 0.55em 0.3em;
+}
+
+.chart-alt-tag {
   font-style: normal;
-  font-variant: small-caps;
+  font-variant: all-small-caps;
+  letter-spacing: 0.04em;
   color: var(--ink);
 }
 

@@ -112,10 +112,22 @@ export default function Trail() {
           <span class="trail-link">
             <span class="trail-from">· from </span>
             <For each={info()!.sources}>
-              {(source, i) => (
+              {(ety, i) => (
                 <>
-                  <Show when={i() > 0}>{" + "}</Show>
-                  <Word item={source} prev={top()} />
+                  <Show when={i() > 0}>
+                    {" "}
+                    <span class="alt-or" title="sources give several etymologies and prefer none">
+                      or
+                    </span>{" "}
+                  </Show>
+                  <For each={ety}>
+                    {(source, j) => (
+                      <>
+                        <Show when={j() > 0}>{" + "}</Show>
+                        <Word item={source} prev={top()} />
+                      </>
+                    )}
+                  </For>
                 </>
               )}
             </For>

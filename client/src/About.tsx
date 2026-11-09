@@ -24,10 +24,14 @@ export default function About() {
         <li>
           <b>Etymology</b> charts a word's sources, oldest at the top. A dashed link is
           possible or doubtful; an underlined mode is wety's inference, not a source's
-          statement.
+          statement. Where sources give a word several etymologies, each is a panel of its
+          own, joined by "or".
         </li>
         <li>
-          <b>Descendants</b> lists the words that came from it, as an outline.
+          <b>Descendants</b> lists the words that came from it, as an outline. A word's
+          other etymologies follow "or" on its row; a word with several and none preferred
+          is listed under each, and a dimmed word is only possibly related: it is listed
+          for an etymology another one is preferred to.
         </li>
         <li>
           <b>Cognates</b> traces the word back as far as its sources go, then draws that
