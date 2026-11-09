@@ -57,9 +57,21 @@ export interface Span {
   undated: string[];
 }
 
+// The chronology frame of a dated proto-language's family: the one study whose
+// estimates its nodes show, so that neighbouring nodes are dated by one method.
+// A node the frame does not date (or an exception, with its reason in `note`) is
+// dated by another study and says so.
+export interface Frame {
+  root: string;
+  name: string;
+  in_frame: boolean;
+  note?: string;
+}
+
 export interface LangPeriod {
   code: string;
   lang: Lang;
+  frame?: Frame;
   kind: "stage" | "attested" | "proto" | "living";
   spoken: { start: YearRange | null; end: YearRange | null; ongoing: boolean };
   basis: Basis;

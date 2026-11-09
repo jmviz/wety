@@ -13,6 +13,9 @@ def validate_all():
     try:
         bundle = current_bundle()
         errors = validate_bundle(bundle)
+        from .consistency import consistency_errors
+
+        errors += consistency_errors(bundle)
         if digest(build_bundle()) != digest(bundle):
             errors.append("published generation or decisions are stale; run dating synthesize")
         for filename, key in [

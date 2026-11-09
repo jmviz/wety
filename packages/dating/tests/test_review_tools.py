@@ -55,6 +55,57 @@ class ReviewToolTests(unittest.TestCase):
             who["label"], "gpt-6.1-sol (high effort, Codex CLI on ChatGPT subscription)"
         )
 
+    def test_usage_reads_codex_turns_and_claude_attempts(self):
+        codex = {"turns": [{"input_tokens": 1000, "cached_input_tokens": 900, "output_tokens": 50}]}
+        self.assertEqual(
+            review_tools.usage_line(codex), "Usage 1,000 input tokens (900 cached), 50 output."
+        )
+        claude = {
+            "turns": 100,
+            "attempts": [
+                {"attempt": 1, "usage": None, "turns": None},
+                {
+                    "attempt": 2,
+                    "turns": 100,
+                    "usage": {
+                        "input_tokens": 10,
+                        "cache_creation_input_tokens": 90,
+                        "cache_read_input_tokens": 900,
+                        "output_tokens": 50,
+                    },
+                },
+            ],
+        }
+        self.assertEqual(
+            review_tools.usage_line(claude),
+            "Usage attempt 2: 1,000 input tokens (900 cached), 50 output, 100 turns.",
+        )
+
+    def test_chapters_of_edited_volumes(self):
+        ch = review_tools.chapter_of(
+            "Kerslake, Celia. 2022. “Ottoman Turkish.” In Lars Johanson and Éva Á. Csató "
+            "(eds.), The Turkic Languages, 2nd ed., 174–194. London: Routledge."
+        )
+        self.assertEqual(
+            (ch["authors"], ch["year"], ch["title"]), (["Kerslake, Celia"], 2022, "Ottoman Turkish")
+        )
+        ch = review_tools.chapter_of(
+            "Hoenigswald, Henry M., and Roger D. Woodard. 2008. Indo-European. In Roger D. "
+            "Woodard (ed.), The Ancient Languages of Europe. Cambridge. p. 3."
+        )
+        self.assertEqual(ch["authors"], ["Hoenigswald, Henry M.", "Woodard, Roger D."])
+        self.assertTrue(ch["citation"].endswith("Cambridge."))
+        ch = review_tools.chapter_of(
+            "Janhunen, Juha. 2003. 'Proto-Mongolic'. Chapter 1 in Juha Janhunen (ed.), "
+            "The Mongolic Languages, 1–29. London: Routledge."
+        )
+        self.assertEqual(ch["title"], "Proto-Mongolic")
+        # A whole work, or an article, is not a chapter.
+        self.assertIsNone(
+            review_tools.chapter_of("Woodard, Roger D. (ed.). 2008. The Ancient Languages.")
+        )
+        self.assertIsNone(review_tools.chapter_of("Blust, Robert. 2019. T. Oceanic Linguistics."))
+
     def test_citations_parse_to_authors_and_year(self):
         authors, year = review_tools.parse_citation(
             "Auderset, Sandra, Simon J. Greenhill & Eric W. Campbell. 2023. Title."

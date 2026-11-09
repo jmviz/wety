@@ -535,6 +535,24 @@ function PeriodSection(props: { period: LangPeriod }) {
       <ul class="period-cites">
         <For each={props.period.evidence}>{(e) => <li title={e.citation ?? undefined}>{cite(e)}</li>}</For>
       </ul>
+      <Show when={props.period.frame}>
+        {(f) => (
+          <div class={f().in_frame ? "popover-muted" : "period-off-frame"}>
+            <Show
+              when={f().in_frame}
+              fallback={
+                <>
+                  Not from the {f().name} chronology used for this family; dates from different studies
+                  may not compare.
+                  <Show when={f().note}> {f().note}</Show>
+                </>
+              }
+            >
+              Part of the {f().name} chronology of this family.
+            </Show>
+          </div>
+        )}
+      </Show>
       <Show when={props.period.revival?.length}>
         <div class="popover-muted">Being revived:</div>
         <ul class="period-cites">
