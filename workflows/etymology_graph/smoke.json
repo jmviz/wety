@@ -4,7 +4,7 @@
   "collection": "graph-smoke",
   "inputs": {
     "entries": "workflows/etymology_graph/fixtures/minimal.jsonl",
-    "languages": "data/artifacts/wiktionary-export/2d98b7aa0c9965e1492db2e242ead832fe7e3c161e1f1a27c1d177135c6df2b7/files/languages.json",
+    "languages": "data/artifacts/wiktionary-export/57d16abeffbce475ff189e0734fd8937eab8d7417b1ee08273e746b43b350cb0/files/languages.json",
     "pos": "crates/core/src/pos_phf.rs",
     "model": "data/registry/embedding-model.json"
   },

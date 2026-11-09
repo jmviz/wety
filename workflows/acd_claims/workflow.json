@@ -6,8 +6,8 @@
   "inputs": {
     "export": "data/artifacts/etymology-assertions/a2c5f05718126cb52a689f29c3a4284e40303741595f92473f824b0765ec0c9d/files/assertions.jsonl.gz",
     "entries": "data/artifacts/wiktionary-entries/466445a2b9d76a586ab53d059f8c9895b4f31141f20b1666f0d2c33aec73bd06/files/entries.jsonl.gz",
-    "languages": "data/artifacts/wiktionary-export/2d98b7aa0c9965e1492db2e242ead832fe7e3c161e1f1a27c1d177135c6df2b7/files/languages.json",
-    "families": "data/artifacts/wiktionary-export/2d98b7aa0c9965e1492db2e242ead832fe7e3c161e1f1a27c1d177135c6df2b7/files/families.json",
+    "languages": "data/artifacts/wiktionary-export/57d16abeffbce475ff189e0734fd8937eab8d7417b1ee08273e746b43b350cb0/files/languages.json",
+    "families": "data/artifacts/wiktionary-export/57d16abeffbce475ff189e0734fd8937eab8d7417b1ee08273e746b43b350cb0/files/families.json",
     "cldf_languages_csv": "data/workspaces/etymology/sources/acd/raw/lexibank-acd-16085f2/cldf/languages.csv",
     "cldf_media_csv": "data/workspaces/etymology/sources/acd/raw/lexibank-acd-16085f2/cldf/media.csv",
     "cldf_forms_csv": "data/workspaces/etymology/sources/acd/raw/lexibank-acd-16085f2/cldf/forms.csv",

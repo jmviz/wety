@@ -105,7 +105,7 @@ checkout whose `data/` holds the inputs:
 W=<a work directory>; C=$S/acd/checks/acd-3-v4
 E=data/runs/ccaf05246fcb466f94916b3f5ae6654a/checks/core-4-references/assertions.jsonl.gz
 X=data/artifacts/wiktionary-entries/466445a2b9d76a586ab53d059f8c9895b4f31141f20b1666f0d2c33aec73bd06/files/entries.jsonl.gz
-L=data/artifacts/wiktionary-export/2d98b7aa0c9965e1492db2e242ead832fe7e3c161e1f1a27c1d177135c6df2b7/files
+L=data/artifacts/wiktionary-export/57d16abeffbce475ff189e0734fd8937eab8d7417b1ee08273e746b43b350cb0/files
 uv run --frozen python -m etymology.match_acd scan --export $E --entries $X --languages $L/languages.json --families $L/families.json --work $W
 uv run --frozen python -m etymology.match_acd run --acd $S/acd/checks/acd-2/assertions.jsonl --export $E --entries $X --work $W --out $C --previous $S/acd/checks/acd-3-v3
 uv run --frozen python -m etymology.match_acd review --out $C
