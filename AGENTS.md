@@ -77,7 +77,8 @@ stalls, stop and record the precise obstacle in *Now*.
 
 - Work on a branch, never directly on `main`. Never merge into or push `main` or
   `production`: pushing `main` deploys the API server and then the website
-  ([deploy/README.md](deploy/README.md)); the maintainer does that.
+  ([deploy/README.md](deploy/README.md)); the maintainer does that. A pre-push hook
+  refuses such pushes without `WETY_DEPLOY=1`; never set it.
 - Do not push to `origin`. All local branches are backed up to a private mirror
   automatically.
 - Commit at coherent checkpoints and always before ending a session.

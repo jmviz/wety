@@ -2,7 +2,8 @@
 
 The API (`api.wety.org`) runs on an Oracle Cloud A1 instance (aarch64, Ubuntu 24.04).
 The website (`wety.org`) is a Cloudflare Pages project. Pushing `main` deploys both,
-server first.
+server first. On the maintainer's machines a pre-push hook refuses pushes to `main` or
+`production` unless `WETY_DEPLOY=1` is set: `WETY_DEPLOY=1 git push origin main`.
 
 ## How it works
 
