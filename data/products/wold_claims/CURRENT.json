@@ -1,6 +1,6 @@
 {
-  "artifact": "data/artifacts/wold-claims/ff5e4603da7b140c0bc176cd7f12687319835668faffe0c6ce9c00d07ea88d90",
+  "artifact": "data/artifacts/wold-claims/1d11e354bbb4f7984dbd79a6fdfea912d12c875177bf39946981441d70a75590",
   "entrypoint": "matches/assertions.jsonl",
-  "run_id": "99c556acf9a3426eada83dd44f4138b9",
+  "run_id": "ae3d52863b534d60bb42dc7398d71c57",
   "schema_version": 1
 }
