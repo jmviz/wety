@@ -378,6 +378,8 @@ class Matcher:
         if not found:
             return ("unmatched", "no Wiktionary record with this key", None)
         found = [w for w in found if self.judgements.label(r["id"], w) is not False]
+        if not found:
+            return ("unmatched", "candidates judged other words", None)
         bases = {}
         for w in found:
             b = {"key": "equal", "lineage": self.lineage(r, w)}
