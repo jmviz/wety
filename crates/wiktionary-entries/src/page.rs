@@ -770,19 +770,62 @@ fn fill(
     for child in children {
         if is_pos(child) {
             entry.pos.push(pos_block(child, counts, tx));
+            references_below(entry, &child.children, notes, tx);
             continue;
         }
         match child.title.as_str() {
             "Descendants" => entry
                 .descendants
                 .extend(descendant_lists(child, counts, tx)),
-            "References" => entry.references = Some(section(child, notes, tx)),
-            "Further reading" => entry.further_reading = Some(section(child, notes, tx)),
+            "References" => add_section(&mut entry.references, section(child, notes, tx)),
+            "Further reading" => {
+                add_section(&mut entry.further_reading, section(child, notes, tx));
+            }
+            // An unnumbered etymology's own subsections.
+            "Etymology" => references_below(entry, &child.children, notes, tx),
             // Parts of speech may sit under another heading ("Pronunciation 2").
             title if etymology_label(title).is_none() => {
                 fill(entry, &child.children, notes, counts, tx)
             }
             _ => {}
+        }
+    }
+}
+
+/// References and Further reading sections below a part of speech or an unnumbered
+/// etymology ("====References====" under "===Noun==="), added to the entry's own.
+fn references_below(
+    entry: &mut Entry,
+    children: &[Sec],
+    notes: &HashMap<String, Note>,
+    tx: &Transclusions,
+) {
+    for child in children {
+        match child.title.as_str() {
+            "References" => add_section(&mut entry.references, section(child, notes, tx)),
+            "Further reading" => {
+                add_section(&mut entry.further_reading, section(child, notes, tx));
+            }
+            _ if is_pos(child) || etymology_label(&child.title).is_some() => {}
+            _ => references_below(entry, &child.children, notes, tx),
+        }
+    }
+}
+
+/// An entry's References (or Further reading) given in several places, as one section
+/// in page order.
+fn add_section(into: &mut Option<Section>, more: Section) {
+    match into {
+        None => *into = Some(more),
+        Some(have) => {
+            have.blocks.extend(more.blocks);
+            have.trees.extend(more.trees);
+            for note in more.notes {
+                if !have.notes.iter().any(|n| n.id == note.id) {
+                    have.notes.push(note);
+                }
+            }
+            have.digest = digest(&(&have.blocks, &have.trees, &have.notes));
         }
     }
 }
