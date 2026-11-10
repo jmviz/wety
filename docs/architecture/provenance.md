@@ -123,13 +123,17 @@ not affect restoring elsewhere.
 
 ### Working with it
 
-- Snapshot at checkpoints, from the main checkout's `data/` (worktrees link parts of
-  it): `uv run --frozen wety-data store snapshot --note "..."`, then commit
-  `data/SNAPSHOT.json`.
+- Snapshot at checkpoints with `uv run --frozen wety-data store snapshot --note "..."`,
+  run from the checkout whose work it records: it always backs up the main checkout's
+  `data/` (worktrees link parts of it), and writes the pointer, with that checkout's
+  commit, to that checkout's `data/SNAPSHOT.json`. Commit it there. Run from the main
+  checkout, it would leave the pointer on whatever branch the main checkout has out.
 - A worktree's new records reach the main checkout with
   `wety-data store sync WORKTREE/data MAIN/data --apply`: missing files are cloned,
-  nothing is overwritten, and a file that differs is reported as a conflict (append-only
-  areas should never conflict; derived products are regenerated with `dating synthesize`).
+  nothing is overwritten, files git tracks in either checkout are left to the merge
+  (copied early, they would block it), and a file that differs is reported as a
+  conflict (append-only areas should never conflict; derived products are regenerated
+  with `dating synthesize`).
   Which conflicts to resolve:
   - `data/products/*` and derived workspace files (such as
     `workspaces/dating/<glottocode>/languoids.json`) belong to the branch the main

@@ -1,6 +1,7 @@
 import json
 import os
 import stat
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
@@ -122,6 +123,23 @@ class StoreTests(unittest.TestCase):
         self.assertEqual((dst / "workspaces/dating/_ledger/1.json").read_text(), "one")
         self.assertEqual((dst / "registry/holdings.json").read_text(), "old")
         self.assertEqual(store.sync(src, dst)["to_copy"], 0)
+
+    def test_sync_leaves_files_either_checkout_tracks_to_git(self):
+        src, dst = self.base / "branch/data", self.base / "main/data"
+        for d in (src, dst):
+            (d / "workspaces").mkdir(parents=True)
+            subprocess.run(["git", "init", "-q"], cwd=d.parent, check=True)
+        (src / "workspaces/brief.md").write_text("new on the branch")
+        (src / "workspaces/evidence.json").write_text("{}")
+        (dst / "workspaces/pointer.json").write_text("main's")
+        (src / "workspaces/pointer.json").write_text("the branch's")
+        subprocess.run(["git", "add", "data/workspaces/brief.md"], cwd=src.parent, check=True)
+        subprocess.run(["git", "add", "data/workspaces/pointer.json"], cwd=dst.parent, check=True)
+        report = store.sync(src, dst, apply=True)
+        self.assertEqual((report["copied"], report["conflicts"]), (1, []))
+        self.assertTrue((dst / "workspaces/evidence.json").exists())
+        self.assertFalse((dst / "workspaces/brief.md").exists())
+        self.assertEqual((dst / "workspaces/pointer.json").read_text(), "main's")
 
 
 if __name__ == "__main__":
