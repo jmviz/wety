@@ -8,7 +8,9 @@ the work plan are in the shared doc "wety etymology claims model", outside git.
 - `assertions.py`: builds assertion objects (their digest ids) and validates files;
 - `convert/`: one converter per source. `acd`, `mcd` and `tlopo` read the whole retained
   release through `etymdict`, which holds what the comparative dictionaries published in
-  pyetymdict's CLDF model share; `lila` reads its release, whole or a sample;
+  pyetymdict's CLDF model share; `csd` and `cariban` read a clld app's database dump
+  (`clld_dump`) into the same shape; `wold`, `iecor` and `tuled` read their CLDF
+  releases; `lila` reads its release, whole or a sample;
   `wiktionary` converts claims a model annotated per entry, for samples;
   `wiktionary_references` reads every References section of the pages dump (core-5),
   for the graph build.
@@ -21,8 +23,11 @@ the work plan are in the shared doc "wety etymology claims model", outside git.
   profile includes;
 - `matching.py`: what every matcher shares (below); `notation.py`: how two sources'
   keys differ where they are matched, mined into a distance;
-- `match_etymdict.py`: the ACD's, the MCD's and TLOPO's records matched to Wiktionary's,
-  and relays (below).
+- `match_etymdict.py`: the records of the set-centric dictionaries (the ACD, the MCD,
+  TLOPO, the CSD, the Comparative Cariban Database) matched to Wiktionary's, and relays
+  (below);
+- `match_words.py`: the records of the word-centric sources (WOLD, IE-CoR, TuLeD)
+  matched to Wiktionary's, and relays (below).
 - `match_lila.py`: LiLa's records matched to Wiktionary's, and relays (below).
 
 ## A source's directory
@@ -163,6 +168,25 @@ with a shared ancestor (`checks/cl-3-v2/`), which drops 246 and 244 attested mat
 On the samples it removes 29 MCD matches (11 wrong, 18 right; the 71 left are right) and
 15 TLOPO ones (3 wrong, 12 right; 84 of the 85 left are right): precision for recall.
 Judged pairs keep their judgement.
+
+## Matching WOLD, IE-CoR and TuLeD to Wiktionary
+
+`match_words.py` (clld-dicts) matches a word-centric source's records: a word's
+candidates are the Wiktionary records of its language with its key (without
+diacritics; a reconstruction's through the source's orthography profile, IE-CoR's in
+the Indo-European notation), and of an entry's etymologies the one that names the
+source's parent for the word (WOLD's source word, IE-CoR's root) is taken, else the one
+whose gloss fits; a source word or root is matched to what its word's match names.
+`scan` keeps only the export's records with a wanted key, the hypotheses on their
+origin and what these name; `run` writes a check as `match_etymdict` does:
+
+```sh
+uv run --frozen python -m etymology.match_words scan --source wold --assertions $S/wold/checks/cl-4/assertions.jsonl --export $E --entries $X --work $W
+uv run --frozen python -m etymology.match_words run --source wold --assertions $S/wold/checks/cl-4/assertions.jsonl --export $E --entries $X --work $W --out $S/wold/checks/cl-4
+```
+
+Scripts a source romanises where Wiktionary does not (WOLD's Thai, Russian, Arabic)
+find no candidates: transliteration is not attempted.
 
 ## Matching LiLa to Wiktionary
 
