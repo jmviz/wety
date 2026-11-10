@@ -3,7 +3,7 @@
 use serde_json::{Value, json};
 use wety_wiktionary_entries::{
     model::Counts,
-    page::{Languages, PageInfo, entries},
+    page::{Languages, PageInfo, entries, entry_names},
 };
 
 const PAGE: &str = r##"<!DOCTYPE html><html><head></head><body>
@@ -292,4 +292,30 @@ fn an_empty_list_leaves_its_call_to_the_text_after_it() {
     let span = &e[0]["etymology"]["blocks"][0]["spans"][0];
     assert_eq!(span["calls"][0]["name"], "ety");
     assert_eq!(span["continued"], Value::Null);
+}
+
+/// {{inh}} showing another form than its term: Spanish anudar from Latin innōdāre.
+const SHOWN: &str = r##"<!DOCTYPE html><html><head></head><body>
+<section data-mw-section-id="1"><h2 id="Spanish">Spanish</h2>
+<section data-mw-section-id="2"><h3 id="Etymology">Etymology</h3>
+<p>From <span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"inh","href":"./Template:inh"},"params":{"1":{"wt":"es"},"2":{"wt":"la"},"3":{"wt":"innodō"},"4":{"wt":"innōdāre"}},"i":0}}]}'>Latin </span><i class="Latn mention" lang="la" about="#mwt1"><a rel="mw:WikiLink" href="./innodo#Latin">innōdāre</a></i>.</p>
+</section>
+<section data-mw-section-id="3"><h3 id="Verb">Verb</h3><p><strong class="headword">anudar</strong></p><ol><li>to knot</li></ol></section>
+</section>
+</body></html>"##;
+
+#[test]
+fn a_templates_own_term_names_the_page_it_links() {
+    let info = PageInfo {
+        title: "anudar",
+        page_id: 10,
+        rev: 12,
+        ns: 0,
+    };
+    let mut counts = Counts::default();
+    let languages = Languages::from_pairs([("Spanish", "es")]);
+    let found = entries(&info, SHOWN, &languages, &mut counts);
+    let names: Vec<_> = found.iter().flat_map(entry_names).collect();
+    assert!(names.contains(&("la".into(), "innōdāre".into(), "innodo".into())));
+    assert!(names.contains(&("la".into(), "innodō".into(), "innodo".into())));
 }

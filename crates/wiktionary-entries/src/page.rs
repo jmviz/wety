@@ -857,6 +857,24 @@ fn contains_pos(sec: &Sec) -> bool {
 /// (language, term as shown, page) of each mention in the entry whose page name is not
 /// the term itself: the entry names Lua computed (`popīna` → `popina`). A
 /// reconstruction's page is compared by its part after the language.
+/// The language and term a link-making template names: `{{inh|es|la|innodō}}` names
+/// la innodō, `{{m|la|innodō}}` too. None for other templates.
+fn term_argument(call: &Call) -> Option<(&str, &str)> {
+    let (lang, term) = match call.name.as_str() {
+        "inh" | "inherited" | "inh+" | "der" | "derived" | "der+" | "bor" | "borrowed" | "bor+"
+        | "lbor" | "learned borrowing" | "slbor" | "obor" | "ubor" | "cal" | "calque" | "pcal"
+        | "partial calque" | "sl" | "semantic loan" | "psm" => ("2", "3"),
+        "m" | "mention" | "m+" | "l" | "link" | "l+" | "cog" | "cognate" | "ncog" | "noncog" => {
+            ("1", "2")
+        }
+        _ => return None,
+    };
+    let term = call.args.get(term)?;
+    let term = term.split('<').next().unwrap_or(term).trim();
+    let lang = call.args.get(lang)?.split(',').next()?.trim();
+    (!lang.is_empty() && !term.is_empty() && term != "-").then_some((lang, term))
+}
+
 pub fn entry_names(entry: &Entry) -> Vec<(String, String, String)> {
     let mut out = vec![];
     let mut add = |m: &crate::model::Mention| {
@@ -873,8 +891,24 @@ pub fn entry_names(entry: &Entry) -> Vec<(String, String, String)> {
     };
     for block in entry.etymology.iter().flat_map(|e| &e.blocks) {
         for span in &block.spans {
-            if let Span::Template { mentions, .. } = span {
+            if let Span::Template {
+                calls, mentions, ..
+            } = span
+            {
                 mentions.iter().for_each(&mut add);
+                // The template's own term, where it shows another form
+                // ({{inh|es|la|innodō|innodāre}} shows innodāre, links innodo).
+                if let ([call], [mention]) = (&calls[..], &mentions[..])
+                    && let Some((lang, term)) = term_argument(call)
+                    && term != mention.term
+                {
+                    add(&crate::model::Mention {
+                        lang: lang.to_string(),
+                        term: term.to_string(),
+                        link: mention.link.clone(),
+                        gloss: None,
+                    });
+                }
             }
         }
     }
