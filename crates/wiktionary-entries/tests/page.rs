@@ -221,14 +221,15 @@ fn a_roots_derived_terms_with_descendants_are_read_as_a_tree() {
 }
 
 /// An unnumbered etymology whose References sit under it and under the part of
-/// speech, and Further reading under the part of speech.
+/// speech (a list a template rendered whole), and Further reading under the part of
+/// speech.
 const NESTED: &str = r##"<!DOCTYPE html><html><head></head><body>
 <section data-mw-section-id="1"><h2 id="English">English</h2>
 <section data-mw-section-id="2"><h3 id="Etymology">Etymology</h3><p>From Welsh.</p>
 <section data-mw-section-id="3"><h4 id="References">References</h4><ul><li>Ety Ref</li></ul></section>
 </section>
 <section data-mw-section-id="4"><h3 id="Noun">Noun</h3><p><strong class="headword">keldyshite</strong></p><ol><li>a mineral</li></ol>
-<section data-mw-section-id="5"><h4 id="References_2">References</h4><ul><li>Noun Ref</li></ul></section>
+<section data-mw-section-id="5"><h4 id="References_2">References</h4><ul about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"R:mak:Cense:1979","href":"./Template:R:mak:Cense:1979"},"params":{"page":{"wt":"859"}},"i":0}}]}'><li>Noun Ref</li></ul></section>
 <section data-mw-section-id="6"><h4 id="Further_reading">Further reading</h4><ul><li>More</li></ul></section>
 </section></section>
 </body></html>"##;
@@ -255,5 +256,10 @@ fn references_under_a_part_of_speech_or_an_etymology_are_the_entrys() {
         .map(|b| b["text"].as_str().unwrap())
         .collect();
     assert_eq!(texts, ["Ety Ref", "Noun Ref"]);
+    // a list the template rendered whole: its call is the first item's
+    assert_eq!(
+        e[0]["references"]["blocks"][1]["spans"][0]["calls"][0]["name"],
+        "r:mak:Cense:1979"
+    );
     assert_eq!(e[0]["further_reading"]["blocks"][0]["text"], "More");
 }

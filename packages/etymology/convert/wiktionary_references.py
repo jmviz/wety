@@ -394,8 +394,9 @@ class Bibliography:
 
 
 def call_name(name):
-    """A call's template name as its page is titled: entries keep the editor's spelling
-    (`r:itc:EDL`, `cite-journal<!-- -->`), and a title's first letter is capitalized."""
+    """A call's template name as its page is titled. The entries lowercase a name's first
+    letter, which MediaWiki ignores (`r:itc:EDL`), and keep comments written into it
+    (`cite-journal<!-- -->`); a title's first letter is capitalized."""
     name = wikitext.normalize_name(wikitext.COMMENT.sub("", name))
     return name[:1].upper() + name[1:]
 
