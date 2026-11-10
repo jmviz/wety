@@ -271,6 +271,15 @@ def mcd_notation(form, reconstructed):
     return BRACKETS.sub(bracket, form).replace("Ø", "")
 
 
+def csd_notation(form, reconstructed):
+    """The CSD's prefixed verbs in the keys' notation: written root first, prefix after
+    (`-sní, yu-` for yusní, `psį́c, gi-`), read as one word, prefix and root."""
+    parts = form.split(", ")
+    if len(parts) == 2 and parts[1].endswith("-") and not parts[0].endswith("-"):
+        return parts[1] + parts[0].lstrip("-")
+    return form
+
+
 def tlopo_notation(form, reconstructed):
     """TLOPO's notation in the keys': `(h,q)` an optional h or q, `[t,q]` t or q,
     other bracketed material optional (`piri[-]`, `pa[ka]-qasu`)."""
@@ -381,14 +390,15 @@ SPECS = {
     "csd": Spec(
         "csd",
         "CSD",
-        "agent:wety-match-csd@1",
-        _match_name("CSD", "v1 (the MCD's and TLOPO's v2 rule)"),
+        "agent:wety-match-csd@2",
+        _match_name("CSD", "v2 (the MCD's and TLOPO's v2 rule, its prefixed verbs read whole)"),
         "agent:wety-relay-csd@1",
         _relay_name("CSD"),
         re.compile(r"Comparative Siouan Dictionary"),
         frozenset({"agent:robert-l-rankin", "agent:richard-t-carter", "agent:a-wesley-jones"}),
         "etymology.convert.csd:CsdRelease",
         nested=True,
+        notation=csd_notation,
         cited_needs_ancestor=True,
         family="nai-sca",
     ),

@@ -13,6 +13,7 @@ from etymology.match_etymdict import (
     closure,
     gloss_similarity,
     loose,
+    csd_notation,
     mcd_notation,
     near,
     tlopo_notation,
@@ -318,6 +319,10 @@ class Notation(unittest.TestCase):
         self.assertEqual(mcd_notation("[kq]apala", True), "k/qapala")
         self.assertEqual(mcd_notation("[aØ]lau, [aØ]lalau", True), "(a)lau, (a)lalau")
         self.assertEqual(mcd_notation("[ko]-yaa", False), "(ko)-yaa")
+
+    def test_csd(self):
+        self.assertEqual(csd_notation("-sní, yu-", False), "yu-sní")
+        self.assertEqual(csd_notation("ka-, kí-", False), "ka-, kí-")
 
     def test_tlopo(self):
         self.assertEqual(tlopo_notation("sasa(h,q)", True), "sasa(h/q)")

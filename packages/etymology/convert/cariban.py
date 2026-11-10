@@ -6,10 +6,12 @@ languages, among them Proto-Cariban's, which the set's name gives too (*(ə)wɨ 
 It is read into pyetymdict's shape (`etymdict`): a set's reconstruction is its
 Proto-Cariban morpheme, and links follow the nested rule on a tree with Proto-Cariban
 above every language (the database's phylogenies are alternative classifications; none
-is read). The set's description is its gloss.
+is read). The set's description is its gloss ('eye-1'), and its morphemes' where the
+database gives them none.
 """
 
 import collections
+import re
 from functools import cached_property
 
 from etymology.convert import SOURCES
@@ -63,6 +65,10 @@ class CaribanRelease(Release):
             s = sets[c["cognateset_pk"]]
             self.cognates[s["id"]].append({"ID": c["pk"], "Form_ID": form_id, "Doubt": "false"})
         for s in sets.values():
+            meaning = re.sub(r"-\d+$", "", s["description"] or "")
+            for r in self.cognates[s["id"]]:
+                form = self.forms[r["Form_ID"]]
+                form["Description"] = form["Description"] or meaning
             protos = [r["Form_ID"] for r in self.cognates[s["id"]] if self.is_proto(r["Form_ID"])]
             self.sets[s["id"]] = {
                 "ID": s["id"],
@@ -70,8 +76,6 @@ class CaribanRelease(Release):
                 "Doubt": "false",
                 "type": s["cogset_type"],
             }
-            for f in protos:
-                self.forms[f]["Description"] = self.forms[f]["Description"] or s["description"]
         self.cf, self.cf_items, self.borrowings = {}, {}, []
         self.loan_members, self.doubted, self._bib = {}, set(), {}
 
