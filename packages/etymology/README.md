@@ -254,9 +254,11 @@ adapter (its records, their lineage, its forms) and not another thousand lines:
 
 ## Claims in the graph build
 
-Each source enters the graph as a claims product: `wety-data run acd_claims` and
-`lila_claims` convert the source's release and match it against the graph's assertion
-export (`wety-data run etymology_assertions`), and the graph build reads both, with
+Each source enters the graph as a claims product: `wety-data run <source>_claims`
+(`acd`, `lila`, `mcd`, `tlopo`, `csd`, `cariban`, `wold`, `iecor`, `tuled`) converts the
+source's release and matches it against the graph's assertion export (`wety-data run
+etymology_assertions`), and the graph build reads each pair but TuLeD's (cognate sets
+with no reconstruction, which give no links), with
 `sources/wiktionary/etc/overrides.json` (reviewers' overrides of words' readings). The
 processor joins a claim to the words its records are matched to and reads each word it
 touches by synthesis tiers (one lineage, consensus, preference, else unsettled);
