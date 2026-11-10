@@ -61,20 +61,6 @@
     },
     {
       "command": [
-        "python",
-        "-m",
-        "source_tools.entry_names",
-        "{dump_path}",
-        "{wiktextract_path}",
-        "{languages_json_path}",
-        "--dump-url",
-        "{dated_dump_url}"
-      ],
-      "id": "wiktionary-entry-names",
-      "policy": "Page titles of the terms a Wiktextract dump cites, by the same Wiktionary dump's Language:stripDiacritics. Use the dump, Wiktextract output and language export of one date. Exports to a workspace with a receipt; adopt and select in the etymology_graph workflow."
-    },
-    {
-      "command": [
         "wety-sources",
         "iecor",
         "{immutable_deposit_or_commit_file_url}",
@@ -85,19 +71,6 @@
       ],
       "id": "iecor",
       "policy": "Source choice must identify the publication analysis and table; legacy CSV upstream identity unresolved."
-    },
-    {
-      "command": [
-        "wety-sources",
-        "wiktextract",
-        "https://kaikki.org/dictionary/raw-wiktextract-data.jsonl.gz",
-        "--sha256",
-        "{sha256}",
-        "--version",
-        "{dump_date_and_extractor_commits}"
-      ],
-      "id": "kaikki",
-      "policy": "Capture https://kaikki.org/dictionary/rawdata.html with the acquirer too. The live URL cannot promise historical redownload; keep original bytes."
     },
     {
       "command": [

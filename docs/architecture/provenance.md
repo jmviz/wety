@@ -35,10 +35,10 @@ coverage and scholarly scope separately.
   Git revisions in the root lock. The original legacy exporter environment remains
   unknown; these dependencies support future exports, not a retroactive receipt.
   The graph build takes entry names (the page titles of cited terms, e.g. `popīna` →
-  `popina`) from the links in the rendered HTML (`wiktionary_entries`); with a Kaikki dump
-  of the same date, `python -m source_tools.entry_names DUMP WIKTEXTRACT LANGUAGES` still
-  computes them by the dump's own `Language:stripDiacritics` for the terms that dump
-  cites.
+  `popina`) from the links in the rendered HTML (`wiktionary_entries`). A term no page
+  renders as a link has none; on the 2026-11-01 entries about 4,300 of 5.7 million
+  citations name an existing page only under such a name (Latin *innodō*), which the
+  retired Lua route (`source_tools.entry_names`, run on a Kaikki dump) computed.
 - Wikimedia Enterprise: `python -m source_tools.enterprise` logs in once (tokens, never
   the password, in `~/.config/wety/enterprise.env`) and acquires the current month's
   snapshot into `wiktionary-enterprise`; `python -m source_tools.wiktionary_html` fetches

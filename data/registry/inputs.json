@@ -3,7 +3,5 @@
   "wiktionary_families": "data/artifacts/wiktionary-export/57d16abeffbce475ff189e0734fd8937eab8d7417b1ee08273e746b43b350cb0/files/families.json",
   "glottolog_cldf": "data/artifacts/glottolog/5.3/files/glottolog/cldf",
   "iecor_languages": "data/artifacts/iecor/legacy/files/languages.csv",
-  "wiktionary_entry_names": "data/artifacts/wiktionary-entry-names/d582e4fa2711817b60516203d77f940045bb9bb150aab437d9e4825abd5e12c1/files/entry_names.json",
-  "wiktextract": "data/artifacts/wiktextract/6da0ba5bf330650cba59911466da388d3f60c69519a50dc9ca71451b0bfba506/files/raw-wiktextract-data.jsonl.gz",
   "legacy_graph": "data/artifacts/etymology-graph/legacy/files/wety.json"
 }

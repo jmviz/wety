@@ -615,8 +615,7 @@ pub(crate) fn clean_template_term(mut term: &str) -> &str {
         term = link.split(['|', ']']).next().unwrap_or(link);
     }
     // Reconstructed terms (e.g. PIE) are supposed to start with "*" when cited
-    // in etymologies but their entry titles (and hence wiktextract "word"
-    // field) do not. This is done by
+    // in etymologies but their entry titles do not. This is done by
     // https://en.wiktionary.org/wiki/Module:links. Sometimes reconstructed
     // terms are missing this *, and sometimes non-reconstructed terms start
     // with * incorrectly. So we strip the * in every case. This will break
