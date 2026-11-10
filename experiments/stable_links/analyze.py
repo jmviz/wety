@@ -1,8 +1,9 @@
 """Measure how well (lang, page, Etymology N) identifies an etymology across two dumps.
 
-Inputs are extract.py outputs for an older and a newer dump. A page is a
-(language, page title) section; an etymology is one Etymology N within it.
-Etymologies are matched across dumps by etymology text, gloss and POS overlap.
+Inputs are extract.py outputs (wety's entries) for an older and a newer dump. A page
+is a (language, page title) section; an etymology is one Etymology N within it. An
+etymology whose section digest is unchanged is the same etymology; others are matched
+across dumps by etymology text, gloss and POS overlap.
 
 Usage: python analyze.py old.tsv new.tsv
 """
@@ -54,15 +55,22 @@ def load_groups(path, wanted):
     with open(path, encoding="utf-8") as f:
         for line in f:
             p = line.rstrip("\n").split("\t")
-            if len(p) < 10 or p[0] != "E":
+            if len(p) < 11 or p[0] != "E":
                 continue
-            _, lang, word, ety, pos, _canon, sids, gloss, etytext, etymon = p[:10]
+            _, lang, word, ety, pos, _canon, sids, gloss, etytext, etymon, digest = p[:11]
             k = lang + "\t" + word
             if k not in wanted:
                 continue
             g = pages[k].get(ety)
             if g is None:
-                g = pages[k][ety] = {"pos": [], "gloss": [], "ety": "", "sids": set(), "etymon": ""}
+                g = pages[k][ety] = {
+                    "pos": [],
+                    "gloss": [],
+                    "ety": "",
+                    "sids": set(),
+                    "etymon": "",
+                    "digest": digest,
+                }
             g["pos"].append(pos)
             if gloss:
                 g["gloss"].append(gloss)
@@ -86,6 +94,8 @@ def jacc(a, b):
 
 
 def sim(a, b):
+    if a["digest"] and a["digest"] == b["digest"]:
+        return 1.0
     je = jacc(toks(a["ety"]), toks(b["ety"]))
     jg = jacc(toks(" ".join(a["gloss"])), toks(" ".join(b["gloss"])))
     jp = jacc(set(a["pos"]), set(b["pos"]))
@@ -147,7 +157,7 @@ def drift(kold, knew, rnew, old, new):
             f"  [{label}] single->single {c[(False, False)]:,}, single->multi {c[(False, True)]:,}, "
             f"multi->single {c[(True, False)]:,}, multi->multi {c[(True, True)]:,}"
         )
-        groups = same = renum = unmatched = silent = 0
+        groups = same = renum = unmatched = silent = unchanged = 0
         tg = tsilent = 0
         ek = ec = el = 0
         samples = defaultdict(list)
@@ -159,6 +169,7 @@ def drift(kold, knew, rnew, old, new):
                 groups += 1
                 tg += bool(og["ety"])
                 best, _, be = max((sim(og, ng), ne == ety, ne) for ne, ng in n.items())
+                unchanged += bool(og["digest"]) and og["digest"] == n[be]["digest"]
                 if best < 0.35:
                     unmatched += 1
                     samples["unmatched"].append((k, ety))
@@ -183,6 +194,7 @@ def drift(kold, knew, rnew, old, new):
             f"same number {pct(same, groups)}, renumbered {pct(renum, groups)} "
             f"(old number now names another etymology: {silent:,}), no confident match {pct(unmatched, groups)}"
         )
+        print(f"  [{label}] matched by an unchanged etymology section: {pct(unchanged, groups)}")
         print(
             f"  [{label}] of these with etymology text: {tg:,}; old number now names another etymology: {pct(tsilent, tg)}"
         )
