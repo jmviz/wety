@@ -37,7 +37,7 @@ from etymology import assertions as A
 from etymology import orthography
 from etymology.assertions import REPO
 from etymology.match_etymdict import BORROWINGS, drop_labels, gloss_similarity, read_lines
-from etymology.matching import Judgements, closure, lines
+from etymology.matching import Judgements, closure, harvest_into, lines
 
 SOURCES = REPO / "data/workspaces/etymology/sources"
 WIKTIONARY_INE = SOURCES / "wiktionary/etc/orthography-ine-itc.tsv"
@@ -687,7 +687,14 @@ def main(argv=None):
     m.add_argument("--work", type=Path, required=True)
     m.add_argument("--out", type=Path, required=True, help="the check directory")
     m.add_argument("--seed", type=int, default=20261110)
+    r = sub.add_parser("review", help="add a check's judged review.json to the judgements")
+    r.add_argument("--source", choices=sorted(SPECS), required=True)
+    r.add_argument("--out", type=Path, required=True, help="the check directory")
     args = p.parse_args(argv)
+    if args.step == "review":
+        path = SPECS[args.source].judgements
+        n = harvest_into(path, [args.out / "review.json"])
+        print(f"{path}: {n} new judgements")
     if args.step == "scan":
         args.work.mkdir(parents=True, exist_ok=True)
         spec = SPECS[args.source]
