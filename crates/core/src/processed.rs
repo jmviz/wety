@@ -683,7 +683,7 @@ impl Data {
                         mode: c.mode.map(|m| m.as_str()),
                         compiled: c.compiled,
                         locator: &c.locator,
-                        page: claim_page(&c.locator),
+                        page: claim_page(&c.source, &c.locator),
                     })
                     .collect();
                 HypothesisJson {
@@ -1048,28 +1048,53 @@ mod reference_tests {
     }
 }
 
-/// The page a claim's source shows it on, with the site's name, from the
-/// locator schemes of the sources wety reads claims from: LiLa's EDL names an
-/// etymology (`etymology/1352`), the ACD a row of its CLDF tables, of which a
-/// cognate set or an etymon has a page (`cognatesets.csv#24748_1`,
-/// `etyma.csv#24758`).
-fn claim_page(locator: &str) -> Option<SourcePageJson> {
+/// The page a claim's source shows it on, with the site's name, by the source's
+/// locator scheme: LiLa's EDL names an etymology (`etymology/1352`), WOLD a
+/// word (`word/72141734767181903`), the other CLLD sources a row of their CLDF
+/// tables, of which a cognate set (or the ACD's etymon, the CSD's entry) has a
+/// page (`cognatesets.csv#24748_1`). The MCD has no web edition to link to.
+fn claim_page(source: &str, locator: &str) -> Option<SourcePageJson> {
     let digits = |s: &str| !s.is_empty() && s.bytes().all(|b| b.is_ascii_digit());
-    if let Some(n) = locator.strip_prefix("etymology/").filter(|n| digits(n)) {
-        return Some(SourcePageJson {
-            site: "LiLa",
-            url: format!("http://lila-erc.eu/data/lexicalResources/BrillEDL/id/etymology/{n}"),
-        });
-    }
+    let page = |site: &'static str, url: String| Some(SourcePageJson { site, url });
+    // a cognate set's id, without a compiled link's member (`#5083:1-2-3`) or an
+    // ACD set's subset (`#24748_1`)
     let set = locator
         .strip_prefix("cognatesets.csv#")
-        .map(|id| id.split_once('_').map_or(id, |(set, _)| set))
-        .or_else(|| locator.strip_prefix("etyma.csv#"))
-        .filter(|n| digits(n))?;
-    Some(SourcePageJson {
-        site: "ACD",
-        url: format!("https://acd.clld.org/cognatesets/{set}"),
-    })
+        .map(|id| id.split_once(':').map_or(id, |(set, _)| set));
+    match source {
+        "lila-edl" => {
+            let n = locator.strip_prefix("etymology/").filter(|n| digits(n))?;
+            page(
+                "LiLa",
+                format!("http://lila-erc.eu/data/lexicalResources/BrillEDL/id/etymology/{n}"),
+            )
+        }
+        "acd" => {
+            let n = set
+                .map(|id| id.split_once('_').map_or(id, |(set, _)| set))
+                .or_else(|| locator.strip_prefix("etyma.csv#"))
+                .filter(|n| digits(n))?;
+            page("ACD", format!("https://acd.clld.org/cognatesets/{n}"))
+        }
+        "wold" => {
+            let n = locator.strip_prefix("word/").filter(|n| digits(n))?;
+            page("WOLD", format!("https://wold.clld.org/word/{n}"))
+        }
+        "tlopo" => page(
+            "TLOPO",
+            format!("https://tlopo.clld.org/parameters/{}", set?),
+        ),
+        "csd" => page("CSD", format!("https://csd.clld.org/parameters/{}", set?)),
+        "cariban" => page(
+            "Cariban DB",
+            format!("https://cariban.clld.org/cognateset/{}", set?),
+        ),
+        "iecor" => page(
+            "IE-CoR",
+            format!("https://iecor.clld.org/cognatesets/{}", set?),
+        ),
+        _ => None,
+    }
 }
 
 #[cfg(test)]
@@ -1078,24 +1103,43 @@ mod claim_page_tests {
 
     #[test]
     fn locators_that_name_a_page_link_to_it() {
-        let page = |l: &str| claim_page(l).map(|p| (p.site, p.url));
+        let page = |s: &str, l: &str| claim_page(s, l).map(|p| (p.site, p.url));
         assert_eq!(
-            page("etymology/1352"),
+            page("lila-edl", "etymology/1352"),
             Some((
                 "LiLa",
                 "http://lila-erc.eu/data/lexicalResources/BrillEDL/id/etymology/1352".into()
             ))
         );
         assert_eq!(
-            page("cognatesets.csv#24748_1"),
+            page("acd", "cognatesets.csv#24748_1"),
             Some(("ACD", "https://acd.clld.org/cognatesets/24748".into()))
         );
         assert_eq!(
-            page("etyma.csv#24758"),
+            page("acd", "etyma.csv#24758"),
             Some(("ACD", "https://acd.clld.org/cognatesets/24758".into()))
         );
-        assert_eq!(page("cognates.csv#560"), None);
-        assert_eq!(page("wiktionary:la:domus#Etymology"), None);
+        assert_eq!(
+            page("tlopo", "cognatesets.csv#1-3-3-3-48-POc-rumaq-a"),
+            Some((
+                "TLOPO",
+                "https://tlopo.clld.org/parameters/1-3-3-3-48-POc-rumaq-a".into()
+            ))
+        );
+        assert_eq!(
+            page("iecor", "cognatesets.csv#5083:3-11-1"),
+            Some(("IE-CoR", "https://iecor.clld.org/cognatesets/5083".into()))
+        );
+        assert_eq!(
+            page("wold", "word/72141734767181903"),
+            Some((
+                "WOLD",
+                "https://wold.clld.org/word/72141734767181903".into()
+            ))
+        );
+        assert_eq!(page("mcd", "cognatesets.csv#3073"), None);
+        assert_eq!(page("acd", "cognates.csv#560"), None);
+        assert_eq!(page("wiktionary", "wiktionary:la:domus#Etymology"), None);
     }
 }
 

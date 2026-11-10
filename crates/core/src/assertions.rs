@@ -151,6 +151,9 @@ pub struct Claim {
     pub compiled: bool,
     /// Its assertion's id in the assertion schema.
     pub assertion: Box<str>,
+    /// The source it is from, by name (`acd`, `lila-edl`, `wold`): its
+    /// assertion's source without the release.
+    pub source: Box<str>,
     /// Where in the source.
     pub locator: Box<str>,
 }

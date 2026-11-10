@@ -22,7 +22,8 @@ Rows on words rated "very little" or "no evidence" for borrowing name the source
 part of a compound or of an earlier stage (Zinacantán Tzotzil tzahal 7ora, with Spanish
 hora): they are counted, not converted. The source word's language is read through the
 donor map (`etc/donors.json`, WOLD's languoid names to Wiktionary codes), the word's own
-through the language map.
+through the language map. An assertion's locator is the word's page in WOLD
+(`word/<Word_ID>`); each source word's record keeps its `borrowings.csv` row.
 """
 
 import collections
@@ -170,7 +171,7 @@ class WoldConverter:
             if len(immediate) > 1:
                 alt = A.alternative_set(sorted(hyps[b["ID"]] for b in immediate), exclusive=True)
                 self.out.add(alt)
-                self.endorse(alt["id"], holder, f"borrowings.csv#Target_Form_ID={form_id}")
+                self.endorse(alt["id"], holder, f"word/{f['Word_ID']}")
                 in_sets = {b["ID"]: [alt["id"]] for b in immediate}
                 self.counts["alternative sets of immediate sources"] += 1
             for b in rows:
@@ -186,7 +187,7 @@ class WoldConverter:
                 self.endorse(
                     hyps[b["ID"]],
                     holder,
-                    f"borrowings.csv#{b['ID']}",
+                    f"word/{f['Word_ID']}",
                     hedges=hedges,
                     quote=b["Comment"] or None,
                     in_sets=in_sets.get(b["ID"], []),
