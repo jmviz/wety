@@ -16,6 +16,22 @@ hedge on the record's form is doubt about the reconstruction, its `certainty`. C
 LiLa writes inside forms or comments (`thus Schrijver`) are de Vaan's credits, on the
 assertion of every etymology that uses the record.
 
+LiLa's cognate links (`lemonEty:cognate`, 225 in the release) are kept as written in
+`x.lila-edl.cognates` and give no hypothesis. 19 link Latin entries: 16 an entry that
+is another part of speech of a main entry to it, the use Mambrini and Passarotti (2020,
+sec. 3.4) document, and 3 an entry to a LiLa lemma. The other 206 link two etymons of one
+level (152 Proto-Indo-European, 54 Proto-Italic) and are documented nowhere. Each runs
+one way, to an etymon an etymology's chain uses, and 204 from one no etymology uses:
+apparently a related formation de Vaan names beside the chain's form (*ǵenh₁-o/es- beside
+*ǵi-ǵnh₁-e/o-, *leh₂-tro- beside *leh₂-mn-to-), not a form both descend from; 4 link two
+etymons of the same form. Nothing says whether de Vaan derives one from the other, from
+a shared root, or only compares them, so wety does not read them as links.
+
+LiLa also encodes less than de Vaan offers. Where he gives competing etymologies, LiLa
+often keeps only one chain; a second proposal survives at most as an etymon no etymology
+uses (*(H)reuH-e/o- and *rowe/o- beside ruō's *h₃reu-e/o-). Both gaps can only be
+closed from the dictionary's own text.
+
 LiLa's comments (its transcription of de Vaan's line, and its curators' review notes) and
 the forms as written are kept in the store, never served: they may hold de Vaan's words.
 """
