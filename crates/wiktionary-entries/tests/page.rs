@@ -263,3 +263,33 @@ fn references_under_a_part_of_speech_or_an_etymology_are_the_entrys() {
     );
     assert_eq!(e[0]["further_reading"]["blocks"][0]["text"], "More");
 }
+
+/// {{ety}} with no tree drawn: an empty list carries the call, the paragraph after it
+/// the text.
+const EMPTY_LIST: &str = r##"<!DOCTYPE html><html><head></head><body>
+<section data-mw-section-id="1"><h2 id="Latin">Latin</h2>
+<section data-mw-section-id="2"><h3 id="Etymology">Etymology</h3>
+<ul about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"ety","href":"./Template:ety"},"params":{"1":{"wt":"la"},"2":{"wt":":suf"},"3":{"wt":"pācō"},"4":{"wt":"-tor"}},"i":0}}]}'></ul><p about="#mwt1">From pācō + -tor.</p>
+</section>
+<section data-mw-section-id="3"><h3 id="Noun">Noun</h3><p><strong class="headword">pācātor</strong></p><ol><li>pacifier</li></ol></section>
+</section>
+</body></html>"##;
+
+#[test]
+fn an_empty_list_leaves_its_call_to_the_text_after_it() {
+    let info = PageInfo {
+        title: "pacator",
+        page_id: 9,
+        rev: 11,
+        ns: 0,
+    };
+    let mut counts = Counts::default();
+    let languages = Languages::from_pairs([("Latin", "la")]);
+    let e: Vec<Value> = entries(&info, EMPTY_LIST, &languages, &mut counts)
+        .iter()
+        .map(|e| serde_json::to_value(e).unwrap())
+        .collect();
+    let span = &e[0]["etymology"]["blocks"][0]["spans"][0];
+    assert_eq!(span["calls"][0]["name"], "ety");
+    assert_eq!(span["continued"], Value::Null);
+}

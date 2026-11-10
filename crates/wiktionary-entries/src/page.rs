@@ -205,14 +205,16 @@ fn push_block(
 fn list_blocks(list: ElementRef, depth: u8, blocks: &mut Vec<Block>, tx: &Transclusions) {
     // A list a template rendered whole ("{{R:mak:Cense:1979|page=859}}" as its own
     // <ul>) carries the call itself: its first item takes it, as a zero-width span.
-    let mut own = list.value().attr("about").and_then(|a| tx.span(a, 0));
+    // Claimed only with an item to hold it: an empty list ({{etymon}} with no tree)
+    // leaves the call to the element after it.
+    let mut own = list.value().attr("about");
     for item in list.child_elements() {
         if !matches!(item.value().name(), "li" | "dd" | "dt") {
             continue;
         }
         let before = blocks.len();
         push_block(blocks, "item", depth, item, true, tx);
-        if let Some(span) = own.take() {
+        if let Some(span) = own.take().and_then(|a| tx.span(a, 0)) {
             if blocks.len() == before {
                 blocks.push(Block {
                     kind: "item",
