@@ -1,6 +1,7 @@
-"""The records of an Austronesian comparative dictionary in pyetymdict's model (the ACD,
-the MCD, TLOPO) matched to Wiktionary's, and Wiktionary's assertions that credit the
-dictionary relayed to its own (acd-3; the MCD and TLOPO since clld-dicts).
+"""The records of a comparative dictionary in pyetymdict's model (the ACD, the MCD, TLOPO,
+and the CSD and the Comparative Cariban Database read into it) matched to Wiktionary's,
+and Wiktionary's assertions that credit the dictionary relayed to its own (acd-3; the
+others since clld-dicts).
 
 The rule was written for the ACD and is named after each source (`SPECS`): the ACD's
 `agent:wety-match-acd@4`; the MCD's and TLOPO's `@2` are the same rule, except that a
@@ -14,7 +15,8 @@ and `[aØ]`.
 
 Steps, each writing into a work directory so that later steps rerun quickly:
 
-- `scan`: the Austronesian part of a graph's assertion export (records of an Austronesian
+- `scan`: the part of a graph's assertion export in the source's family (`Spec.family`;
+  the Austronesian part for the ACD: records of an Austronesian
   language, the hypotheses that name one, the assertions on those hypotheses or crediting
   a work, every work and agent), and the glosses of Austronesian entries from the
   entries the graph was built from (`wiktionary_entries`);
@@ -100,13 +102,13 @@ RECORD_CODE = re.compile(r"^wiktionary:([^:]+):")
 LANG_CODE = re.compile(rb'"lang":"([^"]+)"')
 
 
-def austronesian_codes(languages, families_path, language_map):
-    """Wiktionary's codes of the Austronesian family (languages whose family is `map` or
-    below it, and its proto-languages), with every code the source's language map names,
-    from Wiktionary's language and family data (`languages.json`, `families.json`)."""
+def family_codes(languages, families_path, language_map, family):
+    """Wiktionary's codes of a family (languages whose family is `family` or below it,
+    and its proto-languages), with every code the source's language map names, from
+    Wiktionary's language and family data (`languages.json`, `families.json`)."""
     langs = json.loads(Path(languages).read_text())
     fams = json.loads(Path(families_path).read_text())
-    families = {f for f, v in fams.items() if f == "map" or "map" in v["superfamilies"]}
+    families = {f for f, v in fams.items() if f == family or family in v["superfamilies"]}
     codes = {c for c, v in langs.items() if v.get("family") in families}
     codes |= {fams[f]["protoLanguage"] for f in families if fams[f].get("protoLanguage")}
     for row in json.loads(Path(language_map).read_text())["rows"]:
@@ -120,10 +122,11 @@ def record_code(record_id):
 
 
 def scan_export(export, codes, out):
-    """The Austronesian part of a graph's assertion export, to `out` (JSON Lines, gzipped).
+    """The part of a graph's assertion export in a family's codes, to `out` (JSON Lines,
+    gzipped).
 
     Kept: source, agents, works, extractions and alternative sets whole; records of an
-    Austronesian code; hypotheses naming such a record; assertions whose target is a kept
+    the family's code; hypotheses naming such a record; assertions whose target is a kept
     hypothesis, or that credit a work (filtered once every hypothesis is known). A second
     pass adds the other records the kept hypotheses name."""
     keep, assertions, kept_hyps, named = [], [], set(), set()
@@ -157,7 +160,7 @@ def scan_export(export, codes, out):
 
 
 def scan_glosses(entries, codes, out):
-    """The glosses of every Austronesian entry, one row per part of speech, keyed by code,
+    """The glosses of every entry of the family's codes, one row per part of speech, keyed by code,
     page title and etymology label, to `out` (JSON Lines, gzipped).
 
     The graph's own record ids key a word by its canonical form, which for Austronesian
@@ -294,6 +297,7 @@ class Spec:
     nested: bool  # links pass through intermediate levels (`etymdict`'s nested rule)
     notation: object = None
     cited_needs_ancestor: bool = False  # `Matcher.options`
+    family: str = "map"  # the Wiktionary family `scan` keeps
 
     @property
     def etc(self):
@@ -373,6 +377,34 @@ SPECS = {
         nested=True,
         notation=tlopo_notation,
         cited_needs_ancestor=True,
+    ),
+    "csd": Spec(
+        "csd",
+        "CSD",
+        "agent:wety-match-csd@1",
+        _match_name("CSD", "v1 (the MCD's and TLOPO's v2 rule)"),
+        "agent:wety-relay-csd@1",
+        _relay_name("CSD"),
+        re.compile(r"Comparative Siouan Dictionary"),
+        frozenset({"agent:robert-l-rankin", "agent:richard-t-carter", "agent:a-wesley-jones"}),
+        "etymology.convert.csd:CsdRelease",
+        nested=True,
+        cited_needs_ancestor=True,
+        family="nai-sca",
+    ),
+    "cariban": Spec(
+        "cariban",
+        "Comparative Cariban Database",
+        "agent:wety-match-cariban@1",
+        _match_name("Cariban", "v1 (the MCD's and TLOPO's v2 rule)"),
+        "agent:wety-relay-cariban@1",
+        _relay_name("Comparative Cariban Database"),
+        re.compile(r":sai-car:CCD$|Comparative Cariban Database"),
+        frozenset({"agent:florian-matter"}),
+        "etymology.convert.cariban:CaribanRelease",
+        nested=True,
+        cited_needs_ancestor=True,
+        family="sai-car",
     ),
 }
 
@@ -553,7 +585,7 @@ class Dictionary:
 
 
 class Wiktionary:
-    """The Austronesian part of the graph's assertions (`scan`), with glosses."""
+    """The family's part of the graph's assertions (`scan`), with glosses."""
 
     def __init__(self, objects, glosses):
         self.objects = {}
@@ -1537,7 +1569,7 @@ def compare(previous, rows, matches, dic, wikt, seed, n=100):
 def main(argv=None):
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     sub = p.add_subparsers(dest="step", required=True)
-    s = sub.add_parser("scan", help="the Austronesian part of the export, and its glosses")
+    s = sub.add_parser("scan", help="the family's part of the export, and its glosses")
     s.add_argument("--export", type=Path, required=True, help="a graph's assertions.jsonl.gz")
     s.add_argument(
         "--entries", type=Path, required=True, help="wety's entries (wiktionary_entries)"
@@ -1578,7 +1610,8 @@ def main(argv=None):
     if args.step == "scan":
         args.work.mkdir(parents=True, exist_ok=True)
         language_map = SPECS[args.source].etc / "languages.json"
-        codes = austronesian_codes(args.languages, args.families, language_map)
+        spec = SPECS[args.source]
+        codes = family_codes(args.languages, args.families, language_map, spec.family)
         if args.only != "glosses":
             n = scan_export(args.export, codes, args.work / "wiktionary.jsonl.gz")
             print(f"wiktionary.jsonl.gz: {n} objects")

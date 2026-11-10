@@ -1,0 +1,25 @@
+# The CSD's forms (clld-dicts): the ACD's profile's marks (acd/etc/orthography.tsv: stress, length
+# and boundaries are not compared), with their own. Compared with wiktionary/etc/orthography-map.tsv.
+Kind	Grapheme	Key	Note
+grapheme	*		reconstruction mark
+grapheme	-		morpheme boundary
+grapheme	<		infix bracket
+grapheme	>		infix bracket
+grapheme	́		acute: stress is not compared
+grapheme	̀		grave accent
+grapheme	̄		macron: length is not compared
+grapheme	ː		length mark
+grapheme	̆		breve
+grapheme	ñ	ñ	palatal nasal (n with tilde, one grapheme)
+grapheme	ŋ	ŋ	velar nasal
+grapheme	ʔ	ʔ	glottal stop
+grapheme	Ɂ	ʔ	glottal stop (capital form)
+grapheme	ɡ	g	IPA g
+grapheme	•		length (raised dot)
+grapheme	ˑ		half length
+grapheme	†		the source's mark on a form recorded early, not a segment
+grapheme	[		bracket
+grapheme	]		bracket
+grapheme	+		morpheme join
+grapheme	.		punctuation
+grapheme	ə	e	schwa: written e, as Wiktionary's map writes it
