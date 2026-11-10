@@ -85,24 +85,24 @@ SPECS = {
     "wold": Spec(
         "wold",
         "WOLD",
-        "agent:wety-match-wold@2",
-        "wety's WOLD matcher, v2: WOLD's records to Wiktionary's by key, source and gloss",
+        "agent:wety-match-wold@3",
+        "wety's WOLD matcher, v3: WOLD's records to Wiktionary's by key, source and gloss",
         "agent:wety-relay-wold@1",
         re.compile(r"WOLD$|:WLD$|World Loanword Database"),
     ),
     "iecor": Spec(
         "iecor",
         "IE-CoR",
-        "agent:wety-match-iecor@2",
-        "wety's IE-CoR matcher, v2: IE-CoR's records to Wiktionary's by key, root and gloss",
+        "agent:wety-match-iecor@3",
+        "wety's IE-CoR matcher, v3: IE-CoR's records to Wiktionary's by key, root and gloss",
         "agent:wety-relay-iecor@1",
         re.compile(r"IE-?CoR|Indo-European Cognate Relationships"),
     ),
     "tuled": Spec(
         "tuled",
         "TuLeD",
-        "agent:wety-match-tuled@2",
-        "wety's TuLeD matcher, v2: TuLeD's records to Wiktionary's by key and gloss",
+        "agent:wety-match-tuled@3",
+        "wety's TuLeD matcher, v3: TuLeD's records to Wiktionary's by key and gloss",
         "agent:wety-relay-tuled@1",
         re.compile(r"TuLeD|Tupían Lexical Database"),
     ),
@@ -133,6 +133,18 @@ class Keyer:
         if k not in self.cache:
             self.cache[k] = frozenset(orthography.key(form, self.profiles[side]).keys)
         return self.cache[k]
+
+
+def earlier_stages(languages):
+    """Each Wiktionary language's earlier stages: its ancestors after its last
+    proto-language (French: Latin, Old and Middle French; English: Old and Middle
+    English)."""
+    out = {}
+    for code, v in json.loads(Path(languages).read_text()).items():
+        ancestors = v.get("ancestors") or []
+        last = max((i for i, a in enumerate(ancestors) if a.endswith("-pro")), default=-1)
+        out[code] = set(ancestors[last + 1 :])
+    return out
 
 
 def codes_and_keys(src, keyer):
@@ -327,15 +339,17 @@ class Matcher:
     (closer by `GLOSS_MARGIN`), is matched; equal ones are left as candidates.
 
     A source word is matched to the record its word's match names in its language with
-    its key; failing that, as a word without sources: by gloss, the only candidate taken
+    its key, or, failing that (v3), in an earlier stage of its language (WOLD's "French"
+    donor of a medieval English loan is Wiktionary's Old French); failing that, as a word without sources: by gloss, the only candidate taken
     when no gloss contradicts.
     """
 
     GLOSS_MARGIN = 0.2
 
-    def __init__(self, src, wikt, keyer, judgements=None):
+    def __init__(self, src, wikt, keyer, judgements=None, stages=None):
         self.src, self.wikt, self.keyer = src, wikt, keyer
         self.judgements = judgements or Judgements()
+        self.stages = stages or {}
 
     def candidates(self, r):
         code = r["language"]["code"]
@@ -430,6 +444,15 @@ class Matcher:
             hit = [w for w in found if w in named]
             if len(hit) == 1:
                 return ("match", hit[0], {"key": "equal", "lineage": "named by its word's match"})
+            same_language = hit
+            # v3: WOLD's "French" donor of an English word borrowed in the Middle Ages
+            # is the French of then, which Wiktionary's chain names in Old French
+            earlier = self.stages.get(s["language"]["code"], ())
+            sk = self.keyer(s["form"], s["reconstructed"], "source")
+            hit = [w for w in named if record_code(w) in earlier and self.wikt_keys(w) & sk]
+            if not same_language and len(hit) == 1:
+                lineage = "named by its word's match, in an earlier stage"
+                return ("match", hit[0], {"key": "equal", "lineage": lineage})
         if not found:
             return ("unmatched", "no Wiktionary record with this key", None)
         bases = {w: {"key": "equal"} for w in found}
@@ -555,7 +578,7 @@ def run(args):
         keyer,
     )
     judgements = Judgements.read(spec.judgements)
-    matcher = Matcher(src, wikt, keyer, judgements)
+    matcher = Matcher(src, wikt, keyer, judgements, earlier_stages(args.languages))
     decisions = matcher.run()
     inputs = [args.assertions, args.export, args.entries]
     inputs += [
@@ -647,7 +670,7 @@ def match_basis(basis):
     lineage = basis.get("lineage")
     if lineage in ("source named", "source language"):
         out["ancestors"] = {"shared": int(lineage == "source named"), "cited": 1}
-    elif lineage == "named by its word's match":
+    elif lineage in ("named by its word's match", "named by its word's match, in an earlier stage"):
         out["reflexes"] = {"shared": 1, "cited": 1}
     return out
 
@@ -693,6 +716,7 @@ def main(argv=None):
     m.add_argument("--assertions", type=Path, required=True)
     m.add_argument("--export", type=Path, required=True)
     m.add_argument("--entries", type=Path, required=True)
+    m.add_argument("--languages", type=Path, required=True, help="Wiktionary's languages.json")
     m.add_argument("--work", type=Path, required=True)
     m.add_argument("--out", type=Path, required=True, help="the check directory")
     m.add_argument("--seed", type=int, default=20261110)
