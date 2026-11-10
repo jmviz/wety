@@ -558,7 +558,8 @@ def run(args):
     for agent_id, name in ((spec.rule, spec.rule_name), (spec.relay_rule, relay_name)):
         new[agent_id] = {"type": "agent", "id": agent_id, "kind": "rule", "name": name}
     matches = []
-    for rid, (what, target, basis) in decisions.items():
+    for rid, (what, target, found) in decisions.items():
+        basis = match_basis(found)
         if what == "match":
             matches.append(
                 A.match(rid, spec.rule, 1.0, basis, target=target, extraction=extraction["id"])
@@ -624,6 +625,22 @@ def run(args):
     targeted = sorted((m for m in matches if "target" in m), key=lambda m: m["id"])
     sample = [review_entry(m, src, wikt) for m in rng.sample(targeted, min(100, len(targeted)))]
     (out / "sample.json").write_text(json.dumps(sample, ensure_ascii=False, indent=1) + "\n")
+
+
+def match_basis(basis):
+    """A decision's basis in the schema's terms: a word whose candidate's etymology names
+    its source's parent shares an ancestor with it (`ancestors`: one shared, or none of
+    one cited when only the parent's language is named); a source word named by its
+    word's match shares a descendant (`reflexes`)."""
+    if basis is None:
+        return None
+    out = {k: v for k, v in basis.items() if k in ("key", "gloss")}
+    lineage = basis.get("lineage")
+    if lineage in ("source named", "source language"):
+        out["ancestors"] = {"shared": int(lineage == "source named"), "cited": 1}
+    elif lineage == "named by its word's match":
+        out["reflexes"] = {"shared": 1, "cited": 1}
+    return out
 
 
 def review_entry(m, src, wikt):
