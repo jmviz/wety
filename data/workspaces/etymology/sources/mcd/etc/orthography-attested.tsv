@@ -1,0 +1,28 @@
+# The MCD's attested forms (clld-dicts): the ACD's profile (acd/etc/orthography-attested.tsv) with
+# their own marks. Compared with wiktionary/etc/orthography-map-attested.tsv.
+Kind	Grapheme	Key	Note
+grapheme	-		morpheme boundary
+grapheme	<		infix bracket
+grapheme	>		infix bracket
+grapheme	́		acute: stress
+grapheme	̀		grave accent
+grapheme	̂		circumflex
+grapheme	̄		macron: length
+grapheme	̆		breve
+grapheme	̈		diaeresis
+grapheme	̣		dot below: retroflex or other; written differently by each orthography
+grapheme	̌		caron
+grapheme	ː		length mark
+grapheme	:		length mark
+grapheme	ŋ	ng	velar nasal: most practical orthographies write ng
+grapheme	ə	e	schwa: practical orthographies of Malay, Indonesian and Javanese write e
+grapheme	ʔ	ʔ	glottal stop
+grapheme	Ɂ	ʔ	glottal stop (capital form)
+grapheme	ꞌ	ʔ	saltillo: glottal stop
+grapheme	'	ʔ	apostrophe: glottal stop
+grapheme	̃		tilde
+grapheme	⟨		infix bracket
+grapheme	⟩		infix bracket
+grapheme	+		morpheme join
+grapheme	#		the source's mark on a form, not a segment
+grapheme	.		punctuation

@@ -15,6 +15,11 @@ NAME = "tlopo"
 CLDF = SOURCES / NAME / "raw/tlopo-0.1.1/cldf"
 
 
+class TlopoRelease(Release):
+    def __init__(self):
+        super().__init__(NAME, CLDF)
+
+
 class TlopoConverter(Converter):
     NAME = NAME
     LABEL = "TLOPO"
@@ -25,7 +30,7 @@ class TlopoConverter(Converter):
 
 
 def main(argv=None):
-    main_for(TlopoConverter, Release(NAME, CLDF), argv)
+    main_for(TlopoConverter, TlopoRelease(), argv)
 
 
 if __name__ == "__main__":

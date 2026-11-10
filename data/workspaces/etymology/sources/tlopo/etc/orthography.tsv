@@ -1,0 +1,45 @@
+# TLOPO's reconstructions (clld-dicts): the ACD's profile (acd/etc/orthography.tsv), whose notation
+# they share, with their own marks. Compared with wiktionary/etc/orthography-map.tsv; brackets
+# and commas inside them are rewritten first (etymology.match_etymdict).
+Kind	Grapheme	Key	Note
+grapheme	*		reconstruction mark
+grapheme	-		morpheme boundary
+grapheme	<		infix bracket
+grapheme	>		infix bracket
+grapheme	́		acute: stress is not compared
+grapheme	̀		grave accent
+grapheme	̄		macron: length is not compared
+grapheme	ː		length mark
+grapheme	̆		breve
+grapheme	ə	e	schwa: written e for PAn and PMP, as the ACD writes it; Wiktionary writes ə
+grapheme	ñ	ñ	palatal nasal (n with tilde, one grapheme)
+grapheme	ŋ	ŋ	velar nasal
+grapheme	ʔ	ʔ	glottal stop
+grapheme	Ɂ	ʔ	glottal stop (capital form)
+grapheme	C	C	a distinct PAN segment, not lower-cased
+grapheme	S	S	a distinct PAN segment, not lower-cased
+grapheme	R	R	a distinct PAN segment, not lower-cased
+grapheme	N	N	a distinct PAN segment, not lower-cased
+grapheme	Z	Z	a distinct PAN segment, not lower-cased
+grapheme	D	D	a distinct PAN segment, not lower-cased
+grapheme	T	T	a distinct PAN segment, not lower-cased
+grapheme	L	L	a distinct PAN segment, not lower-cased
+grapheme	H	H	a distinct PAN segment, not lower-cased
+grapheme	A	A	a distinct PAN segment, not lower-cased
+grapheme	₀		homograph subscript
+grapheme	₁		homograph subscript
+grapheme	₂		homograph subscript
+grapheme	₃		homograph subscript
+grapheme	₄		homograph subscript
+grapheme	₅		homograph subscript
+grapheme	₆		homograph subscript
+grapheme	₇		homograph subscript
+grapheme	₈		homograph subscript
+grapheme	₉		homograph subscript
+grapheme	ₐ		homograph subscript
+grapheme	ɡ	g	IPA g
+grapheme	⟨		infix bracket
+grapheme	⟩		infix bracket
+grapheme	+		morpheme join
+grapheme	#		the source's mark on a form, not a segment
+grapheme	.		punctuation

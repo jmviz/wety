@@ -66,7 +66,7 @@ class AcdRelease(Release):
             if lid not in nodes
         }
         levels = {self.language_of_set(s) for s in self.sets}
-        return Tree(parents, root, levels, place)
+        return Tree(parents, root, levels, place, self.languages)
 
 
 class AcdConverter(Converter):

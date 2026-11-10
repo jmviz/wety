@@ -21,7 +21,8 @@ the work plan are in the shared doc "wety etymology claims model", outside git.
   profile includes;
 - `matching.py`: what every matcher shares (below); `notation.py`: how two sources'
   keys differ where they are matched, mined into a distance;
-- `match_acd.py`: ACD records matched to Wiktionary's, and relays (below).
+- `match_etymdict.py`: the ACD's, the MCD's and TLOPO's records matched to Wiktionary's,
+  and relays (below).
 - `match_lila.py`: LiLa's records matched to Wiktionary's, and relays (below).
 
 ## A source's directory
@@ -101,10 +102,11 @@ rule reads the section. `<ref>` footnotes are left to the processor (note scope)
 Further reading gives no credits and is kept the same way
 (`further_reading.jsonl.gz`).
 
-## Matching the ACD to Wiktionary
+## Matching the ACD, the MCD and TLOPO to Wiktionary
 
-`match_acd.py` (acd-3) links the ACD's records to Wiktionary's, which stand for wety's
-items, and Wiktionary's assertions that credit the ACD to the ACD's own. `scan` keeps the
+`match_etymdict.py` (acd-3; the MCD and TLOPO since clld-dicts) links a source's records
+to Wiktionary's, which stand for wety's items, and Wiktionary's assertions that credit the
+source to its own (`--source acd|mcd|tlopo`). `scan` keeps the
 Austronesian part of a graph's assertion export and the glosses of Austronesian entries
 from the entries it was built from (`wiktionary_entries`); `run` writes the `match` and `relay` objects
 with everything they refer to, every record's outcome (`decisions.jsonl.gz`), every
@@ -121,9 +123,9 @@ W=<a work directory>; C=$S/acd/checks/acd-3-v4
 E=data/runs/ccaf05246fcb466f94916b3f5ae6654a/checks/core-4-references/assertions.jsonl.gz
 X=data/artifacts/wiktionary-entries/466445a2b9d76a586ab53d059f8c9895b4f31141f20b1666f0d2c33aec73bd06/files/entries.jsonl.gz
 L=data/artifacts/wiktionary-export/57d16abeffbce475ff189e0734fd8937eab8d7417b1ee08273e746b43b350cb0/files
-uv run --frozen python -m etymology.match_acd scan --export $E --entries $X --languages $L/languages.json --families $L/families.json --work $W
-uv run --frozen python -m etymology.match_acd run --acd $S/acd/checks/acd-2/assertions.jsonl --export $E --entries $X --work $W --out $C --previous $S/acd/checks/acd-3-v3
-uv run --frozen python -m etymology.match_acd review --out $C
+uv run --frozen python -m etymology.match_etymdict scan --source acd --export $E --entries $X --languages $L/languages.json --families $L/families.json --work $W
+uv run --frozen python -m etymology.match_etymdict run --source acd --assertions $S/acd/checks/acd-2/assertions.jsonl --export $E --entries $X --work $W --out $C --previous $S/acd/checks/acd-3-v3
+uv run --frozen python -m etymology.match_etymdict review --source acd --out $C
 ```
 
 The matcher, rule `agent:wety-match-acd@4`, takes only languages the ACD's map calls
@@ -148,6 +150,14 @@ ranking (`checks/acd-3-v4-trial/`). v1, which weighed no ancestors, is reviewed 
 `checks/acd-3/`, v2 in `checks/acd-3-ancestry/`, v3 in `checks/acd-3-v3/`. The relay rule, `agent:wety-relay-acd@1`, compares by ancestry, since the
 ACD links a reflex straight to its set's reconstruction. The docstrings of `Matcher` and
 `Relayer` give the rules in full.
+
+The MCD and TLOPO are matched by the same rules under their own names
+(`agent:wety-match-mcd@1`, `agent:wety-match-tlopo@1`, and relay rules to match), with
+their own orthography profiles and judgements in `sources/<source>/etc/`. Their notation
+is rewritten into the keys' before keying (TLOPO's `(h,q)` and `[t,q]`, the MCD's `[kq]`
+and `[aØ]`), and since their links pass through the levels between, a reconstruction's
+reflexes are its attested descendants in the source. Their first runs are in
+`sources/<source>/checks/cl-3/`.
 
 ## Matching LiLa to Wiktionary
 

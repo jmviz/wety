@@ -99,8 +99,9 @@ class Tree:
     reconstructs; a language that is not a node hangs from the node `place` gives it,
     which may itself be a placed language (a proto-language the tree leaves out)."""
 
-    def __init__(self, parents, root, levels, place):
+    def __init__(self, parents, root, levels, place, languages=None):
         self.parents, self.root = parents, root
+        self.languages = languages or {}
         self.nodes = set(parents) | {root}
         self.levels = levels
         self.place = place
@@ -202,7 +203,7 @@ class Release:
                 raise ValueError("etc/tree.json: the levels above do not hold the tree's root")
             parents, root = {**parents, **upper}, upper_root
         place = {k: v["node"] for k, v in extension["place"].items() if v["node"]}
-        return Tree(parents, root, self.levels(), place)
+        return Tree(parents, root, self.levels(), place, self.languages)
 
 
 def mapped_categories(name):

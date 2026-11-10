@@ -15,6 +15,11 @@ NAME = "mcd"
 CLDF = SOURCES / NAME / "raw/lexibank-mcd-1cabc58/cldf"
 
 
+class McdRelease(Release):
+    def __init__(self):
+        super().__init__(NAME, CLDF)
+
+
 class McdConverter(Converter):
     NAME = NAME
     LABEL = "MCD"
@@ -28,7 +33,7 @@ class McdConverter(Converter):
 
 
 def main(argv=None):
-    main_for(McdConverter, Release(NAME, CLDF), argv)
+    main_for(McdConverter, McdRelease(), argv)
 
 
 if __name__ == "__main__":
