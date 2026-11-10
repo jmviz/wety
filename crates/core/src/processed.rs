@@ -354,8 +354,11 @@ impl Data {
     /// *(s)th₂-dʰló-m ← *steh₂-. The line ends at a word with no source, a
     /// compound with neither (ἀστρονομία from ἄστρον + νομή), before a
     /// suffix (*méh₂tēr, whose only recorded source is *-tḗr), or before a
-    /// possible or doubtful link (*wĺ̥kʷos, possibly from *wl̥kʷós). The tree starts
-    /// at the oldest word on it that the trail shows, so the reader sees where.
+    /// possible or doubtful link (*wĺ̥kʷos, possibly from *wl̥kʷós). Etymologies
+    /// none of which is preferred go on to the nearest word all their lines
+    /// reach (English mare: Middle English mare, from Old English mīere or
+    /// mearh, both from Proto-Germanic *marhaz). The tree starts at the oldest
+    /// word on it that the trail shows, so the reader sees where.
     #[must_use]
     pub fn default_root(&self, item: ItemId) -> ItemId {
         let trail = self.lineage(item);
@@ -370,26 +373,8 @@ impl Data {
         let mut root = item;
         let mut seen = HashSet::from_iter([item]);
         let mut current = item;
-        while let Some(ety) = self.graph.immediate_ety(current) {
-            let roots = ety
-                .items
-                .iter()
-                .copied()
-                .filter(|&s| self.is_root_entry(s))
-                .collect_vec();
-            let next = match (&ety.items[..], ety.head, &roots[..]) {
-                ([source], _, _) => *source,
-                (_, Some(head), _) => ety.items[usize::from(head)],
-                (_, None, [root]) => *root,
-                _ => break,
-            };
-            // A suffix's descendants are every word it formed, not a family;
-            // a possible or doubtful link is no ground to start a family.
-            let dubious = self.graph.parent_edges(current).any(|e| {
-                e.parent() == next
-                    && matches!(e.certainty(), Certainty::Possible | Certainty::Doubtful)
-            });
-            if dubious || self.term(next).starts_with('-') || !seen.insert(next) {
+        while let Some(next) = self.head_step(current) {
+            if !seen.insert(next) {
                 break;
             }
             if shown.contains(&next) {
@@ -398,6 +383,58 @@ impl Data {
             current = next;
         }
         root
+    }
+
+    /// The next word on an item's head line (see `default_root`), if any. Of
+    /// etymologies none of which is preferred, the first word of the first
+    /// one's line that every other one's line reaches too.
+    fn head_step(&self, item: ItemId) -> Option<ItemId> {
+        let mut edges = self.graph.parent_edges(item).collect_vec();
+        edges.sort_unstable_by_key(|e| (e.ety(), e.order()));
+        let etys = edges.chunk_by(|a, b| a.ety() == b.ety()).collect_vec();
+        match etys[..] {
+            [] => None,
+            [ety] => self.ety_step(ety),
+            _ => {
+                let lines = etys
+                    .iter()
+                    .map(|ety| {
+                        let mut line = vec![];
+                        let mut next = self.ety_step(ety);
+                        while let Some(n) = next {
+                            if n == item || line.contains(&n) {
+                                break;
+                            }
+                            line.push(n);
+                            next = self.head_step(n);
+                        }
+                        line
+                    })
+                    .collect_vec();
+                lines[0]
+                    .iter()
+                    .copied()
+                    .find(|id| lines[1..].iter().all(|line| line.contains(id)))
+            }
+        }
+    }
+
+    /// The word one etymology's head line goes on to: its sole source, else
+    /// its head, else its one root entry. None for a compound with neither, a
+    /// suffix (its descendants are every word it formed, not a family) or a
+    /// possible or doubtful link (no ground to start a family).
+    fn ety_step(&self, edges: &[EtyEdge<'_>]) -> Option<ItemId> {
+        let roots = edges
+            .iter()
+            .copied()
+            .filter(|e| self.is_root_entry(e.parent()))
+            .collect_vec();
+        let edge = match (edges, edges.iter().find(|e| e.head()), &roots[..]) {
+            ([source], _, _) | (_, Some(source), _) | (_, None, [source]) => *source,
+            _ => return None,
+        };
+        let dubious = matches!(edge.certainty(), Certainty::Possible | Certainty::Doubtful);
+        (!dubious && !self.term(edge.parent()).starts_with('-')).then(|| edge.parent())
     }
 
     /// The item's ultimate ancestors, in the order its etymology names them:
@@ -1471,5 +1508,30 @@ mod lineage_tests {
                 .collect_vec(),
             [[miere], [mearh]]
         );
+        // and the tree starts where both alternatives' lines meet
+        assert_eq!((c.root, c.default_root), (marhaz, marhaz));
+    }
+
+    #[test]
+    fn alternatives_that_never_meet_start_no_deeper_tree() {
+        use crate::ety_graph::{Certainty, NewEtymology};
+        let (mut graph, mut pool) = (EtyGraph::default(), StringPool::default());
+        let marhaz = add(&mut graph, &mut pool, "gem-pro", "marhaz");
+        let miere = add(&mut graph, &mut pool, "ang", "mīere");
+        let other = add(&mut graph, &mut pool, "non", "merr");
+        let mare = add(&mut graph, &mut pool, "enm", "mare");
+        let mare_en = add(&mut graph, &mut pool, "en", "mare");
+        ety(&mut graph, miere, EtyMode::Inherited, &[marhaz]);
+        ety(&mut graph, mare_en, EtyMode::Inherited, &[mare]);
+        let one = |items| NewEtymology {
+            mode: EtyMode::Inherited,
+            head: Some(0),
+            basis: EdgeBasis::Template,
+            items,
+            confidences: &[1.0],
+            certainties: &[Certainty::Stated],
+        };
+        graph.add_etymologies(mare, &[one(&[miere]), one(&[other])]);
+        assert_eq!(Data::new(pool, graph).default_root(mare_en), mare);
     }
 }
