@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
-  "snapshot": "6a7ac633f2a2ec08fd38c5652cbf900eb15d62af2c125655f7f03267db52e472",
-  "taken_at": "2026-11-10T07:11:43+00:00",
+  "snapshot": "18e69719d6ff029f95131fc2b4bb823bf398f7a6aa65797218f0193f160cd40f",
+  "taken_at": "2026-11-10T19:53:10+00:00",
   "root": "/data",
-  "files": 48529,
-  "bytes": 142010120849,
-  "git_commit": "a38f1fe3dd98dd487b3c44fed8de6447f447b990",
-  "note": "graph 9eca9eb6: credits from the entries (x-5)"
+  "files": 48736,
+  "bytes": 154160535688,
+  "git_commit": "8839658e5cd95818a0e3c94ae1769fc6c522d2ee",
+  "note": "graph 963713b6: entry names from the entries (x-6)"
 }
