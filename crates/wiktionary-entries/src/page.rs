@@ -10,7 +10,7 @@ use serde_json::Value;
 use sha2::{Digest, Sha256};
 
 use crate::{
-    model::{Block, Call, Counts, Descendant, Entry, Note, PosBlock, Section, Sense, Span},
+    model::{Block, Call, Counts, Descendant, Entry, Link, Note, PosBlock, Section, Sense, Span},
     render::{Transclusions, calls, is_transclusion, mention, render},
 };
 
@@ -875,6 +875,45 @@ fn term_argument(call: &Call) -> Option<(&str, &str)> {
     (!lang.is_empty() && !term.is_empty() && term != "-").then_some((lang, term))
 }
 
+/// A Descendants call's terms (its positional arguments from 2) with the line's links,
+/// in order. Only where there are as many links as terms, and no term is spelled as
+/// another term's page, which would show that the links are not in the terms' order
+/// (82,169 of 85,812 lines naming several terms in the 2026-11-01 entries qualify).
+fn paired_terms<'a>(call: &'a Call, links: &'a [Link]) -> Vec<(&'a str, &'a Link)> {
+    let mut numbered: Vec<(usize, &str)> = call
+        .args
+        .iter()
+        .filter_map(|(k, v)| Some((k.parse::<usize>().ok().filter(|&n| n >= 2)?, v.as_str())))
+        .collect();
+    numbered.sort_unstable();
+    let terms: Vec<&str> = numbered
+        .into_iter()
+        .map(|(_, v)| v.split('<').next().unwrap_or(v).trim())
+        .filter(|t| !t.is_empty() && *t != "-")
+        .collect();
+    if terms.is_empty() || terms.len() != links.len() {
+        return vec![];
+    }
+    fn page(l: &Link) -> &str {
+        l.page
+            .strip_prefix("Reconstruction:")
+            .and_then(|p| p.split_once('/'))
+            .map_or(l.page.as_str(), |(_, t)| t)
+    }
+    let bare = |t: &'a str| t.strip_prefix('*').unwrap_or(t);
+    let misordered = terms.iter().enumerate().any(|(i, t)| {
+        bare(t) != page(&links[i])
+            && links
+                .iter()
+                .enumerate()
+                .any(|(j, l)| j != i && bare(t) == page(l))
+    });
+    if misordered {
+        return vec![];
+    }
+    terms.into_iter().zip(links).collect()
+}
+
 pub fn entry_names(entry: &Entry) -> Vec<(String, String, String)> {
     let mut out = vec![];
     let mut add = |m: &crate::model::Mention| {
@@ -918,7 +957,8 @@ pub fn entry_names(entry: &Entry) -> Vec<(String, String, String)> {
             .flat_map(|s| &s.form_of)
             .for_each(&mut add);
     }
-    // A Descendants line naming one term (`{{desc|ab|а́лас}}` links алас).
+    // A Descendants line's terms, paired with its links in order
+    // (`{{desc|ab|а́лас}}` links алас; `{{desc|no|knøsk|knósk}}` two pages).
     let mut lines: Vec<&Descendant> = entry
         .descendants
         .iter()
@@ -926,15 +966,14 @@ pub fn entry_names(entry: &Entry) -> Vec<(String, String, String)> {
         .collect();
     while let Some(line) = lines.pop() {
         lines.extend(&line.children);
-        if let ([call], [link]) = (&line.calls[..], &line.links[..])
-            && matches!(call.name.as_str(), "desc" | "desctree" | "l" | "link")
-            && call.args.contains_key("1")
-            && !call.args.contains_key("3")
-            && let Some((lang, term)) = term_argument(&Call {
-                name: "l".into(),
-                args: call.args.clone(),
-            })
-        {
+        let [call] = &line.calls[..] else { continue };
+        if !matches!(call.name.as_str(), "desc" | "desctree" | "l" | "link") {
+            continue;
+        }
+        let Some(lang) = call.args.get("1").map(|l| l.trim()) else {
+            continue;
+        };
+        for (term, link) in paired_terms(call, &line.links) {
             add(&crate::model::Mention {
                 lang: lang.to_string(),
                 term: term.to_string(),

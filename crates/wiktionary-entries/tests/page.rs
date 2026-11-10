@@ -345,10 +345,29 @@ fn a_descendants_line_names_the_page_it_links() {
     parent
         .children
         .push(line(&[("1", "ab"), ("2", "а́ласа")], "аласа"));
+    let two = |args: &[(&str, &str)], pages: [&str; 2]| {
+        let mut d = line(args, pages[0]);
+        d.links.push(Link {
+            page: pages[1].into(),
+            anchor: None,
+            missing: false,
+        });
+        d
+    };
     let entry = Entry {
         descendants: vec![
             parent,
-            // two terms on one line: which link is whose is not known
+            // two terms, two links: paired in order
+            two(
+                &[("1", "no"), ("2", "knøsk"), ("3", "knósk")],
+                ["knøsk", "knosk"],
+            ),
+            // links not in the terms' order (utra is lutra's link): none
+            two(
+                &[("1", "fro"), ("2", "útra"), ("3", "lutra")],
+                ["lutra", "utra"],
+            ),
+            // more terms than links: none
             line(&[("1", "ab"), ("2", "а́"), ("3", "б")], "а"),
         ],
         ..Entry::default()
@@ -359,6 +378,7 @@ fn a_descendants_line_names_the_page_it_links() {
         names,
         [
             ("ab".into(), "а́ласа".into(), "аласа".into()),
+            ("no".into(), "knósk".into(), "knosk".into()),
             ("xbc".into(), "а́лас".into(), "алас".into()),
         ]
     );
