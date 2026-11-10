@@ -1,0 +1,9 @@
+[
+ {
+  "id": "pc",
+  "relation": "exact",
+  "code": "sai-car-pro",
+  "rationale": "Proto-Cariban, Wiktionary's sai-car-pro.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ }
+]
