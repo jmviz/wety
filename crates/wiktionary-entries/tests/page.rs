@@ -319,3 +319,47 @@ fn a_templates_own_term_names_the_page_it_links() {
     assert!(names.contains(&("la".into(), "innōdāre".into(), "innodo".into())));
     assert!(names.contains(&("la".into(), "innodō".into(), "innodo".into())));
 }
+
+#[test]
+fn a_descendants_line_names_the_page_it_links() {
+    use std::collections::BTreeMap;
+    use wety_wiktionary_entries::model::{Call, Descendant, Entry, Link};
+    let line = |args: &[(&str, &str)], page: &str| Descendant {
+        text: String::new(),
+        calls: vec![Call {
+            name: "desc".into(),
+            args: args
+                .iter()
+                .map(|(k, v)| ((*k).to_string(), (*v).to_string()))
+                .collect::<BTreeMap<_, _>>(),
+        }],
+        via: None,
+        links: vec![Link {
+            page: page.into(),
+            anchor: None,
+            missing: false,
+        }],
+        children: vec![],
+    };
+    let mut parent = line(&[("1", "xbc"), ("2", "а́лас")], "алас");
+    parent
+        .children
+        .push(line(&[("1", "ab"), ("2", "а́ласа")], "аласа"));
+    let entry = Entry {
+        descendants: vec![
+            parent,
+            // two terms on one line: which link is whose is not known
+            line(&[("1", "ab"), ("2", "а́"), ("3", "б")], "а"),
+        ],
+        ..Entry::default()
+    };
+    let mut names = entry_names(&entry);
+    names.sort();
+    assert_eq!(
+        names,
+        [
+            ("ab".into(), "а́ласа".into(), "аласа".into()),
+            ("xbc".into(), "а́лас".into(), "алас".into()),
+        ]
+    );
+}

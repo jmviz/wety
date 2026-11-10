@@ -918,5 +918,30 @@ pub fn entry_names(entry: &Entry) -> Vec<(String, String, String)> {
             .flat_map(|s| &s.form_of)
             .for_each(&mut add);
     }
+    // A Descendants line naming one term (`{{desc|ab|а́лас}}` links алас).
+    let mut lines: Vec<&Descendant> = entry
+        .descendants
+        .iter()
+        .chain(entry.pos.iter().flat_map(|p| &p.descendants))
+        .collect();
+    while let Some(line) = lines.pop() {
+        lines.extend(&line.children);
+        if let ([call], [link]) = (&line.calls[..], &line.links[..])
+            && matches!(call.name.as_str(), "desc" | "desctree" | "l" | "link")
+            && call.args.contains_key("1")
+            && !call.args.contains_key("3")
+            && let Some((lang, term)) = term_argument(&Call {
+                name: "l".into(),
+                args: call.args.clone(),
+            })
+        {
+            add(&crate::model::Mention {
+                lang: lang.to_string(),
+                term: term.to_string(),
+                link: Some(link.clone()),
+                gloss: None,
+            });
+        }
+    }
     out
 }
