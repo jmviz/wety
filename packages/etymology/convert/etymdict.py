@@ -503,15 +503,17 @@ class Converter:
                 )
 
 
-def main_for(converter, release, argv=None):
-    """The command line of a source's converter."""
+def main_for(converter, release, argv=None, tables=TABLES):
+    """The command line of a source's converter: its release's `tables` and its curation
+    files are the extraction's inputs."""
     p = argparse.ArgumentParser(description=f"{converter.LABEL}'s CLDF release to assertions")
     p.add_argument("--out", type=Path, required=True, help="the assertions file to write")
     p.add_argument("--counts", type=Path, help="write the converter's own counts here (JSON)")
     args = p.parse_args(argv)
     etc = SOURCES / converter.NAME / "etc"
-    inputs = [release.cldf / t for t in TABLES if release.has(t)]
-    inputs += [etc / f for f in ("languages.json", "kinds.json", "source.json", "tree.json")]
+    inputs = [release.cldf / t for t in tables if (release.cldf / t).exists()]
+    curation = ("languages.json", "donors.json", "kinds.json", "source.json", "tree.json")
+    inputs += [etc / f for f in curation]
     extraction = A.extraction(
         "converter",
         f"packages/etymology/convert/{converter.NAME}.py",

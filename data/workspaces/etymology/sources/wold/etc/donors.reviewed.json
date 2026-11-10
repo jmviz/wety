@@ -1,0 +1,177 @@
+[
+ {
+  "id": "Arabic",
+  "relation": "exact",
+  "code": "ar",
+  "rationale": "Wiktionary's ar is Arabic, Classical and Modern Standard together.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Classical Arabic",
+  "relation": "exact",
+  "code": "ar",
+  "rationale": "Wiktionary files Classical Arabic under ar.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Standard Arabic",
+  "relation": "exact",
+  "code": "ar",
+  "rationale": "Wiktionary files Modern Standard Arabic under ar.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Malay",
+  "relation": "exact",
+  "code": "ms",
+  "rationale": "Standard Malay (stan1306), Wiktionary's ms.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Greek",
+  "relation": "exact",
+  "code": "el",
+  "rationale": "WOLD's Greek is Modern Greek (mode1248), Wiktionary's el.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Classical Greek",
+  "relation": "exact",
+  "code": "grc",
+  "rationale": "Classical Greek is Wiktionary's grc, Ancient Greek.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Javanese",
+  "relation": "exact",
+  "code": "jv",
+  "rationale": "Wiktionary's jv.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Swahili",
+  "relation": "exact",
+  "code": "sw",
+  "rationale": "Wiktionary's sw.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Sundanese",
+  "relation": "exact",
+  "code": "su",
+  "rationale": "Wiktionary's su.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Nepali",
+  "relation": "exact",
+  "code": "ne",
+  "rationale": "Wiktionary's ne.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Kanuri",
+  "relation": "exact",
+  "code": "kr",
+  "rationale": "Wiktionary's kr, as for the recipient vocabulary.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Old Norse",
+  "relation": "exact",
+  "code": "non",
+  "rationale": "Wiktionary's non.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Modern Khmer",
+  "relation": "exact",
+  "code": "km",
+  "rationale": "Wiktionary's km.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Khmer",
+  "relation": "exact",
+  "code": "km",
+  "rationale": "Wiktionary's km.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Old Khmer",
+  "relation": "exact",
+  "code": "okz",
+  "rationale": "Wiktionary's okz.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Malagasy",
+  "relation": "exact",
+  "code": "mg",
+  "rationale": "Wiktionary's mg.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Oromo",
+  "relation": "exact",
+  "code": "om",
+  "rationale": "Wiktionary's om.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Azeri",
+  "relation": "exact",
+  "code": "az",
+  "rationale": "Wiktionary's az, Azerbaijani.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Evenki",
+  "relation": "exact",
+  "code": "evn",
+  "rationale": "Wiktionary's evn.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Aymara",
+  "relation": "exact",
+  "code": "ay",
+  "rationale": "Wiktionary's ay.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Cantonese",
+  "relation": "exact",
+  "code": "yue",
+  "rationale": "Wiktionary's yue.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Ful",
+  "relation": "exact",
+  "code": "ff",
+  "rationale": "Wiktionary's ff, Fula.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Low German",
+  "relation": "exact",
+  "code": "nds",
+  "rationale": "Wiktionary's nds.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "French (Anglo-Norman)",
+  "relation": "exact",
+  "code": "xno",
+  "rationale": "Anglo-Norman is Wiktionary's xno, not French (fr).",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Proto-Tai",
+  "relation": "exact",
+  "code": "tai-pro",
+  "rationale": "Wiktionary's tai-pro.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ }
+]

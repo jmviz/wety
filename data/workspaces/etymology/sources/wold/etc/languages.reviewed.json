@@ -1,0 +1,30 @@
+[
+ {
+  "id": "Swahili",
+  "relation": "exact",
+  "code": "sw",
+  "rationale": "WOLD's Swahili vocabulary is standard Swahili (Schadeberg), Wiktionary's sw.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Kanuri",
+  "relation": "exact",
+  "code": "kr",
+  "rationale": "WOLD's Kanuri vocabulary (Löhr, Wolff and Awagana) is Central Kanuri, which Wiktionary files under kr, Kanuri.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Malagasy",
+  "relation": "exact",
+  "code": "mg",
+  "rationale": "WOLD's Malagasy is Plateau (Merina) Malagasy, on which standard Malagasy rests; Wiktionary's mg, as for the ACD.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "ImbaburaQuechua",
+  "relation": "subset",
+  "code": "qu",
+  "rationale": "Imbabura Quichua is one Quechua variety; Wiktionary has no code for it and files Quechua under qu.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ }
+]
