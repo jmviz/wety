@@ -100,6 +100,15 @@ export default function NodeLabel(props: NodeLabelProps) {
                 <span class="alt-or">{e.preferred ? "preferred" : "or"}</span>{" "}
                 <Show when={e.kind !== "unknown"} fallback="origin unknown">
                   {e.mode && etyModeShort(e.mode)}
+                  <Show when={e.kind === "language_only" && e.sourceLang}>
+                    {(l) => (
+                      <>
+                        {etyPrep(e.mode ?? "derived")}
+                        <span class="lang">{l().name}</span>
+                        {l().certainty && "?"}, exact source uncertain
+                      </>
+                    )}
+                  </Show>
                   <For each={e.parents}>
                     {(p, j) => (
                       <>

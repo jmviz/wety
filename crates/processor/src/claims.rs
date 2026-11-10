@@ -465,7 +465,16 @@ impl Items {
     fn evidence(&self, item: ItemId) -> Vec<Evidence> {
         let n = self.graph.ety_count(item);
         let mut etys = vec![Evidence::default(); n];
-        let mut weakest = vec![Certainty::Stated; n];
+        // an etymology with no parents states its own certainty
+        let mut weakest: Vec<Certainty> = (0..n)
+            .map(|i| {
+                self.graph
+                    .etymologies(item)
+                    .and_then(|e| e.kinds.get(i))
+                    .and_then(|k| k.certainty())
+                    .unwrap_or_default()
+            })
+            .collect();
         let mut basis = vec![None; n];
         for e in self.graph.all_parent_edges(item) {
             let i = usize::from(e.ety());

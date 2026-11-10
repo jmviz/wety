@@ -1,7 +1,7 @@
 use crate::{
     HashMap, HashSet, assertions,
     descendant_langs::DescendantLangs,
-    ety_graph::{Certainty, EdgeBasis, EtyEdge, EtyKind},
+    ety_graph::{Certainty, EdgeBasis, EtyEdge, EtyKind, SourceLang},
     ety_graph::{EtyEdgeAccess, EtyGraph, Progenitors},
     etymology_templates::EtyMode,
     items::{Item, ItemId},
@@ -9,7 +9,7 @@ use crate::{
     response::{
         AssertionJson, ClaimJson, CognatesJson, CreditJson, DescendantsJson, EtyJson,
         EtymologyJson, GlossStr, HypothesisJson, ItemJson, LinkJson, OriginJson, OtherEtyJson,
-        OtherParentJson, ReadingJson, SourcePageJson, TrailStepJson,
+        OtherParentJson, ReadingJson, SourceLangJson, SourcePageJson, TrailStepJson,
     },
     string_pool::StringPool,
     synthesis::Reading,
@@ -314,7 +314,8 @@ impl Data {
             } else {
                 alternatives.push(OtherEtyJson {
                     kind: (*kind).into(),
-                    mode: edges.first().map(|e| e.mode().as_str()),
+                    mode: mode_of(*kind, edges),
+                    source_lang: source_lang_json(*kind),
                     preferred: primary.is_some_and(|p| usize::from(p) == n),
                     parents: edges.iter().map(parent_json).collect(),
                 });
@@ -621,7 +622,8 @@ impl Data {
                 .iter()
                 .map(|(kind, edges)| EtyJson {
                     kind: (*kind).into(),
-                    mode: edges.first().map(|e| e.mode().as_str()),
+                    mode: mode_of(*kind, edges),
+                    source_lang: source_lang_json(*kind),
                     inferred: edges.first().is_some_and(|e| e.basis().is_rule()),
                     source: edges
                         .first()
@@ -686,7 +688,8 @@ impl Data {
                     .collect();
                 HypothesisJson {
                     kind: (*kind).into(),
-                    mode: edges.first().map(|e| e.mode().as_str()),
+                    mode: mode_of(*kind, edges),
+                    source_lang: source_lang_json(*kind),
                     parents: edges
                         .iter()
                         .map(|e| LinkJson {
@@ -741,6 +744,32 @@ impl Data {
             hypotheses,
         }
     }
+}
+
+/// How an etymology's word came from its source: its links' mode, or the
+/// mode of one naming only a language.
+fn mode_of(kind: EtyKind, edges: &[EtyEdge<'_>]) -> Option<&'static str> {
+    match kind {
+        EtyKind::LanguageOnly(l) => Some(l.mode.as_str()),
+        EtyKind::Derivation | EtyKind::Unknown => edges.first().map(|e| e.mode().as_str()),
+    }
+}
+
+/// The language or family an etymology names without a word, if it does.
+fn source_lang_json(kind: EtyKind) -> Option<SourceLangJson> {
+    let EtyKind::LanguageOnly(l) = kind else {
+        return None;
+    };
+    let (code, name, family) = match l.source {
+        SourceLang::Lang(lang) => (lang.code(), lang.name().to_owned(), false),
+        SourceLang::Family(f) => (f.code(), f.name(), true),
+    };
+    Some(SourceLangJson {
+        code,
+        name,
+        family,
+        certainty: certainty_json(l.certainty),
+    })
 }
 
 fn certainty_json(certainty: Certainty) -> Option<&'static str> {

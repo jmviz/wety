@@ -20,7 +20,7 @@ static ALLOC: snmalloc_rs::SnMalloc = snmalloc_rs::SnMalloc;
 use wety_core::{
     HashSet,
     assertions::record_id,
-    ety_graph::{EdgeBasis, EtyEdgeAccess, EtyKind},
+    ety_graph::{EdgeBasis, EtyEdgeAccess, EtyKind, SourceLang},
     items::ItemId,
     processed::Data,
     synthesis::Reading,
@@ -161,6 +161,13 @@ fn main() -> Result<()> {
                         .collect_vec();
                     json!({
                         "kind": etys.and_then(|e| e.kinds.get(i)).map_or("derivation", |k| k.as_ref()),
+                        "source_lang": etys.and_then(|e| e.kinds.get(i)).and_then(|k| match k {
+                            EtyKind::LanguageOnly(l) => Some(match l.source {
+                                SourceLang::Lang(lang) => lang.code(),
+                                SourceLang::Family(family) => family.code(),
+                            }),
+                            EtyKind::Derivation | EtyKind::Unknown => None,
+                        }),
                         "parents": edges.iter().map(|e| record_id(graph.item(e.parent()), &data.string_pool)).collect_vec(),
                         "mode": edges.first().map(|e| e.mode().as_str()),
                         "basis": edges.first().map(|e| e.basis().as_ref().to_owned()),

@@ -277,6 +277,71 @@ impl Lang {
     }
 }
 
+/// A family of languages in Wiktionary's table (`families.json`), as an
+/// etymology names one for a word's source ("from some Turkic language").
+#[derive(Hash, Eq, PartialEq, Debug, Copy, Clone, Serialize, Deserialize)]
+pub struct Family(u16);
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct RawFamilyData {
+    canonical_name: &'static str,
+}
+
+struct Families {
+    /// code and canonical name, by id
+    data: Vec<(&'static str, &'static str)>,
+    code2id: HashMap<&'static str, Family>,
+}
+
+impl Families {
+    fn new() -> Self {
+        let code2raw: BTreeMap<&'static str, RawFamilyData> =
+            serde_json::from_str(include_str!(env!("WETY_FAMILIES_JSON")))
+                .expect("well-formed families.json");
+        let mut data = Vec::with_capacity(code2raw.len());
+        let mut code2id = HashMap::default();
+        for (id, (code, raw)) in (0u16..).zip(code2raw) {
+            data.push((code, raw.canonical_name));
+            code2id.insert(code, Family(id));
+        }
+        Self { data, code2id }
+    }
+}
+
+static FAMILIES: LazyLock<Families> = LazyLock::new(Families::new);
+
+impl FromStr for Family {
+    type Err = anyhow::Error;
+
+    fn from_str(code: &str) -> Result<Self, Self::Err> {
+        FAMILIES
+            .code2id
+            .get(code)
+            .copied()
+            .ok_or_else(|| anyhow!("Unknown family code \"{code}\""))
+    }
+}
+
+impl Family {
+    #[must_use]
+    pub fn code(self) -> &'static str {
+        FAMILIES.data[usize::from(self.0)].0
+    }
+
+    /// The family's name as a reader sees it: "Turkic languages", "French Sign
+    /// Languages".
+    #[must_use]
+    pub fn name(self) -> String {
+        let name = FAMILIES.data[usize::from(self.0)].1;
+        if name.to_lowercase().ends_with("languages") {
+            name.to_owned()
+        } else {
+            format!("{name} languages")
+        }
+    }
+}
+
 /// What the client sees for a lang (`Lang` in `search/types.ts`).
 #[derive(Serialize)]
 pub struct LangInfo {

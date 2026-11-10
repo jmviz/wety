@@ -1,5 +1,5 @@
 import "./popover.css";
-import { Assertion, Claim, Credit, Item, Reading, TreeKind, term } from "../search/types";
+import { Assertion, Claim, Credit, Item, Reading, SourceLang, TreeKind, term } from "../search/types";
 import { EtySource, TreeNode } from "./model";
 import { LangName, shortLangsInDetails } from "./langName";
 import { etyModeRep, etyModeShort, etyPrep } from "./etyMode";
@@ -344,10 +344,15 @@ function OriginList(props: { item: Item }) {
                   <span class="ety-or">or </span>
                 </Show>
                 <Show when={h.kind !== "unknown"} fallback={<span class="ety-mode">origin unknown</span>}>
-                  {etyLine(
-                    h.mode!,
-                    h.parents.map((p) => ({ item: p.item, langDistance: 0, certainty: p.certainty }))
-                  )}
+                  <Show
+                    when={h.kind === "language_only" && h.sourceLang}
+                    fallback={etyLine(
+                      h.mode!,
+                      h.parents.map((p) => ({ item: p.item, langDistance: 0, certainty: p.certainty }))
+                    )}
+                  >
+                    {(l) => langOnlyLine(h.mode ?? "derived", l())}
+                  </Show>
                 </Show>
                 <Show when={hypotheses().length > 1 && origin()!.primary === i()}>
                   <span class="popover-muted"> · preferred</span>
@@ -475,6 +480,24 @@ function CreditList(props: { head: string; credits: Credit[] }) {
 }
 
 // "borrowed from Latin status + -ālis"
+// "borrowed from Welsh; exact source uncertain": an etymology naming a
+// language or family but no word of it.
+export function langOnlyLine(mode: string, lang: SourceLang): JSX.Element {
+  return (
+    <>
+      <span class="ety-mode">{etyModeRep(mode)}</span>
+      <span class="ety-prep">{etyPrep(mode)}</span>
+      <span class="ety-lang">{lang.name}</span>
+      <Show when={lang.certainty}>
+        <span class="uncertain-mark" title={`${lang.certainty} source`}>
+          ?
+        </span>
+      </Show>
+      <span class="popover-muted">; exact source uncertain</span>
+    </>
+  );
+}
+
 export function etyLine(mode: string, sources: EtySource[]): JSX.Element {
   const parts: JSX.Element[] = [];
   let prevLang = -1;

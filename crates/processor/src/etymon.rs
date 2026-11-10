@@ -26,7 +26,10 @@ use crate::{
     etymology::{ParsedRawEtyTemplate, Part, RawEtyTemplate, affixation_kind},
 };
 use wety_core::{
-    ety_graph::Certainty, etymology_templates::EtyMode, languages::Lang, string_pool::StringPool,
+    ety_graph::{Certainty, LanguageOnly, SourceLang},
+    etymology_templates::EtyMode,
+    languages::{Family, Lang},
+    string_pool::StringPool,
 };
 
 use std::str::FromStr;
@@ -175,6 +178,9 @@ fn inline_params(s: &str) -> Vec<Param<'_>> {
 #[derive(Debug, PartialEq)]
 pub(crate) struct Etymon<'a> {
     pub(crate) lang: Lang,
+    // the language or family its prefix names, if it names one ("cy:",
+    // "trk:-"); a family only with no term
+    source: Option<SourceLang>,
     // None for an unknown ("", "+") or suppressed ("-") term
     pub(crate) term: Option<&'a str>,
     pub(crate) id: Option<&'a str>,
@@ -187,17 +193,30 @@ pub(crate) struct Etymon<'a> {
 }
 
 /// Parse `lang:term<mod:value>...`. Returns None if the prefix is not a
-/// language code we know (e.g. a family code).
+/// language code we know, unless it is a family's and names no term ("trk:",
+/// "from some Turkic language").
 pub(crate) fn parse_etymon(param: &str, context_lang: Lang) -> Option<Etymon<'_>> {
+    fn clean(term: &str) -> Option<&str> {
+        let term = clean_template_term(term.trim());
+        (!matches!(term, "" | "+" | "-")).then_some(term)
+    }
     let (head, modifiers) = split_modifiers(param);
-    let (lang, term) = match split_lang_prefix(head) {
-        Some((code, term)) => (Lang::from_str(code).ok()?, term),
-        None => (context_lang, head),
+    let (lang, source, term) = match split_lang_prefix(head) {
+        Some((code, term)) => match Lang::from_str(code) {
+            Ok(lang) => (lang, Some(SourceLang::Lang(lang)), clean(term)),
+            Err(_) => {
+                let family = Family::from_str(code).ok()?;
+                let None = clean(term) else {
+                    return None;
+                };
+                (context_lang, Some(SourceLang::Family(family)), None)
+            }
+        },
+        None => (context_lang, None, clean(head)),
     };
-    let term = clean_template_term(term.trim());
-    let term = (!matches!(term, "" | "+" | "-")).then_some(term);
     Some(Etymon {
         lang,
+        source,
         term,
         id: modifier(&modifiers, "id")
             .map(|id| id.trim_start_matches('!'))
@@ -266,6 +285,21 @@ fn components_template(
 }
 
 // One etymon after a keyword that takes one, as a template.
+// An etymon naming a language or family but no term, as an etymology.
+fn language_only(etymon: &Etymon, mode: EtyMode, certainty: Certainty) -> Option<LanguageOnly> {
+    let source = etymon.source.filter(|_| etymon.term.is_none())?;
+    let certainty = if etymon.uncertain {
+        certainty.max(Certainty::Possible)
+    } else {
+        certainty
+    };
+    Some(LanguageOnly {
+        source,
+        mode,
+        certainty,
+    })
+}
+
 fn single_template(
     string_pool: &mut StringPool,
     etymon: &Etymon,
@@ -412,41 +446,57 @@ fn parse_params(
         let certainty = group.certainty();
         // each alternative: a template, and the parent whose inline etymology
         // may continue it
-        let mut found: Vec<(Option<RawEtyTemplate>, Option<&Etymon>)> = vec![];
+        let mut found: Vec<(ParsedRawEtyTemplate, Option<&Etymon>)> = vec![];
+        let parsed = |t: Option<RawEtyTemplate>| {
+            t.map_or(ParsedRawEtyTemplate::Skipped, ParsedRawEtyTemplate::Parsed)
+        };
         match group.keyword {
             Keyword::Single(mode) if group.joins_by_and() => {
                 // an etymon naming only a language ("de:", "fr:-") gives no
-                // parent
+                // parent; with none naming a term, the first is the origin
                 let named: Vec<&Etymon> =
                     group.etymons.iter().filter(|e| e.term.is_some()).collect();
                 found.push(match named[..] {
+                    [] => (
+                        group
+                            .etymons
+                            .iter()
+                            .find_map(|e| language_only(e, mode, certainty))
+                            .map_or(ParsedRawEtyTemplate::Skipped, |l| {
+                                ParsedRawEtyTemplate::LanguageOnly(l, false)
+                            }),
+                        None,
+                    ),
                     [single] => (
-                        single_template(string_pool, single, mode, certainty),
+                        parsed(single_template(string_pool, single, mode, certainty)),
                         Some(single),
                     ),
-                    _ => (joined_template(string_pool, &named, mode, certainty), None),
+                    _ => (
+                        parsed(joined_template(string_pool, &named, mode, certainty)),
+                        None,
+                    ),
                 });
             }
             Keyword::Single(mode) => {
                 for etymon in &group.etymons {
-                    found.push((
-                        single_template(string_pool, etymon, mode, certainty),
-                        Some(etymon),
-                    ));
+                    let template = match language_only(etymon, mode, certainty) {
+                        Some(l) => ParsedRawEtyTemplate::LanguageOnly(l, false),
+                        None => parsed(single_template(string_pool, etymon, mode, certainty)),
+                    };
+                    found.push((template, Some(etymon)));
                 }
             }
             Keyword::Components(mode) => {
                 let template = components_template(string_pool, &group.etymons, mode, certainty);
                 found.push((
-                    template,
+                    parsed(template),
                     (group.etymons.len() == 1).then(|| &group.etymons[0]),
                 ));
             }
             Keyword::Ignored => unreachable!(),
         }
         for (template, single) in found {
-            let mut chain =
-                vec![template.map_or(ParsedRawEtyTemplate::Skipped, ParsedRawEtyTemplate::Parsed)];
+            let mut chain = vec![template];
             // A single parent's inline etymology continues the chain.
             if let Some(etymon) = single
                 && let Some(ety) = etymon.ety
@@ -463,6 +513,9 @@ fn parse_params(
                                     ParsedRawEtyTemplate::Parsed(mut template) => {
                                         template.continues = true;
                                         ParsedRawEtyTemplate::Parsed(template)
+                                    }
+                                    ParsedRawEtyTemplate::LanguageOnly(l, _) => {
+                                        ParsedRawEtyTemplate::LanguageOnly(l, true)
                                     }
                                     other => other,
                                 })
@@ -577,6 +630,7 @@ mod tests {
                 )),
                 ParsedRawEtyTemplate::Skipped
                 | ParsedRawEtyTemplate::Unknown
+                | ParsedRawEtyTemplate::LanguageOnly(..)
                 | ParsedRawEtyTemplate::Alternatives(_) => None,
             })
             .collect()

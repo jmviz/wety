@@ -13,11 +13,11 @@ use crate::{
 };
 use wety_core::{
     assertions::{self, Asserted, Credit, Scope},
-    ety_graph::{Certainty, EdgeBasis, NewEtymology},
+    ety_graph::{Certainty, EdgeBasis, LanguageOnly, NewEtymology, SourceLang},
     etymology_templates::{EtyMode, TemplateKind},
     items::ItemId,
     langterm::LangTerm,
-    languages::Lang,
+    languages::{Family, Lang},
     pos::Pos,
     string_pool::StringPool,
 };
@@ -89,6 +89,10 @@ pub(crate) enum ParsedRawEtyTemplate {
     // {{unk}} after a template: the origin of the term before it is unknown
     // ("from Middle English foo, of unknown origin")
     Unknown,
+    // a language or family named as the source, but no word of it
+    // ({{bor|en|cy|-}}, {{etymon}}'s "trk:"); true when an inline etymology
+    // gives it for the parent before it (see RawEtyTemplate::continues)
+    LanguageOnly(LanguageOnly, bool),
     // after a template with a single parent: that parent's own etymologies,
     // given inline as alternatives ({{etymon}}'s <ety:...> naming several),
     // each a chain
@@ -105,7 +109,7 @@ impl ParsedRawEtyTemplate {
                         Self::collect_templates(chain, out);
                     }
                 }
-                Self::Skipped | Self::Unknown => {}
+                Self::Skipped | Self::Unknown | Self::LanguageOnly(..) => {}
             }
         }
     }
@@ -515,6 +519,33 @@ fn process_json_ety_template(
     }
 }
 
+// A derived-kind template naming a language or family but no word
+// ({{bor|en|cy|-}}, {{der|mhr|trk}}): the origin, its exact source uncertain.
+// One that shows a word unlinked (an alt) is no such origin.
+fn process_language_only_json_template(template: &Json, lang: Lang) -> Option<LanguageOnly> {
+    let mode = EtyMode::from_str(template.get_valid_str("name")?).ok()?;
+    (mode.template_kind() == Some(TemplateKind::Derived)).then_some(())?;
+    let args = template.get("args")?;
+    validate_ety_template_lang(args, lang).ok()?;
+    if args.get_valid_term("3").is_some()
+        || args.get_valid_str("4").is_some()
+        || args.get_valid_str("alt").is_some()
+    {
+        return None;
+    }
+    let code = args.get_valid_str("2")?;
+    let code = code.split_once(',').map_or(code, |(c, _)| c);
+    let source = Lang::from_str(code)
+        .map(SourceLang::Lang)
+        .or_else(|_| Family::from_str(code).map(SourceLang::Family))
+        .ok()?;
+    Some(LanguageOnly {
+        source,
+        mode,
+        certainty: Certainty::Stated,
+    })
+}
+
 impl EntryPos<'_> {
     // The args of the entry's {{etymon}} (or {{ety}}) template for its own
     // language. A page section rarely has more than one; we take the first.
@@ -667,6 +698,8 @@ impl EntryPos<'_> {
             }
             if let Some(raw_ety_template) = process_json_ety_template(string_pool, template, lang) {
                 raw_ety_templates.push(ParsedRawEtyTemplate::Parsed(raw_ety_template));
+            } else if let Some(l) = process_language_only_json_template(template, lang) {
+                raw_ety_templates.push(ParsedRawEtyTemplate::LanguageOnly(l, false));
             } else {
                 raw_ety_templates.push(ParsedRawEtyTemplate::Skipped);
             }
@@ -802,22 +835,28 @@ impl Items {
         raw_etymology: &RawEtymology,
         chains: &[&[ParsedRawEtyTemplate]],
     ) -> Result<()> {
+        // A chain with a word gives it, as before; one with none, the first
+        // language or family it names.
         let mut firsts = vec![];
+        let mut origins = vec![];
         for &chain in chains {
             let Some(i) = chain
                 .iter()
                 .position(|t| matches!(t, ParsedRawEtyTemplate::Parsed(_)))
             else {
+                origins.extend(chain.iter().find_map(|t| match t {
+                    ParsedRawEtyTemplate::LanguageOnly(l, _) => Some(*l),
+                    _ => None,
+                }));
                 continue;
             };
             let resolved =
                 self.resolve_template(string_pool, embeddings, item, target, chain, i)?;
             firsts.push((chain, i, resolved));
         }
-        if firsts.is_empty() {
+        if firsts.is_empty() && origins.is_empty() {
             return Ok(());
         }
-        let resolved: Vec<&Resolved> = firsts.iter().map(|(_, _, r)| r).collect();
         let asserted = if target == item {
             Asserted {
                 credits: self.own_credits(item, raw_etymology.basis, &raw_etymology.notes)?,
@@ -831,8 +870,21 @@ impl Items {
                 ..Asserted::default()
             }
         };
+        if firsts.is_empty() {
+            if self.graph.set_language_only(target, &origins) {
+                self.graph
+                    .set_asserted(target, vec![asserted; origins.len()]);
+            }
+            return Ok(());
+        }
+        let resolved: Vec<&Resolved> = firsts.iter().map(|(_, _, r)| r).collect();
         if !self.set_own_etys(target, raw_etymology.basis, &resolved, &asserted) {
             return Ok(());
+        }
+        if !origins.is_empty() {
+            self.graph.push_language_only(target, &origins);
+            self.graph
+                .set_asserted(target, vec![asserted; resolved.len() + origins.len()]);
         }
         for (chain, i, resolved) in firsts {
             self.continue_chain(
@@ -985,6 +1037,28 @@ impl Items {
                     }
                     _ => false,
                 };
+            // "from Middle English foo, from Old French": the imputed parent's
+            // origin is a language, its word not named
+            if let Some(ParsedRawEtyTemplate::LanguageOnly(l, from_inline)) = templates.get(next)
+                && self.get(parent).is_imputed()
+                && (*from_inline
+                    || self
+                        .get(current_item)
+                        .lang()
+                        .descends_from(self.get(parent).lang()))
+            {
+                if self.graph.set_language_only(parent, &[*l]) {
+                    self.graph.set_asserted(
+                        parent,
+                        vec![Asserted {
+                            page: Some(item),
+                            credits,
+                            ..Asserted::default()
+                        }],
+                    );
+                }
+                return Ok(());
+            }
             if !continues {
                 // "from Middle English foo, of unknown origin": an imputed
                 // parent's origin is unknown, as stated in `item`'s section
@@ -1268,6 +1342,7 @@ mod tests {
                 )),
                 ParsedRawEtyTemplate::Skipped
                 | ParsedRawEtyTemplate::Unknown
+                | ParsedRawEtyTemplate::LanguageOnly(..)
                 | ParsedRawEtyTemplate::Alternatives(_) => None,
             })
             .collect()
@@ -1603,6 +1678,86 @@ mod tests {
                 t.items.graph.etymologies(brid).unwrap().kinds[..],
                 [wety_core::ety_graph::EtyKind::Unknown]
             );
+        }
+
+        #[test]
+        fn origins_naming_only_a_language() {
+            use wety_core::ety_graph::{EtyKind, LanguageOnly};
+            let lang = |code: &str| SourceLang::Lang(Lang::from_str(code).unwrap());
+            let family = |code: &str| SourceLang::Family(Family::from_str(code).unwrap());
+            let only = |source, mode, certainty| {
+                EtyKind::LanguageOnly(LanguageOnly {
+                    source,
+                    mode,
+                    certainty,
+                })
+            };
+            let mut t = Setup::new("language only");
+            // "From Welsh."
+            let aberdaron = t.add("en", "Aberdaron");
+            t.process(
+                aberdaron,
+                r#"[{"name": "bor", "args": {"1": "en", "2": "cy", "3": "-"}}]"#,
+            );
+            assert!(t.parents(aberdaron).is_empty());
+            let etys = t.items.graph.etymologies(aberdaron).unwrap();
+            assert_eq!(
+                (&etys.kinds[..], etys.primary),
+                (
+                    &[only(lang("cy"), EtyMode::Borrowed, Certainty::Stated)][..],
+                    Some(0)
+                )
+            );
+            // "Borrowed from some Turkic language", a family
+            let rak = t.add("mhr", "-рак");
+            t.process(
+                rak,
+                r#"[{"name": "bor", "args": {"1": "mhr", "2": "trk"}}]"#,
+            );
+            assert_eq!(
+                t.items.graph.etymologies(rak).unwrap().kinds[..],
+                [only(family("trk"), EtyMode::Borrowed, Certainty::Stated)]
+            );
+            // "From Latin x, or possibly from a Celtic language": alternatives,
+            // the firmer preferred
+            t.add("la", "carrus");
+            let car = t.add("en", "car");
+            t.process(
+                car,
+                r#"[{"name": "etymon", "args": {"1": "en", "2": ":bor", "3": "la:carrus",
+                    "4": "cel:<unc>"}}]"#,
+            );
+            assert_eq!(t.parents(car), ["la:carrus"]);
+            let etys = t.items.graph.etymologies(car).unwrap();
+            assert_eq!(
+                (&etys.kinds[1..], etys.primary),
+                (
+                    &[only(family("cel"), EtyMode::Borrowed, Certainty::Possible)][..],
+                    Some(0)
+                )
+            );
+            // "From Middle English brid, from Old French": the missing word's
+            let bird = t.add("en", "bird");
+            t.process(
+                bird,
+                r#"[{"name": "inh", "args": {"1": "en", "2": "enm", "3": "brid"}},
+                {"name": "bor", "args": {"1": "en", "2": "fro", "3": "-"}}]"#,
+            );
+            let brid = t.parent(bird);
+            assert_eq!(
+                t.items.graph.etymologies(brid).unwrap().kinds[..],
+                [only(lang("fro"), EtyMode::Borrowed, Certainty::Stated)]
+            );
+            // a word the section names elsewhere still comes first
+            t.add("la", "octobris");
+            let october = t.add("en", "October");
+            t.process(
+                october,
+                r#"[{"name": "inh", "args": {"1": "en", "2": "enm", "3": "-"}},
+                {"name": "der", "args": {"1": "en", "2": "la", "3": "octobris"}}]"#,
+            );
+            assert_eq!(t.parents(october), ["la:octobris"]);
+            assert!(t.items.graph.etymologies(october).is_none());
         }
 
         #[test]

@@ -16,7 +16,8 @@ interface ChartTreeProps {
 // sits on the connector. A word's alternative etymologies ("from A or B") are
 // panels of their own, each with its mode, an "or" on the junction between
 // them, so they never read as one etymology's several sources; an uncertain
-// link is dashed.
+// link is dashed. An etymology that names a language or family but no word
+// of it draws the language in a dashed box: its exact source is uncertain.
 export default function ChartTree(props: ChartTreeProps) {
   let rootEl!: HTMLDivElement;
 
@@ -73,7 +74,7 @@ function ChartNode(props: { node: TreeNode }) {
   // wait behind a control.
   const [all, setAll] = createSignal(count > 1 && n.primary === null);
   const parentsIn = (i: number) => n.children.filter((c) => (c.alt ?? 0) === i);
-  const above = n.children.length > 0 || n.alternatives.some((a) => a.kind === "unknown");
+  const above = n.children.length > 0 || n.alternatives.some((a) => a.kind !== "derivation");
   return (
     <li
       class="chart-node"
@@ -113,7 +114,10 @@ function ChartNode(props: { node: TreeNode }) {
             </button>
           </Show>
         </div>
-        <Show when={count > 1 && all()} fallback={<Sources nodes={parentsIn(shown)} />}>
+        <Show
+          when={count > 1 && all()}
+          fallback={<Sources nodes={parentsIn(shown)} alt={n.alternatives[shown]} />}
+        >
           <ul role="group" class="chart-alts">
             <For each={n.alternatives}>
               {(a, i) => (
@@ -128,7 +132,7 @@ function ChartNode(props: { node: TreeNode }) {
                       </Show>
                       <AltMode alt={a} />
                     </div>
-                    <Sources nodes={parentsIn(i())} />
+                    <Sources nodes={parentsIn(i())} alt={a} />
                   </div>
                 </li>
               )}
@@ -140,9 +144,36 @@ function ChartNode(props: { node: TreeNode }) {
   );
 }
 
-function Sources(props: { nodes: TreeNode[] }) {
+function Sources(props: { nodes: TreeNode[]; alt?: Alternative }) {
   return (
-    <Show when={props.nodes.length > 0}>
+    <Show
+      when={props.nodes.length > 0}
+      fallback={
+        <Show when={props.alt?.kind === "language_only" && props.alt.sourceLang}>
+          {(l) => (
+            <ul role="group">
+              <li
+                class="chart-node"
+                classList={{ uncertain: !!l().certainty }}
+                role="treeitem"
+              >
+                <div class="chart-box lang-only">
+                  <span class="lang">
+                    {l().name}
+                    <Show when={l().certainty}>
+                      <span class="uncertain-mark" title={`${l().certainty} source`}>
+                        ?
+                      </span>
+                    </Show>
+                  </span>
+                  <span class="lang-only-note">exact source uncertain</span>
+                </div>
+              </li>
+            </ul>
+          )}
+        </Show>
+      }
+    >
       <ul role="group">
         <For each={props.nodes}>{(c) => <ChartNode node={c} />}</For>
       </ul>

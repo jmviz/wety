@@ -4,7 +4,7 @@ use crate::{
     descendant_langs::DescendantLangs,
     etymology_templates::EtyMode,
     items::{Item, ItemId},
-    languages::Lang,
+    languages::{Family, Lang},
     synthesis::{Reading, primary},
 };
 
@@ -72,6 +72,36 @@ pub enum EtyKind {
     /// the source says no origin is known ({{unk}}): known to be unknown,
     /// unlike nothing parsed
     Unknown,
+    /// the source names the language or family the word came from, but no
+    /// word of it ("From Welsh", "Borrowed from some Turkic language"): no
+    /// parents, the exact source uncertain
+    LanguageOnly(LanguageOnly),
+}
+
+impl EtyKind {
+    /// The certainty of an etymology with no parents to carry one.
+    #[must_use]
+    pub fn certainty(self) -> Option<Certainty> {
+        match self {
+            Self::LanguageOnly(l) => Some(l.certainty),
+            Self::Derivation | Self::Unknown => None,
+        }
+    }
+}
+
+/// An origin in a language, or a family of languages, with no word named.
+#[derive(Serialize, Deserialize, Hash, Eq, PartialEq, Debug, Copy, Clone)]
+pub struct LanguageOnly {
+    pub source: SourceLang,
+    pub mode: EtyMode,
+    pub certainty: Certainty,
+}
+
+/// A language or a family of languages, named as a word's source.
+#[derive(Serialize, Deserialize, Hash, Eq, PartialEq, Debug, Copy, Clone)]
+pub enum SourceLang {
+    Lang(Lang),
+    Family(Family),
 }
 
 /// An item's etymologies, for an item with several (alternatives one source
@@ -369,8 +399,16 @@ impl EtyGraph {
             self.remove_ety(item);
             return;
         };
+        let mut kinds = self
+            .etymologies
+            .get(&item)
+            .map_or_else(|| vec![EtyKind::Derivation; n], |e| e.kinds.to_vec());
+        kinds.remove(usize::from(ety));
         let edge_ids = self.graph.edges(item).map(|e| e.id()).collect_vec();
-        let mut weakest = vec![Certainty::Stated; n - 1];
+        let mut weakest: Vec<Certainty> = kinds
+            .iter()
+            .map(|k| k.certainty().unwrap_or_default())
+            .collect();
         for edge_id in edge_ids {
             let edge = &mut self.graph[edge_id];
             if edge.ety == ety {
@@ -404,13 +442,13 @@ impl EtyGraph {
                 self.claims.insert(item, claims);
             }
         }
-        if n == 2 {
+        if kinds == [EtyKind::Derivation] {
             self.etymologies.remove(&item);
         } else {
             self.etymologies.insert(
                 item,
                 Etymologies {
-                    kinds: vec![EtyKind::Derivation; n - 1].into_boxed_slice(),
+                    kinds: kinds.into_boxed_slice(),
                     primary: primary(&weakest),
                     reading: Reading::default(),
                 },
@@ -567,6 +605,60 @@ impl EtyGraph {
             );
         }
         unknown
+    }
+
+    /// Give an item etymologies naming only a language or family, if nothing
+    /// gives it parents or another origin. Returns whether they were given.
+    pub fn set_language_only(&mut self, item: ItemId, origins: &[LanguageOnly]) -> bool {
+        let free = !origins.is_empty()
+            && self.graph.edges(item).next().is_none()
+            && !self.etymologies.contains_key(&item);
+        if free {
+            let weakest = origins.iter().map(|o| o.certainty).collect_vec();
+            self.etymologies.insert(
+                item,
+                Etymologies {
+                    kinds: origins.iter().map(|&o| EtyKind::LanguageOnly(o)).collect(),
+                    primary: primary(&weakest),
+                    reading: Reading::default(),
+                },
+            );
+        }
+        free
+    }
+
+    /// Add etymologies naming only a language or family after an item's
+    /// others, as alternatives to them ("from Latin X, or from a Celtic
+    /// language"); the primary is chosen anew, as add_etymologies chooses it.
+    pub fn push_language_only(&mut self, item: ItemId, origins: &[LanguageOnly]) {
+        if origins.is_empty() {
+            return;
+        }
+        let n = self.ety_count(item);
+        let mut kinds = self
+            .etymologies
+            .remove(&item)
+            .map_or_else(|| vec![EtyKind::Derivation; n], |e| e.kinds.into_vec());
+        let mut weakest: Vec<Certainty> = kinds
+            .iter()
+            .map(|k| k.certainty().unwrap_or_default())
+            .collect();
+        for e in self.graph.edges(item) {
+            let w = &mut weakest[usize::from(e.weight().ety)];
+            *w = (*w).max(e.weight().certainty);
+        }
+        for &o in origins {
+            kinds.push(EtyKind::LanguageOnly(o));
+            weakest.push(o.certainty);
+        }
+        self.etymologies.insert(
+            item,
+            Etymologies {
+                kinds: kinds.into_boxed_slice(),
+                primary: primary(&weakest),
+                reading: Reading::default(),
+            },
+        );
     }
 
     /// Give an item one etymology, unless it has one whose links are at least
@@ -958,6 +1050,47 @@ mod tests {
         // a later etymology replaces it
         graph.add_ety(u, EtyMode::Root, Some(0), EdgeBasis::Root, &[a], &[0.5]);
         assert!(graph.etymologies(u).is_none());
+    }
+
+    #[test]
+    fn origins_naming_only_a_language_stay_alternatives() {
+        let mut graph = EtyGraph::default();
+        let [w, a, b, l] = items(&mut graph, &["w", "a", "b", "l"])[..] else {
+            unreachable!()
+        };
+        let celtic = LanguageOnly {
+            source: SourceLang::Family(Family::from_str("cel").unwrap()),
+            mode: EtyMode::Borrowed,
+            certainty: Certainty::Possible,
+        };
+        // alone, as for an unknown origin
+        assert!(graph.set_language_only(l, &[celtic]));
+        assert_eq!(graph.ety_count(l), 1);
+        assert!(graph.immediate_ety(l).is_none());
+        assert!(!graph.set_language_only(l, &[celtic]));
+        // after words: an alternative, the firmer word preferred
+        let stated = [Certainty::Stated];
+        let new_ety = |items| NewEtymology {
+            mode: EtyMode::Borrowed,
+            head: Some(0),
+            basis: EdgeBasis::Template,
+            items,
+            confidences: &[1.0],
+            certainties: &stated,
+        };
+        graph.add_etymologies(w, &[new_ety(&[a]), new_ety(&[b])]);
+        graph.push_language_only(w, &[celtic]);
+        let etys = graph.etymologies(w).unwrap();
+        assert_eq!(etys.kinds[2], EtyKind::LanguageOnly(celtic));
+        assert_eq!(etys.primary, None);
+        // removing a word's etymology keeps it
+        graph.remove_ety_through(w, a);
+        let etys = graph.etymologies(w).unwrap();
+        assert_eq!(
+            etys.kinds[..],
+            [EtyKind::Derivation, EtyKind::LanguageOnly(celtic)]
+        );
+        assert_eq!(etys.primary, Some(0));
     }
 
     #[test]

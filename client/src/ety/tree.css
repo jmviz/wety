@@ -469,6 +469,21 @@
   font-size: 0.85em;
 }
 
+/* A language or family named without a word of it. */
+.chart-box.lang-only {
+  border-style: dashed;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.3;
+}
+
+.chart-box .lang-only-note {
+  font-size: 0.78em;
+  font-style: italic;
+  color: var(--muted);
+}
+
 .chart-mode {
   font-size: 0.78em;
   font-style: italic;

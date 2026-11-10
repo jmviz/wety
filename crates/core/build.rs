@@ -10,10 +10,15 @@ fn main() {
     let relative = selection["wiktionary_languages"].as_str().unwrap();
     assert!(!PathBuf::from(relative).is_absolute() && !relative.split('/').any(|s| s == ".."));
     let language_path = repo.join(relative).canonicalize().unwrap();
+    let relative = selection["wiktionary_families"].as_str().unwrap();
+    assert!(!PathBuf::from(relative).is_absolute() && !relative.split('/').any(|s| s == ".."));
+    let family_path = repo.join(relative).canonicalize().unwrap();
     let pos_path = crate_dir.join("src/pos_phf.rs");
     let mut hash = Sha256::new();
     hash.update(b"wety-reference-tables-v1\0");
     hash.update(fs::read(&language_path).unwrap());
+    hash.update(b"\0");
+    hash.update(fs::read(&family_path).unwrap());
     hash.update(b"\0");
     hash.update(fs::read(&pos_path).unwrap());
     println!(
@@ -23,6 +28,10 @@ fn main() {
     println!(
         "cargo:rustc-env=WETY_LANGUAGES_JSON={}",
         language_path.display()
+    );
+    println!(
+        "cargo:rustc-env=WETY_FAMILIES_JSON={}",
+        family_path.display()
     );
     // Codes Wiktionary has retired, mapped to their successors, so that links
     // naming them keep working. Not part of the fingerprint: it does not
@@ -35,7 +44,13 @@ fn main() {
         "cargo:rustc-env=WETY_RETIRED_LANGUAGE_CODES_JSON={}",
         retired_path.display()
     );
-    for path in [&selection_path, &language_path, &pos_path, &retired_path] {
+    for path in [
+        &selection_path,
+        &language_path,
+        &family_path,
+        &pos_path,
+        &retired_path,
+    ] {
         println!("cargo:rerun-if-changed={}", path.display());
     }
 }

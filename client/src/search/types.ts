@@ -51,10 +51,22 @@ export interface Reading {
   disputed: boolean;
 }
 
+// The language or family an etymology names without naming the word.
+export interface SourceLang {
+  code: string;
+  name: string;
+  family: boolean;
+  certainty?: string;
+}
+
+// "unknown": the source says no origin is known. "language_only": it names
+// the language or family the word came from, but no word of it.
+export type EtyKind = "derivation" | "unknown" | "language_only";
+
 export interface EtyAlternative {
-  // "unknown": the source says no origin is known.
-  kind: "derivation" | "unknown";
+  kind: EtyKind;
   mode: string | null;
+  sourceLang?: SourceLang;
   // Read by a wety rule rather than stated by a source.
   inferred: boolean;
   // Given only by another source than Wiktionary.
@@ -70,8 +82,9 @@ export interface Origin {
 }
 
 export interface Hypothesis {
-  kind: "derivation" | "unknown";
+  kind: EtyKind;
   mode: string | null;
+  sourceLang?: SourceLang;
   parents: { item: Item; certainty?: string; head: boolean }[];
   // Wiktionary's assertion; none when only another source gives it.
   asserted: Assertion | null;
@@ -149,8 +162,9 @@ export interface Descendants {
 }
 
 export interface OtherEty {
-  kind: "derivation" | "unknown";
+  kind: EtyKind;
   mode: string | null;
+  sourceLang?: SourceLang;
   preferred: boolean;
   parents: OtherParent[];
 }

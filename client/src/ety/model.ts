@@ -33,6 +33,8 @@ import {
 export interface Alternative {
   kind: EtyAlternative["kind"];
   mode: string | null;
+  // The language or family a "language_only" etymology names.
+  sourceLang?: EtyAlternative["sourceLang"];
   inferred: boolean;
   // Given only by another source than Wiktionary.
   source: boolean;
@@ -148,9 +150,10 @@ function rawFromEtymology(e: Etymology, alt: number | null = null): RawNode {
     item: e.item,
     langDistance: e.langDistance,
     etyMode: e.etymologies[e.primary ?? 0]?.mode ?? null,
-    alternatives: e.etymologies.map(({ kind, mode, inferred, source }) => ({
+    alternatives: e.etymologies.map(({ kind, mode, sourceLang, inferred, source }) => ({
       kind,
       mode,
+      sourceLang,
       inferred,
       source,
     })),

@@ -17,7 +17,7 @@ static ALLOC: snmalloc_rs::SnMalloc = snmalloc_rs::SnMalloc;
 use wety_core::{
     HashSet,
     assertions::{self, Asserted, Work, digest},
-    ety_graph::{Certainty, EdgeBasis, EtyEdgeAccess, EtyKind},
+    ety_graph::{Certainty, EdgeBasis, EtyEdgeAccess, EtyKind, LanguageOnly, SourceLang},
     etymology_templates::EtyMode,
     items::ItemId,
     processed::Data,
@@ -243,6 +243,39 @@ impl Export<'_> {
         out.add(json!({"type": "hypothesis", "id": id, "word": word, "links": links}))
     }
 
+    // An etymology naming a language or family but no word: a link to a
+    // record of that language with no form.
+    fn language_only_hypothesis(
+        &self,
+        out: &mut Writer,
+        item: ItemId,
+        origin: LanguageOnly,
+    ) -> Result<String> {
+        let word = self.record(out, item)?;
+        let (code, label, reconstructed) = match origin.source {
+            SourceLang::Lang(lang) => {
+                (lang.code(), lang.name().to_owned(), lang.is_reconstructed())
+            }
+            SourceLang::Family(family) => (family.code(), family.name(), false),
+        };
+        let parent = out.add(json!({
+            "type": "record",
+            "id": format!("{SOURCE_NAME}:{code}:"),
+            "source": self.source,
+            "language": {"label": label, "code": code, "relation": "exact"},
+            "form": null,
+            "reconstructed": reconstructed,
+        }))?;
+        let links = json!([{
+            "child": word,
+            "parents": [parent],
+            "relation": "derivation",
+            "mode": origin.mode.as_ref(),
+        }]);
+        let id = format!("hyp:{}", digest(&json!([word, links])));
+        out.add(json!({"type": "hypothesis", "id": id, "word": word, "links": links}))
+    }
+
     #[allow(clippy::too_many_arguments)]
     fn assertion(
         &mut self,
@@ -359,10 +392,27 @@ impl Export<'_> {
         {
             by_ety.entry(e.ety()).or_default().push(e);
         }
-        if by_ety.is_empty() {
+        let language_only = etymologies
+            .into_iter()
+            .flat_map(|e| e.kinds.iter().enumerate())
+            .filter_map(|(n, k)| match *k {
+                EtyKind::LanguageOnly(l) => Some((u8::try_from(n).ok()?, l)),
+                EtyKind::Derivation | EtyKind::Unknown => None,
+            })
+            .collect_vec();
+        if by_ety.is_empty() && language_only.is_empty() {
             return Ok(());
         }
         let mut members = vec![];
+        for &(ety, origin) in &language_only {
+            members.push((
+                self.language_only_hypothesis(out, item, origin)?,
+                EdgeBasis::Template,
+                origin.certainty,
+                ety,
+            ));
+            self.count("etymologies naming only a language");
+        }
         for (&ety, edges) in &by_ety {
             let parents = edges
                 .iter()
@@ -380,6 +430,7 @@ impl Export<'_> {
                 ety,
             ));
         }
+        members.sort_by_key(|m| m.3);
         // A source's alternatives are a set it asserts. A rule's (a root named
         // under several senses) are the rule's own reading, compiled one by
         // one: the schema lets a rule compile only hypotheses.

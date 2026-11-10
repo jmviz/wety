@@ -101,11 +101,26 @@ pub struct DescendantsJson<'a> {
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct OtherEtyJson<'a> {
-    /// "derivation", or "unknown": the source says no origin is known.
+    /// "derivation"; "unknown": the source says no origin is known;
+    /// "language_only": it names a language or family, but no word.
     pub kind: &'static str,
     pub mode: Option<&'static str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub source_lang: Option<SourceLangJson>,
     pub preferred: bool,
     pub parents: Vec<OtherParentJson<'a>>,
+}
+
+/// The language or family a "language_only" etymology names, and how
+/// certain the source is of it.
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SourceLangJson {
+    pub code: &'static str,
+    pub name: String,
+    pub family: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub certainty: Option<&'static str>,
 }
 
 /// One step of a word's trail: the item and the mode of its own etymology.
@@ -186,9 +201,12 @@ pub struct ReadingJson {
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct EtyJson<'a> {
-    /// "derivation", or "unknown": the source says no origin is known.
+    /// "derivation"; "unknown": the source says no origin is known;
+    /// "language_only": it names a language or family, but no word.
     pub kind: &'static str,
     pub mode: Option<&'static str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub source_lang: Option<SourceLangJson>,
     /// Whether a wety rule reads it rather than a source stating it.
     pub inferred: bool,
     /// Whether only another source than Wiktionary gives it.
@@ -211,6 +229,8 @@ pub struct OriginJson<'a> {
 pub struct HypothesisJson<'a> {
     pub kind: &'static str,
     pub mode: Option<&'static str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub source_lang: Option<SourceLangJson>,
     pub parents: Vec<LinkJson<'a>>,
     /// Wiktionary's assertion of it (its editors', or a wety rule's reading
     /// of Wiktionary); none when only another source gives it.
