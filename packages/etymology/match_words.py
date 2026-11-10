@@ -455,6 +455,10 @@ class Matcher:
         found = self.candidates(s)
         if found is None:
             return ("skipped", "language not exact", None)
+        judged = self.judgements.choose(s["id"], found)
+        if judged and len(judged) == 1:
+            return ("match", judged[0], {"key": "equal", "lineage": "judged"})
+        found = [w for w in found if self.judgements.label(s["id"], w) is not False]
         if word_match:
             named = self.wikt.named(word_match)
             hit = [w for w in found if w in named]
