@@ -1758,6 +1758,17 @@ mod tests {
             );
             assert_eq!(t.parents(october), ["la:octobris"]);
             assert!(t.items.graph.etymologies(october).is_none());
+            // a term shown but not linked is a word: the inline etymology goes
+            // on as before, its first alternative
+            t.add("la", "-arius");
+            let ar = t.add("en", "-ar");
+            t.process(
+                ar,
+                r#"[{"name": "etymon", "args": {"1": "en", "2": ":inh",
+                    "3": "enm:<alt:-ar, -er><ety:bor<la:-arius><fro:-aire>>"}}]"#,
+            );
+            assert_eq!(t.parents(ar), ["la:-arius"]);
+            assert!(t.items.graph.etymologies(ar).is_none());
         }
 
         #[test]

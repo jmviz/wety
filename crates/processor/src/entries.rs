@@ -93,7 +93,8 @@ impl Items {
 /// The calls of an entry's etymology, in order. A span that continues a transclusion
 /// an earlier span opened repeats its calls and is skipped. An etymology template that
 /// names a language but no word takes the word from a link template right after it
-/// ("From Middle Chinese 中國": `{{der|ja|ltc|-}} {{ltc-l|中國}}`; see `link_term`).
+/// ("From Middle Chinese 中國": `{{der|ja|ltc|-}} {{ltc-l|中國}}`; see `link_term`),
+/// unless "+" follows that word.
 pub(crate) fn etymology_calls<'a>(entry: &'a Json<'a>) -> Vec<Cow<'a, Json<'a>>> {
     let blocks = entry.get("etymology").and_then(|e| e.get_array("blocks"));
     let mut calls = vec![];
@@ -113,7 +114,7 @@ pub(crate) fn etymology_calls<'a>(entry: &'a Json<'a>) -> Vec<Cow<'a, Json<'a>>>
                 let paired = (m + 1 == span_calls.len())
                     .then(|| spans.get(n + 1))
                     .flatten()
-                    .filter(|next| adjacent(text, span, next))
+                    .filter(|next| adjacent(text, span, next) && !plus_after(text, next))
                     .and_then(|next| paired_call(call, next));
                 calls.push(paired.map_or(Cow::Borrowed(call), Cow::Owned));
             }
@@ -132,6 +133,18 @@ fn adjacent(text: &str, span: &Json, next: &Json) -> bool {
             .all(char::is_whitespace),
         _ => false,
     }
+}
+
+/// Whether the text after a span goes on with "+", so that the span names only the
+/// first part of a word the template's language formed ("Borrowed from Sanskrit दीर्घ
+/// + आयु"), not the word itself.
+fn plus_after(text: &str, span: &Json) -> bool {
+    span.get_usize("end").is_some_and(|end| {
+        text.chars()
+            .skip(end)
+            .find(|c| !c.is_whitespace())
+            .is_some_and(|c| c == '+')
+    })
 }
 
 /// An etymology template naming a language but no word (`{{der|ja|ltc|-}}`), given
@@ -813,6 +826,17 @@ mod tests {
                 "links": [{"page": "棒読み", "anchor": "Japanese"}]}"#;
         assert_eq!(
             third("From Japanese; compare 棒読み.", apart).as_deref(),
+            Some("-")
+        );
+        // nor to the first part of a compound ("Sanskrit दीर्घ + आयु")
+        let compound = r#"{"kind": "template", "start": 14, "end": 22,
+                "calls": [{"name": "bor", "args": {"1": "ms", "2": "sa", "3": "-"}}]},
+            {"kind": "template", "start": 23, "end": 28,
+                "calls": [{"name": "m", "args": {"1": "sa", "2": "दीर्घ"}}]},
+            {"kind": "template", "start": 31, "end": 34,
+                "calls": [{"name": "m", "args": {"1": "sa", "2": "आयु"}}]}"#;
+        assert_eq!(
+            third("Borrowed from Sanskrit दीर्घ + आयु.", compound).as_deref(),
             Some("-")
         );
     }

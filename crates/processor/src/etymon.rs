@@ -214,6 +214,8 @@ pub(crate) fn parse_etymon(param: &str, context_lang: Lang) -> Option<Etymon<'_>
         },
         None => (context_lang, None, clean(head)),
     };
+    // a term shown but not linked (<alt:...>) is a word, not only a language
+    let source = source.filter(|_| modifier(&modifiers, "alt").is_none());
     Some(Etymon {
         lang,
         source,
@@ -522,15 +524,17 @@ fn parse_params(
                                 .collect()
                         })
                         .collect();
-                if inline_chains.len() > 1 {
+                // alternatives are the parent's own; with no parent named, the
+                // first goes on as the chain
+                if inline_chains.len() > 1 && matches!(chain[0], ParsedRawEtyTemplate::Parsed(_)) {
                     chain.push(ParsedRawEtyTemplate::Alternatives(
                         inline_chains
                             .into_iter()
                             .map(Vec::into_boxed_slice)
                             .collect(),
                     ));
-                } else if let Some(first) = inline_chains.pop() {
-                    chain.extend(first);
+                } else if !inline_chains.is_empty() {
+                    chain.extend(inline_chains.swap_remove(0));
                 }
             }
             alternatives.push(chain);

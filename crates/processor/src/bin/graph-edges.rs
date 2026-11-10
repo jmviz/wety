@@ -46,6 +46,11 @@ struct Args {
     /// Where to write the items whose origin is unknown, one key per line
     #[clap(long)]
     unknown: Option<PathBuf>,
+    /// Where to write the etymologies that name a language or family but no
+    /// word: the item's key, then the etymology's number, mode, source code,
+    /// certainty, and whether walks follow it (TSV)
+    #[clap(long)]
+    language_only: Option<PathBuf>,
     /// Where to write the readings of words that claims touch or that are
     /// not read by one lineage (JSON Lines)
     #[clap(long)]
@@ -104,6 +109,28 @@ fn main() -> Result<()> {
         for (&item, etys) in &data.graph.etymologies {
             if etys.kinds.contains(&EtyKind::Unknown) {
                 writeln!(out, "{}", key(&data, item))?;
+            }
+        }
+        out.flush()?;
+    }
+    if let Some(path) = args.language_only {
+        let mut out = BufWriter::new(File::create(path)?);
+        for (&item, etys) in &data.graph.etymologies {
+            for (n, kind) in etys.kinds.iter().enumerate() {
+                if let EtyKind::LanguageOnly(l) = kind {
+                    let code = match l.source {
+                        SourceLang::Lang(lang) => lang.code(),
+                        SourceLang::Family(family) => family.code(),
+                    };
+                    let followed = etys.primary.is_none_or(|p| usize::from(p) == n);
+                    writeln!(
+                        out,
+                        "{}\t{n}\t{}\t{code}\t{}\t{followed}",
+                        key(&data, item),
+                        l.mode.as_str(),
+                        l.certainty.as_ref()
+                    )?;
+                }
             }
         }
         out.flush()?;
