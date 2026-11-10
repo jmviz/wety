@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
-  "snapshot": "7a2d20725f78d0d95c83b9e3cde8cbb4127a83416e795a6263689356d23b1041",
-  "taken_at": "2026-11-10T04:53:14+00:00",
+  "snapshot": "612e4d8a717f4c0142f738e27545cdc04a387b1e3786adc6f1ec4f6375104edc",
+  "taken_at": "2026-11-10T21:42:15+00:00",
   "root": "/data",
-  "files": 48439,
-  "bytes": 128415396537,
-  "git_commit": "7ae9cf3b2b954dc16b65fbceb0ece450c77f3564",
-  "note": "clld-dicts: seven CLLD sources converted, matched and reviewed (checks cl-2 to cl-6)"
+  "files": 48944,
+  "bytes": 156875055092,
+  "git_commit": "6732495f645362bd4c81a334d6c310e66e5a0713",
+  "note": "clld-dicts cl-7: claims products of seven CLLD sources; graph bcad06b9 (not adopted) and its report"
 }
