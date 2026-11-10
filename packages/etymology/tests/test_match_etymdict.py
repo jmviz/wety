@@ -330,5 +330,29 @@ class Notation(unittest.TestCase):
         self.assertEqual(keys("tlopo", True, "sasa(h,q)"), {"sasah", "sasaq", "sasa"})
 
 
+class CitedWords(unittest.TestCase):
+    """The MCD's and TLOPO's v2: a cited word with no gloss needs a shared ancestor."""
+
+    def test_supported(self):
+        from types import SimpleNamespace
+
+        from etymology.matching import Judgements
+
+        m = SimpleNamespace(judgements=Judgements())
+        r = {"id": "mcd:chuukese-1"}
+        ok = Matcher.supported
+        self.assertTrue(ok(m, r, "wiktionary:chk:fáán#1", {"key": "equal"}))
+        self.assertTrue(ok(m, r, "wiktionary:chk:fáán#1?", {"key": "equal", "gloss": 0.5}))
+        self.assertTrue(
+            ok(
+                m,
+                r,
+                "wiktionary:chk:fáán#1?",
+                {"key": "equal", "ancestors": {"shared": 1, "cited": 1}},
+            )
+        )
+        self.assertFalse(ok(m, r, "wiktionary:chk:fáán#1?", {"key": "equal"}))
+
+
 if __name__ == "__main__":
     unittest.main()

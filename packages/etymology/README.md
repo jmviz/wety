@@ -156,8 +156,13 @@ The MCD and TLOPO are matched by the same rules under their own names
 their own orthography profiles and judgements in `sources/<source>/etc/`. Their notation
 is rewritten into the keys' before keying (TLOPO's `(h,q)` and `[t,q]`, the MCD's `[kq]`
 and `[aØ]`), and since their links pass through the levels between, a reconstruction's
-reflexes are its attested descendants in the source. Their first runs are in
-`sources/<source>/checks/cl-3/`.
+reflexes are its attested descendants in the source. Their first runs (`@1`) are in
+`sources/<source>/checks/cl-3/`, reviewed: 89 and 96 of 100 sampled matches right, every
+error a word Wiktionary only cites matched on its key alone. `@2` takes such a word only
+with a shared ancestor (`checks/cl-3-v2/`), which drops 246 and 244 attested matches.
+On the samples it removes 29 MCD matches (11 wrong, 18 right; the 71 left are right) and
+15 TLOPO ones (3 wrong, 12 right; 84 of the 85 left are right): precision for recall.
+Judged pairs keep their judgement.
 
 ## Matching LiLa to Wiktionary
 

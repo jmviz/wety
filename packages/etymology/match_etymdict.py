@@ -3,7 +3,9 @@ the MCD, TLOPO) matched to Wiktionary's, and Wiktionary's assertions that credit
 dictionary relayed to its own (acd-3; the MCD and TLOPO since clld-dicts).
 
 The rule was written for the ACD and is named after each source (`SPECS`): the ACD's
-`agent:wety-match-acd@4`, the MCD's and TLOPO's `@1` of the same rule. The ACD links a
+`agent:wety-match-acd@4`; the MCD's and TLOPO's `@2` are the same rule, except that a
+word Wiktionary only cites is taken for one of their attested words only with a shared
+ancestor (`Matcher.supported`; `@1`, without it, is reviewed in their `checks/cl-3/`). The ACD links a
 reflex straight to its set's reconstruction, the MCD and TLOPO through the levels between
 (`etymology.convert.etymdict`), so a reconstruction's reflexes are read by each source's
 rule (`Dictionary.reflexes`). Each source's notation is rewritten into the comparison
@@ -291,6 +293,7 @@ class Spec:
     release: str  # the module and class of its release, for its tree
     nested: bool  # links pass through intermediate levels (`etymdict`'s nested rule)
     notation: object = None
+    cited_needs_ancestor: bool = False  # `Matcher.options`
 
     @property
     def etc(self):
@@ -346,8 +349,8 @@ SPECS = {
     "mcd": Spec(
         "mcd",
         "MCD",
-        "agent:wety-match-mcd@1",
-        _match_name("MCD", "v1 (the ACD matcher's v4 rule)"),
+        "agent:wety-match-mcd@2",
+        _match_name("MCD", "v2 (the ACD matcher's v4 rule, cited words need an ancestor)"),
         "agent:wety-relay-mcd@1",
         _relay_name("MCD"),
         re.compile(r":poz-mic:Bender:2003$|Proto-Micronesian Reconstructions"),
@@ -355,12 +358,13 @@ SPECS = {
         "etymology.convert.mcd:McdRelease",
         nested=True,
         notation=mcd_notation,
+        cited_needs_ancestor=True,
     ),
     "tlopo": Spec(
         "tlopo",
         "TLOPO",
-        "agent:wety-match-tlopo@1",
-        _match_name("TLOPO", "v1 (the ACD matcher's v4 rule)"),
+        "agent:wety-match-tlopo@2",
+        _match_name("TLOPO", "v2 (the ACD matcher's v4 rule, cited words need an ancestor)"),
         "agent:wety-relay-tlopo@1",
         _relay_name("TLOPO"),
         re.compile(r":poz-oce:LPO$|[Ll]exicon of Proto[- ]?Oceanic"),
@@ -368,6 +372,7 @@ SPECS = {
         "etymology.convert.tlopo:TlopoRelease",
         nested=True,
         notation=tlopo_notation,
+        cited_needs_ancestor=True,
     ),
 }
 
@@ -913,12 +918,23 @@ class Matcher:
         ]
         if not r["reconstructed"] and any(b.get("gloss", 1) > 0 for _, b in ok):
             ok = [(w, b) for w, b in ok if b.get("gloss", 1) > 0]
+        if self.dic.spec.cited_needs_ancestor and not r["reconstructed"]:
+            ok = [(w, b) for w, b in ok if self.supported(r, w, b)]
         if not ok:
             if all(c["contradicted"] for _, _, c in found):
                 why = f"candidates whose ancestry contradicts the {self.dic.spec.label}"
                 return ("unmatched", why, found[0][1])
             return ("unmatched", "candidates without support", found[0][1])
         return [(w, b, self.features(r, w, b)) for w, b in ok]
+
+    def supported(self, r, w, basis):
+        """For the MCD and TLOPO (`Spec.cited_needs_ancestor`; their v2): a word
+        Wiktionary only cites, with no gloss, is a candidate only with a shared ancestor
+        or a reviewer's judgement. Their first reviews (cl-3) found such matches resting
+        on the key alone wrong half the time (15 of 33), and every other match right."""
+        if not w.endswith("?") or "gloss" in basis or basis.get("ancestors", {}).get("shared"):
+            return True
+        return bool(self.judgements.label(r["id"], w))
 
     def fit(self, model, options):
         """Fits a model to the eligible pairs, judged pairs held at their label."""
