@@ -2035,6 +2035,30 @@ mod tests {
         }
 
         #[test]
+        fn a_root_another_part_may_carry_is_no_vote_for_the_head() {
+            // mul Lycosa = grc λύκος + la -ōsus, filed under *h₃ed- (smell)
+            // for the suffix; neither part has an etymology, so the category
+            // may be either's and roots neither
+            let mut t = Setup::new("other-part-roots");
+            add_root(&mut t, "h₃ed-", "smell");
+            let lukos = t.add("grc", "λύκος");
+            let osus = t.add("la", "-ōsus");
+            let lycosa = t.add("mul", "Lycosa");
+            t.items.graph.add_ety(
+                lycosa,
+                EtyMode::Suffix,
+                Some(0),
+                EdgeBasis::Template,
+                &[lukos, osus],
+                &[1.0, 1.0],
+            );
+            set_roots(&mut t, lycosa, &[("h₃ed-", None)]);
+            t.items.impute_root_etys(&t.sp, &t.embeddings).unwrap();
+            assert!(t.items.graph.immediate_ety(lukos).is_none());
+            assert!(t.items.graph.immediate_ety(osus).is_none());
+        }
+
+        #[test]
         fn tied_root_votes_impute_none() {
             // one item naming two roots its chain does not reach: either may be
             // its progenitor's

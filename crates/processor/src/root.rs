@@ -313,7 +313,10 @@ impl Items {
     //    categories of a derivative also cover its other parts (pl
     //    przetestować, prze- + testować, names *per- (fare) for prze-, whose
     //    chain reaches *per- (before)), and these must not speak for the base's
-    //    progenitor (la testum). Many items may speak for the same progenitor,
+    //    progenitor (la testum). Nor do they when another part's line also
+    //    ends without an etymology in a language that may descend from the
+    //    root: the category may be that part's. Many items may speak for the
+    //    same progenitor,
     //    not always alike, so each progenitor gets the root most of them name,
     //    an item naming n unreached roots giving each 1/n of a vote. Where the
     //    votes do not single out one root, the progenitor gets none. A root
@@ -398,6 +401,14 @@ impl Items {
                         self.get(root_item).term(),
                     ))
                     && self.may_descend_from_root(string_pool, head_progenitor, root_item)
+                    // Another part's line also ends without an etymology
+                    // where the root could be its source: the category may
+                    // be that part's (Lycosa, λύκος + -ōsus, filed under
+                    // *h₃ed- "smell" for the suffix), so it is no vote for
+                    // the head's (*wl̥kʷós).
+                    && !progenitors.items.iter().any(|&p| {
+                        p != head_progenitor && self.may_descend_from_root(string_pool, p, root_item)
+                    })
                     && !unreached.contains(&root_item)
                 {
                     unreached.push(root_item);
