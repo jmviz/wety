@@ -1,0 +1,16 @@
+[
+ {
+  "id": "psi",
+  "relation": "exact",
+  "code": "sio-pro",
+  "rationale": "Proto-Siouan, Wiktionary's sio-pro.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "psc",
+  "relation": "exact",
+  "code": "nai-sca-pro",
+  "rationale": "Proto-Siouan-Catawba, Wiktionary's nai-sca-pro (Proto-Siouan-Catawban).",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ }
+]

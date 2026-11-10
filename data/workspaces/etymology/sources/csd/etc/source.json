@@ -1,0 +1,41 @@
+{
+ "id": "csd",
+ "title": "Comparative Siouan Dictionary",
+ "release": "v2026.11",
+ "doi": "10.5281/zenodo.23924655",
+ "published": "2026-11-03",
+ "creators": [
+  "Robert L. Rankin",
+  "Richard T. Carter",
+  "A. Wesley Jones",
+  "John E. Koontz",
+  "David S. Rood",
+  "Iren Hartmann"
+ ],
+ "cite_as": "Robert L. Rankin, Richard T. Carter, A. Wesley Jones, John E. Koontz, David S. Rood and Iren Hartmann (eds.) 2015. Comparative Siouan Dictionary. Leipzig: Max Planck Institute for Evolutionary Anthropology (https://csd.clld.org); clld app deposit v2026.11, doi:10.5281/zenodo.23924655.",
+ "url": "https://csd.clld.org",
+ "repository": "https://github.com/clld/csd (the app; the data is its database dump, csd.sql.gz)",
+ "artifact": {
+  "path": "data/artifacts/csd/0c71882b88c589158ba4ab287d13273b5e119cfac7531f0728a8a66f354cecc0",
+  "artifact_id": "sha256:abfefba7e756a6d7263c9e1e52234f6c94241d15f82011a826b0a2c92ade9c9e",
+  "sha256": "0c71882b88c589158ba4ab287d13273b5e119cfac7531f0728a8a66f354cecc0",
+  "acquired": "2026-11-10T03:16:44.838249+00:00"
+ },
+ "raw": "data/workspaces/etymology/sources/csd/raw/csd.sql.gz",
+ "kind_of_work": "set-centric comparative dictionary of the Siouan-Catawba family: 1,204 entries over 37 languages and proto-languages, as a clld app's PostgreSQL dump (no CLDF release)",
+ "holder": "the CSD's editors (Rankin, Carter, Jones, Koontz, Rood; Hartmann for the app)",
+ "date_of_view": "2015",
+ "coverage": {
+  "entries": 1204,
+  "entries_with_a_reconstruction": 1175,
+  "forms": 19086,
+  "languages": 37
+ },
+ "licence": "CC-BY-4.0",
+ "may_display": "everything, with attribution",
+ "may_export": "everything, with attribution",
+ "curation": {
+  "language_map": "etc/languages.json (the dump's languages, listed in checks/cl-6/languages.csv, with etc/languages.reviewed.json)",
+  "kind_map": "etc/kinds.json"
+ }
+}

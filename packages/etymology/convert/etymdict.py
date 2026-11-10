@@ -190,7 +190,7 @@ class Release:
             for rows in self.cognates.values()
             for r in rows
             if self.is_proto(r["Form_ID"])
-        } | {self.language_of_set(s) for s in self.sets}
+        } | {self.language_of_set(s) for s, row in self.sets.items() if row["Form_ID"]}
 
     @cached_property
     def tree(self):
@@ -329,11 +329,14 @@ class Converter:
     def cognate_set(self, set_id):
         s = self.r.sets[set_id]
         rows = self.r.members(set_id)
+        if not s["Form_ID"] and not rows:
+            self.counts["sets with no forms: not converted"] += 1
+            return None
         cs = {
             "type": "cognate_set",
             "id": f"{self.NAME}:{set_id}",
             "source": self.src["id"],
-            "reconstruction": self.record(s["Form_ID"]),
+            "reconstruction": self.record(s["Form_ID"]) if s["Form_ID"] else None,
             "members": [self.record(r["Form_ID"]) for r in rows],
             "category": self.set_category(set_id),
         }
@@ -456,7 +459,7 @@ class Converter:
         tree = self.r.tree
         for set_id, s in self.r.sets.items():
             rows = {r["Form_ID"]: r for r in self.r.cognates[set_id]}
-            forms = list(dict.fromkeys([s["Form_ID"], *rows]))
+            forms = [f for f in dict.fromkeys([s["Form_ID"], *rows]) if f]
             protos = [(i, f) for i, f in enumerate(forms) if self.r.is_proto(f)]
             first_at = {}
             for _, f in protos:

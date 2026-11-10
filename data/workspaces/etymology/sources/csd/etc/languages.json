@@ -1,0 +1,448 @@
+{
+ "catalog_generation": "94fb4909c233a4262a321bf71439883f2ad53094df934a0a72be2978ee166d86",
+ "languages": {
+  "path": "data/workspaces/etymology/sources/csd/checks/cl-6/languages.csv",
+  "sha256": "675fa023c7d65230de0d32f52ca52407a859e1f57af2da6343009607e2a938ba"
+ },
+ "reviewed": {
+  "path": "data/workspaces/etymology/sources/csd/etc/languages.reviewed.json",
+  "sha256": "a2e39de58c8634c3a812609625505f5c88cfc378a8abd2a7da9df2af54b3f645"
+ },
+ "summary": {
+  "varieties": {
+   "exact": 23,
+   "unresolved": 2,
+   "total": 25,
+   "exact_share": 0.92
+  },
+  "proto-languages": {
+   "exact": 2,
+   "unresolved": 10,
+   "total": 12,
+   "exact_share": 0.1667
+  }
+ },
+ "rows": [
+  {
+   "id": "psc",
+   "name": "Proto-Siouan-Catawba",
+   "glottocode": null,
+   "iso639_3": null,
+   "is_proto": true,
+   "relation": "exact",
+   "code": "nai-sca-pro",
+   "candidates": [],
+   "basis": "Proto-Siouan-Catawba, Wiktionary's nai-sca-pro (Proto-Siouan-Catawban).",
+   "reviewer": "claude-opus-5-5 (model review, 2026-11-10)",
+   "derived": {
+    "relation": "unresolved",
+    "code": null,
+    "candidates": [],
+    "basis": "no single Wiktionary family has this glottocode"
+   }
+  },
+  {
+   "id": "psi",
+   "name": "Proto-Siouan",
+   "glottocode": null,
+   "iso639_3": "sio",
+   "is_proto": true,
+   "relation": "exact",
+   "code": "sio-pro",
+   "candidates": [],
+   "basis": "Proto-Siouan, Wiktionary's sio-pro.",
+   "reviewer": "claude-opus-5-5 (model review, 2026-11-10)",
+   "derived": {
+    "relation": "unresolved",
+    "code": null,
+    "candidates": [],
+    "basis": "no single Wiktionary family has this glottocode"
+   }
+  },
+  {
+   "id": "pca",
+   "name": "Proto-Catawba",
+   "glottocode": null,
+   "iso639_3": null,
+   "is_proto": true,
+   "relation": "unresolved",
+   "code": null,
+   "candidates": [],
+   "basis": "no single Wiktionary family has this glottocode"
+  },
+  {
+   "id": "pch",
+   "name": "Proto-Crow-Hidatsa",
+   "glottocode": null,
+   "iso639_3": null,
+   "is_proto": true,
+   "relation": "unresolved",
+   "code": null,
+   "candidates": [],
+   "basis": "no single Wiktionary family has this glottocode"
+  },
+  {
+   "id": "pma",
+   "name": "Pre-Mandan",
+   "glottocode": null,
+   "iso639_3": null,
+   "is_proto": true,
+   "relation": "unresolved",
+   "code": null,
+   "candidates": [],
+   "basis": "no single Wiktionary family has this glottocode"
+  },
+  {
+   "id": "pmv",
+   "name": "Proto-Mississipi-Valley",
+   "glottocode": null,
+   "iso639_3": null,
+   "is_proto": true,
+   "relation": "unresolved",
+   "code": null,
+   "candidates": [],
+   "basis": "no single Wiktionary family has this glottocode"
+  },
+  {
+   "id": "pse",
+   "name": "Proto-Southeastern",
+   "glottocode": null,
+   "iso639_3": null,
+   "is_proto": true,
+   "relation": "unresolved",
+   "code": null,
+   "candidates": [],
+   "basis": "no single Wiktionary family has this glottocode"
+  },
+  {
+   "id": "ca",
+   "name": "Catawba",
+   "glottocode": "cata1286",
+   "iso639_3": "chc",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "chc",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "wo",
+   "name": "Woccon",
+   "glottocode": "wocc1242",
+   "iso639_3": "xwc",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "xwc",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "cr",
+   "name": "Crow",
+   "glottocode": "crow1244",
+   "iso639_3": "cro",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "cro",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "hi",
+   "name": "Hidatsa",
+   "glottocode": "hida1246",
+   "iso639_3": "hid",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "hid",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "ma",
+   "name": "Mandan",
+   "glottocode": "mand1446",
+   "iso639_3": "mhq",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "mhq",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "pda",
+   "name": "Proto-Dakota",
+   "glottocode": null,
+   "iso639_3": null,
+   "is_proto": true,
+   "relation": "unresolved",
+   "code": null,
+   "candidates": [],
+   "basis": "no single Wiktionary family has this glottocode"
+  },
+  {
+   "id": "pwc",
+   "name": "Proto-Hoocąk-Chiwere",
+   "glottocode": null,
+   "iso639_3": null,
+   "is_proto": true,
+   "relation": "unresolved",
+   "code": null,
+   "candidates": [],
+   "basis": "no single Wiktionary family has this glottocode"
+  },
+  {
+   "id": "pdh",
+   "name": "Proto-Dhegiha",
+   "glottocode": null,
+   "iso639_3": null,
+   "is_proto": true,
+   "relation": "unresolved",
+   "code": null,
+   "candidates": [],
+   "basis": "no single Wiktionary family has this glottocode"
+  },
+  {
+   "id": "pbo",
+   "name": "Proto-Biloxi-Ofo",
+   "glottocode": null,
+   "iso639_3": null,
+   "is_proto": true,
+   "relation": "unresolved",
+   "code": null,
+   "candidates": [],
+   "basis": "no single Wiktionary family has this glottocode"
+  },
+  {
+   "id": "pts",
+   "name": "Proto-Tutelo-Saponi",
+   "glottocode": null,
+   "iso639_3": null,
+   "is_proto": true,
+   "relation": "unresolved",
+   "code": null,
+   "candidates": [],
+   "basis": "no single Wiktionary family has this glottocode"
+  },
+  {
+   "id": "la",
+   "name": "Lakota",
+   "glottocode": "lako1247",
+   "iso639_3": "lkt",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "lkt",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "da",
+   "name": "Dakota",
+   "glottocode": "dako1258",
+   "iso639_3": "dak",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "dak",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "as",
+   "name": "Assiniboine",
+   "glottocode": "assi1247",
+   "iso639_3": "asb",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "asb",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "ya",
+   "name": "Yanktonai",
+   "glottocode": "dako1258",
+   "iso639_3": "dak",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "dak",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "st",
+   "name": "Stoney",
+   "glottocode": "ston1242",
+   "iso639_3": "sto",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "sto",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "sv",
+   "name": "Sioux Valley",
+   "glottocode": null,
+   "iso639_3": null,
+   "is_proto": false,
+   "relation": "unresolved",
+   "code": null,
+   "candidates": [],
+   "basis": "no Wiktionary code found"
+  },
+  {
+   "id": "ch",
+   "name": "Chiwere",
+   "glottocode": "iowa1245",
+   "iso639_3": "iow",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "iow",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "mo",
+   "name": "Missouria",
+   "glottocode": null,
+   "iso639_3": null,
+   "is_proto": false,
+   "relation": "unresolved",
+   "code": null,
+   "candidates": [],
+   "basis": "no Wiktionary code found"
+  },
+  {
+   "id": "ot",
+   "name": "Otoe",
+   "glottocode": "iowa1245",
+   "iso639_3": "iow",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "iow",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "wi",
+   "name": "Hoocąk",
+   "glottocode": "hoch1243",
+   "iso639_3": "win",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "win",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "om",
+   "name": "Omaha",
+   "glottocode": "omah1247",
+   "iso639_3": "oma",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "oma",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "op",
+   "name": "Omaha-Ponca",
+   "glottocode": "omah1247",
+   "iso639_3": "oma",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "oma",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "pn",
+   "name": "Ponca",
+   "glottocode": "omah1247",
+   "iso639_3": "oma",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "oma",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "ks",
+   "name": "Kanza/Kaw",
+   "glottocode": "kans1243",
+   "iso639_3": "ksk",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "ksk",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "os",
+   "name": "Osage",
+   "glottocode": "osag1243",
+   "iso639_3": "osa",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "osa",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "qu",
+   "name": "Quapaw",
+   "glottocode": "quap1242",
+   "iso639_3": "qua",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "qua",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "bi",
+   "name": "Biloxi",
+   "glottocode": "bilo1248",
+   "iso639_3": "bll",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "bll",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "of",
+   "name": "Ofo",
+   "glottocode": "ofoo1242",
+   "iso639_3": "ofo",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "ofo",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "tu",
+   "name": "Tutelo",
+   "glottocode": "tute1247",
+   "iso639_3": "tta",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "tta",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "sp",
+   "name": "Saponi",
+   "glottocode": "tute1247",
+   "iso639_3": "tta",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "tta",
+   "candidates": [],
+   "basis": "glottocode"
+  }
+ ]
+}

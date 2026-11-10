@@ -1,0 +1,34 @@
+{
+ "source": "csd",
+ "release": "v2026.11",
+ "reviewer": "claude-opus-5-5 (model review, 2026-11-10)",
+ "kinds": [
+  {
+   "where": "parameter, value",
+   "category": "cognate set",
+   "count": 1204,
+   "source_description": "An entry: forms in Siouan-Catawba languages with reconstructions at the levels that have one.",
+   "wety_kind": "cognate set",
+   "status": "mapped",
+   "note": "Its reconstruction is its form at the highest level; links by the nested rule on the CSD's languoid tree."
+  },
+  {
+   "where": "entry",
+   "category": "psi_reconstruction_with_root_extension_code, othlgs",
+   "count": 536,
+   "source_description": "A root extension and comparanda outside Siouan.",
+   "wety_kind": "none",
+   "status": "unmapped",
+   "note": "Not read yet."
+  },
+  {
+   "where": "counterpart",
+   "category": "phonetic, comment, original_entry, other_reconstructions",
+   "count": null,
+   "source_description": "A form's phonetic writing, comment, the entry as published and other scholars' reconstructions.",
+   "wety_kind": "none",
+   "status": "unmapped",
+   "note": "Not read yet; other_reconstructions are other holders' views."
+  }
+ ]
+}
