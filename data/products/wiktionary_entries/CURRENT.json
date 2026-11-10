@@ -1,6 +1,6 @@
 {
-  "artifact": "data/artifacts/wiktionary-entries/bb001c418b50e235eb252bf1752c5f2f006b91430b90857bff5898bcf4f39692",
+  "artifact": "data/artifacts/wiktionary-entries/fab53cf5cbf526023469181ee585d1496d009525daa4c1fe47ffc36a90bc8db4",
   "entrypoint": "entries.jsonl.gz",
-  "run_id": "66ae55ee48a94e0188c1fd5793bb3953",
+  "run_id": "6a87aaec075a417280f56f10e7548749",
   "schema_version": 1
 }
