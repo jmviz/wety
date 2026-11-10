@@ -96,38 +96,20 @@ class EarlierStage(unittest.TestCase):
             [word, donor, *origin(word["id"], donor["id"], SRC, "agent:wold-vocabulary-13")],
             SPECS["wold"],
         )
-        h = A.hypothesis(
-            "wiktionary:en:fruit#1",
-            [
-                {
-                    "child": "wiktionary:en:fruit#1",
-                    "parents": ["wiktionary:enm:fruyt#1"],
-                    "relation": "derivation",
-                    "mode": "inherited",
-                },
-                {
-                    "child": "wiktionary:enm:fruyt#1",
-                    "parents": ["wiktionary:fro:fruit#1"],
-                    "relation": "derivation",
-                    "mode": "borrowed",
-                },
-            ],
-        )
-        a = A.assertion(
-            WK,
-            "x",
-            h["id"],
-            "endorses",
-            holder="agent:wiktionary-editors",
-            asserter="agent:wiktionary-editors",
-        )
+        chain = [
+            *origin(
+                "wiktionary:en:fruit#1", "wiktionary:enm:fruyt#1", WK, "agent:wiktionary-editors"
+            ),
+            *origin(
+                "wiktionary:enm:fruyt#1", "wiktionary:fro:fruit#1", WK, "agent:wiktionary-editors"
+            ),
+        ]
         objs = [
             record("wiktionary:en:fruit#1", "en", "fruit", source=WK),
             record("wiktionary:enm:fruyt#1", "enm", "fruyt", source=WK),
             record("wiktionary:fro:fruit#1", "fro", "fruit", source=WK),
             record("wiktionary:fr:fruit#1", "fr", "fruit", source=WK),
-            h,
-            a,
+            *chain,
         ]
         keyer = Keyer(SPECS["wold"])
         stages = {"fr": {"la", "fro", "frm"}}

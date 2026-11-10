@@ -45,6 +45,8 @@ ALTERNANTS = re.compile(r"\s*(?:~|,|;|/)\s*")
 RECORD = re.compile(r"^wiktionary:([^:]+):(.*)#")
 CODE = re.compile(rb'"code":"[^"]+"')
 LANG_CODE = re.compile(rb'"lang":"([^"]+)"')
+WORD = re.compile(rb'"word":"([^"]*)"\}\s*$')
+ANCESTRY_DEPTH = 4
 KEPT_WHOLE = ("work", "agent", "source", "extraction", "alternative_set")
 GLOSS_MIN = 0.25
 LINEAGE = ("source named", "source language", "none")
@@ -164,7 +166,9 @@ def record_code(record_id):
 
 def scan_export(export, wanted, out, keyer, spec):
     """The part of a graph's export the matcher reads (module docstring), to `out`, in
-    three passes over it: records and works; the hypotheses on kept records' origin;
+    passes over it: records and works; the hypotheses on kept records' origin, and on
+    their parents', `ANCESTRY_DEPTH` levels up (English fruit's names Middle English
+    fruyt, whose names Old French fruit);
     the assertions on those and those crediting the source, and the records the hypotheses
     name. A line's type is read from its bytes before it is parsed."""
     kept, works, credited, alternatives = {}, [], set(), {}
@@ -187,12 +191,20 @@ def scan_export(export, wanted, out, keyer, spec):
                 works.append(o)
                 if o["type"] == "work" and spec.credited(o):
                     credited.add(o["id"])
-    hyps = {}
-    for line in lines(export, binary=True):
-        if line.startswith(b'{"id":"hyp:'):
-            o = json.loads(line)
-            if o["word"] in kept:
-                hyps[o["id"]] = o
+    hyps, words = {}, set(kept)
+    for _ in range(ANCESTRY_DEPTH):
+        found = {}
+        for line in lines(export, binary=True):
+            if line.startswith(b'{"id":"hyp:'):
+                m = WORD.search(line)
+                if m and m.group(1).decode() in words:
+                    o = json.loads(line)
+                    if o["id"] not in hyps:
+                        found[o["id"]] = o
+        hyps.update(found)
+        words = {p for h in found.values() for link in h["links"] for p in link["parents"]}
+        if not words:
+            break
     named = {
         r for h in hyps.values() for link in h["links"] for r in (link["child"], *link["parents"])
     }
@@ -313,13 +325,17 @@ class Wiktionary:
         return "; ".join(self.glosses.get(record_id.rstrip("?"), []))
 
     def named(self, record_id):
-        """The records a word's endorsed etymologies name, at any link of their chains."""
-        return {
-            p
-            for h in self.origins.get(record_id, ())
-            for link in h["links"]
-            for p in link["parents"]
-        }
+        """The records a word's endorsed etymologies name, at any link of their chains,
+        and their own etymologies' (its ancestors, as far as `scan` kept them)."""
+        seen, todo = set(), [record_id]
+        while todo:
+            for h in self.origins.get(todo.pop(), ()):
+                for link in h["links"]:
+                    for p in link["parents"]:
+                        if p not in seen:
+                            seen.add(p)
+                            todo.append(p)
+        return seen
 
 
 class Matcher:
