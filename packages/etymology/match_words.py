@@ -1,21 +1,25 @@
-"""WOLD's records matched to Wiktionary's, and Wiktionary's assertions that credit WOLD
-relayed to WOLD's own (cl-4).
+"""The records of a word-centric source (WOLD, IE-CoR, TuLeD) matched to Wiktionary's,
+and Wiktionary's assertions that credit it relayed to its own (cl-4, cl-5, cl-6).
 
-Steps, each writing into a work directory so that later steps rerun quickly:
+A word-centric source gives words of attested languages and, for each, the words it
+comes from (WOLD's source words, IE-CoR's roots and loan sources), or only cognate
+sets (TuLeD). Steps, each writing into a work directory so that later steps rerun
+quickly:
 
-- `scan`: from a graph's assertion export, the Wiktionary records of a code WOLD's maps
-  call `exact` whose key (`key`) is some WOLD record's key, every hypothesis on their
+- `scan`: from a graph's assertion export, the Wiktionary records of a code the
+  source's maps call `exact` whose key is some record's key, every hypothesis on their
   origin with the records it names and the assertions endorsing it, every work, and the
-  assertions that credit WOLD; then the glosses of those records' entries, from the
-  entries the graph was built from (`wiktionary_entries`);
-- `run`: WOLD's records matched to Wiktionary's by the rule `agent:wety-match-wold@1`
-  (`Matcher`), and the assertions crediting WOLD relayed to WOLD's own by
-  `agent:wety-relay-wold@1` (`Relayer`); the check's files as `match_etymdict` writes
-  them, with a sample of matches to review.
+  assertions that credit the source; then the glosses of those records' entries, from
+  the entries the graph was built from (`wiktionary_entries`);
+- `run`: the source's records matched to Wiktionary's by its matcher rule (`Matcher`),
+  and the assertions crediting it relayed to its own by its relay rule (`Relayer`); the
+  check's files as `match_etymdict` writes them, with a sample of matches to review.
 
-A key is the form without diacritics, in lower case, underscores and hyphens read as
-nothing, each of a form's alternants (`~`, `,`) apart: WOLD writes Latin without
-macrons where Wiktionary's records keep them. Scripts WOLD romanises (Thai, Russian,
+An attested form's key is the form without diacritics, in lower case, underscores and
+hyphens read as nothing, each of its alternants (`~`, `,`) apart: WOLD writes Latin
+without macrons where Wiktionary's records keep them. A reconstruction's key, where the
+source has an orthography profile (IE-CoR's roots, in the Indo-European notation), is
+read through it and Wiktionary's (`Keyer`). Scripts WOLD romanises (Thai, Russian,
 Arabic) find no candidates; transliteration is not attempted.
 """
 
@@ -26,22 +30,21 @@ import json
 import random
 import re
 import unicodedata
+from dataclasses import dataclass
 from pathlib import Path
 
 from etymology import assertions as A
+from etymology import orthography
 from etymology.assertions import REPO
 from etymology.match_etymdict import BORROWINGS, drop_labels, gloss_similarity, read_lines
 from etymology.matching import Judgements, closure, lines
 
 SOURCES = REPO / "data/workspaces/etymology/sources"
-WOLD = SOURCES / "wold"
-JUDGEMENTS = WOLD / "etc/judgements.jsonl"
-RULE = "agent:wety-match-wold@1"
-RELAY_RULE = "agent:wety-relay-wold@1"
-WORK = re.compile(r"WOLD$|:WLD$|World Loanword Database")
+WIKTIONARY_INE = SOURCES / "wiktionary/etc/orthography-ine-itc.tsv"
 ALTERNANTS = re.compile(r"\s*(?:~|,|;|/)\s*")
 RECORD = re.compile(r"^wiktionary:([^:]+):(.*)#")
 CODE = re.compile(rb'"code":"[^"]+"')
+LANG_CODE = re.compile(rb'"lang":"([^"]+)"')
 KEPT_WHOLE = ("work", "agent", "source", "extraction", "alternative_set")
 GLOSS_MIN = 0.25
 LINEAGE = ("source named", "source language", "none")
@@ -59,13 +62,86 @@ def keys(form):
     return out
 
 
-def codes_and_keys(wold):
-    """WOLD's exact codes, and for each the keys of its records."""
+@dataclass(frozen=True)
+class Spec:
+    """What the matcher needs to know of one source."""
+
+    name: str
+    label: str
+    rule: str
+    rule_name: str
+    relay_rule: str
+    work: re.Pattern  # a Wiktionary work's id or citation that names the source
+
+    @property
+    def judgements(self):
+        return SOURCES / self.name / "etc/judgements.jsonl"
+
+    def credited(self, work):
+        return bool(self.work.search(work["id"]) or self.work.search(work.get("citation", "")))
+
+
+SPECS = {
+    "wold": Spec(
+        "wold",
+        "WOLD",
+        "agent:wety-match-wold@1",
+        "wety's WOLD matcher, v1: WOLD's records to Wiktionary's by key, source and gloss",
+        "agent:wety-relay-wold@1",
+        re.compile(r"WOLD$|:WLD$|World Loanword Database"),
+    ),
+    "iecor": Spec(
+        "iecor",
+        "IE-CoR",
+        "agent:wety-match-iecor@1",
+        "wety's IE-CoR matcher, v1: IE-CoR's records to Wiktionary's by key, root and gloss",
+        "agent:wety-relay-iecor@1",
+        re.compile(r"IE-?CoR|Indo-European Cognate Relationships"),
+    ),
+    "tuled": Spec(
+        "tuled",
+        "TuLeD",
+        "agent:wety-match-tuled@1",
+        "wety's TuLeD matcher, v1: TuLeD's records to Wiktionary's by key and gloss",
+        "agent:wety-relay-tuled@1",
+        re.compile(r"TuLeD|Tupían Lexical Database"),
+    ),
+}
+
+
+class Keyer:
+    """A record's keys: an attested form's `keys`; a reconstruction's, where the source
+    has an orthography profile (`etc/orthography.tsv`), through it on the source's side
+    and through Wiktionary's Indo-European profile on Wiktionary's."""
+
+    def __init__(self, spec):
+        profile = SOURCES / spec.name / "etc/orthography.tsv"
+        self.profiles = None
+        if profile.exists():
+            self.profiles = {
+                "source": orthography.Profile.read(profile),
+                "wiktionary": orthography.Profile.read(WIKTIONARY_INE),
+            }
+        self.cache = {}
+
+    def __call__(self, form, reconstructed, side):
+        if not form:
+            return frozenset()
+        if not (reconstructed and self.profiles):
+            return keys(form)
+        k = (form, side)
+        if k not in self.cache:
+            self.cache[k] = frozenset(orthography.key(form, self.profiles[side]).keys)
+        return self.cache[k]
+
+
+def codes_and_keys(src, keyer):
+    """The source's exact codes, and for each the keys of its records."""
     wanted = collections.defaultdict(set)
-    for r in wold.records.values():
+    for r in src.records.values():
         lang = r["language"]
         if lang["relation"] == "exact" and lang["code"] and r["form"]:
-            wanted[lang["code"]] |= keys(r["form"])
+            wanted[lang["code"]] |= keyer(r["form"], r["reconstructed"], "source")
     return wanted
 
 
@@ -74,19 +150,22 @@ def record_code(record_id):
     return m.group(1) if m else None
 
 
-def scan_export(export, wanted, out):
+def scan_export(export, wanted, out, keyer, spec):
     """The part of a graph's export the matcher reads (module docstring), to `out`, in
     three passes over it: records and works; the hypotheses on kept records' origin;
-    the assertions on those and those crediting WOLD, and the records the hypotheses
+    the assertions on those and those crediting the source, and the records the hypotheses
     name. A line's type is read from its bytes before it is parsed."""
-    kept, works, wold_works, alternatives = {}, [], set(), {}
+    kept, works, credited, alternatives = {}, [], set(), {}
     codes = {f'"code":"{c}"'.encode() for c in wanted}
     for line in lines(export, binary=True):
         if line.startswith(b'{"form"'):
             m = CODE.search(line)
             if m and m.group(0) in codes:
                 o = json.loads(line)
-                if keys(o["form"]) & wanted[o["language"]["code"]]:
+                if (
+                    keyer(o["form"], o["reconstructed"], "wiktionary")
+                    & wanted[o["language"]["code"]]
+                ):
                     kept[o["id"]] = o
         elif any(f'"type":"{t}"'.encode() in line for t in KEPT_WHOLE):
             o = json.loads(line)
@@ -94,8 +173,8 @@ def scan_export(export, wanted, out):
                 alternatives[o["id"]] = o
             elif o["type"] in KEPT_WHOLE:
                 works.append(o)
-                if o["type"] == "work" and is_wold(o):
-                    wold_works.add(o["id"])
+                if o["type"] == "work" and spec.credited(o):
+                    credited.add(o["id"])
     hyps = {}
     for line in lines(export, binary=True):
         if line.startswith(b'{"id":"hyp:'):
@@ -110,7 +189,7 @@ def scan_export(export, wanted, out):
     for line in lines(export, binary=True):
         if line.startswith(b'{"asserter"'):
             o = json.loads(line)
-            if o["target"] in hyps or any(c["work"] in wold_works for c in o.get("credits", ())):
+            if o["target"] in hyps or any(c["work"] in credited for c in o.get("credits", ())):
                 assertions.append(o)
         elif line.startswith(b'{"form"') and missing:
             o = json.loads(line)
@@ -125,24 +204,29 @@ def scan_export(export, wanted, out):
     return len(objs)
 
 
-def is_wold(work):
-    return bool(WORK.search(work["id"]) or WORK.search(work.get("citation", "")))
-
-
-def scan_glosses(entries, wanted, out):
+def scan_glosses(entries, wanted, out, keyer):
     """The glosses of the entries whose page has a wanted key, one row per part of
-    speech, keyed by code, page title and etymology label."""
+    speech, keyed by code, page title (a reconstruction's after its language) and
+    etymology label."""
+    codes = {c.encode() for c in wanted}
     n = 0
     with gzip.open(out, "wt", encoding="utf-8") as f:
         for line in lines(entries, binary=True):
+            if not codes.intersection(LANG_CODE.findall(line[:2000])):
+                continue
             e = json.loads(line)
-            if e.get("lang") not in wanted or not keys(e["page"]) & wanted[e["lang"]]:
+            page, reconstructed = e["page"], e.get("ns") == 118
+            if reconstructed and "/" in page:
+                page = page.split("/", 1)[1]
+            if e.get("lang") not in wanted:
+                continue
+            if not keyer(page, reconstructed, "wiktionary") & wanted[e["lang"]]:
                 continue
             for pos in e.get("pos", []):
                 headword = next(iter(pos.get("headword", [])), None)
                 row = {
                     "code": e["lang"],
-                    "word": e["page"],
+                    "word": page,
                     "canonical": headword,
                     "ety": e.get("ety_label") or "",
                     "glosses": [
@@ -154,10 +238,12 @@ def scan_glosses(entries, wanted, out):
     return n
 
 
-class Wold:
-    """WOLD's assertions (its converter's output)."""
+class Source:
+    """A source's assertions (its converter's output): each word's source records (the
+    parents of its hypotheses), and which records are such parents."""
 
-    def __init__(self, objects):
+    def __init__(self, objects, spec):
+        self.spec = spec
         self.objects, self.records, self.hyps, self.origin = (
             {},
             {},
@@ -179,12 +265,13 @@ class Wold:
             if h:
                 self.origin[h["word"]].append(a)
                 self.sources[h["word"]] += h["links"][0]["parents"]
+        self.parent_ids = {p for ps in self.sources.values() for p in ps}
 
 
 class Wiktionary:
     """The part of the export `scan` kept, with glosses."""
 
-    def __init__(self, objects, glosses):
+    def __init__(self, objects, glosses, keyer):
         self.objects, self.records, self.hyps = {}, {}, {}
         self.by_key = collections.defaultdict(set)
         self.origins = collections.defaultdict(list)
@@ -194,7 +281,7 @@ class Wiktionary:
             t = o["type"]
             if t == "record":
                 self.records[o["id"]] = o
-                for k in keys(o["form"]):
+                for k in keyer(o["form"], o["reconstructed"], "wiktionary"):
                     self.by_key[(o["language"]["code"], k)].add(o["id"])
             elif t == "hypothesis":
                 self.hyps[o["id"]] = o
@@ -224,7 +311,9 @@ class Wiktionary:
 
 
 class Matcher:
-    """The rule `wety-match-wold@1` (module docstring for keys).
+    """The matcher rule, written for WOLD (`wety-match-wold@1`) and applied as it is to
+    IE-CoR and TuLeD under their names (`SPECS`; module docstring for keys). "WOLD"
+    below stands for the source, "source word" for a word's parent there (IE-CoR's root).
 
     A WOLD word's candidates are the Wiktionary records of its language's code with one
     of its keys; an entry's etymologies are records apart (English bay#1 to bay#5). Each
@@ -243,19 +332,24 @@ class Matcher:
 
     GLOSS_MARGIN = 0.2
 
-    def __init__(self, wold, wikt, judgements=None):
-        self.wold, self.wikt = wold, wikt
+    def __init__(self, src, wikt, keyer, judgements=None):
+        self.src, self.wikt, self.keyer = src, wikt, keyer
         self.judgements = judgements or Judgements()
 
     def candidates(self, r):
         code = r["language"]["code"]
         if r["language"]["relation"] != "exact" or not code or not r["form"]:
             return None
-        return sorted({w for k in keys(r["form"]) for w in self.wikt.by_key.get((code, k), ())})
+        ks = self.keyer(r["form"], r["reconstructed"], "source")
+        return sorted({w for k in ks for w in self.wikt.by_key.get((code, k), ())})
+
+    def wikt_keys(self, record_id):
+        x = self.wikt.records.get(record_id)
+        return self.keyer(x["form"], x["reconstructed"], "wiktionary") if x else frozenset()
 
     def lineage(self, r, w):
         named = self.wikt.named(w)
-        sources = [self.wold.records[s] for s in self.wold.sources.get(r["id"], ())]
+        sources = [self.src.records[s] for s in self.src.sources.get(r["id"], ())]
         best = 2
         for s in sources:
             code = s["language"]["code"]
@@ -265,8 +359,8 @@ class Matcher:
             if not same_lang:
                 continue
             best = min(best, 1)
-            sk = keys(s["form"])
-            if sk and any(keys(self.wikt.records.get(x, {}).get("form")) & sk for x in same_lang):
+            sk = self.keyer(s["form"], s["reconstructed"], "source")
+            if sk and any(self.wikt_keys(x) & sk for x in same_lang):
                 best = 0
         return LINEAGE[best]
 
@@ -349,20 +443,21 @@ class Matcher:
 
     def run(self):
         decisions = {}
-        words = [r for r in self.wold.records.values() if ":loan-" not in r["id"]]
+        words = [r for r in self.src.records.values() if r["id"] not in self.src.parent_ids]
         for r in words:
             decisions[r["id"]] = self.decide_word(r)
         for r in words:
             what, target, _ = decisions[r["id"]]
-            for s in dict.fromkeys(self.wold.sources.get(r["id"], ())):
+            for s in dict.fromkeys(self.src.sources.get(r["id"], ())):
                 decisions[s] = self.decide_source(
-                    self.wold.records[s], target if what == "match" else None
+                    self.src.records[s], target if what == "match" else None
                 )
         return decisions
 
 
 class Relayer:
-    """The rule `wety-relay-wold@1`: each Wiktionary assertion that credits WOLD, linked to
+    """The relay rule, written for WOLD (`wety-relay-wold@1`) and applied as it is to the
+    others under their names (`SPECS`): each Wiktionary assertion that credits WOLD, linked to
     WOLD's own assertion on the origin of the same word, through the matches. They agree
     when WOLD's source word is matched to a word the assertion's chain names, or, failing
     a match, the chain names a word of the source's language with its key; they differ in
@@ -370,33 +465,35 @@ class Relayer:
     WOLD says borrowed and the first link does not. Of WOLD's several origins for a word
     the one with fewest differences is relayed."""
 
-    def __init__(self, wold, wikt, decisions):
-        self.wold, self.wikt = wold, wikt
-        self.to_wold = collections.defaultdict(set)
+    def __init__(self, src, wikt, decisions, matcher):
+        self.src, self.wikt, self.matcher = src, wikt, matcher
+        self.to_source = collections.defaultdict(set)
         self.to_wikt = {}
         for rid, (what, target, _) in decisions.items():
             if what == "match":
-                self.to_wold[target].add(rid)
+                self.to_source[target].add(rid)
                 self.to_wikt[rid] = target
-        self.works = {o["id"] for o in wikt.objects.values() if o["type"] == "work" and is_wold(o)}
+        self.works = {
+            o["id"] for o in wikt.objects.values() if o["type"] == "work" and src.spec.credited(o)
+        }
 
     def compare(self, a, h):
-        words = self.to_wold.get(h["word"])
+        words = self.to_source.get(h["word"])
         if not words:
             return None, "word not matched"
-        origins = [o for w in sorted(words) for o in self.wold.origin.get(w, ())]
+        origins = [o for w in sorted(words) for o in self.src.origin.get(w, ())]
         if not origins:
-            return None, "WOLD gives the matched word no origin"
+            return None, f"{self.src.spec.label} gives the matched word no origin"
         named = {p for link in h["links"] for p in link["parents"]}
         first = h["links"][0]
         results = []
         for o in origins:
-            link = self.wold.hyps.get(o["target"], {}).get("links", [None])[0]
+            link = self.src.hyps.get(o["target"], {}).get("links", [None])[0]
             if link is None:
                 continue
             diffs, determined = [], False
             for p in link["parents"]:
-                s = self.wold.records[p]
+                s = self.src.records[p]
                 if self.to_wikt.get(p) in named:
                     determined = True
                     continue
@@ -406,7 +503,9 @@ class Relayer:
                     continue
                 determined = True
                 if not any(
-                    keys(self.wikt.records.get(x, {}).get("form")) & keys(s["form"]) for x in same
+                    self.matcher.wikt_keys(x)
+                    & self.matcher.keyer(s["form"], s["reconstructed"], "source")
+                    for x in same
                 ):
                     diffs.append("parents")
             if link.get("mode") == "borrowed" and first.get("mode") not in BORROWINGS:
@@ -414,7 +513,10 @@ class Relayer:
             if determined:
                 results.append((len(diffs), o, diffs))
         if not results:
-            return None, "Wiktionary names no word in WOLD's source's language"
+            return (
+                None,
+                f"Wiktionary names no word in the language of {self.src.spec.label}'s source",
+            )
         _, o, diffs = min(results, key=lambda x: x[0])
         return o, diffs
 
@@ -428,54 +530,57 @@ class Relayer:
             o, what = self.compare(a, h)
             outcomes.append((a, works[0], o, what))
             if o is not None:
-                relays.append(A.relay(a["id"], o["id"], works[0], RELAY_RULE, what))
+                relays.append(A.relay(a["id"], o["id"], works[0], self.src.spec.relay_rule, what))
         return relays, outcomes
 
 
 def run(args):
     out = args.out
     out.mkdir(parents=True, exist_ok=True)
-    wold = Wold(read_lines(args.wold))
+    spec = SPECS[args.source]
+    keyer = Keyer(spec)
+    src = Source(read_lines(args.assertions), spec)
     wikt = Wiktionary(
-        read_lines(args.work / "wiktionary.jsonl.gz"), read_lines(args.work / "glosses.jsonl.gz")
+        read_lines(args.work / "wiktionary.jsonl.gz"),
+        read_lines(args.work / "glosses.jsonl.gz"),
+        keyer,
     )
-    judgements = Judgements.read(JUDGEMENTS)
-    decisions = Matcher(wold, wikt, judgements).run()
-    inputs = [args.wold, args.export, args.entries, *[p for p in [JUDGEMENTS] if p.exists()]]
-    extraction = A.extraction("converter", "packages/etymology/match_wold.py", inputs)
+    judgements = Judgements.read(spec.judgements)
+    matcher = Matcher(src, wikt, keyer, judgements)
+    decisions = matcher.run()
+    inputs = [args.assertions, args.export, args.entries]
+    inputs += [
+        p for p in [spec.judgements, SOURCES / spec.name / "etc/orthography.tsv"] if p.exists()
+    ]
+    extraction = A.extraction("converter", "packages/etymology/match_words.py", inputs)
     new = {extraction["id"]: extraction}
-    for agent_id, name in (
-        (RULE, "wety's WOLD matcher, v1: WOLD's records to Wiktionary's by key, source and gloss"),
-        (
-            RELAY_RULE,
-            "wety's WOLD relay rule, v1: Wiktionary's assertions crediting WOLD to WOLD's own",
-        ),
-    ):
+    relay_name = f"wety's {spec.label} relay rule, v1: Wiktionary's assertions crediting {spec.label} to its own"
+    for agent_id, name in ((spec.rule, spec.rule_name), (spec.relay_rule, relay_name)):
         new[agent_id] = {"type": "agent", "id": agent_id, "kind": "rule", "name": name}
     matches = []
     for rid, (what, target, basis) in decisions.items():
         if what == "match":
             matches.append(
-                A.match(rid, RULE, 1.0, basis, target=target, extraction=extraction["id"])
+                A.match(rid, spec.rule, 1.0, basis, target=target, extraction=extraction["id"])
             )
         elif what == "ambiguous":
             matches.append(
-                A.match(rid, RULE, 1.0, basis, candidates=target, extraction=extraction["id"])
+                A.match(rid, spec.rule, 1.0, basis, candidates=target, extraction=extraction["id"])
             )
-    relays, outcomes = Relayer(wold, wikt, decisions).run()
-    writer = closure(matches + relays, new, wold.objects, wikt.objects)
+    relays, outcomes = Relayer(src, wikt, decisions, matcher).run()
+    writer = closure(matches + relays, new, src.objects, wikt.objects)
     n = writer.write(out / "assertions.jsonl")
     print(f"{out / 'assertions.jsonl'}: {n} objects")
     rows = []
     for rid, (what, target, basis) in decisions.items():
-        r = wold.records[rid]
+        r = src.records[rid]
         rows.append(
             {
                 "record": rid,
                 "form": r["form"],
                 "gloss": r.get("gloss"),
                 "code": r["language"]["code"],
-                "kind": "source word" if ":loan-" in rid else "word",
+                "kind": "source word" if rid in src.parent_ids else "word",
                 "outcome": what,
                 "detail": target,
                 "basis": basis,
@@ -488,7 +593,7 @@ def run(args):
             "assertion": a["id"],
             "locator": a["locator"],
             "work": work,
-            "wold_assertion": o and o["id"],
+            "source_assertion": o and o["id"],
             "outcome": ("agrees" if not what else "differs") if o else "no relay",
             "detail": what,
         }
@@ -517,19 +622,19 @@ def run(args):
     (out / "counts.json").write_text(json.dumps(counts, ensure_ascii=False, indent=1) + "\n")
     rng = random.Random(args.seed)
     targeted = sorted((m for m in matches if "target" in m), key=lambda m: m["id"])
-    sample = [review_entry(m, wold, wikt) for m in rng.sample(targeted, min(100, len(targeted)))]
+    sample = [review_entry(m, src, wikt) for m in rng.sample(targeted, min(100, len(targeted)))]
     (out / "sample.json").write_text(json.dumps(sample, ensure_ascii=False, indent=1) + "\n")
 
 
-def review_entry(m, wold, wikt):
+def review_entry(m, src, wikt):
     """A match as a reviewer reads it (`matching.harvest` reads it as the ACD's are)."""
-    r = wold.records[m["record"]]
+    r = src.records[m["record"]]
     w = wikt.records[m["target"]]
-    sources = [wold.records[s] for s in wold.sources.get(r["id"], ())]
+    sources = [src.records[s] for s in src.sources.get(r["id"], ())]
     return {
         "match": m["id"],
-        "source": "wold",
-        "wold": {
+        "source": src.spec.name,
+        src.spec.name: {
             "record": r["id"],
             "language": r["language"]["label"],
             "form": r["form"],
@@ -552,12 +657,14 @@ def main(argv=None):
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     sub = p.add_subparsers(dest="step", required=True)
     s = sub.add_parser("scan", help="the part of the export and the glosses the matcher reads")
-    s.add_argument("--wold", type=Path, required=True, help="WOLD's assertions (convert.wold)")
+    s.add_argument("--source", choices=sorted(SPECS), required=True)
+    s.add_argument("--assertions", type=Path, required=True, help="the source's converted release")
     s.add_argument("--export", type=Path, required=True, help="a graph's assertions.jsonl.gz")
     s.add_argument("--entries", type=Path, required=True, help="wety's entries")
     s.add_argument("--work", type=Path, required=True, help="the work directory")
     m = sub.add_parser("run", help="match, relay, and write the check's files")
-    m.add_argument("--wold", type=Path, required=True)
+    m.add_argument("--source", choices=sorted(SPECS), required=True)
+    m.add_argument("--assertions", type=Path, required=True)
     m.add_argument("--export", type=Path, required=True)
     m.add_argument("--entries", type=Path, required=True)
     m.add_argument("--work", type=Path, required=True)
@@ -566,10 +673,12 @@ def main(argv=None):
     args = p.parse_args(argv)
     if args.step == "scan":
         args.work.mkdir(parents=True, exist_ok=True)
-        wanted = codes_and_keys(Wold(read_lines(args.wold)))
-        n = scan_export(args.export, wanted, args.work / "wiktionary.jsonl.gz")
+        spec = SPECS[args.source]
+        keyer = Keyer(spec)
+        wanted = codes_and_keys(Source(read_lines(args.assertions), spec), keyer)
+        n = scan_export(args.export, wanted, args.work / "wiktionary.jsonl.gz", keyer, spec)
         print(f"wiktionary.jsonl.gz: {n} objects")
-        n = scan_glosses(args.entries, wanted, args.work / "glosses.jsonl.gz")
+        n = scan_glosses(args.entries, wanted, args.work / "glosses.jsonl.gz", keyer)
         print(f"glosses.jsonl.gz: {n} entries")
     if args.step == "run":
         run(args)

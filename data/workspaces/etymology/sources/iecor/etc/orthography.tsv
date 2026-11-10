@@ -1,0 +1,14 @@
+# IE-CoR's roots (clld-dicts): the Indo-European notation it shares with Wiktionary (conventions/ine.tsv),
+# with its own marks. Compared with wiktionary/etc/orthography-ine-itc.tsv.
+Kind	Grapheme	Key	Note
+include	ine		the notation of packages/etymology/conventions/ine.tsv
+grapheme	ʱ	h	breathy release (Indo-Iranian *bʱ, *dʱ)
+grapheme	+		compound boundary
+grapheme	’		apostrophe
+grapheme	′		prime
+grapheme	‎		left-to-right mark
+grapheme	⁽		optional-segment bracket, superscript
+grapheme	⁾		optional-segment bracket, superscript
+grapheme	.		punctuation
+grapheme	k̑	K	palatal k̑, as ḱ (as LiLa's profile reads it)
+grapheme	g̑	G	palatal g̑, as ǵ
