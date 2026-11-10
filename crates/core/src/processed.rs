@@ -358,7 +358,10 @@ impl Data {
     /// none of which is preferred go on to the nearest word all their lines
     /// reach (English mare: Middle English mare, from Old English mīere or
     /// mearh, both from Proto-Germanic *marhaz). The tree starts at the oldest
-    /// word on it that the trail shows, so the reader sees where.
+    /// word on it that the trail shows, so the reader sees where. Deeper is
+    /// better (maintainer, 2026-11-09): a very large family is part of the
+    /// fun, and readers usually filter it to a few languages; the line stops
+    /// only where going on would be wrong.
     #[must_use]
     pub fn default_root(&self, item: ItemId) -> ItemId {
         let trail = self.lineage(item);
