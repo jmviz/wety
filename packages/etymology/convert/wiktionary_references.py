@@ -1,19 +1,21 @@
-"""Wiktionary's References sections, read from page wikitext: entry-scope credits (core-5).
+"""Wiktionary's References sections and footnotes, read from wety's entries, as credits
+(core-5, x-5).
 
-They are read from the pages dump of the entries' date (`etc/source.json`, artifact
-`pages`), by the `wiktionary_references` workflow. Two steps:
+Read by the `wiktionary_references` workflow, in two steps:
 
-- `extract` reads the dump once and keeps every References and Further reading section
-  of the entry and reconstruction namespaces, with the language and etymology it sits
-  under, and the wikitext of every `Template:R:...` page;
-- `convert` turns them into a bibliography and each section's credits, and checks both
-  (`check`). Every `Template:R:...` page that is not a redirect becomes a work, read
-  from the citation template it calls (authors, editors when it names no author, year,
-  title); a `{{cite-...}}` line of a References section becomes a work too. A
-  References section's works are credits of role `follows`, scope `entry`, keyed by the
-  section's page, language heading and etymology label (none for a section beside the
-  etymologies). Further reading lists what a reader may consult, not what the editors
-  did, and gives no credits; it is kept the same way.
+- `extract` reads the pages dump of the entries' date (`etc/source.json`, artifact
+  `pages`) once and keeps the wikitext of every `Template:R:...` page;
+- `convert` turns those into a bibliography, reads the entries (`wiktionary_entries`)
+  for each References, Further reading and footnote's citation templates, and checks
+  both (`check`). Every `Template:R:...` page that is not a redirect becomes a work,
+  read from the citation template it calls (authors, editors when it names no author,
+  year, title); a `{{cite-...}}` call becomes a work too. A References section's works
+  are credits of role `follows`, scope `entry`, keyed by the section's page, language
+  heading and etymology label (none for a section beside the etymologies). A footnote's
+  works are credits of scope `note`, keyed by its section and the note's id; the
+  processor decides their role (a note inside an {{etydate}} supports a date) and reads
+  a footnote citing no template from its text. Further reading lists what a reader may
+  consult, not what the editors did, and gives no credits; it is kept the same way.
 
 Which entries a section covers is the processor's to say, from its own items: one
 under "Etymology N" covers that etymology, one beside the etymologies every etymology
@@ -39,8 +41,6 @@ from etymology.convert import agent, source, work
 
 NAME = "wiktionary"
 EDITORS = "agent:wiktionary-editors"
-KEPT = {"References": "references", "Further reading": "further"}
-BIBLIOGRAPHIC = re.compile(r"refer|reading|biblio|sources?$|literat", re.IGNORECASE)
 
 
 def open_dump(path):
@@ -52,41 +52,21 @@ def open_dump(path):
 
 
 def extract(dump, out):
+    """Keep the wikitext of every `Template:R:...` page, with where a redirect leads."""
     counts = collections.Counter()
-    headings = collections.Counter()
     with gzip.open(out, "wt", encoding="utf-8") as f:
-        for title, ns, text in wikitext.pages(open_dump(dump)):
-            counts[f"pages in namespace {ns}"] += 1
-            if ns == wikitext.TEMPLATE:
-                if title.startswith("Template:R:"):
-                    name = wikitext.normalize_name(title)
-                    row = {"template": name, "text": text}
-                    target = wikitext.redirect(text)
-                    if target:
-                        row["redirect"] = wikitext.normalize_name(target)
-                    f.write(json.dumps(row, ensure_ascii=False) + "\n")
-                    counts["R: templates"] += 1
+        for title, ns, text in wikitext.pages(open_dump(dump), namespaces=(wikitext.TEMPLATE,)):
+            counts["template pages"] += 1
+            if not title.startswith("Template:R:"):
                 continue
-            if wikitext.redirect(text):
-                continue
-            langs = set()
-            for lang, ety, level, name, body in wikitext.sections(text):
-                langs.add(lang)
-                if BIBLIOGRAPHIC.search(name):
-                    headings[name] += 1
-                kind = KEPT.get(name)
-                if kind and body.strip():
-                    row = {"page": title, "lang": lang, "ety": ety, "level": level}
-                    f.write(
-                        json.dumps(row | {"kind": kind, "text": body}, ensure_ascii=False) + "\n"
-                    )
-                    counts[f"{kind} sections"] += 1
-            counts["language sections"] += len(langs)
-    return {
-        "dump": str(dump),
-        "counts": dict(sorted(counts.items())),
-        "headings": dict(headings.most_common(40)),
-    }
+            name = wikitext.normalize_name(title)
+            row = {"template": name, "text": text}
+            target = wikitext.redirect(text)
+            if target:
+                row["redirect"] = wikitext.normalize_name(target)
+            f.write(json.dumps(row, ensure_ascii=False) + "\n")
+            counts["R: templates"] += 1
+    return {"dump": str(dump), "counts": dict(sorted(counts.items()))}
 
 
 # The citation call of an R: template page.
@@ -320,9 +300,10 @@ def plain(text):
 
 
 def locator(roles, args):
-    """The page a template's arguments give, else its headword as "s.v. ...", else None."""
+    """The page a template's arguments (by name or position) give, else its headword as
+    "s.v. ...", else None."""
     page = headword = None
-    for k, v in wikitext.named_args(args).items():
+    for k, v in args.items():
         v = expand(v)
         if not v:
             continue
@@ -385,9 +366,10 @@ class Bibliography:
         return self.works[name]
 
     def cite_work(self, args):
-        """A work cited by a {{cite-...}} line, the same work wherever its authors,
-        title and year agree; None when it names no title."""
-        fields = describe(raw_args(args))
+        """A work cited by a {{cite-...}} call (its arguments by name or position), the
+        same work wherever its authors, title and year agree; None when it names no
+        title."""
+        fields = describe(args)
         if not fields.get("citation"):
             return None
         key = [fields["authors"], fields["title"], fields["year"]]
@@ -411,49 +393,93 @@ class Bibliography:
                 self.template_work(name)
 
 
-def works_in(bib, out, body):
-    """(work id, locator, how) of each work a section's text cites outside footnotes."""
+def call_name(name):
+    """A call's template name as its page is titled: entries keep the editor's spelling
+    (`r:itc:EDL`, `cite-journal<!-- -->`), and a title's first letter is capitalized."""
+    name = wikitext.normalize_name(wikitext.COMMENT.sub("", name))
+    return name[:1].upper() + name[1:]
+
+
+def works_in(bib, out, calls):
+    """(work id, locator, how) of each work a section's calls cite."""
     found = []
-    for name, args in wikitext.templates(body):
+    for call in calls:
+        name, args = call_name(call["name"]), call.get("args", {})
         if name.startswith("R:"):
             loc = locator(bib.roles.get(bib.canonical(name), {}), args)
             found.append((bib.template_work(name), loc, "R:"))
-        elif name == "R" and len(args) >= 2:
+        elif name == "R" and args.get("1") and args.get("2"):
             # {{R|<lang>|<key>}}: a reference kept in a language's data module.
-            lang, key = args[0].strip(), args[1].strip()
+            lang, key = args["1"].strip(), args["2"].strip()
             w = work(f"work:{NAME}:R|{lang}|{key}".replace(" ", "_"), f"{{{{R|{lang}|{key}}}}}")
             w["x"] = {NAME: {"template": f"R|{lang}"}}
-            found.append((out.add(w), locator({}, args[2:]), "R"))
+            rest = {k: v for k, v in args.items() if k not in ("1", "2")}
+            found.append((out.add(w), locator({}, rest), "R"))
         elif CITE.match(name.lower()):
             wid = bib.cite_work(args)
             found.append((wid, None, "cite" if wid else "cite, no title"))
     return found
 
 
-def convert(sections_path, dump, out_dir):
-    """Write the bibliography (`bibliography.jsonl`), each References section's credits
-    (`section_credits.jsonl.gz`) and each Further reading section's works; return the
-    counts. The extraction record names the dump `extract` read."""
+def section_calls(section):
+    """The template calls of a section's blocks, in order."""
+    return [
+        call
+        for block in section.get("blocks", [])
+        for span in block.get("spans", [])
+        if span.get("kind") == "template"
+        for call in span.get("calls", [])
+    ]
+
+
+# Keep a line only if it holds one of these, before parsing it.
+KEYS = ('"references":{', '"language_references":{', '"further_reading":{', '"notes":[{')
+
+
+def entry_sections(entries):
+    """(kind, page, language heading, etymology label, note id, calls) of each References,
+    Further reading and footnote section of the entries, each once."""
+    seen = set()
+    with gzip.open(entries, "rt", encoding="utf-8") as f:
+        for line in f:
+            if not any(k in line for k in KEYS):
+                continue
+            e = json.loads(line)
+            page, lang, ety = e["page"], e["lang_heading"], e.get("ety_label")
+            places = [
+                ("references", ety, e.get("references")),
+                ("references", None, e.get("language_references")),
+                ("further", ety, e.get("further_reading")),
+            ]
+            for kind, label, section in places:
+                if section and (kind, page, lang, label) not in seen:
+                    seen.add((kind, page, lang, label))
+                    yield kind, page, lang, label, None, section_calls(section)
+            for note in (e.get("etymology") or {}).get("notes", []):
+                if note.get("calls") and ("note", page, lang, ety, note["id"]) not in seen:
+                    seen.add(("note", page, lang, ety, note["id"]))
+                    yield "note", page, lang, ety, note["id"], note["calls"]
+
+
+def convert(templates_path, entries, dump, out_dir):
+    """Write the bibliography (`bibliography.jsonl`), the credits of each References
+    section and footnote (`section_credits.jsonl.gz`) and each Further reading
+    section's works; return the counts. The extraction record names the dump `extract`
+    read and the entries."""
     out = A.Writer()
     out.add(source(NAME))
     tool = "packages/etymology/convert/wiktionary_references.py"
-    out.add(A.extraction("parser", tool, [dump]))
+    out.add(A.extraction("parser", tool, [dump, entries]))
     out.add(agent(EDITORS, "editors", "Wiktionary's editors"))
-    templates, sections = [], []
-    with gzip.open(sections_path, "rt", encoding="utf-8") as f:
-        for line in f:
-            row = json.loads(line)
-            (templates if "template" in row else sections).append(row)
+    with gzip.open(templates_path, "rt", encoding="utf-8") as f:
+        templates = [json.loads(line) for line in f]
     bib = Bibliography(templates, out)
     bib.seed()
     counts = collections.Counter()
     credits = collections.defaultdict(dict)
     further = collections.defaultdict(set)
-    for s in sections:
-        kind = s["kind"]
-        body, notes = wikitext.strip_refs(s["text"])
-        counts[f"{kind}: footnotes left to core-4"] += notes
-        found = works_in(bib, out, body)
+    for kind, page, lang, ety, note, calls in entry_sections(entries):
+        found = works_in(bib, out, calls)
         counts[f"{kind} sections"] += 1
         for _, _, how in found:
             counts[f"{kind}: cited by {how}"] += 1
@@ -461,28 +487,26 @@ def convert(sections_path, dump, out_dir):
         if not found:
             continue
         counts[f"{kind} sections citing a work"] += 1
-        key = (s["page"], s["lang"], s["ety"])
-        if kind == "references":
-            for wid, loc, _ in found:
-                credits[key].setdefault((wid, loc), None)
+        if kind == "further":
+            further[page, lang, ety] |= {wid for wid, _, _ in found}
         else:
-            further[key] |= {wid for wid, _, _ in found}
+            for wid, loc, _ in found:
+                credits[page, lang, ety, note].setdefault((wid, loc), None)
     counts["objects"] = out.write(out_dir / "bibliography.jsonl")
     with gzip.open(out_dir / "section_credits.jsonl.gz", "wt", encoding="utf-8") as f:
-        for (page, lang, ety), cs in credits.items():
-            row = {
-                "page": page,
-                "lang": lang,
-                "ety": ety,
-                "credits": [
-                    {"work": wid, "role": "follows", "scope": "entry"}
-                    | ({"locator": loc} if loc else {})
-                    for wid, loc in cs
-                ],
-            }
-            counts["credits"] += len(row["credits"])
+        for (page, lang, ety, note), cs in credits.items():
+            row = {"page": page, "lang": lang, "ety": ety}
+            if note:
+                row["note"] = note
+            row["credits"] = [
+                {"work": wid, "role": "follows", "scope": "note" if note else "entry"}
+                | ({"locator": loc} if loc else {})
+                for wid, loc in cs
+            ]
+            counts["note credits" if note else "credits"] += len(row["credits"])
             f.write(json.dumps(row, ensure_ascii=False) + "\n")
-    counts["sections credited"] = len(credits)
+    counts["sections credited"] = sum(1 for k in credits if not k[3])
+    counts["footnotes credited"] = sum(1 for k in credits if k[3])
     with gzip.open(out_dir / "further_reading.jsonl.gz", "wt", encoding="utf-8") as f:
         for (page, lang, ety), ws in further.items():
             row = {"page": page, "lang": lang, "ety": ety, "works": sorted(ws)}
@@ -515,17 +539,18 @@ def check(out_dir):
 def main(argv=None):
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     sub = p.add_subparsers(dest="step", required=True)
-    e = sub.add_parser("extract", help="the dump's References sections and R: templates")
+    e = sub.add_parser("extract", help="the dump's R: template pages")
     e.add_argument("dump", type=Path, help="pages-articles XML (.bz2 or plain)")
-    e.add_argument("--out", type=Path, required=True, help="sections, .jsonl.gz")
+    e.add_argument("--out", type=Path, required=True, help="templates, .jsonl.gz")
     e.add_argument("--counts", type=Path, help="where to write what was read")
     c = sub.add_parser("convert", help="the bibliography and each section's credits")
-    c.add_argument("sections", type=Path, help="extract's output")
+    c.add_argument("templates", type=Path, help="extract's output")
+    c.add_argument("--entries", type=Path, required=True, help="wety's entries, .jsonl.gz")
     c.add_argument("--dump", type=Path, required=True, help="the dump extract read")
     c.add_argument("--out", type=Path, required=True, help="directory to write into")
     args = p.parse_args(argv)
     if args.step == "convert":
-        result = convert(args.sections, args.dump, args.out)
+        result = convert(args.templates, args.entries, args.dump, args.out)
         (args.out / "convert_counts.json").write_text(json.dumps(result, indent=1) + "\n")
         print(json.dumps(result, indent=1))
         if result["errors"]:

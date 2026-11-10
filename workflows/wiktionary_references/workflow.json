@@ -4,7 +4,8 @@
   "collection": "wiktionary-references",
   "product": "wiktionary_references",
   "inputs": {
-    "pages": "data/artifacts/wiktionary-dump/ae476c69023c5cf20389497529bcb55928826174140225f89e0c9241b234cc94/files/source"
+    "pages": "data/artifacts/wiktionary-dump/ae476c69023c5cf20389497529bcb55928826174140225f89e0c9241b234cc94/files/source",
+    "entries": "data/artifacts/wiktionary-entries/466445a2b9d76a586ab53d059f8c9895b4f31141f20b1666f0d2c33aec73bd06/files/entries.jsonl.gz"
   },
   "commands": [
     [
@@ -14,7 +15,7 @@
       "extract",
       "{input_pages}",
       "--out",
-      "{output}/sections.jsonl.gz",
+      "{output}/templates.jsonl.gz",
       "--counts",
       "{output}/extract_counts.json"
     ],
@@ -23,7 +24,9 @@
       "-m",
       "etymology.convert.wiktionary_references",
       "convert",
-      "{output}/sections.jsonl.gz",
+      "{output}/templates.jsonl.gz",
+      "--entries",
+      "{input_entries}",
       "--dump",
       "{input_pages}",
       "--out",

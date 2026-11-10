@@ -1,15 +1,13 @@
-"""Wiktionary page wikitext: pages from a pages-articles dump, sections, templates.
+"""Wiktionary page wikitext: pages from a pages-articles dump, and templates.
 
-Only what the References reading needs: a page's language sections and the etymology
-each heading falls under, and templates with their arguments split at the top level.
+Only what the bibliography needs: `Template:R:` pages, and templates with their
+arguments split at the top level.
 """
 
 import html
 import re
 
-HEADING = re.compile(r"^(={2,6})\s*([^=].*?)\s*\1\s*(?:<!--.*?-->\s*)*$", re.MULTILINE)
 COMMENT = re.compile(r"<!--.*?(?:-->|$)", re.DOTALL)
-ETYMOLOGY = re.compile(r"^Etymology(?:\s+(\S+))?$")
 REF_TAG = re.compile(r"<ref\b[^>/]*/>|<ref\b[^>]*>.*?</ref\s*>", re.DOTALL | re.IGNORECASE)
 REDIRECT = re.compile(r"^\s*#redirect\s*:?\s*\[\[([^\]|#]+)", re.IGNORECASE)
 
@@ -53,35 +51,6 @@ def pages(lines, namespaces=(MAIN, TEMPLATE, RECONSTRUCTION)):
 def redirect(text):
     m = REDIRECT.match(text)
     return m.group(1).strip() if m else None
-
-
-def sections(text):
-    """The page's level-3+ sections: (language, etymology label or None, level, heading, body).
-
-    A section's etymology is the "Etymology N" heading above it in its language, when it
-    sits deeper than that heading; a language-level section (level 3 beside the
-    etymologies) has none. An unnumbered "Etymology" labels nothing, as in wiktextract.
-    """
-    text = COMMENT.sub("", text)
-    heads = list(HEADING.finditer(text))
-    lang = ety = None
-    ety_level = None
-    out = []
-    for i, m in enumerate(heads):
-        level, name = len(m.group(1)), m.group(2).strip()
-        body = text[m.end() : heads[i + 1].start() if i + 1 < len(heads) else len(text)]
-        if level == 2:
-            lang, ety, ety_level = name, None, None
-            continue
-        if lang is None:
-            continue
-        e = ETYMOLOGY.match(name)
-        if e:
-            ety, ety_level = e.group(1), level
-        elif ety_level is not None and level <= ety_level:
-            ety, ety_level = None, None
-        out.append((lang, ety if (ety_level and level > ety_level) else None, level, name, body))
-    return out
 
 
 def templates(text, prefix=""):

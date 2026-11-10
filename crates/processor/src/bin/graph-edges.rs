@@ -51,6 +51,11 @@ struct Args {
     /// certainty, and whether walks follow it (TSV)
     #[clap(long)]
     language_only: Option<PathBuf>,
+    /// Where to write each credit of each etymology's assertion: the item's
+    /// key, then the etymology's number, the work's id, scope, role and
+    /// locator (TSV)
+    #[clap(long)]
+    credits: Option<PathBuf>,
     /// Where to write the readings of words that claims touch or that are
     /// not read by one lineage (JSON Lines)
     #[clap(long)]
@@ -129,6 +134,26 @@ fn main() -> Result<()> {
                         key(&data, item),
                         l.mode.as_str(),
                         l.certainty.as_ref()
+                    )?;
+                }
+            }
+        }
+        out.flush()?;
+    }
+    if let Some(path) = args.credits {
+        let mut out = BufWriter::new(File::create(path)?);
+        let graph = &data.graph;
+        for (&item, asserted) in &graph.assertions {
+            for (n, a) in asserted.iter().enumerate() {
+                for c in &a.credits {
+                    let work = graph.works.get(c.work as usize).map_or("", |w| &*w.id);
+                    writeln!(
+                        out,
+                        "{}\t{n}\t{work}\t{}\t{}\t{}",
+                        key(&data, item),
+                        c.scope.as_ref(),
+                        c.role.as_ref(),
+                        escape(c.locator.as_deref().unwrap_or_default())
                     )?;
                 }
             }

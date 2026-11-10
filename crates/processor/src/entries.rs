@@ -312,7 +312,8 @@ impl Items {
                         .root
                         .insert(item_id, raw_roots.into_boxed_slice());
                 }
-                if let Some(raw_etymology) = item.get_etymology(string_pool, lang) {
+                if let Some(raw_etymology) = item.get_etymology(string_pool, lang, &self.references)
+                {
                     self.raw_templates.ety.insert(item_id, raw_etymology);
                 }
                 if let Some(raw_descendants) = item.get_entry_descendants(string_pool) {

@@ -9,6 +9,7 @@ use crate::{
     items::{EmbeddingNeeds, Items, intern},
     notes::RawNote,
     progress_bar,
+    references::References,
     resolve::{Citation, Relation, Resolution},
 };
 use wety_core::{
@@ -740,6 +741,7 @@ impl EntryPos<'_> {
         &self,
         string_pool: &mut StringPool,
         lang: Lang,
+        references: &References,
     ) -> Option<RawEtymology> {
         let mut ety = self
             .get_etymon_ety(string_pool, lang)
@@ -752,7 +754,7 @@ impl EntryPos<'_> {
                 standard => standard,
             })
             .or_else(|| self.get_form_ety(string_pool, lang))?;
-        ety.notes = self.get_notes();
+        ety.notes = self.get_notes(references);
         Some(ety)
     }
 }
@@ -1321,31 +1323,33 @@ mod tests {
     fn chain_with(lang: &str, json: &str, codes: bool) -> Vec<Option<(EtyMode, Vec<String>)>> {
         let mut string_pool = StringPool::new();
         let lang = Lang::from_str(lang).unwrap();
-        test_entry::with(json, |e| e.get_etymology(&mut string_pool, lang))
-            .and_then(|ety| Vec::from(ety.alternatives).into_iter().next())
-            .map_or_else(Vec::new, Vec::from)
-            .into_iter()
-            .map(|t| match t {
-                ParsedRawEtyTemplate::Parsed(t) => Some((
-                    t.mode,
-                    t.langterms
-                        .iter()
-                        .map(|lt| {
-                            let term = lt.term.resolve(&string_pool);
-                            if codes && lt.lang != lang {
-                                format!("{}:{term}", lt.lang.code())
-                            } else {
-                                term.to_owned()
-                            }
-                        })
-                        .collect(),
-                )),
-                ParsedRawEtyTemplate::Skipped
-                | ParsedRawEtyTemplate::Unknown
-                | ParsedRawEtyTemplate::LanguageOnly(..)
-                | ParsedRawEtyTemplate::Alternatives(_) => None,
-            })
-            .collect()
+        test_entry::with(json, |e| {
+            e.get_etymology(&mut string_pool, lang, &References::default())
+        })
+        .and_then(|ety| Vec::from(ety.alternatives).into_iter().next())
+        .map_or_else(Vec::new, Vec::from)
+        .into_iter()
+        .map(|t| match t {
+            ParsedRawEtyTemplate::Parsed(t) => Some((
+                t.mode,
+                t.langterms
+                    .iter()
+                    .map(|lt| {
+                        let term = lt.term.resolve(&string_pool);
+                        if codes && lt.lang != lang {
+                            format!("{}:{term}", lt.lang.code())
+                        } else {
+                            term.to_owned()
+                        }
+                    })
+                    .collect(),
+            )),
+            ParsedRawEtyTemplate::Skipped
+            | ParsedRawEtyTemplate::Unknown
+            | ParsedRawEtyTemplate::LanguageOnly(..)
+            | ParsedRawEtyTemplate::Alternatives(_) => None,
+        })
+        .collect()
     }
 
     fn step(mode: EtyMode, term: &str) -> Option<(EtyMode, Vec<String>)> {
@@ -1529,7 +1533,10 @@ mod tests {
 
             fn process_entry(&mut self, item: ItemId, json: &str) {
                 let lang = self.items.get(item).lang();
-                let ety = test_entry::with(json, |e| e.get_etymology(&mut self.sp, lang)).unwrap();
+                let ety = test_entry::with(json, |e| {
+                    e.get_etymology(&mut self.sp, lang, &References::default())
+                })
+                .unwrap();
                 self.items
                     .process_item_raw_etymology(&self.sp, &self.embeddings, item, &ety)
                     .unwrap();
@@ -1540,7 +1547,10 @@ mod tests {
             fn record(&mut self, item: ItemId, templates: &str) {
                 let lang = self.items.get(item).lang();
                 let json = format!(r#"{{"etymology_templates": {templates}}}"#);
-                let ety = test_entry::with(&json, |e| e.get_etymology(&mut self.sp, lang)).unwrap();
+                let ety = test_entry::with(&json, |e| {
+                    e.get_etymology(&mut self.sp, lang, &References::default())
+                })
+                .unwrap();
                 self.items.raw_templates.ety.insert(item, ety);
                 self.items.index_mentions();
             }
@@ -2029,7 +2039,6 @@ mod tests {
 
         #[test]
         fn entries_credit_their_references() {
-            use crate::references::References;
             use std::io::Write;
             let dir = std::env::temp_dir().join("wety-references-test");
             std::fs::create_dir_all(&dir).unwrap();
@@ -2591,7 +2600,10 @@ mod tests {
             let json = r#"{"pos": [{"senses": [{"gloss": "alternative form of barn (“child”)",
                 "form_of": [{"lang": "enm", "term": "barn", "gloss": "child"}]}]}]}"#;
             let lang = Lang::from_str("enm").unwrap();
-            let ety = test_entry::with(json, |e| e.get_etymology(&mut sp, lang)).unwrap();
+            let ety = test_entry::with(json, |e| {
+                e.get_etymology(&mut sp, lang, &References::default())
+            })
+            .unwrap();
             let ParsedRawEtyTemplate::Parsed(template) = &ety.alternatives[0][0] else {
                 panic!("not parsed");
             };

@@ -1,6 +1,7 @@
-// An entry's References, as credits. The wiktionary_references workflow reads
-// each References section of the pages dump, keyed by page, language heading
-// and etymology label, and the works it cites (its bibliography). A section
+// An entry's References and footnotes, as credits. The wiktionary_references
+// workflow reads each References section of the entries, keyed by page,
+// language heading and etymology label, each footnote citing a template, keyed
+// by its section and note id too, and the works they cite (its bibliography). A section
 // under "Etymology N" covers that etymology; one beside the etymologies, with
 // no label, every etymology of its language. Which items those are is ours to
 // say: an item takes the credits of the sections covering a line it was read
@@ -40,8 +41,13 @@ struct Section {
     page: Box<str>,
     lang: Box<str>,
     ety: Option<Box<str>>,
+    // a footnote's id; none for a References section
+    note: Option<Box<str>>,
     credits: Box<[SectionCredit]>,
 }
+
+// a footnote: its page, language heading, etymology label and note id
+type NoteKey = (Box<str>, Box<str>, Option<Box<str>>, Box<str>);
 
 #[derive(Deserialize)]
 struct BibliographyObject {
@@ -59,6 +65,8 @@ type PageSection = (Box<str>, Option<Box<str>>, Box<[SectionCredit]>);
 pub(crate) struct References {
     // page -> its sections
     sections: HashMap<Box<str>, Vec<PageSection>>,
+    // the works each footnote citing a template cites
+    notes: HashMap<NoteKey, Box<[SectionCredit]>>,
     bibliography: HashMap<Box<str>, Work>,
     // each item's credits, from the sections covering it
     items: HashMap<ItemId, Vec<SectionCredit>>,
@@ -73,10 +81,16 @@ impl References {
             File::open(sections_path).with_context(|| sections_path.display().to_string())?;
         for line in BufReader::new(GzDecoder::new(file)).lines() {
             let s: Section = serde_json::from_str(&line?)?;
-            refs.sections
-                .entry(s.page)
-                .or_default()
-                .push((s.lang, s.ety, s.credits));
+            match s.note {
+                Some(note) => {
+                    refs.notes.insert((s.page, s.lang, s.ety, note), s.credits);
+                }
+                None => refs
+                    .sections
+                    .entry(s.page)
+                    .or_default()
+                    .push((s.lang, s.ety, s.credits)),
+            }
         }
         let file = File::open(bibliography_path)
             .with_context(|| bibliography_path.display().to_string())?;
@@ -99,6 +113,60 @@ impl References {
 
     pub(crate) fn sections(&self) -> usize {
         self.sections.values().map(Vec::len).sum()
+    }
+
+    /// References knowing one footnote's works, for tests.
+    #[cfg(test)]
+    pub(crate) fn with_note(
+        key: (&str, &str, Option<&str>, &str),
+        works: &[(Work, Option<&str>)],
+    ) -> Self {
+        let mut refs = Self::default();
+        let credits = works
+            .iter()
+            .map(|(work, locator)| SectionCredit {
+                work: work.id.clone(),
+                role: Role::Follows,
+                scope: Scope::Note,
+                locator: locator.map(Into::into),
+            })
+            .collect();
+        for (work, _) in works {
+            refs.bibliography.insert(work.id.clone(), work.clone());
+        }
+        refs.notes.insert(
+            (
+                key.0.into(),
+                key.1.into(),
+                key.2.map(Into::into),
+                key.3.into(),
+            ),
+            credits,
+        );
+        refs
+    }
+
+    pub(crate) fn notes(&self) -> usize {
+        self.notes.len()
+    }
+
+    /// The works a footnote cites through templates, each with its locator, or
+    /// None when it cites none (it is read from its text).
+    pub(crate) fn note_works(
+        &self,
+        page: &str,
+        lang: &str,
+        ety: Option<&str>,
+        note: &str,
+    ) -> Option<Vec<(&Work, Option<&str>)>> {
+        let key: NoteKey = (page.into(), lang.into(), ety.map(Into::into), note.into());
+        let credits = self.notes.get(&key)?;
+        Some(
+            credits
+                .iter()
+                .filter_map(|c| Some((self.bibliography.get(&c.work)?, c.locator.as_deref())))
+                .collect(),
+        )
     }
 
     pub(crate) fn covering(&self) -> usize {

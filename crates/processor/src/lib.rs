@@ -72,8 +72,9 @@ pub fn process_entries(
     if let Some((sections, bibliography)) = references_paths {
         items.references = References::load(sections, bibliography)?;
         println!(
-            "Loaded {} References sections.",
-            items.references.sections()
+            "Loaded {} References sections and {} footnotes citing templates.",
+            items.references.sections(),
+            items.references.notes()
         );
     }
     if let Some(redirects_path) = redirects_path {

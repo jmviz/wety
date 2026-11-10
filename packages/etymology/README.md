@@ -8,8 +8,8 @@ the work plan are in the shared doc "wety etymology claims model", outside git.
 - `assertions.py`: builds assertion objects (their digest ids) and validates files;
 - `convert/`: one converter per source. `acd` and `lila` read the retained release, whole
   or a sample; `wiktionary` converts claims a model annotated per entry, for samples;
-  `wiktionary_references` reads every References section of the pages dump (core-5),
-  for the graph build.
+  `wiktionary_references` reads the citation templates of every References section
+  and footnote of wety's entries (core-5, x-5), for the graph build.
   Wiktionary's templates are read by the processor instead: `graph-assertions`
   (`crates/processor`) writes a graph's assertions in this schema, which
   `etymology.assertions` validates;
@@ -65,26 +65,28 @@ uv run --frozen python -m etymology.convert.lila --out $S/lila-edl/checks/lila-2
 
 ## Wiktionary's References
 
-The workflow `wiktionary_references` reads them from the pages dump of the entries' date (`etc/source.json`, artifact `pages`) and
-writes the product the graph build reads:
+The workflow `wiktionary_references` reads them from wety's entries (`wiktionary_entries`)
+and the pages dump of the same date (`etc/source.json`, artifact `pages`), and writes the
+product the graph build reads:
 
 ```sh
 uv run --frozen wety-data run wiktionary_references
 ```
 
-`extract` keeps the dump's References and Further reading sections and its
-`Template:R:` pages; `convert` writes the bibliography (`bibliography.jsonl`) and each
-References section's credits (`section_credits.jsonl.gz`), and checks them. The
-bibliography has a work for every `Template:R:` page that is not a redirect, read from
-the citation template it calls (authors, or editors when it names none; year; title),
-and for every `{{cite-...}}` line of a References section. A section's works are credits
-of role `follows`, scope `entry`, keyed by page, language heading and etymology label
-(none for a section beside the etymologies). The processor joins them to its own items:
-a section under "Etymology N" covers that etymology, one beside the etymologies every
-etymology of its language, and an item's own section's assertions carry them, unless a
-rule reads the section. `<ref>` footnotes are left to the processor (note scope);
-Further reading gives no credits and is kept the same way
-(`further_reading.jsonl.gz`).
+`extract` keeps the dump's `Template:R:` pages; `convert` writes the bibliography
+(`bibliography.jsonl`) and the credits of each References section and footnote
+(`section_credits.jsonl.gz`), and checks them. The bibliography has a work for every
+`Template:R:` page that is not a redirect, read from the citation template it calls
+(authors, or editors when it names none; year; title), and for every `{{cite-...}}` call.
+A References section's works are credits of role `follows`, scope `entry`, keyed by page,
+language heading and etymology label (none for a section beside the etymologies). The
+processor joins them to its own items: a section under "Etymology N" covers that
+etymology, one beside the etymologies every etymology of its language, and an item's own
+section's assertions carry them, unless a rule reads the section. A footnote's works are
+credits of scope `note`, keyed by its section and note id: a footnote citing
+`{{R:itc:EDL}}` credits the same work as a References line citing it. The processor
+reads a footnote citing no template from its text. Further reading gives no credits and
+is kept the same way (`further_reading.jsonl.gz`).
 
 ## Matching the ACD to Wiktionary
 
