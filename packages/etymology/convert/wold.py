@@ -20,7 +20,8 @@ A word rated clearly, probably or perhaps borrowed converts, row by row:
 
 Rows on words rated "very little" or "no evidence" for borrowing name the source of a
 part of a compound or of an earlier stage (Zinacantán Tzotzil tzahal 7ora, with Spanish
-hora): they are counted, not converted. The source word's language is read through the
+hora), and rows on a compound or phrase name the source of the part that is borrowed
+(English earlobe, from Latin lobus): they are counted, not converted. The source word's language is read through the
 donor map (`etc/donors.json`, WOLD's languoid names to Wiktionary codes), the word's own
 through the language map. An assertion's locator is the word's page in WOLD
 (`word/<Word_ID>`); each source word's record keeps its `borrowings.csv` row.
@@ -42,6 +43,9 @@ HEDGE = {
     "2. probably borrowed": "probable",
     "3. perhaps borrowed": "possible",
 }
+# WOLD rates a compound or phrase borrowed when a part is (English earlobe: "second part
+# only is borrowed"); its source word is then the part's source, not the word's
+PART_BORROWED = {"analyzable compound", "analyzable phrasal"}
 INPUTS = (
     "languages.csv",
     "forms.csv",
@@ -147,6 +151,10 @@ class WoldConverter:
                 self.counts[f"rows on words rated {f['Borrowed'][3:]!r}: not converted"] += len(
                     rows
                 )
+                continue
+            if f["Analyzability"] in PART_BORROWED:
+                why = "rows on compounds and phrases (a part borrowed): not converted"
+                self.counts[why] += len(rows)
                 continue
             word = self.word(form_id)
             holder = self.holder(f["Language_ID"])
