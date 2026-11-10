@@ -151,11 +151,7 @@ fn gloss_words<'a>(text: impl Iterator<Item = &'a str>) -> HashSet<String> {
 impl Items {
     /// A cited langterm as the page it names: full language, page title.
     pub(crate) fn key(&self, langterm: LangTerm) -> LangTerm {
-        let title = self
-            .entry_names
-            .get(&langterm)
-            .copied()
-            .unwrap_or(langterm.term);
+        let title = self.entry_name(langterm).unwrap_or(langterm.term);
         LangTerm::new(langterm.lang.ety2non(), title)
     }
 

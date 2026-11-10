@@ -116,7 +116,8 @@ impl Items {
     // Read the entry names mentions link to (`wiktionary-entries --entry-names`):
     // language, term as shown, page and how often, per line. A term linked to
     // several pages takes the one it is linked to most often; a reconstruction's
-    // page is named by its part after the language.
+    // page is named by its part after the language. Names are kept under the
+    // full language (see `entry_name`).
     pub(crate) fn load_entry_names(
         &mut self,
         string_pool: &mut StringPool,
@@ -141,7 +142,7 @@ impl Items {
                 continue;
             }
             let count: u64 = count.parse().unwrap_or(0);
-            let langterm = lang.new_langterm(string_pool, term);
+            let langterm = lang.ety2non().new_langterm(string_pool, term);
             let page = Term::new(string_pool, page);
             match best.get(&langterm) {
                 Some(&(n, _)) if n >= count => {}
@@ -155,6 +156,15 @@ impl Items {
                 .map(|(langterm, (_, page))| (langterm, page)),
         );
         Ok(())
+    }
+
+    /// The page title a cited term is linked to, if a page links it. Kept under
+    /// the full language: a page renders a Biblical Hebrew mention ({{der|es|hbo|..}})
+    /// as Hebrew, and the page it names is a Hebrew one.
+    pub(crate) fn entry_name(&self, langterm: LangTerm) -> Option<Term> {
+        self.entry_names
+            .get(&LangTerm::new(langterm.lang.ety2non(), langterm.term))
+            .copied()
     }
 
     pub(crate) fn len(&self) -> usize {
@@ -324,11 +334,7 @@ impl Items {
     // are looked up under their full language.
     fn lookup_langterms(&self, langterm: LangTerm) -> [LangTerm; 3] {
         let lang = langterm.lang.ety2non();
-        let title = self
-            .entry_names
-            .get(&langterm)
-            .copied()
-            .unwrap_or(langterm.term);
+        let title = self.entry_name(langterm).unwrap_or(langterm.term);
         let redirect = self.redirects.rectify_langterm(LangTerm::new(lang, title));
         [
             LangTerm::new(lang, langterm.term),
@@ -369,11 +375,7 @@ impl Items {
     // The imputed item standing for a cited term missing from the data,
     // shared by all citations of its page title.
     pub(crate) fn impute_item(&mut self, langterm: LangTerm, from_item: ItemId) -> ItemId {
-        let title = self
-            .entry_names
-            .get(&langterm)
-            .copied()
-            .unwrap_or(langterm.term);
+        let title = self.entry_name(langterm).unwrap_or(langterm.term);
         let key = LangTerm::new(langterm.lang, title);
         if let Some(&item_id) = self.imputed_titles.get(&key) {
             return item_id;
@@ -593,6 +595,18 @@ mod tests {
             .entry_names
             .insert(cited_peri, Term::new(&mut sp, "περι-"));
         assert_eq!(items.candidates(cited_peri), Some(&vec![peri]));
+        // an etymology-only variety's citation, by the name its page renders
+        // under the full language (hbo יָאִיר links Hebrew יאיר)
+        let yair = add(&mut items, &mut sp, "he", "יאיר", None);
+        let he = Lang::from_str("he").unwrap();
+        let hbo = Lang::from_str("hbo").unwrap();
+        items
+            .entry_names
+            .insert(he.new_langterm(&mut sp, "יָאִיר"), Term::new(&mut sp, "יאיר"));
+        assert_eq!(
+            items.candidates(hbo.new_langterm(&mut sp, "יָאִיר")),
+            Some(&vec![yair])
+        );
         // as written, by canonical form or by page title
         assert_eq!(
             items.candidates(la.new_langterm(&mut sp, "mātrīx")),
