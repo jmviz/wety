@@ -62,6 +62,21 @@ export default function About() {
           <Ext href="https://acd.clld.org/">Austronesian Comparative Dictionary</Ext>, under{" "}
           <Ext href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</Ext>.
         </li>
+        <li>
+          From the <Ext href="https://clld.org/">CLLD</Ext> series, each under{" "}
+          <Ext href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</Ext>: Malcolm
+          Ross, Andrew Pawley and Meredith Osmond's{" "}
+          <Ext href="https://tlopo.clld.org/">Lexicon of Proto Oceanic</Ext>; Byron Bender and
+          colleagues' Micronesian Comparative Dictionary (<i>Proto-Micronesian
+          Reconstructions</i>, 2003); Robert Rankin and colleagues'{" "}
+          <Ext href="https://csd.clld.org/">Comparative Siouan Dictionary</Ext>; Florian
+          Matter's <Ext href="https://cariban.clld.org/">Comparative Cariban Database</Ext>;
+          Martin Haspelmath and Uri Tadmor's{" "}
+          <Ext href="https://wold.clld.org/">World Loanword Database</Ext>, each vocabulary by
+          its own authors; and Paul Heggarty, Cormac Anderson and Matthew Scarborough's{" "}
+          <Ext href="https://iecor.clld.org/">Indo-European Cognate Relationships</Ext>{" "}
+          database.
+        </li>
       </ul>
       <p>
         Where these sources disagree about a word, its details say so, and how one reading
