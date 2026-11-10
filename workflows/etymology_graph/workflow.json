@@ -4,9 +4,9 @@
   "collection": "etymology-graph",
   "product": "etymology_graph",
   "inputs": {
-    "entries": "data/artifacts/wiktionary-entries/93ff2e8c2d8b2cc05623579f6ef0c6a1ed8d853c8a7c2779385ea6d5b5f82869/files/entries.jsonl.gz",
-    "redirects": "data/artifacts/wiktionary-entries/93ff2e8c2d8b2cc05623579f6ef0c6a1ed8d853c8a7c2779385ea6d5b5f82869/files/redirects.tsv.gz",
-    "entry_names": "data/artifacts/wiktionary-entries/93ff2e8c2d8b2cc05623579f6ef0c6a1ed8d853c8a7c2779385ea6d5b5f82869/files/entry_names.tsv.gz",
+    "entries": "data/artifacts/wiktionary-entries/2e2994f19a6e2aab21069244b6f23e22588e130ba261f335e771ae7dc90aae90/files/entries.jsonl.gz",
+    "redirects": "data/artifacts/wiktionary-entries/2e2994f19a6e2aab21069244b6f23e22588e130ba261f335e771ae7dc90aae90/files/redirects.tsv.gz",
+    "entry_names": "data/artifacts/wiktionary-entries/2e2994f19a6e2aab21069244b6f23e22588e130ba261f335e771ae7dc90aae90/files/entry_names.tsv.gz",
     "languages": "data/artifacts/wiktionary-export/57d16abeffbce475ff189e0734fd8937eab8d7417b1ee08273e746b43b350cb0/files/languages.json",
     "families": "data/artifacts/wiktionary-export/57d16abeffbce475ff189e0734fd8937eab8d7417b1ee08273e746b43b350cb0/files/families.json",
     "references": "data/artifacts/wiktionary-references/341456e6e62e831025781cbc6ce4fb9eb40223c3346a2868df00ce560fa84c9e/files/section_credits.jsonl.gz",

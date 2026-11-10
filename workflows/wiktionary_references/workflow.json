@@ -5,7 +5,7 @@
   "product": "wiktionary_references",
   "inputs": {
     "pages": "data/artifacts/wiktionary-dump/ae476c69023c5cf20389497529bcb55928826174140225f89e0c9241b234cc94/files/source",
-    "entries": "data/artifacts/wiktionary-entries/93ff2e8c2d8b2cc05623579f6ef0c6a1ed8d853c8a7c2779385ea6d5b5f82869/files/entries.jsonl.gz"
+    "entries": "data/artifacts/wiktionary-entries/2e2994f19a6e2aab21069244b6f23e22588e130ba261f335e771ae7dc90aae90/files/entries.jsonl.gz"
   },
   "commands": [
     [
