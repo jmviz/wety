@@ -1,0 +1,95 @@
+{
+ "source": "mcd",
+ "release": "v2.0",
+ "reviewer": "claude-opus-5-5 (model review, 2026-11-09)",
+ "kinds": [
+  {
+   "where": "cognatesets.csv",
+   "category": "cognate set",
+   "count": 1707,
+   "source_description": "A reconstruction at one Micronesian level with its reflexes; its members include reconstructions at lower levels (Proto-Chuukic under Proto-Micronesian) and comparanda outside Micronesian (Proto-Oceanic, Proto-Polynesian, Fijian, Dempwolff's Uraustronesisch).",
+   "wety_kind": "cognate set",
+   "status": "mapped",
+   "note": "Links compiled by the nested rule: each form descends from the form of its set at the lowest level above it, on the MCD's tree extended in etc/tree.json."
+  },
+  {
+   "where": "cognatesets.csv",
+   "category": "Doubt (reconstruction)",
+   "count": 149,
+   "source_description": "Boolean flag on a set.",
+   "wety_kind": "reconstruction certainty: possible",
+   "status": "mapped",
+   "note": "A hedge on the set's assertion."
+  },
+  {
+   "where": "cognates.csv",
+   "category": "Doubt (membership)",
+   "count": 149,
+   "source_description": "Boolean flag on a form's membership.",
+   "wety_kind": "certainty on a membership link: possible",
+   "status": "mapped",
+   "note": "A hedge on the member and on its compiled link."
+  },
+  {
+   "where": "forms.csv",
+   "category": "Doubt (form)",
+   "count": 30,
+   "source_description": "Boolean flag on a form.",
+   "wety_kind": "reconstruction certainty: possible",
+   "status": "mapped",
+   "note": "The record's certainty."
+  },
+  {
+   "where": "cf.csv",
+   "category": "",
+   "count": 939,
+   "source_description": "'Cf.' groups listed after a cognate set: forms of interest beside it, candidates for membership excluded by some irregularity (Bender et al. 2003, as described in the CLDF paper).",
+   "wety_kind": "cognacy, possible",
+   "status": "mapped",
+   "label": "cf.",
+   "hedge": {
+    "level": "possible",
+    "words": "cf. (listed beside the MCD's set)"
+   },
+   "note": "Endorsed at possible, member by member, beside the set it names (of_set); no unnamed ancestor."
+  },
+  {
+   "where": "cf.csv",
+   "category": "loans",
+   "count": 91,
+   "source_description": "Groups of forms the MCD takes to be loans; Description gives its reasoning and sometimes the donor.",
+   "wety_kind": "borrowing; the group's origin is shared",
+   "status": "mapped",
+   "members": "borrowings.csv",
+   "quote": "Description",
+   "note": "Members are the borrowings naming the group; the description is kept as the source's words."
+  },
+  {
+   "where": "borrowings.csv",
+   "category": "borrowing",
+   "count": 437,
+   "source_description": "A form borrowed, in a loan group; Source_Form_ID is empty in every row.",
+   "wety_kind": "borrowing from an unnamed source",
+   "status": "mapped",
+   "note": "The group's description may name the donor; not read yet."
+  },
+  {
+   "where": "languages.csv, media.csv",
+   "category": "the Newick tree",
+   "count": 1,
+   "source_description": "The Micronesian subgrouping, Proto-Micronesian at its root.",
+   "wety_kind": "the source's tree (a classification claim)",
+   "status": "mapped",
+   "note": "Extended above its root and placed by Glottolog in etc/tree.json."
+  },
+  {
+   "where": "forms.csv, cognates.csv",
+   "category": "Source",
+   "count": null,
+   "source_description": "pmr1 and pmr2: the two parts of the publication.",
+   "wety_kind": "credit, role data",
+   "status": "mapped",
+   "note": "As for the ACD."
+  }
+ ]
+}

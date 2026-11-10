@@ -367,9 +367,9 @@ class Acd:
 
     @cached_property
     def tree(self):
-        from etymology.convert.acd import Release
+        from etymology.convert.acd import AcdRelease
 
-        return Release().tree
+        return AcdRelease().tree
 
     def ancestors(self, record_id):
         """The records the ACD makes a record descend from, at any remove (its set's

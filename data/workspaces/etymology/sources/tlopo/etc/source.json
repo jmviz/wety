@@ -1,0 +1,44 @@
+{
+ "id": "tlopo",
+ "title": "The Lexicon of Proto Oceanic",
+ "release": "v0.1.1",
+ "doi": "10.5281/zenodo.23688418",
+ "published": "2026-10-27",
+ "creators": [
+  "Malcolm Ross",
+  "Andrew Pawley",
+  "Meredith Osmond",
+  "Robert Forkel"
+ ],
+ "cite_as": "Malcolm Ross, Andrew Pawley and Meredith Osmond (eds.) 1998-2016. The Lexicon of Proto Oceanic: The culture and environment of ancestral Oceanic society, vols. 1-6. Canberra: Pacific Linguistics and Asia-Pacific Linguistics; CLDF dataset v0.1.1, doi:10.5281/zenodo.23688418.",
+ "url": "https://tlopo.clld.org",
+ "repository": "https://github.com/lexibank/tlopo (archive directory tlopo-0.1.1)",
+ "artifact": {
+  "path": "data/artifacts/tlopo/fac45c143c93cd957f64e75f9f3f6ef86c9cdde708c22ceebc1d772b79578704",
+  "artifact_id": "sha256:f3a4bca10bf3b7e2f6dac5f1abe10d00f4910e618dd74525769b6c0273ade198",
+  "sha256": "fac45c143c93cd957f64e75f9f3f6ef86c9cdde708c22ceebc1d772b79578704",
+  "acquired": "2026-11-10T03:18:51.468223+00:00"
+ },
+ "raw": "data/workspaces/etymology/sources/tlopo/raw/tlopo-0.1.1",
+ "kind_of_work": "thematic comparative dictionary of Proto Oceanic in six volumes (67 chapters by several authors), as a CLDF Wordlist (lexibank, pyetymdict tables)",
+ "holder": "Ross, Pawley and Osmond as editors; each chapter's authors (chapters.csv); the CLDF conversion is by Forkel",
+ "date_of_view": "1998-2016 (volumes 1-6), converted 2025-2026",
+ "coverage": {
+  "cognate_sets": 2821,
+  "cognate_judgements": 40960,
+  "forms": 43037,
+  "varieties": 688,
+  "proto_languages": 73,
+  "cf_groups": 934,
+  "chapters": 67
+ },
+ "glottolog": "The release maps its languages with Glottolog v5.3, as wety's catalogs do.",
+ "licence": "CC-BY-4.0",
+ "may_display": "everything, with attribution",
+ "may_export": "everything, with attribution",
+ "curation": {
+  "language_map": "etc/languages.json (from etc/languages.reviewed.json and the catalog bundle)",
+  "kind_map": "etc/kinds.json",
+  "tree": "etc/tree.json (from etc/tree.reviewed.json: the levels above Oceanic and where non-Oceanic languages hang)"
+ }
+}

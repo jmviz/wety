@@ -1,0 +1,719 @@
+{
+ "catalog_generation": "94fb4909c233a4262a321bf71439883f2ad53094df934a0a72be2978ee166d86",
+ "languages": {
+  "path": "data/workspaces/etymology/sources/mcd/raw/lexibank-mcd-1cabc58/cldf/languages.csv",
+  "sha256": "f9a84df2b978fdc4e316f3dbb1ad031883ddef24c5daacb2bf76988cb3181a75"
+ },
+ "reviewed": {
+  "path": "data/workspaces/etymology/sources/mcd/etc/languages.reviewed.json",
+  "sha256": "f8ce2a3092fd073750f8490eff887018f5908294c710d49299ed645abfd626bd"
+ },
+ "summary": {
+  "varieties": {
+   "exact": 37,
+   "subset": 3,
+   "unresolved": 1,
+   "total": 41,
+   "exact_share": 0.9024
+  },
+  "proto-languages": {
+   "unresolved": 14,
+   "exact": 5,
+   "total": 19,
+   "exact_share": 0.2632
+  }
+ },
+ "rows": [
+  {
+   "id": "protochuukic",
+   "name": "Proto-Chuukic",
+   "glottocode": "truk1243",
+   "iso639_3": null,
+   "is_proto": true,
+   "relation": "unresolved",
+   "code": null,
+   "candidates": [],
+   "basis": "no single Wiktionary family has this glottocode"
+  },
+  {
+   "id": "protomalayopolynesian",
+   "name": "Proto-Malayo-Polynesian",
+   "glottocode": "mala1545",
+   "iso639_3": null,
+   "is_proto": true,
+   "relation": "exact",
+   "code": "poz-pro",
+   "candidates": [],
+   "basis": "proto-language of the Wiktionary family with this glottocode"
+  },
+  {
+   "id": "protooceanic",
+   "name": "Proto-Oceanic",
+   "glottocode": "ocea1241",
+   "iso639_3": null,
+   "is_proto": true,
+   "relation": "exact",
+   "code": "poz-oce-pro",
+   "candidates": [],
+   "basis": "proto-language of the Wiktionary family with this glottocode"
+  },
+  {
+   "id": "preprotooceanic",
+   "name": "Pre-Proto-Oceanic",
+   "glottocode": "ocea1241",
+   "iso639_3": null,
+   "is_proto": true,
+   "relation": "unresolved",
+   "code": null,
+   "candidates": [],
+   "basis": "Pre-Proto-Oceanic is a stage before Proto-Oceanic, not Proto-Oceanic; the glottocode lookup gives it ocea1241 only because MCD reuses the family's code. Wiktionary has no code for it.",
+   "reviewer": "claude-opus-5-5 (model review, 2026-11-09)",
+   "derived": {
+    "relation": "exact",
+    "code": "poz-oce-pro",
+    "candidates": [],
+    "basis": "proto-language of the Wiktionary family with this glottocode"
+   }
+  },
+  {
+   "id": "protowillaumez",
+   "name": "Proto-Willaumez",
+   "glottocode": "will1243",
+   "iso639_3": null,
+   "is_proto": true,
+   "relation": "unresolved",
+   "code": null,
+   "candidates": [],
+   "basis": "no single Wiktionary family has this glottocode"
+  },
+  {
+   "id": "protomicronesian",
+   "name": "Proto-Micronesian",
+   "glottocode": "micr1243",
+   "iso639_3": null,
+   "is_proto": true,
+   "relation": "exact",
+   "code": "poz-mic-pro",
+   "candidates": [],
+   "basis": "proto-language of the Wiktionary family with this glottocode"
+  },
+  {
+   "id": "preprotomicronesian",
+   "name": "Pre-Proto-Micronesian",
+   "glottocode": "micr1243",
+   "iso639_3": null,
+   "is_proto": true,
+   "relation": "unresolved",
+   "code": null,
+   "candidates": [],
+   "basis": "Pre-Proto-Micronesian is a stage before Proto-Micronesian; MCD reuses micr1243. Wiktionary has no code for it.",
+   "reviewer": "claude-opus-5-5 (model review, 2026-11-09)",
+   "derived": {
+    "relation": "exact",
+    "code": "poz-mic-pro",
+    "candidates": [],
+    "basis": "proto-language of the Wiktionary family with this glottocode"
+   }
+  },
+  {
+   "id": "protowesternmicronesian",
+   "name": "Proto-Western Micronesian",
+   "glottocode": "west2844",
+   "iso639_3": null,
+   "is_proto": true,
+   "relation": "unresolved",
+   "code": null,
+   "candidates": [],
+   "basis": "no single Wiktionary family has this glottocode"
+  },
+  {
+   "id": "protopolynesian",
+   "name": "Proto-Polynesian",
+   "glottocode": "poly1242",
+   "iso639_3": null,
+   "is_proto": true,
+   "relation": "exact",
+   "code": "poz-pol-pro",
+   "candidates": [],
+   "basis": "Proto-Polynesian is poly1242; the catalog also gives that glottocode to Wiktionary's Eastern Polynesian (poz-pep-pro), as for the ACD's Proto-Polynesian.",
+   "reviewer": "claude-opus-5-5 (model review, 2026-11-09)",
+   "derived": {
+    "relation": "unresolved",
+    "code": null,
+    "candidates": [
+     "poz-pep-pro",
+     "poz-pol-pro"
+    ],
+    "basis": "no single Wiktionary family has this glottocode"
+   }
+  },
+  {
+   "id": "protoaustronesian",
+   "name": "Proto-Austronesian",
+   "glottocode": "aust1307",
+   "iso639_3": null,
+   "is_proto": true,
+   "relation": "exact",
+   "code": "map-pro",
+   "candidates": [],
+   "basis": "proto-language of the Wiktionary family with this glottocode"
+  },
+  {
+   "id": "uraustronesisch",
+   "name": "Uraustronesisch",
+   "glottocode": "aust1307",
+   "iso639_3": null,
+   "is_proto": true,
+   "relation": "unresolved",
+   "code": null,
+   "candidates": [],
+   "basis": "Dempwolff's Uraustronesisch, cited by MCD as his reconstructions in his notation; not Wiktionary's Proto-Austronesian (map-pro), as the ACD's Dempwolff forms are not.",
+   "reviewer": "claude-opus-5-5 (model review, 2026-11-09)",
+   "derived": {
+    "relation": "exact",
+    "code": "map-pro",
+    "candidates": [],
+    "basis": "proto-language of the Wiktionary family with this glottocode"
+   }
+  },
+  {
+   "id": "protocentralmicronesian",
+   "name": "Proto-Central Micronesian",
+   "glottocode": "cent2276",
+   "iso639_3": null,
+   "is_proto": true,
+   "relation": "unresolved",
+   "code": null,
+   "candidates": [],
+   "basis": "no single Wiktionary family has this glottocode"
+  },
+  {
+   "id": "protopohnpeicchuukic",
+   "name": "Proto-Pohnpeic-Chuukic",
+   "glottocode": "pona1247",
+   "iso639_3": null,
+   "is_proto": true,
+   "relation": "unresolved",
+   "code": null,
+   "candidates": [],
+   "basis": "no single Wiktionary family has this glottocode"
+  },
+  {
+   "id": "protopohnpeic",
+   "name": "Proto-Pohnpeic",
+   "glottocode": "pona1248",
+   "iso639_3": null,
+   "is_proto": true,
+   "relation": "unresolved",
+   "code": null,
+   "candidates": [],
+   "basis": "no single Wiktionary family has this glottocode"
+  },
+  {
+   "id": "protoeasternoceanic",
+   "name": "Proto-Eastern Oceanic",
+   "glottocode": null,
+   "iso639_3": null,
+   "is_proto": true,
+   "relation": "unresolved",
+   "code": null,
+   "candidates": [],
+   "basis": "no single Wiktionary family has this glottocode"
+  },
+  {
+   "id": "protonakanai",
+   "name": "Proto-Nakanai",
+   "glottocode": "naka1266",
+   "iso639_3": null,
+   "is_proto": true,
+   "relation": "unresolved",
+   "code": null,
+   "candidates": [],
+   "basis": "no single Wiktionary family has this glottocode"
+  },
+  {
+   "id": "protokimbe",
+   "name": "Proto-Kimbe",
+   "glottocode": null,
+   "iso639_3": null,
+   "is_proto": true,
+   "relation": "unresolved",
+   "code": null,
+   "candidates": [],
+   "basis": "no single Wiktionary family has this glottocode"
+  },
+  {
+   "id": "protolakalai",
+   "name": "Proto-Lakalai",
+   "glottocode": "naka1266",
+   "iso639_3": null,
+   "is_proto": true,
+   "relation": "unresolved",
+   "code": null,
+   "candidates": [],
+   "basis": "no single Wiktionary family has this glottocode"
+  },
+  {
+   "id": "protowesternmalayopolynesian",
+   "name": "Proto-Western-Malayo-Polynesian",
+   "glottocode": null,
+   "iso639_3": null,
+   "is_proto": true,
+   "relation": "unresolved",
+   "code": null,
+   "candidates": [],
+   "basis": "no single Wiktionary family has this glottocode"
+  },
+  {
+   "id": "areare",
+   "name": "'Āre'āre",
+   "glottocode": "area1240",
+   "iso639_3": "alu",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "alu",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "arosi",
+   "name": "Arosi",
+   "glottocode": "aros1241",
+   "iso639_3": "aia",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "aia",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "bugotu",
+   "name": "Bugotu",
+   "glottocode": "bugh1239",
+   "iso639_3": "bgt",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "bgt",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "chamorro",
+   "name": "Chamorro",
+   "glottocode": "cham1312",
+   "iso639_3": "cha",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "ch",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "chuukese",
+   "name": "Chuukese",
+   "glottocode": "chuu1238",
+   "iso639_3": "chk",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "chk",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "fijian",
+   "name": "Fijian",
+   "glottocode": "fiji1243",
+   "iso639_3": "fij",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "fj",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "gilbertese",
+   "name": "Gilbertese",
+   "glottocode": "gilb1244",
+   "iso639_3": "gil",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "gil",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "jabem",
+   "name": "Jabêm",
+   "glottocode": "yabe1254",
+   "iso639_3": "jae",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "jae",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "kosraean",
+   "name": "Kosraean",
+   "glottocode": "kosr1238",
+   "iso639_3": "kos",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "kos",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "kwaio",
+   "name": "Kwaio",
+   "glottocode": "kwai1243",
+   "iso639_3": "kwd",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "kwd",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "lakalai",
+   "name": "Lakalai",
+   "glottocode": "naka1262",
+   "iso639_3": "nak",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "nak",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "lau",
+   "name": "Lau",
+   "glottocode": "lauu1247",
+   "iso639_3": "llu",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "llu",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "marshallese",
+   "name": "Marshallese",
+   "glottocode": "mars1254",
+   "iso639_3": "mah",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "mh",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "mokilese",
+   "name": "Mokilese",
+   "glottocode": "moki1238",
+   "iso639_3": "mkj",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "mkj",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "mortlockese",
+   "name": "Mortlockese",
+   "glottocode": "mort1237",
+   "iso639_3": "mrl",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "mrl",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "nggela",
+   "name": "Nggela",
+   "glottocode": "gela1263",
+   "iso639_3": "nlg",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "nlg",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "ngatchikese",
+   "name": "Ngatchikese",
+   "glottocode": "sapw1237",
+   "iso639_3": null,
+   "is_proto": false,
+   "relation": "subset",
+   "code": "pon",
+   "candidates": [],
+   "basis": "dialect of pohn1238, which the glottocode lookup maps"
+  },
+  {
+   "id": "oldmapian",
+   "name": "Old Mapian",
+   "glottocode": "mapi1250",
+   "iso639_3": "mpy",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "mpy",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "palauan",
+   "name": "Palauan",
+   "glottocode": "pala1344",
+   "iso639_3": "pau",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "pau",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "pingilapese",
+   "name": "Pingilapese",
+   "glottocode": "ping1243",
+   "iso639_3": "pif",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "pif",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "pohnpeian",
+   "name": "Pohnpeian",
+   "glottocode": "pohn1238",
+   "iso639_3": "pon",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "pon",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "puloannan",
+   "name": "Pulo-Annan",
+   "glottocode": "pulo1240",
+   "iso639_3": null,
+   "is_proto": false,
+   "relation": "subset",
+   "code": "sov",
+   "candidates": [],
+   "basis": "dialect of sons1242, which the glottocode lookup maps"
+  },
+  {
+   "id": "puluwatese",
+   "name": "Puluwatese",
+   "glottocode": "pulu1242",
+   "iso639_3": "puw",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "puw",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "rotuman",
+   "name": "Rotuman",
+   "glottocode": "rotu1241",
+   "iso639_3": "rtm",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "rtm",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "roviana",
+   "name": "Roviana",
+   "glottocode": "rovi1238",
+   "iso639_3": "rug",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "rug",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "saa",
+   "name": "Sa’a",
+   "glottocode": "saaa1240",
+   "iso639_3": "apb",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "apb",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "saipancarolinian",
+   "name": "Saipan Carolinian",
+   "glottocode": "caro1242",
+   "iso639_3": "cal",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "cal",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "saipancaroliniant",
+   "name": "Saipan Carolinian·T",
+   "glottocode": "tana1281",
+   "iso639_3": "tpv",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "tpv",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "samoan",
+   "name": "Samoan",
+   "glottocode": "samo1305",
+   "iso639_3": "smo",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "sm",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "satawalese",
+   "name": "Satawalese",
+   "glottocode": "sata1237",
+   "iso639_3": "stw",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "stw",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "sonsorolese",
+   "name": "Sonsorolese",
+   "glottocode": "sons1243",
+   "iso639_3": null,
+   "is_proto": false,
+   "relation": "subset",
+   "code": "sov",
+   "candidates": [],
+   "basis": "dialect of sons1242, which the glottocode lookup maps"
+  },
+  {
+   "id": "tagalog",
+   "name": "Tagalog",
+   "glottocode": "taga1270",
+   "iso639_3": "tgl",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "tl",
+   "candidates": [],
+   "basis": "ISO 639-3 code"
+  },
+  {
+   "id": "tobi",
+   "name": "Tobi",
+   "glottocode": "tobi1238",
+   "iso639_3": "tox",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "tox",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "tokelau",
+   "name": "Tokelau",
+   "glottocode": "toke1240",
+   "iso639_3": "tkl",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "tkl",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "tongan",
+   "name": "Tongan",
+   "glottocode": "tong1325",
+   "iso639_3": "ton",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "to",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "ulawan",
+   "name": "Ulawan",
+   "glottocode": "saaa1240",
+   "iso639_3": null,
+   "is_proto": false,
+   "relation": "exact",
+   "code": "apb",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "ulithian",
+   "name": "Ulithian",
+   "glottocode": "ulit1238",
+   "iso639_3": "uli",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "uli",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "woleaian",
+   "name": "Woleaian",
+   "glottocode": "wole1240",
+   "iso639_3": "woe",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "woe",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "yapese",
+   "name": "Yapese",
+   "glottocode": "yape1248",
+   "iso639_3": "yap",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "yap",
+   "candidates": [],
+   "basis": "ISO 639-3 code"
+  },
+  {
+   "id": "gedaged",
+   "name": "Gedaged",
+   "glottocode": "geda1237",
+   "iso639_3": null,
+   "is_proto": false,
+   "relation": "exact",
+   "code": "gdd",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "nguna",
+   "name": "Nguna",
+   "glottocode": "ngun1274",
+   "iso639_3": null,
+   "is_proto": false,
+   "relation": "unresolved",
+   "code": null,
+   "candidates": [],
+   "basis": "no Wiktionary code found"
+  }
+ ]
+}

@@ -1,4 +1,4 @@
-# Etymology assertions, v5
+# Etymology assertions, v6
 
 Every etymological source enters wety as assertions in one schema,
 [`assertion.schema.json`](assertion.schema.json) (JSON Schema 2020-12). A source's
@@ -27,7 +27,7 @@ links or members that exist.
 | `extraction` | One run of one tool (`parser`, `converter`, `model`) over its inputs, at a git revision | digest |
 | `record` | A word as one source writes it: language (the source's label, its Wiktionary code and the relation from the language map), form, gloss, homograph label, locator; `form` null when only a language is named | `<source name>:<source key>` |
 | `hypothesis` | One word's origin: links whose first child is the word, each later link's child a parent of an earlier one | digest of word and links |
-| `cognate_set` | Forms said to share an origin: a reconstruction, or null when none is named, and members (none only when the source lists no forms for its reconstruction) | `<source name>:<source key>` |
+| `cognate_set` | Forms said to share an origin: a reconstruction, or null when none is named, and members (none only when the source lists no forms for its reconstruction); `of_set` names the set a group of forms is given beside | `<source name>:<source key>` |
 | `alternative_set` | Hypotheses or cognate sets one asserter offers for one word; `exclusive` false means all are right (doublets) | digest of members, exclusivity, preference |
 | `assertion` | An asserter's stance on a hypothesis, cognate set or alternative set: who holds it, hedges, credits, locator, the source's words | digest of source, locator, target, stance |
 | `match` | A record matched to another source's record for the same word (in wety, a Wiktionary record, standing for an item), held by a matcher rule or a reviewer, with a score and what it weighed; or, with `candidates` instead of a `target`, left unmatched between equal fits | digest of record, target, candidates, holder |
@@ -102,7 +102,7 @@ refuses an undeclared one. Extensions are a waiting room, not a home:
 ## What the converters exercise
 
 core-2 converted 30 Wiktionary entries; acd-2 and lila-2 convert the whole ACD v2.0 and
-LiLa releases; core-5 reads every References section of Wiktionary's pages dump into a
+LiLa releases, and clld-dicts the MCD v2.0 and TLOPO v0.1.1; core-5 reads every References section of Wiktionary's pages dump into a
 bibliography of 19,699 works and 990,292 entry-scope credits, which wait in a table
 beside it until the processor emits the assertions they belong on. All validate. Parts of the core only one source uses:
 
@@ -110,8 +110,7 @@ beside it until the processor emits the assertions they belong on. All validate.
 | --- | --- |
 | stance `reports`; credit role `reports`; scope `note`; `probable` | Wiktionary |
 | link relations `influence`, `unknown`; `head`; agents of kind `unnamed`; `quote`; `work.authors` | Wiktionary |
-| credit role `against`; cognate sets with a named reconstruction or no members; alternative sets of cognate sets; `compiled`; agents of kind `rule` | ACD |
-| record `certainty` | LiLa (the ACD's Doubt flags are never set in v2.0) |
+| credit role `against`; cognate sets with no members; alternative sets of cognate sets | ACD |
 
 No converter sets `preference`, `replaces`, or an unplaced hedge.
 
@@ -123,6 +122,8 @@ reconstruction and its own member) has no alternative set.
 
 ## Versions
 
+- **6** (clld-dicts): a cognate set's `of_set`, the ACD's extension until the MCD and
+  TLOPO gave it too.
 - **5**: a source may name the fields it fills `uniform`ly.
 - **4**: a relay's `differences` include `form`.
 - **3**: a match's `basis` records `ancestors`.

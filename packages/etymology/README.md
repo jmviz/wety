@@ -6,8 +6,10 @@ the work plan are in the shared doc "wety etymology claims model", outside git.
 
 - [`schema/`](schema/README.md): the assertion schema, v5, and what it covers;
 - `assertions.py`: builds assertion objects (their digest ids) and validates files;
-- `convert/`: one converter per source. `acd` and `lila` read the retained release, whole
-  or a sample; `wiktionary` converts claims a model annotated per entry, for samples;
+- `convert/`: one converter per source. `acd`, `mcd` and `tlopo` read the whole retained
+  release through `etymdict`, which holds what the comparative dictionaries published in
+  pyetymdict's CLDF model share; `lila` reads its release, whole or a sample;
+  `wiktionary` converts claims a model annotated per entry, for samples;
   `wiktionary_references` reads every References section of the pages dump (core-5),
   for the graph build.
   Wiktionary's templates are read by the processor instead: `graph-assertions`
@@ -30,8 +32,9 @@ as `cldfbench` lays out a dataset:
 - `raw/`: the source as published, unpacked from its retained artifact
   (`data/artifacts/<collection>/<sha256>/`, acquired with `wety-sources`);
 - `etc/`: what wety's curators add: `source.json` (the source profile), the language
-  map, the kind map and, where forms need it, an orthography profile and readings of
-  forms a converter's rules cannot read (`forms.json`). These are reviewed like code and
+  map, the kind map, where the source's tree needs it the tree's extension
+  (`tree.json`), and, where forms need it, an orthography profile and readings of forms
+  a converter's rules cannot read (`forms.json`). These are reviewed like code and
   tracked in git;
 - `checks/`: what the milestone checks measured, with the samples they read.
 
@@ -48,9 +51,21 @@ Wiktionary converter its annotated sample. From the main checkout:
 ```sh
 S=data/workspaces/etymology/sources
 uv run --frozen python -m etymology.convert.acd --out $S/acd/checks/acd-2/assertions.jsonl --counts $S/acd/checks/acd-2/converter_counts.json
+uv run --frozen python -m etymology.convert.mcd --out $S/mcd/checks/cl-2/assertions.jsonl --counts $S/mcd/checks/cl-2/converter_counts.json
+uv run --frozen python -m etymology.convert.tlopo --out $S/tlopo/checks/cl-2/assertions.jsonl --counts $S/tlopo/checks/cl-2/converter_counts.json
 uv run --frozen python -m etymology.convert.lila --sample $S/lila-edl/checks/core-2/sample.json --out $S/lila-edl/checks/core-2/assertions.jsonl
 uv run --frozen python -m etymology.convert.wiktionary $S/wiktionary/checks/core-2/sample.json $S/wiktionary/checks/core-2/claims.json --out $S/wiktionary/checks/core-2/assertions.jsonl
 uv run --frozen python -m etymology.assertions --summary $S/acd/checks/acd-2/assertions.jsonl $S/*/checks/core-2/assertions.jsonl
+```
+
+A source's language map is derived from the catalog bundle, with the rows a curator
+reviewed (`etc/languages.reviewed.json`); a pyetymdict source whose tree leaves out
+levels or languages has its extension derived the same way from
+`etc/tree.reviewed.json` and Glottolog's classification (the `etymdict` docstring):
+
+```sh
+uv run --frozen python -m etymology.language_map $S/mcd/raw/lexibank-mcd-1cabc58/cldf/languages.csv $S/mcd/etc/languages.json --reviewed $S/mcd/etc/languages.reviewed.json
+uv run --frozen python -m etymology.convert.etymdict place mcd
 ```
 
 ## Converting a whole source

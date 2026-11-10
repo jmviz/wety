@@ -1,0 +1,289 @@
+{
+ "source": "mcd",
+ "catalog_generation": "94fb4909c233a4262a321bf71439883f2ad53094df934a0a72be2978ee166d86",
+ "reviewed": "data/workspaces/etymology/sources/mcd/etc/tree.reviewed.json",
+ "above": "(((((protomicronesian)preprotomicronesian)protooceanic)preprotooceanic)protomalayopolynesian)protoaustronesian",
+ "summary": {
+  "glottolog": 42,
+  "not placed": 1,
+  "reviewed": 3
+ },
+ "place": {
+  "areare": {
+   "name": "'Āre'āre",
+   "node": "protooceanic",
+   "by": "glottolog",
+   "basis": "ocea1241 in its Glottolog classification"
+  },
+  "arosi": {
+   "name": "Arosi",
+   "node": "protooceanic",
+   "by": "glottolog",
+   "basis": "ocea1241 in its Glottolog classification"
+  },
+  "bugotu": {
+   "name": "Bugotu",
+   "node": "protooceanic",
+   "by": "glottolog",
+   "basis": "ocea1241 in its Glottolog classification"
+  },
+  "chamorro": {
+   "name": "Chamorro",
+   "node": "protomalayopolynesian",
+   "by": "glottolog",
+   "basis": "mala1545 in its Glottolog classification"
+  },
+  "chuukese": {
+   "name": "Chuukese",
+   "node": "protochuukic",
+   "by": "glottolog",
+   "basis": "truk1243 in its Glottolog classification"
+  },
+  "fijian": {
+   "name": "Fijian",
+   "node": "protooceanic",
+   "by": "glottolog",
+   "basis": "ocea1241 in its Glottolog classification"
+  },
+  "gedaged": {
+   "name": "Gedaged",
+   "node": "protooceanic",
+   "by": "glottolog",
+   "basis": "ocea1241 in its Glottolog classification"
+  },
+  "jabem": {
+   "name": "Jabêm",
+   "node": "protooceanic",
+   "by": "glottolog",
+   "basis": "ocea1241 in its Glottolog classification"
+  },
+  "kwaio": {
+   "name": "Kwaio",
+   "node": "protooceanic",
+   "by": "glottolog",
+   "basis": "ocea1241 in its Glottolog classification"
+  },
+  "lakalai": {
+   "name": "Lakalai",
+   "node": "protooceanic",
+   "by": "glottolog",
+   "basis": "ocea1241 in its Glottolog classification"
+  },
+  "lau": {
+   "name": "Lau",
+   "node": "protooceanic",
+   "by": "glottolog",
+   "basis": "ocea1241 in its Glottolog classification"
+  },
+  "mokilese": {
+   "name": "Mokilese",
+   "node": "protopohnpeic",
+   "by": "glottolog",
+   "basis": "pona1248 in its Glottolog classification"
+  },
+  "mortlockese": {
+   "name": "Mortlockese",
+   "node": "protochuukic",
+   "by": "glottolog",
+   "basis": "truk1243 in its Glottolog classification"
+  },
+  "ngatchikese": {
+   "name": "Ngatchikese",
+   "node": "protopohnpeic",
+   "by": "glottolog",
+   "basis": "pona1248 in its Glottolog classification"
+  },
+  "nggela": {
+   "name": "Nggela",
+   "node": "protooceanic",
+   "by": "glottolog",
+   "basis": "ocea1241 in its Glottolog classification"
+  },
+  "nguna": {
+   "name": "Nguna",
+   "node": "protooceanic",
+   "by": "glottolog",
+   "basis": "ocea1241 in its Glottolog classification"
+  },
+  "oldmapian": {
+   "name": "Old Mapian",
+   "node": "protochuukic",
+   "by": "glottolog",
+   "basis": "truk1243 in its Glottolog classification"
+  },
+  "palauan": {
+   "name": "Palauan",
+   "node": "protomalayopolynesian",
+   "by": "glottolog",
+   "basis": "mala1545 in its Glottolog classification"
+  },
+  "pingilapese": {
+   "name": "Pingilapese",
+   "node": "protopohnpeic",
+   "by": "glottolog",
+   "basis": "pona1248 in its Glottolog classification"
+  },
+  "pohnpeian": {
+   "name": "Pohnpeian",
+   "node": "protopohnpeic",
+   "by": "glottolog",
+   "basis": "pona1248 in its Glottolog classification"
+  },
+  "protoeasternoceanic": {
+   "name": "Proto-Eastern Oceanic",
+   "node": "protooceanic",
+   "by": "reviewed",
+   "basis": "An Oceanic subgroup; not above Proto-Micronesian (see above_basis)."
+  },
+  "protokimbe": {
+   "name": "Proto-Kimbe",
+   "node": "protooceanic",
+   "by": "reviewed",
+   "basis": "An Oceanic (Meso-Melanesian) group; no glottocode in the release."
+  },
+  "protolakalai": {
+   "name": "Proto-Lakalai",
+   "node": "protooceanic",
+   "by": "glottolog",
+   "basis": "ocea1241 in its Glottolog classification"
+  },
+  "protonakanai": {
+   "name": "Proto-Nakanai",
+   "node": "protooceanic",
+   "by": "glottolog",
+   "basis": "ocea1241 in its Glottolog classification"
+  },
+  "protopolynesian": {
+   "name": "Proto-Polynesian",
+   "node": "protooceanic",
+   "by": "glottolog",
+   "basis": "ocea1241 in its Glottolog classification"
+  },
+  "protowesternmalayopolynesian": {
+   "name": "Proto-Western-Malayo-Polynesian",
+   "node": "protomalayopolynesian",
+   "by": "reviewed",
+   "basis": "A Malayo-Polynesian grouping, as in the ACD's tree; no glottocode in the release."
+  },
+  "protowillaumez": {
+   "name": "Proto-Willaumez",
+   "node": "protooceanic",
+   "by": "glottolog",
+   "basis": "ocea1241 in its Glottolog classification"
+  },
+  "puloannan": {
+   "name": "Pulo-Annan",
+   "node": "protochuukic",
+   "by": "glottolog",
+   "basis": "truk1243 in its Glottolog classification"
+  },
+  "puluwatese": {
+   "name": "Puluwatese",
+   "node": "protochuukic",
+   "by": "glottolog",
+   "basis": "truk1243 in its Glottolog classification"
+  },
+  "rotuman": {
+   "name": "Rotuman",
+   "node": "protooceanic",
+   "by": "glottolog",
+   "basis": "ocea1241 in its Glottolog classification"
+  },
+  "roviana": {
+   "name": "Roviana",
+   "node": "protooceanic",
+   "by": "glottolog",
+   "basis": "ocea1241 in its Glottolog classification"
+  },
+  "saa": {
+   "name": "Sa’a",
+   "node": "protooceanic",
+   "by": "glottolog",
+   "basis": "ocea1241 in its Glottolog classification"
+  },
+  "saipancarolinian": {
+   "name": "Saipan Carolinian",
+   "node": "protochuukic",
+   "by": "glottolog",
+   "basis": "truk1243 in its Glottolog classification"
+  },
+  "saipancaroliniant": {
+   "name": "Saipan Carolinian·T",
+   "node": "protochuukic",
+   "by": "glottolog",
+   "basis": "truk1243 in its Glottolog classification"
+  },
+  "samoan": {
+   "name": "Samoan",
+   "node": "protooceanic",
+   "by": "glottolog",
+   "basis": "ocea1241 in its Glottolog classification"
+  },
+  "satawalese": {
+   "name": "Satawalese",
+   "node": "protochuukic",
+   "by": "glottolog",
+   "basis": "truk1243 in its Glottolog classification"
+  },
+  "sonsorolese": {
+   "name": "Sonsorolese",
+   "node": "protochuukic",
+   "by": "glottolog",
+   "basis": "truk1243 in its Glottolog classification"
+  },
+  "tagalog": {
+   "name": "Tagalog",
+   "node": "protomalayopolynesian",
+   "by": "glottolog",
+   "basis": "mala1545 in its Glottolog classification"
+  },
+  "tobi": {
+   "name": "Tobi",
+   "node": "protochuukic",
+   "by": "glottolog",
+   "basis": "truk1243 in its Glottolog classification"
+  },
+  "tokelau": {
+   "name": "Tokelau",
+   "node": "protooceanic",
+   "by": "glottolog",
+   "basis": "ocea1241 in its Glottolog classification"
+  },
+  "tongan": {
+   "name": "Tongan",
+   "node": "protooceanic",
+   "by": "glottolog",
+   "basis": "ocea1241 in its Glottolog classification"
+  },
+  "ulawan": {
+   "name": "Ulawan",
+   "node": "protooceanic",
+   "by": "glottolog",
+   "basis": "ocea1241 in its Glottolog classification"
+  },
+  "ulithian": {
+   "name": "Ulithian",
+   "node": "protochuukic",
+   "by": "glottolog",
+   "basis": "truk1243 in its Glottolog classification"
+  },
+  "uraustronesisch": {
+   "name": "Uraustronesisch",
+   "node": null,
+   "by": "reviewed",
+   "basis": "Dempwolff's reconstructions in his notation, cited as comparanda; not a level of the tree."
+  },
+  "woleaian": {
+   "name": "Woleaian",
+   "node": "protochuukic",
+   "by": "glottolog",
+   "basis": "truk1243 in its Glottolog classification"
+  },
+  "yapese": {
+   "name": "Yapese",
+   "node": "protooceanic",
+   "by": "glottolog",
+   "basis": "ocea1241 in its Glottolog classification"
+  }
+ }
+}

@@ -1,0 +1,770 @@
+{
+ "source": "tlopo",
+ "catalog_generation": "94fb4909c233a4262a321bf71439883f2ad53094df934a0a72be2978ee166d86",
+ "reviewed": "data/workspaces/etymology/sources/tlopo/etc/tree.reviewed.json",
+ "above": "((pwmp,(pcmp,(pshwng,earlyoceanic)pemp)pcemp)pmp)pan",
+ "summary": {
+  "glottolog": 1,
+  "group": 107,
+  "not placed": 4,
+  "reviewed": 14
+ },
+ "place": {
+  "aceh": {
+   "name": "Aceh",
+   "node": "pwmp",
+   "by": "group",
+   "basis": "its Group, WMP"
+  },
+  "aklanon": {
+   "name": "Aklanon",
+   "node": "pwmp",
+   "by": "group",
+   "basis": "its Group, WMP"
+  },
+  "ambai": {
+   "name": "Ambai",
+   "node": "protocenderawasihbay",
+   "by": "group",
+   "basis": "its Group, CB"
+  },
+  "ambel": {
+   "name": "Ambel",
+   "node": "pshwng",
+   "by": "group",
+   "basis": "its Group, RA"
+  },
+  "ambelau": {
+   "name": "Ambelau",
+   "node": "pcmp",
+   "by": "group",
+   "basis": "its Group, CMP"
+  },
+  "amber": {
+   "name": "Amber",
+   "node": "pshwng",
+   "by": "group",
+   "basis": "its Group, SHWNG"
+  },
+  "ambonesemalay": {
+   "name": "Ambonese Malay",
+   "node": "pwmp",
+   "by": "group",
+   "basis": "its Group, WMP"
+  },
+  "arguni": {
+   "name": "Arguni",
+   "node": "pmp",
+   "by": "glottolog",
+   "basis": "mala1545 in its Glottolog classification"
+  },
+  "asilulu": {
+   "name": "Asilulu",
+   "node": "pcmp",
+   "by": "group",
+   "basis": "its Group, CMP"
+  },
+  "bajau": {
+   "name": "Bajau",
+   "node": "pwmp",
+   "by": "group",
+   "basis": "its Group, WMP"
+  },
+  "balangaw": {
+   "name": "Balangaw",
+   "node": "pwmp",
+   "by": "group",
+   "basis": "its Group, WMP"
+  },
+  "belau": {
+   "name": "Belau",
+   "node": "pwmp",
+   "by": "group",
+   "basis": "its Group, WMP"
+  },
+  "biak": {
+   "name": "Biak",
+   "node": "protocenderawasihbay",
+   "by": "group",
+   "basis": "its Group, CB"
+  },
+  "bikol": {
+   "name": "Bikol",
+   "node": "pwmp",
+   "by": "group",
+   "basis": "its Group, WMP"
+  },
+  "bilaan": {
+   "name": "Bilaan",
+   "node": "pwmp",
+   "by": "group",
+   "basis": "its Group, WMP"
+  },
+  "bima": {
+   "name": "Bima",
+   "node": "pcmp",
+   "by": "group",
+   "basis": "its Group, CMP"
+  },
+  "boano": {
+   "name": "Boano",
+   "node": "pcmp",
+   "by": "group",
+   "basis": "its Group, CMP"
+  },
+  "buginese": {
+   "name": "Buginese",
+   "node": "pwmp",
+   "by": "group",
+   "basis": "its Group, WMP"
+  },
+  "buli": {
+   "name": "Buli",
+   "node": "pshwng",
+   "by": "group",
+   "basis": "its Group, SH"
+  },
+  "buru": {
+   "name": "Buru",
+   "node": "pcmp",
+   "by": "group",
+   "basis": "its Group, CMP"
+  },
+  "cebuano": {
+   "name": "Cebuano",
+   "node": "pwmp",
+   "by": "group",
+   "basis": "its Group, WMP"
+  },
+  "cham": {
+   "name": "Cham",
+   "node": "pwmp",
+   "by": "group",
+   "basis": "its Group, WMP"
+  },
+  "chamorro": {
+   "name": "Chamorro",
+   "node": "pwmp",
+   "by": "group",
+   "basis": "its Group, WMP"
+  },
+  "dobel": {
+   "name": "Dobel",
+   "node": "pcmp",
+   "by": "group",
+   "basis": "its Group, CMP"
+  },
+  "dusner": {
+   "name": "Dusner",
+   "node": "pshwng",
+   "by": "group",
+   "basis": "its Group, SHWNG"
+  },
+  "fordata": {
+   "name": "Fordata",
+   "node": "pcmp",
+   "by": "group",
+   "basis": "its Group, CMP"
+  },
+  "gaddang": {
+   "name": "Gaddang",
+   "node": "pwmp",
+   "by": "group",
+   "basis": "its Group, WMP"
+  },
+  "gane": {
+   "name": "Gane",
+   "node": "pshwng",
+   "by": "group",
+   "basis": "its Group, SH"
+  },
+  "hawu": {
+   "name": "Hawu",
+   "node": "pcmp",
+   "by": "group",
+   "basis": "its Group, CMP"
+  },
+  "helong": {
+   "name": "Helong",
+   "node": "pcmp",
+   "by": "group",
+   "basis": "its Group, CMP"
+  },
+  "hova": {
+   "name": "Hova",
+   "node": "pwmp",
+   "by": "group",
+   "basis": "its Group, WMP"
+  },
+  "iban": {
+   "name": "Iban",
+   "node": "pwmp",
+   "by": "group",
+   "basis": "its Group, WMP"
+  },
+  "ilokano": {
+   "name": "Ilokano",
+   "node": "pwmp",
+   "by": "group",
+   "basis": "its Group, WMP"
+  },
+  "ilongot": {
+   "name": "Ilongot",
+   "node": "pwmp",
+   "by": "group",
+   "basis": "its Group, WMP"
+  },
+  "indonesian": {
+   "name": "Indonesian",
+   "node": "pwmp",
+   "by": "group",
+   "basis": "its Group, WMP"
+  },
+  "irarutu": {
+   "name": "Irarutu",
+   "node": "protocenderawasihbay",
+   "by": "group",
+   "basis": "its Group, CB"
+  },
+  "isneg": {
+   "name": "Isneg",
+   "node": "pwmp",
+   "by": "group",
+   "basis": "its Group, WMP"
+  },
+  "itbayat": {
+   "name": "Itbayat",
+   "node": "pwmp",
+   "by": "group",
+   "basis": "its Group, WMP"
+  },
+  "ivatan": {
+   "name": "Ivatan",
+   "node": "pwmp",
+   "by": "group",
+   "basis": "its Group, WMP"
+  },
+  "javanese": {
+   "name": "Javanese",
+   "node": "pwmp",
+   "by": "group",
+   "basis": "its Group, WMP"
+  },
+  "kagayanen": {
+   "name": "Kagayanen",
+   "node": "pwmp",
+   "by": "group",
+   "basis": "its Group, WMP"
+  },
+  "kambera": {
+   "name": "Kambera",
+   "node": "pcmp",
+   "by": "group",
+   "basis": "its Group, CMP"
+  },
+  "kankanay": {
+   "name": "Kankanay",
+   "node": "pwmp",
+   "by": "group",
+   "basis": "its Group, WMP"
+  },
+  "kapampangan": {
+   "name": "Kapampangan",
+   "node": "pwmp",
+   "by": "group",
+   "basis": "its Group, WMP"
+  },
+  "kei": {
+   "name": "Kei",
+   "node": "pcmp",
+   "by": "group",
+   "basis": "its Group, CMP"
+  },
+  "keo": {
+   "name": "Kéo",
+   "node": "pcmp",
+   "by": "group",
+   "basis": "its Group, CMP"
+  },
+  "kisar": {
+   "name": "Kisar",
+   "node": "pcmp",
+   "by": "group",
+   "basis": "its Group, CMP"
+  },
+  "kola": {
+   "name": "Kola",
+   "node": "pcmp",
+   "by": "group",
+   "basis": "its Group, CMP"
+  },
+  "komodo": {
+   "name": "Komodo",
+   "node": "pcmp",
+   "by": "group",
+   "basis": "its Group, CMP"
+  },
+  "konjo": {
+   "name": "Konjo",
+   "node": "pcmp",
+   "by": "group",
+   "basis": "its Group, CMP"
+  },
+  "kuvalan": {
+   "name": "Kuvalan",
+   "node": "pan",
+   "by": "group",
+   "basis": "its Group, Fma"
+  },
+  "laiyolo": {
+   "name": "Laiyolo",
+   "node": "pwmp",
+   "by": "group",
+   "basis": "its Group, WMP"
+  },
+  "lamaholot": {
+   "name": "Lamaholot",
+   "node": "pcmp",
+   "by": "group",
+   "basis": "its Group, CMP"
+  },
+  "larike": {
+   "name": "Larike",
+   "node": "pcmp",
+   "by": "group",
+   "basis": "its Group, CMP"
+  },
+  "leti": {
+   "name": "Leti",
+   "node": "pcmp",
+   "by": "group",
+   "basis": "its Group, CMP"
+  },
+  "madurese": {
+   "name": "Madurese",
+   "node": "pwmp",
+   "by": "group",
+   "basis": "its Group, WMP"
+  },
+  "makassarese": {
+   "name": "Makassarese",
+   "node": "pwmp",
+   "by": "group",
+   "basis": "its Group, WMP"
+  },
+  "malagasy": {
+   "name": "Malagasy",
+   "node": "pwmp",
+   "by": "group",
+   "basis": "its Group, WMP"
+  },
+  "malay": {
+   "name": "Malay",
+   "node": "pwmp",
+   "by": "group",
+   "basis": "its Group, WMP"
+  },
+  "maloh": {
+   "name": "Maloh",
+   "node": "pwmp",
+   "by": "group",
+   "basis": "its Group, WMP"
+  },
+  "manggarai": {
+   "name": "Manggarai",
+   "node": "pcmp",
+   "by": "group",
+   "basis": "its Group, CMP"
+  },
+  "manobo": {
+   "name": "Manobo",
+   "node": "pwmp",
+   "by": "group",
+   "basis": "its Group, WMP"
+  },
+  "maranao": {
+   "name": "Maranao",
+   "node": "pwmp",
+   "by": "group",
+   "basis": "its Group, WMP"
+  },
+  "misool": {
+   "name": "Misool",
+   "node": "pshwng",
+   "by": "group",
+   "basis": "its Group, RA"
+  },
+  "mor": {
+   "name": "Mor",
+   "node": "pshwng",
+   "by": "group",
+   "basis": "its Group, SHWNG"
+  },
+  "muna": {
+   "name": "Muna",
+   "node": "pwmp",
+   "by": "group",
+   "basis": "its Group, WMP"
+  },
+  "nauete": {
+   "name": "Nauete",
+   "node": "pcmp",
+   "by": "group",
+   "basis": "its Group, CMP"
+  },
+  "ngadha": {
+   "name": "Ngadha",
+   "node": "pcmp",
+   "by": "group",
+   "basis": "its Group, CMP"
+  },
+  "ngajudayak": {
+   "name": "Ngaju Dayak",
+   "node": "pwmp",
+   "by": "group",
+   "basis": "its Group, WMP"
+  },
+  "nias": {
+   "name": "Nias",
+   "node": "pwmp",
+   "by": "group",
+   "basis": "its Group, WMP"
+  },
+  "numfor": {
+   "name": "Numfor",
+   "node": "pshwng",
+   "by": "group",
+   "basis": "its Group, SHWNG"
+  },
+  "oldjavanese": {
+   "name": "Old Javanese",
+   "node": "pwmp",
+   "by": "group",
+   "basis": "its Group, WMP"
+  },
+  "paiwan": {
+   "name": "Paiwan",
+   "node": "pan",
+   "by": "group",
+   "basis": "its Group, Fma"
+  },
+  "panpmp": {
+   "name": "PAn/PMP",
+   "node": null,
+   "by": "reviewed",
+   "basis": "'PAn/PMP' leaves the level open."
+  },
+  "pcepn": {
+   "name": "PCEPn",
+   "node": "pepn",
+   "by": "reviewed",
+   "basis": "Central Eastern Polynesian is an Eastern Polynesian group."
+  },
+  "pcpppn": {
+   "name": "PCP/PPn",
+   "node": null,
+   "by": "reviewed",
+   "basis": "'PCP/PPn' leaves the level open."
+  },
+  "pi": {
+   "name": "pi",
+   "node": null,
+   "by": null,
+   "basis": "not placed"
+  },
+  "poe": {
+   "name": "Poe",
+   "node": null,
+   "by": null,
+   "basis": "not placed"
+  },
+  "protocenderawasihbay": {
+   "name": "Proto Cenderawasih Bay",
+   "node": "pshwng",
+   "by": "reviewed",
+   "basis": "Cenderawasih Bay is a South Halmahera-West New Guinea group."
+  },
+  "protocentralpapuan": {
+   "name": "Proto Central Papuan",
+   "node": "ppt",
+   "by": "reviewed",
+   "basis": "Central Papuan is a Papuan Tip group."
+  },
+  "protoerakortafea": {
+   "name": "Proto Erakor-Tafea",
+   "node": "protosefatesv",
+   "by": "reviewed",
+   "basis": "Erakor (South Efate) with the Tafea (South Vanuatu) languages."
+  },
+  "protofarnorthnewcaledonia": {
+   "name": "Proto Far North New Caledonia",
+   "node": "protonorthnewcaledonia",
+   "by": "reviewed",
+   "basis": "Far North New Caledonian is a North New Caledonian group."
+  },
+  "protohotebuang": {
+   "name": "Proto Hote-Buang",
+   "node": "protohuongulf",
+   "by": "reviewed",
+   "basis": "Hote-Buang is a Huon Gulf group."
+  },
+  "protokimbe": {
+   "name": "Proto Kimbe",
+   "node": "pmm",
+   "by": "reviewed",
+   "basis": "Kimbe is a Meso-Melanesian group."
+  },
+  "protosamoic": {
+   "name": "Proto Samoic",
+   "node": "pnpn",
+   "by": "reviewed",
+   "basis": "Samoic is a Nuclear Polynesian group."
+  },
+  "protosefatesv": {
+   "name": "Proto S Efate/SV",
+   "node": "psoc",
+   "by": "reviewed",
+   "basis": "South Efate and South Vanuatu meet in Nuclear Southern Oceanic."
+  },
+  "protosolomonsoutlier": {
+   "name": "Proto Solomons Outlier",
+   "node": "pnpn",
+   "by": "reviewed",
+   "basis": "The Solomons Polynesian Outliers are Nuclear Polynesian."
+  },
+  "protosouthmelanesian": {
+   "name": "Proto South Melanesian",
+   "node": "psoc",
+   "by": "reviewed",
+   "basis": "Southern Melanesian (South Vanuatu and New Caledonia) is a Nuclear Southern Oceanic group."
+  },
+  "prototahitic": {
+   "name": "Proto Tahitic",
+   "node": "pcepn",
+   "by": "reviewed",
+   "basis": "Tahitic is a Central Eastern Polynesian group."
+  },
+  "protowillaumez": {
+   "name": "Proto Willaumez",
+   "node": "protokimbe",
+   "by": "reviewed",
+   "basis": "Willaumez is a Kimbe group."
+  },
+  "pss": {
+   "name": "PSS",
+   "node": "poc",
+   "by": "reviewed",
+   "basis": "TLOPO's PSS joins Northwest and Southeast Solomonic forms (its note), which meet only at Proto Oceanic in its tree."
+  },
+  "rongga": {
+   "name": "Rongga",
+   "node": "pcmp",
+   "by": "group",
+   "basis": "its Group, CMP"
+  },
+  "roti": {
+   "name": "Roti",
+   "node": "pcmp",
+   "by": "group",
+   "basis": "its Group, CMP"
+  },
+  "rotinese": {
+   "name": "Rotinese",
+   "node": "pcmp",
+   "by": "group",
+   "basis": "its Group, CMP"
+  },
+  "saban": {
+   "name": "Saban",
+   "node": "pwmp",
+   "by": "group",
+   "basis": "its Group, WMP"
+  },
+  "sangir": {
+   "name": "Sangir",
+   "node": "pwmp",
+   "by": "group",
+   "basis": "its Group, WMP"
+  },
+  "sasak": {
+   "name": "Sasak",
+   "node": "pwmp",
+   "by": "group",
+   "basis": "its Group, WMP"
+  },
+  "sawai": {
+   "name": "Sawai",
+   "node": "pshwng",
+   "by": "group",
+   "basis": "its Group, SH"
+  },
+  "selaru": {
+   "name": "Selaru",
+   "node": "pcmp",
+   "by": "group",
+   "basis": "its Group, CMP"
+  },
+  "seruilaut": {
+   "name": "Serui-Laut",
+   "node": "protocenderawasihbay",
+   "by": "group",
+   "basis": "its Group, CB"
+  },
+  "sichule": {
+   "name": "Sichule",
+   "node": "pwmp",
+   "by": "group",
+   "basis": "its Group, WMP"
+  },
+  "sika": {
+   "name": "Sika",
+   "node": "pwmp",
+   "by": "group",
+   "basis": "its Group, WMP"
+  },
+  "snuaulu": {
+   "name": "S. Nuaulu",
+   "node": "pcmp",
+   "by": "group",
+   "basis": "its Group, CMP"
+  },
+  "sundanese": {
+   "name": "Sundanese",
+   "node": "pwmp",
+   "by": "group",
+   "basis": "its Group, WMP"
+  },
+  "taba": {
+   "name": "Taba",
+   "node": "pshwng",
+   "by": "group",
+   "basis": "its Group, SH"
+  },
+  "tae": {
+   "name": "Tae’",
+   "node": "pcmp",
+   "by": "group",
+   "basis": "its Group, CMP"
+  },
+  "tagalog": {
+   "name": "Tagalog",
+   "node": "pwmp",
+   "by": "group",
+   "basis": "its Group, WMP"
+  },
+  "taliabo": {
+   "name": "Taliabo",
+   "node": "pcmp",
+   "by": "group",
+   "basis": "its Group, CMP"
+  },
+  "tausug": {
+   "name": "Tausug",
+   "node": "pwmp",
+   "by": "group",
+   "basis": "its Group, WMP"
+  },
+  "tetun": {
+   "name": "Tetun",
+   "node": "pcmp",
+   "by": "group",
+   "basis": "its Group, CMP"
+  },
+  "tiruray": {
+   "name": "Tiruray",
+   "node": "pwmp",
+   "by": "group",
+   "basis": "its Group, WMP"
+  },
+  "tobabatak": {
+   "name": "Toba Batak",
+   "node": "pwmp",
+   "by": "group",
+   "basis": "its Group, WMP"
+  },
+  "tolaki": {
+   "name": "Tolaki",
+   "node": "pwmp",
+   "by": "group",
+   "basis": "its Group, WMP"
+  },
+  "tondano": {
+   "name": "Tondano",
+   "node": "pwmp",
+   "by": "group",
+   "basis": "its Group, WMP"
+  },
+  "tonsea": {
+   "name": "Tonsea",
+   "node": "pwmp",
+   "by": "group",
+   "basis": "its Group, WMP"
+  },
+  "tukangbesi": {
+   "name": "Tukang Besi",
+   "node": "pwmp",
+   "by": "group",
+   "basis": "its Group, WMP"
+  },
+  "ujir": {
+   "name": "Ujir (Aru Is.)",
+   "node": "pcmp",
+   "by": "group",
+   "basis": "its Group, CMP"
+  },
+  "uma": {
+   "name": "Uma",
+   "node": "pwmp",
+   "by": "group",
+   "basis": "its Group, WMP"
+  },
+  "wandamen": {
+   "name": "Wandamen",
+   "node": "protocenderawasihbay",
+   "by": "group",
+   "basis": "its Group, CB"
+  },
+  "warembori": {
+   "name": "Warembori",
+   "node": "protocenderawasihbay",
+   "by": "group",
+   "basis": "its Group, CB"
+  },
+  "waropen": {
+   "name": "Waropen",
+   "node": "pshwng",
+   "by": "group",
+   "basis": "its Group, SHWNG"
+  },
+  "watubela": {
+   "name": "Watubela",
+   "node": "pcmp",
+   "by": "group",
+   "basis": "its Group, CMP"
+  },
+  "wolio": {
+   "name": "Wolio",
+   "node": "pwmp",
+   "by": "group",
+   "basis": "its Group, WMP"
+  },
+  "wooi": {
+   "name": "Wooi",
+   "node": "protocenderawasihbay",
+   "by": "group",
+   "basis": "its Group, CB"
+  },
+  "yamdena": {
+   "name": "Yamdena",
+   "node": "pcmp",
+   "by": "group",
+   "basis": "its Group, CMP"
+  },
+  "yami": {
+   "name": "Yami",
+   "node": "pwmp",
+   "by": "group",
+   "basis": "its Group, WMP"
+  }
+ }
+}

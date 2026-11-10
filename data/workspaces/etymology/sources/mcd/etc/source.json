@@ -1,0 +1,48 @@
+{
+ "id": "mcd",
+ "title": "Micronesian Comparative Dictionary",
+ "release": "v2.0",
+ "doi": "10.5281/zenodo.14608119",
+ "published": "2025-01-07",
+ "creators": [
+  "Byron W. Bender",
+  "Ward H. Goodenough",
+  "Frederick H. Jackson",
+  "Jeffrey C. Marck",
+  "Kenneth L. Rehg",
+  "Ho-min Sohn",
+  "Stephen Trussel",
+  "Judith W. Wang"
+ ],
+ "cite_as": "Byron W. Bender, Ward H. Goodenough, Frederick H. Jackson, Jeffrey C. Marck, Kenneth L. Rehg, Ho-min Sohn, Stephen Trussel and Judith W. Wang 2003. Proto-Micronesian Reconstructions 1 and 2. Oceanic Linguistics 42(1): 1-110 and 42(2): 271-358; CLDF dataset v2.0, doi:10.5281/zenodo.14608119.",
+ "url": "https://www.trussel2.com/MCD",
+ "repository": "https://github.com/lexibank/mcd (archive directory lexibank-mcd-1cabc58)",
+ "artifact": {
+  "path": "data/artifacts/mcd/d3a50f4dafa321f95e202e1cc566cdb4f5408acc27e0204b584b54ddb028083a",
+  "artifact_id": "sha256:2f0b9060af6e385c373a898af76b704ff44c29cb7601c1e530ce49c717136cb1",
+  "sha256": "d3a50f4dafa321f95e202e1cc566cdb4f5408acc27e0204b584b54ddb028083a",
+  "acquired": "2026-11-10T03:16:10.374972+00:00"
+ },
+ "raw": "data/workspaces/etymology/sources/mcd/raw/lexibank-mcd-1cabc58",
+ "kind_of_work": "set-centric comparative dictionary of the Micronesian languages, as a CLDF Wordlist (lexibank, pyetymdict tables as the ACD's)",
+ "holder": "Bender et al. (2003), the eight authors of Proto-Micronesian Reconstructions; the CLDF conversion is by Forkel and Smith",
+ "date_of_view": "2003, converted 2023-2025",
+ "coverage": {
+  "cognate_sets": 1707,
+  "cognate_judgements": 17583,
+  "forms": 20689,
+  "varieties": 41,
+  "proto_languages": 19,
+  "cf_groups": 1030,
+  "borrowings": 437
+ },
+ "glottolog": "The release maps its languages with Glottolog; wety's catalogs read Glottolog 5.3.",
+ "licence": "CC-BY-4.0",
+ "may_display": "everything, with attribution",
+ "may_export": "everything, with attribution",
+ "curation": {
+  "language_map": "etc/languages.json (from etc/languages.reviewed.json and the catalog bundle)",
+  "kind_map": "etc/kinds.json",
+  "tree": "etc/tree.json (from etc/tree.reviewed.json and Glottolog's classification)"
+ }
+}

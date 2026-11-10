@@ -1,0 +1,88 @@
+{
+ "source": "tlopo",
+ "cldf": "raw/tlopo-0.1.1/cldf",
+ "reviewer": "claude-opus-5-5 (model review, 2026-11-09)",
+ "above": "((pwmp,(pcmp,(pshwng,earlyoceanic)pemp)pcemp)pmp)pan",
+ "above_basis": "The Austronesian levels TLOPO reconstructs above Oceanic, placed as the ACD's tree places them (Blust's subgrouping, which TLOPO's introduction follows): PAn > PMP > {PWMP, PCEMP > {PCMP, PEMP > {PSHWNG, Oceanic}}}.",
+ "glottocodes": {
+  "pan": "aust1307",
+  "pmp": "mala1545",
+  "pemp": "east2712",
+  "poc": "ocea1241"
+ },
+ "groups": {
+  "WMP": "pwmp",
+  "CMP": "pcmp",
+  "SHWNG": "pshwng",
+  "SH": "pshwng",
+  "RA": "pshwng",
+  "CB": "protocenderawasihbay",
+  "Fma": "pan"
+ },
+ "place": {
+  "panpmp": {
+   "node": null,
+   "basis": "'PAn/PMP' leaves the level open."
+  },
+  "pcpppn": {
+   "node": null,
+   "basis": "'PCP/PPn' leaves the level open."
+  },
+  "protocenderawasihbay": {
+   "node": "pshwng",
+   "basis": "Cenderawasih Bay is a South Halmahera-West New Guinea group."
+  },
+  "pss": {
+   "node": "poc",
+   "basis": "TLOPO's PSS joins Northwest and Southeast Solomonic forms (its note), which meet only at Proto Oceanic in its tree."
+  },
+  "protocentralpapuan": {
+   "node": "ppt",
+   "basis": "Central Papuan is a Papuan Tip group."
+  },
+  "pcepn": {
+   "node": "pepn",
+   "basis": "Central Eastern Polynesian is an Eastern Polynesian group."
+  },
+  "prototahitic": {
+   "node": "pcepn",
+   "basis": "Tahitic is a Central Eastern Polynesian group."
+  },
+  "protosamoic": {
+   "node": "pnpn",
+   "basis": "Samoic is a Nuclear Polynesian group."
+  },
+  "protosolomonsoutlier": {
+   "node": "pnpn",
+   "basis": "The Solomons Polynesian Outliers are Nuclear Polynesian."
+  },
+  "protosouthmelanesian": {
+   "node": "psoc",
+   "basis": "Southern Melanesian (South Vanuatu and New Caledonia) is a Nuclear Southern Oceanic group."
+  },
+  "protosefatesv": {
+   "node": "psoc",
+   "basis": "South Efate and South Vanuatu meet in Nuclear Southern Oceanic."
+  },
+  "protoerakortafea": {
+   "node": "protosefatesv",
+   "basis": "Erakor (South Efate) with the Tafea (South Vanuatu) languages."
+  },
+  "protohotebuang": {
+   "node": "protohuongulf",
+   "basis": "Hote-Buang is a Huon Gulf group."
+  },
+  "protowillaumez": {
+   "node": "protokimbe",
+   "basis": "Willaumez is a Kimbe group."
+  },
+  "protokimbe": {
+   "node": "pmm",
+   "basis": "Kimbe is a Meso-Melanesian group."
+  },
+  "protofarnorthnewcaledonia": {
+   "node": "protonorthnewcaledonia",
+   "basis": "Far North New Caledonian is a North New Caledonian group."
+  }
+ }
+}

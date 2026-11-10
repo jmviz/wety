@@ -1,0 +1,49 @@
+{
+ "source": "tlopo",
+ "release": "v0.1.1",
+ "reviewer": "claude-opus-5-5 (model review, 2026-11-09)",
+ "kinds": [
+  {
+   "where": "cognatesets.csv",
+   "category": "cognate set",
+   "count": 2821,
+   "source_description": "A reconstruction at the set's Level with its reflexes, grouped by subgroup; members include reconstructions at intermediate levels (PAn *Rumaq, then POc *Rumaq and POc *qa-Rumaq, each followed by its reflexes).",
+   "wety_kind": "cognate set",
+   "status": "mapped",
+   "note": "Links compiled by the nested rule on TLOPO's tree, extended above Oceanic in etc/tree.json."
+  },
+  {
+   "where": "cf.csv",
+   "category": "",
+   "count": 934,
+   "source_description": "Groups of forms given apart from the cognate sets, 603 beside a set: loans ('The following are all Polynesian loans.'), comparanda, irregular forms, and sets with no reconstruction. The kind is said only in prose (Name), when at all.",
+   "wety_kind": "shared origin, possible",
+   "status": "mapped",
+   "label": "cf.",
+   "hedge": {
+    "level": "possible",
+    "words": "listed apart from TLOPO's cognate sets"
+   },
+   "quote": "Name",
+   "note": "Endorsed at possible, member by member, with the Name as the source's words where it is prose; beside the set it names (of_set); no unnamed ancestor."
+  },
+  {
+   "where": "languages.csv, tree.nwk",
+   "category": "the Newick tree",
+   "count": 1,
+   "source_description": "The Oceanic subgrouping, Early Oceanic and Proto Oceanic at its root.",
+   "wety_kind": "the source's tree (a classification claim)",
+   "status": "mapped",
+   "note": "Extended above Oceanic, and non-Oceanic languages placed by their Group, in etc/tree.json."
+  },
+  {
+   "where": "chapters.csv",
+   "category": "chapter",
+   "count": 67,
+   "source_description": "The 67 chapters of the six volumes, each with its authors.",
+   "wety_kind": "locator",
+   "status": "mapped",
+   "note": "Set ids begin with their chapter's id; chapter authors are not yet credited separately."
+  }
+ ]
+}
