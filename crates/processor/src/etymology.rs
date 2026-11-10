@@ -86,6 +86,9 @@ impl RawEtyTemplate {
 pub(crate) enum ParsedRawEtyTemplate {
     Parsed(RawEtyTemplate),
     Skipped,
+    // {{unk}} after a template: the origin of the term before it is unknown
+    // ("from Middle English foo, of unknown origin")
+    Unknown,
 }
 
 #[derive(Hash, Eq, PartialEq, Debug)]
@@ -128,7 +131,7 @@ impl RawEtymology {
     pub(crate) fn templates(&self) -> impl Iterator<Item = &RawEtyTemplate> {
         self.alternatives.iter().flatten().filter_map(|t| match t {
             ParsedRawEtyTemplate::Parsed(template) => Some(template),
-            ParsedRawEtyTemplate::Skipped => None,
+            ParsedRawEtyTemplate::Skipped | ParsedRawEtyTemplate::Unknown => None,
         })
     }
 }
@@ -613,7 +616,8 @@ impl EntryPos<'_> {
     // opens as unknown or uncertain ({{unc}}) goes on to conjecture or compare
     // ("Perhaps from ...", "Compare ..."): no template after it names the
     // parent. $$ Reading the conjectures as possible etymologies needs their
-    // prose (syn-2).
+    // prose (syn-2). An {{unk}} later on says the origin of the term before it
+    // is unknown.
     fn get_standard_ety(&self, string_pool: &mut StringPool, lang: Lang) -> Option<RawEtymology> {
         let templates = self.templates;
         (!templates.is_empty()).then_some(())?;
@@ -632,6 +636,13 @@ impl EntryPos<'_> {
             }
             if opens(&["unc", "uncertain"]) {
                 break;
+            }
+            if template
+                .get_valid_str("name")
+                .is_some_and(|name| matches!(name, "unk" | "unknown"))
+            {
+                raw_ety_templates.push(ParsedRawEtyTemplate::Unknown);
+                continue;
             }
             if let Some(raw_ety_template) = process_json_ety_template(string_pool, template, lang) {
                 raw_ety_templates.push(ParsedRawEtyTemplate::Parsed(raw_ety_template));
@@ -910,6 +921,21 @@ impl Items {
                     _ => false,
                 };
             if !continues {
+                // "from Middle English foo, of unknown origin": an imputed
+                // parent's origin is unknown, as stated in `item`'s section
+                if self.get(parent).is_imputed()
+                    && matches!(templates.get(next), Some(ParsedRawEtyTemplate::Unknown))
+                    && self.graph.set_unknown(parent)
+                {
+                    self.graph.set_asserted(
+                        parent,
+                        vec![Asserted {
+                            page: Some(item),
+                            credits,
+                            ..Asserted::default()
+                        }],
+                    );
+                }
                 return Ok(());
             }
             current_item = parent;
@@ -1175,7 +1201,7 @@ mod tests {
                         })
                         .collect(),
                 )),
-                ParsedRawEtyTemplate::Skipped => None,
+                ParsedRawEtyTemplate::Skipped | ParsedRawEtyTemplate::Unknown => None,
             })
             .collect()
     }
@@ -1481,6 +1507,19 @@ mod tests {
             assert!(t.parents(unk).is_empty());
             assert_eq!(
                 t.items.graph.etymologies(unk).unwrap().kinds[..],
+                [wety_core::ety_graph::EtyKind::Unknown]
+            );
+            // after a template, the origin of the missing word before it
+            let bird = t.add("en", "bird");
+            t.process(
+                bird,
+                r#"[{"name": "inh", "args": {"1": "en", "2": "enm", "3": "brid"}},
+                {"name": "unk", "args": {"1": "en", "nocap": "1"}}]"#,
+            );
+            let brid = t.parent(bird);
+            assert!(t.parents(brid).is_empty());
+            assert_eq!(
+                t.items.graph.etymologies(brid).unwrap().kinds[..],
                 [wety_core::ety_graph::EtyKind::Unknown]
             );
         }

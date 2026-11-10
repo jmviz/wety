@@ -462,7 +462,7 @@ fn parse_params(
                         template.continues = true;
                         ParsedRawEtyTemplate::Parsed(template)
                     }
-                    skipped @ ParsedRawEtyTemplate::Skipped => skipped,
+                    other => other,
                 }));
             }
             alternatives.push(chain);
@@ -560,7 +560,7 @@ mod tests {
                         })
                         .collect(),
                 )),
-                ParsedRawEtyTemplate::Skipped => None,
+                ParsedRawEtyTemplate::Skipped | ParsedRawEtyTemplate::Unknown => None,
             })
             .collect()
     }
