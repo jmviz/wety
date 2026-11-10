@@ -89,6 +89,26 @@ pub(crate) enum ParsedRawEtyTemplate {
     // {{unk}} after a template: the origin of the term before it is unknown
     // ("from Middle English foo, of unknown origin")
     Unknown,
+    // after a template with a single parent: that parent's own etymologies,
+    // given inline as alternatives ({{etymon}}'s <ety:...> naming several),
+    // each a chain
+    Alternatives(Box<[Box<[ParsedRawEtyTemplate]>]>),
+}
+
+impl ParsedRawEtyTemplate {
+    fn collect_templates<'a>(chain: &'a [Self], out: &mut Vec<&'a RawEtyTemplate>) {
+        for t in chain {
+            match t {
+                Self::Parsed(template) => out.push(template),
+                Self::Alternatives(chains) => {
+                    for chain in chains {
+                        Self::collect_templates(chain, out);
+                    }
+                }
+                Self::Skipped | Self::Unknown => {}
+            }
+        }
+    }
 }
 
 #[derive(Hash, Eq, PartialEq, Debug)]
@@ -129,10 +149,11 @@ impl RawEtymology {
     }
 
     pub(crate) fn templates(&self) -> impl Iterator<Item = &RawEtyTemplate> {
-        self.alternatives.iter().flatten().filter_map(|t| match t {
-            ParsedRawEtyTemplate::Parsed(template) => Some(template),
-            ParsedRawEtyTemplate::Skipped | ParsedRawEtyTemplate::Unknown => None,
-        })
+        let mut out = vec![];
+        for chain in &self.alternatives {
+            ParsedRawEtyTemplate::collect_templates(chain, &mut out);
+        }
+        out.into_iter()
     }
 }
 
@@ -764,26 +785,53 @@ impl Items {
             }
             return Ok(());
         }
+        let chains: Vec<&[ParsedRawEtyTemplate]> =
+            raw_etymology.alternatives.iter().map(|c| &c[..]).collect();
+        self.set_alternatives(string_pool, embeddings, item, item, raw_etymology, &chains)
+    }
+
+    // Give `target` (the item, or an imputed parent its section names) the
+    // etymologies `chains` give, as stated in `item`'s section, and carry each
+    // chain on from there.
+    fn set_alternatives(
+        &mut self,
+        string_pool: &StringPool,
+        embeddings: &Embeddings,
+        item: ItemId,
+        target: ItemId,
+        raw_etymology: &RawEtymology,
+        chains: &[&[ParsedRawEtyTemplate]],
+    ) -> Result<()> {
         let mut firsts = vec![];
-        for chain in &raw_etymology.alternatives {
+        for &chain in chains {
             let Some(i) = chain
                 .iter()
                 .position(|t| matches!(t, ParsedRawEtyTemplate::Parsed(_)))
             else {
                 continue;
             };
-            let resolved = self.resolve_template(string_pool, embeddings, item, item, chain, i)?;
+            let resolved =
+                self.resolve_template(string_pool, embeddings, item, target, chain, i)?;
             firsts.push((chain, i, resolved));
         }
         if firsts.is_empty() {
             return Ok(());
         }
         let resolved: Vec<&Resolved> = firsts.iter().map(|(_, _, r)| r).collect();
-        let asserted = Asserted {
-            credits: self.own_credits(item, raw_etymology.basis, &raw_etymology.notes)?,
-            ..Asserted::default()
+        let asserted = if target == item {
+            Asserted {
+                credits: self.own_credits(item, raw_etymology.basis, &raw_etymology.notes)?,
+                ..Asserted::default()
+            }
+        } else {
+            // stated in `item`'s section, under its footnotes
+            Asserted {
+                page: Some(item),
+                credits: self.credits(&raw_etymology.notes),
+                ..Asserted::default()
+            }
         };
-        if !self.set_own_etys(item, raw_etymology.basis, &resolved, &asserted) {
+        if !self.set_own_etys(target, raw_etymology.basis, &resolved, &asserted) {
             return Ok(());
         }
         for (chain, i, resolved) in firsts {
@@ -792,6 +840,7 @@ impl Items {
                 embeddings,
                 item,
                 raw_etymology,
+                target,
                 chain,
                 i,
                 resolved,
@@ -888,9 +937,10 @@ impl Items {
         })
     }
 
-    // Continue a chain past its template at `i`, which gave `item` the parents
-    // `resolved`: while the single parent is imputed, the next template gives
-    // its own etymology.
+    // Continue a chain of `item`'s section past its template at `i`, which gave
+    // `current_item` the parents `resolved`: while the single parent is
+    // imputed, the next template gives its own etymology, or the next
+    // alternatives its own etymologies.
     #[allow(clippy::too_many_arguments)]
     fn continue_chain(
         &mut self,
@@ -898,17 +948,32 @@ impl Items {
         embeddings: &Embeddings,
         item: ItemId,
         raw_etymology: &RawEtymology,
+        mut current_item: ItemId,
         templates: &[ParsedRawEtyTemplate],
         mut i: usize,
         mut resolved: Resolved,
     ) -> Result<()> {
-        let mut current_item = item;
         let credits = self.credits(&raw_etymology.notes);
         loop {
             let [parent] = resolved.items[..] else {
                 return Ok(());
             };
             let next = i + 1;
+            // the parent's own etymologies, given inline as alternatives
+            if let Some(ParsedRawEtyTemplate::Alternatives(chains)) = templates.get(next) {
+                if !self.get(parent).is_imputed() {
+                    return Ok(());
+                }
+                let chains: Vec<&[ParsedRawEtyTemplate]> = chains.iter().map(|c| &c[..]).collect();
+                return self.set_alternatives(
+                    string_pool,
+                    embeddings,
+                    item,
+                    parent,
+                    raw_etymology,
+                    &chains,
+                );
+            }
             let continues = self.get(parent).is_imputed()
                 && match templates.get(next) {
                     Some(ParsedRawEtyTemplate::Parsed(next)) => {
@@ -1201,7 +1266,9 @@ mod tests {
                         })
                         .collect(),
                 )),
-                ParsedRawEtyTemplate::Skipped | ParsedRawEtyTemplate::Unknown => None,
+                ParsedRawEtyTemplate::Skipped
+                | ParsedRawEtyTemplate::Unknown
+                | ParsedRawEtyTemplate::Alternatives(_) => None,
             })
             .collect()
     }
@@ -1480,6 +1547,20 @@ mod tests {
             assert_eq!((etys.kinds.len(), etys.primary), (2, None));
             let doctor = t.items.graph.immediate_ety(dokotera).unwrap().items[1];
             assert_eq!(t.parents(doctor), ["la:doctor?"]);
+            // an inline etymology's alternatives are the missing parent's own
+            // ("from Old French aloer, from Latin allaudāre or allocāre")
+            t.add("la", "allaudare");
+            t.add("la", "allocare");
+            let allowance = t.add("en", "allowance");
+            t.process(
+                allowance,
+                r#"[{"name": "etymon", "args": {"1": "en", "2": ":bor",
+                    "3": "fro:aloer<ety:inh<la:allaudare><la:allocare>>"}}]"#,
+            );
+            let aloer = t.parent(allowance);
+            assert_eq!(t.parents(aloer), ["la:allaudare", "la:allocare"]);
+            let etys = t.items.graph.etymologies(aloer).unwrap();
+            assert_eq!((etys.kinds.len(), etys.primary), (2, None));
             // "From X, or possibly from Y": X is primary, Y kept but not followed
             let tiger = t.add("sk", "tiger");
             t.process(

@@ -353,8 +353,8 @@ impl Group<'_> {
 /// Latin dē") are one etymology with several parents. A calque-like keyword or
 /// a surface analysis starts a sentence of its own and adds to the derivation,
 /// so it is no alternative; it is read only when it comes first, as before.
-/// An inline etymology continues a single parent's chain with its first
-/// alternative.
+/// An inline etymology continues a single parent's chain: with its one
+/// etymology, or with its alternatives, each a chain of its own.
 fn parse_params(
     string_pool: &mut StringPool,
     params: &[Param],
@@ -453,17 +453,32 @@ fn parse_params(
                 && depth < MAX_INLINE_DEPTH
             {
                 let inline = inline_params(ety);
-                let first = parse_params(string_pool, &inline, etymon.lang, depth + 1)
-                    .into_iter()
-                    .next()
-                    .unwrap_or_default();
-                chain.extend(first.into_iter().map(|template| match template {
-                    ParsedRawEtyTemplate::Parsed(mut template) => {
-                        template.continues = true;
-                        ParsedRawEtyTemplate::Parsed(template)
-                    }
-                    other => other,
-                }));
+                let mut inline_chains: Vec<Vec<ParsedRawEtyTemplate>> =
+                    parse_params(string_pool, &inline, etymon.lang, depth + 1)
+                        .into_iter()
+                        .map(|chain| {
+                            chain
+                                .into_iter()
+                                .map(|template| match template {
+                                    ParsedRawEtyTemplate::Parsed(mut template) => {
+                                        template.continues = true;
+                                        ParsedRawEtyTemplate::Parsed(template)
+                                    }
+                                    other => other,
+                                })
+                                .collect()
+                        })
+                        .collect();
+                if inline_chains.len() > 1 {
+                    chain.push(ParsedRawEtyTemplate::Alternatives(
+                        inline_chains
+                            .into_iter()
+                            .map(Vec::into_boxed_slice)
+                            .collect(),
+                    ));
+                } else if let Some(first) = inline_chains.pop() {
+                    chain.extend(first);
+                }
             }
             alternatives.push(chain);
         }
@@ -560,7 +575,9 @@ mod tests {
                         })
                         .collect(),
                 )),
-                ParsedRawEtyTemplate::Skipped | ParsedRawEtyTemplate::Unknown => None,
+                ParsedRawEtyTemplate::Skipped
+                | ParsedRawEtyTemplate::Unknown
+                | ParsedRawEtyTemplate::Alternatives(_) => None,
             })
             .collect()
     }
