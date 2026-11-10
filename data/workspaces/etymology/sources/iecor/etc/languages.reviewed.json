@@ -1,0 +1,23 @@
+[
+ {
+  "id": "292",
+  "relation": "exact",
+  "code": "ps",
+  "rationale": "Wiktionary's ps.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "100",
+  "relation": "exact",
+  "code": "cu",
+  "rationale": "The canonical language, Wiktionary's cu.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "140",
+  "relation": "exact",
+  "code": "xtg",
+  "rationale": "Transalpine Gaulish (tran1282), Wiktionary's xtg.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ }
+]

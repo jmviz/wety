@@ -1,0 +1,370 @@
+[
+ {
+  "id": "Proto-Indo-European",
+  "relation": "exact",
+  "code": "ine-pro",
+  "rationale": "IE-CoR's Proto-Indo-European is Wiktionary's ine-pro.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Proto-Indo European",
+  "relation": "exact",
+  "code": "ine-pro",
+  "rationale": "IE-CoR's Proto-Indo European is Wiktionary's ine-pro.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Proto-Germanic",
+  "relation": "exact",
+  "code": "gem-pro",
+  "rationale": "IE-CoR's Proto-Germanic is Wiktionary's gem-pro.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Sanskrit",
+  "relation": "exact",
+  "code": "sa",
+  "rationale": "IE-CoR's Sanskrit is Wiktionary's sa.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Vedic",
+  "relation": "exact",
+  "code": "ved",
+  "rationale": "Vedic Sanskrit, which Wiktionary files under ved.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Proto-Indo-Iranic",
+  "relation": "exact",
+  "code": "iir-pro",
+  "rationale": "IE-CoR's Proto-Indo-Iranic is Wiktionary's iir-pro.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Proto-Indo-Iranian",
+  "relation": "exact",
+  "code": "iir-pro",
+  "rationale": "IE-CoR's Proto-Indo-Iranian is Wiktionary's iir-pro.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Proto-Iranic",
+  "relation": "exact",
+  "code": "ira-pro",
+  "rationale": "IE-CoR's Proto-Iranic is Wiktionary's ira-pro.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Persian",
+  "relation": "exact",
+  "code": "fa",
+  "rationale": "IE-CoR's Persian is Wiktionary's fa.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "[Persian]",
+  "relation": "exact",
+  "code": "fa",
+  "rationale": "Bracketed: a source outside IE-CoR's sample, here Persian.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Proto-Slavic",
+  "relation": "exact",
+  "code": "sla-pro",
+  "rationale": "IE-CoR's Proto-Slavic is Wiktionary's sla-pro.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Albanian",
+  "relation": "exact",
+  "code": "sq",
+  "rationale": "IE-CoR's Albanian is Wiktionary's sq.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Proto-Celtic",
+  "relation": "exact",
+  "code": "cel-pro",
+  "rationale": "IE-CoR's Proto-Celtic is Wiktionary's cel-pro.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Ossetic",
+  "relation": "exact",
+  "code": "os",
+  "rationale": "IE-CoR's Ossetic is Wiktionary's os.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Old Norse",
+  "relation": "exact",
+  "code": "non",
+  "rationale": "IE-CoR's Old Norse is Wiktionary's non.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Pashto",
+  "relation": "exact",
+  "code": "ps",
+  "rationale": "IE-CoR's Pashto is Wiktionary's ps.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Middle English",
+  "relation": "exact",
+  "code": "enm",
+  "rationale": "IE-CoR's Middle English is Wiktionary's enm.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Dalmatian",
+  "relation": "exact",
+  "code": "dlm",
+  "rationale": "IE-CoR's Dalmatian is Wiktionary's dlm.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Proto-Balto-Slavic",
+  "relation": "exact",
+  "code": "ine-bsl-pro",
+  "rationale": "IE-CoR's Proto-Balto-Slavic is Wiktionary's ine-bsl-pro.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Low German",
+  "relation": "exact",
+  "code": "nds",
+  "rationale": "IE-CoR's Low German is Wiktionary's nds.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Middle Low German",
+  "relation": "exact",
+  "code": "gml",
+  "rationale": "IE-CoR's Middle Low German is Wiktionary's gml.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "[Middle Low German]",
+  "relation": "exact",
+  "code": "gml",
+  "rationale": "Bracketed: a source outside IE-CoR's sample, here Middle Low German.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "[Low German]",
+  "relation": "exact",
+  "code": "nds",
+  "rationale": "Bracketed: a source outside IE-CoR's sample, here Low German.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "[Sanskrit]",
+  "relation": "exact",
+  "code": "sa",
+  "rationale": "Bracketed: a source outside IE-CoR's sample, here Sanskrit.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Arabic",
+  "relation": "exact",
+  "code": "ar",
+  "rationale": "IE-CoR's Arabic is Wiktionary's ar.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "[Arabic]",
+  "relation": "exact",
+  "code": "ar",
+  "rationale": "Bracketed: a source outside IE-CoR's sample, here Arabic.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Turkish",
+  "relation": "exact",
+  "code": "tr",
+  "rationale": "IE-CoR's Turkish is Wiktionary's tr.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "[Turkish]",
+  "relation": "exact",
+  "code": "tr",
+  "rationale": "Bracketed: Turkish.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Proto-Italic",
+  "relation": "exact",
+  "code": "itc-pro",
+  "rationale": "IE-CoR's Proto-Italic is Wiktionary's itc-pro.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Proto-Greek",
+  "relation": "exact",
+  "code": "grk-pro",
+  "rationale": "IE-CoR's Proto-Greek is Wiktionary's grk-pro.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Proto-Baltic",
+  "relation": "exact",
+  "code": "bat-pro",
+  "rationale": "IE-CoR's Proto-Baltic is Wiktionary's bat-pro.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Greek: Medieval",
+  "relation": "exact",
+  "code": "gkm",
+  "rationale": "Medieval Greek is Wiktionary's gkm.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Tajik",
+  "relation": "exact",
+  "code": "tg",
+  "rationale": "IE-CoR's Tajik is Wiktionary's tg.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Syriac",
+  "relation": "exact",
+  "code": "syc",
+  "rationale": "Wiktionary's syc, Classical Syriac.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Proto-Anatolian",
+  "relation": "exact",
+  "code": "ine-ana-pro",
+  "rationale": "IE-CoR's Proto-Anatolian is Wiktionary's ine-ana-pro.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Old Low Franconian",
+  "relation": "exact",
+  "code": "odt",
+  "rationale": "Old Low Franconian is Wiktionary's odt, Old Dutch.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Slovenian",
+  "relation": "exact",
+  "code": "sl",
+  "rationale": "IE-CoR's Slovenian is Wiktionary's sl.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Gaulish",
+  "relation": "exact",
+  "code": "xtg",
+  "rationale": "IE-CoR's Gaulish (tran1282) is Transalpine Gaulish, Wiktionary's xtg.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Proto-Albanian",
+  "relation": "exact",
+  "code": "sqj-pro",
+  "rationale": "IE-CoR's Proto-Albanian is Wiktionary's sqj-pro.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Pali",
+  "relation": "exact",
+  "code": "pi",
+  "rationale": "IE-CoR's Pali is Wiktionary's pi.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "[Latin]",
+  "relation": "exact",
+  "code": "la",
+  "rationale": "Bracketed: Latin.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "[English]",
+  "relation": "exact",
+  "code": "en",
+  "rationale": "Bracketed: English.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "[Old French]",
+  "relation": "exact",
+  "code": "fro",
+  "rationale": "Bracketed: Old French.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "[Old High German]",
+  "relation": "exact",
+  "code": "goh",
+  "rationale": "Bracketed: Old High German.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "[Russian]",
+  "relation": "exact",
+  "code": "ru",
+  "rationale": "Bracketed: Russian.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "[Polish]",
+  "relation": "exact",
+  "code": "pl",
+  "rationale": "Bracketed: Polish.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "[Hindi]",
+  "relation": "exact",
+  "code": "hi",
+  "rationale": "Bracketed: Hindi.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "[Old Church Slavonic]",
+  "relation": "exact",
+  "code": "cu",
+  "rationale": "Bracketed: Old Church Slavonic.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Ancient Greek",
+  "relation": "exact",
+  "code": "grc",
+  "rationale": "Wiktionary's grc.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Middle Dutch",
+  "relation": "exact",
+  "code": "dum",
+  "rationale": "Wiktionary's dum.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Old Indo-Aryan",
+  "relation": "unresolved",
+  "rationale": "Old Indo-Aryan covers Vedic and Sanskrit; no single code.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Proto-Tocharian",
+  "relation": "unresolved",
+  "rationale": "Wiktionary has no Proto-Tocharian code.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "Indic",
+  "relation": "unresolved",
+  "rationale": "A branch named as a root's language; no single code.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ }
+]

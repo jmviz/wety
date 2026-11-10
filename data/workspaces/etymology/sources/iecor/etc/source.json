@@ -1,0 +1,42 @@
+{
+ "id": "iecor",
+ "title": "Indo-European Cognate Relationships database (IE-CoR)",
+ "release": "v1.2.1",
+ "doi": "10.5281/zenodo.23183358",
+ "published": "2026-10-06",
+ "creators": [
+  "Paul Heggarty",
+  "Cormac Anderson",
+  "Matthew Scarborough"
+ ],
+ "cite_as": "Paul Heggarty, Cormac Anderson and Matthew Scarborough (eds.) 2024. Indo-European Cognate Relationships database (IE-CoR), version 1.1. Leipzig: Max Planck Institute for Evolutionary Anthropology; CLDF dataset v1.2.1, doi:10.5281/zenodo.23183358; described in Anderson et al. 2025, doi:10.1038/s41597-025-05445-3.",
+ "url": "https://iecor.clld.org",
+ "repository": "https://github.com/lexibank/iecor (archive directory lexibank-iecor-dd1ebc9)",
+ "artifact": {
+  "path": "data/artifacts/iecor/3076e9b31a52490e54ba471ee3101af4a3740b58c2e23e186456d931fa83966a",
+  "artifact_id": "sha256:a4a7dac950daa1120caace859760758da631e5fd79f200342a11c5c57188caff",
+  "sha256": "3076e9b31a52490e54ba471ee3101af4a3740b58c2e23e186456d931fa83966a",
+  "acquired": "2026-11-10T03:16:33.350002+00:00"
+ },
+ "raw": "data/workspaces/etymology/sources/iecor/raw/lexibank-iecor-dd1ebc9",
+ "kind_of_work": "cognate-coded wordlist: the words for 170 meanings in 160 Indo-European varieties, in 4,981 cognate sets with roots, loan events and citations, as a CLDF Wordlist",
+ "holder": "IE-CoR's editors (Heggarty, Anderson, Scarborough) and the 91 authors who coded and revised its sets",
+ "date_of_view": "2024 (version 1.1), CLDF 1.2.1 of 2026",
+ "coverage": {
+  "varieties": 160,
+  "meanings": 170,
+  "forms": 25731,
+  "cognate_sets": 4981,
+  "roots": 4326,
+  "loans": 1036
+ },
+ "glottolog": "The release maps its varieties with Glottolog; wety's catalogs read Glottolog 5.3. Its language table is also the dating workflow's input (data/artifacts/iecor/legacy).",
+ "licence": "CC-BY-4.0",
+ "may_display": "everything, with attribution",
+ "may_export": "everything, with attribution",
+ "curation": {
+  "language_map": "etc/languages.json (from etc/languages.reviewed.json and the catalog bundle)",
+  "root_map": "etc/roots.json: root languages and loan sources by name (listed in checks/cl-5/root-languages.csv), from etc/roots.reviewed.json",
+  "kind_map": "etc/kinds.json"
+ }
+}

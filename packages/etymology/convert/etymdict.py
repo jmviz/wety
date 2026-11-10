@@ -512,7 +512,14 @@ def main_for(converter, release, argv=None, tables=TABLES):
     args = p.parse_args(argv)
     etc = SOURCES / converter.NAME / "etc"
     inputs = [release.cldf / t for t in tables if (release.cldf / t).exists()]
-    curation = ("languages.json", "donors.json", "kinds.json", "source.json", "tree.json")
+    curation = (
+        "languages.json",
+        "donors.json",
+        "roots.json",
+        "kinds.json",
+        "source.json",
+        "tree.json",
+    )
     inputs += [etc / f for f in curation]
     extraction = A.extraction(
         "converter",
