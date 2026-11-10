@@ -19,5 +19,33 @@
   "code": "xtg",
   "rationale": "Transalpine Gaulish (tran1282), Wiktionary's xtg.",
   "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "238",
+  "relation": "exact",
+  "code": "zlw-opl",
+  "rationale": "Old Polish is Wiktionary's zlw-opl; the glottocode lookup gave modern Polish (pl). Found in the cl-5 review.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "243",
+  "relation": "exact",
+  "code": "zlw-ocs",
+  "rationale": "Old Czech is Wiktionary's zlw-ocs; the glottocode lookup gave modern Czech (cs).",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "157",
+  "relation": "exact",
+  "code": "gmq-osw",
+  "rationale": "Old Swedish is Wiktionary's gmq-osw; the glottocode lookup gave modern Swedish (sv).",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
+ },
+ {
+  "id": "245",
+  "relation": "subset",
+  "code": "orv",
+  "rationale": "The Old Novgorod dialect is a variety of Old East Slavic (orv), narrower than it.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-10)"
  }
 ]

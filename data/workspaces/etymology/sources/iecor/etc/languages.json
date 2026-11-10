@@ -6,15 +6,15 @@
  },
  "reviewed": {
   "path": "data/workspaces/etymology/sources/iecor/etc/languages.reviewed.json",
-  "sha256": "4a01542c1c5d9ec1cfc9f6e80da3c235e04651a8b7156a451f1df75dd6be58ff"
+  "sha256": "8bf1bee84020f8b8169ceeac5020225ae420b2f46d80d994e434fb7656e13e9f"
  },
  "summary": {
   "varieties": {
-   "exact": 157,
-   "subset": 1,
+   "exact": 156,
+   "subset": 2,
    "unresolved": 2,
    "total": 160,
-   "exact_share": 0.9812
+   "exact_share": 0.975
   },
   "proto-languages": {
    "total": 0,
@@ -893,9 +893,16 @@
    "iso639_3": "swe",
    "is_proto": false,
    "relation": "exact",
-   "code": "sv",
+   "code": "gmq-osw",
    "candidates": [],
-   "basis": "glottocode"
+   "basis": "Old Swedish is Wiktionary's gmq-osw; the glottocode lookup gave modern Swedish (sv).",
+   "reviewer": "claude-opus-5-5 (model review, 2026-11-10)",
+   "derived": {
+    "relation": "exact",
+    "code": "sv",
+    "candidates": [],
+    "basis": "glottocode"
+   }
   },
   {
    "id": "162",
@@ -1212,9 +1219,16 @@
    "iso639_3": "pol",
    "is_proto": false,
    "relation": "exact",
-   "code": "pl",
+   "code": "zlw-opl",
    "candidates": [],
-   "basis": "glottocode"
+   "basis": "Old Polish is Wiktionary's zlw-opl; the glottocode lookup gave modern Polish (pl). Found in the cl-5 review.",
+   "reviewer": "claude-opus-5-5 (model review, 2026-11-10)",
+   "derived": {
+    "relation": "exact",
+    "code": "pl",
+    "candidates": [],
+    "basis": "glottocode"
+   }
   },
   {
    "id": "239",
@@ -1245,9 +1259,16 @@
    "iso639_3": "ces",
    "is_proto": false,
    "relation": "exact",
-   "code": "cs",
+   "code": "zlw-ocs",
    "candidates": [],
-   "basis": "glottocode"
+   "basis": "Old Czech is Wiktionary's zlw-ocs; the glottocode lookup gave modern Czech (cs).",
+   "reviewer": "claude-opus-5-5 (model review, 2026-11-10)",
+   "derived": {
+    "relation": "exact",
+    "code": "cs",
+    "candidates": [],
+    "basis": "glottocode"
+   }
   },
   {
    "id": "245",
@@ -1255,10 +1276,17 @@
    "glottocode": "oldr1238",
    "iso639_3": "orv",
    "is_proto": false,
-   "relation": "exact",
+   "relation": "subset",
    "code": "orv",
    "candidates": [],
-   "basis": "glottocode"
+   "basis": "The Old Novgorod dialect is a variety of Old East Slavic (orv), narrower than it.",
+   "reviewer": "claude-opus-5-5 (model review, 2026-11-10)",
+   "derived": {
+    "relation": "exact",
+    "code": "orv",
+    "candidates": [],
+    "basis": "glottocode"
+   }
   },
   {
    "id": "249",

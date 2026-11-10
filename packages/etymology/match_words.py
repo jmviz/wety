@@ -85,24 +85,24 @@ SPECS = {
     "wold": Spec(
         "wold",
         "WOLD",
-        "agent:wety-match-wold@1",
-        "wety's WOLD matcher, v1: WOLD's records to Wiktionary's by key, source and gloss",
+        "agent:wety-match-wold@2",
+        "wety's WOLD matcher, v2: WOLD's records to Wiktionary's by key, source and gloss",
         "agent:wety-relay-wold@1",
         re.compile(r"WOLD$|:WLD$|World Loanword Database"),
     ),
     "iecor": Spec(
         "iecor",
         "IE-CoR",
-        "agent:wety-match-iecor@1",
-        "wety's IE-CoR matcher, v1: IE-CoR's records to Wiktionary's by key, root and gloss",
+        "agent:wety-match-iecor@2",
+        "wety's IE-CoR matcher, v2: IE-CoR's records to Wiktionary's by key, root and gloss",
         "agent:wety-relay-iecor@1",
         re.compile(r"IE-?CoR|Indo-European Cognate Relationships"),
     ),
     "tuled": Spec(
         "tuled",
         "TuLeD",
-        "agent:wety-match-tuled@1",
-        "wety's TuLeD matcher, v1: TuLeD's records to Wiktionary's by key and gloss",
+        "agent:wety-match-tuled@2",
+        "wety's TuLeD matcher, v2: TuLeD's records to Wiktionary's by key and gloss",
         "agent:wety-relay-tuled@1",
         re.compile(r"TuLeD|Tupían Lexical Database"),
     ),
@@ -311,7 +311,8 @@ class Wiktionary:
 
 
 class Matcher:
-    """The matcher rule, written for WOLD (`wety-match-wold@1`) and applied as it is to
+    """The matcher rule, written for WOLD (`wety-match-wold@1`; v2 prefers a candidate of
+    the word's own case, after the first reviews: Elk for elk, Terra for terra) and applied as it is to
     IE-CoR and TuLeD under their names (`SPECS`; module docstring for keys). "WOLD"
     below stands for the source, "source word" for a word's parent there (IE-CoR's root).
 
@@ -341,7 +342,13 @@ class Matcher:
         if r["language"]["relation"] != "exact" or not code or not r["form"]:
             return None
         ks = self.keyer(r["form"], r["reconstructed"], "source")
-        return sorted({w for k in ks for w in self.wikt.by_key.get((code, k), ())})
+        found = {w for k in ks for w in self.wikt.by_key.get((code, k), ())}
+        # v2: a word's own case first (elk, not the order Elk; terra, not the planet Terra)
+        lower = r["form"][:1].islower()
+        same_case = {
+            w for w in found if (self.wikt.records[w]["form"] or "")[:1].islower() == lower
+        }
+        return sorted(same_case or found)
 
     def wikt_keys(self, record_id):
         x = self.wikt.records.get(record_id)
