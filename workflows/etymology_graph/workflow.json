@@ -25,10 +25,10 @@
     "csd_matches": "data/artifacts/csd-claims/c0bf9a97adca00c5d193e511840f9df000170b1ebab89c7c56f30fe87f5a8246/files/matches/assertions.jsonl",
     "cariban_assertions": "data/artifacts/cariban-claims/38ab0fd67d7617b2353be366d47590bc48aa2a30988899345ad7bf305a4acf94/files/cariban.jsonl",
     "cariban_matches": "data/artifacts/cariban-claims/38ab0fd67d7617b2353be366d47590bc48aa2a30988899345ad7bf305a4acf94/files/matches/assertions.jsonl",
-    "wold_assertions": "data/artifacts/wold-claims/b81b8571f3815e7c88720b8852c1837a2a53a96f30b3b2f82ef45960fa82131b/files/wold.jsonl",
-    "wold_matches": "data/artifacts/wold-claims/b81b8571f3815e7c88720b8852c1837a2a53a96f30b3b2f82ef45960fa82131b/files/matches/assertions.jsonl",
-    "iecor_assertions": "data/artifacts/iecor-claims/07cccdcac59d2cc6382e27fbfcaad268d109968adf8cc1beccf1d052f5b3c875/files/iecor.jsonl",
-    "iecor_matches": "data/artifacts/iecor-claims/07cccdcac59d2cc6382e27fbfcaad268d109968adf8cc1beccf1d052f5b3c875/files/matches/assertions.jsonl",
+    "wold_assertions": "data/artifacts/wold-claims/ff5e4603da7b140c0bc176cd7f12687319835668faffe0c6ce9c00d07ea88d90/files/wold.jsonl",
+    "wold_matches": "data/artifacts/wold-claims/ff5e4603da7b140c0bc176cd7f12687319835668faffe0c6ce9c00d07ea88d90/files/matches/assertions.jsonl",
+    "iecor_assertions": "data/artifacts/iecor-claims/e48c22bd0e0fc0e1cf12220ef2013c20f74fa035b12a0edc41911a77bd1556ef/files/iecor.jsonl",
+    "iecor_matches": "data/artifacts/iecor-claims/e48c22bd0e0fc0e1cf12220ef2013c20f74fa035b12a0edc41911a77bd1556ef/files/matches/assertions.jsonl",
     "overrides": "data/workspaces/etymology/sources/wiktionary/etc/overrides.json"
   },
   "commands": [
