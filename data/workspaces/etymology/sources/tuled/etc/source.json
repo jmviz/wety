@@ -1,0 +1,41 @@
+{
+ "id": "tuled",
+ "title": "TuLeD: Tupían Lexical Database",
+ "release": "v1.0",
+ "doi": "10.5281/zenodo.14777803",
+ "published": "2025-01-31",
+ "creators": [
+  "Fabrício Ferraz Gerardi",
+  "Stanislav Reichert",
+  "Carolina Aragon",
+  "Johann-Mattis List",
+  "Tim Wientzek"
+ ],
+ "cite_as": "Fabrício Ferraz Gerardi, Stanislav Reichert, Carolina Aragon, Johann-Mattis List and Tim Wientzek 2021. TuLeD: Tupían lexical database. Leipzig: Max Planck Institute for Evolutionary Anthropology (https://tular.clld.org/contributions/tuled); CLDF dataset v1.0, doi:10.5281/zenodo.14777803.",
+ "url": "https://tular.clld.org/contributions/tuled",
+ "repository": "https://github.com/lexibank/tuled (archive directory lexibank-tuled-a67d65a)",
+ "artifact": {
+  "path": "data/artifacts/tuled/154d24128dff7898bcc7b5461c9f6f201139b693421f1d8a98f362d662f76678",
+  "artifact_id": "sha256:6522fc8bb55a0070719076ef6507b73a424c053c09a2cadbdc0de43937d773f1",
+  "sha256": "154d24128dff7898bcc7b5461c9f6f201139b693421f1d8a98f362d662f76678",
+  "acquired": "2026-11-10T03:16:36.611732+00:00"
+ },
+ "raw": "data/workspaces/etymology/sources/tuled/raw/lexibank-tuled-a67d65a",
+ "kind_of_work": "cognate-coded wordlist of the Tupían family: 447 meanings in 90 varieties, partial cognacy by expert judgement, no reconstructions, as a CLDF Wordlist",
+ "holder": "TuLeD's authors",
+ "date_of_view": "2021",
+ "coverage": {
+  "varieties": 90,
+  "meanings": 447,
+  "forms": 25024,
+  "cognate_sets": 5863,
+  "sets_of_two_or_more": 2454
+ },
+ "licence": "CC-BY-4.0",
+ "may_display": "everything, with attribution",
+ "may_export": "everything, with attribution",
+ "curation": {
+  "language_map": "etc/languages.json (from the catalog bundle)",
+  "kind_map": "etc/kinds.json"
+ }
+}
