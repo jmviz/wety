@@ -723,7 +723,6 @@ impl EtyGraph {
 
 /// all of the ultimate ancestors of some item, i.e. all of the leaf nodes on
 /// the ancestry tree rooted by the item
-#[derive(Serialize, Deserialize)]
 pub struct Progenitors {
     pub items: Box<[ItemId]>,
     pub head: Option<ItemId>,
@@ -778,24 +777,6 @@ impl EtyGraph {
             head = Some(next);
         }
         Some(Progenitors::new(progenitors, head))
-    }
-
-    #[must_use]
-    pub fn all_progenitors(&self) -> HashMap<ItemId, Progenitors> {
-        let items: Vec<ItemId> = self.graph.node_indices().collect();
-        let found: Vec<Option<Progenitors>> = items
-            .par_iter()
-            .map(|&item| self.progenitors(item))
-            .collect();
-        // inserted in item order, as the map's iteration order (and so the
-        // graph file) depends on it
-        let mut progenitors = HashMap::default();
-        for (item_id, prog) in items.into_iter().zip(found) {
-            if let Some(prog) = prog {
-                progenitors.insert(item_id, prog);
-            }
-        }
-        progenitors
     }
 }
 

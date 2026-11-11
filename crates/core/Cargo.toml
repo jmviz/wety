@@ -21,6 +21,7 @@ strum = { version = "0.28", features = ["derive", "phf"] }
 unicode-normalization = "0.1.26"
 sha2 = "0.11"
 rayon = "1.12"
+postcard = { version = "1.1", default-features = false, features = ["use-std"] }
 
 [build-dependencies]
 sha2 = "0.11"

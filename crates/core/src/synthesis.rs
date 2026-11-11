@@ -54,7 +54,7 @@ pub struct Reading {
     pub tier: Tier,
     /// Independent origins endorse competing etymologies at probable or
     /// better, or one rejects the primary.
-    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    #[serde(default)]
     pub disputed: bool,
 }
 

@@ -52,7 +52,7 @@
       "--redirects",
       "{input_redirects}",
       "--serialization-path",
-      "{output}/wety.json.gz",
+      "{output}/wety.bin.gz",
       "--entry-names",
       "{input_entry_names}",
       "--references",
@@ -104,11 +104,11 @@
       "--example",
       "validate_graph",
       "--",
-      "{output}/wety.json.gz"
+      "{output}/wety.bin.gz"
     ]
   ],
   "required_outputs": [
-    "wety.json.gz"
+    "wety.bin.gz"
   ],
-  "entrypoint": "wety.json.gz"
+  "entrypoint": "wety.bin.gz"
 }

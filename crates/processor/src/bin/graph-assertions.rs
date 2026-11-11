@@ -42,7 +42,7 @@ const EDITORS: &str = "agent:wiktionary-editors";
 
 #[derive(Parser)]
 struct Args {
-    /// The processed graph (wety.json or wety.json.gz)
+    /// The processed graph (wety.bin.gz; JSON graphs from before it load too)
     graph: PathBuf,
     /// The run receipt of the build that wrote the graph
     receipt: PathBuf,

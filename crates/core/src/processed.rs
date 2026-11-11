@@ -2,7 +2,7 @@ use crate::{
     HashMap, HashSet, assertions,
     descendant_langs::DescendantLangs,
     ety_graph::{Certainty, EdgeBasis, EtyEdge, EtyKind, SourceLang},
-    ety_graph::{EtyEdgeAccess, EtyGraph, Progenitors},
+    ety_graph::{EtyEdgeAccess, EtyGraph},
     etymology_templates::EtyMode,
     items::{Item, ItemId},
     languages::Lang,
@@ -17,7 +17,7 @@ use crate::{
 
 use std::{
     fs::File,
-    io::{BufReader, BufWriter, Read},
+    io::{BufReader, BufWriter, Read, Write},
     path::Path,
     time::Instant,
 };
@@ -41,50 +41,74 @@ pub struct Data {
     pub synthesis_rules: u32,
     pub string_pool: StringPool,
     pub graph: EtyGraph,
-    pub progenitors: HashMap<ItemId, Progenitors>,
     pub descendant_langs: DescendantLangs,
 }
 
 impl Data {
     #[must_use]
     pub fn new(string_pool: StringPool, graph: EtyGraph) -> Self {
-        let progenitors = graph.all_progenitors();
         let descendant_langs = graph.all_descendant_langs();
         Self {
             reference_fingerprint: Some(env!("WETY_REFERENCE_FINGERPRINT").to_owned()),
             synthesis_rules: crate::synthesis::SYNTHESIS_RULES,
             string_pool,
             graph,
-            progenitors,
             descendant_langs,
         }
     }
 
+    /// Write the graph file (see `GRAPH_MAGIC`), gzipped if `path` ends in `.gz`.
+    ///
     /// # Errors
     ///
-    /// Returns an error if the output file cannot be created or written.
+    /// Returns an error if `path` names a JSON file, or if the file cannot be
+    /// created or written.
     pub fn serialize(&self, path: &Path) -> Result<()> {
         let t = Instant::now();
         println!("Serializing processed data to {}...", path.display());
+        anyhow::ensure!(
+            !is_json(path),
+            "graphs are written in the binary format (wety.bin.gz), not as {}",
+            path.display()
+        );
         if let Some(parent) = path.parent() {
             std::fs::create_dir_all(parent)?;
         }
         let file = File::create(path)?;
-        // serde_json writes a token at a time: buffer in front of the encoder, and
-        // finish both explicitly so that a failed final write is an error.
+        // finished explicitly, so that a failed final write is an error
         if path.extension().is_some_and(|ext| ext == "gz") {
-            let mut writer =
+            let writer =
                 BufWriter::with_capacity(1 << 20, GzEncoder::new(file, Compression::fast()));
-            serde_json::to_writer(&mut writer, &self)?;
-            writer.into_inner()?.finish()?.sync_all()?;
+            self.write(writer)?.into_inner()?.finish()?.sync_all()?;
         } else {
-            let mut writer = BufWriter::with_capacity(1 << 20, file);
-            serde_json::to_writer(&mut writer, &self)?;
-            writer.into_inner()?.sync_all()?;
+            let writer = BufWriter::with_capacity(1 << 20, file);
+            self.write(writer)?.into_inner()?.sync_all()?;
         }
         println!("Finished. Took {:.2?}.", t.elapsed());
         Ok(())
     }
+
+    fn write<W: Write>(&self, mut writer: W) -> Result<W> {
+        writer.write_all(GRAPH_MAGIC)?;
+        writer.write_all(&GRAPH_FORMAT.to_le_bytes())?;
+        Ok(postcard::to_io(self, writer)?)
+    }
+}
+
+/// The graph file: these bytes, `GRAPH_FORMAT` (u32, little-endian), then `Data` in
+/// postcard, which is not self-describing: field order and enum variant order are
+/// the format. Graphs written as JSON before it (`.json`, `.json.gz`) still load.
+const GRAPH_MAGIC: &[u8; 8] = b"wetygrph";
+/// Bump whenever a type the graph holds changes how it serializes (a field added,
+/// removed or reordered, an enum variant inserted or reordered).
+const GRAPH_FORMAT: u32 = 1;
+
+fn is_json(path: &Path) -> bool {
+    let name = path
+        .file_name()
+        .map(|n| n.to_string_lossy())
+        .unwrap_or_default();
+    name.ends_with(".json") || name.ends_with(".json.gz")
 }
 
 /// A short identity for a graph file. Clients send it back with numeric item
@@ -159,7 +183,26 @@ impl Data {
         println!("Deserializing processed data {}...", path.display());
         let file = File::open(path)?;
         let is_gz_compressed = path.extension().is_some_and(|ext| ext == "gz");
-        let data: Self = if is_gz_compressed {
+        let data: Self = if !is_json(path) {
+            let mut bytes = vec![];
+            if is_gz_compressed {
+                GzDecoder::new(BufReader::with_capacity(1 << 20, file)).read_to_end(&mut bytes)?;
+            } else {
+                BufReader::new(file).read_to_end(&mut bytes)?;
+            }
+            anyhow::ensure!(
+                bytes.len() >= 12 && bytes.starts_with(GRAPH_MAGIC),
+                "{} is not a wety graph",
+                path.display()
+            );
+            let format = u32::from_le_bytes(bytes[8..12].try_into()?);
+            anyhow::ensure!(
+                format == GRAPH_FORMAT,
+                "{} is in graph format {format}; this build reads {GRAPH_FORMAT}: rebuild the graph",
+                path.display()
+            );
+            postcard::from_bytes(&bytes[12..])?
+        } else if is_gz_compressed {
             // serde_json reads a byte at a time: the buffer goes in front of the
             // decoder (which buffers the file itself)
             serde_json::from_reader(BufReader::with_capacity(1 << 20, GzDecoder::new(file)))?
@@ -1629,5 +1672,121 @@ mod lineage_tests {
         };
         graph.add_etymologies(mare, &[one(&[miere]), one(&[other])]);
         assert_eq!(Data::new(pool, graph).default_root(mare_en), mare);
+    }
+}
+
+#[cfg(test)]
+mod graph_file_tests {
+    use super::*;
+    use crate::{
+        assertions::{Asserted, Credit, Role, Scope, Work},
+        ety_graph::{Certainty, EdgeBasis, NewEtymology},
+        gloss::Gloss,
+        items::{ImputedItem, RealItem},
+        langterm::Term,
+        pos::Pos,
+    };
+    use std::str::FromStr;
+
+    // A graph with each kind of thing the file holds, optional fields both present
+    // and absent.
+    fn graph() -> Data {
+        let (mut graph, mut pool) = (EtyGraph::default(), StringPool::default());
+        let mut real = |pool: &mut StringPool, code: &str, term: &str, label: Option<&str>| {
+            graph.add(Item::Real(RealItem {
+                ety_num: 1,
+                ety_label: label.map(Into::into),
+                lang: Lang::from_str(code).unwrap(),
+                term: Term::new(pool, term),
+                pos: vec![Pos::from_str("noun").unwrap()],
+                gloss: vec![Gloss::new(pool, "a doubt; uncertainty")],
+                page_term: None,
+                romanization: None,
+                is_reconstructed: false,
+            }))
+        };
+        let doubt = real(&mut pool, "en", "doubt", Some("1"));
+        let douten = real(&mut pool, "enm", "douten", None);
+        let doute = graph.add(Item::Imputed(ImputedItem {
+            ety_num: 2,
+            lang: Lang::from_str("enm").unwrap(),
+            term: Term::new(&mut pool, "doute"),
+            romanization: Some(Term::new(&mut pool, "dute")),
+            from: doubt,
+        }));
+        graph.add_etymologies(
+            doubt,
+            &[
+                NewEtymology {
+                    mode: EtyMode::Inherited,
+                    head: Some(0),
+                    basis: EdgeBasis::Etymon,
+                    items: &[douten],
+                    confidences: &[0.75],
+                    certainties: &[Certainty::Stated],
+                },
+                NewEtymology {
+                    mode: EtyMode::Borrowed,
+                    head: None,
+                    basis: EdgeBasis::Template,
+                    items: &[doute],
+                    confidences: &[0.5],
+                    certainties: &[Certainty::Possible],
+                },
+            ],
+        );
+        graph.works.push(Work {
+            id: "work:wiktionary:R:OED".into(),
+            citation: "OED".into(),
+            year: Some(1989),
+        });
+        let credit = |locator: Option<&str>| Credit {
+            work: 0,
+            role: Role::Follows,
+            scope: Scope::Entry,
+            locator: locator.map(Into::into),
+        };
+        graph.set_asserted(
+            doubt,
+            vec![
+                Asserted {
+                    credits: Box::new([credit(Some("s.v. doubt")), credit(None)]),
+                    ..Asserted::default()
+                },
+                Asserted {
+                    page: Some(douten),
+                    inputs: 3,
+                    origin: Some(0),
+                    ..Asserted::default()
+                },
+            ],
+        );
+        graph.set_unknown(douten);
+        Data::new(pool, graph)
+    }
+
+    #[test]
+    fn the_graph_file_reads_back_what_was_written() {
+        let dir = std::env::temp_dir().join("wety-graph-file-test");
+        std::fs::create_dir_all(&dir).unwrap();
+        let data = graph();
+        for name in ["wety.bin.gz", "wety.bin"] {
+            let path = dir.join(name);
+            data.serialize(&path).unwrap();
+            let read = Data::deserialize(&path).unwrap();
+            assert_eq!(
+                postcard::to_stdvec(&read).unwrap(),
+                postcard::to_stdvec(&data).unwrap()
+            );
+            let doubt = ItemId::from(0);
+            assert_eq!(
+                serde_json::to_string(&read.item_origin_json(doubt)).unwrap(),
+                serde_json::to_string(&data.item_origin_json(doubt)).unwrap()
+            );
+        }
+        assert!(data.serialize(&dir.join("wety.json.gz")).is_err());
+        std::fs::write(dir.join("other.bin"), b"not a graph").unwrap();
+        assert!(Data::deserialize(&dir.join("other.bin")).is_err());
+        std::fs::remove_dir_all(dir).unwrap();
     }
 }

@@ -11,8 +11,8 @@ use serde::{
 /// CSR layout: item `i`'s langs are `langs[offsets[i]..offsets[i + 1]]`,
 /// sorted so membership is a binary search.
 ///
-/// Deserializes from either this layout or the older map from item id to
-/// langs, so graphs built before the CSR layout still load.
+/// JSON graphs deserialize from either this layout or the older map from item id
+/// to langs, so graphs built before the CSR layout still load.
 #[derive(Default, Serialize)]
 pub struct DescendantLangs {
     offsets: Vec<u32>,
@@ -64,6 +64,17 @@ impl DescendantLangs {
 
 impl<'de> Deserialize<'de> for DescendantLangs {
     fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        // The binary graph file holds the CSR layout, field by field; JSON graphs
+        // may hold either layout.
+        if !deserializer.is_human_readable() {
+            #[derive(Deserialize)]
+            struct Csr {
+                offsets: Vec<u32>,
+                langs: Vec<Lang>,
+            }
+            let Csr { offsets, langs } = Csr::deserialize(deserializer)?;
+            return Ok(Self { offsets, langs });
+        }
         deserializer.deserialize_map(DescendantLangsVisitor)
     }
 }

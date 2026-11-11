@@ -26,7 +26,7 @@
       "--entries",
       "{input_entries}",
       "--serialization-path",
-      "{output}/wety.json.gz",
+      "{output}/wety.bin.gz",
       "--embeddings-model",
       "ibm-granite/granite-embedding-small-english-r2",
       "--embeddings-model-revision",
@@ -45,11 +45,11 @@
       "--example",
       "validate_graph",
       "--",
-      "{output}/wety.json.gz"
+      "{output}/wety.bin.gz"
     ]
   ],
   "required_outputs": [
-    "wety.json.gz"
+    "wety.bin.gz"
   ],
-  "entrypoint": "wety.json.gz"
+  "entrypoint": "wety.bin.gz"
 }

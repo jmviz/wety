@@ -46,7 +46,7 @@ run receipt.
 
 - **New graph:** build it (`uv run --frozen wety-data run etymology_graph`), run
   `deploy/publish-graph.sh` from the main checkout (default: the artifact in
-  `data/products/etymology_graph/CURRENT.json`; about 600 MB to upload), commit
+  `data/products/etymology_graph/CURRENT.json`; about 470 MB to upload), commit
   `deploy/graph.json`, merge into `main`. The server checks that the graph's
   language/POS tables match its own; if they do not, the deploy rolls back and fails.
   If the graph comes with a new Wiktionary language export, record the codes it
@@ -236,5 +236,7 @@ Server environment:
 
 Release builds use `RUSTFLAGS="-C target-cpu=neoverse-n1"`. The host's Ampere Altra is
 a Neoverse N1, while `.cargo/config.toml`'s `target-cpu=native` would target the build
-machine. The server speaks plain HTTP; the tunnel terminates TLS. The current graph (about
-900 MB gzipped JSON) takes about a minute to load and index on an M1 Pro and about 5 GB of memory once loaded; the host is slower.
+machine. The server speaks plain HTTP; the tunnel terminates TLS. The current graph
+(`wety.bin.gz`, about 470 MB) takes about 30 seconds to load and index on an M1 Pro
+and about 5 GB of memory once loaded; the host is slower. The server also reads
+graphs written as JSON (`wety.json.gz`) before the binary format.

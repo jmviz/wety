@@ -20,7 +20,7 @@ pub struct Args {
     #[arg(
         short = 's',
         long,
-        default_value = "data/workspaces/etymology_graph/wety.json.gz"
+        default_value = "data/workspaces/etymology_graph/wety.bin.gz"
     )]
     serialization_path: PathBuf,
     #[arg(short = 't', long)]

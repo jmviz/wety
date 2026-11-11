@@ -102,7 +102,7 @@ pub fn process_entries(
         println!("Finished. Took {:.1?}.", t.elapsed());
     }
     t = Instant::now();
-    println!("Computing progenitors and descendant languages...");
+    println!("Computing descendant languages...");
     let data = Data::new(string_pool, items.graph);
     println!("Finished. Took {:.1?}.", t.elapsed());
     if let Some(turtle_path) = turtle_path {

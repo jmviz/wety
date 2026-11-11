@@ -402,11 +402,12 @@ impl Items {
                 && candidates.contains(&item)
             {
                 let best = self.best_candidate(embeddings, citation, candidates)?;
-                self.resolution_stats.count(if best.is_some_and(|(b, _)| b == item) {
-                    "id, which embeddings agree with"
-                } else {
-                    "id, which embeddings disagree with"
-                });
+                self.resolution_stats
+                    .count(if best.is_some_and(|(b, _)| b == item) {
+                        "id, which embeddings agree with"
+                    } else {
+                        "id, which embeddings disagree with"
+                    });
             }
             return Ok(Resolution::Found {
                 item,

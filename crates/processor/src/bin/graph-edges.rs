@@ -12,7 +12,7 @@
 // cargo run --release --bin graph-edges -- GRAPH edges.tsv [--unknown unknown.tsv] \
 //     [--readings readings.jsonl]
 //
-// cargo run --release --bin graph-edges -- data/.../wety.json.gz edges.tsv
+// cargo run --release --bin graph-edges -- data/.../wety.bin.gz edges.tsv
 
 #[global_allocator]
 static ALLOC: mimalloc::MiMalloc = mimalloc::MiMalloc;
@@ -39,7 +39,7 @@ use serde_json::json;
 
 #[derive(Parser)]
 struct Args {
-    /// The processed graph (wety.json or wety.json.gz)
+    /// The processed graph (wety.bin.gz; JSON graphs from before it load too)
     graph: PathBuf,
     /// Where to write the TSV
     out: PathBuf,

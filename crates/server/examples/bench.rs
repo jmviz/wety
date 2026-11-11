@@ -110,14 +110,20 @@ fn main() {
         desc_langs.push(Lang::from_code("en").unwrap());
     }
 
-    let data = Data::deserialize(Path::new("data/wety.json")).unwrap();
+    // the graph the server would serve: WETY_GRAPH_PATH
+    let path = std::env::var("WETY_GRAPH_PATH").expect("WETY_GRAPH_PATH names the graph");
+    let data = Data::deserialize(Path::new(&path)).unwrap();
     if worst {
         // The progenitor with the most raw descendant edges; bench the
         // cognates request from its perspective (its own lang as dist lang).
         let t = Instant::now();
         let mut seen = std::collections::HashSet::new();
         let mut top: Vec<(usize, ItemId)> = vec![];
-        for p in data.progenitors.values() {
+        for p in data
+            .graph
+            .iter()
+            .filter_map(|(item, _)| data.graph.progenitors(item))
+        {
             for &pi in p.items.iter() {
                 if seen.insert(pi) {
                     top.push((data.graph.descendant_edges(pi).count(), pi));
@@ -156,8 +162,9 @@ fn main() {
         let (t_anc, anc) = best(5, || data.ancestors_in_langs(item, &desc_langs));
         println!("ancestors_in_langs: {t_anc:?} ({} ancestors)", anc.len());
 
-        let n_prog = data.progenitors.get(&item).map_or(0, |p| p.items.len());
-        let raw_desc: usize = data.progenitors.get(&item).map_or(0, |p| {
+        let progenitors = data.graph.progenitors(item);
+        let n_prog = progenitors.as_ref().map_or(0, |p| p.items.len());
+        let raw_desc: usize = progenitors.as_ref().map_or(0, |p| {
             p.items
                 .iter()
                 .map(|&pi| data.graph.descendant_edges(pi).count())
@@ -166,7 +173,7 @@ fn main() {
         println!("progenitors: {n_prog}, raw descendant edges under them: {raw_desc}");
 
         let (t_walk, walked) = best(3, || {
-            data.progenitors.get(&item).map_or(0, |p| {
+            progenitors.as_ref().map_or(0, |p| {
                 p.items
                     .iter()
                     .map(|&pi| walk_only(&data, pi, &desc_langs, &anc))

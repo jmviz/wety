@@ -153,7 +153,7 @@ fn write_turtle_item(data: &Data, f: &mut BufWriter<File>, id: ItemId, item: &It
         }
     }
 
-    if let Some(progenitors) = data.progenitors.get(&id) {
+    if let Some(progenitors) = data.graph.progenitors(id) {
         if let Some(head) = progenitors.head {
             writeln!(f, "  {PRED_HEAD_PROGENITOR} {ITEM_PRE}{} ;", head.index())?;
         }
