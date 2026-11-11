@@ -339,8 +339,9 @@ impl EtyGraph {
         removed
     }
 
-    // A cycle among `members` (following edges from child to parent), as the
-    // list of its members, if there is one.
+    // A cycle among `members` (following edges from child to parent, of every
+    // etymology, not only those walks follow: walks over every alternative, as the
+    // etymology chart's, must end too), as the list of its members, if there is one.
     fn find_cycle(&self, order: &[ItemId], members: &HashSet<ItemId>) -> Option<Vec<ItemId>> {
         #[derive(Clone, Copy, PartialEq)]
         enum State {
@@ -355,7 +356,7 @@ impl EtyGraph {
             // (item, its parents within members, next parent to visit)
             let mut path: Vec<(ItemId, Vec<ItemId>, usize)> = vec![];
             let parents = |item: ItemId| -> Vec<ItemId> {
-                self.parent_edges(item)
+                self.all_parent_edges(item)
                     .map(|e| e.target())
                     .filter(|p| members.contains(p))
                     .collect()
@@ -391,7 +392,7 @@ impl EtyGraph {
     fn remove_ety_through(&mut self, item: ItemId, parent: ItemId) {
         let n = self.etymologies.get(&item).map_or(1, |e| e.kinds.len());
         let Some(ety) = self
-            .parent_edges(item)
+            .all_parent_edges(item)
             .find(|e| e.parent() == parent)
             .map(|e| e.ety())
             .filter(|_| n > 1)
@@ -1020,6 +1021,28 @@ mod tests {
         assert_eq!(graph.immediate_ety(d).unwrap().items, [y, z]);
         let etys = graph.all_parent_edges(d).map(|e| e.ety()).sorted();
         assert_eq!(etys.collect_vec(), [0, 1]);
+    }
+
+    #[test]
+    fn a_cycle_through_an_alternative_walks_do_not_follow_is_broken() {
+        let mut graph = EtyGraph::default();
+        let [w, a, b] = items(&mut graph, &["w", "a", "b"])[..] else {
+            unreachable!()
+        };
+        // W from A, or possibly from B (the alternative walks do not follow),
+        // and B from W: lītera and littera
+        graph.add_etymologies(
+            w,
+            &[
+                new_ety(&[a], &[Certainty::Stated]),
+                new_ety(&[b], &[Certainty::Possible]),
+            ],
+        );
+        graph.add_etymologies(b, &[new_ety(&[w], &[Certainty::Stated])]);
+        assert_eq!(graph.break_cycles(|_, item| u8::from(item == w)), 1);
+        assert!(graph.etymologies(w).is_none());
+        assert_eq!(graph.immediate_ety(w).unwrap().items, [a]);
+        assert_eq!(graph.immediate_ety(b).unwrap().items, [w]);
     }
 
     #[test]
