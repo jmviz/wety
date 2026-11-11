@@ -247,6 +247,8 @@ def cross_errors(objs):
                 errors.append(f"{i}: neither a reconstruction nor members")
             for r in o["members"]:
                 need(r, ("record",), i)
+            if "of_set" in o:
+                need(o["of_set"], ("cognate_set",), i)
         elif t == "alternative_set":
             if i != "alt:" + digest([o["members"], o["exclusive"], o["preference"]]):
                 errors.append(f"{i}: id is not the digest of its members")

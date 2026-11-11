@@ -1,0 +1,25 @@
+{
+ "source": "tuled",
+ "release": "v1.0",
+ "reviewer": "claude-opus-5-5 (model review, 2026-11-10)",
+ "kinds": [
+  {
+   "where": "cognates.csv",
+   "category": "cognate set",
+   "count": 5863,
+   "source_description": "Forms (or their morphemes, by Segment_Slice) judged cognate.",
+   "wety_kind": "cognate set with no reconstruction",
+   "status": "mapped",
+   "note": "Sets of one form are not converted; no link is compiled."
+  },
+  {
+   "where": "cognates.csv",
+   "category": "Segment_Slice, Alignment",
+   "count": 29223,
+   "source_description": "Which morphemes of a form are cognate, and their alignment.",
+   "wety_kind": "none",
+   "status": "unmapped",
+   "note": "Not read; members are whole forms."
+  }
+ ]
+}

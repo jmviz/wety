@@ -1,0 +1,34 @@
+{
+ "source": "cariban",
+ "release": "v2026.11",
+ "reviewer": "claude-opus-5-5 (model review, 2026-11-10)",
+ "kinds": [
+  {
+   "where": "cognateset, cognate, unit",
+   "category": "cognate set (lexical, grammatical, t_adding)",
+   "count": 291,
+   "source_description": "Morphemes that share an origin, Proto-Cariban's among them.",
+   "wety_kind": "cognate set",
+   "status": "mapped",
+   "note": "Its reconstruction is its Proto-Cariban morpheme; members descend from it (nested rule on a flat tree)."
+  },
+  {
+   "where": "phylogeny, treelabel",
+   "category": "phylogenies",
+   "count": 21,
+   "source_description": "Alternative classifications of the family.",
+   "wety_kind": "classification claims",
+   "status": "unmapped",
+   "note": "None is read; the tree is flat under Proto-Cariban."
+  },
+  {
+   "where": "construction, morphemefunction, sentence",
+   "category": "grammar",
+   "count": null,
+   "source_description": "Constructions and example sentences.",
+   "wety_kind": "none",
+   "status": "unmapped",
+   "note": "Not etymological."
+  }
+ ]
+}

@@ -1,0 +1,504 @@
+{
+ "catalog_generation": "94fb4909c233a4262a321bf71439883f2ad53094df934a0a72be2978ee166d86",
+ "languages": {
+  "path": "data/workspaces/etymology/sources/wold/raw/lexibank-wold-1df62b9/cldf/languages.csv",
+  "sha256": "acec1a4778939e2ffb933bf22763446d3376c276851837b5297a1e032b5a38a3"
+ },
+ "reviewed": {
+  "path": "data/workspaces/etymology/sources/wold/etc/languages.reviewed.json",
+  "sha256": "98b07a47fb81dc4813b739e0c1b43d6ea42ba328545dceb70ca1f5357ec53afd"
+ },
+ "summary": {
+  "varieties": {
+   "exact": 39,
+   "subset": 2,
+   "total": 41,
+   "exact_share": 0.9512
+  },
+  "proto-languages": {
+   "total": 0,
+   "exact_share": 0
+  }
+ },
+ "rows": [
+  {
+   "id": "Swahili",
+   "name": "Swahili",
+   "glottocode": "swah1253",
+   "iso639_3": "swh",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "sw",
+   "candidates": [],
+   "basis": "WOLD's Swahili vocabulary is standard Swahili (Schadeberg), Wiktionary's sw.",
+   "reviewer": "claude-opus-5-5 (model review, 2026-11-10)",
+   "derived": {
+    "relation": "unresolved",
+    "code": null,
+    "candidates": [],
+    "basis": "no Wiktionary code found"
+   }
+  },
+  {
+   "id": "Iraqw",
+   "name": "Iraqw",
+   "glottocode": "iraq1241",
+   "iso639_3": "irk",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "irk",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "Gawwada",
+   "name": "Gawwada",
+   "glottocode": "gaww1239",
+   "iso639_3": "gwd",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "gwd",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "Hausa",
+   "name": "Hausa",
+   "glottocode": "haus1257",
+   "iso639_3": "hau",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "ha",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "Kanuri",
+   "name": "Kanuri",
+   "glottocode": "cent2050",
+   "iso639_3": "knc",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "kr",
+   "candidates": [],
+   "basis": "WOLD's Kanuri vocabulary (Löhr, Wolff and Awagana) is Central Kanuri, which Wiktionary files under kr, Kanuri.",
+   "reviewer": "claude-opus-5-5 (model review, 2026-11-10)",
+   "derived": {
+    "relation": "unresolved",
+    "code": null,
+    "candidates": [],
+    "basis": "no Wiktionary code found"
+   }
+  },
+  {
+   "id": "TarifiytBerber",
+   "name": "Tarifiyt Berber",
+   "glottocode": "tari1263",
+   "iso639_3": "rif",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "rif",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "SeychellesCreole",
+   "name": "Seychelles Creole",
+   "glottocode": "sese1246",
+   "iso639_3": "crs",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "crs",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "Romanian",
+   "name": "Romanian",
+   "glottocode": "roma1327",
+   "iso639_3": "ron",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "ro",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "SeliceRomani",
+   "name": "Selice Romani",
+   "glottocode": "west2376",
+   "iso639_3": null,
+   "is_proto": false,
+   "relation": "subset",
+   "code": "rmc",
+   "candidates": [],
+   "basis": "dialect of carp1235, which the glottocode lookup maps"
+  },
+  {
+   "id": "LowerSorbian",
+   "name": "Lower Sorbian",
+   "glottocode": "lowe1385",
+   "iso639_3": "dsb",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "dsb",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "OldHighGerman",
+   "name": "Old High German",
+   "glottocode": "oldh1241",
+   "iso639_3": null,
+   "is_proto": false,
+   "relation": "exact",
+   "code": "goh",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "Dutch",
+   "name": "Dutch",
+   "glottocode": "dutc1256",
+   "iso639_3": "nld",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "nl",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "English",
+   "name": "English",
+   "glottocode": "stan1293",
+   "iso639_3": "eng",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "en",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "KildinSaami",
+   "name": "Kildin Saami",
+   "glottocode": "kild1236",
+   "iso639_3": "sjd",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "sjd",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "Bezhta",
+   "name": "Bezhta",
+   "glottocode": "bezh1248",
+   "iso639_3": "kap",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "kap",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "Archi",
+   "name": "Archi",
+   "glottocode": "arch1244",
+   "iso639_3": "aqc",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "aqc",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "Manange",
+   "name": "Manange",
+   "glottocode": "mana1288",
+   "iso639_3": "nmm",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "nmm",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "Ket",
+   "name": "Ket",
+   "glottocode": "kett1243",
+   "iso639_3": "ket",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "ket",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "Sakha",
+   "name": "Sakha",
+   "glottocode": "yaku1245",
+   "iso639_3": null,
+   "is_proto": false,
+   "relation": "exact",
+   "code": "sah",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "Oroqen",
+   "name": "Oroqen",
+   "glottocode": "oroq1238",
+   "iso639_3": "orh",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "orh",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "Japanese",
+   "name": "Japanese",
+   "glottocode": "nucl1643",
+   "iso639_3": "jpn",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "ja",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "MandarinChinese",
+   "name": "Mandarin Chinese",
+   "glottocode": "mand1415",
+   "iso639_3": "cmn",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "cmn",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "Thai",
+   "name": "Thai",
+   "glottocode": "thai1261",
+   "iso639_3": "tha",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "th",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "Vietnamese",
+   "name": "Vietnamese",
+   "glottocode": "viet1252",
+   "iso639_3": "vie",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "mkh-mvi",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "WhiteHmong",
+   "name": "White Hmong",
+   "glottocode": "hmon1333",
+   "iso639_3": "mww",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "mww",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "CeqWong",
+   "name": "Ceq Wong",
+   "glottocode": "chew1245",
+   "iso639_3": "cwg",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "cwg",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "Indonesian",
+   "name": "Indonesian",
+   "glottocode": "indo1316",
+   "iso639_3": "ind",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "id",
+   "candidates": [],
+   "basis": "ISO 639-3 code"
+  },
+  {
+   "id": "Malagasy",
+   "name": "Malagasy",
+   "glottocode": "plat1254",
+   "iso639_3": "plt",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "mg",
+   "candidates": [],
+   "basis": "WOLD's Malagasy is Plateau (Merina) Malagasy, on which standard Malagasy rests; Wiktionary's mg, as for the ACD.",
+   "reviewer": "claude-opus-5-5 (model review, 2026-11-10)",
+   "derived": {
+    "relation": "unresolved",
+    "code": null,
+    "candidates": [],
+    "basis": "no Wiktionary code found"
+   }
+  },
+  {
+   "id": "Takia",
+   "name": "Takia",
+   "glottocode": "taki1248",
+   "iso639_3": "tbc",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "tbc",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "Hawaiian",
+   "name": "Hawaiian",
+   "glottocode": "hawa1245",
+   "iso639_3": "haw",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "haw",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "Gurindji",
+   "name": "Gurindji",
+   "glottocode": "guri1247",
+   "iso639_3": "gue",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "gue",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "Yaqui",
+   "name": "Yaqui",
+   "glottocode": "yaqu1251",
+   "iso639_3": "yaq",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "yaq",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "ZinacantanTzotzil",
+   "name": "Zinacantán Tzotzil",
+   "glottocode": "tzot1259",
+   "iso639_3": "tzz",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "tzo",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "Qeqchi",
+   "name": "Q'eqchi'",
+   "glottocode": "kekc1242",
+   "iso639_3": "kek",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "kek",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "Otomi",
+   "name": "Otomi",
+   "glottocode": "mezq1235",
+   "iso639_3": "ote",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "ote",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "Saramaccan",
+   "name": "Saramaccan",
+   "glottocode": "sara1340",
+   "iso639_3": "srm",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "srm",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "ImbaburaQuechua",
+   "name": "Imbabura Quechua",
+   "glottocode": "imba1240",
+   "iso639_3": "qvi",
+   "is_proto": false,
+   "relation": "subset",
+   "code": "qu",
+   "candidates": [],
+   "basis": "Imbabura Quichua is one Quechua variety; Wiktionary has no code for it and files Quechua under qu.",
+   "reviewer": "claude-opus-5-5 (model review, 2026-11-10)",
+   "derived": {
+    "relation": "unresolved",
+    "code": null,
+    "candidates": [],
+    "basis": "no Wiktionary code found"
+   }
+  },
+  {
+   "id": "Kalina",
+   "name": "Kali'na",
+   "glottocode": "gali1262",
+   "iso639_3": "car",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "car",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "Hup",
+   "name": "Hup",
+   "glottocode": "hupd1244",
+   "iso639_3": "jup",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "jup",
+   "candidates": [],
+   "basis": "ISO 639-3 code"
+  },
+  {
+   "id": "Wichi",
+   "name": "Wichí",
+   "glottocode": "wich1264",
+   "iso639_3": "mzh",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "mzh",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "Mapudungun",
+   "name": "Mapudungun",
+   "glottocode": "mapu1245",
+   "iso639_3": "arn",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "arn",
+   "candidates": [],
+   "basis": "glottocode"
+  }
+ ]
+}

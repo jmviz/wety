@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "mode": "artifact",
+  "collection": "csd-claims",
+  "product": "csd_claims",
+  "inputs": {
+    "export": "data/artifacts/etymology-assertions/a2c5f05718126cb52a689f29c3a4284e40303741595f92473f824b0765ec0c9d/files/assertions.jsonl.gz",
+    "entries": "data/artifacts/wiktionary-entries/466445a2b9d76a586ab53d059f8c9895b4f31141f20b1666f0d2c33aec73bd06/files/entries.jsonl.gz",
+    "languages": "data/artifacts/wiktionary-export/57d16abeffbce475ff189e0734fd8937eab8d7417b1ee08273e746b43b350cb0/files/languages.json",
+    "families": "data/artifacts/wiktionary-export/57d16abeffbce475ff189e0734fd8937eab8d7417b1ee08273e746b43b350cb0/files/families.json",
+    "cldf_csd_sql_gz": "data/workspaces/etymology/sources/csd/raw/csd.sql.gz",
+    "csd_judgements_jsonl": "data/workspaces/etymology/sources/csd/etc/judgements.jsonl",
+    "csd_kinds_json": "data/workspaces/etymology/sources/csd/etc/kinds.json",
+    "csd_languages_json": "data/workspaces/etymology/sources/csd/etc/languages.json",
+    "csd_orthography_attested_tsv": "data/workspaces/etymology/sources/csd/etc/orthography-attested.tsv",
+    "csd_orthography_tsv": "data/workspaces/etymology/sources/csd/etc/orthography.tsv",
+    "csd_source_json": "data/workspaces/etymology/sources/csd/etc/source.json",
+    "wiktionary_orthography_map": "data/workspaces/etymology/sources/wiktionary/etc/orthography-map.tsv",
+    "wiktionary_orthography_map_attested": "data/workspaces/etymology/sources/wiktionary/etc/orthography-map-attested.tsv"
+  },
+  "commands": [
+    [
+      "{python}",
+      "-m",
+      "etymology.convert.csd",
+      "--out",
+      "{output}/csd.jsonl",
+      "--counts",
+      "{output}/csd_counts.json"
+    ],
+    [
+      "{python}",
+      "-m",
+      "etymology.match_etymdict",
+      "scan",
+      "--source",
+      "csd",
+      "--export",
+      "{input_export}",
+      "--entries",
+      "{input_entries}",
+      "--languages",
+      "{input_languages}",
+      "--families",
+      "{input_families}",
+      "--work",
+      "{output}/work"
+    ],
+    [
+      "{python}",
+      "-m",
+      "etymology.match_etymdict",
+      "run",
+      "--source",
+      "csd",
+      "--assertions",
+      "{output}/csd.jsonl",
+      "--export",
+      "{input_export}",
+      "--entries",
+      "{input_entries}",
+      "--work",
+      "{output}/work",
+      "--out",
+      "{output}/matches"
+    ]
+  ],
+  "validation": [
+    [
+      "{python}",
+      "-m",
+      "etymology.assertions",
+      "{output}/csd.jsonl",
+      "{output}/matches/assertions.jsonl"
+    ]
+  ],
+  "required_outputs": [
+    "csd.jsonl",
+    "matches/assertions.jsonl"
+  ],
+  "entrypoint": "matches/assertions.jsonl"
+}

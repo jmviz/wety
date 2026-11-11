@@ -136,7 +136,8 @@
    "acd_description": "Widely distributed loanwords that could be mistaken for native forms.",
    "wety_kind": "borrowing (CLDF BorrowingTable)",
    "status": "mapped",
-   "note": "A group of borrowed forms; no reconstruction is endorsed."
+   "note": "A group of borrowed forms; no reconstruction is endorsed.",
+   "members": "borrowings.csv"
   },
   {
    "where": "cf.csv",
@@ -145,7 +146,8 @@
    "acd_description": "Chance resemblances, considered and rejected.",
    "wety_kind": "cognacy, rejected",
    "status": "mapped",
-   "note": "Stance rejects; no unnamed ancestor."
+   "note": "Stance rejects; no unnamed ancestor.",
+   "stance": "rejects"
   },
   {
    "where": "cf.csv",
@@ -154,7 +156,11 @@
    "acd_description": "Forms that appear to be historically related but are irregular, and do not yet permit a reconstruction.",
    "wety_kind": "cognacy, possible",
    "status": "mapped",
-   "note": "An unnamed ancestor at \"possible\" when the members share no named one."
+   "note": "An unnamed ancestor at \"possible\" when the members share no named one.",
+   "hedge": {
+    "level": "possible",
+    "words": "near (the ACD's category)"
+   }
   },
   {
    "where": "cf.csv",

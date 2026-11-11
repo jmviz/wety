@@ -1,0 +1,35 @@
+{
+ "id": "cariban",
+ "title": "Comparative Cariban Database",
+ "release": "v2026.11",
+ "doi": "10.5281/zenodo.23810774",
+ "published": "2026-10-30",
+ "creators": [
+  "Florian Matter"
+ ],
+ "cite_as": "Florian Matter (ed.) 2021. Comparative Cariban Database. Leipzig: Max Planck Institute for Evolutionary Anthropology (https://cariban.clld.org); clld app deposit v2026.11, doi:10.5281/zenodo.23810774.",
+ "url": "https://cariban.clld.org",
+ "repository": "https://github.com/clld/cariban (the app; the data is its database dump, cariban.sql.gz)",
+ "artifact": {
+  "path": "data/artifacts/cariban/4c3abc04e633437b20febf5d0f35d199e46dc6b852f2c77fe13d5193b6dd8116",
+  "artifact_id": "sha256:0ff9116c4984a1f01ddd8615be7e1f18b4ef1938ddc00cea281acb6cc8fcbf43",
+  "sha256": "4c3abc04e633437b20febf5d0f35d199e46dc6b852f2c77fe13d5193b6dd8116",
+  "acquired": "2026-11-10T03:16:46.894757+00:00"
+ },
+ "raw": "data/workspaces/etymology/sources/cariban/raw/cariban.sql.gz",
+ "kind_of_work": "comparative database of Cariban morphology and lexicon: 291 cognate sets of morphemes with Proto-Cariban reconstructions, as a clld app's PostgreSQL dump",
+ "holder": "Florian Matter, from his comparative work and the sources each morpheme cites",
+ "date_of_view": "2021",
+ "coverage": {
+  "cognate_sets": 291,
+  "morphemes": 2288,
+  "languages": 23
+ },
+ "licence": "CC-BY-4.0",
+ "may_display": "everything, with attribution",
+ "may_export": "everything, with attribution",
+ "curation": {
+  "language_map": "etc/languages.json (the dump's languages, listed in checks/cl-6/languages.csv, with etc/languages.reviewed.json)",
+  "kind_map": "etc/kinds.json"
+ }
+}

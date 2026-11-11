@@ -1,0 +1,91 @@
+[
+ {
+  "id": "pan",
+  "relation": "exact",
+  "code": "map-pro",
+  "rationale": "TLOPO's PAn is Proto-Austronesian; it gives no glottocode.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-09)"
+ },
+ {
+  "id": "pmp",
+  "relation": "exact",
+  "code": "poz-pro",
+  "rationale": "TLOPO's PMP is Proto-Malayo-Polynesian; it gives no glottocode.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-09)"
+ },
+ {
+  "id": "pcemp",
+  "relation": "exact",
+  "code": "poz-cet-pro",
+  "rationale": "Same node by name: Proto-Central-Eastern Malayo-Polynesian, as for the ACD.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-09)"
+ },
+ {
+  "id": "pemp",
+  "relation": "exact",
+  "code": "pqe-pro",
+  "rationale": "Same node by name: Proto-Eastern Malayo-Polynesian, as for the ACD.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-09)"
+ },
+ {
+  "id": "pshwng",
+  "relation": "exact",
+  "code": "poz-hce-pro",
+  "rationale": "Proto-South Halmahera-West New Guinea is Wiktionary's Proto-Halmahera-Cenderawasih (poz-hce, glottocode sout3229), as for the ACD.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-09)"
+ },
+ {
+  "id": "poc",
+  "relation": "exact",
+  "code": "poz-oce-pro",
+  "rationale": "TLOPO's POc is Proto-Oceanic, the work's subject; it gives no glottocode.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-09)"
+ },
+ {
+  "id": "pmic",
+  "relation": "exact",
+  "code": "poz-mic-pro",
+  "rationale": "TLOPO's PMic is Proto-Micronesian.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-09)"
+ },
+ {
+  "id": "pcp",
+  "relation": "exact",
+  "code": "poz-pcc-pro",
+  "rationale": "TLOPO's PCP is Proto-Central Pacific.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-09)"
+ },
+ {
+  "id": "ppn",
+  "relation": "exact",
+  "code": "poz-pol-pro",
+  "rationale": "TLOPO's PPn is Proto-Polynesian.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-09)"
+ },
+ {
+  "id": "pnpn",
+  "relation": "exact",
+  "code": "poz-pnp-pro",
+  "rationale": "TLOPO's PNPn is Proto-Nuclear Polynesian.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-09)"
+ },
+ {
+  "id": "pepn",
+  "relation": "exact",
+  "code": "poz-pep-pro",
+  "rationale": "TLOPO's PEPn is Proto-Eastern Polynesian.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-09)"
+ },
+ {
+  "id": "panpmp",
+  "relation": "unresolved",
+  "rationale": "TLOPO's 'PAn/PMP' leaves the level open between two nodes; no single Wiktionary code.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-09)"
+ },
+ {
+  "id": "earlyoceanic",
+  "relation": "unresolved",
+  "rationale": "'Early Oceanic' is the root of TLOPO's tree, a period of Proto-Oceanic rather than a reconstructed language with its own forms; Wiktionary has no code for it.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-09)"
+ }
+]

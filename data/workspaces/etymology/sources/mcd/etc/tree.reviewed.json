@@ -1,0 +1,25 @@
+{
+ "source": "mcd",
+ "cldf": "raw/lexibank-mcd-1cabc58/cldf",
+ "reviewer": "claude-opus-5-5 (model review, 2026-11-09)",
+ "above": "(((((protomicronesian)preprotomicronesian)protooceanic)preprotooceanic)protomalayopolynesian)protoaustronesian",
+ "above_basis": "Micronesian is a subgroup of Oceanic (Bender et al. 2003; Lynch, Ross and Crowley 2002), Oceanic of Malayo-Polynesian, Malayo-Polynesian of Austronesian. The MCD's Pre-Proto-Micronesian and Pre-Proto-Oceanic are stages just above the proto-language of their names. Whether Micronesian belongs to Eastern Oceanic is disputed, so Proto-Eastern Oceanic is not placed above Proto-Micronesian.",
+ "place": {
+  "protoeasternoceanic": {
+   "node": "protooceanic",
+   "basis": "An Oceanic subgroup; not above Proto-Micronesian (see above_basis)."
+  },
+  "protokimbe": {
+   "node": "protooceanic",
+   "basis": "An Oceanic (Meso-Melanesian) group; no glottocode in the release."
+  },
+  "protowesternmalayopolynesian": {
+   "node": "protomalayopolynesian",
+   "basis": "A Malayo-Polynesian grouping, as in the ACD's tree; no glottocode in the release."
+  },
+  "uraustronesisch": {
+   "node": null,
+   "basis": "Dempwolff's reconstructions in his notation, cited as comparanda; not a level of the tree."
+  }
+ }
+}

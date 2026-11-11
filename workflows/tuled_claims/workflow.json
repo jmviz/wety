@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "mode": "artifact",
+  "collection": "tuled-claims",
+  "product": "tuled_claims",
+  "inputs": {
+    "export": "data/artifacts/etymology-assertions/a2c5f05718126cb52a689f29c3a4284e40303741595f92473f824b0765ec0c9d/files/assertions.jsonl.gz",
+    "entries": "data/artifacts/wiktionary-entries/466445a2b9d76a586ab53d059f8c9895b4f31141f20b1666f0d2c33aec73bd06/files/entries.jsonl.gz",
+    "languages": "data/artifacts/wiktionary-export/57d16abeffbce475ff189e0734fd8937eab8d7417b1ee08273e746b43b350cb0/files/languages.json",
+    "cldf_languages_csv": "data/workspaces/etymology/sources/tuled/raw/lexibank-tuled-a67d65a/cldf/languages.csv",
+    "cldf_forms_csv": "data/workspaces/etymology/sources/tuled/raw/lexibank-tuled-a67d65a/cldf/forms.csv",
+    "cldf_parameters_csv": "data/workspaces/etymology/sources/tuled/raw/lexibank-tuled-a67d65a/cldf/parameters.csv",
+    "cldf_cognates_csv": "data/workspaces/etymology/sources/tuled/raw/lexibank-tuled-a67d65a/cldf/cognates.csv",
+    "tuled_judgements_jsonl": "data/workspaces/etymology/sources/tuled/etc/judgements.jsonl",
+    "tuled_kinds_json": "data/workspaces/etymology/sources/tuled/etc/kinds.json",
+    "tuled_languages_json": "data/workspaces/etymology/sources/tuled/etc/languages.json",
+    "tuled_source_json": "data/workspaces/etymology/sources/tuled/etc/source.json"
+  },
+  "commands": [
+    [
+      "{python}",
+      "-m",
+      "etymology.convert.tuled",
+      "--out",
+      "{output}/tuled.jsonl",
+      "--counts",
+      "{output}/tuled_counts.json"
+    ],
+    [
+      "{python}",
+      "-m",
+      "etymology.match_words",
+      "scan",
+      "--source",
+      "tuled",
+      "--assertions",
+      "{output}/tuled.jsonl",
+      "--export",
+      "{input_export}",
+      "--entries",
+      "{input_entries}",
+      "--work",
+      "{output}/work"
+    ],
+    [
+      "{python}",
+      "-m",
+      "etymology.match_words",
+      "run",
+      "--source",
+      "tuled",
+      "--assertions",
+      "{output}/tuled.jsonl",
+      "--export",
+      "{input_export}",
+      "--entries",
+      "{input_entries}",
+      "--languages",
+      "{input_languages}",
+      "--work",
+      "{output}/work",
+      "--out",
+      "{output}/matches"
+    ]
+  ],
+  "validation": [
+    [
+      "{python}",
+      "-m",
+      "etymology.assertions",
+      "{output}/tuled.jsonl",
+      "{output}/matches/assertions.jsonl"
+    ]
+  ],
+  "required_outputs": [
+    "tuled.jsonl",
+    "matches/assertions.jsonl"
+  ],
+  "entrypoint": "matches/assertions.jsonl"
+}

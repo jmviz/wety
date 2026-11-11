@@ -310,11 +310,12 @@ def harvest(path):
         )
 
     for key in ("sample", "changed_sample", "hard"):
-        # the ACD's reviews: a verdict on a match's target
+        # the pyetymdict sources' reviews: a verdict on a match's target; the source's
+        # record is under its name (`source`; reviews before the MCD and TLOPO are the ACD's)
         for e in doc.get(key, []):
             if e.get("verdict") in ("right", "wrong"):
                 row(
-                    e["acd"]["record"],
+                    e[e.get("source", "acd")]["record"],
                     e["wiktionary"]["record"],
                     e["verdict"] == "right",
                     e["cause"],

@@ -24,8 +24,9 @@ then publishes an immutable artifact and `data/products/etymology_graph/CURRENT.
 It reads products of other workflows, pinned in its `workflow.json`:
 `wiktionary_entries` (the entries, the dump's redirects and the entry names mentions
 link to), `wiktionary_references` (each entry's References, from the pages dump of the
-same date), `acd_claims` and `lila_claims` (other sources' claims, matched against
-`etymology_assertions`, the previous graph's assertion export), and the reviewers'
+same date), the `<source>_claims` products (other sources' claims: the ACD, LiLa, the
+MCD, TLOPO, the CSD, the Comparative Cariban Database, WOLD and IE-CoR, each matched
+against `etymology_assertions`, the previous graph's assertion export), and the reviewers'
 overrides in `data/workspaces/etymology/sources/wiktionary/etc/overrides.json`. For a
 new dump, rebuild in that order: entries, References, the graph, its export, the
 claims, the graph again ([packages/etymology](../packages/etymology/README.md)).

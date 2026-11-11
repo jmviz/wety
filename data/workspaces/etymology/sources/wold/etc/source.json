@@ -1,0 +1,39 @@
+{
+ "id": "wold",
+ "title": "World Loanword Database",
+ "release": "v4.2",
+ "doi": "10.5281/zenodo.21415389",
+ "published": "2026-07-17",
+ "creators": [
+  "Martin Haspelmath",
+  "Uri Tadmor"
+ ],
+ "cite_as": "Martin Haspelmath and Uri Tadmor (eds.) 2009. World Loanword Database. Leipzig: Max Planck Institute for Evolutionary Anthropology; CLDF dataset v4.2, doi:10.5281/zenodo.21415389. Each vocabulary is cited by its own authors (contributions.csv).",
+ "url": "https://wold.clld.org",
+ "repository": "https://github.com/lexibank/wold (archive directory lexibank-wold-1df62b9)",
+ "artifact": {
+  "path": "data/artifacts/wold/ada4e5a4e20bfcd3afe253e602b8bb8eb353521f5785d92136cf56ad166cda3c",
+  "artifact_id": "sha256:4f5e5302d820af53f9bf4b2bced5bfc75855b4f64ebc016e1259f8516d87e189",
+  "sha256": "ada4e5a4e20bfcd3afe253e602b8bb8eb353521f5785d92136cf56ad166cda3c",
+  "acquired": "2026-11-10T03:16:26.325516+00:00"
+ },
+ "raw": "data/workspaces/etymology/sources/wold/raw/lexibank-wold-1df62b9",
+ "kind_of_work": "word-centric loanword database: 41 vocabularies of about 1,000-2,000 words each, with each word's borrowing status and source words, as a CLDF Wordlist with a BorrowingTable",
+ "holder": "each vocabulary's authors (contributions.csv); Haspelmath and Tadmor as editors",
+ "date_of_view": "2009, CLDF conversion 2019-2026",
+ "coverage": {
+  "vocabularies": 41,
+  "forms": 64289,
+  "borrowings": 21624,
+  "donor_languoids": 369
+ },
+ "glottolog": "The release maps its languages and donor languoids with Glottolog; wety's catalogs read Glottolog 5.3.",
+ "licence": "CC-BY-4.0",
+ "may_display": "everything, with attribution",
+ "may_export": "everything, with attribution",
+ "curation": {
+  "language_map": "etc/languages.json (from etc/languages.reviewed.json and the catalog bundle)",
+  "donor_map": "etc/donors.json: the donor languoids of borrowings.csv (listed in checks/cl-4/donor-languoids.csv) to Wiktionary codes, from etc/donors.reviewed.json and the catalog bundle",
+  "kind_map": "etc/kinds.json"
+ }
+}

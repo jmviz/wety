@@ -1,0 +1,115 @@
+{
+ "source": "wold",
+ "release": "v4.2",
+ "reviewer": "claude-opus-5-5 (model review, 2026-11-10)",
+ "kinds": [
+  {
+   "where": "borrowings.csv",
+   "category": "immediate",
+   "count": 17677,
+   "source_description": "The source word the word was borrowed from.",
+   "wety_kind": "borrowing (mode borrowed)",
+   "status": "mapped",
+   "note": "Several for one word are alternatives: an exclusive alternative set, no preference."
+  },
+  {
+   "where": "borrowings.csv",
+   "category": "earlier",
+   "count": 3947,
+   "source_description": "A source word at an earlier stage of the word's history (several may be alternatives).",
+   "wety_kind": "descends by unstated steps (ultimate)",
+   "status": "mapped",
+   "note": "Each its own hypothesis; WOLD does not order them or say which are alternatives (22 words have two or more)."
+  },
+  {
+   "where": "forms.csv",
+   "category": "Borrowed: 1. clearly borrowed",
+   "count": 13304,
+   "source_description": "",
+   "wety_kind": "borrowing, stated",
+   "status": "mapped",
+   "note": "No hedge."
+  },
+  {
+   "where": "forms.csv",
+   "category": "Borrowed: 2. probably borrowed",
+   "count": 1909,
+   "source_description": "",
+   "wety_kind": "hedge: probable",
+   "status": "mapped",
+   "note": "On every link of the word."
+  },
+  {
+   "where": "forms.csv",
+   "category": "Borrowed: 3. perhaps borrowed",
+   "count": 1277,
+   "source_description": "",
+   "wety_kind": "hedge: possible",
+   "status": "mapped",
+   "note": "On every link of the word."
+  },
+  {
+   "where": "forms.csv",
+   "category": "Borrowed: 4. very little evidence for borrowing",
+   "count": 1420,
+   "source_description": "Its rows name the source of a part or of an earlier stage.",
+   "wety_kind": "none",
+   "status": "unmapped",
+   "note": "Rows counted, not converted."
+  },
+  {
+   "where": "forms.csv",
+   "category": "Borrowed: 5. no evidence for borrowing",
+   "count": 46379,
+   "source_description": "Its rows (840 words) name the source of a part of a compound or of an earlier stage.",
+   "wety_kind": "none",
+   "status": "unmapped",
+   "note": "Rows counted, not converted; a part's source needs the word's analysis (borrowed_base), not read."
+  },
+  {
+   "where": "borrowings.csv",
+   "category": "Source_certain: no",
+   "count": 879,
+   "source_description": "The source word is uncertain.",
+   "wety_kind": "hedge: possible",
+   "status": "mapped",
+   "note": "On the link to it."
+  },
+  {
+   "where": "borrowings.csv",
+   "category": "Source_word empty",
+   "count": 999,
+   "source_description": "Only a language or family is named, or 'Unidentified'.",
+   "wety_kind": "a source record with no form",
+   "status": "mapped",
+   "note": "Unidentified is no language."
+  },
+  {
+   "where": "forms.csv",
+   "category": "calqued",
+   "count": 481,
+   "source_description": "Calques (clearly, probably, perhaps).",
+   "wety_kind": "calque",
+   "status": "unmapped",
+   "note": "Not read yet."
+  },
+  {
+   "where": "forms.csv",
+   "category": "Age, effect, integration, contact_situation",
+   "count": null,
+   "source_description": "When and how the word was borrowed.",
+   "wety_kind": "date and source-native",
+   "status": "unmapped",
+   "note": "Not read yet; Age is a date claim."
+  },
+  {
+   "where": "forms.csv",
+   "category": "Analyzability: analyzable compound, analyzable phrasal",
+   "count": 1049,
+   "source_description": "A compound or phrase rated borrowed because a part is.",
+   "wety_kind": "none (the part's source)",
+   "status": "unmapped",
+   "note": "Rows counted, not converted (cl-7: earlobe 'from Latin lobus' competed with Wiktionary's compound). The part's borrowing would need the word's parts."
+  }
+ ]
+}

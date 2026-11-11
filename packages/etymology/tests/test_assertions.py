@@ -4,7 +4,7 @@ import copy
 import unittest
 
 from etymology import assertions as A
-from etymology.convert import acd, wiktionary
+from etymology.convert import etymdict, wiktionary
 
 SOURCE = {
     "type": "source",
@@ -264,10 +264,13 @@ class AcdTree(unittest.TestCase):
             }
         )
         levels = set(self.ABBR) - {"20004"}
-        return acd.Tree(self.NEWICK, languages, levels)
+        parents, root = etymdict.newick(self.NEWICK)
+        node_of_group = {a: n for n, a in self.ABBR.items()}
+        place = {k: node_of_group[v["Group"]] for k, v in languages.items() if k not in self.ABBR}
+        return etymdict.Tree(parents, root, levels, place)
 
     def test_newick(self):
-        parents, root = acd.newick(self.NEWICK)
+        parents, root = etymdict.newick(self.NEWICK)
         self.assertEqual(root, "19072")
         self.assertEqual(parents["19083"], "19094")
         self.assertEqual(parents["20004"], "19072")

@@ -72,6 +72,7 @@ struct Link {
     stance: Stance,
     compiled: bool,
     assertion: Box<str>,
+    source: Box<str>,
     locator: Box<str>,
 }
 
@@ -268,6 +269,13 @@ impl Items {
                         stance,
                         compiled: a.get("compiled").is_some(),
                         assertion: a["id"].as_str().context("an id")?.into(),
+                        source: a["source"]
+                            .as_str()
+                            .context("a source")?
+                            .split('@')
+                            .next()
+                            .unwrap_or_default()
+                            .into(),
                         locator: a["locator"].as_str().unwrap_or_default().into(),
                     });
                 }
@@ -376,6 +384,7 @@ impl Items {
                 mode: link.mode.filter(|&m| ety_mode != Some(m)),
                 compiled: link.compiled,
                 assertion: link.assertion,
+                source: link.source,
                 locator: link.locator,
             };
             let mut claims = self
@@ -665,7 +674,7 @@ mod tests {
         std::fs::create_dir_all(&dir).unwrap();
         let link = |child: &str, parent: &str| json!({"child": child, "parents": [parent], "relation": "derivation", "mode": "inherited"});
         let devaan = json!({"type": "agent", "id": "agent:de-vaan", "kind": "person", "name": "Michiel de Vaan"});
-        let assertion = |id: &str, target: &str, asserter: &str| json!({"type": "assertion", "id": id, "target": target, "stance": "endorses", "asserter": asserter, "locator": "x"});
+        let assertion = |id: &str, target: &str, asserter: &str| json!({"type": "assertion", "id": id, "target": target, "stance": "endorses", "asserter": asserter, "source": "lila-edl@v1.0", "locator": "x"});
         let rule = json!({"type": "agent", "id": "agent:wety-tree@1", "kind": "rule", "name": "a tree rule"});
         write(
             &dir.join("lila.jsonl"),

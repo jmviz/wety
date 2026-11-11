@@ -1,21 +1,33 @@
-"""ACD records matched to Wiktionary's, and Wiktionary's assertions that credit the ACD
-relayed to the ACD's own (acd-3).
+"""The records of a comparative dictionary in pyetymdict's model (the ACD, the MCD, TLOPO,
+and the CSD and the Comparative Cariban Database read into it) matched to Wiktionary's,
+and Wiktionary's assertions that credit the dictionary relayed to its own (acd-3; the
+others since clld-dicts).
+
+The rule was written for the ACD and is named after each source (`SPECS`): the ACD's
+`agent:wety-match-acd@4`; the MCD's and TLOPO's `@2` are the same rule, except that a
+word Wiktionary only cites is taken for one of their attested words only with a shared
+ancestor (`Matcher.supported`; `@1`, without it, is reviewed in their `checks/cl-3/`). The ACD links a
+reflex straight to its set's reconstruction, the MCD and TLOPO through the levels between
+(`etymology.convert.etymdict`), so a reconstruction's reflexes are read by each source's
+rule (`Dictionary.reflexes`). Each source's notation is rewritten into the comparison
+keys' own (`orthography`) before keying: TLOPO's `(h,q)` and `[t,q]`, the MCD's `[kq]`
+and `[aØ]`.
 
 Steps, each writing into a work directory so that later steps rerun quickly:
 
-- `scan`: the Austronesian part of a graph's assertion export (records of an Austronesian
+- `scan`: the part of a graph's assertion export in the source's family (`Spec.family`;
+  the Austronesian part for the ACD: records of an Austronesian
   language, the hypotheses that name one, the assertions on those hypotheses or crediting
   a work, every work and agent), and the glosses of Austronesian entries from the
   entries the graph was built from (`wiktionary_entries`);
-- `run`: each ACD record of a language the ACD's language map calls `exact` matched to
-  a Wiktionary record of that code, by the rule `agent:wety-match-acd@4` (`Matcher`:
-  comparison keys and shape, gloss, the reflexes the ACD cites and the record's
-  ancestors); then each Wiktionary assertion that credits the ACD linked to the ACD's
-  own assertion on the same word, read through the matches, by `agent:wety-relay-acd@1`
-  (`Relayer`). It writes the check's files and a sample of matches to review, or, given
+- `run`: each record of a language the source's language map calls `exact` matched to
+  a Wiktionary record of that code, by the source's matcher rule (`Matcher`: comparison
+  keys and shape, gloss, the reflexes the source cites and the record's ancestors); then
+  each Wiktionary assertion that credits the source linked to the source's own assertion
+  on the same word, read through the matches, by its relay rule (`Relayer`). It writes the check's files and a sample of matches to review, or, given
   an earlier run's check directory (`--previous`), what changed against it: a sample of
   the changed matches. Every run is scored against the judgements of all earlier
-  reviews (`etc/judgements.jsonl`, `etymology.matching`);
+  reviews (the source's `etc/judgements.jsonl`, `etymology.matching`);
 - `review`: adds a check's judged `review.json` to those judgements.
 
 v4 decides as v3 does, and adds what the shared module gives: reviewers' judgements
@@ -44,6 +56,7 @@ import json
 import random
 import re
 import unicodedata
+from dataclasses import dataclass
 from functools import cached_property
 from pathlib import Path
 
@@ -60,15 +73,10 @@ from etymology.matching import (
 )
 
 SOURCES = REPO / "data/workspaces/etymology/sources"
-ACD = SOURCES / "acd"
-PROFILES = {
-    ("acd", True): ACD / "etc/orthography.tsv",
-    ("acd", False): ACD / "etc/orthography-attested.tsv",
+WIKTIONARY_PROFILES = {
     ("wiktionary", True): SOURCES / "wiktionary/etc/orthography-map.tsv",
     ("wiktionary", False): SOURCES / "wiktionary/etc/orthography-map-attested.tsv",
 }
-JUDGEMENTS = ACD / "etc/judgements.jsonl"
-RULE = "agent:wety-match-acd@4"
 # What a pair's evidence may be, strongest first (`matching.Linkage`). Reflexes and
 # ancestors both count matched lineage, so they are one field.
 FIELDS = {
@@ -90,18 +98,17 @@ LABEL_WEIGHT = 100  # how many unjudged pairs a judged pair counts as, in the fi
 HARD = 0.8  # a target below this probability is a hard case
 FOLDS = 5
 HARD_LIMIT = 200
-RELAY_RULE = "agent:wety-relay-acd@1"
 RECORD_CODE = re.compile(r"^wiktionary:([^:]+):")
 LANG_CODE = re.compile(rb'"lang":"([^"]+)"')
 
 
-def austronesian_codes(languages, families_path, language_map=ACD / "etc/languages.json"):
-    """Wiktionary's codes of the Austronesian family (languages whose family is `map` or
-    below it, and its proto-languages), with every code the ACD's language map names, from
+def family_codes(languages, families_path, language_map, family):
+    """Wiktionary's codes of a family (languages whose family is `family` or below it,
+    and its proto-languages), with every code the source's language map names, from
     Wiktionary's language and family data (`languages.json`, `families.json`)."""
     langs = json.loads(Path(languages).read_text())
     fams = json.loads(Path(families_path).read_text())
-    families = {f for f, v in fams.items() if f == "map" or "map" in v["superfamilies"]}
+    families = {f for f, v in fams.items() if f == family or family in v["superfamilies"]}
     codes = {c for c, v in langs.items() if v.get("family") in families}
     codes |= {fams[f]["protoLanguage"] for f in families if fams[f].get("protoLanguage")}
     for row in json.loads(Path(language_map).read_text())["rows"]:
@@ -115,10 +122,11 @@ def record_code(record_id):
 
 
 def scan_export(export, codes, out):
-    """The Austronesian part of a graph's assertion export, to `out` (JSON Lines, gzipped).
+    """The part of a graph's assertion export in a family's codes, to `out` (JSON Lines,
+    gzipped).
 
     Kept: source, agents, works, extractions and alternative sets whole; records of an
-    Austronesian code; hypotheses naming such a record; assertions whose target is a kept
+    the family's code; hypotheses naming such a record; assertions whose target is a kept
     hypothesis, or that credit a work (filtered once every hypothesis is known). A second
     pass adds the other records the kept hypotheses name."""
     keep, assertions, kept_hyps, named = [], [], set(), set()
@@ -152,7 +160,7 @@ def scan_export(export, codes, out):
 
 
 def scan_glosses(entries, codes, out):
-    """The glosses of every Austronesian entry, one row per part of speech, keyed by code,
+    """The glosses of every entry of the family's codes, one row per part of speech, keyed by code,
     page title and etymology label, to `out` (JSON Lines, gzipped).
 
     The graph's own record ids key a word by its canonical form, which for Austronesian
@@ -243,20 +251,190 @@ STOP = {
 }
 ALTERNATIVES = re.compile(r"\s*(?:~|,|//| or )\s*")
 GLOTTAL = "ʔ"
+BRACKETS = re.compile(r"\[([^\]]*)\]")
+PARENTHESES = re.compile(r"\(([^)]*,[^)]*)\)")
+
+
+def mcd_notation(form, reconstructed):
+    """The MCD's brackets in the keys' notation: in a reconstruction, letters in brackets
+    are alternatives (`[kq]apala`, `[aØ]lau`: a or nothing); in an attested form,
+    bracketed material is optional (`[ko]-yaa`)."""
+
+    def bracket(m):
+        inner = m.group(1)
+        if not reconstructed or len(inner) < 2 or "-" in inner:
+            return f"({inner})"
+        options = [c for c in inner if c != "Ø"]
+        joined = "/".join(options)
+        return f"({joined})" if "Ø" in inner else joined
+
+    return BRACKETS.sub(bracket, form).replace("Ø", "")
+
+
+def csd_notation(form, reconstructed):
+    """The CSD's prefixed verbs in the keys' notation: written root first, prefix after
+    (`-sní, yu-` for yusní, `psį́c, gi-`), read as one word, prefix and root."""
+    parts = form.split(", ")
+    if len(parts) == 2 and parts[1].endswith("-") and not parts[0].endswith("-"):
+        return parts[1] + parts[0].lstrip("-")
+    return form
+
+
+def tlopo_notation(form, reconstructed):
+    """TLOPO's notation in the keys': `(h,q)` an optional h or q, `[t,q]` t or q,
+    other bracketed material optional (`piri[-]`, `pa[ka]-qasu`)."""
+    form = PARENTHESES.sub(lambda m: "(" + m.group(1).replace(",", "/") + ")", form)
+    return BRACKETS.sub(
+        lambda m: m.group(1).replace(",", "/") if "," in m.group(1) else f"({m.group(1)})",
+        form,
+    )
+
+
+@dataclass(frozen=True)
+class Spec:
+    """What the matcher needs to know of one source."""
+
+    name: str
+    label: str
+    rule: str
+    rule_name: str
+    relay_rule: str
+    relay_name: str
+    work: re.Pattern  # a Wiktionary work's id or citation that names the source
+    authors: frozenset  # a Wiktionary work by all of these is the source
+    release: str  # the module and class of its release, for its tree
+    nested: bool  # links pass through intermediate levels (`etymdict`'s nested rule)
+    notation: object = None
+    cited_needs_ancestor: bool = False  # `Matcher.options`
+    family: str = "map"  # the Wiktionary family `scan` keeps
+
+    @property
+    def etc(self):
+        return SOURCES / self.name / "etc"
+
+    @property
+    def profiles(self):
+        return {
+            (self.name, True): self.etc / "orthography.tsv",
+            (self.name, False): self.etc / "orthography-attested.tsv",
+            **WIKTIONARY_PROFILES,
+        }
+
+    @property
+    def judgements(self):
+        return self.etc / "judgements.jsonl"
+
+    def keys(self):
+        return Keys(self.profiles, {self.name: self.notation} if self.notation else None)
+
+    def load_release(self):
+        module, cls = self.release.split(":")
+        return getattr(__import__(module, fromlist=[cls]), cls)()
+
+
+def _match_name(label, version):
+    return (
+        f"wety's {label} matcher, {version}: {label} records to Wiktionary records by key, "
+        "gloss, reflexes and ancestors"
+    )
+
+
+def _relay_name(label):
+    return (
+        f"wety's {label} relay rule, v1: Wiktionary's assertions crediting the {label} to "
+        f"the {label}'s own"
+    )
+
+
+SPECS = {
+    "acd": Spec(
+        "acd",
+        "ACD",
+        "agent:wety-match-acd@4",
+        _match_name("ACD", "v3"),
+        "agent:wety-relay-acd@1",
+        _relay_name("ACD"),
+        re.compile(r":ACD$|Austronesian Comparative Dictionary"),
+        frozenset({"agent:robert-blust", "agent:stephen-trussel"}),
+        "etymology.convert.acd:AcdRelease",
+        nested=False,
+    ),
+    "mcd": Spec(
+        "mcd",
+        "MCD",
+        "agent:wety-match-mcd@2",
+        _match_name("MCD", "v2 (the ACD matcher's v4 rule, cited words need an ancestor)"),
+        "agent:wety-relay-mcd@1",
+        _relay_name("MCD"),
+        re.compile(r":poz-mic:Bender:2003$|Proto-Micronesian Reconstructions"),
+        frozenset({"agent:byron-w-bender", "agent:ward-h-goodenough", "agent:stephen-trussel"}),
+        "etymology.convert.mcd:McdRelease",
+        nested=True,
+        notation=mcd_notation,
+        cited_needs_ancestor=True,
+    ),
+    "tlopo": Spec(
+        "tlopo",
+        "TLOPO",
+        "agent:wety-match-tlopo@2",
+        _match_name("TLOPO", "v2 (the ACD matcher's v4 rule, cited words need an ancestor)"),
+        "agent:wety-relay-tlopo@1",
+        _relay_name("TLOPO"),
+        re.compile(r":poz-oce:LPO$|[Ll]exicon of Proto[- ]?Oceanic"),
+        frozenset({"agent:m-ross", "agent:a-pawley", "agent:m-osmond"}),
+        "etymology.convert.tlopo:TlopoRelease",
+        nested=True,
+        notation=tlopo_notation,
+        cited_needs_ancestor=True,
+    ),
+    "csd": Spec(
+        "csd",
+        "CSD",
+        "agent:wety-match-csd@2",
+        _match_name("CSD", "v2 (the MCD's and TLOPO's v2 rule, its prefixed verbs read whole)"),
+        "agent:wety-relay-csd@1",
+        _relay_name("CSD"),
+        re.compile(r"Comparative Siouan Dictionary"),
+        frozenset({"agent:robert-l-rankin", "agent:richard-t-carter", "agent:a-wesley-jones"}),
+        "etymology.convert.csd:CsdRelease",
+        nested=True,
+        notation=csd_notation,
+        cited_needs_ancestor=True,
+        family="nai-sca",
+    ),
+    "cariban": Spec(
+        "cariban",
+        "Comparative Cariban Database",
+        "agent:wety-match-cariban@1",
+        _match_name("Cariban", "v1 (the MCD's and TLOPO's v2 rule)"),
+        "agent:wety-relay-cariban@1",
+        _relay_name("Comparative Cariban Database"),
+        re.compile(r":sai-car:CCD$|Comparative Cariban Database"),
+        frozenset({"agent:florian-matter"}),
+        "etymology.convert.cariban:CaribanRelease",
+        nested=True,
+        cited_needs_ancestor=True,
+        family="sai-car",
+    ),
+}
 
 
 class Keys:
     """Comparison keys of forms, from each source's orthography profile: one profile for
-    reconstructions, one for attested forms. The loose key also drops glottal stops,
-    which one orthography writes and another omits."""
+    reconstructions, one for attested forms, after the source's notation is rewritten
+    into the keys' own. The loose key also drops glottal stops, which one orthography
+    writes and another omits."""
 
-    def __init__(self, profiles=PROFILES):
+    def __init__(self, profiles, notations=None):
         self.profiles = {k: orthography.Profile.read(p) for k, p in profiles.items()}
+        self.notations = notations or {}
         self.cache = {}
 
     def __call__(self, source, reconstructed, form):
         k = (source, reconstructed, form)
         if k not in self.cache:
+            if source in self.notations:
+                form = self.notations[source](form, reconstructed)
             text = " / ".join(f for f in ALTERNATIVES.split(form.strip()) if f)
             keys = orthography.key(text, self.profiles[(source, reconstructed)]).keys
             self.cache[k] = frozenset(keys)
@@ -331,10 +509,11 @@ def gloss_similarity(a, b):
     return round(len(ta & tb) / min(len(ta), len(tb)), 2)
 
 
-class Acd:
-    """The ACD's assertions (acd-2) and its tree."""
+class Dictionary:
+    """A source's assertions (its converter's output) and its tree."""
 
-    def __init__(self, objects, tree=None):
+    def __init__(self, objects, spec=SPECS["acd"], tree=None):
+        self.spec, self.name = spec, spec.name
         self.records, self.sets, self.hyps, self.assertions = {}, {}, {}, []
         self.objects = {}
         if tree is not None:
@@ -356,23 +535,24 @@ class Acd:
                 for r in [s["reconstruction"], *s["members"]]:
                     if r:
                         self.sets_of[r].append(s["id"])
-        # the ACD's (compiled) parents of each record, and the assertions on its origin
+        # the source's (compiled) parents of each record, and the assertions on its origin
         self.parents = collections.defaultdict(set)
+        self.children = collections.defaultdict(set)
         self.origin = collections.defaultdict(list)
         for a in self.assertions:
             h = self.hyps.get(a["target"])
             if h and a["stance"] == "endorses":
                 self.parents[h["word"]].update(h["links"][0]["parents"])
+                for p in h["links"][0]["parents"]:
+                    self.children[p].add(h["word"])
                 self.origin[h["word"]].append(a)
 
     @cached_property
     def tree(self):
-        from etymology.convert.acd import Release
-
-        return Release().tree
+        return self.spec.load_release().tree
 
     def ancestors(self, record_id):
-        """The records the ACD makes a record descend from, at any remove (its set's
+        """The records the source makes a record descend from, at any remove (its set's
         reconstruction, a sub-entry's main entry, and theirs), that have a form."""
         seen, todo = set(), [record_id]
         while todo:
@@ -384,12 +564,23 @@ class Acd:
 
     @staticmethod
     def language_id(record_id):
+        """The source's language of a record: pyetymdict's form ids begin with it."""
         return record_id.split(":", 1)[1].split("-", 1)[0]
 
     def reflexes(self, record_id):
-        """The attested reflexes the ACD cites for a reconstruction: the attested members
-        of each cognate set it belongs to that descend, by the ACD's own link, from the
-        set's reconstruction, and whose language the tree places below the record's."""
+        """The attested reflexes the source cites for a reconstruction. Where links pass
+        through the levels between (`spec.nested`), its attested descendants in the
+        source. Otherwise (the ACD): the attested members of each cognate set it belongs
+        to that descend, by the source's own link, from the set's reconstruction, and
+        whose language the tree places below the record's."""
+        if self.spec.nested:
+            seen, todo = set(), [record_id]
+            while todo:
+                for c in self.children.get(todo.pop(), ()):
+                    if c not in seen:
+                        seen.add(c)
+                        todo.append(c)
+            return {c for c in seen if not self.records[c]["reconstructed"]}
         level = self.language_id(record_id)
         found = set()
         for set_id in self.sets_of[record_id]:
@@ -404,7 +595,7 @@ class Acd:
 
 
 class Wiktionary:
-    """The Austronesian part of the graph's assertions (`scan`), with glosses."""
+    """The family's part of the graph's assertions (`scan`), with glosses."""
 
     def __init__(self, objects, glosses):
         self.objects = {}
@@ -472,8 +663,9 @@ class Wiktionary:
 
 
 class Matcher:
-    """The rule `wety-match-acd@4`: each ACD record of an `exact` language to a Wiktionary
-    record of the same code.
+    """The matcher rule, written for the ACD (`wety-match-acd@4`) and applied as it is to
+    the MCD and TLOPO (`SPECS`): each record of an `exact` language to a Wiktionary
+    record of the same code. "The ACD" below stands for the source.
 
     Candidates are the Wiktionary records of that code and shape (word, prefix, suffix,
     infix: `shape`; when none has the same shape, a word may stand for an affix and an
@@ -486,7 +678,7 @@ class Matcher:
     reconstruction, whose key is one edit away. Each candidate is weighed by:
 
     - reflexes, for a reconstruction: of the attested reflexes the ACD cites for it
-      (`Acd.reflexes`, one per language and key), how many are among the candidate's
+      (`Dictionary.reflexes`, one per language and key), how many are among the candidate's
       descendants in wety;
     - ancestors: of the record's ancestors in the ACD (its set's reconstruction, a
       sub-entry's main entry, and theirs) that are matched, how many are the
@@ -532,9 +724,9 @@ class Matcher:
     ROUNDS = 6
 
     def __init__(
-        self, acd, wiktionary, keys, language_map=None, exact=None, judgements=None, learn=True
+        self, dic, wiktionary, keys, language_map=None, exact=None, judgements=None, learn=True
     ):
-        self.acd, self.wikt, self.keys = acd, wiktionary, keys
+        self.dic, self.wikt, self.keys = dic, wiktionary, keys
         self.judgements = judgements or Judgements()
         self.learn = learn
         self.models = {k: Linkage(FIELDS, MISSING) for k in ("reconstruction", "attested")}
@@ -581,19 +773,19 @@ class Matcher:
         """The ACD's cited reflexes of a reconstruction, one per language and loose key
         set, in `exact` languages."""
         out = {}
-        for m in self.acd.reflexes(record_id):
-            r = self.acd.records[m]
+        for m in self.dic.reflexes(record_id):
+            r = self.dic.records[m]
             code = r["language"]["code"]
             if r["language"]["relation"] != "exact" or not code or not r["form"]:
                 continue
-            ks = loose(self.keys("acd", False, r["form"]))
+            ks = loose(self.keys(self.dic.name, False, r["form"]))
             if ks:
                 out[(code, ks)] = m
         return out
 
     def candidates(self, r):
         code = r["language"]["code"]
-        ks = self.keys("acd", r["reconstructed"], r["form"])
+        ks = self.keys(self.dic.name, r["reconstructed"], r["form"])
         form_shape = shape(r["form"])
 
         def same_shape(ws):
@@ -630,7 +822,7 @@ class Matcher:
         the ACD's with a leading hyphen (its trailing-hyphen ancestors are bound stems,
         *tuRa- 'sibling'). A Wiktionary ancestor whose gloss fits the ACD ancestor's
         agrees with it, whatever its form."""
-        ancestors = self.acd.ancestors(r["id"])
+        ancestors = self.dic.ancestors(r["id"])
         targets = {twin(self.matched[a]) for a in ancestors if a in self.matched}
         mine = self.wiktionary_ancestors(w)
         by_code = collections.defaultdict(list)
@@ -640,28 +832,28 @@ class Matcher:
                 by_code[record_code(x)].append(r)
         compared = agreed = 0
         for a in ancestors:
-            lang = self.acd.records[a]["language"]
+            lang = self.dic.records[a]["language"]
             same_lang = by_code.get(lang["code"]) if lang["relation"] == "exact" else None
-            if not same_lang or shape(self.acd.records[a]["form"])[0]:
+            if not same_lang or shape(self.dic.records[a]["form"])[0]:
                 continue
             compared += 1
             if a in self.matched and twin(self.matched[a]) in mine:
                 agreed += 1
                 continue
-            ka = self.keys("acd", True, self.acd.records[a]["form"])
+            ka = self.keys(self.dic.name, True, self.dic.records[a]["form"])
             agreed += any(
                 compatible(k, j)
                 for x in same_lang
                 for k in ka
                 for j in self.keys("wiktionary", True, x["form"])
             ) or any(
-                (gloss_similarity(self.acd.records[a].get("gloss"), self.wikt.gloss(x["id"])) or 0)
+                (gloss_similarity(self.dic.records[a].get("gloss"), self.wikt.gloss(x["id"])) or 0)
                 >= self.GLOSS_MIN
                 for x in same_lang
             )
         gloss = self.wikt.gloss(w)
         fits = [
-            gloss_similarity(self.acd.records[a].get("gloss"), gloss)
+            gloss_similarity(self.dic.records[a].get("gloss"), gloss)
             for a in ancestors
             if a in self.matched and twin(self.matched[a]) in mine
         ]
@@ -768,11 +960,23 @@ class Matcher:
         ]
         if not r["reconstructed"] and any(b.get("gloss", 1) > 0 for _, b in ok):
             ok = [(w, b) for w, b in ok if b.get("gloss", 1) > 0]
+        if self.dic.spec.cited_needs_ancestor and not r["reconstructed"]:
+            ok = [(w, b) for w, b in ok if self.supported(r, w, b)]
         if not ok:
             if all(c["contradicted"] for _, _, c in found):
-                return ("unmatched", "candidates whose ancestry contradicts the ACD", found[0][1])
+                why = f"candidates whose ancestry contradicts the {self.dic.spec.label}"
+                return ("unmatched", why, found[0][1])
             return ("unmatched", "candidates without support", found[0][1])
         return [(w, b, self.features(r, w, b)) for w, b in ok]
+
+    def supported(self, r, w, basis):
+        """For the MCD and TLOPO (`Spec.cited_needs_ancestor`; their v2): a word
+        Wiktionary only cites, with no gloss, is a candidate only with a shared ancestor
+        or a reviewer's judgement. Their first reviews (cl-3) found such matches resting
+        on the key alone wrong half the time (15 of 33), and every other match right."""
+        if not w.endswith("?") or "gloss" in basis or basis.get("ancestors", {}).get("shared"):
+            return True
+        return bool(self.judgements.label(r["id"], w))
 
     def fit(self, model, options):
         """Fits a model to the eligible pairs, judged pairs held at their label."""
@@ -839,7 +1043,7 @@ class Matcher:
         return ("ambiguous", kept, bases[kept[0]])
 
     def run(self):
-        reconstructions = [r for r in self.acd.records.values() if r["reconstructed"]]
+        reconstructions = [r for r in self.dic.records.values() if r["reconstructed"]]
         decisions = {}
         self.rounds, self.changes = 0, []
         self.scores, self.overridden = {}, {}
@@ -856,7 +1060,7 @@ class Matcher:
             if matched == self.matched and n >= FIT_ROUNDS:
                 break
             self.matched = matched
-        attested = [r for r in self.acd.records.values() if not r["reconstructed"]]
+        attested = [r for r in self.dic.records.values() if not r["reconstructed"]]
         options = {r["id"]: self.options(r) for r in attested}
         self.fit(self.models["attested"], options)
         for r in attested:
@@ -868,8 +1072,8 @@ class Matcher:
         (homographs, doublets), keep the best fit."""
         by_target = collections.defaultdict(lambda: collections.defaultdict(list))
         for rid, (what, target, basis) in decisions.items():
-            if what == "match" and self.acd.records[rid]["reconstructed"]:
-                by_target[target][self.acd.records[rid]["form"]].append(rid)
+            if what == "match" and self.dic.records[rid]["reconstructed"]:
+                by_target[target][self.dic.records[rid]["form"]].append(rid)
         for target, groups in by_target.items():
             if len(groups) < 2:
                 continue
@@ -885,12 +1089,12 @@ class Matcher:
                         for x in rids:
                             decisions[x] = (
                                 "unmatched",
-                                "another ACD record is judged its match",
+                                f"another {self.dic.spec.label} record is judged its match",
                                 decisions[x][2],
                             )
                 continue
             rank = {
-                form: max(self.rank(self.acd.records[x], target, decisions[x][2]) for x in rids)
+                form: max(self.rank(self.dic.records[x], target, decisions[x][2]) for x in rids)
                 for form, rids in groups.items()
             }
             winners = [f for f in groups if not any(self.beats(rank[o], rank[f]) for o in groups)]
@@ -898,15 +1102,14 @@ class Matcher:
                 if form in winners and len(winners) == 1:
                     continue
                 why = (
-                    "other ACD records fit equally"
+                    f"other {self.dic.spec.label} records fit equally"
                     if form in winners
-                    else "another ACD record fits better"
+                    else f"another {self.dic.spec.label} record fits better"
                 )
                 for x in rids:
                     decisions[x] = ("unmatched", why, decisions[x][2])
 
 
-ACD_WORK = re.compile(r":ACD$|Austronesian Comparative Dictionary")
 BORROWINGS = {
     "borrowed",
     "learned borrowing",
@@ -916,26 +1119,29 @@ BORROWINGS = {
 }
 
 
-def acd_works(objects):
-    """Wiktionary's works that are the ACD: its `R:...:ACD` templates, and citations that
-    name it or are by Blust and Trussel. Other works by Blust are not the ACD."""
+def source_works(objects, spec):
+    """Wiktionary's works that are the source: its `R:` templates and citations that name
+    it (`spec.work`), and works by all its authors (`spec.authors`; Blust and Trussel for
+    the ACD; other works by Blust are not the ACD)."""
     found = set()
     for o in objects.values():
         if o["type"] != "work":
             continue
-        by_them = {"agent:robert-blust", "agent:stephen-trussel"} <= set(o.get("authors", []))
-        if ACD_WORK.search(o["id"]) or ACD_WORK.search(o.get("citation", "")) or by_them:
+        by_them = spec.authors <= set(o.get("authors", []))
+        if spec.work.search(o["id"]) or spec.work.search(o.get("citation", "")) or by_them:
             found.add(o["id"])
     return found
 
 
 class Relayer:
-    """The rule `wety-relay-acd@1`: each Wiktionary assertion that credits the ACD, linked
-    to the ACD's own assertion on the origin of the same word, through the matches.
+    """The relay rule, written for the ACD (`wety-relay-acd@1`) and applied as it is to
+    the MCD and TLOPO (`SPECS`): each Wiktionary assertion that credits the source,
+    linked to the source's own assertion on the origin of the same word, through the
+    matches. "The ACD" below stands for the source.
 
     The ACD links a reflex straight to its set's reconstruction, skipping the levels
     between, where Wiktionary goes one level at a time; so the two are compared by
-    ancestry. Wiktionary's ancestry of the word is the assertion's chain, continued by
+    ancestry (for the MCD and TLOPO too, whose levels need not be Wiktionary's). Wiktionary's ancestry of the word is the assertion's chain, continued by
     Wiktionary's own etymologies of each ancestor (inherited links only).
 
     - parents agree when every parent the ACD names is matched to a Wiktionary ancestor,
@@ -954,14 +1160,14 @@ class Relayer:
     its reason.
     """
 
-    def __init__(self, acd, wikt, matcher, decisions):
-        self.acd, self.wikt, self.matcher = acd, wikt, matcher
-        self.works = acd_works(wikt.objects)
-        self.to_acd = collections.defaultdict(set)
+    def __init__(self, dic, wikt, matcher, decisions):
+        self.dic, self.wikt, self.matcher = dic, wikt, matcher
+        self.works = source_works(wikt.objects, dic.spec)
+        self.to_source = collections.defaultdict(set)
         self.to_wikt = {}
         for rid, (what, target, _) in decisions.items():
             if what == "match":
-                self.to_acd[target].add(rid)
+                self.to_source[target].add(rid)
                 self.to_wikt[rid] = target
         self.wikt_parents = collections.defaultdict(list)
         for a in wikt.assertions:
@@ -1003,32 +1209,32 @@ class Relayer:
         the parent's language with its key), as `another word`, or `not named` (the ACD
         names no parent)."""
         word = h["word"]
-        acd_words = self.to_acd.get(word)
-        if not acd_words:
+        words = self.to_source.get(word)
+        if not words:
             return None, "word not matched", None
-        origins = [o for w in sorted(acd_words) for o in self.acd.origin.get(w, ())]
+        origins = [o for w in sorted(words) for o in self.dic.origin.get(w, ())]
         if not origins:
-            return None, "the ACD gives the matched word no origin", None
+            return None, f"the {self.dic.spec.label} gives the matched word no origin", None
         ancestors = self.ancestry(h)
         hedged = bool(a.get("hedges"))
         results = []
         for o in origins:
-            link = self.acd.hyps[o["target"]]["links"][0]
+            link = self.dic.hyps[o["target"]]["links"][0]
             diffs, undetermined, found, modes = [], None, "not named", None
             for p in link["parents"]:
-                pr = self.acd.records[p]
+                pr = self.dic.records[p]
                 if pr["form"] is None:
                     continue
-                hit = [w for w in ancestors if p in self.to_acd.get(w, ())]
+                hit = [w for w in ancestors if p in self.to_source.get(w, ())]
                 found = "matched"
                 if not hit:
                     code = pr["language"]["code"]
                     same_lang = [w for w in ancestors if record_code(w) == code]
-                    pk = self.matcher.keys("acd", True, pr["form"])
+                    pk = self.matcher.keys(self.dic.name, True, pr["form"])
                     hit = [
                         w
                         for w in same_lang
-                        if w not in self.to_acd
+                        if w not in self.to_source
                         and w in self.wikt.records
                         and pk
                         & self.matcher.keys("wiktionary", True, self.wikt.records[w]["form"] or "")
@@ -1040,7 +1246,8 @@ class Relayer:
                             found = "another word"
                         else:
                             undetermined = (
-                                "Wiktionary's ancestry has no word in the ACD parent's language"
+                                "Wiktionary's ancestry has no word in the "
+                                f"{self.dic.spec.label} parent's language"
                             )
                         continue
                 modes = ancestors[hit[0]]
@@ -1060,8 +1267,8 @@ class Relayer:
                 results.append((None, undetermined, None))
             else:
                 affix = any(
-                    (self.acd.records[p]["form"] or "").strip("*").startswith("-")
-                    or (self.acd.records[p]["form"] or "").endswith("-")
+                    (self.dic.records[p]["form"] or "").strip("*").startswith("-")
+                    or (self.dic.records[p]["form"] or "").endswith("-")
                     for p in link["parents"]
                 )
                 results.append((o, list(dict.fromkeys(diffs)), found, affix))
@@ -1078,18 +1285,18 @@ class Relayer:
             o, what, found = self.compare(a, h)
             outcomes.append((a, work, o, what, found))
             if o is not None:
-                relays.append(A.relay(a["id"], o["id"], work, RELAY_RULE, what))
+                relays.append(A.relay(a["id"], o["id"], work, self.dic.spec.relay_rule, what))
         return relays, outcomes
 
 
-def level(acd, record):
+def level(dic, record):
     """A record's place in the ACD's tree: a reconstruction's own level, an attested
     form's lowest level above it."""
-    lang = Acd.language_id(record["id"])
+    lang = Dictionary.language_id(record["id"])
     if record["reconstructed"]:
         return record["language"]["label"]
-    above = acd.tree.above(lang)
-    name = acd.tree.languages[above[0]]["Name"] if above else "none"
+    above = dic.tree.above(lang)
+    name = dic.tree.languages[above[0]]["Name"] if above else "none"
     return "below " + name
 
 
@@ -1103,39 +1310,32 @@ def read_lines(path):
 def run(args):
     out = args.out
     out.mkdir(parents=True, exist_ok=True)
-    keys = Keys()
-    acd = Acd(read_lines(args.acd))
+    spec = SPECS[args.source]
+    keys = spec.keys()
+    dic = Dictionary(read_lines(args.assertions), spec)
     wikt = Wiktionary(
         read_lines(args.work / "wiktionary.jsonl.gz"), read_lines(args.work / "glosses.jsonl.gz")
     )
-    language_map = ACD / "etc/languages.json"
-    judgements = Judgements.read(JUDGEMENTS)
-    matcher = Matcher(acd, wikt, keys, language_map, judgements=judgements)
+    language_map = spec.etc / "languages.json"
+    judgements = Judgements.read(spec.judgements)
+    matcher = Matcher(dic, wikt, keys, language_map, judgements=judgements)
     decisions = matcher.run()
+    inputs = [args.assertions, args.export, args.entries, language_map, *spec.profiles.values()]
     extraction = A.extraction(
         "converter",
-        "packages/etymology/match_acd.py",
-        [args.acd, args.export, args.entries, language_map, *PROFILES.values(), JUDGEMENTS],
+        "packages/etymology/match_etymdict.py",
+        inputs + [p for p in [spec.judgements] if p.exists()],
     )
     new = {extraction["id"]: extraction}
-    for agent_id, name in (
-        (
-            RULE,
-            "wety's ACD matcher, v3: ACD records to Wiktionary records by key, gloss, reflexes and ancestors",
-        ),
-        (
-            RELAY_RULE,
-            "wety's ACD relay rule, v1: Wiktionary's assertions crediting the ACD to the ACD's own",
-        ),
-    ):
+    for agent_id, name in ((spec.rule, spec.rule_name), (spec.relay_rule, spec.relay_name)):
         new[agent_id] = {"type": "agent", "id": agent_id, "kind": "rule", "name": name}
     matches = []
     for rid, (what, target, basis) in decisions.items():
-        r = acd.records[rid]
+        r = dic.records[rid]
         if what == "match":
             m = A.match(
                 rid,
-                RULE,
+                spec.rule,
                 matcher.scores[rid],
                 basis,
                 target=target,
@@ -1144,7 +1344,7 @@ def run(args):
         elif what == "ambiguous":
             m = A.match(
                 rid,
-                RULE,
+                spec.rule,
                 matcher.scores[rid],
                 basis,
                 candidates=sorted(target),
@@ -1153,15 +1353,15 @@ def run(args):
         else:
             continue
         matches.append(m)
-    relayer = Relayer(acd, wikt, matcher, decisions)
+    relayer = Relayer(dic, wikt, matcher, decisions)
     relays, outcomes = relayer.run()
-    writer = closure(matches + relays, new, acd.objects, wikt.objects)
+    writer = closure(matches + relays, new, dic.objects, wikt.objects)
     n = writer.write(out / "assertions.jsonl")
     print(f"{out / 'assertions.jsonl'}: {n} objects")
 
     rows = []
     for rid, (what, target, basis) in decisions.items():
-        r = acd.records[rid]
+        r = dic.records[rid]
         rows.append(
             {
                 "record": rid,
@@ -1169,7 +1369,7 @@ def run(args):
                 "gloss": r.get("gloss"),
                 "code": r["language"]["code"],
                 "kind": "reconstruction" if r["reconstructed"] else "attested",
-                "level": level(acd, r),
+                "level": level(dic, r),
                 "outcome": what,
                 "detail": target,
                 "basis": basis,
@@ -1189,11 +1389,11 @@ def run(args):
                     [link["child"], link.get("mode", link["relation"]), link["parents"]]
                     for link in h["links"]
                 ],
-                "acd_assertion": o and o["id"],
-                "acd_link": o and acd.hyps[o["target"]]["links"][0],
-                "acd_parents": o
+                "source_assertion": o and o["id"],
+                "source_link": o and dic.hyps[o["target"]]["links"][0],
+                "source_parents": o
                 and [
-                    acd.records[p].get("form") for p in acd.hyps[o["target"]]["links"][0]["parents"]
+                    dic.records[p].get("form") for p in dic.hyps[o["target"]]["links"][0]["parents"]
                 ],
                 "outcome": ("agrees" if not what else "differs") if o else "no relay",
                 "detail": what,
@@ -1205,13 +1405,13 @@ def run(args):
     counts["objects"] = n
     counts["reconstruction rounds"] = matcher.changes
     if args.previous:
-        changes, sample = compare(args.previous, rows, matches, acd, wikt, args.seed)
+        changes, sample = compare(args.previous, rows, matches, dic, wikt, args.seed)
         counts["changes"] = changes
         (out / "changed-sample.json").write_text(
             json.dumps(sample, ensure_ascii=False, indent=1) + "\n"
         )
     else:
-        sample = draw_sample(matches, acd, wikt, args.seed)
+        sample = draw_sample(matches, dic, wikt, args.seed)
         (out / "sample.json").write_text(json.dumps(sample, ensure_ascii=False, indent=1) + "\n")
     found = {x["record"]: x["detail"] for x in rows if x["outcome"] in ("match", "ambiguous")}
     counts["judgements"] = judgements.score(found)
@@ -1220,8 +1420,8 @@ def run(args):
         rid: {"weights": before, "judged": decisions[rid][1]}
         for rid, before in sorted(matcher.overridden.items())
     }
-    counts["held out"] = held_out(acd, wikt, keys, language_map, judgements)
-    hard = hard_cases(decisions, matcher, acd, wikt)
+    counts["held out"] = held_out(dic, wikt, keys, language_map, judgements)
+    hard = hard_cases(decisions, matcher, dic, wikt)
     (out / "hard.json").write_text(json.dumps({"hard": hard}, ensure_ascii=False, indent=1) + "\n")
     (out / "counts.json").write_text(json.dumps(counts, ensure_ascii=False, indent=1) + "\n")
 
@@ -1255,22 +1455,23 @@ def report(rows, relay_rows):
     return {k: dict(sorted(v.items())) for k, v in sorted(c.items())}
 
 
-def review_entry(m, acd, wikt):
-    """A match as a reviewer reads it: both records, the ACD's sets, and Wiktionary's
-    gloss, etymology and parents."""
-    r = acd.records[m["record"]]
+def review_entry(m, dic, wikt):
+    """A match as a reviewer reads it: both records (the source's under its name), the
+    source's sets, and Wiktionary's gloss, etymology and parents."""
+    r = dic.records[m["record"]]
     w = wikt.records[m["target"]]
     return {
         "match": m["id"],
-        "acd": {
+        "source": dic.name,
+        dic.name: {
             "record": r["id"],
             "language": r["language"]["label"],
             "form": r["form"],
             "gloss": r.get("gloss"),
             "sets": {
-                s: acd.records[acd.sets[s]["reconstruction"]]["form"]
-                for s in acd.sets_of.get(r["id"], [])
-                if acd.sets[s]["reconstruction"]
+                s: dic.records[dic.sets[s]["reconstruction"]]["form"]
+                for s in dic.sets_of.get(r["id"], [])
+                if dic.sets[s]["reconstruction"]
             },
         },
         "wiktionary": {
@@ -1287,18 +1488,18 @@ def review_entry(m, acd, wikt):
     }
 
 
-def held_out(acd, wikt, keys, language_map, judgements):
+def held_out(dic, wikt, keys, language_map, judgements):
     """The matcher scored on judgements it did not see: in each of `FOLDS` folds it
     learns from the others' judgements and is scored on the fold's."""
     scores = []
     for training, test in judgements.split(FOLDS, 20261101):
-        d = Matcher(acd, wikt, keys, language_map, judgements=training).run()
+        d = Matcher(dic, wikt, keys, language_map, judgements=training).run()
         found = {rid: x[1] for rid, x in d.items() if x[0] in ("match", "ambiguous")}
         scores.append(test.score(found))
     return pooled(scores)
 
 
-def hard_cases(decisions, matcher, acd, wikt):
+def hard_cases(decisions, matcher, dic, wikt):
     """What the weights barely decide and no judgement decides, for a reviewer or a
     model: each candidate of a tie, then the `HARD_LIMIT` least probable targets below
     `HARD`; judged as a sample is (`verdict` on the Wiktionary record)."""
@@ -1310,27 +1511,28 @@ def hard_cases(decisions, matcher, acd, wikt):
         if what == "ambiguous":
             for w in found:
                 m = {"id": None, "record": rid, "target": w, "score": score, "basis": basis}
-                ties.append(review_entry(m, acd, wikt))
+                ties.append(review_entry(m, dic, wikt))
         elif score < HARD:
             weak.append((score, rid, found, basis))
     weak = [
-        review_entry({"id": None, "record": rid, "target": w, "score": p, "basis": b}, acd, wikt)
+        review_entry({"id": None, "record": rid, "target": w, "score": p, "basis": b}, dic, wikt)
         for p, rid, w, b in sorted(weak)[:HARD_LIMIT]
     ]
     return ties + weak
 
 
-def draw_sample(matches, acd, wikt, seed, n=100):
+def draw_sample(matches, dic, wikt, seed, n=100):
     """A random sample of matches with a target, for review."""
     rng = random.Random(seed)
     targeted = sorted((m for m in matches if "target" in m), key=lambda m: m["id"])
-    return [review_entry(m, acd, wikt) for m in rng.sample(targeted, min(n, len(targeted)))]
+    return [review_entry(m, dic, wikt) for m in rng.sample(targeted, min(n, len(targeted)))]
 
 
-def compare(previous, rows, matches, acd, wikt, seed, n=100):
+def compare(previous, rows, matches, dic, wikt, seed, n=100):
     """What changed against an earlier run's check directory's decisions. Returns the
     counts and a sample of changed matches (gained or retargeted) to review. Earlier
-    reviews are checked through the judgements (`JUDGEMENTS`), not here."""
+    reviews are checked through the judgements (the source's `etc/judgements.jsonl`), not
+    here."""
     with gzip.open(previous / "decisions.jsonl.gz", "rt", encoding="utf-8") as f:
         before = {x["record"]: x for x in map(json.loads, f)}
     now = {x["record"]: x for x in rows}
@@ -1367,7 +1569,7 @@ def compare(previous, rows, matches, acd, wikt, seed, n=100):
     picked = rng.sample(sorted(changed), min(n, len(changed)))
     sample = []
     for rid in picked:
-        e = review_entry(by_record[rid], acd, wikt)
+        e = review_entry(by_record[rid], dic, wikt)
         e["before"] = {"outcome": before[rid]["outcome"], "detail": before[rid]["detail"]}
         sample.append(e)
     counts = {k: dict(sorted(v.items())) for k, v in sorted(counts.items())}
@@ -1377,7 +1579,7 @@ def compare(previous, rows, matches, acd, wikt, seed, n=100):
 def main(argv=None):
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     sub = p.add_subparsers(dest="step", required=True)
-    s = sub.add_parser("scan", help="the Austronesian part of the export, and its glosses")
+    s = sub.add_parser("scan", help="the family's part of the export, and its glosses")
     s.add_argument("--export", type=Path, required=True, help="a graph's assertions.jsonl.gz")
     s.add_argument(
         "--entries", type=Path, required=True, help="wety's entries (wiktionary_entries)"
@@ -1385,9 +1587,11 @@ def main(argv=None):
     s.add_argument("--work", type=Path, required=True, help="the work directory")
     s.add_argument("--languages", type=Path, required=True, help="Wiktionary's languages.json")
     s.add_argument("--families", type=Path, required=True, help="Wiktionary's families.json")
+    s.add_argument("--source", choices=sorted(SPECS), required=True)
     s.add_argument("--only", choices=["export", "glosses"])
     m = sub.add_parser("run", help="match, relay, and write the check's files")
-    m.add_argument("--acd", type=Path, required=True, help="the ACD's assertions (acd-2)")
+    m.add_argument("--source", choices=sorted(SPECS), required=True)
+    m.add_argument("--assertions", type=Path, required=True, help="the source's converted release")
     m.add_argument("--export", type=Path, required=True, help="the graph's assertions.jsonl.gz")
     m.add_argument(
         "--entries", type=Path, required=True, help="wety's entries (wiktionary_entries)"
@@ -1403,17 +1607,21 @@ def main(argv=None):
     r = sub.add_parser(
         "review", help="add a check's judged review.json and hard.json to the judgements"
     )
+    r.add_argument("--source", choices=sorted(SPECS), required=True)
     r.add_argument("--out", type=Path, required=True, help="the check directory")
     args = p.parse_args(argv)
     if args.step == "run":
         run(args)
     if args.step == "review":
         reviews = [args.out / f for f in ("review.json", "hard.json")]
-        n = harvest_into(JUDGEMENTS, [r for r in reviews if r.exists()])
-        print(f"{JUDGEMENTS}: {n} new judgements")
+        judgements = SPECS[args.source].judgements
+        n = harvest_into(judgements, [r for r in reviews if r.exists()])
+        print(f"{judgements}: {n} new judgements")
     if args.step == "scan":
         args.work.mkdir(parents=True, exist_ok=True)
-        codes = austronesian_codes(args.languages, args.families)
+        language_map = SPECS[args.source].etc / "languages.json"
+        spec = SPECS[args.source]
+        codes = family_codes(args.languages, args.families, language_map, spec.family)
         if args.only != "glosses":
             n = scan_export(args.export, codes, args.work / "wiktionary.jsonl.gz")
             print(f"wiktionary.jsonl.gz: {n} objects")

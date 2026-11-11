@@ -1,0 +1,286 @@
+{
+ "catalog_generation": "94fb4909c233a4262a321bf71439883f2ad53094df934a0a72be2978ee166d86",
+ "languages": {
+  "path": "data/workspaces/etymology/sources/cariban/checks/cl-6/languages.csv",
+  "sha256": "368e65a1519fd5b88e7db053c1ef74e3df69d3c4225dcf6baf0eb7b1ec5129cc"
+ },
+ "reviewed": {
+  "path": "data/workspaces/etymology/sources/cariban/etc/languages.reviewed.json",
+  "sha256": "a9ff8ffbd2d2ba6b8ce45aeb648311a0179f13333804da687de8df7d4d4bec8f"
+ },
+ "summary": {
+  "varieties": {
+   "exact": 19,
+   "unresolved": 3,
+   "total": 22,
+   "exact_share": 0.8636
+  },
+  "proto-languages": {
+   "exact": 1,
+   "total": 1,
+   "exact_share": 1.0
+  }
+ },
+ "rows": [
+  {
+   "id": "wmr",
+   "name": "Waimiri-Atroari",
+   "glottocode": "waim1253",
+   "iso639_3": "atr",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "atr",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "yuk",
+   "name": "Yukpa",
+   "glottocode": "yukp1241",
+   "iso639_3": "yup",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "yup",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "car",
+   "name": "Karijona",
+   "glottocode": "cari1279",
+   "iso639_3": "cbd",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "cbd",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "bak",
+   "name": "Bakairi",
+   "glottocode": "baka1277",
+   "iso639_3": "bkq",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "bkq",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "aku",
+   "name": "Akuriyó",
+   "glottocode": "akur1238",
+   "iso639_3": "ako",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "ako",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "map",
+   "name": "Mapoyo",
+   "glottocode": "mapo1246",
+   "iso639_3": "mcg",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "mcg",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "yab",
+   "name": "Yawarana",
+   "glottocode": "yaba1248",
+   "iso639_3": "yar",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "yar",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "pc",
+   "name": "Proto-Cariban",
+   "glottocode": "cari1283",
+   "iso639_3": null,
+   "is_proto": true,
+   "relation": "exact",
+   "code": "sai-car-pro",
+   "candidates": [],
+   "basis": "Proto-Cariban, Wiktionary's sai-car-pro.",
+   "reviewer": "claude-opus-5-5 (model review, 2026-11-10)",
+   "derived": {
+    "relation": "exact",
+    "code": "sai-car-pro",
+    "candidates": [],
+    "basis": "proto-language of the Wiktionary family with this glottocode"
+   }
+  },
+  {
+   "id": "apa",
+   "name": "Apalaí",
+   "glottocode": "apal1257",
+   "iso639_3": "apy",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "apy",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "tri",
+   "name": "Tiriyó",
+   "glottocode": "trio1238",
+   "iso639_3": "tri",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "tri",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "hix",
+   "name": "Hixkaryána",
+   "glottocode": "hixk1239",
+   "iso639_3": "hix",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "hix",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "pan",
+   "name": "Panare",
+   "glottocode": "enap1235",
+   "iso639_3": "pbh",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "pbh",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "mac",
+   "name": "Macushi",
+   "glottocode": "macu1259",
+   "iso639_3": "mbc",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "mbc",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "mak",
+   "name": "Ye'kwana",
+   "glottocode": "maqu1238",
+   "iso639_3": "mch",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "mch",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "wai",
+   "name": "Waiwai",
+   "glottocode": "waiw1244",
+   "iso639_3": "waw",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "waw",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "way",
+   "name": "Wayana",
+   "glottocode": "waya1269",
+   "iso639_3": "way",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "way",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "kar",
+   "name": "Kari'ña",
+   "glottocode": "gali1262",
+   "iso639_3": "car",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "car",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "ikp",
+   "name": "Ikpeng",
+   "glottocode": "ikpe1245",
+   "iso639_3": "txi",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "txi",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "uxc",
+   "name": "Upper Xingu Carib",
+   "glottocode": "nucl1656",
+   "iso639_3": null,
+   "is_proto": false,
+   "relation": "unresolved",
+   "code": null,
+   "candidates": [],
+   "basis": "no Wiktionary code found"
+  },
+  {
+   "id": "ara",
+   "name": "Arara",
+   "glottocode": "para1310",
+   "iso639_3": "aap",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "aap",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "pem",
+   "name": "Pemón",
+   "glottocode": "pemo1248",
+   "iso639_3": "aoc",
+   "is_proto": false,
+   "relation": "exact",
+   "code": "aoc",
+   "candidates": [],
+   "basis": "glottocode"
+  },
+  {
+   "id": "kap",
+   "name": "Kapón",
+   "glottocode": "kapo1251",
+   "iso639_3": null,
+   "is_proto": false,
+   "relation": "unresolved",
+   "code": null,
+   "candidates": [],
+   "basis": "no Wiktionary code found"
+  },
+  {
+   "id": "kax",
+   "name": "Werikyana",
+   "glottocode": "kaxu1237",
+   "iso639_3": "kbb",
+   "is_proto": false,
+   "relation": "unresolved",
+   "code": null,
+   "candidates": [],
+   "basis": "no Wiktionary code found"
+  }
+ ]
+}

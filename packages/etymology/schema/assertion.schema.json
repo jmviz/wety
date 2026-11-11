@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://wety.org/schema/etymology/assertion/5",
-  "title": "wety etymology assertions, v5",
+  "$id": "https://wety.org/schema/etymology/assertion/6",
+  "title": "wety etymology assertions, v6",
   "description": "One line of an assertions file (JSON Lines). Each line is one object, told apart by `type`. README.md beside this file says what each field means; cross-record rules (ids, references) are checked by etymology.assertions.",
   "oneOf": [
     {"$ref": "#/$defs/Source"},
@@ -250,6 +250,10 @@
         "category": {
           "description": "The source's own name for the kind of set, from its kind map.",
           "type": "string"
+        },
+        "of_set": {
+          "description": "The cognate set this group of forms is given beside (forms compared with it, irregular forms), in the same file.",
+          "$ref": "#/$defs/CognateSetId"
         },
         "x": {"$ref": "#/$defs/Extensions"}
       }

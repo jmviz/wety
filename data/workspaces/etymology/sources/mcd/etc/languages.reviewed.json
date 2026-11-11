@@ -1,0 +1,27 @@
+[
+ {
+  "id": "preprotooceanic",
+  "relation": "unresolved",
+  "rationale": "Pre-Proto-Oceanic is a stage before Proto-Oceanic, not Proto-Oceanic; the glottocode lookup gives it ocea1241 only because MCD reuses the family's code. Wiktionary has no code for it.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-09)"
+ },
+ {
+  "id": "preprotomicronesian",
+  "relation": "unresolved",
+  "rationale": "Pre-Proto-Micronesian is a stage before Proto-Micronesian; MCD reuses micr1243. Wiktionary has no code for it.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-09)"
+ },
+ {
+  "id": "uraustronesisch",
+  "relation": "unresolved",
+  "rationale": "Dempwolff's Uraustronesisch, cited by MCD as his reconstructions in his notation; not Wiktionary's Proto-Austronesian (map-pro), as the ACD's Dempwolff forms are not.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-09)"
+ },
+ {
+  "id": "protopolynesian",
+  "relation": "exact",
+  "code": "poz-pol-pro",
+  "rationale": "Proto-Polynesian is poly1242; the catalog also gives that glottocode to Wiktionary's Eastern Polynesian (poz-pep-pro), as for the ACD's Proto-Polynesian.",
+  "reviewer": "claude-opus-5-5 (model review, 2026-11-09)"
+ }
+]

@@ -1,0 +1,97 @@
+{
+ "source": "iecor",
+ "release": "v1.2.1",
+ "reviewer": "claude-opus-5-5 (model review, 2026-11-10)",
+ "kinds": [
+  {
+   "where": "cognatesets.csv",
+   "category": "cognate set",
+   "count": 4981,
+   "source_description": "Words for one meaning that share an origin, with a root where one is given.",
+   "wety_kind": "cognate set",
+   "status": "mapped",
+   "note": "Endorsed by IE-CoR's editors with their citations (Source) and their Justification as quote."
+  },
+  {
+   "where": "cognatesets.csv",
+   "category": "Root_Form, Root_Language",
+   "count": 4326,
+   "source_description": "The form the set goes back to: a proto-form, or an attested word (a source of loans, an ancestor stage).",
+   "wety_kind": "reconstruction of the set; members descend from it (ultimate)",
+   "status": "mapped",
+   "note": "Compiled; a member in the root's own language gets no link."
+  },
+  {
+   "where": "cognatesets.csv",
+   "category": "Root_Form in brackets",
+   "count": 164,
+   "source_description": "A source outside IE-CoR's sample.",
+   "wety_kind": "as a root",
+   "status": "mapped",
+   "note": "Brackets dropped."
+  },
+  {
+   "where": "cognatesets.csv",
+   "category": "Root_Form opening with ?",
+   "count": 158,
+   "source_description": "A doubtful root.",
+   "wety_kind": "record certainty: possible",
+   "status": "mapped",
+   "note": ""
+  },
+  {
+   "where": "loans.csv",
+   "category": "Parallel_loan_event true",
+   "count": 187,
+   "source_description": "Each member borrowed separately from the source form.",
+   "wety_kind": "borrowing (mode borrowed)",
+   "status": "mapped",
+   "note": "From the source form, or the root where they are one."
+  },
+  {
+   "where": "loans.csv",
+   "category": "Parallel_loan_event false",
+   "count": 849,
+   "source_description": "One loan event into an ancestor, inherited since.",
+   "wety_kind": "none beside the root",
+   "status": "mapped",
+   "note": "The root link carries it."
+  },
+  {
+   "where": "loans.csv",
+   "category": "SourceCognateset_ID",
+   "count": 420,
+   "source_description": "The set the loan comes from.",
+   "wety_kind": "link between sets",
+   "status": "unmapped",
+   "note": "Not read yet."
+  },
+  {
+   "where": "cognatesets.csv",
+   "category": "proposedAsCognateTo",
+   "count": 208,
+   "source_description": "A further set proposed as cognate, on a scale.",
+   "wety_kind": "possible cognacy between sets",
+   "status": "unmapped",
+   "note": "Not read yet."
+  },
+  {
+   "where": "cognatesets.csv",
+   "category": "supersetid",
+   "count": null,
+   "source_description": "Sets grouped into a superset.",
+   "wety_kind": "levels of one etymon",
+   "status": "unmapped",
+   "note": "Not read yet."
+  },
+  {
+   "where": "cognatesets.csv",
+   "category": "Ideophonic, parallelDerivation",
+   "count": 6,
+   "source_description": "Flags on a set.",
+   "wety_kind": "source-native",
+   "status": "unmapped",
+   "note": "Not read yet."
+  }
+ ]
+}

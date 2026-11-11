@@ -6,8 +6,12 @@ the work plan are in the shared doc "wety etymology claims model", outside git.
 
 - [`schema/`](schema/README.md): the assertion schema, v5, and what it covers;
 - `assertions.py`: builds assertion objects (their digest ids) and validates files;
-- `convert/`: one converter per source. `acd` and `lila` read the retained release, whole
-  or a sample; `wiktionary` converts claims a model annotated per entry, for samples;
+- `convert/`: one converter per source. `acd`, `mcd` and `tlopo` read the whole retained
+  release through `etymdict`, which holds what the comparative dictionaries published in
+  pyetymdict's CLDF model share; `csd` and `cariban` read a clld app's database dump
+  (`clld_dump`) into the same shape; `wold`, `iecor` and `tuled` read their CLDF
+  releases; `lila` reads its release, whole or a sample;
+  `wiktionary` converts claims a model annotated per entry, for samples;
   `wiktionary_references` reads the citation templates of every References section
   and footnote of wety's entries (core-5, x-5), for the graph build.
   Wiktionary's templates are read by the processor instead: `graph-assertions`
@@ -19,7 +23,11 @@ the work plan are in the shared doc "wety etymology claims model", outside git.
   profile includes;
 - `matching.py`: what every matcher shares (below); `notation.py`: how two sources'
   keys differ where they are matched, mined into a distance;
-- `match_acd.py`: ACD records matched to Wiktionary's, and relays (below).
+- `match_etymdict.py`: the records of the set-centric dictionaries (the ACD, the MCD,
+  TLOPO, the CSD, the Comparative Cariban Database) matched to Wiktionary's, and relays
+  (below);
+- `match_words.py`: the records of the word-centric sources (WOLD, IE-CoR, TuLeD)
+  matched to Wiktionary's, and relays (below).
 - `match_lila.py`: LiLa's records matched to Wiktionary's, and relays (below).
 
 ## A source's directory
@@ -30,8 +38,9 @@ as `cldfbench` lays out a dataset:
 - `raw/`: the source as published, unpacked from its retained artifact
   (`data/artifacts/<collection>/<sha256>/`, acquired with `wety-sources`);
 - `etc/`: what wety's curators add: `source.json` (the source profile), the language
-  map, the kind map and, where forms need it, an orthography profile and readings of
-  forms a converter's rules cannot read (`forms.json`). These are reviewed like code and
+  map, the kind map, where the source's tree needs it the tree's extension
+  (`tree.json`), and, where forms need it, an orthography profile and readings of forms
+  a converter's rules cannot read (`forms.json`). These are reviewed like code and
   tracked in git;
 - `checks/`: what the milestone checks measured, with the samples they read.
 
@@ -48,9 +57,21 @@ Wiktionary converter its annotated sample. From the main checkout:
 ```sh
 S=data/workspaces/etymology/sources
 uv run --frozen python -m etymology.convert.acd --out $S/acd/checks/acd-2/assertions.jsonl --counts $S/acd/checks/acd-2/converter_counts.json
+uv run --frozen python -m etymology.convert.mcd --out $S/mcd/checks/cl-2/assertions.jsonl --counts $S/mcd/checks/cl-2/converter_counts.json
+uv run --frozen python -m etymology.convert.tlopo --out $S/tlopo/checks/cl-2/assertions.jsonl --counts $S/tlopo/checks/cl-2/converter_counts.json
 uv run --frozen python -m etymology.convert.lila --sample $S/lila-edl/checks/core-2/sample.json --out $S/lila-edl/checks/core-2/assertions.jsonl
 uv run --frozen python -m etymology.convert.wiktionary $S/wiktionary/checks/core-2/sample.json $S/wiktionary/checks/core-2/claims.json --out $S/wiktionary/checks/core-2/assertions.jsonl
 uv run --frozen python -m etymology.assertions --summary $S/acd/checks/acd-2/assertions.jsonl $S/*/checks/core-2/assertions.jsonl
+```
+
+A source's language map is derived from the catalog bundle, with the rows a curator
+reviewed (`etc/languages.reviewed.json`); a pyetymdict source whose tree leaves out
+levels or languages has its extension derived the same way from
+`etc/tree.reviewed.json` and Glottolog's classification (the `etymdict` docstring):
+
+```sh
+uv run --frozen python -m etymology.language_map $S/mcd/raw/lexibank-mcd-1cabc58/cldf/languages.csv $S/mcd/etc/languages.json --reviewed $S/mcd/etc/languages.reviewed.json
+uv run --frozen python -m etymology.convert.etymdict place mcd
 ```
 
 ## Converting a whole source
@@ -88,10 +109,11 @@ credits of scope `note`, keyed by its section and note id: a footnote citing
 reads a footnote citing no template from its text. Further reading gives no credits and
 is kept the same way (`further_reading.jsonl.gz`).
 
-## Matching the ACD to Wiktionary
+## Matching the ACD, the MCD and TLOPO to Wiktionary
 
-`match_acd.py` (acd-3) links the ACD's records to Wiktionary's, which stand for wety's
-items, and Wiktionary's assertions that credit the ACD to the ACD's own. `scan` keeps the
+`match_etymdict.py` (acd-3; the MCD and TLOPO since clld-dicts) links a source's records
+to Wiktionary's, which stand for wety's items, and Wiktionary's assertions that credit the
+source to its own (`--source acd|mcd|tlopo`). `scan` keeps the
 Austronesian part of a graph's assertion export and the glosses of Austronesian entries
 from the entries it was built from (`wiktionary_entries`); `run` writes the `match` and `relay` objects
 with everything they refer to, every record's outcome (`decisions.jsonl.gz`), every
@@ -108,9 +130,9 @@ W=<a work directory>; C=$S/acd/checks/acd-3-v4
 E=data/runs/ccaf05246fcb466f94916b3f5ae6654a/checks/core-4-references/assertions.jsonl.gz
 X=data/artifacts/wiktionary-entries/466445a2b9d76a586ab53d059f8c9895b4f31141f20b1666f0d2c33aec73bd06/files/entries.jsonl.gz
 L=data/artifacts/wiktionary-export/57d16abeffbce475ff189e0734fd8937eab8d7417b1ee08273e746b43b350cb0/files
-uv run --frozen python -m etymology.match_acd scan --export $E --entries $X --languages $L/languages.json --families $L/families.json --work $W
-uv run --frozen python -m etymology.match_acd run --acd $S/acd/checks/acd-2/assertions.jsonl --export $E --entries $X --work $W --out $C --previous $S/acd/checks/acd-3-v3
-uv run --frozen python -m etymology.match_acd review --out $C
+uv run --frozen python -m etymology.match_etymdict scan --source acd --export $E --entries $X --languages $L/languages.json --families $L/families.json --work $W
+uv run --frozen python -m etymology.match_etymdict run --source acd --assertions $S/acd/checks/acd-2/assertions.jsonl --export $E --entries $X --work $W --out $C --previous $S/acd/checks/acd-3-v3
+uv run --frozen python -m etymology.match_etymdict review --source acd --out $C
 ```
 
 The matcher, rule `agent:wety-match-acd@4`, takes only languages the ACD's map calls
@@ -135,6 +157,38 @@ ranking (`checks/acd-3-v4-trial/`). v1, which weighed no ancestors, is reviewed 
 `checks/acd-3/`, v2 in `checks/acd-3-ancestry/`, v3 in `checks/acd-3-v3/`. The relay rule, `agent:wety-relay-acd@1`, compares by ancestry, since the
 ACD links a reflex straight to its set's reconstruction. The docstrings of `Matcher` and
 `Relayer` give the rules in full.
+
+The MCD and TLOPO are matched by the same rules under their own names
+(`agent:wety-match-mcd@1`, `agent:wety-match-tlopo@1`, and relay rules to match), with
+their own orthography profiles and judgements in `sources/<source>/etc/`. Their notation
+is rewritten into the keys' before keying (TLOPO's `(h,q)` and `[t,q]`, the MCD's `[kq]`
+and `[aØ]`), and since their links pass through the levels between, a reconstruction's
+reflexes are its attested descendants in the source. Their first runs (`@1`) are in
+`sources/<source>/checks/cl-3/`, reviewed: 89 and 96 of 100 sampled matches right, every
+error a word Wiktionary only cites matched on its key alone. `@2` takes such a word only
+with a shared ancestor (`checks/cl-3-v2/`), which drops 246 and 244 attested matches.
+On the samples it removes 29 MCD matches (11 wrong, 18 right; the 71 left are right) and
+15 TLOPO ones (3 wrong, 12 right; 84 of the 85 left are right): precision for recall.
+Judged pairs keep their judgement.
+
+## Matching WOLD, IE-CoR and TuLeD to Wiktionary
+
+`match_words.py` (clld-dicts) matches a word-centric source's records: a word's
+candidates are the Wiktionary records of its language with its key (without
+diacritics; a reconstruction's through the source's orthography profile, IE-CoR's in
+the Indo-European notation), and of an entry's etymologies the one that names the
+source's parent for the word (WOLD's source word, IE-CoR's root) is taken, else the one
+whose gloss fits; a source word or root is matched to what its word's match names.
+`scan` keeps only the export's records with a wanted key, the hypotheses on their
+origin and what these name; `run` writes a check as `match_etymdict` does:
+
+```sh
+uv run --frozen python -m etymology.match_words scan --source wold --assertions $S/wold/checks/cl-4/assertions.jsonl --export $E --entries $X --work $W
+uv run --frozen python -m etymology.match_words run --source wold --assertions $S/wold/checks/cl-4/assertions.jsonl --export $E --entries $X --work $W --out $S/wold/checks/cl-4
+```
+
+Scripts a source romanises where Wiktionary does not (WOLD's Thai, Russian, Arabic)
+find no candidates: transliteration is not attempted.
 
 ## Matching LiLa to Wiktionary
 
@@ -202,9 +256,11 @@ adapter (its records, their lineage, its forms) and not another thousand lines:
 
 ## Claims in the graph build
 
-Each source enters the graph as a claims product: `wety-data run acd_claims` and
-`lila_claims` convert the source's release and match it against the graph's assertion
-export (`wety-data run etymology_assertions`), and the graph build reads both, with
+Each source enters the graph as a claims product: `wety-data run <source>_claims`
+(`acd`, `lila`, `mcd`, `tlopo`, `csd`, `cariban`, `wold`, `iecor`, `tuled`) converts the
+source's release and matches it against the graph's assertion export (`wety-data run
+etymology_assertions`), and the graph build reads each pair but TuLeD's (cognate sets
+with no reconstruction, which give no links), with
 `sources/wiktionary/etc/overrides.json` (reviewers' overrides of words' readings). The
 processor joins a claim to the words its records are matched to and reads each word it
 touches by synthesis tiers (one lineage, consensus, preference, else unsettled);

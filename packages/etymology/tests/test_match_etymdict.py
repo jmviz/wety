@@ -1,23 +1,26 @@
-"""Offline checks of the ACD matcher and relay rule (acd-3) on a small invented source."""
+"""Offline checks of the matcher and relay rule (acd-3) on a small invented source, read
+as the ACD, and of the MCD's and TLOPO's notation."""
 
 import unittest
 
 from etymology import assertions as A
-from etymology.match_acd import (
-    RELAY_RULE,
-    RULE,
-    Acd,
-    Keys,
+from etymology.match_etymdict import (
+    SPECS,
+    Dictionary,
     Matcher,
     Relayer,
     Wiktionary,
     closure,
+    csd_notation,
     gloss_similarity,
     loose,
+    mcd_notation,
     near,
+    tlopo_notation,
 )
 
-KEYS = Keys()
+KEYS = SPECS["acd"].keys()
+RULE, RELAY_RULE = SPECS["acd"].rule, SPECS["acd"].relay_rule
 ACD_SRC = "acd@v2.0"
 WK_SRC = "wiktionary@2026-09-01"
 # ACD language ids: 1 PMP (a level), 2 Malay, 3 Tagalog, 4 Ilokano
@@ -176,7 +179,7 @@ def wiktionary_objects():
 def setup():
     ar, aobjs = acd_objects()
     wr, wobjs, glosses = wiktionary_objects()
-    acd = Acd(aobjs, tree=Tree())
+    acd = Dictionary(aobjs, tree=Tree())
     wikt = Wiktionary(wobjs, glosses)
     # unfitted weights: a few pairs teach EM nothing
     exact = {c for _, c in LANGS.values()}
@@ -309,6 +312,51 @@ class Matching(unittest.TestCase):
         acd.records["acd:1-other-1"] = acd_record("1", "other", "*kutu", "other")
         relays, _ = Relayer(acd, wikt, m, d).run()
         self.assertEqual(relays[0]["differences"], ["parents"])
+
+
+class Notation(unittest.TestCase):
+    def test_mcd(self):
+        self.assertEqual(mcd_notation("[kq]apala", True), "k/qapala")
+        self.assertEqual(mcd_notation("[aØ]lau, [aØ]lalau", True), "(a)lau, (a)lalau")
+        self.assertEqual(mcd_notation("[ko]-yaa", False), "(ko)-yaa")
+
+    def test_csd(self):
+        self.assertEqual(csd_notation("-sní, yu-", False), "yu-sní")
+        self.assertEqual(csd_notation("ka-, kí-", False), "ka-, kí-")
+
+    def test_tlopo(self):
+        self.assertEqual(tlopo_notation("sasa(h,q)", True), "sasa(h/q)")
+        self.assertEqual(tlopo_notation("diki[t,q]", True), "dikit/q")
+        self.assertEqual(tlopo_notation("piri[-]", True), "piri(-)")
+
+    def test_keys_read_the_notation(self):
+        keys = SPECS["tlopo"].keys()
+        self.assertEqual(keys("tlopo", True, "kamali(R)"), {"kamaliR", "kamali"})
+        self.assertEqual(keys("tlopo", True, "sasa(h,q)"), {"sasah", "sasaq", "sasa"})
+
+
+class CitedWords(unittest.TestCase):
+    """The MCD's and TLOPO's v2: a cited word with no gloss needs a shared ancestor."""
+
+    def test_supported(self):
+        from types import SimpleNamespace
+
+        from etymology.matching import Judgements
+
+        m = SimpleNamespace(judgements=Judgements())
+        r = {"id": "mcd:chuukese-1"}
+        ok = Matcher.supported
+        self.assertTrue(ok(m, r, "wiktionary:chk:fáán#1", {"key": "equal"}))
+        self.assertTrue(ok(m, r, "wiktionary:chk:fáán#1?", {"key": "equal", "gloss": 0.5}))
+        self.assertTrue(
+            ok(
+                m,
+                r,
+                "wiktionary:chk:fáán#1?",
+                {"key": "equal", "ancestors": {"shared": 1, "cited": 1}},
+            )
+        )
+        self.assertFalse(ok(m, r, "wiktionary:chk:fáán#1?", {"key": "equal"}))
 
 
 if __name__ == "__main__":
