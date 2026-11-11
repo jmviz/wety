@@ -4,8 +4,8 @@
   "collection": "mcd-claims",
   "product": "mcd_claims",
   "inputs": {
-    "export": "data/artifacts/etymology-assertions/a2c5f05718126cb52a689f29c3a4284e40303741595f92473f824b0765ec0c9d/files/assertions.jsonl.gz",
-    "entries": "data/artifacts/wiktionary-entries/466445a2b9d76a586ab53d059f8c9895b4f31141f20b1666f0d2c33aec73bd06/files/entries.jsonl.gz",
+    "export": "data/artifacts/etymology-assertions/27e274bf3283b0c8a0f62b7b8faae2d2771e778f8979e5c435489f34e4f27076/files/assertions.jsonl.gz",
+    "entries": "data/artifacts/wiktionary-entries/e598976b43baed1d3e7fe3bd377acd5311d8820788aa7800f7be6554c81c5d82/files/entries.jsonl.gz",
     "languages": "data/artifacts/wiktionary-export/57d16abeffbce475ff189e0734fd8937eab8d7417b1ee08273e746b43b350cb0/files/languages.json",
     "families": "data/artifacts/wiktionary-export/57d16abeffbce475ff189e0734fd8937eab8d7417b1ee08273e746b43b350cb0/files/families.json",
     "cldf_languages_csv": "data/workspaces/etymology/sources/mcd/raw/lexibank-mcd-1cabc58/cldf/languages.csv",
