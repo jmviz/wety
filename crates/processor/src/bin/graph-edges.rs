@@ -15,7 +15,7 @@
 // cargo run --release --bin graph-edges -- data/.../wety.json.gz edges.tsv
 
 #[global_allocator]
-static ALLOC: snmalloc_rs::SnMalloc = snmalloc_rs::SnMalloc;
+static ALLOC: mimalloc::MiMalloc = mimalloc::MiMalloc;
 
 use wety_core::{
     HashSet,

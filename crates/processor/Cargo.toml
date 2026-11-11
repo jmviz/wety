@@ -6,7 +6,7 @@ edition = "2024"
 [dependencies]
 wety-core = { path = "../core" }
 simd-json = "0.19"
-snmalloc-rs = { version = "0.7", features = ["native-cpu"] }
+mimalloc = "0.1.52"
 bytelines = "2.4"
 flate2 = {workspace = true}
 anyhow = {workspace = true}

@@ -12,7 +12,7 @@
 // cargo run --release --bin create-test-file data/test/example.csv
 
 #[global_allocator]
-static ALLOC: snmalloc_rs::SnMalloc = snmalloc_rs::SnMalloc;
+static ALLOC: mimalloc::MiMalloc = mimalloc::MiMalloc;
 
 use processor::entry_lines;
 
