@@ -42,7 +42,7 @@ pub fn entry_lines(path: &Path) -> Result<impl Iterator<Item = Vec<u8>>> {
 }
 
 /// The lines of a file as `entry_lines` reads them, in batches of consecutive lines.
-pub(crate) fn entry_batches(path: &Path) -> Result<impl Iterator<Item = Vec<Vec<u8>>>> {
+pub(crate) fn entry_batches(path: &Path) -> Result<impl Iterator<Item = Vec<Vec<u8>>> + use<>> {
     const BATCH: usize = 1024;
     let reader = BufReader::with_capacity(1 << 20, File::open(path)?);
     let reader: Box<dyn BufRead + Send> = if path.extension().is_some_and(|ext| ext == "gz") {
@@ -68,23 +68,107 @@ pub(crate) fn entry_batches(path: &Path) -> Result<impl Iterator<Item = Vec<Vec<
     Ok(receiver.into_iter())
 }
 
+/// A batch of consecutive lines with each line parsed; the parsed values borrow
+/// from the lines, which the batch keeps.
+pub(crate) struct ParsedBatch {
+    // declared before the lines, so dropped before them
+    entries: Vec<simd_json::Result<Json<'static>>>,
+    _lines: Vec<Vec<u8>>,
+}
+
+impl ParsedBatch {
+    fn new(mut lines: Vec<Vec<u8>>) -> Self {
+        let entries = lines
+            .par_iter_mut()
+            .map(|line| {
+                // SAFETY: the value borrows from the line's heap buffer, which the
+                // batch owns and never changes or frees before the value: moving
+                // `lines` moves only the buffers' handles, and `entries` is dropped
+                // first. The 'static lifetime never leaves the batch (`entries`
+                // gives the values out for as long as the batch is borrowed).
+                let line: &'static mut [u8] =
+                    unsafe { &mut *std::ptr::from_mut(line.as_mut_slice()) };
+                to_borrowed_value(line)
+            })
+            .collect();
+        Self {
+            entries,
+            _lines: lines,
+        }
+    }
+
+    pub(crate) fn entries(&self) -> &[simd_json::Result<Json<'_>>] {
+        &self.entries
+    }
+}
+
+/// The lines of a file as `entry_lines` reads them, parsed: batch by batch, each
+/// batch's lines in parallel, on threads of their own, so that the caller's work on
+/// one batch overlaps the parsing of the next.
+pub(crate) fn parsed_batches(path: &Path) -> Result<impl Iterator<Item = ParsedBatch> + use<>> {
+    let batches = entry_batches(path)?;
+    let (sender, receiver) = mpsc::sync_channel::<ParsedBatch>(8);
+    thread::spawn(move || {
+        for batch in batches {
+            if sender.send(ParsedBatch::new(batch)).is_err() {
+                break;
+            }
+        }
+    });
+    Ok(receiver.into_iter())
+}
+
+/// Drops what it is given on a thread of its own: freeing many small allocations
+/// need not hold up the caller.
+pub(crate) struct Dropper<T: Send + 'static> {
+    sender: Option<mpsc::SyncSender<T>>,
+    thread: Option<thread::JoinHandle<()>>,
+}
+
+impl<T: Send + 'static> Dropper<T> {
+    pub(crate) fn new() -> Self {
+        let (sender, receiver) = mpsc::sync_channel::<T>(8);
+        let thread = thread::spawn(move || receiver.into_iter().for_each(drop));
+        Self {
+            sender: Some(sender),
+            thread: Some(thread),
+        }
+    }
+
+    pub(crate) fn drop_later(&self, value: T) {
+        if let Some(sender) = &self.sender
+            && let Err(mpsc::SendError(value)) = sender.send(value)
+        {
+            drop(value);
+        }
+    }
+}
+
+impl<T: Send + 'static> Drop for Dropper<T> {
+    fn drop(&mut self) {
+        drop(self.sender.take());
+        if let Some(thread) = self.thread.take() {
+            let _ = thread.join();
+        }
+    }
+}
+
 impl Items {
     pub(crate) fn process_entries(
         &mut self,
         string_pool: &mut StringPool,
         path: &Path,
     ) -> Result<()> {
+        let dropper = Dropper::new();
         let mut line_number = 0;
-        for mut batch in entry_batches(path)? {
-            // lines are parsed in parallel, and made items of in order
-            let entries: Vec<_> = batch
-                .par_iter_mut()
-                .map(|line| to_borrowed_value(line))
-                .collect();
-            for entry in entries {
-                self.process_entry(string_pool, &entry?, line_number);
+        // made items of in line order
+        for batch in parsed_batches(path)? {
+            for entry in batch.entries() {
+                let entry = entry.as_ref().map_err(|e| anyhow::anyhow!("{e}"))?;
+                self.process_entry(string_pool, entry, line_number);
                 line_number += 1;
             }
+            dropper.drop_later(batch);
         }
         Ok(())
     }
