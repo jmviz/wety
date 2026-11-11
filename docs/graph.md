@@ -40,11 +40,11 @@ Enterprise does not serve), the pages-articles dump itself (redirects) and the l
 export made from it. It takes about 15 minutes; the entries format is documented in
 `crates/wiktionary-entries/src/model.rs`.
 
-With the embedding cache warm the graph build takes about 5 to 7 minutes on an M1 Pro; a
+With the embedding cache warm the graph build takes about 3 minutes on an M1 Pro; a
 cold cache for 10.9M entries took about six hours, almost all of it embedding. The
 cache (`data/cache/embeddings/current/<namespace>/`) holds each embedding once, by the
-hash of its text: the keys, read into memory, and the vectors (f16), read in place from
-a memory-mapped file. Its namespace is a fingerprint of what the model computes: the
+hash of its text: the keys, read into memory, and the vectors (int8, 384 bytes each),
+read in place from a memory-mapped file. Its namespace is a fingerprint of what the model computes: the
 model, its revision and the exact embeddings it gives a few fixed texts. A change that
 alters any embedding (candle, tokenizers, the device, the encoding or pooling in
 `crates/processor/src/embeddings/model.rs`) starts an empty cache; one that does not,

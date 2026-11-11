@@ -21,7 +21,6 @@ use std::{
 };
 
 use anyhow::{Context, Result, bail, ensure};
-use half::{f16, slice::HalfFloatSliceExt};
 use memmap2::Mmap;
 use xxhash_rust::xxh3::xxh3_64;
 
@@ -41,20 +40,42 @@ pub(crate) struct ItemEmbedding {
     discount: f32,
 }
 
-/// An embedding as scores read it: in f32, with its squared norm, each computed once
-/// for however many vectors it is compared with.
+/// An embedding as scores read it, copied out of the store, with its squared norm
+/// computed once for however many vectors it is compared with.
 pub(crate) struct Vector {
-    values: Vec<f32>,
-    norm2: f32,
+    values: Box<[i8]>,
+    norm2: i32,
 }
 
 impl Vector {
-    fn new(stored: &[f16]) -> Self {
-        let mut values = vec![0.0; stored.len()];
-        stored.convert_to_f32_slice(&mut values);
-        let norm2 = values.iter().fold(0.0, |sum, x| sum + x * x);
-        Self { values, norm2 }
+    fn new(stored: &[i8]) -> Self {
+        Self {
+            values: stored.into(),
+            norm2: dot(stored, stored),
+        }
     }
+}
+
+/// An embedding as the store keeps it: each value as a multiple of the vector's
+/// largest magnitude / 127, rounded. Cosine similarity does not depend on a vector's
+/// scale, so the scale is not kept; the sums it is computed from are exact integers.
+fn quantize(embedding: &[f32]) -> Vec<i8> {
+    let max = embedding.iter().fold(0.0f32, |m, x| m.max(x.abs()));
+    if max == 0.0 {
+        return vec![0; embedding.len()];
+    }
+    #[allow(clippy::cast_possible_truncation)]
+    embedding
+        .iter()
+        .map(|x| (x * 127.0 / max).round().clamp(-127.0, 127.0) as i8)
+        .collect()
+}
+
+fn dot(a: &[i8], b: &[i8]) -> i32 {
+    a.iter()
+        .zip(b)
+        .map(|(&x, &y)| i32::from(x) * i32::from(y))
+        .sum()
 }
 
 pub type TextHash = u64;
@@ -63,11 +84,9 @@ fn text_hash(text: &str) -> TextHash {
     xxh3_64(text.as_bytes())
 }
 
-#[cfg(not(target_endian = "little"))]
-compile_error!("the embedding store is read in place as little-endian f16");
-
 /// Embeddings by the hash of their text, on disk in a directory: `keys` (a u64 per
-/// entry), `vectors` (`dim` f16 per entry, read in place through a memory map) and
+/// entry), `vectors` (`dim` i8 per entry, see `quantize`; read in place through a
+/// memory map) and
 /// `dim`, all little-endian; entries are only appended. Which keys it holds is kept
 /// in memory, so a warm cache is checked without reading the disk. One process at
 /// a time may open it (`lock`).
@@ -111,7 +130,7 @@ impl Store {
             Err(e) => return Err(e.into()),
         };
         // An interrupted append leaves at most a partial entry: drop it.
-        let entry_bytes = (dim * 2).max(1) as u64;
+        let entry_bytes = dim.max(1) as u64;
         let len = if dim == 0 {
             0
         } else {
@@ -152,8 +171,8 @@ impl Store {
         self.index.contains_key(&key)
     }
 
-    /// Add embeddings not yet held, as f16: half the memory and reading of f32,
-    /// for scores that differ by about 1e-4. They can be read after `remap`.
+    /// Add embeddings not yet held, quantized (`quantize`): a quarter of the memory
+    /// and reading of f32. They can be read after `remap`.
     ///
     /// # Errors
     ///
@@ -181,8 +200,7 @@ impl Store {
                 continue;
             }
             keys.extend_from_slice(&key.to_le_bytes());
-            let half: Vec<f16> = embedding.iter().map(|&x| f16::from_f32(x)).collect();
-            vectors.extend_from_slice(bytemuck::cast_slice(&half));
+            vectors.extend_from_slice(bytemuck::cast_slice(&quantize(embedding)));
             added.push((key, u32::try_from(self.len + added.len())?));
         }
         // vectors first: keys name only entries whose vectors are written
@@ -221,11 +239,11 @@ impl Store {
         Ok(())
     }
 
-    pub fn get(&self, key: TextHash) -> Option<&[f16]> {
+    pub fn get(&self, key: TextHash) -> Option<&[i8]> {
         let i = *self.index.get(&key)? as usize;
         let map = self.map.as_deref().expect("remap after appending");
         let bytes = map
-            .get(i * self.dim * 2..(i + 1) * self.dim * 2)
+            .get(i * self.dim..(i + 1) * self.dim)
             .expect("remap after appending");
         Some(bytemuck::cast_slice(bytes))
     }
@@ -262,8 +280,8 @@ const FINGERPRINT_TEXTS: [&str; 4] = [
 fn namespace(model: &Model, config: &Config) -> Result<u64> {
     let texts = FINGERPRINT_TEXTS.map(str::to_owned).to_vec();
     let embeddings = model.encode(texts)?.flatten_all()?.to_vec1::<f32>()?;
-    // the store's format (f16) is part of it
-    let mut bytes = format!("{}\0{}\0f16\0", config.model_name, config.model_revision).into_bytes();
+    // the store's format (i8) is part of it
+    let mut bytes = format!("{}\0{}\0i8\0", config.model_name, config.model_revision).into_bytes();
     bytes.extend_from_slice(bytemuck::cast_slice(&embeddings));
     Ok(xxh3_64(&bytes))
 }
@@ -402,15 +420,13 @@ impl Embeddings {
 }
 
 fn cosine(a: &Vector, b: &Vector) -> f32 {
-    if a.norm2 == 0.0 || b.norm2 == 0.0 {
+    if a.norm2 == 0 || b.norm2 == 0 {
         return 0.0;
     }
-    let ab = a
-        .values
-        .iter()
-        .zip(&b.values)
-        .fold(0.0, |sum, (x, y)| sum + x * y);
-    ab / (a.norm2 * b.norm2).sqrt()
+    let ab = f64::from(dot(&a.values, &b.values));
+    #[allow(clippy::cast_possible_truncation)]
+    let cosine = (ab / (f64::from(a.norm2) * f64::from(b.norm2)).sqrt()) as f32;
+    cosine
 }
 
 fn best_match<'a>(a: impl Iterator<Item = &'a Vector> + Clone, b: &[Vector]) -> f32 {
@@ -503,8 +519,14 @@ mod tests {
         std::fs::remove_dir_all(cache).unwrap();
     }
 
-    fn values(v: Option<&[f16]>) -> Option<Vec<f32>> {
-        v.map(|v| v.iter().map(|x| x.to_f32()).collect())
+    fn values(v: Option<&[i8]>) -> Option<Vec<i8>> {
+        v.map(<[i8]>::to_vec)
+    }
+
+    #[test]
+    fn quantizes_to_the_largest_magnitude() {
+        assert_eq!(quantize(&[1.0, -2.0, 0.5]), vec![64, -127, 32]);
+        assert_eq!(quantize(&[0.0, 0.0]), vec![0, 0]);
     }
 
     #[test]
@@ -522,8 +544,8 @@ mod tests {
                 ])
                 .unwrap();
             store.remap().unwrap();
-            assert_eq!(values(store.get(1)), Some(vec![1.0, 2.0]));
-            assert_eq!(values(store.get(2)), Some(vec![3.0, 4.0]));
+            assert_eq!(values(store.get(1)), Some(vec![64, 127]));
+            assert_eq!(values(store.get(2)), Some(vec![95, 127]));
             assert_eq!(store.get(3), None);
             assert!(store.append([(3, &[1.0][..])]).is_err());
         }
@@ -532,14 +554,14 @@ mod tests {
             .append(true)
             .open(dir.join("vectors"))
             .unwrap()
-            .write_all(&[0; 3])
+            .write_all(&[0; 1])
             .unwrap();
         let mut store = Store::open(&dir).unwrap();
         assert_eq!(store.len(), 2);
         store.append([(3, &[5.0, 6.0][..])]).unwrap();
         store.remap().unwrap();
-        assert_eq!(values(store.get(3)), Some(vec![5.0, 6.0]));
-        assert_eq!(values(store.get(1)), Some(vec![1.0, 2.0]));
+        assert_eq!(values(store.get(3)), Some(vec![106, 127]));
+        assert_eq!(values(store.get(1)), Some(vec![64, 127]));
         drop(store);
         std::fs::remove_dir_all(dir).unwrap();
     }
@@ -597,7 +619,7 @@ mod tests {
 
     #[test]
     fn scores() {
-        let h = |v: &[f32]| Vector::new(&v.iter().map(|&x| f16::from_f32(x)).collect::<Vec<_>>());
+        let h = |v: &[f32]| Vector::new(&quantize(v));
         let item = |ety: Option<&[f32]>, glosses: &[f32], senses: &[&[f32]]| ItemEmbedding {
             ety: ety.map(h),
             glosses: Some(h(glosses)),

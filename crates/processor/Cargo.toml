@@ -20,7 +20,6 @@ serde = {workspace = true}
 serde_json = {workspace = true}
 memmap2 = "0.9"
 bytemuck = "1"
-half = { version = "2.7", features = ["bytemuck"] }
 rayon = "1.12"
 xxhash-rust = { version = "0.8.19", features = ["xxh3"] }
 phf = { version = "0.14", features = ["macros"] }
