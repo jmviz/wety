@@ -3073,6 +3073,7 @@ dependencies = [
  "itertools 0.10.5",
  "memmap2",
  "phf 0.10.1",
+ "rayon",
  "regex",
  "serde",
  "serde_json",

@@ -2,7 +2,7 @@ use crate::{
     HashMap, HashSet,
     descendants::RawDescendants,
     embeddings::{self, Embeddings},
-    entries::{EntryPos, clean_template_term, entry_lines},
+    entries::{EntryPos, clean_template_term, entry_batches, entry_lines},
     etymology::RawEtymology,
     progress_bar,
     redirects::Redirects,
@@ -24,6 +24,7 @@ use std::{collections::hash_map::Entry, mem, path::Path, time::Instant};
 
 use anyhow::{Ok, Result};
 use indicatif::HumanDuration;
+use rayon::prelude::*;
 use simd_json::{ValueAccess, to_borrowed_value};
 
 /// A work's index in the graph's works, adding it the first time it is cited.
@@ -56,6 +57,9 @@ type Ids = HashMap<(LangTerm, Box<str>), ItemId>;
 pub(crate) type EntryNames = HashMap<LangTerm, Term>;
 // (entries line, part of speech in it) -> the item it is (a part of speech) of
 type Lines = HashMap<(usize, usize), ItemId>;
+
+// an item's etymology text and glosses, as one of its lines gives them
+type ItemTexts = (ItemId, Option<String>, Vec<String>);
 
 #[derive(Default)]
 pub(crate) struct EmbeddingNeeds {
@@ -461,30 +465,47 @@ impl Items {
             .filter(|(_, item_id)| needs.items.contains(item_id))
             .map(|(&(line, _), _)| line)
             .collect();
-        for (line_number, mut line) in entry_lines(entries_path)?.enumerate() {
-            if !wanted_lines.contains(&line_number) {
-                continue;
-            }
-            let wanted = |n: usize| {
-                self.lines
-                    .get(&(line_number, n))
-                    .filter(|item_id| needs.items.contains(item_id))
-                    .copied()
-            };
-            let entry = to_borrowed_value(&mut line)?;
-            let templates = [];
-            for (n, pos) in entry.get_array("pos").into_iter().flatten().enumerate() {
-                let Some(item_id) = wanted(n) else { continue };
-                let item = EntryPos {
-                    entry: &entry,
-                    pos,
-                    templates: &templates,
-                };
+        let lines = &self.lines;
+        let wanted = |line_number: usize, n: usize| {
+            lines
+                .get(&(line_number, n))
+                .filter(|item_id| needs.items.contains(item_id))
+                .copied()
+        };
+        let mut first_line = 0;
+        for batch in entry_batches(entries_path)? {
+            let batch_len = batch.len();
+            // read in parallel, gathered in line order
+            let found: Vec<Vec<ItemTexts>> = batch
+                .into_par_iter()
+                .enumerate()
+                .filter(|(i, _)| wanted_lines.contains(&(first_line + i)))
+                .map(|(i, mut line)| {
+                    let entry = to_borrowed_value(&mut line)?;
+                    let templates = [];
+                    let mut found = vec![];
+                    for (n, pos) in entry.get_array("pos").into_iter().flatten().enumerate() {
+                        let Some(item_id) = wanted(first_line + i, n) else {
+                            continue;
+                        };
+                        let item = EntryPos {
+                            entry: &entry,
+                            pos,
+                            templates: &templates,
+                        };
+                        let glosses = item.glosses().map(str::to_owned).collect();
+                        found.push((item_id, item.etymology_text(), glosses));
+                    }
+                    Ok(found)
+                })
+                .collect::<Result<_>>()?;
+            first_line += batch_len;
+            for (item_id, item_ety, item_glosses) in found.into_iter().flatten() {
                 let (ety, glosses) = texts.entry(item_id).or_default();
                 if ety.is_none() {
-                    *ety = item.etymology_text();
+                    *ety = item_ety;
                 }
-                glosses.extend(item.glosses().map(str::to_owned));
+                glosses.extend(item_glosses);
             }
         }
         println!("  Read their texts ({}).", HumanDuration(t.elapsed()));

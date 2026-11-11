@@ -28,6 +28,7 @@ use std::{
 use anyhow::{Ok, Result};
 use bytelines::ByteLines;
 use flate2::read::MultiGzDecoder;
+use rayon::prelude::*;
 use simd_json::{Mutable, ValueAccess, to_borrowed_value};
 
 /// The lines of a gzipped (`.gz`) or plain file, in order. They are read and
@@ -37,6 +38,11 @@ use simd_json::{Mutable, ValueAccess, to_borrowed_value};
 ///
 /// This function will return an error if the file at the given path cannot be opened.
 pub fn entry_lines(path: &Path) -> Result<impl Iterator<Item = Vec<u8>>> {
+    Ok(entry_batches(path)?.flatten())
+}
+
+/// The lines of a file as `entry_lines` reads them, in batches of consecutive lines.
+pub(crate) fn entry_batches(path: &Path) -> Result<impl Iterator<Item = Vec<Vec<u8>>>> {
     const BATCH: usize = 1024;
     let reader = BufReader::with_capacity(1 << 20, File::open(path)?);
     let reader: Box<dyn BufRead + Send> = if path.extension().is_some_and(|ext| ext == "gz") {
@@ -59,7 +65,7 @@ pub fn entry_lines(path: &Path) -> Result<impl Iterator<Item = Vec<u8>>> {
             }
         }
     });
-    Ok(receiver.into_iter().flatten())
+    Ok(receiver.into_iter())
 }
 
 impl Items {
@@ -68,21 +74,33 @@ impl Items {
         string_pool: &mut StringPool,
         path: &Path,
     ) -> Result<()> {
-        for (line_number, mut line) in entry_lines(path)?.enumerate() {
-            let entry = to_borrowed_value(&mut line)?;
-            self.total_ok_lines_in_file += 1;
-            let calls = etymology_calls(&entry);
-            let templates: Vec<&Json> = calls.iter().map(AsRef::as_ref).collect();
-            for (n, pos) in entry.get_array("pos").into_iter().flatten().enumerate() {
-                let item = EntryPos {
-                    entry: &entry,
-                    pos,
-                    templates: &templates,
-                };
-                self.process_item(string_pool, &item, (line_number, n));
+        let mut line_number = 0;
+        for mut batch in entry_batches(path)? {
+            // lines are parsed in parallel, and made items of in order
+            let entries: Vec<_> = batch
+                .par_iter_mut()
+                .map(|line| to_borrowed_value(line))
+                .collect();
+            for entry in entries {
+                self.process_entry(string_pool, &entry?, line_number);
+                line_number += 1;
             }
         }
         Ok(())
+    }
+
+    fn process_entry(&mut self, string_pool: &mut StringPool, entry: &Json, line_number: usize) {
+        self.total_ok_lines_in_file += 1;
+        let calls = etymology_calls(entry);
+        let templates: Vec<&Json> = calls.iter().map(AsRef::as_ref).collect();
+        for (n, pos) in entry.get_array("pos").into_iter().flatten().enumerate() {
+            let item = EntryPos {
+                entry,
+                pos,
+                templates: &templates,
+            };
+            self.process_item(string_pool, &item, (line_number, n));
+        }
     }
 
     /// The dump's redirects (`wiktionary-entries --redirects`): namespace, title and
