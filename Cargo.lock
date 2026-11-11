@@ -4699,6 +4699,7 @@ dependencies = [
  "ngrammatic",
  "petgraph",
  "phf 0.10.1",
+ "rayon",
  "serde",
  "serde_json",
  "sha2",

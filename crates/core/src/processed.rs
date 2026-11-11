@@ -17,7 +17,7 @@ use crate::{
 
 use std::{
     fs::File,
-    io::{BufReader, BufWriter, Read, Write},
+    io::{BufReader, BufWriter, Read},
     path::Path,
     time::Instant,
 };
@@ -68,13 +68,18 @@ impl Data {
             std::fs::create_dir_all(parent)?;
         }
         let file = File::create(path)?;
-        let should_gz_compress = path.extension().is_some_and(|ext| ext == "gz");
-        let writer: Box<dyn Write> = if should_gz_compress {
-            Box::new(GzEncoder::new(file, Compression::fast()))
+        // serde_json writes a token at a time: buffer in front of the encoder, and
+        // finish both explicitly so that a failed final write is an error.
+        if path.extension().is_some_and(|ext| ext == "gz") {
+            let mut writer =
+                BufWriter::with_capacity(1 << 20, GzEncoder::new(file, Compression::fast()));
+            serde_json::to_writer(&mut writer, &self)?;
+            writer.into_inner()?.finish()?.sync_all()?;
         } else {
-            Box::new(BufWriter::new(file))
-        };
-        serde_json::to_writer(writer, &self)?;
+            let mut writer = BufWriter::with_capacity(1 << 20, file);
+            serde_json::to_writer(&mut writer, &self)?;
+            writer.into_inner()?.sync_all()?;
+        }
         println!("Finished. Took {:.2?}.", t.elapsed());
         Ok(())
     }
@@ -153,7 +158,9 @@ impl Data {
         let file = File::open(path)?;
         let is_gz_compressed = path.extension().is_some_and(|ext| ext == "gz");
         let data: Self = if is_gz_compressed {
-            serde_json::from_reader(GzDecoder::new(BufReader::new(file)))?
+            // serde_json reads a byte at a time: the buffer goes in front of the
+            // decoder (which buffers the file itself)
+            serde_json::from_reader(BufReader::with_capacity(1 << 20, GzDecoder::new(file)))?
         } else {
             // SAFETY: `Mmap::map` is only unsound if the file is modified while
             // mapped; the processed data file is written once by `processor`

@@ -89,7 +89,10 @@ pub fn process_entries(
         );
     }
     println!("Finished. Took {}.", HumanDuration(t.elapsed()));
+    t = Instant::now();
+    println!("Embedding items...");
     let embeddings = items.generate_embeddings(&string_pool, entries_path, embeddings_config)?;
+    println!("Finished. Took {}.", HumanDuration(t.elapsed()));
     t = Instant::now();
     println!("Generating ety graph...");
     items.generate_ety_graph(&string_pool, &embeddings)?;
@@ -102,7 +105,10 @@ pub fn process_entries(
         println!("{}", serde_json::to_string_pretty(&counts)?);
         println!("Finished. Took {}.", HumanDuration(t.elapsed()));
     }
+    t = Instant::now();
+    println!("Computing progenitors and descendant languages...");
     let data = Data::new(string_pool, items.graph);
+    println!("Finished. Took {}.", HumanDuration(t.elapsed()));
     if let Some(turtle_path) = turtle_path {
         turtle::write_turtle(&data, turtle_path)?;
     }

@@ -16,6 +16,7 @@ use petgraph::{
     stable_graph::{EdgeReference, StableDiGraph},
     visit::{EdgeRef, IntoEdgeReferences, IntoNodeReferences},
 };
+use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
 use strum::{AsRefStr, EnumIter, IntoStaticStr};
 
@@ -781,9 +782,16 @@ impl EtyGraph {
 
     #[must_use]
     pub fn all_progenitors(&self) -> HashMap<ItemId, Progenitors> {
+        let items: Vec<ItemId> = self.graph.node_indices().collect();
+        let found: Vec<Option<Progenitors>> = items
+            .par_iter()
+            .map(|&item| self.progenitors(item))
+            .collect();
+        // inserted in item order, as the map's iteration order (and so the
+        // graph file) depends on it
         let mut progenitors = HashMap::default();
-        for (item_id, _) in self.iter() {
-            if let Some(prog) = self.progenitors(item_id) {
+        for (item_id, prog) in items.into_iter().zip(found) {
+            if let Some(prog) = prog {
                 progenitors.insert(item_id, prog);
             }
         }
@@ -838,9 +846,18 @@ impl EtyGraph {
     /// Get all langs that have at least one item that is descended from `item`.
     #[must_use]
     pub fn descendant_langs(&self, item: ItemId) -> HashSet<Lang> {
+        // each descendant once, however many lines lead to it
         let mut descendant_langs = HashSet::default();
-        for descendant_edge in self.descendant_edges(item) {
-            descendant_langs.insert(self.item(descendant_edge.child()).lang());
+        let mut seen = HashSet::default();
+        let mut stack = vec![item];
+        while let Some(current) = stack.pop() {
+            for edge in self.child_edges(current) {
+                let child = edge.child();
+                if seen.insert(child) {
+                    descendant_langs.insert(self.item(child).lang());
+                    stack.push(child);
+                }
+            }
         }
         descendant_langs
     }
@@ -849,14 +866,11 @@ impl EtyGraph {
     /// descended from that item.
     #[must_use]
     pub fn all_descendant_langs(&self) -> DescendantLangs {
+        let items: Vec<ItemId> = self.graph.node_indices().collect();
         DescendantLangs::new(
-            self.iter()
-                .map(|(item_id, _)| {
-                    (
-                        item_id,
-                        self.descendant_langs(item_id).into_iter().collect(),
-                    )
-                })
+            items
+                .into_par_iter()
+                .map(|item| (item, self.descendant_langs(item).into_iter().collect()))
                 .collect(),
         )
     }

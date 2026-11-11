@@ -20,9 +20,10 @@ use wety_core::{
     string_pool::StringPool,
 };
 
-use std::{collections::hash_map::Entry, mem, path::Path};
+use std::{collections::hash_map::Entry, mem, path::Path, time::Instant};
 
 use anyhow::{Ok, Result};
+use indicatif::HumanDuration;
 use simd_json::{ValueAccess, to_borrowed_value};
 
 /// A work's index in the graph's works, adding it the first time it is cited.
@@ -450,6 +451,7 @@ impl Items {
             needs.items.len(),
             needs.texts.len()
         );
+        let t = Instant::now();
         // each item's etymology text and glosses, from all its lines
         let mut texts: HashMap<ItemId, (Option<String>, Vec<String>)> = HashMap::default();
         // most lines name no item that needs embedding: parse only those that do
@@ -485,6 +487,8 @@ impl Items {
                 glosses.extend(item.glosses().map(str::to_owned));
             }
         }
+        println!("  Read their texts ({}).", HumanDuration(t.elapsed()));
+        let t = Instant::now();
         let mut items: Vec<_> = texts.into_iter().collect();
         items.sort_unstable_by_key(|(item_id, _)| *item_id);
         let pb = progress_bar(items.len() + needs.texts.len(), "Generating embeddings")?;
@@ -503,6 +507,10 @@ impl Items {
         }
         embeddings.flush()?;
         pb.finish();
+        println!(
+            "  Embedded or found them in the cache ({}).",
+            HumanDuration(t.elapsed())
+        );
         Ok(embeddings)
     }
 
@@ -511,16 +519,20 @@ impl Items {
         string_pool: &StringPool,
         embeddings: &Embeddings,
     ) -> Result<()> {
+        let t = Instant::now();
         self.index_mentions();
         self.process_raw_descendants(string_pool, embeddings)?;
-        println!("  Descendants lines:");
+        println!("  Descendants lines ({}):", HumanDuration(t.elapsed()));
         self.resolution_stats.report();
         self.break_cycles();
+        let t = Instant::now();
         self.process_raw_etymologies(string_pool, embeddings)?;
-        println!("  Etymologies:");
+        println!("  Etymologies ({}):", HumanDuration(t.elapsed()));
         self.resolution_stats.report();
         self.break_cycles();
+        let t = Instant::now();
         self.impute_root_etys(string_pool, embeddings)?;
+        println!("  Roots ({}).", HumanDuration(t.elapsed()));
         self.break_cycles();
         Ok(())
     }
