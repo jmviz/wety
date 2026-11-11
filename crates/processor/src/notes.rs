@@ -7,7 +7,7 @@
 
 use crate::{entries::EntryPos, references::References};
 
-use simd_json::ValueAccess;
+use simd_json::prelude::*;
 
 use std::sync::LazyLock;
 

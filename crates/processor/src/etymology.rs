@@ -26,7 +26,7 @@ use wety_core::{
 use std::{mem, str::FromStr};
 
 use anyhow::{Ok, Result, anyhow, ensure};
-use simd_json::ValueAccess;
+use simd_json::prelude::*;
 
 // models the basic info from a wiktionary etymology template
 #[derive(Hash, Eq, PartialEq, Debug)]

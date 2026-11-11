@@ -25,7 +25,7 @@ use std::{collections::hash_map::Entry, mem, path::Path, time::Instant};
 use anyhow::{Ok, Result};
 use indicatif::HumanDuration;
 use rayon::prelude::*;
-use simd_json::{ValueAccess, to_borrowed_value};
+use simd_json::{prelude::*, to_borrowed_value};
 
 /// A work's index in the graph's works, adding it the first time it is cited.
 pub(crate) fn intern(

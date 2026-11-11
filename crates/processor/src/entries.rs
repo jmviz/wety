@@ -29,7 +29,7 @@ use anyhow::{Ok, Result};
 use bytelines::ByteLines;
 use flate2::read::MultiGzDecoder;
 use rayon::prelude::*;
-use simd_json::{Mutable, ValueAccess, to_borrowed_value};
+use simd_json::{prelude::*, to_borrowed_value};
 
 /// The lines of a gzipped (`.gz`) or plain file, in order. They are read and
 /// decompressed on another thread, so that the caller's work on them overlaps it.

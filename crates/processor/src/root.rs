@@ -22,7 +22,7 @@ use anyhow::{Ok, Result};
 use std::sync::LazyLock;
 
 use regex::Regex;
-use simd_json::ValueAccess;
+use simd_json::prelude::*;
 
 #[derive(Hash, Eq, PartialEq, Debug)]
 pub(crate) struct RawRoot {

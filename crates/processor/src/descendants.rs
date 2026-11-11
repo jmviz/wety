@@ -21,7 +21,7 @@ use std::{mem, str::FromStr};
 
 use anyhow::{Ok, Result};
 use itertools::izip;
-use simd_json::ValueAccess;
+use simd_json::prelude::*;
 
 #[derive(Hash, Eq, PartialEq, Debug)]
 pub(crate) struct RawDescendants {
