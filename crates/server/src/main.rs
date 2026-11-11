@@ -1,5 +1,5 @@
 use server::{
-    AppState, Environment, client_ip::ClientIpKeyExtractor, item, item_cognates, item_descendants,
+    AppState, client_ip::ClientIpKeyExtractor, item, item_cognates, item_descendants,
     item_etymology, item_origin, item_search_matches, lang, lang_search_matches, periods,
     periods::DEFAULT_PERIODS_PATH, resolve,
 };
@@ -12,7 +12,6 @@ use axum::{
     http::{HeaderName, Method},
     routing::get,
 };
-use axum_server::tls_rustls::RustlsConfig;
 use tower::ServiceBuilder;
 use tower_governor::{GovernorLayer, governor::GovernorConfigBuilder};
 use tower_http::{
@@ -30,19 +29,7 @@ async fn main() -> Result<()> {
         )
         .init();
 
-    let environment = Environment::from_str(
-        &env::var("WETY_ENVIRONMENT").unwrap_or_else(|_| "development".to_string()),
-    )?;
-
-    let origins: AllowOrigin = match environment {
-        // Environment::Production => AllowOrigin::predicate(|origin: &HeaderValue, _| {
-        //     let origin = origin.as_bytes();
-        //     origin == b"https://wety.org"
-        //         || origin == b"https://www.wety.org"
-        //         || origin.ends_with(b".pages.dev")
-        // }),
-        Environment::Development | Environment::Production => tower_http::cors::Any.into(),
-    };
+    let origins: AllowOrigin = tower_http::cors::Any.into();
 
     let data_path = match env::var("WETY_GRAPH_PATH") {
         Ok(path) => path,
@@ -109,23 +96,12 @@ async fn main() -> Result<()> {
     let addr = SocketAddr::new(host.parse()?, port.parse()?);
     println!("Running wety server at http://{addr}...");
 
-    match environment {
-        Environment::Development => {
-            axum_server::bind(addr)
-                .serve(app.into_make_service_with_connect_info::<SocketAddr>())
-                .await?;
-        }
-        Environment::Production => {
-            let cert_path = env::var("WETY_CERT_PATH")
-                .expect("WETY_CERT_PATH environment variable set in production");
-            let key_path = env::var("WETY_KEY_PATH")
-                .expect("WETY_KEY_PATH environment variable set in production");
-            let config = RustlsConfig::from_pem_file(&cert_path, &key_path).await?;
-            axum_server::bind_rustls(addr, config)
-                .serve(app.into_make_service_with_connect_info::<SocketAddr>())
-                .await?;
-        }
-    }
+    let listener = tokio::net::TcpListener::bind(addr).await?;
+    axum::serve(
+        listener,
+        app.into_make_service_with_connect_info::<SocketAddr>(),
+    )
+    .await?;
 
     Ok(())
 }

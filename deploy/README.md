@@ -233,9 +233,8 @@ Server environment:
 | `WETY_PERIODS_PATH` | language periods file (default `data/products/dating/language_periods.json`) |
 | `WETY_HOST`, `WETY_PORT` | listen address, default `0.0.0.0:3000`; `wety.service` sets `127.0.0.1:3000` |
 | `WETY_CLIENT_IP_HEADER` | rate-limit by this header's IP, falling back to the peer address. Set it only when a proxy overwrites the header and is the only way in. |
-| `WETY_ENVIRONMENT=production` | in-process TLS with `WETY_CERT_PATH`/`WETY_KEY_PATH`. Unused behind the tunnel. |
 
 Release builds use `RUSTFLAGS="-C target-cpu=neoverse-n1"`. The host's Ampere Altra is
 a Neoverse N1, while `.cargo/config.toml`'s `target-cpu=native` would target the build
-machine. The current graph (600 MB gzipped JSON) takes about two minutes to load and
-index on an M1 Pro and about 5 GB of memory once loaded; the host is slower.
+machine. The server speaks plain HTTP; the tunnel terminates TLS. The current graph (about
+900 MB gzipped JSON) takes about a minute to load and index on an M1 Pro and about 5 GB of memory once loaded; the host is slower.

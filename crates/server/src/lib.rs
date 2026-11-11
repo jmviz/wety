@@ -12,7 +12,7 @@ use wety_core::{
     response::DescendantsViewJson,
 };
 
-use std::{str::FromStr, sync::Arc};
+use std::sync::Arc;
 
 use anyhow::Result;
 use axum::{
@@ -24,22 +24,6 @@ use axum_extra::extract::Query as ExtraQuery;
 use bytes::Bytes;
 use moka::sync::Cache;
 use serde_json::{Value, json};
-
-pub enum Environment {
-    Development,
-    Production,
-}
-
-impl FromStr for Environment {
-    type Err = anyhow::Error;
-
-    fn from_str(s: &str) -> Result<Self> {
-        match s {
-            "production" => Ok(Self::Production),
-            _ => Ok(Self::Development),
-        }
-    }
-}
 
 /// Everything that determines a tree response. The data is immutable for the
 /// life of the process, so this is a complete cache key.
