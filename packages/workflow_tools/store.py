@@ -204,10 +204,14 @@ def _copy(src, dst):
 
 def sync(src, dst, apply=False) -> dict:
     """Bring src's files into dst: missing files are copied; a file present in both with
-    different content is a conflict and is never overwritten. Files git tracks in dst's
-    checkout, and directories src links from elsewhere, are skipped."""
+    different content is a conflict and is never overwritten. Files git tracks in either
+    checkout, and directories src links from elsewhere, are skipped: git brings a branch's
+    tracked files with the merge, and copied early they would block it as untracked files."""
     src, dst = Path(src).resolve(), Path(dst).resolve()
-    tracked = _tracked(dst.parent) if (dst.parent / ".git").exists() else set()
+    tracked = set()
+    for checkout in (src.parent, dst.parent):
+        if (checkout / ".git").exists():
+            tracked |= _tracked(checkout)
     copied, conflicts, same = [], [], 0
     for root, dirs, files in os.walk(src):
         here = Path(root)

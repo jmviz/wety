@@ -108,8 +108,10 @@ in the main checkout, the first entry of `git worktree list`
   the output, else restore it.
 - At each checkpoint, bring a worktree's new data into the main checkout
   (`uv run --frozen wety-data store sync data <main>/data --apply`; it never
-  overwrites; report its conflicts), then snapshot from the main checkout
-  (`wety-data store snapshot`) and commit `data/SNAPSHOT.json`. If
+  overwrites, leaves files git tracks to the merge, and reports its conflicts), then run
+  `uv run --frozen wety-data store snapshot` from your own checkout: it backs up the main
+  checkout's `data/` and writes the pointer, with your commit, to your
+  `data/SNAPSHOT.json`. Commit that. If
   `wety-data store status` shows no `settings`, the store is not configured here: say so.
 - Without the main checkout, restore `data/` from the store (`wety-data store restore`,
   then `sync`); if the store is not configured either, report it rather than
@@ -118,15 +120,19 @@ in the main checkout, the first entry of `git worktree list`
 ## Local servers
 
 Servers running on this machine may belong to other sessions: never stop or restart one
-you did not start. To show the maintainer your work, start your own from your checkout
-on free ports and give them the URL:
+you did not start. Start one only when the maintainer wants to look at your work: your
+own, from your checkout, on free ports, and give them the URL:
 
 ```sh
 WETY_PORT=3010 cargo run --locked --release --bin server   # WETY_GRAPH_PATH for another graph
 cd client && VITE_API_BASE_URL=http://127.0.0.1:3010 npm run dev -- --port 8010
 ```
 
-Stop it when they are done: a server holds its graph in memory (about 5 GB).
+A server holds its graph in memory (about 5 GB), and one nobody remembers starting is
+easy to mistake for someone else's. Never start one to outlive your session (`nohup`,
+`&`, `disown`). Name each one you leave running in your reply (URL, checkout, process
+ID), and stop it when the maintainer is done with it, or at the latest when your
+session ends.
 
 ## Documents
 
