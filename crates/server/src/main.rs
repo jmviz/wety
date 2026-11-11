@@ -8,14 +8,13 @@ use std::{env, net::SocketAddr, path::Path, str::FromStr, sync::Arc};
 
 use anyhow::Result;
 use axum::{
-    BoxError, Router,
-    error_handling::HandleErrorLayer,
+    Router,
     http::{HeaderName, Method},
     routing::get,
 };
 use axum_server::tls_rustls::RustlsConfig;
 use tower::ServiceBuilder;
-use tower_governor::{GovernorLayer, errors::display_error, governor::GovernorConfigBuilder};
+use tower_governor::{GovernorLayer, governor::GovernorConfigBuilder};
 use tower_http::{
     compression::{CompressionLayer, CompressionLevel},
     cors::{AllowOrigin, CorsLayer},
@@ -73,34 +72,31 @@ async fn main() -> Result<()> {
         Ok(name) => Some(HeaderName::from_str(&name)?),
         Err(_) => None,
     };
-    let governor = Box::leak(Box::new(
+    let governor = Arc::new(
         GovernorConfigBuilder::default()
             .key_extractor(ClientIpKeyExtractor::new(client_ip_header))
             .finish()
             .ok_or_else(|| anyhow::anyhow!("invalid rate limiter configuration"))?,
-    ));
+    );
 
     let app = Router::new()
         .route("/search/lang", get(lang_search_matches))
-        .route("/search/item/:lang", get(item_search_matches))
+        .route("/search/item/{lang}", get(item_search_matches))
         .route("/resolve", get(resolve))
-        .route("/item/:item", get(item))
-        .route("/lang/:lang", get(lang))
-        .route("/cognates/:item", get(item_cognates))
-        .route("/etymology/:item", get(item_etymology))
-        .route("/origin/:item", get(item_origin))
-        .route("/descendants/:item", get(item_descendants))
+        .route("/item/{item}", get(item))
+        .route("/lang/{lang}", get(lang))
+        .route("/cognates/{item}", get(item_cognates))
+        .route("/etymology/{item}", get(item_etymology))
+        .route("/origin/{item}", get(item_origin))
+        .route("/descendants/{item}", get(item_descendants))
         .route("/periods", get(periods))
         .with_state(state)
         .layer(
             ServiceBuilder::new()
                 .layer(TraceLayer::new_for_http())
-                .layer(HandleErrorLayer::new(|e: BoxError| async move {
-                    display_error(e)
-                }))
-                .layer(GovernorLayer { config: governor })
                 // the default brotli quality (11) was a significant bottleneck on large trees
                 .layer(CompressionLayer::new().quality(CompressionLevel::Precise(4)))
+                .layer(GovernorLayer::new(governor))
                 .layer(
                     CorsLayer::new()
                         .allow_methods([Method::GET])

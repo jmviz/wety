@@ -28,7 +28,6 @@ impl ClientIpKeyExtractor {
 
 impl KeyExtractor for ClientIpKeyExtractor {
     type Key = IpAddr;
-    type KeyExtractionError = GovernorError;
 
     fn name(&self) -> &'static str {
         "client IP"

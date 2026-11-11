@@ -26,7 +26,9 @@ use anyhow::{Ok, Result};
 use flate2::{Compression, read::GzDecoder, write::GzEncoder};
 use itertools::Itertools;
 use memmap2::Mmap;
-use ngrammatic::{Corpus, CorpusBuilder, Pad};
+use ngrammatic::{
+    Corpus, CorpusBuilder, IdentityKeyTransformer, KeyTransformer, LinkedKeyTransformer, Pad,
+};
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 use trie_rs::map::{Trie as TrieMap, TrieBuilder as TrieMapBuilder};
@@ -815,7 +817,7 @@ struct LangData {
 
 pub struct Search {
     normalized_langs: HashMap<String, LangData>,
-    langs: Corpus,
+    langs: Corpus<LinkedKeyTransformer<IdentityKeyTransformer, LangNameKey>>,
     terms: HashMap<Lang, TrieMap<u8, Vec<ItemId>>>,
 }
 
@@ -839,6 +841,16 @@ fn fold_term(term: &str) -> String {
         .collect()
 }
 
+// Language names are searched as normalize_lang_name gives them.
+#[derive(Clone, Copy)]
+struct LangNameKey;
+
+impl KeyTransformer for LangNameKey {
+    fn transform(&self, key: &str) -> String {
+        normalize_lang_name(key)
+    }
+}
+
 fn normalize_lang_name(name: &str) -> String {
     name.chars()
         .filter(|c| !matches!(c, '(' | ')'))
@@ -855,10 +867,10 @@ impl Data {
         let t = Instant::now();
         println!("Building search tries...");
         let mut normalized_langs = HashMap::<String, LangData>::default();
-        let mut langs = CorpusBuilder::new()
+        let mut langs = CorpusBuilder::default()
             .arity(4)
             .pad_full(Pad::Auto)
-            .key_trans(Box::new(normalize_lang_name))
+            .link_key_transformer(LangNameKey)
             .finish();
         // Pre-aggregate items by (lang, lowered_term) since the map trie
         // only stores one value per key.
@@ -937,7 +949,7 @@ impl Search {
         named.sort_unstable_by(|a, b| a.0.cmp(&b.0).then(b.1.items.cmp(&a.1.items)));
         let mut near = self
             .langs
-            .search(lang, 0.4)
+            .search(lang, 0.4, usize::MAX)
             .iter()
             .filter(|r| rank(&r.text).is_none())
             .filter_map(|r| {

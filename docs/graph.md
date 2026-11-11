@@ -44,13 +44,15 @@ With the embedding cache warm the graph build takes about 7 minutes on an M1 Pro
 cold cache for 10.9M entries took about six hours, almost all of it embedding. The
 cache (`data/cache/embeddings/current/<namespace>/`) holds each embedding once, by the
 hash of its text: the keys, read into memory, and the vectors, read in place from a
-memory-mapped file. Its namespace is the model, its revision and the code that embeds
-(`crates/processor/src/embeddings/model.rs`): editing that file starts an empty cache,
-editing the rest of the embedding code does not. Model
+memory-mapped file. Its namespace is a fingerprint of what the model computes: the
+model, its revision and the exact embeddings it gives a few fixed texts. A change that
+alters any embedding (candle, tokenizers, the device, the encoding or pooling in
+`crates/processor/src/embeddings/model.rs`) starts an empty cache; one that does not,
+such as most library upgrades, keeps it. Model
 files are cached by Hugging Face; the model revision and expected local file hashes are
 recorded in `data/registry/embedding-model.json`. On macOS the
 embedding model runs on the GPU (Metal) automatically; elsewhere it runs on the CPU
-unless the workflow command adds the `cuda`, `accelerate` or `mkl` feature (that change
+unless the workflow command adds the `cuda` or `accelerate` feature (that change
 becomes part of the run receipt). Texts are embedded in length-sorted sub-batches with
 masked mean pooling, so an embedding does not depend on the other texts in its batch.
 

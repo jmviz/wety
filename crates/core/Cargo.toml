@@ -4,24 +4,24 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-petgraph = {version = "0.6.2", features = ["serde-1"]}
+petgraph = { version = "0.8", features = ["serde-1"] }
 serde = {workspace = true}
 serde_json = {workspace = true}
 flate2 = {workspace = true}
 anyhow = {workspace = true}
 itertools = "0.15"
-ngrammatic = "0.4.0"
+ngrammatic = "0.7"
 trie-rs = "0.4"
-xxhash-rust = {version = "0.8.6", features = ["xxh3"]}
-phf = {version = "0.10", features = ["macros"]}
+xxhash-rust = { version = "0.8.19", features = ["xxh3"] }
+phf = { version = "0.14", features = ["macros"] }
 urlencoding = "2.1.2"
-string-interner = "0.14.0"
+string-interner = "0.20"
 memmap2 = "0.9"
 strum = { version = "0.28", features = ["derive", "phf"] }
-unicode-normalization = "0.1.22"
-sha2 = "0.10"
+unicode-normalization = "0.1.26"
+sha2 = "0.11"
 rayon = "1.12"
 
 [build-dependencies]
-sha2 = "0.10"
+sha2 = "0.11"
 serde_json = { workspace = true }

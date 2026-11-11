@@ -17,6 +17,6 @@ ego-tree = "0.11"
 clap = { version = "4.6", features = ["derive"] }
 rayon = "1.12"
 scraper = "0.29"
-sha2 = "0.10"
+sha2 = "0.11"
 tar = "0.4.40"
 urlencoding = "2.1.2"

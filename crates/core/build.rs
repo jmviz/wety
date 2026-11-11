@@ -21,10 +21,8 @@ fn main() {
     hash.update(fs::read(&family_path).unwrap());
     hash.update(b"\0");
     hash.update(fs::read(&pos_path).unwrap());
-    println!(
-        "cargo:rustc-env=WETY_REFERENCE_FINGERPRINT={:x}",
-        hash.finalize()
-    );
+    let fingerprint: String = hash.finalize().iter().map(|b| format!("{b:02x}")).collect();
+    println!("cargo:rustc-env=WETY_REFERENCE_FINGERPRINT={fingerprint}");
     println!(
         "cargo:rustc-env=WETY_LANGUAGES_JSON={}",
         language_path.display()
