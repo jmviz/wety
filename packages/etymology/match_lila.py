@@ -874,6 +874,9 @@ class Relayer:
         """What kind of `parents` difference: Wiktionary's parent against de Vaan's
         ancestor of the same language."""
         code = self.wikt.records[parent]["language"]["code"]
+        # an etymology naming a language but no word: a record of it with no form
+        if self.wikt.records[parent]["form"] is None:
+            return f"Wiktionary names only the language ({code}), no word"
         same = [r for r in ancestors if self.lila.records[r]["language"]["code"] == code]
         if not same:
             return f"Wiktionary's parent is {code}; de Vaan's chain in LiLa has none"
