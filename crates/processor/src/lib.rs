@@ -26,7 +26,7 @@ use crate::{items::Items, references::References};
 use std::{convert::TryFrom, path::Path, time::Instant};
 
 use anyhow::{Ok, Result};
-use indicatif::{HumanDuration, ProgressBar, ProgressStyle};
+use indicatif::{ProgressBar, ProgressStyle};
 
 pub(crate) fn progress_bar(n: usize, message: &str) -> Result<ProgressBar> {
     let pb = ProgressBar::new(u64::try_from(n)?);
@@ -84,27 +84,27 @@ pub fn process_entries(
             items.references.items()
         );
     }
-    println!("Finished. Took {}.", HumanDuration(t.elapsed()));
+    println!("Finished. Took {:.1?}.", t.elapsed());
     t = Instant::now();
     println!("Embedding items...");
     let embeddings = items.generate_embeddings(&string_pool, entries_path, embeddings_config)?;
-    println!("Finished. Took {}.", HumanDuration(t.elapsed()));
+    println!("Finished. Took {:.1?}.", t.elapsed());
     t = Instant::now();
     println!("Generating ety graph...");
     items.generate_ety_graph(&string_pool, &embeddings)?;
     items.renumber_imputed_dupes(&string_pool);
-    println!("Finished. Took {}.", HumanDuration(t.elapsed()));
+    println!("Finished. Took {:.1?}.", t.elapsed());
     if !claims.is_empty() || overrides.is_some() {
         t = Instant::now();
         println!("Joining other sources' claims...");
         let counts = items.apply_claims(&string_pool, claims, overrides)?;
         println!("{}", serde_json::to_string_pretty(&counts)?);
-        println!("Finished. Took {}.", HumanDuration(t.elapsed()));
+        println!("Finished. Took {:.1?}.", t.elapsed());
     }
     t = Instant::now();
     println!("Computing progenitors and descendant languages...");
     let data = Data::new(string_pool, items.graph);
-    println!("Finished. Took {}.", HumanDuration(t.elapsed()));
+    println!("Finished. Took {:.1?}.", t.elapsed());
     if let Some(turtle_path) = turtle_path {
         turtle::write_turtle(&data, turtle_path)?;
     }

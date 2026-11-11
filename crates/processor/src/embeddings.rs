@@ -21,6 +21,7 @@ use std::{
 };
 
 use anyhow::{Context, Result, bail, ensure};
+use half::f16;
 use memmap2::Mmap;
 use xxhash_rust::xxh3::xxh3_64;
 
@@ -34,9 +35,9 @@ const MAX_ETY_CHARS: usize = 600;
 
 /// An item's embeddings, borrowed from the store.
 pub(crate) struct ItemEmbedding<'a> {
-    ety: Option<&'a [f32]>,
-    glosses: Option<&'a [f32]>,
-    senses: Vec<&'a [f32]>,
+    ety: Option<&'a [f16]>,
+    glosses: Option<&'a [f16]>,
+    senses: Vec<&'a [f16]>,
     discount: f32,
 }
 
@@ -47,10 +48,10 @@ fn text_hash(text: &str) -> TextHash {
 }
 
 #[cfg(not(target_endian = "little"))]
-compile_error!("the embedding store is read in place as little-endian f32");
+compile_error!("the embedding store is read in place as little-endian f16");
 
 /// Embeddings by the hash of their text, on disk in a directory: `keys` (a u64 per
-/// entry), `vectors` (`dim` f32 per entry, read in place through a memory map) and
+/// entry), `vectors` (`dim` f16 per entry, read in place through a memory map) and
 /// `dim`, all little-endian; entries are only appended. Which keys it holds is kept
 /// in memory, so a warm cache is checked without reading the disk. One process at
 /// a time may open it (`lock`).
@@ -94,7 +95,7 @@ impl Store {
             Err(e) => return Err(e.into()),
         };
         // An interrupted append leaves at most a partial entry: drop it.
-        let entry_bytes = (dim * 4).max(1) as u64;
+        let entry_bytes = (dim * 2).max(1) as u64;
         let len = if dim == 0 {
             0
         } else {
@@ -135,7 +136,8 @@ impl Store {
         self.index.contains_key(&key)
     }
 
-    /// Add embeddings not yet held. They can be read after `remap`.
+    /// Add embeddings not yet held, as f16: half the memory and reading of f32,
+    /// for scores that differ by about 1e-4. They can be read after `remap`.
     ///
     /// # Errors
     ///
@@ -163,7 +165,8 @@ impl Store {
                 continue;
             }
             keys.extend_from_slice(&key.to_le_bytes());
-            vectors.extend_from_slice(bytemuck::cast_slice(embedding));
+            let half: Vec<f16> = embedding.iter().map(|&x| f16::from_f32(x)).collect();
+            vectors.extend_from_slice(bytemuck::cast_slice(&half));
             added.push((key, u32::try_from(self.len + added.len())?));
         }
         // vectors first: keys name only entries whose vectors are written
@@ -187,14 +190,19 @@ impl Store {
         self.map = (self.len > 0)
             .then(|| unsafe { Mmap::map(&self.vectors) })
             .transpose()?;
+        // Resolution reads the vectors at random: have the system read the file in
+        // ahead, in large sequential reads, rather than a page at a time on demand.
+        if let Some(map) = &self.map {
+            map.advise(memmap2::Advice::WillNeed)?;
+        }
         Ok(())
     }
 
-    pub fn get(&self, key: TextHash) -> Option<&[f32]> {
+    pub fn get(&self, key: TextHash) -> Option<&[f16]> {
         let i = *self.index.get(&key)? as usize;
         let map = self.map.as_deref().expect("remap after appending");
         let bytes = map
-            .get(i * self.dim * 4..(i + 1) * self.dim * 4)
+            .get(i * self.dim * 2..(i + 1) * self.dim * 2)
             .expect("remap after appending");
         Some(bytemuck::cast_slice(bytes))
     }
@@ -231,7 +239,8 @@ const FINGERPRINT_TEXTS: [&str; 4] = [
 fn namespace(model: &Model, config: &Config) -> Result<u64> {
     let texts = FINGERPRINT_TEXTS.map(str::to_owned).to_vec();
     let embeddings = model.encode(texts)?.flatten_all()?.to_vec1::<f32>()?;
-    let mut bytes = format!("{}\0{}\0", config.model_name, config.model_revision).into_bytes();
+    // the store's format (f16) is part of it
+    let mut bytes = format!("{}\0{}\0f16\0", config.model_name, config.model_revision).into_bytes();
     bytes.extend_from_slice(bytemuck::cast_slice(&embeddings));
     Ok(xxh3_64(&bytes))
 }
@@ -341,7 +350,7 @@ impl Embeddings {
         self.store.remap()
     }
 
-    pub(crate) fn text(&self, text: &str) -> Option<&[f32]> {
+    pub(crate) fn text(&self, text: &str) -> Option<&[f16]> {
         let key = text_hash(text);
         self.texts
             .contains(&key)
@@ -367,9 +376,10 @@ impl Embeddings {
     }
 }
 
-fn cosine(a: &[f32], b: &[f32]) -> f32 {
+fn cosine(a: &[f16], b: &[f16]) -> f32 {
     let (mut ab, mut aa, mut bb) = (0.0, 0.0, 0.0);
     for (x, y) in a.iter().zip(b) {
+        let (x, y) = (x.to_f32(), y.to_f32());
         ab += x * y;
         aa += x * x;
         bb += y * y;
@@ -380,7 +390,7 @@ fn cosine(a: &[f32], b: &[f32]) -> f32 {
     ab / (aa * bb).sqrt()
 }
 
-fn best_match<'a>(a: impl Iterator<Item = &'a [f32]> + Clone, b: &[&[f32]]) -> f32 {
+fn best_match<'a>(a: impl Iterator<Item = &'a [f16]> + Clone, b: &[&[f16]]) -> f32 {
     a.flat_map(|x| b.iter().map(move |y| cosine(x, y)))
         .fold(0.0, f32::max)
 }
@@ -395,7 +405,7 @@ pub(crate) fn citation_score(
     citer: &ItemEmbedding,
     candidate: &ItemEmbedding,
     citer_is_child: bool,
-    gloss: Option<&[f32]>,
+    gloss: Option<&[f16]>,
 ) -> f32 {
     let senses = match gloss {
         Some(gloss) => best_match(std::iter::once(gloss), &candidate.senses),
@@ -470,6 +480,10 @@ mod tests {
         std::fs::remove_dir_all(cache).unwrap();
     }
 
+    fn values(v: Option<&[f16]>) -> Option<Vec<f32>> {
+        v.map(|v| v.iter().map(|x| x.to_f32()).collect())
+    }
+
     #[test]
     fn store_appends_and_recovers() {
         let dir = std::env::temp_dir().join("wety-embeddings-tests-store");
@@ -485,8 +499,8 @@ mod tests {
                 ])
                 .unwrap();
             store.remap().unwrap();
-            assert_eq!(store.get(1), Some(&[1.0, 2.0][..]));
-            assert_eq!(store.get(2), Some(&[3.0, 4.0][..]));
+            assert_eq!(values(store.get(1)), Some(vec![1.0, 2.0]));
+            assert_eq!(values(store.get(2)), Some(vec![3.0, 4.0]));
             assert_eq!(store.get(3), None);
             assert!(store.append([(3, &[1.0][..])]).is_err());
         }
@@ -495,14 +509,14 @@ mod tests {
             .append(true)
             .open(dir.join("vectors"))
             .unwrap()
-            .write_all(&[0; 5])
+            .write_all(&[0; 3])
             .unwrap();
         let mut store = Store::open(&dir).unwrap();
         assert_eq!(store.len(), 2);
         store.append([(3, &[5.0, 6.0][..])]).unwrap();
         store.remap().unwrap();
-        assert_eq!(store.get(3), Some(&[5.0, 6.0][..]));
-        assert_eq!(store.get(1), Some(&[1.0, 2.0][..]));
+        assert_eq!(values(store.get(3)), Some(vec![5.0, 6.0]));
+        assert_eq!(values(store.get(1)), Some(vec![1.0, 2.0]));
         drop(store);
         std::fs::remove_dir_all(dir).unwrap();
     }
@@ -560,12 +574,13 @@ mod tests {
 
     #[test]
     fn scores() {
-        let item = |ety: Option<&'static [f32]>,
-                    glosses: &'static [f32],
-                    senses: &[&'static [f32]]| ItemEmbedding {
-            ety,
-            glosses: Some(glosses),
-            senses: senses.to_vec(),
+        let h = |v: &[f32]| -> &'static [f16] {
+            Vec::leak(v.iter().map(|&x| f16::from_f32(x)).collect())
+        };
+        let item = |ety: Option<&[f32]>, glosses: &[f32], senses: &[&[f32]]| ItemEmbedding {
+            ety: ety.map(h),
+            glosses: Some(h(glosses)),
+            senses: senses.iter().map(|s| h(s)).collect(),
             discount: 1.0,
         };
         // the child's etymology describes the parent's sense [0, 1]
@@ -576,7 +591,7 @@ mod tests {
             citation_score(&child, &right, true, None) > citation_score(&child, &wrong, true, None)
         );
         // a citation's gloss replaces the citing item's senses
-        let gloss: &[f32] = &[0.6, 0.8];
+        let gloss = h(&[0.6, 0.8]);
         assert!(
             citation_score(&child, &wrong, true, Some(gloss))
                 > citation_score(&child, &right, true, Some(gloss)) - 0.3

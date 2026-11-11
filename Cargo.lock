@@ -2267,6 +2267,7 @@ dependencies = [
  "clap",
  "csv",
  "flate2",
+ "half",
  "indicatif",
  "itertools 0.15.0",
  "memmap2",

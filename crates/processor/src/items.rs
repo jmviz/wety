@@ -23,7 +23,6 @@ use wety_core::{
 use std::{collections::hash_map::Entry, mem, path::Path, time::Instant};
 
 use anyhow::{Ok, Result};
-use indicatif::HumanDuration;
 use rayon::prelude::*;
 use simd_json::{prelude::*, to_borrowed_value};
 
@@ -508,7 +507,7 @@ impl Items {
                 glosses.extend(item_glosses);
             }
         }
-        println!("  Read their texts ({}).", HumanDuration(t.elapsed()));
+        println!("  Read their texts ({:.1?}).", t.elapsed());
         let t = Instant::now();
         let mut items: Vec<_> = texts.into_iter().collect();
         items.sort_unstable_by_key(|(item_id, _)| *item_id);
@@ -529,8 +528,8 @@ impl Items {
         embeddings.flush()?;
         pb.finish();
         println!(
-            "  Embedded or found them in the cache ({}).",
-            HumanDuration(t.elapsed())
+            "  Embedded or found them in the cache ({:.1?}).",
+            t.elapsed()
         );
         Ok(embeddings)
     }
@@ -543,17 +542,17 @@ impl Items {
         let t = Instant::now();
         self.index_mentions();
         self.process_raw_descendants(string_pool, embeddings)?;
-        println!("  Descendants lines ({}):", HumanDuration(t.elapsed()));
+        println!("  Descendants lines ({:.1?}):", t.elapsed());
         self.resolution_stats.report();
         self.break_cycles();
         let t = Instant::now();
         self.process_raw_etymologies(string_pool, embeddings)?;
-        println!("  Etymologies ({}):", HumanDuration(t.elapsed()));
+        println!("  Etymologies ({:.1?}):", t.elapsed());
         self.resolution_stats.report();
         self.break_cycles();
         let t = Instant::now();
         self.impute_root_etys(string_pool, embeddings)?;
-        println!("  Roots ({}).", HumanDuration(t.elapsed()));
+        println!("  Roots ({:.1?}).", t.elapsed());
         self.break_cycles();
         Ok(())
     }

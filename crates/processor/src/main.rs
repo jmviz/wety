@@ -7,7 +7,6 @@ use std::{path::PathBuf, time::Instant};
 
 use anyhow::Result;
 use clap::Parser;
-use indicatif::HumanDuration;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -81,8 +80,8 @@ fn main() -> Result<()> {
     )?;
 
     println!(
-        "All done! Took {} overall. Exiting...",
-        HumanDuration(total_time.elapsed())
+        "All done! Took {:.1?} overall. Exiting...",
+        total_time.elapsed()
     );
     Ok(())
 }
