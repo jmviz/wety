@@ -30,24 +30,22 @@ use serde::Deserialize;
 use simd_json::{prelude::*, to_borrowed_value, value::borrowed::Value};
 
 #[derive(Parser)]
-#[clap(author, version, about, long_about = None)]
+#[command(author, version, about, long_about = None)]
 pub struct Args {
-    #[clap(
+    #[arg(
         help = "Path to CSV file with lang_code,page columns naming the entries for the test file"
     )]
     csv: PathBuf,
-    #[clap(
+    #[arg(
         short = 'f',
         long,
-        help = "Path to the full entries file (wiktionary-entries --out)",
-        value_parser
+        help = "Path to the full entries file (wiktionary-entries --out)"
     )]
     full: PathBuf,
-    #[clap(
+    #[arg(
         short = 't',
         long,
-        help = "Test file name. If not provided, test file will be named after CSV file.",
-        value_parser
+        help = "Test file name. If not provided, test file will be named after CSV file."
     )]
     test: Option<PathBuf>,
 }

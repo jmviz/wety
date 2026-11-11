@@ -14,7 +14,7 @@ flate2 = {workspace = true}
 serde = {workspace = true}
 serde_json = {workspace = true}
 ego-tree = "0.11"
-clap = { version = "3.2.17", features = ["derive"] }
+clap = { version = "4.6", features = ["derive"] }
 rayon = "1.12"
 scraper = "0.29"
 sha2 = "0.10"

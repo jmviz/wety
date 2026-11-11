@@ -44,21 +44,21 @@ struct Args {
     /// Where to write the TSV
     out: PathBuf,
     /// Where to write the items whose origin is unknown, one key per line
-    #[clap(long)]
+    #[arg(long)]
     unknown: Option<PathBuf>,
     /// Where to write the etymologies that name a language or family but no
     /// word: the item's key, then the etymology's number, mode, source code,
     /// certainty, and whether walks follow it (TSV)
-    #[clap(long)]
+    #[arg(long)]
     language_only: Option<PathBuf>,
     /// Where to write each credit of each etymology's assertion: the item's
     /// key, then the etymology's number, the work's id, scope, role and
     /// locator (TSV)
-    #[clap(long)]
+    #[arg(long)]
     credits: Option<PathBuf>,
     /// Where to write the readings of words that claims touch or that are
     /// not read by one lineage (JSON Lines)
-    #[clap(long)]
+    #[arg(long)]
     readings: Option<PathBuf>,
 }
 

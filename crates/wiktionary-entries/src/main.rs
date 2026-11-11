@@ -23,37 +23,37 @@ use wety_wiktionary_entries::{
 #[derive(Parser)]
 struct Args {
     /// An Enterprise snapshot: a tar.gz of NDJSON page records.
-    #[clap(long)]
+    #[arg(long)]
     enterprise: Option<PathBuf>,
     /// NDJSON.gz files of page records in the same shape.
-    #[clap(long, multiple_occurrences = true)]
+    #[arg(long)]
     records: Vec<PathBuf>,
     /// The language export (`languages.json`) of the dump of the same date: language
     /// headings to codes.
-    #[clap(long)]
+    #[arg(long)]
     languages: PathBuf,
     /// The entries file to write (JSON lines, gzipped).
-    #[clap(long)]
+    #[arg(long)]
     out: PathBuf,
     /// Where to write the counts (JSON).
-    #[clap(long)]
+    #[arg(long)]
     counts: PathBuf,
     /// Read at most this many records from each input.
-    #[clap(long)]
+    #[arg(long)]
     limit: Option<usize>,
     /// Keep only the pages named in this file, one title per line.
-    #[clap(long)]
+    #[arg(long)]
     titles: Option<PathBuf>,
     /// The pages-articles dump (`.xml.bz2`) of the same date, for its redirects.
-    #[clap(long, requires = "redirects")]
+    #[arg(long, requires = "redirects")]
     dump: Option<PathBuf>,
     /// Where to write the dump's redirects in namespaces 0 and 118 (TSV, gzipped:
     /// namespace, title, target).
-    #[clap(long, requires = "dump")]
+    #[arg(long, requires = "dump")]
     redirects: Option<PathBuf>,
     /// Where to write the entry names mentions link to (TSV, gzipped: language, term as
     /// shown, page, how often), where the page is not named by the term itself.
-    #[clap(long)]
+    #[arg(long)]
     entry_names: Option<PathBuf>,
 }
 

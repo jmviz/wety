@@ -49,11 +49,11 @@ struct Args {
     /// Where to write the assertions (gzipped if it ends in .gz)
     out: PathBuf,
     /// Where to write counts and sizes
-    #[clap(long)]
+    #[arg(long)]
     counts: Option<PathBuf>,
     /// Write only every nth word's assertions, with what they refer to: a
     /// sample small enough to validate
-    #[clap(long)]
+    #[arg(long)]
     every: Option<usize>,
 }
 
