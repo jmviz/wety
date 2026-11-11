@@ -949,7 +949,8 @@ impl Search {
         named.sort_unstable_by(|a, b| a.0.cmp(&b.0).then(b.1.items.cmp(&a.1.items)));
         let mut near = self
             .langs
-            .search(lang, 0.4, usize::MAX)
+            // ngrammatic 0.4, which this was tuned with, gave at most 10
+            .search(lang, 0.4, 10)
             .iter()
             .filter(|r| rank(&r.text).is_none())
             .filter_map(|r| {
