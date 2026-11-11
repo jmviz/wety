@@ -31,6 +31,8 @@ use wety_core::{
     string_pool::StringPool,
 };
 
+use std::borrow::Cow;
+
 use anyhow::{Ok, Result};
 use unicode_normalization::UnicodeNormalization;
 
@@ -403,14 +405,15 @@ impl Items {
         };
         // A term found missing for an earlier citation (though homographs
         // exist) is a candidate too.
-        let mut candidates = real.clone();
-        if let Some(&imputed) = self.imputed_titles.get(&LangTerm::new(
+        let imputed = self.imputed_titles.get(&LangTerm::new(
             citation.langterm.lang,
             self.key(citation.langterm).term,
-        )) {
-            candidates.push(imputed);
-        }
-        let candidates = &candidates;
+        ));
+        let candidates: Cow<[ItemId]> = match imputed {
+            Some(&imputed) => Cow::Owned(real.iter().copied().chain([imputed]).collect()),
+            None => Cow::Borrowed(real),
+        };
+        let candidates = &candidates[..];
         // A single candidate can only be rejected for an etymology citation
         // with a continuation to check it against.
         if candidates.len() == 1 && !matches!(citation.relation, Relation::Parent { next: Some(_) })

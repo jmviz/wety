@@ -21,6 +21,8 @@ use std::{
     mem,
     path::Path,
     str::FromStr,
+    sync::mpsc,
+    thread,
 };
 
 use anyhow::{Ok, Result};
@@ -28,14 +30,16 @@ use bytelines::ByteLines;
 use flate2::read::MultiGzDecoder;
 use simd_json::{Mutable, ValueAccess, to_borrowed_value};
 
-/// The lines of a gzipped (`.gz`) or plain file.
+/// The lines of a gzipped (`.gz`) or plain file, in order. They are read and
+/// decompressed on another thread, so that the caller's work on them overlaps it.
 ///
 /// # Errors
 ///
 /// This function will return an error if the file at the given path cannot be opened.
 pub fn entry_lines(path: &Path) -> Result<impl Iterator<Item = Vec<u8>>> {
+    const BATCH: usize = 1024;
     let reader = BufReader::with_capacity(1 << 20, File::open(path)?);
-    let reader: Box<dyn BufRead> = if path.extension().is_some_and(|ext| ext == "gz") {
+    let reader: Box<dyn BufRead + Send> = if path.extension().is_some_and(|ext| ext == "gz") {
         Box::new(BufReader::with_capacity(
             1 << 20,
             MultiGzDecoder::new(reader),
@@ -43,8 +47,19 @@ pub fn entry_lines(path: &Path) -> Result<impl Iterator<Item = Vec<u8>>> {
     } else {
         Box::new(reader)
     };
-    // One Vec per line, for the convenience of an iterator; not a bottleneck.
-    Ok(ByteLines::new(reader).into_iter().filter_map(Result::ok))
+    let (sender, receiver) = mpsc::sync_channel::<Vec<Vec<u8>>>(64);
+    thread::spawn(move || {
+        // One Vec per line, for the convenience of an iterator; not a bottleneck.
+        let mut lines = ByteLines::new(reader).into_iter().filter_map(Result::ok);
+        loop {
+            let batch: Vec<Vec<u8>> = lines.by_ref().take(BATCH).collect();
+            // an empty batch ends the file; a closed channel, a reader that stopped
+            if batch.is_empty() || sender.send(batch).is_err() {
+                break;
+            }
+        }
+    });
+    Ok(receiver.into_iter().flatten())
 }
 
 impl Items {
