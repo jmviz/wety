@@ -17,7 +17,7 @@ use crate::items::Items;
 use wety_core::{
     HashMap, HashSet,
     assertions::{self, Agent, Claim, Relation, Stance},
-    ety_graph::{Certainty, EdgeBasis, EtyEdgeAccess, EtyKind, Etymologies, NewEtymology},
+    ety_graph::{Certainty, EdgeBasis, EtyEdge, EtyEdgeAccess, EtyKind, Etymologies, NewEtymology},
     etymology_templates::EtyMode,
     items::ItemId,
     string_pool::StringPool,
@@ -416,12 +416,22 @@ impl Items {
         Ok(counts)
     }
 
-    // The etymology of `item` whose parents are `parents`, in any order.
-    fn ety_with_parents(&self, item: ItemId, parents: &[ItemId]) -> Option<u8> {
-        let wanted: HashSet<ItemId> = parents.iter().copied().collect();
+    // An item's parent edges by etymology, in the order of the etymologies'
+    // numbers, so that a search of them gives the same result in every build.
+    fn etys_by_number(&self, item: ItemId) -> Vec<(u8, Vec<EtyEdge<'_>>)> {
         self.graph
             .all_parent_edges(item)
             .into_group_map_by(|e| e.ety())
+            .into_iter()
+            .sorted_unstable_by_key(|(ety, _)| *ety)
+            .collect()
+    }
+
+    // The etymology of `item` whose parents are `parents`, in any order (the
+    // first by number).
+    fn ety_with_parents(&self, item: ItemId, parents: &[ItemId]) -> Option<u8> {
+        let wanted: HashSet<ItemId> = parents.iter().copied().collect();
+        self.etys_by_number(item)
             .into_iter()
             .find(|(_, edges)| {
                 edges.len() == wanted.len() && edges.iter().all(|e| wanted.contains(&e.parent()))
@@ -433,19 +443,16 @@ impl Items {
     // names every claimed parent and more (the claim names the base of a
     // formation, the etymology its parts), or one with a single parent that
     // is the claimed single parent's ancestor or descendant along followed
-    // links.
+    // links. The first by number, of each kind.
     fn ety_refined_by(&self, item: ItemId, parents: &[ItemId]) -> Option<u8> {
-        let by_ety = self
-            .graph
-            .all_parent_edges(item)
-            .into_group_map_by(|e| e.ety());
-        if let Some((&ety, _)) = by_ety.iter().find(|(_, edges)| {
+        let by_ety = self.etys_by_number(item);
+        if let Some((ety, _)) = by_ety.iter().find(|(_, edges)| {
             edges.len() > parents.len()
                 && parents
                     .iter()
                     .all(|p| edges.iter().any(|e| e.parent() == *p))
         }) {
-            return Some(ety);
+            return Some(*ety);
         }
         let &[claimed] = parents else {
             return None;
