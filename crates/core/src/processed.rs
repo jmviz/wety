@@ -23,7 +23,11 @@ use std::{
 };
 
 use anyhow::{Ok, Result};
-use flate2::{Compression, read::GzDecoder, write::GzEncoder};
+use flate2::{
+    Compression,
+    read::{GzDecoder, MultiGzDecoder},
+    write::GzEncoder,
+};
 use itertools::Itertools;
 use memmap2::Mmap;
 use ngrammatic::{
@@ -77,9 +81,10 @@ impl Data {
         let file = File::create(path)?;
         // finished explicitly, so that a failed final write is an error
         if path.extension().is_some_and(|ext| ext == "gz") {
-            let writer =
-                BufWriter::with_capacity(1 << 20, GzEncoder::new(file, Compression::fast()));
-            self.write(writer)?.into_inner()?.finish()?.sync_all()?;
+            self.write(ParallelGz::new(BufWriter::new(file)))?
+                .finish()?
+                .into_inner()?
+                .sync_all()?;
         } else {
             let writer = BufWriter::with_capacity(1 << 20, file);
             self.write(writer)?.into_inner()?.sync_all()?;
@@ -102,6 +107,88 @@ const GRAPH_MAGIC: &[u8; 8] = b"wetygrph";
 /// Bump whenever a type the graph holds changes how it serializes (a field added,
 /// removed or reordered, an enum variant inserted or reordered).
 const GRAPH_FORMAT: u32 = 1;
+
+/// Gzip on several threads: what is written is cut into chunks, each compressed on a
+/// thread of its own as a gzip member, and the members written in order (a
+/// multi-member gzip file, as `pigz --independent` writes; `MultiGzDecoder` and
+/// `gzip -d` read it whole).
+struct ParallelGz<W: Write> {
+    out: W,
+    chunk: Vec<u8>,
+    compressing: std::collections::VecDeque<std::thread::JoinHandle<std::io::Result<Vec<u8>>>>,
+    threads: usize,
+}
+
+impl<W: Write> ParallelGz<W> {
+    const CHUNK: usize = 16 << 20;
+
+    fn new(out: W) -> Self {
+        Self {
+            out,
+            chunk: Vec::with_capacity(Self::CHUNK),
+            compressing: std::collections::VecDeque::new(),
+            threads: std::thread::available_parallelism().map_or(4, usize::from),
+        }
+    }
+
+    fn write_oldest(&mut self) -> std::io::Result<()> {
+        if let Some(member) = self.compressing.pop_front() {
+            let member = member
+                .join()
+                .map_err(|_| std::io::Error::other("a compression thread panicked"))??;
+            self.out.write_all(&member)?;
+        }
+        std::io::Result::Ok(())
+    }
+
+    fn compress_chunk(&mut self) -> std::io::Result<()> {
+        if self.chunk.is_empty() {
+            return std::io::Result::Ok(());
+        }
+        if self.compressing.len() >= self.threads {
+            self.write_oldest()?;
+        }
+        let chunk = std::mem::replace(&mut self.chunk, Vec::with_capacity(Self::CHUNK));
+        self.compressing.push_back(std::thread::spawn(move || {
+            let mut encoder =
+                GzEncoder::new(Vec::with_capacity(chunk.len() / 2), Compression::fast());
+            encoder.write_all(&chunk)?;
+            encoder.finish()
+        }));
+        std::io::Result::Ok(())
+    }
+
+    /// Compress and write what is left; the output, written in full.
+    fn finish(mut self) -> std::io::Result<W> {
+        self.compress_chunk()?;
+        while !self.compressing.is_empty() {
+            self.write_oldest()?;
+        }
+        self.out.flush()?;
+        std::io::Result::Ok(self.out)
+    }
+}
+
+impl<W: Write> Write for ParallelGz<W> {
+    fn write(&mut self, mut bytes: &[u8]) -> std::io::Result<usize> {
+        let n = bytes.len();
+        while !bytes.is_empty() {
+            let room = Self::CHUNK - self.chunk.len();
+            let (now, rest) = bytes.split_at(room.min(bytes.len()));
+            self.chunk.extend_from_slice(now);
+            bytes = rest;
+            if self.chunk.len() == Self::CHUNK {
+                self.compress_chunk()?;
+            }
+        }
+        std::io::Result::Ok(n)
+    }
+
+    // chunks are written as they fill, and the rest by `finish`
+    fn flush(&mut self) -> std::io::Result<()> {
+        std::io::Result::Ok(())
+    }
+}
 
 fn is_json(path: &Path) -> bool {
     let name = path
@@ -186,7 +273,8 @@ impl Data {
         let data: Self = if !is_json(path) {
             let mut bytes = vec![];
             if is_gz_compressed {
-                GzDecoder::new(BufReader::with_capacity(1 << 20, file)).read_to_end(&mut bytes)?;
+                MultiGzDecoder::new(BufReader::with_capacity(1 << 20, file))
+                    .read_to_end(&mut bytes)?;
             } else {
                 BufReader::new(file).read_to_end(&mut bytes)?;
             }
@@ -1763,6 +1851,22 @@ mod graph_file_tests {
         );
         graph.set_unknown(douten);
         Data::new(pool, graph)
+    }
+
+    #[test]
+    fn parallel_gzip_writes_one_member_per_chunk_in_order() {
+        // two and a half chunks, unlike each other
+        let bytes: Vec<u8> = (0..40u32 << 20)
+            .map(|i| ((i % 251) ^ (i >> 20)) as u8)
+            .collect();
+        let mut writer = ParallelGz::new(vec![]);
+        for part in bytes.chunks(1 << 19) {
+            writer.write_all(part).unwrap();
+        }
+        let gz = writer.finish().unwrap();
+        let mut read = vec![];
+        MultiGzDecoder::new(&gz[..]).read_to_end(&mut read).unwrap();
+        assert!(read == bytes);
     }
 
     #[test]
