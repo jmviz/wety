@@ -21,6 +21,10 @@ uv run --frozen wety-data run etymology_graph
 This invokes the Rust processor with wety's entries of Wiktionary, writes to a run
 staging directory, validates the graph with matching compiled language/POS tables,
 then publishes an immutable artifact and `data/products/etymology_graph/CURRENT.json`.
+The graph is one file, `wety.bin.gz`: `wety_core`'s `Data` in postcard behind a format
+number, gzipped (`crates/core/src/processed.rs`); graphs written as JSON before it
+still load. Tools that need it without `wety_core` get counts from its examples
+(`lang_counts`, `graph_stats`).
 It reads products of other workflows, pinned in its `workflow.json`:
 `wiktionary_entries` (the entries, the dump's redirects and the entry names mentions
 link to), `wiktionary_references` (each entry's References, from the pages dump of the
@@ -40,7 +44,7 @@ Enterprise does not serve), the pages-articles dump itself (redirects) and the l
 export made from it. It takes about 15 minutes; the entries format is documented in
 `crates/wiktionary-entries/src/model.rs`.
 
-With the embedding cache warm the graph build takes about 3 minutes on an M1 Pro; a
+With the embedding cache warm the graph build takes about 2.5 minutes on an M1 Pro; a
 cold cache for 10.9M entries took about six hours, almost all of it embedding. The
 cache (`data/cache/embeddings/current/<namespace>/`) holds each embedding once, by the
 hash of its text: the keys, read into memory, and the vectors (int8, 384 bytes each),
