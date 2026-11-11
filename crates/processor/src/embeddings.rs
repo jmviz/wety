@@ -3,12 +3,10 @@
 //! Each item gets embeddings of each of its senses' glosses, of its glosses
 //! joined, and of its etymology text; a citation may also give a gloss of the
 //! cited term (t=). Embeddings are cached by the hash of their text, in a `Store`
-//! under a namespace of the model, its revision and the code that embeds
-//! (`model.rs`); this file may change without discarding the cache.
+//! under a namespace that is the fingerprint of what the model computes
+//! (`namespace`).
 
-// Never reformatted or edited for a lint: its text keys the cache (see model.rs).
 #[allow(clippy::large_enum_variant)]
-#[rustfmt::skip]
 mod model;
 
 use crate::{HashMap, HashSet};
@@ -218,29 +216,29 @@ pub struct Config {
     pub cache_path: PathBuf,
 }
 
-impl Config {
-    /// The store holding this model's embeddings.
-    ///
-    /// # Errors
-    ///
-    /// Returns an error if the revision is not an immutable commit.
-    pub fn store_dir(&self) -> Result<PathBuf> {
-        ensure!(
-            self.model_revision.len() == 40
-                && self.model_revision.bytes().all(|b| b.is_ascii_hexdigit()),
-            "Embedding model revision must be an immutable 40-character commit"
-        );
-        let namespace = model::namespace(&self.model_name, &self.model_revision);
-        Ok(self.cache_path.join(format!("{namespace:016x}")))
-    }
+// Texts of several lengths whose embeddings name the cache.
+const FINGERPRINT_TEXTS: [&str; 4] = [
+    "A child or baby.",
+    "barn, farm building, granary",
+    "English bairn. From Middle English bern, barn, from Old English bearn (“child”).",
+    "to bear, carry",
+];
+
+/// The cache namespace of a model: the model and its revision, and the exact values
+/// it gives a few texts. Whatever changes what the model code computes (candle,
+/// tokenizers, the device, the encoding or pooling in model.rs) starts an empty
+/// cache; anything that does not keeps it.
+fn namespace(model: &Model, config: &Config) -> Result<u64> {
+    let texts = FINGERPRINT_TEXTS.map(str::to_owned).to_vec();
+    let embeddings = model.encode(texts)?.flatten_all()?.to_vec1::<f32>()?;
+    let mut bytes = format!("{}\0{}\0", config.model_name, config.model_revision).into_bytes();
+    bytes.extend_from_slice(bytemuck::cast_slice(&embeddings));
+    Ok(xxh3_64(&bytes))
 }
 
 pub(crate) struct Embeddings {
-    model_name: String,
-    model_revision: String,
     batch_size: usize,
-    // loaded when a text is missing from the store
-    model: Option<Model>,
+    model: Model,
     store: Store,
     pending: Vec<(TextHash, String)>,
     pending_keys: HashSet<TextHash>,
@@ -253,12 +251,17 @@ pub(crate) struct Embeddings {
 
 impl Embeddings {
     pub(crate) fn new(config: &Config) -> Result<Self> {
-        let store = Store::open(&config.store_dir()?)?;
+        ensure!(
+            config.model_revision.len() == 40
+                && config.model_revision.bytes().all(|b| b.is_ascii_hexdigit()),
+            "Embedding model revision must be an immutable 40-character commit"
+        );
+        let model = Model::new(config.model_name.clone(), config.model_revision.clone())?;
+        let namespace = namespace(&model, config)?;
+        let store = Store::open(&config.cache_path.join(format!("{namespace:016x}")))?;
         Ok(Self {
-            model_name: config.model_name.clone(),
-            model_revision: config.model_revision.clone(),
             batch_size: config.batch_size,
-            model: None,
+            model,
             store,
             pending: vec![],
             pending_keys: HashSet::default(),
@@ -286,15 +289,8 @@ impl Embeddings {
         if self.pending.is_empty() {
             return Ok(());
         }
-        if self.model.is_none() {
-            self.model = Some(Model::new(
-                self.model_name.clone(),
-                self.model_revision.clone(),
-            )?);
-        }
-        let model = self.model.as_ref().expect("loaded");
         let (keys, texts): (Vec<_>, Vec<_>) = mem::take(&mut self.pending).into_iter().unzip();
-        let embeddings = model.encode(texts)?.to_vec2::<f32>()?;
+        let embeddings = self.model.encode(texts)?.to_vec2::<f32>()?;
         self.store
             .append(keys.into_iter().zip(embeddings.iter().map(Vec::as_slice)))?;
         self.pending_keys.clear();
@@ -620,6 +616,24 @@ mod parity {
             .to_vec2::<f32>()
             .unwrap();
         std::fs::write(out, serde_json::to_string(&embeddings).unwrap()).unwrap();
+    }
+
+    // The cache namespace of the default model with this build:
+    // cargo test --release -p processor parity::namespace -- --ignored --nocapture
+    #[test]
+    #[ignore = "loads the model; for manual comparison"]
+    fn namespace() {
+        let config = Config {
+            model_name: DEFAULT_MODEL.to_string(),
+            model_revision: DEFAULT_MODEL_REVISION.to_string(),
+            batch_size: DEFAULT_BATCH_SIZE,
+            cache_path: PathBuf::new(),
+        };
+        let model = Model::new(config.model_name.clone(), config.model_revision.clone()).unwrap();
+        println!(
+            "namespace {:016x}",
+            super::namespace(&model, &config).unwrap()
+        );
     }
 
     // Texts per second: WETY_PARITY_MODEL=... WETY_PARITY_REVISION=... cargo test

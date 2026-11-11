@@ -1,15 +1,8 @@
-//! The embedding model: what decides an embedding's values. The cache's namespace is
-//! the model, its revision and this file's text (`namespace`), so editing this file,
-//! even to reformat it, discards the cache: hours of embedding. Everything else about
-//! embeddings (the store, which texts are embedded, scoring) is in `embeddings.rs`.
+//! The embedding model: loading it and encoding texts.
 
 use std::path::PathBuf;
 
-use anyhow::{Error, Result};
-use xxhash_rust::xxh3::xxh3_64;
-
-#[cfg(feature = "mkl")]
-extern crate intel_mkl_src;
+use anyhow::{Context, Error, Result, ensure};
 
 #[cfg(feature = "accelerate")]
 extern crate accelerate_src;
@@ -23,7 +16,6 @@ use candle_transformers::models::{
     bert::{self, BertModel, DTYPE, HiddenAct},
     modernbert::{self, ModernBert},
 };
-use hf_hub::{Repo, RepoType, api::sync::Api};
 use tokenizers::Tokenizer;
 
 fn device() -> Result<Device> {
@@ -54,10 +46,6 @@ fn device() -> Result<Device> {
         {
             println!("If you have a CUDA GPU, use it by building with `--features cuda`.");
         }
-        #[cfg(all(not(feature = "mkl"), target_arch = "x86_64"))]
-        {
-            println!("For accelerated CPU processing, build with `--features mkl`.");
-        }
     }
     Ok(Device::Cpu)
 }
@@ -82,18 +70,28 @@ impl Model {
     pub(crate) fn new(model_name: String, revision: String) -> Result<Self> {
         let device = device()?;
 
-        // hf-hub 0.3 resolves cache entries through refs; a commit may have no ref
-        // even when its complete immutable snapshot is already present.
-        let snapshot = hf_hub::Cache::default().path()
+        // The model's files at the revision, in the Hugging Face cache, where the
+        // embedding-model recipe puts them (docs/architecture/provenance.md).
+        let hub = std::env::var_os("HF_HOME")
+            .map(PathBuf::from)
+            .or_else(|| {
+                std::env::var_os("HOME").map(|home| PathBuf::from(home).join(".cache/huggingface"))
+            })
+            .context("neither HF_HOME nor HOME is set")?
+            .join("hub");
+        let snapshot = hub
             .join(format!("models--{}", model_name.replace('/', "--")))
-            .join("snapshots").join(&revision);
-        let repo = Repo::with_revision(model_name, RepoType::Model, revision);
-
+            .join("snapshots")
+            .join(&revision);
         let file = |name: &str| -> Result<PathBuf> {
-            if snapshot.join(name).is_file() {
-                return Ok(snapshot.join(name));
-            }
-            Ok(Api::new()?.repo(repo.clone()).get(name)?)
+            let path = snapshot.join(name);
+            ensure!(
+                path.is_file(),
+                "{} is missing: download https://huggingface.co/{model_name}/resolve/{revision}/{name} \
+                 there (data/registry/embedding-model.json has its sha256)",
+                path.display()
+            );
+            Ok(path)
         };
         let config_filename = file("config.json")?;
         let config = std::fs::read_to_string(config_filename)?;
@@ -196,9 +194,4 @@ impl Model {
 
 fn normalize_l2(v: &Tensor) -> Result<Tensor> {
     Ok(v.broadcast_div(&v.sqr()?.sum_keepdim(1)?.sqrt()?)?)
-}
-
-/// The cache namespace of a model at a revision, as embedded by this file's code.
-pub(crate) fn namespace(model_name: &str, revision: &str) -> u64 {
-    xxh3_64(format!("{model_name}\0{revision}\0{}", include_str!("model.rs")).as_bytes())
 }

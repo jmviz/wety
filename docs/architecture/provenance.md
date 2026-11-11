@@ -58,7 +58,8 @@ coverage and scholarly scope separately.
 
 The embedding-model recipe likewise downloads each file at the pinned commit with
 its expected SHA-256. Restore the verified bytes to
-`$HF_HOME/hub/models--sentence-transformers--all-MiniLM-L12-v2/snapshots/REVISION/FILENAME`
+`$HF_HOME/hub/models--ORG--NAME/snapshots/REVISION/FILENAME` (the model and revision
+in `data/registry/embedding-model.json`)
 (`HF_HOME` defaults to `~/.cache/huggingface`). The workflow verifies these files
 before processing; source acquisition remains separate from computation.
 
