@@ -39,7 +39,7 @@ use serde_json::json;
 
 #[derive(Parser)]
 struct Args {
-    /// The processed graph (wety.bin.gz; JSON graphs from before it load too)
+    /// The processed graph (wety.bin.gz)
     graph: PathBuf,
     /// Where to write the TSV
     out: PathBuf,

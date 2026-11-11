@@ -23,13 +23,8 @@ use std::{
 };
 
 use anyhow::{Ok, Result};
-use flate2::{
-    Compression,
-    read::{GzDecoder, MultiGzDecoder},
-    write::GzEncoder,
-};
+use flate2::{Compression, read::MultiGzDecoder, write::GzEncoder};
 use itertools::Itertools;
-use memmap2::Mmap;
 use ngrammatic::{
     Corpus, CorpusBuilder, IdentityKeyTransformer, KeyTransformer, LinkedKeyTransformer, Pad,
 };
@@ -39,8 +34,7 @@ use trie_rs::map::{Trie as TrieMap, TrieBuilder as TrieMapBuilder};
 
 #[derive(Serialize, Deserialize)]
 pub struct Data {
-    #[serde(default)]
-    pub reference_fingerprint: Option<String>,
+    pub reference_fingerprint: String,
     /// The synthesis rules the graph's readings were made with.
     pub synthesis_rules: u32,
     pub string_pool: StringPool,
@@ -53,7 +47,7 @@ impl Data {
     pub fn new(string_pool: StringPool, graph: EtyGraph) -> Self {
         let descendant_langs = graph.all_descendant_langs();
         Self {
-            reference_fingerprint: Some(env!("WETY_REFERENCE_FINGERPRINT").to_owned()),
+            reference_fingerprint: env!("WETY_REFERENCE_FINGERPRINT").to_owned(),
             synthesis_rules: crate::synthesis::SYNTHESIS_RULES,
             string_pool,
             graph,
@@ -65,16 +59,10 @@ impl Data {
     ///
     /// # Errors
     ///
-    /// Returns an error if `path` names a JSON file, or if the file cannot be
-    /// created or written.
+    /// Returns an error if the file cannot be created or written.
     pub fn serialize(&self, path: &Path) -> Result<()> {
         let t = Instant::now();
         println!("Serializing processed data to {}...", path.display());
-        anyhow::ensure!(
-            !is_json(path),
-            "graphs are written in the binary format (wety.bin.gz), not as {}",
-            path.display()
-        );
         if let Some(parent) = path.parent() {
             std::fs::create_dir_all(parent)?;
         }
@@ -102,11 +90,11 @@ impl Data {
 
 /// The graph file: these bytes, `GRAPH_FORMAT` (u32, little-endian), then `Data` in
 /// postcard, which is not self-describing: field order and enum variant order are
-/// the format. Graphs written as JSON before it (`.json`, `.json.gz`) still load.
+/// the format.
 const GRAPH_MAGIC: &[u8; 8] = b"wetygrph";
 /// Bump whenever a type the graph holds changes how it serializes (a field added,
 /// removed or reordered, an enum variant inserted or reordered).
-const GRAPH_FORMAT: u32 = 1;
+const GRAPH_FORMAT: u32 = 2;
 
 /// Gzip on several threads: what is written is cut into chunks, each compressed on a
 /// thread of its own as a gzip member, and the members written in order (a
@@ -190,14 +178,6 @@ impl<W: Write> Write for ParallelGz<W> {
     }
 }
 
-fn is_json(path: &Path) -> bool {
-    let name = path
-        .file_name()
-        .map(|n| n.to_string_lossy())
-        .unwrap_or_default();
-    name.ends_with(".json") || name.ends_with(".json.gz")
-}
-
 /// A short identity for a graph file. Clients send it back with numeric item
 /// ids, which only mean something within one graph.
 ///
@@ -262,47 +242,28 @@ impl Data {
     ///
     /// Will return `Err` if any unexpected issue arises in the deserialization.
     pub fn deserialize(path: &Path) -> Result<Self> {
-        Self::deserialize_with_legacy(path, false)
-    }
-
-    pub fn deserialize_with_legacy(path: &Path, allow_legacy: bool) -> Result<Self> {
         let t = Instant::now();
         println!("Deserializing processed data {}...", path.display());
-        let file = File::open(path)?;
-        let is_gz_compressed = path.extension().is_some_and(|ext| ext == "gz");
-        let data: Self = if !is_json(path) {
-            let mut bytes = vec![];
-            if is_gz_compressed {
-                MultiGzDecoder::new(BufReader::with_capacity(1 << 20, file))
-                    .read_to_end(&mut bytes)?;
-            } else {
-                BufReader::new(file).read_to_end(&mut bytes)?;
-            }
-            anyhow::ensure!(
-                bytes.len() >= 12 && bytes.starts_with(GRAPH_MAGIC),
-                "{} is not a wety graph",
-                path.display()
-            );
-            let format = u32::from_le_bytes(bytes[8..12].try_into()?);
-            anyhow::ensure!(
-                format == GRAPH_FORMAT,
-                "{} is in graph format {format}; this build reads {GRAPH_FORMAT}: rebuild the graph",
-                path.display()
-            );
-            postcard::from_bytes(&bytes[12..])?
-        } else if is_gz_compressed {
-            // serde_json reads a byte at a time: the buffer goes in front of the
-            // decoder (which buffers the file itself)
-            serde_json::from_reader(BufReader::with_capacity(1 << 20, GzDecoder::new(file)))?
+        let file = BufReader::with_capacity(1 << 20, File::open(path)?);
+        let mut bytes = vec![];
+        if path.extension().is_some_and(|ext| ext == "gz") {
+            MultiGzDecoder::new(file).read_to_end(&mut bytes)?;
         } else {
-            // SAFETY: `Mmap::map` is only unsound if the file is modified while
-            // mapped; the processed data file is written once by `processor`
-            // and only read here.
-            let mmap = unsafe { Mmap::map(&file)? };
-            mmap.advise(memmap2::Advice::Sequential)?;
-            serde_json::from_slice(&mmap)?
-        };
-        validate_reference_fingerprint(data.reference_fingerprint.as_deref(), allow_legacy)?;
+            { file }.read_to_end(&mut bytes)?;
+        }
+        anyhow::ensure!(
+            bytes.len() >= 12 && bytes.starts_with(GRAPH_MAGIC),
+            "{} is not a wety graph",
+            path.display()
+        );
+        let format = u32::from_le_bytes(bytes[8..12].try_into()?);
+        anyhow::ensure!(
+            format == GRAPH_FORMAT,
+            "{} is in graph format {format}; this build reads {GRAPH_FORMAT}: rebuild the graph",
+            path.display()
+        );
+        let data: Self = postcard::from_bytes(&bytes[12..])?;
+        validate_reference_fingerprint(&data.reference_fingerprint)?;
         println!("Finished. Took {:#?}.", t.elapsed());
         Ok(data)
     }
@@ -1167,35 +1128,21 @@ impl Search {
     }
 }
 
-fn validate_reference_fingerprint(value: Option<&str>, allow_legacy: bool) -> Result<()> {
-    match value {
-        Some(env!("WETY_REFERENCE_FINGERPRINT")) => Ok(()),
-        Some(_) => anyhow::bail!(
-            "Graph language/POS tables differ from this binary; rebuild with the graph's pinned references"
-        ),
-        None if allow_legacy => {
-            eprintln!(
-                "Loading legacy graph with unverified language/POS identity by explicit opt-in"
-            );
-            Ok(())
-        }
-        None => anyhow::bail!(
-            "Legacy graph has no reference fingerprint; use WETY_ALLOW_LEGACY_GRAPH=1 only after accepting unverified numeric IDs"
-        ),
-    }
+fn validate_reference_fingerprint(value: &str) -> Result<()> {
+    anyhow::ensure!(
+        value == env!("WETY_REFERENCE_FINGERPRINT"),
+        "Graph language/POS tables differ from this binary; rebuild with the graph's pinned references"
+    );
+    Ok(())
 }
 
 #[cfg(test)]
 mod reference_tests {
     use super::validate_reference_fingerprint;
     #[test]
-    fn reject_mismatched_and_unidentified_tables() {
-        assert!(
-            validate_reference_fingerprint(Some(env!("WETY_REFERENCE_FINGERPRINT")), false).is_ok()
-        );
-        assert!(validate_reference_fingerprint(Some("different"), true).is_err());
-        assert!(validate_reference_fingerprint(None, false).is_err());
-        assert!(validate_reference_fingerprint(None, true).is_ok());
+    fn reject_mismatched_tables() {
+        assert!(validate_reference_fingerprint(env!("WETY_REFERENCE_FINGERPRINT")).is_ok());
+        assert!(validate_reference_fingerprint("different").is_err());
     }
 }
 
@@ -1888,7 +1835,6 @@ mod graph_file_tests {
                 serde_json::to_string(&data.item_origin_json(doubt)).unwrap()
             );
         }
-        assert!(data.serialize(&dir.join("wety.json.gz")).is_err());
         std::fs::write(dir.join("other.bin"), b"not a graph").unwrap();
         assert!(Data::deserialize(&dir.join("other.bin")).is_err());
         std::fs::remove_dir_all(dir).unwrap();

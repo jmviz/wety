@@ -25,17 +25,13 @@ pub struct Asserted {
     /// The page whose section states the etymology, when it is not the item's
     /// own: another page's Descendants list, or the section that cites an
     /// imputed item and gives its etymology.
-    #[serde(default)]
     pub page: Option<ItemId>,
-    #[serde(default)]
     pub credits: Box<[Credit]>,
     /// How many inputs a rule read: the derivatives voting for a root.
-    #[serde(default)]
     pub inputs: u32,
     /// The agent (index into the graph's agents) whose own assertion of the
     /// same etymology this one relays, when a relay found that they agree:
     /// the assertion's origin. None: it is its own origin.
-    #[serde(default)]
     pub origin: Option<u32>,
 }
 
@@ -54,7 +50,6 @@ pub struct Credit {
     pub role: Role,
     pub scope: Scope,
     /// Where in the work: a page, an entry.
-    #[serde(default)]
     pub locator: Option<Box<str>>,
 }
 
@@ -139,10 +134,8 @@ pub struct Claim {
     /// The claim's own certainty of the link (its hedges).
     pub certainty: Certainty,
     /// The claim's mode, when it is not the etymology's.
-    #[serde(default)]
     pub mode: Option<EtyMode>,
     /// Whether a wety rule compiled it from the source's structure.
-    #[serde(default)]
     pub compiled: bool,
     /// Its assertion's id in the assertion schema.
     pub assertion: Box<str>,
@@ -173,7 +166,6 @@ pub struct Work {
     /// or the digest of a footnote's citation.
     pub id: Box<str>,
     pub citation: Box<str>,
-    #[serde(default)]
     pub year: Option<u16>,
 }
 

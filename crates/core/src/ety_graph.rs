@@ -116,7 +116,6 @@ pub struct Etymologies {
     pub primary: Option<u8>,
     /// How the primary was chosen. The default, one lineage, is that of every
     /// item not listed.
-    #[serde(default)]
     pub reading: Reading,
 }
 

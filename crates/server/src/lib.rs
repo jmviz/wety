@@ -89,10 +89,7 @@ impl AppState {
                 periods.unknown_codes
             );
         }
-        let data = Data::deserialize_with_legacy(
-            data_path,
-            std::env::var("WETY_ALLOW_LEGACY_GRAPH").as_deref() == Ok("1"),
-        )?;
+        let data = Data::deserialize(data_path)?;
         let graph = graph_version(data_path)?;
         let search = data.build_search();
         let keys = data.build_keys();

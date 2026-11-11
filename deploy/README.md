@@ -238,5 +238,6 @@ Release builds use `RUSTFLAGS="-C target-cpu=neoverse-n1"`. The host's Ampere Al
 a Neoverse N1, while `.cargo/config.toml`'s `target-cpu=native` would target the build
 machine. The server speaks plain HTTP; the tunnel terminates TLS. The current graph
 (`wety.bin.gz`, about 470 MB) takes about 30 seconds to load and index on an M1 Pro
-and about 5 GB of memory once loaded; the host is slower. The server also reads
-graphs written as JSON (`wety.json.gz`) before the binary format.
+and about 5 GB of memory once loaded; the host is slower. A server reads only graphs
+in its own format (`GRAPH_FORMAT` in `crates/core/src/processed.rs`): a release that
+changes it deploys with a graph built by it.

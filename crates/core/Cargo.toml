@@ -16,7 +16,6 @@ xxhash-rust = { version = "0.8.19", features = ["xxh3"] }
 phf = { version = "0.14", features = ["macros"] }
 urlencoding = "2.1.2"
 string-interner = "0.20"
-memmap2 = "0.9"
 strum = { version = "0.28", features = ["derive", "phf"] }
 unicode-normalization = "0.1.26"
 sha2 = "0.11"

@@ -3562,7 +3562,6 @@ dependencies = [
  "anyhow",
  "flate2",
  "itertools 0.15.0",
- "memmap2",
  "ngrammatic",
  "petgraph",
  "phf 0.14.0",

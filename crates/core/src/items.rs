@@ -16,7 +16,6 @@ pub struct RealItem {
     pub ety_num: u8,
     /// Wiktionary's own etymology number as written ("3", "1.1"), present when
     /// the page numbers its etymologies.
-    #[serde(default)]
     pub ety_label: Option<Box<str>>,
     pub lang: Lang,
     pub term: Term,

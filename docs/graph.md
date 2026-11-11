@@ -22,9 +22,9 @@ This invokes the Rust processor with wety's entries of Wiktionary, writes to a r
 staging directory, validates the graph with matching compiled language/POS tables,
 then publishes an immutable artifact and `data/products/etymology_graph/CURRENT.json`.
 The graph is one file, `wety.bin.gz`: `wety_core`'s `Data` in postcard behind a format
-number, gzipped (`crates/core/src/processed.rs`); graphs written as JSON before it
-still load. Tools that need it without `wety_core` get counts from its examples
-(`lang_counts`, `graph_stats`).
+number, gzipped (`crates/core/src/processed.rs`). A build reads only graphs in its own
+format: when the format changes, rebuild the graph. Tools that need it without
+`wety_core` get counts from its examples (`lang_counts`, `graph_stats`).
 It reads products of other workflows, pinned in its `workflow.json`:
 `wiktionary_entries` (the entries, the dump's redirects and the entry names mentions
 link to), `wiktionary_references` (each entry's References, from the pages dump of the
