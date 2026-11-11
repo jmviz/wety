@@ -367,6 +367,8 @@ fn a_descendants_line_names_the_page_it_links() {
                 &[("1", "fro"), ("2", "útra"), ("3", "lutra")],
                 ["lutra", "utra"],
             ),
+            // a term written with markup links only a part of it: none
+            line(&[("1", "ine-pro"), ("2", "*témH-es[[-lós|-los]]")], "-lós"),
             // more terms than links: none
             line(&[("1", "ab"), ("2", "а́"), ("3", "б")], "а"),
             // {{l}} with no term, its one link from a template in pos=: none

@@ -938,7 +938,9 @@ pub fn entry_names(entry: &Entry) -> Vec<(String, String, String)> {
             .and_then(|p| p.split_once('/'))
             .map_or(link.page.as_str(), |(_, t)| t);
         let term = m.term.strip_prefix('*').unwrap_or(&m.term);
-        if !term.is_empty() && term != page {
+        // A term written with markup (*témH-es[[-lós|-los]]) links a part of it, not
+        // its page; one that is a link ([[colpus|colpum]]) names its page itself.
+        if !term.is_empty() && term != page && !term.contains("[[") && !term.contains("{{") {
             out.push((m.lang.clone(), m.term.clone(), link.page.clone()));
         }
     };
