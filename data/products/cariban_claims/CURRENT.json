@@ -1,6 +1,6 @@
 {
-  "artifact": "data/artifacts/cariban-claims/38ab0fd67d7617b2353be366d47590bc48aa2a30988899345ad7bf305a4acf94",
+  "artifact": "data/artifacts/cariban-claims/25ea2571bfb55bd71a7a24772b9dcb4b5cee1395fb638108393366d4609e8e78",
   "entrypoint": "matches/assertions.jsonl",
-  "run_id": "42393877d68b4ba38b1fdf211379534f",
+  "run_id": "0aac7536caaf425ebe9485b7818293ae",
   "schema_version": 1
 }
