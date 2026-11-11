@@ -395,6 +395,19 @@ impl Items {
             && let Some(item) = self.get_id_item(citation.langterm, id)
         {
             self.resolution_stats.count("id");
+            // A measure of the embeddings: where the id settles a choice among
+            // homographs, whether meaning alone would have made it.
+            if let Some(candidates) = self.candidates(citation.langterm)
+                && candidates.len() > 1
+                && candidates.contains(&item)
+            {
+                let best = self.best_candidate(embeddings, citation, candidates)?;
+                self.resolution_stats.count(if best.is_some_and(|(b, _)| b == item) {
+                    "id, which embeddings agree with"
+                } else {
+                    "id, which embeddings disagree with"
+                });
+            }
             return Ok(Resolution::Found {
                 item,
                 confidence: 1.0,
