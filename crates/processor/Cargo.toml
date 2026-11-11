@@ -20,6 +20,8 @@ itertools = "0.10.5"
 serde = {workspace = true}
 serde_json = {workspace = true}
 sled = "0.34.7"
+memmap2 = "0.9"
+bytemuck = "1"
 xxhash-rust = {version="0.8.6", features=["xxh3"]}
 phf = {version = "0.10", features = ["macros"]}
 csv = "1.2.2"

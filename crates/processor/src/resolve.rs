@@ -359,16 +359,13 @@ impl Items {
         if let [only] = candidates {
             return Ok(Some((*only, SINGLE_CANDIDATE_CONFIDENCE)));
         }
-        let citer = embeddings.get(self.get(citation.citer), citation.citer)?;
-        let gloss = match citation.gloss {
-            Some(gloss) => embeddings.text(gloss)?,
-            None => None,
-        };
+        let citer = embeddings.get(self.get(citation.citer), citation.citer);
+        let gloss = citation.gloss.and_then(|gloss| embeddings.text(gloss));
         let citer_is_child = matches!(citation.relation, Relation::Parent { .. });
         let citer_pos = self.get(citation.citer).pos();
         let mut best: Option<(ItemId, f32)> = None;
         for &candidate in candidates {
-            let embedding = embeddings.get(self.get(candidate), candidate)?;
+            let embedding = embeddings.get(self.get(candidate), candidate);
             let candidate_pos = self.get(candidate).pos();
             let same_pos = match citation.pos {
                 Some(pos) => candidate_pos.is_some_and(|c| c.contains(&pos)),
@@ -376,9 +373,8 @@ impl Items {
                     .zip(candidate_pos)
                     .is_some_and(|(a, b)| a.iter().any(|p| b.contains(p))),
             };
-            let score =
-                embeddings::citation_score(&citer, &embedding, citer_is_child, gloss.as_ref())
-                    + if same_pos { SAME_POS_BONUS } else { 0.0 };
+            let score = embeddings::citation_score(&citer, &embedding, citer_is_child, gloss)
+                + if same_pos { SAME_POS_BONUS } else { 0.0 };
             if best.is_none_or(|(_, s)| score > s) {
                 best = Some((candidate, score));
             }

@@ -250,10 +250,10 @@ impl Items {
         if let [only] = candidates[..] {
             return Ok(Some((only, 0.5)));
         }
-        let embedding = embeddings.get(self.get(item), item)?;
+        let embedding = embeddings.get(self.get(item), item);
         let mut best: Option<(ItemId, f32)> = None;
         for &candidate in candidates {
-            let candidate_embedding = embeddings.get(self.get(candidate), candidate)?;
+            let candidate_embedding = embeddings.get(self.get(candidate), candidate);
             let score = embeddings::citation_score(&embedding, &candidate_embedding, true, None);
             if best.is_none_or(|(_, s)| score > s) {
                 best = Some((candidate, score));

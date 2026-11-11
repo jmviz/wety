@@ -2,20 +2,29 @@
 //!
 //! Each item gets embeddings of each of its senses' glosses, of its glosses
 //! joined, and of its etymology text; a citation may also give a gloss of the
-//! cited term (t=). Embeddings are cached by text, under a namespace of the
-//! model, its revision and this file.
+//! cited term (t=). Embeddings are cached by the hash of their text, in a `Store`
+//! under a namespace of the model, its revision and the code that embeds
+//! (`model.rs`); this file may change without discarding the cache.
 
-use crate::HashMap;
+// Never reformatted or edited for a lint: its text keys the cache (see model.rs).
+#[allow(clippy::large_enum_variant)]
+#[rustfmt::skip]
+mod model;
+
+use crate::{HashMap, HashSet};
+use model::Model;
 use wety_core::items::{Item, ItemId};
 
-use std::{hash::Hash, mem, path::PathBuf, rc::Rc};
+use std::{
+    fs::{self, File, OpenOptions},
+    io::{Read, Write},
+    mem,
+    path::{Path, PathBuf},
+};
 
-use anyhow::{Error, Result};
-
-use sled::{self, Db, IVec};
+use anyhow::{Context, Result, bail, ensure};
+use memmap2::Mmap;
 use xxhash_rust::xxh3::xxh3_64;
-
-type Embedding = Vec<f32>;
 
 /// For an `imputed_item` embedding, we use the embedding for
 /// `imputed_item.from`, weighted by this discount factor
@@ -25,126 +34,171 @@ pub(crate) const IMPUTATION_DISCOUNT: f32 = 0.5;
 const MAX_SENSES: usize = 12;
 const MAX_ETY_CHARS: usize = 600;
 
-pub(crate) struct ItemEmbedding {
-    ety: Option<Embedding>,
-    glosses: Option<Embedding>,
-    senses: Vec<Embedding>,
+/// An item's embeddings, borrowed from the store.
+pub(crate) struct ItemEmbedding<'a> {
+    ety: Option<&'a [f32]>,
+    glosses: Option<&'a [f32]>,
+    senses: Vec<&'a [f32]>,
     discount: f32,
 }
 
-type TextHash = u64;
+pub type TextHash = u64;
 
 fn text_hash(text: &str) -> TextHash {
     xxh3_64(text.as_bytes())
 }
 
-fn to_bytes(embedding: &[f32]) -> Vec<u8> {
-    embedding.iter().flat_map(|e| e.to_be_bytes()).collect()
+#[cfg(not(target_endian = "little"))]
+compile_error!("the embedding store is read in place as little-endian f32");
+
+/// Embeddings by the hash of their text, on disk in a directory: `keys` (a u64 per
+/// entry), `vectors` (`dim` f32 per entry, read in place through a memory map) and
+/// `dim`, all little-endian; entries are only appended. Which keys it holds is kept
+/// in memory, so a warm cache is checked without reading the disk. One process at
+/// a time may open it (`lock`).
+pub struct Store {
+    dir: PathBuf,
+    dim: usize,
+    index: HashMap<TextHash, u32>,
+    keys: File,
+    vectors: File,
+    len: usize,
+    map: Option<Mmap>,
+    _lock: File,
 }
 
-fn to_embedding(bytes: &IVec) -> Embedding {
-    // the 4 here assumes Embedding elements are f32
-    let (chunks, _) = bytes.as_ref().as_chunks::<4>();
-    chunks.iter().map(|&b| f32::from_be_bytes(b)).collect()
-}
-
-// Texts waiting to be embedded, by key.
-struct Batch<K> {
-    max_size: usize,
-    model: Rc<Model>,
-    cache: Rc<Db>,
-    keys: Vec<K>,
-    texts: Vec<String>,
-    text_hashes: Vec<TextHash>,
-}
-
-impl<K> Batch<K> {
-    fn new(model: &Rc<Model>, size: usize, cache: &Rc<Db>) -> Self {
-        Self {
-            keys: Vec::with_capacity(size),
-            texts: Vec::with_capacity(size),
-            text_hashes: Vec::with_capacity(size),
-            max_size: size,
-            model: Rc::clone(model),
-            cache: Rc::clone(cache),
+impl Store {
+    /// # Errors
+    ///
+    /// Returns an error if the directory cannot be read or created, or if another
+    /// process has the store open.
+    pub fn open(dir: &Path) -> Result<Self> {
+        fs::create_dir_all(dir)?;
+        let lock = File::create(dir.join("lock"))?;
+        if lock.try_lock().is_err() {
+            bail!(
+                "another process is using the embedding cache {}",
+                dir.display()
+            );
         }
+        let file = |name: &str| {
+            OpenOptions::new()
+                .read(true)
+                .append(true)
+                .create(true)
+                .open(dir.join(name))
+                .with_context(|| dir.join(name).display().to_string())
+        };
+        let (mut keys, vectors) = (file("keys")?, file("vectors")?);
+        let dim = match fs::read_to_string(dir.join("dim")) {
+            Ok(dim) => dim.trim().parse()?,
+            Err(e) if e.kind() == std::io::ErrorKind::NotFound => 0,
+            Err(e) => return Err(e.into()),
+        };
+        // An interrupted append leaves at most a partial entry: drop it.
+        let entry_bytes = (dim * 4).max(1) as u64;
+        let len = if dim == 0 {
+            0
+        } else {
+            (keys.metadata()?.len() / 8).min(vectors.metadata()?.len() / entry_bytes)
+        };
+        keys.set_len(len * 8)?;
+        vectors.set_len(len * entry_bytes * u64::from(dim > 0))?;
+        let mut bytes = vec![];
+        keys.read_to_end(&mut bytes)?;
+        let mut index = HashMap::default();
+        index.reserve(bytes.len() / 8);
+        for (i, key) in (0u32..).zip(bytes.as_chunks::<8>().0) {
+            index.entry(u64::from_le_bytes(*key)).or_insert(i);
+        }
+        let mut store = Self {
+            dir: dir.to_owned(),
+            dim,
+            index,
+            keys,
+            vectors,
+            len: usize::try_from(len)?,
+            map: None,
+            _lock: lock,
+        };
+        store.remap()?;
+        Ok(store)
     }
 
-    // Add a text; when the batch is full, embed and cache it, returning the
-    // keys it embedded.
-    fn update(&mut self, key: K, text: String, text_hash: TextHash) -> Result<Vec<(K, TextHash)>> {
-        self.keys.push(key);
-        self.texts.push(text);
-        self.text_hashes.push(text_hash);
-        if self.keys.len() >= self.max_size {
-            return self.flush();
-        }
-        Ok(vec![])
+    pub fn len(&self) -> usize {
+        self.len
     }
 
-    fn flush(&mut self) -> Result<Vec<(K, TextHash)>> {
-        if self.keys.is_empty() {
-            return Ok(vec![]);
-        }
-        let keys = mem::take(&mut self.keys);
-        let text_hashes = mem::take(&mut self.text_hashes);
-        let texts = mem::take(&mut self.texts);
-        let embeddings = self.model.encode(texts)?.to_vec2::<f32>()?;
-        let mut batch = sled::Batch::default();
-        for (text_hash, embedding) in text_hashes.iter().zip(&embeddings) {
-            batch.insert(&text_hash.to_be_bytes(), to_bytes(embedding));
-        }
-        self.cache.apply_batch(batch)?;
-        Ok(keys.into_iter().zip(text_hashes).collect())
-    }
-}
-
-// Embeddings by key (an item, an item's sense, a text), through the cache.
-struct EmbeddingsMap<K> {
-    batch: Batch<K>,
-    map: HashMap<K, TextHash>,
-    cache: Rc<Db>,
-}
-
-impl<K: Copy + Eq + Hash> EmbeddingsMap<K> {
-    fn new(model: &Rc<Model>, batch_size: usize, cache: &Rc<Db>) -> Self {
-        Self {
-            batch: Batch::new(model, batch_size, cache),
-            map: HashMap::default(),
-            cache: Rc::clone(cache),
-        }
+    pub fn is_empty(&self) -> bool {
+        self.len == 0
     }
 
-    fn update(&mut self, key: K, text: String) -> Result<()> {
-        let hash = text_hash(&text);
-        if self.cache.contains_key(hash.to_be_bytes())? {
-            self.map.insert(key, hash);
-            return Ok(());
+    pub fn contains(&self, key: TextHash) -> bool {
+        self.index.contains_key(&key)
+    }
+
+    /// Add embeddings not yet held. They can be read after `remap`.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if an embedding's length is not the store's, or on a
+    /// failed write.
+    pub fn append<'a>(
+        &mut self,
+        entries: impl IntoIterator<Item = (TextHash, &'a [f32])>,
+    ) -> Result<()> {
+        let (mut keys, mut vectors) = (vec![], vec![]);
+        let mut added = vec![];
+        for (key, embedding) in entries {
+            if self.dim == 0 {
+                ensure!(!embedding.is_empty(), "an empty embedding");
+                self.dim = embedding.len();
+                fs::write(self.dir.join("dim"), self.dim.to_string())?;
+            }
+            ensure!(
+                embedding.len() == self.dim,
+                "an embedding of {} values in a store of {}",
+                embedding.len(),
+                self.dim
+            );
+            if self.index.contains_key(&key) || added.iter().any(|&(k, _)| k == key) {
+                continue;
+            }
+            keys.extend_from_slice(&key.to_le_bytes());
+            vectors.extend_from_slice(bytemuck::cast_slice(embedding));
+            added.push((key, u32::try_from(self.len + added.len())?));
         }
-        for (key, hash) in self.batch.update(key, text, hash)? {
-            self.map.insert(key, hash);
-        }
+        // vectors first: keys name only entries whose vectors are written
+        self.vectors.write_all(&vectors)?;
+        self.keys.write_all(&keys)?;
+        self.len += added.len();
+        self.index.extend(added);
         Ok(())
     }
 
-    fn flush(&mut self) -> Result<()> {
-        for (key, hash) in self.batch.flush()? {
-            self.map.insert(key, hash);
-        }
+    /// Make what was appended durable and readable.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the files cannot be synced or mapped.
+    pub fn remap(&mut self) -> Result<()> {
+        self.vectors.sync_data()?;
+        self.keys.sync_data()?;
+        // SAFETY: the vectors file is only appended to, by this process (the lock),
+        // and the map covers only what was written before it was made.
+        self.map = (self.len > 0)
+            .then(|| unsafe { Mmap::map(&self.vectors) })
+            .transpose()?;
         Ok(())
     }
 
-    fn contains(&self, key: &K) -> bool {
-        self.map.contains_key(key)
-    }
-
-    fn get(&self, key: K) -> Result<Option<Embedding>> {
-        if let Some(hash) = self.map.get(&key)
-            && let Some(bytes) = self.cache.get(hash.to_be_bytes())?
-        {
-            return Ok(Some(to_embedding(&bytes)));
-        }
-        Ok(None)
+    pub fn get(&self, key: TextHash) -> Option<&[f32]> {
+        let i = *self.index.get(&key)? as usize;
+        let map = self.map.as_deref().expect("remap after appending");
+        let bytes = map
+            .get(i * self.dim * 4..(i + 1) * self.dim * 4)
+            .expect("remap after appending");
+        Some(bytemuck::cast_slice(bytes))
     }
 }
 
@@ -157,196 +211,6 @@ pub const DEFAULT_MODEL: &str = "ibm-granite/granite-embedding-small-english-r2"
 pub const DEFAULT_MODEL_REVISION: &str = "2ab6fa8ea2d674564defd37171ae19079b864b33";
 pub const DEFAULT_BATCH_SIZE: usize = 800;
 
-#[cfg(feature = "mkl")]
-extern crate intel_mkl_src;
-
-#[cfg(feature = "accelerate")]
-extern crate accelerate_src;
-
-use candle_core::{
-    Device, IndexOp, Tensor,
-    utils::{cuda_is_available, metal_is_available},
-};
-use candle_nn::VarBuilder;
-use candle_transformers::models::{
-    bert::{self, BertModel, DTYPE, HiddenAct},
-    modernbert::{self, ModernBert},
-};
-use hf_hub::{Repo, RepoType, api::sync::Api};
-use tokenizers::Tokenizer;
-
-fn device() -> Result<Device> {
-    if cuda_is_available() {
-        println!("Running embeddings model on GPU (CUDA).");
-        return Ok(Device::new_cuda(0)?);
-    }
-    if metal_is_available() {
-        println!("Running embeddings model on GPU (Metal).");
-        return Ok(Device::new_metal(0)?);
-    }
-
-    println!("Running embeddings model on CPU.");
-    #[cfg(target_os = "macos")]
-    {
-        #[cfg(target_arch = "aarch64")]
-        {
-            println!("To run on GPU with Metal, build with `--features metal`.");
-        }
-        #[cfg(not(any(feature = "accelerate", target_arch = "aarch64")))]
-        {
-            println!("For accelerated CPU processing, build with `--features accelerate`.");
-        }
-    }
-    #[cfg(not(target_os = "macos"))]
-    {
-        #[cfg(not(feature = "cuda"))]
-        {
-            println!("If you have a CUDA GPU, use it by building with `--features cuda`.");
-        }
-        #[cfg(all(not(feature = "mkl"), target_arch = "x86_64"))]
-        {
-            println!("For accelerated CPU processing, build with `--features mkl`.");
-        }
-    }
-    Ok(Device::Cpu)
-}
-
-// The supported architectures, with the pooling their sentence-transformers
-// configurations use.
-enum Inner {
-    // mean pooling (e.g. sentence-transformers/all-MiniLM-L12-v2)
-    Bert(BertModel),
-    // CLS pooling (e.g. ibm-granite/granite-embedding-small-english-r2)
-    ModernBert(ModernBert),
-}
-
-struct Model {
-    device: Device,
-    inner: Inner,
-    tokenizer: Tokenizer,
-}
-
-// adapted from https://github.com/huggingface/candle/blob/main/candle-examples/examples/bert/main.rs
-impl Model {
-    fn new(model_name: String, revision: String) -> Result<Self> {
-        let device = device()?;
-
-        // hf-hub 0.3 resolves cache entries through refs; a commit may have no ref
-        // even when its complete immutable snapshot is already present.
-        let snapshot = hf_hub::Cache::default().path()
-            .join(format!("models--{}", model_name.replace('/', "--")))
-            .join("snapshots").join(&revision);
-        let repo = Repo::with_revision(model_name, RepoType::Model, revision);
-
-        let file = |name: &str| -> Result<PathBuf> {
-            if snapshot.join(name).is_file() {
-                return Ok(snapshot.join(name));
-            }
-            Ok(Api::new()?.repo(repo.clone()).get(name)?)
-        };
-        let config_filename = file("config.json")?;
-        let config = std::fs::read_to_string(config_filename)?;
-        let model_type = serde_json::from_str::<serde_json::Value>(&config)?
-            .get("model_type")
-            .and_then(|t| t.as_str().map(str::to_owned))
-            .unwrap_or_default();
-
-        // No tokenizer padding: encode() pads each length-sorted sub-batch itself.
-        // Texts are truncated to 256 tokens (glosses and etymologies rarely
-        // need more).
-        let mut tokenizer = Tokenizer::from_file(file("tokenizer.json")?).map_err(Error::msg)?;
-        tokenizer.with_padding(None);
-        tokenizer
-            .with_truncation(Some(tokenizers::TruncationParams {
-                max_length: 256,
-                ..Default::default()
-            }))
-            .map_err(Error::msg)?;
-
-        let inner = if model_type == "modernbert" {
-            let config: modernbert::Config = serde_json::from_str(&config)?;
-            // candle expects the weights under "model."; sentence-transformers
-            // checkpoints have them at the root.
-            let vb = unsafe {
-                VarBuilder::from_mmaped_safetensors(&[file("model.safetensors")?], DTYPE, &device)?
-            }
-            .rename_f(|name: &str| name.strip_prefix("model.").unwrap_or(name).to_owned());
-            Inner::ModernBert(ModernBert::load(vb, &config)?)
-        } else {
-            let vb = VarBuilder::from_pth(file("pytorch_model.bin")?, DTYPE, &device)?;
-            let mut config: bert::Config = serde_json::from_str(&config)?;
-            config.hidden_act = HiddenAct::GeluApproximate;
-            Inner::Bert(BertModel::load(vb, &config)?)
-        };
-
-        Ok(Self {
-            device,
-            inner,
-            tokenizer,
-        })
-    }
-
-    /// Embeds texts, in input order. Texts are encoded in sub-batches of similar
-    /// length, each padded only to its own longest text, and token outputs are
-    /// mean-pooled over real tokens (attention mask): an embedding does not depend
-    /// on which other texts share its batch, and short texts cost little.
-    fn encode(&self, texts: Vec<String>) -> Result<Tensor> {
-        const SUB_BATCH: usize = 64;
-        let n = texts.len();
-        let encodings = self
-            .tokenizer
-            .encode_batch(texts, true)
-            .map_err(Error::msg)?;
-        let mut order: Vec<usize> = (0..n).collect();
-        order.sort_by_key(|&i| encodings[i].get_ids().len());
-        let mut rows: Vec<Option<Vec<f32>>> = vec![None; n];
-        for chunk in order.chunks(SUB_BATCH) {
-            let width = chunk
-                .iter()
-                .map(|&i| encodings[i].get_ids().len())
-                .max()
-                .unwrap_or(1)
-                .max(1);
-            let mut ids = Vec::with_capacity(chunk.len() * width);
-            let mut mask = Vec::with_capacity(chunk.len() * width);
-            for &i in chunk {
-                let tokens = encodings[i].get_ids();
-                ids.extend_from_slice(tokens);
-                ids.extend(std::iter::repeat_n(0u32, width - tokens.len()));
-                mask.extend(std::iter::repeat_n(1u32, tokens.len()));
-                mask.extend(std::iter::repeat_n(0u32, width - tokens.len()));
-            }
-            let ids = Tensor::from_vec(ids, (chunk.len(), width), &self.device)?;
-            let mask = Tensor::from_vec(mask, (chunk.len(), width), &self.device)?;
-            let pooled = match &self.inner {
-                Inner::Bert(model) => {
-                    let token_type_ids = ids.zeros_like()?;
-                    let hidden = model.forward(&ids, &token_type_ids, Some(&mask))?;
-                    let weights = mask.to_dtype(hidden.dtype())?.unsqueeze(2)?;
-                    hidden
-                        .broadcast_mul(&weights)?
-                        .sum(1)?
-                        .broadcast_div(&weights.sum(1)?)?
-                }
-                Inner::ModernBert(model) => {
-                    let hidden = model.forward(&ids, &mask)?;
-                    hidden.i((.., 0, ..))?.contiguous()?
-                }
-            };
-            for (&i, row) in chunk.iter().zip(normalize_l2(&pooled)?.to_vec2::<f32>()?) {
-                rows[i] = Some(row);
-            }
-        }
-        let width = rows.first().and_then(|r| r.as_ref()).map_or(0, Vec::len);
-        let flat: Vec<f32> = rows.into_iter().flatten().flatten().collect();
-        Ok(Tensor::from_vec(flat, (n, width), &Device::Cpu)?)
-    }
-}
-
-fn normalize_l2(v: &Tensor) -> Result<Tensor> {
-    Ok(v.broadcast_div(&v.sqr()?.sum_keepdim(1)?.sqrt()?)?)
-}
-
 pub struct Config {
     pub model_name: String,
     pub model_revision: String,
@@ -354,33 +218,87 @@ pub struct Config {
     pub cache_path: PathBuf,
 }
 
+impl Config {
+    /// The store holding this model's embeddings.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the revision is not an immutable commit.
+    pub fn store_dir(&self) -> Result<PathBuf> {
+        ensure!(
+            self.model_revision.len() == 40
+                && self.model_revision.bytes().all(|b| b.is_ascii_hexdigit()),
+            "Embedding model revision must be an immutable 40-character commit"
+        );
+        let namespace = model::namespace(&self.model_name, &self.model_revision);
+        Ok(self.cache_path.join(format!("{namespace:016x}")))
+    }
+}
+
 pub(crate) struct Embeddings {
-    ety: EmbeddingsMap<ItemId>,
-    glosses: EmbeddingsMap<ItemId>,
-    senses: EmbeddingsMap<(ItemId, u8)>,
+    model_name: String,
+    model_revision: String,
+    batch_size: usize,
+    // loaded when a text is missing from the store
+    model: Option<Model>,
+    store: Store,
+    pending: Vec<(TextHash, String)>,
+    pending_keys: HashSet<TextHash>,
+    ety: HashMap<ItemId, TextHash>,
+    glosses: HashMap<ItemId, TextHash>,
+    senses: HashMap<(ItemId, u8), TextHash>,
     n_senses: HashMap<ItemId, u8>,
-    texts: EmbeddingsMap<TextHash>,
-    cache: Rc<Db>,
+    texts: HashSet<TextHash>,
 }
 
 impl Embeddings {
     pub(crate) fn new(config: &Config) -> Result<Self> {
-        anyhow::ensure!(config.model_revision.len() == 40 && config.model_revision.bytes().all(|b| b.is_ascii_hexdigit()), "Embedding model revision must be an immutable 40-character commit");
-
-        let model = Rc::from(Model::new(
-            config.model_name.clone(),
-            config.model_revision.clone(),
-        )?);
-        let namespace = xxh3_64(format!("{}\0{}\0{}", config.model_name, config.model_revision, include_str!("embeddings.rs")).as_bytes());
-        let cache = Rc::from(sled::open(config.cache_path.join(format!("{namespace:016x}")))?);
+        let store = Store::open(&config.store_dir()?)?;
         Ok(Self {
-            ety: EmbeddingsMap::new(&model, config.batch_size, &cache),
-            glosses: EmbeddingsMap::new(&model, config.batch_size, &cache),
-            senses: EmbeddingsMap::new(&model, config.batch_size, &cache),
+            model_name: config.model_name.clone(),
+            model_revision: config.model_revision.clone(),
+            batch_size: config.batch_size,
+            model: None,
+            store,
+            pending: vec![],
+            pending_keys: HashSet::default(),
+            ety: HashMap::default(),
+            glosses: HashMap::default(),
+            senses: HashMap::default(),
             n_senses: HashMap::default(),
-            texts: EmbeddingsMap::new(&model, config.batch_size, &cache),
-            cache,
+            texts: HashSet::default(),
         })
+    }
+
+    // The key of a text, queued to be embedded unless the store has it.
+    fn queue(&mut self, text: String) -> Result<TextHash> {
+        let key = text_hash(&text);
+        if !self.store.contains(key) && self.pending_keys.insert(key) {
+            self.pending.push((key, text));
+            if self.pending.len() >= self.batch_size {
+                self.embed_pending()?;
+            }
+        }
+        Ok(key)
+    }
+
+    fn embed_pending(&mut self) -> Result<()> {
+        if self.pending.is_empty() {
+            return Ok(());
+        }
+        if self.model.is_none() {
+            self.model = Some(Model::new(
+                self.model_name.clone(),
+                self.model_revision.clone(),
+            )?);
+        }
+        let model = self.model.as_ref().expect("loaded");
+        let (keys, texts): (Vec<_>, Vec<_>) = mem::take(&mut self.pending).into_iter().unzip();
+        let embeddings = model.encode(texts)?.to_vec2::<f32>()?;
+        self.store
+            .append(keys.into_iter().zip(embeddings.iter().map(Vec::as_slice)))?;
+        self.pending_keys.clear();
+        Ok(())
     }
 
     pub(crate) fn add(
@@ -395,13 +313,16 @@ impl Embeddings {
             // The lang name and term are prepended to the ety text, so that an
             // etymology naming a term is near that term's own etymology.
             let ety_text: String = ety_text.chars().take(MAX_ETY_CHARS).collect();
-            self.ety.update(item_id, format!("{item_lang} {item_term}. {ety_text}"))?;
+            let key = self.queue(format!("{item_lang} {item_term}. {ety_text}"))?;
+            self.ety.insert(item_id, key);
         }
         let glosses = &glosses[..glosses.len().min(MAX_SENSES)];
         if !glosses.is_empty() {
-            self.glosses.update(item_id, glosses.join(" "))?;
+            let key = self.queue(glosses.join(" "))?;
+            self.glosses.insert(item_id, key);
             for (n, gloss) in (0u8..).zip(glosses) {
-                self.senses.update((item_id, n), gloss.clone())?;
+                let key = self.queue(gloss.clone())?;
+                self.senses.insert((item_id, n), key);
             }
             #[allow(clippy::cast_possible_truncation)]
             self.n_senses.insert(item_id, glosses.len() as u8);
@@ -411,44 +332,42 @@ impl Embeddings {
 
     /// Embed a text that is not an item's, e.g. a gloss a citation gives.
     pub(crate) fn add_text(&mut self, text: &str) -> Result<()> {
-        let hash = text_hash(text);
-        if !self.texts.contains(&hash) {
-            self.texts.update(hash, text.to_owned())?;
+        if !self.texts.contains(&text_hash(text)) {
+            let key = self.queue(text.to_owned())?;
+            self.texts.insert(key);
         }
         Ok(())
     }
 
+    /// Embed what is queued; after this, embeddings can be read.
     pub(crate) fn flush(&mut self) -> Result<()> {
-        self.ety.flush()?;
-        self.glosses.flush()?;
-        self.senses.flush()?;
-        self.texts.flush()?;
-        self.cache.flush()?;
-        Ok(())
+        self.embed_pending()?;
+        self.store.remap()
     }
 
-    pub(crate) fn text(&self, text: &str) -> Result<Option<Embedding>> {
-        self.texts.get(text_hash(text))
+    pub(crate) fn text(&self, text: &str) -> Option<&[f32]> {
+        let key = text_hash(text);
+        self.texts
+            .contains(&key)
+            .then(|| self.store.get(key))
+            .flatten()
     }
 
-    pub(crate) fn get(&self, item: &Item, item_id: ItemId) -> Result<ItemEmbedding> {
+    pub(crate) fn get(&self, item: &Item, item_id: ItemId) -> ItemEmbedding<'_> {
         let (id, discount) = match item {
             Item::Real(_) => (item_id, 1.0),
             Item::Imputed(imputed) => (imputed.from, IMPUTATION_DISCOUNT),
         };
+        let get = |key: Option<&TextHash>| key.and_then(|&key| self.store.get(key));
         let n = self.n_senses.get(&id).copied().unwrap_or(0);
-        let mut senses = Vec::with_capacity(n.into());
-        for s in 0..n {
-            if let Some(sense) = self.senses.get((id, s))? {
-                senses.push(sense);
-            }
-        }
-        Ok(ItemEmbedding {
-            ety: self.ety.get(id)?,
-            glosses: self.glosses.get(id)?,
-            senses,
+        ItemEmbedding {
+            ety: get(self.ety.get(&id)),
+            glosses: get(self.glosses.get(&id)),
+            senses: (0..n)
+                .filter_map(|s| get(self.senses.get(&(id, s))))
+                .collect(),
             discount,
-        })
+        }
     }
 }
 
@@ -465,7 +384,7 @@ fn cosine(a: &[f32], b: &[f32]) -> f32 {
     ab / (aa * bb).sqrt()
 }
 
-fn best_match<'a>(a: impl Iterator<Item = &'a Embedding> + Clone, b: &[Embedding]) -> f32 {
+fn best_match<'a>(a: impl Iterator<Item = &'a [f32]> + Clone, b: &[&[f32]]) -> f32 {
     a.flat_map(|x| b.iter().map(move |y| cosine(x, y)))
         .fold(0.0, f32::max)
 }
@@ -480,18 +399,18 @@ pub(crate) fn citation_score(
     citer: &ItemEmbedding,
     candidate: &ItemEmbedding,
     citer_is_child: bool,
-    gloss: Option<&Embedding>,
+    gloss: Option<&[f32]>,
 ) -> f32 {
     let senses = match gloss {
         Some(gloss) => best_match(std::iter::once(gloss), &candidate.senses),
-        None => best_match(citer.senses.iter(), &candidate.senses),
+        None => best_match(citer.senses.iter().copied(), &candidate.senses),
     };
     let (child, parent) = if citer_is_child {
         (citer, candidate)
     } else {
         (candidate, citer)
     };
-    let etymology = match (&child.ety, &parent.glosses) {
+    let etymology = match (child.ety, parent.glosses) {
         (Some(ety), Some(glosses)) => cosine(ety, glosses),
         _ => 0.0,
     };
@@ -535,11 +454,14 @@ mod tests {
             let item = Item::Imputed(wety_core::items::ImputedItem {
                 ety_num: 1,
                 lang: "en".parse().unwrap(),
-                term: wety_core::langterm::Term::new(&mut wety_core::string_pool::StringPool::new(), "x"),
+                term: wety_core::langterm::Term::new(
+                    &mut wety_core::string_pool::StringPool::new(),
+                    "x",
+                ),
                 romanization: None,
                 from: id,
             });
-            let mut embedding = embeddings.get(&item, id).unwrap();
+            let mut embedding = embeddings.get(&item, id);
             embedding.discount = 1.0;
             embedding
         };
@@ -553,15 +475,60 @@ mod tests {
     }
 
     #[test]
+    fn store_appends_and_recovers() {
+        let dir = std::env::temp_dir().join("wety-embeddings-tests-store");
+        let _ = std::fs::remove_dir_all(&dir);
+        {
+            let mut store = Store::open(&dir).unwrap();
+            assert!(Store::open(&dir).is_err(), "locked");
+            store
+                .append([
+                    (1, &[1.0, 2.0][..]),
+                    (2, &[3.0, 4.0][..]),
+                    (1, &[9.0, 9.0][..]),
+                ])
+                .unwrap();
+            store.remap().unwrap();
+            assert_eq!(store.get(1), Some(&[1.0, 2.0][..]));
+            assert_eq!(store.get(2), Some(&[3.0, 4.0][..]));
+            assert_eq!(store.get(3), None);
+            assert!(store.append([(3, &[1.0][..])]).is_err());
+        }
+        // a partial entry, as an interrupted append leaves it, is dropped
+        OpenOptions::new()
+            .append(true)
+            .open(dir.join("vectors"))
+            .unwrap()
+            .write_all(&[0; 5])
+            .unwrap();
+        let mut store = Store::open(&dir).unwrap();
+        assert_eq!(store.len(), 2);
+        store.append([(3, &[5.0, 6.0][..])]).unwrap();
+        store.remap().unwrap();
+        assert_eq!(store.get(3), Some(&[5.0, 6.0][..]));
+        assert_eq!(store.get(1), Some(&[1.0, 2.0][..]));
+        drop(store);
+        std::fs::remove_dir_all(dir).unwrap();
+    }
+
+    #[test]
     fn disambiguates_minþiją() {
         // Proto-Germanic *minþiją lists Old Norse minni among its descendants
         assert_right_disambiguation(
             "minþiją",
-            ("Proto-Germanic", "minþiją", "From Proto-Indo-European *men- (“to think”).", &["memory, remembrance"]),
+            (
+                "Proto-Germanic",
+                "minþiją",
+                "From Proto-Indo-European *men- (“to think”).",
+                &["memory, remembrance"],
+            ),
             false,
             ("Old Norse", "minni"),
             ("From Proto-Germanic *(ga)minþiją.", &["memory"]),
-            ("From Proto-Germanic *minnizô, comparative of *lītilaz.", &["less, smaller: comparative degree of lítill"]),
+            (
+                "From Proto-Germanic *minnizô, comparative of *lītilaz.",
+                &["less, smaller: comparative degree of lítill"],
+            ),
         );
     }
 
@@ -574,37 +541,57 @@ mod tests {
                 "English",
                 "moon",
                 "From Middle English mone, from Old English mōna (“moon”), from Proto-West Germanic *mānō, from Proto-Germanic *mēnô (“moon”), from Proto-Indo-European *mḗh₁n̥s (“moon, month”), probably from *meh₁- (“to measure”).",
-                &["The Earth's only permanent natural satellite.", "A satellite of a planet."],
+                &[
+                    "The Earth's only permanent natural satellite.",
+                    "A satellite of a planet.",
+                ],
             ),
             true,
             ("Middle English", "mone"),
             (
                 "From Old English mōna. The sense of the word as silver is the result of its astrological association with the planet.",
-                &["The celestial body closest to the Earth, considered to be a planet in the Ptolemic system as well as the boundary between the Earth and the heavens; the Moon.", "A white, precious metal; silver."],
+                &[
+                    "The celestial body closest to the Earth, considered to be a planet in the Ptolemic system as well as the boundary between the Earth and the heavens; the Moon.",
+                    "A white, precious metal; silver.",
+                ],
             ),
-            ("From Old English mān, from Proto-West Germanic *mainu, from Proto-Germanic *mainō.", &["A lamentation", "A moan, complaint"]),
+            (
+                "From Old English mān, from Proto-West Germanic *mainu, from Proto-Germanic *mainō.",
+                &["A lamentation", "A moan, complaint"],
+            ),
         );
     }
 
     #[test]
     fn scores() {
-        let e = |v: &[f32]| v.to_vec();
-        let item = |ety: Option<&[f32]>, glosses: &[f32], senses: &[&[f32]]| ItemEmbedding {
-            ety: ety.map(e),
-            glosses: Some(e(glosses)),
-            senses: senses.iter().map(|s| e(s)).collect(),
+        let item = |ety: Option<&'static [f32]>,
+                    glosses: &'static [f32],
+                    senses: &[&'static [f32]]| ItemEmbedding {
+            ety,
+            glosses: Some(glosses),
+            senses: senses.to_vec(),
             discount: 1.0,
         };
         // the child's etymology describes the parent's sense [0, 1]
         let child = item(Some(&[0.0, 1.0]), &[1.0, 0.0], &[&[1.0, 0.0]]);
         let right = item(None, &[0.0, 1.0], &[&[0.0, 1.0], &[1.0, 0.0]]);
         let wrong = item(None, &[1.0, 1.0], &[&[0.6, 0.8]]);
-        assert!(citation_score(&child, &right, true, None) > citation_score(&child, &wrong, true, None));
+        assert!(
+            citation_score(&child, &right, true, None) > citation_score(&child, &wrong, true, None)
+        );
         // a citation's gloss replaces the citing item's senses
-        let gloss = e(&[0.6, 0.8]);
-        assert!(citation_score(&child, &wrong, true, Some(&gloss)) > citation_score(&child, &right, true, Some(&gloss)) - 0.3);
+        let gloss: &[f32] = &[0.6, 0.8];
+        assert!(
+            citation_score(&child, &wrong, true, Some(gloss))
+                > citation_score(&child, &right, true, Some(gloss)) - 0.3
+        );
         // seen from the parent, the roles of etymology and glosses swap
-        assert!((citation_score(&right, &child, false, None) - citation_score(&child, &right, true, None)).abs() < 1e-6);
+        assert!(
+            (citation_score(&right, &child, false, None)
+                - citation_score(&child, &right, true, None))
+            .abs()
+                < 1e-6
+        );
     }
 }
 
@@ -648,6 +635,9 @@ mod parity {
             .collect();
         let start = std::time::Instant::now();
         model.encode(texts.clone()).unwrap();
-        println!("{:.0} texts/s", texts.len() as f64 / start.elapsed().as_secs_f64());
+        println!(
+            "{:.0} texts/s",
+            texts.len() as f64 / start.elapsed().as_secs_f64()
+        );
     }
 }
