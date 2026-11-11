@@ -6,16 +6,16 @@ edition = "2024"
 [dependencies]
 wety-core = { path = "../core" }
 simd-json = "0.19"
-snmalloc-rs = {version = "0.3.0", features = ["native-cpu"]}
+snmalloc-rs = { version = "0.7", features = ["native-cpu"] }
 bytelines = "2.4"
 flate2 = {workspace = true}
 anyhow = {workspace = true}
 indicatif = "0.17.0"
 clap = { version = "4.6", features = ["derive"] }
 regex = "1.7.1"
-strum = "0.24.1"
+strum = "0.28"
 unicode-normalization = "0.1.22"
-itertools = "0.10.5"
+itertools = "0.15"
 serde = {workspace = true}
 serde_json = {workspace = true}
 memmap2 = "0.9"
