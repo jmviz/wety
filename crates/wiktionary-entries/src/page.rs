@@ -875,15 +875,29 @@ fn term_argument(call: &Call) -> Option<(&str, &str)> {
     (!lang.is_empty() && !term.is_empty() && term != "-").then_some((lang, term))
 }
 
-/// A Descendants call's terms (its positional arguments from 2) with the line's links,
+/// A Descendants call's terms (`{{desc}}`'s positional arguments from 2, `{{l}}`'s
+/// argument 2) with the line's links,
 /// in order. Only where there are as many links as terms, and no term is spelled as
 /// another term's page, which would show that the links are not in the terms' order
 /// (82,169 of 85,812 lines naming several terms in the 2026-11-01 entries qualify).
 fn paired_terms<'a>(call: &'a Call, links: &'a [Link]) -> Vec<(&'a str, &'a Link)> {
+    // {{desc}} names a term per argument from 2; {{l}} one, its argument 3 being
+    // the text shown.
+    let last = if matches!(call.name.as_str(), "l" | "link") {
+        2
+    } else {
+        usize::MAX
+    };
     let mut numbered: Vec<(usize, &str)> = call
         .args
         .iter()
-        .filter_map(|(k, v)| Some((k.parse::<usize>().ok().filter(|&n| n >= 2)?, v.as_str())))
+        .filter_map(|(k, v)| {
+            let n = k
+                .parse::<usize>()
+                .ok()
+                .filter(|&n| (2..=last).contains(&n))?;
+            Some((n, v.as_str()))
+        })
         .collect();
     numbered.sort_unstable();
     let terms: Vec<&str> = numbered

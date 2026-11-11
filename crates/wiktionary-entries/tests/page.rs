@@ -369,6 +369,17 @@ fn a_descendants_line_names_the_page_it_links() {
             ),
             // more terms than links: none
             line(&[("1", "ab"), ("2", "а́"), ("3", "б")], "а"),
+            // {{l}} with no term, its one link from a template in pos=: none
+            Descendant {
+                calls: vec![Call {
+                    name: "l".into(),
+                    args: [("1", "sem-pro"), ("2", ""), ("3", "*ṯalāṯ-at-um")]
+                        .iter()
+                        .map(|(k, v)| ((*k).to_string(), (*v).to_string()))
+                        .collect(),
+                }],
+                ..line(&[], "Reconstruction:Proto-Semitic/-at-")
+            },
         ],
         ..Entry::default()
     };
