@@ -13,13 +13,11 @@ anyhow = {workspace = true}
 indicatif = "0.17.0"
 clap = { version = "3.2.17", features = ["derive"] }
 regex = "1.7.1"
-sha2 = "0.10"
 strum = "0.24.1"
 unicode-normalization = "0.1.22"
 itertools = "0.10.5"
 serde = {workspace = true}
 serde_json = {workspace = true}
-sled = "0.34.7"
 memmap2 = "0.9"
 bytemuck = "1"
 rayon = "1.12"

@@ -40,8 +40,13 @@ Enterprise does not serve), the pages-articles dump itself (redirects) and the l
 export made from it. It takes about 15 minutes; the entries format is documented in
 `crates/wiktionary-entries/src/model.rs`.
 
-With the embedding cache warm the graph build takes about 30 minutes on an M1 Pro; a
-cold cache for 10.9M entries took about six hours, almost all of it embedding. Model
+With the embedding cache warm the graph build takes about 7 minutes on an M1 Pro; a
+cold cache for 10.9M entries took about six hours, almost all of it embedding. The
+cache (`data/cache/embeddings/current/<namespace>/`) holds each embedding once, by the
+hash of its text: the keys, read into memory, and the vectors, read in place from a
+memory-mapped file. Its namespace is the model, its revision and the code that embeds
+(`crates/processor/src/embeddings/model.rs`): editing that file starts an empty cache,
+editing the rest of the embedding code does not. Model
 files are cached by Hugging Face; the model revision and expected local file hashes are
 recorded in `data/registry/embedding-model.json`. On macOS the
 embedding model runs on the GPU (Metal) automatically; elsewhere it runs on the CPU
@@ -51,9 +56,8 @@ masked mean pooling, so an embedding does not depend on the other texts in its b
 
 For direct development use, `cargo run --locked --release --bin processor -- --help`
 shows explicit input/output/model options. Direct CLI runs do not create a workflow
-receipt. Embedding revisions must be immutable commits; computed caches are separated
-by model revision and embedding implementation. The old unkeyed cache is preserved but
-is not reused automatically. A lower embedding batch size can reduce memory use.
+receipt. Embedding revisions must be immutable commits. A lower embedding batch size
+can reduce memory use.
 
 ## Serve
 
