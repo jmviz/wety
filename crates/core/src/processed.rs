@@ -1039,10 +1039,16 @@ impl Search {
             .filter_map(|(name, data)| rank(name).map(|r| (r, data)))
             .collect_vec();
         named.sort_unstable_by(|a, b| a.0.cmp(&b.0).then(b.1.items.cmp(&a.1.items)));
-        let mut near = self
-            .langs
-            // ngrammatic 0.4, which this was tuned with, gave at most 10
-            .search(lang, 0.4, 10)
+        // the 10 nearest, as ngrammatic 0.4 (which this was tuned with) gave them; ties
+        // by name, where ngrammatic leaves them in a randomly seeded order
+        let mut nearest = self.langs.search(lang, 0.4, usize::MAX);
+        nearest.sort_by(|a, b| {
+            b.similarity
+                .total_cmp(&a.similarity)
+                .then_with(|| a.text.cmp(&b.text))
+        });
+        nearest.truncate(10);
+        let mut near = nearest
             .iter()
             .filter(|r| rank(&r.text).is_none())
             .filter_map(|r| {
