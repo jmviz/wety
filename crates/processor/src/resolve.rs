@@ -375,8 +375,9 @@ impl Items {
                     .zip(candidate_pos)
                     .is_some_and(|(a, b)| a.iter().any(|p| b.contains(p))),
             };
-            let score = embeddings::citation_score(&citer, &embedding, citer_is_child, gloss)
-                + if same_pos { SAME_POS_BONUS } else { 0.0 };
+            let score =
+                embeddings::citation_score(&citer, &embedding, citer_is_child, gloss.as_ref())
+                    + if same_pos { SAME_POS_BONUS } else { 0.0 };
             if best.is_none_or(|(_, s)| score > s) {
                 best = Some((candidate, score));
             }

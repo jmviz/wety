@@ -21,7 +21,7 @@ use std::{
 };
 
 use anyhow::{Context, Result, bail, ensure};
-use half::f16;
+use half::{f16, slice::HalfFloatSliceExt};
 use memmap2::Mmap;
 use xxhash_rust::xxh3::xxh3_64;
 
@@ -34,11 +34,27 @@ const MAX_SENSES: usize = 12;
 const MAX_ETY_CHARS: usize = 600;
 
 /// An item's embeddings, borrowed from the store.
-pub(crate) struct ItemEmbedding<'a> {
-    ety: Option<&'a [f16]>,
-    glosses: Option<&'a [f16]>,
-    senses: Vec<&'a [f16]>,
+pub(crate) struct ItemEmbedding {
+    ety: Option<Vector>,
+    glosses: Option<Vector>,
+    senses: Vec<Vector>,
     discount: f32,
+}
+
+/// An embedding as scores read it: in f32, with its squared norm, each computed once
+/// for however many vectors it is compared with.
+pub(crate) struct Vector {
+    values: Vec<f32>,
+    norm2: f32,
+}
+
+impl Vector {
+    fn new(stored: &[f16]) -> Self {
+        let mut values = vec![0.0; stored.len()];
+        stored.convert_to_f32_slice(&mut values);
+        let norm2 = values.iter().fold(0.0, |sum, x| sum + x * x);
+        Self { values, norm2 }
+    }
 }
 
 pub type TextHash = u64;
@@ -190,10 +206,17 @@ impl Store {
         self.map = (self.len > 0)
             .then(|| unsafe { Mmap::map(&self.vectors) })
             .transpose()?;
-        // Resolution reads the vectors at random: have the system read the file in
-        // ahead, in large sequential reads, rather than a page at a time on demand.
+        // Resolution reads the vectors at random: read the file in now, in order,
+        // so that the system reads ahead in large reads, rather than a page at a
+        // time on demand. (madvise(WILLNEED) alone did not, on macOS.)
         if let Some(map) = &self.map {
-            map.advise(memmap2::Advice::WillNeed)?;
+            map.advise(memmap2::Advice::Sequential)?;
+            let mut sum = 0u8;
+            for page in map.chunks(4096) {
+                sum = sum.wrapping_add(page[0]);
+            }
+            std::hint::black_box(sum);
+            map.advise(memmap2::Advice::Random)?;
         }
         Ok(())
     }
@@ -350,20 +373,22 @@ impl Embeddings {
         self.store.remap()
     }
 
-    pub(crate) fn text(&self, text: &str) -> Option<&[f16]> {
+    pub(crate) fn text(&self, text: &str) -> Option<Vector> {
         let key = text_hash(text);
         self.texts
             .contains(&key)
             .then(|| self.store.get(key))
             .flatten()
+            .map(Vector::new)
     }
 
-    pub(crate) fn get(&self, item: &Item, item_id: ItemId) -> ItemEmbedding<'_> {
+    pub(crate) fn get(&self, item: &Item, item_id: ItemId) -> ItemEmbedding {
         let (id, discount) = match item {
             Item::Real(_) => (item_id, 1.0),
             Item::Imputed(imputed) => (imputed.from, IMPUTATION_DISCOUNT),
         };
-        let get = |key: Option<&TextHash>| key.and_then(|&key| self.store.get(key));
+        let get =
+            |key: Option<&TextHash>| key.and_then(|&key| self.store.get(key)).map(Vector::new);
         let n = self.n_senses.get(&id).copied().unwrap_or(0);
         ItemEmbedding {
             ety: get(self.ety.get(&id)),
@@ -376,21 +401,19 @@ impl Embeddings {
     }
 }
 
-fn cosine(a: &[f16], b: &[f16]) -> f32 {
-    let (mut ab, mut aa, mut bb) = (0.0, 0.0, 0.0);
-    for (x, y) in a.iter().zip(b) {
-        let (x, y) = (x.to_f32(), y.to_f32());
-        ab += x * y;
-        aa += x * x;
-        bb += y * y;
-    }
-    if aa == 0.0 || bb == 0.0 {
+fn cosine(a: &Vector, b: &Vector) -> f32 {
+    if a.norm2 == 0.0 || b.norm2 == 0.0 {
         return 0.0;
     }
-    ab / (aa * bb).sqrt()
+    let ab = a
+        .values
+        .iter()
+        .zip(&b.values)
+        .fold(0.0, |sum, (x, y)| sum + x * y);
+    ab / (a.norm2 * b.norm2).sqrt()
 }
 
-fn best_match<'a>(a: impl Iterator<Item = &'a [f16]> + Clone, b: &[&[f16]]) -> f32 {
+fn best_match<'a>(a: impl Iterator<Item = &'a Vector> + Clone, b: &[Vector]) -> f32 {
     a.flat_map(|x| b.iter().map(move |y| cosine(x, y)))
         .fold(0.0, f32::max)
 }
@@ -405,18 +428,18 @@ pub(crate) fn citation_score(
     citer: &ItemEmbedding,
     candidate: &ItemEmbedding,
     citer_is_child: bool,
-    gloss: Option<&[f16]>,
+    gloss: Option<&Vector>,
 ) -> f32 {
     let senses = match gloss {
         Some(gloss) => best_match(std::iter::once(gloss), &candidate.senses),
-        None => best_match(citer.senses.iter().copied(), &candidate.senses),
+        None => best_match(citer.senses.iter(), &candidate.senses),
     };
     let (child, parent) = if citer_is_child {
         (citer, candidate)
     } else {
         (candidate, citer)
     };
-    let etymology = match (child.ety, parent.glosses) {
+    let etymology = match (&child.ety, &parent.glosses) {
         (Some(ety), Some(glosses)) => cosine(ety, glosses),
         _ => 0.0,
     };
@@ -574,9 +597,7 @@ mod tests {
 
     #[test]
     fn scores() {
-        let h = |v: &[f32]| -> &'static [f16] {
-            Vec::leak(v.iter().map(|&x| f16::from_f32(x)).collect())
-        };
+        let h = |v: &[f32]| Vector::new(&v.iter().map(|&x| f16::from_f32(x)).collect::<Vec<_>>());
         let item = |ety: Option<&[f32]>, glosses: &[f32], senses: &[&[f32]]| ItemEmbedding {
             ety: ety.map(h),
             glosses: Some(h(glosses)),
@@ -593,8 +614,8 @@ mod tests {
         // a citation's gloss replaces the citing item's senses
         let gloss = h(&[0.6, 0.8]);
         assert!(
-            citation_score(&child, &wrong, true, Some(gloss))
-                > citation_score(&child, &right, true, Some(gloss)) - 0.3
+            citation_score(&child, &wrong, true, Some(&gloss))
+                > citation_score(&child, &right, true, Some(&gloss)) - 0.3
         );
         // seen from the parent, the roles of etymology and glosses swap
         assert!(
