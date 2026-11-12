@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
-  "snapshot": "b228f248baa6042115cbccf9ca8435fb872dcf7c9f5bbc2b95b6468f7d972c8c",
-  "taken_at": "2026-11-12T04:08:37+00:00",
+  "snapshot": "bca6f7e67897419e4224a7914c1596b70930e71dfca4a4c5febae61c919d3e89",
+  "taken_at": "2026-11-12T04:30:16+00:00",
   "root": "/data",
-  "files": 48590,
-  "bytes": 112224055001,
-  "git_commit": "defb63e6d22fb19c2164a0dba1f71ffe8a22b08f",
-  "note": "performance: graph 0cf1c220 (entries 58b28305 with the form-of fixes; claims on export 4daa3b3b)"
+  "files": 49266,
+  "bytes": 106671583732,
+  "git_commit": "e52573db5bf58a65622dbf3ff9658d466fb2e46c",
+  "note": "deployed e52573db: graph 0cf1c220; dating synthesized in main (b7d33358); old embedding caches deleted"
 }
