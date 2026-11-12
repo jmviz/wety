@@ -4,7 +4,7 @@
   "collection": "cariban-claims",
   "product": "cariban_claims",
   "inputs": {
-    "export": "data/artifacts/etymology-assertions/b92729110e93f3bccb23b9947bae405a9829ecd2674d917e74b1bce519d6d9ef/files/assertions.jsonl.gz",
+    "export": "data/artifacts/etymology-assertions/4daa3b3b2aca9faeee3930cb2ab2e88c8ee751c4846194df65a707410f21f34f/files/assertions.jsonl.gz",
     "entries": "data/artifacts/wiktionary-entries/58b28305f7f2150396f405a0c1339cd0c6477c40aa5ab6c7c5587d64443e2053/files/entries.jsonl.gz",
     "languages": "data/artifacts/wiktionary-export/57d16abeffbce475ff189e0734fd8937eab8d7417b1ee08273e746b43b350cb0/files/languages.json",
     "families": "data/artifacts/wiktionary-export/57d16abeffbce475ff189e0734fd8937eab8d7417b1ee08273e746b43b350cb0/files/families.json",
