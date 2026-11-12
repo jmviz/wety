@@ -4,7 +4,7 @@
   "collection": "tuled-claims",
   "product": "tuled_claims",
   "inputs": {
-    "export": "data/artifacts/etymology-assertions/27e274bf3283b0c8a0f62b7b8faae2d2771e778f8979e5c435489f34e4f27076/files/assertions.jsonl.gz",
+    "export": "data/artifacts/etymology-assertions/b92729110e93f3bccb23b9947bae405a9829ecd2674d917e74b1bce519d6d9ef/files/assertions.jsonl.gz",
     "entries": "data/artifacts/wiktionary-entries/5e26d98008b10ce01fa50ce97075384b719549cd0f3f8c8956c5d7b977224c85/files/entries.jsonl.gz",
     "languages": "data/artifacts/wiktionary-export/57d16abeffbce475ff189e0734fd8937eab8d7417b1ee08273e746b43b350cb0/files/languages.json",
     "cldf_languages_csv": "data/workspaces/etymology/sources/tuled/raw/lexibank-tuled-a67d65a/cldf/languages.csv",
