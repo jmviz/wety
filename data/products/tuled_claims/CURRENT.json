@@ -1,6 +1,6 @@
 {
-  "artifact": "data/artifacts/tuled-claims/8a495d09bfcc85d40d030b79324639f488df7749eb08bcc4ca8d94b61be9467d",
+  "artifact": "data/artifacts/tuled-claims/993ef3171e217c1cd50c8d41053e14ec306cf0f0df1f9d023637d7873460fcd5",
   "entrypoint": "matches/assertions.jsonl",
-  "run_id": "1dae9bcd94884cd086e9d257c746e3d6",
+  "run_id": "d09b364c98fd40c0aaea038c88809158",
   "schema_version": 1
 }

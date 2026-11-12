@@ -1,6 +1,6 @@
 {
-  "artifact": "data/artifacts/iecor-claims/5fb389a62bffe5c2367da0d18cbb14a359800af96d3d7fa909a544c99f721f6c",
+  "artifact": "data/artifacts/iecor-claims/6f0ac5536f6cd3b76ee11f20878ea9230b8e252ae4e734a9fc158a8089e629da",
   "entrypoint": "matches/assertions.jsonl",
-  "run_id": "f1ca995b03034768a95e017465acdbf3",
+  "run_id": "6c4851a7df934d8e983766f364fc6683",
   "schema_version": 1
 }

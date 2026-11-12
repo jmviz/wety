@@ -1,6 +1,6 @@
 {
-  "artifact": "data/artifacts/tlopo-claims/72e876aab1f55dfe22c9de45fe05fe914bd75af28c02b1995acef1de894e0a48",
+  "artifact": "data/artifacts/tlopo-claims/eaf994d33fccb3a309980beb5e2e32840e26d9dc93ec605c6fcceec3ea27ae86",
   "entrypoint": "matches/assertions.jsonl",
-  "run_id": "fd2b20fabc554c80b54234edcdf2df0e",
+  "run_id": "8547ebaf28b74e3b9f927f23444aabbf",
   "schema_version": 1
 }
