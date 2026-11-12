@@ -396,3 +396,53 @@ fn a_descendants_line_names_the_page_it_links() {
         ]
     );
 }
+
+/// Form-of definitions whose target the template does not mark with a language:
+/// Ido's (`lang` on a span inside the mention), German's (none), and Chinese short
+/// forms (no form-of markup).
+const FORMS: &str = r##"<!DOCTYPE html><html><head></head><body>
+<section data-mw-section-id="1"><h2 id="Ido">Ido</h2>
+<section data-mw-section-id="2"><h3 id="Verb">Verb</h3><p><strong class="headword">arivonto</strong></p>
+<ol><li><span class="use-with-mention" about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"io-form of","href":"./Template:io-form_of"},"params":{"1":{"wt":"ariv"}},"i":0}}]}'>singular nominal future active participle of <span class="mention"><b><span class="Latn" lang="io"><a rel="mw:WikiLink" href="./arivar#Ido" title="arivar">arivar</a></span></b></span></span></li></ol>
+</section></section>
+<section data-mw-section-id="3"><h2 id="German">German</h2>
+<section data-mw-section-id="4"><h3 id="Verb_2">Verb</h3><p><strong class="headword">aufrechtzuerhalten</strong></p>
+<ol><li><span class="use-with-mention" about="#mwt3" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"de-zu-infinitive of","href":"./Template:de-zu-infinitive_of"},"params":{"1":{"wt":"aufrechterhalten"}},"i":0}}]}'>zu-infinitive of <span class="mention"><a rel="mw:WikiLink" href="./aufrechterhalten#German" title="aufrechterhalten">aufrechterhalten</a></span></span></li></ol>
+</section></section>
+<section data-mw-section-id="5"><h2 id="Chinese">Chinese</h2>
+<section data-mw-section-id="6"><h3 id="Noun">Noun</h3><p><strong class="headword">世博會</strong></p>
+<ol><li><i about="#mwt6" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"zh-short","href":"./Template:zh-short"},"params":{"1":{"wt":"世界博覽會"},"2":{"wt":"World Expo"}},"i":0}}]}'>short for</i><span about="#mwt6"> </span><span lang="zh-Hant" about="#mwt6"><a rel="mw:WikiLink" href="./世界博覽會#Chinese" title="世界博覽會">世界博覽會</a></span><span about="#mwt6">／</span><span lang="zh-Hans" about="#mwt6"><a rel="mw:WikiLink" href="./世界博览会#Chinese" title="世界博览会">世界博览会</a></span><span about="#mwt6"> (“World Expo”)</span>; see <a rel="mw:WikiLink" href="./博覽會#Chinese">博覽會</a>
+<ol><li><i about="#mwt7" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"zh-altname","href":"./Template:zh-altname"},"params":{"1":{"wt":"萬博"}},"i":0}}]}'>alternative name for</i><span about="#mwt7"> </span><span lang="zh-Hant" about="#mwt7"><a rel="mw:WikiLink" href="./萬博#Chinese" title="萬博">萬博</a></span></li></ol></li></ol>
+</section></section>
+</body></html>"##;
+
+#[test]
+fn form_of_targets_without_a_language_are_the_entrys() {
+    let info = PageInfo {
+        title: "forms",
+        page_id: 11,
+        rev: 13,
+        ns: 0,
+    };
+    let mut counts = Counts::default();
+    let languages = Languages::from_pairs([("Ido", "io"), ("German", "de"), ("Chinese", "zh")]);
+    let e: Vec<Value> = entries(&info, FORMS, &languages, &mut counts)
+        .iter()
+        .map(|e| serde_json::to_value(e).unwrap())
+        .collect();
+    let form_of = |i: usize, s: usize| e[i]["pos"][0]["senses"][s]["form_of"].clone();
+    assert_eq!(
+        form_of(0, 0),
+        json!([{"lang": "io", "term": "arivar", "link": {"page": "arivar", "anchor": "Ido"}}])
+    );
+    assert_eq!(
+        form_of(1, 0),
+        json!([{"lang": "de", "term": "aufrechterhalten", "link": {"page": "aufrechterhalten", "anchor": "German"}}])
+    );
+    // the short form's own link, not the one after it, nor its sub-sense's
+    assert_eq!(
+        form_of(2, 0),
+        json!([{"lang": "zh", "term": "世界博覽會", "link": {"page": "世界博覽會", "anchor": "Chinese"}}])
+    );
+    assert_eq!(form_of(2, 1)[0]["term"], "萬博");
+}

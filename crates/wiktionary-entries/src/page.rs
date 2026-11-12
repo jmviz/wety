@@ -10,8 +10,10 @@ use serde_json::Value;
 use sha2::{Digest, Sha256};
 
 use crate::{
-    model::{Block, Call, Counts, Descendant, Entry, Link, Note, PosBlock, Section, Sense, Span},
-    render::{Transclusions, calls, is_transclusion, mention, render},
+    model::{
+        Block, Call, Counts, Descendant, Entry, Link, Mention, Note, PosBlock, Section, Sense, Span,
+    },
+    render::{Transclusions, calls, is_transclusion, link, mention, mention_of, render},
 };
 
 fn sel(s: &str) -> Selector {
@@ -514,7 +516,65 @@ fn descendant_lists(sec: &Sec, counts: &mut Counts, tx: &Transclusions) -> Vec<D
     out
 }
 
-fn senses(list: ElementRef, depth: u8, out: &mut Vec<Sense>, tx: &Transclusions) {
+/// Chinese templates that define a word as another's short form or name ("short for
+/// 世界博覽會"), with no form-of markup: their first link to a Chinese entry is the
+/// target. (`zh-short-comp` names several words, and so no one form.)
+const ZH_FORM_OF: [&str; 3] = ["zh-short", "zh-alt-name", "zh-altname"];
+
+/// A form-of definition's target. Module:form of marks its link with the language;
+/// a template that only marks itself as a use-with-mention may not:
+/// `{{io-form of}}` puts `lang` on a span inside the mention, `{{de-zu-infinitive of}}`
+/// on nothing. Its target is in the entry's language, `lang`.
+fn form_of_target(e: ElementRef, lang: &str) -> Option<Mention> {
+    mention(e).or_else(|| {
+        let found = std::iter::once(e)
+            .chain(e.descendants().filter_map(ElementRef::wrap))
+            .find(|x| x.value().classes().any(|c| c == "mention"))?;
+        let lang = std::iter::once(found)
+            .chain(found.descendants().filter_map(ElementRef::wrap))
+            .find_map(|x| x.value().attr("lang"))
+            .unwrap_or(lang);
+        let m = mention_of(found, lang);
+        (!m.term.is_empty() && m.link.is_some()).then_some(m)
+    })
+}
+
+/// The target of a Chinese short form or name (`ZH_FORM_OF`) in a definition: the first
+/// link to a Chinese entry its template writes.
+fn zh_form_of_target(li: ElementRef, lang: &str) -> Option<Mention> {
+    let about = li
+        .descendants()
+        .filter_map(ElementRef::wrap)
+        .filter(|e| is_transclusion(e.value()))
+        .filter(|e| !has_ancestor_below(*e, li, &["ol", "ul", "dl"]))
+        .find(|e| {
+            e.value().attr("data-mw").is_some_and(|d| {
+                calls(d)
+                    .iter()
+                    .any(|c| ZH_FORM_OF.contains(&c.name.as_str()))
+            })
+        })?
+        .value()
+        .attr("about")?;
+    li.select(&A)
+        .filter(|a| {
+            a.ancestors()
+                .filter_map(ElementRef::wrap)
+                .take_while(|x| x.id() != li.id())
+                .any(|x| x.value().attr("about") == Some(about))
+        })
+        .find_map(|a| {
+            let target = link(a.value())?;
+            (target.anchor.as_deref() == Some("Chinese")).then(|| Mention {
+                lang: lang.to_string(),
+                term: a.text().collect::<String>().trim().to_string(),
+                link: Some(target),
+                gloss: None,
+            })
+        })
+}
+
+fn senses(list: ElementRef, lang: &str, depth: u8, out: &mut Vec<Sense>, tx: &Transclusions) {
     for li in list.child_elements().filter(|e| e.value().name() == "li") {
         if li.value().classes().any(|c| c == "mw-empty-elt") {
             continue;
@@ -529,11 +589,12 @@ fn senses(list: ElementRef, depth: u8, out: &mut Vec<Sense>, tx: &Transclusions)
             .filter_map(|e| e.value().attr("data-id").map(str::to_string))
             .collect();
         senseids.dedup();
-        let mut form_of: Vec<crate::model::Mention> = vec![];
+        let mut form_of: Vec<Mention> = vec![];
         for found in li
             .select(&FORM_OF)
             .filter(|e| !has_ancestor_below(*e, li, &["ol", "ul", "dl"]))
-            .filter_map(mention)
+            .filter_map(|e| form_of_target(e, lang))
+            .chain(zh_form_of_target(li, lang))
         {
             // a definition marked both ways names its target twice
             if !form_of
@@ -551,7 +612,7 @@ fn senses(list: ElementRef, depth: u8, out: &mut Vec<Sense>, tx: &Transclusions)
             calls: calls_within(li, &["ol", "ul", "dl"]),
         });
         for sub in li.child_elements().filter(|e| e.value().name() == "ol") {
-            senses(sub, depth + 1, out, tx);
+            senses(sub, lang, depth + 1, out, tx);
         }
     }
 }
@@ -573,7 +634,7 @@ fn headword_text(h: ElementRef) -> String {
         .to_string()
 }
 
-fn pos_block(sec: &Sec, counts: &mut Counts, tx: &Transclusions) -> PosBlock {
+fn pos_block(sec: &Sec, lang: &str, counts: &mut Counts, tx: &Transclusions) -> PosBlock {
     let mut block = PosBlock {
         heading: sec.title.clone(),
         pos: pos_code(&sec.title),
@@ -593,7 +654,7 @@ fn pos_block(sec: &Sec, counts: &mut Counts, tx: &Transclusions) -> PosBlock {
                 .filter(|t| !t.is_empty())
                 .collect();
         } else if e.value().name() == "ol" && block.senses.is_empty() {
-            senses(e, 0, &mut block.senses, tx);
+            senses(e, lang, 0, &mut block.senses, tx);
         }
     }
     for child in &sec.children {
@@ -786,7 +847,8 @@ fn fill(
 ) {
     for child in children {
         if is_pos(child) {
-            entry.pos.push(pos_block(child, counts, tx));
+            let block = pos_block(child, entry.lang.as_deref().unwrap_or_default(), counts, tx);
+            entry.pos.push(block);
             references_below(entry, &child.children, notes, tx);
             continue;
         }
