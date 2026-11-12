@@ -4,8 +4,8 @@
   "collection": "etymology-assertions",
   "product": "etymology_assertions",
   "inputs": {
-    "graph": "data/artifacts/etymology-graph/1ab4d71076fe2682d0d86b7df215718e14320f76bad50eb2314b388626d70715/files/wety.bin.gz",
-    "graph_receipt": "data/runs/3ad17f603fa04ef0a6ce62dd33c2692d/receipt.json",
+    "graph": "data/artifacts/etymology-graph/6aa95bc8dd08b6095899f6c783380c8f1c23617c2e4063def077f115fed1cfdb/files/wety.bin.gz",
+    "graph_receipt": "data/runs/df77ebdc987f4436a447850316c630d0/receipt.json",
     "bibliography": "data/artifacts/wiktionary-references/9a599c1cb5a4ae5d26a999bdb1d696a757659a9204192d6b2de46f8f28f2dee4/files/bibliography.jsonl",
     "profile": "data/workspaces/etymology/sources/wiktionary/etc/source.json"
   },
