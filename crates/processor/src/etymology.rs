@@ -705,8 +705,12 @@ impl EntryPos<'_> {
                 raw_ety_templates.push(ParsedRawEtyTemplate::Skipped);
             }
         }
-        (!raw_ety_templates.is_empty())
-            .then(|| RawEtymology::new(raw_ety_templates, EdgeBasis::Template))
+        // templates that state no origin ({{rfe}}, {{ety|pl|nl=1}}) are no etymology,
+        // and leave the entry to its form-of sense
+        let states = raw_ety_templates
+            .iter()
+            .any(|t| !matches!(t, ParsedRawEtyTemplate::Skipped));
+        states.then(|| RawEtymology::new(raw_ety_templates, EdgeBasis::Template))
     }
 
     // if no ety section or no templates, as a fallback we see if the first sense
@@ -2610,6 +2614,25 @@ mod tests {
             assert_eq!(template.mode, EtyMode::Form);
             assert_eq!(template.langterms[0].term.resolve(&sp), "barn");
             assert_eq!(template.parts[0].gloss.as_deref(), Some("child"));
+        }
+
+        #[test]
+        fn templates_stating_no_origin_leave_the_form_of_sense() {
+            // pl zadaniu: {{ety|pl|nl=1}} only, then "dative singular of zadanie"
+            let mut sp = StringPool::new();
+            let json = r#"{"etymology_templates": [{"name": "ety", "args": {"1": "pl", "nl": "1"}}],
+                "pos": [{"senses": [{"gloss": "dative singular of zadanie",
+                "form_of": [{"lang": "pl", "term": "zadanie"}]}]}]}"#;
+            let lang = Lang::from_str("pl").unwrap();
+            let ety = test_entry::with(json, |e| {
+                e.get_etymology(&mut sp, lang, &References::default())
+            })
+            .unwrap();
+            assert_eq!(ety.basis, EdgeBasis::FormOf);
+            let ParsedRawEtyTemplate::Parsed(template) = &ety.alternatives[0][0] else {
+                panic!("not parsed");
+            };
+            assert_eq!(template.langterms[0].term.resolve(&sp), "zadanie");
         }
 
         #[test]
