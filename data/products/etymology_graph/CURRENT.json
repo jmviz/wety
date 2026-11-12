@@ -1,6 +1,6 @@
 {
-  "artifact": "data/artifacts/etymology-graph/963713b63833e460fe78efcc1545fb36004fd83d51e58d5798369257358bda27",
-  "entrypoint": "wety.json.gz",
-  "run_id": "875f96b3d82d4e18a837fb94175f13d3",
+  "artifact": "data/artifacts/etymology-graph/d20bb4037a8b191a74801eb70a86f9c59939a47d432c173f40fc5f1d6363b64b",
+  "entrypoint": "wety.bin.gz",
+  "run_id": "fa87307b3a6d4dbf91ceb8415032c96e",
   "schema_version": 1
 }
