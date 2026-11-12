@@ -412,7 +412,12 @@ const FORMS: &str = r##"<!DOCTYPE html><html><head></head><body>
 <section data-mw-section-id="5"><h2 id="Chinese">Chinese</h2>
 <section data-mw-section-id="6"><h3 id="Noun">Noun</h3><p><strong class="headword">世博會</strong></p>
 <ol><li><i about="#mwt6" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"zh-short","href":"./Template:zh-short"},"params":{"1":{"wt":"世界博覽會"},"2":{"wt":"World Expo"}},"i":0}}]}'>short for</i><span about="#mwt6"> </span><span lang="zh-Hant" about="#mwt6"><a rel="mw:WikiLink" href="./世界博覽會#Chinese" title="世界博覽會">世界博覽會</a></span><span about="#mwt6">／</span><span lang="zh-Hans" about="#mwt6"><a rel="mw:WikiLink" href="./世界博览会#Chinese" title="世界博览会">世界博览会</a></span><span about="#mwt6"> (“World Expo”)</span>; see <a rel="mw:WikiLink" href="./博覽會#Chinese">博覽會</a>
-<ol><li><i about="#mwt7" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"zh-altname","href":"./Template:zh-altname"},"params":{"1":{"wt":"萬博"}},"i":0}}]}'>alternative name for</i><span about="#mwt7"> </span><span lang="zh-Hant" about="#mwt7"><a rel="mw:WikiLink" href="./萬博#Chinese" title="萬博">萬博</a></span></li></ol></li></ol>
+<ol><li><i about="#mwt7" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"zh-altname","href":"./Template:zh-altname"},"params":{"1":{"wt":"萬博"}},"i":0}}]}'>alternative name for</i><span about="#mwt7"> </span><span lang="zh-Hant" about="#mwt7"><a rel="mw:WikiLink" href="./萬博#Chinese" title="萬博">萬博</a></span></li></ol></li>
+<li><i about="#mwt8" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"zh-short-comp","href":"./Template:zh-short-comp"},"params":{"1":{"wt":"商務"},"2":{"wt":"英語"}},"i":0}}]}'>short for </i><span class="Hani" lang="zh" about="#mwt8"><a rel="mw:WikiLink" href="./商務" title="商務">商務</a><a rel="mw:WikiLink" href="./英語" title="英語">英語</a></span></li></ol>
+</section></section>
+<section data-mw-section-id="7"><h2 id="Pali">Pali</h2>
+<section data-mw-section-id="8"><h3 id="Suffix">Suffix</h3><p><strong class="headword">-ชาติกะ</strong></p>
+<ol><li><i about="#mwt9" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"pi-sc","href":"./Template:pi-sc"},"params":{"t":{"wt":"descended from, like"}},"i":0}}]}'><a rel="mw:WikiLink" href="./Category:Thai_script" title="Category:Thai script">Thai script</a> form of</i><span about="#mwt9"> </span><span class="Latn" lang="pi" about="#mwt9"><a rel="mw:WikiLink" href="./-jātika#Pali" title="-jātika">-jātika</a></span><span about="#mwt9"> </span><span class="mention-gloss" about="#mwt9">descended from, like</span></li></ol>
 </section></section>
 </body></html>"##;
 
@@ -425,7 +430,12 @@ fn form_of_targets_without_a_language_are_the_entrys() {
         ns: 0,
     };
     let mut counts = Counts::default();
-    let languages = Languages::from_pairs([("Ido", "io"), ("German", "de"), ("Chinese", "zh")]);
+    let languages = Languages::from_pairs([
+        ("Ido", "io"),
+        ("German", "de"),
+        ("Chinese", "zh"),
+        ("Pali", "pi"),
+    ]);
     let e: Vec<Value> = entries(&info, FORMS, &languages, &mut counts)
         .iter()
         .map(|e| serde_json::to_value(e).unwrap())
@@ -445,4 +455,10 @@ fn form_of_targets_without_a_language_are_the_entrys() {
         json!([{"lang": "zh", "term": "世界博覽會", "link": {"page": "世界博覽會", "anchor": "Chinese"}}])
     );
     assert_eq!(form_of(2, 1)[0]["term"], "萬博");
+    // a compound's short form links its parts, not the compound
+    assert_eq!(form_of(2, 2), json!([{"lang": "zh", "term": "商務英語"}]));
+    assert_eq!(
+        form_of(3, 0),
+        json!([{"lang": "pi", "term": "-jātika", "link": {"page": "-jātika", "anchor": "Pali"}, "gloss": "descended from, like"}])
+    );
 }

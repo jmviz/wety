@@ -516,10 +516,17 @@ fn descendant_lists(sec: &Sec, counts: &mut Counts, tx: &Transclusions) -> Vec<D
     out
 }
 
-/// Chinese templates that define a word as another's short form or name ("short for
-/// 世界博覽會"), with no form-of markup: their first link to a Chinese entry is the
-/// target. (`zh-short-comp` names several words, and so no one form.)
-const ZH_FORM_OF: [&str; 3] = ["zh-short", "zh-alt-name", "zh-altname"];
+/// Templates that define a word as another's form or name with no form-of markup: Chinese
+/// short forms and names ("short for 世界博覽會", "short for 商務英語", the last linking
+/// its parts) and Pali script forms ("Thai script form of -jātika"). The target is the
+/// first text the template writes in a language.
+const UNMARKED_FORM_OF: [&str; 5] = [
+    "zh-short",
+    "zh-short-comp",
+    "zh-alt-name",
+    "zh-altname",
+    "pi-sc",
+];
 
 /// A form-of definition's target. Module:form of marks its link with the language;
 /// a template that only marks itself as a use-with-mention may not:
@@ -539,9 +546,9 @@ fn form_of_target(e: ElementRef, lang: &str) -> Option<Mention> {
     })
 }
 
-/// The target of a Chinese short form or name (`ZH_FORM_OF`) in a definition: the first
-/// link to a Chinese entry its template writes.
-fn zh_form_of_target(li: ElementRef, lang: &str) -> Option<Mention> {
+/// The target of an `UNMARKED_FORM_OF` template in a definition: the first element its
+/// template writes with a `lang`, linked if it holds one link.
+fn unmarked_form_of_target(li: ElementRef, lang: &str) -> Option<Mention> {
     let about = li
         .descendants()
         .filter_map(ElementRef::wrap)
@@ -551,27 +558,35 @@ fn zh_form_of_target(li: ElementRef, lang: &str) -> Option<Mention> {
             e.value().attr("data-mw").is_some_and(|d| {
                 calls(d)
                     .iter()
-                    .any(|c| ZH_FORM_OF.contains(&c.name.as_str()))
+                    .any(|c| UNMARKED_FORM_OF.contains(&c.name.as_str()))
             })
         })?
         .value()
         .attr("about")?;
-    li.select(&A)
-        .filter(|a| {
-            a.ancestors()
-                .filter_map(ElementRef::wrap)
-                .take_while(|x| x.id() != li.id())
-                .any(|x| x.value().attr("about") == Some(about))
-        })
-        .find_map(|a| {
-            let target = link(a.value())?;
-            (target.anchor.as_deref() == Some("Chinese")).then(|| Mention {
-                lang: lang.to_string(),
-                term: a.text().collect::<String>().trim().to_string(),
-                link: Some(target),
-                gloss: None,
-            })
-        })
+    // Parsoid marks each top-level element a template writes with its `about`
+    let written = |e: &ElementRef| {
+        std::iter::once(*e)
+            .chain(e.ancestors().filter_map(ElementRef::wrap))
+            .take_while(|x| x.id() != li.id())
+            .any(|x| x.value().attr("about") == Some(about))
+    };
+    let mut own = li
+        .descendants()
+        .filter_map(ElementRef::wrap)
+        .filter(written);
+    let target = own.find(|e| e.value().attr("lang").is_some())?;
+    let term = target.text().collect::<String>().trim().to_string();
+    let links: Vec<Link> = target.select(&A).filter_map(|a| link(a.value())).collect();
+    let gloss = own
+        .find(|e| e.value().classes().any(|c| c == "mention-gloss"))
+        .map(|g| g.text().collect::<String>().trim().to_string())
+        .filter(|g| !g.is_empty());
+    (!term.is_empty()).then(|| Mention {
+        lang: lang.to_string(),
+        term,
+        link: <[Link; 1]>::try_from(links).ok().map(|[l]| l),
+        gloss,
+    })
 }
 
 fn senses(list: ElementRef, lang: &str, depth: u8, out: &mut Vec<Sense>, tx: &Transclusions) {
@@ -594,7 +609,7 @@ fn senses(list: ElementRef, lang: &str, depth: u8, out: &mut Vec<Sense>, tx: &Tr
             .select(&FORM_OF)
             .filter(|e| !has_ancestor_below(*e, li, &["ol", "ul", "dl"]))
             .filter_map(|e| form_of_target(e, lang))
-            .chain(zh_form_of_target(li, lang))
+            .chain(unmarked_form_of_target(li, lang))
         {
             // a definition marked both ways names its target twice
             if !form_of
