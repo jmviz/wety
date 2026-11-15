@@ -220,6 +220,46 @@ main:has(.cst-stage) {
   outline-offset: 3px;
 }
 
+.cst-row-face {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 18px 20px;
+}
+
+.cst-row-face > .cst-fam {
+  margin-bottom: 10px;
+}
+
+.cst-preview-row {
+  all: unset;
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  padding: 4px 8px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.cst-preview-row:not(:disabled):hover,
+.cst-preview-row:focus-visible {
+  border-color: rgba(var(--c), 0.65);
+  background: rgba(var(--c), 0.055);
+  outline: none;
+}
+
+.cst-preview-row:disabled {
+  cursor: default;
+}
+
+.cst-row-face.cst-preview-box {
+  position: absolute;
+  left: 0;
+  border: 1px solid rgba(var(--c), 0.32);
+  border-radius: 26px;
+  background: linear-gradient(rgba(var(--c), 0.055), rgba(var(--c), 0.055)), var(--cst-ground);
+}
+
 .cst-close {
   all: unset;
   box-sizing: border-box;

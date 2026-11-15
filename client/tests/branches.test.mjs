@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { readFileSync } from "node:fs";
-import { autoExpandGroup, branchesOf, canOpen, directEarlyEnglish, previewLines, singleEndpoint, sourceBranches, uncommonLatinEnglish, withoutUndefinedRoots } from "../src/constellation/branches.ts";
+import { autoExpandGroup, branchesOf, canOpen, directEarlyEnglish, groupsForWords, previewLines, restrictBranches, singleEndpoint, sourceBranches, uncommonLatinEnglish, withoutUndefinedRoots } from "../src/constellation/branches.ts";
 
 const pie = { id: 1, code: "ine-pro", name: "Proto-Indo-European" };
 const hellenic = { id: 2, code: "grk-pro", name: "Proto-Hellenic" };
@@ -27,6 +27,33 @@ function node(lang, term, children = [], extra = {}) {
   };
 }
 const word = (term, selected = false) => node(english, term, [], { isSelected: selected });
+
+test("a preview row opens only its words, including when rows share the same proto root", () => {
+  const shared = node(hellenic, "shared", [
+    node(greek, "praktikos", [word("practice"), word("practise")]),
+    node(french, "peri", [word("periodic")]),
+  ]);
+  const other = node(hellenic, "other", [node(greek, "pirate-source", [word("pirate")])]);
+  const root = node(pie, "root", [shared, other]);
+  const read = (n) => branchesOf(n, english, langs, null);
+  const [branch] = read(root);
+  const rows = previewLines(branch, english, read);
+  const family = rows.find((row) => row.some((w) => w.item.term === "practice"));
+  const singles = rows.find((row) => row.some((w) => w.item.term === "periodic"));
+  assert.deepEqual(groupsForWords(branch, family).map((g) => g.head), [shared]);
+  const clicked = groupsForWords(branch, singles);
+  assert.equal(clicked.length, 2);
+  assert.deepEqual(new Set(clicked.flatMap((g) => g.words.map((w) => w.item.term))), new Set(["periodic", "pirate"]));
+  const scope = new Set(singles.map((w) => w.item.term));
+  const children = sourceBranches(restrictBranches(read(shared), scope));
+  assert.equal(children.length, 1);
+  assert.equal(children[0].groups[0].head.item.term, "peri");
+  assert.deepEqual(children[0].words.map((w) => w.item.term), ["periodic"]);
+  assert.equal(children[0].wordCount, 1);
+  assert.deepEqual(restrictBranches(read(shared), new Set(["missing"])), []);
+  assert.equal(branch.wordCount, 4);
+  assert.equal(branch.groups.find((g) => g.head === shared).words.length, 3);
+});
 
 test("undefined-root experiment removes their words and counts without changing the underlying groups", () => {
   const recorded = node(hellenic, "known", [node(greek, "known", [word("kept")])]);

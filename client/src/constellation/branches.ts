@@ -65,6 +65,24 @@ export function sourceBranches(branches: Branch[]): Branch[] {
     : [b]);
 }
 
+// A row can share a historical source with another row. Keep its paths
+// restricted to the displayed words that were actually clicked.
+export function restrictBranches(branches: Branch[], terms: ReadonlySet<string>): Branch[] {
+  return branches.flatMap((b) => {
+    const groups = b.groups.flatMap((g) => {
+      const words = g.words.filter((w) => terms.has(w.item.term));
+      return words.length ? [{ ...g, words, hasSelected: words.some((w) => w.isSelected) }] : [];
+    });
+    const words = b.words.filter((w) => terms.has(w.item.term));
+    return groups.length && words.length ? [{ ...b, groups, words, wordCount: words.length,
+      hasSelected: words.some((w) => w.isSelected) }] : [];
+  });
+}
+
+export function groupsForWords(branch: Branch, words: TreeNode[]): Group[] {
+  return restrictBranches([branch], new Set(words.map((w) => w.item.term)))[0]?.groups ?? [];
+}
+
 // Keep one-word paths in the middle, with larger lanes above and below.
 // The collapsed preview uses this same order as the expanded rack.
 export function rackOrder<T>(entries: T[], single: (entry: T) => boolean): T[] {

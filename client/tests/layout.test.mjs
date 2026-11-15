@@ -51,6 +51,19 @@ test("proto cards reserve separate lanes even before their children are measured
   assert.equal(sources[1].y - sources[0].y, 64);
 });
 
+test("the preserved preview box keeps its measured height beside opened proto roots", () => {
+  const branch = { id: "proto", size: { w: 320, h: 38 }, clustered: true, lanes: [
+    { hub: "folded", height: 104, blobs: [] },
+    { hub: "opened", blobs: [{ id: "child", size: { w: 250, h: 64 } }] },
+  ] };
+  const placed = layout({ id: "root", r: 96, blobs: [branch] });
+  const folded = placed.sources.get("folded"), source = placed.sources.get("opened"), child = placed.blobs.get("child");
+  assert.equal(folded.h, 104);
+  assert.equal(source.h, 38);
+  assert.equal(child.y - folded.y - folded.h, 26);
+  assert.equal(source.y + source.h / 2, child.y + child.h / 2);
+});
+
 test("root siblings keep separate directions even with tall previews and previous bad seats", () => {
   const root = { id: "root", r: 96, blobs: [
     { id: "greek", size: { w: 320, h: 220 } },

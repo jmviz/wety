@@ -4,7 +4,7 @@ import { close as closePopover, hoverEnter, hoverLeave, pin, popover } from "../
 import { useGoTo } from "../search/navigate";
 import { Item, Lang, TreeKind, term } from "../search/types";
 import { cognates, constellationStart, lastRequest, showGlosses, showRare } from "../state";
-import { Branch, Common, Group, HIDE_UNDEFINED_ROOTS, LangTree, autoExpandGroup, branchesOf, canOpen, directEarlyEnglish, previewLines, rackOrder, singleEndpoint, sourceBranches, uncommonLatinEnglish, withoutUndefinedRoots } from "./branches";
+import { Branch, Common, Group, HIDE_UNDEFINED_ROOTS, LangTree, autoExpandGroup, branchesOf, canOpen, directEarlyEnglish, groupsForWords, previewLines, rackOrder, restrictBranches, singleEndpoint, sourceBranches, uncommonLatinEnglish, withoutUndefinedRoots } from "./branches";
 import { BlobSpec, Layout, Link, Point, Rect, Size, SOURCE_HEIGHT, bounds, join, layout, rootDirection, wire } from "./layout";
 import { chronological, languageTimes } from "./chronology";
 import type { LayoutPeriod } from "./chronology";
@@ -41,6 +41,9 @@ interface Hub {
   // row, named as the row is, in a blob as wide as the rack and as tall as
   // the row.
   single: boolean;
+  // Rows can share a source, so each breakout keeps its own identity and
+  // modern-word filter through every later language stage.
+  scope?: { id: string; words: ReadonlySet<string> };
 }
 
 // One colour per branch of the root, as "r,g,b".
@@ -184,11 +187,13 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     }
     return branches;
   };
-  const makeHub = (node: TreeNode, parent: Hub | null, via: string | null, hue: string | null): Hub => {
-    const branches = parent ? sourceBranches(branchesFor(node)) : branchesFor(node);
+  const makeHub = (node: TreeNode, parent: Hub | null, via: string | null, hue: string | null, scope = parent?.scope): Hub => {
+    const available = scope ? restrictBranches(branchesFor(node), scope.words) : branchesFor(node);
+    const branches = parent ? sourceBranches(available) : available;
     const keys = branches.map((b) => b.key);
     return {
-      id: String(node.item.id),
+      id: scope ? `${node.item.id}@${scope.id}` : String(node.item.id),
+      scope,
       node,
       parent,
       via,
@@ -212,6 +217,22 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
   // In a rack, how far down its blob each head's row is centred: its line
   // leaves the blob there.
   const [rowMids, setRowMids] = createSignal(new Map<string, number>(), { equals: false });
+  const [previewHeights, setPreviewHeights] = createSignal(new Map<string, number>(), { equals: false });
+
+  const selective = (b: Branch) => (b.language ?? b.key).endsWith("-pro") && b.groups.filter((g) => canOpen(g, target)).length > 1;
+  const previewCache = new WeakMap<Branch, { words: TreeNode[]; groups: Group[] }[]>();
+  const previewsFor = (b: Branch) => {
+    let rows = previewCache.get(b);
+    if (!rows) {
+      rows = previewLines(b, target, branchesFor, common, scores).map((words) => ({ words, groups: groupsForWords(b, words) }));
+      previewCache.set(b, rows);
+    }
+    return rows;
+  };
+  const rowKey = (hub: Hub, b: Branch, index: number) => `${blobId(hub, b)}:row:${index}`;
+  const previewBoxId = (hub: Hub, b: Branch) => `${blobId(hub, b)}:preview`;
+  const remainingRows = (hub: Hub, b: Branch, heads: Hub[]) => previewsFor(b).map((_, i) => i)
+    .filter((i) => !heads.some((h) => h.scope?.id === rowKey(hub, b, i)));
 
   // Blobs are measured as drawn; the layout follows their real sizes.
   const observer = new ResizeObserver((entries) => {
@@ -221,6 +242,14 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     let moved = false;
     for (const entry of entries) {
       const el = entry.target as HTMLElement;
+      if (el.dataset.previewBox) {
+        const heights = previewHeights();
+        if (heights.get(el.dataset.previewBox) !== el.offsetHeight) {
+          heights.set(el.dataset.previewBox, el.offsetHeight);
+          setPreviewHeights(heights);
+        }
+        continue;
+      }
       const id = el.dataset.blob!;
       const now = { w: el.offsetWidth, h: el.offsetHeight };
       const had = map.get(id);
@@ -251,6 +280,14 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
   const [layoutVersion, setLayoutVersion] = createSignal(0);
   let placedVersion = 0;
   const clusteredHeads = (heads: Hub[]) => heads.length > 1 && heads.every((h) => h.node.item.lang.code.endsWith("-pro"));
+  const clusteredBranch = (b: Branch, heads: Hub[]) => clusteredHeads(heads) || (selective(b) && heads.some((h) => !!h.scope));
+  const entriesFor = (h: Hub, b: Branch, heads: Hub[]): { id: string; head: Hub | undefined }[] => selective(b) && heads.some((k) => !!k.scope)
+    ? [
+        ...(remainingRows(h, b, heads).length ? [{ id: previewBoxId(h, b), head: undefined }] : []),
+        ...previewsFor(b).flatMap((_, i) => heads.filter((k) => k.scope?.id === rowKey(h, b, i))
+          .map((head) => ({ id: head.id, head }))),
+      ]
+    : heads.map((head) => ({ id: head.id, head }));
   // What the layout is given: the root's blobs and, in each blob that has
   // been opened, its heads, each with its own blobs in turn.
   const spec = createMemo(() => {
@@ -261,7 +298,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
       h.branches.map((b) => {
         const id = blobId(h, b);
         const heads = all.filter((k) => k.via === id);
-        const clustered = clusteredHeads(heads);
+        const clustered = clusteredBranch(b, heads);
         const terminal = h.single || b.groups.every((g) => g.own);
         const stage = terminal ? target.code : (b.language ?? b.key);
         return {
@@ -277,7 +314,9 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
           size: clustered && measured.has(id) ? { w: measured.get(id)!.now.w, h: SOURCE_HEIGHT }
             : heads.length || compactLanes ? measured.get(id)?.now : measured.get(id)?.seat,
           lanes: heads.length
-            ? heads.map((k) => ({ hub: k.id, mid: mids.get(k.id), blobs: blobsOf(k, compactLanes || clustered), inline: k.single }))
+            ? entriesFor(h, b, heads).map((entry) => entry.head
+              ? { hub: entry.id, mid: mids.get(entry.id), blobs: blobsOf(entry.head, compactLanes || clustered), inline: entry.head.single }
+              : { hub: entry.id, mid: undefined, height: previewHeights().get(entry.id) ?? 64, blobs: [] })
             : undefined,
         };
       });
@@ -299,7 +338,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     const seat = placed().blobs.get(id);
     const now = sizes().get(id)?.now;
     const c = placed().hubs.get(hub.id);
-    if (clusteredHeads(hubs().filter((h) => h.via === id))) return seat;
+    if (hubs().some((h) => h.via === id && placed().sources.has(h.id))) return seat;
     if (!seat || !now || !c || now.h >= seat.h) return seat;
     const below = c.y > seat.y + seat.h / 2;
     return { x: seat.x, y: below ? seat.y + seat.h - now.h : seat.y, w: seat.w, h: now.h };
@@ -311,8 +350,11 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     const groups = new Map<string, { name: string; hue: string; boxes: Rect[]; external: boolean }>();
     for (const h of hubs()) for (const b of h.branches) {
       const open = hubs().filter((k) => k.via === blobId(h, b));
-      const clustered = clusteredHeads(open);
+      const clustered = clusteredBranch(b, open);
       if (!h.parent && !clustered) continue;
+      // The preserved preview box keeps its language heading until its
+      // last row opens. Only then does the column need a floating heading.
+      if (selective(b) && open.length && remainingRows(h, b, open).length) continue;
       const box = drawn(h, blobId(h, b));
       if (!box) continue;
       const compact = h.single || (b.groups.length === 1 && b.groups[0].own && b.words.length === 1) ||
@@ -320,7 +362,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
       const key = languageKey(h, b);
       let group = groups.get(key);
       if (!group) groups.set(key, (group = { name: b.name, hue: h.hues.get(b.key)!, boxes: [], external: false }));
-      group.boxes.push(...(clustered ? open.flatMap((k) => placed().sources.get(k.id) ?? []) : [box]));
+      group.boxes.push(...(clustered ? entriesFor(h, b, open).flatMap((k) => placed().sources.get(k.id) ?? []) : [box]));
       group.external ||= compact || clustered;
     }
     return new Map([...groups].filter(([, g]) => g.boxes.length && (g.boxes.length > 1 || g.external)).map(([key, g]) => [key, {
@@ -346,7 +388,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
         const box = drawn(h, blobId(h, b));
         if (!box) continue;
         const hue = h.hues.get(b.key)!;
-        const sources = hubs().filter((k) => k.via === blobId(h, b)).flatMap((k) => at.sources.get(k.id) ?? []);
+        const sources = entriesFor(h, b, hubs().filter((k) => k.via === blobId(h, b))).flatMap((k) => at.sources.get(k.id) ?? []);
         const outward = at.sides.get(blobId(h, b)) ?? (side || (box.x + box.w / 2 >= c.x ? 1 : -1));
         const spineX = outward > 0 ? box.x - 24 : box.x + box.w + 24;
         const ys = sources.map((s) => s.y + s.h / 2);
@@ -444,7 +486,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
   // Open heads in a blob, all those given at once: the blob becomes a rack,
   // each head a row in it with its own blobs in a lane beside it. A blob
   // with one head is a rack of one row.
-  const rack = (hub: Hub, branch: Branch, groups: Group[]) => {
+  const rack = (hub: Hub, branch: Branch, groups: Group[], scope = hub.scope) => {
     const id = blobId(hub, branch);
     const all = [...hubs()];
     const taken = new Set(all.map((h) => h.id));
@@ -452,18 +494,19 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
       .filter((k) => languageKey(h, k) === languageKey(owner, b))
       .map((k) => ({ owner: h, branch: k, id: blobId(h, k) })));
     const inherited = sharedDepth(peers(hub, branch).filter((p) => p.id !== id).map((p) => expansionDepth(p.id, all)));
-    const expand = (owner: Hub, b: Branch, desired: ExpansionDepth | null, firstGroups = b.groups) => {
+    const expand = (owner: Hub, b: Branch, desired: ExpansionDepth | null, firstGroups = b.groups, selectedScope = owner.scope) => {
       const queue: { owner: Hub; branch: Branch; level: number; groups: Group[]; automatic: boolean }[] = [
         { owner, branch: b, level: 1, groups: firstGroups, automatic: !!autoExpandGroup(b, target) },
       ];
       for (const step of queue) {
         const via = blobId(step.owner, step.branch);
-        const existing = all.filter((h) => h.via === via);
+        const existing = all.filter((h) => h.via === via && (!selectedScope || h.scope?.id === selectedScope.id));
         const made: Hub[] = [];
         for (const g of step.groups) {
-          const key = String(g.head.item.id);
-          if (!canOpen(g, target) || taken.has(key)) continue;
-          const child = makeHub(g.head, step.owner, via, step.owner.hues.get(step.branch.key)!);
+          if (!canOpen(g, target)) continue;
+          const child = makeHub(g.head, step.owner, via, step.owner.hues.get(step.branch.key)!, selectedScope);
+          const key = child.id;
+          if (taken.has(key)) continue;
           taken.add(key);
           made.push(child);
         }
@@ -476,7 +519,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
         }
       }
     };
-    expand(hub, branch, inherited, groups);
+    expand(hub, branch, inherited, groups, scope);
     // Deepening an already-open path also advances its opened siblings.
     // Merely revealed/folded siblings never join the expansion.
     for (let source: Hub | null = hub; source?.parent && source.via; source = source.parent) {
@@ -747,6 +790,39 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     );
   };
 
+  const PreviewRow = (p: { hub: Hub; branch: Branch; index: number }) => {
+    const row = previewsFor(p.branch)[p.index];
+    const id = rowKey(p.hub, p.branch, p.index);
+    return (
+      <button
+        type="button"
+        class="cst-preview-row"
+        data-row-choice={id}
+        aria-expanded="false"
+        aria-label={`Expand ${row.words.map((w) => w.item.term).join(", ")}`}
+        disabled={!row.groups.some((g) => canOpen(g, target))}
+        onClick={() => rack(p.hub, p.branch, row.groups, { id, words: new Set(row.words.map((w) => w.item.term)) })}
+      >
+        <span class="cst-words"><WordList words={row.words} live={false} /></span>
+      </button>
+    );
+  };
+
+  const PreviewBox = (p: { hub: Hub; branch: Branch; floating?: boolean }) => {
+    let el!: HTMLDivElement;
+    const id = previewBoxId(p.hub, p.branch);
+    const remaining = () => remainingRows(p.hub, p.branch, hubs().filter((h) => h.via === blobId(p.hub, p.branch)));
+    onMount(() => observer.observe(el));
+    onCleanup(() => observer.unobserve(el));
+    return (
+      <div ref={el} class="cst-row-face" classList={{ "cst-preview-box": p.floating }} data-preview-box={id}
+        style={p.floating ? { top: `${(placed().sources.get(id)?.y ?? 0) - (drawn(p.hub, blobId(p.hub, p.branch))?.y ?? 0)}px` } : undefined}>
+        <span class="cst-fam">{p.branch.name}</span>
+        <For each={remaining()}>{(index) => <PreviewRow hub={p.hub} branch={p.branch} index={index} />}</For>
+      </div>
+    );
+  };
+
   const BlobView = (p: { hub: Hub; branch: Branch }) => {
     let el!: HTMLElement;
     const id = blobId(p.hub, p.branch);
@@ -769,10 +845,8 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
       const c = placed().hubs.get(p.hub.id) ?? { x: 0, y: 0 };
       return { x: c.x - 170, y: c.y - 60 };
     };
-    // A branch starts as one list of its words, and the whole blob is one
-    // thing to click: its heads open, all at once, and it becomes a rack,
-    // each head a row here with its own blobs beside it. One head or
-    // several, the blob keeps its shape.
+    // Proto previews open one clicked row at a time, preserving the box
+    // around the untouched rows. Other branches open their heads together.
     const roots = p.branch.groups;
     // The heads opened here, in the order of their rows.
     const rows = () => hubs().filter((h) => h.via === id);
@@ -781,7 +855,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     // One named word needs one row, even when more language stages follow.
     // Keeping those stages visible must not add a separate language header.
     const compact = () => roots.length === 1 && rows().length === 1 && !!rows()[0].node.item.term;
-    const clustered = () => clusteredHeads(rows());
+    const clustered = () => clusteredBranch(p.branch, rows());
     const face = () => openable.length > 0 && rows().length === 0;
     const act = () => rack(p.hub, p.branch, openable);
     const Name = () => <span>{p.branch.name}</span>;
@@ -850,7 +924,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
           when={face()}
           fallback={
             <div class="cst-body">
-              <Show when={!compact() && !sharedLanguage()}>
+              <Show when={!compact() && !sharedLanguage() && !clustered()}>
                 <Show
                   when={rows().length > 0}
                   fallback={
@@ -886,13 +960,16 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
                   </div>
                 )}
               </For>
+              <Show when={selective(p.branch) && remainingRows(p.hub, p.branch, rows()).length}>
+                <PreviewBox hub={p.hub} branch={p.branch} floating />
+              </Show>
               <For each={roots.filter((g) => !canOpen(g, target))}>
                 {(g) => <GroupView hub={p.hub} branch={p.branch} group={g} />}
               </For>
             </div>
           }
         >
-          <button
+          <Show when={selective(p.branch)} fallback={<button
             type="button"
             class="cst-face"
             aria-expanded="false"
@@ -909,7 +986,9 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
                 {(words) => <span class="cst-preview-line"><WordList words={words} live={false} /></span>}
               </For>
             </span>
-          </button>
+          </button>}>
+            <PreviewBox hub={p.hub} branch={p.branch} />
+          </Show>
         </Show>
       </section>
     );

@@ -44,6 +44,8 @@ export interface BlobSpec {
 // A head opened in a rack, and the blobs that come off it.
 export interface LaneSpec {
   hub: string;
+  // The remaining preview box can be taller than a one-line source card.
+  height?: number;
   // How far down its blob the head's row is centred, once measured.
   mid: number | undefined;
   blobs: BlobSpec[];
@@ -138,8 +140,8 @@ function lanesAt(b: BlobSpec): { tops: (number | undefined)[]; mids: number[]; t
   const mids = lanes.map((l) => l.mid ?? size.h / 2);
   if (b.clustered) {
     let y = 0;
-    lanes.forEach((_, i) => {
-      const height = Math.max(SOURCE_HEIGHT, tall[i]);
+    lanes.forEach((lane, i) => {
+      const height = Math.max(lane.height ?? SOURCE_HEIGHT, tall[i]);
       mids[i] = y + height / 2;
       tops[i] = y + (height - tall[i]) / 2;
       y += height + BETWEEN;
@@ -225,7 +227,10 @@ export function layout(root: RootSpec, frame?: Size, before?: Layout): Layout {
     b.lanes.forEach((lane, i) => {
       const leaves = { x: side > 0 ? box.x + box.w : box.x, y: box.y + at.mids[i] };
       hubs.set(lane.hub, leaves);
-      if (b.clustered) sources.set(lane.hub, { x: box.x, y: leaves.y - SOURCE_HEIGHT / 2, w: box.w, h: SOURCE_HEIGHT });
+      if (b.clustered) {
+        const h = lane.height ?? SOURCE_HEIGHT;
+        sources.set(lane.hub, { x: box.x, y: leaves.y - h / 2, w: box.w, h });
+      }
       let top = at.tops[i];
       if (top === undefined) return;
       const kids = lane.blobs.filter((kid) => whole(kid));
