@@ -28,6 +28,11 @@ export interface BlobSpec {
   size: Size | undefined;
   // The heads opened in it, in the order of their rows.
   lanes?: LaneSpec[];
+  // For a blob in a lane: the hub whose disc has taken its place, with the
+  // blobs that come off it, which stand in a column beyond the disc. (A disc
+  // that takes the place of a blob round another disc is a `HubSpec`, with
+  // room to have its own blobs round it.)
+  disc?: { hub: string; r: number; blobs: BlobSpec[] };
 }
 
 // A head opened in a rack, and the blobs that come off it.
@@ -57,7 +62,8 @@ export interface Layout {
   blobs: Map<string, Rect>;
   // The room a disc's blob holds, with everything racked off it.
   seats: Map<string, Rect>;
-  // Which way a rack's lanes run from its blob: right (1) or left (-1).
+  // Which way things run on from a rack's blob (by blob) or from a disc in a
+  // lane (by hub): right (1) or left (-1).
   sides: Map<string, 1 | -1>;
 }
 
@@ -91,11 +97,14 @@ const around = (c: Point, s: Size): Rect => ({ x: c.x - s.w / 2, y: c.y - s.h / 
 const apart = (a: Rect, b: Rect) =>
   a.x >= b.x + b.w + GAP || b.x >= a.x + a.w + GAP || a.y >= b.y + b.h + GAP || b.y >= a.y + a.h + GAP;
 
-// The height a head's blobs take in their lane.
-export function laneHeight(lane: LaneSpec): number {
-  const heights = lane.blobs.flatMap((b) => whole(b)?.h ?? []);
+// The height of blobs standing one under another.
+function stacked(blobs: BlobSpec[]): number {
+  const heights = blobs.flatMap((b) => whole(b)?.h ?? []);
   return heights.reduce((sum, h) => sum + h, 0) + LANE_GAP * Math.max(0, heights.length - 1);
 }
+
+// The height a head's blobs take in their lane.
+export const laneHeight = (lane: LaneSpec): number => stacked(lane.blobs);
 
 // How far above and below a rack's blob its lanes reach, from the blob's top.
 // Rows are drawn as tall as their lanes, so this is the blob's own height
@@ -112,8 +121,15 @@ function reach(b: BlobSpec & { size: Size }): { top: number; bottom: number } {
   return { top, bottom };
 }
 
-// The room a blob takes with everything racked off it.
+// The room a blob takes with everything that runs on from it: a rack's
+// lanes, or the disc that has taken its place in a lane and that disc's
+// blobs in a column beyond it.
 export function whole(b: BlobSpec): Size | undefined {
+  if (b.disc) {
+    const d = b.disc.r * 2;
+    const beyond = Math.max(0, ...b.disc.blobs.map((k) => whole(k)?.w ?? 0));
+    return beyond ? { w: d + RUN + beyond, h: Math.max(d, stacked(b.disc.blobs)) } : { w: d, h: d };
+  }
   if (!b.size) return undefined;
   const widest = Math.max(0, ...(b.lanes ?? []).flatMap((l) => l.blobs.map((k) => whole(k)?.w ?? 0)));
   if (!widest) return b.size;
@@ -131,15 +147,31 @@ export function layout(specs: HubSpec[], frame?: Size, before?: Layout): Layout 
   const placed: Rect[] = [];
   const free = (r: Rect, others: Rect[] = placed) => others.every((p) => apart(r, p));
 
-  // A blob in the room found for it: its own box and, for a rack, its lanes
-  // on the side away from `fromX`, each level with its head's row.
+  // A blob in the room found for it: its own box and, on the side away from
+  // `fromX`, what runs on from it. A rack's lanes are each level with their
+  // head's row; a disc in a lane has its blobs in a column, centred on it.
   const settle = (b: BlobSpec, room: Rect, fromX: number) => {
+    const side = room.x + room.w / 2 >= fromX ? 1 : -1;
+    if (b.disc) {
+      const r = b.disc.r;
+      const c = { x: side > 0 ? room.x + r : room.x + room.w - r, y: room.y + room.h / 2 };
+      hubs.set(b.disc.hub, c);
+      sides.set(b.disc.hub, side);
+      if (b.size) blobs.set(b.id, around(c, b.size));
+      let y = c.y - stacked(b.disc.blobs) / 2;
+      for (const kid of b.disc.blobs) {
+        const s = whole(kid);
+        if (!s) continue;
+        settle(kid, { x: side > 0 ? c.x + r + RUN : c.x - r - RUN - s.w, y, ...s }, c.x);
+        y += s.h + LANE_GAP;
+      }
+      return;
+    }
     const size = b.size!;
     if (!b.lanes?.length) {
       blobs.set(b.id, room);
       return;
     }
-    const side = room.x + room.w / 2 >= fromX ? 1 : -1;
     const { top } = reach(b as BlobSpec & { size: Size });
     const box: Rect = { x: side > 0 ? room.x : room.x + room.w - size.w, y: room.y - top, ...size };
     blobs.set(b.id, box);

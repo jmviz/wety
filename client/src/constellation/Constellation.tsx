@@ -7,7 +7,6 @@ import { cognates, constellationStart, lastRequest, showGlosses } from "../state
 import { Branch, Group, LangTree, branchesOf, canOpen } from "./branches";
 import {
   BlobSpec,
-  Body,
   HubSpec,
   LaneSpec,
   Layout,
@@ -202,8 +201,13 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
   // words still read at. Fixed from then on, so resizing the window does not
   // shuffle the blobs.
   const [frame, setFrame] = createSignal<Size>();
-  // What the layout is given: the hubs with discs, each with its blobs, and
-  // in a racked blob the heads opened in it, each with its blobs in turn.
+  // Whether a hub's blobs run on from it in one direction, as everything in
+  // a rack does (a head's lane, and the blobs of a disc that has taken a lane
+  // blob's place), rather than standing round it.
+  const flows = (hub: Hub): boolean => !!hub.parent && (!hub.replaces || flows(hub.parent));
+  // What the layout is given: the hubs with discs that have blobs round
+  // them, each with its blobs, and in a racked blob the heads opened in it,
+  // each with what runs on from it in turn.
   const specs = createMemo(() => {
     const measured = sizes();
     const mids = rowMids();
@@ -213,6 +217,7 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
       h.branches.map((b) => {
         const id = blobId(h, b);
         const racked = all.filter((k) => k.via === id && !k.replaces);
+        const disc = flows(h) ? all.find((k) => k.via === id && k.replaces) : undefined;
         return {
           id,
           size: measured.get(id)?.seat,
@@ -223,10 +228,11 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
                 return lane;
               })
             : undefined,
+          disc: disc && { hub: disc.id, r: radius(disc), blobs: blobsOf(disc) },
         };
       });
     const discs = all
-      .filter((h) => !h.parent || h.replaces)
+      .filter((h) => !h.parent || (h.replaces && !flows(h.parent)))
       .map(
         (h): HubSpec => ({
           id: h.id,
@@ -273,33 +279,32 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
       out.push(
         [hue, l.d, l.end.x.toFixed(1), l.end.y.toFixed(1), l.start?.x.toFixed(1) ?? "", l.start?.y.toFixed(1) ?? ""].join("|")
       );
+    // Where a hub's lines run on from, when its blobs stand to one side of
+    // it: a head's row in a rack, or the far rim of a disc in a lane.
+    const runsFrom = (h: Hub): { from: Point; side: 1 | -1 } | undefined => {
+      const c = at.hubs.get(h.id);
+      if (!c) return undefined;
+      if (h.parent && !h.replaces) return { from: c, side: at.sides.get(h.via!) ?? 1 };
+      const side = at.sides.get(h.id);
+      return side && { from: { x: c.x + side * radius(h), y: c.y }, side };
+    };
     for (const h of hubs()) {
       const c = at.hubs.get(h.id);
       if (!c) continue;
-      if (h.parent && !h.replaces) {
-        // A head in a rack: a level line from its row to each of its blobs.
-        // (One a disc has replaced is joined to the disc, below.)
-        const side = at.sides.get(h.via!) ?? 1;
-        for (const b of h.branches) {
-          const id = blobId(h, b);
-          const box = gone.has(id) ? undefined : drawn(h, id);
-          if (box) push(h.hue!, wire(c, { x: side > 0 ? box.x : box.x + box.w, y: box.y + box.h / 2 }));
-        }
-        continue;
-      }
-      // A disc: joined to what it was opened from, as the blob it replaced
-      // was, and to each blob round it.
-      const me: Body = { c, r: radius(h) };
-      const p = h.parent;
-      const from = p && at.hubs.get(p.id);
-      if (p && from && h.hue) {
-        if (!p.parent || p.replaces) push(h.hue, join({ c: from, r: radius(p) }, me));
-        else push(h.hue, wire(from, { x: c.x - (at.sides.get(p.via!) ?? 1) * radius(h), y: c.y }));
-      }
+      const run = runsFrom(h);
+      // A disc is joined to what it was opened from, as the blob it replaced
+      // was: level, in a rack.
+      const before = h.replaces && h.parent ? runsFrom(h.parent) : undefined;
+      const p = h.replaces && h.parent ? at.hubs.get(h.parent.id) : undefined;
+      if (before && h.hue) push(h.hue, wire(before.from, { x: c.x - before.side * radius(h), y: c.y }));
+      else if (p && h.hue) push(h.hue, join({ c: p, r: radius(h.parent!) }, { c, r: radius(h) }));
       for (const b of h.branches) {
         const id = blobId(h, b);
         const box = gone.has(id) ? undefined : drawn(h, id);
-        if (box) push(h.hues.get(b.key)!, join(me, box));
+        if (!box) continue;
+        const hue = h.hues.get(b.key)!;
+        if (run) push(hue, wire(run.from, { x: run.side > 0 ? box.x : box.x + box.w, y: box.y + box.h / 2 }));
+        else push(hue, join({ c, r: radius(h) }, box));
       }
     }
     return out;
