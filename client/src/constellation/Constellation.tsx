@@ -4,7 +4,7 @@ import { close as closePopover, hoverEnter, hoverLeave, pin, popover } from "../
 import { useGoTo } from "../search/navigate";
 import { Item, Lang, TreeKind, term } from "../search/types";
 import { cognates, constellationStart, lastRequest, showGlosses, showRare } from "../state";
-import { Branch, Common, Group, LangTree, autoExpandGroup, branchesOf, canOpen } from "./branches";
+import { Branch, Common, Group, LangTree, autoExpandGroup, branchesOf, canOpen, directEarlyEnglish } from "./branches";
 import { BlobSpec, Layout, Link, Point, Rect, Size, bounds, join, layout, wire } from "./layout";
 import { chronological, languageTimes } from "./chronology";
 import type { LayoutPeriod } from "./chronology";
@@ -138,9 +138,15 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
   // The word list is English: another language's words are all listed.
   const common = target.code === "en" ? props.common : null;
   const times = languageTimes(props.periods, props.langs, target.code, new Date().getFullYear());
+  // Classical Latin ends around 200 CE in the shipped period registry.
+  // Broad Ancient Greek and proto labels also count as early sources even
+  // where their registry dates describe a later boundary or breakup.
+  const omitted = target.code === "en" ? directEarlyEnglish(root, (code) =>
+    code === "la" || code === "grc" || code.endsWith("-pro") || (times.get(code) ?? Infinity) <= 200
+  ) : new Set<number>();
 
   const makeHub = (node: TreeNode, parent: Hub | null, via: string | null, hue: string | null): Hub => {
-    const branches = branchesOf(node, target, props.langs, common);
+    const branches = branchesOf(node, target, props.langs, common, omitted);
     const keys = branches.map((b) => b.key);
     return {
       id: String(node.item.id),

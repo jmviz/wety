@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { autoExpandGroup, branchesOf, canOpen } from "../src/constellation/branches.ts";
+import { autoExpandGroup, branchesOf, canOpen, directEarlyEnglish } from "../src/constellation/branches.ts";
 
 const pie = { id: 1, code: "ine-pro", name: "Proto-Indo-European" };
 const hellenic = { id: 2, code: "grk-pro", name: "Proto-Hellenic" };
@@ -26,6 +26,37 @@ function node(lang, term, children = [], extra = {}) {
   };
 }
 const word = (term, selected = false) => node(english, term, [], { isSelected: selected });
+
+test("direct early-to-English jumps and English derivatives disappear from lists and expanded nodes", () => {
+  const direct = node(english, "direct", [word("directness")]);
+  const selected = word("selected", true);
+  const viaFrench = word("viafrench");
+  const late = { id: 10, code: "la-lat", name: "Late Latin" };
+  const viaLate = word("vialate");
+  const head = node(latin, "root", [direct, selected, node(french, "source", [viaFrench]), node(late, "late", [viaLate])]);
+  const root = node(pie, "root", [head]);
+  const omitted = directEarlyEnglish(root, (code) => ["ine-pro", "la", "grc"].includes(code));
+  assert.ok(omitted.has(direct.key));
+  assert.ok(omitted.has(direct.children[0].key));
+  assert.ok(!omitted.has(viaFrench.key));
+  assert.ok(!omitted.has(viaLate.key));
+  assert.ok(!omitted.has(selected.key));
+  const [folded] = branchesOf(root, english, langs, null, omitted);
+  assert.deepEqual(new Set(folded.words.map((w) => w.item.term)), new Set(["selected", "viafrench", "vialate"]));
+  const expanded = branchesOf(head, english, langs, null, omitted);
+  assert.deepEqual(new Set(expanded.flatMap((b) => b.words.map((w) => w.item.term))), new Set(["selected", "viafrench", "vialate"]));
+});
+
+test("an English spelling remains visible through a separate later-language path", () => {
+  const direct = word("shared");
+  const later = word("shared");
+  const head = node(latin, "root", [direct, node(french, "source", [later])]);
+  const omitted = directEarlyEnglish(head, (code) => code === "la");
+  const branches = branchesOf(head, english, langs, null, omitted);
+  assert.equal(branches.length, 1);
+  assert.equal(branches[0].name, french.name);
+  assert.deepEqual(branches[0].words, [later]);
+});
 
 test("one-to-one child nodes auto-expand independently of a multi-word parent", () => {
   const oldEnglish = { id: 11, code: "ang", name: "Old English" };

@@ -72,6 +72,21 @@ interface Found {
   depth: number;
 }
 
+// English formations inherit a direct jump until a recorded non-English
+// stage intervenes. Filtering only the first English word would let its
+// derivatives reappear farther down the same path.
+export function directEarlyEnglish(root: TreeNode, early: (code: string) => boolean): Set<number> {
+  const omitted = new Set<number>();
+  const visit = (n: TreeNode, source: string | undefined, blocked: boolean) => {
+    const english = n.item.lang.code === "en";
+    const skip = english && (blocked || (source !== undefined && early(source)));
+    if (skip && !n.isSelected) omitted.add(n.key);
+    for (const child of n.children) visit(child, english ? source : n.item.lang.code, english && skip);
+  };
+  visit(root, undefined, false);
+  return omitted;
+}
+
 // How common each word of the reader's language is: the smallest SCOWL list
 // it is in (10, the commonest, to 70, a large desk dictionary's), and nothing
 // for a word in none. `virtual:common-words` has English alone.
@@ -185,11 +200,12 @@ function wordsUnder(
   target: number,
   common: Common | null,
   folds: boolean,
-  grafted: boolean
+  grafted: boolean,
+  omitted: ReadonlySet<number>
 ): TreeNode[] {
   const found: Found[] = [];
   const visit = (n: TreeNode, depth: number, grafted: boolean) => {
-    if (n.item.lang.id === target && listed(n, common, grafted)) found.push({ node: n, depth });
+    if (n.item.lang.id === target && !omitted.has(n.key) && listed(n, common, grafted)) found.push({ node: n, depth });
     const below = grafted || (folds && isAffix(n));
     for (const c of n.children) visit(c, depth + 1, below);
   };
@@ -269,7 +285,7 @@ function unnamed(word: TreeNode, hub: TreeNode, langs: LangTree): TreeNode | nul
 // `common`: how common the reader's language's words are, to leave the rare
 // ones and plain derivatives out and list the commonest first; null lists
 // every word.
-export function branchesOf(hub: TreeNode, target: Lang, langs: LangTree, common: Common | null): Branch[] {
+export function branchesOf(hub: TreeNode, target: Lang, langs: LangTree, common: Common | null, omitted: ReadonlySet<number> = new Set()): Branch[] {
   // A hub at the top of its family: a reconstructed word of a language with
   // no ancestor of its own (Proto-Indo-European). Its branches are the
   // family's: the languages that come straight from it, a fixed set, under
@@ -298,12 +314,12 @@ export function branchesOf(hub: TreeNode, target: Lang, langs: LangTree, common:
         }
         continue;
       }
-      if (c.item.lang.id === target.id && listed(c, common, below)) own.push({ node: c, depth });
+      if (c.item.lang.id === target.id && !omitted.has(c.key) && listed(c, common, below)) own.push({ node: c, depth });
       collect(c, depth + 1, below);
     }
   };
   collect(hub, 1, false);
-  const under = (h: TreeNode) => wordsUnder(h, target.id, common, folds, graftedHeads.has(h.item.id));
+  const under = (h: TreeNode) => wordsUnder(h, target.id, common, folds, graftedHeads.has(h.item.id), omitted);
 
   // Only a family's root uses ancestry to choose its fixed branches.
   // Everywhere else the heading is the exact language of every head in it:
