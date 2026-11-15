@@ -352,9 +352,26 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null }
       ...made.filter((h) => h.single),
       ...many.filter((_, i) => i % 2 === 1).reverse(),
     ];
-    // Open only this node. A one-word head's sole child is already shown
-    // by its single-word blob; sibling branches do not open along with it.
-    if (next.length) setHubs([...hubs(), ...next]);
+    // Only a rack containing one word can open a child's one-to-one path
+    // with it. A single-word branch inside a multi-word rack is not enough.
+    const opened = [...next];
+    for (const h of opened) taken.add(h.id);
+    if (branch.groups.length === 1 && next.length === 1) {
+      for (const parent of opened) {
+        if (parent.single) continue;
+        for (const b of parent.branches) {
+          if (b.groups.length !== 1 || b.words.length !== 1) continue;
+          const g = b.groups[0];
+          const key = String(g.head.item.id);
+          if (!g.head.item.term || !canOpen(g, target) || taken.has(key)) continue;
+          const child = makeHub(g.head, parent, blobId(parent, b), parent.hues.get(b.key)!);
+          if (!child.single) continue;
+          taken.add(key);
+          opened.push(child);
+        }
+      }
+    }
+    if (opened.length) setHubs([...hubs(), ...opened]);
     closePopover();
     setCurrent(hub);
     settled(() => fitAll(rackRects(hub, id)));
