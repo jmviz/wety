@@ -209,16 +209,13 @@ main:has(.cst-stage) {
   width: 250px;
 }
 
-/* A head's one word: no box, set as the head's row is, at the end of its
-   arrow. */
+/* A head's one word: a blob as any other, as tall as the head's row and no
+   wider than the word, set as the row is, at the end of its arrow. */
 .cst-blob.single {
   width: max-content;
   max-width: 320px;
-  padding: 0 8px;
-  border: 0;
-  border-radius: 0;
-  background: none;
-  box-shadow: none;
+  padding: 0 16px;
+  border-radius: 19px;
 }
 
 .cst-blob.single .cst-head {
