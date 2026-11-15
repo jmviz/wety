@@ -22,3 +22,7 @@ declare module "virtual:common-words" {
   // listed at that size, lower-case, one to a line.
   export const levels: Record<string, string>;
 }
+
+declare module "virtual:layout-periods" {
+  export const periods: import("./constellation/chronology").LayoutPeriod[];
+}

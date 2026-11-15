@@ -3,6 +3,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { defineConfig, type Plugin } from "vite";
 import solid from "vite-plugin-solid";
+import type { LayoutPeriod } from "./src/constellation/chronology";
 
 // `virtual:lang-tree`: each language's parent language and the names of the
 // languages that have daughters, from the Wiktionary export the graph was
@@ -68,8 +69,25 @@ function commonWords(): Plugin {
   };
 }
 
+// Layout hints reuse the shipped dating registry without changing its claims.
+function layoutPeriods(): Plugin {
+  const id = "virtual:layout-periods";
+  const path = resolve(dirname(fileURLToPath(import.meta.url)), "../data/products/dating/language_periods.json");
+  return {
+    name: "wety-layout-periods",
+    resolveId: (source) => source === id ? "\0" + id : undefined,
+    load(resolved) {
+      if (resolved !== "\0" + id) return;
+      this.addWatchFile(path);
+      const { languages } = JSON.parse(readFileSync(path, "utf8")) as { languages: LayoutPeriod[] };
+      const periods = languages.map(({ code, spoken, estimate }) => ({ code, spoken, estimate }));
+      return `export const periods = ${JSON.stringify(periods)};`;
+    },
+  };
+}
+
 export default defineConfig({
-  plugins: [solid(), langTree(), commonWords()],
+  plugins: [solid(), langTree(), commonWords(), layoutPeriods()],
   server: {
     port: 8000,
   },

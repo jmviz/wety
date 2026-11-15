@@ -6,6 +6,8 @@ import { Item, Lang, TreeKind, term } from "../search/types";
 import { cognates, constellationStart, lastRequest, showGlosses, showRare } from "../state";
 import { Branch, Common, Group, LangTree, branchesOf, canOpen } from "./branches";
 import { BlobSpec, Layout, Link, Point, Rect, Size, bounds, join, layout, wire } from "./layout";
+import { chronological, languageTimes } from "./chronology";
+import type { LayoutPeriod } from "./chronology";
 
 import {
   For,
@@ -103,10 +105,10 @@ function huesOf(keys: string[]): Map<string, string> {
 // its own branches' blobs beside it, and so on outwards.
 export default function Constellation(props: { forest: Forest }) {
   const [data] = createResource(async () => {
-    const [langs, words] = await Promise.all([import("virtual:lang-tree"), import("virtual:common-words")]);
+    const [langs, words, dates] = await Promise.all([import("virtual:lang-tree"), import("virtual:common-words"), import("virtual:layout-periods")]);
     const common: Common = new Map();
     for (const [n, list] of Object.entries(words.levels)) for (const w of list.split("\n")) common.set(w, Number(n));
-    return { langs: langs as LangTree, common };
+    return { langs: langs as LangTree, common, periods: dates.periods };
   });
   return (
     <Show
@@ -119,9 +121,9 @@ export default function Constellation(props: { forest: Forest }) {
           // switched: what a blob lists is settled when it is made.
           <Show
             when={showRare()}
-            fallback={<Stage forest={props.forest} langs={d().langs} common={d().common} />}
+            fallback={<Stage forest={props.forest} langs={d().langs} common={d().common} periods={d().periods} />}
           >
-            <Stage forest={props.forest} langs={d().langs} common={null} />
+            <Stage forest={props.forest} langs={d().langs} common={null} periods={d().periods} />
           </Show>
         )}
       </Show>
@@ -129,12 +131,13 @@ export default function Constellation(props: { forest: Forest }) {
   );
 }
 
-function Stage(props: { forest: Forest; langs: LangTree; common: Common | null }) {
+function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; periods: LayoutPeriod[] }) {
   let stageEl!: HTMLDivElement;
   const root = props.forest.roots[0];
   const target: Lang = (props.forest.selected ?? root).item.lang;
   // The word list is English: another language's words are all listed.
   const common = target.code === "en" ? props.common : null;
+  const times = languageTimes(props.periods, props.langs, target.code, new Date().getFullYear());
 
   const makeHub = (node: TreeNode, parent: Hub | null, via: string | null, hue: string | null): Hub => {
     const branches = branchesOf(node, target, props.langs, common);
@@ -207,9 +210,13 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null }
       h.branches.map((b) => {
         const id = blobId(h, b);
         const heads = all.filter((k) => k.via === id);
+        const terminal = h.single || b.groups.every((g) => g.own);
+        const stage = terminal ? target.code : b.key;
         return {
           id,
-          terminal: h.single || b.groups.every((g) => g.own),
+          terminal,
+          stage,
+          year: times.get(stage),
           // A rack is laid out at the size it is now, so its rows' lines and
           // the words level with them leave it where the rows are drawn; a
           // list keeps the room it has had.
@@ -219,7 +226,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null }
             : undefined,
         };
       });
-    return { id: rootHub.id, r: ROOT_R, blobs: blobsOf(rootHub) };
+    return { id: rootHub.id, r: ROOT_R, blobs: blobsOf(rootHub).map(chronological) };
   });
   const placed = createMemo<Layout>(
     (before) => {
@@ -921,7 +928,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null }
           </For>
         </nav>
       </Show>
-      <p class="cst-ui cst-hint">Click a branch to unfold it. Drag or scroll to move.</p>
+      <p class="cst-ui cst-hint">Time runs outward; spacing is approximate. Click to unfold. Drag or scroll to move.</p>
       <div class="cst-ui cst-controls" role="group" aria-label="canvas">
         <Show when={hubs().length > 1}>
           <button type="button" class="wide" onClick={startOver}>

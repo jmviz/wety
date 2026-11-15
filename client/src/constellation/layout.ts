@@ -30,6 +30,11 @@ export interface BlobSpec {
   // A final word or list in the reader's language. These share the outer
   // edge of their root branch, even when their paths have different lengths.
   terminal?: boolean;
+  // Approximate language chronology for this branch's columns.
+  stage?: string;
+  year?: number;
+  // Assigned by chronological(): distance from the parent box's edge.
+  gap?: number;
 }
 
 // A head opened in a rack, and the blobs that come off it.
@@ -154,7 +159,7 @@ export function whole(b: BlobSpec): Size | undefined {
     ...(b.lanes ?? []).flatMap((l) =>
       l.blobs.flatMap((k) => {
         const w = whole(k)?.w;
-        return w ? [(l.inline ? SHORT : RUN) + w] : [];
+        return w ? [(k.gap ?? (l.inline ? SHORT : RUN)) + w] : [];
       })
     )
   );
@@ -197,10 +202,10 @@ export function layout(root: RootSpec, frame?: Size, before?: Layout): Layout {
       hubs.set(lane.hub, leaves);
       let top = at.tops[i];
       if (top === undefined) return;
-      const run = lane.inline ? SHORT : RUN;
       for (const kid of lane.blobs) {
         const s = whole(kid);
         if (!s) continue;
+        const run = kid.gap ?? (lane.inline ? SHORT : RUN);
         settle(kid, { x: side > 0 ? box.x + box.w + run : box.x - run - s.w, y: box.y + top, ...s }, leaves.x, endX);
         top += s.h + LANE_GAP;
       }
