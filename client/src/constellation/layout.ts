@@ -62,7 +62,8 @@ const apart = (a: Rect, b: Rect) =>
   a.x >= b.x + b.w + GAP || b.x >= a.x + a.w + GAP || a.y >= b.y + b.h + GAP || b.y >= a.y + a.h + GAP;
 
 // `frame`: the room the root and its blobs have, centred on the root.
-export function layout(specs: HubSpec[], frame?: Size): Layout {
+// `before`: the layout this one follows, whose seats are kept where they can.
+export function layout(specs: HubSpec[], frame?: Size, before?: Layout): Layout {
   const hubs = new Map<string, Point>();
   const blobs = new Map<string, Rect>();
   const placed: Rect[] = [];
@@ -108,8 +109,9 @@ export function layout(specs: HubSpec[], frame?: Size): Layout {
     const n = spec.blobs.length;
     const span = facing === null ? 2 * Math.PI : Math.min(FAN, EACH * n);
     const reach = facing === null ? Math.PI : span / 2;
-    const ring = (room: Size | null): (Rect | null)[] | null => {
-      const mine: Rect[] = [];
+    // The seat for the blob whose turn is the `i`th, clear of `mine` (this
+    // hub's blobs seated so far) and of everything placed before.
+    const find = (i: number, size: Size, room: Size | null, mine: Rect[]): Rect | null => {
       const fits = (r: Rect) =>
         (!room ||
           (Math.abs(r.x + r.w / 2 - at.x) + r.w / 2 <= room.w / 2 &&
@@ -117,48 +119,62 @@ export function layout(specs: HubSpec[], frame?: Size): Layout {
         free(r) &&
         free(r, mine);
       const far = room ? Math.hypot(room.w, room.h) / 2 : FAR;
+      const turn = facing === null ? ROOT_START + (i * span) / n : facing - span / 2 + ((i + 0.5) * span) / n;
+      const lo = facing === null ? -Infinity : facing - FAN / 2;
+      const hi = facing === null ? Infinity : facing + FAN / 2;
+      for (let out = 0; out <= far; out += STEP)
+        for (let off = 0; off <= reach; off += TURN)
+          for (const angle of off === 0 ? [turn] : [turn + off, turn - off]) {
+            if (angle < lo - 1e-9 || angle > hi + 1e-9) continue;
+            const r = seat(size, angle, out);
+            if (fits(r)) return r;
+          }
+      if (room) return null;
+      for (let t = clear(turn) + extent(size, turn); ; t += STEP) {
+        const r = around({ x: at.x + Math.cos(turn) * t, y: at.y + Math.sin(turn) * t }, size);
+        if (fits(r)) return r;
+      }
+    };
+    const ring = (room: Size | null): (Rect | null)[] | null => {
+      const mine: Rect[] = [];
       const seats: (Rect | null)[] = [];
       for (const [i, blob] of spec.blobs.entries()) {
-        const size = blob.size;
-        if (!size) {
-          seats.push(null);
-          continue;
-        }
-        const turn = facing === null ? ROOT_START + (i * span) / n : facing - span / 2 + ((i + 0.5) * span) / n;
-        const lo = facing === null ? -Infinity : facing - FAN / 2;
-        const hi = facing === null ? Infinity : facing + FAN / 2;
-        let found: Rect | null = null;
-        for (let out = 0; !found && out <= far; out += STEP) {
-          for (let off = 0; !found && off <= reach; off += TURN) {
-            for (const angle of off === 0 ? [turn] : [turn + off, turn - off]) {
-              if (angle < lo - 1e-9 || angle > hi + 1e-9) continue;
-              const r = seat(size, angle, out);
-              if (fits(r)) {
-                found = r;
-                break;
-              }
-            }
-          }
-        }
-        if (!found && room) return null;
-        if (!found) {
-          for (let t = clear(turn) + extent(size, turn); ; t += STEP) {
-            found = around({ x: at.x + Math.cos(turn) * t, y: at.y + Math.sin(turn) * t }, size);
-            if (fits(found)) break;
-          }
-        }
-        mine.push(found!);
-        seats.push(found);
+        const r = blob.size ? find(i, blob.size, room, mine) : null;
+        if (blob.size && !r) return null;
+        if (r) mine.push(r);
+        seats.push(r);
       }
       return seats;
     };
-    // The root's blobs are packed into the shape of the screen, in the least
-    // room that takes them all, so the first view fits it as large as can be.
+
     let seats: (Rect | null)[] | null = null;
-    if (facing === null && frame)
-      for (let scale = 1; !seats && scale <= 3; scale += 0.06)
-        seats = ring({ w: frame.w * scale, h: frame.h * scale });
-    seats ??= ring(null)!;
+    const was = before?.hubs.get(spec.id);
+    if (was && was.x === at.x && was.y === at.y) {
+      // The hub is where it was: its blobs that have not changed size keep
+      // their seats, and one that has (or is new) finds a seat round them.
+      // Only the blob the reader opened moves.
+      const mine: Rect[] = [];
+      seats = spec.blobs.map((blob) => {
+        const old = before!.blobs.get(blob.id);
+        const keeps = blob.size && old && old.w === blob.size.w && old.h === blob.size.h && free(old) && free(old, mine);
+        if (keeps) mine.push(old);
+        return keeps ? old : null;
+      });
+      for (const [i, blob] of spec.blobs.entries()) {
+        if (seats[i] || !blob.size) continue;
+        const r = find(i, blob.size, null, mine)!;
+        mine.push(r);
+        seats[i] = r;
+      }
+    } else {
+      // The root's blobs are packed into the shape of the screen, in the
+      // least room that takes them all, so the first view fits it as large
+      // as can be.
+      if (facing === null && frame)
+        for (let scale = 1; !seats && scale <= 3; scale += 0.06)
+          seats = ring({ w: frame.w * scale, h: frame.h * scale });
+      seats ??= ring(null)!;
+    }
     spec.blobs.forEach((blob, i) => {
       const r = seats[i];
       if (!r) return;

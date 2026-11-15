@@ -5,7 +5,7 @@ import { useGoTo } from "../search/navigate";
 import { Item, Lang, TreeKind, term } from "../search/types";
 import { cognates, constellationStart, lastRequest, showGlosses } from "../state";
 import { Branch, Group, LangTree, branchesOf, canOpen } from "./branches";
-import { Body, HubSpec, Link, Point, Rect, Size, bounds, join, layout } from "./layout";
+import { Body, HubSpec, Layout, Link, Point, Rect, Size, bounds, join, layout } from "./layout";
 
 import {
   For,
@@ -50,8 +50,10 @@ const PALETTE = [
 ];
 const ROOT_R = 88;
 const HUB_R = 76;
-// Roots and words listed before "+n more"; a couple over is shown in full.
-const GROUPS = 2;
+// How many are listed before "+n more" (a couple over is shown in full): a
+// branch's words in one list, its roots once broken out, a root's words.
+const FLAT = 10;
+const GROUPS = 6;
 const WORDS = 6;
 const MIN_ZOOM = 0.35;
 const MAX_ZOOM = 1.6;
@@ -146,6 +148,8 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
   // it has been. A blob that shrinks (a head opened, a list folded) keeps its
   // seat, so nothing round it moves.
   const [sizes, setSizes] = createSignal(new Map<string, { now: Size; seat: Size }>(), { equals: false });
+  // Blobs broken out into their roots, and those showing every root.
+  const [broken, setBroken] = createSignal(new Set<string>(), { equals: false });
   const [moreGroups, setMoreGroups] = createSignal(new Set<string>(), { equals: false });
   const [moreWords, setMoreWords] = createSignal(new Set<string>(), { equals: false });
   const toggle = (set: Set<string>, key: string) => (set.has(key) ? set.delete(key) : set.add(key), set);
@@ -172,10 +176,10 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
   // words still read at. Fixed from then on, so resizing the window does not
   // shuffle the blobs.
   const [frame, setFrame] = createSignal<Size>();
-  const placed = createMemo(() => {
+  const placed = createMemo<Layout>((before) => {
     const measured = sizes();
     const room = frame();
-    if (!room) return { hubs: new Map<string, Point>(), blobs: new Map<string, Rect>() };
+    if (!room) return before;
     return layout(
       hubs().map(
         (h): HubSpec => ({
@@ -185,9 +189,10 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
           blobs: h.branches.map((b) => ({ id: blobId(h, b), size: measured.get(blobId(h, b))?.seat })),
         })
       ),
-      room
+      room,
+      before
     );
-  });
+  }, { hubs: new Map(), blobs: new Map() });
   // Where a blob is drawn: its seat, or when it has shrunk, the end of its
   // seat nearer its hub.
   const drawn = (hub: Hub, id: string): Rect | undefined => {
@@ -254,10 +259,32 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
     else setView(to);
   };
 
+  // Centre on a hub with its blobs: what stands for it (its disc, or the
+  // blob its head is named in) and everything that branches off.
+  const centreOnHub = (hub: Hub) => {
+    const c = placed().hubs.get(hub.id);
+    const r = radius(hub);
+    const rects: Rect[] = [];
+    if (hub.parent && !hub.replaces && hub.via) {
+      const via = drawn(hub.parent, hub.via);
+      if (via) rects.push(via);
+    } else if (c) rects.push({ x: c.x - r, y: c.y - r, w: r * 2, h: r * 2 });
+    for (const b of hub.branches) {
+      const box = replaced().has(blobId(hub, b)) ? undefined : drawn(hub, blobId(hub, b));
+      if (box) rects.push(box);
+    }
+    if (!rects.length) return;
+    const x0 = Math.min(...rects.map((b) => b.x));
+    const x1 = Math.max(...rects.map((b) => b.x + b.w));
+    const y0 = Math.min(...rects.map((b) => b.y));
+    const y1 = Math.max(...rects.map((b) => b.y + b.h));
+    centreOn({ x: (x0 + x1) / 2, y: (y0 + y1) / 2 });
+  };
+  // A hub just opened has its blobs measured and placed a frame or two on.
   const focus = (hub: Hub) => {
     setCurrent(hub);
-    const p = placed().hubs.get(hub.id);
-    if (p) centreOn(p);
+    centreOnHub(hub);
+    requestAnimationFrame(() => requestAnimationFrame(() => current() === hub && centreOnHub(hub)));
   };
   const open = (hub: Hub, branch: Branch, g: Group) => {
     const id = String(g.head.item.id);
@@ -418,7 +445,9 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
     if (dx || dy) glide({ ...view(), x: view().x + dx, y: view().y + dy });
   };
 
-  // Word details, as in the trees: hover to peek, click to pin.
+  // Word details, as in the trees: hover to peek, click to pin. Where a whole
+  // blob or root is one thing to click, its words are not buttons and a
+  // click on one is a click on the blob or root.
   const wordFromEvent = (e: Event): [TreeNode, HTMLElement] | null => {
     const el = (e.target as Element).closest<HTMLElement>(".cst-word");
     const node = el && props.forest.byKey.get(Number(el.dataset.key));
@@ -426,7 +455,7 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
   };
   const onClick = (e: MouseEvent) => {
     const hit = wordFromEvent(e);
-    if (hit) pin(hit[0], hit[1]);
+    if (hit && hit[1].tagName === "BUTTON") pin(hit[0], hit[1]);
   };
   const onPointerOver = (e: PointerEvent) => {
     const hit = wordFromEvent(e);
@@ -436,6 +465,38 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
     const el = (e.target as Element).closest(".cst-word");
     if (el && !el.contains(e.relatedTarget as Node)) hoverLeave();
   };
+
+  // Words, comma separated. `live`: each is a button for its details.
+  const WordList = (p: { words: TreeNode[]; live: boolean }) => (
+    <For each={p.words}>
+      {(w, i) => (
+        <>
+          {/* The comma stays on its word's line. */}
+          <span class="cst-entry">
+            <Show
+              when={p.live}
+              fallback={
+                <span class="cst-word" classList={{ you: w.isSelected }} data-key={w.key}>
+                  {term(w.item)}
+                </span>
+              }
+            >
+              <button
+                type="button"
+                class="cst-word"
+                classList={{ you: w.isSelected }}
+                data-key={w.key}
+                aria-haspopup="dialog"
+              >
+                {term(w.item)}
+              </button>
+            </Show>
+            {i() < p.words.length - 1 ? "," : ""}
+          </span>{" "}
+        </>
+      )}
+    </For>
+  );
 
   const GroupView = (p: { hub: Hub; branch: Branch; group: Group }) => {
     const key = `${blobId(p.hub, p.branch)}/${p.group.head.item.id}`;
@@ -459,6 +520,31 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
         </Show>
       </>
     );
+    // A root that can be opened is one thing to click, words and all. Once
+    // open it keeps only its name here, which stands for its hub: its words
+    // are listed in the blobs that branch off, by branch.
+    if (canOpen(p.group, target))
+      return (
+        <button
+          type="button"
+          class="cst-group"
+          aria-expanded={opened()}
+          title={opened() ? `go to ${term(item)}` : `unfold what comes from ${term(item)}`}
+          onClick={() => open(p.hub, p.branch, p.group)}
+        >
+          <span class="cst-head" classList={{ open: opened(), current: current().id === String(item.id) }}>
+            {head}
+          </span>
+          <Show when={!opened()}>
+            <span class="cst-words">
+              <WordList words={words()} live={false} />
+              <Show when={words().length < p.group.words.length}>
+                <span class="cst-note">+{p.group.words.length - words().length} more</span>
+              </Show>
+            </span>
+          </Show>
+        </button>
+      );
     return (
       <div class="cst-group">
         <Show
@@ -469,41 +555,10 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
             </Show>
           }
         >
-          <Show when={canOpen(p.group, target)} fallback={<span class="cst-head static">{head}</span>}>
-            <button
-              type="button"
-              class="cst-head"
-              classList={{ open: opened(), current: current().id === String(item.id) }}
-              aria-expanded={opened()}
-              title={opened() ? `go to ${term(item)}` : `unfold what comes from ${term(item)}`}
-              onClick={() => open(p.hub, p.branch, p.group)}
-            >
-              {head}
-            </button>
-          </Show>
+          <span class="cst-head static">{head}</span>
         </Show>
-        {/* An opened head keeps only its name here, which stands for its hub:
-            its words are listed in the blobs that branch off, by branch. */}
-        <p class="cst-words" hidden={opened()}>
-          <For each={words()}>
-            {(w, i) => (
-              <>
-                {/* The comma stays on its word's line. */}
-                <span class="cst-entry">
-                  <button
-                    type="button"
-                    class="cst-word"
-                    classList={{ you: w.isSelected }}
-                    data-key={w.key}
-                    aria-haspopup="dialog"
-                  >
-                    {term(w.item)}
-                  </button>
-                  {i() < words().length - 1 ? "," : ""}
-                </span>{" "}
-              </>
-            )}
-          </For>
+        <p class="cst-words">
+          <WordList words={words()} live />
           <Show when={all() || words().length < p.group.words.length}>
             <button
               type="button"
@@ -541,9 +596,42 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
       const c = placed().hubs.get(p.hub.id) ?? { x: 0, y: 0 };
       return { x: c.x - 170, y: c.y - 60 };
     };
+    // A branch starts as one list of its words, and the whole blob is one
+    // thing to click. With a single root that opens the root; with several
+    // the blob breaks out into them, each then opened by a click of its own.
+    const roots = p.branch.groups;
+    const only = roots.length === 1 ? roots[0] : null;
+    const anyOpen = () => roots.some((g) => !g.own && hubs().some((h) => h.id === String(g.head.item.id)));
+    const brokenOut = () => !only && (broken().has(id) || anyOpen());
+    const face = () => (only ? canOpen(only, target) : !brokenOut());
+    const flat = () => (p.branch.words.length <= FLAT + 2 ? p.branch.words : p.branch.words.slice(0, FLAT));
     const all = () => moreGroups().has(id);
-    const groups = () =>
-      all() || p.branch.groups.length <= GROUPS + 1 ? p.branch.groups : p.branch.groups.slice(0, GROUPS);
+    const groups = () => (all() || roots.length <= GROUPS + 2 ? roots : roots.slice(0, GROUPS));
+    // Breaking out makes the blob taller, so it may move: centre on it where
+    // it comes to rest.
+    const centre = () =>
+      requestAnimationFrame(() =>
+        requestAnimationFrame(() => {
+          const r = rect();
+          if (r) centreOn({ x: r.x + r.w / 2, y: r.y + r.h / 2 });
+        })
+      );
+    const act = () => {
+      if (only) return open(p.hub, p.branch, only);
+      closePopover();
+      setBroken(toggle(broken(), id));
+      setCurrent(p.hub);
+      centre();
+    };
+    const Name = () => (
+      <>
+        <span>{p.branch.name}</span>
+        <span class="cst-count">
+          {p.branch.wordCount.toLocaleString()} {p.branch.wordCount === 1 ? "word" : "words"}
+          {only ? "" : ` · ${roots.length} roots`}
+        </span>
+      </>
+    );
     return (
       <section
         ref={el}
@@ -553,28 +641,66 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
           // Lit: the current hub's blobs and the one it was opened from.
           dim: current() !== p.hub && current().via !== id,
           replaced: replaced().has(id),
-          narrow: p.branch.groups.length === 1 && p.branch.wordCount <= 4,
+          narrow: p.branch.wordCount <= 4,
         }}
         data-blob={id}
         inert={replaced().has(id)}
         style={{ "--c": p.hub.hues.get(p.branch.key), left: `${at().x}px`, top: `${at().y}px` }}
         aria-label={`${p.branch.name}: ${p.branch.wordCount} ${target.name} words`}
       >
-        <header class="cst-fam">
-          <span>{p.branch.name}</span>
-          <span class="cst-count">
-            {p.branch.wordCount.toLocaleString()} {p.branch.wordCount === 1 ? "word" : "words"}
-          </span>
-        </header>
-        <For each={groups()}>{(g) => <GroupView hub={p.hub} branch={p.branch} group={g} />}</For>
-        <Show when={all() || groups().length < p.branch.groups.length}>
+        <Show
+          when={face()}
+          fallback={
+            <div class="cst-body">
+              <Show
+                when={!only}
+                fallback={
+                  <header class="cst-fam">
+                    <Name />
+                  </header>
+                }
+              >
+                <button
+                  type="button"
+                  class="cst-fam"
+                  aria-expanded="true"
+                  disabled={anyOpen()}
+                  title={anyOpen() ? undefined : "fold back into one list"}
+                  onClick={act}
+                >
+                  <Name />
+                </button>
+              </Show>
+              <For each={groups()}>{(g) => <GroupView hub={p.hub} branch={p.branch} group={g} />}</For>
+              <Show when={all() || groups().length < roots.length}>
+                <button
+                  type="button"
+                  class="cst-more cst-more-groups"
+                  aria-expanded={all()}
+                  onClick={() => setMoreGroups(toggle(moreGroups(), id))}
+                >
+                  {all() ? "fewer roots" : `+${roots.length - groups().length} more roots`}
+                </button>
+              </Show>
+            </div>
+          }
+        >
           <button
             type="button"
-            class="cst-more cst-more-groups"
-            aria-expanded={all()}
-            onClick={() => setMoreGroups(toggle(moreGroups(), id))}
+            class="cst-face"
+            aria-expanded={only ? undefined : false}
+            title={only ? `unfold what comes from ${term(only.head.item)}` : `show its ${roots.length} roots`}
+            onClick={act}
           >
-            {all() ? "fewer" : `+${p.branch.groups.length - groups().length} more`}
+            <span class="cst-fam">
+              <Name />
+            </span>
+            <span class="cst-words">
+              <WordList words={flat()} live={false} />
+              <Show when={flat().length < p.branch.words.length}>
+                <span class="cst-note">+{p.branch.words.length - flat().length} more</span>
+              </Show>
+            </span>
           </button>
         </Show>
       </section>
@@ -731,7 +857,7 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
           </For>
         </nav>
       </Show>
-      <p class="cst-ui cst-hint">Open a root to unfold what comes from it. Drag or scroll to move.</p>
+      <p class="cst-ui cst-hint">Click a branch to unfold it. Drag or scroll to move.</p>
       <div class="cst-ui cst-controls" role="group" aria-label="canvas">
         <Show when={hubs().length > 1}>
           <button type="button" class="wide" onClick={startOver}>

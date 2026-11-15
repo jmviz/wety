@@ -174,10 +174,6 @@ main:has(.cst-stage) {
   position: absolute;
   box-sizing: border-box;
   width: 320px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 18px 20px;
   border-radius: 26px;
   border: 1px solid rgba(var(--c), 0.32);
   background: linear-gradient(rgba(var(--c), 0.055), rgba(var(--c), 0.055)), var(--cst-ground);
@@ -186,7 +182,35 @@ main:has(.cst-stage) {
   opacity: 0;
   transform: scale(0.7);
   transition: left 0.55s cubic-bezier(0.22, 0.8, 0.2, 1), top 0.55s cubic-bezier(0.22, 0.8, 0.2, 1),
-    transform 0.55s cubic-bezier(0.22, 0.8, 0.2, 1), opacity 0.4s;
+    transform 0.55s cubic-bezier(0.22, 0.8, 0.2, 1), opacity 0.4s, border-color 0.2s, box-shadow 0.2s;
+}
+
+/* What a blob holds: as one list, the whole of it a button (the face), or
+   broken out into its roots (the body). */
+.cst-face,
+.cst-body {
+  all: unset;
+  box-sizing: border-box;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px 20px;
+  border-radius: inherit;
+}
+
+.cst-face {
+  cursor: pointer;
+}
+
+.cst-blob:has(> .cst-face:hover) {
+  border-color: rgba(var(--c), 0.75);
+  box-shadow: 0 0 54px rgba(var(--c), 0.2), inset 0 0 28px rgba(var(--c), 0.08);
+}
+
+.cst-face:focus-visible {
+  outline: 2px solid rgb(var(--c));
+  outline-offset: 3px;
 }
 
 .cst-blob.narrow {
@@ -220,6 +244,7 @@ main:has(.cst-stage) {
 }
 
 .cst-fam {
+  all: unset;
   display: flex;
   justify-content: space-between;
   gap: 12px;
@@ -231,6 +256,22 @@ main:has(.cst-stage) {
   color: rgb(var(--c));
 }
 
+/* Broken out: the name folds the blob back into one list. */
+button.cst-fam:not(:disabled) {
+  cursor: pointer;
+}
+
+button.cst-fam:not(:disabled):hover > :first-child {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+button.cst-fam:focus-visible {
+  outline: 2px solid rgb(var(--c));
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
 .cst-count {
   flex: none;
   font-weight: 500;
@@ -239,16 +280,40 @@ main:has(.cst-stage) {
   color: var(--cst-muted);
 }
 
+/* A root with its words: a button when the root can be opened. */
 .cst-group {
+  all: unset;
+  box-sizing: border-box;
+  width: 100%;
   display: flex;
   flex-direction: column;
   gap: 2px;
   min-width: 0;
 }
 
+.cst-fam + .cst-group,
 .cst-group + .cst-group {
   padding-top: 12px;
   border-top: 1px solid rgba(var(--c), 0.16);
+}
+
+button.cst-group {
+  cursor: pointer;
+}
+
+button.cst-group:hover .cst-head-term {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+button.cst-group:hover .cst-words {
+  color: #fff;
+}
+
+button.cst-group:focus-visible {
+  outline: 2px solid rgb(var(--c));
+  outline-offset: 4px;
+  border-radius: 6px;
 }
 
 /* A root: small, in the branch's colour, above the words it gave. */
@@ -264,10 +329,6 @@ main:has(.cst-stage) {
   font-size: 14px;
   line-height: 20px;
   color: rgb(var(--c));
-}
-
-button.cst-head {
-  cursor: pointer;
 }
 
 .cst-head::before {
@@ -306,27 +367,12 @@ button.cst-head {
   text-shadow: 0 0 14px rgba(var(--c), 0.75);
 }
 
-.cst-words[hidden] {
-  display: none;
-}
-
 .cst-head.static {
   color: rgba(var(--c), 0.8);
 }
 
 .cst-head.static::before {
   border-style: dotted;
-}
-
-button.cst-head:hover .cst-head-term {
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-.cst-head:focus-visible {
-  outline: 2px solid rgb(var(--c));
-  outline-offset: 3px;
-  border-radius: 4px;
 }
 
 .cst-head-lang {
@@ -365,6 +411,7 @@ button.cst-head:hover .cst-head-term {
 
 /* The words: the content. */
 .cst-words {
+  display: block;
   margin: 0;
   font-size: 17px;
   line-height: 26px;
@@ -376,15 +423,27 @@ button.cst-head:hover .cst-head-term {
   white-space: nowrap;
 }
 
+/* A button where the word is its own thing to click; plain text where the
+   blob or root it is in is. */
 .cst-word {
   all: unset;
-  cursor: pointer;
   border-radius: 4px;
 }
 
-.cst-word:hover,
+button.cst-word {
+  cursor: pointer;
+}
+
+button.cst-word:hover,
 .cst-word.popover-anchor {
   color: rgb(var(--c));
+}
+
+.cst-note {
+  font-size: 13px;
+  line-height: 20px;
+  white-space: nowrap;
+  color: #aab3c2;
 }
 
 .cst-word:focus-visible {

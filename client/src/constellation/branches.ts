@@ -29,8 +29,23 @@ export interface Branch {
   key: string;
   name: string;
   groups: Group[];
+  // Every group's words in one list: the searched word, then the groups'
+  // dealt out in proportion to their size, so the first few stand for the
+  // branch (a root with one obscure word does not lead it).
+  words: TreeNode[];
   wordCount: number;
   hasSelected: boolean;
+}
+
+function dealt(groups: Group[]): TreeNode[] {
+  const all = groups.flatMap((g) =>
+    g.words.map((node, i) => ({ node, at: (i + 0.5) / g.words.length, of: g.words.length }))
+  );
+  all.sort(
+    (a, b) => Number(b.node.isSelected) - Number(a.node.isSelected) || a.at - b.at || b.of - a.of
+  );
+  const seen = new Set<string>();
+  return all.flatMap(({ node }) => (seen.has(node.item.term) ? [] : (seen.add(node.item.term), [node])));
 }
 
 // A language's ancestors, oldest first, ending with itself.
@@ -159,11 +174,13 @@ export function branchesOf(hub: TreeNode, target: Lang, langs: LangTree): Branch
         b.words.length - a.words.length ||
         a.head.item.term.localeCompare(b.head.item.term)
     );
+    const words = dealt(groups);
     branches.push({
       key,
       name,
       groups,
-      wordCount: new Set(groups.flatMap((g) => g.words.map((w) => w.item.term))).size,
+      words,
+      wordCount: words.length,
       hasSelected: groups.some((g) => g.hasSelected),
     });
   };
