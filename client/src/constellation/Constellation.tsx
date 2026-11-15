@@ -14,6 +14,8 @@ import { expansionDepth, newestFirst, sharedDepth, singleDescendantChildren, unb
 import type { ExpansionDepth } from "./expansion";
 import { compactBranches } from "./density";
 import type { DensityNode } from "./density";
+import { languageAnchors } from "./labels";
+import type { LanguageAnchor } from "./labels";
 
 import {
   For,
@@ -383,10 +385,10 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     return { x: seat.x, y: below ? seat.y + seat.h - now.h : seat.y, w: seat.w, h: now.h };
   };
 
-  // A set of source roots shares one language heading above its column.
+  // Language headings repeat where a new local cluster needs context.
   const languageKey = (h: Hub, b: Branch) => `${h.hue}/${b.language ?? b.key}`;
   const languageLabels = createMemo(() => {
-    const groups = new Map<string, { name: string; hue: string; boxes: Rect[]; external: boolean }>();
+    const groups = new Map<string, { name: string; hue: string; anchors: LanguageAnchor[] }>();
     for (const h of hubs()) for (const b of h.branches) {
       const open = hubs().filter((k) => k.via === blobId(h, b));
       const clustered = clusteredBranch(b, open);
@@ -398,13 +400,17 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
       if (!open.length && !compact) continue;
       const key = languageKey(h, b);
       let group = groups.get(key);
-      if (!group) groups.set(key, (group = { name: b.name, hue: h.hues.get(b.key)!, boxes: [], external: false }));
-      group.boxes.push(...(clustered ? open.flatMap((k) => placed().sources.get(k.id) ?? []) : [box]));
-      group.external ||= compact || clustered;
+      if (!group) groups.set(key, (group = { name: b.name, hue: h.hues.get(b.key)!, anchors: [] }));
+      if (clustered) {
+        for (const k of open) {
+          const source = placed().sources.get(k.id);
+          if (source) group.anchors.push({ box: source, cluster: h.id, branching: k.branches.length + k.shared.length >= 3 });
+        }
+      } else group.anchors.push({ box, cluster: h.parent?.id ?? h.id, branching: false });
     }
-    return new Map([...groups].filter(([, g]) => g.boxes.length && (g.boxes.length > 1 || g.external)).map(([key, g]) => [key, {
-      name: g.name, hue: g.hue, x: Math.min(...g.boxes.map((b) => b.x)), y: Math.min(...g.boxes.map((b) => b.y)) - 24,
-    }]));
+    return new Map([...groups].filter(([, g]) => g.anchors.length).map(([key, g]) => [key,
+      languageAnchors(g.anchors).map(({ box }) => ({ name: g.name, hue: g.hue, x: box.x, y: box.y - 24 })),
+    ]));
   });
 
   // One string per line, so a line that has not moved keeps its element.
@@ -1190,7 +1196,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
               }}
             </For>
           </svg>
-          <For each={[...languageLabels().values()]}>
+          <For each={[...languageLabels().values()].flat()}>
             {(label) => <span class="cst-language-label" style={{ left: `${label.x}px`, top: `${label.y}px`, "--c": label.hue }}>{label.name}</span>}
           </For>
           <For each={hubs()}>
