@@ -5,19 +5,7 @@ import { useGoTo } from "../search/navigate";
 import { Item, Lang, TreeKind, term } from "../search/types";
 import { cognates, constellationStart, lastRequest, showGlosses } from "../state";
 import { Branch, Group, LangTree, branchesOf, canOpen } from "./branches";
-import {
-  BlobSpec,
-  HubSpec,
-  Layout,
-  Link,
-  Point,
-  Rect,
-  Size,
-  bounds,
-  join,
-  layout,
-  wire,
-} from "./layout";
+import { BlobSpec, Layout, Link, Point, Rect, Size, bounds, join, layout, wire } from "./layout";
 
 import {
   For,
@@ -31,18 +19,14 @@ import {
   onMount,
 } from "solid-js";
 
-// A word at the centre of its branches: the tree's root, or a head the
-// reader opened.
+// A word with its branches: the tree's root, drawn as a disc in the middle,
+// or a head the reader opened, which is a row in the blob it was opened in
+// (`via`) and has no shape of its own.
 interface Hub {
   id: string;
   node: TreeNode;
   parent: Hub | null;
-  // The blob it was opened from. A head is drawn once: when the blob held
-  // nothing else, the hub's disc stands in the blob's place (`replaces`);
-  // otherwise the blob stays, the head's name in it stands for the hub, and
-  // the hub has no disc.
   via: string | null;
-  replaces: boolean;
   branches: Branch[];
   // The colour of the branch it was opened from, which its own branches keep.
   hue: string | null;
@@ -61,7 +45,6 @@ const PALETTE = [
   "190,242,100",
 ];
 const ROOT_R = 96;
-const HUB_R = 84;
 // How many are shown before "+n more" (a couple over is shown in full): a
 // branch's words in one list, the heads a rack opens at first, and the words
 // under a head that cannot be opened.
@@ -85,7 +68,6 @@ function brief(gloss: string): string {
 }
 
 const blobId = (hub: Hub, branch: Branch) => `${hub.id}/${branch.key}`;
-const radius = (hub: Hub) => (hub.parent ? HUB_R : ROOT_R);
 
 // The branches met most often keep one colour whatever word was searched.
 const FIXED: Record<string, number> = {
@@ -117,10 +99,10 @@ function huesOf(keys: string[]): Map<string, string> {
 }
 
 // The words of the searched word's language that share its root, as a map:
-// the root in the middle, a blob for each branch of the language tree they
-// came down, and in each blob the branch's own words with their descendants
-// in the reader's language. Opening one of those words unfolds its branches
-// in turn, beside what is already there.
+// the root in the middle and round it a blob for each branch of the language
+// tree they came down, listing the branch's words. Opening a blob shows the
+// words of the branch they come from (its heads) as rows in it, each with
+// its own branches' blobs beside it, and so on outwards.
 export default function Constellation(props: { forest: Forest }) {
   const [langs] = createResource(() => import("virtual:lang-tree") as Promise<LangTree>);
   return (
@@ -140,13 +122,7 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
   const root = props.forest.roots[0];
   const target: Lang = (props.forest.selected ?? root).item.lang;
 
-  const makeHub = (
-    node: TreeNode,
-    parent: Hub | null,
-    via: string | null,
-    hue: string | null,
-    replaces = false
-  ): Hub => {
+  const makeHub = (node: TreeNode, parent: Hub | null, via: string | null, hue: string | null): Hub => {
     const branches = branchesOf(node, target, props.langs);
     const keys = branches.map((b) => b.key);
     return {
@@ -154,7 +130,6 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
       node,
       parent,
       via,
-      replaces,
       branches,
       hue,
       hues: hue ? new Map(keys.map((k) => [k, hue])) : huesOf(keys),
@@ -207,46 +182,30 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
   // words still read at. Fixed from then on, so resizing the window does not
   // shuffle the blobs.
   const [frame, setFrame] = createSignal<Size>();
-  // Whether a hub's blobs run on from it in one direction, as everything in
-  // a rack does (a head's lane, and the blobs of a disc that has taken a lane
-  // blob's place), rather than standing round it.
-  const flows = (hub: Hub): boolean => !!hub.parent && (!hub.replaces || flows(hub.parent));
-  // What the layout is given: the hubs with discs that have blobs round
-  // them, each with its blobs, and in a racked blob the heads opened in it,
-  // each with what runs on from it in turn.
-  const specs = createMemo(() => {
+  // What the layout is given: the root's blobs and, in each blob that has
+  // been opened, its heads, each with its own blobs in turn.
+  const spec = createMemo(() => {
     const measured = sizes();
     const mids = rowMids();
     const all = hubs();
     const blobsOf = (h: Hub): BlobSpec[] =>
       h.branches.map((b) => {
         const id = blobId(h, b);
-        const racked = all.filter((k) => k.via === id && !k.replaces);
-        const disc = flows(h) ? all.find((k) => k.via === id && k.replaces) : undefined;
+        const heads = all.filter((k) => k.via === id);
         return {
           id,
           size: measured.get(id)?.seat,
-          lanes: racked.length
-            ? racked.map((k) => ({ hub: k.id, mid: mids.get(k.id), blobs: blobsOf(k) }))
+          lanes: heads.length
+            ? heads.map((k) => ({ hub: k.id, mid: mids.get(k.id), blobs: blobsOf(k) }))
             : undefined,
-          disc: disc && { hub: disc.id, r: radius(disc), blobs: blobsOf(disc) },
         };
       });
-    return all
-      .filter((h) => !h.parent || (h.replaces && !flows(h.parent)))
-      .map(
-        (h): HubSpec => ({
-          id: h.id,
-          r: radius(h),
-          from: h.parent && h.via ? { hub: h.parent.id, blob: h.via } : null,
-          blobs: blobsOf(h),
-        })
-      );
+    return { id: rootHub.id, r: ROOT_R, blobs: blobsOf(rootHub) };
   });
   const placed = createMemo<Layout>(
     (before) => {
       const room = frame();
-      return room ? layout(specs(), room, before) : before;
+      return room ? layout(spec(), room, before) : before;
     },
     { hubs: new Map(), blobs: new Map(), seats: new Map(), sides: new Map() }
   );
@@ -261,44 +220,26 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
     return { x: seat.x, y: below ? seat.y + seat.h - now.h : seat.y, w: seat.w, h: now.h };
   };
 
-  // Blobs whose one head has been opened: the hub stands in their place.
-  const replaced = createMemo(() => new Set(hubs().filter((h) => h.replaces).map((h) => h.via)));
-
   // One string per line, so a line that has not moved keeps its element.
   const links = createMemo(() => {
     const at = placed();
-    const gone = replaced();
     const out: string[] = [];
     const push = (hue: string, l: Link) =>
       out.push(
         [hue, l.d, l.end.x.toFixed(1), l.end.y.toFixed(1), l.start?.x.toFixed(1) ?? "", l.start?.y.toFixed(1) ?? ""].join("|")
       );
-    // Where a hub's lines run on from, when its blobs stand to one side of
-    // it: a head's row in a rack, or the far rim of a disc in a lane.
-    const runsFrom = (h: Hub): { from: Point; side: 1 | -1 } | undefined => {
-      const c = at.hubs.get(h.id);
-      if (!c) return undefined;
-      if (h.parent && !h.replaces) return { from: c, side: at.sides.get(h.via!) ?? 1 };
-      const side = at.sides.get(h.id);
-      return side && { from: { x: c.x + side * radius(h), y: c.y }, side };
-    };
     for (const h of hubs()) {
       const c = at.hubs.get(h.id);
       if (!c) continue;
-      const run = runsFrom(h);
-      // A disc is joined to what it was opened from, as the blob it replaced
-      // was: level, in a rack.
-      const before = h.replaces && h.parent ? runsFrom(h.parent) : undefined;
-      const p = h.replaces && h.parent ? at.hubs.get(h.parent.id) : undefined;
-      if (before && h.hue) push(h.hue, wire(before.from, { x: c.x - before.side * radius(h), y: c.y }));
-      else if (p && h.hue) push(h.hue, join({ c: p, r: radius(h.parent!) }, { c, r: radius(h) }));
+      // From the root's rim to each blob round it; from a head's row to the
+      // near side of each blob in its lane.
+      const side = h.via ? (at.sides.get(h.via) ?? 1) : 0;
       for (const b of h.branches) {
-        const id = blobId(h, b);
-        const box = gone.has(id) ? undefined : drawn(h, id);
+        const box = drawn(h, blobId(h, b));
         if (!box) continue;
         const hue = h.hues.get(b.key)!;
-        if (run) push(hue, wire(run.from, { x: run.side > 0 ? box.x : box.x + box.w, y: box.y + box.h / 2 }));
-        else push(hue, join({ c, r: radius(h) }, box));
+        if (side) push(hue, wire(c, { x: side > 0 ? box.x : box.x + box.w, y: box.y + box.h / 2 }));
+        else push(hue, join(c, ROOT_R, box));
       }
     }
     return out;
@@ -350,22 +291,20 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
   };
   // A blob with everything racked off it.
   const rackRects = (hub: Hub, id: string): Rect[] => {
-    const box = replaced().has(id) ? undefined : drawn(hub, id);
+    const box = drawn(hub, id);
     return [
       ...(box ? [box] : []),
       ...hubs()
-        .filter((k) => k.via === id && !k.replaces)
+        .filter((k) => k.via === id)
         .flatMap((k) => k.branches.flatMap((b) => rackRects(k, blobId(k, b)))),
     ];
   };
-  // Centre on a disc with the blobs round it.
+  // Centre on a hub with what comes off it: the root's disc and its blobs,
+  // or the blob a head is a row of and the head's own blobs.
   const centreOnHub = (hub: Hub) => {
     const c = placed().hubs.get(hub.id);
-    const r = radius(hub);
-    centreOnAll([
-      ...(c ? [{ x: c.x - r, y: c.y - r, w: r * 2, h: r * 2 }] : []),
-      ...hub.branches.flatMap((b) => rackRects(hub, blobId(hub, b))),
-    ]);
+    const body = hub.parent && hub.via ? drawn(hub.parent, hub.via) : c && { x: c.x - ROOT_R, y: c.y - ROOT_R, w: ROOT_R * 2, h: ROOT_R * 2 };
+    centreOnAll([...(body ? [body] : []), ...hub.branches.flatMap((b) => rackRects(hub, blobId(hub, b)))]);
   };
   // What has just been opened is measured and placed over the next few
   // frames: centre on it once it has settled.
@@ -377,28 +316,16 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
   const focus = (hub: Hub) => {
     setCurrent(hub);
     centreOnHub(hub);
-    settled(() => current() === hub && centreOnHub(hub));
   };
-  // A blob's one head: its disc takes the blob's place and its blobs go
-  // round it.
-  const open = (hub: Hub, branch: Branch, g: Group) => {
-    const id = String(g.head.item.id);
-    let next = hubs().find((h) => h.id === id);
-    if (!next) {
-      next = makeHub(g.head, hub, blobId(hub, branch), hub.hues.get(branch.key)!, true);
-      setHubs([...hubs(), next]);
-    }
-    closePopover();
-    focus(next);
-  };
-  // A blob's several heads, all at once: the blob becomes a rack, each head
-  // a row in it with its blobs in a lane beside it.
+  // Open heads in a blob, all those given at once: the blob becomes a rack,
+  // each head a row in it with its own blobs in a lane beside it. A blob
+  // with one head is a rack of one row.
   const rack = (hub: Hub, branch: Branch, groups: Group[]) => {
     const id = blobId(hub, branch);
     const taken = new Set(hubs().map((h) => h.id));
     const next = groups
       .filter((g) => canOpen(g, target) && !taken.has(String(g.head.item.id)))
-      .map((g) => makeHub(g.head, hub, id, hub.hues.get(branch.key)!, false));
+      .map((g) => makeHub(g.head, hub, id, hub.hues.get(branch.key)!));
     if (next.length) setHubs([...hubs(), ...next]);
     closePopover();
     setCurrent(hub);
@@ -414,7 +341,7 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
     settled(() => centreOnAll(rackRects(hub, id)));
   };
   // Lit: the current hub's blobs, and those racked off them.
-  const lit = (hub: Hub): boolean => hub === current() || (!!hub.parent && !hub.replaces && lit(hub.parent));
+  const lit = (hub: Hub): boolean => hub === current() || (!!hub.parent && lit(hub.parent));
   // The root and its branches, whole, as large as the stage allows.
   const rootView = () => {
     const b = bounds(placed(), rootHub.id, ROOT_R, rootHub.branches.map((br) => blobId(rootHub, br)));
@@ -699,21 +626,17 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
       return { x: c.x - 170, y: c.y - 60 };
     };
     // A branch starts as one list of its words, and the whole blob is one
-    // thing to click. With a single head that opens the head, whose disc
-    // takes the blob's place. With several the blob becomes a rack: every
-    // head opens at once, each a row here with its blobs level beside it.
+    // thing to click: its heads open, all at once, and it becomes a rack,
+    // each head a row here with its own blobs beside it. One head or
+    // several, the blob keeps its shape.
     const roots = p.branch.groups;
-    const only = roots.length === 1 ? roots[0] : null;
     // The heads opened here, in the order of their rows.
-    const rows = () => hubs().filter((h) => h.via === id && !h.replaces);
-    const face = () => (only ? canOpen(only, target) : rows().length === 0);
-    const flat = () => (p.branch.words.length <= FLAT + 2 ? p.branch.words : p.branch.words.slice(0, FLAT));
+    const rows = () => hubs().filter((h) => h.via === id);
     const openable = roots.filter((g) => canOpen(g, target));
+    const face = () => openable.length > 0 && rows().length === 0;
+    const flat = () => (p.branch.words.length <= FLAT + 2 ? p.branch.words : p.branch.words.slice(0, FLAT));
     const closed = () => openable.filter((g) => !hubs().some((h) => h.id === String(g.head.item.id)));
-    const act = () => {
-      if (only) return open(p.hub, p.branch, only);
-      rack(p.hub, p.branch, openable.length <= ROWS + 2 ? openable : openable.slice(0, ROWS));
-    };
+    const act = () => rack(p.hub, p.branch, openable.length <= ROWS + 2 ? openable : openable.slice(0, ROWS));
     const Name = () => <span>{p.branch.name}</span>;
     return (
       <section
@@ -722,13 +645,12 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
         classList={{
           shown: shown() && !!rect(),
           dim: !lit(p.hub) && current().via !== id,
-          replaced: replaced().has(id),
-          narrow: p.branch.wordCount <= 4 && !!only,
+          // A few words need less room; a head's row needs the full width.
+          narrow: p.branch.wordCount <= 4 && rows().length === 0,
           // Its lanes run left: the rows stand against that edge.
           left: placed().sides.get(id) === -1,
         }}
         data-blob={id}
-        inert={replaced().has(id)}
         style={{ "--c": p.hub.hues.get(p.branch.key), left: `${at().x}px`, top: `${at().y}px` }}
         aria-label={`${p.branch.name}: ${p.branch.wordCount} ${target.name} words`}
       >
@@ -737,7 +659,7 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
           fallback={
             <div class="cst-body">
               <Show
-                when={!only}
+                when={rows().length > 0}
                 fallback={
                   <header class="cst-fam">
                     <Name />
@@ -771,7 +693,7 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
               <For each={roots.filter((g) => !canOpen(g, target))}>
                 {(g) => <GroupView hub={p.hub} branch={p.branch} group={g} />}
               </For>
-              <Show when={!only && closed().length > 0}>
+              <Show when={rows().length > 0 && closed().length > 0}>
                 <button
                   type="button"
                   class="cst-more cst-more-groups"
@@ -786,8 +708,12 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
           <button
             type="button"
             class="cst-face"
-            aria-expanded={only ? undefined : false}
-            title={only ? `unfold what comes from ${term(only.head.item)}` : `show its ${roots.length} roots`}
+            aria-expanded="false"
+            title={
+              openable.length === 1
+                ? `unfold what comes from ${term(openable[0].head.item)}`
+                : `show its ${openable.length} roots`
+            }
             onClick={act}
           >
             <span class="cst-fam">
@@ -805,27 +731,25 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
     );
   };
 
+  // The root: the one disc, in the middle.
   const HubView = (p: { hub: Hub }) => {
     const item = p.hub.node.item;
-    const r = radius(p.hub);
+    const r = ROOT_R;
     const at = () => placed().hubs.get(p.hub.id);
     const shownTerm = term(item);
     const meaning = item.gloss?.[0] ? brief(item.gloss[0]) : "";
     // The word and its meaning are set at one size: as large as lets the
     // word fit on one line and the meaning on two.
-    const size = Math.max(
-      15,
-      (p.hub.parent ? 30 : 36) * Math.min(1, 7 / [...shownTerm].length, meaning ? 13 / [...meaning].length : 1)
-    );
+    const size = Math.max(15, 36 * Math.min(1, 7 / [...shownTerm].length, meaning ? 13 / [...meaning].length : 1));
     return (
       <Show when={at()}>
         {(c) => (
           <button
             type="button"
             class="cst-hub"
-            classList={{ root: !p.hub.parent, current: current() === p.hub }}
+            classList={{ root: true, current: current() === p.hub }}
             style={{
-              "--c": p.hub.hue ?? "255,255,255",
+              "--c": "255,255,255",
               left: `${c().x - r}px`,
               top: `${c().y - r}px`,
               width: `${r * 2}px`,
@@ -900,9 +824,9 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
           <For each={hubs()}>
             {(h) => (
               <>
-                {/* A head opened in a blob that stays has no disc: its name
-                    there stands for it. */}
-                <Show when={!h.parent || h.replaces}>
+                {/* Only the root is a disc: an opened head is a row in its
+                    blob. */}
+                <Show when={!h.parent}>
                   <HubView hub={h} />
                 </Show>
                 <For each={h.branches}>{(b) => <BlobView hub={h} branch={b} />}</For>

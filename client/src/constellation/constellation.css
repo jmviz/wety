@@ -231,18 +231,6 @@ main:has(.cst-stage) {
   opacity: 1;
 }
 
-/* Its one head has been opened: the hub stands here now. It keeps its place
-   and size unseen, so nothing round it moves and it can come back. */
-.cst-blob.replaced,
-.cst-blob.shown.replaced,
-.cst-blob.shown.dim.replaced {
-  opacity: 0;
-  transform: scale(0.5);
-  visibility: hidden;
-  pointer-events: none;
-  transition: transform 0.4s cubic-bezier(0.22, 0.8, 0.2, 1), opacity 0.3s, visibility 0s 0.4s;
-}
-
 .cst-fam {
   all: unset;
   display: flex;
