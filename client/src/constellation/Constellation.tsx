@@ -704,15 +704,7 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
       if (only) return open(p.hub, p.branch, only);
       rack(p.hub, p.branch, openable.length <= ROWS + 2 ? openable : openable.slice(0, ROWS));
     };
-    const Name = () => (
-      <>
-        <span>{p.branch.name}</span>
-        <span class="cst-count">
-          {p.branch.wordCount.toLocaleString()} {p.branch.wordCount === 1 ? "word" : "words"}
-          {only ? "" : ` · ${roots.length} roots`}
-        </span>
-      </>
-    );
+    const Name = () => <span>{p.branch.name}</span>;
     return (
       <section
         ref={el}

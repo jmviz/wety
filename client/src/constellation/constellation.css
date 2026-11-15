@@ -272,14 +272,6 @@ button.cst-fam:focus-visible {
   border-radius: 4px;
 }
 
-.cst-count {
-  flex: none;
-  font-weight: 500;
-  letter-spacing: 0.04em;
-  text-transform: none;
-  color: var(--cst-muted);
-}
-
 /* A rack: each opened head a row, from whose end a line runs to the lane of
    blobs that come from it. */
 .cst-row {
