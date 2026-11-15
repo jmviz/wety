@@ -32,8 +32,8 @@ interface Hub {
   hue: string | null;
   hues: Map<string, string>;
   // A head with one word under it: the word stands alone beside the head's
-  // row, as the row is set, in a blob no taller than the row, with an arrow
-  // to it.
+  // row, named as the row is, in a blob as wide as the rack and as tall as
+  // the row.
   single: boolean;
 }
 
@@ -240,19 +240,9 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null }
   const links = createMemo(() => {
     const at = placed();
     const out: string[] = [];
-    // `arrow`: the line ends in an arrowhead pointing that way (1 right, -1
-    // left) and not in a dot.
-    const push = (hue: string, l: Link, arrow = 0) =>
+    const push = (hue: string, l: Link) =>
       out.push(
-        [
-          hue,
-          l.d,
-          l.end.x.toFixed(1),
-          l.end.y.toFixed(1),
-          l.start?.x.toFixed(1) ?? "",
-          l.start?.y.toFixed(1) ?? "",
-          arrow || "",
-        ].join("|")
+        [hue, l.d, l.end.x.toFixed(1), l.end.y.toFixed(1), l.start?.x.toFixed(1) ?? "", l.start?.y.toFixed(1) ?? ""].join("|")
       );
     for (const h of hubs()) {
       const c = at.hubs.get(h.id);
@@ -264,7 +254,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null }
         const box = drawn(h, blobId(h, b));
         if (!box) continue;
         const hue = h.hues.get(b.key)!;
-        if (side) push(hue, wire(c, { x: side > 0 ? box.x : box.x + box.w, y: box.y + box.h / 2 }), h.single ? side : 0);
+        if (side) push(hue, wire(c, { x: side > 0 ? box.x : box.x + box.w, y: box.y + box.h / 2 }));
         else push(hue, join(c, ROOT_R, box));
       }
     }
@@ -830,14 +820,12 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null }
           <svg class="cst-links" aria-hidden="true">
             <For each={links()}>
               {(l) => {
-                const [hue, d, x, y, x0, y0, arrow] = l.split("|");
+                const [hue, d, x, y, x0, y0] = l.split("|");
                 return (
                   <g style={{ "--c": hue }}>
                     <path class="glow" d={d} />
                     <path d={d} />
-                    <Show when={arrow} fallback={<circle cx={x} cy={y} r="4" />}>
-                      <path class="tip" d={`M ${x} ${y} l ${-9 * Number(arrow)} -5 v 10 z`} />
-                    </Show>
+                    <circle cx={x} cy={y} r="4" />
                     <Show when={x0}>
                       <circle cx={x0} cy={y0} r="3" />
                     </Show>

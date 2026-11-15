@@ -71,13 +71,8 @@ main:has(.cst-stage) {
   opacity: 0.14;
 }
 
-.cst-links circle,
-.cst-links path.tip {
+.cst-links circle {
   fill: rgb(var(--c));
-}
-
-.cst-links path.tip {
-  stroke-linejoin: round;
 }
 
 @keyframes cst-fade {
@@ -209,13 +204,10 @@ main:has(.cst-stage) {
   width: 250px;
 }
 
-/* A head's one word: a blob as any other, as tall as the head's row and no
-   wider than the word, set as the row is, at the end of its arrow. */
+/* A head's one word: a blob as wide as the rack its head is a row of and as
+   tall as that row, set as the row is. */
 .cst-blob.single {
-  width: max-content;
-  max-width: 320px;
-  padding: 0 16px;
-  border-radius: 19px;
+  padding: 0 20px;
 }
 
 .cst-blob.single .cst-head {
