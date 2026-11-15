@@ -1,4 +1,13 @@
-import type { Rect, Size } from "./layout";
+import type { Point, Rect, Size } from "./layout";
+
+// Fitting a rectangle's width is insufficient when the camera is centred
+// on an off-centre root. Reserve the larger extent on both sides of it.
+export function rootOverview(root: Point, bounds: Rect, viewport: Size) {
+  const width = 2 * Math.max(root.x - bounds.x, bounds.x + bounds.w - root.x, 1);
+  const height = 2 * Math.max(root.y - bounds.y, bounds.y + bounds.h - root.y, 1);
+  const k = Math.max(0.1, Math.min(1, (viewport.w - 96) / width, (viewport.h - 96) / height));
+  return { x: viewport.w / 2 - root.x * k, y: viewport.h / 2 - root.y * k, k };
+}
 
 // Favour the clicked node slightly. Fit the local transition where possible,
 // but never shrink the text merely to include a large auto-expanded tree.

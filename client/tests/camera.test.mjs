@@ -1,6 +1,20 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { expansionView } from "../src/constellation/camera.ts";
+import { expansionView, rootOverview } from "../src/constellation/camera.ts";
+
+test("asymmetric root overview centres the root and fits all four diagram edges", () => {
+  const root = { x: 40, y: -20 };
+  const bounds = { x: -500, y: -1000, w: 1200, h: 1300 };
+  for (const viewport of [{ w: 1460, h: 819 }, { w: 900, h: 700 }]) {
+    const v = rootOverview(root, bounds, viewport);
+    assert.equal(v.x + root.x * v.k, viewport.w / 2);
+    assert.equal(v.y + root.y * v.k, viewport.h / 2);
+    assert.ok(v.x + bounds.x * v.k >= 47);
+    assert.ok(v.y + bounds.y * v.k >= 47);
+    assert.ok(v.x + (bounds.x + bounds.w) * v.k <= viewport.w - 47);
+    assert.ok(v.y + (bounds.y + bounds.h) * v.k <= viewport.h - 47);
+  }
+});
 
 test("expansion camera centres 60 percent toward the clicked node on either side", () => {
   for (const side of [-1, 1]) {

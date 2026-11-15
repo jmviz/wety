@@ -16,7 +16,7 @@ import { compactBranches } from "./density";
 import type { DensityNode } from "./density";
 import { languageAnchors } from "./labels";
 import type { LanguageAnchor } from "./labels";
-import { expansionView } from "./camera";
+import { expansionView, rootOverview } from "./camera";
 
 import {
   For,
@@ -471,6 +471,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
 
   // The view: where the canvas origin sits in the stage, and the zoom.
   const [view, setView] = createSignal({ x: 0, y: 0, k: 1 });
+  const [initialOverview, setInitialOverview] = createSignal(true);
   const [stage, setStage] = createSignal<Size>({ w: 0, h: 0 });
   const [gliding, setGliding] = createSignal(false);
   const [dragging, setDragging] = createSignal(false);
@@ -486,6 +487,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     glide({ x: stage().w / 2 - p.x * k, y: stage().h / 2 - p.y * k, k });
   };
   const zoomAt = (cx: number, cy: number, k: number, smooth = false) => {
+    setInitialOverview(false);
     const v = view();
     const next = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, k));
     const to = { x: cx - ((cx - v.x) / v.k) * next, y: cy - ((cy - v.y) / v.k) * next, k: next };
@@ -537,6 +539,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     requestAnimationFrame(tick);
   };
   const focus = (hub: Hub) => {
+    setInitialOverview(false);
     setCurrent(hub);
     centreOnHub(hub);
   };
@@ -544,6 +547,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
   // each head a row in it with its own blobs in a lane beside it. A blob
   // with one head is a rack of one row.
   const rack = (hub: Hub, branch: Branch, groups: Group[], scope = hub.scope) => {
+    setInitialOverview(false);
     const id = blobId(hub, branch);
     const all = [...hubs()];
     const before = new Set(all.map((h) => h.id));
@@ -667,19 +671,18 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     const c = placed().hubs.get(rootHub.id);
     const s = stage();
     if (!b || !c || !s.w) return null;
-    const k = Math.min(1, Math.max(MIN_ZOOM, Math.min((s.w - PAD_X) / b.w, (s.h - PAD_Y) / b.h)));
-    return { x: s.w / 2 - c.x * k, y: s.h / 2 - c.y * k, k };
+    return rootOverview(c, b, s);
   };
-  // The first view: once, when every branch of the root has its place.
-  let fitted = false;
+  // Keep the overview fitted while initial measurements and fonts settle.
+  // Once the reader interacts, layout updates must not move their camera.
   createEffect(() => {
-    if (fitted || !rootHub.branches.every((b) => placed().blobs.has(blobId(rootHub, b)))) return;
+    if (!initialOverview() || !rootHub.branches.every((b) => placed().blobs.has(blobId(rootHub, b)))) return;
     const v = rootView();
     if (!v) return;
-    fitted = true;
     setView(v);
   });
   const startOver = () => {
+    setInitialOverview(false);
     clearRecent();
     closePopover();
     setHubs([rootHub]);
@@ -745,6 +748,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     // Not passive: the wheel moves the canvas, not the page.
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
+      setInitialOverview(false);
       if (!popover()?.pinned) closePopover();
       const v = view();
       if (e.ctrlKey || e.metaKey) {
@@ -780,6 +784,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     if (!drag.moved) {
       if (Math.hypot(dx, dy) < 5) return;
       drag.moved = true;
+      setInitialOverview(false);
       stageEl.setPointerCapture(e.pointerId);
       closePopover();
       setGliding(false);
