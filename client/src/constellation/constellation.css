@@ -239,10 +239,6 @@ main.constellation-only .cst-stage {
   padding: 18px 20px;
 }
 
-.cst-row-face > .cst-fam {
-  margin-bottom: 10px;
-}
-
 .cst-preview-row {
   all: unset;
   box-sizing: border-box;
@@ -293,10 +289,6 @@ main.constellation-only .cst-stage {
 
 .cst-close:focus-visible {
   outline: 2px solid rgb(var(--c));
-}
-
-.cst-blob.has-close .cst-fam {
-  padding-right: 24px;
 }
 
 .cst-blob.single.has-close {
@@ -371,35 +363,6 @@ main.constellation-only .cst-stage {
 
 .cst-links g.fresh path.glow {
   opacity: 0.24;
-}
-
-.cst-fam {
-  all: unset;
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  font-size: 11px;
-  line-height: 16px;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: rgb(var(--c));
-}
-
-/* Broken out: the name folds the blob back into one list. */
-button.cst-fam:not(:disabled) {
-  cursor: pointer;
-}
-
-button.cst-fam:not(:disabled):hover > :first-child {
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-button.cst-fam:focus-visible {
-  outline: 2px solid rgb(var(--c));
-  outline-offset: 3px;
-  border-radius: 4px;
 }
 
 /* A rack: each opened head a row, from whose end a line runs to the lane of

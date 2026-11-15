@@ -2,26 +2,15 @@ import type { Rect } from "./layout";
 
 export interface LanguageAnchor {
   box: Rect;
-  cluster: string;
-  branching: boolean;
 }
 
-// Share a heading locally, not across an entire language column. Repeat
-// it at independent clusters, major forks, or after a long vertical run.
-export function languageAnchors(entries: LanguageAnchor[]): LanguageAnchor[] {
-  const columns: LanguageAnchor[][] = [];
-  for (const entry of [...entries].sort((a, b) => a.box.x - b.box.x || a.box.y - b.box.y)) {
-    let column = columns.find((c) => Math.abs(c[0].box.x - entry.box.x) < 72);
-    if (!column) columns.push(column = []);
-    column.push(entry);
-  }
-  return columns.flatMap((column) => {
-    const labels: LanguageAnchor[] = [];
-    for (const entry of column.sort((a, b) => a.box.y - b.box.y)) {
-      const last = labels.at(-1);
-      if (!last || entry.box.y - last.box.y >= 260 ||
-        ((last.cluster !== entry.cluster || entry.branching) && entry.box.y - last.box.y >= 64)) labels.push(entry);
-    }
-    return labels;
-  });
+// One heading per language in the current view, carried by its highest
+// visible card. A partially visible card keeps its heading inside the view.
+export function languageAnchors(entries: LanguageAnchor[], viewport: Rect, gap = 24): LanguageAnchor[] {
+  const visible = entries.filter(({ box }) => box.x < viewport.x + viewport.w && box.x + box.w > viewport.x &&
+    box.y < viewport.y + viewport.h && box.y + box.h > viewport.y);
+  const first = visible.sort((a, b) => a.box.y - b.box.y || a.box.x - b.box.x)[0];
+  if (!first) return [];
+  return [{ box: { ...first.box, x: Math.max(viewport.x + 8, first.box.x),
+    y: Math.max(viewport.y + gap + 8, first.box.y) } }];
 }
