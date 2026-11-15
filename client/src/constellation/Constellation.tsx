@@ -16,6 +16,7 @@ import { compactBranches } from "./density";
 import type { DensityNode } from "./density";
 import { languageAnchors } from "./labels";
 import type { LanguageAnchor } from "./labels";
+import { expansionView } from "./camera";
 
 import {
   For,
@@ -500,17 +501,16 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     const y1 = Math.max(...rects.map((b) => b.y + b.h));
     centreOn({ x: (x0 + x1) / 2, y: (y0 + y1) / 2 });
   };
-  // Bring a rack into view whole: centred, and zoomed out as far as it takes
-  // (never in), so its lines can be followed from end to end.
-  const fitAll = (rects: Rect[]) => {
-    const s = stage();
-    if (!rects.length || !s.w) return;
-    const x0 = Math.min(...rects.map((b) => b.x));
-    const x1 = Math.max(...rects.map((b) => b.x + b.w));
-    const y0 = Math.min(...rects.map((b) => b.y));
-    const y1 = Math.max(...rects.map((b) => b.y + b.h));
-    const k = Math.max(MIN_ZOOM, Math.min(view().k, (s.w - PAD_X) / (x1 - x0), (s.h - PAD_Y) / (y1 - y0)));
-    glide({ x: s.w / 2 - ((x0 + x1) / 2) * k, y: s.h / 2 - ((y0 + y1) / 2) * k, k });
+  const enclosing = (rects: Rect[]): Rect | undefined => {
+    if (!rects.length) return;
+    const x = Math.min(...rects.map((b) => b.x)), y = Math.min(...rects.map((b) => b.y));
+    return { x, y, w: Math.max(...rects.map((b) => b.x + b.w)) - x, h: Math.max(...rects.map((b) => b.y + b.h)) - y };
+  };
+  const visibleRects = (h: Hub, b: Branch): Rect[] => {
+    const id = blobId(h, b);
+    const sources = entriesFor(h, b, hubs().filter((k) => k.via === id)).flatMap((e) => placed().sources.get(e.id) ?? []);
+    const box = drawn(h, id);
+    return sources.length ? sources : box ? [box] : [];
   };
   // A blob with everything racked off it.
   const rackRects = (hub: Hub, id: string): Rect[] => {
@@ -635,7 +635,18 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     recentTimer = window.setTimeout(() => setRecent(new Set<string>()), 4000);
     closePopover();
     setCurrent(hub);
-    settled(() => fitAll(rackRects(hub, id)));
+    settled(() => {
+      const opened = all.filter((h) => h.via === id && !before.has(h.id));
+      const sources = opened.flatMap((h) => placed().sources.get(h.id) ?? []);
+      // After the last preview row disappears, its revealed historical
+      // source cards retain the clicked side of the transition.
+      const clicked = placed().sources.get(previewBoxId(hub, branch)) ?? enclosing(sources) ?? drawn(hub, id);
+      const next = enclosing(opened.flatMap((h) => [
+        ...h.branches.flatMap((b) => visibleRects(h, b)),
+        ...h.shared.flatMap((s) => visibleRects(s.host, s.branch)),
+      ])) ?? enclosing(sources);
+      if (clicked && next && stage().w) glide(expansionView(clicked, next, stage()));
+    });
   };
   // Back to one list: everything opened from the blob goes.
   const unrack = (hub: Hub, id: string) => {
