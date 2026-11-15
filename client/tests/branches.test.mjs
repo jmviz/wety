@@ -81,6 +81,28 @@ test("collapsed subcognate lines follow expanded lanes and keep nested families 
   assert.equal(new Set(lines.flat()).size, branch.wordCount);
 });
 
+test("lone descendants share one frequency-ordered section without splitting larger families", () => {
+  const old = { id: 22, code: "ang", name: "Old English" };
+  const heads = [
+    node(old, "family", [word("forget"), word("forgive")]),
+    ...["wayfaring", "ford", "from", "fear", "frame"].map((term) => node(old, term, [word(term)])),
+    node(old, "pair", [word("firth"), word("fjord")]),
+  ];
+  const hub = node(italic, "root", heads);
+  const read = (head) => branchesOf(head, english, langs, null);
+  const [branch] = read(hub);
+  const common = new Map([["from", 10], ["frame", 20], ["fear", 20], ["ford", 35], ["wayfaring", 50]]);
+  const groups = previewLines(branch, english, read, common).map((line) => line.map((w) => w.item.term));
+  assert.equal(groups.length, 3);
+  const singles = groups.find((g) => g.includes("from"));
+  assert.equal(singles.length, 5);
+  assert.equal(singles[0], "from");
+  assert.equal(singles.at(-1), "wayfaring");
+  assert.ok(singles.indexOf("ford") > singles.indexOf("fear"));
+  assert.ok(groups.some((g) => g.length === 2 && g.includes("firth") && g.includes("fjord")));
+  assert.equal(new Set(groups.flat()).size, branch.wordCount);
+});
+
 test("default commonness excludes tier-70 fremd but rare mode and the searched word retain it", () => {
   const common = new Map();
   for (const size of [10, 20, 35, 40, 50, 55, 60, 70]) {

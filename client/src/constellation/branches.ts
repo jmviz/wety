@@ -50,7 +50,7 @@ export function rackOrder<T>(entries: T[], single: (entry: T) => boolean): T[] {
 
 // Each line previews one child branch of the expanded rack. Keep the
 // existing word filters and show a spelling once, in its first subgroup.
-export function previewLines(branch: Branch, target: Lang, children: (head: TreeNode) => Branch[]): TreeNode[][] {
+export function previewLines(branch: Branch, target: Lang, children: (head: TreeNode) => Branch[], common: Common | null = null): TreeNode[][] {
   const cache = new Map<Branch, TreeNode[][]>();
   const lines = (branch: Branch): TreeNode[][] => {
     const had = cache.get(branch);
@@ -72,7 +72,18 @@ export function previewLines(branch: Branch, target: Lang, children: (head: Tree
     cache.set(branch, result);
     return result;
   };
-  return lines(branch);
+  const groups = lines(branch);
+  const singles = groups.filter((words) => words.length === 1).flat();
+  if (singles.length < 2) return groups;
+  singles.sort((a, b) => Number(b.isSelected) - Number(a.isSelected) ||
+    (common ? (level(common, a.item.term) ?? Infinity) - (level(common, b.item.term) ?? Infinity) : 0));
+  let inserted = false;
+  return groups.flatMap((words) => {
+    if (words.length !== 1) return [words];
+    if (inserted) return [];
+    inserted = true;
+    return [singles];
+  });
 }
 
 // `folded`: a plain derivative of a word of another group is left out too
