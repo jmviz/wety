@@ -430,7 +430,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     const out: string[] = [];
     const push = (hue: string, l: Link, fresh = false) =>
       out.push(
-        [hue, l.d, l.end.x.toFixed(1), l.end.y.toFixed(1), l.start?.x.toFixed(1) ?? "", l.start?.y.toFixed(1) ?? "", fresh ? "new" : ""].join("|")
+        [hue, l.d, fresh ? "new" : ""].join("|")
       );
     for (const h of hubs()) {
       const c = at.hubs.get(h.id);
@@ -1222,15 +1222,11 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
           <svg class="cst-links" aria-hidden="true">
             <For each={links()}>
               {(l) => {
-                const [hue, d, x, y, x0, y0, fresh] = l.split("|");
+                const [hue, d, fresh] = l.split("|");
                 return (
                   <g classList={{ fresh: !!fresh }} style={{ "--c": hue }}>
                     <path class="glow" d={d} />
                     <path d={d} />
-                    <circle cx={x} cy={y} r="4" />
-                    <Show when={x0}>
-                      <circle cx={x0} cy={y0} r="3" />
-                    </Show>
                   </g>
                 );
               }}

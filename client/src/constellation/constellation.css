@@ -84,10 +84,6 @@ main.constellation-only .cst-stage {
   opacity: 0.14;
 }
 
-.cst-links circle {
-  fill: rgb(var(--c));
-}
-
 @keyframes cst-fade {
   from {
     opacity: 0;
@@ -551,8 +547,7 @@ main.constellation-only .cst-stage {
   padding: 2px 0;
 }
 
-/* As in its hub: the word in italic and quieter, and as large, upright and
-   carrying, what it means. */
+/* The historical word and its upright meaning share the same quiet weight. */
 .cst-head.open .cst-head-term {
   font-size: 22px;
   line-height: 28px;
@@ -564,8 +559,8 @@ main.constellation-only .cst-stage {
   font-family: var(--serif);
   font-size: 22px;
   line-height: 28px;
-  font-weight: 700;
-  color: #fff;
+  font-weight: 400;
+  color: var(--cst-soft);
 }
 
 .cst-head.open .cst-rom {
