@@ -10,7 +10,7 @@ import { chronological, languageTimes } from "./chronology";
 import type { LayoutPeriod } from "./chronology";
 import { representatives } from "./representatives";
 import type { Frequencies } from "./representatives";
-import { expansionDepth, sharedDepth, singleDescendantChildren, unbranchedLineage } from "./expansion";
+import { expansionDepth, newestFirst, sharedDepth, singleDescendantChildren, unbranchedLineage } from "./expansion";
 import type { ExpansionDepth } from "./expansion";
 import { compactBranches } from "./density";
 import type { DensityNode } from "./density";
@@ -42,6 +42,7 @@ interface Hub {
   branches: DisplayBranch[];
   // Several sibling sources can feed the same language preview.
   shared: { host: Hub; branch: DisplayBranch }[];
+  revealed: number;
   // The colour of the branch it was opened from, which its own branches keep.
   hue: string | null;
   hues: Map<string, string>;
@@ -207,6 +208,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
       via,
       branches,
       shared: [],
+      revealed: 0,
       hue,
       hues: hue ? new Map(keys.map((k) => [k, hue])) : huesOf(keys),
       // Not a head with no name (branches.ts `unnamed`): the one word under
@@ -219,6 +221,14 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
 
   const [hubs, setHubs] = createSignal<Hub[]>([rootHub]);
   const [current, setCurrent] = createSignal<Hub>(rootHub);
+  let revealSequence = 0;
+  const [recent, setRecent] = createSignal(new Set<string>());
+  let recentTimer: number | undefined;
+  const clearRecent = () => {
+    window.clearTimeout(recentTimer);
+    setRecent(new Set<string>());
+  };
+  onCleanup(() => window.clearTimeout(recentTimer));
   // A blob's size as drawn, and the room it holds on the canvas: the tallest
   // it has been. A blob that shrinks (a head opened, a list folded) keeps its
   // seat, so nothing round it moves.
@@ -297,7 +307,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
   const entriesFor = (h: Hub, b: Branch, heads: Hub[]): { id: string; head: Hub | undefined }[] => selective(b) && heads.length > 0
     ? [
         ...(remainingRows(h, b, heads).length ? [{ id: previewBoxId(h, b), head: undefined }] : []),
-        ...heads.map((head) => ({ id: head.id, head })),
+        ...newestFirst(heads).map((head) => ({ id: head.id, head })),
       ]
     : heads.map((head) => ({ id: head.id, head }));
   // A crowded family compresses all of its individual source cards,
@@ -401,9 +411,9 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
   const links = createMemo(() => {
     const at = placed();
     const out: string[] = [];
-    const push = (hue: string, l: Link) =>
+    const push = (hue: string, l: Link, fresh = false) =>
       out.push(
-        [hue, l.d, l.end.x.toFixed(1), l.end.y.toFixed(1), l.start?.x.toFixed(1) ?? "", l.start?.y.toFixed(1) ?? ""].join("|")
+        [hue, l.d, l.end.x.toFixed(1), l.end.y.toFixed(1), l.start?.x.toFixed(1) ?? "", l.start?.y.toFixed(1) ?? "", fresh ? "new" : ""].join("|")
       );
     for (const h of hubs()) {
       const c = at.hubs.get(h.id);
@@ -420,7 +430,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
         if (box && side) push(h.hue!, wire(c, {
           x: side > 0 ? box.x - (open ? 24 : 0) : box.x + box.w + (open ? 24 : 0),
           y: open ? Math.max(Math.min(...ys), Math.min(Math.max(...ys), c.y)) : box.y + box.h / 2,
-        }));
+        }), recent().has(h.id));
       }
       for (const b of h.branches) {
         const box = drawn(h, blobId(h, b));
@@ -433,7 +443,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
         const arrival = sources.length ? { ...(side
           ? { x: spineX, y: Math.max(Math.min(...ys), Math.min(Math.max(...ys), c.y)) }
           : stemArrival(c, spineX, sources)), w: 0, h: 0 } : box;
-        if (side) push(hue, wire(c, { x: side > 0 ? arrival.x : arrival.x + arrival.w, y: arrival.y + arrival.h / 2 }));
+        if (side) push(hue, wire(c, { x: side > 0 ? arrival.x : arrival.x + arrival.w, y: arrival.y + arrival.h / 2 }), recent().has(h.id));
         else push(hue, join(c, ROOT_R, arrival,
           [...at.seats].filter(([id]) => id !== blobId(h, b)).map(([, seat]) => seat),
           rootDirection(h.branches.indexOf(b), h.branches.length), sources.length > 0
@@ -443,7 +453,8 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
             end: { x: spineX, y: arrival.y + arrival.h / 2 } });
           for (const source of sources) {
             const y = source.y + source.h / 2;
-            push(hue, wire({ x: spineX, y }, { x: outward > 0 ? source.x : source.x + source.w, y }));
+            const fresh = hubs().some((k) => recent().has(k.id) && at.sources.get(k.id) === source);
+            push(hue, wire({ x: spineX, y }, { x: outward > 0 ? source.x : source.x + source.w, y }), fresh);
           }
         }
       }
@@ -529,6 +540,8 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
   const rack = (hub: Hub, branch: Branch, groups: Group[], scope = hub.scope) => {
     const id = blobId(hub, branch);
     const all = [...hubs()];
+    const before = new Set(all.map((h) => h.id));
+    const revealed = ++revealSequence;
     const taken = new Set(all.map((h) => h.id));
     const peers = (owner: Hub, b: Branch) => all.flatMap((h) => h.branches
       .filter((k) => languageKey(h, k) === languageKey(owner, b))
@@ -578,6 +591,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
           const origins = (step.branch as DisplayBranch).origins;
           const source = origins && [...origins].find(([group]) => group.head === g.head)?.[1];
           const child = makeHub(g.head, source ?? step.owner, via, step.owner.hues.get(step.branch.key)!, selectedScope);
+          child.revealed = revealed;
           const key = child.id;
           if (taken.has(key)) continue;
           taken.add(key);
@@ -610,12 +624,16 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
       if (horizon) for (const p of openedPeers) expand(p.owner, p.branch, horizon);
     }
     setHubs(all);
+    window.clearTimeout(recentTimer);
+    setRecent(new Set(all.filter((h) => !before.has(h.id)).map((h) => h.id)));
+    recentTimer = window.setTimeout(() => setRecent(new Set<string>()), 4000);
     closePopover();
     setCurrent(hub);
     settled(() => fitAll(rackRects(hub, id)));
   };
   // Back to one list: everything opened from the blob goes.
   const unrack = (hub: Hub, id: string) => {
+    clearRecent();
     const gone = new Set<Hub>();
     for (const h of hubs()) if (h.via === id || (h.parent && gone.has(h.parent))) gone.add(h);
     closePopover();
@@ -643,6 +661,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     setView(v);
   });
   const startOver = () => {
+    clearRecent();
     closePopover();
     setHubs([rootHub]);
     setCurrent(rootHub);
@@ -929,7 +948,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     // around the untouched rows. Other branches open their heads together.
     const roots = p.branch.groups;
     // The heads opened here, in the order of their rows.
-    const rows = () => hubs().filter((h) => h.via === id);
+    const rows = () => newestFirst(hubs().filter((h) => h.via === id));
     const openable = roots.filter((g) => canOpen(g, target));
     const lines = () => previewLines(p.branch, target, branchesFor, common, scores);
     // One named word needs one row, even when more language stages follow.
@@ -948,7 +967,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
         <section
           ref={el}
           class="cst-blob single"
-          classList={{ shown: shown() && !!rect(), dim: !lit(p.hub), "compact-chain": chainIds().has(id) }}
+          classList={{ shown: shown() && !!rect(), dim: !lit(p.hub), "compact-chain": chainIds().has(id), fresh: recent().has(p.hub.id) }}
           data-blob={id}
           data-language={p.branch.name}
           aria-label={`${word.item.lang.name}: ${term(word.item)}`}
@@ -981,6 +1000,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
           "has-close": rows().length > 0,
           clustered: clustered(),
           "compact-chain": chainIds().has(id),
+          fresh: !clustered() && recent().has(p.hub.id),
         }}
         data-blob={id}
         data-language={p.branch.name}
@@ -1029,7 +1049,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
               </Show>
               <For each={rows()}>
                 {(h) => (
-                  <div class="cst-row" data-row={h.id} style={clustered() ? {
+                  <div class="cst-row" classList={{ fresh: recent().has(h.id) }} data-row={h.id} style={clustered() ? {
                     top: `${(placed().sources.get(h.id)?.y ?? at().y) - at().y}px`,
                   } : undefined}>
                     <button
@@ -1156,9 +1176,9 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
           <svg class="cst-links" aria-hidden="true">
             <For each={links()}>
               {(l) => {
-                const [hue, d, x, y, x0, y0] = l.split("|");
+                const [hue, d, x, y, x0, y0, fresh] = l.split("|");
                 return (
-                  <g style={{ "--c": hue }}>
+                  <g classList={{ fresh: !!fresh }} style={{ "--c": hue }}>
                     <path class="glow" d={d} />
                     <path d={d} />
                     <circle cx={x} cy={y} r="4" />

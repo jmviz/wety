@@ -1,5 +1,11 @@
 import type { Branch } from "./branches";
 
+// New click groups sit nearest the remaining preview. Keep source words
+// revealed by the same click together, in their existing lane order.
+export function newestFirst<T extends { revealed: number }>(items: T[]): T[] {
+  return [...items].sort((a, b) => b.revealed - a.revealed);
+}
+
 export interface ExpansionHub {
   id: string;
   via: string | null;

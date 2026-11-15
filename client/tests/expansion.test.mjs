@@ -1,8 +1,18 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { expansionDepth, sharedDepth, singleDescendantChildren, unbranchedLineage } from "../src/constellation/expansion.ts";
+import { expansionDepth, newestFirst, sharedDepth, singleDescendantChildren, unbranchedLineage } from "../src/constellation/expansion.ts";
 
 const branch = (key, own = false) => ({ key, groups: [{ own }] });
+
+test("the newest click's sources sit together ahead of older branches", () => {
+  const sources = [
+    { id: "old-first", revealed: 1 }, { id: "old-second", revealed: 1 },
+    { id: "new-first", revealed: 3 }, { id: "new-second", revealed: 3 },
+    { id: "middle", revealed: 2 },
+  ];
+  assert.deepEqual(newestFirst(sources).map((s) => s.id), ["new-first", "new-second", "middle", "old-first", "old-second"]);
+  assert.equal(sources[0].id, "old-first");
+});
 
 test("one historical lineage auto-expands to a list of modern words", () => {
   const words = ["kindergarten", "kinder", "kindergärtner", "Kindergärtner"];

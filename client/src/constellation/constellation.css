@@ -334,6 +334,32 @@ main:has(.cst-stage) {
   opacity: 1;
 }
 
+/* A brief, steady accent identifies the last click's additions without
+   pulsing or brightening the untouched descendants box. */
+.cst-blob.shown.fresh,
+.cst-blob.clustered .cst-row.fresh {
+  opacity: 1;
+  border-color: rgba(var(--c), 0.7);
+  box-shadow: 0 0 24px rgba(var(--c), 0.17), inset 0 0 18px rgba(var(--c), 0.08);
+}
+
+.cst-blob.fresh .cst-head-term,
+.cst-row.fresh .cst-head-term {
+  color: var(--cst-ink);
+}
+
+.cst-row {
+  transition: border-color 0.6s, box-shadow 0.6s;
+}
+
+.cst-links g.fresh path:not(.glow) {
+  stroke-width: 2;
+}
+
+.cst-links g.fresh path.glow {
+  opacity: 0.24;
+}
+
 .cst-fam {
   all: unset;
   display: flex;
