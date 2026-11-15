@@ -1,7 +1,13 @@
-// Where the constellation's hubs and blobs go. Hubs are placed in the order
-// they were opened, each where the blob it was opened from sits and its own
-// blobs round what is already there, so opening a word never rearranges what
-// came before it.
+// Where the constellation's hubs and blobs go.
+//
+// A hub with a disc has its blobs round it: the root's all the way round,
+// a later hub's in a fan ahead of it. Hubs are placed in the order they were
+// opened, each where the blob it was opened from sat and its own blobs round
+// what is already there, so opening a word never rearranges what came before.
+//
+// A blob whose heads were all opened at once is a rack: the heads are rows
+// in the blob and each row's blobs sit in a lane beside it, level with the
+// row, so the lines from heads to blobs run side by side.
 
 export interface Point {
   x: number;
@@ -16,23 +22,43 @@ export interface Size {
 // Top-left corner and size.
 export interface Rect extends Point, Size {}
 
+export interface BlobSpec {
+  id: string;
+  // As measured; a blob not measured yet has no size and is left out.
+  size: Size | undefined;
+  // The heads opened in it, in the order of their rows.
+  lanes?: LaneSpec[];
+}
+
+// A head opened in a rack, and the blobs that come off it.
+export interface LaneSpec {
+  hub: string;
+  // How far down its blob the head's row is centred, once measured.
+  mid: number | undefined;
+  blobs: BlobSpec[];
+}
+
+// A hub with a disc.
 export interface HubSpec {
   id: string;
-  // A hub is a disc of this radius, unless it is `within` a blob.
   r: number;
-  // The blob (of an earlier hub) this hub was opened from; none for the root.
-  // `within`: the blob holds other heads too, so it stays and stands for the
-  // hub, whose blobs go round it. Otherwise the blob held nothing else and is
-  // no longer drawn: the hub's disc takes its seat.
-  from: { hub: string; blob: string; within: boolean } | null;
-  // In the order they go round; a blob not measured yet has no size and is
-  // left out of the result.
-  blobs: { id: string; size: Size | undefined }[];
+  // The blob this hub was opened from, and the hub that blob belongs to; none
+  // for the root. The blob held nothing else and is no longer drawn: the disc
+  // takes its place.
+  from: { hub: string; blob: string } | null;
+  // In the order they go round.
+  blobs: BlobSpec[];
 }
 
 export interface Layout {
+  // A disc's centre; for a head in a rack, where its line leaves the blob.
   hubs: Map<string, Point>;
+  // Every blob's own box.
   blobs: Map<string, Rect>;
+  // The room a disc's blob holds, with everything racked off it.
+  seats: Map<string, Rect>;
+  // Which way a rack's lanes run from its blob: right (1) or left (-1).
+  sides: Map<string, 1 | -1>;
 }
 
 const DEG = Math.PI / 180;
@@ -49,6 +75,10 @@ const ROOT_START = -150 * DEG;
 // A later hub's blobs fan out ahead of it, away from where it came from.
 const EACH = 64 * DEG;
 const FAN = 300 * DEG;
+// In a rack: the run of line from the blob to its lanes, and the space
+// between one head's blobs.
+const RUN = 112;
+const LANE_GAP = 14;
 
 export const center = (r: Rect): Point => ({ x: r.x + r.w / 2, y: r.y + r.h / 2 });
 
@@ -61,56 +91,102 @@ const around = (c: Point, s: Size): Rect => ({ x: c.x - s.w / 2, y: c.y - s.h / 
 const apart = (a: Rect, b: Rect) =>
   a.x >= b.x + b.w + GAP || b.x >= a.x + a.w + GAP || a.y >= b.y + b.h + GAP || b.y >= a.y + a.h + GAP;
 
+// The height a head's blobs take in their lane.
+export function laneHeight(lane: LaneSpec): number {
+  const heights = lane.blobs.flatMap((b) => whole(b)?.h ?? []);
+  return heights.reduce((sum, h) => sum + h, 0) + LANE_GAP * Math.max(0, heights.length - 1);
+}
+
+// How far above and below a rack's blob its lanes reach, from the blob's top.
+// Rows are drawn as tall as their lanes, so this is the blob's own height
+// once it has been measured that way.
+function reach(b: BlobSpec & { size: Size }): { top: number; bottom: number } {
+  let top = 0;
+  let bottom = b.size.h;
+  for (const lane of b.lanes ?? []) {
+    const mid = lane.mid ?? b.size.h / 2;
+    const h = laneHeight(lane);
+    top = Math.min(top, mid - h / 2);
+    bottom = Math.max(bottom, mid + h / 2);
+  }
+  return { top, bottom };
+}
+
+// The room a blob takes with everything racked off it.
+export function whole(b: BlobSpec): Size | undefined {
+  if (!b.size) return undefined;
+  const widest = Math.max(0, ...(b.lanes ?? []).flatMap((l) => l.blobs.map((k) => whole(k)?.w ?? 0)));
+  if (!widest) return b.size;
+  const { top, bottom } = reach(b as BlobSpec & { size: Size });
+  return { w: b.size.w + RUN + widest, h: bottom - top };
+}
+
 // `frame`: the room the root and its blobs have, centred on the root.
 // `before`: the layout this one follows, whose seats are kept where they can.
 export function layout(specs: HubSpec[], frame?: Size, before?: Layout): Layout {
   const hubs = new Map<string, Point>();
   const blobs = new Map<string, Rect>();
+  const seats = new Map<string, Rect>();
+  const sides = new Map<string, 1 | -1>();
   const placed: Rect[] = [];
   const free = (r: Rect, others: Rect[] = placed) => others.every((p) => apart(r, p));
 
+  // A blob in the room found for it: its own box and, for a rack, its lanes
+  // on the side away from `fromX`, each level with its head's row.
+  const settle = (b: BlobSpec, room: Rect, fromX: number) => {
+    const size = b.size!;
+    if (!b.lanes?.length) {
+      blobs.set(b.id, room);
+      return;
+    }
+    const side = room.x + room.w / 2 >= fromX ? 1 : -1;
+    const { top } = reach(b as BlobSpec & { size: Size });
+    const box: Rect = { x: side > 0 ? room.x : room.x + room.w - size.w, y: room.y - top, ...size };
+    blobs.set(b.id, box);
+    sides.set(b.id, side);
+    for (const lane of b.lanes) {
+      const leaves = { x: side > 0 ? box.x + box.w : box.x, y: box.y + (lane.mid ?? size.h / 2) };
+      hubs.set(lane.hub, leaves);
+      let y = leaves.y - laneHeight(lane) / 2;
+      for (const kid of lane.blobs) {
+        const s = whole(kid);
+        if (!s) continue;
+        settle(kid, { x: side > 0 ? box.x + box.w + RUN : box.x - RUN - s.w, y, ...s }, leaves.x);
+        y += s.h + LANE_GAP;
+      }
+    }
+  };
+
   for (const spec of specs) {
-    // What the hub's blobs go round: its disc, or the blob it is within. A
-    // later hub sits where the blob it was opened from does, so nothing round
-    // that blob moves.
-    let body: Size = { w: spec.r * 2, h: spec.r * 2 };
-    let disc = true;
+    const disc = { w: spec.r * 2, h: spec.r * 2 };
     let at: Point = { x: 0, y: 0 };
     let facing: number | null = null;
     if (spec.from) {
       const parent = hubs.get(spec.from.hub);
       const via = blobs.get(spec.from.blob);
       if (!parent || !via) continue;
+      // The disc sits where the blob did, so nothing round it moves, and
+      // takes over the room the blob held.
       at = center(via);
       facing = Math.atan2(at.y - parent.y, at.x - parent.x);
-      if (spec.from.within) {
-        body = via;
-        disc = false;
-      } else {
-        // The blob gives the room it took up to the disc.
-        const i = placed.indexOf(via);
-        if (i >= 0) placed.splice(i, 1);
-      }
+      const seat = seats.get(spec.from.blob);
+      const i = seat ? placed.indexOf(seat) : -1;
+      if (i >= 0) placed.splice(i, 1);
     }
     hubs.set(spec.id, at);
-    if (disc) placed.push(around(at, body));
+    placed.push(around(at, disc));
 
-    // How far from the hub's centre a blob's near edge is kept, and a blob
-    // against the hub at an angle, `out` further than that.
-    const clear = (angle: number) => (disc ? spec.r : extent(body, angle)) + REACH;
+    // A blob against the hub at an angle, `out` further than snug.
     const seat = (size: Size, angle: number, out: number): Rect => {
-      const d = clear(angle) + extent(size, angle) + out;
+      const d = spec.r + REACH + extent(size, angle) + out;
       return around({ x: at.x + Math.cos(angle) * d, y: at.y + Math.sin(angle) * d }, size);
     };
-    // Each blob has its turn round the hub (the root's all the way round, a
-    // later hub's in a fan ahead of it) and takes the free seat nearest it,
-    // moving out a little at a time when there is none. Within `room`, a box
-    // centred on the hub, or not at all when a blob has no seat in it.
+    // Each blob has its turn round the hub and takes the free seat nearest
+    // it, moving out a little at a time when there is none. Within `room`, a
+    // box centred on the hub, or not at all when it has no seat in it.
     const n = spec.blobs.length;
     const span = facing === null ? 2 * Math.PI : Math.min(FAN, EACH * n);
-    const reach = facing === null ? Math.PI : span / 2;
-    // The seat for the blob whose turn is the `i`th, clear of `mine` (this
-    // hub's blobs seated so far) and of everything placed before.
+    const round = facing === null ? Math.PI : span / 2;
     const find = (i: number, size: Size, room: Size | null, mine: Rect[]): Rect | null => {
       const fits = (r: Rect) =>
         (!room ||
@@ -123,73 +199,79 @@ export function layout(specs: HubSpec[], frame?: Size, before?: Layout): Layout 
       const lo = facing === null ? -Infinity : facing - FAN / 2;
       const hi = facing === null ? Infinity : facing + FAN / 2;
       for (let out = 0; out <= far; out += STEP)
-        for (let off = 0; off <= reach; off += TURN)
+        for (let off = 0; off <= round; off += TURN)
           for (const angle of off === 0 ? [turn] : [turn + off, turn - off]) {
             if (angle < lo - 1e-9 || angle > hi + 1e-9) continue;
             const r = seat(size, angle, out);
             if (fits(r)) return r;
           }
       if (room) return null;
-      for (let t = clear(turn) + extent(size, turn); ; t += STEP) {
+      for (let t = spec.r + REACH + extent(size, turn); ; t += STEP) {
         const r = around({ x: at.x + Math.cos(turn) * t, y: at.y + Math.sin(turn) * t }, size);
         if (fits(r)) return r;
       }
     };
+    const sizes = spec.blobs.map(whole);
     const ring = (room: Size | null): (Rect | null)[] | null => {
       const mine: Rect[] = [];
-      const seats: (Rect | null)[] = [];
-      for (const [i, blob] of spec.blobs.entries()) {
-        const r = blob.size ? find(i, blob.size, room, mine) : null;
-        if (blob.size && !r) return null;
+      const found: (Rect | null)[] = [];
+      for (const [i, size] of sizes.entries()) {
+        const r = size ? find(i, size, room, mine) : null;
+        if (size && !r) return null;
         if (r) mine.push(r);
-        seats.push(r);
+        found.push(r);
       }
-      return seats;
+      return found;
     };
 
-    let seats: (Rect | null)[] | null = null;
+    let found: (Rect | null)[] | null = null;
     const was = before?.hubs.get(spec.id);
     if (was && was.x === at.x && was.y === at.y) {
       // The hub is where it was: its blobs that have not changed size keep
       // their seats, and one that has (or is new) finds a seat round them.
       // Only the blob the reader opened moves.
       const mine: Rect[] = [];
-      seats = spec.blobs.map((blob) => {
-        const old = before!.blobs.get(blob.id);
-        const keeps = blob.size && old && old.w === blob.size.w && old.h === blob.size.h && free(old) && free(old, mine);
+      found = spec.blobs.map((blob, i) => {
+        const size = sizes[i];
+        const old = before!.seats.get(blob.id);
+        const keeps = size && old && old.w === size.w && old.h === size.h && free(old) && free(old, mine);
         if (keeps) mine.push(old);
         return keeps ? old : null;
       });
-      for (const [i, blob] of spec.blobs.entries()) {
-        if (seats[i] || !blob.size) continue;
-        const r = find(i, blob.size, null, mine)!;
+      for (const [i, size] of sizes.entries()) {
+        if (found[i] || !size) continue;
+        const r = find(i, size, null, mine)!;
         mine.push(r);
-        seats[i] = r;
+        found[i] = r;
       }
     } else {
       // The root's blobs are packed into the shape of the screen, in the
       // least room that takes them all, so the first view fits it as large
       // as can be.
       if (facing === null && frame)
-        for (let scale = 1; !seats && scale <= 3; scale += 0.06)
-          seats = ring({ w: frame.w * scale, h: frame.h * scale });
-      seats ??= ring(null)!;
+        for (let scale = 1; !found && scale <= 3; scale += 0.06)
+          found = ring({ w: frame.w * scale, h: frame.h * scale });
+      found ??= ring(null)!;
     }
     spec.blobs.forEach((blob, i) => {
-      const r = seats[i];
+      const r = found[i];
       if (!r) return;
-      blobs.set(blob.id, r);
+      seats.set(blob.id, r);
       placed.push(r);
+      settle(blob, r, at.x);
     });
   }
-  return { hubs, blobs };
+  return { hubs, blobs, seats, sides };
 }
 
 // The box that holds a hub and its blobs, for fitting them on screen.
 export function bounds(at: Layout, hub: string, r: number, blobIds: string[]): Rect | null {
   const c = at.hubs.get(hub);
   if (!c) return null;
-  const rects = [around(c, { w: r * 2, h: r * 2 }), ...blobIds.map((id) => at.blobs.get(id)).filter((b) => !!b)];
+  const rects = [
+    around(c, { w: r * 2, h: r * 2 }),
+    ...blobIds.map((id) => at.seats.get(id) ?? at.blobs.get(id)).filter((b) => !!b),
+  ];
   const x0 = Math.min(...rects.map((b) => b.x));
   const y0 = Math.min(...rects.map((b) => b.y));
   const x1 = Math.max(...rects.map((b) => b.x + b.w));
@@ -213,9 +295,11 @@ export function edgeToward(r: Rect, p: Point): Point {
 export interface Link {
   d: string;
   end: Point;
+  // Marked too, where the line leaves a rack.
+  start?: Point;
 }
 
-// What a line joins: a hub's disc or a blob's box.
+// What a bowed line joins: a hub's disc or a blob's box.
 export type Body = { c: Point; r: number } | Rect;
 
 const isDisc = (b: Body): b is { c: Point; r: number } => "r" in b;
@@ -228,7 +312,9 @@ function rim(b: Body, toward: Point): Point {
   return { x: b.c.x + Math.cos(angle) * b.r, y: b.c.y + Math.sin(angle) * b.r };
 }
 
-// A gently bowed line from one body's edge to another's.
+const f = (n: number) => n.toFixed(1);
+
+// A gently bowed line from one body's edge to another's: round a disc.
 export function join(from: Body, to: Body): Link {
   const start = rim(from, middle(to));
   const end = rim(to, middle(from));
@@ -237,6 +323,16 @@ export function join(from: Body, to: Body): Link {
   const bow = Math.sin(2 * Math.atan2(dy, dx)) >= 0 ? 0.14 : -0.14;
   const cx = (start.x + end.x) / 2 - dy * bow;
   const cy = (start.y + end.y) / 2 + dx * bow;
-  const f = (n: number) => n.toFixed(1);
   return { d: `M ${f(start.x)} ${f(start.y)} Q ${f(cx)} ${f(cy)} ${f(end.x)} ${f(end.y)}`, end };
+}
+
+// A line that leaves and arrives level: in a rack, from a head's row to the
+// side of one of its blobs.
+export function wire(from: Point, to: Point): Link {
+  const half = (to.x - from.x) / 2;
+  return {
+    d: `M ${f(from.x)} ${f(from.y)} C ${f(from.x + half)} ${f(from.y)} ${f(to.x - half)} ${f(to.y)} ${f(to.x)} ${f(to.y)}`,
+    end: to,
+    start: from,
+  };
 }

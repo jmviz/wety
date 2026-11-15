@@ -5,7 +5,22 @@ import { useGoTo } from "../search/navigate";
 import { Item, Lang, TreeKind, term } from "../search/types";
 import { cognates, constellationStart, lastRequest, showGlosses } from "../state";
 import { Branch, Group, LangTree, branchesOf, canOpen } from "./branches";
-import { Body, HubSpec, Layout, Link, Point, Rect, Size, bounds, join, layout } from "./layout";
+import {
+  BlobSpec,
+  Body,
+  HubSpec,
+  LaneSpec,
+  Layout,
+  Link,
+  Point,
+  Rect,
+  Size,
+  bounds,
+  join,
+  laneHeight,
+  layout,
+  wire,
+} from "./layout";
 
 import {
   For,
@@ -50,10 +65,11 @@ const PALETTE = [
 ];
 const ROOT_R = 88;
 const HUB_R = 76;
-// How many are listed before "+n more" (a couple over is shown in full): a
-// branch's words in one list, its roots once broken out, a root's words.
+// How many are shown before "+n more" (a couple over is shown in full): a
+// branch's words in one list, the heads a rack opens at first, and the words
+// under a head that cannot be opened.
 const FLAT = 10;
-const GROUPS = 6;
+const ROWS = 8;
 const WORDS = 6;
 const MIN_ZOOM = 0.35;
 const MAX_ZOOM = 1.6;
@@ -148,16 +164,18 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
   // it has been. A blob that shrinks (a head opened, a list folded) keeps its
   // seat, so nothing round it moves.
   const [sizes, setSizes] = createSignal(new Map<string, { now: Size; seat: Size }>(), { equals: false });
-  // Blobs broken out into their roots, and those showing every root.
-  const [broken, setBroken] = createSignal(new Set<string>(), { equals: false });
-  const [moreGroups, setMoreGroups] = createSignal(new Set<string>(), { equals: false });
+  // In a rack, how far down its blob each head's row is centred: its lane
+  // sits level with it.
+  const [rowMids, setRowMids] = createSignal(new Map<string, number>(), { equals: false });
   const [moreWords, setMoreWords] = createSignal(new Set<string>(), { equals: false });
   const toggle = (set: Set<string>, key: string) => (set.has(key) ? set.delete(key) : set.add(key), set);
 
   // Blobs are measured as drawn; the layout follows their real sizes.
   const observer = new ResizeObserver((entries) => {
     const map = sizes();
+    const mids = rowMids();
     let changed = false;
+    let moved = false;
     for (const entry of entries) {
       const el = entry.target as HTMLElement;
       const id = el.dataset.blob!;
@@ -167,8 +185,16 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
         map.set(id, { now, seat: { w: now.w, h: Math.max(now.h, had?.seat.h ?? 0) } });
         changed = true;
       }
+      for (const row of el.querySelectorAll<HTMLElement>("[data-row]")) {
+        const mid = row.offsetTop + row.offsetHeight / 2;
+        if (mids.get(row.dataset.row!) !== mid) {
+          mids.set(row.dataset.row!, mid);
+          moved = true;
+        }
+      }
     }
     if (changed) setSizes(map);
+    if (moved) setRowMids(mids);
   });
   onCleanup(() => observer.disconnect());
 
@@ -176,23 +202,54 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
   // words still read at. Fixed from then on, so resizing the window does not
   // shuffle the blobs.
   const [frame, setFrame] = createSignal<Size>();
-  const placed = createMemo<Layout>((before) => {
+  // What the layout is given: the hubs with discs, each with its blobs, and
+  // in a racked blob the heads opened in it, each with its blobs in turn.
+  const specs = createMemo(() => {
     const measured = sizes();
-    const room = frame();
-    if (!room) return before;
-    return layout(
-      hubs().map(
+    const mids = rowMids();
+    const all = hubs();
+    const lanes = new Map<string, LaneSpec>();
+    const blobsOf = (h: Hub): BlobSpec[] =>
+      h.branches.map((b) => {
+        const id = blobId(h, b);
+        const racked = all.filter((k) => k.via === id && !k.replaces);
+        return {
+          id,
+          size: measured.get(id)?.seat,
+          lanes: racked.length
+            ? racked.map((k) => {
+                const lane = { hub: k.id, mid: mids.get(k.id), blobs: blobsOf(k) };
+                lanes.set(k.id, lane);
+                return lane;
+              })
+            : undefined,
+        };
+      });
+    const discs = all
+      .filter((h) => !h.parent || h.replaces)
+      .map(
         (h): HubSpec => ({
           id: h.id,
           r: radius(h),
-          from: h.parent && h.via ? { hub: h.parent.id, blob: h.via, within: !h.replaces } : null,
-          blobs: h.branches.map((b) => ({ id: blobId(h, b), size: measured.get(blobId(h, b))?.seat })),
+          from: h.parent && h.via ? { hub: h.parent.id, blob: h.via } : null,
+          blobs: blobsOf(h),
         })
-      ),
-      room,
-      before
-    );
-  }, { hubs: new Map(), blobs: new Map() });
+      );
+    return { discs, lanes };
+  });
+  const placed = createMemo<Layout>(
+    (before) => {
+      const room = frame();
+      return room ? layout(specs().discs, room, before) : before;
+    },
+    { hubs: new Map(), blobs: new Map(), seats: new Map(), sides: new Map() }
+  );
+  // A head's row in a rack is as tall as the blobs in its lane, so the two
+  // stand level.
+  const rowHeight = (hub: Hub) => {
+    const lane = specs().lanes.get(hub.id);
+    return lane ? laneHeight(lane) : 0;
+  };
   // Where a blob is drawn: its seat, or when it has shrunk, the end of its
   // seat nearer its hub.
   const drawn = (hub: Hub, id: string): Rect | undefined => {
@@ -212,20 +269,33 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
     const at = placed();
     const gone = replaced();
     const out: string[] = [];
-    const push = (hue: string, l: Link) => out.push([hue, l.d, l.end.x.toFixed(1), l.end.y.toFixed(1)].join("|"));
-    // What stands for a hub: its disc, or the blob its head is named in.
-    const body = (h: Hub): Body | undefined => {
-      if (h.parent && !h.replaces) return h.via ? drawn(h.parent, h.via) : undefined;
-      const c = at.hubs.get(h.id);
-      return c && { c, r: radius(h) };
-    };
+    const push = (hue: string, l: Link) =>
+      out.push(
+        [hue, l.d, l.end.x.toFixed(1), l.end.y.toFixed(1), l.start?.x.toFixed(1) ?? "", l.start?.y.toFixed(1) ?? ""].join("|")
+      );
     for (const h of hubs()) {
-      const me = body(h);
-      if (!me) continue;
-      // A disc in a blob's place is joined to the hub before it, as the
-      // blob was.
-      const before = h.parent && h.replaces ? body(h.parent) : undefined;
-      if (before && h.hue) push(h.hue, join(before, me));
+      const c = at.hubs.get(h.id);
+      if (!c) continue;
+      if (h.parent && !h.replaces) {
+        // A head in a rack: a level line from its row to each of its blobs.
+        // (One a disc has replaced is joined to the disc, below.)
+        const side = at.sides.get(h.via!) ?? 1;
+        for (const b of h.branches) {
+          const id = blobId(h, b);
+          const box = gone.has(id) ? undefined : drawn(h, id);
+          if (box) push(h.hue!, wire(c, { x: side > 0 ? box.x : box.x + box.w, y: box.y + box.h / 2 }));
+        }
+        continue;
+      }
+      // A disc: joined to what it was opened from, as the blob it replaced
+      // was, and to each blob round it.
+      const me: Body = { c, r: radius(h) };
+      const p = h.parent;
+      const from = p && at.hubs.get(p.id);
+      if (p && from && h.hue) {
+        if (!p.parent || p.replaces) push(h.hue, join({ c: from, r: radius(p) }, me));
+        else push(h.hue, wire(from, { x: c.x - (at.sides.get(p.via!) ?? 1) * radius(h), y: c.y }));
+      }
       for (const b of h.branches) {
         const id = blobId(h, b);
         const box = gone.has(id) ? undefined : drawn(h, id);
@@ -259,20 +329,7 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
     else setView(to);
   };
 
-  // Centre on a hub with its blobs: what stands for it (its disc, or the
-  // blob its head is named in) and everything that branches off.
-  const centreOnHub = (hub: Hub) => {
-    const c = placed().hubs.get(hub.id);
-    const r = radius(hub);
-    const rects: Rect[] = [];
-    if (hub.parent && !hub.replaces && hub.via) {
-      const via = drawn(hub.parent, hub.via);
-      if (via) rects.push(via);
-    } else if (c) rects.push({ x: c.x - r, y: c.y - r, w: r * 2, h: r * 2 });
-    for (const b of hub.branches) {
-      const box = replaced().has(blobId(hub, b)) ? undefined : drawn(hub, blobId(hub, b));
-      if (box) rects.push(box);
-    }
+  const centreOnAll = (rects: Rect[]) => {
     if (!rects.length) return;
     const x0 = Math.min(...rects.map((b) => b.x));
     const x1 = Math.max(...rects.map((b) => b.x + b.w));
@@ -280,22 +337,85 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
     const y1 = Math.max(...rects.map((b) => b.y + b.h));
     centreOn({ x: (x0 + x1) / 2, y: (y0 + y1) / 2 });
   };
-  // A hub just opened has its blobs measured and placed a frame or two on.
+  // Bring a rack into view whole: centred, and zoomed out as far as it takes
+  // (never in), so its lines can be followed from end to end.
+  const fitAll = (rects: Rect[]) => {
+    const s = stage();
+    if (!rects.length || !s.w) return;
+    const x0 = Math.min(...rects.map((b) => b.x));
+    const x1 = Math.max(...rects.map((b) => b.x + b.w));
+    const y0 = Math.min(...rects.map((b) => b.y));
+    const y1 = Math.max(...rects.map((b) => b.y + b.h));
+    const k = Math.max(0.5, Math.min(view().k, (s.w - PAD_X) / (x1 - x0), (s.h - PAD_Y) / (y1 - y0)));
+    glide({ x: s.w / 2 - ((x0 + x1) / 2) * k, y: s.h / 2 - ((y0 + y1) / 2) * k, k });
+  };
+  // A blob with everything racked off it.
+  const rackRects = (hub: Hub, id: string): Rect[] => {
+    const box = replaced().has(id) ? undefined : drawn(hub, id);
+    return [
+      ...(box ? [box] : []),
+      ...hubs()
+        .filter((k) => k.via === id && !k.replaces)
+        .flatMap((k) => k.branches.flatMap((b) => rackRects(k, blobId(k, b)))),
+    ];
+  };
+  // Centre on a disc with the blobs round it.
+  const centreOnHub = (hub: Hub) => {
+    const c = placed().hubs.get(hub.id);
+    const r = radius(hub);
+    centreOnAll([
+      ...(c ? [{ x: c.x - r, y: c.y - r, w: r * 2, h: r * 2 }] : []),
+      ...hub.branches.flatMap((b) => rackRects(hub, blobId(hub, b))),
+    ]);
+  };
+  // What has just been opened is measured and placed over the next few
+  // frames: centre on it once it has settled.
+  const settled = (then: () => void) => {
+    let frames = 4;
+    const tick = () => (--frames ? requestAnimationFrame(tick) : then());
+    requestAnimationFrame(tick);
+  };
   const focus = (hub: Hub) => {
     setCurrent(hub);
     centreOnHub(hub);
-    requestAnimationFrame(() => requestAnimationFrame(() => current() === hub && centreOnHub(hub)));
+    settled(() => current() === hub && centreOnHub(hub));
   };
+  // A blob's one head: its disc takes the blob's place and its blobs go
+  // round it.
   const open = (hub: Hub, branch: Branch, g: Group) => {
     const id = String(g.head.item.id);
     let next = hubs().find((h) => h.id === id);
     if (!next) {
-      next = makeHub(g.head, hub, blobId(hub, branch), hub.hues.get(branch.key)!, branch.groups.length === 1);
+      next = makeHub(g.head, hub, blobId(hub, branch), hub.hues.get(branch.key)!, true);
       setHubs([...hubs(), next]);
     }
     closePopover();
     focus(next);
   };
+  // A blob's several heads, all at once: the blob becomes a rack, each head
+  // a row in it with its blobs in a lane beside it.
+  const rack = (hub: Hub, branch: Branch, groups: Group[]) => {
+    const id = blobId(hub, branch);
+    const taken = new Set(hubs().map((h) => h.id));
+    const next = groups
+      .filter((g) => canOpen(g, target) && !taken.has(String(g.head.item.id)))
+      .map((g) => makeHub(g.head, hub, id, hub.hues.get(branch.key)!, false));
+    if (next.length) setHubs([...hubs(), ...next]);
+    closePopover();
+    setCurrent(hub);
+    settled(() => fitAll(rackRects(hub, id)));
+  };
+  // Back to one list: everything opened from the blob goes.
+  const unrack = (hub: Hub, id: string) => {
+    const gone = new Set<Hub>();
+    for (const h of hubs()) if (h.via === id || (h.parent && gone.has(h.parent))) gone.add(h);
+    closePopover();
+    setHubs(hubs().filter((h) => !gone.has(h)));
+    setCurrent(hub);
+    settled(() => centreOnAll(rackRects(hub, id)));
+  };
+  // Lit: the current hub's blobs, and those racked off them.
+  const lit = (hub: Hub): boolean => hub === current() || (!!hub.parent && !hub.replaces && lit(hub.parent));
   // The root and its branches, whole, as large as the stage allows.
   const rootView = () => {
     const b = bounds(placed(), rootHub.id, ROOT_R, rootHub.branches.map((br) => blobId(rootHub, br)));
@@ -448,8 +568,9 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
   // Word details, as in the trees: hover to peek, click to pin. Where a whole
   // blob or root is one thing to click, its words are not buttons and a
   // click on one is a click on the blob or root.
+  const WORD = ".cst-word, .cst-root";
   const wordFromEvent = (e: Event): [TreeNode, HTMLElement] | null => {
-    const el = (e.target as Element).closest<HTMLElement>(".cst-word");
+    const el = (e.target as Element).closest<HTMLElement>(WORD);
     const node = el && props.forest.byKey.get(Number(el.dataset.key));
     return el && node ? [node, el] : null;
   };
@@ -462,7 +583,7 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
     if (hit && !dragging()) hoverEnter(hit[0], hit[1]);
   };
   const onPointerOut = (e: PointerEvent) => {
-    const el = (e.target as Element).closest(".cst-word");
+    const el = (e.target as Element).closest(WORD);
     if (el && !el.contains(e.relatedTarget as Node)) hoverLeave();
   };
 
@@ -498,53 +619,31 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
     </For>
   );
 
+  // A head as it is named in a blob: its language where that is not the
+  // blob's, the word, how it is read and what it means.
+  const HeadName = (p: { item: Item; branch: Branch }) => (
+    <>
+      <Show when={p.item.lang.name !== p.branch.name}>
+        <span class="cst-head-lang">{p.item.lang.name}</span>
+      </Show>
+      <span class="cst-head-term">{term(p.item)}</span>
+      <Show when={p.item.romanization}>
+        <span class="cst-rom">{p.item.romanization}</span>
+      </Show>
+      <Show when={showGlosses() && p.item.gloss?.[0]}>
+        <span class="cst-gloss">{p.item.gloss![0]}</span>
+      </Show>
+    </>
+  );
+
+  // A head that cannot be opened (its words are all there is under it), with
+  // its words, each a button for its details.
   const GroupView = (p: { hub: Hub; branch: Branch; group: Group }) => {
     const key = `${blobId(p.hub, p.branch)}/${p.group.head.item.id}`;
     const item = p.group.head.item;
     const all = () => moreWords().has(key);
     const words = () =>
       all() || p.group.words.length <= WORDS + 2 ? p.group.words : p.group.words.slice(0, WORDS);
-    // (A hub's own words are filed under the hub itself, which is no head.)
-    const opened = () => !p.group.own && hubs().some((h) => h.id === String(item.id));
-    const head = (
-      <>
-        <Show when={item.lang.name !== p.branch.name}>
-          <span class="cst-head-lang">{item.lang.name}</span>
-        </Show>
-        <span class="cst-head-term">{term(item)}</span>
-        <Show when={item.romanization}>
-          <span class="cst-rom">{item.romanization}</span>
-        </Show>
-        <Show when={showGlosses() && item.gloss?.[0]}>
-          <span class="cst-gloss">{item.gloss![0]}</span>
-        </Show>
-      </>
-    );
-    // A root that can be opened is one thing to click, words and all. Once
-    // open it keeps only its name here, which stands for its hub: its words
-    // are listed in the blobs that branch off, by branch.
-    if (canOpen(p.group, target))
-      return (
-        <button
-          type="button"
-          class="cst-group"
-          aria-expanded={opened()}
-          title={opened() ? `go to ${term(item)}` : `unfold what comes from ${term(item)}`}
-          onClick={() => open(p.hub, p.branch, p.group)}
-        >
-          <span class="cst-head" classList={{ open: opened(), current: current().id === String(item.id) }}>
-            {head}
-          </span>
-          <Show when={!opened()}>
-            <span class="cst-words">
-              <WordList words={words()} live={false} />
-              <Show when={words().length < p.group.words.length}>
-                <span class="cst-note">+{p.group.words.length - words().length} more</span>
-              </Show>
-            </span>
-          </Show>
-        </button>
-      );
     return (
       <div class="cst-group">
         <Show
@@ -555,7 +654,9 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
             </Show>
           }
         >
-          <span class="cst-head static">{head}</span>
+          <span class="cst-head static">
+            <HeadName item={item} branch={p.branch} />
+          </span>
         </Show>
         <p class="cst-words">
           <WordList words={words()} live />
@@ -597,31 +698,20 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
       return { x: c.x - 170, y: c.y - 60 };
     };
     // A branch starts as one list of its words, and the whole blob is one
-    // thing to click. With a single root that opens the root; with several
-    // the blob breaks out into them, each then opened by a click of its own.
+    // thing to click. With a single head that opens the head, whose disc
+    // takes the blob's place. With several the blob becomes a rack: every
+    // head opens at once, each a row here with its blobs level beside it.
     const roots = p.branch.groups;
     const only = roots.length === 1 ? roots[0] : null;
-    const anyOpen = () => roots.some((g) => !g.own && hubs().some((h) => h.id === String(g.head.item.id)));
-    const brokenOut = () => !only && (broken().has(id) || anyOpen());
-    const face = () => (only ? canOpen(only, target) : !brokenOut());
+    // The heads opened here, in the order of their rows.
+    const rows = () => hubs().filter((h) => h.via === id && !h.replaces);
+    const face = () => (only ? canOpen(only, target) : rows().length === 0);
     const flat = () => (p.branch.words.length <= FLAT + 2 ? p.branch.words : p.branch.words.slice(0, FLAT));
-    const all = () => moreGroups().has(id);
-    const groups = () => (all() || roots.length <= GROUPS + 2 ? roots : roots.slice(0, GROUPS));
-    // Breaking out makes the blob taller, so it may move: centre on it where
-    // it comes to rest.
-    const centre = () =>
-      requestAnimationFrame(() =>
-        requestAnimationFrame(() => {
-          const r = rect();
-          if (r) centreOn({ x: r.x + r.w / 2, y: r.y + r.h / 2 });
-        })
-      );
+    const openable = roots.filter((g) => canOpen(g, target));
+    const closed = () => openable.filter((g) => !hubs().some((h) => h.id === String(g.head.item.id)));
     const act = () => {
       if (only) return open(p.hub, p.branch, only);
-      closePopover();
-      setBroken(toggle(broken(), id));
-      setCurrent(p.hub);
-      centre();
+      rack(p.hub, p.branch, openable.length <= ROWS + 2 ? openable : openable.slice(0, ROWS));
     };
     const Name = () => (
       <>
@@ -638,10 +728,11 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
         class="cst-blob"
         classList={{
           shown: shown() && !!rect(),
-          // Lit: the current hub's blobs and the one it was opened from.
-          dim: current() !== p.hub && current().via !== id,
+          dim: !lit(p.hub) && current().via !== id,
           replaced: replaced().has(id),
-          narrow: p.branch.wordCount <= 4,
+          narrow: p.branch.wordCount <= 4 && !!only,
+          // Its lanes run left: the rows stand against that edge.
+          left: placed().sides.get(id) === -1,
         }}
         data-blob={id}
         inert={replaced().has(id)}
@@ -664,22 +755,38 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
                   type="button"
                   class="cst-fam"
                   aria-expanded="true"
-                  disabled={anyOpen()}
-                  title={anyOpen() ? undefined : "fold back into one list"}
-                  onClick={act}
+                  title="fold back into one list"
+                  onClick={() => unrack(p.hub, id)}
                 >
                   <Name />
                 </button>
               </Show>
-              <For each={groups()}>{(g) => <GroupView hub={p.hub} branch={p.branch} group={g} />}</For>
-              <Show when={all() || groups().length < roots.length}>
+              {/* A row is as tall as its lane, so each head stands level
+                  with what comes from it. */}
+              <For each={rows()}>
+                {(h) => (
+                  <div class="cst-row" data-row={h.id} style={{ "min-height": `${Math.max(36, rowHeight(h))}px` }}>
+                    <button
+                      type="button"
+                      class="cst-root cst-head open"
+                      data-key={h.node.key}
+                      aria-haspopup="dialog"
+                    >
+                      <HeadName item={h.node.item} branch={p.branch} />
+                    </button>
+                  </div>
+                )}
+              </For>
+              <For each={roots.filter((g) => !canOpen(g, target))}>
+                {(g) => <GroupView hub={p.hub} branch={p.branch} group={g} />}
+              </For>
+              <Show when={!only && closed().length > 0}>
                 <button
                   type="button"
                   class="cst-more cst-more-groups"
-                  aria-expanded={all()}
-                  onClick={() => setMoreGroups(toggle(moreGroups(), id))}
+                  onClick={() => rack(p.hub, p.branch, closed())}
                 >
-                  {all() ? "fewer roots" : `+${roots.length - groups().length} more roots`}
+                  +{closed().length} more roots
                 </button>
               </Show>
             </div>
@@ -785,12 +892,15 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
           <svg class="cst-links" aria-hidden="true">
             <For each={links()}>
               {(l) => {
-                const [hue, d, x, y] = l.split("|");
+                const [hue, d, x, y, x0, y0] = l.split("|");
                 return (
                   <g style={{ "--c": hue }}>
                     <path class="glow" d={d} />
                     <path d={d} />
                     <circle cx={x} cy={y} r="4" />
+                    <Show when={x0}>
+                      <circle cx={x0} cy={y0} r="3" />
+                    </Show>
                   </g>
                 );
               }}
