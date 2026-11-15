@@ -17,10 +17,10 @@ test("panning transfers a language heading to the next visible card", () => {
   assert.deepEqual(languageAnchors(entries, { ...viewport, x: 400 }), []);
 });
 
-test("a partially visible cluster keeps its language heading inside the viewport", () => {
+test("a partially visible cluster and its heading keep their world position", () => {
   const label = languageAnchors([anchor(-100, -80, 400)], viewport)[0];
-  assert.equal(label.box.y - 24, viewport.y + 8);
-  assert.equal(label.box.x, viewport.x + 8);
+  assert.equal(label.box.y - 24, -124);
+  assert.equal(label.box.x, -80);
 });
 
 test("a visible descendant cluster above a root carries their shared label", () => {
