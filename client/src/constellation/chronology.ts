@@ -84,11 +84,11 @@ export function languageTimes(periods: LayoutPeriod[], langs: LangTree, target: 
 // a borrowed word must still stand beyond the word it came from.
 export function chronological(b: BlobSpec): BlobSpec {
   if (!b.stage) return b;
-  const stages = new Map<string, { year: number; width: number; next: Set<string>; incoming: number }>();
+  const stages = new Map<string, { year: number; width: number; next: Set<string>; incoming: number; floor: number }>();
   const visit = (node: BlobSpec, parent?: string) => {
     if (!node.size || !node.stage) return;
     let s = stages.get(node.stage);
-    if (!s) stages.set(node.stage, (s = { year: node.year ?? 0, width: 0, next: new Set(), incoming: 0 }));
+    if (!s) stages.set(node.stage, (s = { year: node.year ?? 0, width: 0, next: new Set(), incoming: 0, floor: 0 }));
     s.width = Math.max(s.width, node.size.w);
     if (parent && parent !== node.stage && !stages.get(parent)!.next.has(node.stage)) {
       stages.get(parent)!.next.add(node.stage);
@@ -106,17 +106,25 @@ export function chronological(b: BlobSpec): BlobSpec {
     // A borrowing cycle can revisit a language. Break the column tie here;
     // the per-node minimum below still keeps every actual edge outward.
     const [key, s] = (ready.length ? ready : left).sort((a, b) => a[1].year - b[1].year || a[0].localeCompare(b[0]))[0];
-    if (previous) x += Math.max(previous.width + 112, (s.year - previous.year) * 0.3);
+    // Sibling languages occupy different vertical lanes and can share
+    // horizontal space. Reserve a full box only along an actual edge;
+    // chronology needs a modest stagger, not a box-wide column per language.
+    if (previous) x += Math.min(240, Math.max(72, (s.year - previous.year) * 0.1));
+    x = Math.max(x, s.floor);
     offsets.set(key, x);
     previous = s;
-    for (const child of s.next) stages.get(child)!.incoming--;
+    for (const child of s.next) {
+      const next = stages.get(child)!;
+      next.incoming--;
+      next.floor = Math.max(next.floor, x + s.width + 44);
+    }
   }
   const place = (node: BlobSpec, at: number): BlobSpec => ({
     ...node,
     lanes: node.lanes?.map((lane) => ({
       ...lane,
       blobs: lane.blobs.map((child) => {
-        const run = lane.inline ? 44 : 112;
+        const run = 44;
         const next = Math.max(at + (node.size?.w ?? 0) + run, offsets.get(child.stage!) ?? 0);
         return { ...place(child, next), gap: next - at - (node.size?.w ?? 0) };
       }),

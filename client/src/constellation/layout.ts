@@ -343,20 +343,13 @@ export function join(c: Point, r: number, box: Rect): Link {
 
 // A line that leaves and arrives level: in a rack, from a head's row to the
 // side of one of its blobs.
-export function wire(from: Point, to: Point, terminal = false): Link {
+export function wire(from: Point, to: Point): Link {
   const half = (to.x - from.x) / 2;
-  // An aligned endpoint can be several columns away. Finish its vertical
-  // turn before the first column, then run level past intermediate nodes.
-  const turn = Math.sign(half) * RUN;
-  if (terminal && Math.abs(half) > RUN / 2) {
-    return {
-      d: `M ${f(from.x)} ${f(from.y)} C ${f(from.x + turn / 2)} ${f(from.y)} ${f(from.x + turn / 2)} ${f(to.y)} ${f(from.x + turn)} ${f(to.y)} L ${f(to.x)} ${f(to.y)}`,
-      end: to,
-      start: from,
-    };
-  }
+  // Every sibling finishes its turn in the same gutter. Mixing long
+  // diagonals with early turns made the diagonals cross the level cables.
+  const turn = Math.sign(half) * Math.min(SHORT, Math.abs(to.x - from.x));
   return {
-    d: `M ${f(from.x)} ${f(from.y)} C ${f(from.x + half)} ${f(from.y)} ${f(to.x - half)} ${f(to.y)} ${f(to.x)} ${f(to.y)}`,
+    d: `M ${f(from.x)} ${f(from.y)} C ${f(from.x + turn / 2)} ${f(from.y)} ${f(from.x + turn / 2)} ${f(to.y)} ${f(from.x + turn)} ${f(to.y)} L ${f(to.x)} ${f(to.y)}`,
     end: to,
     start: from,
   };

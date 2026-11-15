@@ -264,7 +264,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
         const box = drawn(h, blobId(h, b));
         if (!box) continue;
         const hue = h.hues.get(b.key)!;
-        if (side) push(hue, wire(c, { x: side > 0 ? box.x : box.x + box.w, y: box.y + box.h / 2 }, h.single || b.groups.every((g) => g.own)));
+        if (side) push(hue, wire(c, { x: side > 0 ? box.x : box.x + box.w, y: box.y + box.h / 2 }));
         else push(hue, join(c, ROOT_R, box));
       }
     }

@@ -31,11 +31,13 @@ function fixture() {
   };
 }
 
-test("long terminal connectors turn before passing intermediate columns", () => {
+test("all connectors use the same early gutter before passing intermediate columns", () => {
   for (const side of [-1, 1]) {
-    const link = wire({ x: 0, y: 100 }, { x: side * 900, y: 20 }, true);
-    assert.ok(link.d.includes(`${side * 112}.0 20.0 L ${side * 900}.0 20.0`));
+    const link = wire({ x: 0, y: 100 }, { x: side * 900, y: 20 });
+    assert.ok(link.d.includes(`${side * 44}.0 20.0 L ${side * 900}.0 20.0`));
     assert.deepEqual(link.end, { x: side * 900, y: 20 });
+    const sibling = wire({ x: 0, y: 100 }, { x: side * 500, y: 200 });
+    assert.ok(sibling.d.includes(`${side * 44}.0 200.0 L ${side * 500}.0 200.0`));
   }
 });
 

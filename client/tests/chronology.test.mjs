@@ -49,8 +49,8 @@ test("overlapping periods and borrowing cycles keep each child beyond its own pa
     }] }],
   });
   const greek = branch.lanes[0].blobs[0];
-  assert.ok(greek.gap >= 112);
-  assert.ok(greek.lanes[0].blobs[0].gap >= 112);
+  assert.ok(greek.gap >= 44);
+  assert.ok(greek.lanes[0].blobs[0].gap >= 44);
 });
 
 test("sibling Late Latin sits beyond Latin and before Old French, with English endpoints aligned", () => {
@@ -84,4 +84,23 @@ test("sibling Late Latin sits beyond Latin and before Old French, with English e
     assert.equal(start("fish"), start("piscine"));
     assert.ok(start("fish") > start("french"));
   }
+});
+
+test("parallel language branches share horizontal space instead of taking full columns", () => {
+  const child = (stage, year) => ({
+    id: stage, stage, year, size: { w: 320, h: 100 },
+    lanes: [{ hub: `${stage}-word`, mid: 50, inline: true, blobs: [{
+      id: `${stage}-english`, stage: "en", year: 2026, terminal: true, size: { w: 320, h: 40 },
+    }] }],
+  });
+  const branch = chronological({
+    id: "latin", stage: "la", year: -650, size: { w: 320, h: 100 },
+    lanes: [{ hub: "grandis", mid: 50, blobs: [child("fro", 1050), child("osp", 1300), child("it", 1800)] }],
+  });
+  const children = branch.lanes[0].blobs;
+  const positions = children.map((c) => 320 + c.gap);
+  assert.ok(positions[0] < positions[1] && positions[1] < positions[2]);
+  assert.ok(positions[2] - positions[0] < 320);
+  const width = Math.max(...children.map((c, i) => positions[i] + 320 + c.lanes[0].blobs[0].gap + 320));
+  assert.ok(width <= 1300, `parallel branches took ${width}px`);
 });
