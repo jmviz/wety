@@ -92,7 +92,7 @@ main:has(.cst-stage) {
   align-items: center;
   justify-content: center;
   gap: 2px;
-  padding: 0 16px;
+  padding: 0 26px;
   border-radius: 50%;
   border: 1px solid rgba(var(--c), 0.5);
   background: radial-gradient(circle at 50% 38%, rgba(var(--c), 0.2), rgba(var(--c), 0.04) 72%), var(--cst-ground);
@@ -142,12 +142,16 @@ main:has(.cst-stage) {
   color: var(--cst-soft);
 }
 
+/* The word and, as large, what it means, set as a dictionary sets them: one
+   face, the word in its italic and quieter, the meaning upright and the one
+   that carries. */
 .cst-hub-term {
   max-width: 100%;
   font-family: var(--serif);
   font-style: italic;
+  font-weight: 400;
   line-height: 1.2;
-  color: #fff;
+  color: var(--cst-soft);
   overflow-wrap: anywhere;
 }
 
@@ -157,15 +161,11 @@ main:has(.cst-stage) {
   -webkit-line-clamp: 2;
   line-clamp: 2;
   overflow: hidden;
-  font-size: 13px;
-  line-height: 17px;
-  color: var(--cst-soft);
-}
-
-.cst-hub-count {
-  font-size: 12px;
-  line-height: 16px;
-  color: var(--cst-muted);
+  max-width: 100%;
+  font-family: var(--serif);
+  font-weight: 700;
+  line-height: 1.15;
+  color: #fff;
 }
 
 /* Blobs ------------------------------------------------------------------ */
@@ -364,13 +364,23 @@ button.cst-fam:focus-visible {
   padding: 2px 0;
 }
 
+/* As in its hub: the word in italic and quieter, and as large, upright and
+   carrying, what it means. */
 .cst-head.open .cst-head-term {
   font-size: 22px;
   line-height: 28px;
+  font-weight: 400;
+  color: var(--cst-soft);
+}
+
+.cst-head.open .cst-gloss {
+  font-family: var(--serif);
+  font-size: 22px;
+  line-height: 28px;
+  font-weight: 700;
   color: #fff;
 }
 
-.cst-head.open .cst-gloss,
 .cst-head.open .cst-rom {
   font-size: 13px;
 }

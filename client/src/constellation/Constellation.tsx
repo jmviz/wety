@@ -60,8 +60,8 @@ const PALETTE = [
   "253,164,145",
   "190,242,100",
 ];
-const ROOT_R = 88;
-const HUB_R = 76;
+const ROOT_R = 96;
+const HUB_R = 84;
 // How many are shown before "+n more" (a couple over is shown in full): a
 // branch's words in one list, the heads a rack opens at first, and the words
 // under a head that cannot be opened.
@@ -75,6 +75,14 @@ const MAX_ZOOM = 1.6;
 const PAD_X = 48;
 const PAD_Y = 96;
 const READABLE = 0.85;
+
+// A meaning short enough to set as large as its word: the first sense given
+// ("to see" of "to see, perceive; look (at)"), without a trailing aside.
+function brief(gloss: string): string {
+  const first = gloss.split(";")[0];
+  const sense = [...first].length > 22 ? first.split(",")[0] : first;
+  return sense.replace(/\s*\([^)]*\)\s*$/, "").trim() || gloss;
+}
 
 const blobId = (hub: Hub, branch: Branch) => `${hub.id}/${branch.key}`;
 const radius = (hub: Hub) => (hub.parent ? HUB_R : ROOT_R);
@@ -622,7 +630,9 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
         <span class="cst-rom">{p.item.romanization}</span>
       </Show>
       <Show when={showGlosses() && p.item.gloss?.[0]}>
-        <span class="cst-gloss">{p.item.gloss![0]}</span>
+        <span class="cst-gloss" title={p.item.gloss![0]}>
+          {brief(p.item.gloss![0])}
+        </span>
       </Show>
     </>
   );
@@ -800,7 +810,13 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
     const r = radius(p.hub);
     const at = () => placed().hubs.get(p.hub.id);
     const shownTerm = term(item);
-    const count = new Set(p.hub.branches.flatMap((b) => b.groups.flatMap((g) => g.words.map((w) => w.item.term)))).size;
+    const meaning = item.gloss?.[0] ? brief(item.gloss[0]) : "";
+    // The word and its meaning are set at one size: as large as lets the
+    // word fit on one line and the meaning on two.
+    const size = Math.max(
+      15,
+      (p.hub.parent ? 30 : 36) * Math.min(1, 7 / [...shownTerm].length, meaning ? 13 / [...meaning].length : 1)
+    );
     return (
       <Show when={at()}>
         {(c) => (
@@ -819,18 +835,12 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
             onClick={(e) => (current() === p.hub ? pin(p.hub.node, e.currentTarget) : focus(p.hub))}
           >
             <span class="cst-hub-lang">{item.lang.name}</span>
-            <span
-              class="cst-hub-term"
-              style={{ "font-size": `${Math.max(15, Math.min(1, 7 / [...shownTerm].length) * (p.hub.parent ? 30 : 36))}px` }}
-            >
+            <span class="cst-hub-term" style={{ "font-size": `${size}px` }}>
               {shownTerm}
             </span>
-            <Show when={item.gloss?.[0]}>
-              <span class="cst-hub-gloss">{item.gloss![0]}</span>
-            </Show>
-            <Show when={p.hub.parent}>
-              <span class="cst-hub-count">
-                {count.toLocaleString()} {count === 1 ? "word" : "words"}
+            <Show when={meaning}>
+              <span class="cst-hub-gloss" style={{ "font-size": `${size}px` }}>
+                {meaning}
               </span>
             </Show>
           </button>
