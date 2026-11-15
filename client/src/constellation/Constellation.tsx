@@ -5,7 +5,7 @@ import { useGoTo } from "../search/navigate";
 import { Item, Lang, TreeKind, term } from "../search/types";
 import { cognates, constellationStart, lastRequest, showGlosses, showRare } from "../state";
 import { Branch, Common, Group, HIDE_UNDEFINED_ROOTS, LangTree, autoExpandGroup, branchesOf, canOpen, directEarlyEnglish, previewLines, previewRows, rackOrder, restrictBranches, singleEndpoint, sourceBranches, uncommonLatinEnglish, withoutUndefinedRoots } from "./branches";
-import { BlobSpec, Layout, Link, Point, Rect, Size, SOURCE_HEIGHT, bounds, join, layout, rootDirection, wire } from "./layout";
+import { BlobSpec, Layout, Link, Point, Rect, Size, SOURCE_HEIGHT, bounds, join, layout, rootDirection, stemArrival, wire } from "./layout";
 import { chronological, languageTimes } from "./chronology";
 import type { LayoutPeriod } from "./chronology";
 import { representatives } from "./representatives";
@@ -430,14 +430,16 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
         const outward = at.sides.get(blobId(h, b)) ?? (side || (box.x + box.w / 2 >= c.x ? 1 : -1));
         const spineX = outward > 0 ? box.x - 24 : box.x + box.w + 24;
         const ys = sources.map((s) => s.y + s.h / 2);
-        const arrival = sources.length ? { x: spineX, y: Math.max(Math.min(...ys), Math.min(Math.max(...ys), c.y)), w: 0, h: 0 } : box;
+        const arrival = sources.length ? { ...(side
+          ? { x: spineX, y: Math.max(Math.min(...ys), Math.min(Math.max(...ys), c.y)) }
+          : stemArrival(c, spineX, sources)), w: 0, h: 0 } : box;
         if (side) push(hue, wire(c, { x: side > 0 ? arrival.x : arrival.x + arrival.w, y: arrival.y + arrival.h / 2 }));
         else push(hue, join(c, ROOT_R, arrival,
-          [...at.seats].filter(([id]) => id !== blobId(h, b)).map(([, seat]) => seat).concat(sources.length ? [box] : []),
-          rootDirection(h.branches.indexOf(b), h.branches.length)
+          [...at.seats].filter(([id]) => id !== blobId(h, b)).map(([, seat]) => seat),
+          rootDirection(h.branches.indexOf(b), h.branches.length), sources.length > 0
         ));
         if (sources.length) {
-          push(hue, { d: `M ${spineX} ${Math.min(...ys)} L ${spineX} ${Math.max(...ys)}`,
+          push(hue, { d: `M ${spineX} ${Math.min(...ys, arrival.y)} L ${spineX} ${Math.max(...ys, arrival.y)}`,
             end: { x: spineX, y: arrival.y + arrival.h / 2 } });
           for (const source of sources) {
             const y = source.y + source.h / 2;

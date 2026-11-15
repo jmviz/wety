@@ -1,6 +1,25 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { join, layout, rootDirection, wire, whole } from "../src/constellation/layout.ts";
+import { join, layout, rootDirection, stemArrival, wire, whole } from "../src/constellation/layout.ts";
+
+test("root cables flow into a branch stem outside its cards without an obstacle hook", () => {
+  for (const side of [-1, 1]) for (const vertical of [-1, 1]) {
+    const sources = [
+      { x: side > 0 ? 100 : -700, y: vertical > 0 ? 260 : -600, w: 600, h: 38 },
+      { x: side > 0 ? 100 : -700, y: vertical > 0 ? 420 : -440, w: 600, h: 38 },
+    ];
+    const x = side > 0 ? sources[0].x - 24 : sources[0].x + sources[0].w + 24;
+    const arrival = stemArrival({ x: 0, y: 0 }, x, sources);
+    assert.equal(arrival.y, vertical > 0 ? 228 : -370);
+    const direction = vertical * Math.PI / 2;
+    const line = join({ x: 0, y: 0 }, 96, { ...arrival, w: 0, h: 0 }, [], direction, true);
+    assert.ok(line.d.includes(" C "));
+    assert.ok(!line.d.includes(" L "));
+    const coords = line.d.match(/-?\d+\.\d+/g).map(Number);
+    assert.equal(coords[4], arrival.x); // Last control approaches along the stem.
+    assert.ok(vertical * coords[5] < vertical * coords[7]);
+  }
+});
 
 for (const side of [-1, 1]) {
   test(`proto root cards follow their own subtrees on the ${side === 1 ? "right" : "left"}`, () => {

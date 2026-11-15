@@ -376,8 +376,16 @@ export function rootDirection(index: number, count: number): number {
   return START + index * 2 * Math.PI / count;
 }
 
+// Meet a branch stem before its first card (or after its last card), rather
+// than routing around an invisible column to reach a point inside it.
+export function stemArrival(c: Point, x: number, sources: Rect[]): Point {
+  const top = Math.min(...sources.map((s) => s.y)) - 32;
+  const bottom = Math.max(...sources.map((s) => s.y + s.h)) + 32;
+  return { x, y: Math.max(top, Math.min(bottom, c.y)) };
+}
+
 // A gently bowed line from the root's rim to a blob's edge.
-export function join(c: Point, r: number, box: Rect, obstacles: Rect[] = [], direction?: number): Link {
+export function join(c: Point, r: number, box: Rect, obstacles: Rect[] = [], direction?: number, stem = false): Link {
   const to = center(box);
   const angle = direction ?? Math.atan2(to.y - c.y, to.x - c.x);
   const start = { x: c.x + Math.cos(angle) * r, y: c.y + Math.sin(angle) * r };
@@ -387,6 +395,9 @@ export function join(c: Point, r: number, box: Rect, obstacles: Rect[] = [], dir
   const bow = Math.sin(2 * Math.atan2(dy, dx)) >= 0 ? 0.14 : -0.14;
   const cx = (start.x + end.x) / 2 - dy * bow;
   const cy = (start.y + end.y) / 2 + dx * bow;
+  const reach = Math.min(80, Math.hypot(dx, dy) / 3);
+  const control1 = { x: start.x + Math.cos(angle) * reach, y: start.y + Math.sin(angle) * reach };
+  const control2 = { x: end.x, y: end.y - Math.sign(end.y - c.y) * reach };
   // A tall sibling can hide this cable and make it appear to originate
   // there. Route around the sibling's entire reserved space, not through it.
   const blocks = obstacles.map((b) => ({ x: b.x - 16, y: b.y - 16, w: b.w + 32, h: b.h + 32 }));
@@ -408,7 +419,10 @@ export function join(c: Point, r: number, box: Rect, obstacles: Rect[] = [], dir
   let blocked = false;
   for (let i = 1; i <= 32 && !blocked; i++) {
     const t = i / 32, u = 1 - t;
-    const p = { x: u * u * start.x + 2 * u * t * cx + t * t * end.x, y: u * u * start.y + 2 * u * t * cy + t * t * end.y };
+    const p = stem ? {
+      x: u ** 3 * start.x + 3 * u * u * t * control1.x + 3 * u * t * t * control2.x + t ** 3 * end.x,
+      y: u ** 3 * start.y + 3 * u * u * t * control1.y + 3 * u * t * t * control2.y + t ** 3 * end.y,
+    } : { x: u * u * start.x + 2 * u * t * cx + t * t * end.x, y: u * u * start.y + 2 * u * t * cy + t * t * end.y };
     blocked = blocks.some((b) => hits(prev, p, b));
     prev = p;
   }
@@ -441,7 +455,9 @@ export function join(c: Point, r: number, box: Rect, obstacles: Rect[] = [], dir
       return { d: path.map((p, i) => `${i ? "L" : "M"} ${f(p.x)} ${f(p.y)}`).join(" "), end };
     }
   }
-  return { d: `M ${f(start.x)} ${f(start.y)} Q ${f(cx)} ${f(cy)} ${f(end.x)} ${f(end.y)}`, end };
+  return { d: stem
+    ? `M ${f(start.x)} ${f(start.y)} C ${f(control1.x)} ${f(control1.y)} ${f(control2.x)} ${f(control2.y)} ${f(end.x)} ${f(end.y)}`
+    : `M ${f(start.x)} ${f(start.y)} Q ${f(cx)} ${f(cy)} ${f(end.x)} ${f(end.y)}`, end };
 }
 
 // A line that leaves and arrives level: in a rack, from a head's row to the
