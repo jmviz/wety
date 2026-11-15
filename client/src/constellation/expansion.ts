@@ -11,6 +11,13 @@ export interface ExpansionDepth {
   complete: boolean;
 }
 
+// Once a root is opened, its revealed child nodes can open together only
+// when every one of them leads to exactly one displayed modern word.
+export function singleDescendantChildren(children: Pick<ExpansionHub, "branches">[]): boolean {
+  return children.length > 0 && children.every((h) => h.branches.length > 0
+    && h.branches.every((b) => b.words.length === 1));
+}
+
 // Count the opened source stages, rather than rendered boxes or chronology
 // columns. "Complete" means every visible path has reached the target
 // language; another sibling can need more stages to reach that same horizon.

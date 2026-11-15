@@ -1,8 +1,20 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { expansionDepth, sharedDepth } from "../src/constellation/expansion.ts";
+import { expansionDepth, sharedDepth, singleDescendantChildren } from "../src/constellation/expansion.ts";
 
 const branch = (key, own = false) => ({ key, groups: [{ own }] });
+
+test("a multi-descendant root opens all children when each has one modern destination", () => {
+  const child = (key, ...words) => ({ ...branch(key, key === "en"), words });
+  const porter = [{ branches: [child("enm:disporten", "sport"), child("enm:reporten", "report"), child("en", "port")] }];
+  assert.equal(singleDescendantChildren(porter), true);
+  // One child with two destinations vetoes the automatic expansion for all.
+  porter[0].branches[0].words.push("disport");
+  assert.equal(singleDescendantChildren(porter), false);
+  assert.equal(singleDescendantChildren([]), false);
+  assert.equal(singleDescendantChildren([{ branches: [] }]), false);
+});
+
 test("a complete sibling records the English horizon as well as its stage depth", () => {
   const hubs = [
     { id: "greek", via: "parent/grc", branches: [branch("la")] },

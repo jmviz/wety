@@ -10,7 +10,7 @@ import { chronological, languageTimes } from "./chronology";
 import type { LayoutPeriod } from "./chronology";
 import { representatives } from "./representatives";
 import type { Frequencies } from "./representatives";
-import { expansionDepth, sharedDepth } from "./expansion";
+import { expansionDepth, sharedDepth, singleDescendantChildren } from "./expansion";
 import type { ExpansionDepth } from "./expansion";
 
 import {
@@ -430,9 +430,8 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
       .map((k) => ({ owner: h, branch: k, id: blobId(h, k) })));
     const inherited = sharedDepth(peers(hub, branch).filter((p) => p.id !== id).map((p) => expansionDepth(p.id, all)));
     const expand = (owner: Hub, b: Branch, desired: ExpansionDepth | null, firstGroups = b.groups) => {
-      const automatic = !desired && !!autoExpandGroup(b, target);
-      const queue: { owner: Hub; branch: Branch; level: number; groups: Group[] }[] = [
-        { owner, branch: b, level: 1, groups: firstGroups },
+      const queue: { owner: Hub; branch: Branch; level: number; groups: Group[]; automatic: boolean }[] = [
+        { owner, branch: b, level: 1, groups: firstGroups, automatic: !!autoExpandGroup(b, target) },
       ];
       for (const step of queue) {
         const via = blobId(step.owner, step.branch);
@@ -447,9 +446,10 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
         }
         const children = [...existing, ...rackOrder(made, (h) => h.single)];
         all.push(...rackOrder(made, (h) => h.single));
+        const automatic = step.automatic || (step.level === 1 && singleDescendantChildren(children));
         for (const child of children) for (const next of child.branches) {
           const follow = desired ? desired.complete || step.level < desired.depth : automatic && !!autoExpandGroup(next, target);
-          if (follow) queue.push({ owner: child, branch: next, level: step.level + 1, groups: next.groups });
+          if (follow) queue.push({ owner: child, branch: next, level: step.level + 1, groups: next.groups, automatic });
         }
       }
     };
