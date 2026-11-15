@@ -64,24 +64,56 @@ interface Found {
   depth: number;
 }
 
+// How common each word of the reader's language is: the smallest SCOWL list
+// it is in (10, the commonest, to 70, a large desk dictionary's), and nothing
+// for a word in none. `virtual:common-words` has English alone.
+export type Common = Map<string, number>;
+const level = (common: Common, term: string) => common.get(term.toLowerCase());
+
 // The words a blob lists: single words that are not proper nouns. Phrases
 // ("video chat") and names ("Winterbottom") crowd out the cognates a reader
-// came for. The searched word is listed whatever it is.
-function listed(n: TreeNode): boolean {
+// came for, and so do the words no desk dictionary has (Wiktionary has
+// "logodaedaly" and "theologaster" beside "logic"): given `common`, a word
+// not in it is left out. The searched word is listed whatever it is.
+function listed(n: TreeNode, common: Common | null): boolean {
   if (n.isSelected) return true;
   const { term, pos } = n.item;
   if (/\s/.test(term) || pos?.includes("name")) return false;
+  if (common && level(common, term) === undefined) return false;
   // A capitalised word with no part of speech recorded is nearly always a name.
   return !(!pos?.length && /^\p{Lu}/u.test(term));
 }
 
+// The words an English word may be a plain derivative of: itself without
+// un- or non-, or without an inflection or one of the suffixes that keep a
+// word's sense (forgiven, forgiving, forgiveness, forgivable and unforgiven
+// all lead back to forgive). Spelling is allowed for: a dropped e, y become
+// i, a doubled consonant.
+const PREFIXES = ["un", "non"];
+const SUFFIXES = ["ness", "less", "able", "ible", "ful", "ing", "ly", "ed", "en", "es", "s"];
+function bases(term: string): string[] {
+  const out: string[] = [];
+  for (const p of PREFIXES) if (term.startsWith(p) && term.length >= p.length + 3) out.push(term.slice(p.length));
+  for (const s of SUFFIXES) {
+    if (!term.endsWith(s) || term.length < s.length + 3) continue;
+    const stem = term.slice(0, -s.length);
+    out.push(stem, stem + "e");
+    if (stem.endsWith("i")) out.push(stem.slice(0, -1) + "y");
+    if (stem.at(-1) === stem.at(-2)) out.push(stem.slice(0, -1));
+  }
+  return out;
+}
+
 // One entry per spelling (the searched word, else the nearest), in the order
-// a reader is likeliest to know them. The graph has no word frequencies, so
-// this goes by what it does have: a plain lower-case word before affixes and
-// the rest; then words with several entries or parts of speech, which the
+// a reader is likeliest to know them. Given `common`, that is how common the
+// word is, and a plain derivative of another word here is left out (the
+// searched word excepted): both come from the same root, so "business" goes
+// with "busy" as "forgiveness" does with "forgive". Without it, the order
+// goes by what the graph has: a plain lower-case word before affixes and the
+// rest; then words with several entries or parts of speech, which the
 // everyday ones tend to have; then the nearest and the shortest.
 const PLAIN = /^\p{Ll}+$/u;
-function rank(found: Found[]): TreeNode[] {
+function rank(found: Found[], common: Common | null): TreeNode[] {
   const byTerm = new Map<string, Found & { uses: number }>();
   for (const f of found) {
     const uses = f.node.item.pos?.length ?? 0;
@@ -91,10 +123,15 @@ function rank(found: Found[]): TreeNode[] {
       byTerm.set(f.node.item.term, { ...f, uses: had.uses + uses });
     else had.uses += uses;
   }
+  const rarity = (f: Found) => (common && level(common, f.node.item.term)) || Infinity;
   return [...byTerm.values()]
+    .filter(
+      (f) => !common || f.node.isSelected || !bases(f.node.item.term.toLowerCase()).some((b) => byTerm.has(b))
+    )
     .sort(
       (a, b) =>
         Number(b.node.isSelected) - Number(a.node.isSelected) ||
+        rarity(a) - rarity(b) ||
         Number(!PLAIN.test(a.node.item.term)) - Number(!PLAIN.test(b.node.item.term)) ||
         Math.min(b.uses, 3) - Math.min(a.uses, 3) ||
         a.depth - b.depth ||
@@ -105,14 +142,14 @@ function rank(found: Found[]): TreeNode[] {
 }
 
 // The words of the reader's language at and below a head.
-function wordsUnder(head: TreeNode, target: number): TreeNode[] {
+function wordsUnder(head: TreeNode, target: number, common: Common | null): TreeNode[] {
   const found: Found[] = [];
   const visit = (n: TreeNode, depth: number) => {
-    if (n.item.lang.id === target && listed(n)) found.push({ node: n, depth });
+    if (n.item.lang.id === target && listed(n, common)) found.push({ node: n, depth });
     for (const c of n.children) visit(c, depth + 1);
   };
   visit(head, 0);
-  return rank(found);
+  return rank(found, common);
 }
 
 interface Trie {
@@ -128,7 +165,10 @@ const group = (head: TreeNode, own: boolean, words: TreeNode[]): Group => ({
   hasSelected: words.some((w) => w.isSelected),
 });
 
-export function branchesOf(hub: TreeNode, target: Lang, langs: LangTree): Branch[] {
+// `common`: how common the reader's language's words are, to leave the rare
+// ones and plain derivatives out and list the commonest first; null lists
+// every word.
+export function branchesOf(hub: TreeNode, target: Lang, langs: LangTree, common: Common | null): Branch[] {
   // A hub at the top of its family: a reconstructed word of a language with
   // no ancestor of its own (Proto-Indo-European). Its branches are the
   // family's: the languages that come straight from it, a fixed set, under
@@ -148,7 +188,7 @@ export function branchesOf(hub: TreeNode, target: Lang, langs: LangTree): Branch
         if (!heads.has(c.item.id)) heads.set(c.item.id, c);
         continue;
       }
-      if (c.item.lang.id === target.id && listed(c)) own.push({ node: c, depth });
+      if (c.item.lang.id === target.id && listed(c, common)) own.push({ node: c, depth });
       collect(c, depth + 1);
     }
   };
@@ -203,17 +243,20 @@ export function branchesOf(hub: TreeNode, target: Lang, langs: LangTree): Branch
     const name = langs.names[t.code] ?? names.get(t.code) ?? t.code;
     if (t.code === target.code) {
       // The reader's own language: one list, no heads.
-      const words = rank(members.flatMap((h) => wordsUnder(h, target.id).map((node, depth) => ({ node, depth }))));
+      const words = rank(
+        members.flatMap((h) => wordsUnder(h, target.id, common).map((node, depth) => ({ node, depth }))),
+        common
+      );
       add(t.code, name, words.length ? [group(hub, true, words)] : []);
     } else {
       add(
         t.code,
         name,
-        members.map((h) => group(h, false, wordsUnder(h, target.id))).filter((g) => g.words.length > 0)
+        members.map((h) => group(h, false, wordsUnder(h, target.id, common))).filter((g) => g.words.length > 0)
       );
     }
   }
-  if (own.length) add(target.code, target.name, [group(hub, true, rank(own))]);
+  if (own.length) add(target.code, target.name, [group(hub, true, rank(own, common))]);
 
   return branches.sort(
     (a, b) =>

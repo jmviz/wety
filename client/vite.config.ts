@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { defineConfig, type Plugin } from "vite";
@@ -37,8 +37,39 @@ function langTree(): Plugin {
   };
 }
 
+// `virtual:common-words`: English words by how common they are, from SCOWL
+// (the `wordlist-english` package: American, British, Canadian and Australian
+// spellings, sizes 10 to 70, the last a large desk dictionary's). Each word
+// is under the smallest size that lists it. The constellation view leaves
+// out the words that are in none and lists the commonest first; the graph
+// has no word frequencies.
+function commonWords(): Plugin {
+  const id = "virtual:common-words";
+  const dir = resolve(dirname(fileURLToPath(import.meta.url)), "node_modules/wordlist-english");
+  return {
+    name: "wety-common-words",
+    resolveId: (source) => (source === id ? "\0" + id : undefined),
+    load(resolved) {
+      if (resolved !== "\0" + id) return;
+      const sizes = new Map<string, number>();
+      for (const file of readdirSync(dir)) {
+        const size = Number(/-words-(\d+)\.json$/.exec(file)?.[1]);
+        if (!size) continue;
+        for (const word of JSON.parse(readFileSync(resolve(dir, file), "utf8")) as string[]) {
+          const w = word.toLowerCase();
+          if (size < (sizes.get(w) ?? Infinity)) sizes.set(w, size);
+        }
+      }
+      const levels: Record<string, string[]> = {};
+      for (const [w, size] of sizes) (levels[size] ??= []).push(w);
+      const joined = Object.fromEntries(Object.entries(levels).map(([size, words]) => [size, words.sort().join("\n")]));
+      return `export const levels = ${JSON.stringify(joined)};\n`;
+    },
+  };
+}
+
 export default defineConfig({
-  plugins: [solid(), langTree()],
+  plugins: [solid(), langTree(), commonWords()],
   server: {
     port: 8000,
   },

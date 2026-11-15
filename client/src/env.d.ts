@@ -15,3 +15,10 @@ declare module "virtual:lang-tree" {
   // Names of the languages that have daughters.
   export const names: Record<string, string>;
 }
+
+// Built by `vite.config.ts` from the SCOWL word lists (`wordlist-english`).
+declare module "virtual:common-words" {
+  // A SCOWL size (10, the commonest words, to 70) to the English words first
+  // listed at that size, lower-case, one to a line.
+  export const levels: Record<string, string>;
+}

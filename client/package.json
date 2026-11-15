@@ -11,7 +11,8 @@
     "sass": "^1.80.0",
     "typescript": "^5.5.0",
     "vite": "^6.0.0",
-    "vite-plugin-solid": "^2.11.0"
+    "vite-plugin-solid": "^2.11.0",
+    "wordlist-english": "^1.2.1"
   },
   "scripts": {
     "dev": "vite",

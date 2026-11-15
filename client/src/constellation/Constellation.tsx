@@ -3,8 +3,8 @@ import { Forest, TreeNode } from "../ety/model";
 import { close as closePopover, hoverEnter, hoverLeave, pin, popover } from "../ety/popover";
 import { useGoTo } from "../search/navigate";
 import { Item, Lang, TreeKind, term } from "../search/types";
-import { cognates, constellationStart, lastRequest, showGlosses } from "../state";
-import { Branch, Group, LangTree, branchesOf, canOpen } from "./branches";
+import { cognates, constellationStart, lastRequest, showGlosses, showRare } from "../state";
+import { Branch, Common, Group, LangTree, branchesOf, canOpen } from "./branches";
 import { BlobSpec, Layout, Link, Point, Rect, Size, bounds, join, layout, wire } from "./layout";
 
 import {
@@ -98,26 +98,42 @@ function huesOf(keys: string[]): Map<string, string> {
 // words of the branch they come from (its heads) as rows in it, each with
 // its own branches' blobs beside it, and so on outwards.
 export default function Constellation(props: { forest: Forest }) {
-  const [langs] = createResource(() => import("virtual:lang-tree") as Promise<LangTree>);
+  const [data] = createResource(async () => {
+    const [langs, words] = await Promise.all([import("virtual:lang-tree"), import("virtual:common-words")]);
+    const common: Common = new Map();
+    for (const [n, list] of Object.entries(words.levels)) for (const w of list.split("\n")) common.set(w, Number(n));
+    return { langs: langs as LangTree, common };
+  });
   return (
     <Show
       when={props.forest.roots.length === 1}
       fallback={<p class="empty">The filters hide the word this constellation starts from.</p>}
     >
-      <Show when={langs()} fallback={<p class="empty" role="status">Loading languages…</p>}>
-        {(l) => <Stage forest={props.forest} langs={l()} />}
+      <Show when={data()} fallback={<p class="empty" role="status">Loading languages…</p>}>
+        {(d) => (
+          // Drawn afresh when the display panel's "rare and derived words" is
+          // switched: what a blob lists is settled when it is made.
+          <Show
+            when={showRare()}
+            fallback={<Stage forest={props.forest} langs={d().langs} common={d().common} />}
+          >
+            <Stage forest={props.forest} langs={d().langs} common={null} />
+          </Show>
+        )}
       </Show>
     </Show>
   );
 }
 
-function Stage(props: { forest: Forest; langs: LangTree }) {
+function Stage(props: { forest: Forest; langs: LangTree; common: Common | null }) {
   let stageEl!: HTMLDivElement;
   const root = props.forest.roots[0];
   const target: Lang = (props.forest.selected ?? root).item.lang;
+  // The word list is English: another language's words are all listed.
+  const common = target.code === "en" ? props.common : null;
 
   const makeHub = (node: TreeNode, parent: Hub | null, via: string | null, hue: string | null): Hub => {
-    const branches = branchesOf(node, target, props.langs);
+    const branches = branchesOf(node, target, props.langs, common);
     const keys = branches.map((b) => b.key);
     return {
       id: String(node.item.id),
