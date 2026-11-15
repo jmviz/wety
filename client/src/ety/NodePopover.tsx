@@ -135,12 +135,13 @@ export default function NodePopover() {
     });
   });
 
-  const go = (kind: "descendants" | "etymology" | "cognates", item: Item) => {
+  const go = (kind: "descendants" | "etymology" | "cognates" | "constellation", item: Item) => {
     close();
     const treeKind = {
       etymology: TreeKind.Etymology,
       descendants: TreeKind.Descendants,
       cognates: TreeKind.Cognates,
+      constellation: TreeKind.Constellation,
     }[kind];
     goTo(treeKind, item);
   };
@@ -243,6 +244,7 @@ export default function NodePopover() {
                 <button onClick={() => go("descendants", item())}>Descendants</button>
                 <button onClick={() => go("cognates", item())}>Cognates</button>
                 <button onClick={() => go("etymology", item())}>Etymology</button>
+                <button onClick={() => go("constellation", item())}>Constellation</button>
                 <Show when={item().url}>
                   <a href={item().url!} target="_blank" rel="noopener noreferrer">
                     Wiktionary ↗

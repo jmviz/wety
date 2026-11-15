@@ -17,8 +17,10 @@ import {
   TreeKind,
   TreeRequest,
   WordLink,
-  kindPath,
+  apiRoute,
   linkHref,
+  namesLangs,
+  takesRoot,
   parseWordHref,
   wordHref,
 } from "./search/types";
@@ -329,6 +331,12 @@ function sameLangs(a: Lang[], b: Lang[]): boolean {
 
 const treeCache = new Map<string, Etymology | DescendantsView | Cognates>();
 
+// Where a constellation starts when its link names no root: the first of the
+// word's ultimate ancestors, else where the cognates tree does.
+export function constellationStart(cog: Pick<Cognates, "ultimateRoots">): Item | null {
+  return cog.ultimateRoots[0] ?? null;
+}
+
 // Each load (and each return home) supersedes the ones before it, so a slow
 // response for an earlier URL never replaces what the current one shows.
 let loadSeq = 0;
@@ -401,34 +409,54 @@ async function loadLink(link: WordLink, seq: number): Promise<string | null> {
   }
 
   // Languages the link names, plus the word's own; by default the reader's
-  // languages (remembered from the last choice).
-  const named = link.kind !== TreeKind.Etymology && !link.allLangs && link.descLangs.length > 0;
+  // languages (remembered from the last choice). A constellation is drawn in
+  // the word's own language alone.
+  const named = namesLangs(link.kind) && !link.allLangs && link.descLangs.length > 0;
   const codes =
     link.kind === TreeKind.Etymology || link.allLangs
       ? []
-      : [...new Set([...(named ? link.descLangs : selectedDescLangs().map((l) => l.code)), item.lang.code])].sort();
+      : link.kind === TreeKind.Constellation
+        ? [item.lang.code]
+        : [...new Set([...(named ? link.descLangs : selectedDescLangs().map((l) => l.code)), item.lang.code])].sort();
   const params = new URLSearchParams({ graph });
   for (const c of codes) params.append("descLang", c);
   if (link.within) params.set("within", "true");
-  if (link.kind === TreeKind.Cognates && link.root) {
+  if (takesRoot(link.kind) && link.root) {
     params.set("root", link.root);
     if (link.rootEty) params.set("rootEty", link.rootEty);
   }
-  const apiPath = `/${kindPath[link.kind]}/${item.id}?${params}`;
-  let body = treeCache.get(apiPath);
-  if (!body) {
-    body = (await fetchJson(`${API}${apiPath}`)).body as Etymology | DescendantsView | Cognates;
-    treeCache.set(apiPath, body);
+  const fetchTree = async () => {
+    const apiPath = `/${apiRoute[link.kind]}/${item.id}?${params}`;
+    let got = treeCache.get(apiPath);
+    if (!got) {
+      got = (await fetchJson(`${API}${apiPath}`)).body as Etymology | DescendantsView | Cognates;
+      treeCache.set(apiPath, got);
+    }
+    return got;
+  };
+  let body = await fetchTree();
+  // A constellation starts from the word's ultimate ancestor, which the
+  // server only says once asked for the default tree.
+  if (link.kind === TreeKind.Constellation && !link.root) {
+    const start = constellationStart(body as Cognates);
+    if (start && start.id !== (body as Cognates).root) {
+      params.set("root", `${start.lang.code}:${start.term}`);
+      if (start.ety) params.set("rootEty", start.ety);
+      body = await fetchTree();
+    }
   }
-  const cog = link.kind === TreeKind.Cognates ? (body as Cognates) : null;
+  if (seq !== loadSeq) return null;
+  const cog = takesRoot(link.kind) ? (body as Cognates) : null;
   const view = link.kind === TreeKind.Etymology ? null : (body as DescendantsView | Cognates);
   const treeResult: Etymology | Descendants[] = view ? [view.tree] : (body as Etymology);
 
   const descLangs = named ? await resolveDescLangs(codes, treeResult) : [];
   if (seq !== loadSeq) return null;
   // The server falls back to the default root when the link names none it
-  // knows; only a root other than the trail's last step goes in the URL.
-  const root = cog && cog.root !== cog.defaultRoot ? cog.tree.item : null;
+  // knows; only a root other than the view's own default goes in the URL.
+  const usual =
+    cog && (link.kind === TreeKind.Constellation ? constellationStart(cog)?.id : undefined);
+  const root = cog && cog.root !== (usual ?? cog.defaultRoot) ? cog.tree.item : null;
   const request = new TreeRequest(item.lang, item, descLangs, link.kind, root, link.allLangs, link.within);
   const previous = lastRequest();
   batch(() => {

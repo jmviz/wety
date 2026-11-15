@@ -1,4 +1,4 @@
-import { Lang, TreeKind } from "./types";
+import { Lang, TreeKind, namesLangs } from "./types";
 import { searchLangs } from "./api";
 import { useGoTo, withOwnLang } from "./navigate";
 import ConnectionsPanel from "../settings/ConnectionsPanel";
@@ -25,6 +25,7 @@ const VIEWS: [TreeKind, string][] = [
   [TreeKind.Etymology, "Etymology"],
   [TreeKind.Descendants, "Descendants"],
   [TreeKind.Cognates, "Cognates"],
+  [TreeKind.Constellation, "Constellation"],
 ];
 
 type Panel = "langs" | "connections" | "display";
@@ -39,7 +40,7 @@ export default function ViewBar() {
 
   const request = () => lastRequest();
   const kind = () => request()?.kind;
-  const isTree = () => kind() !== TreeKind.Etymology;
+  const isTree = () => !!kind() && namesLangs(kind()!);
 
   // The languages a tree is drawn in: the link's, else the reader's.
   const langs = () => {

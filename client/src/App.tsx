@@ -5,6 +5,7 @@ import { Unresolved } from "./search/Homographs";
 import { TreeKind, term } from "./search/types";
 import OutlineTree from "./ety/OutlineTree";
 import ChartTree from "./ety/ChartTree";
+import Constellation from "./constellation/Constellation";
 import NodePopover from "./ety/NodePopover";
 import About, { GITHUB } from "./About";
 import { clearView, forest, lastRequest, loadFromPath, loadError, loading } from "./state";
@@ -89,6 +90,8 @@ export default function App() {
               <EmptyTree />
             ) : f.kind === TreeKind.Etymology ? (
               <ChartTree forest={f} />
+            ) : f.kind === TreeKind.Constellation ? (
+              <Constellation forest={f} />
             ) : (
               <OutlineTree forest={f} />
             )

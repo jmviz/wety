@@ -206,13 +206,31 @@ export enum TreeKind {
   Cognates = "Cognates",
   Etymology = "Etymology",
   Descendants = "Descendants",
+  Constellation = "Constellation",
 }
 
 export const kindPath: Record<TreeKind, string> = {
   [TreeKind.Etymology]: "etymology",
   [TreeKind.Descendants]: "descendants",
   [TreeKind.Cognates]: "cognates",
+  [TreeKind.Constellation]: "constellation",
 };
+
+// The API route a view's tree comes from. The constellation draws the
+// cognates tree its own way.
+export const apiRoute: Record<TreeKind, string> = {
+  ...kindPath,
+  [TreeKind.Constellation]: "cognates",
+};
+
+// Views whose link can name the languages drawn. The etymology chart has no
+// descendants, and the constellation is always drawn in the word's language.
+export const namesLangs = (kind: TreeKind) =>
+  kind === TreeKind.Descendants || kind === TreeKind.Cognates;
+
+// Views that start from an ancestor of the word, which their link can name.
+export const takesRoot = (kind: TreeKind) =>
+  kind === TreeKind.Cognates || kind === TreeKind.Constellation;
 
 // Spaces are written as underscores, as Wiktionary does (its titles cannot
 // contain "_").
@@ -224,7 +242,9 @@ export const decodeTerm = (s: string) => decodeURIComponent(s).replace(/_/g, " "
 // languages, unless `lang` names the languages to draw (codes) or `all=1`
 // asks for every one; `within=1` also draws words formed from a word of the
 // same language. Cognates may add `root=<lang code>:<term>` (and `rootEty`),
-// the ancestor to start from, when it is not the default.
+// the ancestor to start from, when it is not the default. A constellation
+// link names no languages (it is drawn in the word's own) but may name its
+// root the same way.
 export interface WordLink {
   kind: TreeKind;
   lang: string;
@@ -240,12 +260,12 @@ export interface WordLink {
 export function linkHref(link: WordLink): string {
   const params = new URLSearchParams();
   if (link.ety) params.set("ety", link.ety);
-  if (link.kind !== TreeKind.Etymology) {
+  if (namesLangs(link.kind)) {
     if (link.allLangs) params.set("all", "1");
     else for (const c of link.descLangs) params.append("lang", c);
     if (link.within) params.set("within", "1");
   }
-  if (link.kind === TreeKind.Cognates && link.root) {
+  if (takesRoot(link.kind) && link.root) {
     params.set("root", link.root);
     if (link.rootEty) params.set("rootEty", link.rootEty);
   }
@@ -299,11 +319,11 @@ export function parseWordHref(href: string): WordLink | null {
     lang,
     term,
     ety: params.get("ety"),
-    descLangs: kind === TreeKind.Etymology || params.get("all") ? [] : params.getAll("lang"),
-    allLangs: kind !== TreeKind.Etymology && params.get("all") === "1",
-    within: kind !== TreeKind.Etymology && params.get("within") === "1",
-    root: kind === TreeKind.Cognates ? params.get("root") : null,
-    rootEty: kind === TreeKind.Cognates ? params.get("rootEty") : null,
+    descLangs: !namesLangs(kind) || params.get("all") ? [] : params.getAll("lang"),
+    allLangs: namesLangs(kind) && params.get("all") === "1",
+    within: namesLangs(kind) && params.get("within") === "1",
+    root: takesRoot(kind) ? params.get("root") : null,
+    rootEty: takesRoot(kind) ? params.get("rootEty") : null,
   };
 }
 

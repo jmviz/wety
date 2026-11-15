@@ -37,12 +37,18 @@ const cognatesRoute = createRoute({
   path: "/cognates/$lang/$",
 });
 
+const constellationRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/constellation/$lang/$",
+});
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
   aboutRoute,
   etymologyRoute,
   descendantsRoute,
   cognatesRoute,
+  constellationRoute,
 ]);
 
 export const router = createRouter({

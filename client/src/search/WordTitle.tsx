@@ -1,4 +1,4 @@
-import { Item, TreeKind, term } from "./types";
+import { Item, namesLangs, term } from "./types";
 import { useGoTo } from "./navigate";
 import { forest, homographs, lastRequest, treeSize } from "../state";
 
@@ -86,7 +86,7 @@ export default function WordTitle() {
               {r().item.gloss?.[0]}
             </p>
           </Show>
-          <Show when={r().kind !== TreeKind.Etymology && forest()}>
+          <Show when={namesLangs(r().kind) && forest()}>
             {(f) => (
               <p class="tree-stats">
                 <Show

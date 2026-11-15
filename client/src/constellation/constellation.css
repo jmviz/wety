@@ -1,0 +1,560 @@
+/* The constellation: a dark canvas whatever the page's theme, so the branch
+   colours read as light. Sizes are in px: the canvas zooms as a whole. */
+
+main:has(.cst-stage) {
+  padding-bottom: 0;
+}
+
+.cst-stage {
+  --cst-ink: #eef1f6;
+  --cst-soft: #b9c2d2;
+  --cst-muted: #8b95a7;
+  --cst-ground: #0a0e18;
+  --cst-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  position: relative;
+  height: max(30rem, calc(100dvh - var(--cst-top, 10.5rem)));
+  overflow: hidden;
+  overflow: clip;
+  background: radial-gradient(60rem 42rem at 50% 50%, #111a2e 0%, #06080e 72%);
+  color: var(--cst-ink);
+  color-scheme: dark;
+  font-family: var(--cst-sans);
+  font-size: 16px;
+  line-height: 1.5;
+  font-feature-settings: normal;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.cst-stage.dragging {
+  cursor: grabbing;
+}
+
+.cst-pan,
+.cst-world {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.cst-pan.gliding {
+  transition: left 0.6s cubic-bezier(0.22, 0.8, 0.2, 1), top 0.6s cubic-bezier(0.22, 0.8, 0.2, 1);
+}
+
+/* Lines ------------------------------------------------------------------ */
+
+.cst-links {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1px;
+  height: 1px;
+  overflow: visible;
+  fill: none;
+  stroke-linecap: round;
+  pointer-events: none;
+}
+
+.cst-links g {
+  animation: cst-fade 0.45s 0.3s both;
+}
+
+.cst-links path {
+  stroke: rgb(var(--c));
+  stroke-width: 1.5;
+}
+
+.cst-links path.glow {
+  stroke-width: 8;
+  opacity: 0.14;
+}
+
+.cst-links circle {
+  fill: rgb(var(--c));
+}
+
+@keyframes cst-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Hubs ------------------------------------------------------------------- */
+
+.cst-hub {
+  all: unset;
+  box-sizing: border-box;
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 0 16px;
+  border-radius: 50%;
+  border: 1px solid rgba(var(--c), 0.5);
+  background: radial-gradient(circle at 50% 38%, rgba(var(--c), 0.2), rgba(var(--c), 0.04) 72%), var(--cst-ground);
+  text-align: center;
+  cursor: pointer;
+  opacity: 0.75;
+  animation: cst-pop 0.5s cubic-bezier(0.22, 0.8, 0.2, 1) both;
+  transition: opacity 0.3s, box-shadow 0.3s;
+}
+
+.cst-hub.current {
+  opacity: 1;
+  border-color: rgba(var(--c), 0.85);
+  box-shadow: 0 0 60px rgba(var(--c), 0.24), 0 0 150px rgba(var(--c), 0.14);
+}
+
+.cst-hub.root.current {
+  box-shadow: 0 0 60px rgba(255, 255, 255, 0.22), 0 0 150px rgba(130, 165, 255, 0.22);
+}
+
+.cst-hub:hover {
+  opacity: 1;
+}
+
+.cst-hub:focus-visible {
+  outline: 2px solid rgb(var(--c));
+  outline-offset: 4px;
+}
+
+@keyframes cst-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+}
+
+.cst-hub-lang {
+  font-size: 10px;
+  line-height: 14px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgb(var(--c));
+}
+
+.cst-hub.root .cst-hub-lang {
+  color: var(--cst-soft);
+}
+
+.cst-hub-term {
+  max-width: 100%;
+  font-family: var(--serif);
+  font-style: italic;
+  line-height: 1.2;
+  color: #fff;
+  overflow-wrap: anywhere;
+}
+
+.cst-hub-gloss {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  font-size: 13px;
+  line-height: 17px;
+  color: var(--cst-soft);
+}
+
+.cst-hub-count {
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--cst-muted);
+}
+
+/* Blobs ------------------------------------------------------------------ */
+
+.cst-blob {
+  position: absolute;
+  box-sizing: border-box;
+  width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px 20px;
+  border-radius: 26px;
+  border: 1px solid rgba(var(--c), 0.32);
+  background: linear-gradient(rgba(var(--c), 0.055), rgba(var(--c), 0.055)), var(--cst-ground);
+  box-shadow: 0 0 44px rgba(var(--c), 0.1), inset 0 0 28px rgba(var(--c), 0.05);
+  cursor: default;
+  opacity: 0;
+  transform: scale(0.7);
+  transition: left 0.55s cubic-bezier(0.22, 0.8, 0.2, 1), top 0.55s cubic-bezier(0.22, 0.8, 0.2, 1),
+    transform 0.55s cubic-bezier(0.22, 0.8, 0.2, 1), opacity 0.4s;
+}
+
+.cst-blob.narrow {
+  width: 250px;
+}
+
+.cst-blob.shown {
+  opacity: 1;
+  transform: none;
+}
+
+.cst-blob.shown.dim {
+  opacity: 0.62;
+}
+
+.cst-blob.shown.dim:hover,
+.cst-blob.shown.dim:focus-within {
+  opacity: 1;
+}
+
+.cst-fam {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgb(var(--c));
+}
+
+.cst-count {
+  flex: none;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  color: var(--cst-muted);
+}
+
+.cst-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.cst-group + .cst-group {
+  padding-top: 12px;
+  border-top: 1px solid rgba(var(--c), 0.16);
+}
+
+/* A root: small, in the branch's colour, above the words it gave. */
+.cst-head {
+  all: unset;
+  box-sizing: border-box;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  max-width: 100%;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 14px;
+  line-height: 20px;
+  color: rgb(var(--c));
+}
+
+button.cst-head {
+  cursor: pointer;
+}
+
+.cst-head::before {
+  content: "";
+  flex: none;
+  align-self: center;
+  box-sizing: border-box;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  border: 1px solid rgb(var(--c));
+}
+
+.cst-head.open::before {
+  background: rgb(var(--c));
+  box-shadow: 0 0 8px rgba(var(--c), 0.9);
+}
+
+.cst-head.static {
+  color: rgba(var(--c), 0.8);
+}
+
+.cst-head.static::before {
+  border-style: dotted;
+}
+
+button.cst-head:hover .cst-head-term {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.cst-head:focus-visible {
+  outline: 2px solid rgb(var(--c));
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.cst-head-lang {
+  flex: none;
+  font-family: var(--cst-sans);
+  font-style: normal;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.cst-head-term {
+  flex: none;
+  max-width: 100%;
+}
+
+.cst-rom,
+.cst-gloss {
+  font-family: var(--cst-sans);
+  font-style: normal;
+  font-size: 12px;
+  color: var(--cst-muted);
+}
+
+.cst-rom {
+  flex: none;
+}
+
+.cst-gloss {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The words: the content. */
+.cst-words {
+  margin: 0;
+  font-size: 17px;
+  line-height: 26px;
+  color: var(--cst-ink);
+  text-wrap: pretty;
+}
+
+.cst-entry {
+  white-space: nowrap;
+}
+
+.cst-word {
+  all: unset;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.cst-word:hover,
+.cst-word.popover-anchor {
+  color: rgb(var(--c));
+}
+
+.cst-word:focus-visible {
+  outline: 2px solid rgb(var(--c));
+  outline-offset: 2px;
+}
+
+.cst-word.you {
+  margin: 0 1px 0 -1px;
+  padding: 1px 5px;
+  border-radius: 6px;
+  background: rgba(var(--c), 0.15);
+  color: rgb(var(--c));
+  font-weight: 500;
+  text-shadow: 0 0 12px rgba(var(--c), 0.6);
+}
+
+.cst-more {
+  all: unset;
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 20px;
+  white-space: nowrap;
+  color: #aab3c2;
+  border-bottom: 1px dashed rgba(170, 179, 194, 0.6);
+}
+
+.cst-more:hover {
+  color: #fff;
+}
+
+.cst-more:focus-visible {
+  outline: 2px solid rgb(var(--c));
+  outline-offset: 2px;
+}
+
+.cst-more-groups {
+  align-self: flex-start;
+}
+
+/* Over the canvas ---------------------------------------------------------- */
+
+.cst-ui {
+  position: absolute;
+  margin: 0;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--cst-muted);
+  cursor: default;
+}
+
+.cst-ui button {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+.cst-ui button:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+/* Corner text sits on its own ground: the canvas passes under it. */
+.cst-trail,
+.cst-summary,
+.cst-hint {
+  padding: 2px 10px;
+  border-radius: 10px;
+  background: rgba(6, 8, 14, 0.78);
+}
+
+.cst-trail {
+  left: 8px;
+  top: 8px;
+  max-width: calc(100% - 16rem);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 8px;
+}
+
+.cst-trail button {
+  min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 17px;
+  color: rgba(var(--c), 0.8);
+}
+
+.cst-trail button.current {
+  color: rgb(var(--c));
+}
+
+.cst-trail button:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.cst-summary {
+  right: 8px;
+  top: 12px;
+  pointer-events: none;
+}
+
+.cst-starts {
+  right: 8px;
+  top: 44px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: baseline;
+  gap: 2px 10px;
+  max-width: 60%;
+  padding: 2px 10px;
+  border-radius: 10px;
+  background: rgba(6, 8, 14, 0.78);
+}
+
+.cst-starts button {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 15px;
+  line-height: 24px;
+  color: var(--cst-soft);
+}
+
+.cst-starts button.current {
+  color: #fff;
+  cursor: default;
+}
+
+.cst-starts button:not(.current):hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.cst-hint {
+  left: 8px;
+  bottom: 12px;
+  max-width: calc(100% - 13rem);
+  pointer-events: none;
+}
+
+.cst-none {
+  position: absolute;
+  left: 50%;
+  bottom: 22%;
+  width: min(24rem, calc(100% - 2rem));
+  margin: 0;
+  transform: translateX(-50%);
+  text-align: center;
+  font-size: 14px;
+  color: var(--cst-soft);
+}
+
+.cst-controls {
+  right: 16px;
+  bottom: 12px;
+  display: flex;
+  gap: 6px;
+}
+
+.cst-controls button {
+  min-width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(10, 14, 24, 0.8);
+  color: #e6eaf2;
+  font-size: 17px;
+}
+
+.cst-controls button.wide {
+  padding: 0 12px;
+  font-size: 13px;
+}
+
+.cst-controls button:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+@media (max-width: 600px) {
+  .cst-summary,
+  .cst-hint {
+    display: none;
+  }
+
+  .cst-trail {
+    max-width: calc(100% - 16px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cst-pan.gliding,
+  .cst-blob,
+  .cst-hub {
+    transition: none;
+    animation: none;
+  }
+
+  .cst-links g {
+    animation: none;
+  }
+}

@@ -1,4 +1,4 @@
-import { TreeKind } from "../search/types";
+import { namesLangs } from "../search/types";
 import { setAllOpen } from "../ety/model";
 import { showDates, toggleDates } from "../ety/periods";
 import { forest, lastRequest, setShowGlosses, showGlosses } from "../state";
@@ -54,7 +54,7 @@ export default function DisplayPanel() {
           </label>
         </li>
       </ul>
-      <Show when={lastRequest()?.kind !== TreeKind.Etymology && forest()}>
+      <Show when={lastRequest() && namesLangs(lastRequest()!.kind) && forest()}>
         {(f) => (
           <p class="panel-foot">
             <button type="button" class="link" onClick={() => setAllOpen(f(), true)}>
