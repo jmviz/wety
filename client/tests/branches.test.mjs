@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { readFileSync } from "node:fs";
-import { autoExpandGroup, branchesOf, canOpen, directEarlyEnglish, previewLines, singleEndpoint } from "../src/constellation/branches.ts";
+import { autoExpandGroup, branchesOf, canOpen, directEarlyEnglish, previewLines, singleEndpoint, uncommonLatinEnglish } from "../src/constellation/branches.ts";
 
 const pie = { id: 1, code: "ine-pro", name: "Proto-Indo-European" };
 const hellenic = { id: 2, code: "grk-pro", name: "Proto-Hellenic" };
@@ -27,6 +27,31 @@ function node(lang, term, children = [], extra = {}) {
   };
 }
 const word = (term, selected = false) => node(english, term, [], { isSelected: selected });
+
+test("Latin-origin English uses tier 50 through later languages while other origins retain tier 60", () => {
+  const common = new Map([["common", 50], ["rarer", 55], ["rarest", 60], ["selected", 60]]);
+  const viaFrench = node(french, "source", [word("common"), word("rarer"), word("rarest"), word("selected", true), word("anti-")]);
+  const fromLatin = node(latin, "source", [viaFrench]);
+  const other = node({ id: 22, code: "ang", name: "Old English" }, "source", [word("rarer"), word("rarest")]);
+  const root = node(pie, "root", [fromLatin, other]);
+  const omitted = uncommonLatinEnglish(root, common);
+  assert.deepEqual([...omitted], viaFrench.children.slice(1, 3).map((n) => n.key));
+  assert.equal(uncommonLatinEnglish(root, null).size, 0);
+  const read = (head) => branchesOf(head, english, langs, common, omitted);
+  assert.deepEqual(new Set(read(viaFrench).flatMap((b) => b.words.map((w) => w.item.term))), new Set(["common", "selected", "anti-"]));
+  assert.deepEqual(new Set(read(other).flatMap((b) => b.words.map((w) => w.item.term))), new Set(["rarer", "rarest"]));
+  viaFrench.parent = fromLatin;
+  assert.deepEqual([...uncommonLatinEnglish(viaFrench, common)], [...omitted]);
+});
+
+test("Late Latin and Old Latin qualify without treating Proto-Italic as Latin", () => {
+  const common = new Map([["rarer", 55]]);
+  for (const lang of [{ id: 25, code: "la-lat", name: "Late Latin" }, { id: 26, code: "itc-ola", name: "Old Latin" }]) {
+    const englishWord = word("rarer");
+    assert.ok(uncommonLatinEnglish(node(lang, "source", [englishWord]), common).has(englishWord.key));
+  }
+  assert.equal(uncommonLatinEnglish(node(italic, "source", [word("rarer")]), common).size, 0);
+});
 
 test("collapsed subcognate lines follow expanded lanes and keep nested families together", () => {
   const hub = node(italic, "root");

@@ -4,7 +4,7 @@ import { close as closePopover, hoverEnter, hoverLeave, pin, popover } from "../
 import { useGoTo } from "../search/navigate";
 import { Item, Lang, TreeKind, term } from "../search/types";
 import { cognates, constellationStart, lastRequest, showGlosses, showRare } from "../state";
-import { Branch, Common, Group, LangTree, autoExpandGroup, branchesOf, canOpen, directEarlyEnglish, previewLines, rackOrder, singleEndpoint } from "./branches";
+import { Branch, Common, Group, LangTree, autoExpandGroup, branchesOf, canOpen, directEarlyEnglish, previewLines, rackOrder, singleEndpoint, uncommonLatinEnglish } from "./branches";
 import { BlobSpec, Layout, Link, Point, Rect, Size, bounds, join, layout, wire } from "./layout";
 import { chronological, languageTimes } from "./chronology";
 import type { LayoutPeriod } from "./chronology";
@@ -144,6 +144,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
   const omitted = target.code === "en" ? directEarlyEnglish(root, (code) =>
     code === "la" || code === "grc" || code.endsWith("-pro") || (times.get(code) ?? Infinity) <= 200
   ) : new Set<number>();
+  for (const key of uncommonLatinEnglish(root, common)) omitted.add(key);
 
   const branchCache = new WeakMap<TreeNode, Branch[]>();
   const branchesFor = (node: TreeNode): Branch[] => {

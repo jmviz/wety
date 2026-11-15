@@ -132,6 +132,26 @@ export function directEarlyEnglish(root: TreeNode, early: (code: string) => bool
 export type Common = Map<string, number>;
 const level = (common: Common, term: string) => common.get(term.toLowerCase());
 const COMMON_LIMIT = 60;
+const LATIN_COMMON_LIMIT = 50;
+
+// Follow the recorded word path, not the language family: a Germanic word
+// borrowed through Latin qualifies, while an unrelated Germanic path does
+// not. Retain this ancestry after opening a French or English intermediate.
+export function uncommonLatinEnglish(root: TreeNode, common: Common | null): Set<number> {
+  const omitted = new Set<number>();
+  if (!common) return omitted;
+  const isLatin = (n: TreeNode) => n.item.lang.code === "la" || n.item.lang.code.startsWith("la-") || /\bLatin$/.test(n.item.lang.name);
+  let inherited = false;
+  for (let p = root.parent; p; p = p.parent) inherited ||= isLatin(p);
+  const visit = (n: TreeNode, latin: boolean) => {
+    latin ||= isLatin(n);
+    if (latin && n.item.lang.code === "en" && !n.isSelected && !isAffix(n) &&
+        (level(common, n.item.term) ?? Infinity) > LATIN_COMMON_LIMIT) omitted.add(n.key);
+    for (const child of n.children) visit(child, latin);
+  };
+  visit(root, inherited);
+  return omitted;
+}
 
 // An affix or combining form as a dictionary enters one ("-logy", "un-"). A
 // reconstructed root is written the same way ("*leǵ-") and is not one.
