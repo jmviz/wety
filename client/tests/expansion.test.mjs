@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { expansionDepth, newestFirst, sharedDepth, singleDescendantChildren, unbranchedLineage } from "../src/constellation/expansion.ts";
+import { deepestExpansionLayer, expansionDepth, newestFirst, sharedDepth, singleDescendantChildren, unbranchedLineage } from "../src/constellation/expansion.ts";
 
 const branch = (key, own = false) => ({ key, groups: [{ own }] });
 
@@ -79,4 +79,19 @@ test("a shared descendant preview stays incomplete until its shared paths reach 
   assert.deepEqual(expansionDepth("root/itc-pro", hubs), { depth: 1, complete: false });
   hubs.push({ id: "porto", via: "porta/la", branches: [branch("en", true)] });
   assert.deepEqual(expansionDepth("root/itc-pro", hubs), { depth: 2, complete: true });
+});
+
+
+test("zoom-out folds the deepest generation across siblings without discarding earlier roots", () => {
+  const root = { id: "pie", parent: null };
+  const first = { id: "proto", parent: root };
+  const second = { id: "old", parent: first };
+  const leafA = { id: "middle-a", parent: second };
+  const leafB = { id: "middle-b", parent: second };
+  const shallow = { id: "other-proto", parent: root };
+  const all = [root, first, second, leafA, leafB, shallow];
+  assert.deepEqual([...deepestExpansionLayer(all)], ["middle-a", "middle-b"]);
+  assert.deepEqual([...deepestExpansionLayer([root, first, second, shallow])], ["old"]);
+  assert.deepEqual([...deepestExpansionLayer([root, first, shallow])], ["proto", "other-proto"]);
+  assert.equal(deepestExpansionLayer([root]).size, 0);
 });

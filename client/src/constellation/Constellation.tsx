@@ -10,7 +10,7 @@ import { chronological, languageTimes } from "./chronology";
 import type { LayoutPeriod } from "./chronology";
 import { representatives } from "./representatives";
 import type { Frequencies } from "./representatives";
-import { expansionDepth, newestFirst, sharedDepth, singleDescendantChildren, unbranchedLineage } from "./expansion";
+import { deepestExpansionLayer, expansionDepth, newestFirst, sharedDepth, singleDescendantChildren, unbranchedLineage } from "./expansion";
 import type { ExpansionDepth } from "./expansion";
 import { compactBranches } from "./density";
 import type { DensityNode } from "./density";
@@ -493,6 +493,37 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     const { k } = view();
     glide({ x: stage().x + stage().w / 2 - p.x * k, y: stage().y + stage().h / 2 - p.y * k, k });
   };
+  let foldTimer: number | undefined;
+  onCleanup(() => window.clearTimeout(foldTimer));
+  const foldUnreadableDetail = () => {
+    const all = hubs();
+    const gone = deepestExpansionLayer(all);
+    if (!gone.size) return;
+    // Keep the nearest surviving source in place while its outermost
+    // detail folds, then restore a comfortable reading size around it.
+    const oldView = view();
+    const screen = { x: stage().x + stage().w / 2, y: stage().y + stage().h / 2 };
+    const center = { x: (screen.x - oldView.x) / oldView.k, y: (screen.y - oldView.y) / oldView.k };
+    const survivors = all.filter((h) => !gone.has(h.id));
+    const anchor = survivors.map((h) => ({ h, at: placed().hubs.get(h.id) }))
+      .filter((entry) => entry.at)
+      .sort((a, b) => Math.hypot(a.at!.x - center.x, a.at!.y - center.y) - Math.hypot(b.at!.x - center.x, b.at!.y - center.y))[0];
+    const anchorScreen = anchor && { x: oldView.x + anchor.at!.x * oldView.k, y: oldView.y + anchor.at!.y * oldView.k };
+    clearRecent();
+    closePopover();
+    let selected = current();
+    while (gone.has(selected.id) && selected.parent) selected = selected.parent;
+    setCurrent(selected);
+    setHubs(survivors);
+    setSizes(new Map([...sizes()].map(([id, size]) => [id, { now: size.now, seat: size.now }])));
+    setLayoutVersion((v) => v + 1);
+    settled(() => {
+      const at = anchor && placed().hubs.get(anchor.h.id);
+      const k = 0.75 / stage().scale;
+      if (at && anchorScreen) glide({ x: anchorScreen.x - at.x * k, y: anchorScreen.y - at.y * k, k });
+      else glide({ x: screen.x - center.x * k, y: screen.y - center.y * k, k });
+    });
+  };
   const zoomAt = (cx: number, cy: number, k: number, smooth = false) => {
     setInitialOverview(false);
     const v = view();
@@ -500,6 +531,11 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     const to = { x: cx - ((cx - v.x) / v.k) * next, y: cy - ((cy - v.y) / v.k) * next, k: next };
     if (smooth) glide(to);
     else setView(to);
+    window.clearTimeout(foldTimer);
+    // Only an explicit zoom-out folds detail; automatic expansion framing
+    // can fit a long lineage without immediately undoing the user's click.
+    if (next < v.k && next * stage().scale < 0.6 && hubs().length > 1)
+      foldTimer = window.setTimeout(foldUnreadableDetail, 150);
   };
 
   const centreOnAll = (rects: Rect[]) => {
@@ -555,6 +591,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
   // with one head is a rack of one row.
   const rack = (hub: Hub, branch: Branch, groups: Group[], scope = hub.scope) => {
     setInitialOverview(false);
+    window.clearTimeout(foldTimer);
     const id = blobId(hub, branch);
     const all = [...hubs()];
     const before = new Set(all.map((h) => h.id));
@@ -690,6 +727,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
   };
   // Back to one list: everything opened from the blob goes.
   const unrack = (hub: Hub, id: string) => {
+    window.clearTimeout(foldTimer);
     clearRecent();
     const gone = new Set<Hub>();
     for (const h of hubs()) if (h.via === id || (h.parent && gone.has(h.parent))) gone.add(h);
@@ -718,6 +756,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     setView(v);
   });
   const startOver = () => {
+    window.clearTimeout(foldTimer);
     setInitialOverview(false);
     clearRecent();
     closePopover();
