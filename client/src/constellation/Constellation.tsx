@@ -16,7 +16,8 @@ import { compactBranches } from "./density";
 import type { DensityNode } from "./density";
 import { languageAnchors } from "./labels";
 import type { LanguageAnchor } from "./labels";
-import { expansionView, rootOverview } from "./camera";
+import { expansionView, rootOverview, visibleStage } from "./camera";
+import type { CameraViewport } from "./camera";
 
 import {
   For,
@@ -472,7 +473,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
   // The view: where the canvas origin sits in the stage, and the zoom.
   const [view, setView] = createSignal({ x: 0, y: 0, k: 1 });
   const [initialOverview, setInitialOverview] = createSignal(true);
-  const [stage, setStage] = createSignal<Size>({ w: 0, h: 0 });
+  const [stage, setStage] = createSignal<CameraViewport>({ x: 0, y: 0, w: 0, h: 0, scale: 1 });
   const [gliding, setGliding] = createSignal(false);
   const [dragging, setDragging] = createSignal(false);
   let glideTimer: number | undefined;
@@ -484,12 +485,12 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
   };
   const centreOn = (p: Point) => {
     const { k } = view();
-    glide({ x: stage().w / 2 - p.x * k, y: stage().h / 2 - p.y * k, k });
+    glide({ x: stage().x + stage().w / 2 - p.x * k, y: stage().y + stage().h / 2 - p.y * k, k });
   };
   const zoomAt = (cx: number, cy: number, k: number, smooth = false) => {
     setInitialOverview(false);
     const v = view();
-    const next = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, k));
+    const next = Math.min(MAX_ZOOM / stage().scale, Math.max(MIN_ZOOM / stage().scale, k));
     const to = { x: cx - ((cx - v.x) / v.k) * next, y: cy - ((cy - v.y) / v.k) * next, k: next };
     if (smooth) glide(to);
     else setView(to);
@@ -730,21 +731,33 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     fill();
     window.addEventListener("resize", fill);
     onCleanup(() => window.removeEventListener("resize", fill));
-    const sized = new ResizeObserver(() => {
+    const measureViewport = () => {
       const was = stage();
-      const now = { w: stageEl.clientWidth, h: stageEl.clientHeight };
+      const r = stageEl.getBoundingClientRect();
+      const visual = window.visualViewport;
+      const now = visibleStage({ x: r.x, y: r.y, w: r.width, h: r.height }, {
+        x: visual?.offsetLeft ?? 0, y: visual?.offsetTop ?? 0,
+        w: visual?.width ?? window.innerWidth, h: visual?.height ?? window.innerHeight,
+        scale: visual?.scale ?? 1,
+      });
       if (!now.w || !now.h) return;
-      setAvailableWidth((now.w - PAD_X) / READABLE);
+      if (now.x === was.x && now.y === was.y && now.w === was.w && now.h === was.h && now.scale === was.scale) return;
+      setAvailableWidth((now.w * now.scale - PAD_X) / READABLE);
       if (!was.w) {
-        setView({ x: now.w / 2, y: now.h / 2, k: 1 });
-        setFrame({ w: (now.w - PAD_X) / READABLE, h: (now.h - PAD_Y) / READABLE });
+        setView({ x: now.x + now.w / 2, y: now.y + now.h / 2, k: 1 / now.scale });
+        setFrame({ w: (now.w * now.scale - PAD_X) / READABLE, h: (now.h * now.scale - PAD_Y) / READABLE });
       } else {
         const v = view();
-        setView({ ...v, x: v.x + (now.w - was.w) / 2, y: v.y + (now.h - was.h) / 2 });
+        setView({ ...v, x: v.x + now.x - was.x + (now.w - was.w) / 2,
+          y: v.y + now.y - was.y + (now.h - was.h) / 2 });
       }
       setStage(now);
-    });
+    };
+    const sized = new ResizeObserver(measureViewport);
     sized.observe(stageEl);
+    window.visualViewport?.addEventListener("resize", measureViewport);
+    window.visualViewport?.addEventListener("scroll", measureViewport);
+    window.addEventListener("scroll", measureViewport);
     // Not passive: the wheel moves the canvas, not the page.
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
@@ -764,6 +777,9 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     stageEl.addEventListener("click", dropDragClick, true);
     onCleanup(() => {
       sized.disconnect();
+      window.visualViewport?.removeEventListener("resize", measureViewport);
+      window.visualViewport?.removeEventListener("scroll", measureViewport);
+      window.removeEventListener("scroll", measureViewport);
       stageEl.removeEventListener("wheel", onWheel);
       stageEl.removeEventListener("click", dropDragClick, true);
       window.clearTimeout(glideTimer);
@@ -816,8 +832,11 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     const el = e.target as HTMLElement;
     if (!el.matches(":focus-visible") || el.closest(".cst-ui")) return;
     const r = el.getBoundingClientRect();
-    const s = stageEl.getBoundingClientRect();
-    const m = 56;
+    const box = stageEl.getBoundingClientRect();
+    const visible = stage();
+    const s = { left: box.left + visible.x, top: box.top + visible.y,
+      right: box.left + visible.x + visible.w, bottom: box.top + visible.y + visible.h };
+    const m = 56 / visible.scale;
     const dx = r.left < s.left + m ? s.left + m - r.left : r.right > s.right - m ? s.right - m - r.right : 0;
     const dy = r.top < s.top + m ? s.top + m - r.top : r.bottom > s.bottom - m ? s.bottom - m - r.bottom : 0;
     if (dx || dy) glide({ ...view(), x: view().x + dx, y: view().y + dy });
@@ -1288,14 +1307,14 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
         <button
           type="button"
           aria-label="zoom out"
-          onClick={() => zoomAt(stage().w / 2, stage().h / 2, view().k / 1.25, true)}
+          onClick={() => zoomAt(stage().x + stage().w / 2, stage().y + stage().h / 2, view().k / 1.25, true)}
         >
           −
         </button>
         <button
           type="button"
           aria-label="zoom in"
-          onClick={() => zoomAt(stage().w / 2, stage().h / 2, view().k * 1.25, true)}
+          onClick={() => zoomAt(stage().x + stage().w / 2, stage().y + stage().h / 2, view().k * 1.25, true)}
         >
           +
         </button>

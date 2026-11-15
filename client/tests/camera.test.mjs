@@ -1,12 +1,12 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { expansionView, rootOverview } from "../src/constellation/camera.ts";
+import { expansionView, rootOverview, visibleStage } from "../src/constellation/camera.ts";
 
 test("asymmetric root overview centres the root and fits all four diagram edges", () => {
   const root = { x: 40, y: -20 };
   const bounds = { x: -500, y: -1000, w: 1200, h: 1300 };
   for (const viewport of [{ w: 1460, h: 819 }, { w: 900, h: 700 }]) {
-    const v = rootOverview(root, bounds, viewport);
+    const v = rootOverview(root, bounds, { x: 0, y: 0, scale: 1, ...viewport });
     assert.equal(v.x + root.x * v.k, viewport.w / 2);
     assert.equal(v.y + root.y * v.k, viewport.h / 2);
     assert.ok(v.x + bounds.x * v.k >= 47);
@@ -20,7 +20,7 @@ test("expansion camera centres 60 percent toward the clicked node on either side
   for (const side of [-1, 1]) {
     const clicked = { x: -100, y: 0, w: 200, h: 100 };
     const expanded = { x: side * 500 - 100, y: 150, w: 200, h: 100 };
-    const size = { w: 1200, h: 800 };
+    const size = { x: 0, y: 0, w: 1200, h: 800, scale: 1 };
     const view = expansionView(clicked, expanded, size);
     assert.equal((size.w / 2 - view.x) / view.k, side * 200);
     assert.equal((size.h / 2 - view.y) / view.k, 110);
@@ -30,12 +30,44 @@ test("expansion camera centres 60 percent toward the clicked node on either side
 
 test("large expansions keep readable text rather than fitting the entire tree", () => {
   const view = expansionView({ x: 0, y: 0, w: 320, h: 200 },
-    { x: 500, y: -2000, w: 2000, h: 4000 }, { w: 1100, h: 800 });
+    { x: 500, y: -2000, w: 2000, h: 4000 }, { x: 0, y: 0, w: 1100, h: 800, scale: 1 });
   assert.equal(view.k, 0.85);
 });
 
 test("small expansions restore normal reading scale", () => {
   const view = expansionView({ x: 0, y: 0, w: 200, h: 38 },
-    { x: 244, y: 0, w: 180, h: 38 }, { w: 1200, h: 800 });
+    { x: 244, y: 0, w: 180, h: 38 }, { x: 0, y: 0, w: 1200, h: 800, scale: 1 });
   assert.equal(view.k, 1);
+});
+
+
+test("retained browser pinch zoom fits the actual visible area with the same screen margins", () => {
+  const scale = 1.3704592;
+  const viewport = { x: 130, y: 70, w: 1465 / scale, h: 828 / scale, scale };
+  const area = visibleStage({ x: 0, y: 0, w: 1465, h: 828 }, viewport);
+  const root = { x: 0, y: 0 };
+  const bounds = { x: -600, y: -550, w: 1200, h: 800 };
+  const view = rootOverview(root, bounds, area);
+  assert.ok(Math.abs((view.x - viewport.x) * scale - 1465 / 2) < 0.001);
+  assert.ok(Math.abs((view.y - viewport.y) * scale - 828 / 2) < 0.001);
+  assert.ok((view.x + bounds.x * view.k - viewport.x) * scale >= 47.9);
+  assert.ok((view.y + bounds.y * view.k - viewport.y) * scale >= 47.9);
+  assert.ok((view.x + (bounds.x + bounds.w) * view.k - viewport.x) * scale <= 1465 - 47.9);
+  assert.ok((view.y + (bounds.y + bounds.h) * view.k - viewport.y) * scale <= 828 - 47.9);
+});
+
+test("visible area is clipped to the stage and expressed relative to its origin", () => {
+  assert.deepEqual(visibleStage({ x: 20, y: 80, w: 1000, h: 900 },
+    { x: 50, y: 0, w: 800, h: 700, scale: 1.25 }),
+    { x: 30, y: 0, w: 800, h: 620, scale: 1.25 });
+});
+
+test("expansion reading size accounts for browser magnification and viewport offset", () => {
+  const clicked = { x: 0, y: 0, w: 200, h: 38 };
+  const expanded = { x: 244, y: 0, w: 180, h: 38 };
+  const normal = expansionView(clicked, expanded, { x: 0, y: 0, w: 1200, h: 800, scale: 1 });
+  const zoomed = expansionView(clicked, expanded, { x: 90, y: 40, w: 800, h: 800 / 1.5, scale: 1.5 });
+  assert.ok(Math.abs((zoomed.x - 90) * 1.5 - normal.x) < 0.001);
+  assert.ok(Math.abs((zoomed.y - 40) * 1.5 - normal.y) < 0.001);
+  assert.equal(zoomed.k * 1.5, normal.k);
 });

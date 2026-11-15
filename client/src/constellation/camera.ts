@@ -1,17 +1,35 @@
-import type { Point, Rect, Size } from "./layout";
+import type { Point, Rect } from "./layout";
+
+export interface CameraViewport extends Rect {
+  scale: number;
+}
+
+// Browser pinch zoom crops the layout viewport without resizing the stage.
+// Camera coordinates must use the visible intersection, in stage-local CSS px.
+export function visibleStage(stage: Rect, viewport: CameraViewport): CameraViewport {
+  const x = Math.max(stage.x, viewport.x);
+  const y = Math.max(stage.y, viewport.y);
+  return {
+    x: x - stage.x, y: y - stage.y,
+    w: Math.max(0, Math.min(stage.x + stage.w, viewport.x + viewport.w) - x),
+    h: Math.max(0, Math.min(stage.y + stage.h, viewport.y + viewport.h) - y),
+    scale: viewport.scale,
+  };
+}
 
 // Fitting a rectangle's width is insufficient when the camera is centred
 // on an off-centre root. Reserve the larger extent on both sides of it.
-export function rootOverview(root: Point, bounds: Rect, viewport: Size) {
+export function rootOverview(root: Point, bounds: Rect, viewport: CameraViewport) {
   const width = 2 * Math.max(root.x - bounds.x, bounds.x + bounds.w - root.x, 1);
   const height = 2 * Math.max(root.y - bounds.y, bounds.y + bounds.h - root.y, 1);
-  const k = Math.max(0.1, Math.min(1, (viewport.w - 96) / width, (viewport.h - 96) / height));
-  return { x: viewport.w / 2 - root.x * k, y: viewport.h / 2 - root.y * k, k };
+  const scale = viewport.scale;
+  const k = Math.max(0.1 / scale, Math.min(1 / scale, (viewport.w - 96 / scale) / width, (viewport.h - 96 / scale) / height));
+  return { x: viewport.x + viewport.w / 2 - root.x * k, y: viewport.y + viewport.h / 2 - root.y * k, k };
 }
 
 // Favour the clicked node slightly. Fit the local transition where possible,
 // but never shrink the text merely to include a large auto-expanded tree.
-export function expansionView(clicked: Rect, expanded: Rect, viewport: Size) {
+export function expansionView(clicked: Rect, expanded: Rect, viewport: CameraViewport) {
   const from = { x: clicked.x + clicked.w / 2, y: clicked.y + clicked.h / 2 };
   const to = { x: expanded.x + expanded.w / 2, y: expanded.y + expanded.h / 2 };
   const center = { x: from.x * 0.6 + to.x * 0.4, y: from.y * 0.6 + to.y * 0.4 };
@@ -21,6 +39,7 @@ export function expansionView(clicked: Rect, expanded: Rect, viewport: Size) {
   const bottom = Math.max(clicked.y + clicked.h, expanded.y + expanded.h);
   const width = 2 * Math.max(center.x - left, right - center.x, 1);
   const height = 2 * Math.max(center.y - top, bottom - center.y, 1);
-  const k = Math.max(0.85, Math.min(1, (viewport.w - 80) / width, (viewport.h - 120) / height));
-  return { x: viewport.w / 2 - center.x * k, y: viewport.h / 2 - center.y * k, k };
+  const scale = viewport.scale;
+  const k = Math.max(0.85 / scale, Math.min(1 / scale, (viewport.w - 80 / scale) / width, (viewport.h - 120 / scale) / height));
+  return { x: viewport.x + viewport.w / 2 - center.x * k, y: viewport.y + viewport.h / 2 - center.y * k, k };
 }
