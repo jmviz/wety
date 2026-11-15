@@ -6,7 +6,8 @@
 // another in the rows' order, so the lines from heads to blobs fan out side
 // by side. A head with one word under it has that word level with its row
 // instead, at the end of a short straight line. A lane's blob may be a rack
-// in turn, and so on outwards.
+// in turn, and so on outwards. Proto-language racks instead give each source
+// a separate card: its vertical position follows the centre of its subtree.
 
 export interface Point {
   x: number;
@@ -35,6 +36,9 @@ export interface BlobSpec {
   year?: number;
   // Assigned by chronological(): distance from the parent box's edge.
   gap?: number;
+  // An opened proto-language rack: each source gets its own card centred
+  // on its subtree, rather than staying inside a shared, fixed-height box.
+  clustered?: boolean;
 }
 
 // A head opened in a rack, and the blobs that come off it.
@@ -65,6 +69,8 @@ export interface Layout {
   seats: Map<string, Rect>;
   // Which way a rack's lanes run from its blob: right (1) or left (-1).
   sides: Map<string, 1 | -1>;
+  // Individual cards inside an opened proto-language column.
+  sources: Map<string, Rect>;
 }
 
 const DEG = Math.PI / 180;
@@ -86,6 +92,9 @@ const LANE_GAP = 14;
 const BETWEEN = 26;
 // The run of line from a head's row to its one word.
 const SHORT = 44;
+export const SOURCE_HEIGHT = 38;
+// A changed language needs room for its floating heading above the card.
+const blobGap = (a: BlobSpec, b?: BlobSpec) => b && a.stage !== b.stage ? 28 : LANE_GAP;
 
 export const center = (r: Rect): Point => ({ x: r.x + r.w / 2, y: r.y + r.h / 2 });
 
@@ -100,8 +109,11 @@ const apart = (a: Rect, b: Rect) =>
 
 // The height of blobs standing one under another.
 function stacked(blobs: BlobSpec[]): number {
-  const heights = blobs.flatMap((b) => whole(b)?.h ?? []);
-  return heights.reduce((sum, h) => sum + h, 0) + LANE_GAP * Math.max(0, heights.length - 1);
+  const measured = blobs.flatMap((b) => {
+    const size = whole(b);
+    return size ? [{ blob: b, height: size.h }] : [];
+  });
+  return measured.reduce((sum, b, i) => sum + b.height + (i ? blobGap(measured[i - 1].blob, b.blob) : 0), 0);
 }
 
 // The height a rack's lanes take, one under another: each as tall as its
@@ -118,11 +130,22 @@ function lanesHeight(lanes: LaneSpec[]): number {
 // with one word has it level with its own row instead; the lanes of the rows
 // above those heads then stand above their words, and the rest below, so the
 // caller keeps such heads together.
-function lanesAt(b: BlobSpec): { tops: (number | undefined)[]; top: number; bottom: number } {
+function lanesAt(b: BlobSpec): { tops: (number | undefined)[]; mids: number[]; top: number; bottom: number } {
   const size = b.size!;
   const lanes = b.lanes ?? [];
   const tall = lanes.map((l) => stacked(l.blobs));
   const tops: (number | undefined)[] = lanes.map(() => undefined);
+  const mids = lanes.map((l) => l.mid ?? size.h / 2);
+  if (b.clustered) {
+    let y = 0;
+    lanes.forEach((_, i) => {
+      const height = Math.max(SOURCE_HEIGHT, tall[i]);
+      mids[i] = y + height / 2;
+      tops[i] = y + (height - tall[i]) / 2;
+      y += height + BETWEEN;
+    });
+    return { tops, mids, top: 0, bottom: Math.max(SOURCE_HEIGHT, y - BETWEEN) };
+  }
   const level = lanes.flatMap((l, i) => (l.inline && tall[i] ? [i] : []));
   for (const i of level) tops[i] = (lanes[i].mid ?? size.h / 2) - tall[i] / 2;
   const run = (from: number, indexes: number[]) => {
@@ -146,6 +169,7 @@ function lanesAt(b: BlobSpec): { tops: (number | undefined)[]; top: number; bott
   const placed = tops.flatMap((t, i) => (t === undefined ? [] : [{ t, b: t + tall[i] }]));
   return {
     tops,
+    mids,
     top: Math.min(0, ...placed.map((p) => p.t)),
     bottom: Math.max(size.h, ...placed.map((p) => p.b)),
   };
@@ -163,7 +187,7 @@ export function whole(b: BlobSpec): Size | undefined {
       })
     )
   );
-  if (!reach) return b.size;
+  if (!reach && !b.clustered) return b.size;
   const at = lanesAt(b);
   return { w: b.size.w + reach, h: at.bottom - at.top };
 }
@@ -175,6 +199,7 @@ export function layout(root: RootSpec, frame?: Size, before?: Layout): Layout {
   const blobs = new Map<string, Rect>();
   const seats = new Map<string, Rect>();
   const sides = new Map<string, 1 | -1>();
+  const sources = new Map<string, Rect>();
   const at: Point = { x: 0, y: 0 };
   hubs.set(root.id, at);
   const disc = around(at, { w: root.r * 2, h: root.r * 2 });
@@ -189,25 +214,27 @@ export function layout(root: RootSpec, frame?: Size, before?: Layout): Layout {
       blobs.set(b.id, b.terminal ? { ...room, x: right ? endX - room.w : endX } : room);
       return;
     }
-    // The blob keeps its own size; the lanes stand beside it (`lanesAt`), in
-    // the order of their heads' rows, so the lines fan out from the rows
-    // without crossing.
+    // Ordinary racks keep their own size. A proto rack's invisible column
+    // stretches to place each separate source card beside its own subtree.
     const side = room.x + room.w / 2 >= fromX ? 1 : -1;
     const at = lanesAt(b);
-    const box: Rect = { x: side > 0 ? room.x : room.x + room.w - size.w, y: room.y - at.top, ...size };
+    const box: Rect = { x: side > 0 ? room.x : room.x + room.w - size.w, y: room.y - at.top,
+      ...size, ...(b.clustered ? { h: at.bottom } : {}) };
     blobs.set(b.id, box);
     sides.set(b.id, side);
     b.lanes.forEach((lane, i) => {
-      const leaves = { x: side > 0 ? box.x + box.w : box.x, y: box.y + (lane.mid ?? size.h / 2) };
+      const leaves = { x: side > 0 ? box.x + box.w : box.x, y: box.y + at.mids[i] };
       hubs.set(lane.hub, leaves);
+      if (b.clustered) sources.set(lane.hub, { x: box.x, y: leaves.y - SOURCE_HEIGHT / 2, w: box.w, h: SOURCE_HEIGHT });
       let top = at.tops[i];
       if (top === undefined) return;
-      for (const kid of lane.blobs) {
+      const kids = lane.blobs.filter((kid) => whole(kid));
+      for (const [index, kid] of kids.entries()) {
         const s = whole(kid);
         if (!s) continue;
         const run = kid.gap ?? (lane.inline ? SHORT : RUN);
         settle(kid, { x: side > 0 ? box.x + box.w + run : box.x - run - s.w, y: box.y + top, ...s }, leaves.x, endX);
-        top += s.h + LANE_GAP;
+        top += s.h + blobGap(kid, kids[index + 1]);
       }
     });
   };
@@ -296,7 +323,7 @@ export function layout(root: RootSpec, frame?: Size, before?: Layout): Layout {
     seats.set(blob.id, r);
     settle(blob, r, at.x, r.x + r.w / 2 >= at.x ? r.x + r.w : r.x);
   });
-  return { hubs, blobs, seats, sides };
+  return { hubs, blobs, seats, sides, sources };
 }
 
 // The box that holds the root and its blobs, for fitting them on screen.

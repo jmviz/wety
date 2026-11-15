@@ -1,6 +1,55 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { join, layout, rootDirection, wire } from "../src/constellation/layout.ts";
+import { join, layout, rootDirection, wire, whole } from "../src/constellation/layout.ts";
+
+for (const side of [-1, 1]) {
+  test(`proto root cards follow their own subtrees on the ${side === 1 ? "right" : "left"}`, () => {
+    const leaf = (id, stage = "gmw-pro") => ({ id, stage, size: { w: 250, h: 64 }, gap: 44 });
+    const branch = {
+      id: "germanic", clustered: true, size: { w: 320, h: 38 },
+      lanes: [
+        { hub: "fra", mid: 20, blobs: [leaf("forget"), leaf("fret"), leaf("forgive")] },
+        { hub: "fram", mid: 60, blobs: [leaf("from", "ang"), leaf("fro", "non"), leaf("frame")] },
+        { hub: "furdu", mid: 100, blobs: [leaf("ford")] },
+      ],
+    };
+    const root = { id: "root", r: 96, blobs: [branch] };
+    const size = whole(branch);
+    const before = { hubs: new Map([["root", { x: 0, y: 0 }]]), blobs: new Map(), sides: new Map(),
+      seats: new Map([["germanic", { ...size, x: side > 0 ? 200 : -200 - size.w, y: 0 }]]) };
+    const placed = layout(root, undefined, before);
+    const column = placed.blobs.get("germanic");
+    let previousBottom = -Infinity;
+    for (const lane of branch.lanes) {
+      const source = placed.sources.get(lane.hub);
+      const children = lane.blobs.map((b) => placed.blobs.get(b.id));
+      const top = Math.min(...children.map((b) => b.y));
+      const bottom = Math.max(...children.map((b) => b.y + b.h));
+      assert.equal(source.h, 38);
+      assert.equal(source.x, column.x);
+      assert.equal(source.y + source.h / 2, (top + bottom) / 2);
+      assert.ok(top >= previousBottom + 26);
+      assert.equal(placed.hubs.get(lane.hub).y, source.y + source.h / 2);
+      for (const child of children) {
+        assert.equal(side > 0 ? child.x - source.x - source.w : source.x - child.x - child.w, 44);
+      }
+      previousBottom = bottom;
+    }
+    const from = placed.blobs.get("from"), fro = placed.blobs.get("fro");
+    assert.equal(fro.y - from.y - from.h, 28); // Room for the changed language heading.
+    assert.ok(placed.sources.get("furdu").y > placed.sources.get("fra").y + 300);
+  });
+}
+
+test("proto cards reserve separate lanes even before their children are measured", () => {
+  const branch = { id: "proto", size: { w: 320, h: 38 }, clustered: true,
+    lanes: ["first", "second", "third"].map((hub) => ({ hub, blobs: [] })) };
+  assert.deepEqual(whole(branch), { w: 320, h: 166 });
+  const placed = layout({ id: "root", r: 96, blobs: [branch] });
+  const sources = [...placed.sources.values()];
+  assert.equal(sources.length, 3);
+  assert.equal(sources[1].y - sources[0].y, 64);
+});
 
 test("root siblings keep separate directions even with tall previews and previous bad seats", () => {
   const root = { id: "root", r: 96, blobs: [

@@ -5,7 +5,7 @@ import { useGoTo } from "../search/navigate";
 import { Item, Lang, TreeKind, term } from "../search/types";
 import { cognates, constellationStart, lastRequest, showGlosses, showRare } from "../state";
 import { Branch, Common, Group, HIDE_UNDEFINED_ROOTS, LangTree, autoExpandGroup, branchesOf, canOpen, directEarlyEnglish, previewLines, rackOrder, singleEndpoint, sourceBranches, uncommonLatinEnglish, withoutUndefinedRoots } from "./branches";
-import { BlobSpec, Layout, Link, Point, Rect, Size, bounds, join, layout, rootDirection, wire } from "./layout";
+import { BlobSpec, Layout, Link, Point, Rect, Size, SOURCE_HEIGHT, bounds, join, layout, rootDirection, wire } from "./layout";
 import { chronological, languageTimes } from "./chronology";
 import type { LayoutPeriod } from "./chronology";
 import { representatives } from "./representatives";
@@ -225,7 +225,10 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
       const now = { w: el.offsetWidth, h: el.offsetHeight };
       const had = map.get(id);
       if (now.w && now.h && (!had || had.now.w !== now.w || had.now.h !== now.h)) {
-        map.set(id, { now, seat: { w: now.w, h: Math.max(now.h, had?.seat.h ?? 0) } });
+        // A proto column's height comes from the layout, not its contents;
+        // do not retain that virtual height when it returns to a preview.
+        map.set(id, { now, seat: { w: now.w, h: el.classList.contains("clustered")
+          ? SOURCE_HEIGHT : Math.max(now.h, had?.seat.h ?? 0) } });
         changed = true;
       }
       for (const row of el.querySelectorAll<HTMLElement>("[data-row]")) {
@@ -247,16 +250,18 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
   const [frame, setFrame] = createSignal<Size>();
   const [layoutVersion, setLayoutVersion] = createSignal(0);
   let placedVersion = 0;
+  const clusteredHeads = (heads: Hub[]) => heads.length > 1 && heads.every((h) => h.node.item.lang.code.endsWith("-pro"));
   // What the layout is given: the root's blobs and, in each blob that has
   // been opened, its heads, each with its own blobs in turn.
   const spec = createMemo(() => {
     const measured = sizes();
     const mids = rowMids();
     const all = hubs();
-    const blobsOf = (h: Hub): BlobSpec[] =>
+    const blobsOf = (h: Hub, compactLanes = false): BlobSpec[] =>
       h.branches.map((b) => {
         const id = blobId(h, b);
         const heads = all.filter((k) => k.via === id);
+        const clustered = clusteredHeads(heads);
         const terminal = h.single || b.groups.every((g) => g.own);
         const stage = terminal ? target.code : (b.language ?? b.key);
         return {
@@ -264,12 +269,15 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
           terminal,
           stage,
           year: times.get(stage),
+          clustered,
           // A rack is laid out at the size it is now, so its rows' lines and
           // the words level with them leave it where the rows are drawn; a
-          // list keeps the room it has had.
-          size: heads.length ? measured.get(id)?.now : measured.get(id)?.seat,
+          // list keeps the room it has had. Proto clusters use current child
+          // sizes so removed internal headings leave no empty space behind.
+          size: clustered && measured.has(id) ? { w: measured.get(id)!.now.w, h: SOURCE_HEIGHT }
+            : heads.length || compactLanes ? measured.get(id)?.now : measured.get(id)?.seat,
           lanes: heads.length
-            ? heads.map((k) => ({ hub: k.id, mid: mids.get(k.id), blobs: blobsOf(k), inline: k.single }))
+            ? heads.map((k) => ({ hub: k.id, mid: mids.get(k.id), blobs: blobsOf(k, compactLanes || clustered), inline: k.single }))
             : undefined,
         };
       });
@@ -283,7 +291,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
       placedVersion = version;
       return room ? layout(spec(), room, previous) : before;
     },
-    { hubs: new Map(), blobs: new Map(), seats: new Map(), sides: new Map() }
+    { hubs: new Map(), blobs: new Map(), seats: new Map(), sides: new Map(), sources: new Map() }
   );
   // Where a blob is drawn: its seat, or when it has shrunk, the end of its
   // seat nearer its hub.
@@ -291,6 +299,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     const seat = placed().blobs.get(id);
     const now = sizes().get(id)?.now;
     const c = placed().hubs.get(hub.id);
+    if (clusteredHeads(hubs().filter((h) => h.via === id))) return seat;
     if (!seat || !now || !c || now.h >= seat.h) return seat;
     const below = c.y > seat.y + seat.h / 2;
     return { x: seat.x, y: below ? seat.y + seat.h - now.h : seat.y, w: seat.w, h: now.h };
@@ -301,19 +310,20 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
   const languageLabels = createMemo(() => {
     const groups = new Map<string, { name: string; hue: string; boxes: Rect[]; external: boolean }>();
     for (const h of hubs()) for (const b of h.branches) {
-      if (!h.parent) continue;
+      const open = hubs().filter((k) => k.via === blobId(h, b));
+      const clustered = clusteredHeads(open);
+      if (!h.parent && !clustered) continue;
       const box = drawn(h, blobId(h, b));
       if (!box) continue;
-      const open = hubs().filter((k) => k.via === blobId(h, b));
       const compact = h.single || (b.groups.length === 1 && b.groups[0].own && b.words.length === 1) ||
         (b.groups.length === 1 && open.length === 1 && !!open[0].node.item.term);
       const key = languageKey(h, b);
       let group = groups.get(key);
-      if (!group) groups.set(key, (group = { name: b.name, hue: h.hue!, boxes: [], external: false }));
-      group.boxes.push(box);
-      group.external ||= compact;
+      if (!group) groups.set(key, (group = { name: b.name, hue: h.hues.get(b.key)!, boxes: [], external: false }));
+      group.boxes.push(...(clustered ? open.flatMap((k) => placed().sources.get(k.id) ?? []) : [box]));
+      group.external ||= compact || clustered;
     }
-    return new Map([...groups].filter(([, g]) => g.boxes.length > 1 || g.external).map(([key, g]) => [key, {
+    return new Map([...groups].filter(([, g]) => g.boxes.length && (g.boxes.length > 1 || g.external)).map(([key, g]) => [key, {
       name: g.name, hue: g.hue, x: Math.min(...g.boxes.map((b) => b.x)), y: Math.min(...g.boxes.map((b) => b.y)) - 24,
     }]));
   });
@@ -336,11 +346,24 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
         const box = drawn(h, blobId(h, b));
         if (!box) continue;
         const hue = h.hues.get(b.key)!;
-        if (side) push(hue, wire(c, { x: side > 0 ? box.x : box.x + box.w, y: box.y + box.h / 2 }));
-        else push(hue, join(c, ROOT_R, box,
-          [...at.seats].filter(([id]) => id !== blobId(h, b)).map(([, seat]) => seat),
+        const sources = hubs().filter((k) => k.via === blobId(h, b)).flatMap((k) => at.sources.get(k.id) ?? []);
+        const outward = at.sides.get(blobId(h, b)) ?? (side || (box.x + box.w / 2 >= c.x ? 1 : -1));
+        const spineX = outward > 0 ? box.x - 24 : box.x + box.w + 24;
+        const ys = sources.map((s) => s.y + s.h / 2);
+        const arrival = sources.length ? { x: spineX, y: Math.max(Math.min(...ys), Math.min(Math.max(...ys), c.y)), w: 0, h: 0 } : box;
+        if (side) push(hue, wire(c, { x: side > 0 ? arrival.x : arrival.x + arrival.w, y: arrival.y + arrival.h / 2 }));
+        else push(hue, join(c, ROOT_R, arrival,
+          [...at.seats].filter(([id]) => id !== blobId(h, b)).map(([, seat]) => seat).concat(sources.length ? [box] : []),
           rootDirection(h.branches.indexOf(b), h.branches.length)
         ));
+        if (sources.length) {
+          push(hue, { d: `M ${spineX} ${Math.min(...ys)} L ${spineX} ${Math.max(...ys)}`,
+            end: { x: spineX, y: arrival.y + arrival.h / 2 } });
+          for (const source of sources) {
+            const y = source.y + source.h / 2;
+            push(hue, wire({ x: spineX, y }, { x: outward > 0 ? source.x : source.x + source.w, y }));
+          }
+        }
       }
     }
     return out;
@@ -387,7 +410,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     const x1 = Math.max(...rects.map((b) => b.x + b.w));
     const y0 = Math.min(...rects.map((b) => b.y));
     const y1 = Math.max(...rects.map((b) => b.y + b.h));
-    const k = Math.max(0.5, Math.min(view().k, (s.w - PAD_X) / (x1 - x0), (s.h - PAD_Y) / (y1 - y0)));
+    const k = Math.max(MIN_ZOOM, Math.min(view().k, (s.w - PAD_X) / (x1 - x0), (s.h - PAD_Y) / (y1 - y0)));
     glide({ x: s.w / 2 - ((x0 + x1) / 2) * k, y: s.h / 2 - ((y0 + y1) / 2) * k, k });
   };
   // A blob with everything racked off it.
@@ -758,6 +781,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     // One named word needs one row, even when more language stages follow.
     // Keeping those stages visible must not add a separate language header.
     const compact = () => roots.length === 1 && rows().length === 1 && !!rows()[0].node.item.term;
+    const clustered = () => clusteredHeads(rows());
     const face = () => openable.length > 0 && rows().length === 0;
     const act = () => rack(p.hub, p.branch, openable);
     const Name = () => <span>{p.branch.name}</span>;
@@ -800,9 +824,12 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
           left: placed().sides.get(id) === -1,
           single: compact(),
           "has-close": rows().length > 0,
+          clustered: clustered(),
         }}
         data-blob={id}
-        style={{ "--c": p.hub.hues.get(p.branch.key), left: `${at().x}px`, top: `${at().y}px` }}
+        style={{ "--c": p.hub.hues.get(p.branch.key), left: `${at().x}px`, top: `${at().y}px`,
+          "--cst-first-source": clustered() ? `${(placed().sources.get(rows()[0]?.id)?.y ?? at().y) - at().y}px` : undefined,
+          height: clustered() ? `${rect()?.h ?? SOURCE_HEIGHT}px` : undefined }}
         aria-label={`${p.branch.name}: ${p.branch.wordCount} ${target.name} words`}
       >
         <Show when={rows().length > 0}>
@@ -845,7 +872,9 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
               </Show>
               <For each={rows()}>
                 {(h) => (
-                  <div class="cst-row" data-row={h.id}>
+                  <div class="cst-row" data-row={h.id} style={clustered() ? {
+                    top: `${(placed().sources.get(h.id)?.y ?? at().y) - at().y}px`,
+                  } : undefined}>
                     <button
                       type="button"
                       class="cst-root cst-head open"
