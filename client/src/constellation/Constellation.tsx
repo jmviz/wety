@@ -8,7 +8,6 @@ import { Branch, Group, LangTree, branchesOf, canOpen } from "./branches";
 import {
   BlobSpec,
   HubSpec,
-  LaneSpec,
   Layout,
   Link,
   Point,
@@ -16,7 +15,6 @@ import {
   Size,
   bounds,
   join,
-  laneHeight,
   layout,
   wire,
 } from "./layout";
@@ -163,8 +161,8 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
   // it has been. A blob that shrinks (a head opened, a list folded) keeps its
   // seat, so nothing round it moves.
   const [sizes, setSizes] = createSignal(new Map<string, { now: Size; seat: Size }>(), { equals: false });
-  // In a rack, how far down its blob each head's row is centred: its lane
-  // sits level with it.
+  // In a rack, how far down its blob each head's row is centred: its line
+  // leaves the blob there.
   const [rowMids, setRowMids] = createSignal(new Map<string, number>(), { equals: false });
   const [moreWords, setMoreWords] = createSignal(new Set<string>(), { equals: false });
   const toggle = (set: Set<string>, key: string) => (set.has(key) ? set.delete(key) : set.add(key), set);
@@ -212,7 +210,6 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
     const measured = sizes();
     const mids = rowMids();
     const all = hubs();
-    const lanes = new Map<string, LaneSpec>();
     const blobsOf = (h: Hub): BlobSpec[] =>
       h.branches.map((b) => {
         const id = blobId(h, b);
@@ -222,16 +219,12 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
           id,
           size: measured.get(id)?.seat,
           lanes: racked.length
-            ? racked.map((k) => {
-                const lane = { hub: k.id, mid: mids.get(k.id), blobs: blobsOf(k) };
-                lanes.set(k.id, lane);
-                return lane;
-              })
+            ? racked.map((k) => ({ hub: k.id, mid: mids.get(k.id), blobs: blobsOf(k) }))
             : undefined,
           disc: disc && { hub: disc.id, r: radius(disc), blobs: blobsOf(disc) },
         };
       });
-    const discs = all
+    return all
       .filter((h) => !h.parent || (h.replaces && !flows(h.parent)))
       .map(
         (h): HubSpec => ({
@@ -241,21 +234,14 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
           blobs: blobsOf(h),
         })
       );
-    return { discs, lanes };
   });
   const placed = createMemo<Layout>(
     (before) => {
       const room = frame();
-      return room ? layout(specs().discs, room, before) : before;
+      return room ? layout(specs(), room, before) : before;
     },
     { hubs: new Map(), blobs: new Map(), seats: new Map(), sides: new Map() }
   );
-  // A head's row in a rack is as tall as the blobs in its lane, so the two
-  // stand level.
-  const rowHeight = (hub: Hub) => {
-    const lane = specs().lanes.get(hub.id);
-    return lane ? laneHeight(lane) : 0;
-  };
   // Where a blob is drawn: its seat, or when it has shrunk, the end of its
   // seat nearer its hub.
   const drawn = (hub: Hub, id: string): Rect | undefined => {
@@ -766,11 +752,9 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
                   <Name />
                 </button>
               </Show>
-              {/* A row is as tall as its lane, so each head stands level
-                  with what comes from it. */}
               <For each={rows()}>
                 {(h) => (
-                  <div class="cst-row" data-row={h.id} style={{ "min-height": `${Math.max(36, rowHeight(h))}px` }}>
+                  <div class="cst-row" data-row={h.id}>
                     <button
                       type="button"
                       class="cst-root cst-head open"

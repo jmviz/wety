@@ -280,13 +280,14 @@ button.cst-fam:focus-visible {
   color: var(--cst-muted);
 }
 
-/* A rack: each opened head a row, as tall as the lane of blobs beside it, so
-   the line from a row runs level to what comes from it. */
+/* A rack: each opened head a row, from whose end a line runs to the lane of
+   blobs that come from it. */
 .cst-row {
   position: relative;
   display: flex;
   align-items: center;
   min-width: 0;
+  min-height: 36px;
 }
 
 .cst-blob.left .cst-row {
