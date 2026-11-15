@@ -123,14 +123,11 @@ test("root connectors route around a tall sibling instead of appearing to descen
     const target = { x: side === 1 ? 450 : -650, y: -80, w: 200, h: 160 };
     const line = join({ x: 0, y: 0 }, 96, target, [obstacle]);
     assert.ok(line.d.includes(" L "));
-    const coords = [...line.d.matchAll(/(?:M|L) (-?[\d.]+) (-?[\d.]+)/g)].map((m) => ({ x: +m[1], y: +m[2] }));
+    const coords = samplePath(line.d);
     assert.ok(Math.abs(Math.hypot(coords[0].x, coords[0].y) - 96) < 0.1);
-    for (let i = 1; i < coords.length; i++) for (let step = 0; step <= 100; step++) {
-      const t = step / 100;
-      const x = coords[i - 1].x * (1 - t) + coords[i].x * t;
-      const y = coords[i - 1].y * (1 - t) + coords[i].y * t;
+    for (const { x, y } of coords)
       assert.ok(!(x > obstacle.x && x < obstacle.x + obstacle.w && y > obstacle.y && y < obstacle.y + obstacle.h));
-    }
+    assertOrthogonalLines(line.d);
   }
   assert.ok(join({ x: 0, y: 0 }, 96, { x: 400, y: -50, w: 200, h: 100 }).d.includes(" Q "));
 });
@@ -167,10 +164,12 @@ function fixture() {
 test("all connectors use the same early gutter before passing intermediate columns", () => {
   for (const side of [-1, 1]) {
     const link = wire({ x: 0, y: 100 }, { x: side * 900, y: 20 });
-    assert.ok(link.d.includes(`${side * 44}.0 20.0 L ${side * 900}.0 20.0`));
+    assertOrthogonalLines(link.d);
+    assert.ok(link.d.includes(`${side * 44}.0`));
     assert.deepEqual(link.end, { x: side * 900, y: 20 });
     const sibling = wire({ x: 0, y: 100 }, { x: side * 500, y: 200 });
-    assert.ok(sibling.d.includes(`${side * 44}.0 200.0 L ${side * 500}.0 200.0`));
+    assertOrthogonalLines(sibling.d);
+    assert.ok(sibling.d.includes(`${side * 44}.0`));
   }
 });
 
@@ -207,3 +206,43 @@ for (const side of [-1, 1]) {
     }
   });
 }
+
+
+function assertOrthogonalLines(d) {
+  let from;
+  for (const segment of d.matchAll(/([MLQC]) ([^MLQC]+)/g)) {
+    const n = segment[2].trim().split(/\s+/).map(Number);
+    const to = { x: n.at(-2), y: n.at(-1) };
+    if (segment[1] === "L") assert.ok(from.x === to.x || from.y === to.y, `Diagonal straight segment in ${d}`);
+    from = to;
+  }
+}
+
+function samplePath(d) {
+  const points = [];
+  let from;
+  for (const segment of d.matchAll(/([MLQ]) ([^MLQC]+)/g)) {
+    const n = segment[2].trim().split(/\s+/).map(Number);
+    const to = { x: n.at(-2), y: n.at(-1) };
+    if (!from) points.push(to);
+    else for (let step = 1; step <= 100; step++) {
+      const t = step / 100, u = 1 - t;
+      points.push(segment[1] === "Q"
+        ? { x: u*u*from.x + 2*u*t*n[0] + t*t*to.x, y: u*u*from.y + 2*u*t*n[1] + t*t*to.y }
+        : { x: u*from.x + t*to.x, y: u*from.y + t*to.y });
+    }
+    from = to;
+  }
+  return points;
+}
+
+test("connectors contain only curves and horizontal or vertical straight runs", () => {
+  for (const side of [-1, 1]) {
+    for (const y of [-250, -4, 0, 4, 250]) assertOrthogonalLines(wire({ x: 0, y: 0 }, { x: side * 400, y }).d);
+    const obstacle = { x: side > 0 ? 130 : -330, y: -180, w: 200, h: 360 };
+    const target = { x: side > 0 ? 450 : -650, y: -70, w: 200, h: 140 };
+    const d = join({ x: 0, y: 0 }, 96, target, [obstacle]).d;
+    assertOrthogonalLines(d);
+    assert.ok(d.includes(" Q "));
+  }
+});

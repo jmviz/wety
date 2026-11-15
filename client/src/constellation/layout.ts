@@ -427,11 +427,11 @@ export function join(c: Point, r: number, box: Rect, obstacles: Rect[] = [], dir
     prev = p;
   }
   if (blocked) {
-    // Visibility graph: the shortest clear path bends only at obstacle corners.
-    const points = [start, end, ...blocks.flatMap((b) => [
-      { x: b.x, y: b.y }, { x: b.x + b.w, y: b.y },
-      { x: b.x, y: b.y + b.h }, { x: b.x + b.w, y: b.y + b.h },
-    ])];
+    // Rectilinear visibility grid: every straight run is horizontal or
+    // vertical. Obstacle corners supply lanes, never diagonal shortcuts.
+    const xs = [...new Set([start.x, end.x, ...blocks.flatMap((b) => [b.x, b.x + b.w])])];
+    const ys = [...new Set([start.y, end.y, ...blocks.flatMap((b) => [b.y, b.y + b.h])])];
+    const points = [start, end, ...xs.flatMap((x) => ys.map((y) => ({ x, y })))];
     const distance = points.map(() => Infinity);
     const previous = points.map(() => -1);
     const visited = new Set<number>();
@@ -444,15 +444,16 @@ export function join(c: Point, r: number, box: Rect, obstacles: Rect[] = [], dir
       if (current === 1) break;
       visited.add(current);
       for (let i = 0; i < points.length; i++) {
-        if (visited.has(i) || blocks.some((b) => hits(points[current], points[i], b))) continue;
-        const d = distance[current] + Math.hypot(points[i].x - points[current].x, points[i].y - points[current].y);
+        const a = points[current], b = points[i];
+        if (visited.has(i) || (a.x !== b.x && a.y !== b.y) || blocks.some((rect) => hits(a, b, rect))) continue;
+        const d = distance[current] + Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
         if (d < distance[i]) { distance[i] = d; previous[i] = current; }
       }
     }
     if (Number.isFinite(distance[1])) {
       const path: Point[] = [];
       for (let i = 1; i >= 0; i = previous[i]) path.unshift(points[i]);
-      return { d: path.map((p, i) => `${i ? "L" : "M"} ${f(p.x)} ${f(p.y)}`).join(" "), end };
+      return { d: roundedRoute(path), end };
     }
   }
   return { d: stem
@@ -460,15 +461,34 @@ export function join(c: Point, r: number, box: Rect, obstacles: Rect[] = [], dir
     : `M ${f(start.x)} ${f(start.y)} Q ${f(cx)} ${f(cy)} ${f(end.x)} ${f(end.y)}`, end };
 }
 
-// A line that leaves and arrives level: in a rack, from a head's row to the
-// side of one of its blobs.
+// Round only the corners of an orthogonal route; never draw a diagonal
+// straight segment. The obstacle clearance leaves room for these curves.
+function roundedRoute(points: Point[]): string {
+  const path = points.filter((p, i) => !i || p.x !== points[i - 1].x || p.y !== points[i - 1].y);
+  for (let i = path.length - 2; i > 0; i--) {
+    const [a, b, c] = [path[i - 1], path[i], path[i + 1]];
+    if ((a.x === b.x && b.x === c.x) || (a.y === b.y && b.y === c.y)) path.splice(i, 1);
+  }
+  let d = `M ${f(path[0].x)} ${f(path[0].y)}`;
+  for (let i = 1; i < path.length - 1; i++) {
+    const [a, b, c] = [path[i - 1], path[i], path[i + 1]];
+    const before = Math.abs(b.x - a.x) + Math.abs(b.y - a.y);
+    const after = Math.abs(c.x - b.x) + Math.abs(c.y - b.y);
+    const radius = Math.min(12, before / 2, after / 2);
+    const enter = { x: b.x + (a.x - b.x) * radius / before, y: b.y + (a.y - b.y) * radius / before };
+    const leave = { x: b.x + (c.x - b.x) * radius / after, y: b.y + (c.y - b.y) * radius / after };
+    d += ` L ${f(enter.x)} ${f(enter.y)} Q ${f(b.x)} ${f(b.y)} ${f(leave.x)} ${f(leave.y)}`;
+  }
+  const last = path.at(-1)!;
+  return `${d} L ${f(last.x)} ${f(last.y)}`;
+}
+
+// A line that leaves and arrives level, with a shared right-angle gutter.
 export function wire(from: Point, to: Point): Link {
-  const half = (to.x - from.x) / 2;
-  // Every sibling finishes its turn in the same gutter. Mixing long
-  // diagonals with early turns made the diagonals cross the level cables.
-  const turn = Math.sign(half) * Math.min(SHORT, Math.abs(to.x - from.x));
+  const dx = to.x - from.x;
+  const turn = Math.sign(dx) * Math.min(SHORT, Math.abs(dx) / 2);
   return {
-    d: `M ${f(from.x)} ${f(from.y)} C ${f(from.x + turn / 2)} ${f(from.y)} ${f(from.x + turn / 2)} ${f(to.y)} ${f(from.x + turn)} ${f(to.y)} L ${f(to.x)} ${f(to.y)}`,
+    d: roundedRoute([from, { x: from.x + turn, y: from.y }, { x: from.x + turn, y: to.y }, to]),
     end: to,
     start: from,
   };
