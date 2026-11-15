@@ -19,22 +19,24 @@ test("asymmetric overview grows the diagram while keeping the root near centre a
   }
 });
 
-test("expansion camera centres 60 percent toward the clicked node on either side", () => {
-  for (const side of [-1, 1]) {
-    const clicked = { x: -100, y: 0, w: 200, h: 100 };
-    const expanded = { x: side * 500 - 100, y: 150, w: 200, h: 100 };
-    const size = { x: 0, y: 0, w: 1200, h: 800, scale: 1 };
-    const view = expansionView(clicked, expanded, size);
-    assert.equal((size.w / 2 - view.x) / view.k, side * 200);
-    assert.equal((size.h / 2 - view.y) / view.k, 110);
-    assert.ok(view.k >= 0.85 && view.k <= 1);
-  }
+test("expansion keeps the clicked cluster when it fits without shrinking the new branch", () => {
+  const clicked = { x: 0, y: -300, w: 320, h: 300 };
+  const expanded = { x: 0, y: 60, w: 700, h: 200 };
+  const viewport = { x: 0, y: 0, w: 1200, h: 800, scale: 1 };
+  const view = expansionView(clicked, expanded, viewport);
+  assert.equal(view.k, 1);
+  assert.equal(view.x + 350, 600);
+  assert.equal(view.y - 20, 400);
 });
 
-test("large expansions keep readable text rather than fitting the entire tree", () => {
-  const view = expansionView({ x: 0, y: 0, w: 320, h: 200 },
-    { x: 500, y: -2000, w: 2000, h: 4000 }, { x: 0, y: 0, w: 1100, h: 800, scale: 1 });
-  assert.equal(view.k, 0.85);
+test("long automatic lineages fit both their historical root and youngest descendant", () => {
+  const expanded = { x: 100, y: 400, w: 2200, h: 100 };
+  const view = expansionView({ x: 100, y: -1200, w: 320, h: 1500 }, expanded,
+    { x: 0, y: 0, w: 1400, h: 800, scale: 1 });
+  assert.ok(view.k < 0.85);
+  assert.ok(view.x + expanded.x * view.k >= 47.99);
+  assert.ok(view.x + (expanded.x + expanded.w) * view.k <= 1352.01);
+  assert.equal(view.y + (expanded.y + expanded.h / 2) * view.k, 400);
 });
 
 test("small expansions restore normal reading scale", () => {

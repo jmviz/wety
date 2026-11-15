@@ -649,11 +649,32 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
       // After the last preview row disappears, its revealed historical
       // source cards retain the clicked side of the transition.
       const clicked = placed().sources.get(previewBoxId(hub, branch)) ?? enclosing(sources) ?? drawn(hub, id);
-      const next = enclosing(opened.flatMap((h) => [
-        ...h.branches.flatMap((b) => visibleRects(h, b)),
-        ...h.shared.flatMap((s) => visibleRects(s.host, s.branch)),
-      ])) ?? enclosing(sources);
-      if (clicked && next && stage().w) glide(expansionView(clicked, next, stage()));
+      const seen = new Set<string>();
+      const frontier = (owner: Hub, b: Branch): Rect[] => {
+        const key = blobId(owner, b);
+        if (seen.has(key)) return [];
+        seen.add(key);
+        return [
+          ...visibleRects(owner, b),
+          ...all.filter((h) => h.via === key).flatMap((h) => [
+            ...h.branches.flatMap((next) => frontier(h, next)),
+            ...h.shared.flatMap((shared) => frontier(shared.host, shared.branch)),
+          ]),
+        ];
+      };
+      const revealed = [
+        ...sources,
+        ...opened.flatMap((h) => [
+          ...h.branches.flatMap((b) => frontier(h, b)),
+          ...h.shared.flatMap((shared) => frontier(shared.host, shared.branch)),
+        ]),
+      ];
+      // Include the language headings in the fit as well as every stage
+      // exposed by automatic expansion, not just the immediate children.
+      const next = enclosing(revealed.map((r) => ({ ...r, y: r.y - 24, h: r.h + 24 })));
+      seen.clear();
+      const context = enclosing([...(clicked ? [clicked] : []), ...frontier(hub, branch)]) ?? clicked;
+      if (context && next && stage().w) glide(expansionView(context, next, stage()));
     });
   };
   // Back to one list: everything opened from the blob goes.
