@@ -147,7 +147,9 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null }
       branches,
       hue,
       hues: hue ? new Map(keys.map((k) => [k, hue])) : huesOf(keys),
-      single: !!parent && branches.length === 1 && branches[0].words.length === 1,
+      // Not a head with no name (branches.ts `unnamed`): the one word under
+      // it is the only name its line has, and stays in its own branch's blob.
+      single: !!parent && !!node.item.term && branches.length === 1 && branches[0].words.length === 1,
     };
   };
   const rootHub = makeHub(root, null, null, null);

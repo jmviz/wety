@@ -210,9 +210,53 @@ const group = (head: TreeNode, own: boolean, words: TreeNode[]): Group => ({
   hasSelected: words.some((w) => w.isSelected),
 });
 
-// The key of the branch for words whose line of descent is not recorded; no
-// language has this code.
-const UNRECORDED = "?";
+// A word of a later language that Wiktionary only tags with the root (Old
+// French intellectuel under *leǵ-) did not come straight from the root, nor
+// straight from the family's branch (no Old French word comes straight from
+// Proto-Italic): it came through a word that is not recorded. That word is
+// stood in for by a head with no name, in the first language on the way down
+// that is not a stage of a proto-language or family (Latin, for Old French),
+// with the tagged word under it. Nothing for a word whose own language is
+// that first one (Latin legenda): it is a head itself.
+const lasting = (code: string) => !code.includes("-");
+const langsBelow = new WeakMap<TreeNode, Map<string, Lang>>();
+function unnamed(word: TreeNode, hub: TreeNode, langs: LangTree): TreeNode | null {
+  const line = chain(word.item.lang.code, langs);
+  const code = line.slice(line.indexOf(hub.item.lang.code) + 1, -1).find(lasting);
+  if (!code) return null;
+  // The language as the tree has it, where a word of it is in the tree.
+  let known = langsBelow.get(hub);
+  if (!known) {
+    known = new Map();
+    const visit = (n: TreeNode) => {
+      known!.set(n.item.lang.code, n.item.lang);
+      n.children.forEach(visit);
+    };
+    visit(hub);
+    langsBelow.set(hub, known);
+  }
+  const lang = known.get(code) ?? { id: -1, code, name: langs.names[code] ?? code };
+  return {
+    ...word,
+    // No item or key of the graph is negative: nothing is looked up for it.
+    key: -word.key - 1,
+    item: {
+      ...word.item,
+      id: -word.item.id - 1,
+      lang,
+      term: "",
+      imputed: true,
+      reconstructed: false,
+      url: null,
+      pos: null,
+      gloss: null,
+      romanization: null,
+    },
+    etyMode: null,
+    isSelected: false,
+    children: [word],
+  };
+}
 
 // `common`: how common the reader's language's words are, to leave the rare
 // ones and plain derivatives out and list the commonest first; null lists
@@ -229,12 +273,6 @@ export function branchesOf(hub: TreeNode, target: Lang, langs: LangTree, common:
   // Heads: the first words below the hub that are not in its language. A hub
   // of the reader's language also has formations of its own.
   const heads = new Map<number, TreeNode>();
-  // Words of later languages that Wiktionary only tags with the root (Old
-  // French intellectuel under *leǵ-): how they came down is not recorded, so
-  // they stand in a branch that says so, never as heads of a branch they did
-  // not come straight from (no Old French word comes straight from
-  // Proto-Italic).
-  const loose = new Map<number, TreeNode>();
   // The heads formed with an affix of the hub's language that is passed
   // through on the way to them.
   const graftedHeads = new Set<number>();
@@ -245,13 +283,10 @@ export function branchesOf(hub: TreeNode, target: Lang, langs: LangTree, common:
     for (const c of n.children) {
       if (c.item.lang.id !== hub.item.lang.id) {
         if (top && c.item.lang.id === target.id) continue;
-        if (c.etyMode === "root") {
-          loose.set(c.item.id, c);
-          continue;
-        }
-        if (!heads.has(c.item.id)) {
-          heads.set(c.item.id, c);
-          if (below) graftedHeads.add(c.item.id);
+        const head = (top && c.etyMode === "root" && unnamed(c, hub, langs)) || c;
+        if (!heads.has(head.item.id)) {
+          heads.set(head.item.id, head);
+          if (below) graftedHeads.add(head.item.id);
         }
         continue;
       }
@@ -324,11 +359,6 @@ export function branchesOf(hub: TreeNode, target: Lang, langs: LangTree, common:
       );
     }
   }
-  add(
-    UNRECORDED,
-    "descent not recorded",
-    [...loose.values()].map((h) => group(h, false, under(h))).filter((g) => g.words.length > 0)
-  );
   if (own.length) add(target.code, target.name, [group(hub, true, rank(own, common))]);
 
   return branches.sort(
