@@ -49,11 +49,22 @@ interface Found {
   depth: number;
 }
 
+// The words a blob lists: single words that are not proper nouns. Phrases
+// ("video chat") and names ("Winterbottom") crowd out the cognates a reader
+// came for. The searched word is listed whatever it is.
+function listed(n: TreeNode): boolean {
+  if (n.isSelected) return true;
+  const { term, pos } = n.item;
+  if (/\s/.test(term) || pos?.includes("name")) return false;
+  // A capitalised word with no part of speech recorded is nearly always a name.
+  return !(!pos?.length && /^\p{Lu}/u.test(term));
+}
+
 // One entry per spelling (the searched word, else the nearest), in the order
 // a reader is likeliest to know them. The graph has no word frequencies, so
-// this goes by what it does have: a single lower-case word before phrases,
-// affixes and names; then words with several entries or parts of speech,
-// which the everyday ones tend to have; then the nearest and the shortest.
+// this goes by what it does have: a plain lower-case word before affixes and
+// the rest; then words with several entries or parts of speech, which the
+// everyday ones tend to have; then the nearest and the shortest.
 const PLAIN = /^\p{Ll}+$/u;
 function rank(found: Found[]): TreeNode[] {
   const byTerm = new Map<string, Found & { uses: number }>();
@@ -82,7 +93,7 @@ function rank(found: Found[]): TreeNode[] {
 function wordsUnder(head: TreeNode, target: number): TreeNode[] {
   const found: Found[] = [];
   const visit = (n: TreeNode, depth: number) => {
-    if (n.item.lang.id === target) found.push({ node: n, depth });
+    if (n.item.lang.id === target && listed(n)) found.push({ node: n, depth });
     for (const c of n.children) visit(c, depth + 1);
   };
   visit(head, 0);
@@ -113,7 +124,7 @@ export function branchesOf(hub: TreeNode, target: Lang, langs: LangTree): Branch
         if (!heads.has(c.item.id)) heads.set(c.item.id, c);
         continue;
       }
-      if (c.item.lang.id === target.id) own.push({ node: c, depth });
+      if (c.item.lang.id === target.id && listed(c)) own.push({ node: c, depth });
       collect(c, depth + 1);
     }
   };
