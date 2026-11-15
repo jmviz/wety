@@ -129,6 +129,14 @@ const group = (head: TreeNode, own: boolean, words: TreeNode[]): Group => ({
 });
 
 export function branchesOf(hub: TreeNode, target: Lang, langs: LangTree): Branch[] {
+  // A hub at the top of its family: a reconstructed word of a language with
+  // no ancestor of its own (Proto-Indo-European). Its branches are the
+  // family's: the languages that come straight from it, a fixed set, under
+  // which a later language's word stands when nothing is recorded in between
+  // (Ancient Greek under Proto-Hellenic). And no word of the reader's
+  // language comes straight from it: one recorded so (tagged with the root,
+  // its line of descent not given) is left out.
+  const top = hub.item.reconstructed && !langs.parents[hub.item.lang.code];
   // Heads: the first words below the hub that are not in its language. A hub
   // of the reader's language also has formations of its own.
   const heads = new Map<number, TreeNode>();
@@ -136,6 +144,7 @@ export function branchesOf(hub: TreeNode, target: Lang, langs: LangTree): Branch
   const collect = (n: TreeNode, depth: number) => {
     for (const c of n.children) {
       if (c.item.lang.id !== hub.item.lang.id) {
+        if (top && c.item.lang.id === target.id) continue;
         if (!heads.has(c.item.id)) heads.set(c.item.id, c);
         continue;
       }
@@ -187,8 +196,9 @@ export function branchesOf(hub: TreeNode, target: Lang, langs: LangTree): Branch
 
   for (let t of root.kids.values()) {
     // A branch is named by the oldest language on it that has a head, or
-    // where its heads' languages part ways.
-    while (t.heads.length === 0 && t.kids.size === 1) t = t.kids.values().next().value!;
+    // where its heads' languages part ways; at the top of a family, by the
+    // language that comes straight from the hub's.
+    while (!top && t.heads.length === 0 && t.kids.size === 1) t = t.kids.values().next().value!;
     const members = below(t);
     const name = langs.names[t.code] ?? names.get(t.code) ?? t.code;
     if (t.code === target.code) {
