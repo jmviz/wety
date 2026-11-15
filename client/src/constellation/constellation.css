@@ -190,6 +190,14 @@ main:has(.cst-stage) {
   cursor: pointer;
 }
 
+.cst-preview-line {
+  display: block;
+}
+
+.cst-preview-line + .cst-preview-line {
+  margin-top: 4px;
+}
+
 .cst-blob:has(> .cst-face:hover) {
   border-color: rgba(var(--c), 0.75);
   box-shadow: 0 0 54px rgba(var(--c), 0.2), inset 0 0 28px rgba(var(--c), 0.08);

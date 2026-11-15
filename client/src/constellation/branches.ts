@@ -37,6 +37,44 @@ export interface Branch {
   hasSelected: boolean;
 }
 
+// Keep one-word paths in the middle, with larger lanes above and below.
+// The collapsed preview uses this same order as the expanded rack.
+export function rackOrder<T>(entries: T[], single: (entry: T) => boolean): T[] {
+  const many = entries.filter((entry) => !single(entry));
+  return [
+    ...many.filter((_, i) => i % 2 === 0),
+    ...entries.filter(single),
+    ...many.filter((_, i) => i % 2 === 1).reverse(),
+  ];
+}
+
+// Each line previews one child branch of the expanded rack. Keep the
+// existing word filters and show a spelling once, in its first subgroup.
+export function previewLines(branch: Branch, target: Lang, children: (head: TreeNode) => Branch[]): TreeNode[][] {
+  const cache = new Map<Branch, TreeNode[][]>();
+  const lines = (branch: Branch): TreeNode[][] => {
+    const had = cache.get(branch);
+    if (had) return had;
+    const open = branch.groups.filter((g) => canOpen(g, target)).map((g) => ({ g, branches: children(g.head) }));
+    const ordered = rackOrder(open, ({ g, branches }) => !!g.head.item.term && singleEndpoint(branches));
+    const candidates = [
+      ...ordered.flatMap(({ g, branches }) => branches.length ? branches.map((b) => lines(b).flat()) : [g.words]),
+      ...branch.groups.filter((g) => !canOpen(g, target)).map((g) => g.words),
+    ];
+    const allowed = new Set(branch.words.map((w) => w.item.term));
+    const seen = new Set<string>();
+    const result = candidates.map((words) => words.filter((w) => {
+      const term = w.item.term;
+      if (!allowed.has(term) || seen.has(term)) return false;
+      seen.add(term);
+      return true;
+    })).filter((words) => words.length > 0);
+    cache.set(branch, result);
+    return result;
+  };
+  return lines(branch);
+}
+
 // `folded`: a plain derivative of a word of another group is left out too
 // (analogous, from one head, beside analogy, from another).
 function dealt(groups: Group[], folded: boolean): TreeNode[] {

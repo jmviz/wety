@@ -4,7 +4,7 @@ import { close as closePopover, hoverEnter, hoverLeave, pin, popover } from "../
 import { useGoTo } from "../search/navigate";
 import { Item, Lang, TreeKind, term } from "../search/types";
 import { cognates, constellationStart, lastRequest, showGlosses, showRare } from "../state";
-import { Branch, Common, Group, LangTree, autoExpandGroup, branchesOf, canOpen, directEarlyEnglish, singleEndpoint } from "./branches";
+import { Branch, Common, Group, LangTree, autoExpandGroup, branchesOf, canOpen, directEarlyEnglish, previewLines, rackOrder, singleEndpoint } from "./branches";
 import { BlobSpec, Layout, Link, Point, Rect, Size, bounds, join, layout, wire } from "./layout";
 import { chronological, languageTimes } from "./chronology";
 import type { LayoutPeriod } from "./chronology";
@@ -145,8 +145,17 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     code === "la" || code === "grc" || code.endsWith("-pro") || (times.get(code) ?? Infinity) <= 200
   ) : new Set<number>();
 
+  const branchCache = new WeakMap<TreeNode, Branch[]>();
+  const branchesFor = (node: TreeNode): Branch[] => {
+    let branches = branchCache.get(node);
+    if (!branches) {
+      branches = branchesOf(node, target, props.langs, common, omitted);
+      branchCache.set(node, branches);
+    }
+    return branches;
+  };
   const makeHub = (node: TreeNode, parent: Hub | null, via: string | null, hue: string | null): Hub => {
-    const branches = branchesOf(node, target, props.langs, common, omitted);
+    const branches = branchesFor(node);
     const keys = branches.map((b) => b.key);
     return {
       id: String(node.item.id),
@@ -365,12 +374,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
       .map((g) => makeHub(g.head, hub, id, hub.hues.get(branch.key)!));
     // The heads with one word stand together in the middle of the rack, their
     // words level with them; the others' blobs go above and below (layout.ts).
-    const many = made.filter((h) => !h.single);
-    const next = [
-      ...many.filter((_, i) => i % 2 === 0),
-      ...made.filter((h) => h.single),
-      ...many.filter((_, i) => i % 2 === 1).reverse(),
-    ];
+    const next = rackOrder(made, (h) => h.single);
     // Each resulting node qualifies on its own: one source, one destination.
     // Its parent's number of rows does not change that one-to-one path.
     const opened = [...next];
@@ -678,6 +682,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     // The heads opened here, in the order of their rows.
     const rows = () => hubs().filter((h) => h.via === id);
     const openable = roots.filter((g) => canOpen(g, target));
+    const lines = () => previewLines(p.branch, target, branchesFor);
     // One named word needs one row, even when more language stages follow.
     // Keeping those stages visible must not add a separate language header.
     const compact = () => roots.length === 1 && rows().length === 1 && !!rows()[0].node.item.term;
@@ -799,8 +804,10 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
             <span class="cst-fam">
               <Name />
             </span>
-            <span class="cst-words">
-              <WordList words={p.branch.words} live={false} />
+            <span class="cst-words cst-preview">
+              <For each={lines()}>
+                {(words) => <span class="cst-preview-line"><WordList words={words} live={false} /></span>}
+              </For>
             </span>
           </button>
         </Show>

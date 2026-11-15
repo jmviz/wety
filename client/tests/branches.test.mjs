@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { readFileSync } from "node:fs";
-import { autoExpandGroup, branchesOf, canOpen, directEarlyEnglish, singleEndpoint } from "../src/constellation/branches.ts";
+import { autoExpandGroup, branchesOf, canOpen, directEarlyEnglish, previewLines, singleEndpoint } from "../src/constellation/branches.ts";
 
 const pie = { id: 1, code: "ine-pro", name: "Proto-Indo-European" };
 const hellenic = { id: 2, code: "grk-pro", name: "Proto-Hellenic" };
@@ -27,6 +27,24 @@ function node(lang, term, children = [], extra = {}) {
   };
 }
 const word = (term, selected = false) => node(english, term, [], { isSelected: selected });
+
+test("collapsed subcognate lines follow expanded lanes and keep nested families together", () => {
+  const hub = node(italic, "root");
+  const latinHead = node(latin, "premo", [
+    node(french, "impression", [word("impressionable"), word("impressionism"), word("impressionist")]),
+    node(french, "depression", [word("depressive")]),
+    node(french, "expression", [word("expressionism")]),
+    node({ id: 13, code: "it", name: "Italian" }, "espresso", [word("espresso")]),
+  ]);
+  hub.children = [latinHead];
+  const read = (head) => branchesOf(head, english, langs, null);
+  const [branch] = read(hub);
+  const lines = previewLines(branch, english, read).map((line) => line.map((w) => w.item.term));
+  assert.equal(lines.length, 2);
+  assert.deepEqual(lines[0], ["impressionism", "impressionist", "impressionable", "depressive", "expressionism"]);
+  assert.deepEqual(lines[1], ["espresso"]);
+  assert.equal(new Set(lines.flat()).size, branch.wordCount);
+});
 
 test("default commonness excludes tier-70 fremd but rare mode and the searched word retain it", () => {
   const common = new Map();
