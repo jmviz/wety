@@ -1,5 +1,8 @@
 import type { Rect, Size } from "./layout";
 
+// Matches the language-heading space reserved by the layout.
+const LANGUAGE_HEADING_SPACE = 36;
+
 export interface LanguageAnchor {
   box: Rect;
   id?: string;
@@ -12,8 +15,8 @@ export interface LanguageAnchor {
 export function languageAnchors(entries: LanguageAnchor[], viewport: Rect, labelSize?: Size, padding = 6): LanguageAnchor[] {
   const visible = entries.filter(({ box }) => box.x < viewport.x + viewport.w && box.x + box.w > viewport.x &&
     box.y < viewport.y + viewport.h && box.y + box.h > viewport.y);
-  const eligible = labelSize ? visible.filter(({ box, preview }) => {
-    const x = box.x + (preview ? 28 : 0), y = box.y - 24;
+  const eligible = labelSize ? visible.filter(({ box }) => {
+    const x = box.x + (box.w - labelSize.w) / 2, y = box.y - LANGUAGE_HEADING_SPACE;
     return x >= viewport.x + padding && y >= viewport.y + padding &&
       x + labelSize.w <= viewport.x + viewport.w - padding &&
       y + labelSize.h <= viewport.y + viewport.h - padding;

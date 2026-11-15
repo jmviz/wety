@@ -82,6 +82,7 @@ main.constellation-only .cst-stage {
 .cst-links path.glow {
   stroke-width: 8;
   opacity: 0.14;
+  stroke-linecap: butt;
 }
 
 @keyframes cst-fade {
@@ -169,14 +170,15 @@ main.constellation-only .cst-stage {
 .cst-language-label {
   position: absolute;
   visibility: hidden;
-  font-size: 11px;
-  line-height: 16px;
-  font-weight: 600;
-  letter-spacing: 0.14em;
+  font-size: 15px;
+  line-height: 20px;
+  font-weight: 650;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: rgb(var(--c));
   white-space: nowrap;
   pointer-events: none;
+  transform: translateX(-50%);
 }
 
 .cst-blob {
@@ -491,9 +493,9 @@ main.constellation-only .cst-stage {
   height: 0;
   overflow: hidden;
   padding: 0 12px;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.14em;
+  font-size: 15px;
+  font-weight: 650;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   white-space: nowrap;
 }

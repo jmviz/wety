@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { cableRouter, join, layout, rootDirection, stemArrival, wire, whole } from "../src/constellation/layout.ts";
+import { cableRouter, join, layout, rootDirection, sharedWires, stemArrival, wire, whole } from "../src/constellation/layout.ts";
 
 test("root cables flow into a branch stem outside its cards without an obstacle hook", () => {
   for (const side of [-1, 1]) for (const vertical of [-1, 1]) {
@@ -55,7 +55,7 @@ for (const side of [-1, 1]) {
       previousBottom = bottom;
     }
     const from = placed.blobs.get("from"), fro = placed.blobs.get("fro");
-    assert.equal(fro.y - from.y - from.h, 28); // Room for the changed language heading.
+    assert.equal(fro.y - from.y - from.h, 44); // Room for the changed language heading.
     assert.ok(placed.sources.get("furdu").y > placed.sources.get("fra").y + 300);
   });
 }
@@ -63,11 +63,11 @@ for (const side of [-1, 1]) {
 test("proto cards reserve separate lanes even before their children are measured", () => {
   const branch = { id: "proto", size: { w: 320, h: 38 }, clustered: true,
     lanes: ["first", "second", "third"].map((hub) => ({ hub, blobs: [] })) };
-  assert.deepEqual(whole(branch), { w: 320, h: 166 });
+  assert.deepEqual(whole(branch), { w: 320, h: 202 });
   const placed = layout({ id: "root", r: 96, blobs: [branch] });
   const sources = [...placed.sources.values()];
   assert.equal(sources.length, 3);
-  assert.equal(sources[1].y - sources[0].y, 64);
+  assert.equal(sources[1].y - sources[0].y, 82);
 });
 
 test("the preserved preview box keeps its measured height beside opened proto roots", () => {
@@ -79,7 +79,7 @@ test("the preserved preview box keeps its measured height beside opened proto ro
   const folded = placed.sources.get("folded"), source = placed.sources.get("opened"), child = placed.blobs.get("child");
   assert.equal(folded.h, 104);
   assert.equal(source.h, 38);
-  assert.equal(child.y - folded.y - folded.h, 26);
+  assert.equal(child.y - folded.y - folded.h, 44);
   assert.equal(source.y + source.h / 2, child.y + child.h / 2);
 });
 
@@ -285,4 +285,40 @@ test("independent turns leave space beside an existing family stem", () => {
   const line = route({ x: 0, y: 0 }, { x: 300, y: 120 });
   assertOrthogonalLines(line.d);
   assert.ok(!line.d.includes("L 44.0 108.0"));
+});
+
+test("shared descendants gather all parents into one destination entry on either side", () => {
+  for (const side of [-1, 1]) {
+    const from = [0, 120, 240].map((y) => ({ x: 0, y }));
+    const to = { x: side * 160, y: 100 };
+    const lines = sharedWires(from, to, []);
+    assert.equal(lines.filter((l) => l.end.x === to.x && l.end.y === to.y).length, 1);
+    lines.forEach((l) => assertOrthogonalLines(l.d));
+    const other = sharedWires(from, { ...to, y: 200 }, [], 1);
+    assert.notEqual(lines[0].end.x, other[0].end.x);
+  }
+});
+
+test("shared frontiers reorder around all parents without overlapping sibling subtrees", () => {
+  const make = (shared) => ({ id: "root", r: 96, blobs: [{ id: "sources", size: { w: 320, h: 38 }, clustered: true,
+    lanes: [
+      { hub: "a", blobs: [{ id: "shared", size: { w: 240, h: 90 }, sharedParents: shared ? ["c", "d"] : [] }] },
+      { hub: "b", blobs: [{ id: "other", size: { w: 240, h: 80 } }] },
+      { hub: "c", blobs: [] },
+      { hub: "d", blobs: [] },
+    ] }] });
+  const before = layout(make(false)), after = layout(make(true));
+  const shared = after.blobs.get("shared"), other = after.blobs.get("other");
+  assert.ok(shared.y > before.blobs.get("shared").y);
+  assert.ok(shared.y >= other.y + other.h + 44 || other.y >= shared.y + shared.h + 44);
+  for (const id of ["a", "b", "c", "d"]) assert.deepEqual(after.hubs.get(id), before.hubs.get(id));
+});
+
+test("routing detours around an existing crossing when an open corridor exists", () => {
+  const route = cableRouter([]);
+  route({ x: 0, y: 60 }, { x: 200, y: 60 });
+  const next = route({ x: 100, y: 0 }, { x: 300, y: 120 });
+  assertOrthogonalLines(next.d);
+  const points = samplePath(next.d);
+  assert.ok(!points.some((p) => Math.abs(p.y - 60) < 0.01 && p.x > 0 && p.x < 200));
 });

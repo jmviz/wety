@@ -5,7 +5,7 @@ import { useGoTo } from "../search/navigate";
 import { Item, Lang, TreeKind, term } from "../search/types";
 import { cognates, constellationStart, lastRequest, showGlosses, showRare } from "../state";
 import { Branch, Common, Group, HIDE_UNDEFINED_ROOTS, LangTree, autoExpandGroup, branchesOf, canOpen, directEarlyEnglish, previewLines, previewRows, rackOrder, restrictBranches, singleEndpoint, sourceBranches, uncommonLatinEnglish, withoutUndefinedRoots } from "./branches";
-import { BlobSpec, Layout, Link, Point, Rect, Size, SOURCE_HEIGHT, bounds, join, layout, rootDirection, stemArrival, cableRouter } from "./layout";
+import { BlobSpec, Layout, Link, Point, Rect, Size, SOURCE_HEIGHT, LANGUAGE_HEADING_SPACE, bounds, join, layout, rootDirection, stemArrival, cableRouter, sharedWires } from "./layout";
 import { chronological, languageTimes } from "./chronology";
 import type { LayoutPeriod } from "./chronology";
 import { representatives } from "./representatives";
@@ -357,6 +357,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
           year: times.get(stage),
           clustered,
           compactChain: chainIds().has(id),
+          sharedParents: all.filter((source) => source.shared.some((s) => blobId(s.host, s.branch) === id)).map((source) => source.id),
           // A rack is laid out at the size it is now, so its rows' lines and
           // the words level with them leave it where the rows are drawn; a
           // list keeps the room it has had. Proto clusters use current child
@@ -436,7 +437,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
       .map((anchor) => ({ ...anchor, name: g.name, hue: g.hue })));
   });
   const languageLabels = createMemo(() => visibleLanguageAnchors()
-    .map((a) => ({ name: a.name, hue: a.hue, x: a.box.x + (a.preview ? 28 : 0), y: a.box.y - 24 })));
+    .map((a) => ({ name: a.name, hue: a.hue, x: a.box.x + a.box.w / 2, y: a.box.y - LANGUAGE_HEADING_SPACE })));
 
   // One string per line, so a line that has not moved keeps its element.
   const links = createMemo(() => {
@@ -461,6 +462,14 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
       out.push(
         [hue, l.d, fresh ? "new" : ""].join("|")
       );
+    // Group incoming edges before routing. Shared previews have one gutter
+    // connecting all of their parents, regardless of expansion order.
+    const incoming = new Map<string, { from: Point[]; to: Point; hue: string; fresh: boolean }>();
+    const connect = (id: string, from: Point, to: Point, hue: string, fresh: boolean) => {
+      const group = incoming.get(id);
+      if (group) { group.from.push(from); group.fresh ||= fresh; }
+      else incoming.set(id, { from: [from], to, hue, fresh });
+    };
     for (const h of hubs()) {
       const c = at.hubs.get(h.id);
       if (!c) continue;
@@ -473,10 +482,10 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
           .flatMap((k) => at.sources.get(k.id) ?? []);
         const ys = sources.map((s) => s.y + s.h / 2);
         const open = ys.length > 0;
-        if (box && side) push(h.hue!, wire(c, {
+        if (box && side) connect(blobId(shared.host, shared.branch), c, {
           x: side > 0 ? box.x - (open ? 24 : 0) : box.x + box.w + (open ? 24 : 0),
           y: open ? Math.max(Math.min(...ys), Math.min(Math.max(...ys), c.y)) : box.y + box.h / 2,
-        }), recent().has(h.id));
+        }, h.hue!, recent().has(h.id));
       }
       for (const b of h.branches) {
         const box = drawn(h, blobId(h, b));
@@ -489,7 +498,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
         const arrival = sources.length ? { ...(side
           ? { x: spineX, y: Math.max(Math.min(...ys), Math.min(Math.max(...ys), c.y)) }
           : stemArrival(c, spineX, sources)), w: 0, h: 0 } : box;
-        if (side) push(hue, wire(c, { x: side > 0 ? arrival.x : arrival.x + arrival.w, y: arrival.y + arrival.h / 2 }), recent().has(h.id));
+        if (side) connect(blobId(h, b), c, { x: side > 0 ? arrival.x : arrival.x + arrival.w, y: arrival.y + arrival.h / 2 }, hue, recent().has(h.id));
         else push(hue, join(c, ROOT_R, arrival,
           [...at.seats].filter(([id]) => id !== blobId(h, b)).map(([, seat]) => seat),
           rootDirection(h.branches.indexOf(b), h.branches.length), sources.length > 0
@@ -506,6 +515,11 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
           }
         }
       }
+    }
+    let sharedLane = 0;
+    for (const group of incoming.values()) {
+      const paths = group.from.length > 1 ? sharedWires(group.from, group.to, cards, sharedLane++) : [wire(group.from[0], group.to)];
+      for (const path of paths) push(group.hue, path, group.fresh);
     }
     return out;
   });
@@ -727,7 +741,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
       ];
       // Include the language headings in the fit as well as every stage
       // exposed by automatic expansion, not just the immediate children.
-      const next = enclosing(revealed.map((r) => ({ ...r, y: r.y - 24, h: r.h + 24 })));
+      const next = enclosing(revealed.map((r) => ({ ...r, y: r.y - LANGUAGE_HEADING_SPACE, h: r.h + LANGUAGE_HEADING_SPACE })));
       seen.clear();
       const context = enclosing([...(clicked ? [clicked] : []), ...frontier(hub, branch)]) ?? clicked;
       const names = new Set([branch.name, ...all.filter((h) => !before.has(h.id))
@@ -736,7 +750,8 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
         const el = [...stageEl.querySelectorAll<HTMLElement>(".cst-language-label")]
           .find((el) => el.textContent === label.name);
         const r = el?.getBoundingClientRect();
-        return { x: label.x, y: label.y, w: r ? r.width / view().k : 0, h: 16 };
+        const w = r ? r.width / view().k : 0;
+        return { x: label.x - w / 2, y: label.y, w, h: r ? r.height / view().k : 20 };
       }));
       if (context && next && stage().w) glide(expansionView(context, next, stage(), labelBounds));
     });
@@ -1289,8 +1304,8 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
         const anchor = group && languageAnchors(group.anchors, viewport,
           { w: r.width / k, h: r.height / k }, 0)[0];
         if (anchor) {
-          label.style.left = `${anchor.box.x + (anchor.preview ? 28 : 0)}px`;
-          label.style.top = `${anchor.box.y - 24}px`;
+          label.style.left = `${anchor.box.x + anchor.box.w / 2}px`;
+          label.style.top = `${anchor.box.y - LANGUAGE_HEADING_SPACE}px`;
         }
         label.style.visibility = anchor ? "visible" : "hidden";
       }

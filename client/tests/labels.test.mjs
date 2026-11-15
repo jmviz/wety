@@ -19,7 +19,7 @@ test("panning transfers a language heading to the next visible card", () => {
 
 test("a partially visible cluster and its heading keep their world position", () => {
   const label = languageAnchors([anchor(-100, -80, 400)], viewport)[0];
-  assert.equal(label.box.y - 24, -124);
+  assert.equal(label.box.y - 36, -136);
   assert.equal(label.box.x, -80);
 });
 
@@ -29,14 +29,14 @@ test("a visible descendant cluster above a root carries their shared label", () 
 
 
 test("heading jumps to the next word as soon as the first heading no longer fits", () => {
-  const entries = [anchor(30), anchor(94), anchor(158)];
+  const entries = [anchor(42), anchor(124), anchor(206)];
   const size = { w: 140, h: 16 };
-  assert.equal(languageAnchors(entries, { x: -10, y: 0, w: 1000, h: 600 }, size)[0].box.y, 30);
-  assert.equal(languageAnchors(entries, { x: -10, y: 1, w: 1000, h: 600 }, size)[0].box.y, 94);
-  assert.equal(languageAnchors(entries, { x: -10, y: 65, w: 1000, h: 600 }, size)[0].box.y, 158);
+  assert.equal(languageAnchors(entries, { x: -10, y: 0, w: 1000, h: 600 }, size)[0].box.y, 42);
+  assert.equal(languageAnchors(entries, { x: -10, y: 1, w: 1000, h: 600 }, size)[0].box.y, 124);
+  assert.equal(languageAnchors(entries, { x: -10, y: 83, w: 1000, h: 600 }, size)[0].box.y, 206);
 });
 
 test("heading can use a lower fully fitting word when the top candidate is horizontally clipped", () => {
-  const entries = [anchor(30, -20), anchor(94, 20)];
-  assert.equal(languageAnchors(entries, { x: 0, y: 0, w: 400, h: 300 }, { w: 140, h: 16 })[0].box.y, 94);
+  const entries = [anchor(42, -120), anchor(124, 20)];
+  assert.equal(languageAnchors(entries, { x: 0, y: 0, w: 400, h: 300 }, { w: 140, h: 16 })[0].box.y, 124);
 });

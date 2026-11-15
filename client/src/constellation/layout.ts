@@ -41,6 +41,8 @@ export interface BlobSpec {
   clustered?: boolean;
   // A long, unbranched run of single-word stages uses content-sized cards.
   compactChain?: boolean;
+  // Other visible source cards feeding this same descendant subtree.
+  sharedParents?: string[];
 }
 
 // A head opened in a rack, and the blobs that come off it.
@@ -93,12 +95,13 @@ const START = -150 * DEG;
 // one head's blobs, and the space between one head's lane and the next's.
 const RUN = 112;
 const LANE_GAP = 14;
-const BETWEEN = 26;
+const BETWEEN = 44;
 // The run of line from a head's row to its one word.
 const SHORT = 44;
 export const SOURCE_HEIGHT = 38;
+export const LANGUAGE_HEADING_SPACE = 36;
 // A changed language needs room for its floating heading above the card.
-const blobGap = (a: BlobSpec, b?: BlobSpec) => b && a.stage !== b.stage ? 28 : LANE_GAP;
+const blobGap = (a: BlobSpec, b?: BlobSpec) => b && a.stage !== b.stage ? LANGUAGE_HEADING_SPACE + 8 : LANE_GAP;
 
 export const center = (r: Rect): Point => ({ x: r.x + r.w / 2, y: r.y + r.h / 2 });
 
@@ -330,6 +333,41 @@ export function layout(root: RootSpec, frame?: Size, before?: Layout): Layout {
     seats.set(blob.id, r);
     settle(blob, r, at.x, r.x + r.w / 2 >= at.x ? r.x + r.w : r.x);
   });
+  // Shared destinations cannot be positioned as one arbitrary parent's
+  // child. Repack each affected sibling frontier around all incoming roots.
+  const repack = (b: BlobSpec) => {
+    const children = (b.lanes ?? []).flatMap((lane) => lane.blobs.map((child) => ({ child, owner: lane.hub })));
+    if (children.some(({ child }) => child.sharedParents?.length)) {
+      const groups = children.flatMap(({ child, owner }) => {
+        const box = blobs.get(child.id), size = whole(child);
+        if (!box || !size) return [];
+        const parents = [owner, ...(child.sharedParents ?? [])].flatMap((id) => hubs.get(id) ?? []);
+        const wanted = parents.reduce((sum, p) => sum + p.y, 0) / parents.length;
+        return [{ child, top: box.y + (child.lanes?.length ? lanesAt(child).top : 0), height: size.h, wanted }];
+      }).sort((a, b) => a.wanted - b.wanted);
+      const total = groups.reduce((sum, g) => sum + g.height, 0) + BETWEEN * Math.max(0, groups.length - 1);
+      const center = groups.reduce((sum, g) => sum + g.wanted * g.height, 0) / Math.max(1, total - BETWEEN * Math.max(0, groups.length - 1));
+      const start = Math.min(...groups.map((g) => g.top));
+      const end = Math.max(...groups.map((g) => g.top + g.height));
+      let top = Math.max(start, Math.min(end - total, center - total / 2));
+      const move = (child: BlobSpec, dy: number) => {
+        const box = blobs.get(child.id);
+        if (box) blobs.set(child.id, { ...box, y: box.y + dy });
+        for (const lane of child.lanes ?? []) {
+          const p = hubs.get(lane.hub), source = sources.get(lane.hub);
+          if (p) hubs.set(lane.hub, { ...p, y: p.y + dy });
+          if (source) sources.set(lane.hub, { ...source, y: source.y + dy });
+          lane.blobs.forEach((next) => move(next, dy));
+        }
+      };
+      for (const group of groups) {
+        move(group.child, top - group.top);
+        top += group.height + BETWEEN;
+      }
+    }
+    children.forEach(({ child }) => repack(child));
+  };
+  root.blobs.forEach(repack);
   return { hubs, blobs, seats, sides, sources };
 }
 
@@ -488,11 +526,28 @@ export function wire(from: Point, to: Point): Link {
   return cableRouter([])(from, to);
 }
 
+// Several sources feeding one destination are one connection tree, not
+// independent cables. Join them in the destination's gutter, then enter once.
+export function sharedWires(from: Point[], to: Point, cards: Rect[], lane = 0): Link[] {
+  const side = from.reduce((sum, p) => sum + p.x - to.x, 0) >= 0 ? 1 : -1;
+  const distances = from.map((p) => side * (p.x - to.x)).filter((d) => d > 0);
+  const closest = distances.length ? Math.min(...distances) : 48;
+  const x = to.x + side * Math.max(closest - 24 - lane * 12, closest / 2);
+  const top = Math.min(to.y, ...from.map((p) => p.y));
+  const bottom = Math.max(to.y, ...from.map((p) => p.y));
+  const route = cableRouter(cards);
+  const lines = from.map((p) => route(p, { x, y: p.y }));
+  if (top !== bottom) lines.push({ d: roundedRoute([{ x, y: top }, { x, y: bottom }]), end: { x, y: bottom } });
+  lines.push(route({ x, y: to.y }, to));
+  return lines;
+}
+
 // One router per drawing pass. Independent connections get separate vertical
 // lanes; genuine branch stems are still drawn once by the caller. Routing uses
 // visible card geometry, so it also works after viewport-driven compression.
 export function cableRouter(cards: Rect[], stems: { x: number; top: number; bottom: number }[] = []): (from: Point, to: Point) => Link {
   const occupied = [...stems];
+  const runs: { a: Point; b: Point }[] = stems.map((s) => ({ a: { x: s.x, y: s.top }, b: { x: s.x, y: s.bottom } }));
   const contains = (r: Rect, p: Point) => p.x >= r.x - 0.1 && p.x <= r.x + r.w + 0.1
     && p.y >= r.y - 0.1 && p.y <= r.y + r.h + 0.1;
   return (from, to) => {
@@ -503,6 +558,13 @@ export function cableRouter(cards: Rect[], stems: { x: number; top: number; bott
       : a.y > r.y && a.y < r.y + r.h && Math.max(a.x, b.x) > r.x && Math.min(a.x, b.x) < r.x + r.w);
     const laneCost = (a: Point, b: Point) => a.x !== b.x || a.y === b.y ? 0 : occupied.reduce((cost, lane) =>
       cost + (Math.abs(lane.x - a.x) < 10 && Math.max(a.y, b.y) > lane.top && Math.min(a.y, b.y) < lane.bottom ? 10000 : 0), 0);
+    const crossingCost = (a: Point, b: Point) => runs.reduce((cost, run) => {
+      const horizontal = a.y === b.y, otherHorizontal = run.a.y === run.b.y;
+      if (horizontal === otherHorizontal) return cost;
+      const h = horizontal ? { a, b } : run, v = horizontal ? run : { a, b };
+      return cost + (v.a.x > Math.min(h.a.x, h.b.x) + 0.1 && v.a.x < Math.max(h.a.x, h.b.x) - 0.1
+        && h.a.y > Math.min(v.a.y, v.b.y) + 0.1 && h.a.y < Math.max(v.a.y, v.b.y) - 0.1 ? 5000 : 0);
+    }, 0);
     const side = Math.sign(to.x - from.x) || 1;
     const preferred = from.x + side * Math.min(SHORT, Math.abs(to.x - from.x) / 2);
     const xs = [...new Set([preferred, from.x + side * 16, to.x - side * 16,
@@ -513,14 +575,19 @@ export function cableRouter(cards: Rect[], stems: { x: number; top: number; bott
     for (const x of xs) {
       const path = [from, { x, y: from.y }, { x, y: to.y }, to];
       if (!path.slice(1).every((p, i) => clear(path[i], p))) continue;
-      const cost = Math.abs(x - preferred) + laneCost(path[1], path[2]);
+      const cost = Math.abs(x - preferred) + laneCost(path[1], path[2])
+        + path.slice(1).reduce((sum, p, i) => sum + crossingCost(path[i], p), 0);
       if (cost < score) { best = path; score = cost; }
     }
-    if (!best) {
+    if (!best || score >= 5000) {
       // A card spans the whole direct corridor. Walk a rectilinear visibility
       // grid around card edges, penalizing bends and previously used lanes.
-      const gridX = [...new Set([from.x, to.x, ...xs])].sort((a, b) => a - b);
-      const gridY = [...new Set([from.y, to.y, ...blocks.flatMap((r) => [r.y, r.y + r.h])])].sort((a, b) => a - b);
+      const nearby = runs.filter(({ a, b }) => Math.max(a.x, b.x) >= Math.min(from.x, to.x) - 40
+        && Math.min(a.x, b.x) <= Math.max(from.x, to.x) + 40);
+      const gridX = [...new Set([from.x, to.x, ...xs,
+        ...nearby.flatMap(({ a, b }) => [Math.min(a.x, b.x) - 16, Math.max(a.x, b.x) + 16])])].sort((a, b) => a - b);
+      const gridY = [...new Set([from.y, to.y, ...blocks.flatMap((r) => [r.y, r.y + r.h]),
+        ...nearby.flatMap(({ a, b }) => [Math.min(a.y, b.y) - 16, Math.max(a.y, b.y) + 16])])].sort((a, b) => a - b);
       const key = (x: number, y: number, dir: number) => `${x},${y},${dir}`;
       const start = { x: gridX.indexOf(from.x), y: gridY.indexOf(from.y), dir: 0, cost: 0, path: [from] };
       const queue = [start];
@@ -537,7 +604,7 @@ export function cableRouter(cards: Rect[], stems: { x: number; top: number; bott
           const b = { x: gridX[x], y: gridY[y] };
           if (!clear(a, b)) continue;
           const cost = here.cost + Math.abs(a.x - b.x) + Math.abs(a.y - b.y)
-            + (here.dir && dir !== here.dir ? 24 : 0) + laneCost(a, b);
+            + (here.dir && dir !== here.dir ? 24 : 0) + laneCost(a, b) + crossingCost(a, b);
           const id = key(x, y, dir);
           if (cost >= (costs.get(id) ?? Infinity)) continue;
           costs.set(id, cost);
@@ -548,6 +615,7 @@ export function cableRouter(cards: Rect[], stems: { x: number; top: number; bott
     best ??= [from, { x: preferred, y: from.y }, { x: preferred, y: to.y }, to];
     for (let i = 1; i < best.length; i++) {
       const a = best[i - 1], b = best[i];
+      if (a.x !== b.x || a.y !== b.y) runs.push({ a, b });
       if (a.x === b.x && a.y !== b.y) occupied.push({ x: a.x, top: Math.min(a.y, b.y), bottom: Math.max(a.y, b.y) });
     }
     return { d: roundedRoute(best), start: from, end: to };
