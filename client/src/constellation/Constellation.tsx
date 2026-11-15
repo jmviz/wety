@@ -377,7 +377,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
   );
   // Where a blob is drawn: its seat, or when it has shrunk, the end of its
   // seat nearer its hub.
-  const drawn = (hub: Hub, id: string): Rect | undefined => {
+  const rawDrawn = (hub: Hub, id: string): Rect | undefined => {
     const seat = placed().blobs.get(id);
     const now = sizes().get(id)?.now;
     const c = placed().hubs.get(hub.id);
@@ -396,7 +396,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     for (const h of hubs()) for (const b of h.branches) {
       const id = blobId(h, b);
       const open = hubs().filter((k) => k.via === id);
-      const box = drawn(h, id);
+      const box = rawDrawn(h, id);
       if (!box) continue;
       const key = b.language ?? b.key;
       let group = groups.get(key);
@@ -404,12 +404,39 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
       if (clusteredBranch(b, open)) {
         for (const entry of entriesFor(h, b, open)) {
           const source = placed().sources.get(entry.id);
-          if (source) group.anchors.push({ box: source });
+          if (source) group.anchors.push({ box: source, id: entry.id, preview: !entry.head });
         }
-      } else group.anchors.push({ box });
+      } else group.anchors.push({ box, id, preview: !open.length && b.groups.some((g) => canOpen(g, target)) });
     }
     return groups;
   });
+
+  const [view, setView] = createSignal({ x: 0, y: 0, k: 1 });
+  const [initialOverview, setInitialOverview] = createSignal(true);
+  const [stage, setStage] = createSignal<CameraViewport>({ x: 0, y: 0, w: 0, h: 0, scale: 1 });
+  const visibleLanguageAnchors = createMemo(() => {
+    const v = view();
+    const s = stage();
+    const viewport = { x: (s.x - v.x) / v.k, y: (s.y - v.y) / v.k, w: s.w / v.k, h: s.h / v.k };
+    return [...languageGroups().values()].flatMap((g) => languageAnchors(g.anchors, viewport)
+      .map((anchor) => ({ ...anchor, name: g.name, hue: g.hue })));
+  });
+  const previewOffsets = createMemo(() => new Map(visibleLanguageAnchors()
+    .filter((a) => a.preview && a.id)
+    .map((a) => {
+      const raw = [...languageGroups().values()].flatMap((g) => g.anchors).find((r) => r.id === a.id)!;
+      return [a.id!, Math.max(0, a.box.y - raw.box.y)];
+    })));
+  const drawn = (hub: Hub, id: string): Rect | undefined => {
+    const r = rawDrawn(hub, id);
+    return r && { ...r, y: r.y + (previewOffsets().get(id) ?? 0) };
+  };
+  const sourceRect = (id: string): Rect | undefined => {
+    const r = placed().sources.get(id);
+    return r && { ...r, y: r.y + (previewOffsets().get(id) ?? 0) };
+  };
+  const languageLabels = createMemo(() => visibleLanguageAnchors()
+    .map((a) => ({ name: a.name, hue: a.hue, x: a.box.x, y: a.box.y - 24 })));
 
   // One string per line, so a line that has not moved keeps its element.
   const links = createMemo(() => {
@@ -428,7 +455,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
       for (const shared of h.shared) {
         const box = drawn(shared.host, blobId(shared.host, shared.branch));
         const sources = entriesFor(shared.host, shared.branch, hubs().filter((k) => k.via === blobId(shared.host, shared.branch)))
-          .flatMap((k) => at.sources.get(k.id) ?? []);
+          .flatMap((k) => sourceRect(k.id) ?? []);
         const ys = sources.map((s) => s.y + s.h / 2);
         const open = ys.length > 0;
         if (box && side) push(h.hue!, wire(c, {
@@ -440,7 +467,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
         const box = drawn(h, blobId(h, b));
         if (!box) continue;
         const hue = h.hues.get(b.key)!;
-        const sources = entriesFor(h, b, hubs().filter((k) => k.via === blobId(h, b))).flatMap((k) => at.sources.get(k.id) ?? []);
+        const sources = entriesFor(h, b, hubs().filter((k) => k.via === blobId(h, b))).flatMap((k) => sourceRect(k.id) ?? []);
         const outward = at.sides.get(blobId(h, b)) ?? (side || (box.x + box.w / 2 >= c.x ? 1 : -1));
         const spineX = outward > 0 ? box.x - 24 : box.x + box.w + 24;
         const ys = sources.map((s) => s.y + s.h / 2);
@@ -457,7 +484,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
             end: { x: spineX, y: arrival.y + arrival.h / 2 } });
           for (const source of sources) {
             const y = source.y + source.h / 2;
-            const fresh = hubs().some((k) => recent().has(k.id) && at.sources.get(k.id) === source);
+            const fresh = hubs().some((k) => recent().has(k.id) && sourceRect(k.id)?.x === source.x && sourceRect(k.id)?.y === source.y);
             push(hue, wire({ x: spineX, y }, { x: outward > 0 ? source.x : source.x + source.w, y }), fresh);
           }
         }
@@ -467,16 +494,6 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
   });
 
   // The view: where the canvas origin sits in the stage, and the zoom.
-  const [view, setView] = createSignal({ x: 0, y: 0, k: 1 });
-  const [initialOverview, setInitialOverview] = createSignal(true);
-  const [stage, setStage] = createSignal<CameraViewport>({ x: 0, y: 0, w: 0, h: 0, scale: 1 });
-  const languageLabels = createMemo(() => {
-    const v = view();
-    const s = stage();
-    const viewport = { x: (s.x - v.x) / v.k, y: (s.y - v.y) / v.k, w: s.w / v.k, h: s.h / v.k };
-    return [...languageGroups().values()].flatMap((g) => languageAnchors(g.anchors, viewport)
-      .map(({ box }) => ({ name: g.name, hue: g.hue, x: box.x, y: box.y - 24 })));
-  });
   const [gliding, setGliding] = createSignal(false);
   const [dragging, setDragging] = createSignal(false);
   let glideTimer: number | undefined;
@@ -514,7 +531,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
   };
   const visibleRects = (h: Hub, b: Branch): Rect[] => {
     const id = blobId(h, b);
-    const sources = entriesFor(h, b, hubs().filter((k) => k.via === id)).flatMap((e) => placed().sources.get(e.id) ?? []);
+    const sources = entriesFor(h, b, hubs().filter((k) => k.via === id)).flatMap((e) => sourceRect(e.id) ?? []);
     const box = drawn(h, id);
     return sources.length ? sources : box ? [box] : [];
   };
@@ -982,7 +999,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     onCleanup(() => observer.unobserve(el));
     return (
       <div ref={el} class="cst-row-face" classList={{ "cst-preview-box": p.floating }} data-preview-box={id}
-        style={p.floating ? { top: `${(placed().sources.get(id)?.y ?? 0) - (drawn(p.hub, blobId(p.hub, p.branch))?.y ?? 0)}px` } : undefined}>
+        style={p.floating ? { top: `${(sourceRect(id)?.y ?? 0) - (drawn(p.hub, blobId(p.hub, p.branch))?.y ?? 0)}px` } : undefined}>
         <For each={remaining()}>{(index) => <PreviewRow hub={p.hub} branch={p.branch} index={index} />}</For>
       </div>
     );

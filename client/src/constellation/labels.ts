@@ -2,6 +2,8 @@ import type { Rect } from "./layout";
 
 export interface LanguageAnchor {
   box: Rect;
+  id?: string;
+  preview?: boolean;
 }
 
 // One heading per language in the current view, carried by its highest
@@ -11,6 +13,6 @@ export function languageAnchors(entries: LanguageAnchor[], viewport: Rect, gap =
     box.y < viewport.y + viewport.h && box.y + box.h > viewport.y);
   const first = visible.sort((a, b) => a.box.y - b.box.y || a.box.x - b.box.x)[0];
   if (!first) return [];
-  return [{ box: { ...first.box, x: Math.max(viewport.x + 8, first.box.x),
+  return [{ ...first, box: { ...first.box, x: Math.max(viewport.x + 8, first.box.x),
     y: Math.max(viewport.y + gap + 8, first.box.y) } }];
 }
