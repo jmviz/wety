@@ -19,14 +19,14 @@ test("asymmetric overview grows the diagram while keeping the root near centre a
   }
 });
 
-test("expansion keeps the clicked cluster when it fits without shrinking the new branch", () => {
+test("expansion centres the new branch vertically even when the old cluster fits above it", () => {
   const clicked = { x: 0, y: -300, w: 320, h: 300 };
   const expanded = { x: 0, y: 60, w: 700, h: 200 };
   const viewport = { x: 0, y: 0, w: 1200, h: 800, scale: 1 };
   const view = expansionView(clicked, expanded, viewport);
   assert.equal(view.k, 1);
   assert.equal(view.x + 350, 600);
-  assert.equal(view.y - 20, 400);
+  assert.equal(view.y + 160, 400);
 });
 
 test("long automatic lineages fit both their historical root and youngest descendant", () => {

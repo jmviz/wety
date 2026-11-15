@@ -40,7 +40,8 @@ export function rootOverview(root: Point, bounds: Rect, viewport: CameraViewport
 }
 
 // Always fit the newly exposed branch from source to frontier. Keep the
-// clicked cluster as context only when it fits at the same reading scale.
+// clicked cluster as horizontal context when it fits at the same scale.
+// Vertically, the newly exposed branch owns the centre of the screen.
 export function expansionView(clicked: Rect, expanded: Rect, viewport: CameraViewport) {
   const scale = viewport.scale;
   const pad = 48 / scale;
@@ -55,7 +56,7 @@ export function expansionView(clicked: Rect, expanded: Rect, viewport: CameraVie
   const frame = contextFits ? { x, y, w: right - x, h: bottom - y } : expanded;
   return {
     x: viewport.x + viewport.w / 2 - (frame.x + frame.w / 2) * k,
-    y: viewport.y + viewport.h / 2 - (frame.y + frame.h / 2) * k,
+    y: viewport.y + viewport.h / 2 - (expanded.y + expanded.h / 2) * k,
     k,
   };
 }
