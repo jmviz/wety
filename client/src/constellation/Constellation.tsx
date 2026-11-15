@@ -436,7 +436,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     return r && { ...r, y: r.y + (previewOffsets().get(id) ?? 0) };
   };
   const languageLabels = createMemo(() => visibleLanguageAnchors()
-    .map((a) => ({ name: a.name, hue: a.hue, x: a.box.x, y: a.box.y - 24 })));
+    .map((a) => ({ name: a.name, hue: a.hue, x: a.box.x + (a.preview ? 28 : 0), y: a.box.y - 24 })));
 
   // One string per line, so a line that has not moved keeps its element.
   const links = createMemo(() => {
