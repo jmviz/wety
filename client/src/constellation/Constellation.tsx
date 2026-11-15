@@ -668,7 +668,9 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     // The heads opened here, in the order of their rows.
     const rows = () => hubs().filter((h) => h.via === id);
     const openable = roots.filter((g) => canOpen(g, target));
-    const compact = () => roots.length === 1 && rows().length === 1 && rows()[0].single;
+    // One named word needs one row, even when more language stages follow.
+    // Keeping those stages visible must not add a separate language header.
+    const compact = () => roots.length === 1 && rows().length === 1 && !!rows()[0].node.item.term;
     const face = () => openable.length > 0 && rows().length === 0;
     const act = () => rack(p.hub, p.branch, openable);
     const Name = () => <span>{p.branch.name}</span>;
