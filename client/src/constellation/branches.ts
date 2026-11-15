@@ -145,8 +145,12 @@ export function uncommonLatinEnglish(root: TreeNode, common: Common | null): Set
   for (let p = root.parent; p; p = p.parent) inherited ||= isLatin(p);
   const visit = (n: TreeNode, latin: boolean) => {
     latin ||= isLatin(n);
-    if (latin && n.item.lang.code === "en" && !n.isSelected && !isAffix(n) &&
-        (level(common, n.item.term) ?? Infinity) > LATIN_COMMON_LIMIT) omitted.add(n.key);
+    // Affixes must qualify too. SCOWL stores ordinary spellings, so try the
+    // form without boundary hyphens; "après-" gets no blanket exemption.
+    const frequency = level(common, n.item.term) ??
+      (isAffix(n) ? level(common, n.item.term.replace(/^-+|-+$/g, "")) : undefined);
+    if (latin && n.item.lang.code === "en" && !n.isSelected &&
+        (frequency ?? Infinity) > LATIN_COMMON_LIMIT) omitted.add(n.key);
     for (const child of n.children) visit(child, latin);
   };
   visit(root, inherited);
