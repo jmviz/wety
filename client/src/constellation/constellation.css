@@ -266,6 +266,59 @@ main.constellation-only .cst-stage {
   background: linear-gradient(rgba(var(--c), 0.055), rgba(var(--c), 0.055)), var(--cst-ground);
 }
 
+/* Trays distinguish folded descendants from the individual roots beside
+   them. The initial overview keeps its existing cluster presentation. */
+.cst-blob.descendant-tray,
+.cst-row-face.cst-preview-box.cst-descendant-tray {
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.cst-descendant-tray,
+.descendant-tray > .cst-face {
+  padding: 0;
+  gap: 0;
+}
+
+.cst-tray-heading {
+  display: block;
+  padding: 14px 20px;
+  color: rgb(var(--c));
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 16px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  border-bottom: 1px solid rgba(var(--c), 0.22);
+}
+
+.cst-descendant-tray .cst-preview-row,
+.descendant-tray .cst-preview {
+  position: relative;
+  display: block;
+  padding: 12px 38px 12px 20px;
+  border: 0;
+  border-radius: 0;
+}
+
+.cst-descendant-tray .cst-preview-row + .cst-preview-row {
+  border-top: 1px solid rgba(var(--c), 0.18);
+}
+
+.cst-descendant-tray .cst-preview-row:not(:disabled)::after,
+.descendant-tray > .cst-face .cst-preview::after {
+  content: "";
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  width: 6px;
+  height: 14px;
+  transform: translateY(-50%);
+  background: var(--cst-soft);
+  clip-path: polygon(0 0, 100% 50%, 0 100%, 0 84%, 72% 50%, 0 16%);
+  pointer-events: none;
+}
+
 .cst-close {
   all: unset;
   box-sizing: border-box;

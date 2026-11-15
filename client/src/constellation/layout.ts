@@ -483,13 +483,73 @@ function roundedRoute(points: Point[]): string {
   return `${d} L ${f(last.x)} ${f(last.y)}`;
 }
 
-// A line that leaves and arrives level, with a shared right-angle gutter.
+// An isolated connector uses the same routing rules without prior lanes.
 export function wire(from: Point, to: Point): Link {
-  const dx = to.x - from.x;
-  const turn = Math.sign(dx) * Math.min(SHORT, Math.abs(dx) / 2);
-  return {
-    d: roundedRoute([from, { x: from.x + turn, y: from.y }, { x: from.x + turn, y: to.y }, to]),
-    end: to,
-    start: from,
+  return cableRouter([])(from, to);
+}
+
+// One router per drawing pass. Independent connections get separate vertical
+// lanes; genuine branch stems are still drawn once by the caller. Routing uses
+// visible card geometry, so it also works after viewport-driven compression.
+export function cableRouter(cards: Rect[], stems: { x: number; top: number; bottom: number }[] = []): (from: Point, to: Point) => Link {
+  const occupied = [...stems];
+  const contains = (r: Rect, p: Point) => p.x >= r.x - 0.1 && p.x <= r.x + r.w + 0.1
+    && p.y >= r.y - 0.1 && p.y <= r.y + r.h + 0.1;
+  return (from, to) => {
+    const blocks = cards.filter((r) => !contains(r, from) && !contains(r, to))
+      .map((r) => ({ x: r.x - 16, y: r.y - 16, w: r.w + 32, h: r.h + 32 }));
+    const clear = (a: Point, b: Point) => !blocks.some((r) => a.x === b.x
+      ? a.x > r.x && a.x < r.x + r.w && Math.max(a.y, b.y) > r.y && Math.min(a.y, b.y) < r.y + r.h
+      : a.y > r.y && a.y < r.y + r.h && Math.max(a.x, b.x) > r.x && Math.min(a.x, b.x) < r.x + r.w);
+    const laneCost = (a: Point, b: Point) => a.x !== b.x || a.y === b.y ? 0 : occupied.reduce((cost, lane) =>
+      cost + (Math.abs(lane.x - a.x) < 10 && Math.max(a.y, b.y) > lane.top && Math.min(a.y, b.y) < lane.bottom ? 10000 : 0), 0);
+    const side = Math.sign(to.x - from.x) || 1;
+    const preferred = from.x + side * Math.min(SHORT, Math.abs(to.x - from.x) / 2);
+    const xs = [...new Set([preferred, from.x + side * 16, to.x - side * 16,
+      ...Array.from({ length: 9 }, (_, i) => preferred + (i - 4) * 12),
+      ...blocks.flatMap((r) => [r.x, r.x + r.w])])];
+    let best: Point[] | undefined;
+    let score = Infinity;
+    for (const x of xs) {
+      const path = [from, { x, y: from.y }, { x, y: to.y }, to];
+      if (!path.slice(1).every((p, i) => clear(path[i], p))) continue;
+      const cost = Math.abs(x - preferred) + laneCost(path[1], path[2]);
+      if (cost < score) { best = path; score = cost; }
+    }
+    if (!best) {
+      // A card spans the whole direct corridor. Walk a rectilinear visibility
+      // grid around card edges, penalizing bends and previously used lanes.
+      const gridX = [...new Set([from.x, to.x, ...xs])].sort((a, b) => a - b);
+      const gridY = [...new Set([from.y, to.y, ...blocks.flatMap((r) => [r.y, r.y + r.h])])].sort((a, b) => a - b);
+      const key = (x: number, y: number, dir: number) => `${x},${y},${dir}`;
+      const start = { x: gridX.indexOf(from.x), y: gridY.indexOf(from.y), dir: 0, cost: 0, path: [from] };
+      const queue = [start];
+      const costs = new Map<string, number>();
+      while (queue.length) {
+        queue.sort((a, b) => b.cost - a.cost);
+        const here = queue.pop()!;
+        if (here.cost > (costs.get(key(here.x, here.y, here.dir)) ?? Infinity)) continue;
+        const a = { x: gridX[here.x], y: gridY[here.y] };
+        if (a.x === to.x && a.y === to.y) { best = here.path; break; }
+        for (const [dx, dy, dir] of [[1, 0, 1], [-1, 0, 1], [0, 1, 2], [0, -1, 2]]) {
+          const x = here.x + dx, y = here.y + dy;
+          if (x < 0 || y < 0 || x >= gridX.length || y >= gridY.length) continue;
+          const b = { x: gridX[x], y: gridY[y] };
+          if (!clear(a, b)) continue;
+          const cost = here.cost + Math.abs(a.x - b.x) + Math.abs(a.y - b.y)
+            + (here.dir && dir !== here.dir ? 24 : 0) + laneCost(a, b);
+          const id = key(x, y, dir);
+          if (cost >= (costs.get(id) ?? Infinity)) continue;
+          costs.set(id, cost);
+          queue.push({ x, y, dir, cost, path: [...here.path, b] });
+        }
+      }
+    }
+    best ??= [from, { x: preferred, y: from.y }, { x: preferred, y: to.y }, to];
+    for (let i = 1; i < best.length; i++) {
+      const a = best[i - 1], b = best[i];
+      if (a.x === b.x && a.y !== b.y) occupied.push({ x: a.x, top: Math.min(a.y, b.y), bottom: Math.max(a.y, b.y) });
+    }
+    return { d: roundedRoute(best), start: from, end: to };
   };
 }

@@ -5,7 +5,7 @@ import { useGoTo } from "../search/navigate";
 import { Item, Lang, TreeKind, term } from "../search/types";
 import { cognates, constellationStart, lastRequest, showGlosses, showRare } from "../state";
 import { Branch, Common, Group, HIDE_UNDEFINED_ROOTS, LangTree, autoExpandGroup, branchesOf, canOpen, directEarlyEnglish, previewLines, previewRows, rackOrder, restrictBranches, singleEndpoint, sourceBranches, uncommonLatinEnglish, withoutUndefinedRoots } from "./branches";
-import { BlobSpec, Layout, Link, Point, Rect, Size, SOURCE_HEIGHT, bounds, join, layout, rootDirection, stemArrival, wire } from "./layout";
+import { BlobSpec, Layout, Link, Point, Rect, Size, SOURCE_HEIGHT, bounds, join, layout, rootDirection, stemArrival, cableRouter } from "./layout";
 import { chronological, languageTimes } from "./chronology";
 import type { LayoutPeriod } from "./chronology";
 import { representatives } from "./representatives";
@@ -308,6 +308,13 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
   let placedVersion = 0;
   const clusteredHeads = (heads: Hub[]) => heads.length > 1 && heads.every((h) => h.node.item.lang.code.endsWith("-pro"));
   const clusteredBranch = (b: Branch, heads: Hub[]) => clusteredHeads(heads) || (selective(b) && heads.length > 0);
+  // A family's overview remains a plain cluster. Once it has individual
+  // roots, its remaining and downstream previews become descendant trays.
+  const descendantTray = (h: Hub, b: Branch) => {
+    let family = blobId(h, b);
+    for (let ancestor: Hub | null = h; ancestor?.via; ancestor = ancestor.parent) family = ancestor.via;
+    return hubs().some((child) => child.via === family && !!child.node.item.term);
+  };
   const entriesFor = (h: Hub, b: Branch, heads: Hub[]): { id: string; head: Hub | undefined }[] => selective(b) && heads.length > 0
     ? [
         ...(remainingRows(h, b, heads).length ? [{ id: previewBoxId(h, b), head: undefined }] : []),
@@ -434,6 +441,21 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
   // One string per line, so a line that has not moved keeps its element.
   const links = createMemo(() => {
     const at = placed();
+    const cards = hubs().flatMap((h) => h.branches.flatMap((b) => {
+      const heads = hubs().filter((k) => k.via === blobId(h, b));
+      return clusteredBranch(b, heads)
+        ? entriesFor(h, b, heads).flatMap((entry) => at.sources.get(entry.id) ?? [])
+        : drawn(h, blobId(h, b)) ?? [];
+    }));
+    const stems = hubs().flatMap((h) => h.branches.flatMap((b) => {
+      const id = blobId(h, b), box = drawn(h, id);
+      const sources = entriesFor(h, b, hubs().filter((k) => k.via === id)).flatMap((entry) => at.sources.get(entry.id) ?? []);
+      if (!box || sources.length < 2) return [];
+      const side = at.sides.get(id) ?? 1;
+      return [{ x: side > 0 ? box.x - 24 : box.x + box.w + 24,
+        top: Math.min(...sources.map((s) => s.y + s.h / 2)), bottom: Math.max(...sources.map((s) => s.y + s.h / 2)) }];
+    }));
+    const wire = cableRouter(cards, stems);
     const out: string[] = [];
     const push = (hue: string, l: Link, fresh = false) =>
       out.push(
@@ -473,7 +495,9 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
           rootDirection(h.branches.indexOf(b), h.branches.length), sources.length > 0
         ));
         if (sources.length) {
-          push(hue, { d: `M ${spineX} ${Math.min(...ys, arrival.y)} L ${spineX} ${Math.max(...ys, arrival.y)}`,
+          const top = Math.min(...ys, arrival.y), bottom = Math.max(...ys, arrival.y);
+          // A zero-length SVG stroke with round caps renders as a dot.
+          if (top !== bottom) push(hue, { d: `M ${spineX} ${top} L ${spineX} ${bottom}`,
             end: { x: spineX, y: arrival.y + arrival.h / 2 } });
           for (const source of sources) {
             const y = source.y + source.h / 2;
@@ -1021,8 +1045,9 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     onMount(() => observer.observe(el));
     onCleanup(() => observer.unobserve(el));
     return (
-      <div ref={el} class="cst-row-face" classList={{ "cst-preview-box": p.floating }} data-preview-box={id}
+      <div ref={el} class="cst-row-face" classList={{ "cst-preview-box": p.floating, "cst-descendant-tray": descendantTray(p.hub, p.branch) }} data-preview-box={id}
         style={p.floating ? { top: `${(placed().sources.get(id)?.y ?? 0) - (drawn(p.hub, blobId(p.hub, p.branch))?.y ?? 0)}px` } : undefined}>
+        <Show when={descendantTray(p.hub, p.branch)}><div class="cst-tray-heading">{target.name} descendants</div></Show>
         <For each={remaining()}>{(index) => <PreviewRow hub={p.hub} branch={p.branch} index={index} />}</For>
       </div>
     );
@@ -1105,6 +1130,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
           clustered: clustered(),
           "compact-chain": chainIds().has(id),
           fresh: !clustered() && recent().has(p.hub.id),
+          "descendant-tray": face() && descendantTray(p.hub, p.branch),
         }}
         data-blob={id}
         data-language={p.branch.name}
@@ -1167,6 +1193,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
             }
             onClick={act}
           >
+            <Show when={descendantTray(p.hub, p.branch)}><span class="cst-tray-heading">{target.name} descendants</span></Show>
             <span class="cst-words cst-preview">
               <For each={lines()}>
                 {(words) => <span class="cst-preview-line"><WordList words={words} live={false} /></span>}

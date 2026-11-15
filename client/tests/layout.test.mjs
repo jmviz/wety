@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { join, layout, rootDirection, stemArrival, wire, whole } from "../src/constellation/layout.ts";
+import { cableRouter, join, layout, rootDirection, stemArrival, wire, whole } from "../src/constellation/layout.ts";
 
 test("root cables flow into a branch stem outside its cards without an obstacle hook", () => {
   for (const side of [-1, 1]) for (const vertical of [-1, 1]) {
@@ -245,4 +245,44 @@ test("connectors contain only curves and horizontal or vertical straight runs", 
     assertOrthogonalLines(d);
     assert.ok(d.includes(" Q "));
   }
+});
+
+test("unrelated connectors occupy separate turning lanes on both sides", () => {
+  for (const side of [-1, 1]) {
+    const route = cableRouter([]);
+    const first = route({ x: 0, y: 0 }, { x: side * 300, y: 120 });
+    const second = route({ x: 0, y: 160 }, { x: side * 300, y: 40 });
+    const verticals = (d) => {
+      let prior;
+      const lanes = [];
+      for (const match of d.matchAll(/([MLQ]) ([^MLQ]+)/g)) {
+        const n = match[2].trim().split(/\s+/).map(Number);
+        const end = { x: n.at(-2), y: n.at(-1) };
+        if (match[1] === 'L' && prior?.x === end.x && prior.y !== end.y) lanes.push(end.x);
+        prior = end;
+      }
+      return lanes;
+    };
+    assert.ok(verticals(first.d).every((x) => !verticals(second.d).includes(x)));
+    assertOrthogonalLines(first.d);
+    assertOrthogonalLines(second.d);
+  }
+});
+
+test("connectors bypass unrelated cards even when the card spans the direct corridor", () => {
+  for (const side of [-1, 1]) {
+    const obstacle = { x: side > 0 ? 80 : -240, y: -30, w: 160, h: 260 };
+    const route = cableRouter([obstacle]);
+    const line = route({ x: 0, y: 0 }, { x: side * 340, y: 160 });
+    assertOrthogonalLines(line.d);
+    for (const p of samplePath(line.d)) assert.ok(!(p.x > obstacle.x && p.x < obstacle.x + obstacle.w
+      && p.y > obstacle.y && p.y < obstacle.y + obstacle.h), JSON.stringify(p));
+  }
+});
+
+test("independent turns leave space beside an existing family stem", () => {
+  const route = cableRouter([], [{ x: 44, top: -100, bottom: 200 }]);
+  const line = route({ x: 0, y: 0 }, { x: 300, y: 120 });
+  assertOrthogonalLines(line.d);
+  assert.ok(!line.d.includes("L 44.0 108.0"));
 });
