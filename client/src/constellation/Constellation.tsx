@@ -5,7 +5,7 @@ import { useGoTo } from "../search/navigate";
 import { Item, Lang, TreeKind, term } from "../search/types";
 import { cognates, constellationStart, lastRequest, showGlosses, showRare } from "../state";
 import { Branch, Common, Group, LangTree, autoExpandGroup, branchesOf, canOpen, directEarlyEnglish, previewLines, rackOrder, singleEndpoint, uncommonLatinEnglish } from "./branches";
-import { BlobSpec, Layout, Link, Point, Rect, Size, bounds, join, layout, wire } from "./layout";
+import { BlobSpec, Layout, Link, Point, Rect, Size, bounds, join, layout, rootDirection, wire } from "./layout";
 import { chronological, languageTimes } from "./chronology";
 import type { LayoutPeriod } from "./chronology";
 
@@ -287,7 +287,8 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
         const hue = h.hues.get(b.key)!;
         if (side) push(hue, wire(c, { x: side > 0 ? box.x : box.x + box.w, y: box.y + box.h / 2 }));
         else push(hue, join(c, ROOT_R, box,
-          [...at.seats].filter(([id]) => id !== blobId(h, b)).map(([, seat]) => seat)
+          [...at.seats].filter(([id]) => id !== blobId(h, b)).map(([, seat]) => seat),
+          rootDirection(h.branches.indexOf(b), h.branches.length)
         ));
       }
     }

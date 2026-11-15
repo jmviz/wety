@@ -1,6 +1,40 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { join, layout, wire } from "../src/constellation/layout.ts";
+import { join, layout, rootDirection, wire } from "../src/constellation/layout.ts";
+
+test("root siblings keep separate directions even with tall previews and previous bad seats", () => {
+  const root = { id: "root", r: 96, blobs: [
+    { id: "greek", size: { w: 320, h: 220 } },
+    { id: "italic", size: { w: 320, h: 800 } },
+    { id: "germanic", size: { w: 320, h: 500 } },
+    { id: "slavic", size: { w: 250, h: 100 } },
+  ] };
+  const bad = { hubs: new Map([["root", { x: 0, y: 0 }]]), blobs: new Map(), sides: new Map(), seats: new Map([
+    ["italic", { x: 150, y: -400, w: 320, h: 800 }],
+    ["germanic", { x: 510, y: -250, w: 320, h: 500 }],
+  ]) };
+  for (const previous of [undefined, bad]) {
+    const placed = layout(root, { w: 1000, h: 700 }, previous);
+    const angles = root.blobs.map((b, i) => {
+      const r = placed.blobs.get(b.id);
+      const angle = Math.atan2(r.y + r.h / 2, r.x + r.w / 2);
+      const intended = (-150 + i * 90) * Math.PI / 180;
+      assert.ok(Math.abs(Math.atan2(Math.sin(angle - intended), Math.cos(angle - intended))) < 1e-6);
+      return angle;
+    });
+    assert.ok(Math.abs(angles[1] - angles[2]) >= Math.PI / 3);
+  }
+});
+
+test("root cables retain distinct departure directions when visible rack boxes move", () => {
+  for (let i = 0; i < 4; i++) {
+    const direction = rootDirection(i, 4);
+    const line = join({ x: 0, y: 0 }, 96, { x: 300, y: 100, w: 320, h: 600 }, [], direction);
+    const [, x, y] = /^M (-?[\d.]+) (-?[\d.]+)/.exec(line.d);
+    assert.ok(Math.abs(+x - 96 * Math.cos(direction)) < 0.1);
+    assert.ok(Math.abs(+y - 96 * Math.sin(direction)) < 0.1);
+  }
+});
 
 test("root connectors route around a tall sibling instead of appearing to descend from it", () => {
   for (const side of [-1, 1]) {

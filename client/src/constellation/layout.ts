@@ -217,10 +217,19 @@ export function layout(root: RootSpec, frame?: Size, before?: Layout): Layout {
     const d = root.r + REACH + extent(size, angle) + out;
     return around({ x: Math.cos(angle) * d, y: Math.sin(angle) * d }, size);
   };
-  // Each blob has its turn round the root and takes the free seat nearest
-  // it, moving out a little at a time when there is none. Within `room`, a
+  // Each blob has a fixed direction from the root and moves farther out
+  // along it when more room is needed. Within `room`, a
   // box centred on the root, or not at all when it has no seat in it.
   const n = root.blobs.length;
+  // Root branches keep distinct directions. Searching the whole circle
+  // for a smaller packing can put one sibling behind another.
+  const sector = n > 1 ? 0 : Math.PI;
+  const inSector = (i: number, r: Rect) => {
+    if (n <= 1) return true;
+    const angle = Math.atan2(r.y + r.h / 2, r.x + r.w / 2);
+    const turn = START + (i * 2 * Math.PI) / n;
+    return Math.abs(Math.atan2(Math.sin(angle - turn), Math.cos(angle - turn))) <= sector + 1e-6;
+  };
   const find = (i: number, size: Size, room: Size | null, mine: Rect[]): Rect | null => {
     const fits = (r: Rect) =>
       (!room ||
@@ -229,7 +238,7 @@ export function layout(root: RootSpec, frame?: Size, before?: Layout): Layout {
     const far = room ? Math.hypot(room.w, room.h) / 2 : FAR;
     const turn = START + (i * 2 * Math.PI) / n;
     for (let out = 0; out <= far; out += STEP)
-      for (let off = 0; off <= Math.PI; off += TURN)
+      for (let off = 0; off <= sector + 1e-6; off += TURN)
         for (const angle of off === 0 ? [turn] : [turn + off, turn - off]) {
           const r = seat(size, angle, out);
           if (fits(r)) return r;
@@ -262,7 +271,7 @@ export function layout(root: RootSpec, frame?: Size, before?: Layout): Layout {
     found = root.blobs.map((blob, i) => {
       const size = sizes[i];
       const old = before.seats.get(blob.id);
-      const keeps = size && old && old.w === size.w && old.h === size.h && free(old, mine);
+      const keeps = size && old && old.w === size.w && old.h === size.h && inSector(i, old) && free(old, mine);
       if (keeps) mine.push(old);
       return keeps ? old : null;
     });
@@ -327,10 +336,16 @@ export interface Link {
 
 const f = (n: number) => n.toFixed(1);
 
+// Each sibling has its own departure point, even when a rack's visible
+// box is off-centre within the space reserved for all of its descendants.
+export function rootDirection(index: number, count: number): number {
+  return START + index * 2 * Math.PI / count;
+}
+
 // A gently bowed line from the root's rim to a blob's edge.
-export function join(c: Point, r: number, box: Rect, obstacles: Rect[] = []): Link {
+export function join(c: Point, r: number, box: Rect, obstacles: Rect[] = [], direction?: number): Link {
   const to = center(box);
-  const angle = Math.atan2(to.y - c.y, to.x - c.x);
+  const angle = direction ?? Math.atan2(to.y - c.y, to.x - c.x);
   const start = { x: c.x + Math.cos(angle) * r, y: c.y + Math.sin(angle) * r };
   const end = edgeToward(box, c);
   const dx = end.x - start.x;
@@ -365,7 +380,7 @@ export function join(c: Point, r: number, box: Rect, obstacles: Rect[] = []): Li
   }
   if (blocked) {
     // Visibility graph: the shortest clear path bends only at obstacle corners.
-    const points = [c, end, ...blocks.flatMap((b) => [
+    const points = [start, end, ...blocks.flatMap((b) => [
       { x: b.x, y: b.y }, { x: b.x + b.w, y: b.y },
       { x: b.x, y: b.y + b.h }, { x: b.x + b.w, y: b.y + b.h },
     ])];
@@ -389,8 +404,6 @@ export function join(c: Point, r: number, box: Rect, obstacles: Rect[] = []): Li
     if (Number.isFinite(distance[1])) {
       const path: Point[] = [];
       for (let i = 1; i >= 0; i = previous[i]) path.unshift(points[i]);
-      const angle = Math.atan2(path[1].y - c.y, path[1].x - c.x);
-      path[0] = { x: c.x + Math.cos(angle) * r, y: c.y + Math.sin(angle) * r };
       return { d: path.map((p, i) => `${i ? "L" : "M"} ${f(p.x)} ${f(p.y)}`).join(" "), end };
     }
   }
