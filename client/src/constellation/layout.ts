@@ -75,7 +75,7 @@ export interface Layout {
   blobs: Map<string, Rect>;
   // The room each of the root's blobs holds, with everything racked off it.
   seats: Map<string, Rect>;
-  // Which way a rack's lanes run from its blob: right (1) or left (-1).
+  // Each blob's outward direction, folded or opened: right (1) or left (-1).
   sides: Map<string, 1 | -1>;
   // Individual cards inside an opened proto-language column.
   sources: Map<string, Rect>;
@@ -233,19 +233,20 @@ export function layout(root: RootSpec, frame?: Size, before?: Layout): Layout {
   // on the side away from `fromX`.
   const settle = (b: BlobSpec, room: Rect, fromX: number, endX: number) => {
     const size = b.size!;
+    // Folded previews need the same direction as opened racks for their
+    // source/descendant columns and expansion controls.
+    const side = room.x + room.w / 2 >= fromX ? 1 : -1;
+    sides.set(b.id, side);
     if (!b.lanes?.length) {
-      const right = room.x + room.w / 2 >= fromX;
-      blobs.set(b.id, b.terminal ? { ...room, x: right ? endX - room.w : endX } : room);
+      blobs.set(b.id, b.terminal ? { ...room, x: side > 0 ? endX - room.w : endX } : room);
       return;
     }
     // Ordinary racks keep their own size. A proto rack's invisible column
     // stretches to place each separate source card beside its own subtree.
-    const side = room.x + room.w / 2 >= fromX ? 1 : -1;
     const at = lanesAt(b);
     const box: Rect = { x: side > 0 ? room.x : room.x + room.w - size.w, y: room.y - at.top,
       ...size, ...(b.clustered ? { h: at.bottom } : {}) };
     blobs.set(b.id, box);
-    sides.set(b.id, side);
     b.lanes.forEach((lane, i) => {
       const leaves = { x: side > 0 ? box.x + box.w : box.x, y: box.y + at.mids[i] };
       hubs.set(lane.hub, leaves);

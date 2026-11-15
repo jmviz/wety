@@ -38,8 +38,11 @@ for (const side of [-1, 1]) {
       seats: new Map([["germanic", { ...size, x: side > 0 ? 200 : -200 - size.w, y: 0 }]]) };
     const placed = layout(root, undefined, before);
     const column = placed.blobs.get("germanic");
+    assert.equal(placed.sides.get(branch.id), side);
     let previousBottom = -Infinity;
     for (const lane of branch.lanes) {
+      // Folded child trays must orient their columns and arrows outward too.
+      for (const child of lane.blobs) assert.equal(placed.sides.get(child.id), side);
       const source = placed.sources.get(lane.hub);
       const children = lane.blobs.map((b) => placed.blobs.get(b.id));
       const top = Math.min(...children.map((b) => b.y));

@@ -365,11 +365,13 @@ button.cst-preview-row:not(:disabled):hover,
 .cst-descendant-tray .cst-preview-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-areas: "source words";
   gap: 20px;
   align-items: center;
 }
 
 .cst-tray-source {
+  grid-area: source;
   font-family: var(--serif);
   font-size: 18px;
   line-height: 26px;
@@ -384,6 +386,10 @@ button.cst-preview-row:not(:disabled):hover,
   font-style: italic;
 }
 
+.cst-descendant-tray .cst-preview-row > .cst-words {
+  grid-area: words;
+}
+
 .cst-descendant-tray .cst-preview-row:not(:disabled)::after,
 .descendant-tray > .cst-face .cst-preview::after {
   content: "";
@@ -396,6 +402,28 @@ button.cst-preview-row:not(:disabled):hover,
   background: var(--cst-soft);
   clip-path: polygon(0 0, 100% 50%, 0 100%, 0 84%, 72% 50%, 0 16%);
   pointer-events: none;
+}
+
+/* The source stays nearest its parent; the action points outward. */
+.cst-blob.left .cst-descendant-tray .cst-preview-row {
+  grid-template-areas: "words source";
+}
+
+.cst-blob.left .cst-descendant-tray::before {
+  left: calc(50% + 9px);
+}
+
+.cst-blob.left .cst-descendant-tray .cst-preview-row,
+.cst-blob.left.descendant-tray .cst-preview {
+  padding-left: 38px;
+  padding-right: 20px;
+}
+
+.cst-blob.left .cst-descendant-tray .cst-preview-row:not(:disabled)::after,
+.cst-blob.left.descendant-tray > .cst-face .cst-preview::after {
+  left: 16px;
+  right: auto;
+  transform: translateY(-50%) scaleX(-1);
 }
 
 .cst-close {
