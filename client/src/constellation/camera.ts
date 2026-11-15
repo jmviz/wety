@@ -42,21 +42,35 @@ export function rootOverview(root: Point, bounds: Rect, viewport: CameraViewport
 // Always fit the newly exposed branch from source to frontier. Keep the
 // clicked cluster as horizontal context when it fits at the same scale.
 // Vertically, the newly exposed branch owns the centre of the screen.
-export function expansionView(clicked: Rect, expanded: Rect, viewport: CameraViewport) {
+export function expansionView(clicked: Rect, expanded: Rect, viewport: CameraViewport, labels?: Rect) {
   const scale = viewport.scale;
   const pad = 48 / scale;
   const width = Math.max(1, viewport.w - 2 * pad);
   const height = Math.max(1, viewport.h - 2 * pad);
-  const k = Math.min(1 / scale, width / Math.max(1, expanded.w), height / Math.max(1, expanded.h));
+  const required = labels ? {
+    x: Math.min(expanded.x, labels.x), y: Math.min(expanded.y, labels.y),
+    w: Math.max(expanded.x + expanded.w, labels.x + labels.w) - Math.min(expanded.x, labels.x),
+    h: Math.max(expanded.y + expanded.h, labels.y + labels.h) - Math.min(expanded.y, labels.y),
+  } : expanded;
+  const focusY = expanded.y + expanded.h / 2;
+  // Keep the new branch within 5% of vertical centre. If its language
+  // heading needs more room, reduce scale rather than pushing it far down.
+  const reachY = Math.max(focusY - required.y, required.y + required.h - focusY, 1);
+  const k = Math.min(1 / scale, width / Math.max(1, required.w), height / Math.max(1, required.h),
+    (viewport.h * 0.55 - pad) / reachY);
   const x = Math.min(clicked.x, expanded.x);
   const y = Math.min(clicked.y, expanded.y);
   const right = Math.max(clicked.x + clicked.w, expanded.x + expanded.w);
   const bottom = Math.max(clicked.y + clicked.h, expanded.y + expanded.h);
   const contextFits = (right - x) * k <= width && (bottom - y) * k <= height;
   const frame = contextFits ? { x, y, w: right - x, h: bottom - y } : expanded;
+  const preferredX = viewport.w / 2 - (frame.x + frame.w / 2) * k;
+  const preferredY = viewport.h / 2 - (expanded.y + expanded.h / 2) * k;
   return {
-    x: viewport.x + viewport.w / 2 - (frame.x + frame.w / 2) * k,
-    y: viewport.y + viewport.h / 2 - (expanded.y + expanded.h / 2) * k,
+    x: viewport.x + Math.max(pad - required.x * k,
+      Math.min(preferredX, viewport.w - pad - (required.x + required.w) * k)),
+    y: viewport.y + Math.max(pad - required.y * k,
+      Math.min(preferredY, viewport.h - pad - (required.y + required.h) * k)),
     k,
   };
 }

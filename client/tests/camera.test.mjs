@@ -101,3 +101,15 @@ test("composition makes equal room for overflow in any direction", () => {
     assert.ok(view.x + (bounds.x + bounds.w) * view.k <= 952.1);
   }
 });
+
+
+test("expansion shifts the new branch down enough to retain its source-language heading", () => {
+  const expanded = { x: 0, y: 60, w: 700, h: 200 };
+  const label = { x: 28, y: -324, w: 160, h: 16 };
+  const view = expansionView({ x: 0, y: -300, w: 320, h: 300 }, expanded,
+    { x: 0, y: 0, w: 1200, h: 800, scale: 1 }, label);
+  assert.ok(view.k < 1);
+  assert.ok(Math.abs(view.y + label.y * view.k - 48) < 0.001);
+  assert.ok(Math.abs(view.y + 160 * view.k - 400) <= 40.001);
+  assert.ok(view.y + (expanded.y + expanded.h) * view.k <= 752);
+});

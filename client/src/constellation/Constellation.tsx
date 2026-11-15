@@ -677,7 +677,15 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
       const next = enclosing(revealed.map((r) => ({ ...r, y: r.y - 24, h: r.h + 24 })));
       seen.clear();
       const context = enclosing([...(clicked ? [clicked] : []), ...frontier(hub, branch)]) ?? clicked;
-      if (context && next && stage().w) glide(expansionView(context, next, stage()));
+      const names = new Set([branch.name, ...all.filter((h) => !before.has(h.id))
+        .flatMap((h) => h.branches.map((b) => b.name))]);
+      const labelBounds = enclosing(languageLabels().filter((label) => names.has(label.name)).map((label) => {
+        const el = [...stageEl.querySelectorAll<HTMLElement>(".cst-language-label")]
+          .find((el) => el.textContent === label.name);
+        const r = el?.getBoundingClientRect();
+        return { x: label.x, y: label.y, w: r ? r.width / view().k : 0, h: 16 };
+      }));
+      if (context && next && stage().w) glide(expansionView(context, next, stage(), labelBounds));
     });
   };
   // Back to one list: everything opened from the blob goes.
