@@ -209,6 +209,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null }
         const heads = all.filter((k) => k.via === id);
         return {
           id,
+          terminal: h.single || b.groups.every((g) => g.own),
           // A rack is laid out at the size it is now, so its rows' lines and
           // the words level with them leave it where the rows are drawn; a
           // list keeps the room it has had.
@@ -256,7 +257,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null }
         const box = drawn(h, blobId(h, b));
         if (!box) continue;
         const hue = h.hues.get(b.key)!;
-        if (side) push(hue, wire(c, { x: side > 0 ? box.x : box.x + box.w, y: box.y + box.h / 2 }));
+        if (side) push(hue, wire(c, { x: side > 0 ? box.x : box.x + box.w, y: box.y + box.h / 2 }, h.single || b.groups.every((g) => g.own)));
         else push(hue, join(c, ROOT_R, box));
       }
     }
@@ -663,7 +664,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null }
     const Name = () => <span>{p.branch.name}</span>;
     // A head's one word: set as the head's row is, and a button for its
     // details.
-    if (p.hub.single) {
+    if (p.hub.single || (roots.length === 1 && roots[0].own && p.branch.words.length === 1)) {
       const word = p.branch.words[0];
       return (
         <section

@@ -27,6 +27,9 @@ export interface BlobSpec {
   size: Size | undefined;
   // The heads opened in it, in the order of their rows.
   lanes?: LaneSpec[];
+  // A final word or list in the reader's language. These share the outer
+  // edge of their root branch, even when their paths have different lengths.
+  terminal?: boolean;
 }
 
 // A head opened in a rack, and the blobs that come off it.
@@ -174,10 +177,11 @@ export function layout(root: RootSpec, frame?: Size, before?: Layout): Layout {
 
   // A blob in the room found for it: its own box and, for a rack, its lanes
   // on the side away from `fromX`.
-  const settle = (b: BlobSpec, room: Rect, fromX: number) => {
+  const settle = (b: BlobSpec, room: Rect, fromX: number, endX: number) => {
     const size = b.size!;
     if (!b.lanes?.length) {
-      blobs.set(b.id, room);
+      const right = room.x + room.w / 2 >= fromX;
+      blobs.set(b.id, b.terminal ? { ...room, x: right ? endX - room.w : endX } : room);
       return;
     }
     // The blob keeps its own size; the lanes stand beside it (`lanesAt`), in
@@ -197,7 +201,7 @@ export function layout(root: RootSpec, frame?: Size, before?: Layout): Layout {
       for (const kid of lane.blobs) {
         const s = whole(kid);
         if (!s) continue;
-        settle(kid, { x: side > 0 ? box.x + box.w + run : box.x - run - s.w, y: box.y + top, ...s }, leaves.x);
+        settle(kid, { x: side > 0 ? box.x + box.w + run : box.x - run - s.w, y: box.y + top, ...s }, leaves.x, endX);
         top += s.h + LANE_GAP;
       }
     });
@@ -276,7 +280,7 @@ export function layout(root: RootSpec, frame?: Size, before?: Layout): Layout {
     const r = found[i];
     if (!r) return;
     seats.set(blob.id, r);
-    settle(blob, r, at.x);
+    settle(blob, r, at.x, r.x + r.w / 2 >= at.x ? r.x + r.w : r.x);
   });
   return { hubs, blobs, seats, sides };
 }
@@ -334,8 +338,18 @@ export function join(c: Point, r: number, box: Rect): Link {
 
 // A line that leaves and arrives level: in a rack, from a head's row to the
 // side of one of its blobs.
-export function wire(from: Point, to: Point): Link {
+export function wire(from: Point, to: Point, terminal = false): Link {
   const half = (to.x - from.x) / 2;
+  // An aligned endpoint can be several columns away. Finish its vertical
+  // turn before the first column, then run level past intermediate nodes.
+  const turn = Math.sign(half) * RUN;
+  if (terminal && Math.abs(half) > RUN / 2) {
+    return {
+      d: `M ${f(from.x)} ${f(from.y)} C ${f(from.x + turn / 2)} ${f(from.y)} ${f(from.x + turn / 2)} ${f(to.y)} ${f(from.x + turn)} ${f(to.y)} L ${f(to.x)} ${f(to.y)}`,
+      end: to,
+      start: from,
+    };
+  }
   return {
     d: `M ${f(from.x)} ${f(from.y)} C ${f(from.x + half)} ${f(from.y)} ${f(to.x - half)} ${f(to.y)} ${f(to.x)} ${f(to.y)}`,
     end: to,
