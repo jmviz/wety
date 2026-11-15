@@ -1218,15 +1218,25 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
       if (!stageEl) return;
       const stageBox = stageEl.getBoundingClientRect();
       const visual = window.visualViewport;
-      const pad = 16 / (visual?.scale ?? 1);
+      const pad = 6 / (visual?.scale ?? 1);
       const left = Math.max(stageBox.left, visual?.offsetLeft ?? 0) + pad;
       const top = Math.max(stageBox.top, visual?.offsetTop ?? 0) + pad;
       const right = Math.min(stageBox.right, (visual?.offsetLeft ?? 0) + (visual?.width ?? innerWidth)) - pad;
       const bottom = Math.min(stageBox.bottom, (visual?.offsetTop ?? 0) + (visual?.height ?? innerHeight)) - pad;
+      const world = stageEl.querySelector<HTMLElement>(".cst-world")!.getBoundingClientRect();
       for (const label of stageEl.querySelectorAll<HTMLElement>(".cst-language-label")) {
         const r = label.getBoundingClientRect();
-        label.style.visibility = r.left >= left && r.top >= top && r.right <= right && r.bottom <= bottom
-          ? "visible" : "hidden";
+        const k = label.offsetWidth ? r.width / label.offsetWidth : view().k;
+        const group = [...languageGroups().values()].find((g) => g.name === label.textContent);
+        const viewport = { x: (left - world.x) / k, y: (top - world.y) / k,
+          w: (right - left) / k, h: (bottom - top) / k };
+        const anchor = group && languageAnchors(group.anchors, viewport,
+          { w: r.width / k, h: r.height / k }, 0)[0];
+        if (anchor) {
+          label.style.left = `${anchor.box.x + (anchor.preview ? 28 : 0)}px`;
+          label.style.top = `${anchor.box.y - 24}px`;
+        }
+        label.style.visibility = anchor ? "visible" : "hidden";
       }
       if (gliding() || --settling > 0) labelFrame = requestAnimationFrame(check);
     };

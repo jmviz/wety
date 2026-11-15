@@ -26,3 +26,17 @@ test("a partially visible cluster and its heading keep their world position", ()
 test("a visible descendant cluster above a root carries their shared label", () => {
   assert.deepEqual(languageAnchors([anchor(400), anchor(40, 0, 250)], viewport), [anchor(40, 0, 250)]);
 });
+
+
+test("heading jumps to the next word as soon as the first heading no longer fits", () => {
+  const entries = [anchor(30), anchor(94), anchor(158)];
+  const size = { w: 140, h: 16 };
+  assert.equal(languageAnchors(entries, { x: -10, y: 0, w: 1000, h: 600 }, size)[0].box.y, 30);
+  assert.equal(languageAnchors(entries, { x: -10, y: 1, w: 1000, h: 600 }, size)[0].box.y, 94);
+  assert.equal(languageAnchors(entries, { x: -10, y: 65, w: 1000, h: 600 }, size)[0].box.y, 158);
+});
+
+test("heading can use a lower fully fitting word when the top candidate is horizontally clipped", () => {
+  const entries = [anchor(30, -20), anchor(94, 20)];
+  assert.equal(languageAnchors(entries, { x: 0, y: 0, w: 400, h: 300 }, { w: 140, h: 16 })[0].box.y, 94);
+});
