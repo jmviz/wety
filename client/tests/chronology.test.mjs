@@ -104,3 +104,26 @@ test("parallel language branches share horizontal space instead of taking full c
   const width = Math.max(...children.map((c, i) => positions[i] + 320 + c.lanes[0].blobs[0].gap + 320));
   assert.ok(width <= 1300, `parallel branches took ${width}px`);
 });
+
+test("folded Latin boxes end before the aligned English column", () => {
+  const branch = chronological({
+    id: "proto", stage: "proto", year: -1000, size: { w: 320, h: 200 },
+    lanes: [
+      { hub: "latin-a", mid: 40, blobs: [{ id: "latin-a", stage: "la", year: -650, size: { w: 320, h: 150 } }] },
+      { hub: "english", mid: 100, inline: true, blobs: [{ id: "english", stage: "en", year: 2026, terminal: true, size: { w: 320, h: 40 } }] },
+      { hub: "latin-b", mid: 160, blobs: [{ id: "latin-b", stage: "la", year: -650, size: { w: 400, h: 150 } }] },
+    ],
+  });
+  const initial = layout({ id: "root", r: 96, blobs: [branch] });
+  const seat = initial.seats.get("proto");
+  for (const side of [-1, 1]) {
+    const before = { ...initial, seats: new Map([["proto", { ...seat, x: side === 1 ? 200 : -200 - seat.w }]]) };
+    const placed = layout({ id: "root", r: 96, blobs: [branch] }, undefined, before);
+    const english = placed.blobs.get("english");
+    for (const id of ["latin-a", "latin-b"]) {
+      const latin = placed.blobs.get(id);
+      const gap = side === 1 ? english.x - latin.x - latin.w : latin.x - english.x - english.w;
+      assert.ok(gap >= 44, `${id} intrudes into English by ${44 - gap}px`);
+    }
+  }
+});

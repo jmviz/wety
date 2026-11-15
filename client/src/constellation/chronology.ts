@@ -119,16 +119,32 @@ export function chronological(b: BlobSpec): BlobSpec {
       next.floor = Math.max(next.floor, x + s.width + 44);
     }
   }
-  const place = (node: BlobSpec, at: number): BlobSpec => ({
+  const place = (node: BlobSpec, at: number, terminalStart = 0): BlobSpec => ({
     ...node,
     lanes: node.lanes?.map((lane) => ({
       ...lane,
       blobs: lane.blobs.map((child) => {
         const run = 44;
-        const next = Math.max(at + (node.size?.w ?? 0) + run, offsets.get(child.stage!) ?? 0);
-        return { ...place(child, next), gap: next - at - (node.size?.w ?? 0) };
+        const next = Math.max(
+          at + (node.size?.w ?? 0) + run,
+          offsets.get(child.stage!) ?? 0,
+          child.terminal ? terminalStart : 0
+        );
+        return { ...place(child, next, terminalStart), gap: next - at - (node.size?.w ?? 0) };
       }),
     })),
   });
-  return place(b, 0);
+  // Even a folded language node can be wider than its chronological
+  // stagger. Keep the entire final-word column beyond every such box,
+  // including ones in other vertical lanes and repeated language stages.
+  let terminalStart = 0;
+  const measure = (node: BlobSpec, at: number) => {
+    if (!node.size) return;
+    if (!node.terminal) terminalStart = Math.max(terminalStart, at + node.size.w + 44);
+    for (const lane of node.lanes ?? []) for (const child of lane.blobs) {
+      measure(child, at + node.size.w + (child.gap ?? 44));
+    }
+  };
+  measure(place(b, 0), 0);
+  return place(b, 0, terminalStart);
 }
