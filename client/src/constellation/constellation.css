@@ -172,6 +172,11 @@ main.constellation-only .cst-stage {
 
 .cst-language-label {
   position: absolute;
+  z-index: 2;
+  padding: 2px 6px;
+  margin: -2px -6px;
+  border-radius: 4px;
+  background: var(--cst-ground);
   font-size: 11px;
   line-height: 16px;
   font-weight: 600;
