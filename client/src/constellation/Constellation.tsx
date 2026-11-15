@@ -4,7 +4,7 @@ import { close as closePopover, hoverEnter, hoverLeave, pin, popover } from "../
 import { useGoTo } from "../search/navigate";
 import { Item, Lang, TreeKind, term } from "../search/types";
 import { cognates, constellationStart, lastRequest, showGlosses, showRare } from "../state";
-import { Branch, Common, Group, LangTree, autoExpandGroup, branchesOf, canOpen, directEarlyEnglish, previewLines, rackOrder, singleEndpoint, sourceBranches, uncommonLatinEnglish } from "./branches";
+import { Branch, Common, Group, HIDE_UNDEFINED_ROOTS, LangTree, autoExpandGroup, branchesOf, canOpen, directEarlyEnglish, previewLines, rackOrder, singleEndpoint, sourceBranches, uncommonLatinEnglish, withoutUndefinedRoots } from "./branches";
 import { BlobSpec, Layout, Link, Point, Rect, Size, bounds, join, layout, rootDirection, wire } from "./layout";
 import { chronological, languageTimes } from "./chronology";
 import type { LayoutPeriod } from "./chronology";
@@ -152,12 +152,16 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
   ) : new Set<number>();
   for (const key of uncommonLatinEnglish(root, common)) omitted.add(key);
   const scores = target.code === "en" ? props.frequencies : undefined;
+  const displayBranches = (node: TreeNode) => {
+    const branches = branchesOf(node, target, props.langs, common, omitted, scores);
+    return HIDE_UNDEFINED_ROOTS ? withoutUndefinedRoots(branches) : branches;
+  };
   if (common && scores) {
     const preliminary = new WeakMap<TreeNode, Branch[]>();
     const read = (node: TreeNode): Branch[] => {
       let branches = preliminary.get(node);
       if (!branches) {
-        branches = branchesOf(node, target, props.langs, common, omitted, scores);
+        branches = displayBranches(node);
         preliminary.set(node, branches);
       }
       return branches;
@@ -175,7 +179,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
   const branchesFor = (node: TreeNode): Branch[] => {
     let branches = branchCache.get(node);
     if (!branches) {
-      branches = branchesOf(node, target, props.langs, common, omitted, scores);
+      branches = displayBranches(node);
       branchCache.set(node, branches);
     }
     return branches;

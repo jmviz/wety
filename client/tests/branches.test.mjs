@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { readFileSync } from "node:fs";
-import { autoExpandGroup, branchesOf, canOpen, directEarlyEnglish, previewLines, singleEndpoint, sourceBranches, uncommonLatinEnglish } from "../src/constellation/branches.ts";
+import { autoExpandGroup, branchesOf, canOpen, directEarlyEnglish, previewLines, singleEndpoint, sourceBranches, uncommonLatinEnglish, withoutUndefinedRoots } from "../src/constellation/branches.ts";
 
 const pie = { id: 1, code: "ine-pro", name: "Proto-Indo-European" };
 const hellenic = { id: 2, code: "grk-pro", name: "Proto-Hellenic" };
@@ -27,6 +27,22 @@ function node(lang, term, children = [], extra = {}) {
   };
 }
 const word = (term, selected = false) => node(english, term, [], { isSelected: selected });
+
+test("undefined-root experiment removes their words and counts without changing the underlying groups", () => {
+  const recorded = node(hellenic, "known", [node(greek, "known", [word("kept")])]);
+  const hub = node(pie, "root", [recorded, node(greek, "unanchored", [word("hidden")])]);
+  const original = branchesOf(hub, english, langs, null);
+  assert.equal(original[0].groups.length, 2);
+  const visible = withoutUndefinedRoots(original);
+  assert.equal(visible[0].groups.length, 1);
+  assert.equal(visible[0].groups[0].head, recorded);
+  assert.deepEqual(visible[0].words.map((w) => w.item.term), ["kept"]);
+  assert.equal(visible[0].wordCount, 1);
+  assert.equal(original[0].groups.length, 2);
+  assert.equal(original[0].wordCount, 2);
+  const allUnknown = branchesOf(node(pie, "root", [node(greek, "unanchored", [word("hidden")])]), english, langs, null);
+  assert.deepEqual(withoutUndefinedRoots(allUnknown), []);
+});
 
 test("revealed language roots have independent folded nodes and one-to-one actions", () => {
   const hub = node(hellenic, "root", [

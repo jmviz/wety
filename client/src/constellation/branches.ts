@@ -40,6 +40,21 @@ export interface Branch {
   hasSelected: boolean;
 }
 
+// Reversible display experiment. The graph and placeholder construction
+// stay intact, so switching this off restores the missing-root paths.
+export const HIDE_UNDEFINED_ROOTS = true;
+
+export function withoutUndefinedRoots(branches: Branch[]): Branch[] {
+  return branches.flatMap((b) => {
+    const groups = b.groups.filter((g) => g.own || !!g.head.item.term);
+    if (groups.length === b.groups.length) return [b];
+    if (!groups.length) return [];
+    const allowed = new Set(groups.flatMap((g) => g.words.map((w) => w.item.term)));
+    const words = b.words.filter((w) => allowed.has(w.item.term));
+    return words.length ? [{ ...b, groups, words, wordCount: words.length, hasSelected: groups.some((g) => g.hasSelected) }] : [];
+  });
+}
+
 // After opening a family branch, reveal one folded node per source root.
 // Its modern words remain grouped in the preview, but unrelated roots no
 // longer share an expand action merely because their language is the same.
