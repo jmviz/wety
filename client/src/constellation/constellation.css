@@ -449,13 +449,6 @@ button.cst-word:hover,
   color: rgb(var(--c));
 }
 
-.cst-note {
-  font-size: 13px;
-  line-height: 20px;
-  white-space: nowrap;
-  color: #aab3c2;
-}
-
 .cst-word:focus-visible {
   outline: 2px solid rgb(var(--c));
   outline-offset: 2px;
@@ -469,29 +462,6 @@ button.cst-word:hover,
   color: rgb(var(--c));
   font-weight: 500;
   text-shadow: 0 0 12px rgba(var(--c), 0.6);
-}
-
-.cst-more {
-  all: unset;
-  cursor: pointer;
-  font-size: 13px;
-  line-height: 20px;
-  white-space: nowrap;
-  color: #aab3c2;
-  border-bottom: 1px dashed rgba(170, 179, 194, 0.6);
-}
-
-.cst-more:hover {
-  color: #fff;
-}
-
-.cst-more:focus-visible {
-  outline: 2px solid rgb(var(--c));
-  outline-offset: 2px;
-}
-
-.cst-more-groups {
-  align-self: flex-start;
 }
 
 /* Over the canvas ---------------------------------------------------------- */

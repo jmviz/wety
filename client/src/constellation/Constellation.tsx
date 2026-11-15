@@ -45,12 +45,6 @@ const PALETTE = [
   "190,242,100",
 ];
 const ROOT_R = 96;
-// How many are shown before "+n more" (a couple over is shown in full): a
-// branch's words in one list, the heads a rack opens at first, and the words
-// under a head that cannot be opened.
-const FLAT = 10;
-const ROWS = 8;
-const WORDS = 6;
 const MIN_ZOOM = 0.35;
 const MAX_ZOOM = 1.6;
 // The first view keeps clear of the stage's edges and its corner text, and
@@ -147,8 +141,6 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
   // In a rack, how far down its blob each head's row is centred: its line
   // leaves the blob there.
   const [rowMids, setRowMids] = createSignal(new Map<string, number>(), { equals: false });
-  const [moreWords, setMoreWords] = createSignal(new Set<string>(), { equals: false });
-  const toggle = (set: Set<string>, key: string) => (set.has(key) ? set.delete(key) : set.add(key), set);
 
   // Blobs are measured as drawn; the layout follows their real sizes.
   const observer = new ResizeObserver((entries) => {
@@ -567,11 +559,7 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
   // A head that cannot be opened (its words are all there is under it), with
   // its words, each a button for its details.
   const GroupView = (p: { hub: Hub; branch: Branch; group: Group }) => {
-    const key = `${blobId(p.hub, p.branch)}/${p.group.head.item.id}`;
     const item = p.group.head.item;
-    const all = () => moreWords().has(key);
-    const words = () =>
-      all() || p.group.words.length <= WORDS + 2 ? p.group.words : p.group.words.slice(0, WORDS);
     return (
       <div class="cst-group">
         <Show
@@ -587,17 +575,7 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
           </span>
         </Show>
         <p class="cst-words">
-          <WordList words={words()} live />
-          <Show when={all() || words().length < p.group.words.length}>
-            <button
-              type="button"
-              class="cst-more"
-              aria-expanded={all()}
-              onClick={() => setMoreWords(toggle(moreWords(), key))}
-            >
-              {all() ? "fewer" : `+${p.group.words.length - words().length} more`}
-            </button>
-          </Show>
+          <WordList words={p.group.words} live />
         </p>
       </div>
     );
@@ -634,9 +612,7 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
     const rows = () => hubs().filter((h) => h.via === id);
     const openable = roots.filter((g) => canOpen(g, target));
     const face = () => openable.length > 0 && rows().length === 0;
-    const flat = () => (p.branch.words.length <= FLAT + 2 ? p.branch.words : p.branch.words.slice(0, FLAT));
-    const closed = () => openable.filter((g) => !hubs().some((h) => h.id === String(g.head.item.id)));
-    const act = () => rack(p.hub, p.branch, openable.length <= ROWS + 2 ? openable : openable.slice(0, ROWS));
+    const act = () => rack(p.hub, p.branch, openable);
     const Name = () => <span>{p.branch.name}</span>;
     return (
       <section
@@ -693,15 +669,6 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
               <For each={roots.filter((g) => !canOpen(g, target))}>
                 {(g) => <GroupView hub={p.hub} branch={p.branch} group={g} />}
               </For>
-              <Show when={rows().length > 0 && closed().length > 0}>
-                <button
-                  type="button"
-                  class="cst-more cst-more-groups"
-                  onClick={() => rack(p.hub, p.branch, closed())}
-                >
-                  +{closed().length} more roots
-                </button>
-              </Show>
             </div>
           }
         >
@@ -720,10 +687,7 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
               <Name />
             </span>
             <span class="cst-words">
-              <WordList words={flat()} live={false} />
-              <Show when={flat().length < p.branch.words.length}>
-                <span class="cst-note">+{p.branch.words.length - flat().length} more</span>
-              </Show>
+              <WordList words={p.branch.words} live={false} />
             </span>
           </button>
         </Show>
