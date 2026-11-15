@@ -4,7 +4,7 @@ import { close as closePopover, hoverEnter, hoverLeave, pin, popover } from "../
 import { useGoTo } from "../search/navigate";
 import { Item, Lang, TreeKind, term } from "../search/types";
 import { cognates, constellationStart, lastRequest, showGlosses, showRare } from "../state";
-import { Branch, Common, Group, LangTree, autoExpandGroup, branchesOf, canOpen, directEarlyEnglish } from "./branches";
+import { Branch, Common, Group, LangTree, autoExpandGroup, branchesOf, canOpen, directEarlyEnglish, singleEndpoint } from "./branches";
 import { BlobSpec, Layout, Link, Point, Rect, Size, bounds, join, layout, wire } from "./layout";
 import { chronological, languageTimes } from "./chronology";
 import type { LayoutPeriod } from "./chronology";
@@ -158,7 +158,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
       hues: hue ? new Map(keys.map((k) => [k, hue])) : huesOf(keys),
       // Not a head with no name (branches.ts `unnamed`): the one word under
       // it is the only name its line has, and stays in its own branch's blob.
-      single: !!parent && !!node.item.term && branches.length === 1 && branches[0].words.length === 1,
+      single: !!parent && !!node.item.term && singleEndpoint(branches),
     };
   };
   const rootHub = makeHub(root, null, null, null);
@@ -378,7 +378,6 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
         const key = String(g.head.item.id);
         if (taken.has(key)) continue;
         const child = makeHub(g.head, parent, blobId(parent, b), parent.hues.get(b.key)!);
-        if (!child.single) continue;
         taken.add(key);
         opened.push(child);
       }

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { autoExpandGroup, branchesOf, canOpen, directEarlyEnglish } from "../src/constellation/branches.ts";
+import { autoExpandGroup, branchesOf, canOpen, directEarlyEnglish, singleEndpoint } from "../src/constellation/branches.ts";
 
 const pie = { id: 1, code: "ine-pro", name: "Proto-Indo-European" };
 const hellenic = { id: 2, code: "grk-pro", name: "Proto-Hellenic" };
@@ -26,6 +26,22 @@ function node(lang, term, children = [], extra = {}) {
   };
 }
 const word = (term, selected = false) => node(english, term, [], { isSelected: selected });
+
+test("a lone English result never hides its Latin and French intermediate stages", () => {
+  const periodic = word("periodic");
+  const frenchHead = node(french, "périodique", [periodic]);
+  const latinHead = node(latin, "periodicus", [frenchHead]);
+  const greekHead = node(greek, "περιοδικός", [latinHead]);
+  const omitted = directEarlyEnglish(greekHead, (code) => code === "grc" || code === "la");
+  assert.equal(omitted.size, 0);
+  const greekBranches = branchesOf(greekHead, english, langs, null, omitted);
+  assert.equal(greekBranches[0].name, "Latin");
+  assert.equal(singleEndpoint(greekBranches), false);
+  const latinBranches = branchesOf(latinHead, english, langs, null, omitted);
+  assert.equal(latinBranches[0].name, "Old French");
+  assert.equal(singleEndpoint(latinBranches), false);
+  assert.equal(singleEndpoint(branchesOf(frenchHead, english, langs, null, omitted)), true);
+});
 
 test("direct early-to-English jumps and English derivatives disappear from lists and expanded nodes", () => {
   const direct = node(english, "direct", [word("directness")]);

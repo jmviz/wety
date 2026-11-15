@@ -419,3 +419,10 @@ export function autoExpandGroup(branch: Branch, target: Lang): Group | null {
   const g = branch.groups[0];
   return g.head.item.term && canOpen(g, target) ? g : null;
 }
+
+// A one-word endpoint is compact only when it is the next language step.
+// Counting final words alone hides Latin/French/etc. between a source and
+// English, making a retained later-language path look like a direct jump.
+export function singleEndpoint(branches: Branch[]): boolean {
+  return branches.length === 1 && branches[0].words.length === 1 && branches[0].groups.every((g) => g.own);
+}
