@@ -5,6 +5,19 @@ main:has(.cst-stage) {
   padding-bottom: 0;
 }
 
+main.constellation-only {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  max-width: none;
+  min-height: 100dvh;
+  background: #06080e;
+}
+
+main.constellation-only .cst-stage {
+  height: 100dvh;
+}
+
 .cst-stage {
   --cst-ink: #eef1f6;
   --cst-soft: #b9c2d2;

@@ -13,6 +13,9 @@ import { clearView, forest, lastRequest, loadFromPath, loadError, loading } from
 import { Show, createEffect, on } from "solid-js";
 import { Link, useLocation, useRouter } from "@tanstack/solid-router";
 
+// Temporary presentation mode; disable to restore the surrounding Wety UI.
+const CONSTELLATION_ONLY = true;
+
 export default function App() {
   const location = useLocation();
   const router = useRouter();
@@ -37,6 +40,7 @@ export default function App() {
 
   const home = () => location().pathname === "/";
   const about = () => location().pathname === "/about";
+  const constellationOnly = () => CONSTELLATION_ONLY && location().pathname.startsWith("/constellation/");
 
   // The tab names the word, so history and bookmarks tell words apart.
   createEffect(() => {
@@ -46,33 +50,35 @@ export default function App() {
 
   return (
     <>
-      <header class="masthead" classList={{ home: home() }}>
-        <Link to="/" class="wordmark" aria-label="wety home">
-          wety
-        </Link>
-        <Show when={home()}>
-          <p class="tagline">(w)iktionary (ety)mologies</p>
-        </Show>
-        <SearchBox />
-        <Show when={home()}>
-          <p class="hint">Type a language name first to search in it.</p>
-        </Show>
-        <Show when={!home() && !about()}>
-          <nav class="masthead-links" aria-label="site">
-            <Link to="/about">about</Link>
-          </nav>
-        </Show>
-      </header>
+      <Show when={!constellationOnly()}>
+        <header class="masthead" classList={{ home: home() }}>
+          <Link to="/" class="wordmark" aria-label="wety home">
+            wety
+          </Link>
+          <Show when={home()}>
+            <p class="tagline">(w)iktionary (ety)mologies</p>
+          </Show>
+          <SearchBox />
+          <Show when={home()}>
+            <p class="hint">Type a language name first to search in it.</p>
+          </Show>
+          <Show when={!home() && !about()}>
+            <nav class="masthead-links" aria-label="site">
+              <Link to="/about">about</Link>
+            </nav>
+          </Show>
+        </header>
+      </Show>
       <Show when={about()}>
         <About />
       </Show>
-      <Show when={!home() && !about()}>
+      <Show when={!home() && !about() && !constellationOnly()}>
         <section class="view" aria-label="word">
           <WordTitle />
           <ViewBar />
         </section>
       </Show>
-      <main aria-busy={loading()}>
+      <main aria-busy={loading()} classList={{ "constellation-only": constellationOnly() }}>
         <Show when={loading()}>
           <p class="empty" role="status">Loading word…</p>
         </Show>
