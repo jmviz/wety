@@ -295,17 +295,21 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
   // A set of source roots shares one language heading above its column.
   const languageKey = (h: Hub, b: Branch) => `${h.hue}/${b.language ?? b.key}`;
   const languageLabels = createMemo(() => {
-    const groups = new Map<string, { name: string; hue: string; boxes: Rect[] }>();
+    const groups = new Map<string, { name: string; hue: string; boxes: Rect[]; external: boolean }>();
     for (const h of hubs()) for (const b of h.branches) {
-      if (!h.parent || h.single || b.groups.every((g) => g.own)) continue;
+      if (!h.parent) continue;
       const box = drawn(h, blobId(h, b));
       if (!box) continue;
+      const open = hubs().filter((k) => k.via === blobId(h, b));
+      const compact = h.single || (b.groups.length === 1 && b.groups[0].own && b.words.length === 1) ||
+        (b.groups.length === 1 && open.length === 1 && !!open[0].node.item.term);
       const key = languageKey(h, b);
       let group = groups.get(key);
-      if (!group) groups.set(key, (group = { name: b.name, hue: h.hue!, boxes: [] }));
+      if (!group) groups.set(key, (group = { name: b.name, hue: h.hue!, boxes: [], external: false }));
       group.boxes.push(box);
+      group.external ||= compact;
     }
-    return new Map([...groups].filter(([, g]) => g.boxes.length > 1).map(([key, g]) => [key, {
+    return new Map([...groups].filter(([, g]) => g.boxes.length > 1 || g.external).map(([key, g]) => [key, {
       name: g.name, hue: g.hue, x: Math.min(...g.boxes.map((b) => b.x)), y: Math.min(...g.boxes.map((b) => b.y)) - 24,
     }]));
   });
@@ -682,13 +686,10 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     </For>
   );
 
-  // Every head belongs to the heading's language. A compact node puts that
-  // language inline instead of giving it a separate heading.
-  const HeadName = (p: { item: Item; showLang?: boolean }) => (
+  // Language labels stand above their entries, leaving the row for the
+  // word, its reading and meaning.
+  const HeadName = (p: { item: Item }) => (
     <>
-      <Show when={p.showLang}>
-        <span class="cst-head-lang">{p.item.lang.name}</span>
-      </Show>
       <span class="cst-head-term">{term(p.item) || "Undefined Root"}</span>
       <Show when={p.item.romanization}>
         <span class="cst-rom">{p.item.romanization}</span>
@@ -767,6 +768,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
           class="cst-blob single"
           classList={{ shown: shown() && !!rect(), dim: !lit(p.hub) }}
           data-blob={id}
+          aria-label={`${word.item.lang.name}: ${term(word.item)}`}
           style={{ "--c": p.hub.hues.get(p.branch.key), left: `${at().x}px`, top: `${at().y}px` }}
         >
           <button
@@ -776,7 +778,6 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
             data-key={word.key}
             aria-haspopup="dialog"
           >
-            <span class="cst-head-lang">{word.item.lang.name}</span>
             <span class="cst-head-term">{term(word.item)}</span>
           </button>
         </section>
@@ -847,7 +848,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
                       data-key={h.node.key}
                       aria-haspopup="dialog"
                     >
-                      <HeadName item={h.node.item} showLang={compact() && !sharedLanguage()} />
+                      <HeadName item={h.node.item} />
                     </button>
                   </div>
                 )}

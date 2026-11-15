@@ -448,16 +448,6 @@ button.cst-fam:focus-visible {
   border-style: dotted;
 }
 
-.cst-head-lang {
-  flex: none;
-  font-family: var(--cst-sans);
-  font-style: normal;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
 .cst-head-term {
   flex: none;
   max-width: 100%;
