@@ -5,7 +5,7 @@ import { useGoTo } from "../search/navigate";
 import { Item, Lang, TreeKind, term } from "../search/types";
 import { cognates, constellationStart, lastRequest, showGlosses } from "../state";
 import { Branch, Group, LangTree, branchesOf, canOpen } from "./branches";
-import { HubSpec, Point, Rect, Size, bounds, layout, link } from "./layout";
+import { HubSpec, Link, Point, Rect, Size, bounds, hubLink, layout, link } from "./layout";
 
 import {
   For,
@@ -25,8 +25,10 @@ interface Hub {
   id: string;
   node: TreeNode;
   parent: Hub | null;
-  // The blob it was opened from.
+  // The blob it was opened from, and whether it stands in that blob's place:
+  // a blob with one head and its words says nothing its hub does not.
   via: string | null;
+  replaces: boolean;
   branches: Branch[];
   // The colour of the branch it was opened from, which its own branches keep.
   hue: string | null;
@@ -113,7 +115,13 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
   const root = props.forest.roots[0];
   const target: Lang = (props.forest.selected ?? root).item.lang;
 
-  const makeHub = (node: TreeNode, parent: Hub | null, via: string | null, hue: string | null): Hub => {
+  const makeHub = (
+    node: TreeNode,
+    parent: Hub | null,
+    via: string | null,
+    hue: string | null,
+    replaces = false
+  ): Hub => {
     const branches = branchesOf(node, target, props.langs);
     const keys = branches.map((b) => b.key);
     return {
@@ -121,6 +129,7 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
       node,
       parent,
       via,
+      replaces,
       branches,
       hue,
       hues: hue ? new Map(keys.map((k) => [k, hue])) : huesOf(keys),
@@ -167,7 +176,7 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
         (h): HubSpec => ({
           id: h.id,
           r: radius(h),
-          from: h.parent && h.via ? { hub: h.parent.id, blob: h.via } : null,
+          from: h.parent && h.via ? { hub: h.parent.id, blob: h.via, replace: h.replaces } : null,
           blobs: h.branches.map((b) => ({ id: blobId(h, b), size: measured.get(blobId(h, b)) })),
         })
       ),
@@ -175,20 +184,27 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
     );
   });
 
+  // Blobs whose one head has been opened: the hub stands in their place.
+  const replaced = createMemo(() => new Set(hubs().filter((h) => h.replaces).map((h) => h.via)));
+
   // One string per line, so a line that has not moved keeps its element.
   const links = createMemo(() => {
     const at = placed();
+    const gone = replaced();
     const out: string[] = [];
-    const add = (hub: Hub, blob: string, hue: string) => {
+    const push = (hue: string, l: Link) => out.push([hue, l.d, l.end.x.toFixed(1), l.end.y.toFixed(1)].join("|"));
+    const toBlob = (hub: Hub, blob: string, hue: string) => {
       const c = at.hubs.get(hub.id);
       const box = at.blobs.get(blob);
-      if (!c || !box) return;
-      const l = link(c, radius(hub), box);
-      out.push([hue, l.d, l.end.x.toFixed(1), l.end.y.toFixed(1)].join("|"));
+      if (c && box && !gone.has(blob)) push(hue, link(c, radius(hub), box));
     };
     for (const h of hubs()) {
-      if (h.via && h.hue) add(h, h.via, h.hue);
-      for (const b of h.branches) add(h, blobId(h, b), h.hues.get(b.key)!);
+      if (h.parent && h.replaces && h.hue) {
+        const from = at.hubs.get(h.parent.id);
+        const to = at.hubs.get(h.id);
+        if (from && to) push(h.hue, hubLink(from, radius(h.parent), to, radius(h)));
+      } else if (h.via && h.hue) toBlob(h, h.via, h.hue);
+      for (const b of h.branches) toBlob(h, blobId(h, b), h.hues.get(b.key)!);
     }
     return out;
   });
@@ -226,7 +242,7 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
     const id = String(g.head.item.id);
     let next = hubs().find((h) => h.id === id);
     if (!next) {
-      next = makeHub(g.head, hub, blobId(hub, branch), hub.hues.get(branch.key)!);
+      next = makeHub(g.head, hub, blobId(hub, branch), hub.hues.get(branch.key)!, branch.groups.length === 1);
       setHubs([...hubs(), next]);
     }
     closePopover();
@@ -512,9 +528,11 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
           shown: shown() && !!rect(),
           // Lit: the current hub's blobs and the one it was opened from.
           dim: current() !== p.hub && current().via !== id,
+          replaced: replaced().has(id),
           narrow: p.branch.groups.length === 1 && p.branch.wordCount <= 4,
         }}
         data-blob={id}
+        inert={replaced().has(id)}
         style={{ "--c": p.hub.hues.get(p.branch.key), left: `${at().x}px`, top: `${at().y}px` }}
         aria-label={`${p.branch.name}: ${p.branch.wordCount} ${target.name} words`}
       >

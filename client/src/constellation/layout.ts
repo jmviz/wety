@@ -19,7 +19,9 @@ export interface HubSpec {
   id: string;
   r: number;
   // The blob (of an earlier hub) this hub was opened from; none for the root.
-  from: { hub: string; blob: string } | null;
+  // `replace`: the hub takes the blob's seat (the blob held nothing else and
+  // is no longer drawn) rather than standing beyond it.
+  from: { hub: string; blob: string; replace: boolean } | null;
   // In the order they go round; a blob not measured yet has no size and is
   // left out of the result.
   blobs: { id: string; size: Size | undefined }[];
@@ -80,7 +82,15 @@ export function layout(specs: HubSpec[], frame?: Size): Layout {
       if (!parent || !via) continue;
       const c = center(via);
       facing = Math.atan2(c.y - parent.y, c.x - parent.x);
-      at = center(along(c, facing, extent(via, facing) + spec.r + REACH, disc));
+      if (spec.from.replace) {
+        // The seat stays where the blob's size put it, so nothing round it
+        // moves; only the room it takes becomes the hub's.
+        at = c;
+        const i = placed.indexOf(via);
+        if (i >= 0) placed.splice(i, 1);
+      } else {
+        at = center(along(c, facing, extent(via, facing) + spec.r + REACH, disc));
+      }
     }
     hubs.set(spec.id, at);
     placed.push(around(at, disc));
@@ -183,10 +193,13 @@ export function edgeToward(r: Rect, p: Point): Point {
   return { x: c.x + dx * t, y: c.y + dy * t };
 }
 
-// A gently bowed line between a hub's rim and a box's edge.
-export function link(hub: Point, r: number, box: Rect): { d: string; end: Point } {
-  const end = edgeToward(box, hub);
-  const angle = Math.atan2(end.y - hub.y, end.x - hub.x);
+export interface Link {
+  d: string;
+  end: Point;
+}
+
+// A gently bowed line from a hub's rim, leaving at an angle, to a point.
+function bowed(hub: Point, r: number, angle: number, end: Point): Link {
   const start = { x: hub.x + Math.cos(angle) * r, y: hub.y + Math.sin(angle) * r };
   const dx = end.x - start.x;
   const dy = end.y - start.y;
@@ -195,4 +208,16 @@ export function link(hub: Point, r: number, box: Rect): { d: string; end: Point 
   const cy = (start.y + end.y) / 2 + dx * bow;
   const f = (n: number) => n.toFixed(1);
   return { d: `M ${f(start.x)} ${f(start.y)} Q ${f(cx)} ${f(cy)} ${f(end.x)} ${f(end.y)}`, end };
+}
+
+// From a hub to the edge of a box.
+export function link(hub: Point, r: number, box: Rect): Link {
+  const end = edgeToward(box, hub);
+  return bowed(hub, r, Math.atan2(end.y - hub.y, end.x - hub.x), end);
+}
+
+// From a hub to the rim of another.
+export function hubLink(hub: Point, r: number, to: Point, toR: number): Link {
+  const angle = Math.atan2(to.y - hub.y, to.x - hub.x);
+  return bowed(hub, r, angle, { x: to.x - Math.cos(angle) * toR, y: to.y - Math.sin(angle) * toR });
 }
