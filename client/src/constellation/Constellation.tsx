@@ -598,11 +598,11 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     </For>
   );
 
-  // A head as it is named in a blob: its language where that is not the
-  // blob's, the word, how it is read and what it means.
-  const HeadName = (p: { item: Item; branch: Branch; showLang?: boolean }) => (
+  // Every head belongs to the heading's language. A compact node puts that
+  // language inline instead of giving it a separate heading.
+  const HeadName = (p: { item: Item; showLang?: boolean }) => (
     <>
-      <Show when={p.showLang || p.item.lang.name !== p.branch.name}>
+      <Show when={p.showLang}>
         <span class="cst-head-lang">{p.item.lang.name}</span>
       </Show>
       <span class="cst-head-term">{term(p.item) || "Undefined Root"}</span>
@@ -625,7 +625,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
       <div class="cst-group">
         <Show when={!p.group.own}>
           <span class="cst-head static">
-            <HeadName item={item} branch={p.branch} />
+            <HeadName item={item} />
           </span>
         </Show>
         <p class="cst-words">
@@ -744,7 +744,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
                       data-key={h.node.key}
                       aria-haspopup="dialog"
                     >
-                      <HeadName item={h.node.item} branch={p.branch} showLang={compact()} />
+                      <HeadName item={h.node.item} showLang={compact()} />
                     </button>
                   </div>
                 )}

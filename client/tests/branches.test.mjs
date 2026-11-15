@@ -88,3 +88,47 @@ test("non-family hubs still group their recorded heads directly", () => {
   assert.equal(branch.name, "Ancient Greek");
   assert.equal(branch.groups[0].head, head);
 });
+
+test("a common Old Latin ancestor never groups Latin, Late Latin and Medieval Latin heads", () => {
+  const old = { id: 8, code: "itc-ola", name: "Old Latin" };
+  const late = { id: 9, code: "la-lat", name: "Late Latin" };
+  const medieval = { id: 10, code: "la-med", name: "Medieval Latin" };
+  const tree = {
+    parents: { ...langs.parents, "itc-ola": "itc-pro", la: "itc-ola", "la-lat": "la", "la-med": "la-lat" },
+    names: { ...langs.names, "itc-ola": old.name, "la-lat": late.name, "la-med": medieval.name },
+  };
+  const heads = [
+    node(medieval, "crisma", [word("chrism")]),
+    node(latin, "exhortātīvus", [word("exhortative")]),
+    node(late, "exhortātōrius", [word("exhortatory")]),
+    node(latin, "hortativus", [word("hortative")]),
+    node(old, "old form", [word("old")]),
+  ];
+  const branches = branchesOf(node(italic, "root", heads), english, tree, null);
+  assert.deepEqual(new Set(branches.map((b) => b.name)), new Set([old.name, latin.name, late.name, medieval.name]));
+  for (const b of branches) for (const g of b.groups) {
+    assert.equal(g.head.item.lang.code, b.key);
+    assert.equal(g.head.item.lang.name, b.name);
+  }
+  assert.equal(branches.find((b) => b.key === "la").groups.length, 2);
+  assert.deepEqual(branches.find((b) => b.key === "itc-ola").groups.map((g) => g.head), [heads[4]]);
+});
+
+test("an Undefined Root also splits its children by exact language", () => {
+  const old = { id: 8, code: "itc-ola", name: "Old Latin" };
+  const medieval = { id: 10, code: "la-med", name: "Medieval Latin" };
+  const tree = {
+    parents: { ...langs.parents, "itc-ola": "itc-pro", la: "itc-ola", "la-med": "la" },
+    names: { ...langs.names, "itc-ola": old.name, "la-med": medieval.name },
+  };
+  const hub = node(pie, "root", [
+    node(latin, "hortativus", [word("hortative")]),
+    node(medieval, "crisma", [word("chrism")]),
+  ]);
+  const [family] = branchesOf(hub, english, tree, null);
+  assert.equal(family.name, italic.name);
+  assert.equal(family.groups.length, 1);
+  const branches = branchesOf(family.groups[0].head, english, tree, null);
+  assert.deepEqual(new Set(branches.map((b) => b.name)), new Set([latin.name, medieval.name]));
+  assert.ok(branches.every((b) => b.groups.every((g) => g.head.item.lang.code === b.key)));
+});

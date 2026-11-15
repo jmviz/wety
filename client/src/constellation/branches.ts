@@ -305,16 +305,16 @@ export function branchesOf(hub: TreeNode, target: Lang, langs: LangTree, common:
   collect(hub, 1, false);
   const under = (h: TreeNode) => wordsUnder(h, target.id, common, folds, graftedHeads.has(h.item.id));
 
-  // The language tree below the hub's language, as far as the heads reach.
-  // Heads of the reader's language, and of languages that do not descend from
-  // the hub's, each stand under their own language.
+  // Only a family's root uses ancestry to choose its fixed branches.
+  // Everywhere else the heading is the exact language of every head in it:
+  // a common ancestor is not a license to call later words Old Latin.
   const root: Trie = { code: hub.item.lang.code, heads: [], kids: new Map() };
   const names = new Map<string, string>();
   for (const head of heads.values()) {
     const lang = head.item.lang;
     names.set(lang.code, lang.name);
     const line = chain(lang.code, langs);
-    const at = lang.id === target.id ? -1 : line.indexOf(root.code);
+    const at = top && lang.id !== target.id ? line.indexOf(root.code) : -1;
     let node = root;
     for (const code of at < 0 ? [lang.code] : line.slice(at + 1)) {
       let kid = node.kids.get(code);
@@ -345,11 +345,10 @@ export function branchesOf(hub: TreeNode, target: Lang, langs: LangTree, common:
     });
   };
 
-  for (let t of root.kids.values()) {
-    // A branch is named by the oldest language on it that has a head, or
-    // where its heads' languages part ways; at the top of a family, by the
-    // language that comes straight from the hub's.
-    while (!top && t.heads.length === 0 && t.kids.size === 1) t = t.kids.values().next().value!;
+  for (const t of root.kids.values()) {
+    // At the family root, a branch names a direct daughter language and
+    // missing forms go under its Undefined Root. Otherwise it names the
+    // heads' actual language, never an inferred common ancestor.
     let members = below(t);
     const name = langs.names[t.code] ?? names.get(t.code) ?? t.code;
     if (top && t.code !== target.code) {
