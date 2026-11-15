@@ -28,8 +28,8 @@ function node(lang, term, children = [], extra = {}) {
 }
 const word = (term, selected = false) => node(english, term, [], { isSelected: selected });
 
-test("Latin-origin English uses tier 50 through later languages while other origins retain tier 60", () => {
-  const common = new Map([["common", 50], ["rarer", 55], ["rarest", 60], ["selected", 60], ["anti", 50]]);
+test("Latin-origin English uses tier 35 through later languages while other origins retain tier 60", () => {
+  const common = new Map([["common", 35], ["rarer", 40], ["rarest", 60], ["selected", 60], ["anti", 35]]);
   const viaFrench = node(french, "source", [word("common"), word("rarer"), word("rarest"), word("selected", true), word("anti-")]);
   const fromLatin = node(latin, "source", [viaFrench]);
   const other = node({ id: 22, code: "ang", name: "Old English" }, "source", [word("rarer"), word("rarest")]);
@@ -54,7 +54,7 @@ test("Late Latin and Old Latin qualify without treating Proto-Italic as Latin", 
 });
 
 test("Latin-origin affixes must meet the cutoff without their hyphen", () => {
-  const common = new Map([["anti", 50], ["apres", 60]]);
+  const common = new Map([["anti", 35], ["apres", 60]]);
   const head = node(latin, "source", [word("après-"), word("apres-"), word("anti-"), word("après-", true)]);
   const omitted = uncommonLatinEnglish(head, common);
   assert.deepEqual([...omitted], head.children.slice(0, 2).map((n) => n.key));

@@ -132,7 +132,7 @@ export function directEarlyEnglish(root: TreeNode, early: (code: string) => bool
 export type Common = Map<string, number>;
 const level = (common: Common, term: string) => common.get(term.toLowerCase());
 const COMMON_LIMIT = 60;
-const LATIN_COMMON_LIMIT = 50;
+const LATIN_COMMON_LIMIT = 35;
 
 // Follow the recorded word path, not the language family: a Germanic word
 // borrowed through Latin qualifies, while an unrelated Germanic path does
