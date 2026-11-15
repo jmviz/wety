@@ -10,6 +10,8 @@ import { chronological, languageTimes } from "./chronology";
 import type { LayoutPeriod } from "./chronology";
 import { representatives } from "./representatives";
 import type { Frequencies } from "./representatives";
+import { expansionDepth, sharedDepth } from "./expansion";
+import type { ExpansionDepth } from "./expansion";
 
 import {
   For,
@@ -413,30 +415,50 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
   // with one head is a rack of one row.
   const rack = (hub: Hub, branch: Branch, groups: Group[]) => {
     const id = blobId(hub, branch);
-    const taken = new Set(hubs().map((h) => h.id));
-    const made = groups
-      .filter((g) => canOpen(g, target) && !taken.has(String(g.head.item.id)))
-      .map((g) => makeHub(g.head, hub, id, hub.hues.get(branch.key)!));
-    // The heads with one word stand together in the middle of the rack, their
-    // words level with them; the others' blobs go above and below (layout.ts).
-    const next = rackOrder(made, (h) => h.single);
-    // Revealing a child is not a click on it. Only a one-to-one node that
-    // the user actually opens unfolds its remaining chain automatically.
-    const opened = [...next];
-    for (const h of opened) taken.add(h.id);
-    for (const parent of autoExpandGroup(branch, target) ? opened : []) {
-      if (parent.single) continue;
-      for (const b of parent.branches) {
-        const g = autoExpandGroup(b, target);
-        if (!g) continue;
-        const key = String(g.head.item.id);
-        if (taken.has(key)) continue;
-        const child = makeHub(g.head, parent, blobId(parent, b), parent.hues.get(b.key)!);
-        taken.add(key);
-        opened.push(child);
+    const all = [...hubs()];
+    const taken = new Set(all.map((h) => h.id));
+    const peers = (owner: Hub, b: Branch) => all.flatMap((h) => h.branches
+      .filter((k) => languageKey(h, k) === languageKey(owner, b))
+      .map((k) => ({ owner: h, branch: k, id: blobId(h, k) })));
+    const inherited = sharedDepth(peers(hub, branch).filter((p) => p.id !== id).map((p) => expansionDepth(p.id, all)));
+    const expand = (owner: Hub, b: Branch, desired: ExpansionDepth | null, firstGroups = b.groups) => {
+      const automatic = !desired && !!autoExpandGroup(b, target);
+      const queue: { owner: Hub; branch: Branch; level: number; groups: Group[] }[] = [
+        { owner, branch: b, level: 1, groups: firstGroups },
+      ];
+      for (const step of queue) {
+        const via = blobId(step.owner, step.branch);
+        const existing = all.filter((h) => h.via === via);
+        const made: Hub[] = [];
+        for (const g of step.groups) {
+          const key = String(g.head.item.id);
+          if (!canOpen(g, target) || taken.has(key)) continue;
+          const child = makeHub(g.head, step.owner, via, step.owner.hues.get(step.branch.key)!);
+          taken.add(key);
+          made.push(child);
+        }
+        const children = [...existing, ...rackOrder(made, (h) => h.single)];
+        all.push(...rackOrder(made, (h) => h.single));
+        for (const child of children) for (const next of child.branches) {
+          const follow = desired ? desired.complete || step.level < desired.depth : automatic && !!autoExpandGroup(next, target);
+          if (follow) queue.push({ owner: child, branch: next, level: step.level + 1, groups: next.groups });
+        }
       }
+    };
+    expand(hub, branch, inherited, groups);
+    // Deepening an already-open path also advances its opened siblings.
+    // Merely revealed/folded siblings never join the expansion.
+    for (let source: Hub | null = hub; source?.parent && source.via; source = source.parent) {
+      const parent = source.parent;
+      const via = source.via;
+      const b = parent.branches.find((b) => blobId(parent, b) === via);
+      if (!b) continue;
+      const openedPeers = peers(parent, b).filter((p) => expansionDepth(p.id, all).depth > 0);
+      if (openedPeers.length < 2) continue;
+      const horizon = sharedDepth(openedPeers.map((p) => expansionDepth(p.id, all)));
+      if (horizon) for (const p of openedPeers) expand(p.owner, p.branch, horizon);
     }
-    if (opened.length) setHubs([...hubs(), ...opened]);
+    setHubs(all);
     closePopover();
     setCurrent(hub);
     settled(() => fitAll(rackRects(hub, id)));
