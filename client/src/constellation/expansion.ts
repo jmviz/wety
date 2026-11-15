@@ -23,7 +23,14 @@ export function unbranchedLineage(branch: Branch, children: (head: Branch["group
   return visit(branch);
 }
 
-// A tray can finish a small subtree with at most one split into parallel,
+// Evaluate each newly exposed source independently. A neighbouring fork
+// must not turn an uninterrupted path into an extra expansion button,
+// including when both sources share the same language/preview column.
+export function linearGroups(branch: Branch, children: (head: Branch["groups"][number]["head"]) => Branch[]): Branch["groups"] {
+  return branch.groups.filter((g) => !g.own && unbranchedLineage({ ...branch, groups: [g], words: g.words }, children));
+}
+
+// A selection can finish a small subtree with at most one split into parallel,
 // uninterrupted paths. Path length and language names do not matter. An
 // unknown continuation or another split requires another deliberate choice.
 export function canFinishTogether(branches: Branch[], children: (head: Branch["groups"][number]["head"]) => Branch[]): boolean {

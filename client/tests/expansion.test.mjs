@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { canFinishTogether, newestFirst, unbranchedLineage } from "../src/constellation/expansion.ts";
+import { canFinishTogether, linearGroups, newestFirst, unbranchedLineage } from "../src/constellation/expansion.ts";
 
 test("the newest click's sources sit together ahead of older branches", () => {
   const sources = [
@@ -73,4 +73,31 @@ test("one modern spelling reached through two sources is still a historical fork
   const branch = { words: ["same"], groups: [{ head, own: false }] };
   const children = () => [{ words: ["same"], groups: ["one", "two"].map((term) => ({ head: { item: { term } }, own: false })) }];
   assert.equal(unbranchedLineage(branch, children), false);
+});
+
+
+test("a deeper fork does not block linear siblings, even within one language", () => {
+  const head = (term) => ({ item: { term } });
+  const words = ["first", "second", "third", "fourth", "fifth"].map(head);
+  const group = (head, words) => ({ head, words, own: false });
+  const branch = (groups) => ({ groups, words: groups.flatMap((g) => g.words) });
+  const endpoint = (word) => ({ groups: [{own:true,words:[word]}], words:[word] });
+  const short = head("short"), long = head("long"), middle = head("middle"), fork = head("fork"), nested = head("nested");
+  const nestedGroups = [group(head("choice-a"), [words[2]]), group(head("choice-b"), [words[3]])];
+  const next = new Map([
+    [short, [endpoint(words[0])]],
+    [long, [branch([group(middle, [words[1]])])]],
+    [middle, [endpoint(words[1])]],
+    [fork, [branch([group(nested, words.slice(2, 4)), group(head("other"), [words[4]])])]],
+    [nested, [branch(nestedGroups)]],
+  ]);
+  const read = (head) => next.get(head) ?? [];
+  const choices = [group(short, [words[0]]), group(fork, words.slice(2)), group(long, [words[1]])];
+  assert.equal(canFinishTogether([branch(choices)], read), false);
+  // One column and separate language columns produce the same decisions.
+  for (const front of [[branch(choices)], choices.map((g) => branch([g]))]) {
+    assert.deepEqual(front.flatMap((b) => linearGroups(b, read)).map((g) => g.head), [short, long]);
+  }
+  assert.deepEqual(linearGroups(endpoint(words[0]), read), []);
+  assert.deepEqual(linearGroups(branch([group(head("unknown"), words)]), read), []);
 });

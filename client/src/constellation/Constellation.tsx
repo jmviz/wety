@@ -10,10 +10,11 @@ import { chronological, groupLanguageLanes, languageTimes } from "./chronology";
 import type { LayoutPeriod } from "./chronology";
 import { representatives } from "./representatives";
 import type { Frequencies } from "./representatives";
-import { canFinishTogether, newestFirst, unbranchedLineage } from "./expansion";
+import { canFinishTogether, linearGroups, newestFirst, unbranchedLineage } from "./expansion";
 import { compactBranches, compactVisibleLanes } from "./density";
 import type { DensityNode } from "./density";
 import { languageWidths, type LaneContent } from "./sizing";
+import { dominantLanguage, gatherLanguage } from "./magnetism";
 import { languageAnchors } from "./labels";
 import type { LanguageAnchor } from "./labels";
 import { expansionView, rootOverview, visibleStage } from "./camera";
@@ -450,9 +451,14 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
   const placed = createMemo(() => {
     const v = view(), s = stage();
     if (initialOverview() || !s.w) return baseLayout();
-    return compactVisibleLanes(baseLayout(), spec(), {
-      x: (s.x - v.x) / v.k, y: (s.y - v.y) / v.k, w: s.w / v.k, h: s.h / v.k,
-    });
+    const viewport = { x: (s.x - v.x) / v.k, y: (s.y - v.y) / v.k, w: s.w / v.k, h: s.h / v.k };
+    // Rank against the stable base, not our own reordered output: grouping
+    // cannot change its own priority and start an oscillating layout loop.
+    const base = baseLayout();
+    const language = dominantLanguage(spec(), base, viewport);
+    const grouped = language ? gatherLanguage(spec(), language) : spec();
+    const arranged = language ? layout(grouped, frame(), base) : base;
+    return compactVisibleLanes(arranged, grouped, viewport);
   });
   // Where a blob is drawn: its seat, or when it has shrunk, the end of its
   // seat nearer its hub.
@@ -553,6 +559,16 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
         const hue = h.hues.get(b.key)!;
         const sources = entriesFor(h, b, hubs().filter((k) => k.via === blobId(h, b))).flatMap((k) => at.sources.get(k.id) ?? []);
         const outward = at.sides.get(blobId(h, b)) ?? (side || (box.x + box.w / 2 >= c.x ? 1 : -1));
+        if (!side && sources.length === 1) {
+          // A single root card needs one direct connection, not a shared
+          // stem approached above the card and then doubled back down.
+          const source = sources[0];
+          push(hue, join(c, ROOT_R, { x: outward > 0 ? source.x : source.x + source.w,
+            y: source.y + source.h / 2, w: 0, h: 0 },
+            [...at.seats].filter(([id]) => id !== blobId(h, b)).map(([, seat]) => seat),
+            rootDirection(h.branches.indexOf(b), h.branches.length)));
+          continue;
+        }
         if (side && sources.length) {
           for (const entry of entriesFor(h, b, hubs().filter((k) => k.via === blobId(h, b)))) {
             const target = at.sources.get(entry.id);
@@ -722,7 +738,8 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
       };
       const selected = { ...b, groups: firstGroups, words: firstGroups.flatMap((g) => g.words) };
       const lineage = unbranchedLineage(selected, read);
-      const finish = descendantTray(owner, b) && canFinishTogether(
+      const fromTray = descendantTray(owner, b);
+      const finish = canFinishTogether(
         selectedScope ? restrictBranches([selected], selectedScope.words) : [selected], read);
       const queue: { owner: Hub; branch: Branch; groups: Group[] }[] = [
         { owner, branch: b, groups: firstGroups },
@@ -773,13 +790,13 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
         all.push(...rackOrder(made, (h) => h.single));
         const nextSteps = [...extended, ...made].flatMap((child) => child.branches.flatMap((next) => {
           const scoped = selectedScope ? restrictBranches([next], selectedScope.words)[0] : next;
-          return scoped ? [{ owner: child, branch: next, scoped, groups: scoped.groups }] : [];
+          if (!scoped) return [];
+          const groups = lineage || finish ? scoped.groups : fromTray ? linearGroups(scoped, read) : [];
+          return groups.length ? [{ owner: child, branch: next, groups }] : [];
         }));
-        // Initial branching overviews expose their source for selection.
-        // A small parallel subtree selected in a tray finishes in one click.
-        if (lineage || finish) {
-          queue.push(...nextSteps);
-        }
+        // Preserve choices at the initial overview. Once a tray is opened,
+        // linear continuations finish independently of neighbouring forks.
+        queue.push(...nextSteps);
       }
     };
     expand(hub, branch, groups, scope);

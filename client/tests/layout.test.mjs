@@ -355,3 +355,18 @@ test('wide family subtrees grow away from PIE and leave separate departure corri
     }
   }
 });
+
+test('short root-to-stem curves never reverse direction or overshoot their endpoints', () => {
+  for(const direction of [Math.PI/6,2*Math.PI/3,-Math.PI/3,-5*Math.PI/6]) {
+    const start={x:96*Math.cos(direction),y:96*Math.sin(direction)};
+    for(const dx of [-24,24]) for(const dy of [-18,18]) {
+      const line=join({x:0,y:0},96,{x:start.x+dx,y:start.y+dy,w:0,h:0},[],direction,true);
+      const n=line.d.match(/-?\d+\.\d+/g).map(Number);
+      assert.ok(line.d.includes(' C '));
+      assert.ok(n[2]>=Math.min(n[0],n[6]) && n[2]<=Math.max(n[0],n[6]));
+      assert.ok(n[4]>=Math.min(n[0],n[6]) && n[4]<=Math.max(n[0],n[6]));
+      assert.ok(n[3]>=Math.min(n[1],n[7]) && n[3]<=Math.max(n[1],n[7]));
+      assert.ok(n[5]>=Math.min(n[1],n[7]) && n[5]<=Math.max(n[1],n[7]));
+    }
+  }
+});

@@ -459,11 +459,15 @@ export function join(c: Point, r: number, box: Rect, obstacles: Rect[] = [], dir
   const dx = end.x - start.x;
   const dy = end.y - start.y;
   const bow = Math.sin(2 * Math.atan2(dy, dx)) >= 0 ? 0.14 : -0.14;
-  const cx = (start.x + end.x) / 2 - dy * bow;
-  const cy = (start.y + end.y) / 2 + dx * bow;
+  const between = (value: number, a: number, b: number) => Math.max(Math.min(a, b), Math.min(Math.max(a, b), value));
+  const cx = between((start.x + end.x) / 2 - dy * bow, start.x, end.x);
+  const cy = between((start.y + end.y) / 2 + dx * bow, start.y, end.y);
   const reach = Math.min(80, Math.hypot(dx, dy) / 3);
-  const control1 = { x: start.x + Math.cos(angle) * reach, y: start.y + Math.sin(angle) * reach };
-  const control2 = { x: end.x, y: end.y - Math.sign(end.y - c.y) * reach };
+  // Keep both control points between the endpoints. Radial tangents with a
+  // fixed reach can overshoot short connections and produce a backwards hook.
+  const control1 = { x: start.x + Math.sign(dx) * Math.min(Math.abs(dx) / 2, reach),
+    y: start.y + Math.sign(dy) * Math.min(Math.abs(dy) / 2, reach) };
+  const control2 = { x: end.x, y: end.y - Math.sign(dy) * Math.min(Math.abs(dy) / 2, reach) };
   // A tall sibling can hide this cable and make it appear to originate
   // there. Route around the sibling's entire reserved space, not through it.
   const blocks = obstacles.map((b) => ({ x: b.x - 16, y: b.y - 16, w: b.w + 32, h: b.h + 32 }));
