@@ -37,15 +37,23 @@ export interface Branch {
   hasSelected: boolean;
 }
 
-function dealt(groups: Group[]): TreeNode[] {
+// `folded`: a plain derivative of a word of another group is left out too
+// (analogous, from one head, beside analogy, from another).
+function dealt(groups: Group[], folded: boolean): TreeNode[] {
   const all = groups.flatMap((g) =>
     g.words.map((node, i) => ({ node, at: (i + 0.5) / g.words.length, of: g.words.length }))
   );
   all.sort(
     (a, b) => Number(b.node.isSelected) - Number(a.node.isSelected) || a.at - b.at || b.of - a.of
   );
+  const terms = new Set(all.map(({ node }) => node.item.term));
   const seen = new Set<string>();
-  return all.flatMap(({ node }) => (seen.has(node.item.term) ? [] : (seen.add(node.item.term), [node])));
+  return all.flatMap(({ node }) => {
+    const { term } = node.item;
+    if (seen.has(term) || (folded && !node.isSelected && derived(term, terms))) return [];
+    seen.add(term);
+    return [node];
+  });
 }
 
 // A language's ancestors, oldest first, ending with itself.
@@ -70,16 +78,40 @@ interface Found {
 export type Common = Map<string, number>;
 const level = (common: Common, term: string) => common.get(term.toLowerCase());
 
+// An affix or combining form as a dictionary enters one ("-logy", "un-"). A
+// reconstructed root is written the same way ("*leǵ-") and is not one.
+const isAffix = (n: TreeNode) => !n.item.reconstructed && /^-|-$/.test(n.item.term);
+
+// Whether the reader's language has an affix below a node. Where a hub has
+// one, the words formed with an affix on the way down from it are left to
+// the affixes listed: cosmology, theology and etymology, each formed with
+// Ancient Greek -λογία or -λογος, are left to "-logy", while apology and
+// trilogy, formed from λόγος itself, are words in their own right.
+const standIns = new WeakMap<TreeNode, boolean>();
+function hasStandIn(n: TreeNode, target: number): boolean {
+  let has = standIns.get(n);
+  if (has === undefined) {
+    has = n.children.some((c) => (c.item.lang.id === target && isAffix(c)) || hasStandIn(c, target));
+    standIns.set(n, has);
+  }
+  return has;
+}
+
 // The words a blob lists: single words that are not proper nouns. Phrases
 // ("video chat") and names ("Winterbottom") crowd out the cognates a reader
-// came for, and so do the words no desk dictionary has (Wiktionary has
-// "logodaedaly" and "theologaster" beside "logic"): given `common`, a word
-// not in it is left out. The searched word is listed whatever it is.
-function listed(n: TreeNode, common: Common | null): boolean {
+// came for. Given `common`, so do the words no desk dictionary has
+// (Wiktionary has "logodaedaly" and "theologaster" beside "logic") and those
+// formed with an affix that is listed itself (`grafted`): both are left out,
+// and an affix of the reader's language is listed. The searched word is
+// listed whatever it is.
+function listed(n: TreeNode, common: Common | null, grafted: boolean): boolean {
   if (n.isSelected) return true;
   const { term, pos } = n.item;
   if (/\s/.test(term) || pos?.includes("name")) return false;
-  if (common && level(common, term) === undefined) return false;
+  if (common) {
+    if (isAffix(n)) return true;
+    if (grafted || level(common, term) === undefined) return false;
+  }
   // A capitalised word with no part of speech recorded is nearly always a name.
   return !(!pos?.length && /^\p{Lu}/u.test(term));
 }
@@ -87,22 +119,28 @@ function listed(n: TreeNode, common: Common | null): boolean {
 // The words an English word may be a plain derivative of: itself without
 // un- or non-, or without an inflection or one of the suffixes that keep a
 // word's sense (forgiven, forgiving, forgiveness, forgivable and unforgiven
-// all lead back to forgive). Spelling is allowed for: a dropped e, y become
-// i, a doubled consonant.
+// all lead back to forgive, lexicologist to lexicology, "-logical" to
+// "-logic"). Spelling is allowed for: a dropped e or y, y become i, a
+// doubled consonant.
 const PREFIXES = ["un", "non"];
-const SUFFIXES = ["ness", "less", "able", "ible", "ful", "ing", "ly", "ed", "en", "es", "s"];
+const SUFFIXES = [
+  ...["ness", "less", "able", "ible", "ical", "ful", "ing", "ism", "ist", "ize", "ise"],
+  ...["ics", "ly", "ed", "en", "es", "al", "ic", "s"],
+];
 function bases(term: string): string[] {
   const out: string[] = [];
   for (const p of PREFIXES) if (term.startsWith(p) && term.length >= p.length + 3) out.push(term.slice(p.length));
   for (const s of SUFFIXES) {
     if (!term.endsWith(s) || term.length < s.length + 3) continue;
     const stem = term.slice(0, -s.length);
-    out.push(stem, stem + "e");
+    out.push(stem, stem + "e", stem + "y");
     if (stem.endsWith("i")) out.push(stem.slice(0, -1) + "y");
     if (stem.at(-1) === stem.at(-2)) out.push(stem.slice(0, -1));
   }
   return out;
 }
+const derived = (term: string, terms: { has(term: string): boolean }) =>
+  bases(term.toLowerCase()).some((b) => terms.has(b));
 
 // One entry per spelling (the searched word, else the nearest), in the order
 // a reader is likeliest to know them. Given `common`, that is how common the
@@ -125,9 +163,7 @@ function rank(found: Found[], common: Common | null): TreeNode[] {
   }
   const rarity = (f: Found) => (common && level(common, f.node.item.term)) || Infinity;
   return [...byTerm.values()]
-    .filter(
-      (f) => !common || f.node.isSelected || !bases(f.node.item.term.toLowerCase()).some((b) => byTerm.has(b))
-    )
+    .filter((f) => !common || f.node.isSelected || !derived(f.node.item.term, byTerm))
     .sort(
       (a, b) =>
         Number(b.node.isSelected) - Number(a.node.isSelected) ||
@@ -142,13 +178,22 @@ function rank(found: Found[], common: Common | null): TreeNode[] {
 }
 
 // The words of the reader's language at and below a head.
-function wordsUnder(head: TreeNode, target: number, common: Common | null): TreeNode[] {
+// `folds`: words formed with an affix are left to the affixes listed.
+// `grafted`: the head itself was formed with one.
+function wordsUnder(
+  head: TreeNode,
+  target: number,
+  common: Common | null,
+  folds: boolean,
+  grafted: boolean
+): TreeNode[] {
   const found: Found[] = [];
-  const visit = (n: TreeNode, depth: number) => {
-    if (n.item.lang.id === target && listed(n, common)) found.push({ node: n, depth });
-    for (const c of n.children) visit(c, depth + 1);
+  const visit = (n: TreeNode, depth: number, grafted: boolean) => {
+    if (n.item.lang.id === target && listed(n, common, grafted)) found.push({ node: n, depth });
+    const below = grafted || (folds && isAffix(n));
+    for (const c of n.children) visit(c, depth + 1, below);
   };
-  visit(head, 0);
+  visit(head, 0, grafted);
   return rank(found, common);
 }
 
@@ -180,19 +225,28 @@ export function branchesOf(hub: TreeNode, target: Lang, langs: LangTree, common:
   // Heads: the first words below the hub that are not in its language. A hub
   // of the reader's language also has formations of its own.
   const heads = new Map<number, TreeNode>();
+  // The heads formed with an affix of the hub's language that is passed
+  // through on the way to them.
+  const graftedHeads = new Set<number>();
   const own: Found[] = [];
-  const collect = (n: TreeNode, depth: number) => {
+  const folds = !!common && hasStandIn(hub, target.id);
+  const collect = (n: TreeNode, depth: number, grafted: boolean) => {
+    const below = grafted || (folds && isAffix(n));
     for (const c of n.children) {
       if (c.item.lang.id !== hub.item.lang.id) {
         if (top && c.item.lang.id === target.id) continue;
-        if (!heads.has(c.item.id)) heads.set(c.item.id, c);
+        if (!heads.has(c.item.id)) {
+          heads.set(c.item.id, c);
+          if (below) graftedHeads.add(c.item.id);
+        }
         continue;
       }
-      if (c.item.lang.id === target.id && listed(c, common)) own.push({ node: c, depth });
-      collect(c, depth + 1);
+      if (c.item.lang.id === target.id && listed(c, common, below)) own.push({ node: c, depth });
+      collect(c, depth + 1, below);
     }
   };
-  collect(hub, 1);
+  collect(hub, 1, false);
+  const under = (h: TreeNode) => wordsUnder(h, target.id, common, folds, graftedHeads.has(h.item.id));
 
   // The language tree below the hub's language, as far as the heads reach.
   // Heads of the reader's language, and of languages that do not descend from
@@ -223,7 +277,7 @@ export function branchesOf(hub: TreeNode, target: Lang, langs: LangTree, common:
         b.words.length - a.words.length ||
         a.head.item.term.localeCompare(b.head.item.term)
     );
-    const words = dealt(groups);
+    const words = dealt(groups, !!common);
     branches.push({
       key,
       name,
@@ -244,7 +298,7 @@ export function branchesOf(hub: TreeNode, target: Lang, langs: LangTree, common:
     if (t.code === target.code) {
       // The reader's own language: one list, no heads.
       const words = rank(
-        members.flatMap((h) => wordsUnder(h, target.id, common).map((node, depth) => ({ node, depth }))),
+        members.flatMap((h) => under(h).map((node, depth) => ({ node, depth }))),
         common
       );
       add(t.code, name, words.length ? [group(hub, true, words)] : []);
@@ -252,7 +306,7 @@ export function branchesOf(hub: TreeNode, target: Lang, langs: LangTree, common:
       add(
         t.code,
         name,
-        members.map((h) => group(h, false, wordsUnder(h, target.id, common))).filter((g) => g.words.length > 0)
+        members.map((h) => group(h, false, under(h))).filter((g) => g.words.length > 0)
       );
     }
   }
