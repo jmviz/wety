@@ -5,7 +5,7 @@ import { useGoTo } from "../search/navigate";
 import { Item, Lang, TreeKind, term } from "../search/types";
 import { cognates, constellationStart, lastRequest, showGlosses } from "../state";
 import { Branch, Group, LangTree, branchesOf, canOpen } from "./branches";
-import { HubSpec, Link, Point, Rect, Size, bounds, hubLink, layout, link } from "./layout";
+import { Body, HubSpec, Link, Point, Rect, Size, bounds, join, layout } from "./layout";
 
 import {
   For,
@@ -25,8 +25,10 @@ interface Hub {
   id: string;
   node: TreeNode;
   parent: Hub | null;
-  // The blob it was opened from, and whether it stands in that blob's place:
-  // a blob with one head and its words says nothing its hub does not.
+  // The blob it was opened from. A head is drawn once: when the blob held
+  // nothing else, the hub's disc stands in the blob's place (`replaces`);
+  // otherwise the blob stays, the head's name in it stands for the hub, and
+  // the hub has no disc.
   via: string | null;
   replaces: boolean;
   branches: Branch[];
@@ -140,7 +142,10 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
 
   const [hubs, setHubs] = createSignal<Hub[]>([rootHub]);
   const [current, setCurrent] = createSignal<Hub>(rootHub);
-  const [sizes, setSizes] = createSignal(new Map<string, Size>(), { equals: false });
+  // A blob's size as drawn, and the room it holds on the canvas: the tallest
+  // it has been. A blob that shrinks (a head opened, a list folded) keeps its
+  // seat, so nothing round it moves.
+  const [sizes, setSizes] = createSignal(new Map<string, { now: Size; seat: Size }>(), { equals: false });
   const [moreGroups, setMoreGroups] = createSignal(new Set<string>(), { equals: false });
   const [moreWords, setMoreWords] = createSignal(new Set<string>(), { equals: false });
   const toggle = (set: Set<string>, key: string) => (set.has(key) ? set.delete(key) : set.add(key), set);
@@ -152,10 +157,10 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
     for (const entry of entries) {
       const el = entry.target as HTMLElement;
       const id = el.dataset.blob!;
-      const size = { w: el.offsetWidth, h: el.offsetHeight };
+      const now = { w: el.offsetWidth, h: el.offsetHeight };
       const had = map.get(id);
-      if (size.w && size.h && (!had || had.w !== size.w || had.h !== size.h)) {
-        map.set(id, size);
+      if (now.w && now.h && (!had || had.now.w !== now.w || had.now.h !== now.h)) {
+        map.set(id, { now, seat: { w: now.w, h: Math.max(now.h, had?.seat.h ?? 0) } });
         changed = true;
       }
     }
@@ -176,13 +181,23 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
         (h): HubSpec => ({
           id: h.id,
           r: radius(h),
-          from: h.parent && h.via ? { hub: h.parent.id, blob: h.via, replace: h.replaces } : null,
-          blobs: h.branches.map((b) => ({ id: blobId(h, b), size: measured.get(blobId(h, b)) })),
+          from: h.parent && h.via ? { hub: h.parent.id, blob: h.via, within: !h.replaces } : null,
+          blobs: h.branches.map((b) => ({ id: blobId(h, b), size: measured.get(blobId(h, b))?.seat })),
         })
       ),
       room
     );
   });
+  // Where a blob is drawn: its seat, or when it has shrunk, the end of its
+  // seat nearer its hub.
+  const drawn = (hub: Hub, id: string): Rect | undefined => {
+    const seat = placed().blobs.get(id);
+    const now = sizes().get(id)?.now;
+    const c = placed().hubs.get(hub.id);
+    if (!seat || !now || !c || now.h >= seat.h) return seat;
+    const below = c.y > seat.y + seat.h / 2;
+    return { x: seat.x, y: below ? seat.y + seat.h - now.h : seat.y, w: seat.w, h: now.h };
+  };
 
   // Blobs whose one head has been opened: the hub stands in their place.
   const replaced = createMemo(() => new Set(hubs().filter((h) => h.replaces).map((h) => h.via)));
@@ -193,18 +208,24 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
     const gone = replaced();
     const out: string[] = [];
     const push = (hue: string, l: Link) => out.push([hue, l.d, l.end.x.toFixed(1), l.end.y.toFixed(1)].join("|"));
-    const toBlob = (hub: Hub, blob: string, hue: string) => {
-      const c = at.hubs.get(hub.id);
-      const box = at.blobs.get(blob);
-      if (c && box && !gone.has(blob)) push(hue, link(c, radius(hub), box));
+    // What stands for a hub: its disc, or the blob its head is named in.
+    const body = (h: Hub): Body | undefined => {
+      if (h.parent && !h.replaces) return h.via ? drawn(h.parent, h.via) : undefined;
+      const c = at.hubs.get(h.id);
+      return c && { c, r: radius(h) };
     };
     for (const h of hubs()) {
-      if (h.parent && h.replaces && h.hue) {
-        const from = at.hubs.get(h.parent.id);
-        const to = at.hubs.get(h.id);
-        if (from && to) push(h.hue, hubLink(from, radius(h.parent), to, radius(h)));
-      } else if (h.via && h.hue) toBlob(h, h.via, h.hue);
-      for (const b of h.branches) toBlob(h, blobId(h, b), h.hues.get(b.key)!);
+      const me = body(h);
+      if (!me) continue;
+      // A disc in a blob's place is joined to the hub before it, as the
+      // blob was.
+      const before = h.parent && h.replaces ? body(h.parent) : undefined;
+      if (before && h.hue) push(h.hue, join(before, me));
+      for (const b of h.branches) {
+        const id = blobId(h, b);
+        const box = gone.has(id) ? undefined : drawn(h, id);
+        if (box) push(h.hues.get(b.key)!, join(me, box));
+      }
     }
     return out;
   });
@@ -422,7 +443,8 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
     const all = () => moreWords().has(key);
     const words = () =>
       all() || p.group.words.length <= WORDS + 2 ? p.group.words : p.group.words.slice(0, WORDS);
-    const opened = () => hubs().some((h) => h.id === String(item.id));
+    // (A hub's own words are filed under the hub itself, which is no head.)
+    const opened = () => !p.group.own && hubs().some((h) => h.id === String(item.id));
     const head = (
       <>
         <Show when={item.lang.name !== p.branch.name}>
@@ -451,16 +473,18 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
             <button
               type="button"
               class="cst-head"
-              classList={{ open: opened() }}
+              classList={{ open: opened(), current: current().id === String(item.id) }}
               aria-expanded={opened()}
-              title={`unfold what comes from ${term(item)}`}
+              title={opened() ? `go to ${term(item)}` : `unfold what comes from ${term(item)}`}
               onClick={() => open(p.hub, p.branch, p.group)}
             >
               {head}
             </button>
           </Show>
         </Show>
-        <p class="cst-words">
+        {/* An opened head keeps only its name here, which stands for its hub:
+            its words are listed in the blobs that branch off, by branch. */}
+        <p class="cst-words" hidden={opened()}>
           <For each={words()}>
             {(w, i) => (
               <>
@@ -498,7 +522,7 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
   const BlobView = (p: { hub: Hub; branch: Branch }) => {
     let el!: HTMLElement;
     const id = blobId(p.hub, p.branch);
-    const rect = () => placed().blobs.get(id);
+    const rect = () => drawn(p.hub, id);
     // Unfolds from its hub: drawn there first, then moved to its place.
     const [shown, setShown] = createSignal(false);
     createEffect(() => {
@@ -649,7 +673,11 @@ function Stage(props: { forest: Forest; langs: LangTree }) {
           <For each={hubs()}>
             {(h) => (
               <>
-                <HubView hub={h} />
+                {/* A head opened in a blob that stays has no disc: its name
+                    there stands for it. */}
+                <Show when={!h.parent || h.replaces}>
+                  <HubView hub={h} />
+                </Show>
                 <For each={h.branches}>{(b) => <BlobView hub={h} branch={b} />}</For>
               </>
             )}

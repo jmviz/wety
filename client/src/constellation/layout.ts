@@ -1,6 +1,7 @@
 // Where the constellation's hubs and blobs go. Hubs are placed in the order
-// they were opened, each round what is already there, so opening a word
-// never rearranges the hubs before it.
+// they were opened, each where the blob it was opened from sits and its own
+// blobs round what is already there, so opening a word never rearranges what
+// came before it.
 
 export interface Point {
   x: number;
@@ -17,11 +18,13 @@ export interface Rect extends Point, Size {}
 
 export interface HubSpec {
   id: string;
+  // A hub is a disc of this radius, unless it is `within` a blob.
   r: number;
   // The blob (of an earlier hub) this hub was opened from; none for the root.
-  // `replace`: the hub takes the blob's seat (the blob held nothing else and
-  // is no longer drawn) rather than standing beyond it.
-  from: { hub: string; blob: string; replace: boolean } | null;
+  // `within`: the blob holds other heads too, so it stays and stands for the
+  // hub, whose blobs go round it. Otherwise the blob held nothing else and is
+  // no longer drawn: the hub's disc takes its seat.
+  from: { hub: string; blob: string; within: boolean } | null;
   // In the order they go round; a blob not measured yet has no size and is
   // left out of the result.
   blobs: { id: string; size: Size | undefined }[];
@@ -64,40 +67,38 @@ export function layout(specs: HubSpec[], frame?: Size): Layout {
   const blobs = new Map<string, Rect>();
   const placed: Rect[] = [];
   const free = (r: Rect, others: Rect[] = placed) => others.every((p) => apart(r, p));
-  // The nearest free spot along a line from a point.
-  const along = (from: Point, angle: number, start: number, size: Size): Rect => {
-    for (let t = start; ; t += STEP) {
-      const r = around({ x: from.x + Math.cos(angle) * t, y: from.y + Math.sin(angle) * t }, size);
-      if (free(r)) return r;
-    }
-  };
 
   for (const spec of specs) {
-    const disc = { w: spec.r * 2, h: spec.r * 2 };
+    // What the hub's blobs go round: its disc, or the blob it is within. A
+    // later hub sits where the blob it was opened from does, so nothing round
+    // that blob moves.
+    let body: Size = { w: spec.r * 2, h: spec.r * 2 };
+    let disc = true;
     let at: Point = { x: 0, y: 0 };
     let facing: number | null = null;
     if (spec.from) {
       const parent = hubs.get(spec.from.hub);
       const via = blobs.get(spec.from.blob);
       if (!parent || !via) continue;
-      const c = center(via);
-      facing = Math.atan2(c.y - parent.y, c.x - parent.x);
-      if (spec.from.replace) {
-        // The seat stays where the blob's size put it, so nothing round it
-        // moves; only the room it takes becomes the hub's.
-        at = c;
+      at = center(via);
+      facing = Math.atan2(at.y - parent.y, at.x - parent.x);
+      if (spec.from.within) {
+        body = via;
+        disc = false;
+      } else {
+        // The blob gives the room it took up to the disc.
         const i = placed.indexOf(via);
         if (i >= 0) placed.splice(i, 1);
-      } else {
-        at = center(along(c, facing, extent(via, facing) + spec.r + REACH, disc));
       }
     }
     hubs.set(spec.id, at);
-    placed.push(around(at, disc));
+    if (disc) placed.push(around(at, body));
 
-    // A blob against the hub at an angle, `out` further than snug.
+    // How far from the hub's centre a blob's near edge is kept, and a blob
+    // against the hub at an angle, `out` further than that.
+    const clear = (angle: number) => (disc ? spec.r : extent(body, angle)) + REACH;
     const seat = (size: Size, angle: number, out: number): Rect => {
-      const d = spec.r + REACH + extent(size, angle) + out;
+      const d = clear(angle) + extent(size, angle) + out;
       return around({ x: at.x + Math.cos(angle) * d, y: at.y + Math.sin(angle) * d }, size);
     };
     // Each blob has its turn round the hub (the root's all the way round, a
@@ -141,7 +142,7 @@ export function layout(specs: HubSpec[], frame?: Size): Layout {
         }
         if (!found && room) return null;
         if (!found) {
-          for (let t = spec.r + REACH + extent(size, turn); ; t += STEP) {
+          for (let t = clear(turn) + extent(size, turn); ; t += STEP) {
             found = around({ x: at.x + Math.cos(turn) * t, y: at.y + Math.sin(turn) * t }, size);
             if (fits(found)) break;
           }
@@ -198,26 +199,28 @@ export interface Link {
   end: Point;
 }
 
-// A gently bowed line from a hub's rim, leaving at an angle, to a point.
-function bowed(hub: Point, r: number, angle: number, end: Point): Link {
-  const start = { x: hub.x + Math.cos(angle) * r, y: hub.y + Math.sin(angle) * r };
+// What a line joins: a hub's disc or a blob's box.
+export type Body = { c: Point; r: number } | Rect;
+
+const isDisc = (b: Body): b is { c: Point; r: number } => "r" in b;
+const middle = (b: Body): Point => (isDisc(b) ? b.c : center(b));
+
+// Where a line from a body's middle towards a point leaves it.
+function rim(b: Body, toward: Point): Point {
+  if (!isDisc(b)) return edgeToward(b, toward);
+  const angle = Math.atan2(toward.y - b.c.y, toward.x - b.c.x);
+  return { x: b.c.x + Math.cos(angle) * b.r, y: b.c.y + Math.sin(angle) * b.r };
+}
+
+// A gently bowed line from one body's edge to another's.
+export function join(from: Body, to: Body): Link {
+  const start = rim(from, middle(to));
+  const end = rim(to, middle(from));
   const dx = end.x - start.x;
   const dy = end.y - start.y;
-  const bow = Math.sin(2 * angle) >= 0 ? 0.14 : -0.14;
+  const bow = Math.sin(2 * Math.atan2(dy, dx)) >= 0 ? 0.14 : -0.14;
   const cx = (start.x + end.x) / 2 - dy * bow;
   const cy = (start.y + end.y) / 2 + dx * bow;
   const f = (n: number) => n.toFixed(1);
   return { d: `M ${f(start.x)} ${f(start.y)} Q ${f(cx)} ${f(cy)} ${f(end.x)} ${f(end.y)}`, end };
-}
-
-// From a hub to the edge of a box.
-export function link(hub: Point, r: number, box: Rect): Link {
-  const end = edgeToward(box, hub);
-  return bowed(hub, r, Math.atan2(end.y - hub.y, end.x - hub.x), end);
-}
-
-// From a hub to the rim of another.
-export function hubLink(hub: Point, r: number, to: Point, toR: number): Link {
-  const angle = Math.atan2(to.y - hub.y, to.x - hub.x);
-  return bowed(hub, r, angle, { x: to.x - Math.cos(angle) * toR, y: to.y - Math.sin(angle) * toR });
 }

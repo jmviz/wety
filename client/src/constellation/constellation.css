@@ -286,6 +286,30 @@ button.cst-head {
   box-shadow: 0 0 8px rgba(var(--c), 0.9);
 }
 
+/* Opened: the word alone stands for its section, as it does in its hub. */
+.cst-head.open {
+  padding: 2px 0;
+}
+
+.cst-head.open .cst-head-term {
+  font-size: 22px;
+  line-height: 28px;
+  color: #fff;
+}
+
+.cst-head.open .cst-gloss,
+.cst-head.open .cst-rom {
+  font-size: 13px;
+}
+
+.cst-head.open.current .cst-head-term {
+  text-shadow: 0 0 14px rgba(var(--c), 0.75);
+}
+
+.cst-words[hidden] {
+  display: none;
+}
+
 .cst-head.static {
   color: rgba(var(--c), 0.8);
 }
