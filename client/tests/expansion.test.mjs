@@ -1,8 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { expansionDepth, newestFirst, sharedDepth, singleDescendantChildren, unbranchedLineage } from "../src/constellation/expansion.ts";
-
-const branch = (key, own = false) => ({ key, groups: [{ own }] });
+import { newestFirst, unbranchedLineage } from "../src/constellation/expansion.ts";
 
 test("the newest click's sources sit together ahead of older branches", () => {
   const sources = [
@@ -33,50 +31,24 @@ test("one historical lineage auto-expands to a list of modern words", () => {
   assert.equal(unbranchedLineage({ words: [], groups: [] }, () => []), false);
 });
 
-test("a multi-descendant root opens all children when each has one modern destination", () => {
-  const child = (key, ...words) => ({ ...branch(key, key === "en"), words });
-  const porter = [{ branches: [child("enm:disporten", "sport"), child("enm:reporten", "report"), child("en", "port")] }];
-  assert.equal(singleDescendantChildren(porter), true);
-  // One child with two destinations vetoes the automatic expansion for all.
-  porter[0].branches[0].words.push("disport");
-  assert.equal(singleDescendantChildren(porter), false);
-  assert.equal(singleDescendantChildren([]), false);
-  assert.equal(singleDescendantChildren([{ branches: [] }]), false);
+test("a fork stays folded even when every historical branch has only one endpoint", () => {
+  const words = ["first", "second"];
+  const root = { item: { term: "root" } };
+  const heads = words.map((term) => ({ item: { term } }));
+  const children = (head) => head === root
+    ? [{ words, groups: heads.map((head, i) => ({ head, own: false, words: [words[i]] })) }]
+    : [{ words: [head.item.term], groups: [{ own: true }] }];
+  const branch = { words, groups: [{ head: root, own: false }] };
+  assert.equal(unbranchedLineage(branch, children), false);
+  // Selecting one of the resulting rows still opens its uninterrupted path.
+  for (const head of heads) {
+    assert.equal(unbranchedLineage({ words: [head.item.term], groups: [{ head, own: false }] }, children), true);
+  }
 });
 
-test("a complete sibling records the English horizon as well as its stage depth", () => {
-  const hubs = [
-    { id: "greek", via: "parent/grc", branches: [branch("la")] },
-    { id: "latin", via: "greek/la", branches: [branch("fr")] },
-    { id: "french", via: "latin/fr", branches: [branch("en", true)] },
-  ];
-  assert.deepEqual(expansionDepth("parent/grc", hubs), { depth: 3, complete: true });
-  assert.deepEqual(expansionDepth("other/grc", hubs), { depth: 0, complete: false });
-});
-
-test("a partial sibling supplies a finite depth rather than opening every later stage", () => {
-  const hubs = [{ id: "greek", via: "parent/grc", branches: [branch("la")] }];
-  assert.deepEqual(expansionDepth("parent/grc", hubs), { depth: 1, complete: false });
-  assert.deepEqual(sharedDepth([expansionDepth("parent/grc", hubs), { depth: 0, complete: false }]), { depth: 1, complete: false });
-  assert.equal(sharedDepth([{ depth: 0, complete: false }]), null);
-});
-
-test("a source reaches the English horizon only when all of its opened paths finish", () => {
-  const hubs = [
-    { id: "greek", via: "parent/grc", branches: [branch("la:first"), branch("la:second")] },
-    { id: "latin", via: "greek/la:first", branches: [branch("en", true)] },
-  ];
-  assert.deepEqual(expansionDepth("parent/grc", hubs), { depth: 2, complete: false });
-  assert.deepEqual(sharedDepth([{ depth: 2, complete: false }, { depth: 3, complete: true }]), { depth: 3, complete: true });
-});
-
-test("a shared descendant preview stays incomplete until its shared paths reach English", () => {
-  const latin = branch("la");
-  const hubs = [
-    { id: "porta", via: "root/itc-pro", branches: [latin] },
-    { id: "portus", via: "root/itc-pro", branches: [], shared: [{ host: { id: "porta" }, branch: latin }] },
-  ];
-  assert.deepEqual(expansionDepth("root/itc-pro", hubs), { depth: 1, complete: false });
-  hubs.push({ id: "porto", via: "porta/la", branches: [branch("en", true)] });
-  assert.deepEqual(expansionDepth("root/itc-pro", hubs), { depth: 2, complete: true });
+test("one modern spelling reached through two sources is still a historical fork", () => {
+  const head = { item: { term: "source" } };
+  const branch = { words: ["same"], groups: [{ head, own: false }] };
+  const children = () => [{ words: ["same"], groups: ["one", "two"].map((term) => ({ head: { item: { term } }, own: false })) }];
+  assert.equal(unbranchedLineage(branch, children), false);
 });

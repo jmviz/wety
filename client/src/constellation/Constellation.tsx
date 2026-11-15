@@ -4,14 +4,13 @@ import { close as closePopover, hoverEnter, hoverLeave, pin, popover } from "../
 import { useGoTo } from "../search/navigate";
 import { Item, Lang, TreeKind, term } from "../search/types";
 import { cognates, constellationStart, lastRequest, showGlosses, showRare } from "../state";
-import { Branch, Common, Group, HIDE_UNDEFINED_ROOTS, LangTree, autoExpandGroup, branchesOf, canOpen, directEarlyEnglish, previewLines, previewRows, rackOrder, restrictBranches, singleEndpoint, sourceBranches, uncommonLatinEnglish, withoutUndefinedRoots } from "./branches";
+import { Branch, Common, Group, HIDE_UNDEFINED_ROOTS, LangTree, branchesOf, canOpen, directEarlyEnglish, previewLines, previewRows, rackOrder, restrictBranches, singleEndpoint, uncommonLatinEnglish, withoutUndefinedRoots } from "./branches";
 import { BlobSpec, Layout, Link, Point, Rect, Size, SOURCE_HEIGHT, LANGUAGE_HEADING_SPACE, bounds, breathe, join, layout, rootDirection, stemArrival, cableRouter, sharedWires } from "./layout";
 import { chronological, groupLanguageLanes, languageTimes } from "./chronology";
 import type { LayoutPeriod } from "./chronology";
 import { representatives } from "./representatives";
 import type { Frequencies } from "./representatives";
-import { expansionDepth, newestFirst, sharedDepth, singleDescendantChildren, unbranchedLineage } from "./expansion";
-import type { ExpansionDepth } from "./expansion";
+import { newestFirst, unbranchedLineage } from "./expansion";
 import { compactBranches, compactVisibleLanes } from "./density";
 import type { DensityNode } from "./density";
 import { languageAnchors } from "./labels";
@@ -259,8 +258,9 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
   const previewsOf = (hub: Hub, b: Branch) => previewsFor(b, descendantTray(hub, b));
   const singleWords = (b: Branch, words: TreeNode[]) => words.length > 1 && words.every((w) =>
     previewLines(b, target, branchesFor, common, scores, false).some((line) => line.length === 1 && line[0].item.term === w.item.term));
-  const unopenedWords = (hub: Hub, b: Branch, words: TreeNode[]) => words.filter((word) => !hubs().some((h) =>
-    h.via === blobId(hub, b) && h.scope?.words.has(word.item.term)));
+  const unopenedWords = (hub: Hub, b: Branch, words: TreeNode[], groups = b.groups) => words.filter((word) =>
+    groups.some((g) => g.words.some((w) => w.item.term === word.item.term) && !hubs().some((h) =>
+      h.via === blobId(hub, b) && h.node.item.id === g.head.item.id && (!h.scope || h.scope.words.has(word.item.term)))));
   const rowKey = (hub: Hub, b: Branch, index: number) => {
     const row = previewsOf(hub, b)[index];
     return `${blobId(hub, b)}:row:${row.groups.map((g) => g.head.item.id).join(",")}:${row.words.map((w) => w.item.term).join(",")}`;
@@ -423,8 +423,6 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     const below = c.y > seat.y + seat.h / 2;
     return { x: seat.x, y: below ? seat.y + seat.h - now.h : seat.y, w: seat.w, h: now.h };
   };
-
-  const languageKey = (h: Hub, b: Branch) => `${h.hue}/${b.language ?? b.key}`;
 
   // Root cards and descendant previews share the same language heading.
   // Gather actual visible faces rather than the virtual rack rectangles.
@@ -641,10 +639,6 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     const before = new Set(all.map((h) => h.id));
     const revealed = ++revealSequence;
     const taken = new Set(all.map((h) => h.id));
-    const peers = (owner: Hub, b: Branch) => all.flatMap((h) => h.branches
-      .filter((k) => languageKey(h, k) === languageKey(owner, b))
-      .map((k) => ({ owner: h, branch: k, id: blobId(h, k) })));
-    const inherited = sharedDepth(peers(hub, branch).filter((p) => p.id !== id).map((p) => expansionDepth(p.id, all)));
     const combine = (made: Hub[]) => {
       const columns = new Map<string, { host: Hub; branch: DisplayBranch }>();
       for (const child of made) child.branches = child.branches.filter((b) => {
@@ -678,18 +672,19 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
         return false;
       });
     };
-    const expand = (owner: Hub, b: Branch, desired: ExpansionDepth | null, firstGroups = b.groups, selectedScope = owner.scope) => {
+    const expand = (owner: Hub, b: Branch, firstGroups: Group[], selectedScope = owner.scope) => {
       const lineage = unbranchedLineage({ ...b, groups: firstGroups }, (head) => {
         const branches = branchesFor(head);
         return selectedScope ? restrictBranches(branches, selectedScope.words) : branches;
       });
-      const queue: { owner: Hub; branch: Branch; level: number; groups: Group[]; automatic: boolean }[] = [
-        { owner, branch: b, level: 1, groups: firstGroups, automatic: lineage || !!autoExpandGroup(b, target) },
+      const queue: { owner: Hub; branch: Branch; groups: Group[] }[] = [
+        { owner, branch: b, groups: firstGroups },
       ];
       for (const step of queue) {
         const via = blobId(step.owner, step.branch);
         const existing = all.filter((h) => h.via === via);
         const made: Hub[] = [];
+        const extended: Hub[] = [];
         for (const g of step.groups) {
           if (!canOpen(g, target)) continue;
           const origins = (step.branch as DisplayBranch).origins;
@@ -714,6 +709,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
               } else repeated.branches.push(b);
             }
             repeated.scope = scope;
+            extended.push(repeated);
             continue;
           }
           const child = makeHub(g.head, source ?? step.owner, via, step.owner.hues.get(step.branch.key)!, selectedScope);
@@ -723,32 +719,18 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
           taken.add(key);
           made.push(child);
         }
-        const children = [...existing, ...rackOrder(made, (h) => h.single)];
-        const automatic = step.automatic || (step.level === 1 && singleDescendantChildren(children.map((h) => ({ branches: sourceBranches(h.branches) }))));
         combine(made);
         all.push(...rackOrder(made, (h) => h.single));
-        for (const child of children) for (const next of child.branches) {
-          // A merged preview is still a frontier until the reader chooses
-          // a row, unless the established sibling horizon requires more.
-          const follow = desired ? desired.complete || step.level < desired.depth
-            : lineage || (automatic && sourceBranches([next]).every((b) => !!autoExpandGroup(b, target)));
-          if (follow) queue.push({ owner: child, branch: next, level: step.level + 1, groups: next.groups, automatic });
+        // Only a continuous lineage opens through to its endpoint. A fork
+        // stays folded even when each of its branches ends in one word.
+        // Other opened rows never determine this click's expansion depth.
+        if (lineage) for (const child of [...extended, ...made]) for (const next of child.branches) {
+          const scoped = selectedScope ? restrictBranches([next], selectedScope.words)[0] : next;
+          if (scoped) queue.push({ owner: child, branch: next, groups: scoped.groups });
         }
       }
     };
-    expand(hub, branch, inherited, groups, scope);
-    // Deepening an already-open path also advances its opened siblings.
-    // Merely revealed/folded siblings never join the expansion.
-    for (let source: Hub | null = hub; source?.parent && source.via; source = source.parent) {
-      const parent = source.parent;
-      const via = source.via;
-      const b = parent.branches.find((b) => blobId(parent, b) === via);
-      if (!b) continue;
-      const openedPeers = peers(parent, b).filter((p) => expansionDepth(p.id, all).depth > 0);
-      if (openedPeers.length < 2) continue;
-      const horizon = sharedDepth(openedPeers.map((p) => expansionDepth(p.id, all)));
-      if (horizon) for (const p of openedPeers) expand(p.owner, p.branch, horizon);
-    }
+    expand(hub, branch, groups, scope);
     setHubs(all);
     window.clearTimeout(recentTimer);
     setRecent(new Set(all.filter((h) => !before.has(h.id)).map((h) => h.id)));
@@ -1079,6 +1061,11 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
   const PreviewRow = (p: { hub: Hub; branch: Branch; index: number }) => {
     const row = previewsOf(p.hub, p.branch)[p.index];
     const id = rowKey(p.hub, p.branch, p.index);
+    const words = () => unopenedWords(p.hub, p.branch, row.words, row.groups);
+    const lines = () => {
+      const terms = new Set(words().map((w) => w.item.term));
+      return row.lines.map((line) => line.filter((w) => terms.has(w.item.term))).filter((line) => line.length);
+    };
     return (
       <Show when={!descendantTray(p.hub, p.branch) && singleWords(p.branch, row.words)} fallback={
       <button
@@ -1086,9 +1073,13 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
         class="cst-preview-row"
         data-row-choice={id}
         aria-expanded="false"
-        aria-label={`Expand ${row.words.map((w) => w.item.term).join(", ")}`}
+        aria-label={`Expand ${words().map((w) => w.item.term).join(", ")}`}
         disabled={!row.groups.some((g) => canOpen(g, target))}
-        onClick={() => rack(p.hub, p.branch, row.groups, { id, words: new Set(row.words.map((w) => w.item.term)) })}
+        onClick={() => {
+          const selected = new Set(words().map((w) => w.item.term));
+          const groups = restrictBranches([{ ...p.branch, groups: row.groups }], selected)[0]?.groups ?? [];
+          rack(p.hub, p.branch, groups, { id, words: selected });
+        }}
       >
         <Show when={descendantTray(p.hub, p.branch)}>
           <span class="cst-tray-source">
@@ -1100,18 +1091,18 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
           </span>
         </Show>
         <span class="cst-words">
-          <For each={row.lines}>{(words) => <span class="cst-preview-line"><WordList words={words} live={false} /></span>}</For>
+          <For each={lines()}>{(words) => <span class="cst-preview-line"><WordList words={words} live={false} /></span>}</For>
         </span>
       </button>
       }>
         <div class="cst-preview-row cst-single-words" data-row-choice={id}>
-          <span class="cst-words"><For each={unopenedWords(p.hub, p.branch, row.words)}>{(word, i) => <>
+          <span class="cst-words"><For each={words()}>{(word, i) => <>
             <button type="button" class="cst-single-word" aria-label={`Expand ${term(word.item)}`}
               onClick={(e) => {
                 e.stopPropagation();
                 const words = new Set([word.item.term]);
                 rack(p.hub, p.branch, restrictBranches([p.branch], words)[0]?.groups ?? [], { id: `${id}:${word.item.id}`, words });
-              }}>{term(word.item)}</button>{i() < unopenedWords(p.hub, p.branch, row.words).length - 1 ? ", " : ""}
+              }}>{term(word.item)}</button>{i() < words().length - 1 ? ", " : ""}
           </>}</For></span>
         </div>
       </Show>

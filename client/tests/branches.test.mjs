@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { readFileSync } from "node:fs";
-import { autoExpandGroup, branchesOf, validProtoDescent, canOpen, directEarlyEnglish, groupsForWords, previewLines, previewRows, restrictBranches, singleEndpoint, sourceBranches, uncommonLatinEnglish, withoutUndefinedRoots } from "../src/constellation/branches.ts";
+import { branchesOf, validProtoDescent, canOpen, directEarlyEnglish, groupsForWords, previewLines, previewRows, restrictBranches, singleEndpoint, uncommonLatinEnglish, withoutUndefinedRoots } from "../src/constellation/branches.ts";
 
 const pie = { id: 1, code: "ine-pro", name: "Proto-Indo-European" };
 const hellenic = { id: 2, code: "grk-pro", name: "Proto-Hellenic" };
@@ -61,7 +61,7 @@ test("a preview row opens only its words, including when rows share the same pro
   assert.equal(clicked.length, 2);
   assert.deepEqual(new Set(clicked.flatMap((g) => g.words.map((w) => w.item.term))), new Set(["periodic", "pirate"]));
   const scope = new Set(singles.map((w) => w.item.term));
-  const children = sourceBranches(restrictBranches(read(shared), scope));
+  const children = restrictBranches(read(shared), scope);
   assert.equal(children.length, 1);
   assert.equal(children[0].groups[0].head.item.term, "peri");
   assert.deepEqual(children[0].words.map((w) => w.item.term), ["periodic"]);
@@ -87,19 +87,17 @@ test("undefined-root experiment removes their words and counts without changing 
   assert.deepEqual(withoutUndefinedRoots(allUnknown), []);
 });
 
-test("revealed language roots have independent folded nodes and one-to-one actions", () => {
+test("revealed language roots have independent preview rows", () => {
   const hub = node(hellenic, "root", [
     node(greek, "peri", [word("periodic")]),
     node(greek, "praktikos", [word("practice"), word("practise")]),
   ]);
-  const raw = branchesOf(hub, english, langs, null);
-  assert.equal(raw.length, 1);
-  const split = sourceBranches(raw);
-  assert.equal(split.length, 2);
-  assert.equal(new Set(split.map((b) => b.key)).size, 2);
-  assert.ok(split.every((b) => b.language === "grc" && b.name === "Ancient Greek" && b.groups.length === 1));
-  assert.ok(autoExpandGroup(split.find((b) => b.words.length === 1), english));
-  assert.equal(autoExpandGroup(split.find((b) => b.words.length === 2), english), null);
+  const read = (n) => branchesOf(n, english, langs, null);
+  const [branch] = read(hub);
+  const rows = previewRows(branch, english, read, null, undefined, true);
+  assert.equal(rows.length, 2);
+  assert.ok(rows.every((r) => r.groups.length === 1));
+  assert.deepEqual(new Set(rows.map((r) => r.groups[0].head.item.term)), new Set(["peri", "praktikos"]));
 });
 
 test("Latin-origin English uses tier 35 through later languages while other origins stop at tier 50", () => {
@@ -239,24 +237,19 @@ test("an English spelling remains visible through a separate later-language path
   assert.deepEqual(branches[0].words, [later]);
 });
 
-test("one-to-one child nodes auto-expand independently of a multi-word parent", () => {
-  const oldEnglish = { id: 11, code: "ang", name: "Old English" };
-  const middleEnglish = { id: 12, code: "enm", name: "Middle English" };
-  for (const term of ["stride", "unclose", "quiver", "brim"]) {
-    const child = node(middleEnglish, term, [word(term)]);
-    const [branch] = branchesOf(node(oldEnglish, term, [child]), english, langs, null);
-    assert.equal(autoExpandGroup(branch, english)?.head, child);
-  }
-  const oneSource = node(middleEnglish, "source", [word("one"), word("two")]);
-  const [manyWords] = branchesOf(node(oldEnglish, "root", [oneSource]), english, langs, null);
-  assert.equal(autoExpandGroup(manyWords, english), null);
-  const [manySources] = branchesOf(node(oldEnglish, "root", [
-    node(middleEnglish, "source-a", [word("same")]),
-    node(middleEnglish, "source-b", [word("same")]),
-  ]), english, langs, null);
-  assert.equal(autoExpandGroup(manySources, english), null);
-  const [unnamed] = branchesOf(node(oldEnglish, "root", [node(middleEnglish, "", [word("only")])]), english, langs, null);
-  assert.equal(autoExpandGroup(unnamed, english), null);
+test("same-language formations do not add repeated historical stages", () => {
+  const old = { id: 11, code: "ang", name: "Old English" };
+  const middle = { id: 12, code: "enm", name: "Middle English" };
+  const modern = word("destination");
+  const later = node(middle, "later", [modern]);
+  const formation = node(old, "formation", [later]);
+  const first = node(old, "first", [formation]);
+  const root = node(hellenic, "root", [first]);
+  const read = (n) => branchesOf(n, english, langs, null);
+  assert.equal(read(root)[0].groups[0].head, first);
+  assert.equal(read(first)[0].groups[0].head, later);
+  assert.deepEqual(read(later)[0].words, [modern]);
+  assert.equal(first.children[0], formation); // The source graph is not rewritten.
 });
 
 test("Proto-Hellenic has its two forms and one undefined root for all unanchored Greek words", () => {

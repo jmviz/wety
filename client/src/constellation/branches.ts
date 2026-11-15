@@ -69,16 +69,6 @@ export function withoutUndefinedRoots(branches: Branch[]): Branch[] {
   });
 }
 
-// After opening a family branch, reveal one folded node per source root.
-// Its modern words remain grouped in the preview, but unrelated roots no
-// longer share an expand action merely because their language is the same.
-export function sourceBranches(branches: Branch[]): Branch[] {
-  return branches.flatMap((b) => b.groups.length > 1 && b.groups.every((g) => !g.own)
-    ? b.groups.map((g) => ({ ...b, key: `${b.key}:${g.head.item.id}`, language: b.language ?? b.key,
-        groups: [g], words: g.words, wordCount: g.words.length, hasSelected: g.hasSelected }))
-    : [b]);
-}
-
 // A row can share a historical source with another row. Keep its paths
 // restricted to the displayed words that were actually clicked.
 export function restrictBranches(branches: Branch[], terms: ReadonlySet<string>): Branch[] {
@@ -567,14 +557,6 @@ export function branchesOf(hub: TreeNode, target: Lang, langs: LangTree, common:
 // listed: a word of the reader's language has only its own formations below.
 export function canOpen(g: Group, target: Lang): boolean {
   return !g.own && g.head.item.lang.id !== target.id && g.head.children.length > 0;
-}
-
-// Judge the node itself, not how many words its parent rack contains.
-// A single named source with one displayed destination needs no extra click.
-export function autoExpandGroup(branch: Branch, target: Lang): Group | null {
-  if (branch.groups.length !== 1 || branch.words.length !== 1) return null;
-  const g = branch.groups[0];
-  return g.head.item.term && canOpen(g, target) ? g : null;
 }
 
 // A one-word endpoint is compact only when it is the next language step.
