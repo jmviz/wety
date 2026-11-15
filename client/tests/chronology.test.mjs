@@ -3,6 +3,32 @@ import test from "node:test";
 import { chronological, languageTimes } from "../src/constellation/chronology.ts";
 import { layout } from "../src/constellation/layout.ts";
 
+test("long compact ancestry chains retain all stages with 24px gaps and aligned endpoints", () => {
+  const stages = ["gem-pro", "gmw-pro", "goh", "gmh", "gml", "gmq-oda", "enm", "en"];
+  // Some recorded borrowing steps go backwards in language period; the
+  // path still follows its actual edges without inserting extra columns.
+  const years = [-500, 200, 900, 1200, 1250, 1100, 1300, 2026];
+  let chain;
+  for (let i = stages.length - 1; i >= 0; i--) chain = {
+    id: stages[i], stage: stages[i], year: years[i], compactChain: true,
+    terminal: i === stages.length - 1, size: { w: 190, h: 38 },
+    lanes: chain ? [{ hub: `${i}-word`, mid: 19, inline: true, blobs: [chain] }] : undefined,
+  };
+  const compact = chronological(chain);
+  let at = compact, width = at.size.w, count = 1;
+  while (at.lanes?.length) {
+    at = at.lanes[0].blobs[0];
+    assert.equal(at.gap, 24);
+    width += at.gap + at.size.w;
+    count++;
+  }
+  assert.equal(count, 8);
+  assert.ok(width < 8 * 320);
+  const placed = layout({ id: "root", r: 96, blobs: [compact] });
+  const centers = stages.map((id) => { const r = placed.blobs.get(id); return r.y + r.h / 2; });
+  assert.ok(centers.every((y) => y === centers[0]));
+});
+
 const range = (year) => ({ earliest: year, latest: year });
 test("period midpoints order Latin, Late Latin and Old French; missing stages are interpolated", () => {
   const dates = [

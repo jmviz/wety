@@ -84,12 +84,13 @@ export function languageTimes(periods: LayoutPeriod[], langs: LangTree, target: 
 // a borrowed word must still stand beyond the word it came from.
 export function chronological(b: BlobSpec): BlobSpec {
   if (!b.stage) return b;
-  const stages = new Map<string, { year: number; width: number; next: Set<string>; incoming: number; floor: number }>();
+  const stages = new Map<string, { year: number; width: number; gap: number; next: Set<string>; incoming: number; floor: number }>();
   const visit = (node: BlobSpec, parent?: string) => {
     if (!node.size || !node.stage) return;
     let s = stages.get(node.stage);
-    if (!s) stages.set(node.stage, (s = { year: node.year ?? 0, width: 0, next: new Set(), incoming: 0, floor: 0 }));
+    if (!s) stages.set(node.stage, (s = { year: node.year ?? 0, width: 0, gap: 0, next: new Set(), incoming: 0, floor: 0 }));
     s.width = Math.max(s.width, node.size.w);
+    s.gap = Math.max(s.gap, node.compactChain ? 24 : 44);
     if (parent && parent !== node.stage && !stages.get(parent)!.next.has(node.stage)) {
       stages.get(parent)!.next.add(node.stage);
       s.incoming++;
@@ -116,7 +117,7 @@ export function chronological(b: BlobSpec): BlobSpec {
     for (const child of s.next) {
       const next = stages.get(child)!;
       next.incoming--;
-      next.floor = Math.max(next.floor, x + s.width + 44);
+      next.floor = Math.max(next.floor, x + s.width + s.gap);
     }
   }
   const place = (node: BlobSpec, at: number, terminalStart = 0): BlobSpec => ({
@@ -124,7 +125,7 @@ export function chronological(b: BlobSpec): BlobSpec {
     lanes: node.lanes?.map((lane) => ({
       ...lane,
       blobs: lane.blobs.map((child) => {
-        const run = 44;
+        const run = node.compactChain && child.compactChain ? 24 : 44;
         const next = Math.max(
           at + (node.size?.w ?? 0) + run,
           offsets.get(child.stage!) ?? 0,
@@ -140,7 +141,7 @@ export function chronological(b: BlobSpec): BlobSpec {
   let terminalStart = 0;
   const measure = (node: BlobSpec, at: number) => {
     if (!node.size) return;
-    if (!node.terminal) terminalStart = Math.max(terminalStart, at + node.size.w + 44);
+    if (!node.terminal) terminalStart = Math.max(terminalStart, at + node.size.w + (node.compactChain ? 24 : 44));
     for (const lane of node.lanes ?? []) for (const child of lane.blobs) {
       measure(child, at + node.size.w + (child.gap ?? 44));
     }

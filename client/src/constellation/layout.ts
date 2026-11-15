@@ -39,6 +39,8 @@ export interface BlobSpec {
   // An opened proto-language rack: each source gets its own card centred
   // on its subtree, rather than staying inside a shared, fixed-height box.
   clustered?: boolean;
+  // A long, unbranched run of single-word stages uses content-sized cards.
+  compactChain?: boolean;
 }
 
 // A head opened in a rack, and the blobs that come off it.

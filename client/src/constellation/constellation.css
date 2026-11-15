@@ -422,6 +422,65 @@ button.cst-fam:focus-visible {
   height: 38px;
 }
 
+/* Long one-word chains fit the word and label, rather than repeating the
+   standard 320px rack width for every intervening language. */
+.cst-blob.compact-chain,
+.cst-blob.compact-chain.has-close {
+  width: max-content;
+  min-width: 100px;
+  max-width: 320px;
+  padding: 0;
+}
+
+.cst-blob.compact-chain::after {
+  content: attr(data-language);
+  display: block;
+  visibility: hidden;
+  height: 0;
+  overflow: hidden;
+  padding: 0 12px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.cst-blob.compact-chain .cst-body {
+  width: auto;
+}
+
+.cst-blob.compact-chain .cst-row {
+  position: relative;
+  top: 0 !important;
+  width: 100%;
+  min-width: max-content;
+  max-width: none;
+  padding: 0 12px;
+  justify-content: flex-start;
+}
+
+.cst-blob.compact-chain .cst-head {
+  max-width: none;
+}
+
+.cst-blob.compact-chain .cst-gloss {
+  flex-shrink: 0;
+}
+
+.cst-blob.compact-chain > .cst-head {
+  padding: 0 12px;
+}
+
+.cst-blob.compact-chain.has-close .cst-row {
+  padding-right: 34px;
+}
+
+.cst-blob.compact-chain > .cst-close {
+  width: 24px;
+}
+
+
 .cst-root {
   cursor: pointer;
 }

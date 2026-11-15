@@ -297,6 +297,31 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
         ...heads.map((head) => ({ id: head.id, head })),
       ]
     : heads.map((head) => ({ id: head.id, head }));
+  // Compress only long unbranched runs. Branching racks and folded
+  // descendant previews retain their usual width and spacing.
+  const chainIds = createMemo(() => {
+    const all = hubs();
+    const edges = new Map<string, string>();
+    const candidates = new Set<string>();
+    for (const h of all) for (const b of h.branches) {
+      const id = blobId(h, b);
+      const open = all.filter((k) => k.via === id);
+      if (b.words.length !== 1 || b.groups.length !== 1) continue;
+      if (!open.length && b.groups[0].own) candidates.add(id);
+      else if (open.length === 1 && open[0].node.item.term && open[0].branches.length === 1 && !open[0].shared.length) {
+        candidates.add(id);
+        edges.set(id, blobId(open[0], open[0].branches[0]));
+      }
+    }
+    const compressed = new Set<string>();
+    for (const start of candidates) {
+      const run: string[] = [];
+      let at: string | undefined = start;
+      while (at && candidates.has(at) && !run.includes(at)) { run.push(at); at = edges.get(at); }
+      if (run.length >= 4) run.forEach((id) => compressed.add(id));
+    }
+    return compressed;
+  });
   // What the layout is given: the root's blobs and, in each blob that has
   // been opened, its heads, each with its own blobs in turn.
   const spec = createMemo(() => {
@@ -316,6 +341,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
           stage,
           year: times.get(stage),
           clustered,
+          compactChain: chainIds().has(id),
           // A rack is laid out at the size it is now, so its rows' lines and
           // the words level with them leave it where the rows are drawn; a
           // list keeps the room it has had. Proto clusters use current child
@@ -921,8 +947,9 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
         <section
           ref={el}
           class="cst-blob single"
-          classList={{ shown: shown() && !!rect(), dim: !lit(p.hub) }}
+          classList={{ shown: shown() && !!rect(), dim: !lit(p.hub), "compact-chain": chainIds().has(id) }}
           data-blob={id}
+          data-language={p.branch.name}
           aria-label={`${word.item.lang.name}: ${term(word.item)}`}
           style={{ "--c": p.hub.hues.get(p.branch.key), left: `${at().x}px`, top: `${at().y}px` }}
         >
@@ -952,8 +979,10 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
           single: compact(),
           "has-close": rows().length > 0,
           clustered: clustered(),
+          "compact-chain": chainIds().has(id),
         }}
         data-blob={id}
+        data-language={p.branch.name}
         style={{ "--c": p.hub.hues.get(p.branch.key), left: `${at().x}px`, top: `${at().y}px`,
           "--cst-first-source": clustered() ? `${(placed().sources.get(rows()[0]?.id)?.y ?? at().y) - at().y}px` : undefined,
           height: clustered() ? `${rect()?.h ?? SOURCE_HEIGHT}px` : undefined }}
