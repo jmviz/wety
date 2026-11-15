@@ -32,7 +32,8 @@ interface Hub {
   hue: string | null;
   hues: Map<string, string>;
   // A head with one word under it: the word stands alone beside the head's
-  // row, as the row is set, with an arrow to it, and no blob.
+  // row, as the row is set, in a blob no taller than the row, with an arrow
+  // to it.
   single: boolean;
 }
 
