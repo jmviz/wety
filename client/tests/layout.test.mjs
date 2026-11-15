@@ -58,7 +58,7 @@ for (const side of [-1, 1]) {
       previousBottom = bottom;
     }
     const from = placed.blobs.get("from"), fro = placed.blobs.get("fro");
-    assert.equal(fro.y - from.y - from.h, 44); // Room for the changed language heading.
+    assert.equal(fro.y - from.y - from.h, 52); // Room for the changed language heading.
     assert.ok(placed.sources.get("furdu").y > placed.sources.get("fra").y + 300);
   });
 }
@@ -66,11 +66,11 @@ for (const side of [-1, 1]) {
 test("proto cards reserve separate lanes even before their children are measured", () => {
   const branch = { id: "proto", size: { w: 320, h: 38 }, clustered: true,
     lanes: ["first", "second", "third"].map((hub) => ({ hub, blobs: [] })) };
-  assert.deepEqual(whole(branch), { w: 320, h: 202 });
+  assert.deepEqual(whole(branch), { w: 320, h: 218 });
   const placed = layout({ id: "root", r: 96, blobs: [branch] });
   const sources = [...placed.sources.values()];
   assert.equal(sources.length, 3);
-  assert.equal(sources[1].y - sources[0].y, 82);
+  assert.equal(sources[1].y - sources[0].y, 90);
 });
 
 test("the preserved preview box keeps its measured height beside opened proto roots", () => {
@@ -82,7 +82,7 @@ test("the preserved preview box keeps its measured height beside opened proto ro
   const folded = placed.sources.get("folded"), source = placed.sources.get("opened"), child = placed.blobs.get("child");
   assert.equal(folded.h, 104);
   assert.equal(source.h, 38);
-  assert.equal(child.y - folded.y - folded.h, 44);
+  assert.equal(child.y - folded.y - folded.h, 52);
   assert.equal(source.y + source.h / 2, child.y + child.h / 2);
 });
 
@@ -101,8 +101,10 @@ test("root siblings keep separate directions even with tall previews and previou
     const placed = layout(root, { w: 1000, h: 700 }, previous);
     const angles = root.blobs.map((b, i) => {
       const r = placed.blobs.get(b.id);
-      const angle = Math.atan2(r.y + r.h / 2, r.x + r.w / 2);
       const intended = (-150 + i * 90) * Math.PI / 180;
+      const inwardX = Math.cos(intended) >= 0 ? r.x : r.x + r.w;
+      assert.ok(Math.sign(inwardX) === Math.sign(Math.cos(intended)));
+      const angle = Math.atan2(r.y + r.h / 2, inwardX);
       assert.ok(Math.abs(Math.atan2(Math.sin(angle - intended), Math.cos(angle - intended))) < 1e-6);
       return angle;
     });
@@ -338,4 +340,18 @@ test("sparse branches spend spare height on separation while dense branches stay
   assert.equal(whole(sparse).h, whole(branch).h + 40);
   assert.equal(whole(dense).h, whole(branch).h);
   assert.equal(branch.breathingRoom, undefined);
+});
+
+test('wide family subtrees grow away from PIE and leave separate departure corridors', () => {
+  for (const widths of [[300,300,2500,2000], [2000,2400,300,300]]) {
+    const blobs = widths.map((w,i) => ({id:String(i), size:{w:320,h:38}, clustered:true,
+      lanes:[{hub:`source${i}`,blobs:[{id:`end${i}`,size:{w:w-320,h:70},gap:44}]}]}));
+    const placed = layout({id:'root',r:96,blobs});
+    for (const [i,blob] of blobs.entries()) {
+      const seat=placed.seats.get(blob.id), source=placed.sources.get(`source${i}`);
+      const right=Math.cos(rootDirection(i,blobs.length))>0;
+      assert.ok(right ? seat.x>24 : seat.x+seat.w < -24);
+      assert.ok(right ? source.x>24 : source.x+source.w < -24);
+    }
+  }
 });

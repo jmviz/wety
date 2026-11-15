@@ -175,6 +175,17 @@ test("lone descendants share one frequency-ordered section without splitting lar
   assert.equal(new Set(groups.flat()).size, branch.wordCount);
 });
 
+test("an initial cluster made entirely of solos gives each word its own clickable row", () => {
+  const source = (term) => node(hellenic, `${term}-root`, [node(greek, `${term}-source`, [word(term)])]);
+  const hub = node(pie, "root", [source("first"), source("second"), source("third")]);
+  const read = (head) => branchesOf(head, english, langs, null);
+  const [branch] = read(hub);
+  const scores = new Map([["first", 3], ["second", 5], ["third", 4]]);
+  const rows = previewRows(branch, english, read, null, scores);
+  assert.deepEqual(rows.map((r) => r.words.map((w) => w.item.term)), [["second"], ["third"], ["first"]]);
+  assert.ok(rows.every((r) => r.groups.length === 1 && r.groups[0].words.length === 1));
+});
+
 test("default commonness excludes tier-70 fremd but rare mode and the searched word retain it", () => {
   const common = new Map();
   for (const size of [10, 20, 35, 40, 50, 55, 60, 70]) {
@@ -383,7 +394,7 @@ test("two-column trays keep one source and its own descendants per row", () => {
   const branch = read(root)[0];
   const initial = previewRows(branch, english, read);
   const tray = previewRows(branch, english, read, null, undefined, true);
-  assert.equal(initial.length, 1);
+  assert.equal(initial.length, 2);
   assert.equal(tray.length, 2);
   assert.deepEqual(tray.map((r) => r.groups.map((g) => g.head.item.term)), [['first'], ['second']]);
   assert.deepEqual(tray.map((r) => r.words.map((w) => w.item.term)), [['alpha'], ['beta']]);

@@ -338,7 +338,7 @@ button.cst-preview-row:not(:disabled):hover,
   top: 0;
   bottom: 0;
   /* Account for the extra space reserved for the chevron on the right. */
-  left: calc(50% - 9px);
+  left: calc(30px + var(--tray-source-width, calc(50% - 39px)));
   width: 1px;
   background: rgba(var(--c), 0.16);
   pointer-events: none;
@@ -364,7 +364,7 @@ button.cst-preview-row:not(:disabled):hover,
 
 .cst-descendant-tray .cst-preview-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, var(--tray-source-width, 1fr)) minmax(0, 1fr);
   grid-template-areas: "source words";
   gap: 20px;
   align-items: center;
@@ -407,10 +407,11 @@ button.cst-preview-row:not(:disabled):hover,
 /* The source stays nearest its parent; the action points outward. */
 .cst-blob.left .cst-descendant-tray .cst-preview-row {
   grid-template-areas: "words source";
+  grid-template-columns: minmax(0, 1fr) minmax(0, var(--tray-source-width, 1fr));
 }
 
 .cst-blob.left .cst-descendant-tray::before {
-  left: calc(50% + 9px);
+  left: calc(100% - 30px - var(--tray-source-width, calc(50% - 39px)));
 }
 
 .cst-blob.left .cst-descendant-tray .cst-preview-row,
@@ -957,4 +958,21 @@ button.cst-word:hover,
   .cst-links g {
     animation: none;
   }
+}
+
+/* Share a content-based width across each language, including its source cards. */
+.cst-blob.sized-lane,
+.cst-blob.sized-lane.narrow,
+.cst-blob.sized-lane.compact-chain {
+  width: var(--lane-width);
+  max-width: none;
+}
+.cst-blob.sized-lane .cst-descendant-tray {
+  width: var(--lane-width);
+}
+.cst-blob.sized-lane .cst-row {
+  min-width: 0;
+}
+.cst-blob.sized-lane .cst-head {
+  max-width: 100%;
 }

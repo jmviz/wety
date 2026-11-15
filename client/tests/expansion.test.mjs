@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { newestFirst, unbranchedLineage } from "../src/constellation/expansion.ts";
+import { canFinishTogether, newestFirst, unbranchedLineage } from "../src/constellation/expansion.ts";
 
 test("the newest click's sources sit together ahead of older branches", () => {
   const sources = [
@@ -31,7 +31,7 @@ test("one historical lineage auto-expands to a list of modern words", () => {
   assert.equal(unbranchedLineage({ words: [], groups: [] }, () => []), false);
 });
 
-test("a fork stays folded even when every historical branch has only one endpoint", () => {
+test("a fork is distinct from a continuous lineage even when each arm has one endpoint", () => {
   const words = ["first", "second"];
   const root = { item: { term: "root" } };
   const heads = words.map((term) => ({ item: { term } }));
@@ -44,6 +44,28 @@ test("a fork stays folded even when every historical branch has only one endpoin
   for (const head of heads) {
     assert.equal(unbranchedLineage({ words: [head.item.term], groups: [{ head, own: false }] }, children), true);
   }
+});
+
+test("small tray subtrees finish across one split, regardless of path length", () => {
+  const word = (term) => ({item:{term}});
+  const one = word("one"), two = word("two"), earlier = word("earlier");
+  const endpoint = (...terms) => ({words:terms.map(word),groups:[{own:true}]});
+  const branch = (...heads) => ({words:[word("first"),word("second")],groups:heads.map(head=>({head,own:false}))});
+  const next=new Map([[one,[endpoint("first")]], [two,[endpoint("second")]], [earlier,[branch(two)]]]);
+  const read=head=>next.get(head)??[];
+  assert.equal(canFinishTogether([branch(one,two)],read),true);
+  assert.equal(canFinishTogether([branch(one,earlier)],read),true);
+  assert.equal(canFinishTogether([branch(earlier)],read),true);
+  next.set(two,[branch(word("missing"))]);
+  assert.equal(canFinishTogether([branch(one,two)],read),false);
+  next.set(two,[branch(one,one)]);
+  assert.equal(canFinishTogether([branch(one,two)],read),false);
+  next.set(two,[branch(earlier)]);
+  assert.equal(canFinishTogether([branch(earlier)],read),false);
+  assert.equal(canFinishTogether([branch(word(""))],read),false);
+  assert.equal(canFinishTogether([],read),false);
+  assert.equal(canFinishTogether([{words:[],groups:[]}],read),false);
+  assert.equal(canFinishTogether([endpoint("a","b","c","d","e")],read),false);
 });
 
 test("one modern spelling reached through two sources is still a historical fork", () => {

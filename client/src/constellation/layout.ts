@@ -45,11 +45,16 @@ export interface BlobSpec {
   sharedParents?: string[];
   // Extra vertical room supplied only when the subtree fits the viewport.
   breathingRoom?: number;
+  // Vertical growth away from the PIE root; the preview occupies the inward edge.
+  outwardY?: 1 | -1;
 }
 
 // A head opened in a rack, and the blobs that come off it.
 export interface LaneSpec {
   hub: string;
+  // Keep the remaining tray inward and each new click directly beside it.
+  preview?: boolean;
+  revealed?: number;
   // The remaining preview box can be taller than a one-line source card.
   height?: number;
   // How far down its blob the head's row is centred, once measured.
@@ -97,13 +102,13 @@ const START = -150 * DEG;
 // one head's blobs, and the space between one head's lane and the next's.
 const RUN = 112;
 const LANE_GAP = 14;
-const BETWEEN = 44;
+const BETWEEN = 52;
 // The run of line from a head's row to its one word.
 const SHORT = 44;
 export const SOURCE_HEIGHT = 38;
 export const LANGUAGE_HEADING_SPACE = 36;
-// A changed language needs room for its floating heading above the card.
-const blobGap = (a: BlobSpec, b?: BlobSpec) => b && a.stage !== b.stage ? LANGUAGE_HEADING_SPACE + 8 : LANE_GAP;
+// A 20px heading has 16px below it and at least the same room above it.
+const blobGap = (a: BlobSpec, b?: BlobSpec) => b && a.stage !== b.stage ? BETWEEN : LANE_GAP;
 
 export const center = (r: Rect): Point => ({ x: r.x + r.w / 2, y: r.y + r.h / 2 });
 
@@ -269,8 +274,12 @@ export function layout(root: RootSpec, frame?: Size, before?: Layout): Layout {
 
   // A blob against the root at an angle, `out` further than snug.
   const seat = (size: Size, angle: number, out: number): Rect => {
-    const d = root.r + REACH + extent(size, angle) + out;
-    return around({ x: Math.cos(angle) * d, y: Math.sin(angle) * d }, size);
+    // Anchor the inward edge, not the centre of the complete subtree.
+    // Wider descendants grow outward; they cannot push a family's stem
+    // across PIE into the neighbouring family's departure corridor.
+    const d = root.r + REACH + Math.abs(Math.sin(angle)) * size.h / 2 + out;
+    const side = Math.cos(angle) >= 0 ? 1 : -1;
+    return around({ x: Math.cos(angle) * d + side * size.w / 2, y: Math.sin(angle) * d }, size);
   };
   // Each blob has a fixed direction from the root and moves farther out
   // along it when more room is needed. Within `room`, a
@@ -281,8 +290,9 @@ export function layout(root: RootSpec, frame?: Size, before?: Layout): Layout {
   const sector = n > 1 ? 0 : Math.PI;
   const inSector = (i: number, r: Rect) => {
     if (n <= 1) return true;
-    const angle = Math.atan2(r.y + r.h / 2, r.x + r.w / 2);
     const turn = START + (i * 2 * Math.PI) / n;
+    const inwardX = Math.cos(turn) >= 0 ? r.x : r.x + r.w;
+    const angle = Math.atan2(r.y + r.h / 2, inwardX);
     return Math.abs(Math.atan2(Math.sin(angle - turn), Math.cos(angle - turn))) <= sector + 1e-6;
   };
   const find = (i: number, size: Size, room: Size | null, mine: Rect[]): Rect | null => {
@@ -300,7 +310,7 @@ export function layout(root: RootSpec, frame?: Size, before?: Layout): Layout {
         }
     if (room) return null;
     for (let t = root.r + REACH + extent(size, turn); ; t += STEP) {
-      const r = around({ x: Math.cos(turn) * t, y: Math.sin(turn) * t }, size);
+      const r = seat(size, turn, t);
       if (fits(r)) return r;
     }
   };

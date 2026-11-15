@@ -35,7 +35,22 @@ export function groupLanguageLanes(node: BlobSpec): BlobSpec {
     return (next.length ? next : [[]]).map((p) => [b.stage ?? b.id, ...p]);
   };
   const lanes = node.lanes?.map((lane) => ({ ...lane, blobs: orderLanguagePaths(lane.blobs.map(groupLanguageLanes), paths) }));
-  return { ...node, lanes: lanes && orderLanguagePaths(lanes, (lane) => lane.blobs.flatMap(paths)) };
+  if (!lanes) return node;
+  // Order inward to outward first. Language affinity can reorder sources
+  // from one click, but cannot pull an older source between the tray and a
+  // new breakout. Mirroring vertically keeps this invariant above PIE too.
+  const batches = new Map<number, typeof lanes>();
+  for (const lane of lanes.filter((l) => !l.preview)) {
+    const revealed = lane.revealed ?? 0;
+    const batch = batches.get(revealed) ?? [];
+    batch.push(lane);
+    batches.set(revealed, batch);
+  }
+  const ordered = [
+    ...lanes.filter((l) => l.preview),
+    ...[...batches].sort(([a], [b]) => b - a).flatMap(([, batch]) => orderLanguagePaths(batch, (lane) => lane.blobs.flatMap(paths))),
+  ];
+  return { ...node, lanes: node.outwardY === -1 ? ordered.reverse() : ordered };
 }
 
 export interface LayoutPeriod {

@@ -22,3 +22,23 @@ export function unbranchedLineage(branch: Branch, children: (head: Branch["group
   };
   return visit(branch);
 }
+
+// A tray can finish a small subtree with at most one split into parallel,
+// uninterrupted paths. Path length and language names do not matter. An
+// unknown continuation or another split requires another deliberate choice.
+export function canFinishTogether(branches: Branch[], children: (head: Branch["groups"][number]["head"]) => Branch[]): boolean {
+  const words = new Set(branches.flatMap((b) => b.words.map((w) => w.item.term)));
+  if (!words.size || words.size > 4) return false;
+  let forks = 0;
+  const visit = (frontier: Branch[], ancestors: Set<Branch["groups"][number]["head"]>): boolean => {
+    if (!frontier.length || frontier.some((b) => !b.words.length || !b.groups.length)) return false;
+    const groups = frontier.flatMap((b) => b.groups);
+    if (groups.length > 1 && ++forks > 1) return false;
+    return groups.every((g) => {
+      if (g.own) return true;
+      if (!g.head.item.term || ancestors.has(g.head)) return false;
+      return visit(children(g.head), new Set([...ancestors, g.head]));
+    });
+  };
+  return visit(branches, new Set());
+}

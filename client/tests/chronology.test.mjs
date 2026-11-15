@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { chronological, languageTimes } from "../src/constellation/chronology.ts";
+import { chronological, groupLanguageLanes, languageTimes } from "../src/constellation/chronology.ts";
 import { layout } from "../src/constellation/layout.ts";
 
 test("long compact ancestry chains retain all stages with 24px gaps and aligned endpoints", () => {
@@ -166,4 +166,25 @@ test("neighboring branches prefer their shared language ancestry sequence", asyn
   ] };
   assert.deepEqual(groupLanguageLanes(node).lanes.map((lane) => lane.hub), ['cluster', 'same', 'different']);
   assert.deepEqual(node.lanes.map((lane) => lane.hub), ['cluster', 'different', 'same']);
+});
+
+test("trays stay inward and new roots remain adjacent despite older language matches", () => {
+  const lane = (hub, revealed, stage) => ({ hub, revealed, blobs: [{ id: hub, stage, size: { w: 200, h: 38 } }] });
+  const lanes = [
+    lane("old-matching", 1, "same"),
+    { hub: "tray", preview: true, height: 90, blobs: [] },
+    lane("new-first", 3, "same"),
+    lane("middle", 2, "other"),
+    lane("new-second", 3, "different"),
+  ];
+  const inwardFirst = ["tray", "new-first", "new-second", "middle", "old-matching"];
+  for (const outwardY of [-1, 1]) {
+    const node = { id: "sources", size: { w: 200, h: 38 }, clustered: true, outwardY, lanes };
+    const ordered = groupLanguageLanes(node);
+    const expected = outwardY === 1 ? inwardFirst : [...inwardFirst].reverse();
+    assert.deepEqual(ordered.lanes.map((l) => l.hub), expected);
+    const placed = layout({ id: "root", r: 96, blobs: [ordered] });
+    const positions = expected.map((id) => placed.sources.get(id).y);
+    assert.ok(positions.every((y, i) => !i || y > positions[i - 1]));
+  }
 });

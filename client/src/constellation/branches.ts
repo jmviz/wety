@@ -145,6 +145,9 @@ export function previewLines(branch: Branch, target: Lang, children: (head: Tree
   singles.sort((a, b) => Number(b.isSelected) - Number(a.isSelected) ||
     (scores ? (scores.get(b.item.term.toLowerCase()) ?? 0) - (scores.get(a.item.term.toLowerCase()) ?? 0) : 0) ||
     (common ? (level(common, a.item.term) ?? Infinity) - (level(common, b.item.term) ?? Infinity) : 0));
+  // Compact solos only when sharing the preview with larger families.
+  // An all-solo preview has room to give each choice its own row.
+  if (singles.length === groups.length) return singles.map((word) => [word]);
   let inserted = false;
   return groups.flatMap((words) => {
     if (words.length !== 1) return [words];
