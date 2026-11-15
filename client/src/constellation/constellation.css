@@ -452,7 +452,6 @@ button.cst-fam:focus-visible {
 
 .cst-blob.compact-chain .cst-row {
   position: relative;
-  top: 0 !important;
   width: 100%;
   min-width: max-content;
   max-width: none;

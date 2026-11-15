@@ -1,8 +1,27 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { expansionDepth, sharedDepth, singleDescendantChildren } from "../src/constellation/expansion.ts";
+import { expansionDepth, sharedDepth, singleDescendantChildren, unbranchedLineage } from "../src/constellation/expansion.ts";
 
 const branch = (key, own = false) => ({ key, groups: [{ own }] });
+
+test("one historical lineage auto-expands to a list of modern words", () => {
+  const words = ["kindergarten", "kinder", "kindergärtner", "Kindergärtner"];
+  const source = (term) => ({ item: { term } });
+  const heads = ["kintha", "kind", "kind", "kint", "Kind"].map(source);
+  const step = (head) => ({ words, groups: [{ head, own: false }] });
+  const endpoint = { words, groups: [{ own: true }] };
+  const next = new Map(heads.map((head, i) => [head, [i + 1 < heads.length ? step(heads[i + 1]) : endpoint]]));
+  assert.equal(unbranchedLineage(step(heads[0]), (head) => next.get(head)), true);
+  // Two separate historical sources are a real fork, even within one language.
+  next.set(heads[2], [{ words, groups: [{ head: heads[3], own: false }, { head: source("other"), own: false }] }]);
+  assert.equal(unbranchedLineage(step(heads[0]), (head) => next.get(head)), false);
+  // A second language lane is also a fork.
+  next.set(heads[2], [step(heads[3]), endpoint]);
+  assert.equal(unbranchedLineage(step(heads[0]), (head) => next.get(head)), false);
+  next.set(heads[2], [step(heads[0])]);
+  assert.equal(unbranchedLineage(step(heads[0]), (head) => next.get(head)), false);
+  assert.equal(unbranchedLineage({ words: [], groups: [] }, () => []), false);
+});
 
 test("a multi-descendant root opens all children when each has one modern destination", () => {
   const child = (key, ...words) => ({ ...branch(key, key === "en"), words });

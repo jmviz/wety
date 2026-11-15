@@ -10,7 +10,7 @@ import { chronological, languageTimes } from "./chronology";
 import type { LayoutPeriod } from "./chronology";
 import { representatives } from "./representatives";
 import type { Frequencies } from "./representatives";
-import { expansionDepth, sharedDepth, singleDescendantChildren } from "./expansion";
+import { expansionDepth, sharedDepth, singleDescendantChildren, unbranchedLineage } from "./expansion";
 import type { ExpansionDepth } from "./expansion";
 
 import {
@@ -306,7 +306,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     for (const h of all) for (const b of h.branches) {
       const id = blobId(h, b);
       const open = all.filter((k) => k.via === id);
-      if (b.words.length !== 1 || b.groups.length !== 1) continue;
+      if (b.groups.length !== 1) continue;
       if (!open.length && b.groups[0].own) candidates.add(id);
       else if (open.length === 1 && open[0].node.item.term && open[0].branches.length === 1 && !open[0].shared.length) {
         candidates.add(id);
@@ -318,7 +318,11 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
       const run: string[] = [];
       let at: string | undefined = start;
       while (at && candidates.has(at) && !run.includes(at)) { run.push(at); at = edges.get(at); }
-      if (run.length >= 4) run.forEach((id) => compressed.add(id));
+      if (run.length >= 4) run.forEach((id) => {
+        const owner = all.find((h) => h.branches.some((b) => blobId(h, b) === id));
+        const b = owner?.branches.find((b) => blobId(owner, b) === id);
+        if (edges.has(id) || b?.words.length === 1) compressed.add(id);
+      });
     }
     return compressed;
   });
@@ -566,8 +570,12 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
       });
     };
     const expand = (owner: Hub, b: Branch, desired: ExpansionDepth | null, firstGroups = b.groups, selectedScope = owner.scope) => {
+      const lineage = unbranchedLineage({ ...b, groups: firstGroups }, (head) => {
+        const branches = branchesFor(head);
+        return selectedScope ? restrictBranches(branches, selectedScope.words) : branches;
+      });
       const queue: { owner: Hub; branch: Branch; level: number; groups: Group[]; automatic: boolean }[] = [
-        { owner, branch: b, level: 1, groups: firstGroups, automatic: !!autoExpandGroup(b, target) },
+        { owner, branch: b, level: 1, groups: firstGroups, automatic: lineage || !!autoExpandGroup(b, target) },
       ];
       for (const step of queue) {
         const via = blobId(step.owner, step.branch);
@@ -591,7 +599,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
           // A merged preview is still a frontier until the reader chooses
           // a row, unless the established sibling horizon requires more.
           const follow = desired ? desired.complete || step.level < desired.depth
-            : automatic && sourceBranches([next]).every((b) => !!autoExpandGroup(b, target));
+            : lineage || (automatic && sourceBranches([next]).every((b) => !!autoExpandGroup(b, target)));
           if (follow) queue.push({ owner: child, branch: next, level: step.level + 1, groups: next.groups, automatic });
         }
       }
