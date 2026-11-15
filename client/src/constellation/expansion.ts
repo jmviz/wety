@@ -75,18 +75,3 @@ export function sharedDepth(profiles: ExpansionDepth[]): ExpansionDepth | null {
   const open = profiles.filter((p) => p.depth > 0);
   return open.length ? { depth: Math.max(...open.map((p) => p.depth)), complete: open.some((p) => p.complete) } : null;
 }
-
-// Zooming past readable detail folds one outermost source generation at a
-// time. Siblings fold together, leaving their parent's ordinary previews.
-export function deepestExpansionLayer<T extends { id: string; parent: T | null }>(hubs: T[]): Set<string> {
-  const depths = new Map<string, number>();
-  const depth = (hub: T): number => {
-    const cached = depths.get(hub.id);
-    if (cached !== undefined) return cached;
-    const value = hub.parent ? depth(hub.parent) + 1 : 0;
-    depths.set(hub.id, value);
-    return value;
-  };
-  const deepest = Math.max(0, ...hubs.map(depth));
-  return new Set(deepest ? hubs.filter((hub) => depth(hub) === deepest).map((hub) => hub.id) : []);
-}
