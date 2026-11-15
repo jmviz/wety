@@ -31,6 +31,9 @@ interface Hub {
   // The colour of the branch it was opened from, which its own branches keep.
   hue: string | null;
   hues: Map<string, string>;
+  // A head with one word under it: the word stands alone beside the head's
+  // row, as the row is set, with an arrow to it, and no blob.
+  single: boolean;
 }
 
 // One colour per branch of the root, as "r,g,b".
@@ -143,6 +146,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null }
       branches,
       hue,
       hues: hue ? new Map(keys.map((k) => [k, hue])) : huesOf(keys),
+      single: !!parent && branches.length === 1 && branches[0].words.length === 1,
     };
   };
   const rootHub = makeHub(root, null, null, null);
@@ -204,7 +208,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null }
           id,
           size: measured.get(id)?.seat,
           lanes: heads.length
-            ? heads.map((k) => ({ hub: k.id, mid: mids.get(k.id), blobs: blobsOf(k) }))
+            ? heads.map((k) => ({ hub: k.id, mid: mids.get(k.id), blobs: blobsOf(k), inline: k.single }))
             : undefined,
         };
       });
@@ -232,9 +236,19 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null }
   const links = createMemo(() => {
     const at = placed();
     const out: string[] = [];
-    const push = (hue: string, l: Link) =>
+    // `arrow`: the line ends in an arrowhead pointing that way (1 right, -1
+    // left) and not in a dot.
+    const push = (hue: string, l: Link, arrow = 0) =>
       out.push(
-        [hue, l.d, l.end.x.toFixed(1), l.end.y.toFixed(1), l.start?.x.toFixed(1) ?? "", l.start?.y.toFixed(1) ?? ""].join("|")
+        [
+          hue,
+          l.d,
+          l.end.x.toFixed(1),
+          l.end.y.toFixed(1),
+          l.start?.x.toFixed(1) ?? "",
+          l.start?.y.toFixed(1) ?? "",
+          arrow || "",
+        ].join("|")
       );
     for (const h of hubs()) {
       const c = at.hubs.get(h.id);
@@ -246,7 +260,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null }
         const box = drawn(h, blobId(h, b));
         if (!box) continue;
         const hue = h.hues.get(b.key)!;
-        if (side) push(hue, wire(c, { x: side > 0 ? box.x : box.x + box.w, y: box.y + box.h / 2 }));
+        if (side) push(hue, wire(c, { x: side > 0 ? box.x : box.x + box.w, y: box.y + box.h / 2 }), h.single ? side : 0);
         else push(hue, join(c, ROOT_R, box));
       }
     }
@@ -331,9 +345,17 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null }
   const rack = (hub: Hub, branch: Branch, groups: Group[]) => {
     const id = blobId(hub, branch);
     const taken = new Set(hubs().map((h) => h.id));
-    const next = groups
+    const made = groups
       .filter((g) => canOpen(g, target) && !taken.has(String(g.head.item.id)))
       .map((g) => makeHub(g.head, hub, id, hub.hues.get(branch.key)!));
+    // The heads with one word stand together in the middle of the rack, their
+    // words level with them; the others' blobs go above and below (layout.ts).
+    const many = made.filter((h) => !h.single);
+    const next = [
+      ...many.filter((_, i) => i % 2 === 0),
+      ...made.filter((h) => h.single),
+      ...many.filter((_, i) => i % 2 === 1).reverse(),
+    ];
     if (next.length) setHubs([...hubs(), ...next]);
     closePopover();
     setCurrent(hub);
@@ -578,14 +600,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null }
     const item = p.group.head.item;
     return (
       <div class="cst-group">
-        <Show
-          when={!p.group.own}
-          fallback={
-            <Show when={p.hub.node.item.lang.id !== target.id}>
-              <span class="cst-head static">straight from {term(p.hub.node.item)}</span>
-            </Show>
-          }
-        >
+        <Show when={!p.group.own}>
           <span class="cst-head static">
             <HeadName item={item} branch={p.branch} />
           </span>
@@ -630,6 +645,30 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null }
     const face = () => openable.length > 0 && rows().length === 0;
     const act = () => rack(p.hub, p.branch, openable);
     const Name = () => <span>{p.branch.name}</span>;
+    // A head's one word: set as the head's row is, and a button for its
+    // details.
+    if (p.hub.single) {
+      const word = p.branch.words[0];
+      return (
+        <section
+          ref={el}
+          class="cst-blob single"
+          classList={{ shown: shown() && !!rect(), dim: !lit(p.hub) }}
+          data-blob={id}
+          style={{ "--c": p.hub.hues.get(p.branch.key), left: `${at().x}px`, top: `${at().y}px` }}
+        >
+          <button
+            type="button"
+            class="cst-root cst-head open"
+            classList={{ you: word.isSelected }}
+            data-key={word.key}
+            aria-haspopup="dialog"
+          >
+            <span class="cst-gloss">{term(word.item)}</span>
+          </button>
+        </section>
+      );
+    }
     return (
       <section
         ref={el}
@@ -738,7 +777,6 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null }
             title={current() === p.hub ? "word details" : "centre on this word"}
             onClick={(e) => (current() === p.hub ? pin(p.hub.node, e.currentTarget) : focus(p.hub))}
           >
-            <span class="cst-hub-lang">{item.lang.name}</span>
             <span class="cst-hub-term" style={{ "font-size": `${size}px` }}>
               {shownTerm}
             </span>
@@ -787,12 +825,14 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null }
           <svg class="cst-links" aria-hidden="true">
             <For each={links()}>
               {(l) => {
-                const [hue, d, x, y, x0, y0] = l.split("|");
+                const [hue, d, x, y, x0, y0, arrow] = l.split("|");
                 return (
                   <g style={{ "--c": hue }}>
                     <path class="glow" d={d} />
                     <path d={d} />
-                    <circle cx={x} cy={y} r="4" />
+                    <Show when={arrow} fallback={<circle cx={x} cy={y} r="4" />}>
+                      <path class="tip" d={`M ${x} ${y} l ${-9 * Number(arrow)} -5 v 10 z`} />
+                    </Show>
                     <Show when={x0}>
                       <circle cx={x0} cy={y0} r="3" />
                     </Show>

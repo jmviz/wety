@@ -4,7 +4,9 @@
 // opened is a rack: the heads are rows in the blob, which keeps its own
 // size, and each row's blobs stand in a lane beside it, the lanes one under
 // another in the rows' order, so the lines from heads to blobs fan out side
-// by side. A lane's blob may be a rack in turn, and so on outwards.
+// by side. A head with one word under it has that word level with its row
+// instead, at the end of a short straight line. A lane's blob may be a rack
+// in turn, and so on outwards.
 
 export interface Point {
   x: number;
@@ -33,6 +35,9 @@ export interface LaneSpec {
   // How far down its blob the head's row is centred, once measured.
   mid: number | undefined;
   blobs: BlobSpec[];
+  // A head with one word under it: its one blob is that word alone, and
+  // stands level with the head's row, just beside it.
+  inline?: boolean;
 }
 
 export interface RootSpec {
@@ -71,6 +76,8 @@ const START = -150 * DEG;
 const RUN = 112;
 const LANE_GAP = 14;
 const BETWEEN = 26;
+// The run of line from a head's row to its one word.
+const SHORT = 44;
 
 export const center = (r: Rect): Point => ({ x: r.x + r.w / 2, y: r.y + r.h / 2 });
 
@@ -96,12 +103,61 @@ function lanesHeight(lanes: LaneSpec[]): number {
   return heights.reduce((sum, h) => sum + h, 0) + BETWEEN * Math.max(0, heights.length - 1);
 }
 
+// Where a rack's lanes stand, down from the top of its blob: each lane's
+// top (none for a lane with nothing measured), and how far the lanes reach
+// above the blob's top (`top`, zero or less) and down (`bottom`, the blob's
+// height or more). Lanes stand one under another, centred on the blob. A head
+// with one word has it level with its own row instead; the lanes of the rows
+// above those heads then stand above their words, and the rest below, so the
+// caller keeps such heads together.
+function lanesAt(b: BlobSpec): { tops: (number | undefined)[]; top: number; bottom: number } {
+  const size = b.size!;
+  const lanes = b.lanes ?? [];
+  const tall = lanes.map((l) => stacked(l.blobs));
+  const tops: (number | undefined)[] = lanes.map(() => undefined);
+  const level = lanes.flatMap((l, i) => (l.inline && tall[i] ? [i] : []));
+  for (const i of level) tops[i] = (lanes[i].mid ?? size.h / 2) - tall[i] / 2;
+  const run = (from: number, indexes: number[]) => {
+    let y = from;
+    for (const i of indexes) {
+      tops[i] = y;
+      y += tall[i] + BETWEEN;
+    }
+  };
+  const rest = lanes.flatMap((l, i) => (!l.inline && tall[i] ? [i] : []));
+  if (!level.length) {
+    run((size.h - lanesHeight(lanes)) / 2, rest);
+  } else {
+    const above = rest.filter((i) => i < level[0]);
+    const below = rest.filter((i) => i > level[0]);
+    const bandTop = Math.min(...level.map((i) => tops[i]!));
+    const bandBottom = Math.max(...level.map((i) => tops[i]! + tall[i]));
+    run(bandTop - above.reduce((sum, i) => sum + tall[i] + BETWEEN, 0), above);
+    run(bandBottom + BETWEEN, below);
+  }
+  const placed = tops.flatMap((t, i) => (t === undefined ? [] : [{ t, b: t + tall[i] }]));
+  return {
+    tops,
+    top: Math.min(0, ...placed.map((p) => p.t)),
+    bottom: Math.max(size.h, ...placed.map((p) => p.b)),
+  };
+}
+
 // The room a blob takes with everything racked off it.
 export function whole(b: BlobSpec): Size | undefined {
   if (!b.size) return undefined;
-  const widest = Math.max(0, ...(b.lanes ?? []).flatMap((l) => l.blobs.map((k) => whole(k)?.w ?? 0)));
-  if (!widest) return b.size;
-  return { w: b.size.w + RUN + widest, h: Math.max(b.size.h, lanesHeight(b.lanes!)) };
+  const reach = Math.max(
+    0,
+    ...(b.lanes ?? []).flatMap((l) =>
+      l.blobs.flatMap((k) => {
+        const w = whole(k)?.w;
+        return w ? [(l.inline ? SHORT : RUN) + w] : [];
+      })
+    )
+  );
+  if (!reach) return b.size;
+  const at = lanesAt(b);
+  return { w: b.size.w + reach, h: at.bottom - at.top };
 }
 
 // `frame`: the room the root and its blobs have, centred on the root.
@@ -124,28 +180,27 @@ export function layout(root: RootSpec, frame?: Size, before?: Layout): Layout {
       blobs.set(b.id, room);
       return;
     }
-    // The blob keeps its own size, half way up the room; the lanes stand one
-    // under another beside it, in the order of their heads' rows, so the
-    // lines fan out from the rows without crossing.
+    // The blob keeps its own size; the lanes stand beside it (`lanesAt`), in
+    // the order of their heads' rows, so the lines fan out from the rows
+    // without crossing.
     const side = room.x + room.w / 2 >= fromX ? 1 : -1;
-    const box: Rect = { x: side > 0 ? room.x : room.x + room.w - size.w, y: room.y + (room.h - size.h) / 2, ...size };
+    const at = lanesAt(b);
+    const box: Rect = { x: side > 0 ? room.x : room.x + room.w - size.w, y: room.y - at.top, ...size };
     blobs.set(b.id, box);
     sides.set(b.id, side);
-    let y = room.y + (room.h - lanesHeight(b.lanes)) / 2;
-    for (const lane of b.lanes) {
+    b.lanes.forEach((lane, i) => {
       const leaves = { x: side > 0 ? box.x + box.w : box.x, y: box.y + (lane.mid ?? size.h / 2) };
       hubs.set(lane.hub, leaves);
-      const tall = stacked(lane.blobs);
-      if (!tall) continue;
-      let top = y;
+      let top = at.tops[i];
+      if (top === undefined) return;
+      const run = lane.inline ? SHORT : RUN;
       for (const kid of lane.blobs) {
         const s = whole(kid);
         if (!s) continue;
-        settle(kid, { x: side > 0 ? box.x + box.w + RUN : box.x - RUN - s.w, y: top, ...s }, leaves.x);
+        settle(kid, { x: side > 0 ? box.x + box.w + run : box.x - run - s.w, y: box.y + top, ...s }, leaves.x);
         top += s.h + LANE_GAP;
       }
-      y += tall + BETWEEN;
-    }
+    });
   };
 
   // A blob against the root at an angle, `out` further than snug.

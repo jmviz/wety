@@ -71,8 +71,13 @@ main:has(.cst-stage) {
   opacity: 0.14;
 }
 
-.cst-links circle {
+.cst-links circle,
+.cst-links path.tip {
   fill: rgb(var(--c));
+}
+
+.cst-links path.tip {
+  stroke-linejoin: round;
 }
 
 @keyframes cst-fade {
@@ -127,19 +132,6 @@ main:has(.cst-stage) {
     opacity: 0;
     transform: scale(0.6);
   }
-}
-
-.cst-hub-lang {
-  font-size: 10px;
-  line-height: 14px;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: rgb(var(--c));
-}
-
-.cst-hub.root .cst-hub-lang {
-  color: var(--cst-soft);
 }
 
 /* The word and, as large, what it means, set as a dictionary sets them: one
@@ -215,6 +207,33 @@ main:has(.cst-stage) {
 
 .cst-blob.narrow {
   width: 250px;
+}
+
+/* A head's one word: no box, set as the head's row is, at the end of its
+   arrow. */
+.cst-blob.single {
+  width: max-content;
+  max-width: 320px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+
+.cst-blob.single .cst-head {
+  min-height: 36px;
+  align-items: center;
+}
+
+/* The arrowhead stands where the dot would. */
+.cst-blob.single .cst-head::before {
+  display: none;
+}
+
+.cst-blob.single .cst-head.you .cst-gloss {
+  color: rgb(var(--c));
+  text-shadow: 0 0 12px rgba(var(--c), 0.6);
 }
 
 .cst-blob.shown {
