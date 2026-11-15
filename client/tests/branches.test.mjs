@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { readFileSync } from "node:fs";
-import { autoExpandGroup, branchesOf, canOpen, directEarlyEnglish, groupsForWords, previewLines, previewRows, restrictBranches, singleEndpoint, sourceBranches, uncommonLatinEnglish, withoutUndefinedRoots } from "../src/constellation/branches.ts";
+import { autoExpandGroup, branchesOf, validProtoDescent, canOpen, directEarlyEnglish, groupsForWords, previewLines, previewRows, restrictBranches, singleEndpoint, sourceBranches, uncommonLatinEnglish, withoutUndefinedRoots } from "../src/constellation/branches.ts";
 
 const pie = { id: 1, code: "ine-pro", name: "Proto-Indo-European" };
 const hellenic = { id: 2, code: "grk-pro", name: "Proto-Hellenic" };
@@ -363,4 +363,21 @@ test("an Undefined Root also splits its children by exact language", () => {
   const branches = branchesOf(family.groups[0].head, english, tree, null);
   assert.deepEqual(new Set(branches.map((b) => b.name)), new Set([latin.name, medieval.name]));
   assert.ok(branches.every((b) => b.groups.every((g) => g.head.item.lang.code === b.key)));
+});
+
+
+test("proto families cannot descend from attested languages or unrelated proto families", () => {
+  const germanic = { id: 30, code: "gem-pro", name: "Proto-Germanic" };
+  const west = { id: 31, code: "gmw-pro", name: "Proto-West Germanic" };
+  const old = { id: 32, code: "ang", name: "Old English" };
+  const tree = { parents: { ...langs.parents, "gem-pro": "ine-pro", "gmw-pro": "gem-pro", ang: "gmw-pro" }, names: langs.names };
+  assert.equal(validProtoDescent(node(pie,"a"),node(germanic,"b"),tree),true);
+  assert.equal(validProtoDescent(node(germanic,"a"),node(west,"b"),tree),true);
+  assert.equal(validProtoDescent(node(old,"a"),node(germanic,"b"),tree),false);
+  assert.equal(validProtoDescent(node(italic,"a"),node(germanic,"b"),tree),false);
+  const bad = node(germanic,"false-root",[word("false-descendant")]);
+  const ancestor = node(germanic,"source",[node(old,"source",[word("kept"),bad])]);
+  const read = (n) => branchesOf(n,english,tree,null);
+  assert.deepEqual(read(ancestor).flatMap(b=>b.words.map(w=>w.item.term)),["kept"]);
+  assert.deepEqual(read(ancestor.children[0]).flatMap(b=>b.words.map(w=>w.item.term)),["kept"]);
 });

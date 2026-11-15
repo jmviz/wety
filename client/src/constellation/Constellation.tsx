@@ -609,12 +609,33 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
       ];
       for (const step of queue) {
         const via = blobId(step.owner, step.branch);
-        const existing = all.filter((h) => h.via === via && (!selectedScope || h.scope?.id === selectedScope.id));
+        const existing = all.filter((h) => h.via === via);
         const made: Hub[] = [];
         for (const g of step.groups) {
           if (!canOpen(g, target)) continue;
           const origins = (step.branch as DisplayBranch).origins;
           const source = origins && [...origins].find(([group]) => group.head === g.head)?.[1];
+          const repeated = existing.find((h) => h.node.item.id === g.head.item.id);
+          if (repeated) {
+            if (!repeated.scope || (selectedScope && [...selectedScope.words].every((word) => repeated.scope!.words.has(word)))) continue;
+            // Separate preview rows may reach the same dictionary entry.
+            // Extend its scope instead of drawing the entry and lineage twice.
+            const words = new Set([...(repeated.scope?.words ?? []), ...(selectedScope?.words ?? g.words.map((w) => w.item.term))]);
+            const scope = repeated.scope ? { id: repeated.scope.id, words } : undefined;
+            const merged = makeHub(g.head, source ?? step.owner, via, repeated.hue, scope);
+            for (const b of merged.branches) {
+              const prior = repeated.branches.find((old) => old.key === b.key);
+              if (prior) {
+                prior.groups = b.groups;
+                prior.words = b.words;
+                prior.wordCount = b.wordCount;
+                prior.hasSelected = b.hasSelected;
+                previewCache.delete(prior);
+              } else repeated.branches.push(b);
+            }
+            repeated.scope = scope;
+            continue;
+          }
           const child = makeHub(g.head, source ?? step.owner, via, step.owner.hues.get(step.branch.key)!, selectedScope);
           child.revealed = revealed;
           const key = child.id;

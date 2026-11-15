@@ -16,6 +16,20 @@ export interface LangTree {
   names: Record<string, string>;
 }
 
+// A reconstructed stage may follow its own stage or an ancestor language,
+// never a later attested language or a different proto family.
+export function validProtoDescent(parent: TreeNode, child: TreeNode, langs: LangTree): boolean {
+  const from = parent.item.lang.code, to = child.item.lang.code;
+  if (!to.endsWith("-pro") || from === to) return true;
+  if (!from.endsWith("-pro")) return false;
+  const seen = new Set<string>();
+  for (let at = langs.parents[to]; at && !seen.has(at); at = langs.parents[at]) {
+    if (at === from) return true;
+    seen.add(at);
+  }
+  return false;
+}
+
 // A head and the words under it. `own`: the words are the hub's own
 // formations in the reader's language, with no head between.
 export interface Group {
@@ -342,13 +356,14 @@ function wordsUnder(
   folds: boolean,
   grafted: boolean,
   omitted: ReadonlySet<number>,
-  scores?: Frequencies
+  scores: Frequencies | undefined,
+  langs: LangTree
 ): TreeNode[] {
   const found: Found[] = [];
   const visit = (n: TreeNode, depth: number, grafted: boolean) => {
     if (n.item.lang.id === target && !omitted.has(n.key) && listed(n, common, grafted)) found.push({ node: n, depth });
     const below = grafted || (folds && isAffix(n));
-    for (const c of n.children) visit(c, depth + 1, below);
+    for (const c of n.children) if (validProtoDescent(n, c, langs)) visit(c, depth + 1, below);
   };
   visit(head, 0, grafted);
   return rank(found, common, scores);
@@ -446,6 +461,7 @@ export function branchesOf(hub: TreeNode, target: Lang, langs: LangTree, common:
   const collect = (n: TreeNode, depth: number, grafted: boolean) => {
     const below = grafted || (folds && isAffix(n));
     for (const c of n.children) {
+      if (!validProtoDescent(n, c, langs)) continue;
       if (c.item.lang.code !== hub.item.lang.code) {
         if (top && c.item.lang.id === target.id) continue;
         const head = (top && c.etyMode === "root" && unnamed(c, hub, langs)) || c;
@@ -460,7 +476,7 @@ export function branchesOf(hub: TreeNode, target: Lang, langs: LangTree, common:
     }
   };
   collect(hub, 1, false);
-  const under = (h: TreeNode) => wordsUnder(h, target.id, common, folds, graftedHeads.has(h.item.id), omitted, scores);
+  const under = (h: TreeNode) => wordsUnder(h, target.id, common, folds, graftedHeads.has(h.item.id), omitted, scores, langs);
 
   // Only a family's root uses ancestry to choose its fixed branches.
   // Everywhere else the heading is the exact language of every head in it:
