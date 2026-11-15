@@ -328,7 +328,7 @@ export interface Link {
 const f = (n: number) => n.toFixed(1);
 
 // A gently bowed line from the root's rim to a blob's edge.
-export function join(c: Point, r: number, box: Rect): Link {
+export function join(c: Point, r: number, box: Rect, obstacles: Rect[] = []): Link {
   const to = center(box);
   const angle = Math.atan2(to.y - c.y, to.x - c.x);
   const start = { x: c.x + Math.cos(angle) * r, y: c.y + Math.sin(angle) * r };
@@ -338,6 +338,62 @@ export function join(c: Point, r: number, box: Rect): Link {
   const bow = Math.sin(2 * Math.atan2(dy, dx)) >= 0 ? 0.14 : -0.14;
   const cx = (start.x + end.x) / 2 - dy * bow;
   const cy = (start.y + end.y) / 2 + dx * bow;
+  // A tall sibling can hide this cable and make it appear to originate
+  // there. Route around the sibling's entire reserved space, not through it.
+  const blocks = obstacles.map((b) => ({ x: b.x - 16, y: b.y - 16, w: b.w + 32, h: b.h + 32 }));
+  const hits = (a: Point, b: Point, rect: Rect): boolean => {
+    // Open rectangle interior: paths along an inflated edge are allowed.
+    let lo = 0, hi = 1;
+    for (const [p, d, min, max] of [[a.x, b.x - a.x, rect.x, rect.x + rect.w], [a.y, b.y - a.y, rect.y, rect.y + rect.h]]) {
+      if (Math.abs(d) < 1e-9) {
+        if (p <= min + 1e-6 || p >= max - 1e-6) return false;
+      } else {
+        const t0 = (min - p) / d, t1 = (max - p) / d;
+        lo = Math.max(lo, Math.min(t0, t1));
+        hi = Math.min(hi, Math.max(t0, t1));
+      }
+    }
+    return lo + 1e-6 < hi;
+  };
+  let prev = start;
+  let blocked = false;
+  for (let i = 1; i <= 32 && !blocked; i++) {
+    const t = i / 32, u = 1 - t;
+    const p = { x: u * u * start.x + 2 * u * t * cx + t * t * end.x, y: u * u * start.y + 2 * u * t * cy + t * t * end.y };
+    blocked = blocks.some((b) => hits(prev, p, b));
+    prev = p;
+  }
+  if (blocked) {
+    // Visibility graph: the shortest clear path bends only at obstacle corners.
+    const points = [c, end, ...blocks.flatMap((b) => [
+      { x: b.x, y: b.y }, { x: b.x + b.w, y: b.y },
+      { x: b.x, y: b.y + b.h }, { x: b.x + b.w, y: b.y + b.h },
+    ])];
+    const distance = points.map(() => Infinity);
+    const previous = points.map(() => -1);
+    const visited = new Set<number>();
+    distance[0] = 0;
+    while (visited.size < points.length) {
+      let current = -1;
+      for (let i = 0; i < points.length; i++)
+        if (!visited.has(i) && (current < 0 || distance[i] < distance[current])) current = i;
+      if (current < 0 || !Number.isFinite(distance[current])) break;
+      if (current === 1) break;
+      visited.add(current);
+      for (let i = 0; i < points.length; i++) {
+        if (visited.has(i) || blocks.some((b) => hits(points[current], points[i], b))) continue;
+        const d = distance[current] + Math.hypot(points[i].x - points[current].x, points[i].y - points[current].y);
+        if (d < distance[i]) { distance[i] = d; previous[i] = current; }
+      }
+    }
+    if (Number.isFinite(distance[1])) {
+      const path: Point[] = [];
+      for (let i = 1; i >= 0; i = previous[i]) path.unshift(points[i]);
+      const angle = Math.atan2(path[1].y - c.y, path[1].x - c.x);
+      path[0] = { x: c.x + Math.cos(angle) * r, y: c.y + Math.sin(angle) * r };
+      return { d: path.map((p, i) => `${i ? "L" : "M"} ${f(p.x)} ${f(p.y)}`).join(" "), end };
+    }
+  }
   return { d: `M ${f(start.x)} ${f(start.y)} Q ${f(cx)} ${f(cy)} ${f(end.x)} ${f(end.y)}`, end };
 }
 

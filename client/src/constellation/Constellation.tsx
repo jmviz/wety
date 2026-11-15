@@ -285,7 +285,9 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
         if (!box) continue;
         const hue = h.hues.get(b.key)!;
         if (side) push(hue, wire(c, { x: side > 0 ? box.x : box.x + box.w, y: box.y + box.h / 2 }));
-        else push(hue, join(c, ROOT_R, box));
+        else push(hue, join(c, ROOT_R, box,
+          [...at.seats].filter(([id]) => id !== blobId(h, b)).map(([, seat]) => seat)
+        ));
       }
     }
     return out;

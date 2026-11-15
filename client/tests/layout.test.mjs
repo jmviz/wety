@@ -1,6 +1,24 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { layout, wire } from "../src/constellation/layout.ts";
+import { join, layout, wire } from "../src/constellation/layout.ts";
+
+test("root connectors route around a tall sibling instead of appearing to descend from it", () => {
+  for (const side of [-1, 1]) {
+    const obstacle = { x: side === 1 ? 150 : -350, y: -220, w: 200, h: 440 };
+    const target = { x: side === 1 ? 450 : -650, y: -80, w: 200, h: 160 };
+    const line = join({ x: 0, y: 0 }, 96, target, [obstacle]);
+    assert.ok(line.d.includes(" L "));
+    const coords = [...line.d.matchAll(/(?:M|L) (-?[\d.]+) (-?[\d.]+)/g)].map((m) => ({ x: +m[1], y: +m[2] }));
+    assert.ok(Math.abs(Math.hypot(coords[0].x, coords[0].y) - 96) < 0.1);
+    for (let i = 1; i < coords.length; i++) for (let step = 0; step <= 100; step++) {
+      const t = step / 100;
+      const x = coords[i - 1].x * (1 - t) + coords[i].x * t;
+      const y = coords[i - 1].y * (1 - t) + coords[i].y * t;
+      assert.ok(!(x > obstacle.x && x < obstacle.x + obstacle.w && y > obstacle.y && y < obstacle.y + obstacle.h));
+    }
+  }
+  assert.ok(join({ x: 0, y: 0 }, 96, { x: 400, y: -50, w: 200, h: 100 }).d.includes(" Q "));
+});
 
 function fixture() {
   return {
