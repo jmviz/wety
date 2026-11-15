@@ -206,6 +206,8 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
   // words still read at. Fixed from then on, so resizing the window does not
   // shuffle the blobs.
   const [frame, setFrame] = createSignal<Size>();
+  const [layoutVersion, setLayoutVersion] = createSignal(0);
+  let placedVersion = 0;
   // What the layout is given: the root's blobs and, in each blob that has
   // been opened, its heads, each with its own blobs in turn.
   const spec = createMemo(() => {
@@ -237,7 +239,10 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
   const placed = createMemo<Layout>(
     (before) => {
       const room = frame();
-      return room ? layout(spec(), room, before) : before;
+      const version = layoutVersion();
+      const previous = version === placedVersion ? before : undefined;
+      placedVersion = version;
+      return room ? layout(spec(), room, previous) : before;
     },
     { hubs: new Map(), blobs: new Map(), seats: new Map(), sides: new Map() }
   );
@@ -419,8 +424,13 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     closePopover();
     setHubs([rootHub]);
     setCurrent(rootHub);
-    const v = rootView();
-    if (v) glide(v);
+    settled(() => {
+      // Forget space reserved by expanded racks and fit the original view.
+      setSizes(new Map([...sizes()].map(([id, size]) => [id, { now: size.now, seat: size.now }])));
+      setLayoutVersion((v) => v + 1);
+      const v = rootView();
+      if (v) glide(v);
+    });
   };
   // Other ancestors the map could start from: the word's ultimate roots,
   // and the oldest form that is still the same word.
@@ -711,11 +721,26 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
           // Its lanes run left: the rows stand against that edge.
           left: placed().sides.get(id) === -1,
           single: compact(),
+          "has-close": rows().length > 0,
         }}
         data-blob={id}
         style={{ "--c": p.hub.hues.get(p.branch.key), left: `${at().x}px`, top: `${at().y}px` }}
         aria-label={`${p.branch.name}: ${p.branch.wordCount} ${target.name} words`}
       >
+        <Show when={rows().length > 0}>
+          <button
+            type="button"
+            class="cst-close"
+            aria-label={`Collapse ${p.branch.name}`}
+            title="Collapse this node"
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.stopPropagation();
+              unrack(p.hub, id);
+              el.querySelector<HTMLButtonElement>(".cst-face")?.focus({ preventScroll: true });
+            }}
+          />
+        </Show>
         <Show
           when={face()}
           fallback={
@@ -807,8 +832,12 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
               width: `${r * 2}px`,
               height: `${r * 2}px`,
             }}
-            title={current() === p.hub ? "word details" : "centre on this word"}
-            onClick={(e) => (current() === p.hub ? pin(p.hub.node, e.currentTarget) : focus(p.hub))}
+            title="Reset constellation"
+            aria-label="Reset constellation"
+            onClick={(e) => {
+              e.stopPropagation();
+              startOver();
+            }}
           >
             <span class="cst-hub-term" style={{ "font-size": `${size}px` }}>
               {shownTerm}

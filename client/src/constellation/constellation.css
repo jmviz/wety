@@ -200,6 +200,42 @@ main:has(.cst-stage) {
   outline-offset: 3px;
 }
 
+.cst-close {
+  all: unset;
+  box-sizing: border-box;
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 1;
+  width: 40px;
+  height: 40px;
+  border-radius: 0 26px 0 0;
+  cursor: pointer;
+}
+
+.cst-close:hover,
+.cst-close:focus-visible {
+  background: rgba(var(--c), 0.16);
+}
+
+.cst-close:focus-visible {
+  outline: 2px solid rgb(var(--c));
+}
+
+.cst-blob.has-close .cst-fam {
+  padding-right: 24px;
+}
+
+.cst-blob.single.has-close {
+  padding-right: 40px;
+}
+
+.cst-blob.single .cst-close {
+  width: 36px;
+  height: 100%;
+  border-radius: 0 26px 26px 0;
+}
+
 .cst-blob.narrow {
   width: 250px;
 }
