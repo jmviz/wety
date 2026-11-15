@@ -168,6 +168,7 @@ main.constellation-only .cst-stage {
 
 .cst-language-label {
   position: absolute;
+  visibility: hidden;
   font-size: 11px;
   line-height: 16px;
   font-weight: 600;

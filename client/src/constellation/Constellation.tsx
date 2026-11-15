@@ -1199,6 +1199,33 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     )
   );
 
+  // Labels are all-or-nothing, including during animated camera moves.
+  // Measure the painted text so long names and browser zoom use real bounds.
+  let labelFrame = 0;
+  createEffect(() => {
+    view(); stage(); languageLabels(); gliding();
+    cancelAnimationFrame(labelFrame);
+    let settling = 4;
+    const check = () => {
+      if (!stageEl) return;
+      const stageBox = stageEl.getBoundingClientRect();
+      const visual = window.visualViewport;
+      const pad = 16 / (visual?.scale ?? 1);
+      const left = Math.max(stageBox.left, visual?.offsetLeft ?? 0) + pad;
+      const top = Math.max(stageBox.top, visual?.offsetTop ?? 0) + pad;
+      const right = Math.min(stageBox.right, (visual?.offsetLeft ?? 0) + (visual?.width ?? innerWidth)) - pad;
+      const bottom = Math.min(stageBox.bottom, (visual?.offsetTop ?? 0) + (visual?.height ?? innerHeight)) - pad;
+      for (const label of stageEl.querySelectorAll<HTMLElement>(".cst-language-label")) {
+        const r = label.getBoundingClientRect();
+        label.style.visibility = r.left >= left && r.top >= top && r.right <= right && r.bottom <= bottom
+          ? "visible" : "hidden";
+      }
+      if (gliding() || --settling > 0) labelFrame = requestAnimationFrame(check);
+    };
+    labelFrame = requestAnimationFrame(check);
+  });
+  onCleanup(() => cancelAnimationFrame(labelFrame));
+
   return (
     <div
       ref={stageEl}
