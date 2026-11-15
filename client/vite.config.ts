@@ -64,7 +64,10 @@ function commonWords(): Plugin {
       const levels: Record<string, string[]> = {};
       for (const [w, size] of sizes) (levels[size] ??= []).push(w);
       const joined = Object.fromEntries(Object.entries(levels).map(([size, words]) => [size, words.sort().join("\n")]));
-      return `export const levels = ${JSON.stringify(joined)};\n`;
+      const path = resolve(dirname(fileURLToPath(import.meta.url)), "data/english-frequencies.json");
+      this.addWatchFile(path);
+      const { bins } = JSON.parse(readFileSync(path, "utf8"));
+      return `export const levels = ${JSON.stringify(joined)};\nexport const frequencies = ${JSON.stringify(bins)};\n`;
     },
   };
 }

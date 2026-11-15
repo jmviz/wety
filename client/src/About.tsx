@@ -47,6 +47,15 @@ export default function About() {
       <h2>Sources</h2>
       <ul>
         <li>
+          English usage rankings use <Ext href="https://github.com/rspeer/wordfreq">wordfreq</Ext> 3.1.1
+          by Robyn Speer (a usage snapshot through about 2021). The bundled English
+          frequency subset is adapted under <Ext href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</Ext>.
+          Its sources include Google Books Ngrams, the Leeds Internet Corpus,
+          Wikipedia, ParaCrawl, OpenSubtitles 2018, and freely available SUBTLEX
+          data by Marc Brysbaert and collaborators; see the{" "}
+          <Ext href="https://github.com/rspeer/wordfreq/blob/master/NOTICE.md">source attribution</Ext>.
+        </li>
+        <li>
           <Ext href="https://en.wiktionary.org/">English Wiktionary</Ext>, by its editors,
           under <Ext href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</Ext>.
           Every word links to its entry.

@@ -9,6 +9,7 @@
 
 import type { TreeNode } from "../ety/model";
 import type { Lang } from "../search/types";
+import type { Frequencies } from "./representatives";
 
 export interface LangTree {
   parents: Record<string, string>;
@@ -27,6 +28,8 @@ export interface Group {
 export interface Branch {
   // Unique among a hub's branches.
   key: string;
+  // Exact language code when a presentation key also identifies a source.
+  language?: string;
   name: string;
   groups: Group[];
   // Every group's words in one list: the searched word, then the groups'
@@ -35,6 +38,16 @@ export interface Branch {
   words: TreeNode[];
   wordCount: number;
   hasSelected: boolean;
+}
+
+// After opening a family branch, reveal one folded node per source root.
+// Its modern words remain grouped in the preview, but unrelated roots no
+// longer share an expand action merely because their language is the same.
+export function sourceBranches(branches: Branch[]): Branch[] {
+  return branches.flatMap((b) => b.groups.length > 1 && b.groups.every((g) => !g.own)
+    ? b.groups.map((g) => ({ ...b, key: `${b.key}:${g.head.item.id}`, language: b.language ?? b.key,
+        groups: [g], words: g.words, wordCount: g.words.length, hasSelected: g.hasSelected }))
+    : [b]);
 }
 
 // Keep one-word paths in the middle, with larger lanes above and below.
@@ -50,7 +63,7 @@ export function rackOrder<T>(entries: T[], single: (entry: T) => boolean): T[] {
 
 // Each line previews one child branch of the expanded rack. Keep the
 // existing word filters and show a spelling once, in its first subgroup.
-export function previewLines(branch: Branch, target: Lang, children: (head: TreeNode) => Branch[], common: Common | null = null): TreeNode[][] {
+export function previewLines(branch: Branch, target: Lang, children: (head: TreeNode) => Branch[], common: Common | null = null, scores?: Frequencies, combineSingles = true): TreeNode[][] {
   const cache = new Map<Branch, TreeNode[][]>();
   const lines = (branch: Branch): TreeNode[][] => {
     const had = cache.get(branch);
@@ -68,14 +81,18 @@ export function previewLines(branch: Branch, target: Lang, children: (head: Tree
       if (!allowed.has(term) || seen.has(term)) return false;
       seen.add(term);
       return true;
-    })).filter((words) => words.length > 0);
+    }).sort((a, b) => Number(b.isSelected) - Number(a.isSelected) ||
+      (scores ? (scores.get(b.item.term.toLowerCase()) ?? 0) - (scores.get(a.item.term.toLowerCase()) ?? 0) : 0)
+    )).filter((words) => words.length > 0);
     cache.set(branch, result);
     return result;
   };
   const groups = lines(branch);
+  if (!combineSingles) return groups;
   const singles = groups.filter((words) => words.length === 1).flat();
   if (singles.length < 2) return groups;
   singles.sort((a, b) => Number(b.isSelected) - Number(a.isSelected) ||
+    (scores ? (scores.get(b.item.term.toLowerCase()) ?? 0) - (scores.get(a.item.term.toLowerCase()) ?? 0) : 0) ||
     (common ? (level(common, a.item.term) ?? Infinity) - (level(common, b.item.term) ?? Infinity) : 0));
   let inserted = false;
   return groups.flatMap((words) => {
@@ -241,7 +258,7 @@ const derived = (term: string, terms: { has(term: string): boolean }) =>
 // rest; then words with several entries or parts of speech, which the
 // everyday ones tend to have; then the nearest and the shortest.
 const PLAIN = /^\p{Ll}+$/u;
-function rank(found: Found[], common: Common | null): TreeNode[] {
+function rank(found: Found[], common: Common | null, scores?: Frequencies): TreeNode[] {
   const byTerm = new Map<string, Found & { uses: number }>();
   for (const f of found) {
     const uses = f.node.item.pos?.length ?? 0;
@@ -257,6 +274,7 @@ function rank(found: Found[], common: Common | null): TreeNode[] {
     .sort(
       (a, b) =>
         Number(b.node.isSelected) - Number(a.node.isSelected) ||
+        (scores ? (scores.get(b.node.item.term.toLowerCase()) ?? 0) - (scores.get(a.node.item.term.toLowerCase()) ?? 0) : 0) ||
         rarity(a) - rarity(b) ||
         Number(!PLAIN.test(a.node.item.term)) - Number(!PLAIN.test(b.node.item.term)) ||
         Math.min(b.uses, 3) - Math.min(a.uses, 3) ||
@@ -276,7 +294,8 @@ function wordsUnder(
   common: Common | null,
   folds: boolean,
   grafted: boolean,
-  omitted: ReadonlySet<number>
+  omitted: ReadonlySet<number>,
+  scores?: Frequencies
 ): TreeNode[] {
   const found: Found[] = [];
   const visit = (n: TreeNode, depth: number, grafted: boolean) => {
@@ -285,7 +304,7 @@ function wordsUnder(
     for (const c of n.children) visit(c, depth + 1, below);
   };
   visit(head, 0, grafted);
-  return rank(found, common);
+  return rank(found, common, scores);
 }
 
 interface Trie {
@@ -360,7 +379,7 @@ function unnamed(word: TreeNode, hub: TreeNode, langs: LangTree): TreeNode | nul
 // `common`: how common the reader's language's words are, to leave the rare
 // ones and plain derivatives out and list the commonest first; null lists
 // every word.
-export function branchesOf(hub: TreeNode, target: Lang, langs: LangTree, common: Common | null, omitted: ReadonlySet<number> = new Set()): Branch[] {
+export function branchesOf(hub: TreeNode, target: Lang, langs: LangTree, common: Common | null, omitted: ReadonlySet<number> = new Set(), scores?: Frequencies): Branch[] {
   // A hub at the top of its family: a reconstructed word of a language with
   // no ancestor of its own (Proto-Indo-European). Its branches are the
   // family's: the languages that come straight from it, a fixed set, under
@@ -394,7 +413,7 @@ export function branchesOf(hub: TreeNode, target: Lang, langs: LangTree, common:
     }
   };
   collect(hub, 1, false);
-  const under = (h: TreeNode) => wordsUnder(h, target.id, common, folds, graftedHeads.has(h.item.id), omitted);
+  const under = (h: TreeNode) => wordsUnder(h, target.id, common, folds, graftedHeads.has(h.item.id), omitted, scores);
 
   // Only a family's root uses ancestry to choose its fixed branches.
   // Everywhere else the heading is the exact language of every head in it:
@@ -460,7 +479,7 @@ export function branchesOf(hub: TreeNode, target: Lang, langs: LangTree, common:
       // The reader's own language: one list, no heads.
       const words = rank(
         members.flatMap((h) => under(h).map((node, depth) => ({ node, depth }))),
-        common
+        common, scores
       );
       add(t.code, name, words.length ? [group(hub, true, words)] : []);
     } else {
@@ -471,7 +490,7 @@ export function branchesOf(hub: TreeNode, target: Lang, langs: LangTree, common:
       );
     }
   }
-  if (own.length) add(target.code, target.name, [group(hub, true, rank(own, common))]);
+  if (own.length) add(target.code, target.name, [group(hub, true, rank(own, common, scores))]);
 
   return branches.sort(
     (a, b) =>

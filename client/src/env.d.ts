@@ -21,6 +21,8 @@ declare module "virtual:common-words" {
   // A SCOWL size (10, the commonest words, to 70) to the English words first
   // listed at that size, lower-case, one to a line.
   export const levels: Record<string, string>;
+  // wordfreq English Zipf scores multiplied by 100, grouped by score.
+  export const frequencies: Record<string, string>;
 }
 
 declare module "virtual:layout-periods" {

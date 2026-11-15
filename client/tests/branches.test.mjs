@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { readFileSync } from "node:fs";
-import { autoExpandGroup, branchesOf, canOpen, directEarlyEnglish, previewLines, singleEndpoint, uncommonLatinEnglish } from "../src/constellation/branches.ts";
+import { autoExpandGroup, branchesOf, canOpen, directEarlyEnglish, previewLines, singleEndpoint, sourceBranches, uncommonLatinEnglish } from "../src/constellation/branches.ts";
 
 const pie = { id: 1, code: "ine-pro", name: "Proto-Indo-European" };
 const hellenic = { id: 2, code: "grk-pro", name: "Proto-Hellenic" };
@@ -27,6 +27,21 @@ function node(lang, term, children = [], extra = {}) {
   };
 }
 const word = (term, selected = false) => node(english, term, [], { isSelected: selected });
+
+test("revealed language roots have independent folded nodes and one-to-one actions", () => {
+  const hub = node(hellenic, "root", [
+    node(greek, "peri", [word("periodic")]),
+    node(greek, "praktikos", [word("practice"), word("practise")]),
+  ]);
+  const raw = branchesOf(hub, english, langs, null);
+  assert.equal(raw.length, 1);
+  const split = sourceBranches(raw);
+  assert.equal(split.length, 2);
+  assert.equal(new Set(split.map((b) => b.key)).size, 2);
+  assert.ok(split.every((b) => b.language === "grc" && b.name === "Ancient Greek" && b.groups.length === 1));
+  assert.ok(autoExpandGroup(split.find((b) => b.words.length === 1), english));
+  assert.equal(autoExpandGroup(split.find((b) => b.words.length === 2), english), null);
+});
 
 test("Latin-origin English uses tier 35 through later languages while other origins stop at tier 50", () => {
   const common = new Map([["common", 35], ["rarer", 40], ["limit", 50], ["overlimit", 55], ["rarest", 60], ["selected", 60], ["anti", 35]]);

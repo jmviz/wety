@@ -157,6 +157,18 @@ main:has(.cst-stage) {
 
 /* Blobs ------------------------------------------------------------------ */
 
+.cst-language-label {
+  position: absolute;
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgb(var(--c));
+  white-space: nowrap;
+  pointer-events: none;
+}
+
 .cst-blob {
   position: absolute;
   box-sizing: border-box;

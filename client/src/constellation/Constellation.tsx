@@ -4,10 +4,12 @@ import { close as closePopover, hoverEnter, hoverLeave, pin, popover } from "../
 import { useGoTo } from "../search/navigate";
 import { Item, Lang, TreeKind, term } from "../search/types";
 import { cognates, constellationStart, lastRequest, showGlosses, showRare } from "../state";
-import { Branch, Common, Group, LangTree, autoExpandGroup, branchesOf, canOpen, directEarlyEnglish, previewLines, rackOrder, singleEndpoint, uncommonLatinEnglish } from "./branches";
+import { Branch, Common, Group, LangTree, autoExpandGroup, branchesOf, canOpen, directEarlyEnglish, previewLines, rackOrder, singleEndpoint, sourceBranches, uncommonLatinEnglish } from "./branches";
 import { BlobSpec, Layout, Link, Point, Rect, Size, bounds, join, layout, rootDirection, wire } from "./layout";
 import { chronological, languageTimes } from "./chronology";
 import type { LayoutPeriod } from "./chronology";
+import { representatives } from "./representatives";
+import type { Frequencies } from "./representatives";
 
 import {
   For,
@@ -108,7 +110,9 @@ export default function Constellation(props: { forest: Forest }) {
     const [langs, words, dates] = await Promise.all([import("virtual:lang-tree"), import("virtual:common-words"), import("virtual:layout-periods")]);
     const common: Common = new Map();
     for (const [n, list] of Object.entries(words.levels)) for (const w of list.split("\n")) common.set(w, Number(n));
-    return { langs: langs as LangTree, common, periods: dates.periods };
+    const frequencies = new Map<string, number>();
+    for (const [n, list] of Object.entries(words.frequencies)) for (const w of list.split("\n")) frequencies.set(w, Number(n) / 100);
+    return { langs: langs as LangTree, common, periods: dates.periods, frequencies };
   });
   return (
     <Show
@@ -121,9 +125,9 @@ export default function Constellation(props: { forest: Forest }) {
           // switched: what a blob lists is settled when it is made.
           <Show
             when={showRare()}
-            fallback={<Stage forest={props.forest} langs={d().langs} common={d().common} periods={d().periods} />}
+            fallback={<Stage forest={props.forest} langs={d().langs} common={d().common} periods={d().periods} frequencies={d().frequencies} />}
           >
-            <Stage forest={props.forest} langs={d().langs} common={null} periods={d().periods} />
+            <Stage forest={props.forest} langs={d().langs} common={null} periods={d().periods} frequencies={d().frequencies} />
           </Show>
         )}
       </Show>
@@ -131,7 +135,7 @@ export default function Constellation(props: { forest: Forest }) {
   );
 }
 
-function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; periods: LayoutPeriod[] }) {
+function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; periods: LayoutPeriod[]; frequencies: Frequencies }) {
   let stageEl!: HTMLDivElement;
   const root = props.forest.roots[0];
   const target: Lang = (props.forest.selected ?? root).item.lang;
@@ -145,18 +149,37 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     code === "la" || code === "grc" || code.endsWith("-pro") || (times.get(code) ?? Infinity) <= 200
   ) : new Set<number>();
   for (const key of uncommonLatinEnglish(root, common)) omitted.add(key);
+  const scores = target.code === "en" ? props.frequencies : undefined;
+  if (common && scores) {
+    const preliminary = new WeakMap<TreeNode, Branch[]>();
+    const read = (node: TreeNode): Branch[] => {
+      let branches = preliminary.get(node);
+      if (!branches) {
+        branches = branchesOf(node, target, props.langs, common, omitted, scores);
+        preliminary.set(node, branches);
+      }
+      return branches;
+    };
+    const groups = read(root).flatMap((b) => previewLines(b, target, read, common, scores, false));
+    const keep = representatives(groups, scores);
+    const visit = (n: TreeNode) => {
+      if (n.item.lang.code === "en" && !n.isSelected && !keep.has(n.item.term)) omitted.add(n.key);
+      n.children.forEach(visit);
+    };
+    visit(root);
+  }
 
   const branchCache = new WeakMap<TreeNode, Branch[]>();
   const branchesFor = (node: TreeNode): Branch[] => {
     let branches = branchCache.get(node);
     if (!branches) {
-      branches = branchesOf(node, target, props.langs, common, omitted);
+      branches = branchesOf(node, target, props.langs, common, omitted, scores);
       branchCache.set(node, branches);
     }
     return branches;
   };
   const makeHub = (node: TreeNode, parent: Hub | null, via: string | null, hue: string | null): Hub => {
-    const branches = branchesFor(node);
+    const branches = parent ? sourceBranches(branchesFor(node)) : branchesFor(node);
     const keys = branches.map((b) => b.key);
     return {
       id: String(node.item.id),
@@ -229,7 +252,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
         const id = blobId(h, b);
         const heads = all.filter((k) => k.via === id);
         const terminal = h.single || b.groups.every((g) => g.own);
-        const stage = terminal ? target.code : b.key;
+        const stage = terminal ? target.code : (b.language ?? b.key);
         return {
           id,
           terminal,
@@ -266,6 +289,24 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     const below = c.y > seat.y + seat.h / 2;
     return { x: seat.x, y: below ? seat.y + seat.h - now.h : seat.y, w: seat.w, h: now.h };
   };
+
+  // A set of source roots shares one language heading above its column.
+  const languageKey = (h: Hub, b: Branch) => `${h.hue}/${b.language ?? b.key}`;
+  const languageLabels = createMemo(() => {
+    const groups = new Map<string, { name: string; hue: string; boxes: Rect[] }>();
+    for (const h of hubs()) for (const b of h.branches) {
+      if (!h.parent || h.single || b.groups.every((g) => g.own)) continue;
+      const box = drawn(h, blobId(h, b));
+      if (!box) continue;
+      const key = languageKey(h, b);
+      let group = groups.get(key);
+      if (!group) groups.set(key, (group = { name: b.name, hue: h.hue!, boxes: [] }));
+      group.boxes.push(box);
+    }
+    return new Map([...groups].filter(([, g]) => g.boxes.length > 1).map(([key, g]) => [key, {
+      name: g.name, hue: g.hue, x: Math.min(...g.boxes.map((b) => b.x)), y: Math.min(...g.boxes.map((b) => b.y)) - 24,
+    }]));
+  });
 
   // One string per line, so a line that has not moved keeps its element.
   const links = createMemo(() => {
@@ -379,11 +420,11 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     // The heads with one word stand together in the middle of the rack, their
     // words level with them; the others' blobs go above and below (layout.ts).
     const next = rackOrder(made, (h) => h.single);
-    // Each resulting node qualifies on its own: one source, one destination.
-    // Its parent's number of rows does not change that one-to-one path.
+    // Revealing a child is not a click on it. Only a one-to-one node that
+    // the user actually opens unfolds its remaining chain automatically.
     const opened = [...next];
     for (const h of opened) taken.add(h.id);
-    for (const parent of opened) {
+    for (const parent of autoExpandGroup(branch, target) ? opened : []) {
       if (parent.single) continue;
       for (const b of parent.branches) {
         const g = autoExpandGroup(b, target);
@@ -686,13 +727,14 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     // The heads opened here, in the order of their rows.
     const rows = () => hubs().filter((h) => h.via === id);
     const openable = roots.filter((g) => canOpen(g, target));
-    const lines = () => previewLines(p.branch, target, branchesFor, common);
+    const lines = () => previewLines(p.branch, target, branchesFor, common, scores);
     // One named word needs one row, even when more language stages follow.
     // Keeping those stages visible must not add a separate language header.
     const compact = () => roots.length === 1 && rows().length === 1 && !!rows()[0].node.item.term;
     const face = () => openable.length > 0 && rows().length === 0;
     const act = () => rack(p.hub, p.branch, openable);
     const Name = () => <span>{p.branch.name}</span>;
+    const sharedLanguage = () => languageLabels().has(languageKey(p.hub, p.branch));
     // A head's one word: set as the head's row is, and a button for its
     // details.
     if (p.hub.single || (roots.length === 1 && roots[0].own && p.branch.words.length === 1)) {
@@ -754,7 +796,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
           when={face()}
           fallback={
             <div class="cst-body">
-              <Show when={!compact()}>
+              <Show when={!compact() && !sharedLanguage()}>
                 <Show
                   when={rows().length > 0}
                   fallback={
@@ -783,7 +825,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
                       data-key={h.node.key}
                       aria-haspopup="dialog"
                     >
-                      <HeadName item={h.node.item} showLang={compact()} />
+                      <HeadName item={h.node.item} showLang={compact() && !sharedLanguage()} />
                     </button>
                   </div>
                 )}
@@ -805,9 +847,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
             }
             onClick={act}
           >
-            <span class="cst-fam">
-              <Name />
-            </span>
+            <Show when={!sharedLanguage()}><span class="cst-fam"><Name /></span></Show>
             <span class="cst-words cst-preview">
               <For each={lines()}>
                 {(words) => <span class="cst-preview-line"><WordList words={words} live={false} /></span>}
@@ -912,6 +952,9 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
               }}
             </For>
           </svg>
+          <For each={[...languageLabels().values()]}>
+            {(label) => <span class="cst-language-label" style={{ left: `${label.x}px`, top: `${label.y}px`, "--c": label.hue }}>{label.name}</span>}
+          </For>
           <For each={hubs()}>
             {(h) => (
               <>
