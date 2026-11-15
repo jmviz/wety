@@ -7,8 +7,8 @@
 // European formations between a root and its Proto-Germanic reflexes never
 // stand between the root and its branches.
 
-import { TreeNode } from "../ety/model";
-import { Lang } from "../search/types";
+import type { TreeNode } from "../ety/model";
+import type { Lang } from "../search/types";
 
 export interface LangTree {
   parents: Record<string, string>;
@@ -210,6 +210,33 @@ const group = (head: TreeNode, own: boolean, words: TreeNode[]): Group => ({
   hasSelected: words.some((w) => w.isSelected),
 });
 
+// A missing word, rather than a recorded word of a different language.
+// Odd negative IDs stand for missing words within a branch; even ones for
+// the branch's missing root. The anchor is always a real graph node.
+function undefinedHead(word: TreeNode, lang: Lang, children: TreeNode[], branch = false): TreeNode {
+  const anchor = word.item.id < 0 ? word.children[0] : word;
+  const offset = branch ? 2 : 1;
+  return {
+    ...word,
+    key: -anchor.key * 2 - offset,
+    item: {
+      ...word.item,
+      id: -anchor.item.id * 2 - offset,
+      lang,
+      term: "",
+      imputed: true,
+      reconstructed: false,
+      url: null,
+      pos: null,
+      gloss: null,
+      romanization: null,
+    },
+    etyMode: null,
+    isSelected: false,
+    children,
+  };
+}
+
 // A word of a later language that Wiktionary only tags with the root (Old
 // French intellectuel under *leǵ-) did not come straight from the root, nor
 // straight from the family's branch (no Old French word comes straight from
@@ -236,26 +263,7 @@ function unnamed(word: TreeNode, hub: TreeNode, langs: LangTree): TreeNode | nul
     langsBelow.set(hub, known);
   }
   const lang = known.get(code) ?? { id: -1, code, name: langs.names[code] ?? code };
-  return {
-    ...word,
-    // No item or key of the graph is negative: nothing is looked up for it.
-    key: -word.key - 1,
-    item: {
-      ...word.item,
-      id: -word.item.id - 1,
-      lang,
-      term: "",
-      imputed: true,
-      reconstructed: false,
-      url: null,
-      pos: null,
-      gloss: null,
-      romanization: null,
-    },
-    etyMode: null,
-    isSelected: false,
-    children: [word],
-  };
+  return undefinedHead(word, lang, [word]);
 }
 
 // `common`: how common the reader's language's words are, to leave the rare
@@ -281,7 +289,7 @@ export function branchesOf(hub: TreeNode, target: Lang, langs: LangTree, common:
   const collect = (n: TreeNode, depth: number, grafted: boolean) => {
     const below = grafted || (folds && isAffix(n));
     for (const c of n.children) {
-      if (c.item.lang.id !== hub.item.lang.id) {
+      if (c.item.lang.code !== hub.item.lang.code) {
         if (top && c.item.lang.id === target.id) continue;
         const head = (top && c.etyMode === "root" && unnamed(c, hub, langs)) || c;
         if (!heads.has(head.item.id)) {
@@ -342,8 +350,22 @@ export function branchesOf(hub: TreeNode, target: Lang, langs: LangTree, common:
     // where its heads' languages part ways; at the top of a family, by the
     // language that comes straight from the hub's.
     while (!top && t.heads.length === 0 && t.kids.size === 1) t = t.kids.values().next().value!;
-    const members = below(t);
+    let members = below(t);
     const name = langs.names[t.code] ?? names.get(t.code) ?? t.code;
+    if (top && t.code !== target.code) {
+      // A fixed family branch is a language of its own. Later words with
+      // no recorded word in that language share one undefined root, whose
+      // branches then group those words by their actual languages.
+      const missing = members.filter((h) => h.item.lang.code !== t.code);
+      if (missing.length) {
+        const lang = members.find((h) => h.item.lang.code === t.code)?.item.lang ??
+          { id: -1, code: t.code, name };
+        members = [
+          ...members.filter((h) => h.item.lang.code === t.code),
+          undefinedHead(missing[0], lang, missing, true),
+        ];
+      }
+    }
     if (t.code === target.code) {
       // The reader's own language: one list, no heads.
       const words = rank(

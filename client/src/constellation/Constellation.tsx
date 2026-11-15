@@ -578,7 +578,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null }
       <Show when={p.item.lang.name !== p.branch.name}>
         <span class="cst-head-lang">{p.item.lang.name}</span>
       </Show>
-      <span class="cst-head-term">{term(p.item)}</span>
+      <span class="cst-head-term">{term(p.item) || "Undefined Root"}</span>
       <Show when={p.item.romanization}>
         <span class="cst-rom">{p.item.romanization}</span>
       </Show>
