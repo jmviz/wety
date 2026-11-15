@@ -526,22 +526,6 @@ main.constellation-only .cst-stage {
   color: rgb(var(--c));
 }
 
-.cst-head::before {
-  content: "";
-  flex: none;
-  align-self: center;
-  box-sizing: border-box;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  border: 1px solid rgb(var(--c));
-}
-
-.cst-head.open::before {
-  background: rgb(var(--c));
-  box-shadow: 0 0 8px rgba(var(--c), 0.9);
-}
-
 /* Opened: the word alone stands for its section, as it does in its hub. */
 .cst-head.open {
   padding: 2px 0;
@@ -573,10 +557,6 @@ main.constellation-only .cst-stage {
 
 .cst-head.static {
   color: rgba(var(--c), 0.8);
-}
-
-.cst-head.static::before {
-  border-style: dotted;
 }
 
 .cst-head-term {
