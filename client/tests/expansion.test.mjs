@@ -40,3 +40,14 @@ test("a source reaches the English horizon only when all of its opened paths fin
   assert.deepEqual(expansionDepth("parent/grc", hubs), { depth: 2, complete: false });
   assert.deepEqual(sharedDepth([{ depth: 2, complete: false }, { depth: 3, complete: true }]), { depth: 3, complete: true });
 });
+
+test("a shared descendant preview stays incomplete until its shared paths reach English", () => {
+  const latin = branch("la");
+  const hubs = [
+    { id: "porta", via: "root/itc-pro", branches: [latin] },
+    { id: "portus", via: "root/itc-pro", branches: [], shared: [{ host: { id: "porta" }, branch: latin }] },
+  ];
+  assert.deepEqual(expansionDepth("root/itc-pro", hubs), { depth: 1, complete: false });
+  hubs.push({ id: "porto", via: "porta/la", branches: [branch("en", true)] });
+  assert.deepEqual(expansionDepth("root/itc-pro", hubs), { depth: 2, complete: true });
+});

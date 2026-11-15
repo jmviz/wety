@@ -4,6 +4,7 @@ export interface ExpansionHub {
   id: string;
   via: string | null;
   branches: Branch[];
+  shared?: { host: { id: string }; branch: Branch }[];
 }
 
 export interface ExpansionDepth {
@@ -32,8 +33,11 @@ export function expansionDepth(id: string, hubs: ExpansionHub[]): ExpansionDepth
     const open = children.get(blob);
     if (!open?.length) return { depth: 0, complete: false };
     const profiles = open.map((h) => {
-      const branches = h.branches.map((b) => b.groups.every((g) => g.own)
-        ? { depth: 0, complete: true } : visit(`${h.id}/${b.key}`));
+      const branches = [
+        ...h.branches.map((b) => b.groups.every((g) => g.own)
+          ? { depth: 0, complete: true } : visit(`${h.id}/${b.key}`)),
+        ...(h.shared ?? []).map((s) => visit(`${s.host.id}/${s.branch.key}`)),
+      ];
       return {
         depth: 1 + Math.max(0, ...branches.map((p) => p.depth)),
         complete: branches.every((p) => p.complete),

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { readFileSync } from "node:fs";
-import { autoExpandGroup, branchesOf, canOpen, directEarlyEnglish, groupsForWords, previewLines, restrictBranches, singleEndpoint, sourceBranches, uncommonLatinEnglish, withoutUndefinedRoots } from "../src/constellation/branches.ts";
+import { autoExpandGroup, branchesOf, canOpen, directEarlyEnglish, groupsForWords, previewLines, previewRows, restrictBranches, singleEndpoint, sourceBranches, uncommonLatinEnglish, withoutUndefinedRoots } from "../src/constellation/branches.ts";
 
 const pie = { id: 1, code: "ine-pro", name: "Proto-Indo-European" };
 const hellenic = { id: 2, code: "grk-pro", name: "Proto-Hellenic" };
@@ -27,6 +27,22 @@ function node(lang, term, children = [], extra = {}) {
   };
 }
 const word = (term, selected = false) => node(english, term, [], { isSelected: selected });
+
+test("descendant preview rows retain their own source when several roots lead to port", () => {
+  const porto = node(latin, "porto", [
+    node(french, "porter", [word("report"), word("sport"), word("port")]),
+    node({ id: 14, code: "it", name: "Italian" }, "importare", [word("import")]),
+    node({ id: 15, code: "enm", name: "Middle English" }, "important", [word("important")]),
+  ]);
+  const porta = node(latin, "porta", [node(french, "porte", [word("port")])]);
+  const portus = node(latin, "portus", [node(french, "port", [word("port")])]);
+  const root = node(italic, "root", [porto, porta, portus]);
+  const read = (n) => branchesOf(n, english, langs, null);
+  const rows = previewRows(read(root)[0], english, read);
+  assert.deepEqual(rows.map((r) => r.groups[0].head.item.term), ["porto", "porta", "portus"]);
+  assert.deepEqual(new Set(rows[0].words.map((w) => w.item.term)), new Set(["report", "sport", "port", "import", "important"]));
+  assert.deepEqual(rows.slice(1).map((r) => r.words.map((w) => w.item.term)), [["port"], ["port"]]);
+});
 
 test("a preview row opens only its words, including when rows share the same proto root", () => {
   const shared = node(hellenic, "shared", [

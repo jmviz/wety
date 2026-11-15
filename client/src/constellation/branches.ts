@@ -83,6 +83,20 @@ export function groupsForWords(branch: Branch, words: TreeNode[]): Group[] {
   return restrictBranches([branch], new Set(words.map((w) => w.item.term)))[0]?.groups ?? [];
 }
 
+// Keep each preview row attached to the source that produced it. Matching
+// only by spelling incorrectly opens every unrelated source of e.g. port.
+export function previewRows(branch: Branch, target: Lang, children: (head: TreeNode) => Branch[], common: Common | null = null, scores?: Frequencies): { words: TreeNode[]; lines: TreeNode[][]; groups: Group[] }[] {
+  const proto = (branch.language ?? branch.key).endsWith("-pro");
+  if (proto) return previewLines(branch, target, children, common, scores)
+    .map((words) => ({ words, lines: [words], groups: groupsForWords(branch, words) }));
+  return branch.groups.flatMap((g) => {
+    const scoped = { ...branch, groups: [g], words: branch.words.filter((w) => g.words.some((v) => v.item.term === w.item.term)) };
+    const lines = previewLines(scoped, target, children, common, scores);
+    const words = lines.flat();
+    return words.length ? [{ words, lines, groups: [g] }] : [];
+  });
+}
+
 // Keep one-word paths in the middle, with larger lanes above and below.
 // The collapsed preview uses this same order as the expanded rack.
 export function rackOrder<T>(entries: T[], single: (entry: T) => boolean): T[] {
