@@ -4,7 +4,7 @@ import { close as closePopover, hoverEnter, hoverLeave, pin, popover } from "../
 import { useGoTo } from "../search/navigate";
 import { Item, Lang, TreeKind, term } from "../search/types";
 import { cognates, constellationStart, lastRequest, showGlosses, showRare } from "../state";
-import { Branch, Common, Group, LangTree, branchesOf, canOpen } from "./branches";
+import { Branch, Common, Group, LangTree, autoExpandGroup, branchesOf, canOpen } from "./branches";
 import { BlobSpec, Layout, Link, Point, Rect, Size, bounds, join, layout, wire } from "./layout";
 import { chronological, languageTimes } from "./chronology";
 import type { LayoutPeriod } from "./chronology";
@@ -360,23 +360,21 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
       ...made.filter((h) => h.single),
       ...many.filter((_, i) => i % 2 === 1).reverse(),
     ];
-    // Only a rack containing one word can open a child's one-to-one path
-    // with it. A single-word branch inside a multi-word rack is not enough.
+    // Each resulting node qualifies on its own: one source, one destination.
+    // Its parent's number of rows does not change that one-to-one path.
     const opened = [...next];
     for (const h of opened) taken.add(h.id);
-    if (branch.groups.length === 1 && next.length === 1) {
-      for (const parent of opened) {
-        if (parent.single) continue;
-        for (const b of parent.branches) {
-          if (b.groups.length !== 1 || b.words.length !== 1) continue;
-          const g = b.groups[0];
-          const key = String(g.head.item.id);
-          if (!g.head.item.term || !canOpen(g, target) || taken.has(key)) continue;
-          const child = makeHub(g.head, parent, blobId(parent, b), parent.hues.get(b.key)!);
-          if (!child.single) continue;
-          taken.add(key);
-          opened.push(child);
-        }
+    for (const parent of opened) {
+      if (parent.single) continue;
+      for (const b of parent.branches) {
+        const g = autoExpandGroup(b, target);
+        if (!g) continue;
+        const key = String(g.head.item.id);
+        if (taken.has(key)) continue;
+        const child = makeHub(g.head, parent, blobId(parent, b), parent.hues.get(b.key)!);
+        if (!child.single) continue;
+        taken.add(key);
+        opened.push(child);
       }
     }
     if (opened.length) setHubs([...hubs(), ...opened]);

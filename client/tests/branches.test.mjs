@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { branchesOf, canOpen } from "../src/constellation/branches.ts";
+import { autoExpandGroup, branchesOf, canOpen } from "../src/constellation/branches.ts";
 
 const pie = { id: 1, code: "ine-pro", name: "Proto-Indo-European" };
 const hellenic = { id: 2, code: "grk-pro", name: "Proto-Hellenic" };
@@ -26,6 +26,26 @@ function node(lang, term, children = [], extra = {}) {
   };
 }
 const word = (term, selected = false) => node(english, term, [], { isSelected: selected });
+
+test("one-to-one child nodes auto-expand independently of a multi-word parent", () => {
+  const oldEnglish = { id: 11, code: "ang", name: "Old English" };
+  const middleEnglish = { id: 12, code: "enm", name: "Middle English" };
+  for (const term of ["stride", "unclose", "quiver", "brim"]) {
+    const child = node(middleEnglish, term, [word(term)]);
+    const [branch] = branchesOf(node(oldEnglish, term, [child]), english, langs, null);
+    assert.equal(autoExpandGroup(branch, english)?.head, child);
+  }
+  const oneSource = node(middleEnglish, "source", [word("one"), word("two")]);
+  const [manyWords] = branchesOf(node(oldEnglish, "root", [oneSource]), english, langs, null);
+  assert.equal(autoExpandGroup(manyWords, english), null);
+  const [manySources] = branchesOf(node(oldEnglish, "root", [
+    node(middleEnglish, "source-a", [word("same")]),
+    node(middleEnglish, "source-b", [word("same")]),
+  ]), english, langs, null);
+  assert.equal(autoExpandGroup(manySources, english), null);
+  const [unnamed] = branchesOf(node(oldEnglish, "root", [node(middleEnglish, "", [word("only")])]), english, langs, null);
+  assert.equal(autoExpandGroup(unnamed, english), null);
+});
 
 test("Proto-Hellenic has its two forms and one undefined root for all unanchored Greek words", () => {
   const recorded = [

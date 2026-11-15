@@ -395,3 +395,11 @@ export function branchesOf(hub: TreeNode, target: Lang, langs: LangTree, common:
 export function canOpen(g: Group, target: Lang): boolean {
   return !g.own && g.head.item.lang.id !== target.id && g.head.children.length > 0;
 }
+
+// Judge the node itself, not how many words its parent rack contains.
+// A single named source with one displayed destination needs no extra click.
+export function autoExpandGroup(branch: Branch, target: Lang): Group | null {
+  if (branch.groups.length !== 1 || branch.words.length !== 1) return null;
+  const g = branch.groups[0];
+  return g.head.item.term && canOpen(g, target) ? g : null;
+}
