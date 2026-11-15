@@ -2,13 +2,16 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { expansionView, rootOverview, visibleStage } from "../src/constellation/camera.ts";
 
-test("asymmetric root overview centres the root and fits all four diagram edges", () => {
+test("asymmetric overview grows the diagram while keeping the root near centre and every edge visible", () => {
   const root = { x: 40, y: -20 };
   const bounds = { x: -500, y: -1000, w: 1200, h: 1300 };
   for (const viewport of [{ w: 1460, h: 819 }, { w: 900, h: 700 }]) {
     const v = rootOverview(root, bounds, { x: 0, y: 0, scale: 1, ...viewport });
     assert.equal(v.x + root.x * v.k, viewport.w / 2);
-    assert.equal(v.y + root.y * v.k, viewport.h / 2);
+    assert.ok(v.y + root.y * v.k > viewport.h / 2);
+    assert.ok(v.y + root.y * v.k <= viewport.h * 0.6 + 0.001);
+    const strictlyCentered = Math.min(1, (viewport.w - 96) / 1320, (viewport.h - 96) / 1960);
+    assert.ok(v.k > strictlyCentered * 1.15);
     assert.ok(v.x + bounds.x * v.k >= 47);
     assert.ok(v.y + bounds.y * v.k >= 47);
     assert.ok(v.x + (bounds.x + bounds.w) * v.k <= viewport.w - 47);
@@ -49,7 +52,9 @@ test("retained browser pinch zoom fits the actual visible area with the same scr
   const bounds = { x: -600, y: -550, w: 1200, h: 800 };
   const view = rootOverview(root, bounds, area);
   assert.ok(Math.abs((view.x - viewport.x) * scale - 1465 / 2) < 0.001);
-  assert.ok(Math.abs((view.y - viewport.y) * scale - 828 / 2) < 0.001);
+  const normal = rootOverview(root, bounds, { x: 0, y: 0, w: 1465, h: 828, scale: 1 });
+  assert.ok(Math.abs((view.y - viewport.y) * scale - normal.y) < 0.001);
+  assert.ok(Math.abs(view.k * scale - normal.k) < 0.001);
   assert.ok((view.x + bounds.x * view.k - viewport.x) * scale >= 47.9);
   assert.ok((view.y + bounds.y * view.k - viewport.y) * scale >= 47.9);
   assert.ok((view.x + (bounds.x + bounds.w) * view.k - viewport.x) * scale <= 1465 - 47.9);
@@ -70,4 +75,27 @@ test("expansion reading size accounts for browser magnification and viewport off
   assert.ok(Math.abs((zoomed.x - 90) * 1.5 - normal.x) < 0.001);
   assert.ok(Math.abs((zoomed.y - 40) * 1.5 - normal.y) < 0.001);
   assert.equal(zoomed.k * 1.5, normal.k);
+});
+
+
+test("balanced and small overviews keep the root exactly centred", () => {
+  const viewport = { x: 20, y: 10, w: 1200, h: 800, scale: 1 };
+  for (const bounds of [{ x: -500, y: -500, w: 1000, h: 1000 },
+    { x: -200, y: -100, w: 300, h: 300 }]) {
+    const view = rootOverview({ x: 0, y: 0 }, bounds, viewport);
+    assert.equal(view.x, 620);
+    assert.equal(view.y, 410);
+  }
+});
+
+test("composition makes equal room for overflow in any direction", () => {
+  for (const side of [-1, 1]) {
+    const viewport = { x: 0, y: 0, w: 1000, h: 800, scale: 1 };
+    const bounds = { x: side === -1 ? -1000 : -200, y: -100, w: 1200, h: 200 };
+    const view = rootOverview({ x: 0, y: 0 }, bounds, viewport);
+    assert.ok(Math.abs(view.x - (side === -1 ? 600 : 400)) < 0.001);
+    assert.equal(view.y, 400);
+    assert.ok(view.x + bounds.x * view.k >= 47.9);
+    assert.ok(view.x + (bounds.x + bounds.w) * view.k <= 952.1);
+  }
 });

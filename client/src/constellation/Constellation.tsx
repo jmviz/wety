@@ -665,8 +665,8 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
   };
   // Lit: the current hub's blobs, and those racked off them.
   const lit = (hub: Hub): boolean => hub === current() || (!!hub.parent && lit(hub.parent));
-  // Keep the starting root at the canvas centre even when its branches
-  // have very different sizes. Their bounding-box centre can be far away.
+  // Compose the initial branches around the root, with room to shift the
+  // root slightly when an uneven branch would otherwise force a small zoom.
   const rootView = () => {
     const b = bounds(placed(), rootHub.id, ROOT_R, rootHub.branches.map((br) => blobId(rootHub, br)));
     const c = placed().hubs.get(rootHub.id);

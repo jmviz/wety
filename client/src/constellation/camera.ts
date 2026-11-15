@@ -17,14 +17,26 @@ export function visibleStage(stage: Rect, viewport: CameraViewport): CameraViewp
   };
 }
 
-// Fitting a rectangle's width is insufficient when the camera is centred
-// on an off-centre root. Reserve the larger extent on both sides of it.
+// Prefer the root at centre, but let it move within the middle fifth of
+// the screen to make room for uneven branches before shrinking the diagram.
 export function rootOverview(root: Point, bounds: Rect, viewport: CameraViewport) {
-  const width = 2 * Math.max(root.x - bounds.x, bounds.x + bounds.w - root.x, 1);
-  const height = 2 * Math.max(root.y - bounds.y, bounds.y + bounds.h - root.y, 1);
   const scale = viewport.scale;
-  const k = Math.max(0.1 / scale, Math.min(1 / scale, (viewport.w - 96 / scale) / width, (viewport.h - 96 / scale) / height));
-  return { x: viewport.x + viewport.w / 2 - root.x * k, y: viewport.y + viewport.h / 2 - root.y * k, k };
+  const pad = 48 / scale;
+  const left = Math.max(root.x - bounds.x, 1);
+  const right = Math.max(bounds.x + bounds.w - root.x, 1);
+  const above = Math.max(root.y - bounds.y, 1);
+  const below = Math.max(bounds.y + bounds.h - root.y, 1);
+  const k = Math.max(0.1 / scale, Math.min(
+    1 / scale,
+    (viewport.w - 2 * pad) / bounds.w,
+    (viewport.h - 2 * pad) / bounds.h,
+    (viewport.w * 0.6 - pad) / Math.max(left, right),
+    (viewport.h * 0.6 - pad) / Math.max(above, below),
+  ));
+  // At this scale, shift only as far from centre as the edges require.
+  const x = Math.max(pad + left * k, Math.min(viewport.w / 2, viewport.w - pad - right * k));
+  const y = Math.max(pad + above * k, Math.min(viewport.h / 2, viewport.h - pad - below * k));
+  return { x: viewport.x + x - root.x * k, y: viewport.y + y - root.y * k, k };
 }
 
 // Favour the clicked node slightly. Fit the local transition where possible,
