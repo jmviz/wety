@@ -8,6 +8,36 @@ interface Range {
   latest: number | null;
 }
 
+// Keep neighboring lanes with the same later language sequence together.
+// The target language alone is not evidence: every path ends there.
+export function orderLanguagePaths<T>(items: T[], paths: (item: T) => string[][]): T[] {
+  if (items.length < 2) return items;
+  const remaining = items.map((item) => ({ item, paths: paths(item) }));
+  const ordered = [remaining.shift()!];
+  while (remaining.length) {
+    const previous = ordered[ordered.length - 1];
+    const score = (candidate: typeof previous) => Math.max(0, ...previous.paths.flatMap((a) => candidate.paths.map((b) => {
+      let same = 0;
+      while (same < Math.min(a.length, b.length) && a[a.length - 1 - same] === b[b.length - 1 - same]) same++;
+      return same;
+    })));
+    let best = 0;
+    for (let i = 1; i < remaining.length; i++) if (score(remaining[i]) > score(remaining[best])) best = i;
+    ordered.push(remaining.splice(best, 1)[0]);
+  }
+  return ordered.map(({ item }) => item);
+}
+
+export function groupLanguageLanes(node: BlobSpec): BlobSpec {
+  const paths = (b: BlobSpec): string[][] => {
+    if (b.terminal) return [[]];
+    const next = (b.lanes ?? []).flatMap((l) => l.blobs.flatMap(paths));
+    return (next.length ? next : [[]]).map((p) => [b.stage ?? b.id, ...p]);
+  };
+  const lanes = node.lanes?.map((lane) => ({ ...lane, blobs: orderLanguagePaths(lane.blobs.map(groupLanguageLanes), paths) }));
+  return { ...node, lanes: lanes && orderLanguagePaths(lanes, (lane) => lane.blobs.flatMap(paths)) };
+}
+
 export interface LayoutPeriod {
   code: string;
   spoken: { start: Range | null; end: Range | null };

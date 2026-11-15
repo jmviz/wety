@@ -260,6 +260,28 @@ main.constellation-only .cst-stage {
   cursor: default;
 }
 
+.cst-single-words {
+  cursor: default;
+}
+
+.cst-single-words:hover {
+  border-color: transparent;
+  background: none;
+}
+
+.cst-single-word {
+  all: unset;
+  cursor: pointer;
+  border-radius: 3px;
+}
+
+.cst-single-word:hover,
+.cst-single-word:focus-visible {
+  color: rgb(var(--c));
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 .cst-row-face.cst-preview-box {
   position: absolute;
   left: 0;
@@ -282,16 +304,28 @@ main.constellation-only .cst-stage {
   gap: 0;
 }
 
-.cst-tray-heading {
-  display: block;
-  padding: 14px 20px;
-  color: rgb(var(--c));
-  font-size: 11px;
-  font-weight: 600;
-  line-height: 16px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  border-bottom: 1px solid rgba(var(--c), 0.22);
+.cst-descendant-tray {
+  position: relative;
+  width: max-content;
+  min-width: 240px;
+  max-width: min(520px, 85vw);
+}
+
+.cst-descendant-tray::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  /* Account for the extra space reserved for the chevron on the right. */
+  left: calc(50% - 9px);
+  width: 1px;
+  background: rgba(var(--c), 0.16);
+  pointer-events: none;
+}
+
+.cst-blob.tray-column,
+.cst-blob.tray-column.narrow {
+  width: var(--tray-width, 320px);
 }
 
 .cst-descendant-tray .cst-preview-row,
@@ -305,6 +339,28 @@ main.constellation-only .cst-stage {
 
 .cst-descendant-tray .cst-preview-row + .cst-preview-row {
   border-top: 1px solid rgba(var(--c), 0.18);
+}
+
+.cst-descendant-tray .cst-preview-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 20px;
+  align-items: center;
+}
+
+.cst-tray-source {
+  font-family: var(--serif);
+  font-size: 18px;
+  line-height: 26px;
+  color: var(--cst-soft);
+}
+
+.cst-tray-source-entry {
+  display: block;
+}
+
+.cst-tray-term {
+  font-style: italic;
 }
 
 .cst-descendant-tray .cst-preview-row:not(:disabled)::after,

@@ -43,6 +43,8 @@ export interface BlobSpec {
   compactChain?: boolean;
   // Other visible source cards feeding this same descendant subtree.
   sharedParents?: string[];
+  // Extra vertical room supplied only when the subtree fits the viewport.
+  breathingRoom?: number;
 }
 
 // A head opened in a rack, and the blobs that come off it.
@@ -115,19 +117,19 @@ const apart = (a: Rect, b: Rect) =>
   a.x >= b.x + b.w + GAP || b.x >= a.x + a.w + GAP || a.y >= b.y + b.h + GAP || b.y >= a.y + a.h + GAP;
 
 // The height of blobs standing one under another.
-function stacked(blobs: BlobSpec[]): number {
+function stacked(blobs: BlobSpec[], extra = 0): number {
   const measured = blobs.flatMap((b) => {
     const size = whole(b);
     return size ? [{ blob: b, height: size.h }] : [];
   });
-  return measured.reduce((sum, b, i) => sum + b.height + (i ? blobGap(measured[i - 1].blob, b.blob) : 0), 0);
+  return measured.reduce((sum, b, i) => sum + b.height + (i ? blobGap(measured[i - 1].blob, b.blob) + extra : 0), 0);
 }
 
 // The height a rack's lanes take, one under another: each as tall as its
 // head's blobs.
-function lanesHeight(lanes: LaneSpec[]): number {
-  const heights = lanes.map((l) => stacked(l.blobs)).filter((h) => h > 0);
-  return heights.reduce((sum, h) => sum + h, 0) + BETWEEN * Math.max(0, heights.length - 1);
+function lanesHeight(lanes: LaneSpec[], extra = 0): number {
+  const heights = lanes.map((l) => stacked(l.blobs, extra)).filter((h) => h > 0);
+  return heights.reduce((sum, h) => sum + h, 0) + (BETWEEN + extra) * Math.max(0, heights.length - 1);
 }
 
 // Where a rack's lanes stand, down from the top of its blob: each lane's
@@ -140,7 +142,8 @@ function lanesHeight(lanes: LaneSpec[]): number {
 function lanesAt(b: BlobSpec): { tops: (number | undefined)[]; mids: number[]; top: number; bottom: number } {
   const size = b.size!;
   const lanes = b.lanes ?? [];
-  const tall = lanes.map((l) => stacked(l.blobs));
+  const extra = b.breathingRoom ?? 0, between = BETWEEN + extra;
+  const tall = lanes.map((l) => stacked(l.blobs, extra));
   const tops: (number | undefined)[] = lanes.map(() => undefined);
   const mids = lanes.map((l) => l.mid ?? size.h / 2);
   if (b.clustered) {
@@ -149,9 +152,9 @@ function lanesAt(b: BlobSpec): { tops: (number | undefined)[]; mids: number[]; t
       const height = Math.max(lane.height ?? SOURCE_HEIGHT, tall[i]);
       mids[i] = y + height / 2;
       tops[i] = y + (height - tall[i]) / 2;
-      y += height + BETWEEN;
+      y += height + between;
     });
-    return { tops, mids, top: 0, bottom: Math.max(SOURCE_HEIGHT, y - BETWEEN) };
+    return { tops, mids, top: 0, bottom: Math.max(SOURCE_HEIGHT, y - between) };
   }
   const level = lanes.flatMap((l, i) => (l.inline && tall[i] ? [i] : []));
   for (const i of level) tops[i] = (lanes[i].mid ?? size.h / 2) - tall[i] / 2;
@@ -159,19 +162,19 @@ function lanesAt(b: BlobSpec): { tops: (number | undefined)[]; mids: number[]; t
     let y = from;
     for (const i of indexes) {
       tops[i] = y;
-      y += tall[i] + BETWEEN;
+      y += tall[i] + between;
     }
   };
   const rest = lanes.flatMap((l, i) => (!l.inline && tall[i] ? [i] : []));
   if (!level.length) {
-    run((size.h - lanesHeight(lanes)) / 2, rest);
+    run((size.h - lanesHeight(lanes, extra)) / 2, rest);
   } else {
     const above = rest.filter((i) => i < level[0]);
     const below = rest.filter((i) => i > level[0]);
     const bandTop = Math.min(...level.map((i) => tops[i]!));
     const bandBottom = Math.max(...level.map((i) => tops[i]! + tall[i]));
-    run(bandTop - above.reduce((sum, i) => sum + tall[i] + BETWEEN, 0), above);
-    run(bandBottom + BETWEEN, below);
+    run(bandTop - above.reduce((sum, i) => sum + tall[i] + between, 0), above);
+    run(bandBottom + between, below);
   }
   const placed = tops.flatMap((t, i) => (t === undefined ? [] : [{ t, b: t + tall[i] }]));
   return {
@@ -197,6 +200,20 @@ export function whole(b: BlobSpec): Size | undefined {
   if (!reach && !b.clustered) return b.size;
   const at = lanesAt(b);
   return { w: b.size.w + reach, h: at.bottom - at.top };
+}
+
+// Spend spare viewport height on separation, capped at 40 extra pixels.
+// Estimate the complete subtree before adding space, so dense trees keep
+// their compact geometry and the camera never drives a spacing feedback loop.
+export function breathe(b: BlobSpec, availableHeight: number): BlobSpec {
+  const node = { ...b, lanes: b.lanes?.map((l) => ({ ...l,
+    blobs: l.blobs.map((child) => breathe(child, availableHeight)),
+  })) };
+  const baseline = whole(node)?.h ?? 0;
+  const seams = Math.max(0, (node.lanes?.length ?? 0) - 1)
+    + (node.lanes ?? []).reduce((sum, l) => sum + Math.max(0, l.blobs.length - 1), 0);
+  const extra = seams ? Math.min(40, Math.max(0, (availableHeight * 0.7 - baseline) / seams)) : 0;
+  return { ...node, breathingRoom: extra };
 }
 
 // `frame`: the room the root and its blobs have, centred on the root.
@@ -244,7 +261,7 @@ export function layout(root: RootSpec, frame?: Size, before?: Layout): Layout {
         if (!s) continue;
         const run = kid.gap ?? (lane.inline ? SHORT : RUN);
         settle(kid, { x: side > 0 ? box.x + box.w + run : box.x - run - s.w, y: box.y + top, ...s }, leaves.x, endX);
-        top += s.h + blobGap(kid, kids[index + 1]);
+        top += s.h + blobGap(kid, kids[index + 1]) + (b.breathingRoom ?? 0);
       }
     });
   };

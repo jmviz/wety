@@ -5,8 +5,8 @@ import { useGoTo } from "../search/navigate";
 import { Item, Lang, TreeKind, term } from "../search/types";
 import { cognates, constellationStart, lastRequest, showGlosses, showRare } from "../state";
 import { Branch, Common, Group, HIDE_UNDEFINED_ROOTS, LangTree, autoExpandGroup, branchesOf, canOpen, directEarlyEnglish, previewLines, previewRows, rackOrder, restrictBranches, singleEndpoint, sourceBranches, uncommonLatinEnglish, withoutUndefinedRoots } from "./branches";
-import { BlobSpec, Layout, Link, Point, Rect, Size, SOURCE_HEIGHT, LANGUAGE_HEADING_SPACE, bounds, join, layout, rootDirection, stemArrival, cableRouter, sharedWires } from "./layout";
-import { chronological, languageTimes } from "./chronology";
+import { BlobSpec, Layout, Link, Point, Rect, Size, SOURCE_HEIGHT, LANGUAGE_HEADING_SPACE, bounds, breathe, join, layout, rootDirection, stemArrival, cableRouter, sharedWires } from "./layout";
+import { chronological, groupLanguageLanes, languageTimes } from "./chronology";
 import type { LayoutPeriod } from "./chronology";
 import { representatives } from "./representatives";
 import type { Frequencies } from "./representatives";
@@ -36,6 +36,7 @@ import {
 // (`via`) and has no shape of its own.
 interface DisplayBranch extends Branch {
   origins?: Map<Group, Hub>;
+  parents?: Map<number, Set<string>>;
 }
 
 interface Hub {
@@ -241,20 +242,31 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
   // leaves the blob there.
   const [rowMids, setRowMids] = createSignal(new Map<string, number>(), { equals: false });
   const [previewHeights, setPreviewHeights] = createSignal(new Map<string, number>(), { equals: false });
+  const [previewWidths, setPreviewWidths] = createSignal(new Map<string, number>(), { equals: false });
 
   const selective = (b: Branch) => b.groups.some((g) => canOpen(g, target));
   const previewCache = new WeakMap<Branch, ReturnType<typeof previewRows>>();
-  const previewsFor = (b: Branch) => {
-    let rows = previewCache.get(b);
+  const trayCache = new WeakMap<Branch, ReturnType<typeof previewRows>>();
+  const previewsFor = (b: Branch, splitSources = false) => {
+    const cache = splitSources ? trayCache : previewCache;
+    let rows = cache.get(b);
     if (!rows) {
-      rows = previewRows(b, target, branchesFor, common, scores);
-      previewCache.set(b, rows);
+      rows = previewRows(b, target, branchesFor, common, scores, splitSources);
+      cache.set(b, rows);
     }
     return rows;
   };
-  const rowKey = (hub: Hub, b: Branch, index: number) => `${blobId(hub, b)}:row:${index}`;
+  const previewsOf = (hub: Hub, b: Branch) => previewsFor(b, descendantTray(hub, b));
+  const singleWords = (b: Branch, words: TreeNode[]) => words.length > 1 && words.every((w) =>
+    previewLines(b, target, branchesFor, common, scores, false).some((line) => line.length === 1 && line[0].item.term === w.item.term));
+  const unopenedWords = (hub: Hub, b: Branch, words: TreeNode[]) => words.filter((word) => !hubs().some((h) =>
+    h.via === blobId(hub, b) && h.scope?.words.has(word.item.term)));
+  const rowKey = (hub: Hub, b: Branch, index: number) => {
+    const row = previewsOf(hub, b)[index];
+    return `${blobId(hub, b)}:row:${row.groups.map((g) => g.head.item.id).join(",")}:${row.words.map((w) => w.item.term).join(",")}`;
+  };
   const previewBoxId = (hub: Hub, b: Branch) => `${blobId(hub, b)}:preview`;
-  const remainingRows = (hub: Hub, b: Branch, heads: Hub[]) => previewsFor(b).map((row, i) => ({ row, i }))
+  const remainingRows = (hub: Hub, b: Branch, heads: Hub[]) => previewsOf(hub, b).map((row, i) => ({ row, i }))
     .filter(({ row, i }) => !heads.some((h) => h.scope?.id === rowKey(hub, b, i)) &&
       !row.groups.filter((g) => canOpen(g, target)).every((g) => heads.some((h) => h.node.item.id === g.head.item.id
         && row.words.every((w) => h.scope?.words.has(w.item.term) ?? true))))
@@ -269,6 +281,11 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     for (const entry of entries) {
       const el = entry.target as HTMLElement;
       if (el.dataset.previewBox) {
+        const widths = previewWidths();
+        if (widths.get(el.dataset.previewBox) !== el.offsetWidth) {
+          widths.set(el.dataset.previewBox, el.offsetWidth);
+          setPreviewWidths(widths);
+        }
         const heights = previewHeights();
         if (heights.get(el.dataset.previewBox) !== el.offsetHeight) {
           heights.set(el.dataset.previewBox, el.offsetHeight);
@@ -304,6 +321,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
   // shuffle the blobs.
   const [frame, setFrame] = createSignal<Size>();
   const [availableWidth, setAvailableWidth] = createSignal(1000);
+  const [availableHeight, setAvailableHeight] = createSignal(700);
   const [layoutVersion, setLayoutVersion] = createSignal(0);
   let placedVersion = 0;
   const clusteredHeads = (heads: Hub[]) => heads.length > 1 && heads.every((h) => h.node.item.lang.code.endsWith("-pro"));
@@ -371,7 +389,8 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
             : undefined,
         };
       });
-    return { id: rootHub.id, r: ROOT_R, blobs: blobsOf(rootHub).map(chronological) };
+    return { id: rootHub.id, r: ROOT_R, blobs: blobsOf(rootHub).map(groupLanguageLanes).map(chronological)
+      .map((b) => breathe(b, availableHeight())) };
   });
   const baseLayout = createMemo<Layout>(
     (before) => {
@@ -451,7 +470,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     const stems = hubs().flatMap((h) => h.branches.flatMap((b) => {
       const id = blobId(h, b), box = drawn(h, id);
       const sources = entriesFor(h, b, hubs().filter((k) => k.via === id)).flatMap((entry) => at.sources.get(entry.id) ?? []);
-      if (!box || sources.length < 2) return [];
+      if (h.via || !box || sources.length < 2) return [];
       const side = at.sides.get(id) ?? 1;
       return [{ x: side > 0 ? box.x - 24 : box.x + box.w + 24,
         top: Math.min(...sources.map((s) => s.y + s.h / 2)), bottom: Math.max(...sources.map((s) => s.y + s.h / 2)) }];
@@ -482,6 +501,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
           .flatMap((k) => at.sources.get(k.id) ?? []);
         const ys = sources.map((s) => s.y + s.h / 2);
         const open = ys.length > 0;
+        if (open) continue; // Expanded entries get their own recorded edges below.
         if (box && side) connect(blobId(shared.host, shared.branch), c, {
           x: side > 0 ? box.x - (open ? 24 : 0) : box.x + box.w + (open ? 24 : 0),
           y: open ? Math.max(Math.min(...ys), Math.min(Math.max(...ys), c.y)) : box.y + box.h / 2,
@@ -493,6 +513,21 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
         const hue = h.hues.get(b.key)!;
         const sources = entriesFor(h, b, hubs().filter((k) => k.via === blobId(h, b))).flatMap((k) => at.sources.get(k.id) ?? []);
         const outward = at.sides.get(blobId(h, b)) ?? (side || (box.x + box.w / 2 >= c.x ? 1 : -1));
+        if (side && sources.length) {
+          for (const entry of entriesFor(h, b, hubs().filter((k) => k.via === blobId(h, b)))) {
+            const target = at.sources.get(entry.id);
+            if (!target) continue;
+            const parentIds = new Set<string>();
+            const groups = entry.head ? b.groups.filter((g) => g.head.item.id === entry.head!.node.item.id)
+              : remainingRows(h, b, hubs().filter((k) => k.via === blobId(h, b))).flatMap((i) => previewsOf(h, b)[i].groups);
+            for (const g of groups) for (const parent of b.parents?.get(g.head.item.id) ?? [h.id]) parentIds.add(parent);
+            for (const parent of parentIds) {
+              const from = at.hubs.get(parent);
+              if (from) connect(entry.id, from, { x: outward > 0 ? target.x : target.x + target.w, y: target.y + target.h / 2 }, hue, recent().has(parent));
+            }
+          }
+          continue;
+        }
         const spineX = outward > 0 ? box.x - 24 : box.x + box.w + 24;
         const ys = sources.map((s) => s.y + s.h / 2);
         const arrival = sources.length ? { ...(side
@@ -620,10 +655,16 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
         const previous = columns.get(key);
         if (!previous) {
           b.origins = new Map(b.groups.map((g) => [g, child]));
+          b.parents = new Map(b.groups.map((g) => [g.head.item.id, new Set([child.id])]));
           columns.set(key, { host: child, branch: b });
           return true;
         }
         const combined = previous.branch;
+        for (const g of b.groups) {
+          const parents = combined.parents!.get(g.head.item.id) ?? new Set<string>();
+          parents.add(child.id);
+          combined.parents!.set(g.head.item.id, parents);
+        }
         for (const g of b.groups) combined.origins!.set(g, child);
         combined.groups.push(...b.groups);
         const terms = new Set(combined.words.map((w) => w.item.term));
@@ -669,6 +710,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
                 prior.wordCount = b.wordCount;
                 prior.hasSelected = b.hasSelected;
                 previewCache.delete(prior);
+                trayCache.delete(prior);
               } else repeated.branches.push(b);
             }
             repeated.scope = scope;
@@ -846,6 +888,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
       if (!now.w || !now.h) return;
       if (now.x === was.x && now.y === was.y && now.w === was.w && now.h === was.h && now.scale === was.scale) return;
       setAvailableWidth((now.w * now.scale - PAD_X) / READABLE);
+      setAvailableHeight((now.h * now.scale - PAD_Y) / READABLE);
       if (!was.w) {
         setView({ x: now.x + now.w / 2, y: now.y + now.h / 2, k: 1 / now.scale });
         setFrame({ w: (now.w * now.scale - PAD_X) / READABLE, h: (now.h * now.scale - PAD_Y) / READABLE });
@@ -1034,9 +1077,10 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
   };
 
   const PreviewRow = (p: { hub: Hub; branch: Branch; index: number }) => {
-    const row = previewsFor(p.branch)[p.index];
+    const row = previewsOf(p.hub, p.branch)[p.index];
     const id = rowKey(p.hub, p.branch, p.index);
     return (
+      <Show when={!descendantTray(p.hub, p.branch) && singleWords(p.branch, row.words)} fallback={
       <button
         type="button"
         class="cst-preview-row"
@@ -1046,10 +1090,31 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
         disabled={!row.groups.some((g) => canOpen(g, target))}
         onClick={() => rack(p.hub, p.branch, row.groups, { id, words: new Set(row.words.map((w) => w.item.term)) })}
       >
+        <Show when={descendantTray(p.hub, p.branch)}>
+          <span class="cst-tray-source">
+            <For each={[...new Map(row.groups.map((g) => [g.head.item.id, g.head.item])).values()]}>{(item) =>
+              <span class="cst-tray-source-entry"><span class="cst-tray-term">{term(item)}</span>
+                <Show when={showGlosses() && item.gloss?.[0]}><span> – {brief(item.gloss![0])}</span></Show>
+              </span>
+            }</For>
+          </span>
+        </Show>
         <span class="cst-words">
           <For each={row.lines}>{(words) => <span class="cst-preview-line"><WordList words={words} live={false} /></span>}</For>
         </span>
       </button>
+      }>
+        <div class="cst-preview-row cst-single-words" data-row-choice={id}>
+          <span class="cst-words"><For each={unopenedWords(p.hub, p.branch, row.words)}>{(word, i) => <>
+            <button type="button" class="cst-single-word" aria-label={`Expand ${term(word.item)}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                const words = new Set([word.item.term]);
+                rack(p.hub, p.branch, restrictBranches([p.branch], words)[0]?.groups ?? [], { id: `${id}:${word.item.id}`, words });
+              }}>{term(word.item)}</button>{i() < unopenedWords(p.hub, p.branch, row.words).length - 1 ? ", " : ""}
+          </>}</For></span>
+        </div>
+      </Show>
     );
   };
 
@@ -1062,8 +1127,9 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     return (
       <div ref={el} class="cst-row-face" classList={{ "cst-preview-box": p.floating, "cst-descendant-tray": descendantTray(p.hub, p.branch) }} data-preview-box={id}
         style={p.floating ? { top: `${(placed().sources.get(id)?.y ?? 0) - (drawn(p.hub, blobId(p.hub, p.branch))?.y ?? 0)}px` } : undefined}>
-        <Show when={descendantTray(p.hub, p.branch)}><div class="cst-tray-heading">{target.name} descendants</div></Show>
-        <For each={remaining()}>{(index) => <PreviewRow hub={p.hub} branch={p.branch} index={index} />}</For>
+        <For each={remaining().map((index) => previewsOf(p.hub, p.branch)[index])}>{(row) =>
+          <PreviewRow hub={p.hub} branch={p.branch} index={previewsOf(p.hub, p.branch).indexOf(row)} />
+        }</For>
       </div>
     );
   };
@@ -1146,10 +1212,12 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
           "compact-chain": chainIds().has(id),
           fresh: !clustered() && recent().has(p.hub.id),
           "descendant-tray": face() && descendantTray(p.hub, p.branch),
+          "tray-column": descendantTray(p.hub, p.branch) && remainingRows(p.hub, p.branch, rows()).length > 0,
         }}
         data-blob={id}
         data-language={p.branch.name}
         style={{ "--c": p.hub.hues.get(p.branch.key), left: `${at().x}px`, top: `${at().y}px`,
+          "--tray-width": `${previewWidths().get(previewBoxId(p.hub, p.branch)) ?? 320}px`,
           "--cst-first-source": clustered() ? `${(placed().sources.get(rows()[0]?.id)?.y ?? at().y) - at().y}px` : undefined,
           height: clustered() ? `${rect()?.h ?? SOURCE_HEIGHT}px` : undefined }}
         aria-label={`${p.branch.name}: ${p.branch.wordCount} ${target.name} words`}
@@ -1208,7 +1276,6 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
             }
             onClick={act}
           >
-            <Show when={descendantTray(p.hub, p.branch)}><span class="cst-tray-heading">{target.name} descendants</span></Show>
             <span class="cst-words cst-preview">
               <For each={lines()}>
                 {(words) => <span class="cst-preview-line"><WordList words={words} live={false} /></span>}

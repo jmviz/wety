@@ -153,3 +153,17 @@ test("folded Latin boxes end before the aligned English column", () => {
     }
   }
 });
+
+test("neighboring branches prefer their shared language ancestry sequence", async () => {
+  const { groupLanguageLanes } = await import('../src/constellation/chronology.ts');
+  const end = (id) => ({ id, terminal: true, stage: 'reader' });
+  const path = (id, stages) => stages.reduceRight((child, stage, index) => ({ id: `${id}-${index}`, stage,
+    lanes: [{ hub: `${id}-hub-${index}`, blobs: [child] }] }), end(id));
+  const node = { id: 'ancestor', stage: 'older', lanes: [
+    { hub: 'cluster', blobs: [path('first', ['bridge', 'middle'])] },
+    { hub: 'different', blobs: [path('second', ['southern'])] },
+    { hub: 'same', blobs: [path('third', ['middle'])] },
+  ] };
+  assert.deepEqual(groupLanguageLanes(node).lanes.map((lane) => lane.hub), ['cluster', 'same', 'different']);
+  assert.deepEqual(node.lanes.map((lane) => lane.hub), ['cluster', 'different', 'same']);
+});

@@ -322,3 +322,17 @@ test("routing detours around an existing crossing when an open corridor exists",
   const points = samplePath(next.d);
   assert.ok(!points.some((p) => Math.abs(p.y - 60) < 0.01 && p.x > 0 && p.x < 200));
 });
+
+test("sparse branches spend spare height on separation while dense branches stay compact", async () => {
+  const { breathe } = await import('../src/constellation/layout.ts');
+  const branch = { id: 'root-branch', size: { w: 320, h: 38 }, clustered: true, lanes: [
+    { hub: 'first', blobs: [{ id: 'a', size: { w: 240, h: 38 } }] },
+    { hub: 'second', blobs: [{ id: 'b', size: { w: 240, h: 38 } }] },
+  ] };
+  const sparse = breathe(branch, 700), dense = breathe(branch, 100);
+  assert.equal(sparse.breathingRoom, 40);
+  assert.equal(dense.breathingRoom, 0);
+  assert.equal(whole(sparse).h, whole(branch).h + 40);
+  assert.equal(whole(dense).h, whole(branch).h);
+  assert.equal(branch.breathingRoom, undefined);
+});

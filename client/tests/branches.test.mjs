@@ -381,3 +381,17 @@ test("proto families cannot descend from attested languages or unrelated proto f
   assert.deepEqual(read(ancestor).flatMap(b=>b.words.map(w=>w.item.term)),["kept"]);
   assert.deepEqual(read(ancestor.children[0]).flatMap(b=>b.words.map(w=>w.item.term)),["kept"]);
 });
+
+test("two-column trays keep one source and its own descendants per row", () => {
+  const a = node(hellenic, 'first', [node(greek, 'a', [word('alpha')])]);
+  const b = node(hellenic, 'second', [node(greek, 'b', [word('beta')])]);
+  const root = node(pie, 'root', [a, b]);
+  const read = (n) => branchesOf(n, english, langs, null);
+  const branch = read(root)[0];
+  const initial = previewRows(branch, english, read);
+  const tray = previewRows(branch, english, read, null, undefined, true);
+  assert.equal(initial.length, 1);
+  assert.equal(tray.length, 2);
+  assert.deepEqual(tray.map((r) => r.groups.map((g) => g.head.item.term)), [['first'], ['second']]);
+  assert.deepEqual(tray.map((r) => r.words.map((w) => w.item.term)), [['alpha'], ['beta']]);
+});
