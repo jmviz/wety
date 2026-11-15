@@ -352,22 +352,9 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null }
       ...made.filter((h) => h.single),
       ...many.filter((_, i) => i % 2 === 1).reverse(),
     ];
-    // A single named source leading to a single word has no further choice
-    // to make. Open it with its parent, keeping its word visible beside it.
-    const opened = [...next];
-    for (const h of opened) taken.add(h.id);
-    for (const parent of opened) {
-      if (parent.single) continue;
-      for (const b of parent.branches) {
-        if (b.words.length !== 1 || b.groups.length !== 1) continue;
-        const g = b.groups[0];
-        const key = String(g.head.item.id);
-        if (!g.head.item.term || !canOpen(g, target) || taken.has(key)) continue;
-        taken.add(key);
-        opened.push(makeHub(g.head, parent, blobId(parent, b), parent.hues.get(b.key)!));
-      }
-    }
-    if (opened.length) setHubs([...hubs(), ...opened]);
+    // Open only this node. A one-word head's sole child is already shown
+    // by its single-word blob; sibling branches do not open along with it.
+    if (next.length) setHubs([...hubs(), ...next]);
     closePopover();
     setCurrent(hub);
     settled(() => fitAll(rackRects(hub, id)));
