@@ -223,12 +223,7 @@ main:has(.cst-stage) {
   align-items: center;
 }
 
-/* The arrowhead stands where the dot would. */
-.cst-blob.single .cst-head::before {
-  display: none;
-}
-
-.cst-blob.single .cst-head.you .cst-gloss {
+.cst-blob.single .cst-head.you .cst-head-term {
   color: rgb(var(--c));
   text-shadow: 0 0 12px rgba(var(--c), 0.6);
 }

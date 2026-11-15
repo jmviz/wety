@@ -207,7 +207,10 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null }
         const heads = all.filter((k) => k.via === id);
         return {
           id,
-          size: measured.get(id)?.seat,
+          // A rack is laid out at the size it is now, so its rows' lines and
+          // the words level with them leave it where the rows are drawn; a
+          // list keeps the room it has had.
+          size: heads.length ? measured.get(id)?.now : measured.get(id)?.seat,
           lanes: heads.length
             ? heads.map((k) => ({ hub: k.id, mid: mids.get(k.id), blobs: blobsOf(k), inline: k.single }))
             : undefined,
@@ -665,7 +668,8 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null }
             data-key={word.key}
             aria-haspopup="dialog"
           >
-            <span class="cst-gloss">{term(word.item)}</span>
+            <span class="cst-head-lang">{word.item.lang.name}</span>
+            <span class="cst-head-term">{term(word.item)}</span>
           </button>
         </section>
       );
