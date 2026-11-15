@@ -42,7 +42,7 @@ function langTree(): Plugin {
 // (the `wordlist-english` package: American, British, Canadian and Australian
 // spellings, sizes 10 to 70, the last including obscure words). Each word
 // is under the smallest size that lists it. The constellation view leaves
-// defaults to sizes through 60 and lists the commonest first; the graph
+// defaults to sizes through 50 and lists the commonest first; the graph
 // has no word frequencies.
 function commonWords(): Plugin {
   const id = "virtual:common-words";

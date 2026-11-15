@@ -127,11 +127,11 @@ export function directEarlyEnglish(root: TreeNode, early: (code: string) => bool
 
 // How common each word of the reader's language is: the smallest SCOWL list
 // it is in (10, the commonest, to 70, the broadest), and nothing for a
-// word in none. The default stops at 60; tier 70 includes obscure and
+// word in none. The default stops at 50; higher tiers include obscure and
 // dialect words such as "fremd". `virtual:common-words` has English alone.
 export type Common = Map<string, number>;
 const level = (common: Common, term: string) => common.get(term.toLowerCase());
-const COMMON_LIMIT = 60;
+const COMMON_LIMIT = 50;
 const LATIN_COMMON_LIMIT = 35;
 
 // Follow the recorded word path, not the language family: a Germanic word

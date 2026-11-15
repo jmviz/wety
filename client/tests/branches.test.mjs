@@ -28,18 +28,18 @@ function node(lang, term, children = [], extra = {}) {
 }
 const word = (term, selected = false) => node(english, term, [], { isSelected: selected });
 
-test("Latin-origin English uses tier 35 through later languages while other origins retain tier 60", () => {
-  const common = new Map([["common", 35], ["rarer", 40], ["rarest", 60], ["selected", 60], ["anti", 35]]);
+test("Latin-origin English uses tier 35 through later languages while other origins stop at tier 50", () => {
+  const common = new Map([["common", 35], ["rarer", 40], ["limit", 50], ["overlimit", 55], ["rarest", 60], ["selected", 60], ["anti", 35]]);
   const viaFrench = node(french, "source", [word("common"), word("rarer"), word("rarest"), word("selected", true), word("anti-")]);
   const fromLatin = node(latin, "source", [viaFrench]);
-  const other = node({ id: 22, code: "ang", name: "Old English" }, "source", [word("rarer"), word("rarest")]);
+  const other = node({ id: 22, code: "ang", name: "Old English" }, "source", [word("rarer"), word("limit"), word("overlimit"), word("rarest")]);
   const root = node(pie, "root", [fromLatin, other]);
   const omitted = uncommonLatinEnglish(root, common);
   assert.deepEqual([...omitted], viaFrench.children.slice(1, 3).map((n) => n.key));
   assert.equal(uncommonLatinEnglish(root, null).size, 0);
   const read = (head) => branchesOf(head, english, langs, common, omitted);
   assert.deepEqual(new Set(read(viaFrench).flatMap((b) => b.words.map((w) => w.item.term))), new Set(["common", "selected", "anti-"]));
-  assert.deepEqual(new Set(read(other).flatMap((b) => b.words.map((w) => w.item.term))), new Set(["rarer", "rarest"]));
+  assert.deepEqual(new Set(read(other).flatMap((b) => b.words.map((w) => w.item.term))), new Set(["rarer", "limit"]));
   viaFrench.parent = fromLatin;
   assert.deepEqual([...uncommonLatinEnglish(viaFrench, common)], [...omitted]);
 });
