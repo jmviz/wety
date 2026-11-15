@@ -422,8 +422,8 @@ button.cst-fam:focus-visible {
   height: 38px;
 }
 
-/* Long one-word chains fit the word and label, rather than repeating the
-   standard 320px rack width for every intervening language. */
+/* Crowded families fit individual words and labels instead of repeating
+   the standard 320px width, including their short side branches. */
 .cst-blob.compact-chain,
 .cst-blob.compact-chain.has-close {
   width: max-content;
@@ -465,6 +465,7 @@ button.cst-fam:focus-visible {
 
 .cst-blob.compact-chain .cst-gloss {
   flex-shrink: 0;
+  max-width: 180px;
 }
 
 .cst-blob.compact-chain > .cst-head {

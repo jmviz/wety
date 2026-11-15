@@ -12,6 +12,8 @@ import { representatives } from "./representatives";
 import type { Frequencies } from "./representatives";
 import { expansionDepth, sharedDepth, singleDescendantChildren, unbranchedLineage } from "./expansion";
 import type { ExpansionDepth } from "./expansion";
+import { compactBranches } from "./density";
+import type { DensityNode } from "./density";
 
 import {
   For,
@@ -287,6 +289,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
   // words still read at. Fixed from then on, so resizing the window does not
   // shuffle the blobs.
   const [frame, setFrame] = createSignal<Size>();
+  const [availableWidth, setAvailableWidth] = createSignal(1000);
   const [layoutVersion, setLayoutVersion] = createSignal(0);
   let placedVersion = 0;
   const clusteredHeads = (heads: Hub[]) => heads.length > 1 && heads.every((h) => h.node.item.lang.code.endsWith("-pro"));
@@ -297,34 +300,21 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
         ...heads.map((head) => ({ id: head.id, head })),
       ]
     : heads.map((head) => ({ id: head.id, head }));
-  // Compress only long unbranched runs. Branching racks and folded
-  // descendant previews retain their usual width and spacing.
+  // A crowded family compresses all of its individual source cards,
+  // including short side branches, while preserving the preview boxes.
   const chainIds = createMemo(() => {
     const all = hubs();
-    const edges = new Map<string, string>();
-    const candidates = new Set<string>();
-    for (const h of all) for (const b of h.branches) {
+    const densityNode = (h: Hub, b: Branch): DensityNode => {
       const id = blobId(h, b);
       const open = all.filter((k) => k.via === id);
-      if (b.groups.length !== 1) continue;
-      if (!open.length && b.groups[0].own) candidates.add(id);
-      else if (open.length === 1 && open[0].node.item.term && open[0].branches.length === 1 && !open[0].shared.length) {
-        candidates.add(id);
-        edges.set(id, blobId(open[0], open[0].branches[0]));
-      }
-    }
-    const compressed = new Set<string>();
-    for (const start of candidates) {
-      const run: string[] = [];
-      let at: string | undefined = start;
-      while (at && candidates.has(at) && !run.includes(at)) { run.push(at); at = edges.get(at); }
-      if (run.length >= 4) run.forEach((id) => {
-        const owner = all.find((h) => h.branches.some((b) => blobId(h, b) === id));
-        const b = owner?.branches.find((b) => blobId(owner, b) === id);
-        if (edges.has(id) || b?.words.length === 1) compressed.add(id);
-      });
-    }
-    return compressed;
+      const source = b.groups.length === 1 && open.length === 1 && !!open[0].node.item.term
+        && remainingRows(h, b, open).length === 0;
+      const endpoint = b.groups.every((g) => g.own) && b.words.length === 1;
+      return { id, width: open.length ? 320 : b.words.length <= 4 ? 250 : 320,
+        compact: source || endpoint,
+        children: open.flatMap((child) => child.branches.map((next) => densityNode(child, next))) };
+    };
+    return compactBranches(rootHub.branches.map((b) => densityNode(rootHub, b)), availableWidth());
   });
   // What the layout is given: the root's blobs and, in each blob that has
   // been opened, its heads, each with its own blobs in turn.
@@ -701,6 +691,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
       const was = stage();
       const now = { w: stageEl.clientWidth, h: stageEl.clientHeight };
       if (!now.w || !now.h) return;
+      setAvailableWidth((now.w - PAD_X) / READABLE);
       if (!was.w) {
         setView({ x: now.w / 2, y: now.h / 2, k: 1 });
         setFrame({ w: (now.w - PAD_X) / READABLE, h: (now.h - PAD_Y) / READABLE });
