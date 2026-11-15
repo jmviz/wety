@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { readFileSync } from "node:fs";
 import { autoExpandGroup, branchesOf, canOpen, directEarlyEnglish, singleEndpoint } from "../src/constellation/branches.ts";
 
 const pie = { id: 1, code: "ine-pro", name: "Proto-Indo-European" };
@@ -26,6 +27,21 @@ function node(lang, term, children = [], extra = {}) {
   };
 }
 const word = (term, selected = false) => node(english, term, [], { isSelected: selected });
+
+test("default commonness excludes tier-70 fremd but rare mode and the searched word retain it", () => {
+  const common = new Map();
+  for (const size of [10, 20, 35, 40, 50, 55, 60, 70]) {
+    const terms = JSON.parse(readFileSync(new URL(`../node_modules/wordlist-english/english-words-${size}.json`, import.meta.url), "utf8"));
+    for (const term of terms) if (!common.has(term)) common.set(term, size);
+  }
+  assert.equal(common.get("fremd"), 70);
+  const head = node(latin, "root", [word("fremd"), word("ford"), word("fjord"), word("ombudsman")]);
+  const words = (frequency) => branchesOf(head, english, langs, frequency).flatMap((b) => b.words.map((w) => w.item.term));
+  assert.deepEqual(new Set(words(common)), new Set(["ford", "fjord", "ombudsman"]));
+  assert.ok(words(null).includes("fremd"));
+  head.children[0].isSelected = true;
+  assert.ok(words(common).includes("fremd"));
+});
 
 test("a lone English result never hides its Latin and French intermediate stages", () => {
   const periodic = word("periodic");

@@ -88,10 +88,12 @@ export function directEarlyEnglish(root: TreeNode, early: (code: string) => bool
 }
 
 // How common each word of the reader's language is: the smallest SCOWL list
-// it is in (10, the commonest, to 70, a large desk dictionary's), and nothing
-// for a word in none. `virtual:common-words` has English alone.
+// it is in (10, the commonest, to 70, the broadest), and nothing for a
+// word in none. The default stops at 60; tier 70 includes obscure and
+// dialect words such as "fremd". `virtual:common-words` has English alone.
 export type Common = Map<string, number>;
 const level = (common: Common, term: string) => common.get(term.toLowerCase());
+const COMMON_LIMIT = 60;
 
 // An affix or combining form as a dictionary enters one ("-logy", "un-"). A
 // reconstructed root is written the same way ("*leǵ-") and is not one.
@@ -114,7 +116,7 @@ function hasStandIn(n: TreeNode, target: number): boolean {
 
 // The words a blob lists: single words that are not proper nouns. Phrases
 // ("video chat") and names ("Winterbottom") crowd out the cognates a reader
-// came for. Given `common`, so do the words no desk dictionary has
+// came for. Given `common`, so do words beyond the default commonness limit
 // (Wiktionary has "logodaedaly" and "theologaster" beside "logic") and those
 // formed with an affix that is listed itself (`grafted`): both are left out,
 // and an affix of the reader's language is listed. The searched word is
@@ -125,7 +127,7 @@ function listed(n: TreeNode, common: Common | null, grafted: boolean): boolean {
   if (/\s/.test(term) || pos?.includes("name")) return false;
   if (common) {
     if (isAffix(n)) return true;
-    if (grafted || level(common, term) === undefined) return false;
+    if (grafted || (level(common, term) ?? Infinity) > COMMON_LIMIT) return false;
   }
   // A capitalised word with no part of speech recorded is nearly always a name.
   return !(!pos?.length && /^\p{Lu}/u.test(term));

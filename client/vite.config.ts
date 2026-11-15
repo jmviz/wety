@@ -40,9 +40,9 @@ function langTree(): Plugin {
 
 // `virtual:common-words`: English words by how common they are, from SCOWL
 // (the `wordlist-english` package: American, British, Canadian and Australian
-// spellings, sizes 10 to 70, the last a large desk dictionary's). Each word
+// spellings, sizes 10 to 70, the last including obscure words). Each word
 // is under the smallest size that lists it. The constellation view leaves
-// out the words that are in none and lists the commonest first; the graph
+// defaults to sizes through 60 and lists the commonest first; the graph
 // has no word frequencies.
 function commonWords(): Plugin {
   const id = "virtual:common-words";

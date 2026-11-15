@@ -55,7 +55,7 @@ export default function DisplayPanel() {
         </li>
         <Show when={lastRequest()?.kind === TreeKind.Constellation}>
           <li>
-            <label title="English words that are in no desk dictionary, and plain derivatives of a word already listed (forgiveness beside forgive)">
+            <label title="Include obscure English words and plain derivatives of a word already listed (forgiveness beside forgive)">
               <input
                 type="checkbox"
                 checked={showRare()}
