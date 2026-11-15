@@ -210,6 +210,10 @@ main:has(.cst-stage) {
   padding: 0 20px;
 }
 
+.cst-blob.single .cst-body {
+  padding: 0;
+}
+
 .cst-blob.single .cst-head {
   min-height: 36px;
   align-items: center;

@@ -352,7 +352,22 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null }
       ...made.filter((h) => h.single),
       ...many.filter((_, i) => i % 2 === 1).reverse(),
     ];
-    if (next.length) setHubs([...hubs(), ...next]);
+    // A single named source leading to a single word has no further choice
+    // to make. Open it with its parent, keeping its word visible beside it.
+    const opened = [...next];
+    for (const h of opened) taken.add(h.id);
+    for (const parent of opened) {
+      if (parent.single) continue;
+      for (const b of parent.branches) {
+        if (b.words.length !== 1 || b.groups.length !== 1) continue;
+        const g = b.groups[0];
+        const key = String(g.head.item.id);
+        if (!g.head.item.term || !canOpen(g, target) || taken.has(key)) continue;
+        taken.add(key);
+        opened.push(makeHub(g.head, parent, blobId(parent, b), parent.hues.get(b.key)!));
+      }
+    }
+    if (opened.length) setHubs([...hubs(), ...opened]);
     closePopover();
     setCurrent(hub);
     settled(() => fitAll(rackRects(hub, id)));
@@ -573,9 +588,9 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null }
 
   // A head as it is named in a blob: its language where that is not the
   // blob's, the word, how it is read and what it means.
-  const HeadName = (p: { item: Item; branch: Branch }) => (
+  const HeadName = (p: { item: Item; branch: Branch; showLang?: boolean }) => (
     <>
-      <Show when={p.item.lang.name !== p.branch.name}>
+      <Show when={p.showLang || p.item.lang.name !== p.branch.name}>
         <span class="cst-head-lang">{p.item.lang.name}</span>
       </Show>
       <span class="cst-head-term">{term(p.item) || "Undefined Root"}</span>
@@ -638,6 +653,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null }
     // The heads opened here, in the order of their rows.
     const rows = () => hubs().filter((h) => h.via === id);
     const openable = roots.filter((g) => canOpen(g, target));
+    const compact = () => roots.length === 1 && rows().length === 1 && rows()[0].single;
     const face = () => openable.length > 0 && rows().length === 0;
     const act = () => rack(p.hub, p.branch, openable);
     const Name = () => <span>{p.branch.name}</span>;
@@ -677,6 +693,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null }
           narrow: p.branch.wordCount <= 4 && rows().length === 0,
           // Its lanes run left: the rows stand against that edge.
           left: placed().sides.get(id) === -1,
+          single: compact(),
         }}
         data-blob={id}
         style={{ "--c": p.hub.hues.get(p.branch.key), left: `${at().x}px`, top: `${at().y}px` }}
@@ -686,23 +703,25 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null }
           when={face()}
           fallback={
             <div class="cst-body">
-              <Show
-                when={rows().length > 0}
-                fallback={
-                  <header class="cst-fam">
-                    <Name />
-                  </header>
-                }
-              >
-                <button
-                  type="button"
-                  class="cst-fam"
-                  aria-expanded="true"
-                  title="fold back into one list"
-                  onClick={() => unrack(p.hub, id)}
+              <Show when={!compact()}>
+                <Show
+                  when={rows().length > 0}
+                  fallback={
+                    <header class="cst-fam">
+                      <Name />
+                    </header>
+                  }
                 >
-                  <Name />
-                </button>
+                  <button
+                    type="button"
+                    class="cst-fam"
+                    aria-expanded="true"
+                    title="fold back into one list"
+                    onClick={() => unrack(p.hub, id)}
+                  >
+                    <Name />
+                  </button>
+                </Show>
               </Show>
               <For each={rows()}>
                 {(h) => (
@@ -713,7 +732,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null }
                       data-key={h.node.key}
                       aria-haspopup="dialog"
                     >
-                      <HeadName item={h.node.item} branch={p.branch} />
+                      <HeadName item={h.node.item} branch={p.branch} showLang={compact()} />
                     </button>
                   </div>
                 )}
