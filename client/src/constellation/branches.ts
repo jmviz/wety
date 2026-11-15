@@ -210,6 +210,10 @@ const group = (head: TreeNode, own: boolean, words: TreeNode[]): Group => ({
   hasSelected: words.some((w) => w.isSelected),
 });
 
+// The key of the branch for words whose line of descent is not recorded; no
+// language has this code.
+const UNRECORDED = "?";
+
 // `common`: how common the reader's language's words are, to leave the rare
 // ones and plain derivatives out and list the commonest first; null lists
 // every word.
@@ -225,6 +229,12 @@ export function branchesOf(hub: TreeNode, target: Lang, langs: LangTree, common:
   // Heads: the first words below the hub that are not in its language. A hub
   // of the reader's language also has formations of its own.
   const heads = new Map<number, TreeNode>();
+  // Words of later languages that Wiktionary only tags with the root (Old
+  // French intellectuel under *leǵ-): how they came down is not recorded, so
+  // they stand in a branch that says so, never as heads of a branch they did
+  // not come straight from (no Old French word comes straight from
+  // Proto-Italic).
+  const loose = new Map<number, TreeNode>();
   // The heads formed with an affix of the hub's language that is passed
   // through on the way to them.
   const graftedHeads = new Set<number>();
@@ -235,6 +245,10 @@ export function branchesOf(hub: TreeNode, target: Lang, langs: LangTree, common:
     for (const c of n.children) {
       if (c.item.lang.id !== hub.item.lang.id) {
         if (top && c.item.lang.id === target.id) continue;
+        if (c.etyMode === "root") {
+          loose.set(c.item.id, c);
+          continue;
+        }
         if (!heads.has(c.item.id)) {
           heads.set(c.item.id, c);
           if (below) graftedHeads.add(c.item.id);
@@ -310,6 +324,11 @@ export function branchesOf(hub: TreeNode, target: Lang, langs: LangTree, common:
       );
     }
   }
+  add(
+    UNRECORDED,
+    "descent not recorded",
+    [...loose.values()].map((h) => group(h, false, under(h))).filter((g) => g.words.length > 0)
+  );
   if (own.length) add(target.code, target.name, [group(hub, true, rank(own, common))]);
 
   return branches.sort(
