@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { cableRouter, join, layout, rootDirection, sharedWires, stemArrival, wire, whole } from "../src/constellation/layout.ts";
+import { cableRouter, join, layout, rootDirection, sharedWires, stemArrival, whole } from "../src/constellation/layout.ts";
+
+// An isolated connector: the shared router with no cards or prior lanes.
+const wire = (from, to) => cableRouter([])(from, to);
 
 test("root cables flow into a branch stem outside its cards without an obstacle hook", () => {
   for (const side of [-1, 1]) for (const vertical of [-1, 1]) {

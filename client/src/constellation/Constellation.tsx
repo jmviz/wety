@@ -405,7 +405,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
         const heads = all.filter((k) => k.via === id);
         const clustered = clusteredBranch(b, heads);
         const terminal = h.single || b.groups.every((g) => g.own);
-        const stage = terminal ? target.code : (b.language ?? b.key);
+        const stage = terminal ? target.code : b.key;
         const direction = h === rootHub
           ? Math.sin(rootDirection(h.branches.indexOf(b), h.branches.length)) < 0 ? -1 : 1
           : outwardY;
@@ -481,7 +481,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
       const open = hubs().filter((k) => k.via === id);
       const box = drawn(h, id);
       if (!box) continue;
-      const key = b.language ?? b.key;
+      const key = b.key;
       let group = groups.get(key);
       if (!group) groups.set(key, (group = { name: b.name, hue: h.hues.get(b.key)!, anchors: [] }));
       if (clusteredBranch(b, open)) {
@@ -545,12 +545,10 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
         const box = drawn(shared.host, blobId(shared.host, shared.branch));
         const sources = entriesFor(shared.host, shared.branch, hubs().filter((k) => k.via === blobId(shared.host, shared.branch)))
           .flatMap((k) => at.sources.get(k.id) ?? []);
-        const ys = sources.map((s) => s.y + s.h / 2);
-        const open = ys.length > 0;
-        if (open) continue; // Expanded entries get their own recorded edges below.
+        if (sources.length) continue; // Expanded entries get their own recorded edges below.
         if (box && side) connect(blobId(shared.host, shared.branch), c, {
-          x: side > 0 ? box.x - (open ? 24 : 0) : box.x + box.w + (open ? 24 : 0),
-          y: open ? Math.max(Math.min(...ys), Math.min(Math.max(...ys), c.y)) : box.y + box.h / 2,
+          x: side > 0 ? box.x : box.x + box.w,
+          y: box.y + box.h / 2,
         }, h.hue!, recent().has(h.id));
       }
       for (const b of h.branches) {
@@ -586,9 +584,9 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
         }
         const spineX = outward > 0 ? box.x - 24 : box.x + box.w + 24;
         const ys = sources.map((s) => s.y + s.h / 2);
-        const arrival = sources.length ? { ...(side
-          ? { x: spineX, y: Math.max(Math.min(...ys), Math.min(Math.max(...ys), c.y)) }
-          : stemArrival(c, spineX, sources)), w: 0, h: 0 } : box;
+        // A head's opened sources were connected above, so any sources here
+        // belong to the root.
+        const arrival = sources.length ? { ...stemArrival(c, spineX, sources), w: 0, h: 0 } : box;
         if (side) connect(blobId(h, b), c, { x: side > 0 ? arrival.x : arrival.x + arrival.w, y: arrival.y + arrival.h / 2 }, hue, recent().has(h.id));
         else push(hue, join(c, ROOT_R, arrival,
           [...at.seats].filter(([id]) => id !== blobId(h, b)).map(([, seat]) => seat),
@@ -704,7 +702,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
         // Actual target-language endpoints stay separate. Preview columns
         // combine only sibling sources, never unrelated family branches.
         if (b.groups.every((g) => g.own)) return true;
-        const key = b.language ?? b.key;
+        const key = b.key;
         const previous = columns.get(key);
         if (!previous) {
           b.origins = new Map(b.groups.map((g) => [g, child]));
@@ -1111,7 +1109,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
 
   // A head that cannot be opened (its words are all there is under it), with
   // its words, each a button for its details.
-  const GroupView = (p: { hub: Hub; branch: Branch; group: Group }) => {
+  const GroupView = (p: { group: Group }) => {
     const item = p.group.head.item;
     return (
       <div class="cst-group">
@@ -1324,7 +1322,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
                 <PreviewBox hub={p.hub} branch={p.branch} floating />
               </Show>
               <For each={roots.filter((g) => !canOpen(g, target))}>
-                {(g) => <GroupView hub={p.hub} branch={p.branch} group={g} />}
+                {(g) => <GroupView group={g} />}
               </For>
             </div>
           }

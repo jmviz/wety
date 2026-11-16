@@ -40,10 +40,8 @@ export interface Group {
 }
 
 export interface Branch {
-  // Unique among a hub's branches.
+  // The branch's language code: unique among a hub's branches.
   key: string;
-  // Exact language code when a presentation key also identifies a source.
-  language?: string;
   name: string;
   groups: Group[];
   // Every group's words in one list: the searched word, then the groups'
@@ -90,7 +88,7 @@ export function groupsForWords(branch: Branch, words: TreeNode[]): Group[] {
 // Keep each preview row attached to the source that produced it. Matching
 // only by spelling incorrectly opens every unrelated source of e.g. port.
 export function previewRows(branch: Branch, target: Lang, children: (head: TreeNode) => Branch[], common: Common | null = null, scores?: Frequencies, splitSources = false): { words: TreeNode[]; lines: TreeNode[][]; groups: Group[] }[] {
-  const proto = (branch.language ?? branch.key).endsWith("-pro");
+  const proto = branch.key.endsWith("-pro");
   if (proto && !splitSources) return previewLines(branch, target, children, common, scores)
     .map((words) => ({ words, lines: [words], groups: groupsForWords(branch, words) }));
   return branch.groups.flatMap((g) => {

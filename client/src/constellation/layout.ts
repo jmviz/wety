@@ -553,10 +553,6 @@ function roundedRoute(points: Point[]): string {
   return `${d} L ${f(last.x)} ${f(last.y)}`;
 }
 
-// An isolated connector uses the same routing rules without prior lanes.
-export function wire(from: Point, to: Point): Link {
-  return cableRouter([])(from, to);
-}
 
 // Several sources feeding one destination are one connection tree, not
 // independent cables. Join them in the destination's gutter, then enter once.
