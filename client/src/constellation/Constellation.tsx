@@ -181,7 +181,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
       if (now.w && now.h && (!had || had.now.w !== now.w || had.now.h !== now.h)) {
         // A proto column's height comes from the layout, not its contents;
         // do not retain that virtual height when it returns to a preview.
-        map.set(id, { now, seat: { w: now.w, h: el.classList.contains("clustered")
+        map.set(id, { now, seat: { w: now.w, h: clusteredBlobs().has(id)
           ? SOURCE_HEIGHT : Math.max(now.h, had?.seat.h ?? 0) } });
         changed = true;
       }
@@ -243,6 +243,10 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
   let placedVersion = 0;
   const clusteredHeads = (heads: Hub[]) => heads.length > 1 && heads.every((h) => isProto(h.node.item.lang.code));
   const clusteredBranch = (b: Branch, heads: Hub[]) => clusteredHeads(heads) || (selective(b) && heads.length > 0);
+  // The blobs drawn as a column of separate source cards, whose height the
+  // layout sets rather than their contents.
+  const clusteredBlobs = createMemo(() => new Set(hubs().flatMap((h) => h.branches
+    .filter((b) => clusteredBranch(b, openedIn(blobId(h, b)))).map((b) => blobId(h, b)))));
   // A family's overview remains a plain cluster. Once it has individual
   // roots, its remaining and downstream previews become descendant trays.
   const descendantTray = (h: Hub, b: Branch) => {
@@ -376,11 +380,19 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     const v = view();
     const s = stage();
     const viewport = { x: (s.x - v.x) / v.k, y: (s.y - v.y) / v.k, w: s.w / v.k, h: s.h / v.k };
-    return [...languageGroups().values()].flatMap((g) => languageAnchors(g.anchors, viewport)
-      .map((anchor) => ({ ...anchor, name: g.name, hue: g.hue })));
+    return [...languageGroups()].flatMap(([language, g]) => languageAnchors(g.anchors, viewport)
+      .map((anchor) => ({ ...anchor, language, name: g.name, hue: g.hue })));
   });
+  // One heading per language code, where the model puts it before the
+  // painted text is measured.
   const languageLabels = createMemo(() => visibleLanguageAnchors()
-    .map((a) => ({ name: a.name, hue: a.hue, x: a.box.x + a.box.w / 2, y: a.box.y - LANGUAGE_HEADING_SPACE })));
+    .map((a) => ({ language: a.language, name: a.name, hue: a.hue, x: a.box.x + a.box.w / 2, y: a.box.y - LANGUAGE_HEADING_SPACE })));
+  // Where each heading actually goes once its painted size is known (see the
+  // measuring effect below): a point, or null when no card of the language
+  // has room for it. A heading not measured yet stays where the model put it.
+  const [labelPlacements, setLabelPlacements] = createSignal(new Map<string, Point | null>());
+  const labelElement = (language: string) =>
+    stageEl.querySelector<HTMLElement>(`[data-language-label="${CSS.escape(language)}"]`);
 
   // A cable that has not moved keeps its object, so <For> keeps its element
   // (and a fresh cable's accent is not restarted by unrelated changes).
@@ -510,12 +522,10 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
       const next = enclosing(revealed.map((r) => ({ ...r, y: r.y - LANGUAGE_HEADING_SPACE, h: r.h + LANGUAGE_HEADING_SPACE })));
       seen.clear();
       const context = enclosing([...(clicked ? [clicked] : []), ...frontier(hub, branch)]) ?? clicked;
-      const names = new Set([branch.name, ...all.filter((h) => !before.has(h.id))
-        .flatMap((h) => h.branches.map((b) => b.name))]);
-      const labelBounds = enclosing(languageLabels().filter((label) => names.has(label.name)).map((label) => {
-        const el = [...stageEl.querySelectorAll<HTMLElement>(".cst-language-label")]
-          .find((el) => el.textContent === label.name);
-        const r = el?.getBoundingClientRect();
+      const languages = new Set([branch.key, ...all.filter((h) => !before.has(h.id))
+        .flatMap((h) => h.branches.map((b) => b.key))]);
+      const labelBounds = enclosing(languageLabels().filter((label) => languages.has(label.language)).map((label) => {
+        const r = labelElement(label.language)?.getBoundingClientRect();
         const w = r ? r.width / view().k : 0;
         return { x: label.x - w / 2, y: label.y, w, h: r ? r.height / view().k : 20 };
       }));
@@ -871,7 +881,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     let el!: HTMLElement;
     const id = blobId(p.hub, p.branch);
     const rect = () => drawn(p.hub, id);
-    const laneWidth = () => laneWidths().get(p.branch.name);
+    const laneWidth = () => laneWidths().get(p.branch.key);
     // Unfolds from its hub: drawn there first, then moved to its place.
     const [shown, setShown] = createSignal(false);
     createEffect(() => {
@@ -881,7 +891,11 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
       observer.observe(el);
       onCleanup(() => {
         observer.unobserve(el);
-        sizes().delete(id);
+        // Forget its size, so a blob drawn again under this ID is measured afresh.
+        setSizes((map) => {
+          map.delete(id);
+          return map;
+        });
       });
     });
     const at = (): Point => {
@@ -913,7 +927,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
           class="cst-blob single"
           classList={{ shown: shown() && !!rect(), dim: !lit(p.hub), "compact-chain": chainIds().has(id), "sized-lane": !!laneWidth(), fresh: recent().has(p.hub.id) }}
           data-blob={id}
-          data-language={p.branch.name}
+          data-language={p.branch.key}
           aria-label={`${word.item.lang.name}: ${term(word.item)}`}
           style={{ "--c": p.hub.hues.get(p.branch.key), "--lane-width": `${laneWidth()?.width ?? CARD_WIDTH}px`, left: `${at().x}px`, top: `${at().y}px` }}
         >
@@ -950,7 +964,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
           "tray-column": descendantTray(p.hub, p.branch) && remainingRows(p.hub, p.branch, rows()).length > 0,
         }}
         data-blob={id}
-        data-language={p.branch.name}
+        data-language={p.branch.key}
         style={{ "--c": p.hub.hues.get(p.branch.key), left: `${at().x}px`, top: `${at().y}px`,
           "--lane-width": `${laneWidth()?.width ?? CARD_WIDTH}px`,
           "--tray-source-width": laneWidth() ? `${laneWidth()!.source}px` : undefined,
@@ -1083,7 +1097,8 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
   );
 
   // Labels are all-or-nothing, including during animated camera moves.
-  // Measure the painted text so long names and browser zoom use real bounds.
+  // Measure the painted text so long names and browser zoom use real bounds,
+  // and record where each goes in `labelPlacements`, which the labels read.
   let labelFrame = 0;
   createEffect(() => {
     view(); stage(); languageLabels(); gliding();
@@ -1099,20 +1114,26 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
       const right = Math.min(stageBox.right, (visual?.offsetLeft ?? 0) + (visual?.width ?? innerWidth)) - pad;
       const bottom = Math.min(stageBox.bottom, (visual?.offsetTop ?? 0) + (visual?.height ?? innerHeight)) - pad;
       const world = stageEl.querySelector<HTMLElement>(".cst-world")!.getBoundingClientRect();
-      for (const label of stageEl.querySelectorAll<HTMLElement>(".cst-language-label")) {
+      const placements = new Map<string, Point | null>();
+      for (const { language } of languageLabels()) {
+        const label = labelElement(language);
+        const group = languageGroups().get(language);
+        if (!label || !group) continue;
         const r = label.getBoundingClientRect();
         const k = label.offsetWidth ? r.width / label.offsetWidth : view().k;
-        const group = [...languageGroups().values()].find((g) => g.name === label.textContent);
         const viewport = { x: (left - world.x) / k, y: (top - world.y) / k,
           w: (right - left) / k, h: (bottom - top) / k };
-        const anchor = group && languageAnchors(group.anchors, viewport,
-          { w: r.width / k, h: r.height / k }, 0)[0];
-        if (anchor) {
-          label.style.left = `${anchor.box.x + anchor.box.w / 2}px`;
-          label.style.top = `${anchor.box.y - LANGUAGE_HEADING_SPACE}px`;
-        }
-        label.style.visibility = anchor ? "visible" : "hidden";
+        const anchor = languageAnchors(group.anchors, viewport, { w: r.width / k, h: r.height / k }, 0)[0];
+        placements.set(language, anchor
+          ? { x: anchor.box.x + anchor.box.w / 2, y: anchor.box.y - LANGUAGE_HEADING_SPACE }
+          : null);
       }
+      const before = labelPlacements();
+      const same = before.size === placements.size && [...placements].every(([language, p]) => {
+        const had = before.get(language);
+        return had === p || (!!had && !!p && had.x === p.x && had.y === p.y);
+      });
+      if (!same) setLabelPlacements(placements);
       if (gliding() || --settling > 0) labelFrame = requestAnimationFrame(check);
     };
     labelFrame = requestAnimationFrame(check);
@@ -1151,7 +1172,23 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
             </For>
           </svg>
           <For each={languageLabels()}>
-            {(label) => <span class="cst-language-label" style={{ left: `${label.x}px`, top: `${label.y}px`, "--c": label.hue }}>{label.name}</span>}
+            {(label) => {
+              const placed = () => labelPlacements().get(label.language);
+              return (
+                <span
+                  class="cst-language-label"
+                  data-language-label={label.language}
+                  style={{
+                    left: `${placed()?.x ?? label.x}px`,
+                    top: `${placed()?.y ?? label.y}px`,
+                    visibility: placed() === null ? "hidden" : "visible",
+                    "--c": label.hue,
+                  }}
+                >
+                  {label.name}
+                </span>
+              );
+            }}
           </For>
           <For each={hubs()}>
             {(h) => (
