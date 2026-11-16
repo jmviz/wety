@@ -8,6 +8,7 @@ import { Branch, Common, ENGLISH, Group, LangTree, isProto, isUndefinedRoot, can
 import { selectWords } from "./selection";
 import { blobId, expand, makeHub, type Hub } from "./hubs";
 import { cables, type Cable } from "./cables";
+import { createCanvas } from "./canvas";
 import { BlobSpec, Layout, Point, Rect, Size, SOURCE_HEIGHT, LANGUAGE_HEADING_SPACE, CARD_WIDTH, NARROW_CARD_WIDTH, center, enclosing, bounds, breathe, layout, rootDirection } from "./layout";
 import { chronological, groupLanguageLanes, languageTimes } from "./chronology";
 import type { LayoutPeriod } from "./chronology";
@@ -19,8 +20,7 @@ import { languageWidths, type LaneContent } from "./sizing";
 import { dominantLanguage, gatherLanguage } from "./magnetism";
 import { languageAnchors } from "./labels";
 import type { LanguageAnchor } from "./labels";
-import { expansionView, rootOverview, visibleStage } from "./camera";
-import type { CameraViewport } from "./camera";
+import { expansionView, rootOverview } from "./camera";
 
 import {
   For,
@@ -328,11 +328,28 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     },
     { hubs: new Map(), blobs: new Map(), seats: new Map(), sides: new Map(), sources: new Map() }
   );
-  const [view, setView] = createSignal({ x: 0, y: 0, k: 1 });
+  // Until the reader moves the camera, the first view keeps fitting itself
+  // as measurements settle.
   const [initialOverview, setInitialOverview] = createSignal(true);
-  // The part of the stage the reader can see (pinch zoom can crop it), in
-  // stage pixels, with the browser's zoom.
-  const [screen, setScreen] = createSignal<CameraViewport>({ x: 0, y: 0, w: 0, h: 0, scale: 1 });
+  const canvas = createCanvas({
+    stage: () => stageEl,
+    minZoom: MIN_ZOOM,
+    maxZoom: MAX_ZOOM,
+    onTakeOver: () => setInitialOverview(false),
+    closeDetails: (pinned) => {
+      if (pinned || !popover()?.pinned) closePopover();
+    },
+    // The room the first view has: the stage as first seen, at a zoom the
+    // words still read at. Fixed from then on, so resizing the window does
+    // not shuffle the blobs.
+    onResize: (now, first) => {
+      const room = { w: (now.w * now.scale - PAD_X) / READABLE, h: (now.h * now.scale - PAD_Y) / READABLE };
+      setAvailableWidth(room.w);
+      setAvailableHeight(room.h);
+      if (first) setFrame(room);
+    },
+  });
+  const { view, setView, screen, gliding, dragging, glide, centreOn } = canvas;
   const placed = createMemo(() => {
     const v = view(), s = screen();
     if (initialOverview() || !s.w) return baseLayout();
@@ -416,30 +433,6 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     keptCables = kept;
     return list;
   });
-
-  // The view: where the canvas origin sits in the stage, and the zoom.
-  const [gliding, setGliding] = createSignal(false);
-  const [dragging, setDragging] = createSignal(false);
-  let glideTimer: number | undefined;
-  const glide = (next: { x: number; y: number; k: number }) => {
-    setGliding(true);
-    setView(next);
-    window.clearTimeout(glideTimer);
-    glideTimer = window.setTimeout(() => setGliding(false), 700);
-  };
-  const centreOn = (p: Point) => {
-    const { k } = view();
-    glide({ x: screen().x + screen().w / 2 - p.x * k, y: screen().y + screen().h / 2 - p.y * k, k });
-  };
-  const zoomAt = (cx: number, cy: number, k: number, smooth = false) => {
-    setInitialOverview(false);
-    const v = view();
-    const next = Math.min(MAX_ZOOM / screen().scale, Math.max(MIN_ZOOM / screen().scale, k));
-    const to = { x: cx - ((cx - v.x) / v.k) * next, y: cy - ((cy - v.y) / v.k) * next, k: next };
-    if (smooth) glide(to);
-    else setView(to);
-
-  };
 
   const centreOnAll = (rects: Rect[]) => {
     const all = enclosing(rects);
@@ -604,125 +597,6 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     const out: Hub[] = [];
     for (let h: Hub | null = current(); h; h = h.parent) out.unshift(h);
     return out;
-  };
-
-  onMount(() => {
-    // The stage takes what is left of the window below the word's title.
-    const fill = () =>
-      stageEl.style.setProperty("--cst-top", `${Math.round(stageEl.getBoundingClientRect().top + window.scrollY)}px`);
-    fill();
-    window.addEventListener("resize", fill);
-    onCleanup(() => window.removeEventListener("resize", fill));
-    const measureViewport = () => {
-      const was = screen();
-      const r = stageEl.getBoundingClientRect();
-      const visual = window.visualViewport;
-      const now = visibleStage({ x: r.x, y: r.y, w: r.width, h: r.height }, {
-        x: visual?.offsetLeft ?? 0, y: visual?.offsetTop ?? 0,
-        w: visual?.width ?? window.innerWidth, h: visual?.height ?? window.innerHeight,
-        scale: visual?.scale ?? 1,
-      });
-      if (!now.w || !now.h) return;
-      if (now.x === was.x && now.y === was.y && now.w === was.w && now.h === was.h && now.scale === was.scale) return;
-      setAvailableWidth((now.w * now.scale - PAD_X) / READABLE);
-      setAvailableHeight((now.h * now.scale - PAD_Y) / READABLE);
-      if (!was.w) {
-        setView({ x: now.x + now.w / 2, y: now.y + now.h / 2, k: 1 / now.scale });
-        setFrame({ w: (now.w * now.scale - PAD_X) / READABLE, h: (now.h * now.scale - PAD_Y) / READABLE });
-      } else {
-        const v = view();
-        setView({ ...v, x: v.x + now.x - was.x + (now.w - was.w) / 2,
-          y: v.y + now.y - was.y + (now.h - was.h) / 2 });
-      }
-      setScreen(now);
-    };
-    const sized = new ResizeObserver(measureViewport);
-    sized.observe(stageEl);
-    window.visualViewport?.addEventListener("resize", measureViewport);
-    window.visualViewport?.addEventListener("scroll", measureViewport);
-    window.addEventListener("scroll", measureViewport);
-    // Not passive: the wheel moves the canvas, not the page.
-    const onWheel = (e: WheelEvent) => {
-      e.preventDefault();
-      setInitialOverview(false);
-      if (!popover()?.pinned) closePopover();
-      const v = view();
-      if (e.ctrlKey || e.metaKey) {
-        const r = stageEl.getBoundingClientRect();
-        zoomAt(e.clientX - r.left, e.clientY - r.top, v.k * Math.exp(-e.deltaY * 0.01));
-      } else {
-        const unit = e.deltaMode === 1 ? 32 : 1;
-        setGliding(false);
-        setView({ ...v, x: v.x - e.deltaX * unit, y: v.y - e.deltaY * unit });
-      }
-    };
-    stageEl.addEventListener("wheel", onWheel, { passive: false });
-    stageEl.addEventListener("click", dropDragClick, true);
-    onCleanup(() => {
-      sized.disconnect();
-      window.visualViewport?.removeEventListener("resize", measureViewport);
-      window.visualViewport?.removeEventListener("scroll", measureViewport);
-      window.removeEventListener("scroll", measureViewport);
-      stageEl.removeEventListener("wheel", onWheel);
-      stageEl.removeEventListener("click", dropDragClick, true);
-      window.clearTimeout(glideTimer);
-    });
-  });
-
-  // Dragging moves the canvas. The pointer is captured only once it has
-  // moved, so a plain click still reaches the word under it.
-  let drag: { id: number; x: number; y: number; vx: number; vy: number; moved: boolean } | null = null;
-  const onPointerDown = (e: PointerEvent) => {
-    if (e.button !== 0 || (e.target as Element).closest(".cst-ui")) return;
-    drag = { id: e.pointerId, x: e.clientX, y: e.clientY, vx: view().x, vy: view().y, moved: false };
-  };
-  const onPointerMove = (e: PointerEvent) => {
-    if (!drag || e.pointerId !== drag.id) return;
-    const dx = e.clientX - drag.x;
-    const dy = e.clientY - drag.y;
-    if (!drag.moved) {
-      if (Math.hypot(dx, dy) < 5) return;
-      drag.moved = true;
-      setInitialOverview(false);
-      stageEl.setPointerCapture(e.pointerId);
-      closePopover();
-      setGliding(false);
-      setDragging(true);
-    }
-    setView({ ...view(), x: drag.vx + dx, y: drag.vy + dy });
-  };
-  // The click that ends a drag is not a click on what the drag began over.
-  let dragged = false;
-  const onPointerUp = (e: PointerEvent) => {
-    if (drag?.id !== e.pointerId) return;
-    if (drag.moved) {
-      dragged = true;
-      window.setTimeout(() => (dragged = false), 0);
-    }
-    drag = null;
-    setDragging(false);
-  };
-  const dropDragClick = (e: MouseEvent) => {
-    if (!dragged) return;
-    e.stopPropagation();
-    e.preventDefault();
-  };
-
-  // A word reached with the keyboard is brought into view.
-  const onFocusIn = (e: FocusEvent) => {
-    stageEl.scrollLeft = 0;
-    stageEl.scrollTop = 0;
-    const el = e.target as HTMLElement;
-    if (!el.matches(":focus-visible") || el.closest(".cst-ui")) return;
-    const r = el.getBoundingClientRect();
-    const box = stageEl.getBoundingClientRect();
-    const visible = screen();
-    const s = { left: box.left + visible.x, top: box.top + visible.y,
-      right: box.left + visible.x + visible.w, bottom: box.top + visible.y + visible.h };
-    const m = 56 / visible.scale;
-    const dx = r.left < s.left + m ? s.left + m - r.left : r.right > s.right - m ? s.right - m - r.right : 0;
-    const dy = r.top < s.top + m ? s.top + m - r.top : r.bottom > s.bottom - m ? s.bottom - m - r.bottom : 0;
-    if (dx || dy) glide({ ...view(), x: view().x + dx, y: view().y + dy });
   };
 
   // Word details, as in the trees: hover to peek, click to pin. Where a whole
@@ -1149,11 +1023,11 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
       class="cst-stage"
       classList={{ dragging: dragging() }}
       style={{ "--cst-card-width": `${CARD_WIDTH}px`, "--cst-narrow-width": `${NARROW_CARD_WIDTH}px` }}
-      onPointerDown={onPointerDown}
-      onPointerMove={onPointerMove}
-      onPointerUp={onPointerUp}
-      onPointerCancel={onPointerUp}
-      onFocusIn={onFocusIn}
+      onPointerDown={canvas.handlers.onPointerDown}
+      onPointerMove={canvas.handlers.onPointerMove}
+      onPointerUp={canvas.handlers.onPointerUp}
+      onPointerCancel={canvas.handlers.onPointerCancel}
+      onFocusIn={canvas.handlers.onFocusIn}
       onClick={onClick}
       onPointerOver={onPointerOver}
       onPointerOut={onPointerOut}
@@ -1276,14 +1150,14 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
         <button
           type="button"
           aria-label="zoom out"
-          onClick={() => zoomAt(screen().x + screen().w / 2, screen().y + screen().h / 2, view().k / 1.25, true)}
+          onClick={() => canvas.zoomBy(1 / 1.25)}
         >
           −
         </button>
         <button
           type="button"
           aria-label="zoom in"
-          onClick={() => zoomAt(screen().x + screen().w / 2, screen().y + screen().h / 2, view().k * 1.25, true)}
+          onClick={() => canvas.zoomBy(1.25)}
         >
           +
         </button>
