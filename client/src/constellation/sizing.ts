@@ -1,3 +1,5 @@
+import { CARD_WIDTH } from "./layout.ts";
+
 // Intrinsic content measurements, never the widths assigned by this function.
 // That distinction lets a lane shrink again when its widest content is closed.
 export interface LaneContent {
@@ -23,7 +25,7 @@ export function languageWidths(content: LaneContent[], available: number): Map<s
     const limit = Math.max(240, Math.min(520, available));
     const source = Math.min(220, Math.max(60, g.source));
     const words = Math.min(360, Math.max(100, g.words));
-    const width = Math.min(limit, Math.max(100, Math.min(320, g.root + 40), g.tray ? source + words + 80 : 0));
+    const width = Math.min(limit, Math.max(100, Math.min(CARD_WIDTH, g.root + 40), g.tray ? source + words + 80 : 0));
     return [language, { width: Math.ceil(width), source: Math.max(0, Math.floor(Math.min(source, width - 180))) }];
   }));
 }

@@ -1,7 +1,4 @@
-import type { Rect, Size } from "./layout";
-
-// Matches the language-heading space reserved by the layout.
-const LANGUAGE_HEADING_SPACE = 36;
+import { LANGUAGE_HEADING_SPACE, type Rect, type Size } from "./layout.ts";
 
 export interface LanguageAnchor {
   box: Rect;

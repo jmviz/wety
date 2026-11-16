@@ -1,4 +1,4 @@
-import type { Point, Rect } from "./layout";
+import { enclosing, type Point, type Rect } from "./layout.ts";
 
 export interface CameraViewport extends Rect {
   scale: number;
@@ -47,23 +47,15 @@ export function expansionView(clicked: Rect, expanded: Rect, viewport: CameraVie
   const pad = 48 / scale;
   const width = Math.max(1, viewport.w - 2 * pad);
   const height = Math.max(1, viewport.h - 2 * pad);
-  const required = labels ? {
-    x: Math.min(expanded.x, labels.x), y: Math.min(expanded.y, labels.y),
-    w: Math.max(expanded.x + expanded.w, labels.x + labels.w) - Math.min(expanded.x, labels.x),
-    h: Math.max(expanded.y + expanded.h, labels.y + labels.h) - Math.min(expanded.y, labels.y),
-  } : expanded;
+  const required = labels ? enclosing([expanded, labels])! : expanded;
   const focusY = expanded.y + expanded.h / 2;
   // Keep the new branch within 5% of vertical centre. If its language
   // heading needs more room, reduce scale rather than pushing it far down.
   const reachY = Math.max(focusY - required.y, required.y + required.h - focusY, 1);
   const k = Math.min(1 / scale, width / Math.max(1, required.w), height / Math.max(1, required.h),
     (viewport.h * 0.55 - pad) / reachY);
-  const x = Math.min(clicked.x, expanded.x);
-  const y = Math.min(clicked.y, expanded.y);
-  const right = Math.max(clicked.x + clicked.w, expanded.x + expanded.w);
-  const bottom = Math.max(clicked.y + clicked.h, expanded.y + expanded.h);
-  const contextFits = (right - x) * k <= width && (bottom - y) * k <= height;
-  const frame = contextFits ? { x, y, w: right - x, h: bottom - y } : expanded;
+  const context = enclosing([clicked, expanded])!;
+  const frame = context.w * k <= width && context.h * k <= height ? context : expanded;
   const preferredX = viewport.w / 2 - (frame.x + frame.w / 2) * k;
   const preferredY = viewport.h / 2 - (expanded.y + expanded.h / 2) * k;
   return {

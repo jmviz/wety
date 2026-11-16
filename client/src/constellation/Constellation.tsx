@@ -5,7 +5,7 @@ import { useGoTo } from "../search/navigate";
 import { Item, Lang, TreeKind, term } from "../search/types";
 import { cognates, constellationStart, lastRequest, setShowRare, showGlosses, showRare } from "../state";
 import { Branch, Common, Group, HIDE_UNDEFINED_ROOTS, LangTree, branchesOf, canOpen, directEarlyEnglish, previewLines, previewRows, rackOrder, restrictBranches, singleEndpoint, uncommonLatinEnglish, withoutUndefinedRoots } from "./branches";
-import { BlobSpec, Layout, Link, Point, Rect, Size, SOURCE_HEIGHT, LANGUAGE_HEADING_SPACE, bounds, breathe, join, layout, rootDirection, stemArrival, cableRouter, sharedWires } from "./layout";
+import { BlobSpec, Layout, Link, Point, Rect, Size, SOURCE_HEIGHT, LANGUAGE_HEADING_SPACE, CARD_WIDTH, NARROW_CARD_WIDTH, STEM_GUTTER, center, enclosing, bounds, breathe, join, layout, rootDirection, stemArrival, cableRouter, sharedWires } from "./layout";
 import { chronological, groupLanguageLanes, languageTimes } from "./chronology";
 import type { LayoutPeriod } from "./chronology";
 import { representatives } from "./representatives";
@@ -387,7 +387,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
       const source = b.groups.length === 1 && open.length === 1 && !!open[0].node.item.term
         && remainingRows(h, b, open).length === 0;
       const endpoint = b.groups.every((g) => g.own) && b.words.length === 1;
-      return { id, width: open.length ? 320 : b.words.length <= 4 ? 250 : 320,
+      return { id, width: open.length || b.words.length > 4 ? CARD_WIDTH : NARROW_CARD_WIDTH,
         compact: source || endpoint,
         children: open.flatMap((child) => child.branches.map((next) => densityNode(child, next))) };
     };
@@ -518,7 +518,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
       const sources = entriesFor(h, b, hubs().filter((k) => k.via === id)).flatMap((entry) => at.sources.get(entry.id) ?? []);
       if (h.via || !box || sources.length < 2) return [];
       const side = at.sides.get(id) ?? 1;
-      return [{ x: side > 0 ? box.x - 24 : box.x + box.w + 24,
+      return [{ x: side > 0 ? box.x - STEM_GUTTER : box.x + box.w + STEM_GUTTER,
         top: Math.min(...sources.map((s) => s.y + s.h / 2)), bottom: Math.max(...sources.map((s) => s.y + s.h / 2)) }];
     }));
     const wire = cableRouter(cards, stems);
@@ -582,7 +582,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
           }
           continue;
         }
-        const spineX = outward > 0 ? box.x - 24 : box.x + box.w + 24;
+        const spineX = outward > 0 ? box.x - STEM_GUTTER : box.x + box.w + STEM_GUTTER;
         const ys = sources.map((s) => s.y + s.h / 2);
         // A head's opened sources were connected above, so any sources here
         // belong to the root.
@@ -638,17 +638,8 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
   };
 
   const centreOnAll = (rects: Rect[]) => {
-    if (!rects.length) return;
-    const x0 = Math.min(...rects.map((b) => b.x));
-    const x1 = Math.max(...rects.map((b) => b.x + b.w));
-    const y0 = Math.min(...rects.map((b) => b.y));
-    const y1 = Math.max(...rects.map((b) => b.y + b.h));
-    centreOn({ x: (x0 + x1) / 2, y: (y0 + y1) / 2 });
-  };
-  const enclosing = (rects: Rect[]): Rect | undefined => {
-    if (!rects.length) return;
-    const x = Math.min(...rects.map((b) => b.x)), y = Math.min(...rects.map((b) => b.y));
-    return { x, y, w: Math.max(...rects.map((b) => b.x + b.w)) - x, h: Math.max(...rects.map((b) => b.y + b.h)) - y };
+    const all = enclosing(rects);
+    if (all) centreOn(center(all));
   };
   const visibleRects = (h: Hub, b: Branch): Rect[] => {
     const id = blobId(h, b);
@@ -1240,7 +1231,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
           data-blob={id}
           data-language={p.branch.name}
           aria-label={`${word.item.lang.name}: ${term(word.item)}`}
-          style={{ "--c": p.hub.hues.get(p.branch.key), "--lane-width": `${laneWidth()?.width ?? 320}px`, left: `${at().x}px`, top: `${at().y}px` }}
+          style={{ "--c": p.hub.hues.get(p.branch.key), "--lane-width": `${laneWidth()?.width ?? CARD_WIDTH}px`, left: `${at().x}px`, top: `${at().y}px` }}
         >
           <button
             type="button"
@@ -1277,9 +1268,9 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
         data-blob={id}
         data-language={p.branch.name}
         style={{ "--c": p.hub.hues.get(p.branch.key), left: `${at().x}px`, top: `${at().y}px`,
-          "--lane-width": `${laneWidth()?.width ?? 320}px`,
+          "--lane-width": `${laneWidth()?.width ?? CARD_WIDTH}px`,
           "--tray-source-width": laneWidth() ? `${laneWidth()!.source}px` : undefined,
-          "--tray-width": `${previewWidths().get(previewBoxId(p.hub, p.branch)) ?? 320}px`,
+          "--tray-width": `${previewWidths().get(previewBoxId(p.hub, p.branch)) ?? CARD_WIDTH}px`,
           "--cst-first-source": clustered() ? `${(placed().sources.get(rows()[0]?.id)?.y ?? at().y) - at().y}px` : undefined,
           height: clustered() ? `${rect()?.h ?? SOURCE_HEIGHT}px` : undefined }}
         aria-label={`${p.branch.name}: ${p.branch.wordCount} ${target.name} words`}
@@ -1449,6 +1440,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
       ref={stageEl}
       class="cst-stage"
       classList={{ dragging: dragging() }}
+      style={{ "--cst-card-width": `${CARD_WIDTH}px`, "--cst-narrow-width": `${NARROW_CARD_WIDTH}px` }}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}

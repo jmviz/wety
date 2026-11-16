@@ -1,3 +1,5 @@
+import { CARD_GAP, type Layout, type Rect, type RootSpec } from "./layout.ts";
+
 export interface DensityNode {
   id: string;
   width: number;
@@ -9,7 +11,7 @@ export interface DensityNode {
 // so resizing cannot alternate between expanding and shrinking the cards.
 export function compactBranches(roots: DensityNode[], availableWidth: number): Set<string> {
   const selected = new Set<string>();
-  const span = (node: DensityNode): number => node.width + Math.max(0, ...node.children.map((c) => 44 + span(c)));
+  const span = (node: DensityNode): number => node.width + Math.max(0, ...node.children.map((c) => CARD_GAP + span(c)));
   const depth = (node: DensityNode): number => 1 + Math.max(0, ...node.children.map(depth));
   const select = (node: DensityNode) => {
     if (node.compact) selected.add(node.id);
@@ -20,8 +22,6 @@ export function compactBranches(roots: DensityNode[], availableWidth: number): S
   }
   return selected;
 }
-
-import type { Layout, Rect, RootSpec } from "./layout";
 
 // Keep the stable tree layout, but remove empty horizontal strips from the
 // visible rows. Off-screen sibling rows cannot reserve blank cable space.
@@ -59,7 +59,7 @@ export function compactVisibleLanes(at: Layout, root: RootSpec, viewport: Rect):
     const gaps: { end: number; remove: number }[] = [];
     let end = intervals[0].end;
     for (const next of intervals.slice(1)) {
-      if (next.start - end > 64) gaps.push({ end: next.start, remove: next.start - end - 44 });
+      if (next.start - end > 64) gaps.push({ end: next.start, remove: next.start - end - CARD_GAP });
       end = Math.max(end, next.end);
     }
     if (!gaps.length) continue;

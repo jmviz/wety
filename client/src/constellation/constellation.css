@@ -184,7 +184,7 @@ main.constellation-only .cst-stage {
 .cst-blob {
   position: absolute;
   box-sizing: border-box;
-  width: 320px;
+  width: var(--cst-card-width);
   border-radius: 26px;
   border: 1px solid rgba(var(--c), 0.32);
   background: linear-gradient(rgba(var(--c), 0.055), rgba(var(--c), 0.055)), var(--cst-ground);
@@ -346,7 +346,7 @@ button.cst-preview-row:not(:disabled):hover,
 
 .cst-blob.tray-column,
 .cst-blob.tray-column.narrow {
-  width: var(--tray-width, 320px);
+  width: var(--tray-width, var(--cst-card-width));
 }
 
 .cst-descendant-tray .cst-preview-row,
@@ -460,7 +460,7 @@ button.cst-preview-row:not(:disabled):hover,
 }
 
 .cst-blob.narrow {
-  width: 250px;
+  width: var(--cst-narrow-width);
 }
 
 /* A head's one word: a blob as wide as the rack its head is a row of and as
@@ -583,12 +583,12 @@ button.cst-preview-row:not(:disabled):hover,
 }
 
 /* Crowded families fit individual words and labels instead of repeating
-   the standard 320px width, including their short side branches. */
+   the standard card width, including their short side branches. */
 .cst-blob.compact-chain,
 .cst-blob.compact-chain.has-close {
   width: max-content;
   min-width: 100px;
-  max-width: 320px;
+  max-width: var(--cst-card-width);
   padding: 0;
 }
 

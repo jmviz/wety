@@ -1,6 +1,6 @@
 // Dates here guide spacing, not assertions about when an individual word
 // existed. The source periods stay unchanged in the dating registry.
-import type { BlobSpec } from "./layout";
+import { CARD_GAP, gapAfter, type BlobSpec } from "./layout.ts";
 import type { LangTree } from "./branches";
 
 interface Range {
@@ -135,7 +135,7 @@ export function chronological(b: BlobSpec): BlobSpec {
     let s = stages.get(node.stage);
     if (!s) stages.set(node.stage, (s = { year: node.year ?? 0, width: 0, gap: 0, next: new Set(), incoming: 0, floor: 0 }));
     s.width = Math.max(s.width, node.size.w);
-    s.gap = Math.max(s.gap, node.compactChain ? 24 : 44);
+    s.gap = Math.max(s.gap, gapAfter(!!node.compactChain));
     if (parent && parent !== node.stage && !stages.get(parent)!.next.has(node.stage)) {
       stages.get(parent)!.next.add(node.stage);
       s.incoming++;
@@ -170,7 +170,7 @@ export function chronological(b: BlobSpec): BlobSpec {
     lanes: node.lanes?.map((lane) => ({
       ...lane,
       blobs: lane.blobs.map((child) => {
-        const run = node.compactChain && child.compactChain ? 24 : 44;
+        const run = gapAfter(!!node.compactChain && !!child.compactChain);
         const next = Math.max(
           at + (node.size?.w ?? 0) + run,
           offsets.get(child.stage!) ?? 0,
@@ -186,9 +186,9 @@ export function chronological(b: BlobSpec): BlobSpec {
   let terminalStart = 0;
   const measure = (node: BlobSpec, at: number) => {
     if (!node.size) return;
-    if (!node.terminal) terminalStart = Math.max(terminalStart, at + node.size.w + (node.compactChain ? 24 : 44));
+    if (!node.terminal) terminalStart = Math.max(terminalStart, at + node.size.w + gapAfter(!!node.compactChain));
     for (const lane of node.lanes ?? []) for (const child of lane.blobs) {
-      measure(child, at + node.size.w + (child.gap ?? 44));
+      measure(child, at + node.size.w + (child.gap ?? CARD_GAP));
     }
   };
   measure(place(b, 0), 0);

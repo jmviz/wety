@@ -103,14 +103,37 @@ const START = -150 * DEG;
 const RUN = 112;
 const LANE_GAP = 14;
 const BETWEEN = 52;
-// The run of line from a head's row to its one word.
-const SHORT = 44;
+// Horizontal room between a card and the next card out: a head's one word
+// stands this far beside its row, and cables make their first turn here.
+export const CARD_GAP = 44;
+// The same room between the compact cards of a long single-word lineage.
+export const COMPACT_GAP = 24;
+export const gapAfter = (compact: boolean) => compact ? COMPACT_GAP : CARD_GAP;
+// How far outside a column of source cards their shared stem runs.
+export const STEM_GUTTER = 24;
+// A card's width before content measurement narrows or widens it
+// (`sizing.ts`), and a folded card's with four words or fewer. The
+// stylesheet reads them as `--cst-card-width` and `--cst-narrow-width`.
+export const CARD_WIDTH = 320;
+export const NARROW_CARD_WIDTH = 250;
 export const SOURCE_HEIGHT = 38;
 export const LANGUAGE_HEADING_SPACE = 36;
 // A 20px heading has 16px below it and at least the same room above it.
 const blobGap = (a: BlobSpec, b?: BlobSpec) => b && a.stage !== b.stage ? BETWEEN : LANE_GAP;
 
 export const center = (r: Rect): Point => ({ x: r.x + r.w / 2, y: r.y + r.h / 2 });
+
+// The smallest box holding all of `rects`; undefined for none.
+export function enclosing(rects: Rect[]): Rect | undefined {
+  if (!rects.length) return undefined;
+  const x = Math.min(...rects.map((r) => r.x));
+  const y = Math.min(...rects.map((r) => r.y));
+  return {
+    x, y,
+    w: Math.max(...rects.map((r) => r.x + r.w)) - x,
+    h: Math.max(...rects.map((r) => r.y + r.h)) - y,
+  };
+}
 
 // How far a box reaches from its centre in a direction.
 const extent = (s: Size, angle: number) =>
@@ -198,7 +221,7 @@ export function whole(b: BlobSpec): Size | undefined {
     ...(b.lanes ?? []).flatMap((l) =>
       l.blobs.flatMap((k) => {
         const w = whole(k)?.w;
-        return w ? [(k.gap ?? (l.inline ? SHORT : RUN)) + w] : [];
+        return w ? [(k.gap ?? (l.inline ? CARD_GAP : RUN)) + w] : [];
       })
     )
   );
@@ -265,7 +288,7 @@ export function layout(root: RootSpec, frame?: Size, before?: Layout): Layout {
       for (const [index, kid] of kids.entries()) {
         const s = whole(kid);
         if (!s) continue;
-        const run = kid.gap ?? (lane.inline ? SHORT : RUN);
+        const run = kid.gap ?? (lane.inline ? CARD_GAP : RUN);
         settle(kid, { x: side > 0 ? box.x + box.w + run : box.x - run - s.w, y: box.y + top, ...s }, leaves.x, endX);
         top += s.h + blobGap(kid, kids[index + 1]) + (b.breathingRoom ?? 0);
       }
@@ -403,15 +426,10 @@ export function layout(root: RootSpec, frame?: Size, before?: Layout): Layout {
 export function bounds(at: Layout, root: string, r: number, blobIds: string[]): Rect | null {
   const c = at.hubs.get(root);
   if (!c) return null;
-  const rects = [
+  return enclosing([
     around(c, { w: r * 2, h: r * 2 }),
-    ...blobIds.map((id) => at.seats.get(id) ?? at.blobs.get(id)).filter((b) => !!b),
-  ];
-  const x0 = Math.min(...rects.map((b) => b.x));
-  const y0 = Math.min(...rects.map((b) => b.y));
-  const x1 = Math.max(...rects.map((b) => b.x + b.w));
-  const y1 = Math.max(...rects.map((b) => b.y + b.h));
-  return { x: x0, y: y0, w: x1 - x0, h: y1 - y0 };
+    ...blobIds.flatMap((id) => at.seats.get(id) ?? at.blobs.get(id) ?? []),
+  ])!;
 }
 
 // Where a line from a box's centre towards a point crosses its edge.
@@ -560,7 +578,7 @@ export function sharedWires(from: Point[], to: Point, cards: Rect[], lane = 0): 
   const side = from.reduce((sum, p) => sum + p.x - to.x, 0) >= 0 ? 1 : -1;
   const distances = from.map((p) => side * (p.x - to.x)).filter((d) => d > 0);
   const closest = distances.length ? Math.min(...distances) : 48;
-  const x = to.x + side * Math.max(closest - 24 - lane * 12, closest / 2);
+  const x = to.x + side * Math.max(closest - STEM_GUTTER - lane * 12, closest / 2);
   const top = Math.min(to.y, ...from.map((p) => p.y));
   const bottom = Math.max(to.y, ...from.map((p) => p.y));
   const route = cableRouter(cards);
@@ -594,7 +612,7 @@ export function cableRouter(cards: Rect[], stems: { x: number; top: number; bott
         && h.a.y > Math.min(v.a.y, v.b.y) + 0.1 && h.a.y < Math.max(v.a.y, v.b.y) - 0.1 ? 5000 : 0);
     }, 0);
     const side = Math.sign(to.x - from.x) || 1;
-    const preferred = from.x + side * Math.min(SHORT, Math.abs(to.x - from.x) / 2);
+    const preferred = from.x + side * Math.min(CARD_GAP, Math.abs(to.x - from.x) / 2);
     const xs = [...new Set([preferred, from.x + side * 16, to.x - side * 16,
       ...Array.from({ length: 9 }, (_, i) => preferred + (i - 4) * 12),
       ...blocks.flatMap((r) => [r.x, r.x + r.w])])];

@@ -12,7 +12,10 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true
+    "noEmit": true,
+    // The constellation's helper modules import each other as "./layout.ts",
+    // so `npm test` can run them in Node, which needs the extension.
+    "allowImportingTsExtensions": true
   },
   "include": ["src"]
 }
