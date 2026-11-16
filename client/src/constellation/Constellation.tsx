@@ -9,7 +9,7 @@ import { Item, Lang, TreeKind, term } from "../search/types";
 import { cognates, constellationStart, lastRequest, setShowRare, showGlosses, showRare } from "../state";
 import { Branch, Common, ENGLISH, Group, LangTree, isProto, isUndefinedRoot, canOpen, previewLines, previewRows, restrictBranches, type PreviewRow, type Reading } from "./branches";
 import { selectWords } from "./selection";
-import { blobId, expand, makeHub, type Hub } from "./hubs";
+import { blobId, expand, hueOf, makeHub, type Hub } from "./hubs";
 import { cables, type Cable } from "./cables";
 import { createCanvas } from "./canvas";
 import { BlobSpec, Layout, Point, Rect, Size, SOURCE_HEIGHT, LANGUAGE_HEADING_SPACE, CARD_WIDTH, NARROW_CARD_WIDTH, center, enclosing, bounds, breathe, layout, rootDirection } from "./layout";
@@ -308,8 +308,9 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
           // the words level with them leave it where the rows are drawn; a
           // list keeps the room it has had. Proto clusters use current child
           // sizes so removed internal headings leave no empty space behind.
-          size: clustered && measured.has(id) ? { w: measured.get(id)!.now.w, h: SOURCE_HEIGHT }
-            : heads.length || compactLanes ? measured.get(id)?.now : measured.get(id)?.seat,
+          size: ((m) => !m ? undefined
+            : clustered ? { w: m.now.w, h: SOURCE_HEIGHT }
+            : heads.length || compactLanes ? m.now : m.seat)(measured.get(id)),
           lanes: heads.length
             ? entriesFor(h, b, heads).map((entry) => entry.head
               ? { hub: entry.id, mid: mids.get(entry.id), revealed: entry.head.revealed,
@@ -388,7 +389,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
       if (!box) continue;
       const key = b.key;
       let group = groups.get(key);
-      if (!group) groups.set(key, (group = { name: b.name, hue: h.hues.get(b.key)!, anchors: [] }));
+      if (!group) groups.set(key, (group = { name: b.name, hue: hueOf(h, b), anchors: [] }));
       if (clusteredBranch(b, open)) {
         for (const entry of entriesFor(h, b, open)) {
           const source = placed().sources.get(entry.id);
@@ -665,9 +666,11 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
         <span class="cst-rom">{p.item.romanization}</span>
       </Show>
       <Show when={showGlosses() && p.item.gloss?.[0]}>
-        <span class="cst-gloss" title={p.item.gloss![0]}>
-          {brief(p.item.gloss![0])}
-        </span>
+        {(gloss) => (
+          <span class="cst-gloss" title={gloss()}>
+            {brief(gloss())}
+          </span>
+        )}
       </Show>
     </>
   );
@@ -717,7 +720,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
           <span class="cst-tray-source">
             <For each={[...new Map(row.groups.map((g) => [g.head.item.id, g.head.item])).values()]}>{(item) =>
               <span class="cst-tray-source-entry"><span class="cst-tray-term">{term(item)}</span>
-                <Show when={showGlosses() && item.gloss?.[0]}><span> – {brief(item.gloss![0])}</span></Show>
+                <Show when={showGlosses() && item.gloss?.[0]}>{(gloss) => <span> – {brief(gloss())}</span>}</Show>
               </span>
             }</For>
           </span>
@@ -809,7 +812,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
           data-blob={id}
           data-language={p.branch.key}
           aria-label={`${word.item.lang.name}: ${term(word.item)}`}
-          style={{ "--c": p.hub.hues.get(p.branch.key), "--lane-width": `${laneWidth()?.width ?? CARD_WIDTH}px`, left: `${at().x}px`, top: `${at().y}px` }}
+          style={{ "--c": hueOf(p.hub, p.branch), "--lane-width": `${laneWidth()?.width ?? CARD_WIDTH}px`, left: `${at().x}px`, top: `${at().y}px` }}
         >
           <button
             type="button"
@@ -845,9 +848,9 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
         }}
         data-blob={id}
         data-language={p.branch.key}
-        style={{ "--c": p.hub.hues.get(p.branch.key), left: `${at().x}px`, top: `${at().y}px`,
+        style={{ "--c": hueOf(p.hub, p.branch), left: `${at().x}px`, top: `${at().y}px`,
           "--lane-width": `${laneWidth()?.width ?? CARD_WIDTH}px`,
-          "--tray-source-width": laneWidth() ? `${laneWidth()!.source}px` : undefined,
+          "--tray-source-width": ((w) => w ? `${w.source}px` : undefined)(laneWidth()),
           "--tray-width": `${previewWidths().get(previewBoxId(p.hub, p.branch)) ?? CARD_WIDTH}px`,
           "--cst-first-source": clustered() ? `${(placed().sources.get(rows()[0]?.id)?.y ?? at().y) - at().y}px` : undefined,
           height: clustered() ? `${rect()?.h ?? SOURCE_HEIGHT}px` : undefined }}

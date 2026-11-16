@@ -101,6 +101,14 @@ export function huesOf(keys: string[]): Map<string, string> {
 const isSingle = (node: TreeNode, parent: Hub | null, branches: Branch[]) =>
   !!parent && !isUndefinedRoot(node) && singleEndpoint(branches);
 
+// A branch's colour. Every hub has one for each of its branches (`makeHub`,
+// `extendHub`); a missing one is a bug, not something to draw uncoloured.
+export function hueOf(hub: Hub, branch: Branch): string {
+  const hue = hub.hues.get(branch.key);
+  if (!hue) throw new Error(`constellation: hub ${hub.id} has no colour for branch ${branch.key}`);
+  return hue;
+}
+
 export function makeHub(
   branchesFor: BranchReader,
   node: TreeNode,
@@ -133,22 +141,24 @@ export function makeHub(
 // separate, and only siblings combine, never unrelated family branches.
 // Changes the given hubs, which are new and not yet drawn.
 export function shareColumns(made: Hub[]): void {
-  const columns = new Map<string, { host: Hub; branch: DisplayBranch }>();
+  type Column = { host: Hub; branch: DisplayBranch; origins: Map<Group, Hub>; parents: Map<number, Set<string>> };
+  const columns = new Map<string, Column>();
   for (const child of made) child.branches = child.branches.filter((b) => {
     if (b.groups.every((g) => g.own)) return true;
     const previous = columns.get(b.key);
     if (!previous) {
-      b.origins = new Map(b.groups.map((g) => [g, child]));
-      b.parents = new Map(b.groups.map((g) => [g.head.item.id, new Set([child.id])]));
-      columns.set(b.key, { host: child, branch: b });
+      const origins = new Map(b.groups.map((g) => [g, child]));
+      const parents = new Map(b.groups.map((g) => [g.head.item.id, new Set([child.id])]));
+      Object.assign(b, { origins, parents });
+      columns.set(b.key, { host: child, branch: b, origins, parents });
       return true;
     }
     const combined = previous.branch;
     for (const g of b.groups) {
-      const parents = combined.parents!.get(g.head.item.id) ?? new Set<string>();
+      const parents = previous.parents.get(g.head.item.id) ?? new Set<string>();
       parents.add(child.id);
-      combined.parents!.set(g.head.item.id, parents);
-      combined.origins!.set(g, child);
+      previous.parents.set(g.head.item.id, parents);
+      previous.origins.set(g, child);
     }
     combined.groups.push(...b.groups);
     const terms = new Set(combined.words.map((w) => w.item.term));
@@ -158,7 +168,7 @@ export function shareColumns(made: Hub[]): void {
     }
     combined.wordCount = combined.words.length;
     combined.hasSelected ||= b.hasSelected;
-    child.shared.push(previous);
+    child.shared.push({ host: previous.host, branch: combined });
     return false;
   });
 }
@@ -179,7 +189,7 @@ function extendHub(hub: Hub, wider: Hub, all: Hub[]): void {
         if (shared.branch === prior) shared.branch = replacement;
       }
     } else hub.branches = [...hub.branches, b];
-    hub.hues.set(b.key, hub.hue!);
+    hub.hues.set(b.key, hueOf(wider, b));
   }
   hub.scope = wider.scope;
   hub.single = isSingle(hub.node, hub.parent, hub.branches);
@@ -238,7 +248,7 @@ export function expand(
         extended.push(repeated);
         continue;
       }
-      const child = makeHub(branchesFor, g.head, source ?? step.owner, via, step.owner.hues.get(step.branch.key)!, scope);
+      const child = makeHub(branchesFor, g.head, source ?? step.owner, via, hueOf(step.owner, step.branch), scope);
       child.revealed = revealed;
       if (taken.has(child.id)) continue;
       taken.add(child.id);

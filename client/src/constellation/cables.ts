@@ -3,7 +3,7 @@
 // in what it knows about each blob (`CableScene`) and draws the result.
 
 import type { Group } from "./branches.ts";
-import { blobId, type DisplayBranch, type Hub } from "./hubs.ts";
+import { blobId, hueOf, type DisplayBranch, type Hub } from "./hubs.ts";
 import {
   STEM_GUTTER,
   cableRouter,
@@ -82,13 +82,14 @@ export function cables(scene: CableScene): Cable[] {
       const id = blobId(shared.host, shared.branch);
       const box = drawn(shared.host, id);
       if (sourcesOf(shared.host, shared.branch).length) continue; // Expanded entries get their own recorded edges below.
-      if (box && side) connect(id, c, { x: side > 0 ? box.x : box.x + box.w, y: box.y + box.h / 2 }, h.hue!, recent.has(h.id));
+      if (box && side) connect(id, c, { x: side > 0 ? box.x : box.x + box.w, y: box.y + box.h / 2 },
+        h.hue ?? hueOf(shared.host, shared.branch), recent.has(h.id));
     }
     for (const b of h.branches) {
       const id = blobId(h, b);
       const box = drawn(h, id);
       if (!box) continue;
-      const hue = h.hues.get(b.key)!;
+      const hue = hueOf(h, b);
       const sources = sourcesOf(h, b);
       const outward = at.sides.get(id) ?? (side || (box.x + box.w / 2 >= c.x ? 1 : -1));
       const nearEdge = (r: Rect): Point => ({ x: outward > 0 ? r.x : r.x + r.w, y: r.y + r.h / 2 });
