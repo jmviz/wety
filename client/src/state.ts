@@ -429,7 +429,7 @@ async function loadLink(link: WordLink, seq: number): Promise<string | null> {
     if (link.rootEty) params.set("rootEty", link.rootEty);
   }
   const fetchTree = async () => {
-    const apiPath = `/${apiRoute[link.kind]}/${item.id}?${params}`;
+    const apiPath = `/${apiRoute(link.kind)}/${item.id}?${params}`;
     let got = treeCache.get(apiPath);
     if (!got) {
       got = (await fetchJson(`${API}${apiPath}`)).body as Etymology | DescendantsView | Cognates;

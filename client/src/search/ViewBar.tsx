@@ -1,4 +1,4 @@
-import { Lang, TreeKind, namesLangs } from "./types";
+import { Lang, TreeKind, VIEWS, VIEW_ORDER, namesLangs } from "./types";
 import { searchLangs } from "./api";
 import { useGoTo, withOwnLang } from "./navigate";
 import ConnectionsPanel from "../settings/ConnectionsPanel";
@@ -21,16 +21,9 @@ import {
 
 import { For, Show, createSignal } from "solid-js";
 
-const VIEWS: [TreeKind, string][] = [
-  [TreeKind.Etymology, "Etymology"],
-  [TreeKind.Descendants, "Descendants"],
-  [TreeKind.Cognates, "Cognates"],
-  [TreeKind.Constellation, "Constellation"],
-];
-
 type Panel = "langs" | "connections" | "display";
 
-// The one row of controls under the word: its three views on the left; on the
+// The one row of controls under the word: its views on the left; on the
 // right, which languages are drawn, which connections are followed, and how
 // rows are shown. Each opens a panel beneath the row.
 export default function ViewBar() {
@@ -62,8 +55,8 @@ export default function ViewBar() {
         <div class="view-controls">
           <div class="view-bar">
             <nav class="view-group" aria-label="view">
-              <For each={VIEWS}>
-                {([k, label]) => (
+              <For each={VIEW_ORDER}>
+                {(k) => (
                   <button
                     type="button"
                     class="view-link"
@@ -71,7 +64,7 @@ export default function ViewBar() {
                     aria-current={kind() === k ? "page" : undefined}
                     onClick={() => kind() !== k && goTo(k, r().item, r().choice)}
                   >
-                    {label}
+                    {VIEWS[k].label}
                   </button>
                 )}
               </For>

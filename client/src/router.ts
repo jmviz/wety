@@ -4,6 +4,7 @@ import {
   createRoute,
 } from "@tanstack/solid-router";
 import App from "./App";
+import { VIEW_ORDER, kindPath } from "./search/types";
 
 const rootRoute = createRootRoute({
   component: App,
@@ -19,37 +20,17 @@ const aboutRoute = createRoute({
   path: "/about",
 });
 
-// `/<view>/<lang code>/<term>`; the term is a splat because it may contain
-// "/". App reads the location itself (see `parseWordHref`), so these routes
-// only need to match.
-const etymologyRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/etymology/$lang/$",
-});
+// `/<view>/<lang code>/<term>` for each view in `VIEWS`; the term is a splat
+// because it may contain "/". App reads the location itself (see
+// `parseWordHref`), so these routes only need to match.
+const wordRoutes = VIEW_ORDER.map((kind) =>
+  createRoute({
+    getParentRoute: () => rootRoute,
+    path: `/${kindPath(kind)}/$lang/$`,
+  })
+);
 
-const descendantsRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/descendants/$lang/$",
-});
-
-const cognatesRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/cognates/$lang/$",
-});
-
-const constellationRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/constellation/$lang/$",
-});
-
-const routeTree = rootRoute.addChildren([
-  indexRoute,
-  aboutRoute,
-  etymologyRoute,
-  descendantsRoute,
-  cognatesRoute,
-  constellationRoute,
-]);
+const routeTree = rootRoute.addChildren([indexRoute, aboutRoute, ...wordRoutes]);
 
 export const router = createRouter({
   routeTree,

@@ -1,5 +1,5 @@
 import "./popover.css";
-import { Assertion, Claim, Credit, Item, Reading, SourceLang, TreeKind, term } from "../search/types";
+import { Assertion, Claim, Credit, Item, Reading, SourceLang, TreeKind, VIEWS, term } from "../search/types";
 import { EtySource, TreeNode } from "./model";
 import { LangName, shortLangsInDetails } from "./langName";
 import { etyModeRep, etyModeShort, etyPrep } from "./etyMode";
@@ -25,6 +25,9 @@ import {
   onCleanup,
   onMount,
 } from "solid-js";
+
+// The views a word's details offer, in the order they have always had here.
+const POPOVER_VIEWS = [TreeKind.Descendants, TreeKind.Cognates, TreeKind.Etymology, TreeKind.Constellation];
 
 const supportsAnchor =
   typeof CSS !== "undefined" && CSS.supports("position-anchor: --x");
@@ -135,15 +138,9 @@ export default function NodePopover() {
     });
   });
 
-  const go = (kind: "descendants" | "etymology" | "cognates" | "constellation", item: Item) => {
+  const go = (kind: TreeKind, item: Item) => {
     close();
-    const treeKind = {
-      etymology: TreeKind.Etymology,
-      descendants: TreeKind.Descendants,
-      cognates: TreeKind.Cognates,
-      constellation: TreeKind.Constellation,
-    }[kind];
-    goTo(treeKind, item);
+    goTo(kind, item);
   };
 
   return (
@@ -241,10 +238,9 @@ export default function NodePopover() {
                 <OriginList item={item()} />
               </Suspense>
               <div class="popover-actions">
-                <button onClick={() => go("descendants", item())}>Descendants</button>
-                <button onClick={() => go("cognates", item())}>Cognates</button>
-                <button onClick={() => go("etymology", item())}>Etymology</button>
-                <button onClick={() => go("constellation", item())}>Constellation</button>
+                <For each={POPOVER_VIEWS}>
+                  {(kind) => <button onClick={() => go(kind, item())}>{VIEWS[kind].label}</button>}
+                </For>
                 <Show when={item().url}>
                   <a href={item().url!} target="_blank" rel="noopener noreferrer">
                     Wiktionary ↗

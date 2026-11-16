@@ -209,28 +209,37 @@ export enum TreeKind {
   Constellation = "Constellation",
 }
 
-export const kindPath: Record<TreeKind, string> = {
-  [TreeKind.Etymology]: "etymology",
-  [TreeKind.Descendants]: "descendants",
-  [TreeKind.Cognates]: "cognates",
-  [TreeKind.Constellation]: "constellation",
+// What the rest of the client keys on for each view, in one place: its URL
+// segment, its name in the view bar and word details, the API route its tree
+// comes from, and what its link may name. A new view needs an entry here,
+// its drawing in App.tsx and, if it loads differently, a case in state.ts;
+// the router, view bar and word details read this table.
+interface ViewInfo {
+  path: string;
+  label: string;
+  apiRoute: string;
+  // Its link can name the languages drawn (`lang=`, `all=1`, `within=1`).
+  namesLangs: boolean;
+  // It starts from an ancestor of the word, which its link can name (`root=`).
+  takesRoot: boolean;
+}
+
+export const VIEWS: Record<TreeKind, ViewInfo> = {
+  // A chart of the word's ancestry: it has no descendants to draw languages of.
+  [TreeKind.Etymology]: { path: "etymology", label: "Etymology", apiRoute: "etymology", namesLangs: false, takesRoot: false },
+  [TreeKind.Descendants]: { path: "descendants", label: "Descendants", apiRoute: "descendants", namesLangs: true, takesRoot: false },
+  [TreeKind.Cognates]: { path: "cognates", label: "Cognates", apiRoute: "cognates", namesLangs: true, takesRoot: true },
+  // Draws the cognates tree its own way, always in the word's own language.
+  [TreeKind.Constellation]: { path: "constellation", label: "Constellation", apiRoute: "cognates", namesLangs: false, takesRoot: true },
 };
 
-// The API route a view's tree comes from. The constellation draws the
-// cognates tree its own way.
-export const apiRoute: Record<TreeKind, string> = {
-  ...kindPath,
-  [TreeKind.Constellation]: "cognates",
-};
+// The order of the view bar.
+export const VIEW_ORDER: TreeKind[] = [TreeKind.Etymology, TreeKind.Descendants, TreeKind.Cognates, TreeKind.Constellation];
 
-// Views whose link can name the languages drawn. The etymology chart has no
-// descendants, and the constellation is always drawn in the word's language.
-export const namesLangs = (kind: TreeKind) =>
-  kind === TreeKind.Descendants || kind === TreeKind.Cognates;
-
-// Views that start from an ancestor of the word, which their link can name.
-export const takesRoot = (kind: TreeKind) =>
-  kind === TreeKind.Cognates || kind === TreeKind.Constellation;
+export const kindPath = (kind: TreeKind) => VIEWS[kind].path;
+export const apiRoute = (kind: TreeKind) => VIEWS[kind].apiRoute;
+export const namesLangs = (kind: TreeKind) => VIEWS[kind].namesLangs;
+export const takesRoot = (kind: TreeKind) => VIEWS[kind].takesRoot;
 
 // Spaces are written as underscores, as Wiktionary does (its titles cannot
 // contain "_").
@@ -270,7 +279,7 @@ export function linkHref(link: WordLink): string {
     if (link.rootEty) params.set("rootEty", link.rootEty);
   }
   const search = params.toString();
-  return `/${kindPath[link.kind]}/${link.lang}/${encodeTerm(link.term)}${search ? `?${search}` : ""}`;
+  return `/${kindPath(link.kind)}/${link.lang}/${encodeTerm(link.term)}${search ? `?${search}` : ""}`;
 }
 
 // Which languages a tree is drawn in: the default (none named), exactly
@@ -306,7 +315,7 @@ export function parseWordHref(href: string): WordLink | null {
   const pathname = qIdx >= 0 ? href.slice(0, qIdx) : href;
   const params = new URLSearchParams(qIdx >= 0 ? href.slice(qIdx) : "");
   const [kindStr, lang, ...rest] = pathname.split("/").filter(Boolean);
-  const kind = (Object.keys(kindPath) as TreeKind[]).find((k) => kindPath[k] === kindStr);
+  const kind = VIEW_ORDER.find((k) => kindPath(k) === kindStr);
   if (!kind || !lang || rest.length === 0) return null;
   let term: string;
   try {
