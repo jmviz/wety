@@ -4,13 +4,14 @@ import { close as closePopover, hoverEnter, hoverLeave, pin, popover } from "../
 import { useGoTo } from "../search/navigate";
 import { Item, Lang, TreeKind, term } from "../search/types";
 import { cognates, constellationStart, lastRequest, setShowRare, showGlosses, showRare } from "../state";
-import { Branch, Common, ENGLISH, Group, LangTree, isProto, isUndefinedRoot, canOpen, previewLines, previewRows, rackOrder, restrictBranches, singleEndpoint } from "./branches";
+import { Branch, Common, ENGLISH, Group, LangTree, isProto, isUndefinedRoot, canOpen, previewLines, previewRows, restrictBranches } from "./branches";
 import { selectWords } from "./selection";
+import { blobId, expand, makeHub, type Hub } from "./hubs";
 import { BlobSpec, Layout, Link, Point, Rect, Size, SOURCE_HEIGHT, LANGUAGE_HEADING_SPACE, CARD_WIDTH, NARROW_CARD_WIDTH, STEM_GUTTER, center, enclosing, bounds, breathe, join, layout, rootDirection, stemArrival, cableRouter, sharedWires } from "./layout";
 import { chronological, groupLanguageLanes, languageTimes } from "./chronology";
 import type { LayoutPeriod } from "./chronology";
 import type { Frequencies } from "./representatives";
-import { canFinishTogether, linearGroups, newestFirst, unbranchedLineage } from "./expansion";
+import { newestFirst } from "./expansion";
 import { compactBranches, compactVisibleLanes } from "./density";
 import type { DensityNode } from "./density";
 import { languageWidths, type LaneContent } from "./sizing";
@@ -32,46 +33,6 @@ import {
   onMount,
 } from "solid-js";
 
-// A word with its branches: the tree's root, drawn as a disc in the middle,
-// or a head the reader opened, which is a row in the blob it was opened in
-// (`via`) and has no shape of its own.
-interface DisplayBranch extends Branch {
-  origins?: Map<Group, Hub>;
-  parents?: Map<number, Set<string>>;
-}
-
-interface Hub {
-  id: string;
-  node: TreeNode;
-  parent: Hub | null;
-  via: string | null;
-  branches: DisplayBranch[];
-  // Several sibling sources can feed the same language preview.
-  shared: { host: Hub; branch: DisplayBranch }[];
-  revealed: number;
-  // The colour of the branch it was opened from, which its own branches keep.
-  hue: string | null;
-  hues: Map<string, string>;
-  // A head with one word under it: the word stands alone beside the head's
-  // row, named as the row is, in a blob as wide as the rack and as tall as
-  // the row.
-  single: boolean;
-  // Rows can share a source, so each breakout keeps its own identity and
-  // modern-word filter through every later language stage.
-  scope?: { id: string; words: ReadonlySet<string> };
-}
-
-// One colour per branch of the root, as "r,g,b".
-const PALETTE = [
-  "125,211,252",
-  "251,191,119",
-  "196,181,253",
-  "134,239,172",
-  "249,168,212",
-  "94,234,212",
-  "253,164,145",
-  "190,242,100",
-];
 const ROOT_R = 96;
 const MIN_ZOOM = 0.35;
 const MAX_ZOOM = 1.6;
@@ -87,37 +48,6 @@ function brief(gloss: string): string {
   const first = gloss.split(";")[0];
   const sense = [...first].length > 22 ? first.split(",")[0] : first;
   return sense.replace(/\s*\([^)]*\)\s*$/, "").trim() || gloss;
-}
-
-const blobId = (hub: Hub, branch: Branch) => `${hub.id}/${branch.key}`;
-
-// The branches met most often keep one colour whatever word was searched.
-const FIXED: Record<string, number> = {
-  "gem-pro": 0,
-  "itc-pro": 1,
-  "grk-pro": 2,
-  "cel-pro": 3,
-  "iir-pro": 4,
-  "ine-bsl-pro": 5,
-};
-
-// A colour for each of a hub's branches: its fixed one, else whichever is
-// still free, starting from one that depends only on the branch.
-function huesOf(keys: string[]): Map<string, string> {
-  const taken = new Set(keys.map((k) => FIXED[k]).filter((s) => s !== undefined));
-  const hues = new Map<string, string>();
-  for (const key of keys) {
-    let slot = FIXED[key];
-    if (slot === undefined) {
-      let h = 0;
-      for (const ch of key) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
-      slot = h % PALETTE.length;
-      for (let i = 0; i < PALETTE.length && taken.has(slot); i++) slot = (slot + 1) % PALETTE.length;
-      taken.add(slot);
-    }
-    hues.set(key, PALETTE[slot]);
-  }
-  return hues;
 }
 
 // The words of the searched word's language that share its root, as a map:
@@ -163,27 +93,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
   const english = target.code === ENGLISH;
   const times = languageTimes(props.periods, props.langs, target.code, new Date().getFullYear());
   const { common, scores, branchesFor } = selectWords(root, target, props.langs, props.common, props.frequencies, times);
-  const makeHub = (node: TreeNode, parent: Hub | null, via: string | null, hue: string | null, scope = parent?.scope): Hub => {
-    const available = scope ? restrictBranches(branchesFor(node), scope.words) : branchesFor(node);
-    const branches = available.map((b) => ({ ...b, groups: [...b.groups], words: [...b.words] }));
-    const keys = branches.map((b) => b.key);
-    return {
-      id: scope ? `${node.item.id}@${scope.id}` : String(node.item.id),
-      scope,
-      node,
-      parent,
-      via,
-      branches,
-      shared: [],
-      revealed: 0,
-      hue,
-      hues: hue ? new Map(keys.map((k) => [k, hue])) : huesOf(keys),
-      // Not a head with no name (branches.ts `unnamed`): the one word under
-      // it is the only name its line has, and stays in its own branch's blob.
-      single: !!parent && !isUndefinedRoot(node) && singleEndpoint(branches),
-    };
-  };
-  const rootHub = makeHub(root, null, null, null);
+  const rootHub = makeHub(branchesFor, root, null, null, null);
   const rootWords = new Set(rootHub.branches.flatMap((b) => b.groups.flatMap((g) => g.words.map((w) => w.item.term)))).size;
 
   const [hubs, setHubs] = createSignal<Hub[]>([rootHub]);
@@ -643,113 +553,10 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
   const rack = (hub: Hub, branch: Branch, groups: Group[], scope = hub.scope) => {
     setInitialOverview(false);
     const id = blobId(hub, branch);
-    const all = [...hubs()];
-    const before = new Set(all.map((h) => h.id));
-    const revealed = ++revealSequence;
-    const taken = new Set(all.map((h) => h.id));
-    const touched = new Set<Hub>();
-    const combine = (made: Hub[]) => {
-      const columns = new Map<string, { host: Hub; branch: DisplayBranch }>();
-      for (const child of made) child.branches = child.branches.filter((b) => {
-        // Actual target-language endpoints stay separate. Preview columns
-        // combine only sibling sources, never unrelated family branches.
-        if (b.groups.every((g) => g.own)) return true;
-        const key = b.key;
-        const previous = columns.get(key);
-        if (!previous) {
-          b.origins = new Map(b.groups.map((g) => [g, child]));
-          b.parents = new Map(b.groups.map((g) => [g.head.item.id, new Set([child.id])]));
-          columns.set(key, { host: child, branch: b });
-          return true;
-        }
-        const combined = previous.branch;
-        for (const g of b.groups) {
-          const parents = combined.parents!.get(g.head.item.id) ?? new Set<string>();
-          parents.add(child.id);
-          combined.parents!.set(g.head.item.id, parents);
-        }
-        for (const g of b.groups) combined.origins!.set(g, child);
-        combined.groups.push(...b.groups);
-        const terms = new Set(combined.words.map((w) => w.item.term));
-        for (const word of b.words) if (!terms.has(word.item.term)) {
-          terms.add(word.item.term);
-          combined.words.push(word);
-        }
-        combined.wordCount = combined.words.length;
-        combined.hasSelected ||= b.hasSelected;
-        child.shared.push(previous);
-        return false;
-      });
-    };
-    const expand = (owner: Hub, b: Branch, firstGroups: Group[], selectedScope = owner.scope) => {
-      const read = (head: TreeNode) => {
-        const branches = branchesFor(head);
-        return selectedScope ? restrictBranches(branches, selectedScope.words) : branches;
-      };
-      const selected = { ...b, groups: firstGroups, words: firstGroups.flatMap((g) => g.words) };
-      const lineage = unbranchedLineage(selected, read);
-      const fromTray = descendantTray(owner, b);
-      const finish = canFinishTogether(
-        selectedScope ? restrictBranches([selected], selectedScope.words) : [selected], read);
-      const queue: { owner: Hub; branch: Branch; groups: Group[] }[] = [
-        { owner, branch: b, groups: firstGroups },
-      ];
-      for (const step of queue) {
-        const via = blobId(step.owner, step.branch);
-        const existing = all.filter((h) => h.via === via);
-        const made: Hub[] = [];
-        const extended: Hub[] = [];
-        for (const g of step.groups) {
-          if (!canOpen(g, target)) continue;
-          const origins = (step.branch as DisplayBranch).origins;
-          const source = origins && [...origins].find(([group]) => group.head === g.head)?.[1];
-          const repeated = existing.find((h) => h.node.item.id === g.head.item.id);
-          if (repeated) {
-            if (!repeated.scope || (selectedScope && [...selectedScope.words].every((word) => repeated.scope!.words.has(word)))) continue;
-            // Separate preview rows may reach the same dictionary entry.
-            // Extend its scope instead of drawing the entry and lineage twice.
-            const words = new Set([...(repeated.scope?.words ?? []), ...(selectedScope?.words ?? g.words.map((w) => w.item.term))]);
-            const scope = repeated.scope ? { id: repeated.scope.id, words } : undefined;
-            const merged = makeHub(g.head, source ?? step.owner, via, repeated.hue, scope);
-            for (const b of merged.branches) {
-              const prior = repeated.branches.find((old) => old.key === b.key);
-              if (prior) {
-                const replacement = { ...prior, ...b };
-                repeated.branches = repeated.branches.map((old) => old === prior ? replacement : old);
-                for (const h of all) for (const shared of h.shared) {
-                  if (shared.branch === prior) shared.branch = replacement;
-                }
-              } else repeated.branches = [...repeated.branches, b];
-              repeated.hues.set(b.key, repeated.hue!);
-            }
-            repeated.scope = scope;
-            repeated.single = singleEndpoint(repeated.branches);
-            touched.add(repeated);
-            extended.push(repeated);
-            continue;
-          }
-          const child = makeHub(g.head, source ?? step.owner, via, step.owner.hues.get(step.branch.key)!, selectedScope);
-          child.revealed = revealed;
-          const key = child.id;
-          if (taken.has(key)) continue;
-          taken.add(key);
-          touched.add(child);
-          made.push(child);
-        }
-        combine(made);
-        all.push(...rackOrder(made, (h) => h.single));
-        const nextSteps = [...extended, ...made].flatMap((child) => child.branches.flatMap((next) => {
-          const scoped = selectedScope ? restrictBranches([next], selectedScope.words)[0] : next;
-          if (!scoped) return [];
-          const groups = lineage || finish ? scoped.groups : fromTray ? linearGroups(scoped, read) : [];
-          return groups.length ? [{ owner: child, branch: next, groups }] : [];
-        }));
-        // Preserve choices at the initial overview. Once a tray is opened,
-        // linear continuations finish independently of neighbouring forks.
-        queue.push(...nextSteps);
-      }
-    };
-    expand(hub, branch, groups, scope);
+    const before = new Set(hubs().map((h) => h.id));
+    const { all, touched } = expand(hubs(), hub, branch, groups, scope, {
+      target, branchesFor, fromTray: descendantTray(hub, branch), revealed: ++revealSequence,
+    });
     setHubs(all);
     window.clearTimeout(recentTimer);
     setRecent(new Set(all.filter((h) => !before.has(h.id)).map((h) => h.id)));
