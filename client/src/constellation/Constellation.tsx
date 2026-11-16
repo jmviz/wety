@@ -4,11 +4,11 @@ import { close as closePopover, hoverEnter, hoverLeave, pin, popover } from "../
 import { useGoTo } from "../search/navigate";
 import { Item, Lang, TreeKind, term } from "../search/types";
 import { cognates, constellationStart, lastRequest, setShowRare, showGlosses, showRare } from "../state";
-import { Branch, Common, ENGLISH, Group, HIDE_UNDEFINED_ROOTS, LangTree, isProto, isUndefinedRoot, branchesOf, canOpen, directEarlyEnglish, previewLines, previewRows, rackOrder, restrictBranches, singleEndpoint, uncommonLatinEnglish, withoutUndefinedRoots } from "./branches";
+import { Branch, Common, ENGLISH, Group, LangTree, isProto, isUndefinedRoot, canOpen, previewLines, previewRows, rackOrder, restrictBranches, singleEndpoint } from "./branches";
+import { selectWords } from "./selection";
 import { BlobSpec, Layout, Link, Point, Rect, Size, SOURCE_HEIGHT, LANGUAGE_HEADING_SPACE, CARD_WIDTH, NARROW_CARD_WIDTH, STEM_GUTTER, center, enclosing, bounds, breathe, join, layout, rootDirection, stemArrival, cableRouter, sharedWires } from "./layout";
 import { chronological, groupLanguageLanes, languageTimes } from "./chronology";
 import type { LayoutPeriod } from "./chronology";
-import { representatives } from "./representatives";
 import type { Frequencies } from "./representatives";
 import { canFinishTogether, linearGroups, newestFirst, unbranchedLineage } from "./expansion";
 import { compactBranches, compactVisibleLanes } from "./density";
@@ -159,50 +159,10 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
   let stageEl!: HTMLDivElement;
   const root = props.forest.roots[0];
   const target: Lang = (props.forest.selected ?? root).item.lang;
-  // Only English has a word list: another language's words are all listed.
+  // Only English has a word list, so only it has a rare-words switch.
   const english = target.code === ENGLISH;
-  const common = english ? props.common : null;
   const times = languageTimes(props.periods, props.langs, target.code, new Date().getFullYear());
-  // Classical Latin ends around 200 CE in the shipped period registry.
-  // Broad Ancient Greek and proto labels also count as early sources even
-  // where their registry dates describe a later boundary or breakup.
-  const omitted = english ? directEarlyEnglish(root, (code) =>
-    code === "la" || code === "grc" || isProto(code) || (times.get(code) ?? Infinity) <= 200
-  ) : new Set<number>();
-  for (const key of uncommonLatinEnglish(root, common)) omitted.add(key);
-  const scores = english ? props.frequencies : undefined;
-  const displayBranches = (node: TreeNode) => {
-    const branches = branchesOf(node, target, props.langs, common, omitted, scores);
-    return HIDE_UNDEFINED_ROOTS ? withoutUndefinedRoots(branches) : branches;
-  };
-  if (common && scores) {
-    const preliminary = new WeakMap<TreeNode, Branch[]>();
-    const read = (node: TreeNode): Branch[] => {
-      let branches = preliminary.get(node);
-      if (!branches) {
-        branches = displayBranches(node);
-        preliminary.set(node, branches);
-      }
-      return branches;
-    };
-    const groups = read(root).flatMap((b) => previewLines(b, target, read, common, scores, false));
-    const keep = representatives(groups, scores);
-    const visit = (n: TreeNode) => {
-      if (n.item.lang.code === ENGLISH && !n.isSelected && !keep.has(n.item.term)) omitted.add(n.key);
-      n.children.forEach(visit);
-    };
-    visit(root);
-  }
-
-  const branchCache = new WeakMap<TreeNode, Branch[]>();
-  const branchesFor = (node: TreeNode): Branch[] => {
-    let branches = branchCache.get(node);
-    if (!branches) {
-      branches = displayBranches(node);
-      branchCache.set(node, branches);
-    }
-    return branches;
-  };
+  const { common, scores, branchesFor } = selectWords(root, target, props.langs, props.common, props.frequencies, times);
   const makeHub = (node: TreeNode, parent: Hub | null, via: string | null, hue: string | null, scope = parent?.scope): Hub => {
     const available = scope ? restrictBranches(branchesFor(node), scope.words) : branchesFor(node);
     const branches = available.map((b) => ({ ...b, groups: [...b.groups], words: [...b.words] }));
