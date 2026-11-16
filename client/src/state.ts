@@ -158,8 +158,8 @@ export const [hiddenLangs, setHiddenLangs] = createSignal<Set<number>>(
 export const [showGlosses, setShowGlosses] = createSignal(
   window.matchMedia("(min-width: 700px)").matches
 );
-// The constellation's words that no desk dictionary has, and the plain
-// derivatives of a word it lists.
+// The constellation's English words that no desk dictionary has, and the
+// derivatives its representatives pass leaves out.
 export const [showRare, setShowRare] = createSignal(false);
 
 // The display forest: the fetched tree with filters applied. When only a

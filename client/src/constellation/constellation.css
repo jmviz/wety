@@ -936,6 +936,11 @@ button.cst-word:hover,
   border-color: rgba(255, 255, 255, 0.4);
 }
 
+.cst-controls button[aria-pressed="true"] {
+  border-color: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.12);
+}
+
 @media (max-width: 600px) {
   .cst-summary,
   .cst-hint {

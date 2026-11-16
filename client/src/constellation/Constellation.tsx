@@ -3,7 +3,7 @@ import { Forest, TreeNode } from "../ety/model";
 import { close as closePopover, hoverEnter, hoverLeave, pin, popover } from "../ety/popover";
 import { useGoTo } from "../search/navigate";
 import { Item, Lang, TreeKind, term } from "../search/types";
-import { cognates, constellationStart, lastRequest, showGlosses, showRare } from "../state";
+import { cognates, constellationStart, lastRequest, setShowRare, showGlosses, showRare } from "../state";
 import { Branch, Common, Group, HIDE_UNDEFINED_ROOTS, LangTree, branchesOf, canOpen, directEarlyEnglish, previewLines, previewRows, rackOrder, restrictBranches, singleEndpoint, uncommonLatinEnglish, withoutUndefinedRoots } from "./branches";
 import { BlobSpec, Layout, Link, Point, Rect, Size, SOURCE_HEIGHT, LANGUAGE_HEADING_SPACE, bounds, breathe, join, layout, rootDirection, stemArrival, cableRouter, sharedWires } from "./layout";
 import { chronological, groupLanguageLanes, languageTimes } from "./chronology";
@@ -1545,6 +1545,18 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
       </Show>
       <p class="cst-ui cst-hint">Time runs outward; spacing is approximate. Click to unfold. Drag or scroll to move.</p>
       <div class="cst-ui cst-controls" role="group" aria-label="canvas">
+        {/* Only English has a word list to leave rare words out by. */}
+        <Show when={target.code === "en"}>
+          <button
+            type="button"
+            class="wide"
+            aria-pressed={showRare()}
+            title="Include obscure English words and derivatives of a word already listed"
+            onClick={() => setShowRare(!showRare())}
+          >
+            rare words
+          </button>
+        </Show>
         <Show when={hubs().length > 1}>
           <button type="button" class="wide" onClick={startOver}>
             start over

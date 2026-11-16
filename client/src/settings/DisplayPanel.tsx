@@ -1,7 +1,7 @@
-import { TreeKind, namesLangs } from "../search/types";
+import { namesLangs } from "../search/types";
 import { setAllOpen } from "../ety/model";
 import { showDates, toggleDates } from "../ety/periods";
-import { forest, lastRequest, setShowGlosses, setShowRare, showGlosses, showRare } from "../state";
+import { forest, lastRequest, setShowGlosses, showGlosses } from "../state";
 import {
   setShortLangsInDetails,
   setShortLangsInTree,
@@ -11,8 +11,9 @@ import {
 
 import { Show } from "solid-js";
 
-// How the rows are shown: meanings, language dates, the constellation's rare
-// words, and the outline's open/closed state.
+// How the rows are shown: meanings, language dates, and the outline's
+// open/closed state. The constellation's rare-words switch is on its own
+// canvas, which can be shown without this panel.
 export default function DisplayPanel() {
   return (
     <div class="panel display" role="group" aria-label="display">
@@ -53,18 +54,6 @@ export default function DisplayPanel() {
             language initials in word details
           </label>
         </li>
-        <Show when={lastRequest()?.kind === TreeKind.Constellation}>
-          <li>
-            <label title="Include obscure English words and plain derivatives of a word already listed (forgiveness beside forgive)">
-              <input
-                type="checkbox"
-                checked={showRare()}
-                onChange={(e) => setShowRare(e.currentTarget.checked)}
-              />
-              rare and derived words
-            </label>
-          </li>
-        </Show>
       </ul>
       <Show when={lastRequest() && namesLangs(lastRequest()!.kind) && forest()}>
         {(f) => (
