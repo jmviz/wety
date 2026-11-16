@@ -1,4 +1,4 @@
-import type { Branch } from "./branches";
+import { isUndefinedRoot, type Branch } from "./branches.ts";
 
 // New click groups sit nearest the remaining preview. Keep source words
 // revealed by the same click together, in their existing lane order.
@@ -15,7 +15,7 @@ export function unbranchedLineage(branch: Branch, children: (head: Branch["group
     if (b.groups.every((g) => g.own)) return true;
     if (b.groups.length !== 1) return false;
     const g = b.groups[0];
-    if (!g.head.item.term || seen.has(g.head)) return false;
+    if (isUndefinedRoot(g.head) || seen.has(g.head)) return false;
     seen.add(g.head);
     const next = children(g.head);
     return next.length === 1 && visit(next[0]);
@@ -43,7 +43,7 @@ export function canFinishTogether(branches: Branch[], children: (head: Branch["g
     if (groups.length > 1 && ++forks > 1) return false;
     return groups.every((g) => {
       if (g.own) return true;
-      if (!g.head.item.term || ancestors.has(g.head)) return false;
+      if (isUndefinedRoot(g.head) || ancestors.has(g.head)) return false;
       return visit(children(g.head), new Set([...ancestors, g.head]));
     });
   };

@@ -16,12 +16,23 @@ export interface LangTree {
   names: Record<string, string>;
 }
 
+// A reconstructed proto-language, by Wiktionary's code convention ("gem-pro").
+export const isProto = (code: string) => code.endsWith("-pro");
+
+// The one language with a word list (SCOWL) and corpus frequencies
+// (wordfreq), and whose history the early-jump rules below describe.
+export const ENGLISH = "en";
+
+// A head standing in for a word the graph does not record (an "Undefined
+// Root", made by `undefinedHead`): the only kind of node with no term.
+export const isUndefinedRoot = (node: TreeNode) => !node.item.term;
+
 // A reconstructed stage may follow its own stage or an ancestor language,
 // never a later attested language or a different proto family.
 export function validProtoDescent(parent: TreeNode, child: TreeNode, langs: LangTree): boolean {
   const from = parent.item.lang.code, to = child.item.lang.code;
-  if (!to.endsWith("-pro") || from === to) return true;
-  if (!from.endsWith("-pro")) return false;
+  if (!isProto(to) || from === to) return true;
+  if (!isProto(from)) return false;
   const seen = new Set<string>();
   for (let at = langs.parents[to]; at && !seen.has(at); at = langs.parents[at]) {
     if (at === from) return true;
@@ -58,7 +69,7 @@ export const HIDE_UNDEFINED_ROOTS = true;
 
 export function withoutUndefinedRoots(branches: Branch[]): Branch[] {
   return branches.flatMap((b) => {
-    const groups = b.groups.filter((g) => g.own || !!g.head.item.term);
+    const groups = b.groups.filter((g) => g.own || !isUndefinedRoot(g.head));
     if (groups.length === b.groups.length) return [b];
     if (!groups.length) return [];
     const allowed = new Set(groups.flatMap((g) => g.words.map((w) => w.item.term)));
@@ -88,7 +99,7 @@ export function groupsForWords(branch: Branch, words: TreeNode[]): Group[] {
 // Keep each preview row attached to the source that produced it. Matching
 // only by spelling incorrectly opens every unrelated source of e.g. port.
 export function previewRows(branch: Branch, target: Lang, children: (head: TreeNode) => Branch[], common: Common | null = null, scores?: Frequencies, splitSources = false): { words: TreeNode[]; lines: TreeNode[][]; groups: Group[] }[] {
-  const proto = branch.key.endsWith("-pro");
+  const proto = isProto(branch.key);
   if (proto && !splitSources) return previewLines(branch, target, children, common, scores)
     .map((words) => ({ words, lines: [words], groups: groupsForWords(branch, words) }));
   return branch.groups.flatMap((g) => {
@@ -118,7 +129,7 @@ export function previewLines(branch: Branch, target: Lang, children: (head: Tree
     const had = cache.get(branch);
     if (had) return had;
     const open = branch.groups.filter((g) => canOpen(g, target)).map((g) => ({ g, branches: children(g.head) }));
-    const ordered = rackOrder(open, ({ g, branches }) => !!g.head.item.term && singleEndpoint(branches));
+    const ordered = rackOrder(open, ({ g, branches }) => !isUndefinedRoot(g.head) && singleEndpoint(branches));
     const candidates = [
       ...ordered.flatMap(({ g, branches }) => branches.length ? branches.map((b) => lines(b).flat()) : [g.words]),
       ...branch.groups.filter((g) => !canOpen(g, target)).map((g) => g.words),
@@ -190,7 +201,7 @@ interface Found {
 export function directEarlyEnglish(root: TreeNode, early: (code: string) => boolean): Set<number> {
   const omitted = new Set<number>();
   const visit = (n: TreeNode, source: string | undefined, blocked: boolean) => {
-    const english = n.item.lang.code === "en";
+    const english = n.item.lang.code === ENGLISH;
     const skip = english && (blocked || (source !== undefined && early(source)));
     if (skip && !n.isSelected) omitted.add(n.key);
     for (const child of n.children) visit(child, english ? source : n.item.lang.code, english && skip);
@@ -230,7 +241,7 @@ export function uncommonLatinEnglish(root: TreeNode, common: Common | null): Set
     // form without boundary hyphens; "après-" gets no blanket exemption.
     const frequency = level(common, n.item.term) ??
       (isAffix(n) ? level(common, n.item.term.replace(/^-+|-+$/g, "")) : undefined);
-    if (latin && n.item.lang.code === "en" && !n.isSelected &&
+    if (latin && n.item.lang.code === ENGLISH && !n.isSelected &&
         (frequency ?? Infinity) > LATIN_COMMON_LIMIT) omitted.add(n.key);
     for (const child of n.children) visit(child, latin);
   };
@@ -346,8 +357,10 @@ const group = (head: TreeNode, own: boolean, words: TreeNode[]): Group => ({
 });
 
 // A missing word, rather than a recorded word of a different language.
-// Odd negative IDs stand for missing words within a branch; even ones for
-// the branch's missing root. The anchor is always a real graph node.
+// It needs an ID and key no graph node has, stable across renders: they are
+// negative (graph IDs are not), derived from a real anchor node, odd for a
+// missing word within a branch and even for a branch's missing root so the
+// two never collide. Nothing reads the parity; test `isUndefinedRoot`.
 function undefinedHead(word: TreeNode, lang: Lang, children: TreeNode[], branch = false): TreeNode {
   const anchor = word.item.id < 0 ? word.children[0] : word;
   const offset = branch ? 2 : 1;

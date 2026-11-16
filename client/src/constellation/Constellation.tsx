@@ -4,7 +4,7 @@ import { close as closePopover, hoverEnter, hoverLeave, pin, popover } from "../
 import { useGoTo } from "../search/navigate";
 import { Item, Lang, TreeKind, term } from "../search/types";
 import { cognates, constellationStart, lastRequest, setShowRare, showGlosses, showRare } from "../state";
-import { Branch, Common, Group, HIDE_UNDEFINED_ROOTS, LangTree, branchesOf, canOpen, directEarlyEnglish, previewLines, previewRows, rackOrder, restrictBranches, singleEndpoint, uncommonLatinEnglish, withoutUndefinedRoots } from "./branches";
+import { Branch, Common, ENGLISH, Group, HIDE_UNDEFINED_ROOTS, LangTree, isProto, isUndefinedRoot, branchesOf, canOpen, directEarlyEnglish, previewLines, previewRows, rackOrder, restrictBranches, singleEndpoint, uncommonLatinEnglish, withoutUndefinedRoots } from "./branches";
 import { BlobSpec, Layout, Link, Point, Rect, Size, SOURCE_HEIGHT, LANGUAGE_HEADING_SPACE, CARD_WIDTH, NARROW_CARD_WIDTH, STEM_GUTTER, center, enclosing, bounds, breathe, join, layout, rootDirection, stemArrival, cableRouter, sharedWires } from "./layout";
 import { chronological, groupLanguageLanes, languageTimes } from "./chronology";
 import type { LayoutPeriod } from "./chronology";
@@ -159,17 +159,18 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
   let stageEl!: HTMLDivElement;
   const root = props.forest.roots[0];
   const target: Lang = (props.forest.selected ?? root).item.lang;
-  // The word list is English: another language's words are all listed.
-  const common = target.code === "en" ? props.common : null;
+  // Only English has a word list: another language's words are all listed.
+  const english = target.code === ENGLISH;
+  const common = english ? props.common : null;
   const times = languageTimes(props.periods, props.langs, target.code, new Date().getFullYear());
   // Classical Latin ends around 200 CE in the shipped period registry.
   // Broad Ancient Greek and proto labels also count as early sources even
   // where their registry dates describe a later boundary or breakup.
-  const omitted = target.code === "en" ? directEarlyEnglish(root, (code) =>
-    code === "la" || code === "grc" || code.endsWith("-pro") || (times.get(code) ?? Infinity) <= 200
+  const omitted = english ? directEarlyEnglish(root, (code) =>
+    code === "la" || code === "grc" || isProto(code) || (times.get(code) ?? Infinity) <= 200
   ) : new Set<number>();
   for (const key of uncommonLatinEnglish(root, common)) omitted.add(key);
-  const scores = target.code === "en" ? props.frequencies : undefined;
+  const scores = english ? props.frequencies : undefined;
   const displayBranches = (node: TreeNode) => {
     const branches = branchesOf(node, target, props.langs, common, omitted, scores);
     return HIDE_UNDEFINED_ROOTS ? withoutUndefinedRoots(branches) : branches;
@@ -187,7 +188,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     const groups = read(root).flatMap((b) => previewLines(b, target, read, common, scores, false));
     const keep = representatives(groups, scores);
     const visit = (n: TreeNode) => {
-      if (n.item.lang.code === "en" && !n.isSelected && !keep.has(n.item.term)) omitted.add(n.key);
+      if (n.item.lang.code === ENGLISH && !n.isSelected && !keep.has(n.item.term)) omitted.add(n.key);
       n.children.forEach(visit);
     };
     visit(root);
@@ -219,7 +220,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
       hues: hue ? new Map(keys.map((k) => [k, hue])) : huesOf(keys),
       // Not a head with no name (branches.ts `unnamed`): the one word under
       // it is the only name its line has, and stays in its own branch's blob.
-      single: !!parent && !!node.item.term && singleEndpoint(branches),
+      single: !!parent && !isUndefinedRoot(node) && singleEndpoint(branches),
     };
   };
   const rootHub = makeHub(root, null, null, null);
@@ -362,14 +363,14 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
   onMount(() => { void document.fonts.ready.then(measureContent); });
   const [layoutVersion, setLayoutVersion] = createSignal(0);
   let placedVersion = 0;
-  const clusteredHeads = (heads: Hub[]) => heads.length > 1 && heads.every((h) => h.node.item.lang.code.endsWith("-pro"));
+  const clusteredHeads = (heads: Hub[]) => heads.length > 1 && heads.every((h) => isProto(h.node.item.lang.code));
   const clusteredBranch = (b: Branch, heads: Hub[]) => clusteredHeads(heads) || (selective(b) && heads.length > 0);
   // A family's overview remains a plain cluster. Once it has individual
   // roots, its remaining and downstream previews become descendant trays.
   const descendantTray = (h: Hub, b: Branch) => {
     let family = blobId(h, b);
     for (let ancestor: Hub | null = h; ancestor?.via; ancestor = ancestor.parent) family = ancestor.via;
-    return hubs().some((child) => child.via === family && !!child.node.item.term);
+    return hubs().some((child) => child.via === family && !isUndefinedRoot(child.node));
   };
   const entriesFor = (h: Hub, b: Branch, heads: Hub[]): { id: string; head: Hub | undefined }[] => selective(b) && heads.length > 0
     ? [
@@ -384,7 +385,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     const densityNode = (h: Hub, b: Branch): DensityNode => {
       const id = blobId(h, b);
       const open = all.filter((k) => k.via === id);
-      const source = b.groups.length === 1 && open.length === 1 && !!open[0].node.item.term
+      const source = b.groups.length === 1 && open.length === 1 && !isUndefinedRoot(open[0].node)
         && remainingRows(h, b, open).length === 0;
       const endpoint = b.groups.every((g) => g.own) && b.words.length === 1;
       return { id, width: open.length || b.words.length > 4 ? CARD_WIDTH : NARROW_CARD_WIDTH,
@@ -1215,7 +1216,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     const lines = () => previewLines(p.branch, target, branchesFor, common, scores);
     // One named word needs one row, even when more language stages follow.
     // Keeping those stages visible must not add a separate language header.
-    const compact = () => roots.length === 1 && rows().length === 1 && !!rows()[0].node.item.term;
+    const compact = () => roots.length === 1 && rows().length === 1 && !isUndefinedRoot(rows()[0].node);
     const clustered = () => clusteredBranch(p.branch, rows());
     const face = () => openable.length > 0 && rows().length === 0;
     const act = () => rack(p.hub, p.branch, openable);
@@ -1536,7 +1537,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
       <p class="cst-ui cst-hint">Time runs outward; spacing is approximate. Click to unfold. Drag or scroll to move.</p>
       <div class="cst-ui cst-controls" role="group" aria-label="canvas">
         {/* Only English has a word list to leave rare words out by. */}
-        <Show when={target.code === "en"}>
+        <Show when={english}>
           <button
             type="button"
             class="wide"
