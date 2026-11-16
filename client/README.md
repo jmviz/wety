@@ -41,6 +41,8 @@ npm run dev
 
 The dev server starts at `http://127.0.0.1:8000`. Changes are hot-reloaded.
 
+Design concepts for the constellation are in `designs/`; open `designs/index.html` in a browser. They are kept outside `public/` so they are not published with the site.
+
 Frequency scores are a static English usage snapshot through about 2021 from [wordfreq 3.1.1](https://github.com/rspeer/wordfreq), by Robyn Speer. The adapted subset in `data/english-frequencies.json` is under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/); see the [upstream attribution notice](https://github.com/rspeer/wordfreq/blob/master/NOTICE.md), including Google Books Ngrams, the Leeds Internet Corpus, Wikipedia, ParaCrawl, OpenSubtitles 2018, and freely available SUBTLEX data by Marc Brysbaert and collaborators. Regenerate it from the repository root with `uv run --isolated --no-project --with wordfreq==3.1.1 python client/scripts/build-word-frequencies.py`. Normal client builds read the checked-in subset and need no Python or live frequency service.
 
 Run the constellation grouping checks with `node --test tests/*.test.mjs`.
