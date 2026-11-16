@@ -1,3 +1,6 @@
+// The constellation view: signals, measurement and rendering. What the
+// words here mean (hub, blob, rack, lane, head, card, tray, stem) and which
+// module decides what is in client/README.md, under "Constellation".
 import "./constellation.css";
 import { Forest, TreeNode } from "../ety/model";
 import { close as closePopover, hoverEnter, hoverLeave, pin, popover } from "../ety/popover";
