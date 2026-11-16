@@ -157,20 +157,17 @@ export function previewLines(branch: Branch, target: Lang, children: (head: Tree
   });
 }
 
-// `folded`: a plain derivative of a word of another group is left out too
-// (analogous, from one head, beside analogy, from another).
-function dealt(groups: Group[], folded: boolean): TreeNode[] {
+function dealt(groups: Group[]): TreeNode[] {
   const all = groups.flatMap((g) =>
     g.words.map((node, i) => ({ node, at: (i + 0.5) / g.words.length, of: g.words.length }))
   );
   all.sort(
     (a, b) => Number(b.node.isSelected) - Number(a.node.isSelected) || a.at - b.at || b.of - a.of
   );
-  const terms = new Set(all.map(({ node }) => node.item.term));
   const seen = new Set<string>();
   return all.flatMap(({ node }) => {
     const { term } = node.item;
-    if (seen.has(term) || (folded && !node.isSelected && derived(term, terms))) return [];
+    if (seen.has(term)) return [];
     seen.add(term);
     return [node];
   });
@@ -277,40 +274,13 @@ function listed(n: TreeNode, common: Common | null, grafted: boolean): boolean {
   return !(!pos?.length && /^\p{Lu}/u.test(term));
 }
 
-// The words an English word may be a plain derivative of: itself without
-// un- or non-, or without an inflection or one of the suffixes that keep a
-// word's sense (forgiven, forgiving, forgiveness, forgivable and unforgiven
-// all lead back to forgive, lexicologist to lexicology, "-logical" to
-// "-logic"). Spelling is allowed for: a dropped e or y, y become i, a
-// doubled consonant.
-const PREFIXES = ["un", "non"];
-const SUFFIXES = [
-  ...["ness", "less", "able", "ible", "ical", "ful", "ing", "ism", "ist", "ize", "ise"],
-  ...["ics", "ly", "ed", "en", "es", "al", "ic", "s"],
-];
-function bases(term: string): string[] {
-  const out: string[] = [];
-  for (const p of PREFIXES) if (term.startsWith(p) && term.length >= p.length + 3) out.push(term.slice(p.length));
-  for (const s of SUFFIXES) {
-    if (!term.endsWith(s) || term.length < s.length + 3) continue;
-    const stem = term.slice(0, -s.length);
-    out.push(stem, stem + "e", stem + "y");
-    if (stem.endsWith("i")) out.push(stem.slice(0, -1) + "y");
-    if (stem.at(-1) === stem.at(-2)) out.push(stem.slice(0, -1));
-  }
-  return out;
-}
-const derived = (term: string, terms: { has(term: string): boolean }) =>
-  bases(term.toLowerCase()).some((b) => terms.has(b));
-
 // One entry per spelling (the searched word, else the nearest), in the order
-// a reader is likeliest to know them. Given `common`, that is how common the
-// word is, and a plain derivative of another word here is left out (the
-// searched word excepted): both come from the same root, so "business" goes
-// with "busy" as "forgiveness" does with "forgive". Without it, the order
-// goes by what the graph has: a plain lower-case word before affixes and the
-// rest; then words with several entries or parts of speech, which the
-// everyday ones tend to have; then the nearest and the shortest.
+// a reader is likeliest to know them: corpus frequency and SCOWL tier where
+// known, then what the graph has: a plain lower-case word before affixes and
+// the rest; then words with several entries or parts of speech, which the
+// everyday ones tend to have; then the nearest and the shortest. Which plain
+// derivatives are left out is decided from recorded derivations, never from
+// spelling (`representatives.ts`).
 const PLAIN = /^\p{Ll}+$/u;
 function rank(found: Found[], common: Common | null, scores?: Frequencies): TreeNode[] {
   const byTerm = new Map<string, Found & { uses: number }>();
@@ -324,7 +294,6 @@ function rank(found: Found[], common: Common | null, scores?: Frequencies): Tree
   }
   const rarity = (f: Found) => (common && level(common, f.node.item.term)) || Infinity;
   return [...byTerm.values()]
-    .filter((f) => !common || f.node.isSelected || !derived(f.node.item.term, byTerm))
     .sort(
       (a, b) =>
         Number(b.node.isSelected) - Number(a.node.isSelected) ||
@@ -432,8 +401,7 @@ function unnamed(word: TreeNode, hub: TreeNode, langs: LangTree): TreeNode | nul
 }
 
 // `common`: how common the reader's language's words are, to leave the rare
-// ones and plain derivatives out and list the commonest first; null lists
-// every word.
+// ones out and list the commonest first; null lists every word.
 export function branchesOf(hub: TreeNode, target: Lang, langs: LangTree, common: Common | null, omitted: ReadonlySet<number> = new Set(), scores?: Frequencies): Branch[] {
   // A hub at the top of its family: a reconstructed word of a language with
   // no ancestor of its own (Proto-Indo-European). Its branches are the
@@ -500,7 +468,7 @@ export function branchesOf(hub: TreeNode, target: Lang, langs: LangTree, common:
         b.words.length - a.words.length ||
         a.head.item.term.localeCompare(b.head.item.term)
     );
-    const words = dealt(groups, !!common);
+    const words = dealt(groups);
     branches.push({
       key,
       name,

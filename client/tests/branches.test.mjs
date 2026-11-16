@@ -399,3 +399,11 @@ test("two-column trays keep one source and its own descendants per row", () => {
   assert.deepEqual(tray.map((r) => r.groups.map((g) => g.head.item.term)), [['first'], ['second']]);
   assert.deepEqual(tray.map((r) => r.words.map((w) => w.item.term)), [['alpha'], ['beta']]);
 });
+
+test("a word that only looks like a derivative of another is still listed", () => {
+  const terms = ["nature", "natural", "nation", "national", "sign", "signal", "fine", "final"];
+  const hub = node(italic, "root", [node(latin, "source", terms.map((t) => word(t)))]);
+  const common = new Map(terms.map((t) => [t, 10]));
+  const listed = branchesOf(hub, english, langs, common).flatMap((b) => b.words.map((w) => w.item.term));
+  assert.deepEqual(listed.sort(), [...terms].sort());
+});
