@@ -4,7 +4,7 @@ import { close as closePopover, hoverEnter, hoverLeave, pin, popover } from "../
 import { useGoTo } from "../search/navigate";
 import { Item, Lang, TreeKind, term } from "../search/types";
 import { cognates, constellationStart, lastRequest, setShowRare, showGlosses, showRare } from "../state";
-import { Branch, Common, ENGLISH, Group, LangTree, isProto, isUndefinedRoot, canOpen, previewLines, previewRows, restrictBranches } from "./branches";
+import { Branch, Common, ENGLISH, Group, LangTree, isProto, isUndefinedRoot, canOpen, previewLines, previewRows, restrictBranches, type PreviewRow, type Reading } from "./branches";
 import { selectWords } from "./selection";
 import { blobId, expand, makeHub, type Hub } from "./hubs";
 import { cables, type Cable } from "./cables";
@@ -126,20 +126,21 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
   const [previewWidths, setPreviewWidths] = createSignal(new Map<string, number>(), { equals: false });
 
   const selective = (b: Branch) => b.groups.some((g) => canOpen(g, target));
-  const previewCache = new WeakMap<Branch, ReturnType<typeof previewRows>>();
-  const trayCache = new WeakMap<Branch, ReturnType<typeof previewRows>>();
-  const previewsFor = (b: Branch, splitSources = false) => {
+  const reading: Reading = { target, children: branchesFor, common, scores };
+  const previewCache = new WeakMap<Branch, PreviewRow[]>();
+  const trayCache = new WeakMap<Branch, PreviewRow[]>();
+  const previewsFor = (b: Branch, splitSources: boolean) => {
     const cache = splitSources ? trayCache : previewCache;
     let rows = cache.get(b);
     if (!rows) {
-      rows = previewRows(b, target, branchesFor, common, scores, splitSources);
+      rows = previewRows(b, reading, { splitSources });
       cache.set(b, rows);
     }
     return rows;
   };
   const previewsOf = (hub: Hub, b: Branch) => previewsFor(b, descendantTray(hub, b));
   const singleWords = (b: Branch, words: TreeNode[]) => words.length > 1 && words.every((w) =>
-    previewLines(b, target, branchesFor, common, scores, false).some((line) => line.length === 1 && line[0].item.term === w.item.term));
+    previewLines(b, reading, { combineSingles: false }).some((line) => line.length === 1 && line[0].item.term === w.item.term));
   const unopenedWords = (hub: Hub, b: Branch, words: TreeNode[], groups = b.groups) => words.filter((word) =>
     groups.some((g) => g.words.some((w) => w.item.term === word.item.term) && !openedIn(blobId(hub, b)).some((h) =>
       h.node.item.id === g.head.item.id && (!h.scope || h.scope.words.has(word.item.term)))));
@@ -235,8 +236,8 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
   };
   createEffect(() => {
     hubs(); showGlosses();
-    const frame = requestAnimationFrame(measureContent);
-    onCleanup(() => cancelAnimationFrame(frame));
+    const pending = requestAnimationFrame(measureContent);
+    onCleanup(() => cancelAnimationFrame(pending));
   });
   onMount(() => { void document.fonts.ready.then(measureContent); });
   const [layoutVersion, setLayoutVersion] = createSignal(0);
@@ -329,9 +330,11 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
   );
   const [view, setView] = createSignal({ x: 0, y: 0, k: 1 });
   const [initialOverview, setInitialOverview] = createSignal(true);
-  const [stage, setStage] = createSignal<CameraViewport>({ x: 0, y: 0, w: 0, h: 0, scale: 1 });
+  // The part of the stage the reader can see (pinch zoom can crop it), in
+  // stage pixels, with the browser's zoom.
+  const [screen, setScreen] = createSignal<CameraViewport>({ x: 0, y: 0, w: 0, h: 0, scale: 1 });
   const placed = createMemo(() => {
-    const v = view(), s = stage();
+    const v = view(), s = screen();
     if (initialOverview() || !s.w) return baseLayout();
     const viewport = { x: (s.x - v.x) / v.k, y: (s.y - v.y) / v.k, w: s.w / v.k, h: s.h / v.k };
     // Rank against the stable base, not our own reordered output: grouping
@@ -378,7 +381,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
 
   const visibleLanguageAnchors = createMemo(() => {
     const v = view();
-    const s = stage();
+    const s = screen();
     const viewport = { x: (s.x - v.x) / v.k, y: (s.y - v.y) / v.k, w: s.w / v.k, h: s.h / v.k };
     return [...languageGroups()].flatMap(([language, g]) => languageAnchors(g.anchors, viewport)
       .map((anchor) => ({ ...anchor, language, name: g.name, hue: g.hue })));
@@ -426,12 +429,12 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
   };
   const centreOn = (p: Point) => {
     const { k } = view();
-    glide({ x: stage().x + stage().w / 2 - p.x * k, y: stage().y + stage().h / 2 - p.y * k, k });
+    glide({ x: screen().x + screen().w / 2 - p.x * k, y: screen().y + screen().h / 2 - p.y * k, k });
   };
   const zoomAt = (cx: number, cy: number, k: number, smooth = false) => {
     setInitialOverview(false);
     const v = view();
-    const next = Math.min(MAX_ZOOM / stage().scale, Math.max(MIN_ZOOM / stage().scale, k));
+    const next = Math.min(MAX_ZOOM / screen().scale, Math.max(MIN_ZOOM / screen().scale, k));
     const to = { x: cx - ((cx - v.x) / v.k) * next, y: cy - ((cy - v.y) / v.k) * next, k: next };
     if (smooth) glide(to);
     else setView(to);
@@ -529,7 +532,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
         const w = r ? r.width / view().k : 0;
         return { x: label.x - w / 2, y: label.y, w, h: r ? r.height / view().k : 20 };
       }));
-      if (context && next && stage().w) glide(expansionView(context, next, stage(), labelBounds));
+      if (context && next && screen().w) glide(expansionView(context, next, screen(), labelBounds));
     });
   };
   // Back to one list: everything opened from the blob goes.
@@ -549,7 +552,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
   const rootView = () => {
     const b = bounds(placed(), rootHub.id, ROOT_R, rootHub.branches.map((br) => blobId(rootHub, br)));
     const c = placed().hubs.get(rootHub.id);
-    const s = stage();
+    const s = screen();
     if (!b || !c || !s.w) return null;
     return rootOverview(c, b, s);
   };
@@ -611,7 +614,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     window.addEventListener("resize", fill);
     onCleanup(() => window.removeEventListener("resize", fill));
     const measureViewport = () => {
-      const was = stage();
+      const was = screen();
       const r = stageEl.getBoundingClientRect();
       const visual = window.visualViewport;
       const now = visibleStage({ x: r.x, y: r.y, w: r.width, h: r.height }, {
@@ -631,7 +634,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
         setView({ ...v, x: v.x + now.x - was.x + (now.w - was.w) / 2,
           y: v.y + now.y - was.y + (now.h - was.h) / 2 });
       }
-      setStage(now);
+      setScreen(now);
     };
     const sized = new ResizeObserver(measureViewport);
     sized.observe(stageEl);
@@ -713,7 +716,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     if (!el.matches(":focus-visible") || el.closest(".cst-ui")) return;
     const r = el.getBoundingClientRect();
     const box = stageEl.getBoundingClientRect();
-    const visible = stage();
+    const visible = screen();
     const s = { left: box.left + visible.x, top: box.top + visible.y,
       right: box.left + visible.x + visible.w, bottom: box.top + visible.y + visible.h };
     const m = 56 / visible.scale;
@@ -852,8 +855,8 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
             <button type="button" class="cst-single-word" aria-label={`Expand ${term(word.item)}`}
               onClick={(e) => {
                 e.stopPropagation();
-                const words = new Set([word.item.term]);
-                rack(p.hub, p.branch, restrictBranches([p.branch], words)[0]?.groups ?? [], { id: `${id}:${word.item.id}`, words });
+                const chosen = new Set([word.item.term]);
+                rack(p.hub, p.branch, restrictBranches([p.branch], chosen)[0]?.groups ?? [], { id: `${id}:${word.item.id}`, words: chosen });
               }}>{term(word.item)}</button>{i() < words().length - 1 ? ", " : ""}
           </>}</For></span>
         </div>
@@ -910,7 +913,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     // The heads opened here, in the order of their rows.
     const rows = () => newestFirst(openedIn(id));
     const openable = roots.filter((g) => canOpen(g, target));
-    const lines = () => previewLines(p.branch, target, branchesFor, common, scores);
+    const lines = () => previewLines(p.branch, reading);
     // One named word needs one row, even when more language stages follow.
     // Keeping those stages visible must not add a separate language header.
     const compact = () => roots.length === 1 && rows().length === 1 && !isUndefinedRoot(rows()[0].node);
@@ -1101,7 +1104,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
   // and record where each goes in `labelPlacements`, which the labels read.
   let labelFrame = 0;
   createEffect(() => {
-    view(); stage(); languageLabels(); gliding();
+    view(); screen(); languageLabels(); gliding();
     cancelAnimationFrame(labelFrame);
     let settling = 4;
     const check = () => {
@@ -1273,14 +1276,14 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
         <button
           type="button"
           aria-label="zoom out"
-          onClick={() => zoomAt(stage().x + stage().w / 2, stage().y + stage().h / 2, view().k / 1.25, true)}
+          onClick={() => zoomAt(screen().x + screen().w / 2, screen().y + screen().h / 2, view().k / 1.25, true)}
         >
           −
         </button>
         <button
           type="button"
           aria-label="zoom in"
-          onClick={() => zoomAt(stage().x + stage().w / 2, stage().y + stage().h / 2, view().k * 1.25, true)}
+          onClick={() => zoomAt(screen().x + screen().w / 2, screen().y + screen().h / 2, view().k * 1.25, true)}
         >
           +
         </button>

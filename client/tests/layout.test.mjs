@@ -15,7 +15,7 @@ test("root cables flow into a branch stem outside its cards without an obstacle 
     const arrival = stemArrival({ x: 0, y: 0 }, x, sources);
     assert.equal(arrival.y, vertical > 0 ? 228 : -370);
     const direction = vertical * Math.PI / 2;
-    const line = join({ x: 0, y: 0 }, 96, { ...arrival, w: 0, h: 0 }, [], direction, true);
+    const line = join({ x: 0, y: 0 }, 96, { ...arrival, w: 0, h: 0 }, { direction, stem: true });
     assert.ok(line.d.includes(" C "));
     assert.ok(!line.d.includes(" L "));
     const coords = line.d.match(/-?\d+\.\d+/g).map(Number);
@@ -118,7 +118,7 @@ test("root siblings keep separate directions even with tall previews and previou
 test("root cables retain distinct departure directions when visible rack boxes move", () => {
   for (let i = 0; i < 4; i++) {
     const direction = rootDirection(i, 4);
-    const line = join({ x: 0, y: 0 }, 96, { x: 300, y: 100, w: 320, h: 600 }, [], direction);
+    const line = join({ x: 0, y: 0 }, 96, { x: 300, y: 100, w: 320, h: 600 }, { direction });
     const [, x, y] = /^M (-?[\d.]+) (-?[\d.]+)/.exec(line.d);
     assert.ok(Math.abs(+x - 96 * Math.cos(direction)) < 0.1);
     assert.ok(Math.abs(+y - 96 * Math.sin(direction)) < 0.1);
@@ -129,7 +129,7 @@ test("root connectors route around a tall sibling instead of appearing to descen
   for (const side of [-1, 1]) {
     const obstacle = { x: side === 1 ? 150 : -350, y: -220, w: 200, h: 440 };
     const target = { x: side === 1 ? 450 : -650, y: -80, w: 200, h: 160 };
-    const line = join({ x: 0, y: 0 }, 96, target, [obstacle]);
+    const line = join({ x: 0, y: 0 }, 96, target, { obstacles: [obstacle] });
     assert.ok(line.d.includes(" L "));
     const coords = samplePath(line.d);
     assert.ok(Math.abs(Math.hypot(coords[0].x, coords[0].y) - 96) < 0.1);
@@ -249,7 +249,7 @@ test("connectors contain only curves and horizontal or vertical straight runs", 
     for (const y of [-250, -4, 0, 4, 250]) assertOrthogonalLines(wire({ x: 0, y: 0 }, { x: side * 400, y }).d);
     const obstacle = { x: side > 0 ? 130 : -330, y: -180, w: 200, h: 360 };
     const target = { x: side > 0 ? 450 : -650, y: -70, w: 200, h: 140 };
-    const d = join({ x: 0, y: 0 }, 96, target, [obstacle]).d;
+    const d = join({ x: 0, y: 0 }, 96, target, { obstacles: [obstacle] }).d;
     assertOrthogonalLines(d);
     assert.ok(d.includes(" Q "));
   }
@@ -363,7 +363,7 @@ test('short root-to-stem curves never reverse direction or overshoot their endpo
   for(const direction of [Math.PI/6,2*Math.PI/3,-Math.PI/3,-5*Math.PI/6]) {
     const start={x:96*Math.cos(direction),y:96*Math.sin(direction)};
     for(const dx of [-24,24]) for(const dy of [-18,18]) {
-      const line=join({x:0,y:0},96,{x:start.x+dx,y:start.y+dy,w:0,h:0},[],direction,true);
+      const line=join({x:0,y:0},96,{x:start.x+dx,y:start.y+dy,w:0,h:0},{direction,stem:true});
       const n=line.d.match(/-?\d+\.\d+/g).map(Number);
       assert.ok(line.d.includes(' C '));
       assert.ok(n[2]>=Math.min(n[0],n[6]) && n[2]<=Math.max(n[0],n[6]));

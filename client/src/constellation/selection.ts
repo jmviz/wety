@@ -66,7 +66,8 @@ export function selectWords(
   // it, then leaves out the English words it does not keep.
   if (common && scores) {
     const preliminary = cachedPerNode(display);
-    const groups = preliminary(root).flatMap((b) => previewLines(b, target, preliminary, common, scores, false));
+    const reading = { target, children: preliminary, common, scores };
+    const groups = preliminary(root).flatMap((b) => previewLines(b, reading, { combineSingles: false }));
     const keep = representatives(groups, scores);
     const visit = (n: TreeNode) => {
       if (n.item.lang.code === ENGLISH && !n.isSelected && !keep.has(n.item.term)) omitted.add(n.key);

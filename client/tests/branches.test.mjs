@@ -38,7 +38,7 @@ test("descendant preview rows retain their own source when several roots lead to
   const portus = node(latin, "portus", [node(french, "port", [word("port")])]);
   const root = node(italic, "root", [porto, porta, portus]);
   const read = (n) => branchesOf(n, english, langs, null);
-  const rows = previewRows(read(root)[0], english, read);
+  const rows = previewRows(read(root)[0], { target: english, children: read });
   assert.deepEqual(rows.map((r) => r.groups[0].head.item.term), ["porto", "porta", "portus"]);
   assert.deepEqual(new Set(rows[0].words.map((w) => w.item.term)), new Set(["report", "sport", "port", "import", "important"]));
   assert.deepEqual(rows.slice(1).map((r) => r.words.map((w) => w.item.term)), [["port"], ["port"]]);
@@ -53,7 +53,7 @@ test("a preview row opens only its words, including when rows share the same pro
   const root = node(pie, "root", [shared, other]);
   const read = (n) => branchesOf(n, english, langs, null);
   const [branch] = read(root);
-  const rows = previewLines(branch, english, read);
+  const rows = previewLines(branch, { target: english, children: read });
   const family = rows.find((row) => row.some((w) => w.item.term === "practice"));
   const singles = rows.find((row) => row.some((w) => w.item.term === "periodic"));
   assert.deepEqual(groupsForWords(branch, family).map((g) => g.head), [shared]);
@@ -94,7 +94,7 @@ test("revealed language roots have independent preview rows", () => {
   ]);
   const read = (n) => branchesOf(n, english, langs, null);
   const [branch] = read(hub);
-  const rows = previewRows(branch, english, read, null, undefined, true);
+  const rows = previewRows(branch, { target: english, children: read }, { splitSources: true });
   assert.equal(rows.length, 2);
   assert.ok(rows.every((r) => r.groups.length === 1));
   assert.deepEqual(new Set(rows.map((r) => r.groups[0].head.item.term)), new Set(["peri", "praktikos"]));
@@ -146,7 +146,7 @@ test("collapsed subcognate lines follow expanded lanes and keep nested families 
   hub.children = [latinHead];
   const read = (head) => branchesOf(head, english, langs, null);
   const [branch] = read(hub);
-  const lines = previewLines(branch, english, read).map((line) => line.map((w) => w.item.term));
+  const lines = previewLines(branch, { target: english, children: read }).map((line) => line.map((w) => w.item.term));
   assert.equal(lines.length, 2);
   assert.deepEqual(lines[0], ["impressionism", "impressionist", "impressionable", "depressive", "expressionism"]);
   assert.deepEqual(lines[1], ["espresso"]);
@@ -164,7 +164,7 @@ test("lone descendants share one frequency-ordered section without splitting lar
   const read = (head) => branchesOf(head, english, langs, null);
   const [branch] = read(hub);
   const common = new Map([["from", 10], ["frame", 20], ["fear", 20], ["ford", 35], ["wayfaring", 50]]);
-  const groups = previewLines(branch, english, read, common).map((line) => line.map((w) => w.item.term));
+  const groups = previewLines(branch, { target: english, children: read, common }).map((line) => line.map((w) => w.item.term));
   assert.equal(groups.length, 3);
   const singles = groups.find((g) => g.includes("from"));
   assert.equal(singles.length, 5);
@@ -181,7 +181,7 @@ test("an initial cluster made entirely of solos gives each word its own clickabl
   const read = (head) => branchesOf(head, english, langs, null);
   const [branch] = read(hub);
   const scores = new Map([["first", 3], ["second", 5], ["third", 4]]);
-  const rows = previewRows(branch, english, read, null, scores);
+  const rows = previewRows(branch, { target: english, children: read, scores });
   assert.deepEqual(rows.map((r) => r.words.map((w) => w.item.term)), [["second"], ["third"], ["first"]]);
   assert.ok(rows.every((r) => r.groups.length === 1 && r.groups[0].words.length === 1));
 });
@@ -392,8 +392,8 @@ test("two-column trays keep one source and its own descendants per row", () => {
   const root = node(pie, 'root', [a, b]);
   const read = (n) => branchesOf(n, english, langs, null);
   const branch = read(root)[0];
-  const initial = previewRows(branch, english, read);
-  const tray = previewRows(branch, english, read, null, undefined, true);
+  const initial = previewRows(branch, { target: english, children: read });
+  const tray = previewRows(branch, { target: english, children: read }, { splitSources: true });
   assert.equal(initial.length, 2);
   assert.equal(tray.length, 2);
   assert.deepEqual(tray.map((r) => r.groups.map((g) => g.head.item.term)), [['first'], ['second']]);

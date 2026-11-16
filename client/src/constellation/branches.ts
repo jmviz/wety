@@ -96,15 +96,33 @@ export function groupsForWords(branch: Branch, words: TreeNode[]): Group[] {
   return restrictBranches([branch], new Set(words.map((w) => w.item.term)))[0]?.groups ?? [];
 }
 
+// What previews read a branch with: the reader's language, the branches a
+// head opens into, and, for English, how common its words are (`common`,
+// null to list every word) and their corpus frequencies.
+export interface Reading {
+  target: Lang;
+  children: (head: TreeNode) => Branch[];
+  common?: Common | null;
+  scores?: Frequencies;
+}
+
+export interface PreviewRow {
+  words: TreeNode[];
+  lines: TreeNode[][];
+  groups: Group[];
+}
+
 // Keep each preview row attached to the source that produced it. Matching
 // only by spelling incorrectly opens every unrelated source of e.g. port.
-export function previewRows(branch: Branch, target: Lang, children: (head: TreeNode) => Branch[], common: Common | null = null, scores?: Frequencies, splitSources = false): { words: TreeNode[]; lines: TreeNode[][]; groups: Group[] }[] {
+// A proto-language branch previews its subgroups together unless
+// `splitSources` (a descendant tray) gives each source its own row.
+export function previewRows(branch: Branch, reading: Reading, { splitSources = false } = {}): PreviewRow[] {
   const proto = isProto(branch.key);
-  if (proto && !splitSources) return previewLines(branch, target, children, common, scores)
+  if (proto && !splitSources) return previewLines(branch, reading)
     .map((words) => ({ words, lines: [words], groups: groupsForWords(branch, words) }));
   return branch.groups.flatMap((g) => {
     const scoped = { ...branch, groups: [g], words: branch.words.filter((w) => g.words.some((v) => v.item.term === w.item.term)) };
-    const lines = previewLines(scoped, target, children, common, scores);
+    const lines = previewLines(scoped, reading);
     const words = lines.flat();
     return words.length ? [{ words, lines, groups: [g] }] : [];
   });
@@ -123,7 +141,9 @@ export function rackOrder<T>(entries: T[], single: (entry: T) => boolean): T[] {
 
 // Each line previews one child branch of the expanded rack. Keep the
 // existing word filters and show a spelling once, in its first subgroup.
-export function previewLines(branch: Branch, target: Lang, children: (head: TreeNode) => Branch[], common: Common | null = null, scores?: Frequencies, combineSingles = true): TreeNode[][] {
+// `combineSingles`: lone descendants share one line when larger families
+// are beside them.
+export function previewLines(branch: Branch, { target, children, common = null, scores }: Reading, { combineSingles = true } = {}): TreeNode[][] {
   const cache = new Map<Branch, TreeNode[][]>();
   const lines = (branch: Branch): TreeNode[][] => {
     const had = cache.get(branch);
@@ -320,19 +340,21 @@ function rank(found: Found[], common: Common | null, scores?: Frequencies): Tree
     .map((f) => f.node);
 }
 
-// The words of the reader's language at and below a head.
-// `folds`: words formed with an affix are left to the affixes listed.
-// `grafted`: the head itself was formed with one.
-function wordsUnder(
-  head: TreeNode,
-  target: number,
-  common: Common | null,
-  folds: boolean,
-  grafted: boolean,
-  omitted: ReadonlySet<number>,
-  scores: Frequencies | undefined,
-  langs: LangTree
-): TreeNode[] {
+// How a hub's words are gathered: the reader's language (its ID), the word
+// data, the words left out, and whether words formed with an affix are left
+// to the affixes listed (`folds`).
+interface Gathering {
+  target: number;
+  common: Common | null;
+  scores: Frequencies | undefined;
+  omitted: ReadonlySet<number>;
+  folds: boolean;
+  langs: LangTree;
+}
+
+// The words of the reader's language at and below a head. `grafted`: the
+// head itself was formed with an affix.
+function wordsUnder(head: TreeNode, grafted: boolean, { target, common, scores, omitted, folds, langs }: Gathering): TreeNode[] {
   const found: Found[] = [];
   const visit = (n: TreeNode, depth: number, grafted: boolean) => {
     if (n.item.lang.id === target && !omitted.has(n.key) && listed(n, common, grafted)) found.push({ node: n, depth });
@@ -451,7 +473,8 @@ export function branchesOf(hub: TreeNode, target: Lang, langs: LangTree, common:
     }
   };
   collect(hub, 1, false);
-  const under = (h: TreeNode) => wordsUnder(h, target.id, common, folds, graftedHeads.has(h.item.id), omitted, scores, langs);
+  const gathering: Gathering = { target: target.id, common, scores, omitted, folds, langs };
+  const under = (h: TreeNode) => wordsUnder(h, graftedHeads.has(h.item.id), gathering);
 
   // Only a family's root uses ancestry to choose its fixed branches.
   // Everywhere else the heading is the exact language of every head in it:

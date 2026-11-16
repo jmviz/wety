@@ -95,8 +95,8 @@ export function cables(scene: CableScene): Cable[] {
       if (!side && sources.length === 1) {
         // A single root card needs one direct connection, not a shared
         // stem approached above the card and then doubled back down.
-        push(hue, join(c, scene.rootRadius, { ...nearEdge(sources[0]), w: 0, h: 0 }, otherSeats(id),
-          rootDirection(h.branches.indexOf(b), h.branches.length)));
+        push(hue, join(c, scene.rootRadius, { ...nearEdge(sources[0]), w: 0, h: 0 },
+          { obstacles: otherSeats(id), direction: rootDirection(h.branches.indexOf(b), h.branches.length) }));
         continue;
       }
       if (side && sources.length) {
@@ -118,8 +118,11 @@ export function cables(scene: CableScene): Cable[] {
       const spineX = outward > 0 ? box.x - STEM_GUTTER : box.x + box.w + STEM_GUTTER;
       const arrival = sources.length ? { ...stemArrival(c, spineX, sources), w: 0, h: 0 } : box;
       if (side) connect(id, c, { x: side > 0 ? arrival.x : arrival.x + arrival.w, y: arrival.y + arrival.h / 2 }, hue, recent.has(h.id));
-      else push(hue, join(c, scene.rootRadius, arrival, otherSeats(id),
-        rootDirection(h.branches.indexOf(b), h.branches.length), sources.length > 0));
+      else push(hue, join(c, scene.rootRadius, arrival, {
+        obstacles: otherSeats(id),
+        direction: rootDirection(h.branches.indexOf(b), h.branches.length),
+        stem: sources.length > 0,
+      }));
       if (sources.length) {
         const ys = sources.map((s) => s.y + s.h / 2);
         const top = Math.min(...ys, arrival.y), bottom = Math.max(...ys, arrival.y);

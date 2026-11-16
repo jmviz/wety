@@ -488,8 +488,12 @@ function crossesInterior(a: Point, b: Point, rect: Rect): boolean {
   return lo + 1e-6 < hi;
 }
 
-// A gently bowed line from the root's rim to a blob's edge.
-export function join(c: Point, r: number, box: Rect, obstacles: Rect[] = [], direction?: number, stem = false): Link {
+// A gently bowed line from the root's rim to a blob's edge. `obstacles`:
+// sibling branches' room, which it routes around. `direction`: the angle it
+// leaves the root at (default: towards the box). `stem`: it ends on a
+// column's stem, so it arrives level rather than bowed.
+export function join(c: Point, r: number, box: Rect,
+  { obstacles = [], direction, stem = false }: { obstacles?: Rect[]; direction?: number; stem?: boolean } = {}): Link {
   const to = center(box);
   const angle = direction ?? Math.atan2(to.y - c.y, to.x - c.x);
   const start = { x: c.x + Math.cos(angle) * r, y: c.y + Math.sin(angle) * r };
