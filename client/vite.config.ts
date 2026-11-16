@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import { defineConfig, type Plugin } from "vite";
 import solid from "vite-plugin-solid";
 import type { LayoutPeriod } from "./src/constellation/chronology";
+import { COMMON_LIMIT } from "./src/constellation/branches.ts";
 
 // `virtual:lang-tree`: each language's parent language and the names of the
 // languages that have daughters, from the Wiktionary export the graph was
@@ -33,6 +34,7 @@ function langTree(): Plugin {
         parents[code] = ancestors[ancestors.length - 1];
         for (const a of ancestors) if (table[a]) names[a] = table[a].canonicalName;
       }
+      if (!Object.keys(parents).length) this.error(`${languages} gives no language an ancestor`);
       return `export const parents = ${JSON.stringify(parents)};\nexport const names = ${JSON.stringify(names)};\n`;
     },
   };
@@ -41,9 +43,10 @@ function langTree(): Plugin {
 // `virtual:common-words`: English words by how common they are, from SCOWL
 // (the `wordlist-english` package: American, British, Canadian and Australian
 // spellings, sizes 10 to 70, the last including obscure words). Each word
-// is under the smallest size that lists it. The constellation view leaves
-// defaults to sizes through 50 and lists the commonest first; the graph
-// has no word frequencies.
+// is under the smallest size that lists it. The constellation view lists
+// sizes through COMMON_LIMIT by default, commonest first by the wordfreq
+// scores in `data/english-frequencies.json`; the graph has no word
+// frequencies.
 function commonWords(): Plugin {
   const id = "virtual:common-words";
   const dir = resolve(dirname(fileURLToPath(import.meta.url)), "node_modules/wordlist-english");
@@ -61,12 +64,16 @@ function commonWords(): Plugin {
           if (size < (sizes.get(w) ?? Infinity)) sizes.set(w, size);
         }
       }
+      // Without this every English constellation would silently list nothing.
+      if (!sizes.size) this.error(`no SCOWL word lists (*-words-<size>.json) in ${dir}`);
       const levels: Record<string, string[]> = {};
       for (const [w, size] of sizes) (levels[size] ??= []).push(w);
       const joined = Object.fromEntries(Object.entries(levels).map(([size, words]) => [size, words.sort().join("\n")]));
       const path = resolve(dirname(fileURLToPath(import.meta.url)), "data/english-frequencies.json");
       this.addWatchFile(path);
-      const { bins } = JSON.parse(readFileSync(path, "utf8"));
+      const { bins, scowl_limit } = JSON.parse(readFileSync(path, "utf8")) as { bins: Record<string, string>; scowl_limit?: number };
+      if (!scowl_limit || scowl_limit < COMMON_LIMIT)
+        this.error(`${path} scores SCOWL tiers up to ${scowl_limit ?? "an unknown tier"}, but the constellation lists words up to ${COMMON_LIMIT}: regenerate it with scripts/build-word-frequencies.py`);
       return `export const levels = ${JSON.stringify(joined)};\nexport const frequencies = ${JSON.stringify(bins)};\n`;
     },
   };

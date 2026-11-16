@@ -11,11 +11,18 @@ from pathlib import Path
 
 from wordfreq import zipf_frequency
 
+# The SCOWL tier scored up to. It must cover the constellation's default
+# word list (COMMON_LIMIT in src/constellation/branches.ts); the client build
+# refuses an asset whose "scowl_limit" is lower.
+SCOWL_LIMIT = 50
+
 client = Path(__file__).resolve().parents[1]
 words = set()
 for path in (client / "node_modules/wordlist-english").glob("*-words-*.json"):
-    if int(path.stem.rsplit("-", 1)[1]) <= 50:
+    if int(path.stem.rsplit("-", 1)[1]) <= SCOWL_LIMIT:
         words.update(word.lower() for word in json.loads(path.read_text()))
+if not words:
+    raise SystemExit("no SCOWL word lists found: run npm install in client first")
 
 bins = defaultdict(list)
 for word in sorted(words):
@@ -29,7 +36,8 @@ asset = {
     "author": "Robyn Speer",
     "url": "https://github.com/rspeer/wordfreq",
     "license": "CC-BY-SA-4.0",
-    "note": "English Zipf scores, multiplied by 100; usage snapshot through about 2021. Subset: SCOWL <=50. See README.md for source credits.",
+    "note": f"English Zipf scores, multiplied by 100; usage snapshot through about 2021. Subset: SCOWL <={SCOWL_LIMIT}. See README.md for source credits.",
+    "scowl_limit": SCOWL_LIMIT,
     "bins": {str(score): "\n".join(bins[score]) for score in sorted(bins, reverse=True)},
 }
 destination = client / "data/english-frequencies.json"

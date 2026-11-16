@@ -9,7 +9,7 @@
 
 import type { TreeNode } from "../ety/model";
 import type { Lang } from "../search/types";
-import type { Frequencies } from "./representatives";
+import { frequency, type Frequencies } from "./representatives.ts";
 
 export interface LangTree {
   parents: Record<string, string>;
@@ -130,9 +130,7 @@ export function previewLines(branch: Branch, target: Lang, children: (head: Tree
       if (!allowed.has(term) || seen.has(term)) return false;
       seen.add(term);
       return true;
-    }).sort((a, b) => Number(b.isSelected) - Number(a.isSelected) ||
-      (scores ? (scores.get(b.item.term.toLowerCase()) ?? 0) - (scores.get(a.item.term.toLowerCase()) ?? 0) : 0)
-    )).filter((words) => words.length > 0);
+    }).sort(byUsage(scores))).filter((words) => words.length > 0);
     cache.set(branch, result);
     return result;
   };
@@ -140,8 +138,7 @@ export function previewLines(branch: Branch, target: Lang, children: (head: Tree
   if (!combineSingles) return groups;
   const singles = groups.filter((words) => words.length === 1).flat();
   if (singles.length < 2) return groups;
-  singles.sort((a, b) => Number(b.isSelected) - Number(a.isSelected) ||
-    (scores ? (scores.get(b.item.term.toLowerCase()) ?? 0) - (scores.get(a.item.term.toLowerCase()) ?? 0) : 0) ||
+  singles.sort((a, b) => byUsage(scores)(a, b) ||
     (common ? (level(common, a.item.term) ?? Infinity) - (level(common, b.item.term) ?? Infinity) : 0));
   // Compact solos only when sharing the preview with larger families.
   // An all-solo preview has room to give each choice its own row.
@@ -208,8 +205,15 @@ export function directEarlyEnglish(root: TreeNode, early: (code: string) => bool
 // dialect words such as "fremd". `virtual:common-words` has English alone.
 export type Common = Map<string, number>;
 const level = (common: Common, term: string) => common.get(term.toLowerCase());
-const COMMON_LIMIT = 50;
+// `scripts/build-word-frequencies.py` scores words up to this tier, and the
+// build refuses a frequency asset that stops short of it (`vite.config.ts`).
+export const COMMON_LIMIT = 50;
 const LATIN_COMMON_LIMIT = 35;
+
+// The searched word first, then the commoner by corpus usage where known.
+const byUsage = (scores: Frequencies | undefined) => (a: TreeNode, b: TreeNode) =>
+  Number(b.isSelected) - Number(a.isSelected) ||
+  (scores ? frequency(scores, b.item.term) - frequency(scores, a.item.term) : 0);
 
 // Follow the recorded word path, not the language family: a Germanic word
 // borrowed through Latin qualifies, while an unrelated Germanic path does
@@ -294,8 +298,7 @@ function rank(found: Found[], common: Common | null, scores?: Frequencies): Tree
   return [...byTerm.values()]
     .sort(
       (a, b) =>
-        Number(b.node.isSelected) - Number(a.node.isSelected) ||
-        (scores ? (scores.get(b.node.item.term.toLowerCase()) ?? 0) - (scores.get(a.node.item.term.toLowerCase()) ?? 0) : 0) ||
+        byUsage(scores)(a.node, b.node) ||
         rarity(a) - rarity(b) ||
         Number(!PLAIN.test(a.node.item.term)) - Number(!PLAIN.test(b.node.item.term)) ||
         Math.min(b.uses, 3) - Math.min(a.uses, 3) ||
