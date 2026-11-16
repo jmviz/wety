@@ -138,10 +138,30 @@ jobs:
           WETY_R2_BUCKET: ${{ vars.R2_BUCKET }}
         run: deploy/prune-r2.sh --apply
 
+  # The website is built from `production`, so it moves only once the client's
+  # own checks pass. The tests import the TypeScript modules directly, which
+  # needs Node's type stripping (22.18 or later).
+  client:
+    needs: plan
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: client
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: client/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+
   promote:
-    needs: [plan, server]
+    needs: [plan, server, client]
     if: >-
-      always() && needs.plan.result == 'success' &&
+      always() && needs.plan.result == 'success' && needs.client.result == 'success' &&
       (needs.server.result == 'success' || needs.server.result == 'skipped')
     runs-on: ubuntu-24.04
     permissions:

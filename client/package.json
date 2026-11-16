@@ -17,6 +17,11 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "node --test tests/*.test.mjs",
+    "typecheck": "tsc --noEmit -p ."
+  },
+  "engines": {
+    "node": ">=22.18"
   }
 }
