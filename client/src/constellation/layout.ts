@@ -468,6 +468,26 @@ export function stemArrival(c: Point, x: number, sources: Rect[]): Point {
   return { x, y: Math.max(top, Math.min(bottom, c.y)) };
 }
 
+// How far cables keep from the cards they pass.
+const CLEARANCE = 16;
+const inflate = (r: Rect, by: number): Rect => ({ x: r.x - by, y: r.y - by, w: r.w + 2 * by, h: r.h + 2 * by });
+
+// Whether the segment a–b passes through the open interior of `rect`;
+// running along its edge does not count.
+function crossesInterior(a: Point, b: Point, rect: Rect): boolean {
+  let lo = 0, hi = 1;
+  for (const [p, d, min, max] of [[a.x, b.x - a.x, rect.x, rect.x + rect.w], [a.y, b.y - a.y, rect.y, rect.y + rect.h]]) {
+    if (Math.abs(d) < 1e-9) {
+      if (p <= min + 1e-6 || p >= max - 1e-6) return false;
+    } else {
+      const t0 = (min - p) / d, t1 = (max - p) / d;
+      lo = Math.max(lo, Math.min(t0, t1));
+      hi = Math.min(hi, Math.max(t0, t1));
+    }
+  }
+  return lo + 1e-6 < hi;
+}
+
 // A gently bowed line from the root's rim to a blob's edge.
 export function join(c: Point, r: number, box: Rect, obstacles: Rect[] = [], direction?: number, stem = false): Link {
   const to = center(box);
@@ -487,62 +507,18 @@ export function join(c: Point, r: number, box: Rect, obstacles: Rect[] = [], dir
     y: start.y + Math.sign(dy) * Math.min(Math.abs(dy) / 2, reach) };
   const control2 = { x: end.x, y: end.y - Math.sign(dy) * Math.min(Math.abs(dy) / 2, reach) };
   // A tall sibling can hide this cable and make it appear to originate
-  // there. Route around the sibling's entire reserved space, not through it.
-  const blocks = obstacles.map((b) => ({ x: b.x - 16, y: b.y - 16, w: b.w + 32, h: b.h + 32 }));
-  const hits = (a: Point, b: Point, rect: Rect): boolean => {
-    // Open rectangle interior: paths along an inflated edge are allowed.
-    let lo = 0, hi = 1;
-    for (const [p, d, min, max] of [[a.x, b.x - a.x, rect.x, rect.x + rect.w], [a.y, b.y - a.y, rect.y, rect.y + rect.h]]) {
-      if (Math.abs(d) < 1e-9) {
-        if (p <= min + 1e-6 || p >= max - 1e-6) return false;
-      } else {
-        const t0 = (min - p) / d, t1 = (max - p) / d;
-        lo = Math.max(lo, Math.min(t0, t1));
-        hi = Math.min(hi, Math.max(t0, t1));
-      }
-    }
-    return lo + 1e-6 < hi;
-  };
+  // there. Route around the sibling's entire reserved space, not through it,
+  // with the same orthogonal router every other cable uses.
+  const blocks = obstacles.map((b) => inflate(b, CLEARANCE));
   let prev = start;
-  let blocked = false;
-  for (let i = 1; i <= 32 && !blocked; i++) {
+  for (let i = 1; i <= 32; i++) {
     const t = i / 32, u = 1 - t;
     const p = stem ? {
       x: u ** 3 * start.x + 3 * u * u * t * control1.x + 3 * u * t * t * control2.x + t ** 3 * end.x,
       y: u ** 3 * start.y + 3 * u * u * t * control1.y + 3 * u * t * t * control2.y + t ** 3 * end.y,
     } : { x: u * u * start.x + 2 * u * t * cx + t * t * end.x, y: u * u * start.y + 2 * u * t * cy + t * t * end.y };
-    blocked = blocks.some((b) => hits(prev, p, b));
+    if (blocks.some((b) => crossesInterior(prev, p, b))) return { d: cableRouter(obstacles)(start, end).d, end };
     prev = p;
-  }
-  if (blocked) {
-    // Rectilinear visibility grid: every straight run is horizontal or
-    // vertical. Obstacle corners supply lanes, never diagonal shortcuts.
-    const xs = [...new Set([start.x, end.x, ...blocks.flatMap((b) => [b.x, b.x + b.w])])];
-    const ys = [...new Set([start.y, end.y, ...blocks.flatMap((b) => [b.y, b.y + b.h])])];
-    const points = [start, end, ...xs.flatMap((x) => ys.map((y) => ({ x, y })))];
-    const distance = points.map(() => Infinity);
-    const previous = points.map(() => -1);
-    const visited = new Set<number>();
-    distance[0] = 0;
-    while (visited.size < points.length) {
-      let current = -1;
-      for (let i = 0; i < points.length; i++)
-        if (!visited.has(i) && (current < 0 || distance[i] < distance[current])) current = i;
-      if (current < 0 || !Number.isFinite(distance[current])) break;
-      if (current === 1) break;
-      visited.add(current);
-      for (let i = 0; i < points.length; i++) {
-        const a = points[current], b = points[i];
-        if (visited.has(i) || (a.x !== b.x && a.y !== b.y) || blocks.some((rect) => hits(a, b, rect))) continue;
-        const d = distance[current] + Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
-        if (d < distance[i]) { distance[i] = d; previous[i] = current; }
-      }
-    }
-    if (Number.isFinite(distance[1])) {
-      const path: Point[] = [];
-      for (let i = 1; i >= 0; i = previous[i]) path.unshift(points[i]);
-      return { d: roundedRoute(path), end };
-    }
   }
   return { d: stem
     ? `M ${f(start.x)} ${f(start.y)} C ${f(control1.x)} ${f(control1.y)} ${f(control2.x)} ${f(control2.y)} ${f(end.x)} ${f(end.y)}`
@@ -598,10 +574,8 @@ export function cableRouter(cards: Rect[], stems: { x: number; top: number; bott
     && p.y >= r.y - 0.1 && p.y <= r.y + r.h + 0.1;
   return (from, to) => {
     const blocks = cards.filter((r) => !contains(r, from) && !contains(r, to))
-      .map((r) => ({ x: r.x - 16, y: r.y - 16, w: r.w + 32, h: r.h + 32 }));
-    const clear = (a: Point, b: Point) => !blocks.some((r) => a.x === b.x
-      ? a.x > r.x && a.x < r.x + r.w && Math.max(a.y, b.y) > r.y && Math.min(a.y, b.y) < r.y + r.h
-      : a.y > r.y && a.y < r.y + r.h && Math.max(a.x, b.x) > r.x && Math.min(a.x, b.x) < r.x + r.w);
+      .map((r) => inflate(r, CLEARANCE));
+    const clear = (a: Point, b: Point) => !blocks.some((r) => crossesInterior(a, b, r));
     const laneCost = (a: Point, b: Point) => a.x !== b.x || a.y === b.y ? 0 : occupied.reduce((cost, lane) =>
       cost + (Math.abs(lane.x - a.x) < 10 && Math.max(a.y, b.y) > lane.top && Math.min(a.y, b.y) < lane.bottom ? 10000 : 0), 0);
     const crossingCost = (a: Point, b: Point) => runs.reduce((cost, run) => {
@@ -613,7 +587,7 @@ export function cableRouter(cards: Rect[], stems: { x: number; top: number; bott
     }, 0);
     const side = Math.sign(to.x - from.x) || 1;
     const preferred = from.x + side * Math.min(CARD_GAP, Math.abs(to.x - from.x) / 2);
-    const xs = [...new Set([preferred, from.x + side * 16, to.x - side * 16,
+    const xs = [...new Set([preferred, from.x + side * CLEARANCE, to.x - side * CLEARANCE,
       ...Array.from({ length: 9 }, (_, i) => preferred + (i - 4) * 12),
       ...blocks.flatMap((r) => [r.x, r.x + r.w])])];
     let best: Point[] | undefined;
@@ -631,9 +605,9 @@ export function cableRouter(cards: Rect[], stems: { x: number; top: number; bott
       const nearby = runs.filter(({ a, b }) => Math.max(a.x, b.x) >= Math.min(from.x, to.x) - 40
         && Math.min(a.x, b.x) <= Math.max(from.x, to.x) + 40);
       const gridX = [...new Set([from.x, to.x, ...xs,
-        ...nearby.flatMap(({ a, b }) => [Math.min(a.x, b.x) - 16, Math.max(a.x, b.x) + 16])])].sort((a, b) => a - b);
+        ...nearby.flatMap(({ a, b }) => [Math.min(a.x, b.x) - CLEARANCE, Math.max(a.x, b.x) + CLEARANCE])])].sort((a, b) => a - b);
       const gridY = [...new Set([from.y, to.y, ...blocks.flatMap((r) => [r.y, r.y + r.h]),
-        ...nearby.flatMap(({ a, b }) => [Math.min(a.y, b.y) - 16, Math.max(a.y, b.y) + 16])])].sort((a, b) => a - b);
+        ...nearby.flatMap(({ a, b }) => [Math.min(a.y, b.y) - CLEARANCE, Math.max(a.y, b.y) + CLEARANCE])])].sort((a, b) => a - b);
       const key = (x: number, y: number, dir: number) => `${x},${y},${dir}`;
       const start = { x: gridX.indexOf(from.x), y: gridY.indexOf(from.y), dir: 0, cost: 0, path: [from] };
       const queue = [start];
