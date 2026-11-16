@@ -7,7 +7,8 @@ import { cognates, constellationStart, lastRequest, setShowRare, showGlosses, sh
 import { Branch, Common, ENGLISH, Group, LangTree, isProto, isUndefinedRoot, canOpen, previewLines, previewRows, restrictBranches } from "./branches";
 import { selectWords } from "./selection";
 import { blobId, expand, makeHub, type Hub } from "./hubs";
-import { BlobSpec, Layout, Link, Point, Rect, Size, SOURCE_HEIGHT, LANGUAGE_HEADING_SPACE, CARD_WIDTH, NARROW_CARD_WIDTH, STEM_GUTTER, center, enclosing, bounds, breathe, join, layout, rootDirection, stemArrival, cableRouter, sharedWires } from "./layout";
+import { cables, type Cable } from "./cables";
+import { BlobSpec, Layout, Point, Rect, Size, SOURCE_HEIGHT, LANGUAGE_HEADING_SPACE, CARD_WIDTH, NARROW_CARD_WIDTH, center, enclosing, bounds, breathe, layout, rootDirection } from "./layout";
 import { chronological, groupLanguageLanes, languageTimes } from "./chronology";
 import type { LayoutPeriod } from "./chronology";
 import type { Frequencies } from "./representatives";
@@ -381,113 +382,24 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
   const languageLabels = createMemo(() => visibleLanguageAnchors()
     .map((a) => ({ name: a.name, hue: a.hue, x: a.box.x + a.box.w / 2, y: a.box.y - LANGUAGE_HEADING_SPACE })));
 
-  // One string per line, so a line that has not moved keeps its element.
+  // A cable that has not moved keeps its object, so <For> keeps its element
+  // (and a fresh cable's accent is not restarted by unrelated changes).
+  let keptCables = new Map<string, Cable>();
   const links = createMemo(() => {
-    const at = placed();
-    const cards = hubs().flatMap((h) => h.branches.flatMap((b) => {
-      const heads = openedIn(blobId(h, b));
-      return clusteredBranch(b, heads)
-        ? entriesFor(h, b, heads).flatMap((entry) => at.sources.get(entry.id) ?? [])
-        : drawn(h, blobId(h, b)) ?? [];
-    }));
-    const stems = hubs().flatMap((h) => h.branches.flatMap((b) => {
-      const id = blobId(h, b), box = drawn(h, id);
-      const sources = entriesFor(h, b, openedIn(id)).flatMap((entry) => at.sources.get(entry.id) ?? []);
-      if (h.via || !box || sources.length < 2) return [];
-      const side = at.sides.get(id) ?? 1;
-      return [{ x: side > 0 ? box.x - STEM_GUTTER : box.x + box.w + STEM_GUTTER,
-        top: Math.min(...sources.map((s) => s.y + s.h / 2)), bottom: Math.max(...sources.map((s) => s.y + s.h / 2)) }];
-    }));
-    const wire = cableRouter(cards, stems);
-    const out: string[] = [];
-    const push = (hue: string, l: Link, fresh = false) =>
-      out.push(
-        [hue, l.d, fresh ? "new" : ""].join("|")
-      );
-    // Group incoming edges before routing. Shared previews have one gutter
-    // connecting all of their parents, regardless of expansion order.
-    const incoming = new Map<string, { from: Point[]; to: Point; hue: string; fresh: boolean }>();
-    const connect = (id: string, from: Point, to: Point, hue: string, fresh: boolean) => {
-      const group = incoming.get(id);
-      if (group) { group.from.push(from); group.fresh ||= fresh; }
-      else incoming.set(id, { from: [from], to, hue, fresh });
-    };
-    for (const h of hubs()) {
-      const c = at.hubs.get(h.id);
-      if (!c) continue;
-      // From the root's rim to each blob round it; from a head's row to the
-      // near side of each blob in its lane.
-      const side = h.via ? (at.sides.get(h.via) ?? 1) : 0;
-      for (const shared of h.shared) {
-        const box = drawn(shared.host, blobId(shared.host, shared.branch));
-        const sources = entriesFor(shared.host, shared.branch, openedIn(blobId(shared.host, shared.branch)))
-          .flatMap((k) => at.sources.get(k.id) ?? []);
-        if (sources.length) continue; // Expanded entries get their own recorded edges below.
-        if (box && side) connect(blobId(shared.host, shared.branch), c, {
-          x: side > 0 ? box.x : box.x + box.w,
-          y: box.y + box.h / 2,
-        }, h.hue!, recent().has(h.id));
-      }
-      for (const b of h.branches) {
-        const box = drawn(h, blobId(h, b));
-        if (!box) continue;
-        const hue = h.hues.get(b.key)!;
-        const sources = entriesFor(h, b, openedIn(blobId(h, b))).flatMap((k) => at.sources.get(k.id) ?? []);
-        const outward = at.sides.get(blobId(h, b)) ?? (side || (box.x + box.w / 2 >= c.x ? 1 : -1));
-        if (!side && sources.length === 1) {
-          // A single root card needs one direct connection, not a shared
-          // stem approached above the card and then doubled back down.
-          const source = sources[0];
-          push(hue, join(c, ROOT_R, { x: outward > 0 ? source.x : source.x + source.w,
-            y: source.y + source.h / 2, w: 0, h: 0 },
-            [...at.seats].filter(([id]) => id !== blobId(h, b)).map(([, seat]) => seat),
-            rootDirection(h.branches.indexOf(b), h.branches.length)));
-          continue;
-        }
-        if (side && sources.length) {
-          for (const entry of entriesFor(h, b, openedIn(blobId(h, b)))) {
-            const target = at.sources.get(entry.id);
-            if (!target) continue;
-            const parentIds = new Set<string>();
-            const groups = entry.head ? b.groups.filter((g) => g.head.item.id === entry.head!.node.item.id)
-              : remainingRows(h, b, openedIn(blobId(h, b))).flatMap((i) => previewsOf(h, b)[i].groups);
-            for (const g of groups) for (const parent of b.parents?.get(g.head.item.id) ?? [h.id]) parentIds.add(parent);
-            for (const parent of parentIds) {
-              const from = at.hubs.get(parent);
-              if (from) connect(entry.id, from, { x: outward > 0 ? target.x : target.x + target.w, y: target.y + target.h / 2 }, hue, recent().has(parent));
-            }
-          }
-          continue;
-        }
-        const spineX = outward > 0 ? box.x - STEM_GUTTER : box.x + box.w + STEM_GUTTER;
-        const ys = sources.map((s) => s.y + s.h / 2);
-        // A head's opened sources were connected above, so any sources here
-        // belong to the root.
-        const arrival = sources.length ? { ...stemArrival(c, spineX, sources), w: 0, h: 0 } : box;
-        if (side) connect(blobId(h, b), c, { x: side > 0 ? arrival.x : arrival.x + arrival.w, y: arrival.y + arrival.h / 2 }, hue, recent().has(h.id));
-        else push(hue, join(c, ROOT_R, arrival,
-          [...at.seats].filter(([id]) => id !== blobId(h, b)).map(([, seat]) => seat),
-          rootDirection(h.branches.indexOf(b), h.branches.length), sources.length > 0
-        ));
-        if (sources.length) {
-          const top = Math.min(...ys, arrival.y), bottom = Math.max(...ys, arrival.y);
-          // A zero-length SVG stroke with round caps renders as a dot.
-          if (top !== bottom) push(hue, { d: `M ${spineX} ${top} L ${spineX} ${bottom}`,
-            end: { x: spineX, y: arrival.y + arrival.h / 2 } });
-          for (const source of sources) {
-            const y = source.y + source.h / 2;
-            const fresh = hubs().some((k) => recent().has(k.id) && at.sources.get(k.id) === source);
-            push(hue, wire({ x: spineX, y }, { x: outward > 0 ? source.x : source.x + source.w, y }), fresh);
-          }
-        }
-      }
-    }
-    let sharedLane = 0;
-    for (const group of incoming.values()) {
-      const paths = group.from.length > 1 ? sharedWires(group.from, group.to, cards, sharedLane++) : [wire(group.from[0], group.to)];
-      for (const path of paths) push(group.hue, path, group.fresh);
-    }
-    return out;
+    const kept = new Map<string, Cable>();
+    const list = cables({
+      hubs: hubs(), at: placed(), rootRadius: ROOT_R, recent: recent(), drawn,
+      entries: (h, b) => entriesFor(h, b, openedIn(blobId(h, b))),
+      clustered: (h, b) => clusteredBranch(b, openedIn(blobId(h, b))),
+      remainingGroups: (h, b) => remainingRows(h, b, openedIn(blobId(h, b))).flatMap((i) => previewsOf(h, b)[i].groups),
+    }).map((cable) => {
+      const key = `${cable.hue} ${cable.fresh} ${cable.d}`;
+      const same = keptCables.get(key) ?? cable;
+      kept.set(key, same);
+      return same;
+    });
+    keptCables = kept;
+    return list;
   });
 
   // The view: where the canvas origin sits in the stage, and the zoom.
@@ -1230,15 +1142,12 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
         <div class="cst-world" style={{ zoom: view().k }}>
           <svg class="cst-links" aria-hidden="true">
             <For each={links()}>
-              {(l) => {
-                const [hue, d, fresh] = l.split("|");
-                return (
-                  <g classList={{ fresh: !!fresh }} style={{ "--c": hue }}>
-                    <path class="glow" d={d} />
-                    <path d={d} />
-                  </g>
-                );
-              }}
+              {(cable) => (
+                <g classList={{ fresh: cable.fresh }} style={{ "--c": cable.hue }}>
+                  <path class="glow" d={cable.d} />
+                  <path d={cable.d} />
+                </g>
+              )}
             </For>
           </svg>
           <For each={languageLabels()}>
