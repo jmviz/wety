@@ -99,6 +99,13 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
   const [hubs, setHubs] = createSignal<Hub[]>([rootHub]);
   const [current, setCurrent] = createSignal<Hub>(rootHub);
   const hubBranches = createMemo(() => new Map(hubs().map((h) => [h, h.branches])));
+  // The heads opened in each blob, in the order they were opened.
+  const openedByBlob = createMemo(() => {
+    const byBlob = new Map<string, Hub[]>();
+    for (const h of hubs()) if (h.via) byBlob.set(h.via, [...(byBlob.get(h.via) ?? []), h]);
+    return byBlob;
+  });
+  const openedIn = (blob: string): Hub[] => openedByBlob().get(blob) ?? [];
   let revealSequence = 0;
   const [recent, setRecent] = createSignal(new Set<string>());
   let recentTimer: number | undefined;
@@ -133,8 +140,8 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
   const singleWords = (b: Branch, words: TreeNode[]) => words.length > 1 && words.every((w) =>
     previewLines(b, target, branchesFor, common, scores, false).some((line) => line.length === 1 && line[0].item.term === w.item.term));
   const unopenedWords = (hub: Hub, b: Branch, words: TreeNode[], groups = b.groups) => words.filter((word) =>
-    groups.some((g) => g.words.some((w) => w.item.term === word.item.term) && !hubs().some((h) =>
-      h.via === blobId(hub, b) && h.node.item.id === g.head.item.id && (!h.scope || h.scope.words.has(word.item.term)))));
+    groups.some((g) => g.words.some((w) => w.item.term === word.item.term) && !openedIn(blobId(hub, b)).some((h) =>
+      h.node.item.id === g.head.item.id && (!h.scope || h.scope.words.has(word.item.term)))));
   const rowKey = (hub: Hub, b: Branch, index: number) => {
     const row = previewsOf(hub, b)[index];
     return `${blobId(hub, b)}:row:${row.groups.map((g) => g.head.item.id).join(",")}:${row.words.map((w) => w.item.term).join(",")}`;
@@ -251,10 +258,9 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
   // A crowded family compresses all of its individual source cards,
   // including short side branches, while preserving the preview boxes.
   const chainIds = createMemo(() => {
-    const all = hubs();
     const densityNode = (h: Hub, b: Branch): DensityNode => {
       const id = blobId(h, b);
-      const open = all.filter((k) => k.via === id);
+      const open = openedIn(id);
       const source = b.groups.length === 1 && open.length === 1 && !isUndefinedRoot(open[0].node)
         && remainingRows(h, b, open).length === 0;
       const endpoint = b.groups.every((g) => g.own) && b.words.length === 1;
@@ -273,7 +279,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     const blobsOf = (h: Hub, compactLanes = false, outwardY: 1 | -1 = 1): BlobSpec[] =>
       h.branches.map((b) => {
         const id = blobId(h, b);
-        const heads = all.filter((k) => k.via === id);
+        const heads = openedIn(id);
         const clustered = clusteredBranch(b, heads);
         const terminal = h.single || b.groups.every((g) => g.own);
         const stage = terminal ? target.code : b.key;
@@ -337,7 +343,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     const seat = placed().blobs.get(id);
     const now = sizes().get(id)?.now;
     const c = placed().hubs.get(hub.id);
-    if (hubs().some((h) => h.via === id && placed().sources.has(h.id))) return seat;
+    if (openedIn(id).some((h) => placed().sources.has(h.id))) return seat;
     if (!seat || !now || !c || now.h >= seat.h) return seat;
     const below = c.y > seat.y + seat.h / 2;
     return { x: seat.x, y: below ? seat.y + seat.h - now.h : seat.y, w: seat.w, h: now.h };
@@ -349,7 +355,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     const groups = new Map<string, { name: string; hue: string; anchors: LanguageAnchor[] }>();
     for (const h of hubs()) for (const b of h.branches) {
       const id = blobId(h, b);
-      const open = hubs().filter((k) => k.via === id);
+      const open = openedIn(id);
       const box = drawn(h, id);
       if (!box) continue;
       const key = b.key;
@@ -379,14 +385,14 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
   const links = createMemo(() => {
     const at = placed();
     const cards = hubs().flatMap((h) => h.branches.flatMap((b) => {
-      const heads = hubs().filter((k) => k.via === blobId(h, b));
+      const heads = openedIn(blobId(h, b));
       return clusteredBranch(b, heads)
         ? entriesFor(h, b, heads).flatMap((entry) => at.sources.get(entry.id) ?? [])
         : drawn(h, blobId(h, b)) ?? [];
     }));
     const stems = hubs().flatMap((h) => h.branches.flatMap((b) => {
       const id = blobId(h, b), box = drawn(h, id);
-      const sources = entriesFor(h, b, hubs().filter((k) => k.via === id)).flatMap((entry) => at.sources.get(entry.id) ?? []);
+      const sources = entriesFor(h, b, openedIn(id)).flatMap((entry) => at.sources.get(entry.id) ?? []);
       if (h.via || !box || sources.length < 2) return [];
       const side = at.sides.get(id) ?? 1;
       return [{ x: side > 0 ? box.x - STEM_GUTTER : box.x + box.w + STEM_GUTTER,
@@ -414,7 +420,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
       const side = h.via ? (at.sides.get(h.via) ?? 1) : 0;
       for (const shared of h.shared) {
         const box = drawn(shared.host, blobId(shared.host, shared.branch));
-        const sources = entriesFor(shared.host, shared.branch, hubs().filter((k) => k.via === blobId(shared.host, shared.branch)))
+        const sources = entriesFor(shared.host, shared.branch, openedIn(blobId(shared.host, shared.branch)))
           .flatMap((k) => at.sources.get(k.id) ?? []);
         if (sources.length) continue; // Expanded entries get their own recorded edges below.
         if (box && side) connect(blobId(shared.host, shared.branch), c, {
@@ -426,7 +432,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
         const box = drawn(h, blobId(h, b));
         if (!box) continue;
         const hue = h.hues.get(b.key)!;
-        const sources = entriesFor(h, b, hubs().filter((k) => k.via === blobId(h, b))).flatMap((k) => at.sources.get(k.id) ?? []);
+        const sources = entriesFor(h, b, openedIn(blobId(h, b))).flatMap((k) => at.sources.get(k.id) ?? []);
         const outward = at.sides.get(blobId(h, b)) ?? (side || (box.x + box.w / 2 >= c.x ? 1 : -1));
         if (!side && sources.length === 1) {
           // A single root card needs one direct connection, not a shared
@@ -439,12 +445,12 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
           continue;
         }
         if (side && sources.length) {
-          for (const entry of entriesFor(h, b, hubs().filter((k) => k.via === blobId(h, b)))) {
+          for (const entry of entriesFor(h, b, openedIn(blobId(h, b)))) {
             const target = at.sources.get(entry.id);
             if (!target) continue;
             const parentIds = new Set<string>();
             const groups = entry.head ? b.groups.filter((g) => g.head.item.id === entry.head!.node.item.id)
-              : remainingRows(h, b, hubs().filter((k) => k.via === blobId(h, b))).flatMap((i) => previewsOf(h, b)[i].groups);
+              : remainingRows(h, b, openedIn(blobId(h, b))).flatMap((i) => previewsOf(h, b)[i].groups);
             for (const g of groups) for (const parent of b.parents?.get(g.head.item.id) ?? [h.id]) parentIds.add(parent);
             for (const parent of parentIds) {
               const from = at.hubs.get(parent);
@@ -514,7 +520,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
   };
   const visibleRects = (h: Hub, b: Branch): Rect[] => {
     const id = blobId(h, b);
-    const sources = entriesFor(h, b, hubs().filter((k) => k.via === id)).flatMap((e) => placed().sources.get(e.id) ?? []);
+    const sources = entriesFor(h, b, openedIn(id)).flatMap((e) => placed().sources.get(e.id) ?? []);
     const box = drawn(h, id);
     return sources.length ? sources : box ? [box] : [];
   };
@@ -523,9 +529,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     const box = drawn(hub, id);
     return [
       ...(box ? [box] : []),
-      ...hubs()
-        .filter((k) => k.via === id)
-        .flatMap((k) => k.branches.flatMap((b) => rackRects(k, blobId(k, b)))),
+      ...openedIn(id).flatMap((k) => k.branches.flatMap((b) => rackRects(k, blobId(k, b)))),
     ];
   };
   // Centre on a hub with what comes off it: the root's disc and its blobs,
@@ -938,7 +942,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
   const PreviewBox = (p: { hub: Hub; branch: Branch; floating?: boolean }) => {
     let el!: HTMLDivElement;
     const id = previewBoxId(p.hub, p.branch);
-    const remaining = () => remainingRows(p.hub, p.branch, hubs().filter((h) => h.via === blobId(p.hub, p.branch)));
+    const remaining = () => remainingRows(p.hub, p.branch, openedIn(blobId(p.hub, p.branch)));
     onMount(() => observer.observe(el));
     onCleanup(() => observer.unobserve(el));
     return (
@@ -978,7 +982,7 @@ function Stage(props: { forest: Forest; langs: LangTree; common: Common | null; 
     // around the untouched rows. Other branches open their heads together.
     const roots = p.branch.groups;
     // The heads opened here, in the order of their rows.
-    const rows = () => newestFirst(hubs().filter((h) => h.via === id));
+    const rows = () => newestFirst(openedIn(id));
     const openable = roots.filter((g) => canOpen(g, target));
     const lines = () => previewLines(p.branch, target, branchesFor, common, scores);
     // One named word needs one row, even when more language stages follow.
